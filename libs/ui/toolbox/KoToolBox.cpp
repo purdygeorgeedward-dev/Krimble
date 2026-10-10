@@ -194,12 +194,26 @@ void KoToolBox::addButton(KoToolAction *toolAction)
         sectionToBeAddedTo = section;
     }
 
-    Section *sectionWidget = d->sections.value(sectionToBeAddedTo);
+    // Krimble 2026-10-10: George wants one continuous block of tools, no groups. Every tool goes into the one "main"
+    // section. The old order is kept: the old group (main, dynamic, then by its leading digit) is folded into the priority.
+    int groupRank = 12;
+    if (sectionToBeAddedTo == QLatin1String("main")) {
+        groupRank = 0;
+    } else if (sectionToBeAddedTo == QLatin1String("dynamic")) {
+        groupRank = 1;
+    } else if (!sectionToBeAddedTo.isEmpty() && sectionToBeAddedTo.at(0).isDigit()) {
+        groupRank = 2 + sectionToBeAddedTo.at(0).digitValue();
+    }
+    // (old: the tool went into its own section)
+    // Section *sectionWidget = d->sections.value(sectionToBeAddedTo);
+    // if (sectionWidget == 0) { sectionWidget = new Section(this); d->addSection(sectionWidget, sectionToBeAddedTo); }
+    // sectionWidget->addButton(button, toolAction->toolBoxPriority());
+    Section *sectionWidget = d->sections.value(QStringLiteral("main"));
     if (sectionWidget == 0) {
         sectionWidget = new Section(this);
-        d->addSection(sectionWidget, sectionToBeAddedTo);
+        d->addSection(sectionWidget, QStringLiteral("main"));
     }
-    sectionWidget->addButton(button, toolAction->toolBoxPriority());
+    sectionWidget->addButton(button, groupRank * 1000000 + toolAction->toolBoxPriority());
 
     d->buttonGroup->addButton(button);
     d->buttonsByToolId.insert(toolAction->id(), button);

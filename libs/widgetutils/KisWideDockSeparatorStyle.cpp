@@ -31,8 +31,13 @@ void KisWideDockSeparatorStyle::drawPrimitive(PrimitiveElement element, const QS
 {
 #ifdef Q_OS_ANDROID
     if (element == QStyle::PE_IndicatorDockWidgetResizeHandle) {
-        // Krimble 2026-10-10 (2nd): the wide strip is only a touch target. Draw three small dots in its middle (the grip), and no
-        // line or band, so it does not look like a thick border around the toolbox and panels.
+        // Krimble 2026-10-10 (3rd): George wants no graphics on the dock strips at all. They are 20 px wide so a finger can
+        // grab them, and they draw nothing: invisible but working.
+        return;
+
+#if 0
+        // The versions below are kept, not deleted. They are not reached.
+        // (2nd) three small dots:
         painter->save();
         painter->setRenderHint(QPainter::Antialiasing, true);
         painter->setPen(Qt::NoPen);
@@ -45,28 +50,6 @@ void KisWideDockSeparatorStyle::drawPrimitive(PrimitiveElement element, const QS
         for (int i = -1; i <= 1; ++i) {
             const QPointF p = tall ? QPointF(c.x(), c.y() + i * 14) : QPointF(c.x() + i * 14, c.y());
             painter->drawEllipse(p, 3.0, 3.0);
-        }
-        painter->restore();
-        return;
-
-        // Krimble 2026-10-10 (2nd): the black-line-and-highlight version (18th entry), drawn on the dock strips by mistake.
-        // Kept, not deleted. It is not reached.
-#if 0
-        painter->save();
-        painter->setPen(Qt::NoPen);
-        const QRect r = option->rect;
-        const bool tall = r.height() >= r.width();
-        const int lineWidth = 2;
-        const QColor blackLine(0, 0, 0);
-        const QColor highlightLine(255, 255, 255, 110);
-        if (tall) {
-            const int x = r.center().x() - lineWidth;
-            painter->fillRect(QRect(x, r.top(), lineWidth, r.height()), blackLine);
-            painter->fillRect(QRect(x + lineWidth, r.top(), lineWidth, r.height()), highlightLine);
-        } else {
-            const int y = r.center().y() - lineWidth;
-            painter->fillRect(QRect(r.left(), y, r.width(), lineWidth), blackLine);
-            painter->fillRect(QRect(r.left(), y + lineWidth, r.width(), lineWidth), highlightLine);
         }
         painter->restore();
 #endif
@@ -86,8 +69,12 @@ void KisWideDockSeparatorStyle::drawControl(ControlElement element, const QStyle
                 const int y = r.center().y();
                 painter->save();
                 painter->setPen(Qt::NoPen);
-                painter->fillRect(QRect(r.left() + 6, y - 1, r.width() - 12, 2), QColor(0, 0, 0));
-                painter->fillRect(QRect(r.left() + 6, y + 1, r.width() - 12, 2), QColor(255, 255, 255, 110));
+                // Krimble 2026-10-10 (2nd): each line is exactly one device pixel thick (the 2 logical pixel lines were about 5).
+                const qreal px = 1.0 / painter->device()->devicePixelRatioF();
+                // painter->fillRect(QRect(r.left() + 6, y - 1, r.width() - 12, 2), QColor(0, 0, 0));
+                // painter->fillRect(QRect(r.left() + 6, y + 1, r.width() - 12, 2), QColor(255, 255, 255, 110));
+                painter->fillRect(QRectF(r.left() + 6, y - px, r.width() - 12, px), QColor(0, 0, 0));
+                painter->fillRect(QRectF(r.left() + 6, y, r.width() - 12, px), QColor(255, 255, 255, 110));
                 painter->restore();
                 return;
             }
@@ -111,7 +98,8 @@ QSize KisWideDockSeparatorStyle::sizeFromContents(ContentsType type, const QStyl
         if (const QStyleOptionMenuItem *menuItem = qstyleoption_cast<const QStyleOptionMenuItem *>(option)) {
             if (menuItem->menuItemType == QStyleOptionMenuItem::Separator && menuItem->text.isEmpty()) {
                 QSize s = QProxyStyle::sizeFromContents(type, option, size, widget);
-                s.setHeight(qMax(s.height(), 8));
+                // s.setHeight(qMax(s.height(), 8));
+                s.setHeight(qMax(s.height(), 6));   // Krimble 2026-10-10 (2nd): slot 6 (was 8) for the 1 pixel lines
                 return s;
             }
             // Krimble 2026-10-10: no keyboard on a touch screen, so no shortcut text and no column reserved for it.

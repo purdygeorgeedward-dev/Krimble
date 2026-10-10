@@ -255,7 +255,8 @@ void ToolBarHandler::setupActions()
     // We have no XML file associated with our action collection, so load settings from KConfig
     actionCollection()->readSettings(); // #233712
 
-    plugActionList(QLatin1String(actionListName), d->actions);
+    // Krimble 2026-10-10: not plugged into the View menu any more; the Toolbars submenu is in the Window menu.
+    // plugActionList(QLatin1String(actionListName), d->actions);
 
     d->connectToActionContainers();
 }

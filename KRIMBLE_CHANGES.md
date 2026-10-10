@@ -3211,3 +3211,22 @@ The toolbox went from 1 column in portrait to 7 in landscape on rotation: a late
 - The width is only snapped and saved after a resize made with a finger or mouse down (a drag), or from the Columns menu. `snapToColumns` also does nothing during a rotation or while the code is setting the width itself.
 - The default is now 2 columns (was 1). Old lines commented out.
 **Not verified:** a build or a device.
+
+## 2026-10-10 (23rd) — No graphics on dock strips; 1-pixel menu dividers; Toolbars out of View; Interface Scale... back in View
+
+**Files:** `libs/widgetutils/KisWideDockSeparatorStyle.cpp`, `libs/widgetutils/xmlgui/ktoolbarhandler.cpp`, `krita/kritamenu_android.action`, `krita/krita5.xmlgui`, `libs/ui/KisMainWindow.cpp`
+
+QA of build aea9f3c.
+- Dock strips draw nothing (the dots were ugly); width unchanged (20), so they are invisible but grabbable. The dots code is kept under `#if 0`.
+- Menu dividers: one device pixel black line and one device pixel highlight line (the 2-logical-pixel lines were about 5 device pixels). Divider slot 6 (was 8).
+- "Toolbars Shown" kept appearing in View because KDE's toolbar handler plugs it there; the plug call is commented out. The Window menu's Toolbars submenu is unchanged.
+- Interface Scale: renamed "Interface Scale..." (was "Change Interface Scale...", the dots because it opens a dialog), moved back to View between Zoom and Screen Mode, removed from Window.
+- George's rule: when an item moves between menus it is moved, not commented out. The leftover commented-out copies in `krita5.xmlgui` of the items moved to Window (Themes and Styles, Language, toolbar and panel items) were deleted.
+**Not verified:** a build or a device.
+
+## 2026-10-10 (24th) — Toolbox: one continuous block of tools, no groups
+
+**Files:** `libs/ui/toolbox/KoToolBox.cpp`
+
+George did not like the grouping in the toolbox (separator lines and a new row for each group). Every tool now goes into the one "main" section. The old order is kept by adding the old group (main, dynamic, then by its leading digit) to the tool's priority. Old lines commented out.
+**Not verified:** a build or a device.

@@ -1087,6 +1087,11 @@ xsi:schemaLocation="http://www.kde.org/standards/kxmlgui/1.0  http://www.kde.org
             <text>Print Size</text>
         </Action>
     </Menu>
+    <Action name="change_interface_scale">
+        <text>Interface Scale...</text>
+        <toolTip>Interface Scale</toolTip>
+        <iconText>Interface Scale</iconText>
+    </Action>
     
                      <Separator/>
                      
@@ -1287,63 +1292,13 @@ xsi:schemaLocation="http://www.kde.org/standards/kxmlgui/1.0  http://www.kde.org
 
                      <Separator/>
 
-    <!-- Krimble 2026-10-10: Interface Scale moved to the Window menu (KisMainWindow::updateWindowMenu).
-    <Action name="change_interface_scale">
-        <text>Interface Scale...</text>
-        <toolTip>Interface Scale</toolTip>
-        <iconText>Interface Scale</iconText>
-    </Action>
-    -->
     
                      <Separator/>
                      
-    <!-- Krimble 2026-10-10: Themes and Styles moved to the Window menu (KisMainWindow::updateWindowMenu).
-    <Action name="theme_menu">
-        <text>&amp;Themes</text>
-    </Action>
     
-    <Action name="style_menu">
-        <text>&amp;Styles</text>
-    </Action>
-    -->
-    
-    <!-- Krimble 2026-10-10: Language moved to the Window menu (KisMainWindow::updateWindowMenu).
-    <Action name="switch_application_language">
-        <text>Language...</text>
-        <toolTip>Switch Application Language</toolTip>
-        <iconText>Language</iconText>
-    </Action>
-    -->
     
                      <Separator/>
                      
-    <!-- Krimble 2026-10-10: the toolbar and panel items moved to the Window menu (KisMainWindow::updateWindowMenu).
-    <Merge name="StandardToolBarMenuHandler"/>
-    <Action name="lock_toolbars">
-        <text>Lock Toolbars</text>
-    </Action>
-    
-                     <Separator/>
-                     
-    <Action name="view_toggledockers">
-        <text>Toggle &amp;Panels</text>
-        <toolTip>Show or Hide Panels</toolTip>
-        <iconText>Panels</iconText>
-    </Action>
-    
-    
-    <Action name="settings_detach_panel_menu">
-        <text>Detach Panel</text>
-    </Action>
-    
-    <Action name="settings_attach_panel_menu">
-        <text>Attach Panel</text>
-    </Action>
-    
-    <Action name="settings_toggle_right_panels">
-        <text>Hide Right Panels</text>
-    </Action>
-    -->
 
 </Menu>
 

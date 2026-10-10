@@ -46,10 +46,11 @@
     <text>Interface</text>
     <Action name="change_interface_scale">
       <icon></icon>
-      <text>Change Interface Scale...</text>
+      <!-- Krimble 2026-10-10: was "Change Interface Scale..." -->
+      <text>Interface Scale...</text>
       <whatsThis></whatsThis>
-      <toolTip>Change Interface Scale</toolTip>
-      <iconText>Change Interface Scale</iconText>
+      <toolTip>Interface Scale</toolTip>
+      <iconText>Interface Scale</iconText>
       <activationFlags>0</activationFlags>
       <activationConditions>0</activationConditions>
       <shortcut></shortcut>

@@ -3937,8 +3937,6 @@ void KisMainWindow::updateWindowMenu()
             }
         };
         menu->addSeparator();
-        addActionByName("change_interface_scale");
-        menu->addSeparator();
         addActionByName("theme_menu");
         addActionByName("style_menu");
         addActionByName("switch_application_language");
