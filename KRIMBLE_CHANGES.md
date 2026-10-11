@@ -3371,3 +3371,10 @@ QA of build 32: the toolbox was easy to strand off screen and was larger than it
 
 QA of build 32: a toolbar (Back to Basics) was stuck vertical and could not be moved or resized. Window > Toolbars now ends with "Reset Toolbars": every toolbar is un-floated, put back in the top area, made horizontal and shown, as `krita5.xmlgui` defines them (all five are `position="top"`).
 **Not verified:** a build or a device.
+
+## 2026-10-11 (42nd) — Menu bar entry let go after a rotation
+
+**Files:** `libs/ui/KisMainWindow.cpp`
+
+QA: after a rotation the Window menu was "stuck" (George is not sure whether the open menu or the pressed button). The 37th entry closes open menus when the main window changes size; this adds letting go of the menu bar entry too (`QMenuBar::setActiveAction(nullptr)`), so a pressed "Window" button cannot stay highlighted.
+**Not verified:** a build or a device.

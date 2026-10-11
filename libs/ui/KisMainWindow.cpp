@@ -722,6 +722,10 @@ public:
             while (QWidget *popup = QApplication::activePopupWidget()) {
                 popup->close();
             }
+            // Krimble 2026-10-11 (2nd): also let go of the menu bar entry (the "Window" button stayed pressed after a rotation).
+            if (QMenuBar *bar = m_win->findChild<QMenuBar*>()) {
+                bar->setActiveAction(nullptr);
+            }
         }
         return false;
     }
