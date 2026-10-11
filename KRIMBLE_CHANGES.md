@@ -3297,3 +3297,10 @@ George wanted a quick switch between tabbed and floating image windows that is n
 - On Android the default for `mdi_rubberband` is now 0 (the picture is shown while dragging); it was "outline only" because it followed OpenGL. Changed in both places `KisMainWindow.cpp` reads it and in the Preferences checkbox. Old lines commented out.
 - Tabs stay the default view mode (window mode was tried as the default on 2026-10-04 and went back, "a little wonky").
 **Not verified:** a build or a device.
+
+## 2026-10-11 (34th) — Floating windows are the default view mode again
+
+**Files:** `libs/ui/KisMainWindow.cpp`, `libs/ui/dialogs/kis_dlg_preferences.cc`
+
+George wants floating image windows as the default again "just so people know it's there"; the Window menu's first item (33rd entry) switches to tabs and back in one tap. The default for `mdi_viewmode` is now floating windows (`SubWindowView`) in `configChanged()`, in the Window menu switch and in the Preferences combo box. A stored setting is not touched: anyone who already chose tabs keeps tabs. Window mode was made the default on 2026-10-04 and reverted the same day ("a little wonky"); this is a second try. Old lines commented out.
+**Not verified:** a build or a device.
