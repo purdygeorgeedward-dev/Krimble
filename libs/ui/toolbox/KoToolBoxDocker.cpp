@@ -465,19 +465,61 @@ int KoToolBoxDocker::chromeWidth() const
     return qMax(0, width() - m_scrollArea->viewport()->width());
 }
 
+// void KoToolBoxDocker::applyColumns()   (the first version, kept, not deleted: it only worked docked at the left or right)
+// {
+//     QMainWindow *mainWindow = qobject_cast<QMainWindow*>(parentWidget());
+//     if (!mainWindow || isFloating() || !isVisible()) return;
+//     const Qt::DockWidgetArea area = mainWindow->dockWidgetArea(this);
+//     if (area != Qt::LeftDockWidgetArea && area != Qt::RightDockWidgetArea) return;
+//
+//     const int target = m_columns * iconWidth() + chromeWidth();
+//     if (qAbs(width() - target) < 2) return;
+//
+//     m_applying = true;
+//     mainWindow->resizeDocks({this}, {target}, Qt::Horizontal);
+//     QTimer::singleShot(400, this, [this]() { m_applying = false; });
+// }
+
+// Krimble 2026-10-11: the Columns choice always works (George): docked left or right, floating, and docked at the top or
+// bottom. When the tools are laid out in a column (the usual way) the number is the number of columns, and it sets the
+// width. When they are laid out in a row, the number is the number of rows, and it sets the height.
 void KoToolBoxDocker::applyColumns()
 {
     QMainWindow *mainWindow = qobject_cast<QMainWindow*>(parentWidget());
-    if (!mainWindow || isFloating() || !isVisible()) return;
-    const Qt::DockWidgetArea area = mainWindow->dockWidgetArea(this);
-    if (area != Qt::LeftDockWidgetArea && area != Qt::RightDockWidgetArea) return;
+    if (!mainWindow || !isVisible() || !m_toolBox || !m_toolBox->layout()) return;
+    const bool columns = m_toolBox->layout()->hasHeightForWidth();   // true: vertical layout (columns); false: rows
 
-    const int target = m_columns * iconWidth() + chromeWidth();
-    if (qAbs(width() - target) < 2) return;
-
-    m_applying = true;
-    mainWindow->resizeDocks({this}, {target}, Qt::Horizontal);
-    QTimer::singleShot(400, this, [this]() { m_applying = false; });
+    if (columns) {
+        const int target = m_columns * iconWidth() + chromeWidth();
+        if (qAbs(width() - target) < 2) return;
+        if (isFloating()) {
+            m_applying = true;
+            resize(target, height());
+            QTimer::singleShot(400, this, [this]() { m_applying = false; });
+        } else {
+            const Qt::DockWidgetArea area = mainWindow->dockWidgetArea(this);
+            if (area != Qt::LeftDockWidgetArea && area != Qt::RightDockWidgetArea) return;
+            m_applying = true;
+            mainWindow->resizeDocks({this}, {target}, Qt::Horizontal);
+            QTimer::singleShot(400, this, [this]() { m_applying = false; });
+        }
+    } else {
+        const int rowHeight = qMax(1, m_toolBox->minimumSizeHint().height());
+        const int chromeHeight = qMax(0, height() - m_scrollArea->viewport()->height());
+        const int target = m_columns * rowHeight + chromeHeight;
+        if (qAbs(height() - target) < 2) return;
+        if (isFloating()) {
+            m_applying = true;
+            resize(width(), target);
+            QTimer::singleShot(400, this, [this]() { m_applying = false; });
+        } else {
+            const Qt::DockWidgetArea area = mainWindow->dockWidgetArea(this);
+            if (area != Qt::TopDockWidgetArea && area != Qt::BottomDockWidgetArea) return;
+            m_applying = true;
+            mainWindow->resizeDocks({this}, {target}, Qt::Vertical);
+            QTimer::singleShot(400, this, [this]() { m_applying = false; });
+        }
+    }
 }
 
 void KoToolBoxDocker::snapToColumns()

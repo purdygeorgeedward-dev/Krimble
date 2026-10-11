@@ -3335,3 +3335,13 @@ The empty bar at the top of the toolbox (its title bar, used to drag it) did not
 - The close button of a floating image window was not an X. On Android the title bar buttons (close, minimize, maximize, restore) are drawn by the app's style (`standardIcon`): an X, a line, a square, two squares, in the text color. This also covers the buttons that appear at the right end of the menu bar for a maximized image.
 - The toolbox panel is called "Toolbox" again (it was "Tools" since 2026-10-02). Old line commented out.
 **Not verified:** a build or a device.
+
+## 2026-10-11 (38th) — Toolbox: the Columns choice always works
+
+**Files:** `libs/ui/toolbox/KoToolBoxDocker.cpp`
+
+QA of build 32: the Columns choice (7th entry) did nothing. `applyColumns()` returned at its first line unless the toolbox was docked at the left or right; George's toolbox was floating.
+- Tools laid out in a column (the usual way): the number is the number of columns and sets the width, for a floating toolbox and for one docked at the left or right.
+- Tools laid out in a row (a wide toolbox, or docked at the top or bottom): the number is the number of rows and sets the height.
+- The first version of the function is kept in comments.
+**Not verified:** a build or a device.
