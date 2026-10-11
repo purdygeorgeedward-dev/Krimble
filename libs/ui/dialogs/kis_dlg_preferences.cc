@@ -387,7 +387,13 @@ GeneralTab::GeneralTab(QWidget *_parent, const char *_name)
     KoColor mdiColor = KoColor::fromXML(xml);
     m_mdiColor->setColor(mdiColor);
 
+    // m_chkRubberBand->setChecked(cfg.readEntry<int>("mdi_rubberband", cfg.useOpenGL()));
+    // Krimble 2026-10-11: on Android the picture is shown while a floating window is dragged (the default is "no outline only").
+#ifdef Q_OS_ANDROID
+    m_chkRubberBand->setChecked(cfg.readEntry<int>("mdi_rubberband", 0));
+#else
     m_chkRubberBand->setChecked(cfg.readEntry<int>("mdi_rubberband", cfg.useOpenGL()));
+#endif
 
     m_chkCanvasMessages->setChecked(cfg.showCanvasMessages());
 

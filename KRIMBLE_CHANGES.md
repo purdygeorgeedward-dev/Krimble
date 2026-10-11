@@ -3286,3 +3286,14 @@ QA: when the toolbox was wider, the color wells sat far below the last tool. The
 
 QA: in portrait the toolbox fell back to one column and would not widen. A width change with no finger down (a workspace or layout restore, a rotation) now starts the restore timer, which puts the saved column count back. Only a drag with a finger or the Columns menu can change the saved count (22nd entry). If the screen has no room for the saved count the width stays as the layout allows.
 **Not verified:** a build or a device.
+
+## 2026-10-11 (33rd) — Window menu: Tabs/Windows switch and "Show Contents While Dragging" at the top
+
+**Files:** `libs/ui/KisMainWindow.cpp`, `libs/ui/dialogs/kis_dlg_preferences.cc`
+
+George wanted a quick switch between tabbed and floating image windows that is not buried in Preferences, and a toggle for showing the picture while a floating window is dragged.
+- First item of the Window menu: "Switch to Windows" (while in tabs) or "Switch to Tabs" (while in windows). It writes the same `mdi_viewmode` setting as Preferences and applies at once. Switching to windows cascades the pictures, so they do not stay maximized. Tile and Cascade already appear in the Window menu in window mode.
+- Second item: "Show Contents While Dragging" (checkable). It writes `mdi_rubberband` (checked = 0 = the picture is shown while dragging).
+- On Android the default for `mdi_rubberband` is now 0 (the picture is shown while dragging); it was "outline only" because it followed OpenGL. Changed in both places `KisMainWindow.cpp` reads it and in the Preferences checkbox. Old lines commented out.
+- Tabs stay the default view mode (window mode was tried as the default on 2026-10-04 and went back, "a little wonky").
+**Not verified:** a build or a device.

@@ -378,6 +378,18 @@ static void krimbleAttachDockWhereItIs(QMainWindow *win, QDockWidget *dock)
 // it does not depend on Qt's own bar. The same thing is in Settings > "Hide Right Panels".
 // (The first version, commit eeb51e1, watched taps on Qt's own bar instead; replaced.)
 
+// Krimble 2026-10-11: the default for "show only an outline while a floating image window is dragged" (mdi_rubberband).
+// On Android the picture is shown while dragging (George); elsewhere it follows OpenGL as before.
+static int krimbleRubberBandDefault(KisConfig &cfg)
+{
+#ifdef Q_OS_ANDROID
+    Q_UNUSED(cfg);
+    return 0;
+#else
+    return cfg.useOpenGL();
+#endif
+}
+
 static QList<QDockWidget*> krimbleRightDocks(QMainWindow *win, bool visibleOnly)
 {
     QList<QDockWidget*> docks;
@@ -1749,8 +1761,10 @@ void KisMainWindow::showView(KisView *imageView, QMdiSubWindow *subwin)
         connect(subwin, SIGNAL(destroyed()), SLOT(updateWindowMenu()));
 
         KisConfig cfg(true);
-        subwin->setOption(QMdiSubWindow::RubberBandMove, cfg.readEntry<int>("mdi_rubberband", cfg.useOpenGL()));
-        subwin->setOption(QMdiSubWindow::RubberBandResize, cfg.readEntry<int>("mdi_rubberband", cfg.useOpenGL()));
+        // subwin->setOption(QMdiSubWindow::RubberBandMove, cfg.readEntry<int>("mdi_rubberband", cfg.useOpenGL()));
+        subwin->setOption(QMdiSubWindow::RubberBandMove, cfg.readEntry<int>("mdi_rubberband", krimbleRubberBandDefault(cfg)));
+        // subwin->setOption(QMdiSubWindow::RubberBandResize, cfg.readEntry<int>("mdi_rubberband", cfg.useOpenGL()));
+        subwin->setOption(QMdiSubWindow::RubberBandResize, cfg.readEntry<int>("mdi_rubberband", krimbleRubberBandDefault(cfg)));
         subwin->setWindowIcon(qApp->windowIcon());
 
 #ifdef Q_OS_MACOS
@@ -3850,6 +3864,32 @@ void KisMainWindow::updateWindowMenu()
     QMenu *menu = d->windowMenu->menu();
     menu->clear();
 
+    // Krimble 2026-10-11: two switches at the very top of the Window menu (George): tabs or floating windows, and showing the
+    // picture while a floating window is dragged. They write the same settings the Preferences window does and apply at once.
+    {
+        KisConfig windowCfg(true);
+        const bool tabbed = windowCfg.readEntry<int>("mdi_viewmode", (int)QMdiArea::TabbedView) == (int)QMdiArea::TabbedView;
+        QAction *viewModeAction = menu->addAction(tabbed ? i18n("Switch to Windows") : i18n("Switch to Tabs"));
+        connect(viewModeAction, &QAction::triggered, this, [this, tabbed]() {
+            KisConfig cfg(false);
+            cfg.writeEntry<int>("mdi_viewmode", tabbed ? (int)QMdiArea::SubWindowView : (int)QMdiArea::TabbedView);
+            KisConfigNotifier::instance()->notifyConfigChanged();
+            if (tabbed) {
+                // the pictures were maximized as tabs: lay them out as floating windows
+                QTimer::singleShot(0, this, [this]() { d->mdiArea->cascadeSubWindows(); });
+            }
+        });
+        QAction *showDragAction = menu->addAction(i18n("Show Contents While Dragging"));
+        showDragAction->setCheckable(true);
+        showDragAction->setChecked(windowCfg.readEntry<int>("mdi_rubberband", krimbleRubberBandDefault(windowCfg)) == 0);
+        connect(showDragAction, &QAction::toggled, this, [](bool showContents) {
+            KisConfig cfg(false);
+            cfg.writeEntry<int>("mdi_rubberband", showContents ? 0 : 1);
+            KisConfigNotifier::instance()->notifyConfigChanged();
+        });
+        menu->addSeparator();
+    }
+
 #ifndef Q_OS_ANDROID
     menu->addAction(d->newWindow);
 #endif
@@ -4151,8 +4191,10 @@ void KisMainWindow::configChanged()
     QMdiArea::ViewMode viewMode = (QMdiArea::ViewMode)cfg.readEntry<int>("mdi_viewmode", (int)QMdiArea::TabbedView);
     d->mdiArea->setViewMode(viewMode);
     Q_FOREACH (QMdiSubWindow *subwin, d->mdiArea->subWindowList()) {
-        subwin->setOption(QMdiSubWindow::RubberBandMove, cfg.readEntry<int>("mdi_rubberband", cfg.useOpenGL()));
-        subwin->setOption(QMdiSubWindow::RubberBandResize, cfg.readEntry<int>("mdi_rubberband", cfg.useOpenGL()));
+        // subwin->setOption(QMdiSubWindow::RubberBandMove, cfg.readEntry<int>("mdi_rubberband", cfg.useOpenGL()));
+        subwin->setOption(QMdiSubWindow::RubberBandMove, cfg.readEntry<int>("mdi_rubberband", krimbleRubberBandDefault(cfg)));
+        // subwin->setOption(QMdiSubWindow::RubberBandResize, cfg.readEntry<int>("mdi_rubberband", cfg.useOpenGL()));
+        subwin->setOption(QMdiSubWindow::RubberBandResize, cfg.readEntry<int>("mdi_rubberband", krimbleRubberBandDefault(cfg)));
         if (viewMode == QMdiArea::TabbedView) {
             subwin->setWindowState(Qt::WindowMaximized);
         }
