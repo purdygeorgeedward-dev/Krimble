@@ -3345,3 +3345,29 @@ QA of build 32: the Columns choice (7th entry) did nothing. `applyColumns()` ret
 - Tools laid out in a row (a wide toolbox, or docked at the top or bottom): the number is the number of rows and sets the height.
 - The first version of the function is kept in comments.
 **Not verified:** a build or a device.
+
+## 2026-10-11 (39th) — Two-finger drag: dialogs no longer bounce back; floating panels get it too
+
+**Files:** `libs/ui/KisApplication.cpp`
+
+QA of build 32: after a two-finger drag the dialog bounced back on screen, which made its bottom buttons hard to reach (a dialog taller than the screen).
+- Dialogs: after a two-finger drag they stay where they were let go, as long as at least 160 px of them are on screen (`keepReachable`). They are still sized and placed inside the screen when they open.
+- Floating panels, the toolbox included, now take the two-finger move too, and bounce back inside the screen when let go (`keepOnScreen`). Their windows are watched by the same code as the dialogs.
+- Old lines kept in comments.
+**Not verified:** a build or a device.
+
+## 2026-10-11 (40th) — Floating toolbox: bounce at the screen edges; never taller than its contents
+
+**Files:** `libs/ui/toolbox/KoToolBoxDocker.cpp`, `libs/ui/toolbox/KoToolBoxDocker_p.h`
+
+QA of build 32: the toolbox was easy to strand off screen and was larger than its contents.
+- A floating toolbox that is let go partly off the screen bounces back inside it (350 ms after the last move, once the finger is up; a strip of 48 px at the top is kept free).
+- The toolbox's maximum height is the height of its tools, the wells and the title bar at its current width (set with the tool area's own maximum in `resizeEvent`).
+**Not verified:** a build or a device.
+
+## 2026-10-11 (41st) — Toolbars menu: Reset Toolbars
+
+**Files:** `libs/ui/KisMainWindow.cpp`
+
+QA of build 32: a toolbar (Back to Basics) was stuck vertical and could not be moved or resized. Window > Toolbars now ends with "Reset Toolbars": every toolbar is un-floated, put back in the top area, made horizontal and shown, as `krita5.xmlgui` defines them (all five are `position="top"`).
+**Not verified:** a build or a device.

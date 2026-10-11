@@ -27,6 +27,7 @@
 #include <functional>
 #ifdef Q_OS_ANDROID
 #include <QDialog>
+#include <QDockWidget>
 #include <QTouchEvent>
 #include <QWindow>
 #include <QAbstractSpinBox>
@@ -261,7 +262,35 @@ class KrimbleDialogKeeper : public QObject
 public:
     explicit KrimbleDialogKeeper(QObject *parent) : QObject(parent) {}
 
-    static void keepOnScreen(QDialog *dialog)
+    // Krimble 2026-10-11: dialogs are only kept REACHABLE after a two-finger drag: a dialog taller than the screen can be
+    // dragged up to reach its bottom buttons and stays there (no bounce back). At least 160 px of it stay on screen.
+    static void keepReachable(QWidget *dialog)
+    {
+        if (!dialog || !dialog->isWindow() || !dialog->isVisible()) {
+            return;
+        }
+        QScreen *screen = dialog->screen();
+        if (!screen) {
+            screen = QGuiApplication::primaryScreen();
+        }
+        if (!screen) {
+            return;
+        }
+        const QRect avail = screen->availableGeometry();
+        const int reach = 160;
+        QRect g = dialog->geometry();
+        const int minLeft = avail.left() - (g.width() - reach);
+        const int maxLeft = avail.right() - reach + 1;
+        const int minTop = avail.top() - (g.height() - reach);
+        const int maxTop = avail.bottom() - reach + 1;
+        g.moveLeft(qBound(qMin(minLeft, maxLeft), g.left(), qMax(minLeft, maxLeft)));
+        g.moveTop(qBound(qMin(minTop, maxTop), g.top(), qMax(minTop, maxTop)));
+        if (g != dialog->geometry()) {
+            dialog->move(g.topLeft());
+        }
+    }
+
+    static void keepOnScreen(QWidget *dialog)
     {
         if (!dialog || !dialog->isWindow() || !dialog->isVisible()) {
             return;
@@ -296,14 +325,24 @@ public:
         }
     }
 
+    // Krimble 2026-10-11: floating panels (the toolbox too) get the same two-finger move and bounce back inside the screen.
+    static bool isKeptWindow(QWidget *w)
+    {
+        if (!w || !w->isWindow()) return false;
+        if (qobject_cast<QDialog*>(w)) return true;
+        if (QDockWidget *dock = qobject_cast<QDockWidget*>(w)) return dock->isFloating();
+        return false;
+    }
+
 protected:
     bool eventFilter(QObject *watched, QEvent *event) override
     {
         switch (event->type()) {
         case QEvent::Show:
         case QEvent::Resize: {
-            if (QDialog *dialog = qobject_cast<QDialog*>(watched)) {
-                if (dialog->isWindow()) {
+            // if (QDialog *dialog = qobject_cast<QDialog*>(watched)) {      // Krimble 2026-10-11: floating panels too
+            if (QWidget *dialog = qobject_cast<QWidget*>(watched)) {
+                if (isKeptWindow(dialog)) {
                     // Watch the dialog's window for touches: a window sees ALL fingers, while a
                     // widget only sees them if it accepts the first touch (which would stop one-finger
                     // taps from reaching buttons).
@@ -315,7 +354,7 @@ protected:
                         }
                     }
                     // After the current event, once the dialog has its final size and place.
-                    QPointer<QDialog> guard(dialog);
+                    QPointer<QWidget> guard(dialog);
                     QTimer::singleShot(0, dialog, [guard]() {
                         keepOnScreen(guard);
                     });
@@ -340,7 +379,8 @@ protected:
 private:
     bool handleTouch(QWindow *window, QTouchEvent *touch)
     {
-        QDialog *dialog = qobject_cast<QDialog*>(qvariant_cast<QObject*>(window->property("krimbleDialog")));
+        // QDialog *dialog = qobject_cast<QDialog*>(qvariant_cast<QObject*>(window->property("krimbleDialog")));
+        QWidget *dialog = qobject_cast<QWidget*>(qvariant_cast<QObject*>(window->property("krimbleDialog")));
         if (!dialog || !dialog->isWindow()) {
             return false;
         }
@@ -361,9 +401,16 @@ private:
             return true;     // the dialog's contents do not react to the two-finger move
         }
         if (m_target) {
-            QPointer<QDialog> moved(m_target);
+            QPointer<QWidget> moved(m_target);
             m_target.clear();
-            QTimer::singleShot(0, dialog, [moved]() { keepOnScreen(moved); });
+            // QTimer::singleShot(0, dialog, [moved]() { keepOnScreen(moved); });   (bounced a dialog back on screen: George, no)
+            QTimer::singleShot(0, dialog, [moved]() {
+                if (qobject_cast<QDockWidget*>(moved.data())) {
+                    keepOnScreen(moved);      // a floating panel bounces back inside the screen
+                } else {
+                    keepReachable(moved);     // a dialog stays where it was dragged, as long as part of it is reachable
+                }
+            });
             if (points.count() >= 2) {
                 touch->accept();
                 return true;
@@ -372,7 +419,7 @@ private:
         return false;
     }
 
-    QPointer<QDialog> m_target;
+    QPointer<QWidget> m_target;
     QPointF m_last;
 };
 #endif

@@ -4061,6 +4061,20 @@ void KisMainWindow::updateWindowMenu()
                 toggle->setChecked(toolBar->isVisible());
                 connect(toggle, &QAction::toggled, toolBar, &QWidget::setVisible);
             }
+            // Krimble 2026-10-11: Reset Toolbars (George): every toolbar goes back to the top, horizontal and visible, as the
+            // menu file (krita5.xmlgui) defines them.
+            toolbarsMenu->addSeparator();
+            QAction *resetToolbars = toolbarsMenu->addAction(i18n("Reset Toolbars"));
+            connect(resetToolbars, &QAction::triggered, this, [this]() {
+                Q_FOREACH (KisToolBar *toolBar, toolBars()) {
+                    toolBar->setFloatable(true);
+                    if (toolBar->isFloating()) toolBar->setFloating(false);   // not floating
+                    removeToolBar(toolBar);
+                    addToolBar(Qt::TopToolBarArea, toolBar);
+                    toolBar->setOrientation(Qt::Horizontal);
+                    toolBar->show();
+                }
+            });
         });
         addActionByName("lock_toolbars");
         menu->addSeparator();

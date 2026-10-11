@@ -39,6 +39,7 @@ public:
 
 protected:
     void resizeEvent(QResizeEvent *event) override;
+    void moveEvent(QMoveEvent *event) override;   // Krimble 2026-10-11: a floating toolbox bounces back inside the screen
     bool eventFilter(QObject *watched, QEvent *event) override; // KRIMBLE 2026-10-06: watches the main window for rotation
     void contextMenuEvent(QContextMenuEvent *event) override;
 
@@ -93,6 +94,7 @@ private:
     int m_columns {2};                 // Krimble: the number of icon columns the user wants (2 = the default look)
     QTimer *m_snapTimer {nullptr};     // Krimble: runs a moment after a resize of the docked toolbox stops
     QTimer *m_restoreTimer {nullptr};  // Krimble: runs a moment after the main window stops resizing (rotation)
+    QTimer *m_screenTimer {nullptr};   // Krimble 2026-10-11: runs a moment after a floating toolbox stops being moved
     bool m_windowResizing {false};     // Krimble: true while the main window is being resized (rotation)
     bool m_applying {false};           // Krimble: true while we set the width ourselves
     QAction *m_columnActions[4] {nullptr, nullptr, nullptr, nullptr}; // Krimble 2026-10-09: the "Columns" menu entries (1 to 4)

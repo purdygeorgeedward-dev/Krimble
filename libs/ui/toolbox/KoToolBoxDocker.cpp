@@ -20,6 +20,9 @@
 #include <QVBoxLayout>
 #include <QMainWindow>
 #include <QApplication>
+#include <QMoveEvent>
+#include <QGuiApplication>
+#include <QScreen>
 #include <QEvent>
 #include <QPainter>
 #include <QMouseEvent>
@@ -373,12 +376,16 @@ void KoToolBoxDocker::resizeEvent(QResizeEvent *event)
         if (!m_scrollArea || !m_toolBox || !m_toolBox->layout()) return;
         if (!m_toolBox->layout()->hasHeightForWidth()) {
             m_scrollArea->setMaximumHeight(QWIDGETSIZE_MAX);
+            setMaximumHeight(QWIDGETSIZE_MAX);
             return;
         }
         const int contentHeight = m_toolBox->layout()->heightForWidth(m_scrollArea->viewport()->width());
         if (contentHeight > 0) {
             const int frame = m_scrollArea->height() - m_scrollArea->viewport()->height();
             m_scrollArea->setMaximumHeight(contentHeight + frame);
+            // Krimble 2026-10-11: the toolbox itself is never taller than its contents (the tools, the wells and the title bar)
+            const int others = qMax(0, height() - m_scrollArea->height());
+            setMaximumHeight(contentHeight + frame + others);
         }
     });
 }
@@ -483,6 +490,36 @@ int KoToolBoxDocker::chromeWidth() const
 // Krimble 2026-10-11: the Columns choice always works (George): docked left or right, floating, and docked at the top or
 // bottom. When the tools are laid out in a column (the usual way) the number is the number of columns, and it sets the
 // width. When they are laid out in a row, the number is the number of rows, and it sets the height.
+// Krimble 2026-10-11: a floating toolbox that is let go partly off the screen bounces back inside it (George).
+void KoToolBoxDocker::moveEvent(QMoveEvent *event)
+{
+    QDockWidget::moveEvent(event);
+    if (!isFloating()) return;
+    if (!m_screenTimer) {
+        m_screenTimer = new QTimer(this);
+        m_screenTimer->setSingleShot(true);
+        m_screenTimer->setInterval(350);
+        connect(m_screenTimer, &QTimer::timeout, this, [this]() {
+            if (!isFloating() || !isVisible()) return;
+            if (QApplication::mouseButtons() != Qt::NoButton) {   // the finger is still down: look again later
+                m_screenTimer->start();
+                return;
+            }
+            QScreen *screenPtr = screen() ? screen() : QGuiApplication::primaryScreen();
+            if (!screenPtr) return;
+            QRect avail = screenPtr->availableGeometry();
+            avail.setTop(avail.top() + 48);        // keep a strip free at the top, as the dialogs do
+            QRect g = geometry();
+            g.setWidth(qMin(g.width(), avail.width()));
+            g.setHeight(qMin(g.height(), avail.height()));
+            g.moveLeft(qBound(avail.left(), g.left(), avail.right() - g.width() + 1));
+            g.moveTop(qBound(avail.top(), g.top(), avail.bottom() - g.height() + 1));
+            if (g != geometry()) setGeometry(g);
+        });
+    }
+    m_screenTimer->start();
+}
+
 void KoToolBoxDocker::applyColumns()
 {
     QMainWindow *mainWindow = qobject_cast<QMainWindow*>(parentWidget());
