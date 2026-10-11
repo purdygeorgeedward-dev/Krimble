@@ -44,6 +44,31 @@
 #include <kis_image.h>
 #include <kis_icon_utils.h>
 
+// Krimble 2026-10-11: the toolbox's drag handle (its empty title bar) shows three light horizontal lines, so it is obvious
+// that it is meant to be grabbed.
+class KrimbleToolBoxGrip : public QLabel
+{
+public:
+    KrimbleToolBoxGrip(const QString &text, QWidget *parent) : QLabel(text, parent) {}
+protected:
+    void paintEvent(QPaintEvent *event) override
+    {
+        QLabel::paintEvent(event);
+        QPainter p(this);
+        const qreal dpr = devicePixelRatioF();
+        const qreal thick = 2.0 / dpr;    // 2 device pixels
+        const qreal gap = 6.0 / dpr;      // 6 device pixels between the lines
+        const qreal length = width() * 0.45;
+        QColor c = palette().color(QPalette::WindowText);
+        c.setAlpha(150);
+        p.setPen(Qt::NoPen);
+        for (int i = -1; i <= 1; ++i) {
+            const qreal y = height() / 2.0 + i * (gap + thick) - thick / 2.0;
+            p.fillRect(QRectF((width() - length) / 2.0, y, length, thick), c);
+        }
+    }
+};
+
 // KRIMBLE 2026-10-07: an edge strip of the floating toolbox. Dragging it changes the toolbox's width (right strip) or
 // height (bottom strip). It lives in a margin the toolbox gets while it floats, so it covers none of the tool icons.
 class KrimbleToolBoxEdge : public QWidget
@@ -153,7 +178,9 @@ KoToolBoxDocker::KoToolBoxDocker(KoToolBox *toolBox)
         QTimer::singleShot(500, this, [this]() { m_windowResizing = false; });
     });
 
-    QLabel *w = new QLabel(" ", this);
+    // QLabel *w = new QLabel(" ", this);
+    // Krimble 2026-10-11: the same label, with three light horizontal lines on it so it is obvious it can be grabbed.
+    QLabel *w = new KrimbleToolBoxGrip(" ", this);
     w->setFrameShape(QFrame::StyledPanel);
     w->setFrameShadow(QFrame::Raised);
     w->setFrameStyle(QFrame::Panel | QFrame::Raised);

@@ -3313,3 +3313,11 @@ QA of build 117207e: George wanted the original default look of the toolbox and 
 - Dock strips: the strip stays wide (14), but what is drawn is the base style's own handle in a strip of its original width, centered in the wide one. This replaces the tiny-dots drawing, which is kept under `#if 0`.
 - Wells and screen mode button: they are now one box (the "trailing widget") inside the toolbox's own layout (`KoToolBoxLayout::setTrailingWidget`), placed right after the last row of tools (after the last column in horizontal layout) and scrolling with the tools. The old lines that put them in the container below the tool area are commented out. The 31st entry's cap on the tool area's height stays; it now includes the wells.
 **Not verified:** a build or a device.
+
+## 2026-10-11 (36th) — Toolbox drag handle shows light horizontal lines
+
+**Files:** `libs/ui/toolbox/KoToolBoxDocker.cpp`
+
+The empty bar at the top of the toolbox (its title bar, used to drag it) did not look like something to grab. It is now a `KrimbleToolBoxGrip`: the same raised label with three light horizontal lines (2 device pixels thick, 6 apart, 45% of the bar's width) centered on it. The old label line is commented out.
+(The blank edge on the right and bottom of a floating toolbox is a separate item: it was removed in the 30th entry.)
+**Not verified:** a build or a device.
