@@ -18,7 +18,9 @@ int KisWideDockSeparatorStyle::pixelMetric(PixelMetric metric, const QStyleOptio
         // Krimble 2026-10-10: on Android at least 20 px (the same touch size as the dialog edges), so a finger can grab it.
         // return QProxyStyle::pixelMetric(metric, option, widget) * 2;
 #ifdef Q_OS_ANDROID
-        return qMax(QProxyStyle::pixelMetric(metric, option, widget) * 2, 20);
+        // Krimble 2026-10-10 (3rd): 14 (was 20): each strip is about 32 device pixels narrower, which gives the toolbox room to widen.
+        // return qMax(QProxyStyle::pixelMetric(metric, option, widget) * 2, 20);
+        return qMax(QProxyStyle::pixelMetric(metric, option, widget) * 2, 14);
 #else
         return QProxyStyle::pixelMetric(metric, option, widget) * 2;
 #endif

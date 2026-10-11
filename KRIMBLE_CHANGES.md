@@ -3251,3 +3251,10 @@ George's new splash graphic (the old one did not look like the user interface). 
 
 The strip between the canvas and the right panels stops at the panels' minimum width. Now, if the finger lets go within 56 px of the right edge of the window after pressing on that strip, the right panels hide (same function as Hide Right Panels, which brings them back). No gadget is drawn; the logic of the parked side handle (`#if 0`, 2026-10-07) is reused.
 **Not verified:** a build or a device.
+
+## 2026-10-10 (28th) — Dock strips 14 wide (was 20)
+
+**Files:** `libs/widgetutils/KisWideDockSeparatorStyle.cpp`
+
+The toolbox could not be widened in portrait. Nothing caps its width; Qt can only widen it by taking room from the canvas or the right panels, and the two 20-wide strips between the docks used about 100 device pixels. The strips are now at least 14 wide (about 36 device pixels, still easy to catch), which gives back about 32 device pixels. Old line commented out. The side panel's real minimum width is not confirmed yet.
+**Not verified:** a build or a device.
