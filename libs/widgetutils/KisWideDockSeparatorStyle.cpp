@@ -31,13 +31,30 @@ void KisWideDockSeparatorStyle::drawPrimitive(PrimitiveElement element, const QS
 {
 #ifdef Q_OS_ANDROID
     if (element == QStyle::PE_IndicatorDockWidgetResizeHandle) {
-        // Krimble 2026-10-10 (3rd): George wants no graphics on the dock strips at all. They are 20 px wide so a finger can
-        // grab them, and they draw nothing: invisible but working.
+        // Krimble 2026-10-10 (4th): George: the original tiny dots were visually right, only hard to grab. The strip is 20 px
+        // wide so a finger can grab it; what is drawn is the same tiny grip as before: three dots, each 6 device pixels
+        // across and 25 device pixels apart, and no line or band.
+        painter->save();
+        painter->setRenderHint(QPainter::Antialiasing, true);
+        painter->setPen(Qt::NoPen);
+        const qreal dpr = painter->device()->devicePixelRatioF();
+        QColor tinyDotColor = option->palette.color(QPalette::WindowText);
+        tinyDotColor.setAlpha(150);
+        painter->setBrush(tinyDotColor);
+        const QRect tinyRect = option->rect;
+        const bool tinyTall = tinyRect.height() >= tinyRect.width();
+        const QPointF tinyCenter = tinyRect.center();
+        for (int i = -1; i <= 1; ++i) {
+            const qreal offset = i * 25.0 / dpr;
+            const QPointF p = tinyTall ? QPointF(tinyCenter.x(), tinyCenter.y() + offset) : QPointF(tinyCenter.x() + offset, tinyCenter.y());
+            painter->drawEllipse(p, 3.0 / dpr, 3.0 / dpr);
+        }
+        painter->restore();
         return;
 
 #if 0
-        // The versions below are kept, not deleted. They are not reached.
-        // (2nd) three small dots:
+        // (3rd) draw nothing at all, and the older versions below, are kept, not deleted. They are not reached.
+        // (2nd) three larger dots (radius 3 logical pixels, which is about 8 device pixels: too big):
         painter->save();
         painter->setRenderHint(QPainter::Antialiasing, true);
         painter->setPen(Qt::NoPen);
