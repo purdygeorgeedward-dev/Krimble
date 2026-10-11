@@ -3244,3 +3244,10 @@ The 23rd entry made the dock strips draw nothing. George said the original tiny 
 
 George's new splash graphic (the old one did not look like the user interface). 1536 × 1024 JPG, 251,466 bytes (was 379,456). The version text keeps its position under the top-right wordmark. The holiday splash is unchanged.
 **Not verified:** how it looks on a device.
+
+## 2026-10-10 (26th) — Dragging the side panel strip to the screen edge shuts the right panels
+
+**Files:** `libs/ui/KisMainWindow.cpp`
+
+The strip between the canvas and the right panels stops at the panels' minimum width. Now, if the finger lets go within 56 px of the right edge of the window after pressing on that strip, the right panels hide (same function as Hide Right Panels, which brings them back). No gadget is drawn; the logic of the parked side handle (`#if 0`, 2026-10-07) is reused.
+**Not verified:** a build or a device.

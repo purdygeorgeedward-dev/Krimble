@@ -655,6 +655,48 @@ static void krimbleUpdateRightPanelUi(QMainWindow *win)
     button->raise();
 }
 
+#ifdef Q_OS_ANDROID
+// Krimble 2026-10-10: dragging the strip between the canvas and the right panels all the way to the screen edge shuts the
+// panels (same as Hide Right Panels). No gadget: it watches the finger. A press within the strip next to the right
+// panels arms it; letting go within 56 px of the right edge of the window hides them.
+class KrimbleEdgeCollapseFilter : public QObject
+{
+public:
+    explicit KrimbleEdgeCollapseFilter(QMainWindow *win) : QObject(win), m_win(win) {}
+    bool eventFilter(QObject *watched, QEvent *event) override
+    {
+        Q_UNUSED(watched);
+        if (event->type() == QEvent::MouseButtonPress) {
+            const int x = static_cast<QMouseEvent*>(event)->globalPos().x();
+            m_armed = false;
+            const QList<QDockWidget*> docks = krimbleRightDocks(m_win, true);
+            if (!docks.isEmpty()) {
+                int left = docks.first()->mapToGlobal(QPoint(0, 0)).x();
+                Q_FOREACH (QDockWidget *dock, docks) {
+                    left = qMin(left, dock->mapToGlobal(QPoint(0, 0)).x());
+                }
+                m_armed = (x >= left - 24 && x <= left + 4);
+            }
+        } else if (event->type() == QEvent::MouseButtonRelease && m_armed) {
+            m_armed = false;
+            const int x = static_cast<QMouseEvent*>(event)->globalPos().x();
+            const int rightEdge = m_win->mapToGlobal(QPoint(m_win->width(), 0)).x();
+            if (x >= rightEdge - 56) {
+                QMainWindow *win = m_win;
+                QTimer::singleShot(0, win, [win]() {
+                    krimbleSetRightPanelsHidden(win, true);
+                    krimbleUpdateRightPanelUi(win);
+                });
+            }
+        }
+        return false;
+    }
+private:
+    QMainWindow *m_win;
+    bool m_armed {false};
+};
+#endif
+
 // ---- Older placement code (2026-10-03/04), kept for reference ----
 //     // Watch the right-hand panels too, so the button follows them when they move or resize.
 //     if (QObject *watcher = win->findChild<QObject*>(QStringLiteral("krimbleRightPanelsFilter"))) {
@@ -1336,6 +1378,10 @@ KisMainWindow::KisMainWindow(QUuid uuid)
         installEventFilter(rightPanelsFilter);
         d->mdiArea->installEventFilter(rightPanelsFilter);     // the canvas area: its edge is where the sliver sits
     }
+#ifdef Q_OS_ANDROID
+    // Krimble 2026-10-10: drag the strip to the screen edge to shut the right panels.
+    qApp->installEventFilter(new KrimbleEdgeCollapseFilter(this));
+#endif
 
     // KRIMBLE 2026-10-04: apply the labels typed in krita5.xmlgui (see krimbleApplyXmlGuiLabels). Run
     // once everything is built, and again when a tool is chosen (tool actions appear later).
