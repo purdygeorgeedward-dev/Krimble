@@ -3896,7 +3896,8 @@ void KisMainWindow::updateWindowMenu()
     {
         KisConfig windowCfg(true);
         const bool tabbed = windowCfg.readEntry<int>("mdi_viewmode", (int)QMdiArea::SubWindowView) == (int)QMdiArea::TabbedView;
-        QAction *viewModeAction = menu->addAction(tabbed ? i18n("Switch to Windows") : i18n("Switch to Tabs"));
+        // QAction *viewModeAction = menu->addAction(tabbed ? i18n("Switch to Windows") : i18n("Switch to Tabs"));
+        QAction *viewModeAction = menu->addAction(tabbed ? i18n("Switch to Floating Windows") : i18n("Switch to Tabs"));   // Krimble 2026-10-11 (George)
         connect(viewModeAction, &QAction::triggered, this, [this, tabbed]() {
             KisConfig cfg(false);
             cfg.writeEntry<int>("mdi_viewmode", tabbed ? (int)QMdiArea::SubWindowView : (int)QMdiArea::TabbedView);

@@ -3378,3 +3378,14 @@ QA of build 32: a toolbar (Back to Basics) was stuck vertical and could not be m
 
 QA: after a rotation the Window menu was "stuck" (George is not sure whether the open menu or the pressed button). The 37th entry closes open menus when the main window changes size; this adds letting go of the menu bar entry too (`QMenuBar::setActiveAction(nullptr)`), so a pressed "Window" button cannot stay highlighted.
 **Not verified:** a build or a device.
+
+## 2026-10-11 (43rd) — Toolbox width in portrait; "Switch to Floating Windows"
+
+**Files:** `libs/ui/toolbox/KoToolBoxDocker.cpp`, `libs/ui/toolbox/KoToolBoxDocker_p.h`, `libs/ui/KisMainWindow.cpp`
+
+QA of 1.0.32 (portrait): the docked toolbox was far wider than its columns (one column of tools beside a wide empty bar), the column count seemed to do nothing, and with the toolbox that wide there was no room left to move the strips beside it.
+- The toolbox's preferred width (`sizeHint`) is the width its saved column count needs, so the dock layout starts from the right size.
+- `applyColumns()` (docked left or right) also pins the width for 250 ms after `resizeDocks`, then lets go, so the dock layout has to use the width and a drag can still change it afterwards.
+- The cause is not confirmed on a device. If a content minimum keeps the toolbox wider, the pin has no effect.
+- The first Window menu item reads "Switch to Floating Windows" (it read "Switch to Windows"); old line commented out.
+**Not verified:** a build or a device.

@@ -490,6 +490,18 @@ int KoToolBoxDocker::chromeWidth() const
 // Krimble 2026-10-11: the Columns choice always works (George): docked left or right, floating, and docked at the top or
 // bottom. When the tools are laid out in a column (the usual way) the number is the number of columns, and it sets the
 // width. When they are laid out in a row, the number is the number of rows, and it sets the height.
+// Krimble 2026-10-11: QA of 1.0.32: in portrait the docked toolbox stayed hundreds of pixels wider than its columns (one column
+// of tools with a wide empty bar beside it), which left no room to move the strips next to it. Its preferred width is now the
+// width its saved column count needs, so the dock layout starts from the right size.
+QSize KoToolBoxDocker::sizeHint() const
+{
+    QSize hint = QDockWidget::sizeHint();
+    if (m_toolBox && m_toolBox->layout() && m_toolBox->layout()->hasHeightForWidth()) {
+        hint.setWidth(qMax(60, m_columns * iconWidth() + chromeWidth()));
+    }
+    return hint;
+}
+
 // Krimble 2026-10-11: a floating toolbox that is let go partly off the screen bounces back inside it (George).
 void KoToolBoxDocker::moveEvent(QMoveEvent *event)
 {
@@ -538,6 +550,14 @@ void KoToolBoxDocker::applyColumns()
             if (area != Qt::LeftDockWidgetArea && area != Qt::RightDockWidgetArea) return;
             m_applying = true;
             mainWindow->resizeDocks({this}, {target}, Qt::Horizontal);
+            // Krimble 2026-10-11: resizeDocks alone did not always take effect in portrait; pin the width for a moment so the
+            // dock layout has to use it, then let go again so a drag can change it.
+            setMinimumWidth(target);
+            setMaximumWidth(target);
+            QTimer::singleShot(250, this, [this]() {
+                setMinimumWidth(0);
+                setMaximumWidth(QWIDGETSIZE_MAX);
+            });
             QTimer::singleShot(400, this, [this]() { m_applying = false; });
         }
     } else {

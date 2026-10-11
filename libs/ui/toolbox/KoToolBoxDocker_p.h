@@ -39,6 +39,7 @@ public:
 
 protected:
     void resizeEvent(QResizeEvent *event) override;
+    QSize sizeHint() const override;   // Krimble 2026-10-11: the width the chosen column count needs
     void moveEvent(QMoveEvent *event) override;   // Krimble 2026-10-11: a floating toolbox bounces back inside the screen
     bool eventFilter(QObject *watched, QEvent *event) override; // KRIMBLE 2026-10-06: watches the main window for rotation
     void contextMenuEvent(QContextMenuEvent *event) override;
