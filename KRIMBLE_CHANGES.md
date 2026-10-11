@@ -3237,3 +3237,10 @@ George did not like the grouping in the toolbox (separator lines and a new row f
 
 The 23rd entry made the dock strips draw nothing. George said the original tiny dots were visually right and only hard to grab. The 20 px strip stays (the grab area). It now draws three dots, 6 device pixels across and 25 apart (measured from the original look), and no line or band. The earlier larger dots were about 3 times too big. Old versions kept under `#if 0`.
 **Not verified:** a build or a device.
+
+## 2026-10-10 (27th) — New splash image
+
+**Files:** `krita/data/splash/logo_splash.jpg`
+
+George's new splash graphic (the old one did not look like the user interface). 1536 × 1024 JPG, 251,466 bytes (was 379,456). The version text keeps its position under the top-right wordmark. The holiday splash is unchanged.
+**Not verified:** how it looks on a device.
