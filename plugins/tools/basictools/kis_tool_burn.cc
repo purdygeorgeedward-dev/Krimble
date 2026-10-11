@@ -61,10 +61,36 @@ void KisToolBurn::activate(const QSet<KoShape*> &shapes)
         return;
     }
 
-    burnPreset->settings()->setProperty("CompositeOp", COMPOSITE_BURN);
+    // burnPreset->settings()->setProperty("CompositeOp", COMPOSITE_BURN);
+    // Krimble 2026-10-11 (QA of 1.0.32): the color burn op with the foreground color made a faint line
+    // (dodge) or an instant black one (burn) on a white canvas. Photoshop's tool darkens what is already there, a little at
+    // a time. The linear op does that: with a black brush each dab moves the pixel a small step toward
+    // black, so the effect builds up slowly the more you paint over a spot. The tool sets its brush color to
+    // black while it is active (see below) and a low flow (4% per dab); flow and opacity can be changed.
+    burnPreset->settings()->setProperty("CompositeOp", COMPOSITE_LINEAR_BURN);
+    burnPreset->settings()->setPaintOpOpacity(1.0);
+    burnPreset->settings()->setPaintOpFlow(0.04);
     // Krimble: see KisToolDodge.cc for why BUILDUP mode (not the base
     // preset's default WASH mode) is required for continuous darkening
     // while dragging.
     burnPreset->settings()->setProperty("PaintOpAction", 1);
-    canvas2->viewManager()->canvasResourceProvider()->setPaintOpPreset(burnPreset);
+    // Krimble 2026-10-11: paint with black while this tool is active; the foreground color is given back in deactivate().
+    KisCanvasResourceProvider *provider = canvas2->viewManager()->canvasResourceProvider();
+    if (!m_foregroundSaved) {
+        m_savedForeground = provider->fgColor();
+        m_foregroundSaved = true;
+    }
+    provider->setFGColor(KoColor(Qt::black, m_savedForeground.colorSpace()));
+    provider->setPaintOpPreset(burnPreset);
+}
+
+void KisToolBurn::deactivate()
+{
+    // Krimble 2026-10-11: give the foreground color back
+    KisCanvas2 *canvas2 = dynamic_cast<KisCanvas2*>(canvas());
+    if (m_foregroundSaved && canvas2 && canvas2->viewManager()) {
+        canvas2->viewManager()->canvasResourceProvider()->setFGColor(m_savedForeground);
+    }
+    m_foregroundSaved = false;
+    KisToolBrush::deactivate();
 }

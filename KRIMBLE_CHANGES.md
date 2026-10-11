@@ -3389,3 +3389,15 @@ QA of 1.0.32 (portrait): the docked toolbox was far wider than its columns (one 
 - The cause is not confirmed on a device. If a content minimum keeps the toolbox wider, the pin has no effect.
 - The first Window menu item reads "Switch to Floating Windows" (it read "Switch to Windows"); old line commented out.
 **Not verified:** a build or a device.
+
+## 2026-10-11 (44th) — Dodge and Burn: a slow, cumulative lighten and darken
+
+**Files:** `plugins/tools/basictools/kis_tool_dodge.cc`, `kis_tool_dodge.h`, `kis_tool_burn.cc`, `kis_tool_burn.h`
+
+QA of 1.0.32: on a white canvas Dodge made only a faint line and Burn an instant black one, and neither built up slowly. Both used the color dodge / color burn composite ops with the foreground color, which do not lighten or darken what is there the way the industry-standard tools do.
+- Dodge now uses the linear dodge op (`COMPOSITE_LINEAR_DODGE`) and Burn the linear burn op (`COMPOSITE_LINEAR_BURN`). Painted with white (Dodge) or black (Burn), each brush dab moves the pixel a small step toward white or black, so the effect builds up the more you paint over a spot. Build-up mode stays on.
+- Opacity 100% and flow 4% per dab to start with; both can be changed in the tool options.
+- While Dodge or Burn is the active tool, the foreground color is white or black. `deactivate()` gives the user's foreground color back. The wells will change when you pick the tool, and change back when you leave it.
+- The old lines are kept in comments.
+- Not done: Photoshop's range choice (shadows, midtones, highlights).
+**Not verified:** a build or a device. The 4% flow is a starting guess.

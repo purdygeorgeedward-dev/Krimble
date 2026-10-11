@@ -11,6 +11,7 @@
 
 #include <KoIcon.h>
 #include <kis_icon.h>
+#include <KoColor.h>
 
 class KoCanvasBase;
 
@@ -32,6 +33,11 @@ public:
     ~KisToolDodge() override;
 
     void activate(const QSet<KoShape*> &shapes) override;
+    void deactivate() override;   // Krimble 2026-10-11: gives the foreground color back
+
+private:
+    KoColor m_savedForeground;    // Krimble 2026-10-11: the foreground color before this tool made it white
+    bool m_foregroundSaved {false};
 };
 
 class KisToolDodgeFactory : public KisToolPaintFactoryBase
