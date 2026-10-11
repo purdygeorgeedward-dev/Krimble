@@ -373,6 +373,17 @@ public:
         invalidate();
     }
 
+    // Krimble 2026-10-11: one extra widget (the color wells and the screen mode button) that sits right after the last tool
+    // and scrolls together with the tools, instead of being stuck to the bottom of the panel in its own box (George).
+    void setTrailingWidget(QWidget *widget)
+    {
+        m_trailing = widget;
+        if (widget) {
+            addChildWidget(widget);
+        }
+        invalidate();
+    }
+
     void setCompact(bool state)
     {
         m_compact = state;
@@ -504,12 +515,31 @@ private:
         }
 
         // cache total height (or width), adding the iconHeight for the current row
-        return y + iconHeight;
+        // return y + iconHeight;
+        int total = y + iconHeight;
+        // Krimble 2026-10-11: the trailing widget goes right after the last row, and counts in the total
+        if (m_trailing) {
+            const int gap = spacing();
+            const QSize trailingHint = m_trailing->sizeHint();
+            if (notDryRun) {
+                if (isVertical) {
+                    m_trailing->setGeometry(QRect(0, total + gap, rect.width(), trailingHint.height()));
+                } else if (isLeftToRight) {
+                    m_trailing->setGeometry(QRect(total + gap, 0, trailingHint.width(), rect.height()));
+                } else {
+                    m_trailing->setGeometry(QRect(rect.width() - total - gap - trailingHint.width(), 0, trailingHint.width(), rect.height()));
+                }
+                m_trailing->show();
+            }
+            total += gap + (isVertical ? trailingHint.height() : trailingHint.width());
+        }
+        return total;
     }
 
     QList <QWidgetItem*> m_sections;
     Qt::Orientation m_orientation;
     bool m_compact;
+    QWidget *m_trailing {nullptr};   // Krimble 2026-10-11
 };
 
 #endif

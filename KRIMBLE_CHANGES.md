@@ -3304,3 +3304,12 @@ George wanted a quick switch between tabbed and floating image windows that is n
 
 George wants floating image windows as the default again "just so people know it's there"; the Window menu's first item (33rd entry) switches to tabs and back in one tap. The default for `mdi_viewmode` is now floating windows (`SubWindowView`) in `configChanged()`, in the Window menu switch and in the Preferences combo box. A stored setting is not touched: anyone who already chose tabs keeps tabs. Window mode was made the default on 2026-10-04 and reverted the same day ("a little wonky"); this is a second try. Old lines commented out.
 **Not verified:** a build or a device.
+
+## 2026-10-11 (35th) — Dock strips: the original look with the bigger grab area; wells and screen mode button right under the tools
+
+**Files:** `libs/widgetutils/KisWideDockSeparatorStyle.cpp`, `libs/ui/toolbox/KoToolBoxLayout_p.h`, `libs/ui/toolbox/KoToolBoxDocker.cpp`
+
+QA of build 117207e: George wanted the original default look of the toolbox and side panel edges, with only the grabbing improved; and the color wells and screen mode button, which sat in a box of their own at the bottom of the panel and scrolled separately, to stack right under the tools like the tool icons do.
+- Dock strips: the strip stays wide (14), but what is drawn is the base style's own handle in a strip of its original width, centered in the wide one. This replaces the tiny-dots drawing, which is kept under `#if 0`.
+- Wells and screen mode button: they are now one box (the "trailing widget") inside the toolbox's own layout (`KoToolBoxLayout::setTrailingWidget`), placed right after the last row of tools (after the last column in horizontal layout) and scrolling with the tools. The old lines that put them in the container below the tool area are commented out. The 31st entry's cap on the tool area's height stays; it now includes the wells.
+**Not verified:** a build or a device.

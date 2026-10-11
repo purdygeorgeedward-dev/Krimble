@@ -248,7 +248,15 @@ void KoToolBoxDocker::setViewManager(KisViewManager *viewManager)
         m_dualColorButton->setFixedSize(28, 28);
         // KRIMBLE 2026-10-05: inserted right after the tool grid (index 1), before the stretch
         // m_containerLayout->addWidget(m_dualColorButton, 0, Qt::AlignHCenter);
-        m_containerLayout->insertWidget(1, m_dualColorButton, 0, Qt::AlignHCenter);
+        // m_containerLayout->insertWidget(1, m_dualColorButton, 0, Qt::AlignHCenter);
+        // Krimble 2026-10-11: the wells and the screen mode button now sit in one box that is part of the tool grid's own
+        // layout: right after the last tool, scrolling with the tools, not stuck to the bottom of the panel (George).
+        QWidget *trailingBox = new QWidget(m_toolBox);
+        QVBoxLayout *trailingLayout = new QVBoxLayout(trailingBox);
+        trailingLayout->setContentsMargins(0, 4, 0, 0);
+        trailingLayout->setSpacing(4);
+        trailingLayout->addWidget(m_dualColorButton, 0, Qt::AlignHCenter);
+        m_toolBox->toolBoxLayout()->setTrailingWidget(trailingBox);
 
         connect(m_dualColorButton, SIGNAL(foregroundColorChanged(KoColor)), viewManager->canvasResourceProvider(), SLOT(slotSetFGColor(KoColor)));
         connect(m_dualColorButton, SIGNAL(backgroundColorChanged(KoColor)), viewManager->canvasResourceProvider(), SLOT(slotSetBGColor(KoColor)));
@@ -274,7 +282,8 @@ void KoToolBoxDocker::setViewManager(KisViewManager *viewManager)
             screenModeButton->setAutoRaise(true);
             // KRIMBLE 2026-10-05: inserted right after the color wells (index 2), before the stretch
             // m_containerLayout->addWidget(screenModeButton, 0, Qt::AlignHCenter);
-            m_containerLayout->insertWidget(2, screenModeButton, 0, Qt::AlignHCenter);
+            // m_containerLayout->insertWidget(2, screenModeButton, 0, Qt::AlignHCenter);
+            trailingLayout->addWidget(screenModeButton, 0, Qt::AlignHCenter);   // Krimble 2026-10-11: in the trailing box
         }
     }
 }
@@ -304,6 +313,8 @@ void KoToolBoxDocker::resizeEvent(QResizeEvent *event)
         const int wellSize = qBound(28, m_scrollArea->viewport()->width() - 8, 72);
         if (m_dualColorButton->width() != wellSize) {
             m_dualColorButton->setFixedSize(wellSize, wellSize);
+            // Krimble 2026-10-11: the wells are part of the tool layout now; tell it they changed size
+            if (m_toolBox && m_toolBox->layout()) m_toolBox->layout()->invalidate();
         }
     }
     if (m_edgeRight && m_edgeBottom && isFloating()) {

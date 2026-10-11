@@ -33,7 +33,29 @@ void KisWideDockSeparatorStyle::drawPrimitive(PrimitiveElement element, const QS
 {
 #ifdef Q_OS_ANDROID
     if (element == QStyle::PE_IndicatorDockWidgetResizeHandle) {
-        // Krimble 2026-10-10 (4th): George: the original tiny dots were visually right, only hard to grab. The strip is 20 px
+        // Krimble 2026-10-11: George wants the ORIGINAL default look of these edges, with only the grabbing made bigger. The
+        // strip is wider so a finger can catch it, but what is drawn is exactly what the base style drew before: its own
+        // handle, in a strip of the original width, centered in the wide one.
+        {
+            const int originalWidth = QProxyStyle::pixelMetric(QStyle::PM_DockWidgetSeparatorExtent, option, widget) * 2;
+            QStyleOption originalLook(*option);
+            QRect r = option->rect;
+            if (r.height() >= r.width()) {
+                r.setX(r.center().x() - originalWidth / 2);
+                r.setWidth(qMin(originalWidth, option->rect.width()));
+            } else {
+                r.setY(r.center().y() - originalWidth / 2);
+                r.setHeight(qMin(originalWidth, option->rect.height()));
+            }
+            originalLook.rect = r;
+            QProxyStyle::drawPrimitive(element, &originalLook, painter, widget);
+            return;
+        }
+
+#if 0
+        // (4th) the three tiny dots, 6 device pixels across and 25 apart, and no line:
+        // Krimble 2026-10-10 (4th): George: the original tiny dots were visually right
+        // (4th) comment:, only hard to grab. The strip is 20 px
         // wide so a finger can grab it; what is drawn is the same tiny grip as before: three dots, each 6 device pixels
         // across and 25 device pixels apart, and no line or band.
         painter->save();
@@ -54,7 +76,6 @@ void KisWideDockSeparatorStyle::drawPrimitive(PrimitiveElement element, const QS
         painter->restore();
         return;
 
-#if 0
         // (3rd) draw nothing at all, and the older versions below, are kept, not deleted. They are not reached.
         // (2nd) three larger dots (radius 3 logical pixels, which is about 8 device pixels: too big):
         painter->save();
