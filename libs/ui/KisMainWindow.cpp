@@ -709,6 +709,27 @@ private:
 };
 #endif
 
+#ifdef Q_OS_ANDROID
+// Krimble 2026-10-11: after a screen rotation an open menu (the Window menu) stayed on screen and could not be closed.
+// Any popup that is open when the main window changes size is closed.
+class KrimbleClosePopupsOnResizeFilter : public QObject
+{
+public:
+    explicit KrimbleClosePopupsOnResizeFilter(QMainWindow *win) : QObject(win), m_win(win) {}
+    bool eventFilter(QObject *watched, QEvent *event) override
+    {
+        if (watched == m_win && event->type() == QEvent::Resize) {
+            while (QWidget *popup = QApplication::activePopupWidget()) {
+                popup->close();
+            }
+        }
+        return false;
+    }
+private:
+    QMainWindow *m_win;
+};
+#endif
+
 // ---- Older placement code (2026-10-03/04), kept for reference ----
 //     // Watch the right-hand panels too, so the button follows them when they move or resize.
 //     if (QObject *watcher = win->findChild<QObject*>(QStringLiteral("krimbleRightPanelsFilter"))) {
@@ -1393,6 +1414,8 @@ KisMainWindow::KisMainWindow(QUuid uuid)
 #ifdef Q_OS_ANDROID
     // Krimble 2026-10-10: drag the strip to the screen edge to shut the right panels.
     qApp->installEventFilter(new KrimbleEdgeCollapseFilter(this));
+    // Krimble 2026-10-11: close open menus when the window changes size (rotation).
+    installEventFilter(new KrimbleClosePopupsOnResizeFilter(this));
 #endif
 
     // KRIMBLE 2026-10-04: apply the labels typed in krita5.xmlgui (see krimbleApplyXmlGuiLabels). Run
@@ -4022,10 +4045,11 @@ void KisMainWindow::updateWindowMenu()
                 menu->addAction(action);
             }
         };
-        menu->addSeparator();
-        addActionByName("theme_menu");
-        addActionByName("style_menu");
-        addActionByName("switch_application_language");
+        // Krimble 2026-10-11: Themes, Styles and Language moved to the end of the menu (George); they were here:
+        // menu->addSeparator();
+        // addActionByName("theme_menu");
+        // addActionByName("style_menu");
+        // addActionByName("switch_application_language");
         menu->addSeparator();
         QMenu *toolbarsMenu = menu->addMenu(i18nc("@action:inmenu", "&Toolbars"));
         connect(toolbarsMenu, &QMenu::aboutToShow, this, [this, toolbarsMenu]() {
@@ -4045,6 +4069,15 @@ void KisMainWindow::updateWindowMenu()
         addActionByName("settings_detach_panel_menu");
         addActionByName("settings_attach_panel_menu");
         addActionByName("settings_toggle_right_panels");
+        // Krimble 2026-10-11: Hide All Panels (and Show All Panels while they are hidden), next to Hide Right Panels (George).
+        QAction *hideAllPanels = menu->addAction(d->toggleDockers->isChecked() ? i18n("Hide All Panels") : i18n("Show All Panels"));
+        connect(hideAllPanels, &QAction::triggered, this, [this]() {
+            d->toggleDockers->setChecked(!d->toggleDockers->isChecked());
+        });
+        menu->addSeparator();
+        addActionByName("theme_menu");
+        addActionByName("style_menu");
+        addActionByName("switch_application_language");
     }
 
     // Krimble 2026-10-10: the first version of the block above (kept, not deleted).

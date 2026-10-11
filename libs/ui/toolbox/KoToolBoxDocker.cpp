@@ -137,7 +137,9 @@ private:
 KoToolBoxDocker::KoToolBoxDocker(KoToolBox *toolBox)
     // KRIMBLE 2026-10-02: panel renamed "Toolbox" -> "Tools".
     // : QDockWidget(i18n("Toolbox"))
-    : QDockWidget(i18n("Tools"))
+    // : QDockWidget(i18n("Tools"))
+    // Krimble 2026-10-11: called "Toolbox" again (George).
+    : QDockWidget(i18n("Toolbox"))
     , m_toolBox(toolBox)
     , m_scrollArea(new KoToolBoxScrollArea(toolBox, this))
 {

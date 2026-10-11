@@ -3325,3 +3325,13 @@ The empty bar at the top of the toolbox (its title bar, used to drag it) did not
 ## 2026-10-11 — Version 32
 
 `krimbleBuildNumber` 31 → 32 in `build.gradle`: version `1.0.32-beta`, version code 5050432.
+
+## 2026-10-11 (37th) — QA of build 32, first batch: Window menu, popups on rotation, real window glyphs, Toolbox name
+
+**Files:** `libs/ui/KisMainWindow.cpp`, `libs/widgetutils/KisWideDockSeparatorStyle.cpp`, `libs/widgetutils/KisWideDockSeparatorStyle.h`, `libs/ui/toolbox/KoToolBoxDocker.cpp`
+
+- Window menu: new "Hide All Panels" next to "Hide Right Panels" (it reads "Show All Panels" while they are hidden). Themes, Styles and Switch Application Language moved to the end of the Window menu, after the panel items. Old lines commented out.
+- Rotation left the Window menu stuck on screen. On Android any open menu is closed when the main window changes size (`KrimbleClosePopupsOnResizeFilter`).
+- The close button of a floating image window was not an X. On Android the title bar buttons (close, minimize, maximize, restore) are drawn by the app's style (`standardIcon`): an X, a line, a square, two squares, in the text color. This also covers the buttons that appear at the right end of the menu bar for a maximized image.
+- The toolbox panel is called "Toolbox" again (it was "Tools" since 2026-10-02). Old line commented out.
+**Not verified:** a build or a device.

@@ -5,6 +5,8 @@
 
 #include <QStyleFactory>
 #include <QPainter>
+#include <QPixmap>
+#include <QWidget>
 #include <QStyleOption>
 
 KisWideDockSeparatorStyle::KisWideDockSeparatorStyle(QStyle *baseStyle)
@@ -152,4 +154,45 @@ QSize KisWideDockSeparatorStyle::sizeFromContents(ContentsType type, const QStyl
     }
 #endif
     return QProxyStyle::sizeFromContents(type, option, size, widget);
+}
+
+QIcon KisWideDockSeparatorStyle::standardIcon(StandardPixmap standardIcon, const QStyleOption *option, const QWidget *widget) const
+{
+#ifdef Q_OS_ANDROID
+    // Krimble 2026-10-11: the window buttons (close, minimize, maximize, restore) drawn by the base style came out as dashes and
+    // blobs on a phone; the close button was not an X. They are drawn here: lines in the text color on a transparent square.
+    if (standardIcon == SP_TitleBarCloseButton || standardIcon == SP_TitleBarMinButton
+        || standardIcon == SP_TitleBarMaxButton || standardIcon == SP_TitleBarNormalButton) {
+        const qreal dpr = widget ? widget->devicePixelRatioF() : 2.0;
+        const int logicalSize = 20;
+        QPixmap pixmap(int(logicalSize * dpr), int(logicalSize * dpr));
+        pixmap.setDevicePixelRatio(dpr);
+        pixmap.fill(Qt::transparent);
+        QPainter p(&pixmap);
+        p.setRenderHint(QPainter::Antialiasing, true);
+        QColor color = option ? option->palette.color(QPalette::WindowText) : QColor(230, 230, 235);
+        QPen pen(color);
+        pen.setWidthF(2.2);
+        pen.setCapStyle(Qt::RoundCap);
+        pen.setJoinStyle(Qt::RoundJoin);
+        p.setPen(pen);
+        p.setBrush(Qt::NoBrush);
+        const qreal a = 4.5, b = 15.5;
+        if (standardIcon == SP_TitleBarCloseButton) {
+            p.drawLine(QPointF(a, a), QPointF(b, b));
+            p.drawLine(QPointF(b, a), QPointF(a, b));
+        } else if (standardIcon == SP_TitleBarMinButton) {
+            p.drawLine(QPointF(a, b - 1), QPointF(b, b - 1));
+        } else if (standardIcon == SP_TitleBarMaxButton) {
+            p.drawRect(QRectF(a, a, b - a, b - a));
+        } else {
+            p.drawRect(QRectF(a, a + 3, b - a - 3, b - a - 3));
+            p.drawLine(QPointF(a + 3, a), QPointF(b, a));
+            p.drawLine(QPointF(b, a), QPointF(b, b - 3));
+        }
+        p.end();
+        return QIcon(pixmap);
+    }
+#endif
+    return QProxyStyle::standardIcon(standardIcon, option, widget);
 }
