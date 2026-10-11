@@ -3258,3 +3258,31 @@ The strip between the canvas and the right panels stops at the panels' minimum w
 
 The toolbox could not be widened in portrait. Nothing caps its width; Qt can only widen it by taking room from the canvas or the right panels, and the two 20-wide strips between the docks used about 100 device pixels. The strips are now at least 14 wide (about 36 device pixels, still easy to catch), which gives back about 32 device pixels. Old line commented out. The side panel's real minimum width is not confirmed yet.
 **Not verified:** a build or a device.
+
+## 2026-10-10 (29th) — Save As dialogs fit the screen (Android)
+
+**Files:** `libs/widgetutils/KoFileDialog.cpp`
+
+QA of build 117207e: the Save As file dialog was bigger than the screen in portrait. It restores the size it had last time, which can be a landscape size. On Android the file dialog and the format picker are cut down to 95% x 90% of the screen and centered each time they are shown.
+**Not verified:** a build or a device.
+
+## 2026-10-10 (30th) — Floating toolbox: invisible edges, no stripe, no empty margin
+
+**Files:** `libs/ui/toolbox/KoToolBoxDocker.cpp`
+
+QA: the floating toolbox showed a dark/light stripe, dots and about 62 device pixels of empty space on its right and bottom edges (the 24 px edge margin from 2026-10-07). The edges are now invisible 10 px touch zones laid over the toolbox's own edge, with no margin, stripe or dots. Resizing a floating toolbox still works by dragging its right or bottom edge. Old lines kept under `#if 0` or commented out.
+**Not verified:** a build or a device.
+
+## 2026-10-10 (31st) — Toolbox: color wells cling to the bottom of the tools
+
+**Files:** `libs/ui/toolbox/KoToolBoxDocker.cpp`
+
+QA: when the toolbox was wider, the color wells sat far below the last tool. The tool area kept the height it had at a narrower width. In `resizeEvent`, a moment after the layout settles, the tool area's maximum height is set to the height the tools need at the current width (vertical layout only), so the wells follow directly under the tools.
+**Not verified:** a build or a device.
+
+## 2026-10-10 (32nd) — Toolbox: the saved column count is put back after any resize that is not a finger
+
+**Files:** `libs/ui/toolbox/KoToolBoxDocker.cpp`
+
+QA: in portrait the toolbox fell back to one column and would not widen. A width change with no finger down (a workspace or layout restore, a rotation) now starts the restore timer, which puts the saved column count back. Only a drag with a finger or the Columns menu can change the saved count (22nd entry). If the screen has no room for the saved count the width stays as the layout allows.
+**Not verified:** a build or a device.

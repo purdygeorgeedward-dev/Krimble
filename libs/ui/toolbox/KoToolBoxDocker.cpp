@@ -59,6 +59,10 @@ public:
 protected:
     void paintEvent(QPaintEvent *) override
     {
+        // Krimble 2026-10-10: George: no stripe, no dots, no empty margin. The edge is an invisible touch zone now.
+        // The drawing below is kept, not deleted. It is not reached.
+        return;
+#if 0
         QPainter p(this);
         // the edge: a dark line with a light line beside it, and a few dots, so it can be seen and found
         if (m_vertical) {
@@ -80,6 +84,7 @@ protected:
                 p.drawEllipse(QPointF(width() / 2.0 + i * 10, height() - 12), 1.6, 1.6);
             }
         }
+#endif
     }
     void mousePressEvent(QMouseEvent *event) override
     {
@@ -302,7 +307,8 @@ void KoToolBoxDocker::resizeEvent(QResizeEvent *event)
         }
     }
     if (m_edgeRight && m_edgeBottom && isFloating()) {
-        const int e = 24;
+        // const int e = 24;
+        const int e = 10;   // Krimble 2026-10-10: invisible edge zone, 10 px
         m_edgeRight->setGeometry(width() - e, 0, e, height() - e);
         m_edgeBottom->setGeometry(0, height() - e, width(), e);
         m_edgeRight->raise();
@@ -314,7 +320,27 @@ void KoToolBoxDocker::resizeEvent(QResizeEvent *event)
     // if (m_snapTimer && !m_windowResizing && !m_applying && !isFloating()) {
     if (m_snapTimer && !m_windowResizing && !m_applying && !isFloating() && QApplication::mouseButtons() != Qt::NoButton) {
         m_snapTimer->start();
+    } else if (m_restoreTimer && !m_windowResizing && !m_applying && !isFloating() && isVisible() && QApplication::mouseButtons() == Qt::NoButton) {
+        // Krimble 2026-10-10: a width change with no finger down (a workspace or layout restore, a rotation): put the saved
+        // column count back a moment later. Only a drag with a finger or the Columns menu can change the saved count.
+        m_restoreTimer->start();
     }
+
+    // Krimble 2026-10-10: keep the tool area exactly as tall as the tools are at this width, so the color wells cling to the
+    // bottom of the tools instead of sitting far below them when the toolbox gets wider (the tool area kept the height it
+    // had at a narrower width). Done a moment later, when the layout has settled. Only for the vertical layout.
+    QTimer::singleShot(0, this, [this]() {
+        if (!m_scrollArea || !m_toolBox || !m_toolBox->layout()) return;
+        if (!m_toolBox->layout()->hasHeightForWidth()) {
+            m_scrollArea->setMaximumHeight(QWIDGETSIZE_MAX);
+            return;
+        }
+        const int contentHeight = m_toolBox->layout()->heightForWidth(m_scrollArea->viewport()->width());
+        if (contentHeight > 0) {
+            const int frame = m_scrollArea->height() - m_scrollArea->viewport()->height();
+            m_scrollArea->setMaximumHeight(contentHeight + frame);
+        }
+    });
 }
 
 bool KoToolBoxDocker::eventFilter(QObject *watched, QEvent *event)
@@ -333,20 +359,23 @@ void KoToolBoxDocker::setFloatingEdges(bool floating)
 {
     // KRIMBLE 2026-10-07: floating: no corner gadget, a 24 px margin at the right and at the bottom holds the two edge
     // strips; docked: the margins and the strips go away.
-    const int e = 24;
-    QMargins m = contentsMargins();
-    const bool has = property("krimbleToolBoxEdges").toBool();
-    if (floating && !has) {
-        m.setRight(m.right() + e);
-        m.setBottom(m.bottom() + e);
-        setContentsMargins(m);
-        setProperty("krimbleToolBoxEdges", true);
-    } else if (!floating && has) {
-        m.setRight(qMax(0, m.right() - e));
-        m.setBottom(qMax(0, m.bottom() - e));
-        setContentsMargins(m);
-        setProperty("krimbleToolBoxEdges", false);
-    }
+    // Krimble 2026-10-10: invisible edge zones of 10 px laid over the toolbox's own edge, no margin (was 24 and a margin).
+    const int e = 10;
+    // The 24 px margin version, kept, not deleted:
+    // const int e = 24;
+    // QMargins m = contentsMargins();
+    // const bool has = property("krimbleToolBoxEdges").toBool();
+    // if (floating && !has) {
+    //     m.setRight(m.right() + e);
+    //     m.setBottom(m.bottom() + e);
+    //     setContentsMargins(m);
+    //     setProperty("krimbleToolBoxEdges", true);
+    // } else if (!floating && has) {
+    //     m.setRight(qMax(0, m.right() - e));
+    //     m.setBottom(qMax(0, m.bottom() - e));
+    //     setContentsMargins(m);
+    //     setProperty("krimbleToolBoxEdges", false);
+    // }
     m_edgeRight->setVisible(floating);
     m_edgeBottom->setVisible(floating);
     if (floating) {

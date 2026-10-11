@@ -137,6 +137,30 @@ QString KoFileDialog::selectedMimeType() const
     return d->mimeType;
 }
 
+#ifdef Q_OS_ANDROID
+// Krimble 2026-10-10: a dialog that comes up bigger than the screen (for example a size saved in landscape and restored in
+// portrait) is cut down to 95% x 90% of the screen and moved onto it, every time it is shown.
+class KrimbleFitToScreenFilter : public QObject
+{
+public:
+    explicit KrimbleFitToScreenFilter(QWidget *dialog) : QObject(dialog), m_dialog(dialog) {}
+    bool eventFilter(QObject *watched, QEvent *event) override
+    {
+        if (watched == m_dialog && event->type() == QEvent::Show) {
+            if (QScreen *screen = QApplication::primaryScreen()) {
+                const QRect avail = screen->availableGeometry();
+                const QSize s(qMin(m_dialog->width(), int(avail.width() * 0.95)), qMin(m_dialog->height(), int(avail.height() * 0.90)));
+                m_dialog->resize(s);
+                m_dialog->move(avail.left() + (avail.width() - s.width()) / 2, avail.top() + (avail.height() - s.height()) / 2);
+            }
+        }
+        return false;
+    }
+private:
+    QWidget *m_dialog;
+};
+#endif
+
 void KoFileDialog::createFileDialog()
 {
     d->fileDialog.reset(new KisPreviewFileDialog(d->parent, d->caption, d->defaultDirectory + "/" + d->proposedFileName));
@@ -287,6 +311,10 @@ void KoFileDialog::createFileDialog()
             }
         });
     }
+#ifdef Q_OS_ANDROID
+    // Krimble 2026-10-10: fit the file dialog to the screen each time it is shown (see KrimbleFitToScreenFilter).
+    d->fileDialog->installEventFilter(new KrimbleFitToScreenFilter(d->fileDialog.get()));
+#endif
 }
 
 QString KoFileDialog::filename()
@@ -314,6 +342,9 @@ QString KoFileDialog::filename()
             const QRect avail = screen->availableGeometry();
             mimeSelector.setMinimumSize(avail.width() * 0.85, avail.height() * 0.6);
         }
+#ifdef Q_OS_ANDROID
+        mimeSelector.installEventFilter(new KrimbleFitToScreenFilter(&mimeSelector));
+#endif
 
         if (mimeSelector.exec() == QDialog::Accepted) {
             const QString selectedFilter = mimeSelector.textValue();
