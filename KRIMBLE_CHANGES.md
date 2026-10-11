@@ -3321,3 +3321,7 @@ QA of build 117207e: George wanted the original default look of the toolbox and 
 The empty bar at the top of the toolbox (its title bar, used to drag it) did not look like something to grab. It is now a `KrimbleToolBoxGrip`: the same raised label with three light horizontal lines (2 device pixels thick, 6 apart, 45% of the bar's width) centered on it. The old label line is commented out.
 (The blank edge on the right and bottom of a floating toolbox is a separate item: it was removed in the 30th entry.)
 **Not verified:** a build or a device.
+
+## 2026-10-11 — Version 32
+
+`krimbleBuildNumber` 31 → 32 in `build.gradle`: version `1.0.32-beta`, version code 5050432.
