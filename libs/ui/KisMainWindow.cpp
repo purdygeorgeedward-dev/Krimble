@@ -36,6 +36,13 @@
 #include <QStatusBar>
 #include <QStyleFactory>
 #include <algorithm>
+#include <QUuid>
+#include <kis_pointer_utils.h>
+#include "kis_processing_applicator.h"
+#include "commands_new/kis_set_layer_style_command.h"
+#include <kis_psd_layer_style.h>
+#include <KSharedConfig>
+#include <KConfigGroup>
 #include <QFile>
 #include <QImage>
 #include <QCoreApplication>
@@ -1554,15 +1561,162 @@ private:
 #endif
 
 #ifdef Q_OS_ANDROID
+// ============================================================================================================================
+// Krimble 2026-10-12: Startup layouts (George's idea, Claude's design). "Save Layout as Startup" keeps the way the panels, toolbars and
+// the toolbox are arranged for the screen's current orientation (portrait or landscape); at start, and each time the screen is rotated,
+// the saved layout for that orientation is put back. "Reset Layout" forgets both and returns to the layout the app first started with.
+// ============================================================================================================================
+static bool krimbleIsLandscape(QMainWindow *win)
+{
+    return win->width() > win->height();
+}
+
+static void krimbleSaveLayout(QMainWindow *win)
+{
+    KConfigGroup g = KSharedConfig::openConfig()->group("KrimbleLayouts");
+    g.writeEntry(krimbleIsLandscape(win) ? "landscape" : "portrait", win->saveState().toBase64());
+    g.sync();
+}
+
+static void krimbleRestoreSavedLayout(QMainWindow *win)
+{
+    KConfigGroup g = KSharedConfig::openConfig()->group("KrimbleLayouts");
+    const QByteArray saved = g.readEntry(krimbleIsLandscape(win) ? "landscape" : "portrait", QByteArray());
+    if (!saved.isEmpty()) {
+        win->restoreState(QByteArray::fromBase64(saved));
+    }
+}
+
+static void krimbleResetLayout(QMainWindow *win)
+{
+    KConfigGroup g = KSharedConfig::openConfig()->group("KrimbleLayouts");
+    g.deleteEntry("portrait");
+    g.deleteEntry("landscape");
+    g.sync();
+    const QByteArray def = g.readEntry("default", QByteArray());
+    if (!def.isEmpty()) {
+        win->restoreState(QByteArray::fromBase64(def));
+    }
+}
+
+// ============================================================================================================================
+// Krimble 2026-10-12: Layer Style Presets (Claude's idea; George: "Layer Styles - sounds like Alien Skin plugins. I love it. Yes."):
+// one tap puts a ready-made layer style on the active layer (with undo). They add to the layer's existing style; "Clear Style"
+// switches the whole style off. The full Layer Style window (Layer > Layer Style...) can still fine-tune any of them.
+// ============================================================================================================================
+static void krimbleApplyLayerStyle(KisMainWindow *win, int preset)
+{
+    KisViewManager *view = win->viewManager();
+    if (!view) return;
+    KisImageSP image = view->image();
+    if (!image) return;
+    KisLayerSP layer = qobject_cast<KisLayer*>(view->activeNode().data());
+    if (!layer) return;
+    if (!view->blockUntilOperationsFinished(image)) return;
+
+    KoCanvasResourcesInterfaceSP canvasResourcesInterface = view->canvasBase()->resourceManager()->canvasResourcesInterface();
+    KisPSDLayerStyleSP oldStyle;
+    if (layer->layerStyle()) {
+        oldStyle = layer->layerStyle()->clone().dynamicCast<KisPSDLayerStyle>();
+    } else {
+        oldStyle = toQShared(new KisPSDLayerStyle("", KisGlobalResourcesInterface::instance()))
+                       ->cloneWithResourcesSnapshot(KisGlobalResourcesInterface::instance(), canvasResourcesInterface);
+    }
+    KisPSDLayerStyleSP newStyle = oldStyle->clone().dynamicCast<KisPSDLayerStyle>();
+    newStyle->setUuid(QUuid::createUuid());
+
+    const KoColor white = KoColor::fromXML(QStringLiteral("<color channeldepth='U8'><sRGB r='1.0' g='1.0' b='1.0'/></color>"));
+    const KoColor black = KoColor::fromXML(QStringLiteral("<color channeldepth='U8'><sRGB r='0.0' g='0.0' b='0.0'/></color>"));
+    newStyle->setEnabled(true);
+    switch (preset) {
+    case 0: // Drop Shadow
+        newStyle->dropShadow()->setEffectEnabled(true);
+        newStyle->dropShadow()->setDistance(12);
+        newStyle->dropShadow()->setSize(14);
+        newStyle->dropShadow()->setOpacity(70);
+        break;
+    case 1: // Inner Shadow
+        newStyle->innerShadow()->setEffectEnabled(true);
+        break;
+    case 2: // Outer Glow (white)
+        newStyle->outerGlow()->setEffectEnabled(true);
+        newStyle->outerGlow()->setColor(white);
+        break;
+    case 3: // Inner Glow
+        newStyle->innerGlow()->setEffectEnabled(true);
+        break;
+    case 4: // Stroke, white, 4 px, outside
+        newStyle->stroke()->setEffectEnabled(true);
+        newStyle->stroke()->setSize(4);
+        newStyle->stroke()->setColor(white);
+        newStyle->stroke()->setPosition(psd_stroke_outside);
+        break;
+    case 5: // Stroke, black, 4 px, outside
+        newStyle->stroke()->setEffectEnabled(true);
+        newStyle->stroke()->setSize(4);
+        newStyle->stroke()->setColor(black);
+        newStyle->stroke()->setPosition(psd_stroke_outside);
+        break;
+    case 6: // Bevel and Emboss
+        newStyle->bevelAndEmboss()->setEffectEnabled(true);
+        break;
+    default: // Clear Style
+        newStyle->setEnabled(false);
+        break;
+    }
+    KisPSDLayerStyleSP finalStyle = newStyle->cloneWithResourcesSnapshot(KisGlobalResourcesInterface::instance(), canvasResourcesInterface);
+    KUndo2Command *cmd = new KisSetLayerStyleCommand(layer, layer->layerStyle(), finalStyle);
+    KisProcessingApplicator::runSingleCommandStroke(image, cmd);
+    image->waitForDone();
+}
+
+// Adds "Style Presets" right after "Layer Style..." in the Layer menu (once, when the menu first opens).
+static void krimbleInstallLayerExtras(KisMainWindow *win)
+{
+    QMenu *layerMenu = nullptr;
+    Q_FOREACH (QAction *top, win->menuBar()->actions()) {
+        QString title = top->text();
+        title.remove(QLatin1Char('&'));
+        if (top->menu() && title == QLatin1String("Layer")) layerMenu = top->menu();
+    }
+    if (!layerMenu || layerMenu->property("krimbleLayerExtras").toBool()) return;
+    layerMenu->setProperty("krimbleLayerExtras", true);
+    QObject::connect(layerMenu, &QMenu::aboutToShow, win, [win, layerMenu]() {
+        if (layerMenu->property("krimbleLayerExtrasAdded").toBool()) return;
+        layerMenu->setProperty("krimbleLayerExtrasAdded", true);
+        QAction *before = nullptr;
+        const QList<QAction*> actions = layerMenu->actions();
+        for (int i = 0; i < actions.size(); ++i) {
+            QString text = actions.at(i)->text();
+            text.remove(QLatin1Char('&'));
+            if (text.startsWith(QLatin1String("Layer Style")) && i + 1 < actions.size()) before = actions.at(i + 1);
+        }
+        QMenu *sub = new QMenu(i18n("Style Presets"), layerMenu);
+        static const char *const names[] = { "Drop Shadow", "Inner Shadow", "Outer Glow", "Inner Glow", "Stroke (white, 4 px)",
+                                             "Stroke (black, 4 px)", "Bevel and Emboss", "Clear Style" };
+        for (int i = 0; i < 8; ++i) {
+            QAction *a = sub->addAction(i18n(names[i]));
+            QObject::connect(a, &QAction::triggered, win, [win, i]() { krimbleApplyLayerStyle(win, i); });
+        }
+        layerMenu->insertMenu(before, sub);
+    });
+}
+
 // Krimble 2026-10-11: after a screen rotation an open menu (the Window menu) stayed on screen and could not be closed.
 // Any popup that is open when the main window changes size is closed.
 class KrimbleClosePopupsOnResizeFilter : public QObject
 {
 public:
-    explicit KrimbleClosePopupsOnResizeFilter(QMainWindow *win) : QObject(win), m_win(win) {}
+    explicit KrimbleClosePopupsOnResizeFilter(QMainWindow *win) : QObject(win), m_win(win), m_landscape(krimbleIsLandscape(win)) {}
     bool eventFilter(QObject *watched, QEvent *event) override
     {
         if (watched == m_win && event->type() == QEvent::Resize) {
+            // Krimble 2026-10-12: after the screen turns, put back the layout saved for the new orientation (if there is one)
+            if (krimbleIsLandscape(m_win) != m_landscape) {
+                m_landscape = krimbleIsLandscape(m_win);
+                QMainWindow *win = m_win;
+                QTimer::singleShot(500, win, [win]() { krimbleRestoreSavedLayout(win); });
+            }
             while (QWidget *popup = QApplication::activePopupWidget()) {
                 popup->close();
             }
@@ -1575,6 +1729,7 @@ public:
     }
 private:
     QMainWindow *m_win;
+    bool m_landscape;
 };
 #endif
 
@@ -2291,6 +2446,17 @@ KisMainWindow::KisMainWindow(QUuid uuid)
                     }
                 }
             }
+        }
+        // Krimble 2026-10-12: keep the layout the app first started with (for "Reset Layout"), then put back the layout the
+        // user saved for this orientation, if any; and add "Style Presets" to the Layer menu.
+        {
+            KConfigGroup layoutGroup = KSharedConfig::openConfig()->group("KrimbleLayouts");
+            if (!layoutGroup.hasKey("default")) {
+                layoutGroup.writeEntry("default", saveState().toBase64());
+                layoutGroup.sync();
+            }
+            krimbleRestoreSavedLayout(this);
+            krimbleInstallLayerExtras(this);
         }
     });
     // Krimble 2026-10-11: close open menus when the window changes size (rotation).
@@ -5003,6 +5169,16 @@ void KisMainWindow::updateWindowMenu()
             const QStringList panels = def.panels;
             connect(presetAction, &QAction::triggered, this, [this, panels]() { krimbleApplyPanelPreset(this, panels); });
         }
+        // Krimble 2026-10-12: Startup layouts (George's idea, Claude's design)
+        QAction *saveLayout = menu->addAction(i18n("Save Layout as Startup"));
+        connect(saveLayout, &QAction::triggered, this, [this]() {
+            krimbleSaveLayout(this);
+            QMessageBox::information(this, i18n("Startup layout"),
+                krimbleIsLandscape(this) ? i18n("The landscape layout is saved. It will be used at start and whenever the screen is turned to landscape.")
+                                         : i18n("The portrait layout is saved. It will be used at start and whenever the screen is turned to portrait."));
+        });
+        QAction *resetLayout = menu->addAction(i18n("Reset Layout"));
+        connect(resetLayout, &QAction::triggered, this, [this]() { krimbleResetLayout(this); });
         menu->addSeparator();
         addActionByName("theme_menu");
         addActionByName("style_menu");

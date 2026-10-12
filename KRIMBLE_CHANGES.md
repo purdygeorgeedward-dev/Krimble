@@ -3701,3 +3701,16 @@ Claude's idea ("Batch resize and export"; "Premade batch scripts"); George: "Pre
 
 George: "Why 1080 wide? It's usually a height from 1080p." The batch presets' size is now the picture's longest side, so it works whichever way up the picture is: **HD 1080p: longest side 1920 px (JPG)** (a landscape picture becomes 1920 x 1080), **Social: longest side 1080 px (JPG)**, **Messages: longest side 1280 px (JPG 80%)**, **Thumbnail: longest side 256 px (PNG)**; the two convert presets are unchanged. Output names end in `-hd`, `-social`, `-msg`, `-thumb`. Pictures already smaller than the target are not enlarged. The first version is kept in a comment.
 **Not verified:** a build or a device.
+
+## 2026-10-12 (75th) — Layer Style Presets and Startup Layouts
+
+**Files:** `libs/ui/KisMainWindow.cpp`
+
+**Layer Style Presets** (Claude's idea; George: "Layer Styles - sounds like Alien Skin plugins. I love it. Yes."): a new submenu "Style Presets" in the Layer menu, right after "Layer Style...". One tap puts a ready-made style on the active layer, with undo, using the program's own layer style code: **Drop Shadow** (12 px distance, 14 px size, 70%), **Inner Shadow**, **Outer Glow** (white), **Inner Glow**, **Stroke (white, 4 px)**, **Stroke (black, 4 px)**, **Bevel and Emboss**, **Clear Style** (switches the whole style off). A preset adds to the layer's existing style; the full Layer Style window can fine-tune it. Not done: color overlay, gradient or pattern presets, and a way to save your own.
+
+**Startup Layouts** (George's idea, Claude's design; George: "Yes"): two new Window menu items after Layout Presets.
+- **Save Layout as Startup:** saves how the panels, toolbars and toolbox are arranged for the screen's current orientation (portrait or landscape), in the settings group `KrimbleLayouts`. A message says which one was saved.
+- At start (2.5 s after launch) and 0.5 s after each screen rotation, the layout saved for that orientation is put back (if there is one).
+- **Reset Layout:** forgets both saved layouts and returns to the layout the app first started with (kept as `default` the first time the app runs, after the toolbox is made floating).
+- The layout is Qt's own window state (`saveState` / `restoreState`), the same mechanism Krita uses when it closes and opens.
+**Not verified:** a build or a device. Restoring a layout right after a rotation interacts with the toolbox width code; if it misbehaves, "Reset Layout" is the way back.
