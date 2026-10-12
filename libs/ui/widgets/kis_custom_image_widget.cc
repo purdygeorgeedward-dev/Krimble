@@ -88,7 +88,8 @@ KisCustomImageWidget::KisCustomImageWidget(QWidget* parent, qint32 defWidth, qin
     cmbWidthUnit->setMaximumWidth(76);
     cmbHeightUnit->setMaximumWidth(76);
     cmbResolutionUnit->setMaximumWidth(76);
-    cmbPredefined->setMaximumWidth(104);
+    // cmbPredefined->setMaximumWidth(104);
+    cmbPredefined->setMaximumWidth(170);   // Krimble 2026-10-12: George: "The little button could be a little wider." (the new size names are long)
 #endif
 
     txtName->setText(imageName);

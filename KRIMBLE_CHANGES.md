@@ -3646,3 +3646,10 @@ George (with a screenshot, an arrow pointing at the empty space): "New dialog is
 
 The QA overlay showed the Layers panel needs at least 258 logical px (about 870 device px at density 3.375), most of a portrait screen, so the toolbox, canvas and other panels had no room (the cause of the portrait toolbox and handle problems). The six buttons under the layer list (add, duplicate, lower, raise, properties, delete) were the widest row. On Android their icons are 18 px (were 22), their size policy is "ignored" horizontally so they share the row evenly, and each may be as narrow as 30 px. Expected minimum width of the panel: about 190 px (about 640 device px at 3.375), if nothing else in the panel is wider. Not confirmed: the QA overlay on the next build will show the new minimum, and the widest other part if it is still wide.
 **Not verified:** a build or a device.
+
+## 2026-10-12 (69th) — New Document: the Predefined size list is wider
+
+**Files:** `libs/ui/widgets/kis_custom_image_widget.cc`
+
+George's test of 1.0.33: Dodge/Burn look ok, the Type tool, the new size presets, Columns, rotation and Save As all work. "The little button could be a little wider." The "Predefined" drop-down's maximum width is 170 px (was 104), so the new size names fit better. Old line kept in a comment.
+**Not verified:** a build or a device.
