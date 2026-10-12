@@ -3438,3 +3438,11 @@ George: the New Document window is too big, the scroll area (2026-10-09, 6th ent
 - The long sentence "This document will be ... pixels by ... pixels in ..." (`lblDocumentInfo`) did not wrap and made the Custom Document page wider than a phone. It wraps now.
 - Not done: other things on that page may still be wider than the screen. A screenshot of the next build will show.
 **Not verified:** a build or a device.
+
+## 2026-10-12 (49th) — Top toolbars stack; New Document margins
+
+**Files:** `libs/ui/KisMainWindow.cpp`, `libs/ui/KisOpenPane.cpp`
+
+- George: the toolbars should stack instead of lining up in one row. On Android, 2.5 s after the main window starts (once the saved layout is back), and after "Reset Toolbars", a toolbar break is put in front of every toolbar in the top area except the first (`krimbleStackToolBars`), so each toolbar gets its own row. The cost is vertical space.
+- George: the New Document window wastes a lot of space. On Android its outer margins and spacing are 4 px (they were the dialog's defaults).
+**Not verified:** a build or a device.

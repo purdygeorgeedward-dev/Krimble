@@ -390,6 +390,27 @@ static int krimbleRubberBandDefault(KisConfig &cfg)
 #endif
 }
 
+// Krimble 2026-10-12: the toolbars in the top area stack, one on each row, instead of lining up in one row with the rest hidden
+// behind the ">>" button (George). A toolbar break is put in front of every top toolbar except the first one.
+static void krimbleStackToolBars(QMainWindow *win)
+{
+    QList<QToolBar*> top;
+    Q_FOREACH (QToolBar *toolBar, win->findChildren<QToolBar*>()) {
+        if (toolBar->parentWidget() == win && win->toolBarArea(toolBar) == Qt::TopToolBarArea && !toolBar->isHidden()) {
+            top.append(toolBar);
+        }
+    }
+    std::sort(top.begin(), top.end(), [](QToolBar *a, QToolBar *b) {
+        if (a->geometry().y() != b->geometry().y()) return a->geometry().y() < b->geometry().y();
+        return a->geometry().x() < b->geometry().x();
+    });
+    for (int i = 1; i < top.size(); ++i) {
+        if (!win->toolBarBreak(top[i])) {
+            win->insertToolBarBreak(top[i]);
+        }
+    }
+}
+
 static QList<QDockWidget*> krimbleRightDocks(QMainWindow *win, bool visibleOnly)
 {
     QList<QDockWidget*> docks;
@@ -1418,6 +1439,8 @@ KisMainWindow::KisMainWindow(QUuid uuid)
 #ifdef Q_OS_ANDROID
     // Krimble 2026-10-10: drag the strip to the screen edge to shut the right panels.
     qApp->installEventFilter(new KrimbleEdgeCollapseFilter(this));
+    // Krimble 2026-10-12: stack the top toolbars once the saved layout has been restored.
+    QTimer::singleShot(2500, this, [this]() { krimbleStackToolBars(this); });
     // Krimble 2026-10-11: close open menus when the window changes size (rotation).
     installEventFilter(new KrimbleClosePopupsOnResizeFilter(this));
 #endif
@@ -4079,6 +4102,8 @@ void KisMainWindow::updateWindowMenu()
                     toolBar->setOrientation(Qt::Horizontal);
                     toolBar->show();
                 }
+                // Krimble 2026-10-12: and one on each row
+                QTimer::singleShot(0, this, [this]() { krimbleStackToolBars(this); });
             });
         });
         addActionByName("lock_toolbars");

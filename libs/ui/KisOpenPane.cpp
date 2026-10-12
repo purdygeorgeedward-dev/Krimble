@@ -144,6 +144,12 @@ KisOpenPane::KisOpenPane(QWidget *parent, const QStringList& mimeFilter, const Q
         // d->m_sectionList->setMaximumWidth(int(scr->availableGeometry().width() * 0.22));
         d->m_sectionList->setMaximumWidth(int(scr->availableGeometry().width() * 0.20));   // Krimble 2026-10-12: thinner
     }
+    // Krimble 2026-10-12: George: the New Document window wastes a lot of space. Small margins and spacing around and between
+    // its parts.
+    if (layout()) {
+        layout()->setContentsMargins(4, 4, 4, 4);
+        layout()->setSpacing(4);
+    }
 #endif
 
     m_mimeFilter = mimeFilter;
