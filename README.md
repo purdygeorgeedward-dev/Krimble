@@ -27,7 +27,7 @@ Krimble remains built on the extraordinary foundation of [Krita](https://invent.
 <img src="https://krimble.org/assets/kimmy-phone.jpg" alt="Kimmy using Krimble on a phone" width="100%">
 </div>
 
-### What is mobile-first?
+### What is mobile-first? 📱
 
 Krimble is designed around **phones and touch** and reproducing a desktop workstation on a smaller display. The focus is not on painting, but on graphics editing tasks.
 
@@ -41,9 +41,7 @@ That means:
 - workflows that do not assume a mouse or keyboard
 
 ---
-<div align="center">
-<img src="https://krimble.org/assets/cat.jpg" alt="Kimmy's cat" width="360">
-</div>
+
 ## Why Krimble?
 
 I am a lifelong graphics professional trained across traditional media and digital tools. On a phone, I do not want to paint. I want a practical graphics editor in the palm of my hand.
@@ -58,7 +56,7 @@ I found myself using Krita on my smartphone as a daily driver for graphics tasks
 
 ---
 
-## WHAT KRIMBLE CHANGES
+## WHAT KRIMBLE CHANGES 
 
 Krimble already includes changes to make the application more practical and familiar on mobile:
 
@@ -77,7 +75,7 @@ Krimble already includes changes to make the application more practical and fami
 
 ---
 
-## NEW CREATIVE TOOLS
+## NEW CREATIVE TOOLS 🎨
 
 <div align="center">
 <img src="https://krimble.org/assets/holograms.jpg" alt="Kimmy exploring new Krimble tools" width="100%">
@@ -87,11 +85,11 @@ Krimble is expanding beyond interface adaptation into new graphics-editing capab
 
 Recent and active work includes:
 
-- **Healing Brush**
-- **Content-Aware Fill**
-- **Vibrance color adjustment**
-- **Upscaling**
-- **advanced Color Match tool**
+- **Healing Brush** 🩹
+- **Content-Aware Fill** 🫗
+- **Vibrance color adjustment** 🌈
+- **Upscaling** 🆙
+- **advanced Color Match tool** 🦚
 - improved graphics editing workflows
 - replayable Actions with captured parameters
 - additional restoration and editing tools
@@ -100,13 +98,13 @@ Some of these are already implemented; others are still in development.
 
 ---
 
-## A GIFT FOR YOU! ❤️
+## A GIFT FOR YOU! 🎁
 
 <div align="center">
 <img src="https://krimble.org/assets/a-gift-for-you.jpg" alt="Kimmy offering a gift — A gift for you!" width="100%">
 </div>
 
-Krimble is **free and open-source software**.
+Krimble is **free and open-source software**. 
 
 That is more than a price. It means the program is shared with its source code under a free-software license so people can study it, modify it, improve it, build it, and share compatible versions.
 
@@ -116,7 +114,7 @@ Krimble is meant to be something creators can actually possess and work with —
 
 ---
 
-## WE LOVE A.I.! 💕
+## WE LOVE A.I.! ❤️
 
 <div align="center">
 <img src="https://krimble.org/assets/kimmy-robot-ai.jpg" alt="Kimmy and the Krimble robot — We love A.I." width="100%">
@@ -133,7 +131,7 @@ The goal is not to turn Krimble into an “AI app.” The goal is to build a str
 </div>
 
 
-**Artificial Intelligence is like a brilliant child. Children sometimes make mistakes. That's what Daddy is for.**
+**Artificial Intelligence is like a brilliant child. Children sometimes make mistakes. That's what Daddy is there for.**
 
 ---
 
@@ -143,11 +141,11 @@ The goal is not to turn Krimble into an “AI app.” The goal is to build a str
 </a>
 </div>
 
-## DEVELOPMENT ROADMAP
+## DEVELOPMENT ROADMAP 🗺️
 
 Krimble has already completed a large restructuring pass. The detailed engineering log is preserved below, but collapsed so the README remains readable.
 
-### CURRENT OPEN WORK
+### CURRENT OPEN WORK 🚧
 
 - Finish the text-selection **magnifier/loupe** for precise cursor placement.
 - Extend two-finger movement selectively to additional floating windows where useful.
@@ -158,8 +156,8 @@ Krimble has already completed a large restructuring pass. The detailed engineeri
 <details>
 <summary><strong>Completed and implemented work — 35 major roadmap items</strong></summary>
 
-1. **Default tool changed to Pan/Hand.** Also fixed a separate path that forced Brush whenever a pixel layer was selected.
-2. **Smaller splash image** for mobile screens.
+1. **Default tool changed to Pan/Hand.** Also fixed a separate path that forced Brush whenever a pixel layer was selected. 
+2. **Smaller splash image** for mobile screens. 
 3. **Selective two-finger movement** implemented for `KisDockerHud`, with touch-event handling designed not to interfere with ordinary single-finger controls.
 4. **Tools menu removed** to make Settings easier to reach.
 5. **Toolbox default order rebuilt** around a unified familiar graphics-tool sequence; stale factory shortcuts corrected.
@@ -211,7 +209,7 @@ Krimble has already completed a large restructuring pass. The detailed engineeri
 
 ---
 
-## BUILD TARGET
+## BUILD TARGET 🎯
 
 Planned targets:
 
@@ -230,7 +228,7 @@ Android is the primary focus. Other platforms are intended to share the same Kri
 
 ---
 
-## THANK YOU
+## THANK YOU! 🙏
 
 Krimble exists because of these. They are not connected to Krimble and have not endorsed it; we are simply grateful.
 
@@ -244,7 +242,7 @@ The logos belong to their owners and are shown only to say thank you.
 
 ---
 
-## SUPPORT KRIMBLE
+## SUPPORT KRIMBLE 💰
 
 <div align="center">
 <a href="https://www.buymeacoffee.com/GeorgeEdwardPurdy">
@@ -293,4 +291,8 @@ See the repository's [LICENSES](LICENSES) directory for details.
 
 [krimble.org](https://krimble.org)
 
+</div>
+
+<div align="center">
+<img src="https://krimble.org/assets/cat.jpg" alt="Kimmy's cat" width="360">
 </div>
