@@ -3401,3 +3401,12 @@ QA of 1.0.32: on a white canvas Dodge made only a faint line and Burn an instant
 - The old lines are kept in comments.
 - Not done: Photoshop's range choice (shadows, midtones, highlights).
 **Not verified:** a build or a device. The 4% flow is a starting guess.
+
+## 2026-10-11 (45th) — Type tool: keyboard comes back on re-edit; Type Setting mode starts off
+
+**Files:** `plugins/tools/svgtexttool/SvgTextTool.cpp`
+
+QA of 1.0.32: going back to edit a text did not bring the on-screen keyboard back, and a circle with dashes and handles showed beside the text.
+- The circle, red dashes and dashed line are the handles of Type Setting mode (baseline and kerning), drawn while that mode is on. The mode now starts switched off every time the text tool starts (`activate()`); it can still be switched on in the tool options. The cause of it being on is not known.
+- Nothing in the text tool ever asked Android to show the keyboard; it came up only when text was created. On Android, after a tap that leaves a text selected, the keyboard is shown (`QGuiApplication::inputMethod()->show()` after the release).
+**Not verified:** a build or a device.

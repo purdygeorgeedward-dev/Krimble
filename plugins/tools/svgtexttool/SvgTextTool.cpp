@@ -83,6 +83,9 @@
 
 #ifdef Q_OS_ANDROID
 #include <QMenuBar>
+#include <QGuiApplication>
+#include <QInputMethod>
+#include <QTimer>
 #endif
 
 
@@ -182,6 +185,12 @@ void SvgTextTool::activate(const QSet<KoShape *> &shapes)
 {
     KoToolBase::activate(shapes);
     m_canvasConnections.addConnection(canvas()->selectedShapesProxy(), SIGNAL(selectionChanged()), this, SLOT(slotShapeSelectionChanged()));
+
+    // Krimble 2026-10-11: the circle, dashes and handles of Type Setting mode showed up without being asked for (QA of 1.0.32).
+    // The mode starts switched off every time the text tool starts; it can still be switched on in the tool options.
+    if (m_optionManager) {
+        m_optionManager->setTypeSettingMode(false);
+    }
 
     KisCanvas2 *canvas2 = qobject_cast<KisCanvas2 *>(this->canvas());
     if (canvas2) {
@@ -1169,6 +1178,13 @@ void SvgTextTool::mouseReleaseEvent(KoPointerEvent *event)
         useCursor(m_base_cursor);
     }
     event->accept();
+#ifdef Q_OS_ANDROID
+    // Krimble 2026-10-11: tapping a text to edit it again did not bring the on-screen keyboard back (QA of 1.0.32); nothing in
+    // the text tool ever asked Android to show it. After a tap that leaves a text selected, the keyboard is shown.
+    if (selectedShape()) {
+        QTimer::singleShot(0, this, []() { QGuiApplication::inputMethod()->show(); });
+    }
+#endif
 }
 
 void SvgTextTool::keyPressEvent(QKeyEvent *event)
