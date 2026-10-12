@@ -3535,3 +3535,13 @@ George: "The touch zone doesn't have to be the whole edge of a panel or toolbox.
 - This replaces the invisible full-height zone of the 55th and 56th entries (kept in comments). The thin strip drawn by the style stays invisible.
 - Cost: the handle covers an 18 x 80 px piece of the canvas next to each side (on the right, part of the vertical scrollbar).
 **Not verified:** a build or a device.
+
+## 2026-10-12 (59th) — New Document: the section icons are in color
+
+**Files:** 20 pictures in `krita/data/templates/animation/`, `comics/`, `design/`, `dslr/` and `texture/` (every `light_template_*.png` and `dark_template_*.png`)
+
+George asked whether dialog icons have to be line art (no: they can be full color) and agreed to color for the New Document section icons.
+- One color per section, in the same shape and line style as before: Animation violet, Comics amber, Design blue, DSLR coral, Texture mint. The `light_` pictures (used on dark themes like Krimble dark) are bright versions; the `dark_` pictures (used on light themes) are the same colors, deeper. Only the color changed: the drawing, transparency and size are the same.
+- Not changed: the "Custom Document" and "Create from Clipboard" icons. They are the program's general "new document" and "new tab" icons, used in other places too; coloring them would color those places as well. They would need their own icon names.
+- Where else: these pictures are also the icons of the templates inside each section.
+**Not verified:** a build or a device. Checked on a preview image (dark background) before pushing.
