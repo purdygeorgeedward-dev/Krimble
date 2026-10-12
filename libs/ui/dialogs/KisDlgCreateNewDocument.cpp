@@ -31,8 +31,11 @@ KisDlgCreateNewDocument::KisDlgCreateNewDocument(QWidget* parent)
     const QString colorDepth = cfg.defaultColorDepth();
     const QString colorProfile = cfg.defColorProfile();
 
+    // Krimble 2026-10-12: kept so the dialog's height can follow this page (below)
+    KisCustomImageWidget *krimbleCustomPage = new KisCustomImageWidget(this, w, h, resolution, colorModel, colorDepth, colorProfile, i18n("Unnamed"));
     addCustomDocumentWidget(
-        new KisCustomImageWidget(this, w, h, resolution, colorModel, colorDepth, colorProfile, i18n("Unnamed")),
+        // new KisCustomImageWidget(this, w, h, resolution, colorModel, colorDepth, colorProfile, i18n("Unnamed")),
+        krimbleCustomPage,
         i18n("Custom Document"),
         "Custom Document",
         "document-new");
@@ -50,8 +53,14 @@ KisDlgCreateNewDocument::KisDlgCreateNewDocument(QWidget* parent)
     // KRIMBLE 2026-10-09: open no wider than 95% and no taller than 90% of the screen; the pages scroll inside.
     if (QScreen *scr = QGuiApplication::primaryScreen()) {
         const QSize screenSize = scr->availableGeometry().size();
+        // resize(qMin(sizeHint().width(), int(screenSize.width() * 0.95)),
+        //        qMin(sizeHint().height(), int(screenSize.height() * 0.90)));
+        // Krimble 2026-10-12: George: "New dialog is too tall." The height came from the tall left list (icons over text) and left a
+        // big empty gap in the Custom Document page. The height now follows what the page needs (its own size plus 70 px for the
+        // frame), and is still at most 90% of the screen.
+        const int pageHeight = krimbleCustomPage->sizeHint().height() + 70;
         resize(qMin(sizeHint().width(), int(screenSize.width() * 0.95)),
-               qMin(sizeHint().height(), int(screenSize.height() * 0.90)));
+               qMin(qMin(sizeHint().height(), pageHeight), int(screenSize.height() * 0.90)));
     }
 #endif
 }

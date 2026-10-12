@@ -3631,3 +3631,11 @@ George's test of 1.0.33: Share, QA Overlay, Where is..., Layout Presets and the 
 - **Close All Toolbars:** new item in Window > Toolbars, above Reset Toolbars. It hides every toolbar.
 - **Found with the QA overlay (a screenshot, landscape, density 3.375):** the Layers panel's minimum width is 258 logical px, which is about 870 device px. Color is 70 and the toolbox 28. That is why portrait has no room: the Layers panel alone needs most of the screen's width. Not fixed yet.
 **Not verified:** a build or a device.
+
+## 2026-10-12 (67th) — New Document window: height follows the page
+
+**Files:** `libs/ui/dialogs/KisDlgCreateNewDocument.cpp`
+
+George (with a screenshot, an arrow pointing at the empty space): "New dialog is too tall." The window's height was the size hint of the whole dialog, which the tall left list (icon over text) pushed up, leaving a big empty gap in the Custom Document page. The height is now the Custom Document page's own size hint plus 70 px for the frame, never more than before (the dialog's size hint, at most 90% of the screen). The old lines are kept in comments.
+(Same screenshot set: all the new toolbars turned on at once stack as intended, but fill the screen; that is why four were removed.)
+**Not verified:** a build or a device. The 70 px is an estimate of the frame.
