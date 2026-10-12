@@ -3732,3 +3732,9 @@ George's test of 1.0.33 (the Edit, Select, Filter, View and Window menus still w
 - **Brushes panel off by default:** the first time the app runs (once, setting `krimble_default_panels_done`), 2.5 s after start, the Brushes panel is hidden. It comes back through Window > Panels. It is hidden before the "default" layout for Reset Layout is kept, so Reset Layout does not bring it back.
 - **README:** the app icon (the K with the paw, `packaging/android/apk/ic_launcher-playstore.png`, 512 px) is shown at 112 px at the very top, centered, above the hero picture. (George had edited the README on GitHub in the meantime: three commits, 13:31 to 13:48 MDT; this was added on top of his version.)
 **Not verified:** a build. The icon is checked on a preview.
+
+## 2026-10-12 (78th) — README: the icon moved above "What is Krimble?" and made smaller
+
+**Files:** `README.md`
+
+George: "Make the icon smaller and put it above What is Krimble? Not at the top." The app icon (77th entry) is no longer at the top of the README; it sits directly above the "What is Krimble?" heading, 64 px wide (was 112).

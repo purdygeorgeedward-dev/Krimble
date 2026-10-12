@@ -1,7 +1,5 @@
 <div align="center">
 
-<img src="packaging/android/apk/ic_launcher-playstore.png" alt="Krimble icon" width="112">
-
 <img src="https://krimble.org/assets/hero.jpg" alt="Krimble — Your Creative Companion" width="100%">
 
 **A mobile-first graphics editor built from Krita for Android phones.**
@@ -16,6 +14,8 @@
 </div>
 
 ---
+
+<img src="packaging/android/apk/ic_launcher-playstore.png" alt="Krimble icon" width="64">
 
 ## What is Krimble?
 
