@@ -3410,3 +3410,12 @@ QA of 1.0.32: going back to edit a text did not bring the on-screen keyboard bac
 - The circle, red dashes and dashed line are the handles of Type Setting mode (baseline and kerning), drawn while that mode is on. The mode now starts switched off every time the text tool starts (`activate()`); it can still be switched on in the tool options. The cause of it being on is not known.
 - Nothing in the text tool ever asked Android to show the keyboard; it came up only when text was created. On Android, after a tap that leaves a text selected, the keyboard is shown (`QGuiApplication::inputMethod()->show()` after the release).
 **Not verified:** a build or a device.
+
+## 2026-10-11 (46th) — A corner sizing grip on every dialog without a touch resize of its own
+
+**Files:** `libs/ui/KisApplication.cpp`
+
+George wanted the bottom-corner sizing gadget on more dialogs (Preferences was the example). The code that already watches every dialog (`KrimbleDialogKeeper`) now adds a `KrimbleResizeGrip` to each top-level dialog when it is shown: a 44 px square at the bottom right with three diagonal lines; dragging it resizes the dialog (not smaller than its minimum). It is repositioned when the dialog changes size.
+- Not added to the 43 dialogs built on `KoDialog` (they have their own touch edges and corner), to message boxes, or to progress dialogs.
+- Covers the dialogs built straight on `QDialog` (New Document, Filter, Switch Language, the recorder dialogs, and the others listed in the 2026-10-11 survey), Preferences and the metadata editor, and Qt's file dialogs.
+**Not verified:** a build or a device.

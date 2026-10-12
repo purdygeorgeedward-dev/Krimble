@@ -39,6 +39,8 @@
 #include <QVBoxLayout>
 #include <QToolTip>
 #include <QMouseEvent>
+#include <QPainter>
+#include <QProgressDialog>
 #ifndef KRIMBLE_HARNESS
 #include "kis_slider_spin_box.h"
 #endif
@@ -51,6 +53,7 @@
 #include <QFile>
 #include <QLocale>
 #include <QMessageBox>
+#include <KoDialog.h>
 #include <QProcessEnvironment>
 #include <QStringList>
 #include <QStyle>
@@ -245,6 +248,62 @@ public:
     int m_fileCount;
 };
 
+// Krimble 2026-10-11: a visible corner grip (three diagonal lines, 44 px square) at the bottom right of every dialog that has no
+// touch resize of its own: drag it to resize the dialog. KoDialog dialogs already have their own edges and are left alone.
+class KrimbleResizeGrip : public QWidget
+{
+public:
+    explicit KrimbleResizeGrip(QWidget *dialog) : QWidget(dialog)
+    {
+        setFixedSize(44, 44);
+        setCursor(Qt::SizeFDiagCursor);
+        setAttribute(Qt::WA_NoSystemBackground);
+    }
+
+protected:
+    void paintEvent(QPaintEvent *) override
+    {
+        QPainter p(this);
+        p.setRenderHint(QPainter::Antialiasing, true);
+        QColor c = palette().color(QPalette::WindowText);
+        c.setAlpha(150);
+        QPen pen(c);
+        pen.setWidthF(1.6);
+        pen.setCapStyle(Qt::RoundCap);
+        p.setPen(pen);
+        const qreal w = width();
+        const qreal h = height();
+        for (int i = 0; i < 3; ++i) {
+            const qreal off = 8 + i * 7;
+            p.drawLine(QPointF(w - 5, h - off), QPointF(w - off, h - 5));
+        }
+    }
+    void mousePressEvent(QMouseEvent *e) override
+    {
+        m_start = e->globalPos();
+        m_startSize = window()->size();
+        e->accept();
+    }
+    void mouseMoveEvent(QMouseEvent *e) override
+    {
+        if (!(e->buttons() & Qt::LeftButton)) return;
+        const QPoint d = e->globalPos() - m_start;
+        QWidget *w = window();
+        QSize size(m_startSize.width() + d.x(), m_startSize.height() + d.y());
+        size = size.expandedTo(w->minimumSize().expandedTo(QSize(200, 120))).boundedTo(w->maximumSize());
+        w->resize(size);
+        e->accept();
+    }
+    void mouseReleaseEvent(QMouseEvent *e) override
+    {
+        e->accept();
+    }
+
+private:
+    QPoint m_start;
+    QSize m_startSize;
+};
+
 #ifdef Q_OS_ANDROID
 // KRIMBLE 2026-10-03/04: keeps dialogs where they can be reached, and lets any dialog be moved with
 // two fingers.
@@ -342,6 +401,20 @@ protected:
         case QEvent::Resize: {
             // if (QDialog *dialog = qobject_cast<QDialog*>(watched)) {      // Krimble 2026-10-11: floating panels too
             if (QWidget *dialog = qobject_cast<QWidget*>(watched)) {
+                // Krimble 2026-10-11: the corner grip on dialogs that have no touch resize of their own
+                if (QDialog *gripDialog = qobject_cast<QDialog*>(dialog)) {
+                    if (gripDialog->isWindow() && !qobject_cast<KoDialog*>(gripDialog)
+                            && !qobject_cast<QMessageBox*>(gripDialog) && !qobject_cast<QProgressDialog*>(gripDialog)) {
+                        QWidget *grip = gripDialog->findChild<QWidget*>(QStringLiteral("krimbleResizeGrip"), Qt::FindDirectChildrenOnly);
+                        if (!grip) {
+                            grip = new KrimbleResizeGrip(gripDialog);
+                            grip->setObjectName(QStringLiteral("krimbleResizeGrip"));
+                        }
+                        grip->move(gripDialog->width() - grip->width(), gripDialog->height() - grip->height());
+                        grip->show();
+                        grip->raise();
+                    }
+                }
                 if (isKeptWindow(dialog)) {
                     // Watch the dialog's window for touches: a window sees ALL fingers, while a
                     // widget only sees them if it accepts the first touch (which would stop one-finger
