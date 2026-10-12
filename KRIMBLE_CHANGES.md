@@ -3694,3 +3694,10 @@ Claude's idea ("Batch resize and export"; "Premade batch scripts"); George: "Pre
 - Works on pictures Qt can read (JPG, PNG, WebP, BMP); not on layered Krimble/Krita files or PSD.
 - Not done: custom presets, watermarks, renaming.
 **Not verified:** a build or a device. If picking pictures from the Gallery gives a file Qt cannot open, the picture is skipped and counted.
+
+## 2026-10-12 (74th) — Batch presets use the longest side
+
+**Files:** `libs/ui/KisMainWindow.cpp`
+
+George: "Why 1080 wide? It's usually a height from 1080p." The batch presets' size is now the picture's longest side, so it works whichever way up the picture is: **HD 1080p: longest side 1920 px (JPG)** (a landscape picture becomes 1920 x 1080), **Social: longest side 1080 px (JPG)**, **Messages: longest side 1280 px (JPG 80%)**, **Thumbnail: longest side 256 px (PNG)**; the two convert presets are unchanged. Output names end in `-hd`, `-social`, `-msg`, `-thumb`. Pictures already smaller than the target are not enlarged. The first version is kept in a comment.
+**Not verified:** a build or a device.

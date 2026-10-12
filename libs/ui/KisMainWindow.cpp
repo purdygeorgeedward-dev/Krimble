@@ -982,10 +982,17 @@ static void krimbleShowBatch(KisMainWindow *win)
 #ifdef Q_OS_ANDROID
     struct Preset { const char *label; int width; bool jpg; int quality; const char *suffix; };
     static const Preset presets[] = {
-        { "Resize to 1080 px wide (JPG)",           1080, true,  90, "1080" },
-        { "Resize to 1920 px wide (JPG)",           1920, true,  90, "1920" },
-        { "Small for messages: 1280 px (JPG 80%)",  1280, true,  80, "msg" },
-        { "Thumbnail 256 px wide (PNG)",             256, false, 100, "thumb" },
+        // (the first version, by width, kept:)
+        // { "Resize to 1080 px wide (JPG)",           1080, true,  90, "1080" },
+        // { "Resize to 1920 px wide (JPG)",           1920, true,  90, "1920" },
+        // { "Small for messages: 1280 px (JPG 80%)",  1280, true,  80, "msg" },
+        // { "Thumbnail 256 px wide (PNG)",             256, false, 100, "thumb" },
+        // Krimble 2026-10-12: George: "Why 1080 wide? It's usually a height from 1080p." The number is the LONGEST side now, so a picture
+        // fits whichever way up it is (landscape or portrait).
+        { "HD 1080p: longest side 1920 px (JPG)",    1920, true,  90, "hd" },
+        { "Social: longest side 1080 px (JPG)",      1080, true,  90, "social" },
+        { "Messages: longest side 1280 px (JPG 80%)", 1280, true,  80, "msg" },
+        { "Thumbnail: longest side 256 px (PNG)",     256, false, 100, "thumb" },
         { "Convert to JPG (same size)",                0, true,  92, "jpg" },
         { "Convert to PNG (same size)",                0, false, 100, "png" }
     };
@@ -1028,8 +1035,11 @@ static void krimbleShowBatch(KisMainWindow *win)
             QCoreApplication::processEvents();
             QImage image(files.at(i));
             if (image.isNull()) { ++failed; continue; }
-            if (preset.width > 0 && image.width() > preset.width) {
-                image = image.scaledToWidth(preset.width, Qt::SmoothTransformation);
+            // if (preset.width > 0 && image.width() > preset.width) {
+            //     image = image.scaledToWidth(preset.width, Qt::SmoothTransformation);
+            // }
+            if (preset.width > 0 && qMax(image.width(), image.height()) > preset.width) {   // preset.width is the longest side
+                image = image.scaled(preset.width, preset.width, Qt::KeepAspectRatio, Qt::SmoothTransformation);
             }
             if (preset.jpg) {
                 QImage onWhite(image.size(), QImage::Format_RGB32);
