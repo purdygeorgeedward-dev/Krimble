@@ -401,6 +401,23 @@ protected:
         case QEvent::Resize: {
             // if (QDialog *dialog = qobject_cast<QDialog*>(watched)) {      // Krimble 2026-10-11: floating panels too
             if (QWidget *dialog = qobject_cast<QWidget*>(watched)) {
+                // Krimble 2026-10-12: a long label that does not wrap makes the whole dialog as wide as the label (the JPEG export
+                // dialog was about three screens wide because of two long sentences). Long labels in dialogs now wrap.
+                if (QDialog *wrapDialog = qobject_cast<QDialog*>(dialog)) {
+                    if (wrapDialog->isWindow()) {
+                        bool changed = false;
+                        Q_FOREACH (QLabel *label, wrapDialog->findChildren<QLabel*>()) {
+                            if (!label->wordWrap() && label->text().length() > 40) {
+                                label->setWordWrap(true);
+                                changed = true;
+                            }
+                        }
+                        if (changed && wrapDialog->layout()) {
+                            wrapDialog->layout()->invalidate();
+                            wrapDialog->adjustSize();
+                        }
+                    }
+                }
                 // Krimble 2026-10-11: the corner grip on dialogs that have no touch resize of their own
                 if (QDialog *gripDialog = qobject_cast<QDialog*>(dialog)) {
                     if (gripDialog->isWindow() && !qobject_cast<KoDialog*>(gripDialog)

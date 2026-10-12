@@ -3516,3 +3516,12 @@ George (looking at a screenshot of the edge between the toolbox and the canvas):
 George: "Not the inner edge. That overlaps with the tools." The 55th entry put the invisible 14 px zone inside each panel. It is now a child of the main window and lies on the outer side of the panel's edge: for the toolbox, the first 14 px of the canvas to its right; for the panels on the right, the 14 px of the canvas to their left. It follows the panel when the panel moves or changes size. The inner-edge version is kept in a comment.
 - Cost: on the right side the zone covers part of the canvas's vertical scrollbar (the scrollbar is about 30 px wide; about 14 px of it is taken).
 **Not verified:** a build or a device.
+
+## 2026-10-12 (57th) — Brush icon fills its square; long labels in dialogs wrap
+
+**Files:** `krita/pics/tools/SVG/16/dark_krita_tool_freehand.svg`, `krita/pics/tools/SVG/16/light_krita_tool_freehand.svg`, `libs/ui/KisApplication.cpp`
+
+- George: "Brush icon is too small. Enlarge to the corners." The drawing covered only x 3.0 to 15.4 and y 0.6 to 11.9 of its 16 x 16 box. Its `viewBox` is now `2.7 -0.25 13 13` (the drawing's area plus a small margin) in both the dark and the light file, so it fills the square like the other tool icons. The paths are unchanged; the old `viewBox` is noted in a comment in each file.
+- George: "Jpg save dialog is 3x width of the screen in portrait mode." The cause I found in the layout file: two long sentences in the JPEG options (134 and 181 characters, rich text) that do not wrap, so the dialog was as wide as the longest sentence. When any dialog opens on Android, labels longer than 40 characters are set to wrap, and the dialog is re-measured (`KrimbleDialogKeeper`). This also helps other dialogs with long labels.
+- Not confirmed: whether the long labels are the only wide thing in that dialog. The QA overlay will list the widest widgets.
+**Not verified:** a build or a device.
