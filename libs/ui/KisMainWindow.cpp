@@ -421,6 +421,90 @@ static void krimbleStackToolBars(QMainWindow *win)
     }
 }
 
+#ifdef Q_OS_ANDROID
+// Krimble 2026-10-12: an invisible touch zone, 14 px wide, along the inner edge of every docked panel (the right edge of a panel
+// on the left, the left edge of a panel on the right). Dragging it resizes the panel's side of the window. It draws nothing and
+// takes no room of its own, so the edge between the toolbox, the canvas and the panels can be as thin as the base style makes it
+// (George: "a usable invisible grab zone there, not more UI fat").
+class KrimbleDockEdgeGrab : public QWidget
+{
+public:
+    KrimbleDockEdgeGrab(QMainWindow *win, QDockWidget *dock) : QWidget(dock), m_win(win), m_dock(dock)
+    {
+        setCursor(Qt::SizeHorCursor);
+        setAttribute(Qt::WA_NoSystemBackground);
+        setAttribute(Qt::WA_TranslucentBackground);
+        dock->installEventFilter(this);
+        reposition();
+    }
+    void reposition()
+    {
+        if (!m_dock || m_dock->isFloating() || !m_dock->isVisible()) {
+            hide();
+            return;
+        }
+        const Qt::DockWidgetArea area = m_win->dockWidgetArea(m_dock);
+        if (area != Qt::LeftDockWidgetArea && area != Qt::RightDockWidgetArea) {
+            hide();
+            return;
+        }
+        const int w = 14;
+        setGeometry(area == Qt::LeftDockWidgetArea ? m_dock->width() - w : 0, 0, w, m_dock->height());
+        show();
+        raise();
+    }
+    bool eventFilter(QObject *watched, QEvent *event) override
+    {
+        if (watched == m_dock && (event->type() == QEvent::Resize || event->type() == QEvent::Show
+                                  || event->type() == QEvent::Move || event->type() == QEvent::ParentChange)) {
+            reposition();
+        }
+        return false;
+    }
+
+protected:
+    void mousePressEvent(QMouseEvent *e) override
+    {
+        m_startX = e->globalPos().x();
+        m_startWidth = m_dock->width();
+        e->accept();
+    }
+    void mouseMoveEvent(QMouseEvent *e) override
+    {
+        if (!(e->buttons() & Qt::LeftButton)) return;
+        const int dx = e->globalPos().x() - m_startX;
+        const bool leftArea = m_win->dockWidgetArea(m_dock) == Qt::LeftDockWidgetArea;
+        const int width = qMax(40, leftArea ? m_startWidth + dx : m_startWidth - dx);
+        m_win->resizeDocks({m_dock}, {width}, Qt::Horizontal);
+        e->accept();
+    }
+    void mouseReleaseEvent(QMouseEvent *e) override
+    {
+        e->accept();
+    }
+
+private:
+    QMainWindow *m_win;
+    QDockWidget *m_dock;
+    int m_startX {0};
+    int m_startWidth {0};
+};
+
+static void krimbleInstallDockEdgeGrabs(QMainWindow *win)
+{
+    Q_FOREACH (QDockWidget *dock, win->findChildren<QDockWidget*>()) {
+        QWidget *grab = dock->findChild<QWidget*>(QStringLiteral("krimbleEdgeGrab"), Qt::FindDirectChildrenOnly);
+        if (!grab) {
+            grab = new KrimbleDockEdgeGrab(win, dock);
+            grab->setObjectName(QStringLiteral("krimbleEdgeGrab"));
+        }
+        if (KrimbleDockEdgeGrab *edge = static_cast<KrimbleDockEdgeGrab*>(grab)) {
+            edge->reposition();
+        }
+    }
+}
+#endif
+
 // Krimble 2026-10-12: Mirror Layout (Left-Handed) (Claude's idea; George: "Mirror layout - smart idea. Yes"). Every panel docked on
 // the left moves to the right and every panel docked on the right moves to the left, keeping the order top to bottom and keeping
 // panels that share tabs together. The window layout is saved when the app closes, so the choice stays.
@@ -1092,7 +1176,8 @@ public:
                 Q_FOREACH (QDockWidget *dock, docks) {
                     left = qMin(left, dock->mapToGlobal(QPoint(0, 0)).x());
                 }
-                m_armed = (x >= left - 24 && x <= left + 4);
+                // m_armed = (x >= left - 24 && x <= left + 4);
+                m_armed = (x >= left - 24 && x <= left + 20);   // Krimble 2026-10-12: the grab zone is inside the panel now
             }
         } else if (event->type() == QEvent::MouseButtonRelease && m_armed) {
             m_armed = false;
@@ -1824,7 +1909,13 @@ KisMainWindow::KisMainWindow(QUuid uuid)
     // Krimble 2026-10-10: drag the strip to the screen edge to shut the right panels.
     qApp->installEventFilter(new KrimbleEdgeCollapseFilter(this));
     // Krimble 2026-10-12: stack the top toolbars once the saved layout has been restored.
-    QTimer::singleShot(2500, this, [this]() { krimbleStackToolBars(this); krimbleInstallHelpExtras(this); krimbleInstallFileExtras(this); });
+    QTimer::singleShot(2500, this, [this]() { krimbleStackToolBars(this); krimbleInstallHelpExtras(this); krimbleInstallFileExtras(this);
+        // Krimble 2026-10-12: the invisible grab zones along the panel edges, kept up to date for panels that are added later
+        krimbleInstallDockEdgeGrabs(this);
+        QTimer *grabTimer = new QTimer(this);
+        connect(grabTimer, &QTimer::timeout, this, [this]() { krimbleInstallDockEdgeGrabs(this); });
+        grabTimer->start(2000);
+    });
     // Krimble 2026-10-11: close open menus when the window changes size (rotation).
     installEventFilter(new KrimbleClosePopupsOnResizeFilter(this));
 #endif

@@ -22,7 +22,10 @@ int KisWideDockSeparatorStyle::pixelMetric(PixelMetric metric, const QStyleOptio
 #ifdef Q_OS_ANDROID
         // Krimble 2026-10-10 (3rd): 14 (was 20): each strip is about 32 device pixels narrower, which gives the toolbox room to widen.
         // return qMax(QProxyStyle::pixelMetric(metric, option, widget) * 2, 20);
-        return qMax(QProxyStyle::pixelMetric(metric, option, widget) * 2, 14);
+        // return qMax(QProxyStyle::pixelMetric(metric, option, widget) * 2, 14);
+        // Krimble 2026-10-12: George: no "UI fat" along the edge. The strip is the base style's own thin one again; the touch
+        // zone is made by an invisible grab area inside each panel instead (KrimbleDockEdgeGrab in KisMainWindow.cpp).
+        return QProxyStyle::pixelMetric(metric, option, widget);
 #else
         return QProxyStyle::pixelMetric(metric, option, widget) * 2;
 #endif
@@ -35,6 +38,8 @@ void KisWideDockSeparatorStyle::drawPrimitive(PrimitiveElement element, const QS
 {
 #ifdef Q_OS_ANDROID
     if (element == QStyle::PE_IndicatorDockWidgetResizeHandle) {
+        // Krimble 2026-10-12: the strip draws nothing now (invisible); the code below is kept, not deleted, and is not reached.
+        return;
         // Krimble 2026-10-11: George wants the ORIGINAL default look of these edges, with only the grabbing made bigger. The
         // strip is wider so a finger can catch it, but what is drawn is exactly what the base style drew before: its own
         // handle, in a strip of the original width, centered in the wide one.

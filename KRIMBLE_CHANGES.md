@@ -3497,3 +3497,14 @@ Claude's idea ("left-hand and right-hand layouts: mirror the toolbox and panels"
 - Nothing extra is saved: Krimble already saves and restores the window layout when it closes and starts.
 - Floating panels are not moved. The "Hide Right Panels" item and the drag-to-the-edge shortcut still mean "the panels on the right side", so in the mirrored layout they act on the toolbox side.
 **Not verified:** a build or a device.
+
+## 2026-10-12 (55th) — Panel edges: no more wide strip; an invisible touch zone inside each panel
+
+**Files:** `libs/widgetutils/KisWideDockSeparatorStyle.cpp`, `libs/ui/KisMainWindow.cpp`
+
+George (looking at a screenshot of the edge between the toolbox and the canvas): "I want to make sure the gristle along this edge is gone. Should be a usable invisible grab zone there, not more UI fat."
+- The strip between the panels and the canvas (14 px, drawn with the base style's handle) is the "fat". On Android it is the base style's own thin strip again, and it draws nothing. The old drawing code is kept after a `return`, not deleted. This undoes the 28th, 35th and 25th entries' wide strip and the dots.
+- The touch zone is now `KrimbleDockEdgeGrab`: an invisible 14 px widget laid over the inner edge of every docked panel (right edge of a panel on the left, left edge of a panel on the right). Dragging it resizes that side with `resizeDocks`. It draws nothing and takes no layout room. A 2 s timer makes sure panels added later get one; mirroring the layout moves them to the right side.
+- The drag-to-the-edge shortcut (26th entry) looks for a press up to 20 px inside the panel's edge now.
+- The three dots are gone (George asked for an invisible zone). If they should come back as a hint, they can be drawn on the grab zone.
+**Not verified:** a build or a device.
