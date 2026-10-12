@@ -3446,3 +3446,13 @@ George: the New Document window is too big, the scroll area (2026-10-09, 6th ent
 - George: the toolbars should stack instead of lining up in one row. On Android, 2.5 s after the main window starts (once the saved layout is back), and after "Reset Toolbars", a toolbar break is put in front of every toolbar in the top area except the first (`krimbleStackToolBars`), so each toolbar gets its own row. The cost is vertical space.
 - George: the New Document window wastes a lot of space. On Android its outer margins and spacing are 4 px (they were the dialog's defaults).
 **Not verified:** a build or a device.
+
+## 2026-10-12 (50th) — Help menu: "Where is...?", "Send Feedback" and the "QA Overlay"
+
+**Files:** `libs/ui/KisMainWindow.cpp`
+
+Three entries are added to the end of the Help menu (each time it opens, once), from the same timer that stacks the toolbars (Android).
+- **Where is...?** (Claude's idea; George: "Yes."). A small window with a search box and a list of every menu entry with its path (for example "Image > Crop"). Typing filters the list; tapping an entry closes the window and opens that entry. Menus that fill themselves when opened (Window, recent files) are asked to fill first.
+- **Send Feedback** (Claude's idea; George: "Yes."). Opens a prefilled new issue on GitHub in the browser, with the Krimble version, the Android version, the screen size and density and the window size.
+- **QA Overlay** (Claude's idea; George: "Yes. Like the web developer extensions for browsers."). A checkable item. While on, a green-on-black note at the top left updates twice a second with: portrait or landscape, the window size and density, the central area, every visible panel (size, minimum width, maximum width, area or floating), every visible toolbar and, if a dialog is in front, its size, its minimum size and the 8 widgets with the widest minimum size. Sizes are logical pixels; multiply by the density for device pixels. It exists so that one screenshot gives exact numbers.
+**Not verified:** a build or a device. Not done yet: the cheat sheet.

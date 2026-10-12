@@ -36,6 +36,14 @@
 #include <QStatusBar>
 #include <QStyleFactory>
 #include <algorithm>
+#include <QSharedPointer>
+#include <QUrlQuery>
+#include <QToolBar>
+#include <QSysInfo>
+#include <QLabel>
+#include <QVBoxLayout>
+#include <QListWidget>
+#include <QLineEdit>
 #include <QMenu>
 #ifdef Q_OS_ANDROID
 #include <QGuiApplication>
@@ -409,6 +417,194 @@ static void krimbleStackToolBars(QMainWindow *win)
             win->insertToolBarBreak(top[i]);
         }
     }
+}
+
+// ============================================================================================================================
+// Krimble 2026-10-12: Help menu extras: "Where is...?", "Send Feedback" and the "QA Overlay".
+// "Where is...?" and the QA overlay were Claude's ideas (Claude's idea); the QA overlay is like the developer tools in a web
+// browser (George: "Yes."). "Send Feedback" is Claude's idea too.
+// ============================================================================================================================
+
+// "Where is...?": every menu entry with its path, searchable; tapping one opens it (Claude's idea).
+static void krimbleCollectMenuActions(QMenu *menu, const QString &path, QList<QPair<QString, QPointer<QAction> > > &out, int depth)
+{
+    if (!menu || depth > 6) return;
+    Q_EMIT menu->aboutToShow();    // some menus (Window, recent files) fill themselves when they are about to be shown
+    Q_FOREACH (QAction *action, menu->actions()) {
+        if (action->isSeparator()) continue;
+        QString text = action->text();
+        text.remove(QLatin1Char('&'));
+        text = text.section(QLatin1Char('\t'), 0, 0).trimmed();
+        if (action->menu()) {
+            krimbleCollectMenuActions(action->menu(), path + text + QStringLiteral("  >  "), out, depth + 1);
+        } else if (!text.isEmpty()) {
+            out.append(qMakePair(path + text, QPointer<QAction>(action)));
+        }
+    }
+}
+
+static void krimbleShowWhereIs(QMainWindow *win)
+{
+    QSharedPointer<QList<QPair<QString, QPointer<QAction> > > > items(new QList<QPair<QString, QPointer<QAction> > >());
+    Q_FOREACH (QAction *top, win->menuBar()->actions()) {
+        if (!top->menu()) continue;
+        QString title = top->text();
+        title.remove(QLatin1Char('&'));
+        krimbleCollectMenuActions(top->menu(), title + QStringLiteral("  >  "), *items, 0);
+    }
+
+    QDialog *dialog = new QDialog(win);
+    dialog->setAttribute(Qt::WA_DeleteOnClose);
+    dialog->setWindowTitle(i18n("Where is...?"));
+    QVBoxLayout *layout = new QVBoxLayout(dialog);
+    layout->setContentsMargins(6, 6, 6, 6);
+    QLineEdit *edit = new QLineEdit(dialog);
+    edit->setPlaceholderText(i18n("Type a feature name, for example Crop"));
+    QListWidget *list = new QListWidget(dialog);
+    layout->addWidget(edit);
+    layout->addWidget(list, 1);
+
+    auto refill = [items, edit, list]() {
+        list->clear();
+        const QString needle = edit->text().trimmed();
+        int shown = 0;
+        for (int i = 0; i < items->size() && shown < 80; ++i) {
+            if (needle.isEmpty() || items->at(i).first.contains(needle, Qt::CaseInsensitive)) {
+                QListWidgetItem *item = new QListWidgetItem(items->at(i).first, list);
+                item->setData(Qt::UserRole, i);
+                ++shown;
+            }
+        }
+    };
+    QObject::connect(edit, &QLineEdit::textChanged, dialog, refill);
+    QObject::connect(list, &QListWidget::itemClicked, dialog, [items, dialog](QListWidgetItem *item) {
+        QPointer<QAction> action = items->at(item->data(Qt::UserRole).toInt()).second;
+        dialog->close();
+        if (action && action->isEnabled()) {
+            QTimer::singleShot(0, action.data(), [action]() { if (action) action->trigger(); });
+        }
+    });
+    refill();
+    if (QScreen *scr = QGuiApplication::primaryScreen()) {
+        const QRect avail = scr->availableGeometry();
+        dialog->resize(int(avail.width() * 0.92), int(avail.height() * 0.80));
+    }
+    dialog->show();
+    edit->setFocus();
+}
+
+// "Send Feedback": opens a prefilled GitHub issue (Claude's idea).
+static void krimbleSendFeedback(QMainWindow *win)
+{
+    QString device = QSysInfo::prettyProductName();
+    if (QScreen *scr = win->screen()) {
+        device += QStringLiteral(", screen %1x%2, density %3").arg(scr->size().width()).arg(scr->size().height()).arg(scr->devicePixelRatio());
+    }
+    device += QStringLiteral(", window %1x%2").arg(win->width()).arg(win->height());
+    const QString version = KritaVersionWrapper::versionString();
+    const QString body = QStringLiteral("**What happened / what would help:**\n\n\n\n---\nKrimble %1\n%2\n").arg(version, device);
+    QUrl url(QStringLiteral("https://github.com/purdygeorgeedward-dev/krimble/issues/new"));
+    QUrlQuery query;
+    query.addQueryItem(QStringLiteral("title"), QStringLiteral("Feedback (Krimble %1)").arg(version));
+    query.addQueryItem(QStringLiteral("body"), body);
+    url.setQuery(query);
+    QDesktopServices::openUrl(url);
+}
+
+// The QA overlay: live numbers on the screen, for screenshots (Claude's idea).
+static QString krimbleQaReport(QMainWindow *win)
+{
+    QString r;
+    const qreal dpr = win->devicePixelRatioF();
+    r += QStringLiteral("%1  window %2x%3  density %4  (sizes are logical px; x density = device px)\n")
+            .arg(win->width() > win->height() ? QStringLiteral("LANDSCAPE") : QStringLiteral("PORTRAIT"))
+            .arg(win->width()).arg(win->height()).arg(dpr);
+    if (QScreen *scr = win->screen()) {
+        r += QStringLiteral("screen %1x%2  avail %3x%4\n").arg(scr->size().width()).arg(scr->size().height())
+                .arg(scr->availableGeometry().width()).arg(scr->availableGeometry().height());
+    }
+    if (QWidget *central = win->centralWidget()) {
+        r += QStringLiteral("central %1x%2  min %3\n").arg(central->width()).arg(central->height()).arg(central->minimumSizeHint().width());
+    }
+    Q_FOREACH (QDockWidget *dock, win->findChildren<QDockWidget*>()) {
+        if (!dock->isVisible()) continue;
+        QString where = dock->isFloating() ? QStringLiteral("float") : QString::number(int(win->dockWidgetArea(dock)));
+        r += QStringLiteral("%1 %2x%3  min %4  max %5  %6\n").arg(dock->objectName()).arg(dock->width()).arg(dock->height())
+                .arg(dock->minimumSizeHint().width()).arg(dock->maximumWidth() > 100000 ? QStringLiteral("-") : QString::number(dock->maximumWidth())).arg(where);
+    }
+    Q_FOREACH (QToolBar *bar, win->findChildren<QToolBar*>()) {
+        if (!bar->isVisible()) continue;
+        r += QStringLiteral("bar %1 %2x%3\n").arg(bar->objectName()).arg(bar->width()).arg(bar->height());
+    }
+    if (QWidget *active = QApplication::activeWindow()) {
+        if (QDialog *dlg = qobject_cast<QDialog*>(active)) {
+            r += QStringLiteral("DIALOG %1 %2x%3  minHint %4x%5\n").arg(QString::fromLatin1(dlg->metaObject()->className())).arg(dlg->width()).arg(dlg->height())
+                    .arg(dlg->minimumSizeHint().width()).arg(dlg->minimumSizeHint().height());
+            QList<QPair<int, QString> > widest;
+            Q_FOREACH (QWidget *child, dlg->findChildren<QWidget*>()) {
+                if (!child->isVisible()) continue;
+                widest.append(qMakePair(child->minimumSizeHint().width(),
+                    QStringLiteral("%1 '%2'").arg(QString::fromLatin1(child->metaObject()->className()), child->objectName())));
+            }
+            std::sort(widest.begin(), widest.end(), [](const QPair<int, QString> &a, const QPair<int, QString> &b) { return a.first > b.first; });
+            for (int i = 0; i < widest.size() && i < 8; ++i) {
+                r += QStringLiteral("  widest %1: %2\n").arg(widest[i].first).arg(widest[i].second);
+            }
+        }
+    }
+    return r;
+}
+
+static void krimbleSetQaOverlay(QMainWindow *win, bool on)
+{
+    QLabel *label = win->findChild<QLabel*>(QStringLiteral("krimbleQaOverlay"), Qt::FindDirectChildrenOnly);
+    if (!on) {
+        if (label) label->deleteLater();
+        return;
+    }
+    if (label) return;
+    label = new QLabel(win);
+    label->setObjectName(QStringLiteral("krimbleQaOverlay"));
+    label->setAttribute(Qt::WA_TransparentForMouseEvents);
+    label->setStyleSheet(QStringLiteral("background-color: rgba(0, 0, 0, 190); color: #9CFF9C; padding: 6px; font-family: monospace; font-size: 13px;"));
+    label->move(6, 60);
+    QTimer *timer = new QTimer(label);
+    QObject::connect(timer, &QTimer::timeout, label, [win, label]() {
+        label->setText(krimbleQaReport(win));
+        label->adjustSize();
+        label->raise();
+    });
+    timer->start(500);
+    label->setText(krimbleQaReport(win));
+    label->adjustSize();
+    label->show();
+    label->raise();
+}
+
+// Adds the three entries to the end of the Help menu each time it opens (once).
+static void krimbleInstallHelpExtras(QMainWindow *win)
+{
+    QMenu *help = nullptr;
+    Q_FOREACH (QAction *top, win->menuBar()->actions()) {
+        QString title = top->text();
+        title.remove(QLatin1Char('&'));
+        if (top->menu() && title == QLatin1String("Help")) help = top->menu();
+    }
+    if (!help || help->property("krimbleHelpExtras").toBool()) return;
+    help->setProperty("krimbleHelpExtras", true);
+    QObject::connect(help, &QMenu::aboutToShow, win, [win, help]() {
+        if (help->property("krimbleHelpExtrasAdded").toBool()) return;
+        help->setProperty("krimbleHelpExtrasAdded", true);
+        help->addSeparator();
+        QAction *whereIs = help->addAction(i18n("Where is...?"));
+        QObject::connect(whereIs, &QAction::triggered, win, [win]() { krimbleShowWhereIs(win); });
+        QAction *feedback = help->addAction(i18n("Send Feedback"));
+        QObject::connect(feedback, &QAction::triggered, win, [win]() { krimbleSendFeedback(win); });
+        QAction *overlay = help->addAction(i18n("QA Overlay"));
+        overlay->setCheckable(true);
+        overlay->setChecked(win->findChild<QLabel*>(QStringLiteral("krimbleQaOverlay"), Qt::FindDirectChildrenOnly) != nullptr);
+        QObject::connect(overlay, &QAction::toggled, win, [win](bool on) { krimbleSetQaOverlay(win, on); });
+    });
 }
 
 static QList<QDockWidget*> krimbleRightDocks(QMainWindow *win, bool visibleOnly)
@@ -1440,7 +1636,7 @@ KisMainWindow::KisMainWindow(QUuid uuid)
     // Krimble 2026-10-10: drag the strip to the screen edge to shut the right panels.
     qApp->installEventFilter(new KrimbleEdgeCollapseFilter(this));
     // Krimble 2026-10-12: stack the top toolbars once the saved layout has been restored.
-    QTimer::singleShot(2500, this, [this]() { krimbleStackToolBars(this); });
+    QTimer::singleShot(2500, this, [this]() { krimbleStackToolBars(this); krimbleInstallHelpExtras(this); });
     // Krimble 2026-10-11: close open menus when the window changes size (rotation).
     installEventFilter(new KrimbleClosePopupsOnResizeFilter(this));
 #endif
