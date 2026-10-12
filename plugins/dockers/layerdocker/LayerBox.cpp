@@ -198,6 +198,24 @@ LayerBox::LayerBox()
     m_wdgLayerBox->bnProperties->setIconSize(QSize(22, 22));
     m_wdgLayerBox->bnDuplicate->setIconSize(QSize(22, 22));
 
+#ifdef Q_OS_ANDROID
+    // Krimble 2026-10-12: the six buttons under the layer list (add, duplicate, lower, raise, properties, delete) made the Layers
+    // panel at least 258 logical px wide (about 870 device px), most of a portrait screen (found with the QA overlay). On
+    // Android their icons are 18 px (were 22), and the buttons share the row evenly and may be as narrow as 30 px, so the panel's
+    // minimum width drops to about 190 px.
+    {
+        QToolButton *layerButtons[] = {
+            m_wdgLayerBox->bnAdd, m_wdgLayerBox->bnDuplicate, m_wdgLayerBox->bnLower,
+            m_wdgLayerBox->bnRaise, m_wdgLayerBox->bnProperties, m_wdgLayerBox->bnDelete
+        };
+        for (QToolButton *button : layerButtons) {
+            button->setIconSize(QSize(18, 18));
+            button->setMinimumWidth(30);
+            button->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
+        }
+    }
+#endif
+
     m_wdgLayerBox->bnLower->setEnabled(false);
     m_wdgLayerBox->bnRaise->setEnabled(false);
 
