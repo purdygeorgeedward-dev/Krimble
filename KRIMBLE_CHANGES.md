@@ -3419,3 +3419,11 @@ George wanted the bottom-corner sizing gadget on more dialogs (Preferences was t
 - Not added to the 43 dialogs built on `KoDialog` (they have their own touch edges and corner), to message boxes, or to progress dialogs.
 - Covers the dialogs built straight on `QDialog` (New Document, Filter, Switch Language, the recorder dialogs, and the others listed in the 2026-10-11 survey), Preferences and the metadata editor, and Qt's file dialogs.
 **Not verified:** a build or a device.
+
+## 2026-10-11 (47th) — About window: the splash image is scaled to fit the screen
+
+**Files:** `libs/ui/kis_splash_screen.cpp`
+
+QA: the About Krimble window was far bigger than the screen. Its first tab holds the splash image at a fixed 320 px high, about 480 px wide, wider than a phone in portrait, and the window cannot be smaller than that. On Android the About splash is now scaled so it is at most 80% of the screen width (aspect ratio kept), and the banner and margin values that follow from its height are worked out again. The loading splash is unchanged. The old lines are kept in comments.
+Not done: `kis_about_application.cpp` still sets its minimum size from its size hint; if the window is still too big, the next step is a scrolling area.
+**Not verified:** a build or a device.

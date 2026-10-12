@@ -10,6 +10,7 @@
 #include <QScreen>
 #include <QGraphicsDropShadowEffect>
 #include <QPixmap>
+#include <QGuiApplication>
 #include <QPainter>
 #include <QCheckBox>
 #include <QDate>
@@ -108,9 +109,13 @@ void KisSplashScreen::updateSplashImage()
     } else {
         splashHeight = SPLASH_HEIGHT_LOADING;
     }
-    const int bannerHeight = splashHeight * 0.16875;
-    const int marginTop = splashHeight * 0.05;
-    const int marginRight = splashHeight * 0.1;
+    // const int bannerHeight = splashHeight * 0.16875;
+    // const int marginTop = splashHeight * 0.05;
+    // const int marginRight = splashHeight * 0.1;
+    // Krimble 2026-10-11: no longer const, they are worked out again when the About image is made smaller (below).
+    int bannerHeight = splashHeight * 0.16875;
+    int marginTop = splashHeight * 0.05;
+    int marginRight = splashHeight * 0.1;
 
     Source source = getImageSource();
     QPixmap img(source.resourcePath);
@@ -118,8 +123,26 @@ void KisSplashScreen::updateSplashImage()
     if (img.isNull() || img.height() == 0) return;
 
     // Preserve aspect ratio of splash.
-    const int height = splashHeight;
-    const int width = height * img.width() / img.height();
+    // const int height = splashHeight;
+    // const int width = height * img.width() / img.height();
+    int height = splashHeight;
+    int width = height * img.width() / img.height();
+#ifdef Q_OS_ANDROID
+    // Krimble 2026-10-11: the splash in the About window is scaled to at most 80% of the screen width (it was a fixed 320 px high
+    // and about 480 px wide, wider than a phone in portrait, which made the whole About window bigger than the screen).
+    if (m_displayLinks) {
+        if (QScreen *screenPtr = QGuiApplication::primaryScreen()) {
+            const int maxWidth = int(screenPtr->availableGeometry().width() * 0.80);
+            if (maxWidth > 0 && width > maxWidth) {
+                width = maxWidth;
+                height = width * img.height() / img.width();
+                bannerHeight = height * 0.16875;
+                marginTop = height * 0.05;
+                marginRight = height * 0.1;
+            }
+        }
+    }
+#endif
 
     setFixedWidth(width);
     setFixedHeight(height);
