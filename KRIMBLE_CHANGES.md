@@ -3545,3 +3545,19 @@ George asked whether dialog icons have to be line art (no: they can be full colo
 - Not changed: the "Custom Document" and "Create from Clipboard" icons. They are the program's general "new document" and "new tab" icons, used in other places too; coloring them would color those places as well. They would need their own icon names.
 - Where else: these pictures are also the icons of the templates inside each section.
 **Not verified:** a build or a device. Checked on a preview image (dark background) before pushing.
+
+## 2026-10-12 (60th) — Window menu: Layout Presets (Claude's idea)
+
+**Files:** `libs/ui/KisMainWindow.cpp`
+
+Claude's idea ("Workspace presets: Retouch, Illustration, Layout and Quick Edit, one tap each"); George: "Better workspaces! Yes. The Krita ones suck."
+- A new submenu in the Window menu, after "Mirror Layout (Left-Handed)": "Layout Presets". One tap shows the panels that job needs and hides the other docked panels; the toolbox is always kept and floating panels are left alone.
+  - **Quick Edit:** Layers, Tool Options.
+  - **Retouch:** Layers, Tool Options, Color, Overview.
+  - **Illustration:** Layers, Color, Brushes, Tool Options.
+  - **Design:** Layers, Tool Options, Undo History.
+  - **Focus (toolbox only):** nothing but the toolbox.
+- Panels are matched by their English title; a panel that is not in the list for a preset is hidden. Hidden panels come back through Window > Panels or another preset.
+- This does not replace Krita's own saved workspaces (the Workspace submenu); it sits beside them. They can be replaced later if these prove better.
+- The panel lists are a first guess at what each job needs; they are in `krimbleApplyPanelPreset`'s caller and are easy to change.
+**Not verified:** a build or a device.

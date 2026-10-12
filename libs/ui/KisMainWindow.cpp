@@ -547,6 +547,25 @@ static void krimbleInstallDockEdgeGrabs(QMainWindow *win)
 }
 #endif
 
+// Krimble 2026-10-12: Layout Presets (Claude's idea: "workspace presets: Retouch, Illustration, Layout and Quick Edit, one tap each";
+// George: "Better workspaces! Yes. The Krita ones suck."). Each preset shows the panels that job needs and hides the rest. The
+// toolbox is always kept. Panels are matched by their title, so a translated Krimble matches on the English title only.
+static void krimbleApplyPanelPreset(QMainWindow *win, const QStringList &show)
+{
+    Q_FOREACH (QDockWidget *dock, win->findChildren<QDockWidget*>()) {
+        if (dock->objectName() == QLatin1String("ToolBox") || dock->isFloating()) continue;
+        const QString title = dock->windowTitle().remove(QLatin1Char('&')).trimmed();
+        bool want = false;
+        Q_FOREACH (const QString &name, show) {
+            if (title.compare(name, Qt::CaseInsensitive) == 0) want = true;
+        }
+        dock->setVisible(want);
+    }
+    if (QDockWidget *toolBox = win->findChild<QDockWidget*>(QStringLiteral("ToolBox"))) {
+        toolBox->show();
+    }
+}
+
 // Krimble 2026-10-12: Mirror Layout (Left-Handed) (Claude's idea; George: "Mirror layout - smart idea. Yes"). Every panel docked on
 // the left moves to the right and every panel docked on the right moves to the left, keeping the order top to bottom and keeping
 // panels that share tabs together. The window layout is saved when the app closes, so the choice stays.
@@ -4642,6 +4661,21 @@ void KisMainWindow::updateWindowMenu()
             mirrorLayout->setChecked(!toolBoxDock->isFloating() && dockWidgetArea(toolBoxDock) == Qt::RightDockWidgetArea);
         }
         connect(mirrorLayout, &QAction::triggered, this, [this]() { krimbleMirrorLayout(this); });
+        // Krimble 2026-10-12: Layout Presets (Claude's idea)
+        QMenu *presets = menu->addMenu(i18n("Layout Presets"));
+        struct PresetDef { const char *label; QStringList panels; };
+        const QList<PresetDef> presetList = {
+            { "Quick Edit",   { QStringLiteral("Layers"), QStringLiteral("Tool Options") } },
+            { "Retouch",      { QStringLiteral("Layers"), QStringLiteral("Tool Options"), QStringLiteral("Color"), QStringLiteral("Overview") } },
+            { "Illustration", { QStringLiteral("Layers"), QStringLiteral("Color"), QStringLiteral("Brushes"), QStringLiteral("Tool Options") } },
+            { "Design",       { QStringLiteral("Layers"), QStringLiteral("Tool Options"), QStringLiteral("Undo History") } },
+            { "Focus (toolbox only)", { } }
+        };
+        Q_FOREACH (const PresetDef &def, presetList) {
+            QAction *presetAction = presets->addAction(i18n(def.label));
+            const QStringList panels = def.panels;
+            connect(presetAction, &QAction::triggered, this, [this, panels]() { krimbleApplyPanelPreset(this, panels); });
+        }
         menu->addSeparator();
         addActionByName("theme_menu");
         addActionByName("style_menu");
