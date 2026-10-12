@@ -2447,6 +2447,22 @@ KisMainWindow::KisMainWindow(QUuid uuid)
                 }
             }
         }
+        // Krimble 2026-10-12: George: "Still loads brushes by default." The first time the app runs (once, remembered in the setting
+        // krimble_default_panels_done) the Brushes panel is hidden; it can be shown again in Window > Panels. This is done before the
+        // "default" layout below is kept, so Reset Layout also comes back without it.
+        {
+            KisConfig panelsCfg(false);
+            if (!panelsCfg.readEntry<int>("krimble_default_panels_done", 0)) {
+                panelsCfg.writeEntry<int>("krimble_default_panels_done", 1);
+                Q_FOREACH (QDockWidget *dock, findChildren<QDockWidget*>()) {
+                    const QString title = dock->windowTitle().remove(QLatin1Char('&')).trimmed();
+                    if (title.compare(QStringLiteral("Brushes"), Qt::CaseInsensitive) == 0
+                        || title.compare(QStringLiteral("Brush Presets"), Qt::CaseInsensitive) == 0) {
+                        dock->hide();
+                    }
+                }
+            }
+        }
         // Krimble 2026-10-12: keep the layout the app first started with (for "Reset Layout"), then put back the layout the
         // user saved for this orientation, if any; and add "Style Presets" to the Layer menu.
         {

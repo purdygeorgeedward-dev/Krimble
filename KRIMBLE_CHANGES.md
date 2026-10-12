@@ -3723,3 +3723,12 @@ George: "Document everything and start build."
 - `BUILD_ANDROID.md`: a new section 8 with the list of builds and tags (and the rule that a tag sits on the commit the APK was built from), the build routine in six steps, the lessons learned (6 error lines only, UTC against MDT, the order of `kb-package.sh` and `kb-apk.sh`, `ShareHelper.java` compiled at packaging, uploading the APK from the server), a table of every feature added since 1.0.31 with its main file and changelog entry, what was removed after testing, and the known open issues. A note at the start of section 2 says the version counter is retired.
 - Version: `krimbleBuildNumber` 33 → 34 (`1.0.34-beta`, version code 5050434).
 **Not verified:** a build.
+
+## 2026-10-12 (77th) — Brushes panel hidden on first run; the app icon in the README
+
+**Files:** `libs/ui/KisMainWindow.cpp`, `README.md`
+
+George's test of 1.0.33 (the Edit, Select, Filter, View and Window menus still wide, the toolbox handle still big, brushes still loaded): those are the 1.0.33 behaviors; the menu and handle fixes are in the code since 1.0.33 (64th entry) and are in 1.0.34.
+- **Brushes panel off by default:** the first time the app runs (once, setting `krimble_default_panels_done`), 2.5 s after start, the Brushes panel is hidden. It comes back through Window > Panels. It is hidden before the "default" layout for Reset Layout is kept, so Reset Layout does not bring it back.
+- **README:** the app icon (the K with the paw, `packaging/android/apk/ic_launcher-playstore.png`, 512 px) is shown at 112 px at the very top, centered, above the hero picture. (George had edited the README on GitHub in the meantime: three commits, 13:31 to 13:48 MDT; this was added on top of his version.)
+**Not verified:** a build. The icon is checked on a preview.
