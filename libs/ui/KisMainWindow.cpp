@@ -429,7 +429,9 @@ static void krimbleStackToolBars(QMainWindow *win)
 class KrimbleDockEdgeGrab : public QWidget
 {
 public:
-    KrimbleDockEdgeGrab(QMainWindow *win, QDockWidget *dock) : QWidget(dock), m_win(win), m_dock(dock)
+    // Krimble 2026-10-12 (2nd): George: not the inner edge, it overlaps the tools. The zone is a child of the main window now and lies
+    // on the OUTER side of the panel's edge, over the first 14 px of the canvas. (The first version was a child of the panel.)
+    KrimbleDockEdgeGrab(QMainWindow *win, QDockWidget *dock) : QWidget(win), m_win(win), m_dock(dock)
     {
         setCursor(Qt::SizeHorCursor);
         setAttribute(Qt::WA_NoSystemBackground);
@@ -449,7 +451,9 @@ public:
             return;
         }
         const int w = 14;
-        setGeometry(area == Qt::LeftDockWidgetArea ? m_dock->width() - w : 0, 0, w, m_dock->height());
+        const QRect g = m_dock->geometry();   // in the main window's coordinates
+        // setGeometry(area == Qt::LeftDockWidgetArea ? m_dock->width() - w : 0, 0, w, m_dock->height());   (inner edge, the first version)
+        setGeometry(area == Qt::LeftDockWidgetArea ? g.right() + 1 : g.left() - w, g.top(), w, g.height());
         show();
         raise();
     }
@@ -493,10 +497,11 @@ private:
 static void krimbleInstallDockEdgeGrabs(QMainWindow *win)
 {
     Q_FOREACH (QDockWidget *dock, win->findChildren<QDockWidget*>()) {
-        QWidget *grab = dock->findChild<QWidget*>(QStringLiteral("krimbleEdgeGrab"), Qt::FindDirectChildrenOnly);
+        const QString grabName = QStringLiteral("krimbleEdgeGrab_") + dock->objectName();
+        QWidget *grab = win->findChild<QWidget*>(grabName, Qt::FindDirectChildrenOnly);
         if (!grab) {
             grab = new KrimbleDockEdgeGrab(win, dock);
-            grab->setObjectName(QStringLiteral("krimbleEdgeGrab"));
+            grab->setObjectName(grabName);
         }
         if (KrimbleDockEdgeGrab *edge = static_cast<KrimbleDockEdgeGrab*>(grab)) {
             edge->reposition();

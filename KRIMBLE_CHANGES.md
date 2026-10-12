@@ -3508,3 +3508,11 @@ George (looking at a screenshot of the edge between the toolbox and the canvas):
 - The drag-to-the-edge shortcut (26th entry) looks for a press up to 20 px inside the panel's edge now.
 - The three dots are gone (George asked for an invisible zone). If they should come back as a hint, they can be drawn on the grab zone.
 **Not verified:** a build or a device.
+
+## 2026-10-12 (56th) — Panel edge touch zone moved to the outer side
+
+**Files:** `libs/ui/KisMainWindow.cpp`
+
+George: "Not the inner edge. That overlaps with the tools." The 55th entry put the invisible 14 px zone inside each panel. It is now a child of the main window and lies on the outer side of the panel's edge: for the toolbox, the first 14 px of the canvas to its right; for the panels on the right, the 14 px of the canvas to their left. It follows the panel when the panel moves or changes size. The inner-edge version is kept in a comment.
+- Cost: on the right side the zone covers part of the canvas's vertical scrollbar (the scrollbar is about 30 px wide; about 14 px of it is taken).
+**Not verified:** a build or a device.
