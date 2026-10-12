@@ -434,8 +434,8 @@ public:
     KrimbleDockEdgeGrab(QMainWindow *win, QDockWidget *dock) : QWidget(win), m_win(win), m_dock(dock)
     {
         setCursor(Qt::SizeHorCursor);
-        setAttribute(Qt::WA_NoSystemBackground);
-        setAttribute(Qt::WA_TranslucentBackground);
+        // setAttribute(Qt::WA_NoSystemBackground);          (the invisible versions)
+        // setAttribute(Qt::WA_TranslucentBackground);
         dock->installEventFilter(this);
         reposition();
     }
@@ -450,10 +450,27 @@ public:
             hide();
             return;
         }
-        const int w = 14;
-        const QRect g = m_dock->geometry();   // in the main window's coordinates
-        // setGeometry(area == Qt::LeftDockWidgetArea ? m_dock->width() - w : 0, 0, w, m_dock->height());   (inner edge, the first version)
-        setGeometry(area == Qt::LeftDockWidgetArea ? g.right() + 1 : g.left() - w, g.top(), w, g.height());
+        // Krimble 2026-10-12 (3rd): George: "The touch zone doesn't have to be the whole edge of a panel or toolbox. It could be a small
+        // slightly protruding handle in the middle." So one small handle (18 x 80 px) in the middle of each side's edge, on the
+        // canvas side, drawn as a little rounded tab with three grip lines. Only the topmost panel of a side has it, and it is
+        // centered on the whole column of panels on that side.
+        const int w = 18;
+        const int h = 80;
+        QRect column;                       // the area covered by all docked panels on this side
+        bool topmost = true;
+        Q_FOREACH (QDockWidget *other, m_win->findChildren<QDockWidget*>()) {
+            if (other->isFloating() || !other->isVisible() || m_win->dockWidgetArea(other) != area) continue;
+            column = column.isNull() ? other->geometry() : column.united(other->geometry());
+            if (other->geometry().top() < m_dock->geometry().top()) topmost = false;
+        }
+        if (!topmost || column.isNull()) {
+            hide();
+            return;
+        }
+        // const QRect g = m_dock->geometry();
+        // setGeometry(area == Qt::LeftDockWidgetArea ? g.right() + 1 : g.left() - w, g.top(), w, g.height());   (the whole edge, the second version)
+        const int y = column.top() + (column.height() - h) / 2;
+        setGeometry(area == Qt::LeftDockWidgetArea ? column.right() + 1 : column.left() - w, y, w, h);
         show();
         raise();
     }
@@ -467,6 +484,26 @@ public:
     }
 
 protected:
+    void paintEvent(QPaintEvent *) override
+    {
+        QPainter p(this);
+        p.setRenderHint(QPainter::Antialiasing, true);
+        QColor fill = palette().color(QPalette::Mid);
+        fill.setAlpha(215);
+        p.setPen(Qt::NoPen);
+        p.setBrush(fill);
+        p.drawRoundedRect(QRectF(rect()), 7, 7);
+        QColor line = palette().color(QPalette::WindowText);
+        line.setAlpha(190);
+        QPen pen(line);
+        pen.setWidthF(1.6);
+        pen.setCapStyle(Qt::RoundCap);
+        p.setPen(pen);
+        const int cx = width() / 2;
+        for (int i = -1; i <= 1; ++i) {
+            p.drawLine(cx + i * 4, height() / 2 - 16, cx + i * 4, height() / 2 + 16);
+        }
+    }
     void mousePressEvent(QMouseEvent *e) override
     {
         m_startX = e->globalPos().x();

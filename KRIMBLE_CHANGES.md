@@ -3525,3 +3525,13 @@ George: "Not the inner edge. That overlaps with the tools." The 55th entry put t
 - George: "Jpg save dialog is 3x width of the screen in portrait mode." The cause I found in the layout file: two long sentences in the JPEG options (134 and 181 characters, rich text) that do not wrap, so the dialog was as wide as the longest sentence. When any dialog opens on Android, labels longer than 40 characters are set to wrap, and the dialog is re-measured (`KrimbleDialogKeeper`). This also helps other dialogs with long labels.
 - Not confirmed: whether the long labels are the only wide thing in that dialog. The QA overlay will list the widest widgets.
 **Not verified:** a build or a device.
+
+## 2026-10-12 (58th) — Panel edges: a small handle in the middle instead of a zone along the whole edge
+
+**Files:** `libs/ui/KisMainWindow.cpp`
+
+George: "The touch zone doesn't have to be the whole edge of a panel or toolbox. It could be a small slightly protruding handle in the middle."
+- `KrimbleDockEdgeGrab` is now one small handle, 18 x 80 px, in the middle of each side's edge: a rounded tab with three grip lines, on the canvas side of the edge (it protrudes slightly onto the canvas). It is centered on the whole column of docked panels on that side, and only the topmost panel of a side has it; the others hide theirs. Dragging it resizes that side as before.
+- This replaces the invisible full-height zone of the 55th and 56th entries (kept in comments). The thin strip drawn by the style stays invisible.
+- Cost: the handle covers an 18 x 80 px piece of the canvas next to each side (on the right, part of the vertical scrollbar).
+**Not verified:** a build or a device.
