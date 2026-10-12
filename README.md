@@ -230,6 +230,20 @@ Android is the primary focus. Other platforms are intended to share the same Kri
 
 ---
 
+## Thank you
+
+Krimble exists because of these. They are not connected to Krimble and have not endorsed it; we are simply grateful.
+
+- <img src="thanks-icons/claude.svg" width="24" height="24" align="absmiddle"> **Claude** (Anthropic): helped design and write much of Krimble's code and documentation.
+- <img src="thanks-icons/openai.svg" width="24" height="24" align="absmiddle"> **ChatGPT** (OpenAI): ideas, art direction and troubleshooting along the way.
+- <img src="thanks-icons/oracle.svg" width="24" height="24" align="absmiddle"> **Oracle Cloud**: its free tier hosts the build server that compiles every release.
+- <img src="thanks-icons/termux.svg" width="24" height="24" align="absmiddle"> **Termux**: the Android terminal that runs the whole build from a phone.
+- <img src="thanks-icons/github.svg" width="24" height="24" align="absmiddle"> **GitHub**: hosts the code, the releases and the issue tracker. What would we do without it?
+
+The logos belong to their owners and are shown only to say thank you.
+
+---
+
 ## Support Krimble
 
 <div align="center">

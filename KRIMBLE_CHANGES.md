@@ -3665,3 +3665,13 @@ Claude's idea ("A Quick Adjust panel: sliders ... working on a layer without des
 - Uses the program's own filters (`brightnesscontrast`, `hsvadjustment`, `vibrance`) and the same layer-adding code as the Layers menu (with undo for the added layer; slider edits themselves are not on the undo list).
 - Not done: Exposure, Highlights, Shadows and Sharpness (no matching filter was used), and a "bake into the layer" button.
 **Not verified:** a build or a device. The filter ids and property names (`brightness`, `contrast`, `h`, `s`, `v`, `vibrance`) were taken from the filter code; if a slider does nothing, one of them is wrong.
+
+## 2026-10-12 (71st) — README: a "Thank you" section with icons
+
+**Files:** `README.md`, `thanks-icons/` (5 icons and a `README.md`)
+
+George: "Add readme thank yous and icons, please. They deserve our thanks. Actually add GitHub to that list too."
+- New README section "Thank you", just above "Support Krimble": Claude (Anthropic), ChatGPT (OpenAI), Oracle Cloud, Termux and GitHub, one line each, with a 24 px icon. The wording thanks them; it says they are not connected to Krimble and have not endorsed it, and that the logos belong to their owners.
+- Icons in `thanks-icons/`: `claude.svg`, `openai.svg`, `oracle.svg`, `github.svg` are glyphs from Simple Icons (CC0) in each brand's colour on a white rounded square (OpenAI and Oracle from Simple Icons release 13.0.0, since later releases dropped them); `termux.svg` is the Termux launcher icon from its repository (GPLv3), unchanged. Sources and licenses are in `thanks-icons/README.md`.
+- Not checked: each company's own rules for using its logo. If one objects, delete its icon file and its `<img>` tag; the text can stay.
+**Not verified:** how the README looks on GitHub. Checked the icons on a preview image.
