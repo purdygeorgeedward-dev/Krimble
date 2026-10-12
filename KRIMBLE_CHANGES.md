@@ -3738,3 +3738,9 @@ George's test of 1.0.33 (the Edit, Select, Filter, View and Window menus still w
 **Files:** `README.md`
 
 George: "Make the icon smaller and put it above What is Krimble? Not at the top." The app icon (77th entry) is no longer at the top of the README; it sits directly above the "What is Krimble?" heading, 64 px wide (was 112).
+
+## 2026-10-12 (79th) — README: the icon is left-aligned explicitly
+
+**Files:** `README.md`
+
+George: "And left justify." The icon above "What is Krimble?" is wrapped in `<p align="left">` so it is left-aligned whatever the page's other settings.
