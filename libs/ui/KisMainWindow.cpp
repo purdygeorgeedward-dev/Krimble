@@ -421,6 +421,48 @@ static void krimbleStackToolBars(QMainWindow *win)
     }
 }
 
+// Krimble 2026-10-12: Mirror Layout (Left-Handed) (Claude's idea; George: "Mirror layout - smart idea. Yes"). Every panel docked on
+// the left moves to the right and every panel docked on the right moves to the left, keeping the order top to bottom and keeping
+// panels that share tabs together. The window layout is saved when the app closes, so the choice stays.
+static void krimbleMirrorLayout(QMainWindow *win)
+{
+    struct Group { QDockWidget *first; QList<QDockWidget*> others; int y; };
+    auto collect = [win](Qt::DockWidgetArea area) {
+        QList<Group> groups;
+        QList<QDockWidget*> seen;
+        QList<QDockWidget*> docks = win->findChildren<QDockWidget*>();
+        std::sort(docks.begin(), docks.end(), [](QDockWidget *a, QDockWidget *b) { return a->geometry().y() < b->geometry().y(); });
+        Q_FOREACH (QDockWidget *dock, docks) {
+            if (dock->isFloating() || win->dockWidgetArea(dock) != area || seen.contains(dock)) continue;
+            Group g;
+            g.first = dock;
+            g.y = dock->geometry().y();
+            seen.append(dock);
+            Q_FOREACH (QDockWidget *tab, win->tabifiedDockWidgets(dock)) {
+                g.others.append(tab);
+                seen.append(tab);
+            }
+            groups.append(g);
+        }
+        return groups;
+    };
+    const QList<Group> leftGroups = collect(Qt::LeftDockWidgetArea);
+    const QList<Group> rightGroups = collect(Qt::RightDockWidgetArea);
+    auto place = [win](const QList<Group> &groups, Qt::DockWidgetArea to) {
+        Q_FOREACH (const Group &g, groups) {
+            win->addDockWidget(to, g.first);
+            Q_FOREACH (QDockWidget *other, g.others) {
+                win->addDockWidget(to, other);
+                win->tabifyDockWidget(g.first, other);
+            }
+            g.first->show();
+            g.first->raise();
+        }
+    };
+    place(leftGroups, Qt::RightDockWidgetArea);
+    place(rightGroups, Qt::LeftDockWidgetArea);
+}
+
 // ============================================================================================================================
 // Krimble 2026-10-12: Help menu extras: "Where is...?", "Send Feedback" and the "QA Overlay".
 // "Where is...?" and the QA overlay were Claude's ideas (Claude's idea); the QA overlay is like the developer tools in a web
@@ -4460,6 +4502,13 @@ void KisMainWindow::updateWindowMenu()
         connect(hideAllPanels, &QAction::triggered, this, [this]() {
             d->toggleDockers->setChecked(!d->toggleDockers->isChecked());
         });
+        // Krimble 2026-10-12: Mirror Layout (Left-Handed) (Claude's idea): checked while the toolbox is on the right
+        QAction *mirrorLayout = menu->addAction(i18n("Mirror Layout (Left-Handed)"));
+        mirrorLayout->setCheckable(true);
+        if (QDockWidget *toolBoxDock = findChild<QDockWidget*>(QStringLiteral("ToolBox"))) {
+            mirrorLayout->setChecked(!toolBoxDock->isFloating() && dockWidgetArea(toolBoxDock) == Qt::RightDockWidgetArea);
+        }
+        connect(mirrorLayout, &QAction::triggered, this, [this]() { krimbleMirrorLayout(this); });
         menu->addSeparator();
         addActionByName("theme_menu");
         addActionByName("style_menu");

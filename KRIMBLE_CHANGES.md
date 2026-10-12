@@ -3487,3 +3487,13 @@ Claude's idea ("Open and share through Android"); George: "Share out is great." 
 - `ShareHelper.shareFile` (Java) puts the picture into the phone's **Pictures/Krimble** folder through the MediaStore, so it also shows in the Gallery, and shares that. This needs no extra Android permission or library. It needs Android 10 or newer; on an older phone a message says so.
 - Not done: sharing the layered Krimble/Krita file itself, and choosing a size before sharing.
 **Not verified:** a build or a device. This is the first Java code added by Claude's ideas; if the packaging step fails, the error will name `ShareHelper.java`.
+
+## 2026-10-12 (54th) — Window menu: Mirror Layout (Left-Handed) (Claude's idea)
+
+**Files:** `libs/ui/KisMainWindow.cpp`
+
+Claude's idea ("left-hand and right-hand layouts: mirror the toolbox and panels"); George: "Mirror layout - smart idea. Yes".
+- A new checkable item in the Window menu, after "Hide All Panels": "Mirror Layout (Left-Handed)". One tap swaps the sides: every panel docked on the left (the toolbox) moves to the right, every panel docked on the right moves to the left. Their order top to bottom is kept, and panels that share tabs (Color and Tool Options) stay together. The item shows a check while the toolbox is on the right; tapping it again swaps back.
+- Nothing extra is saved: Krimble already saves and restores the window layout when it closes and starts.
+- Floating panels are not moved. The "Hide Right Panels" item and the drag-to-the-edge shortcut still mean "the panels on the right side", so in the mirrored layout they act on the toolbox side.
+**Not verified:** a build or a device.
