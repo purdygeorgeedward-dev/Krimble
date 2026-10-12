@@ -3593,3 +3593,11 @@ The first compile of the week's work stopped on two lines of my own code:
 - Share (`krimbleShareImage`): `cond ? weak pointer : shared pointer` is ambiguous. Now an `if` and an assignment. Old line kept in a comment.
 - Reset Toolbars: `KisToolBar` has no `setFloating`. The line is commented out; removing and re-adding the toolbar docks it again anyway.
 **Not verified:** a rebuild.
+
+## 2026-10-12 (63rd) — Dialog corner grip no longer covers the buttons
+
+**Files:** `libs/ui/KisApplication.cpp`
+
+QA of build 33 (George: "Sizing gadget covers the button. No bueno."): the 44 px corner grip sat on top of the Create button of the New Document window. The grip is 26 px now, and the first time a dialog gets a grip, a strip as tall as the grip is added under its contents (bottom margin of its layout, once), so the grip sits below the buttons. Cost: each such dialog is 26 px taller. Old values kept in comments.
+(Also from the same test: the colored section icons are liked.)
+**Not verified:** a build or a device.

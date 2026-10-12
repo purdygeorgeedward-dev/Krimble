@@ -255,7 +255,8 @@ class KrimbleResizeGrip : public QWidget
 public:
     explicit KrimbleResizeGrip(QWidget *dialog) : QWidget(dialog)
     {
-        setFixedSize(44, 44);
+        // setFixedSize(44, 44);
+        setFixedSize(26, 26);   // Krimble 2026-10-12: smaller, and the dialog gets a strip for it below the buttons (it covered the Create button)
         setCursor(Qt::SizeFDiagCursor);
         setAttribute(Qt::WA_NoSystemBackground);
     }
@@ -274,7 +275,8 @@ protected:
         const qreal w = width();
         const qreal h = height();
         for (int i = 0; i < 3; ++i) {
-            const qreal off = 8 + i * 7;
+            // const qreal off = 8 + i * 7;
+            const qreal off = 6 + i * 5;
             p.drawLine(QPointF(w - 5, h - off), QPointF(w - off, h - 5));
         }
     }
@@ -426,6 +428,14 @@ protected:
                         if (!grip) {
                             grip = new KrimbleResizeGrip(gripDialog);
                             grip->setObjectName(QStringLiteral("krimbleResizeGrip"));
+                        }
+                        // Krimble 2026-10-12: George: "Sizing gadget covers the button." A strip as tall as the grip is added under the
+                        // dialog's contents (once), so the grip sits below the buttons instead of on top of them.
+                        if (gripDialog->layout() && !gripDialog->property("krimbleGripStrip").toBool()) {
+                            QMargins m = gripDialog->layout()->contentsMargins();
+                            m.setBottom(m.bottom() + grip->height());
+                            gripDialog->layout()->setContentsMargins(m);
+                            gripDialog->setProperty("krimbleGripStrip", true);
                         }
                         grip->move(gripDialog->width() - grip->width(), gripDialog->height() - grip->height());
                         grip->show();
