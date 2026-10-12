@@ -36,6 +36,7 @@
 #include <QStatusBar>
 #include <QStyleFactory>
 #include <algorithm>
+#include <kis_selection.h>
 #include <QUuid>
 #include <kis_pointer_utils.h>
 #include "kis_processing_applicator.h"
