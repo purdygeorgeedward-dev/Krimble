@@ -3601,3 +3601,12 @@ The first compile of the week's work stopped on two lines of my own code:
 QA of build 33 (George: "Sizing gadget covers the button. No bueno."): the 44 px corner grip sat on top of the Create button of the New Document window. The grip is 26 px now, and the first time a dialog gets a grip, a strip as tall as the grip is added under its contents (bottom margin of its layout, once), so the grip sits below the buttons. Cost: each such dialog is 26 px taller. Old values kept in comments.
 (Also from the same test: the colored section icons are liked.)
 **Not verified:** a build or a device.
+
+## 2026-10-12 (64th) — QA of build 33: menus without the shortcut column, smaller handle, floating toolbox on first run
+
+**Files:** `libs/ui/KisMainWindow.cpp`
+
+- George: "Menus are still way too wide." The 6th/21st-entry fix in the style could not work: Qt adds a column for the longest keyboard shortcut to every menu after measuring the items. The actions are now told not to show their shortcut in menus (`setShortcutVisibleInContextMenu(false)`) for every action in every menu, at start and every 2 s (menus filled later). Menus should be about as wide as their longest name.
+- George: "Handle on toolbox is too big." The panel edge handle (58th entry) is 12 x 48 px (was 18 x 80). Old values in comments.
+- George: "Handle ... still does not work in portrait/tall aspect. Maybe start with toolbox floating by default." The first time the app runs (once, remembered in the setting `krimble_toolbox_floated_once`), 2.5 s after start, the toolbox is made floating at the top left, 30% of the screen wide and 70% high. After that the saved layout decides, so the user can dock it again. The portrait failure of the handle is not fixed: in portrait the docked toolbox, the canvas and the right panels have no room to give each other.
+**Not verified:** a build or a device.

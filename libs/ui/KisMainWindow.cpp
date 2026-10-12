@@ -422,6 +422,22 @@ static void krimbleStackToolBars(QMainWindow *win)
 }
 
 #ifdef Q_OS_ANDROID
+// Krimble 2026-10-12: George: "Menus are still way too wide." Qt adds a column for the longest keyboard shortcut to every menu
+// after it has measured the items, so the style cannot take it away. The only way is for the actions not to show their shortcut
+// (a touch screen has no keyboard). Done for every action in every menu, again every 2 s for menus filled later.
+static void krimbleHideMenuShortcuts(QMenu *menu, int depth)
+{
+    if (!menu || depth > 6) return;
+    Q_FOREACH (QAction *action, menu->actions()) {
+        if (action->isShortcutVisibleInContextMenu()) {
+            action->setShortcutVisibleInContextMenu(false);
+        }
+        if (action->menu()) krimbleHideMenuShortcuts(action->menu(), depth + 1);
+    }
+}
+#endif
+
+#ifdef Q_OS_ANDROID
 // Krimble 2026-10-12: an invisible touch zone, 14 px wide, along the inner edge of every docked panel (the right edge of a panel
 // on the left, the left edge of a panel on the right). Dragging it resizes the panel's side of the window. It draws nothing and
 // takes no room of its own, so the edge between the toolbox, the canvas and the panels can be as thin as the base style makes it
@@ -454,8 +470,10 @@ public:
         // slightly protruding handle in the middle." So one small handle (18 x 80 px) in the middle of each side's edge, on the
         // canvas side, drawn as a little rounded tab with three grip lines. Only the topmost panel of a side has it, and it is
         // centered on the whole column of panels on that side.
-        const int w = 18;
-        const int h = 80;
+        // const int w = 18;
+        // const int h = 80;
+        const int w = 12;   // Krimble 2026-10-12 (4th): George: "Handle on toolbox is too big." 12 x 48 (was 18 x 80)
+        const int h = 48;
         QRect column;                       // the area covered by all docked panels on this side
         bool topmost = true;
         Q_FOREACH (QDockWidget *other, m_win->findChildren<QDockWidget*>()) {
@@ -1978,8 +1996,31 @@ KisMainWindow::KisMainWindow(QUuid uuid)
         // Krimble 2026-10-12: the invisible grab zones along the panel edges, kept up to date for panels that are added later
         krimbleInstallDockEdgeGrabs(this);
         QTimer *grabTimer = new QTimer(this);
-        connect(grabTimer, &QTimer::timeout, this, [this]() { krimbleInstallDockEdgeGrabs(this); });
+        connect(grabTimer, &QTimer::timeout, this, [this]() {
+            krimbleInstallDockEdgeGrabs(this);
+            Q_FOREACH (QAction *top, menuBar()->actions()) krimbleHideMenuShortcuts(top->menu(), 0);   // Krimble 2026-10-12
+        });
         grabTimer->start(2000);
+        Q_FOREACH (QAction *top, menuBar()->actions()) krimbleHideMenuShortcuts(top->menu(), 0);
+        // (c) Krimble 2026-10-12: George: "Maybe start with toolbox floating by default." The first time the app runs (and only
+        // then) the toolbox is floating, at the top left, two columns wide; after that the saved layout decides. A floating
+        // toolbox does not have to fit next to the canvas and the panels, which has no room in portrait.
+        {
+            KisConfig floatCfg(false);
+            if (!floatCfg.readEntry<int>("krimble_toolbox_floated_once", 0)) {
+                floatCfg.writeEntry<int>("krimble_toolbox_floated_once", 1);
+                if (QDockWidget *toolBoxDock = findChild<QDockWidget*>(QStringLiteral("ToolBox"))) {
+                    if (!toolBoxDock->isFloating()) {
+                        toolBoxDock->setFloating(true);
+                        if (QScreen *scr = QGuiApplication::primaryScreen()) {
+                            const QRect avail = scr->availableGeometry();
+                            toolBoxDock->resize(int(avail.width() * 0.30), int(avail.height() * 0.70));
+                            toolBoxDock->move(avail.left() + 6, avail.top() + menuBar()->height() + 60);
+                        }
+                    }
+                }
+            }
+        }
     });
     // Krimble 2026-10-11: close open menus when the window changes size (rotation).
     installEventFilter(new KrimbleClosePopupsOnResizeFilter(this));
