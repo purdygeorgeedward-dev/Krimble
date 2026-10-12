@@ -58,7 +58,7 @@ I found myself using Krita on my smartphone as a daily driver for graphics tasks
 
 ---
 
-## WHAT KRIMBLE CHANGES 🪄
+## What Krimble changes 🪄
 
 Krimble already includes changes to make the application more practical and familiar on mobile:
 
@@ -77,7 +77,7 @@ Krimble already includes changes to make the application more practical and fami
 
 ---
 
-## NEW CREATIVE TOOLS 🎨
+## New creative tools 🎨
 
 <div align="center">
 <img src="https://krimble.org/assets/holograms.jpg" alt="Kimmy exploring new Krimble tools" width="100%">
@@ -100,7 +100,7 @@ Some of these are already implemented; others are still in development.
 
 ---
 
-## A GIFT FOR YOU! 🎁
+## A gift for you! 🎁
 
 <div align="center">
 <img src="https://krimble.org/assets/a-gift-for-you.jpg" alt="Kimmy offering a gift — A gift for you!" width="100%">
@@ -116,7 +116,7 @@ Krimble is meant to be something creators can actually possess and work with —
 
 ---
 
-## WE LOVE A.I.! ❤️
+## We love A.I.! ❤️
 
 <div align="center">
 <img src="https://krimble.org/assets/kimmy-robot-ai.jpg" alt="Kimmy and the Krimble robot — We love A.I." width="100%">
@@ -143,11 +143,11 @@ The goal is not to turn Krimble into an “AI app.” The goal is to build a str
 </a>
 </div>
 
-## DEVELOPMENT ROADMAP
+## Development roadmap
 
 Krimble has already completed a large restructuring pass. The detailed engineering log is preserved below, but collapsed so the README remains readable.
 
-### CURRENT OPEN WORK 🚧
+### Current open work 🚧
 
 - Finish the text-selection **magnifier/loupe** for precise cursor placement.
 - Extend two-finger movement selectively to additional floating windows where useful.
@@ -211,7 +211,7 @@ Krimble has already completed a large restructuring pass. The detailed engineeri
 
 ---
 
-## BUILD TARGET 🎯
+## Build targets 🎯
 
 Planned targets:
 
@@ -230,7 +230,7 @@ Android is the primary focus. Other platforms are intended to share the same Kri
 
 ---
 
-## THANK YOU! 🙏
+## Thank you! 🙏
 
 Krimble exists because of these. They are not connected to Krimble and have not endorsed it; we are simply grateful.
 
@@ -244,7 +244,7 @@ The logos belong to their owners and are shown only to say thank you.
 
 ---
 
-## SUPPORT KRIMBLE 💰
+## Support Krimble 💰
 
 <div align="center">
 <a href="https://www.buymeacoffee.com/GeorgeEdwardPurdy">

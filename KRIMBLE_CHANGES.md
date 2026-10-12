@@ -3756,3 +3756,10 @@ George: "No, make it big again and right justify." The icon above "What is Krimb
 **Files:** `README.md`
 
 George: "Ok center it." The icon above "What is Krimble?" is centered (`<p align="center">`), 112 px wide.
+
+## 2026-10-12 (82nd) — README: section headings back to normal case
+
+**Files:** `README.md`
+
+George: "Screen readers are the important issue. Put them back to normal case." Nine headings that had been set in ALL CAPS (commit `6fe7ad7`, "Update section headers to uppercase") are in sentence case again, with the wording they had before: What Krimble changes, New creative tools, A gift for you!, We love A.I.!, Development roadmap, Current open work, Build targets, Thank you!, Support Krimble. The emojis added in `9f37b6b` and the "!" are kept. The anchors the page links to (`#development-roadmap`, `#build-targets`, `#support-krimble`) work again for the same reason: "Build targets" was "BUILD TARGET" and the badge links to `#build-targets`.
+(Emojis in headings are read aloud by screen readers too, by name; they were left because only the case was asked about.)
