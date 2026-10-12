@@ -3653,3 +3653,15 @@ The QA overlay showed the Layers panel needs at least 258 logical px (about 870 
 
 George's test of 1.0.33: Dodge/Burn look ok, the Type tool, the new size presets, Columns, rotation and Save As all work. "The little button could be a little wider." The "Predefined" drop-down's maximum width is 170 px (was 104), so the new size names fit better. Old line kept in a comment.
 **Not verified:** a build or a device.
+
+## 2026-10-12 (70th) — Window menu: Quick Adjust (Claude's idea)
+
+**Files:** `libs/ui/KisMainWindow.cpp`
+
+Claude's idea ("A Quick Adjust panel: sliders ... working on a layer without destroying it"); George: "Build quick adjust. It's such a useful feature. Be careful of the width."
+- New Window menu item "Quick Adjust" (next to Layout Presets) shows or hides a small panel. It starts **floating**, 62% of the screen wide, so it never has to fit beside the toolbox, canvas and panels; the two-finger move and the bounce-back work on it. One slider per row (nothing side by side), so it can be made narrow.
+- Six sliders: **Brightness** and **Contrast** (-100 to 100), **Saturation**, **Hue** (-180 to 180) and **Lightness** (-100 to 100), **Vibrance** (-100 to 100). A Reset button sets them all to 0.
+- Non-destructive: the first time a slider of a group leaves 0, an adjustment layer is added above the active layer: "Quick Adjust: Brightness/Contrast", "Quick Adjust: Color" (hue, saturation, lightness) or "Quick Adjust: Vibrance". Moving the slider edits that layer's filter (90 ms after the last move). The layers can be hidden, deleted or opened in the Layers panel like any other. Switching to another picture starts fresh layers there.
+- Uses the program's own filters (`brightnesscontrast`, `hsvadjustment`, `vibrance`) and the same layer-adding code as the Layers menu (with undo for the added layer; slider edits themselves are not on the undo list).
+- Not done: Exposure, Highlights, Shadows and Sharpness (no matching filter was used), and a "bake into the layer" button.
+**Not verified:** a build or a device. The filter ids and property names (`brightness`, `contrast`, `h`, `s`, `v`, `vibrance`) were taken from the filter code; if a slider does nothing, one of them is wrong.

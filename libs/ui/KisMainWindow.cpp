@@ -36,6 +36,15 @@
 #include <QStatusBar>
 #include <QStyleFactory>
 #include <algorithm>
+#include "kis_node_commands_adapter.h"
+#include <KisGlobalResourcesInterface.h>
+#include <filter/kis_filter_configuration.h>
+#include <filter/kis_filter.h>
+#include <filter/kis_filter_registry.h>
+#include <kis_adjustment_layer.h>
+#include <QMap>
+#include <QPushButton>
+#include <QSlider>
 #include <QDateTime>
 #include <QDir>
 #include <QSharedPointer>
@@ -582,6 +591,151 @@ static void krimbleApplyPanelPreset(QMainWindow *win, const QStringList &show)
     if (QDockWidget *toolBox = win->findChild<QDockWidget*>(QStringLiteral("ToolBox"))) {
         toolBox->show();
     }
+}
+
+// ============================================================================================================================
+// Krimble 2026-10-12: Quick Adjust (Claude's idea; George: "Build quick adjust. It's such a useful feature. Be careful of the width.")
+// A small panel with six sliders that adjust the picture WITHOUT changing its pixels: each group of sliders is an adjustment layer
+// (created the first time a slider in that group moves away from 0, and edited as the slider moves), so the user can delete or
+// hide the layer, or change it later in the Layers panel. Brightness/Contrast, Saturation/Hue/Lightness and Vibrance.
+// Narrow on purpose: one slider per row, no side-by-side controls.
+// ============================================================================================================================
+class KrimbleQuickAdjust : public QObject
+{
+public:
+    KrimbleQuickAdjust(KisMainWindow *win, QWidget *content) : QObject(content), m_win(win)
+    {
+        QVBoxLayout *layout = new QVBoxLayout(content);
+        layout->setContentsMargins(6, 6, 6, 6);
+        layout->setSpacing(2);
+        for (int i = 0; i < SliderCount; ++i) {
+            m_labels[i] = new QLabel(content);
+            m_sliders[i] = new QSlider(Qt::Horizontal, content);
+            m_sliders[i]->setRange(def(i).min, def(i).max);
+            m_sliders[i]->setValue(0);
+            m_sliders[i]->setMinimumWidth(1);
+            layout->addWidget(m_labels[i]);
+            layout->addWidget(m_sliders[i]);
+            updateLabel(i);
+            connect(m_sliders[i], &QSlider::valueChanged, this, [this, i](int value) {
+                m_values[i] = value;
+                updateLabel(i);
+                m_timer.start(90);
+            });
+        }
+        QPushButton *reset = new QPushButton(i18n("Reset"), content);
+        layout->addWidget(reset);
+        layout->addStretch(1);
+        connect(reset, &QPushButton::clicked, this, [this]() {
+            for (int i = 0; i < SliderCount; ++i) {
+                m_sliders[i]->setValue(0);     // each change updates its layer
+            }
+        });
+        m_timer.setSingleShot(true);
+        connect(&m_timer, &QTimer::timeout, this, [this]() { apply(); });
+        for (int i = 0; i < SliderCount; ++i) m_values[i] = 0;
+    }
+
+private:
+    enum { Brightness, Contrast, Saturation, Hue, Lightness, Vibrance, SliderCount };
+    struct Def { const char *name; int min; int max; };
+    static Def def(int i)
+    {
+        static const Def defs[SliderCount] = {
+            { "Brightness", -100, 100 }, { "Contrast", -100, 100 }, { "Saturation", -100, 100 },
+            { "Hue", -180, 180 }, { "Lightness", -100, 100 }, { "Vibrance", -100, 100 }
+        };
+        return defs[i];
+    }
+    void updateLabel(int i)
+    {
+        m_labels[i]->setText(QStringLiteral("%1   %2").arg(i18n(def(i).name)).arg(m_sliders[i]->value()));
+    }
+    void apply()
+    {
+        updateLayer(m_bcLayer, QStringLiteral("brightnesscontrast"), i18n("Quick Adjust: Brightness/Contrast"),
+                    { { QStringLiteral("brightness"), m_values[Brightness] }, { QStringLiteral("contrast"), m_values[Contrast] } },
+                    m_values[Brightness] != 0 || m_values[Contrast] != 0);
+        updateLayer(m_hsvLayer, QStringLiteral("hsvadjustment"), i18n("Quick Adjust: Color"),
+                    { { QStringLiteral("h"), m_values[Hue] }, { QStringLiteral("s"), m_values[Saturation] }, { QStringLiteral("v"), m_values[Lightness] } },
+                    m_values[Hue] != 0 || m_values[Saturation] != 0 || m_values[Lightness] != 0);
+        updateLayer(m_vibLayer, QStringLiteral("vibrance"), i18n("Quick Adjust: Vibrance"),
+                    { { QStringLiteral("vibrance"), m_values[Vibrance] } }, m_values[Vibrance] != 0);
+    }
+    void updateLayer(KisNodeWSP &ref, const QString &filterId, const QString &layerName, const QMap<QString, QVariant> &props, bool anyNonZero)
+    {
+        KisViewManager *view = m_win->viewManager();
+        if (!view) return;
+        KisImageSP image = view->image();
+        if (!image) return;
+        if (m_image.data() != image.data()) {      // another picture: forget the layers of the old one
+            m_bcLayer = KisNodeWSP();
+            m_hsvLayer = KisNodeWSP();
+            m_vibLayer = KisNodeWSP();
+            m_image = image;
+        }
+        KisNodeSP existing = ref;
+        KisAdjustmentLayer *layer = (existing && existing->parent()) ? dynamic_cast<KisAdjustmentLayer*>(existing.data()) : nullptr;
+        if (!layer) {
+            if (!anyNonZero) return;
+            KisFilterSP filter = KisFilterRegistry::instance()->value(filterId);
+            if (!filter) return;
+            KisFilterConfigurationSP config = filter->defaultConfiguration(KisGlobalResourcesInterface::instance());
+            for (auto it = props.constBegin(); it != props.constEnd(); ++it) {
+                config->setProperty(it.key(), it.value());
+            }
+            KisAdjustmentLayerSP newLayer = new KisAdjustmentLayer(image, layerName, config, KisSelectionSP());
+            KisNodeSP active = view->activeNode();
+            KisNodeSP parent = active ? active->parent() : KisNodeSP();
+            if (!parent) parent = image->root();
+            KisNodeCommandsAdapter adapter(view);
+            adapter.addNode(newLayer, parent, active);
+            ref = KisNodeSP(newLayer);
+        } else {
+            KisFilterConfigurationSP config = layer->filter()->clone();
+            for (auto it = props.constBegin(); it != props.constEnd(); ++it) {
+                config->setProperty(it.key(), it.value());
+            }
+            layer->setFilter(config);
+            layer->setDirty();
+        }
+    }
+
+    KisMainWindow *m_win;
+    QLabel *m_labels[SliderCount];
+    QSlider *m_sliders[SliderCount];
+    int m_values[SliderCount];
+    QTimer m_timer;
+    KisImageWSP m_image;
+    KisNodeWSP m_bcLayer;
+    KisNodeWSP m_hsvLayer;
+    KisNodeWSP m_vibLayer;
+};
+
+// Opens (or shows and hides) the Quick Adjust panel. It starts floating, 62% of the screen wide, so it never has to fit next to the
+// toolbox, canvas and panels.
+static void krimbleToggleQuickAdjust(KisMainWindow *win)
+{
+    QDockWidget *dock = win->findChild<QDockWidget*>(QStringLiteral("KrimbleQuickAdjust"));
+    if (dock) {
+        dock->setVisible(!dock->isVisible());
+        if (dock->isVisible()) dock->raise();
+        return;
+    }
+    dock = new QDockWidget(i18n("Quick Adjust"), win);
+    dock->setObjectName(QStringLiteral("KrimbleQuickAdjust"));
+    QWidget *content = new QWidget(dock);
+    new KrimbleQuickAdjust(win, content);
+    dock->setWidget(content);
+    win->addDockWidget(Qt::RightDockWidgetArea, dock);
+    dock->setFloating(true);
+    if (QScreen *scr = QGuiApplication::primaryScreen()) {
+        const QRect avail = scr->availableGeometry();
+        dock->resize(int(avail.width() * 0.62), content->sizeHint().height() + 40);
+        dock->move(avail.left() + int(avail.width() * 0.19), avail.top() + int(avail.height() * 0.30));
+    }
+    dock->show();
+    dock->raise();
 }
 
 // Krimble 2026-10-12: Mirror Layout (Left-Handed) (Claude's idea; George: "Mirror layout - smart idea. Yes"). Every panel docked on
@@ -4715,6 +4869,9 @@ void KisMainWindow::updateWindowMenu()
         //     mirrorLayout->setChecked(!toolBoxDock->isFloating() && dockWidgetArea(toolBoxDock) == Qt::RightDockWidgetArea);
         // }
         // connect(mirrorLayout, &QAction::triggered, this, [this]() { krimbleMirrorLayout(this); });
+        // Krimble 2026-10-12: Quick Adjust (Claude's idea)
+        QAction *quickAdjust = menu->addAction(i18n("Quick Adjust"));
+        connect(quickAdjust, &QAction::triggered, this, [this]() { krimbleToggleQuickAdjust(this); });
         // Krimble 2026-10-12: Layout Presets (Claude's idea)
         QMenu *presets = menu->addMenu(i18n("Layout Presets"));
         struct PresetDef { const char *label; QStringList panels; };
