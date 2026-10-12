@@ -3580,3 +3580,7 @@ Claude's ideas ("custom toolbars"), George: "Do all of it." Ten new toolbars. Al
 - Every button is an action that already exists (names checked against the program's action files and menus; the four Retouch tool names were found in the tool code). Not included: a Text bar (the "Type Options" bar already exists), a Share bar (the Share entries are added to the File menu in code, not as actions), and "My Toolbar" (Custom toolbar 1 and 2 already are that).
 - The custom toolbar improvements (bigger grab handle, tools in columns) are not done; they are still last.
 **Not verified:** a build or a device. If a button is missing or blank the action name is wrong or the tool is not loaded.
+
+## 2026-10-12 — Version 33
+
+`krimbleBuildNumber` 32 → 33 in `build.gradle`: version `1.0.33-beta`, version code 5050433.

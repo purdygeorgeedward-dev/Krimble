@@ -250,7 +250,8 @@ android {
     // Google Play needs a higher number for every upload.
     // def krimbleBuildNumber = 30   (2026-10-10)
     // def krimbleBuildNumber = 31   (2026-10-11)
-    def krimbleBuildNumber = 32
+    // def krimbleBuildNumber = 32   (2026-10-12)
+    def krimbleBuildNumber = 33
     // (counter-file reading, replaced by the hand-set number above)
     // def krimbleBuildNumber = 0
     // try {
