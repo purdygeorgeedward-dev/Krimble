@@ -56,7 +56,7 @@ I found myself using Krita on my smartphone as a daily driver for graphics tasks
 
 ---
 
-## WHAT KRIMBLE CHANGES 
+## WHAT KRIMBLE CHANGES 🪄
 
 Krimble already includes changes to make the application more practical and familiar on mobile:
 
@@ -141,7 +141,7 @@ The goal is not to turn Krimble into an “AI app.” The goal is to build a str
 </a>
 </div>
 
-## DEVELOPMENT ROADMAP 🗺️
+## DEVELOPMENT ROADMAP
 
 Krimble has already completed a large restructuring pass. The detailed engineering log is preserved below, but collapsed so the README remains readable.
 
