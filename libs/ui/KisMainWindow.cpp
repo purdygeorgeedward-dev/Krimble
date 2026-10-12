@@ -36,6 +36,12 @@
 #include <QStatusBar>
 #include <QStyleFactory>
 #include <algorithm>
+#include <QFile>
+#include <QImage>
+#include <QCoreApplication>
+#include <QFileInfo>
+#include <QProgressBar>
+#include <QComboBox>
 #include "kis_node_commands_adapter.h"
 #include <KisGlobalResourcesInterface.h>
 #include <filter/kis_filter_configuration.h>
@@ -968,6 +974,102 @@ static void krimbleShareImage(KisMainWindow *win, bool asJpg)
 #endif
 }
 
+// "Batch Process...": resize or convert many pictures with one tap (Claude's idea; George: "Add batch presets.").
+// Pick pictures, pick a preset, and the results are saved in Pictures/Krimble/Batch (the originals are not touched).
+// Works on pictures Qt can read (JPG, PNG, WebP, BMP and the like), not on layered files.
+static void krimbleShowBatch(KisMainWindow *win)
+{
+#ifdef Q_OS_ANDROID
+    struct Preset { const char *label; int width; bool jpg; int quality; const char *suffix; };
+    static const Preset presets[] = {
+        { "Resize to 1080 px wide (JPG)",           1080, true,  90, "1080" },
+        { "Resize to 1920 px wide (JPG)",           1920, true,  90, "1920" },
+        { "Small for messages: 1280 px (JPG 80%)",  1280, true,  80, "msg" },
+        { "Thumbnail 256 px wide (PNG)",             256, false, 100, "thumb" },
+        { "Convert to JPG (same size)",                0, true,  92, "jpg" },
+        { "Convert to PNG (same size)",                0, false, 100, "png" }
+    };
+    QDialog *dialog = new QDialog(win);
+    dialog->setAttribute(Qt::WA_DeleteOnClose);
+    dialog->setWindowTitle(i18n("Batch Process"));
+    QVBoxLayout *layout = new QVBoxLayout(dialog);
+    layout->setContentsMargins(8, 8, 8, 8);
+    QLabel *intro = new QLabel(i18n("Pick a preset, then the pictures. Results go to Pictures/Krimble/Batch; the originals are not changed."), dialog);
+    intro->setWordWrap(true);
+    QComboBox *combo = new QComboBox(dialog);
+    for (const Preset &p : presets) combo->addItem(i18n(p.label));
+    QPushButton *start = new QPushButton(i18n("Choose Pictures and Start..."), dialog);
+    QProgressBar *bar = new QProgressBar(dialog);
+    bar->setRange(0, 100);
+    bar->setValue(0);
+    QLabel *status = new QLabel(dialog);
+    status->setWordWrap(true);
+    layout->addWidget(intro);
+    layout->addWidget(combo);
+    layout->addWidget(start);
+    layout->addWidget(bar);
+    layout->addWidget(status);
+    layout->addStretch(1);
+    QObject::connect(start, &QPushButton::clicked, dialog, [win, dialog, combo, start, bar, status]() {
+        KoFileDialog fileDialog(win, KoFileDialog::OpenFiles, "KrimbleBatch");
+        fileDialog.setCaption(i18n("Choose pictures"));
+        fileDialog.setMimeTypeFilters(QStringList() << QStringLiteral("image/jpeg") << QStringLiteral("image/png")
+                                                    << QStringLiteral("image/webp") << QStringLiteral("image/bmp"));
+        const QStringList files = fileDialog.filenames();
+        if (files.isEmpty()) return;
+        const Preset &preset = presets[qBound(0, combo->currentIndex(), 5)];
+        start->setEnabled(false);
+        const QString dirPath = QStandardPaths::writableLocation(QStandardPaths::CacheLocation) + QStringLiteral("/batch");
+        QDir().mkpath(dirPath);
+        int done = 0, failed = 0;
+        for (int i = 0; i < files.size(); ++i) {
+            status->setText(i18n("Picture %1 of %2...", i + 1, files.size()));
+            bar->setValue(100 * i / files.size());
+            QCoreApplication::processEvents();
+            QImage image(files.at(i));
+            if (image.isNull()) { ++failed; continue; }
+            if (preset.width > 0 && image.width() > preset.width) {
+                image = image.scaledToWidth(preset.width, Qt::SmoothTransformation);
+            }
+            if (preset.jpg) {
+                QImage onWhite(image.size(), QImage::Format_RGB32);
+                onWhite.fill(Qt::white);
+                QPainter painter(&onWhite);
+                painter.drawImage(0, 0, image);
+                painter.end();
+                image = onWhite;
+            }
+            QString base = QFileInfo(files.at(i)).completeBaseName();
+            if (base.isEmpty()) base = QStringLiteral("picture");
+            const QString name = QStringLiteral("%1-%2.%3").arg(base, QLatin1String(preset.suffix), preset.jpg ? QStringLiteral("jpg") : QStringLiteral("png"));
+            const QString temp = dirPath + QLatin1Char('/') + name;
+            const bool saved = preset.jpg ? image.save(temp, "JPG", preset.quality) : image.save(temp, "PNG");
+            bool stored = false;
+            if (saved) {
+                QAndroidJniObject jPath = QAndroidJniObject::fromString(temp);
+                QAndroidJniObject jMime = QAndroidJniObject::fromString(preset.jpg ? QStringLiteral("image/jpeg") : QStringLiteral("image/png"));
+                QAndroidJniObject jName = QAndroidJniObject::fromString(name);
+                QAndroidJniObject jFolder = QAndroidJniObject::fromString(QStringLiteral("Batch"));
+                stored = QAndroidJniObject::callStaticMethod<jboolean>("org/krimble/android/ShareHelper", "saveToPictures",
+                    "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Z",
+                    jPath.object<jstring>(), jMime.object<jstring>(), jName.object<jstring>(), jFolder.object<jstring>());
+                QFile::remove(temp);
+            }
+            if (stored) ++done; else ++failed;
+        }
+        bar->setValue(100);
+        status->setText(i18n("Done: %1 saved in Pictures/Krimble/Batch, %2 skipped.", done, failed));
+        start->setEnabled(true);
+    });
+    if (QScreen *scr = QGuiApplication::primaryScreen()) {
+        dialog->resize(int(scr->availableGeometry().width() * 0.92), dialog->sizeHint().height() + 30);
+    }
+    dialog->show();
+#else
+    Q_UNUSED(win);
+#endif
+}
+
 // Adds "Share as JPG" and "Share as PNG" to the File menu, just above Quit (Claude's idea).
 static void krimbleInstallFileExtras(KisMainWindow *win)
 {
@@ -992,11 +1094,15 @@ static void krimbleInstallFileExtras(KisMainWindow *win)
         QObject::connect(shareJpg, &QAction::triggered, win, [win]() { krimbleShareImage(win, true); });
         QAction *sharePng = new QAction(i18n("Share as PNG..."), file);
         QObject::connect(sharePng, &QAction::triggered, win, [win]() { krimbleShareImage(win, false); });
+        // Krimble 2026-10-12: Batch Process... (Claude's idea)
+        QAction *batch = new QAction(i18n("Batch Process..."), file);
+        QObject::connect(batch, &QAction::triggered, win, [win]() { krimbleShowBatch(win); });
         QAction *sep = new QAction(file);
         sep->setSeparator(true);
         file->insertAction(before, sep);
         file->insertAction(before, shareJpg);
         file->insertAction(before, sharePng);
+        file->insertAction(before, batch);
     });
 }
 

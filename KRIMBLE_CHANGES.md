@@ -3682,3 +3682,15 @@ George: "Add readme thank yous and icons, please. They deserve our thanks. Actua
 
 George: "if a window has two finger it doesn't need bounce back. We can dump bounce back except on the toolbox." After a two-finger drag, floating panels other than the toolbox (Layers, Color, Quick Adjust and the others) no longer bounce back inside the screen; like dialogs, they stay where they were let go, as long as at least 160 px of them is on screen. The toolbox still bounces back after a two-finger drag, and after a one-finger move (`KoToolBoxDocker::moveEvent`, 40th entry). The old call is kept in a comment-free branch of the same lambda (the panel branch now uses `keepReachable`).
 **Not verified:** a build or a device.
+
+## 2026-10-12 (73rd) — File menu: Batch Process... with presets (Claude's idea)
+
+**Files:** `libs/ui/KisMainWindow.cpp`, `packaging/android/apk/src/org/krimble/android/ShareHelper.java`
+
+Claude's idea ("Batch resize and export"; "Premade batch scripts"); George: "Premade batch scripts are a great idea. Yes!" and "Add batch presets."
+- New File menu item "Batch Process..." (above Quit, with the Share items). A small window: pick a preset, tap "Choose Pictures and Start...", pick one or more pictures, and each is processed in turn with a progress bar and a result line ("Done: 5 saved in Pictures/Krimble/Batch, 0 skipped").
+- Presets: **Resize to 1080 px wide (JPG)**, **Resize to 1920 px wide (JPG)**, **Small for messages: 1280 px (JPG 80%)**, **Thumbnail 256 px wide (PNG)**, **Convert to JPG (same size)**, **Convert to PNG (same size)**. Pictures narrower than the target are not enlarged. JPG output is flattened onto white. Output names are `<name>-<suffix>.jpg/.png`.
+- Results go to the phone's **Pictures/Krimble/Batch** folder (new Java function `ShareHelper.saveToPictures`, MediaStore, Android 10 or newer). The originals are not changed.
+- Works on pictures Qt can read (JPG, PNG, WebP, BMP); not on layered Krimble/Krita files or PSD.
+- Not done: custom presets, watermarks, renaming.
+**Not verified:** a build or a device. If picking pictures from the Gallery gives a file Qt cannot open, the picture is skipped and counted.

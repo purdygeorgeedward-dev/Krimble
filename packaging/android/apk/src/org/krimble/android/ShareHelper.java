@@ -22,6 +22,42 @@ import java.io.OutputStream;
 public class ShareHelper {
     private static final String TAG = "KrimbleShare";
 
+    // Krimble 2026-10-12: Batch presets (Claude's idea). Saves one picture into Pictures/Krimble/<folder> through the MediaStore, without
+    // opening the share sheet. Needs Android 10 or newer.
+    public static boolean saveToPictures(final String path, final String mime, final String displayName, final String folder) {
+        final Activity activity = QtNative.activity();
+        if (activity == null || Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+            return false;
+        }
+        try {
+            ContentResolver resolver = activity.getContentResolver();
+            ContentValues values = new ContentValues();
+            values.put(MediaStore.MediaColumns.DISPLAY_NAME, displayName);
+            values.put(MediaStore.MediaColumns.MIME_TYPE, mime);
+            values.put(MediaStore.MediaColumns.RELATIVE_PATH, "Pictures/Krimble/" + folder);
+            Uri uri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+            if (uri == null) {
+                return false;
+            }
+            OutputStream out = resolver.openOutputStream(uri);
+            InputStream in = new FileInputStream(path);
+            try {
+                byte[] buffer = new byte[64 * 1024];
+                int read;
+                while ((read = in.read(buffer)) > 0) {
+                    out.write(buffer, 0, read);
+                }
+            } finally {
+                in.close();
+                out.close();
+            }
+            return true;
+        } catch (Exception e) {
+            Log.w(TAG, "save failed: " + e);
+            return false;
+        }
+    }
+
     public static boolean shareFile(final String path, final String mime, final String displayName) {
         final Activity activity = QtNative.activity();
         if (activity == null) {
