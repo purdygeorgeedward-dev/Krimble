@@ -1440,4 +1440,127 @@ xsi:schemaLocation="http://www.kde.org/standards/kxmlgui/1.0  http://www.kde.org
     <Action name="mirror_actions"/>
 </ToolBar>
 
+<!-- Krimble 2026-10-12: extra toolbars (Claude's ideas, George: "Do all of it."). All start hidden: turn them on in Window > Toolbars.
+     History, Selection, Layers, View, Retouch, Photo Edit, Transform, Quick Adjust, Save and Export, Filters. The user's own toolbars are
+     "Custom toolbar 1" and "Custom toolbar 2" above (Edit > Configure Toolbars). The text toolbar already exists as "Type Options". -->
+<ToolBar name="HistoryBar" fullWidth="false" position="top" hidden="true">
+    <Text>History</Text>
+    <Action name="edit_undo"/>
+    <Action name="edit_redo"/>
+    <Separator/>
+    <Action name="edit_cut"/>
+    <Action name="edit_copy"/>
+    <Action name="edit_paste"/>
+    <Action name="clear"/>
+</ToolBar>
+
+<ToolBar name="SelectionBar" fullWidth="false" position="top" hidden="true">
+    <Text>Selection</Text>
+    <Action name="select_all"/>
+    <Action name="deselect"/>
+    <Action name="reselect"/>
+    <Action name="invert_selection"/>
+    <Separator/>
+    <Action name="colorrange"/>
+    <Action name="growselection"/>
+    <Action name="shrinkselection"/>
+    <Action name="featherselection"/>
+    <Action name="smoothselection"/>
+</ToolBar>
+
+<ToolBar name="LayersBar" fullWidth="false" position="top" hidden="true">
+    <Text>Layers</Text>
+    <Action name="add_new_paint_layer"/>
+    <Action name="add_new_group_layer"/>
+    <Action name="duplicatelayer"/>
+    <Separator/>
+    <Action name="merge_layer"/>
+    <Action name="merge_visible_layers"/>
+    <Action name="flatten_image"/>
+    <Separator/>
+    <Action name="add_new_transparency_mask"/>
+    <Action name="add_new_filter_mask"/>
+    <Action name="layer_style"/>
+</ToolBar>
+
+<ToolBar name="ViewBar" fullWidth="false" position="top" hidden="true">
+    <Text>View</Text>
+    <Action name="zoom_to_fit"/>
+    <Action name="zoom_to_100pct"/>
+    <Action name="view_zoom_in"/>
+    <Action name="view_zoom_out"/>
+    <Separator/>
+    <Action name="rotate_canvas_left"/>
+    <Action name="rotate_canvas_right"/>
+    <Action name="reset_canvas_rotation"/>
+    <Action name="mirror_canvas"/>
+    <Separator/>
+    <Action name="view_ruler"/>
+    <Action name="view_grid"/>
+    <Action name="view_pixel_grid"/>
+</ToolBar>
+
+<ToolBar name="RetouchBar" fullWidth="false" position="top" hidden="true">
+    <Text>Retouch</Text>
+    <Action name="KritaShape/KisToolDodge"/>
+    <Action name="KritaShape/KisToolBurn"/>
+    <Action name="KritaShape/KisToolSmudge"/>
+    <Action name="KritaShape/KisToolSoften"/>
+    <Separator/>
+    <Action name="KritaSelected/KisToolColorSampler"/>
+    <Action name="erase_action"/>
+</ToolBar>
+
+<ToolBar name="PhotoEditBar" fullWidth="false" position="top" hidden="true">
+    <Text>Photo Edit</Text>
+    <Action name="KisToolCrop"/>
+    <Action name="apply_crop"/>
+    <Separator/>
+    <Action name="rotateImageCCW90"/>
+    <Action name="rotateImageCW90"/>
+    <Action name="rotateImage180"/>
+    <Action name="mirrorImageHorizontal"/>
+    <Action name="mirrorImageVertical"/>
+    <Separator/>
+    <Action name="imagesize"/>
+    <Action name="canvassize"/>
+</ToolBar>
+
+<ToolBar name="TransformBar" fullWidth="false" position="top" hidden="true">
+    <Text>Transform</Text>
+    <Action name="KisToolTransformFree"/>
+    <Action name="KisToolTransformWarp"/>
+    <Action name="KisToolTransformPerspective"/>
+    <Action name="KisToolTransformCage"/>
+    <Action name="KisToolTransformLiquify"/>
+    <Separator/>
+    <Action name="mirrorNodeX"/>
+    <Action name="mirrorNodeY"/>
+</ToolBar>
+
+<ToolBar name="QuickAdjustBar" fullWidth="false" position="top" hidden="true">
+    <Text>Quick Adjust</Text>
+    <Action name="krita_filter_brightnesscontrast"/>
+    <Action name="krita_filter_levels"/>
+    <Action name="krita_filter_perchannel"/>
+    <Action name="krita_filter_hsvadjustment"/>
+    <Action name="krita_filter_vibrance"/>
+    <Action name="krita_filter_colorbalance"/>
+    <Action name="krita_filter_invert"/>
+</ToolBar>
+
+<ToolBar name="FileBar" fullWidth="false" position="top" hidden="true">
+    <Text>Save and Export</Text>
+    <Action name="file_save"/>
+    <Action name="file_save_as"/>
+    <Action name="file_export_file"/>
+</ToolBar>
+
+<ToolBar name="FiltersBar" fullWidth="false" position="top" hidden="true">
+    <Text>Filters</Text>
+    <Action name="filter_apply_again"/>
+    <Action name="filter_apply_reprompt"/>
+    <Action name="filter_gallery"/>
+</ToolBar>
+
 </kpartgui>

@@ -3561,3 +3561,22 @@ Claude's idea ("Workspace presets: Retouch, Illustration, Layout and Quick Edit,
 - This does not replace Krita's own saved workspaces (the Workspace submenu); it sits beside them. They can be replaced later if these prove better.
 - The panel lists are a first guess at what each job needs; they are in `krimbleApplyPanelPreset`'s caller and are easy to change.
 **Not verified:** a build or a device.
+
+## 2026-10-12 (61st) — Ten extra toolbars (Claude's ideas)
+
+**Files:** `krita/krita5.xmlgui`
+
+Claude's ideas ("custom toolbars"), George: "Do all of it." Ten new toolbars. All start **hidden**, so nothing changes until they are turned on in Window > Toolbars:
+- **History:** Undo, Redo, Cut, Copy, Paste, Clear.
+- **Selection:** All, Deselect, Reselect, Inverse, Color Range, Grow, Contract, Feather, Smooth.
+- **Layers:** Add Paint Layer, Add Group Layer, Duplicate, Merge Down, Merge Visible, Flatten Image, Add Transparency Mask, Add Filter Mask, Layer Style.
+- **View:** Fit on Screen, 100%, Zoom In, Zoom Out, Rotate View left and right, Reset Rotation, Mirror View, Rulers, Grid, Pixel Grid.
+- **Retouch:** Dodge, Burn, Smudge, Soften, Color Sampler, Eraser.
+- **Photo Edit:** Crop tool, Crop, Rotate Image 90° left and right and 180°, Flip Horizontal and Vertical, Image Size, Canvas Size.
+- **Transform:** Free Transform, Warp, Perspective, Cage, Liquify, Mirror Layers Horizontally and Vertically.
+- **Quick Adjust:** Brightness/Contrast, Levels, Color Adjustment curves, HSV Adjustment, Vibrance, Color Balance, Invert.
+- **Save and Export:** Save, Save As, Export As.
+- **Filters:** Apply Filter Again, Apply Filter Again (Reprompt), Filter Gallery.
+- Every button is an action that already exists (names checked against the program's action files and menus; the four Retouch tool names were found in the tool code). Not included: a Text bar (the "Type Options" bar already exists), a Share bar (the Share entries are added to the File menu in code, not as actions), and "My Toolbar" (Custom toolbar 1 and 2 already are that).
+- The custom toolbar improvements (bigger grab handle, tools in columns) are not done; they are still last.
+**Not verified:** a build or a device. If a button is missing or blank the action name is wrong or the tool is not loaded.
