@@ -3750,3 +3750,9 @@ George: "And left justify." The icon above "What is Krimble?" is wrapped in `<p 
 **Files:** `README.md`
 
 George: "No, make it big again and right justify." The icon above "What is Krimble?" is 112 px wide (as in the 77th entry) and right-aligned (`<p align="right">`).
+
+## 2026-10-12 (81st) — README: the icon is centered
+
+**Files:** `README.md`
+
+George: "Ok center it." The icon above "What is Krimble?" is centered (`<p align="center">`), 112 px wide.

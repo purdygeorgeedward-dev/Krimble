@@ -15,7 +15,7 @@
 
 ---
 
-<p align="right"><img src="packaging/android/apk/ic_launcher-playstore.png" alt="Krimble icon" width="112"></p>
+<p align="center"><img src="packaging/android/apk/ic_launcher-playstore.png" alt="Krimble icon" width="112"></p>
 
 ## What is Krimble?
 
