@@ -3675,3 +3675,10 @@ George: "Add readme thank yous and icons, please. They deserve our thanks. Actua
 - Icons in `thanks-icons/`: `claude.svg`, `openai.svg`, `oracle.svg`, `github.svg` are glyphs from Simple Icons (CC0) in each brand's colour on a white rounded square (OpenAI and Oracle from Simple Icons release 13.0.0, since later releases dropped them); `termux.svg` is the Termux launcher icon from its repository (GPLv3), unchanged. Sources and licenses are in `thanks-icons/README.md`.
 - Not checked: each company's own rules for using its logo. If one objects, delete its icon file and its `<img>` tag; the text can stay.
 **Not verified:** how the README looks on GitHub. Checked the icons on a preview image.
+
+## 2026-10-12 (72nd) — Bounce-back only on the toolbox
+
+**Files:** `libs/ui/KisApplication.cpp`
+
+George: "if a window has two finger it doesn't need bounce back. We can dump bounce back except on the toolbox." After a two-finger drag, floating panels other than the toolbox (Layers, Color, Quick Adjust and the others) no longer bounce back inside the screen; like dialogs, they stay where they were let go, as long as at least 160 px of them is on screen. The toolbox still bounces back after a two-finger drag, and after a one-finger move (`KoToolBoxDocker::moveEvent`, 40th entry). The old call is kept in a comment-free branch of the same lambda (the panel branch now uses `keepReachable`).
+**Not verified:** a build or a device.

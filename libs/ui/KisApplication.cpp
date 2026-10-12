@@ -505,8 +505,12 @@ private:
             m_target.clear();
             // QTimer::singleShot(0, dialog, [moved]() { keepOnScreen(moved); });   (bounced a dialog back on screen: George, no)
             QTimer::singleShot(0, dialog, [moved]() {
-                if (qobject_cast<QDockWidget*>(moved.data())) {
-                    keepOnScreen(moved);      // a floating panel bounces back inside the screen
+                // Krimble 2026-10-12: George: "if a window has two finger it doesn't need bounce back. We can dump bounce back except on
+                // the toolbox." Only the toolbox bounces back inside the screen; every other window stays where it was dragged
+                // (as long as part of it is reachable).
+                QDockWidget *movedDock = qobject_cast<QDockWidget*>(moved.data());
+                if (movedDock && movedDock->objectName() == QLatin1String("ToolBox")) {
+                    keepOnScreen(moved);      // the toolbox bounces back inside the screen
                 } else {
                     keepReachable(moved);     // a dialog stays where it was dragged, as long as part of it is reachable
                 }
