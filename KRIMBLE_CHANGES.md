@@ -3584,3 +3584,12 @@ Claude's ideas ("custom toolbars"), George: "Do all of it." Ten new toolbars. Al
 ## 2026-10-12 — Version 33
 
 `krimbleBuildNumber` 32 → 33 in `build.gradle`: version `1.0.33-beta`, version code 5050433.
+
+## 2026-10-12 (62nd) — Two compile errors in `KisMainWindow.cpp` (build 33)
+
+**Files:** `libs/ui/KisMainWindow.cpp`
+
+The first compile of the week's work stopped on two lines of my own code:
+- Share (`krimbleShareImage`): `cond ? weak pointer : shared pointer` is ambiguous. Now an `if` and an assignment. Old line kept in a comment.
+- Reset Toolbars: `KisToolBar` has no `setFloating`. The line is commented out; removing and re-adding the toolbar docks it again anyway.
+**Not verified:** a rebuild.

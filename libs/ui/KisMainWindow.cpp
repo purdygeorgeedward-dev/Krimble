@@ -748,7 +748,11 @@ static void krimbleShowCheatSheet(QMainWindow *win)
 static void krimbleShareImage(KisMainWindow *win, bool asJpg)
 {
 #ifdef Q_OS_ANDROID
-    KisImageSP image = win->viewManager() ? win->viewManager()->image() : KisImageSP();
+    // KisImageSP image = win->viewManager() ? win->viewManager()->image() : KisImageSP();   (did not compile: weak and shared pointer in one ?:)
+    KisImageSP image;
+    if (win->viewManager()) {
+        image = win->viewManager()->image();
+    }
     if (!image) {
         QMessageBox::information(win, i18n("Share"), i18n("Open an image first."));
         return;
@@ -4632,7 +4636,7 @@ void KisMainWindow::updateWindowMenu()
             connect(resetToolbars, &QAction::triggered, this, [this]() {
                 Q_FOREACH (KisToolBar *toolBar, toolBars()) {
                     toolBar->setFloatable(true);
-                    if (toolBar->isFloating()) toolBar->setFloating(false);   // not floating
+                    // if (toolBar->isFloating()) toolBar->setFloating(false);   // not floating (KisToolBar has no setFloating; removeToolBar and addToolBar below dock it again)
                     removeToolBar(toolBar);
                     addToolBar(Qt::TopToolBarArea, toolBar);
                     toolBar->setOrientation(Qt::Horizontal);
