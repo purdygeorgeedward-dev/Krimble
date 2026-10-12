@@ -1526,6 +1526,7 @@ xsi:schemaLocation="http://www.kde.org/standards/kxmlgui/1.0  http://www.kde.org
     <Action name="canvassize"/>
 </ToolBar>
 
+<!-- Krimble 2026-10-12: removed (George: too many toolbars). Kept, not deleted:
 <ToolBar name="TransformBar" fullWidth="false" position="top" hidden="true">
     <Text>Transform</Text>
     <Action name="KisToolTransformFree"/>
@@ -1537,6 +1538,7 @@ xsi:schemaLocation="http://www.kde.org/standards/kxmlgui/1.0  http://www.kde.org
     <Action name="mirrorNodeX"/>
     <Action name="mirrorNodeY"/>
 </ToolBar>
+-->
 
 <ToolBar name="QuickAdjustBar" fullWidth="false" position="top" hidden="true">
     <Text>Quick Adjust</Text>
@@ -1549,18 +1551,22 @@ xsi:schemaLocation="http://www.kde.org/standards/kxmlgui/1.0  http://www.kde.org
     <Action name="krita_filter_invert"/>
 </ToolBar>
 
+<!-- Krimble 2026-10-12: removed (George: too many toolbars). Kept, not deleted:
 <ToolBar name="FileBar" fullWidth="false" position="top" hidden="true">
     <Text>Save and Export</Text>
     <Action name="file_save"/>
     <Action name="file_save_as"/>
     <Action name="file_export_file"/>
 </ToolBar>
+-->
 
+<!-- Krimble 2026-10-12: removed (George: too many toolbars). Kept, not deleted:
 <ToolBar name="FiltersBar" fullWidth="false" position="top" hidden="true">
     <Text>Filters</Text>
     <Action name="filter_apply_again"/>
     <Action name="filter_apply_reprompt"/>
     <Action name="filter_gallery"/>
 </ToolBar>
+-->
 
 </kpartgui>

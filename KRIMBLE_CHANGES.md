@@ -3619,3 +3619,15 @@ George: "Add colors for now." (Earlier he said he will draw his own icons; these
 - One color per page, same drawing as before: General blue, Keyboard Shortcuts violet, Canvas Input amber, Display mint, Performance orange, Tablet pink, Canvas-only lime, Author coral. The `light_` files (dark themes) are the bright versions, the `dark_` files (light themes) the deeper ones. Each file had a single gray; only that color changed.
 - Not changed: Color Management and Pop-up Palette (already in color), and the other pages' icons.
 **Not verified:** a build or a device. Checked on a preview image first.
+
+## 2026-10-12 (66th) — From the test of 1.0.33: Cheat Sheet and Mirror Layout removed; fewer toolbars; Close All Toolbars
+
+**Files:** `libs/ui/KisMainWindow.cpp`, `krita/krita5.xmlgui`
+
+George's test of 1.0.33: Share, QA Overlay, Where is..., Layout Presets and the new toolbars work.
+- **Cheat Sheet removed** (it crashed the app when a line was chosen). The Help entry is commented out; `krimbleShowCheatSheet` is kept for later.
+- **Mirror Layout removed** (it corrupted the display). The Window menu item is commented out; `krimbleMirrorLayout` is kept.
+- **Fewer toolbars:** Transform, Filters and Save and Export are removed (commented out in `krita5.xmlgui`). Seven remain: History, Selection, Layers, View, Retouch, Photo Edit, Quick Adjust.
+- **Close All Toolbars:** new item in Window > Toolbars, above Reset Toolbars. It hides every toolbar.
+- **Found with the QA overlay (a screenshot, landscape, density 3.375):** the Layers panel's minimum width is 258 logical px, which is about 870 device px. Color is 70 and the toolbox 28. That is why portrait has no room: the Layers panel alone needs most of the screen's width. Not fixed yet.
+**Not verified:** a build or a device.

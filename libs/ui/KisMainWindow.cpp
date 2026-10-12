@@ -951,8 +951,9 @@ static void krimbleInstallHelpExtras(QMainWindow *win)
         help->addSeparator();
         QAction *whereIs = help->addAction(i18n("Where is...?"));
         QObject::connect(whereIs, &QAction::triggered, win, [win]() { krimbleShowWhereIs(win); });
-        QAction *cheatSheet = help->addAction(i18n("Cheat Sheet"));
-        QObject::connect(cheatSheet, &QAction::triggered, win, [win]() { krimbleShowCheatSheet(win); });
+        // Krimble 2026-10-12: removed (George): choosing a line in the Cheat Sheet crashed the app in 1.0.33. The code is kept.
+        // QAction *cheatSheet = help->addAction(i18n("Cheat Sheet"));
+        // QObject::connect(cheatSheet, &QAction::triggered, win, [win]() { krimbleShowCheatSheet(win); });
         QAction *feedback = help->addAction(i18n("Send Feedback"));
         QObject::connect(feedback, &QAction::triggered, win, [win]() { krimbleSendFeedback(win); });
         QAction *overlay = help->addAction(i18n("QA Overlay"));
@@ -4673,6 +4674,13 @@ void KisMainWindow::updateWindowMenu()
             // Krimble 2026-10-11: Reset Toolbars (George): every toolbar goes back to the top, horizontal and visible, as the
             // menu file (krita5.xmlgui) defines them.
             toolbarsMenu->addSeparator();
+            // Krimble 2026-10-12: Close All Toolbars (George: "add a Close All item to the toolbar submenu")
+            QAction *closeAllToolbars = toolbarsMenu->addAction(i18n("Close All Toolbars"));
+            connect(closeAllToolbars, &QAction::triggered, this, [this]() {
+                Q_FOREACH (KisToolBar *toolBar, toolBars()) {
+                    toolBar->hide();
+                }
+            });
             QAction *resetToolbars = toolbarsMenu->addAction(i18n("Reset Toolbars"));
             connect(resetToolbars, &QAction::triggered, this, [this]() {
                 Q_FOREACH (KisToolBar *toolBar, toolBars()) {
@@ -4700,12 +4708,13 @@ void KisMainWindow::updateWindowMenu()
             d->toggleDockers->setChecked(!d->toggleDockers->isChecked());
         });
         // Krimble 2026-10-12: Mirror Layout (Left-Handed) (Claude's idea): checked while the toolbox is on the right
-        QAction *mirrorLayout = menu->addAction(i18n("Mirror Layout (Left-Handed)"));
-        mirrorLayout->setCheckable(true);
-        if (QDockWidget *toolBoxDock = findChild<QDockWidget*>(QStringLiteral("ToolBox"))) {
-            mirrorLayout->setChecked(!toolBoxDock->isFloating() && dockWidgetArea(toolBoxDock) == Qt::RightDockWidgetArea);
-        }
-        connect(mirrorLayout, &QAction::triggered, this, [this]() { krimbleMirrorLayout(this); });
+        // Krimble 2026-10-12: Mirror Layout removed from the menu (George): it corrupted the display in 1.0.33. The code is kept.
+        // QAction *mirrorLayout = menu->addAction(i18n("Mirror Layout (Left-Handed)"));
+        // mirrorLayout->setCheckable(true);
+        // if (QDockWidget *toolBoxDock = findChild<QDockWidget*>(QStringLiteral("ToolBox"))) {
+        //     mirrorLayout->setChecked(!toolBoxDock->isFloating() && dockWidgetArea(toolBoxDock) == Qt::RightDockWidgetArea);
+        // }
+        // connect(mirrorLayout, &QAction::triggered, this, [this]() { krimbleMirrorLayout(this); });
         // Krimble 2026-10-12: Layout Presets (Claude's idea)
         QMenu *presets = menu->addMenu(i18n("Layout Presets"));
         struct PresetDef { const char *label; QStringList panels; };
