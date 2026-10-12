@@ -3744,3 +3744,9 @@ George: "Make the icon smaller and put it above What is Krimble? Not at the top.
 **Files:** `README.md`
 
 George: "And left justify." The icon above "What is Krimble?" is wrapped in `<p align="left">` so it is left-aligned whatever the page's other settings.
+
+## 2026-10-12 (80th) — README: the icon is big again and right-aligned
+
+**Files:** `README.md`
+
+George: "No, make it big again and right justify." The icon above "What is Krimble?" is 112 px wide (as in the 77th entry) and right-aligned (`<p align="right">`).
