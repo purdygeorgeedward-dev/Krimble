@@ -143,7 +143,7 @@ The goal is not to turn Krimble into an “AI app.” The goal is to build a str
 </a>
 </div>
 
-## Development roadmap
+## Development roadmap 🗺️
 
 Krimble has already completed a large restructuring pass. The detailed engineering log is preserved below, but collapsed so the README remains readable.
 
