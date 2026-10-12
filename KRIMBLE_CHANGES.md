@@ -3456,3 +3456,14 @@ Three entries are added to the end of the Help menu (each time it opens, once), 
 - **Send Feedback** (Claude's idea; George: "Yes."). Opens a prefilled new issue on GitHub in the browser, with the Krimble version, the Android version, the screen size and density and the window size.
 - **QA Overlay** (Claude's idea; George: "Yes. Like the web developer extensions for browsers."). A checkable item. While on, a green-on-black note at the top left updates twice a second with: portrait or landscape, the window size and density, the central area, every visible panel (size, minimum width, maximum width, area or floating), every visible toolbar and, if a dialog is in front, its size, its minimum size and the 8 widgets with the widest minimum size. Sizes are logical pixels; multiply by the density for device pixels. It exists so that one screenshot gives exact numbers.
 **Not verified:** a build or a device. Not done yet: the cheat sheet.
+
+## 2026-10-12 (51st) — Size presets for social media, phone and print (Claude's idea)
+
+**Files:** `krita/data/predefined_image_sizes/` (13 new `.predefinedimage` files and `CMakeLists.txt`)
+
+Claude's idea ("Size presets: social posts, stories, A4 at 300 dpi"); George: "Brilliant idea! Yes!". They appear in the "Predefined" list of the Custom Document page of the New Document window. Names, sizes (pixels, 72 ppi unless noted):
+- Social: Instagram Post 1080x1080, Instagram Portrait 1080x1350, Story / Reel 1080x1920, YouTube Thumbnail 1280x720, X Post 1600x900, X Header 1500x500, Facebook Cover 820x312, LinkedIn Banner 1584x396, Profile Picture 400x400.
+- Phone Wallpaper 1080x2400, Album Cover 3000x3000.
+- Business Card 3.5x2 in at 300 ppi (1050x600), Postcard 4x6 in at 300 ppi (1800x1200).
+A4 and the other paper sizes at 300 ppi already existed. The sizes are the commonly used ones; the platforms change theirs, so the list may need updating.
+**Not verified:** a build or a device.

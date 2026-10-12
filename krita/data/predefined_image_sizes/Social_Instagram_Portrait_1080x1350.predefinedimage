@@ -1,0 +1,9 @@
+<!DOCTYPE params>
+<params>
+ <param type="internal" name="height">1350</param>
+ <param type="string" name="name"><![CDATA[Social: Instagram Portrait 1080x1350]]></param>
+ <param type="internal" name="resolution">72</param>
+ <param type="internal" name="width">1080</param>
+ <param type="internal" name="x-unit">7</param>
+ <param type="internal" name="y-unit">7</param>
+</params>

@@ -1,0 +1,9 @@
+<!DOCTYPE params>
+<params>
+ <param type="internal" name="height">3000</param>
+ <param type="string" name="name"><![CDATA[Album Cover 3000x3000]]></param>
+ <param type="internal" name="resolution">72</param>
+ <param type="internal" name="width">3000</param>
+ <param type="internal" name="x-unit">7</param>
+ <param type="internal" name="y-unit">7</param>
+</params>
