@@ -563,5 +563,8 @@ void KisCustomImageWidget::changeDocumentInfoLabel()
                          bitSize,
                          KFormat().formatByteSize(layerSize));
     lblDocumentInfo->setText(text);
+    // Krimble 2026-10-12: this long sentence did not wrap, which made the Custom Document page, and so the New Document window,
+    // wider than a phone screen.
+    lblDocumentInfo->setWordWrap(true);
 }
 

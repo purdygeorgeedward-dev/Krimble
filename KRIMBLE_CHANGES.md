@@ -3427,3 +3427,14 @@ George wanted the bottom-corner sizing gadget on more dialogs (Preferences was t
 QA: the About Krimble window was far bigger than the screen. Its first tab holds the splash image at a fixed 320 px high, about 480 px wide, wider than a phone in portrait, and the window cannot be smaller than that. On Android the About splash is now scaled so it is at most 80% of the screen width (aspect ratio kept), and the banner and margin values that follow from its height are worked out again. The loading splash is unchanged. The old lines are kept in comments.
 Not done: `kis_about_application.cpp` still sets its minimum size from its size hint; if the window is still too big, the next step is a scrolling area.
 **Not verified:** a build or a device.
+
+## 2026-10-12 (48th) — New Document window: no scroll area, thinner left list with the text under the icons
+
+**Files:** `libs/ui/KisOpenPane.cpp`, `libs/ui/widgets/kis_custom_image_widget.cc`
+
+George: the New Document window is too big, the scroll area (2026-10-09, 6th entry) made the Create button harder to find, and the left list could be thinner with the text under the icons.
+- The scroll area around the Custom Document and Create from Clipboard pages is switched off again (kept under `#if 0`).
+- The left list uses `KrimbleIconAboveTextDelegate` on Android: icon on top, text centered under it and wrapped. Its maximum width is 20% of the screen width (was 22%).
+- The long sentence "This document will be ... pixels by ... pixels in ..." (`lblDocumentInfo`) did not wrap and made the Custom Document page wider than a phone. It wraps now.
+- Not done: other things on that page may still be wider than the screen. A screenshot of the next build will show.
+**Not verified:** a build or a device.

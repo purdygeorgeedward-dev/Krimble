@@ -111,6 +111,24 @@ public:
     QMap<QString, QTreeWidgetItem *> *m_itemMap;
 };
 
+// Krimble 2026-10-12: a delegate that puts the icon above the text (Android only; elsewhere it behaves like the plain one).
+class KrimbleIconAboveTextDelegate : public QStyledItemDelegate
+{
+public:
+    explicit KrimbleIconAboveTextDelegate(QObject *parent) : QStyledItemDelegate(parent) {}
+protected:
+    void initStyleOption(QStyleOptionViewItem *option, const QModelIndex &index) const override
+    {
+        QStyledItemDelegate::initStyleOption(option, index);
+#ifdef Q_OS_ANDROID
+        option->decorationPosition = QStyleOptionViewItem::Top;
+        option->displayAlignment = Qt::AlignHCenter | Qt::AlignVCenter;
+        option->decorationAlignment = Qt::AlignHCenter | Qt::AlignVCenter;
+        option->features |= QStyleOptionViewItem::WrapText;
+#endif
+    }
+};
+
 KisOpenPane::KisOpenPane(QWidget *parent, const QStringList& mimeFilter, const QString& templatesResourcePath)
     : QDialog(parent)
     , d(new KisOpenPanePrivate)
@@ -123,13 +141,16 @@ KisOpenPane::KisOpenPane(QWidget *parent, const QStringList& mimeFilter, const Q
     // width; longer names are elided. The cap is larger than the list's natural
     // width on a landscape screen, so landscape is unaffected.
     if (QScreen *scr = QGuiApplication::primaryScreen()) {
-        d->m_sectionList->setMaximumWidth(int(scr->availableGeometry().width() * 0.22));
+        // d->m_sectionList->setMaximumWidth(int(scr->availableGeometry().width() * 0.22));
+        d->m_sectionList->setMaximumWidth(int(scr->availableGeometry().width() * 0.20));   // Krimble 2026-10-12: thinner
     }
 #endif
 
     m_mimeFilter = mimeFilter;
 
-    QStyledItemDelegate* delegate = new QStyledItemDelegate(d->m_sectionList);
+    // QStyledItemDelegate* delegate = new QStyledItemDelegate(d->m_sectionList);
+    // Krimble 2026-10-12: on Android the left list shows the text under the icon, centered and wrapped, so the list can be thin.
+    QStyledItemDelegate* delegate = new KrimbleIconAboveTextDelegate(d->m_sectionList);
     d->m_sectionList->setItemDelegate(delegate);
     QScroller *scroller = KisKineticScroller::createPreconfiguredScroller(d->m_sectionList);
     if (scroller) {
@@ -294,7 +315,9 @@ void KisOpenPane::addCustomDocumentWidget(QWidget *widget, const QString& title,
     // (about 1415 x 1375 px), so Create/Cancel ended up off-screen. On Android each page sits in a scroll area:
     // everything, Create and Cancel included, is reachable by dragging.
     QWidget *paneWidget = widget;
-#ifdef Q_OS_ANDROID
+// Krimble 2026-10-12: George: the scroll area made the Create button harder to find. Switched off; the window is made smaller
+// instead (narrow left list with the text under the icons, a label that wraps). The version below is kept, not deleted.
+#if 0
     {
         QScrollArea *scrollArea = new QScrollArea;
         scrollArea->setWidgetResizable(true);
