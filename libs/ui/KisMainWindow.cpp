@@ -493,6 +493,68 @@ static void krimbleShowWhereIs(QMainWindow *win)
     edit->setFocus();
 }
 
+// "Cheat Sheet": the names people know from other graphics editors, each with where it is in Krimble (Claude's idea).
+// The paths are looked up in the real menus when the sheet opens, so they are always right; a name whose entry is not found
+// is left out. Tapping a line opens that entry.
+static void krimbleShowCheatSheet(QMainWindow *win)
+{
+    QList<QPair<QString, QPointer<QAction> > > all;
+    Q_FOREACH (QAction *top, win->menuBar()->actions()) {
+        if (!top->menu()) continue;
+        QString title = top->text();
+        title.remove(QLatin1Char('&'));
+        krimbleCollectMenuActions(top->menu(), title + QStringLiteral("  >  "), all, 0);
+    }
+    // familiar name, a word that is in the menu entry's name
+    static const char *const terms[][2] = {
+        {"Crop", "Crop"}, {"Image Size", "Scale Image"}, {"Canvas Size", "Canvas Size"}, {"Rotate Image", "Rotate Image"},
+        {"Flatten Image", "Flatten Image"}, {"Merge Visible", "Merge Visible"}, {"Merge Down", "Merge Down"},
+        {"New Layer", "New Layer"}, {"Duplicate Layer", "Duplicate Layer"}, {"Layer Mask", "Mask"},
+        {"Free Transform", "Free Transform"}, {"Warp", "Warp"}, {"Liquify", "Liquify"}, {"Flip", "Flip"},
+        {"Select All", "Select All"}, {"Deselect", "Deselect"}, {"Inverse Selection", "Inverse"}, {"Feather", "Feather"},
+        {"Color Range", "Color Range"}, {"Brightness/Contrast", "Brightness"}, {"Levels", "Levels"}, {"Curves", "Curves"},
+        {"Hue/Saturation", "Hue"}, {"Color Balance", "Color Balance"}, {"Vibrance", "Vibrance"}, {"Invert", "Invert"},
+        {"Gaussian Blur", "Gaussian"}, {"Unsharp Mask", "Unsharp"}, {"Noise", "Noise"}, {"Pixelate", "Pixelate"},
+        {"Convert Color Mode", "Mode"}, {"Fill", "Fill"}, {"Stroke", "Stroke"}, {"Undo", "Undo"}, {"Copy Merged", "Copy Merged"},
+        {"Paste as New Image", "Paste as New"}, {"Preferences", "Preferences"}
+    };
+    QSharedPointer<QList<QPair<QString, QPointer<QAction> > > > shown(new QList<QPair<QString, QPointer<QAction> > >());
+    QStringList lines;
+    for (const auto &term : terms) {
+        for (const auto &entry : all) {
+            if (entry.first.contains(QLatin1String(term[1]), Qt::CaseInsensitive)) {
+                lines << QStringLiteral("%1   ->   %2").arg(QLatin1String(term[0]), entry.first);
+                shown->append(entry);
+                break;
+            }
+        }
+    }
+    QDialog *dialog = new QDialog(win);
+    dialog->setAttribute(Qt::WA_DeleteOnClose);
+    dialog->setWindowTitle(i18n("Cheat Sheet"));
+    QVBoxLayout *layout = new QVBoxLayout(dialog);
+    layout->setContentsMargins(6, 6, 6, 6);
+    QLabel *intro = new QLabel(i18n("The names you know from other graphics editors, and where each one is in Krimble. Tap a line to open it."), dialog);
+    intro->setWordWrap(true);
+    QListWidget *list = new QListWidget(dialog);
+    list->addItems(lines);
+    layout->addWidget(intro);
+    layout->addWidget(list, 1);
+    QObject::connect(list, &QListWidget::currentRowChanged, dialog, [shown, dialog](int row) {
+        if (row < 0 || row >= shown->size()) return;
+        QPointer<QAction> action = shown->at(row).second;
+        dialog->close();
+        if (action && action->isEnabled()) {
+            QTimer::singleShot(0, action.data(), [action]() { if (action) action->trigger(); });
+        }
+    });
+    if (QScreen *scr = QGuiApplication::primaryScreen()) {
+        const QRect avail = scr->availableGeometry();
+        dialog->resize(int(avail.width() * 0.92), int(avail.height() * 0.80));
+    }
+    dialog->show();
+}
+
 // "Send Feedback": opens a prefilled GitHub issue (Claude's idea).
 static void krimbleSendFeedback(QMainWindow *win)
 {
@@ -598,6 +660,8 @@ static void krimbleInstallHelpExtras(QMainWindow *win)
         help->addSeparator();
         QAction *whereIs = help->addAction(i18n("Where is...?"));
         QObject::connect(whereIs, &QAction::triggered, win, [win]() { krimbleShowWhereIs(win); });
+        QAction *cheatSheet = help->addAction(i18n("Cheat Sheet"));
+        QObject::connect(cheatSheet, &QAction::triggered, win, [win]() { krimbleShowCheatSheet(win); });
         QAction *feedback = help->addAction(i18n("Send Feedback"));
         QObject::connect(feedback, &QAction::triggered, win, [win]() { krimbleSendFeedback(win); });
         QAction *overlay = help->addAction(i18n("QA Overlay"));

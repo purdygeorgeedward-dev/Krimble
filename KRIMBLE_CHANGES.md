@@ -3467,3 +3467,13 @@ Claude's idea ("Size presets: social posts, stories, A4 at 300 dpi"); George: "B
 - Business Card 3.5x2 in at 300 ppi (1050x600), Postcard 4x6 in at 300 ppi (1800x1200).
 A4 and the other paper sizes at 300 ppi already existed. The sizes are the commonly used ones; the platforms change theirs, so the list may need updating.
 **Not verified:** a build or a device.
+
+## 2026-10-12 (52nd) — Help menu: Cheat Sheet (Claude's idea)
+
+**Files:** `libs/ui/KisMainWindow.cpp`
+
+Claude's idea ("a cheat sheet in Help: industry-standard name next to Krimble name"); George: "Cheat sheet- YES."
+- A new Help entry, "Cheat Sheet", opens a list: the name people know from other graphics editors, an arrow, and where it is in Krimble (for example "Crop -> Image > Crop"). About 37 names: crop and image sizes, layers and merging, transforms, selections, the adjustments (brightness/contrast, levels, curves, hue/saturation, color balance, vibrance), blur, sharpen and noise filters, color mode, fill and stroke, undo, copy merged, paste as a new image, preferences.
+- The paths are looked up in Krimble's real menus when the sheet opens, so they cannot go out of date; a name whose entry is not found (renamed or missing) is simply left out. Tapping a line closes the sheet and opens that entry.
+- The list of names and search words is in `krimbleShowCheatSheet`; names can be added there.
+**Not verified:** a build or a device.
