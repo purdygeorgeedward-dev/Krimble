@@ -36,6 +36,8 @@
 #include <QStatusBar>
 #include <QStyleFactory>
 #include <algorithm>
+#include <QDateTime>
+#include <QDir>
 #include <QSharedPointer>
 #include <QUrlQuery>
 #include <QToolBar>
@@ -553,6 +555,86 @@ static void krimbleShowCheatSheet(QMainWindow *win)
         dialog->resize(int(avail.width() * 0.92), int(avail.height() * 0.80));
     }
     dialog->show();
+}
+
+// "Share": the picture as it looks flattened, through Android's share sheet (Claude's idea; George: "Share out is great.").
+static void krimbleShareImage(KisMainWindow *win, bool asJpg)
+{
+#ifdef Q_OS_ANDROID
+    KisImageSP image = win->viewManager() ? win->viewManager()->image() : KisImageSP();
+    if (!image) {
+        QMessageBox::information(win, i18n("Share"), i18n("Open an image first."));
+        return;
+    }
+    image->waitForDone();
+    QImage flat = image->convertToQImage(image->bounds(), image->colorSpace()->profile());
+    if (flat.isNull()) {
+        QMessageBox::warning(win, i18n("Share"), i18n("The image could not be prepared for sharing."));
+        return;
+    }
+    const QString dirPath = QStandardPaths::writableLocation(QStandardPaths::CacheLocation) + QStringLiteral("/share");
+    QDir().mkpath(dirPath);
+    QString base = QStringLiteral("Krimble-%1").arg(QDateTime::currentDateTime().toString(QStringLiteral("yyyyMMdd-HHmmss")));
+    const QString path = dirPath + QLatin1Char('/') + base + (asJpg ? QStringLiteral(".jpg") : QStringLiteral(".png"));
+    bool saved;
+    if (asJpg) {
+        QImage onWhite(flat.size(), QImage::Format_RGB32);
+        onWhite.fill(Qt::white);
+        QPainter painter(&onWhite);
+        painter.drawImage(0, 0, flat);
+        painter.end();
+        saved = onWhite.save(path, "JPG", 92);
+    } else {
+        saved = flat.save(path, "PNG");
+    }
+    if (!saved) {
+        QMessageBox::warning(win, i18n("Share"), i18n("The image could not be saved for sharing."));
+        return;
+    }
+    QAndroidJniObject jPath = QAndroidJniObject::fromString(path);
+    QAndroidJniObject jMime = QAndroidJniObject::fromString(asJpg ? QStringLiteral("image/jpeg") : QStringLiteral("image/png"));
+    QAndroidJniObject jName = QAndroidJniObject::fromString(base + (asJpg ? QStringLiteral(".jpg") : QStringLiteral(".png")));
+    const jboolean ok = QAndroidJniObject::callStaticMethod<jboolean>("org/krimble/android/ShareHelper", "shareFile",
+        "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Z", jPath.object<jstring>(), jMime.object<jstring>(), jName.object<jstring>());
+    if (!ok) {
+        QMessageBox::warning(win, i18n("Share"), i18n("Sharing did not work on this phone."));
+    }
+#else
+    Q_UNUSED(win);
+    Q_UNUSED(asJpg);
+#endif
+}
+
+// Adds "Share as JPG" and "Share as PNG" to the File menu, just above Quit (Claude's idea).
+static void krimbleInstallFileExtras(KisMainWindow *win)
+{
+    QMenu *file = nullptr;
+    Q_FOREACH (QAction *top, win->menuBar()->actions()) {
+        QString title = top->text();
+        title.remove(QLatin1Char('&'));
+        if (top->menu() && title == QLatin1String("File")) file = top->menu();
+    }
+    if (!file || file->property("krimbleFileExtras").toBool()) return;
+    file->setProperty("krimbleFileExtras", true);
+    QObject::connect(file, &QMenu::aboutToShow, win, [win, file]() {
+        if (file->property("krimbleFileExtrasAdded").toBool()) return;
+        file->setProperty("krimbleFileExtrasAdded", true);
+        QAction *before = nullptr;
+        Q_FOREACH (QAction *action, file->actions()) {
+            QString text = action->text();
+            text.remove(QLatin1Char('&'));
+            if (text == QLatin1String("Quit") || text == QLatin1String("Exit")) before = action;
+        }
+        QAction *shareJpg = new QAction(i18n("Share as JPG..."), file);
+        QObject::connect(shareJpg, &QAction::triggered, win, [win]() { krimbleShareImage(win, true); });
+        QAction *sharePng = new QAction(i18n("Share as PNG..."), file);
+        QObject::connect(sharePng, &QAction::triggered, win, [win]() { krimbleShareImage(win, false); });
+        QAction *sep = new QAction(file);
+        sep->setSeparator(true);
+        file->insertAction(before, sep);
+        file->insertAction(before, shareJpg);
+        file->insertAction(before, sharePng);
+    });
 }
 
 // "Send Feedback": opens a prefilled GitHub issue (Claude's idea).
@@ -1700,7 +1782,7 @@ KisMainWindow::KisMainWindow(QUuid uuid)
     // Krimble 2026-10-10: drag the strip to the screen edge to shut the right panels.
     qApp->installEventFilter(new KrimbleEdgeCollapseFilter(this));
     // Krimble 2026-10-12: stack the top toolbars once the saved layout has been restored.
-    QTimer::singleShot(2500, this, [this]() { krimbleStackToolBars(this); krimbleInstallHelpExtras(this); });
+    QTimer::singleShot(2500, this, [this]() { krimbleStackToolBars(this); krimbleInstallHelpExtras(this); krimbleInstallFileExtras(this); });
     // Krimble 2026-10-11: close open menus when the window changes size (rotation).
     installEventFilter(new KrimbleClosePopupsOnResizeFilter(this));
 #endif

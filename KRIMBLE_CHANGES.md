@@ -3477,3 +3477,13 @@ Claude's idea ("a cheat sheet in Help: industry-standard name next to Krimble na
 - The paths are looked up in Krimble's real menus when the sheet opens, so they cannot go out of date; a name whose entry is not found (renamed or missing) is simply left out. Tapping a line closes the sheet and opens that entry.
 - The list of names and search words is in `krimbleShowCheatSheet`; names can be added there.
 **Not verified:** a build or a device.
+
+## 2026-10-12 (53rd) — File menu: Share as JPG / Share as PNG (Claude's idea)
+
+**Files:** `libs/ui/KisMainWindow.cpp`, `packaging/android/apk/src/org/krimble/android/ShareHelper.java` (new)
+
+Claude's idea ("Open and share through Android"); George: "Share out is great." (Opening images from other apps already works: Krimble is in the "Open with" list.)
+- Two new entries just above Quit in the File menu (added when the menu first opens): "Share as JPG..." and "Share as PNG...". They take the open image as it looks flattened (all layers, as shown), save it, and open Android's share sheet: messages, email, social apps, cloud storage, nearby devices. JPG is flattened onto white and saved at quality 92; PNG keeps transparency.
+- `ShareHelper.shareFile` (Java) puts the picture into the phone's **Pictures/Krimble** folder through the MediaStore, so it also shows in the Gallery, and shares that. This needs no extra Android permission or library. It needs Android 10 or newer; on an older phone a message says so.
+- Not done: sharing the layered Krimble/Krita file itself, and choosing a size before sharing.
+**Not verified:** a build or a device. This is the first Java code added by Claude's ideas; if the packaging step fails, the error will name `ShareHelper.java`.
