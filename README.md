@@ -133,7 +133,7 @@ The goal is not to turn Krimble into an “AI app.” The goal is to build a str
 </div>
 
 
-**Artificial Intelligence is like a brilliant child. Children sometimes make mistakes. That's what Daddy is there for.**
+Artificial Intelligence is like a brilliant child. Children sometimes make mistakes. That's what Daddy is there for.
 
 ---
 
