@@ -44,7 +44,7 @@ That means:
 
 ---
 
-## Why Krimble?
+## Why Krimble? 🐱
 
 I am a lifelong graphics professional trained across traditional media and digital tools. On a phone, I do not want to paint. I want a practical graphics editor in the palm of my hand.
 
