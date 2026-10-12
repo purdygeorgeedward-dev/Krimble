@@ -3610,3 +3610,12 @@ QA of build 33 (George: "Sizing gadget covers the button. No bueno."): the 44 px
 - George: "Handle on toolbox is too big." The panel edge handle (58th entry) is 12 x 48 px (was 18 x 80). Old values in comments.
 - George: "Handle ... still does not work in portrait/tall aspect. Maybe start with toolbox floating by default." The first time the app runs (once, remembered in the setting `krimble_toolbox_floated_once`), 2.5 s after start, the toolbox is made floating at the top left, 30% of the screen wide and 70% high. After that the saved layout decides, so the user can dock it again. The portrait failure of the handle is not fixed: in portrait the docked toolbox, the canvas and the right panels have no room to give each other.
 **Not verified:** a build or a device.
+
+## 2026-10-12 (65th) — Preferences page icons in color (temporary)
+
+**Files:** 16 icon files in `krita/pics/svg/` (`light_` and `dark_` versions of `config-general`, `config-keyboard`, `config-canvas-input`, `config-display`, `config-performance`, `config-tablet`, `config-canvas-only`, `user-identity`)
+
+George: "Add colors for now." (Earlier he said he will draw his own icons; these are a stand-in, like the 59th entry. His icons replace them by file name when they are ready.)
+- One color per page, same drawing as before: General blue, Keyboard Shortcuts violet, Canvas Input amber, Display mint, Performance orange, Tablet pink, Canvas-only lime, Author coral. The `light_` files (dark themes) are the bright versions, the `dark_` files (light themes) the deeper ones. Each file had a single gray; only that color changed.
+- Not changed: Color Management and Pop-up Palette (already in color), and the other pages' icons.
+**Not verified:** a build or a device. Checked on a preview image first.
