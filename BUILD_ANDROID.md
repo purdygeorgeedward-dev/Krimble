@@ -161,6 +161,11 @@ Packaging the APK with `build-android-package.py` was confirmed working
 
 ### 2. Version numbers (rewritten 2026-10-09)
 
+> **Update 2026-10-12:** the number the app shows on launch (and the APK version) is the hand-set
+> `krimbleBuildNumber` in `packaging/android/apk/build.gradle`. The counter described below is retired
+> (commit `3b7ae14`). A version change needs `kb-build.sh` before `kb-package.sh` (the stamp is made at build
+> time). Where this section disagrees with section 8, section 8 is right.
+
 **The version is set by hand. Nothing sets it automatically.**
 
 - File: `packaging/android/apk/build.gradle`. One number:
@@ -369,3 +374,66 @@ step.
    line it printed. The APK lands in `Downloads/`.
 8. Size check: a normal APK is about 158 MB (165.5 million bytes). About
    500 MB means stripping failed (section 3).
+
+### 8. Where things stand, and what was learned (added 2026-10-12)
+
+**Builds so far (all from `master`, tags on GitHub):**
+
+| Version | Commit | Tag | Notes |
+|---|---|---|---|
+| 1.0.29 beta | `f01a17e` | `1.0.29b` | |
+| 1.0.30 beta | `baa1509` | `1.0.30b` | |
+| 1.0.31 beta | `117207e` | `1.0.31b` | first build with the toolbox/menu work |
+| 1.0.32 beta | `3774d49` | `1.0.32b` | |
+| 1.0.33 beta | `3c7f2aa` | not tagged yet | first build with Share, Quick tools, Help items |
+| 1.0.34 beta | see `git log` | | |
+
+Each tag must sit on the commit the APK was built from, not on `master` at posting time. Create it with
+`git push origin <commit>:refs/tags/<name>` before choosing "existing tag" on the release page.
+
+**The build, short:** (all on the server; label every step local/server)
+1. Local (phone, Termux): `ssh -i ~/.ssh/ssh-key-2026-08-19.key ubuntu@129.151.24.131`
+2. Server: `cd ~/krimble && git pull origin master && cp tools/server/kb-*.sh ~/ && git log -1 --oneline && ~/kb-build.sh`
+   (check that the commit line is the one expected)
+3. Server, later: `~/kb-status.sh` until `BUILD: FINISHED OK` (an incremental build takes about 20 to 30 minutes; a first build about 7.5 hours)
+4. Server: `~/kb-package.sh` (about 10 minutes), then `~/kb-status.sh`: the APK listed must show the new version and a newer time
+5. Server: `~/kb-apk.sh` (never before step 4 has finished: it names whatever APK is newest, which would be the old one), then `exit`
+6. Local: the `scp` line that `kb-apk.sh` prints, into `~/storage/downloads/`
+
+**Things learned the hard way:**
+- `kb-status.sh` shows only the first 6 error lines. Paste them to whoever is fixing the code.
+- The server clock is UTC; the phone is MDT (UTC minus 6 in October). An APK stamped `Oct 11 01:46` was made at 7:46 PM on Oct 10.
+- The PACKAGING line of `kb-status.sh` lists the previous APK until `kb-package.sh` has run.
+- Code that has never been compiled can stop a build on a type error; only the failed file is recompiled on the next `kb-build.sh`.
+- `ShareHelper.java` (new in 1.0.33) is compiled by the packaging step, not the native build; a Java error would show there.
+- A 158 MB APK is slow to upload from a phone. Upload it from the server instead: on the server run
+  `read -rs -p "GitHub token: " GH; echo; curl --progress-bar -X POST -H "Authorization: Bearer $GH" -H "Accept: application/vnd.github+json" -H "Content-Type: application/vnd.android.package-archive" --data-binary @$HOME/<apk file> "https://uploads.github.com/repos/purdygeorgeedward-dev/krimble/releases/<release id>/assets?name=<apk file>" | head -c 300; echo; unset GH`
+  (the release id is shown by the GitHub API for the draft release; the token prompt hides what is typed and keeps it out of the shell history).
+
+**What is in the app now, and where the code is** (every item has a dated entry in `KRIMBLE_CHANGES.md`, entries 12 to 75; Claude's ideas are marked "(Claude's idea)" in the code and the entry):
+
+| Feature | Main file | Entry |
+|---|---|---|
+| Toolbox: columns, 2 by default, saved column count, one block of tools, drag bar with grip lines, wells under the tools, floating at first start | `libs/ui/toolbox/` | 22, 24, 31, 35, 36, 38, 40, 43, 64 |
+| Panel edges: thin invisible strip, small touch handle | `libs/widgetutils/KisWideDockSeparatorStyle.cpp`, `KisMainWindow.cpp` | 55, 56, 58, 64 |
+| Window menu: Tabs/Floating Windows switch, Show Contents While Dragging, Hide All Panels, Layout Presets, Quick Adjust, Save/Reset Layout | `KisMainWindow.cpp` | 33, 34, 37, 60, 70, 75 |
+| Menus without shortcut column, 1 px dividers | `KisMainWindow.cpp`, style | 21, 23, 64 |
+| Floating windows by default | `KisMainWindow.cpp` | 34 |
+| Help menu: Where is..., Send Feedback, QA Overlay | `KisMainWindow.cpp` | 50 |
+| File menu: Share as JPG/PNG, Batch Process | `KisMainWindow.cpp`, `ShareHelper.java` | 53, 73, 74 |
+| Layer menu: Style Presets | `KisMainWindow.cpp` | 75 |
+| Quick Adjust panel | `KisMainWindow.cpp` | 70 |
+| Toolbars: stacked, Reset, Close All, seven extra toolbars (hidden by default) | `KisMainWindow.cpp`, `krita5.xmlgui` | 41, 49, 61, 66 |
+| Dialogs: fit the screen, corner grip, long labels wrap, two-finger move, no bounce except the toolbox | `KisApplication.cpp`, `KoFileDialog.cpp` | 29, 39, 46, 57, 63, 72 |
+| New Document: size presets, thin left list, colored section icons | `KisOpenPane.cpp`, `krita/data/` | 48, 51, 59, 67, 69 |
+| Dodge and Burn, Type tool fixes | `plugins/tools/basictools/`, `svgtexttool/` | 44, 45 |
+| Layers panel can be narrow | `plugins/dockers/layerdocker/LayerBox.cpp` | 68 |
+| README "Thank you" section and icons | `README.md`, `thanks-icons/` | 71 |
+
+**Removed after testing (code kept in comments):** Cheat Sheet (crashed), Mirror Layout (corrupted the display), three of the ten extra toolbars.
+
+**Known open issues (2026-10-12):**
+- Preferences, Brightness/Contrast and the JPEG export window can be wider than the screen in portrait.
+- Custom toolbars: no bigger grab handle when vertical, tools do not arrange into columns.
+- Camera button, upscale item and AI upscaling are not built.
+- Each Android phone shows 2 to 3.4 device pixels per logical pixel; use Help > QA Overlay to get real numbers from a screenshot.

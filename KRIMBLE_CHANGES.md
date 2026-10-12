@@ -3714,3 +3714,12 @@ George: "Why 1080 wide? It's usually a height from 1080p." The batch presets' si
 - **Reset Layout:** forgets both saved layouts and returns to the layout the app first started with (kept as `default` the first time the app runs, after the toolbox is made floating).
 - The layout is Qt's own window state (`saveState` / `restoreState`), the same mechanism Krita uses when it closes and opens.
 **Not verified:** a build or a device. Restoring a layout right after a rotation interacts with the toolbox width code; if it misbehaves, "Reset Layout" is the way back.
+
+## 2026-10-12 (76th) — Documentation (BUILD_ANDROID.md section 8) and version 34
+
+**Files:** `BUILD_ANDROID.md`, `packaging/android/apk/build.gradle`
+
+George: "Document everything and start build."
+- `BUILD_ANDROID.md`: a new section 8 with the list of builds and tags (and the rule that a tag sits on the commit the APK was built from), the build routine in six steps, the lessons learned (6 error lines only, UTC against MDT, the order of `kb-package.sh` and `kb-apk.sh`, `ShareHelper.java` compiled at packaging, uploading the APK from the server), a table of every feature added since 1.0.31 with its main file and changelog entry, what was removed after testing, and the known open issues. A note at the start of section 2 says the version counter is retired.
+- Version: `krimbleBuildNumber` 33 → 34 (`1.0.34-beta`, version code 5050434).
+**Not verified:** a build.
