@@ -256,6 +256,22 @@ GeneralTab::GeneralTab(QWidget *_parent, const char *_name)
         scrollAreaWidgetContents->parentWidget()->setAutoFillBackground(false);
     }
 
+    // Krimble 2026-10-12: George: "I don't know if the paste behavior with the new dialog is great. I think it should be a preference
+    // that can be toggled on and off." On the Pasting tab: when on (the default), the Custom Document page of File > New starts with the
+    // size of the picture on the clipboard (the 91st changelog entry). The choice is saved as soon as the box is changed.
+    {
+        QCheckBox *newFromClipboardSize = new QCheckBox(i18n("New document starts with the size of the copied picture"), Pasting);
+        newFromClipboardSize->setToolTip(i18n("When a picture was copied or cut, File > New starts with its width and height, so it can be pasted into the new document cleanly."));
+        newFromClipboardSize->setChecked(KisConfig(true).readEntry<int>("krimble_new_from_clipboard_size", 1) != 0);
+        connect(newFromClipboardSize, &QCheckBox::toggled, newFromClipboardSize, [](bool on) {
+            KisConfig writeCfg(false);
+            writeCfg.writeEntry<int>("krimble_new_from_clipboard_size", on ? 1 : 0);
+        });
+        if (Pasting->layout()) {
+            Pasting->layout()->addWidget(newFromClipboardSize);
+        }
+    }
+
     //
     // Cursor Tab
     //

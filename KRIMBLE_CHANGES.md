@@ -3856,3 +3856,10 @@ George: "The tools at the bottom of the Layers panel disappeared, so I detached 
 
 George: "If it reattaches to the side those bottom tools disappear again. They are important to layers functions." Six buttons in one row need more width than a docked Layers panel has in portrait (about 570 of 1080 px), so the ones on the right were pushed out of view. On Android they are now in a grid of **two rows of three**: add, duplicate, lower / raise, properties, delete. Each button shares its row evenly, so all six stay visible and easy to hit, however narrow the panel is. The buttons are moved out of the single row (`hbox1` in `WdgLayerBox.ui`, which is kept) into a grid placed in it. The panel is one button row taller. The panel's minimum width is now about the width of three buttons (about 130 logical px) instead of six.
 **Not verified:** a build or a device.
+
+## 2026-10-12 (94th) — A preference for the copied size in New Document
+
+**Files:** `libs/ui/dialogs/kis_dlg_preferences.cc`, `libs/ui/dialogs/KisDlgCreateNewDocument.cpp`
+
+George: "I don't know if the paste behavior with the new dialog is great. I think it should be a preference that can be toggled on and off." (The behavior is the 91st entry.) New check box on **Edit > Preferences > General > Pasting**: "New document starts with the size of the copied picture". **On by default**, so it can be tried; unchecked, File > New always starts with the saved default size. The choice is saved as soon as the box is changed (setting `krimble_new_from_clipboard_size`); "Restore Defaults" does not reset it. The New Document window reads it each time it opens.
+**Not verified:** a build or a device.
