@@ -1711,7 +1711,8 @@ static void krimbleInstallViewExtras(KisMainWindow *win)
             });
         }
         QSignalBlocker blocker(gadget);
-        gadget->setChecked(KisConfig(true).readEntry<int>("krimble_show_rotation_gadget", 1) != 0);
+        // gadget->setChecked(KisConfig(true).readEntry<int>("krimble_show_rotation_gadget", 1) != 0);   (shown by default)
+        gadget->setChecked(KisConfig(true).readEntry<int>("krimble_show_rotation_gadget", 0) != 0);   // George: hidden by default
     });
 }
 

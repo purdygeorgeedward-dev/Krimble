@@ -3809,3 +3809,10 @@ George: "I sometimes accidentally trigger the rotation gadget on the bottom. Can
 - `KisStatusBar` shows the dial when a picture is opened only if the setting allows it (the old unconditional `setVisible(true)` is kept in a comment).
 - The canvas can still be rotated other ways (View > Canvas Rotation, the Rotate tool); only the dial is hidden.
 **Not verified:** a build or a device. If View > Rotation Gadget is missing, the View menu was rebuilt by the program; the item is added again each time the menu opens.
+
+## 2026-10-12 (88th) — The rotation gadget is hidden by default
+
+**Files:** `libs/ui/kis_statusbar.cc`, `libs/ui/KisMainWindow.cpp`
+
+George: "Default to hiding the rotation gadget." The default of the setting `krimble_show_rotation_gadget` is now 0 (was 1) in both places that read it, so the dial in the status bar is hidden until View > Rotation Gadget is checked. A choice already made is kept. The old defaults are in comments.
+**Not verified:** a build or a device.

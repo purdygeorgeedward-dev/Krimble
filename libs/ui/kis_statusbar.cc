@@ -158,7 +158,8 @@ void KisStatusBar::setView(QPointer<KisView> imageView)
         // m_canvasAngleSelector->setVisible(true);
         // Krimble 2026-10-12: George: "I sometimes accidentally trigger the rotation gadget on the bottom. Can we turn it off and on at
         // will?" It is shown unless View > Rotation Gadget was switched off (setting krimble_show_rotation_gadget).
-        m_canvasAngleSelector->setVisible(KisConfig(true).readEntry<int>("krimble_show_rotation_gadget", 1) != 0);
+        // m_canvasAngleSelector->setVisible(KisConfig(true).readEntry<int>("krimble_show_rotation_gadget", 1) != 0);   (shown by default)
+        m_canvasAngleSelector->setVisible(KisConfig(true).readEntry<int>("krimble_show_rotation_gadget", 0) != 0);   // George: hidden by default
         connect(m_imageView, SIGNAL(sigColorSpaceChanged(const KoColorSpace*)),
                 this, SLOT(updateStatusBarProfileLabel()));
         connect(m_imageView, SIGNAL(sigProfileChanged(const KoColorProfile*)),
