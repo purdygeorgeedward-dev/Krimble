@@ -4090,3 +4090,12 @@ George: "Drop Krita handbook until we can write a Krimble handbook." In the Help
 
 George: "Remove take photo. It's a failure." In 1.0.35 the camera opened but the app crashed after the photo was taken. The three lines that add **Take Photo...** to the File menu are commented out. The code stays (`krimbleTakePhoto`, `KrimbleCameraReceiver` with the thread fix of the 115th entry, and `ShareHelper.prepareCameraUri` / `deleteUri`), so the feature can come back once it is fixed and tested; it is not reachable from the program now. Entry 109 (the feature) is not undone otherwise.
 **Not verified:** a build or a device.
+
+## 2026-10-13 (120th) — The wide menus: the real cause, found in Qt's source, and a fix
+
+**Files:** `libs/ui/KisMainWindow.cpp`
+
+George (1.0.35): "Menus are still too wide" (again, after the 21st, 23rd, 64th and 84th entries), and "Your previous fixes are in this and they are FAILING".
+**Cause (read from Qt 5.15's own `qmenu.cpp`, `QMenuPrivate::updateActionRects`):** for a menu opened from the **menu bar**, Qt always measures the keyboard shortcut of every item and, after measuring all the items, adds a column as wide as the longest shortcut (`max_column_width += tabWidth`). The `setShortcutVisibleInContextMenu(false)` switch used since 2026-10-12 only matters for right-click menus (`isContextMenu()` is false for a menu-bar menu), so it did nothing; and the style cannot remove the column afterwards (the 84th entry's cap was applied to the items, and the shortcut column is added after). All earlier menu fixes missed for this reason.
+**Fix:** `krimbleInstallMenuShortcutStripping`: for every menu of the menu bar, just before it is shown (`aboutToShow`, which Qt emits **before** it measures the items: checked in `QMenu::popup`) the shortcuts of all its items and of all its submenus are taken off, and as soon as it closes (`aboutToHide`) they are put back. The menus then have no shortcut column. The shortcuts still work (with a keyboard) whenever no menu is open. The old switch (`krimbleHideMenuShortcuts`) is kept and harmless. It runs from the 2 s timer, so menus made later are covered too (a property marks the ones done).
+**Not verified:** a build or a device. If the menus are still wide, Help > Menu Diagnostics (115th entry) shows the numbers.

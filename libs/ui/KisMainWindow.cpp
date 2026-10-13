@@ -470,6 +470,47 @@ static void krimbleHideMenuShortcuts(QMenu *menu, int depth)
 #endif
 
 #ifdef Q_OS_ANDROID
+// Krimble 2026-10-13 (4th): THE REAL CAUSE OF THE WIDE MENUS (found by reading Qt 5.15's own source, `QMenuPrivate::updateActionRects`).
+// For a menu opened from the MENU BAR, Qt always measures the keyboard shortcut of every item and adds a column as wide as the longest
+// one ("max_column_width += tabWidth"). The switch `setShortcutVisibleInContextMenu(false)` (used since 2026-10-12) only matters for
+// right-click menus, so it did nothing here, and no style can remove that column after the fact. The only way is for the items not to have a
+// shortcut at the moment the menu is measured. So the shortcuts of all items of a menu and its submenus are taken off just before the
+// menu is shown (`aboutToShow` comes before the measuring) and put back as soon as it closes (`aboutToHide`). They still work on a keyboard.
+typedef QList<QPair<QPointer<QAction>, QList<QKeySequence> > > KrimbleSavedShortcuts;
+static void krimbleStripShortcuts(QMenu *menu, KrimbleSavedShortcuts *saved, int depth)
+{
+    if (!menu || depth > 6) return;
+    Q_FOREACH (QAction *action, menu->actions()) {
+        const QList<QKeySequence> keys = action->shortcuts();
+        if (!keys.isEmpty()) {
+            saved->append(qMakePair(QPointer<QAction>(action), keys));
+            action->setShortcuts(QList<QKeySequence>());
+        }
+        if (action->menu()) krimbleStripShortcuts(action->menu(), saved, depth + 1);
+    }
+}
+
+static void krimbleInstallMenuShortcutStripping(QMainWindow *win)
+{
+    Q_FOREACH (QAction *top, win->menuBar()->actions()) {
+        QMenu *menu = top->menu();
+        if (!menu || menu->property("krimbleShortcutsStripped").toBool()) continue;
+        menu->setProperty("krimbleShortcutsStripped", true);
+        QSharedPointer<KrimbleSavedShortcuts> saved(new KrimbleSavedShortcuts());
+        QObject::connect(menu, &QMenu::aboutToShow, menu, [menu, saved]() {
+            krimbleStripShortcuts(menu, saved.data(), 0);
+        });
+        QObject::connect(menu, &QMenu::aboutToHide, menu, [saved]() {
+            for (int i = 0; i < saved->size(); ++i) {
+                if (saved->at(i).first) saved->at(i).first->setShortcuts(saved->at(i).second);
+            }
+            saved->clear();
+        });
+    }
+}
+#endif
+
+#ifdef Q_OS_ANDROID
 // Krimble 2026-10-12: an invisible touch zone, 14 px wide, along the inner edge of every docked panel (the right edge of a panel
 // on the left, the left edge of a panel on the right). Dragging it resizes the panel's side of the window. It draws nothing and
 // takes no room of its own, so the edge between the toolbox, the canvas and the panels can be as thin as the base style makes it
@@ -2719,6 +2760,7 @@ KisMainWindow::KisMainWindow(QUuid uuid)
         connect(grabTimer, &QTimer::timeout, this, [this]() {
             krimbleInstallDockEdgeGrabs(this);
             Q_FOREACH (QAction *top, menuBar()->actions()) krimbleHideMenuShortcuts(top->menu(), 0);   // Krimble 2026-10-12
+            krimbleInstallMenuShortcutStripping(this);   // Krimble 2026-10-13 (4th): the real fix for the wide menus (see above)
         });
         grabTimer->start(2000);
         Q_FOREACH (QAction *top, menuBar()->actions()) krimbleHideMenuShortcuts(top->menu(), 0);
