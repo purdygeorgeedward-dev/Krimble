@@ -3897,3 +3897,10 @@ George: "I am trying to copy and paste a piece of an image and when I paste it t
 Cause (not fully proven, from the code): the paste keeps the position the picture had in the source image. Part of the clipboard code moves it to the center when it misses the page (`kis_clipboard.cc`), but not every path does (the layer-copy path through `clipFromKritaLayers`, for one). "Paste as New Image" always moves the picture to the corner of its own page.
 Change: in `KisPasteActionFactory::run`, after the clip is read and when it is not pasted at the cursor, if the pasted picture does not intersect the image at all, it is moved so its center is the center of the image. A picture that already touches the page is left where it is, as before.
 **Not verified:** a build or a device. **If it still does not show after this, the cause is something else and I need a new test.** Until then: "Paste as New Image" or "Create from Clipboard" in File > New.
+
+## 2026-10-13 (99th) — Image windows have a wider frame to grab
+
+**Files:** `libs/widgetutils/KisWideDockSeparatorStyle.cpp`
+
+George: "It is extremely hard to resize image windows." The image windows inside the main window (floating ones, with the title bar and three buttons) are resized by dragging their frame; the frame is what the style draws and also the zone that reacts, and it is only a few pixels wide. On Android the style (`PM_MdiSubWindowFrameWidth`) now makes it at least 12 logical px, about 40 on the screen, on every side. The frame will look thicker. The corners are the same width, so a corner is about 40 by 40 px.
+**Not verified:** a build or a device. If the grab zone does not get bigger (the frame only looks thicker), the zone is decided somewhere else and a corner grip on image windows (like the one on dialogs) is the next step.

@@ -31,6 +31,15 @@ int KisWideDockSeparatorStyle::pixelMetric(PixelMetric metric, const QStyleOptio
 #endif
     }
 
+#ifdef Q_OS_ANDROID
+    // Krimble 2026-10-13: George: "It is extremely hard to resize image windows." The frame of an image window (a QMdiSubWindow) is
+    // both what is drawn around it and the zone a finger can grab to resize it, and the base style makes it only a few pixels wide.
+    // On Android it is at least 12 logical px (about 40 on the screen), the same idea as the 20 px edges of the dialogs.
+    if (metric == QStyle::PM_MdiSubWindowFrameWidth) {
+        return qMax(QProxyStyle::pixelMetric(metric, option, widget), 12);
+    }
+#endif
+
     return QProxyStyle::pixelMetric(metric, option, widget);
 }
 
