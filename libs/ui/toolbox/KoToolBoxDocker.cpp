@@ -840,9 +840,21 @@ void KoToolBoxDocker::contextMenuEvent(QContextMenuEvent *event)
             dockAction->setCheckable(true);
             m_dockActions[i] = dockAction;
             const Qt::DockWidgetArea area = dockEntries[i].area;
+            // connect(dockAction, &QAction::triggered, this, [this, area]() {
+            //     if (QMainWindow *mainWindow = qobject_cast<QMainWindow*>(parentWidget())) {
+            //         mainWindow->addDockWidget(area, this);
+            //         show();
+            //     }
+            // });
+            // Krimble 2026-10-13: George: "Dock right from the long press menu did nothing." The toolbox now starts floating, and
+            // addDockWidget alone leaves a floating panel floating; it has to be told to dock. All areas are allowed first.
             connect(dockAction, &QAction::triggered, this, [this, area]() {
                 if (QMainWindow *mainWindow = qobject_cast<QMainWindow*>(parentWidget())) {
+                    setAllowedAreas(Qt::AllDockWidgetAreas);
                     mainWindow->addDockWidget(area, this);
+                    if (isFloating()) {
+                        setFloating(false);
+                    }
                     show();
                 }
             });
@@ -865,7 +877,8 @@ void KoToolBoxDocker::contextMenuEvent(QContextMenuEvent *event)
         for (int i = 0; i < 4; ++i) {
             if (m_dockActions[i]) {
                 m_dockActions[i]->setChecked(dockCurrent == dockAreas[i]);
-                m_dockActions[i]->setEnabled(allowedAreas() & dockAreas[i]);
+                // m_dockActions[i]->setEnabled(allowedAreas() & dockAreas[i]);
+                m_dockActions[i]->setEnabled(true);   // Krimble 2026-10-13: a choice from this menu is always allowed
             }
         }
         if (m_dockActions[4]) m_dockActions[4]->setChecked(isFloating());

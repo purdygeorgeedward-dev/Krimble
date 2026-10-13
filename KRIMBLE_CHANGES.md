@@ -3926,3 +3926,12 @@ George: "We should probably call it docking instead of snapping since snapping i
 - **Snapping** is left for the canvas (View > Snap To, snap to grid and guides).
 - 6 comments in `KisMainWindow.cpp`, 1 in `KoToolBoxDocker.cpp`, 2 in `KoToolBoxDocker_p.h`, 1 line in `README.md` ("Panels no longer dock themselves back into docking zones after being dragged."), 1 in `KRIMBLE_STATUS.md` and 16 places in this file (older entries, including one title) were reworded.
 - Not changed: George's own words in quotation marks (for example the 96th entry and the 2026-10-06 request); the names `snapToColumns`, `m_snapTimer` (renaming a function is a code change; say if wanted); `m_closeSnappingActivated` (the polygon tool's first-point check, which is a canvas thing); View > Snap To and everything about the canvas.
+
+## 2026-10-13 (102nd) — The Dock choices in the long-press menu dock a floating panel
+
+**Files:** `libs/widgets/KoDockWidgetTitleBar.cpp`, `libs/ui/toolbox/KoToolBoxDocker.cpp`
+
+George: "Dock right from the long press menu did nothing." The long-press menu of a panel's title bar and of the toolbox has Dock Left / Right / Top / Bottom and Undock (2026-10-10). The choices called `addDockWidget(area, panel)` and `show()`. For a panel that is **floating** (the toolbox now starts floating) that leaves it floating: `addDockWidget` only places it in the area's list, and the panel has to be told `setFloating(false)` to dock. A floating panel's allowed areas can also be none or only some (the dock tolerance rule, floating panels allowed in no area), which greyed out or ignored the choice.
+- All areas are allowed before docking (`setAllowedAreas(AllDockWidgetAreas)`), then `addDockWidget`, then `setFloating(false)` if it floats, then `show()`. Done in both menus.
+- The four Dock choices are never greyed out (the old `setEnabled(allowedAreas() & area)` is kept in a comment).
+**Not verified:** a build or a device.

@@ -269,10 +269,23 @@ void KoDockWidgetTitleBar::contextMenuEvent(QContextMenuEvent *event)
         QAction *action = menu.addAction(entry.text);
         action->setCheckable(true);
         action->setChecked(current == entry.area);
-        action->setEnabled(dock->allowedAreas() & entry.area);
+        // action->setEnabled(dock->allowedAreas() & entry.area);
+        // Krimble 2026-10-13: George: "Dock right from the long press menu did nothing." A floating panel's allowed areas may be
+        // none or only some (floating panels are allowed in no area, or in the sides the finger was near while dragging), so the
+        // choices were greyed out or ignored. A choice from this menu is always allowed.
+        action->setEnabled(true);
         const Qt::DockWidgetArea area = entry.area;
+        // connect(action, &QAction::triggered, dock, [dock, mainWindow, area]() {
+        //     mainWindow->addDockWidget(area, dock);
+        //     dock->show();
+        // });
         connect(action, &QAction::triggered, dock, [dock, mainWindow, area]() {
+            dock->setAllowedAreas(Qt::AllDockWidgetAreas);
             mainWindow->addDockWidget(area, dock);
+            // addDockWidget alone leaves a floating panel floating; it has to be told to dock.
+            if (dock->isFloating()) {
+                dock->setFloating(false);
+            }
             dock->show();
         });
     }
