@@ -1222,7 +1222,8 @@ static void krimbleShowUpscale(KisMainWindow *win)
     updateResult();
     QDialogButtonBox *buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, dialog);
     QObject::connect(buttons, &QDialogButtonBox::rejected, dialog, &QDialog::reject);
-    QObject::connect(buttons, &QDialogButtonBox::accepted, dialog, [win, view, image, dialog, factor, method, sharpen]() {
+    // (the lambda is "mutable": it keeps its own copy of the image pointer and calls waitForDone() on it, which a const copy does not allow)
+    QObject::connect(buttons, &QDialogButtonBox::accepted, dialog, [win, view, image, dialog, factor, method, sharpen]() mutable {
         const int f = factor->currentData().toInt();
         const qint64 newWidth = qint64(image->width()) * f;
         const qint64 newHeight = qint64(image->height()) * f;

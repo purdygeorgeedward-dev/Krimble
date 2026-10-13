@@ -4040,3 +4040,10 @@ George, after a look at what Samsung Gallery and the open-source world offer: "D
 **Files:** `KRIMBLE_ROADMAP.md`
 
 George: "Maybe we could release a small accessory app called Krimble Upscaler with a very small local model." Added to the AI upscaling entry of `KRIMBLE_ROADMAP.md` as an option, with what it is for and against, how it would work with Krimble (hand-off through Android's share mechanism, as with Take Photo) and two other ways to the same end (download the model on first use; Play Feature Delivery). Not decided; no code.
+
+## 2026-10-13 (114th) — Compile error in the Upscale code (build 35)
+
+**Files:** `libs/ui/KisMainWindow.cpp`
+
+The first compile of build 35 stopped on one error: "'this' argument to member function 'waitForDone' has type 'const KisImage', but function is not marked const" (`KisMainWindow.cpp` line 1239, in the Upscale window). The OK handler (a lambda) keeps a copy of the image pointer, and a copy captured in a lambda is read-only unless the lambda is `mutable`. The lambda is now `mutable`. Nothing else changes.
+**Not verified:** a rebuild. More errors may follow in files that have not compiled yet.
