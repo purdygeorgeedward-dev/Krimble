@@ -4028,3 +4028,9 @@ George: "Yes. Go for it." (the Upscale item, steps 1 and 2 of the 2026-10-12 pro
 **Files:** `KRIMBLE_ROADMAP.md`
 
 George: "add fonts to your list. I want a system built in for browsing fonts and adding them and it would be nice to curate a default font set." Written down in `KRIMBLE_ROADMAP.md` as three parts (browse, add, a curated default set of open-license fonts), with the open questions. Not started; no code.
+
+## 2026-10-13 (112th) — AI upscaling added to the roadmap
+
+**Files:** `KRIMBLE_ROADMAP.md`
+
+George, after a look at what Samsung Gallery and the open-source world offer: "Definitely put it on the list. Real-ESRGAN etc." Written down in `KRIMBLE_ROADMAP.md`: candidates (Real-ESRGAN with ncnn and Vulkan first; waifu2x, Real-CUGAN, SwinIR and OpenCV's small models from memory and to be checked), the cost, the license checks needed for code and for model files, and the order of work. Not started; no code.

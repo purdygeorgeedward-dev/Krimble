@@ -196,3 +196,17 @@ George: "add fonts to your list. I want a system built in for browsing fonts and
 
 **Open questions for George:** the picks (Claude can propose a list with the license of each; George decides); whether the browser is a panel, a window, or both; whether fonts used in a document should be saved with it (not planned); the state of the Type tool (it was switched off on 2026-09 for a self-activation bug and is in the toolbox again; it should be re-tested before this is built).
 **Status:** not started. Nothing in the code yet.
+
+## AI upscaling: Real-ESRGAN and others (George, 2026-10-13: "Definitely put it on the list. Real-ESRGAN etc.")
+
+Goal: Image > Upscale... gets AI methods next to the classic ones (Lanczos3 and the others, built 2026-10-13, entry 110), for much better fine detail (hair, text edges, textures) on photos and drawings.
+
+**Candidates (licenses to be read and confirmed from the projects themselves before anything is bundled):**
+- **Real-ESRGAN** with the **ncnn + Vulkan** runtime (ncnn is Tencent's inference library). The command-line port `Real-ESRGAN-ncnn-vulkan` is listed by one Linux packager under "MIT BSD". The usual route to Android. Best for photos.
+- From memory, not yet checked: **waifu2x** and **Real-CUGAN** (MIT; for drawings and anime), **SwinIR** (Apache-2.0), small models in **OpenCV's super-resolution module** (EDSR, ESPCN, FSRCNN, LapSRN; licenses per model).
+- Samsung Gallery's "Remaster" (AI upscaling for photos of 3 megapixels or less) is proprietary; its model is not published and cannot be used.
+
+**What it costs:** a new native library to build for arm64 (ncnn, with Vulkan), model files of a few to tens of MB shipped or downloaded on first use, slow runs on a phone (large pictures must be done in tiles, with a progress bar and Cancel), and a license check of **both the code and the trained model files** (their terms and training data can differ). Krimble is GPL; MIT, BSD and Apache-2.0 fit with it.
+
+**Order:** 1. choose the model(s) and read their licenses; 2. build ncnn for arm64 inside the existing build; 3. a first working "AI x2" and "AI x4" in the Upscale window with tiles, progress and Cancel; 4. more models (drawings, photos, denoise) if wanted.
+**Status:** not started. Nothing in the code yet.
