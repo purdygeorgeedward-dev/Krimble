@@ -506,8 +506,13 @@ public:
         // const int h = 80;
         // const int w = 12;   // Krimble 2026-10-12 (4th): George: "Handle on toolbox is too big." 12 x 48 (was 18 x 80)
         // const int h = 48;
-        const int w = 7;    // Krimble 2026-10-12 (5th): George: "Handle on toolbox is still too big. Should just be a slight curve outward." 7 x 40, a gentle bulge
-        const int h = 40;
+        // const int w = 7;    // Krimble 2026-10-12 (5th): George: "Handle on toolbox is still too big. Should just be a slight curve outward." 7 x 40, a gentle bulge
+        // const int h = 40;
+        // Krimble 2026-10-13 (2nd): George (1.0.35): "Handle is now too small. Hard to grab in portrait." (and it could not be seen: its color was
+        // the canvas's gray). The bulge drawn is still 7 px deep, but its zone is 22 px wide and 64 px tall, and it is the panel's own
+        // color with a thin light edge, so it looks like the panel bulging out.
+        const int w = 22;
+        const int h = 64;
         QRect column;                       // the area covered by all docked panels on this side
         bool topmost = true;
         Q_FOREACH (QDockWidget *other, m_win->findChildren<QDockWidget*>()) {
@@ -540,22 +545,26 @@ protected:
     {
         QPainter p(this);
         p.setRenderHint(QPainter::Antialiasing, true);
-        QColor fill = palette().color(QPalette::Mid);
-        fill.setAlpha(215);
-        p.setPen(Qt::NoPen);
+        // QColor fill = palette().color(QPalette::Mid);   (the canvas's gray: it could not be seen)
+        // fill.setAlpha(215);
+        QColor fill = m_dock->palette().color(QPalette::Window);
+        QColor edge = m_dock->palette().color(QPalette::WindowText);
+        edge.setAlpha(150);
+        p.setPen(QPen(edge, 1.5));
         p.setBrush(fill);
         // (the rounded tab with three grip lines, kept:)
         // p.drawRoundedRect(QRectF(rect()), 7, 7);
         // Krimble 2026-10-12 (5th): a slight curve outward from the panel edge, no grip lines.
         const qreal w = width();
         const qreal h = height();
+        const qreal depth = 7;     // how far the curve sticks out; the rest of the zone is only a bigger place to put a finger
         QPainterPath bulge;
         if (m_win->dockWidgetArea(m_dock) == Qt::LeftDockWidgetArea) {     // the panel is on the left: the curve bulges to the right
-            bulge.moveTo(0, 0);
-            bulge.cubicTo(w * 1.3, h * 0.18, w * 1.3, h * 0.82, 0, h);
+            bulge.moveTo(0, h * 0.1);
+            bulge.cubicTo(depth * 1.3, h * 0.28, depth * 1.3, h * 0.72, 0, h * 0.9);
         } else {                                                           // the panels are on the right: the curve bulges to the left
-            bulge.moveTo(w, 0);
-            bulge.cubicTo(-w * 0.3, h * 0.18, -w * 0.3, h * 0.82, w, h);
+            bulge.moveTo(w, h * 0.1);
+            bulge.cubicTo(w - depth * 1.3, h * 0.28, w - depth * 1.3, h * 0.72, w, h * 0.9);
         }
         bulge.closeSubpath();
         p.drawPath(bulge);
@@ -1144,7 +1153,17 @@ public:
         Q_UNUSED(data);
         const bool taken = (requestCode == 4711 && resultCode == -1);    // -1 is RESULT_OK
         if (taken) {
-            if (m_win) m_win->openDocument(m_uri, KisMainWindow::OpenFlags());
+            // if (m_win) m_win->openDocument(m_uri, KisMainWindow::OpenFlags());
+            // Krimble 2026-10-13 (2nd): George: "Take photo is a failure. You take a pic and then crash." The camera's answer arrives on
+            // Android's own thread, not on the thread that runs Krimble's windows; opening a picture from there crashed the app. The
+            // opening is now queued to the window's own thread.
+            KisMainWindow *window = m_win.data();
+            const QString uri = m_uri;
+            if (window) {
+                QMetaObject::invokeMethod(window, [window, uri]() {
+                    window->openDocument(uri, KisMainWindow::OpenFlags());
+                }, Qt::QueuedConnection);
+            }
         } else {
             QAndroidJniObject jUri = QAndroidJniObject::fromString(m_uri);
             QAndroidJniObject::callStaticMethod<void>("org/krimble/android/ShareHelper", "deleteUri", "(Ljava/lang/String;)V", jUri.object<jstring>());
@@ -1411,6 +1430,33 @@ static void krimbleInstallHelpExtras(QMainWindow *win)
         // QObject::connect(cheatSheet, &QAction::triggered, win, [win]() { krimbleShowCheatSheet(win); });
         QAction *feedback = help->addAction(i18n("Send Feedback"));
         QObject::connect(feedback, &QAction::triggered, win, [win]() { krimbleSendFeedback(win); });
+        // Krimble 2026-10-13 (2nd): Menu Diagnostics (for George's "Menus are still too wide"): shows numbers about the Edit menu
+        QAction *menuDiag = help->addAction(i18n("Menu Diagnostics"));
+        QObject::connect(menuDiag, &QAction::triggered, win, [win]() {
+            QMenu *edit = nullptr;
+            Q_FOREACH (QAction *top, win->menuBar()->actions()) {
+                QString title = top->text();
+                title.remove(QLatin1Char('&'));
+                if (top->menu() && title == QLatin1String("Edit")) edit = top->menu();
+            }
+            if (!edit) return;
+            const QFontMetrics fm(edit->font());
+            int widest = 0, withTab = 0, shortcutVisible = 0, withShortcut = 0, withIcon = 0;
+            Q_FOREACH (QAction *a, edit->actions()) {
+                widest = qMax(widest, fm.horizontalAdvance(a->text().remove(QLatin1Char('&'))));
+                if (a->text().contains(QLatin1Char('\t'))) ++withTab;
+                if (a->isShortcutVisibleInContextMenu()) ++shortcutVisible;
+                if (!a->shortcut().isEmpty()) ++withShortcut;
+                if (!a->icon().isNull()) ++withIcon;
+            }
+            const QString report = QStringLiteral(
+                "Edit menu\nsizeHint width: %1\nwidest text: %2\nactions: %3\nwith a tab in the text: %4\nshortcut shown: %5\nwith a shortcut: %6\nwith an icon: %7\n"
+                "menu style: %8\napp style: %9\napp stylesheet length: %10\nmenu stylesheet length: %11\ndevice pixel ratio: %12\nfont px: %13")
+                .arg(edit->sizeHint().width()).arg(widest).arg(edit->actions().size()).arg(withTab).arg(shortcutVisible).arg(withShortcut).arg(withIcon)
+                .arg(QString::fromLatin1(edit->style()->metaObject()->className())).arg(QString::fromLatin1(qApp->style()->metaObject()->className()))
+                .arg(qApp->styleSheet().length()).arg(edit->styleSheet().length()).arg(qApp->devicePixelRatio()).arg(edit->font().pixelSize());
+            QMessageBox::information(win, i18n("Menu Diagnostics"), report);
+        });
         QAction *overlay = help->addAction(i18n("QA Overlay"));
         overlay->setCheckable(true);
         overlay->setChecked(win->findChild<QLabel*>(QStringLiteral("krimbleQaOverlay"), Qt::FindDirectChildrenOnly) != nullptr);
@@ -2706,6 +2752,13 @@ KisMainWindow::KisMainWindow(QUuid uuid)
                     }
                 }
             }
+        }
+        // Krimble 2026-10-13 (2nd): George, portrait: "the toolbox reverts to one column ... the right panel will not resize in portrait at
+        // all". The canvas area could not be narrower than about 147 logical px (about 500 on the screen), so with the toolbox and the
+        // panels next to it there was no room in portrait and the program shrank the toolbox back to one column and refused to resize
+        // the panels. The canvas area may now be as narrow as 40 logical px.
+        if (QWidget *central = centralWidget()) {
+            central->setMinimumWidth(40);
         }
         // Krimble 2026-10-12: keep the layout the app first started with (for "Reset Layout"), then put back the layout the
         // user saved for this orientation, if any; and add "Style Presets" to the Layer menu.

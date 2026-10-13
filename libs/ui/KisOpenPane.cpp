@@ -402,7 +402,13 @@ QTreeWidgetItem* KisOpenPane::addPane(const QString &title, const QString &untra
 
     int id = d->m_widgetStack->addWidget(widget);
 
-    int iconSize = 32;
+    // int iconSize = 32;
+    // Krimble 2026-10-13 (2nd): George (1.0.35): "In New dialog the first two icons are nice and big, the rest are too small. Why?" The
+    // first two (Custom Document, Create from Clipboard) are made at the screen's real resolution (the other addPane above); these section
+    // pictures (Animation, Comic, Design, DSLR, Texture) were cut down to 32 x 32 real pixels, about a third of the size. They are made
+    // the same way now: 32 logical px times the screen's pixel ratio, and told their logical size.
+    const qreal dpr = qMax<qreal>(1.0, qApp->devicePixelRatio());
+    const int iconSize = qRound(32 * dpr);
 
     KoSectionListItem* listItem = new KoSectionListItem(d->m_sectionList, title, untranslatedName, sortWeight, id);
 
@@ -417,7 +423,10 @@ QTreeWidgetItem* KisOpenPane::addPane(const QString &title, const QString &untra
 
         image.convertTo(QImage::Format_ARGB32);
         image = image.copy((image.width() - iconSize) / 2, (image.height() - iconSize) / 2, iconSize, iconSize);
-        listItem->setIcon(0, QIcon(QPixmap::fromImage(image)));
+        // listItem->setIcon(0, QIcon(QPixmap::fromImage(image)));
+        QPixmap sectionPixmap = QPixmap::fromImage(image);
+        sectionPixmap.setDevicePixelRatio(dpr);
+        listItem->setIcon(0, QIcon(sectionPixmap));
     }
 
     return listItem;
