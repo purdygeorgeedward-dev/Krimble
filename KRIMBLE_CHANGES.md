@@ -4069,3 +4069,10 @@ George (1.0.35): "Landscape has no handle for side panel. Preferences icons are 
 - **Preferences icons:** the page list (`KPageListView`) drew its pictures at the library's default of 32 logical px. Set to **64 logical px** (about 216 on the screen) when the window is shown, together with the 24%-of-the-screen width cap (84th entry). The text under each icon stays.
 - **No handle in landscape:** the same cause as in portrait, most likely: the handle of the 1.0.35 build was filled with the "Mid" color, which is about the canvas's gray, so it could not be seen anywhere (landscape or portrait). The 115th entry makes it the panel's own color with a light edge, 22 x 64 px. **Not proven** for landscape; if there is still no handle in the next build in landscape, the placement code is the next place to look (it needs a visible, docked panel on the left or right that is the topmost of its side).
 **Not verified:** a build or a device.
+
+## 2026-10-13 (117th) — Help > Where is...? removed
+
+**Files:** `libs/ui/KisMainWindow.cpp`
+
+George: "Where is? Is unpredictable and has to go." The **Where is...?** item (the menu search of the 50th entry) is no longer in the Help menu. The two lines that add it are commented out; the search window (`krimbleShowWhereIs`) is kept in the code. Help now has: Krita Handbook, Report Bug, Feature Request, Krimble Website, Krimble Forum, Presets, Resource Libraries, Get More Resources, Manage Supporter Benefits, Manage Subscriptions, Author Profile, Reset Preferences, About Krimble, Send Feedback, Menu Diagnostics, QA Overlay.
+**Not verified:** a build or a device.

@@ -1423,8 +1423,10 @@ static void krimbleInstallHelpExtras(QMainWindow *win)
         if (help->property("krimbleHelpExtrasAdded").toBool()) return;
         help->setProperty("krimbleHelpExtrasAdded", true);
         help->addSeparator();
-        QAction *whereIs = help->addAction(i18n("Where is...?"));
-        QObject::connect(whereIs, &QAction::triggered, win, [win]() { krimbleShowWhereIs(win); });
+        // Krimble 2026-10-13 (3rd): George: "Where is? Is unpredictable and has to go." Removed from the Help menu; the code
+        // (krimbleShowWhereIs, the search window) is kept.
+        // QAction *whereIs = help->addAction(i18n("Where is...?"));
+        // QObject::connect(whereIs, &QAction::triggered, win, [win]() { krimbleShowWhereIs(win); });
         // Krimble 2026-10-12: removed (George): choosing a line in the Cheat Sheet crashed the app in 1.0.33. The code is kept.
         // QAction *cheatSheet = help->addAction(i18n("Cheat Sheet"));
         // QObject::connect(cheatSheet, &QAction::triggered, win, [win]() { krimbleShowCheatSheet(win); });
