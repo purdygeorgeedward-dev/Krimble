@@ -3957,3 +3957,16 @@ George: "All of them. Check them all for things like that. Don't let them get bi
 - The PNG window keeps its own arrangement from the 103rd entry.
 Limits: a check box or a radio button with a very long text cannot wrap; a window that is still too wide after this has such a line, or a control that needs a wide minimum, and has to be looked at by itself (a screenshot of it shows which).
 **Not verified:** a build or a device.
+
+## 2026-10-13 (105th) — George's own icons for Preferences and New Document
+
+**Files:** `krimble-artwork/` (20 originals and a README), 22 files in `krita/pics/svg/`, `krita/pics/svg/svg-icons.qrc`, `plugins/extensions/spensettings/spen-remote.svg`, 20 pictures in `krita/data/templates/*/`, `libs/ui/dialogs/KisDlgCreateNewDocument.cpp`, `libs/ui/KisOpenPane.cpp`, `plugins/dockers/advancedcolorselector/kis_color_selector_settings.cpp`
+
+George made the pictures (12 for Preferences, 8 for New Document; 512 px, transparent) and confirmed which page each one is for.
+- **Originals** are in `krimble-artwork/` (about 6 MB), with a README.
+- **Preferences:** the 10 pages that already had their own icon names (config-general, keyboard, canvas-input, display, color-manage, performance, tablet, canvas-only, popup-palette, user-identity) keep their file names (`dark_` and `light_`); each is now an SVG that embeds a 192 px copy of the picture, so nothing in the program changed. **S-Pen Actions** is the same (`spen-remote.svg`). **Color Selector Settings** has a new icon name, `krimble-config-color-selector` (dark and light files, added to `svg-icons.qrc`), because the old name `extended_color_selector` is used in other places; the page now asks for the new name (old line in a comment).
+- **New Document:** all 20 `light_template_*.png` and `dark_template_*.png` pictures (the section pictures; they are also the icons of the templates inside each section) are George's: Animation = filmstrip, Comics = comic panels, Design = color wheel with rulers and swatches (his choice between two; the monitor one is kept as `design-monitor-spare.png`), DSLR = camera, Texture = tiles; 256 px (were 128).
+- **Custom Document** and **Create from Clipboard** have their own icon names, `krimble-new-document` and `krimble-new-from-clipboard` (PNG, dark and light, in `svg-icons.qrc`), so the general "document-new" and "tab-new" icons used elsewhere are not changed. The dialog asks for the new names (old names in comments).
+- **Sharper list pictures:** `KisOpenPane` made each section picture 32 x 32 pixels and the screen stretched it (about 3.4 times on a phone). It is now made at the screen's real resolution and given its logical size.
+- Size: about 3 MB added to the app (pictures), about 6 MB to the repository (the originals).
+**Not verified:** a build or a device. If a picture looks soft or the wrong one shows, tell me the page or section.

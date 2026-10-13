@@ -53,13 +53,15 @@ KisDlgCreateNewDocument::KisDlgCreateNewDocument(QWidget* parent)
         krimbleCustomPage,
         i18n("Custom Document"),
         "Custom Document",
-        "document-new");
+        // "document-new");
+        "krimble-new-document");   // Krimble 2026-10-13: George's own picture (the general "document-new" icon is used in other places too)
 
    addCustomDocumentWidget(
         new KisImageFromClipboardWidget(this, 0, 0, resolution, colorModel, colorDepth, colorProfile, i18n("Unnamed")),
         i18n("Create from Clipboard"),
         "Create from ClipBoard",
-        "tab-new");
+        // "tab-new");
+        "krimble-new-from-clipboard");   // Krimble 2026-10-13: George's own picture (the general "tab-new" icon is used in other places too)
 
     connect(this, SIGNAL(documentSelected(KisDocument*)), KisPart::instance(), SLOT(startCustomDocument(KisDocument*)));
     connect(this, SIGNAL(openTemplate(QUrl)), KisPart::instance(), SLOT(openTemplate(QUrl)));

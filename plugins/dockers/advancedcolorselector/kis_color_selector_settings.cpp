@@ -147,7 +147,8 @@ QString KisColorSelectorSettings::header()
 
 QIcon KisColorSelectorSettings::icon()
 {
-    return KisIconUtils::loadIcon("extended_color_selector");
+    // return KisIconUtils::loadIcon("extended_color_selector");
+    return KisIconUtils::loadIcon("krimble-config-color-selector");   // Krimble 2026-10-13: George's own picture (the general icon is used elsewhere too)
 }
 
 

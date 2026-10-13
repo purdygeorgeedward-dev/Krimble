@@ -4,6 +4,7 @@
    SPDX-License-Identifier: LGPL-2.0-or-later
 */
 
+#include <QApplication>
 #include "KisOpenPane.h"
 
 #include <QLayout>
@@ -380,7 +381,12 @@ QTreeWidgetItem* KisOpenPane::addPane(const QString &title, const QString &untra
 
     // resizes icons so they are a bit smaller
     QIcon icon = KisIconUtils::loadIcon(iconName);
-    QPixmap iconPixmap = icon.pixmap(32, 32);
+    // QPixmap iconPixmap = icon.pixmap(32, 32);
+    // Krimble 2026-10-13: a 32 x 32 pixel picture was stretched to the size it is shown at (about 108 px on a phone), which made the
+    // pictures soft. The picture is now made at the screen's real resolution and told its logical size, so it stays sharp.
+    const qreal dpr = qMax<qreal>(1.0, qApp->devicePixelRatio());
+    QPixmap iconPixmap = icon.pixmap(QSize(qRound(32 * dpr), qRound(32 * dpr)));
+    iconPixmap.setDevicePixelRatio(dpr);
 
     QIcon finalIcon(iconPixmap);
     listItem->setIcon(0, finalIcon);
