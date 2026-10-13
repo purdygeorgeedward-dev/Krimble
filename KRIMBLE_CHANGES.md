@@ -4034,3 +4034,9 @@ George: "add fonts to your list. I want a system built in for browsing fonts and
 **Files:** `KRIMBLE_ROADMAP.md`
 
 George, after a look at what Samsung Gallery and the open-source world offer: "Definitely put it on the list. Real-ESRGAN etc." Written down in `KRIMBLE_ROADMAP.md`: candidates (Real-ESRGAN with ncnn and Vulkan first; waifu2x, Real-CUGAN, SwinIR and OpenCV's small models from memory and to be checked), the cost, the license checks needed for code and for model files, and the order of work. Not started; no code.
+
+## 2026-10-13 (113th) — Option written down: a separate "Krimble Upscaler" app
+
+**Files:** `KRIMBLE_ROADMAP.md`
+
+George: "Maybe we could release a small accessory app called Krimble Upscaler with a very small local model." Added to the AI upscaling entry of `KRIMBLE_ROADMAP.md` as an option, with what it is for and against, how it would work with Krimble (hand-off through Android's share mechanism, as with Take Photo) and two other ways to the same end (download the model on first use; Play Feature Delivery). Not decided; no code.

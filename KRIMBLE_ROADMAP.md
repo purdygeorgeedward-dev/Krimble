@@ -210,3 +210,11 @@ Goal: Image > Upscale... gets AI methods next to the classic ones (Lanczos3 and 
 
 **Order:** 1. choose the model(s) and read their licenses; 2. build ncnn for arm64 inside the existing build; 3. a first working "AI x2" and "AI x4" in the Upscale window with tiles, progress and Cancel; 4. more models (drawings, photos, denoise) if wanted.
 **Status:** not started. Nothing in the code yet.
+
+### Option for AI upscaling: a small separate app, "Krimble Upscaler" (George's idea, 2026-10-13: "Maybe we could release a small accessory app called Krimble Upscaler with a very small local model.")
+
+**For:** the main app stays small (it is already about 165 MB) and is not put at risk by a new native library; the upscaler can be built, tested and updated on its own; it could stand as a product of its own on the store; a small model keeps it quick to download.
+**Against:** two apps to build, sign and keep up to date; a second store listing with its own review (the 16 KB page-size rule applies to it too); a small model gives less detail than the full Real-ESRGAN models.
+**How the two would work together:** Image > Upscale... in Krimble would offer "AI (Krimble Upscaler)", send the picture to the accessory app through Android's share mechanism (the same kind of hand-off as Take Photo, entry 109) and open the result when it comes back. If the accessory is not installed, Krimble opens its store page.
+**Other ways to the same end, for comparison:** one app that downloads the model the first time it is used (the app stays small, one listing, but a download is needed); Play Feature Delivery (needs the app bundle format, not yet built).
+**Status:** an option, not decided, not started. The first step is the same for all: pick a model and read its license (see the list above).
