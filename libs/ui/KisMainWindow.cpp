@@ -1944,7 +1944,10 @@ private:
 class KrimbleDockTolerance : public QObject
 {
 public:
-    static const int Distance = 36;
+    // static const int Distance = 36;
+    // Krimble 2026-10-12: George: "Panels should not try to snap into place until they are right on top of the edge they are going to
+    // snap to." 8 logical px (about 27 on the screen), was 36.
+    static const int Distance = 8;
 
     KrimbleDockTolerance(QMainWindow *win, QDockWidget *dock)
         : QObject(dock), m_win(win), m_dock(dock) {}

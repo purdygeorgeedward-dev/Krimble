@@ -3870,3 +3870,10 @@ George: "I don't know if the paste behavior with the new dialog is great. I thin
 
 `krimbleBuildNumber` 34 → 35 (`1.0.35-beta`) for the next build. Changes since 1.0.34 (entries 84 to 94): toolbox height and bottom edge, curved handle, narrower menu items, Preferences and New Document list widths, rotation gadget switch (hidden by default), Batch Process Cancel and its move to the Image menu, New Document size from the clipboard (with a preference), Layers buttons in two rows, floating panels dock only near a side.
 **Not verified:** a build.
+
+## 2026-10-12 (96th) — Panels dock only when right on top of an edge
+
+**Files:** `libs/ui/KisMainWindow.cpp`
+
+George: "Panels should not try to snap into place until they are right on top of the edge they are going to snap to." The distance in `KrimbleDockTolerance` (the rule for every floating panel since the 92nd entry, for the toolbox since 2026-10-04) is 8 logical px (about 27 px on the screen), was 36 (about 120). A dragged panel is offered to a side of the window only when the finger is that close to it; everywhere else it stays floating. Old value kept in a comment.
+**Not verified:** a build or a device. Not in build 35 (the build started at 752408e).
