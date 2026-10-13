@@ -3849,3 +3849,10 @@ George: "The tools at the bottom of the Layers panel disappeared, so I detached 
 - **Layers buttons:** the 68th entry gave the six buttons under the layer list a 30 px minimum width and a size policy that ignores their own size. In the 1.0.34 screenshots they were squeezed on top of one another at the bottom of the panel. Those two lines are switched off (kept in comments); the smaller icons (18 px) stay. The panel's minimum width will be a little larger than the 68th entry aimed for, still smaller than in 1.0.33.
 - **Floating panels:** the "dock only when the finger is within 36 px of a window side" rule (`KrimbleDockTolerance`, made for the toolbox on 2026-10-04) now applies to every panel, so a detached Layers, Color or any other panel stays where it is dropped unless it is taken close to a side. Quick Adjust never docks (its allowed areas are none).
 **Not verified:** a build or a device. If the buttons still look wrong, a QA Overlay screenshot with the Layers panel open shows its real width.
+
+## 2026-10-12 (93rd) — Layers panel: the six buttons in two rows of three
+
+**Files:** `plugins/dockers/layerdocker/LayerBox.cpp`
+
+George: "If it reattaches to the side those bottom tools disappear again. They are important to layers functions." Six buttons in one row need more width than a docked Layers panel has in portrait (about 570 of 1080 px), so the ones on the right were pushed out of view. On Android they are now in a grid of **two rows of three**: add, duplicate, lower / raise, properties, delete. Each button shares its row evenly, so all six stay visible and easy to hit, however narrow the panel is. The buttons are moved out of the single row (`hbox1` in `WdgLayerBox.ui`, which is kept) into a grid placed in it. The panel is one button row taller. The panel's minimum width is now about the width of three buttons (about 130 logical px) instead of six.
+**Not verified:** a build or a device.

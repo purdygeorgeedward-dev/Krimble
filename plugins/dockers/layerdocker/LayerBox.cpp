@@ -10,6 +10,8 @@
  *  SPDX-License-Identifier: GPL-2.0-or-later
  */
 
+#include <QHBoxLayout>
+#include <QGridLayout>
 #include "LayerBox.h"
 
 #include <QApplication>
@@ -215,6 +217,22 @@ LayerBox::LayerBox()
             // size) are switched off; only the smaller icons (18 px) remain.
             // button->setMinimumWidth(30);
             // button->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
+        }
+        // Krimble 2026-10-12 (3rd): George: "If it reattaches to the side those bottom tools disappear again. They are important to
+        // layers functions." Six buttons in one row need about 215 logical px, more than a docked Layers panel has in portrait, so the
+        // ones on the right were pushed out of view. They are now in two rows of three (add, duplicate, lower / raise, properties,
+        // delete), each button sharing its row evenly, so all six stay visible when the panel is narrow. The single row ("hbox1" in
+        // WdgLayerBox.ui) is kept; the buttons are only moved out of it into a grid placed in it.
+        if (QHBoxLayout *buttonRow = findChild<QHBoxLayout*>(QStringLiteral("hbox1"))) {
+            QGridLayout *buttonGrid = new QGridLayout;
+            buttonGrid->setContentsMargins(0, 0, 0, 0);
+            buttonGrid->setSpacing(2);
+            for (int i = 0; i < 6; ++i) {
+                buttonRow->removeWidget(layerButtons[i]);
+                layerButtons[i]->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+                buttonGrid->addWidget(layerButtons[i], i / 3, i % 3);
+            }
+            buttonRow->insertLayout(0, buttonGrid, 1);
         }
     }
 #endif
