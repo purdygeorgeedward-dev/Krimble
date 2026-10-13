@@ -3877,3 +3877,14 @@ George: "I don't know if the paste behavior with the new dialog is great. I thin
 
 George: "Panels should not try to snap into place until they are right on top of the edge they are going to snap to." The distance in `KrimbleDockTolerance` (the rule for every floating panel since the 92nd entry, for the toolbox since 2026-10-04) is 8 logical px (about 27 px on the screen), was 36 (about 120). A dragged panel is offered to a side of the window only when the finger is that close to it; everywhere else it stays floating. Old value kept in a comment.
 **Not verified:** a build or a device. Not in build 35 (the build started at 752408e).
+
+## 2026-10-13 (97th) — The polygonal selection closes with a tap on its first point
+
+**Files:** `libs/ui/tool/kis_tool_polyline_base.cpp`
+
+George: "Polygonal selection tool is not creating polygonal selections. It's leaving lines." The polygon tool (and the other tools built on `KisToolPolylineBase`) closes a shape when the pointer is moved over its first point (a mouse move sets `m_closeSnappingActivated`), or on a double click, or Enter. A finger has no hover: the first-point check never ran, a double tap did not end the shape, and the lines stayed on the canvas without a selection.
+- On Android, a tap within 40 view px of the first point, once there are three or more points, closes the polygon and makes the selection (the same close-and-finish path the mouse uses).
+- A ring (16 px) is drawn on the first point once there are three points, so it is clear where to tap.
+- On the first tap of a polygon selection, a message says: "Tap each corner. Tap the first point again to close the selection."
+- The mouse behavior, double click and Enter are unchanged.
+**Not verified:** a build or a device. If a double tap or another way of finishing is also wanted, say so.

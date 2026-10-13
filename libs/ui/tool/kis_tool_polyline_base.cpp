@@ -26,6 +26,10 @@
 #define SNAPPING_THRESHOLD 10
 #define SNAPPING_HANDLE_RADIUS 8
 #define PREVIEW_LINE_WIDTH 1
+// Krimble 2026-10-12: on a touch screen the polygon is closed by tapping near its first point, within this many view px (a finger is
+// not a mouse pointer: nothing hovers before the tap, so the close check cannot wait for a mouse move).
+#define SNAPPING_THRESHOLD_TOUCH 40
+#define SNAPPING_RING_RADIUS_TOUCH 16
 
 KisToolPolylineBase::KisToolPolylineBase(KoCanvasBase * canvas,  KisToolPolylineBase::ToolType type, const QCursor & cursor)
     : KisToolShape(canvas, cursor),
@@ -129,12 +133,32 @@ void KisToolPolylineBase::beginPrimaryAction(KoPointerEvent *event)
 
     setMode(KisTool::PAINT_MODE);
 
+#ifdef Q_OS_ANDROID
+    // Krimble 2026-10-12: George: "Polygonal selection tool is not creating polygonal selections. It's leaving lines." With a finger
+    // there is no mouse move over the first point before the tap, so the polygon was never told to close, and the lines just stayed.
+    // A tap near the first point (once there are three points) now closes it, and the selection is made.
+    if (m_dragging && m_points.size() > 2) {
+        const QPointF basePoint = pixelToView(m_points.first());
+        const QPointF tapPoint = pixelToView(convertToPixelCoordAndSnap(event));
+        if ((basePoint - tapPoint).manhattanLength() < SNAPPING_THRESHOLD_TOUCH) {
+            m_closeSnappingActivated = true;
+        }
+    }
+#endif
+
     if(m_dragging && m_closeSnappingActivated) {
         m_points.append(m_points.first());
         endStroke();
     } else {
         beginShape();
         m_dragging = true;
+#ifdef Q_OS_ANDROID
+        if (m_type == SELECT && m_points.empty()) {
+            if (KisCanvas2 *kiscanvas = dynamic_cast<KisCanvas2*>(canvas())) {
+                kiscanvas->viewManager()->showFloatingMessage(i18n("Tap each corner. Tap the first point again to close the selection."), QIcon());
+            }
+        }
+#endif
     }
 }
 
@@ -264,6 +288,12 @@ void KisToolPolylineBase::paint(QPainter& gc, const KoViewConverter &converter)
         QPointF basePoint = pixelToView(m_points.first());
         path.addEllipse(basePoint, SNAPPING_HANDLE_RADIUS, SNAPPING_HANDLE_RADIUS);
     }
+#ifdef Q_OS_ANDROID
+    // Krimble 2026-10-12: a ring on the first point once the polygon can be closed, so it is clear where to tap.
+    else if (m_dragging && m_points.size() > 2) {
+        path.addEllipse(pixelToView(m_points.first()), SNAPPING_RING_RADIUS_TOUCH, SNAPPING_RING_RADIUS_TOUCH);
+    }
+#endif
 
     paintToolOutline(&gc, path);
     KisToolPaint::paint(gc,converter);
