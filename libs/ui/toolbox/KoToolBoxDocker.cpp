@@ -594,7 +594,15 @@ void KoToolBoxDocker::applyColumns()
         }
     } else {
         const int rowHeight = qMax(1, m_toolBox->minimumSizeHint().height());
-        const int chromeHeight = qMax(0, height() - m_scrollArea->viewport()->height());
+        // const int chromeHeight = qMax(0, height() - m_scrollArea->viewport()->height());
+        // Krimble 2026-10-13: George: "If I pick 2 columns it does nothing." That line counted the empty space below the tools as
+        // "chrome" (the tool area is shorter than the dock, the rest is a stretch), so the target height came out the same as the
+        // current, too tall, height and nothing changed. The chrome is now only what really surrounds the tools: the dock's own
+        // frame, the margins around the tool area and the tool area's frame.
+        const QMargins containerMargins = widget() && widget()->layout() ? widget()->layout()->contentsMargins() : QMargins();
+        const int dockFrame = widget() ? qMax(0, height() - widget()->height()) : 0;
+        const int scrollFrame = qMax(0, m_scrollArea->height() - m_scrollArea->viewport()->height());
+        const int chromeHeight = dockFrame + containerMargins.top() + containerMargins.bottom() + scrollFrame;
         const int target = m_columns * rowHeight + chromeHeight;
         if (qAbs(height() - target) < 2) return;
         if (isFloating()) {
@@ -606,6 +614,13 @@ void KoToolBoxDocker::applyColumns()
             if (area != Qt::TopDockWidgetArea && area != Qt::BottomDockWidgetArea) return;
             m_applying = true;
             mainWindow->resizeDocks({this}, {target}, Qt::Vertical);
+            // Krimble 2026-10-13: pin the height for a moment so the dock layout has to use it (as is done for the width), then let go.
+            setMinimumHeight(target);
+            setMaximumHeight(target);
+            QTimer::singleShot(250, this, [this]() {
+                setMinimumHeight(0);
+                setMaximumHeight(QWIDGETSIZE_MAX);
+            });
             QTimer::singleShot(400, this, [this]() { m_applying = false; });
         }
     }

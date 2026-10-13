@@ -3904,3 +3904,14 @@ Change: in `KisPasteActionFactory::run`, after the clip is read and when it is n
 
 George: "It is extremely hard to resize image windows." The image windows inside the main window (floating ones, with the title bar and three buttons) are resized by dragging their frame; the frame is what the style draws and also the zone that reacts, and it is only a few pixels wide. On Android the style (`PM_MdiSubWindowFrameWidth`) now makes it at least 12 logical px, about 40 on the screen, on every side. The frame will look thicker. The corners are the same width, so a corner is about 40 by 40 px.
 **Not verified:** a build or a device. If the grab zone does not get bigger (the frame only looks thicker), the zone is decided somewhere else and a corner grip on image windows (like the one on dialogs) is the next step.
+
+## 2026-10-13 (100th) — Toolbox docked at the top or bottom: the Columns choice (rows) now works
+
+**Files:** `libs/ui/toolbox/KoToolBoxDocker.cpp`
+
+George: "Is there a minimum height on the toolbox? It's hard to make it horizontal without lots of dead space." and, after being told to pick 2 in the Columns menu: "If I pick 2 columns it does nothing."
+Cause: in a top or bottom dock the Columns number is the number of rows, and `applyColumns` worked out the height as rows x row height + "chrome", where the chrome was the dock's height minus the tool area's height. In a dock with empty space below the tools that difference is the empty space itself, so the target came out equal to the current height and nothing was done. There is no fixed minimum height; the dock was simply never made shorter.
+- The chrome is now only what surrounds the tools: the dock's own frame (height minus the container's height), the container's margins and the tool area's frame.
+- After the dock is resized, the height is pinned to the target for 250 ms (as the width already was for side docks), so the dock layout has to use it, then released so a drag can still change it.
+- The saved Columns number is still one number for all positions (a horizontal toolbox treats it as rows). A separate number for horizontal docks is not done.
+**Not verified:** a build or a device. If the dead space stays, the dock's height is being set by the main window's top dock area, and that is the next place to look.
