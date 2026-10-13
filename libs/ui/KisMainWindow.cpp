@@ -36,6 +36,10 @@
 #include <QStatusBar>
 #include <QStyleFactory>
 #include <algorithm>
+#include <QCheckBox>
+#include "kis_image_manager.h"
+#include <kis_filter_strategy.h>
+#include <QDialogButtonBox>
 #include <QHBoxLayout>
 #include <KisAngleSelector.h>
 #include <QPainterPath>
@@ -153,6 +157,8 @@
 #include "KisAndroidDonations.h"
 #include "dialogs/KisDonationManagementDialog.h"
 #include <QtAndroid>
+#include <QAndroidJniEnvironment>
+#include <QAndroidActivityResultReceiver>
 #include <KisAndroidUtils.h>
 #endif
 
@@ -1125,6 +1131,133 @@ static void krimbleShowBatch(KisMainWindow *win)
 #endif
 }
 
+#ifdef Q_OS_ANDROID
+// Krimble 2026-10-13: "Take Photo..." (Claude's idea; George: "Yes. Go for it."): opens the phone's own camera app (with its zoom, HDR, flash
+// and night mode) and, when the photo is taken, opens it in Krimble. The photo is also kept in Pictures/Krimble/Camera. No camera
+// permission is needed, because the phone's camera app takes the picture, not Krimble.
+class KrimbleCameraReceiver : public QAndroidActivityResultReceiver
+{
+public:
+    KrimbleCameraReceiver(KisMainWindow *win, const QString &uri) : m_win(win), m_uri(uri) {}
+    void handleActivityResult(int requestCode, int resultCode, const QAndroidJniObject &data) override
+    {
+        Q_UNUSED(data);
+        const bool taken = (requestCode == 4711 && resultCode == -1);    // -1 is RESULT_OK
+        if (taken) {
+            if (m_win) m_win->openDocument(m_uri, KisMainWindow::OpenFlags());
+        } else {
+            QAndroidJniObject jUri = QAndroidJniObject::fromString(m_uri);
+            QAndroidJniObject::callStaticMethod<void>("org/krimble/android/ShareHelper", "deleteUri", "(Ljava/lang/String;)V", jUri.object<jstring>());
+        }
+        // (the receiver is not deleted here: a few bytes per photo are left; the camera app has finished with it)
+    }
+private:
+    QPointer<KisMainWindow> m_win;
+    QString m_uri;
+};
+
+static void krimbleTakePhoto(KisMainWindow *win)
+{
+    QAndroidJniObject jUri = QAndroidJniObject::callStaticObjectMethod("org/krimble/android/ShareHelper", "prepareCameraUri", "()Ljava/lang/String;");
+    const QString uri = jUri.isValid() ? jUri.toString() : QString();
+    if (uri.isEmpty()) {
+        QMessageBox::warning(win, i18n("Take Photo"), i18n("The camera cannot be started on this phone (it needs Android 10 or newer)."));
+        return;
+    }
+    QAndroidJniObject action = QAndroidJniObject::getStaticObjectField<jstring>("android/provider/MediaStore", "ACTION_IMAGE_CAPTURE");
+    QAndroidJniObject intent("android/content/Intent", "(Ljava/lang/String;)V", action.object<jstring>());
+    QAndroidJniObject extraOutput = QAndroidJniObject::getStaticObjectField<jstring>("android/provider/MediaStore", "EXTRA_OUTPUT");
+    QAndroidJniObject uriObject = QAndroidJniObject::callStaticObjectMethod("android/net/Uri", "parse", "(Ljava/lang/String;)Landroid/net/Uri;", jUri.object<jstring>());
+    intent.callObjectMethod("putExtra", "(Ljava/lang/String;Landroid/os/Parcelable;)Landroid/content/Intent;", extraOutput.object<jstring>(), uriObject.object());
+    intent.callObjectMethod("addFlags", "(I)Landroid/content/Intent;", 3);      // read and write access to that address
+    QtAndroid::startActivity(intent, 4711, new KrimbleCameraReceiver(win, uri));
+    QAndroidJniEnvironment env;
+    if (env->ExceptionCheck()) {          // no camera app
+        env->ExceptionClear();
+        QAndroidJniObject::callStaticMethod<void>("org/krimble/android/ShareHelper", "deleteUri", "(Ljava/lang/String;)V", jUri.object<jstring>());
+        QMessageBox::warning(win, i18n("Take Photo"), i18n("No camera app was found on this phone."));
+    }
+}
+#endif
+
+// "Upscale...": makes the picture 2, 3 or 4 times larger with the resize method of your choice (Claude's idea; George: "Yes. Go for it.").
+// Lanczos3 is the default; the other methods are the ones of Image > Image Size. Optionally a light sharpen layer is put on top
+// (a layer, so it can be hidden or removed).
+static void krimbleShowUpscale(KisMainWindow *win)
+{
+    KisViewManager *view = win->viewManager();
+    if (!view || !view->image()) {
+        QMessageBox::information(win, i18n("Upscale"), i18n("Open a picture first."));
+        return;
+    }
+    KisImageSP image = view->image();
+    QDialog *dialog = new QDialog(win);
+    dialog->setAttribute(Qt::WA_DeleteOnClose);
+    dialog->setWindowTitle(i18n("Upscale"));
+    QVBoxLayout *layout = new QVBoxLayout(dialog);
+    layout->setContentsMargins(8, 8, 8, 8);
+    QLabel *current = new QLabel(i18n("Now: %1 x %2 px", image->width(), image->height()), dialog);
+    QComboBox *factor = new QComboBox(dialog);
+    factor->addItem(i18n("2 times larger"), 2);
+    factor->addItem(i18n("3 times larger"), 3);
+    factor->addItem(i18n("4 times larger"), 4);
+    QComboBox *method = new QComboBox(dialog);
+    KisFilterStrategyRegistry *strategies = KisFilterStrategyRegistry::instance();
+    int lanczosIndex = 0;
+    Q_FOREACH (const QString &id, strategies->keys()) {
+        if (KisFilterStrategy *strategy = strategies->get(id)) {
+            method->addItem(strategy->name(), id);
+            if (id == QLatin1String("Lanczos3")) lanczosIndex = method->count() - 1;
+        }
+    }
+    method->setCurrentIndex(lanczosIndex);
+    QCheckBox *sharpen = new QCheckBox(i18n("Add a light sharpen layer on top"), dialog);
+    sharpen->setChecked(true);
+    QLabel *result = new QLabel(dialog);
+    auto updateResult = [image, factor, result]() {
+        const int f = factor->currentData().toInt();
+        result->setText(i18n("Will be: %1 x %2 px", image->width() * f, image->height() * f));
+    };
+    QObject::connect(factor, QOverload<int>::of(&QComboBox::currentIndexChanged), dialog, updateResult);
+    updateResult();
+    QDialogButtonBox *buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, dialog);
+    QObject::connect(buttons, &QDialogButtonBox::rejected, dialog, &QDialog::reject);
+    QObject::connect(buttons, &QDialogButtonBox::accepted, dialog, [win, view, image, dialog, factor, method, sharpen]() {
+        const int f = factor->currentData().toInt();
+        const qint64 newWidth = qint64(image->width()) * f;
+        const qint64 newHeight = qint64(image->height()) * f;
+        if (newWidth * newHeight > 100LL * 1000 * 1000) {
+            QMessageBox::warning(dialog, i18n("Upscale"), i18n("The result would be larger than 100 million pixels, which a phone cannot hold. Choose a smaller factor."));
+            return;
+        }
+        KisFilterStrategy *strategy = KisFilterStrategyRegistry::instance()->get(method->currentData().toString());
+        if (!strategy) return;
+        const bool addSharpen = sharpen->isChecked();
+        dialog->accept();
+        view->imageManager()->scaleCurrentImage(QSize(int(newWidth), int(newHeight)), image->xRes(), image->yRes(), strategy);
+        if (addSharpen) {
+            image->waitForDone();
+            KisFilterSP filter = KisFilterRegistry::instance()->value(QStringLiteral("unsharp"));
+            if (filter) {
+                KisFilterConfigurationSP config = filter->defaultConfiguration(KisGlobalResourcesInterface::instance());
+                KisAdjustmentLayerSP sharpenLayer = new KisAdjustmentLayer(image, i18n("Upscale Sharpen"), config, KisSelectionSP());
+                KisNodeCommandsAdapter adapter(view);
+                adapter.addNode(sharpenLayer, image->root(), image->root()->lastChild());
+            }
+        }
+    });
+    layout->addWidget(current);
+    layout->addWidget(factor);
+    layout->addWidget(method);
+    layout->addWidget(sharpen);
+    layout->addWidget(result);
+    layout->addWidget(buttons);
+    if (QScreen *scr = QGuiApplication::primaryScreen()) {
+        dialog->resize(int(scr->availableGeometry().width() * 0.9), dialog->sizeHint().height() + 20);
+    }
+    dialog->show();
+}
+
 // Adds "Share as JPG" and "Share as PNG" to the File menu, just above Quit (Claude's idea).
 static void krimbleInstallFileExtras(KisMainWindow *win)
 {
@@ -1159,6 +1292,10 @@ static void krimbleInstallFileExtras(KisMainWindow *win)
         file->insertAction(before, sep);
         file->insertAction(before, shareJpg);
         file->insertAction(before, sharePng);
+        // Krimble 2026-10-13: Take Photo... (Claude's idea)
+        QAction *takePhoto = new QAction(i18n("Take Photo..."), file);
+        QObject::connect(takePhoto, &QAction::triggered, win, [win]() { krimbleTakePhoto(win); });
+        file->insertAction(before, takePhoto);
         // file->insertAction(before, batch);
     });
 }
@@ -1727,7 +1864,11 @@ static void krimbleInstallImageExtras(KisMainWindow *win)
         QAction *batch = new QAction(i18n("Batch Process..."), imageMenu);
         batch->setObjectName(QStringLiteral("krimbleBatchProcess"));
         QObject::connect(batch, &QAction::triggered, win, [win]() { krimbleShowBatch(win); });
+        // Krimble 2026-10-13: Upscale... (Claude's idea)
+        QAction *upscale = new QAction(i18n("Upscale..."), imageMenu);
+        QObject::connect(upscale, &QAction::triggered, win, [win]() { krimbleShowUpscale(win); });
         imageMenu->addSeparator();
+        imageMenu->addAction(upscale);
         imageMenu->addAction(batch);
     });
 }

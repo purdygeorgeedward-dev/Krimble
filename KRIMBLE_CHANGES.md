@@ -4000,3 +4000,25 @@ George: "Keep working on the Tool Options for polygon selection. Don't worry abo
 - **Not built, by George's decision:** moving a placed point.
 - **GitHub check, Tue Oct 13, 2026:** 1.0.33b is **published** (pre-release, file attached), as are 1.0.34b and 1.0.32b. Section 9 of `BUILD_ANDROID.md` said 33 was a draft; corrected.
 **Not verified:** a build or a device.
+
+## 2026-10-13 (109th) — File > Take Photo... (the camera, Stage 1) (Claude's idea)
+
+**Files:** `libs/ui/KisMainWindow.cpp`, `packaging/android/apk/src/org/krimble/android/ShareHelper.java`
+
+George: "Yes. Go for it." (the camera button, Stage 1 of the 2026-10-12 proposal).
+- New item **File > Take Photo...** (after Share as PNG). It opens the **phone's own camera app** (its zoom, HDR, flash and night mode); when the photo is taken it is opened in Krimble as a new picture. The photo is also kept in the phone's **Pictures/Krimble/Camera** folder. If the photo is cancelled, the empty entry is removed.
+- No camera permission is needed or added: the camera app takes the picture, not Krimble.
+- How: the Java helper `ShareHelper.prepareCameraUri()` makes an empty picture entry in the MediaStore (Android 10 or newer; older phones are told so); Krimble starts the standard `ACTION_IMAGE_CAPTURE` request with that address (`KrimbleCameraReceiver` waits for the answer) and opens the address with `openDocument`; `ShareHelper.deleteUri()` removes the entry when nothing was taken.
+- Not done: a camera button inside File > New (the item is in the File menu only), an in-app camera with grid, level and timer, and a document scanner (Stage 2).
+**Not verified:** a build or a device. If the camera app opens but the photo does not open in Krimble afterwards, the answer arrives in `KrimbleCameraReceiver::handleActivityResult`.
+
+## 2026-10-13 (110th) — Image > Upscale... (Claude's idea)
+
+**Files:** `libs/ui/KisMainWindow.cpp`
+
+George: "Yes. Go for it." (the Upscale item, steps 1 and 2 of the 2026-10-12 proposal).
+- New item **Image > Upscale...** (at the end of the Image menu, above Batch Process...). A small window: **2, 3 or 4 times larger**; the **resize method** (the eight methods of Image > Image Size: Box, Hermite, Bicubic, Bilinear, Bell, B-Spline, Lanczos3, Mitchell; **Lanczos3 is the default**); a check box **Add a light sharpen layer on top** (on by default); the current size and the size it will be.
+- OK scales the picture with the program's own image scaling (`scaleCurrentImage`, the same as Image > Image Size), at the same resolution, with undo. If the box is checked, an adjustment layer "Upscale Sharpen" (the `unsharp` filter with its default values) is added on top, so it can be hidden, changed or deleted.
+- A result larger than **100 million pixels** is refused with a message (a phone cannot hold it).
+- Not AI upscaling (that is a separate, large project).
+**Not verified:** a build or a device. The sharpen layer uses the filter's default strength; if it is too much or too little, it can be changed in the layer or the default can be set in the code.
