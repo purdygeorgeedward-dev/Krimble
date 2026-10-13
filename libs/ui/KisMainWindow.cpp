@@ -1149,14 +1149,16 @@ static void krimbleInstallFileExtras(KisMainWindow *win)
         QAction *sharePng = new QAction(i18n("Share as PNG..."), file);
         QObject::connect(sharePng, &QAction::triggered, win, [win]() { krimbleShareImage(win, false); });
         // Krimble 2026-10-12: Batch Process... (Claude's idea)
-        QAction *batch = new QAction(i18n("Batch Process..."), file);
-        QObject::connect(batch, &QAction::triggered, win, [win]() { krimbleShowBatch(win); });
+        // Krimble 2026-10-12 (2nd): George: "I think it should be in the image menu, not below exit." Moved to the Image menu
+        // (krimbleInstallImageExtras); the File menu lines are kept here, commented out.
+        // QAction *batch = new QAction(i18n("Batch Process..."), file);
+        // QObject::connect(batch, &QAction::triggered, win, [win]() { krimbleShowBatch(win); });
         QAction *sep = new QAction(file);
         sep->setSeparator(true);
         file->insertAction(before, sep);
         file->insertAction(before, shareJpg);
         file->insertAction(before, sharePng);
-        file->insertAction(before, batch);
+        // file->insertAction(before, batch);
     });
 }
 
@@ -1705,6 +1707,28 @@ static void krimbleApplyLayerStyle(KisMainWindow *win, int preset)
     KUndo2Command *cmd = new KisSetLayerStyleCommand(layer, layer->layerStyle(), finalStyle);
     KisProcessingApplicator::runSingleCommandStroke(image, cmd);
     image->waitForDone();
+}
+
+// Adds "Batch Process..." at the end of the Image menu, after a divider (once, when the menu first opens). It was at the end of the
+// File menu, below Exit (George: "I think it should be in the image menu, not below exit.").
+static void krimbleInstallImageExtras(KisMainWindow *win)
+{
+    QMenu *imageMenu = nullptr;
+    Q_FOREACH (QAction *top, win->menuBar()->actions()) {
+        QString title = top->text();
+        title.remove(QLatin1Char('&'));
+        if (top->menu() && title == QLatin1String("Image")) imageMenu = top->menu();
+    }
+    if (!imageMenu || imageMenu->property("krimbleImageExtras").toBool()) return;
+    imageMenu->setProperty("krimbleImageExtras", true);
+    QObject::connect(imageMenu, &QMenu::aboutToShow, win, [win, imageMenu]() {
+        if (imageMenu->findChild<QAction*>(QStringLiteral("krimbleBatchProcess"))) return;
+        QAction *batch = new QAction(i18n("Batch Process..."), imageMenu);
+        batch->setObjectName(QStringLiteral("krimbleBatchProcess"));
+        QObject::connect(batch, &QAction::triggered, win, [win]() { krimbleShowBatch(win); });
+        imageMenu->addSeparator();
+        imageMenu->addAction(batch);
+    });
 }
 
 // Adds "Rotation Gadget" (a check mark) at the end of the View menu (once, when the menu first opens): turns the canvas rotation
@@ -2548,6 +2572,7 @@ KisMainWindow::KisMainWindow(QUuid uuid)
             krimbleRestoreSavedLayout(this);
             krimbleInstallLayerExtras(this);
             krimbleInstallViewExtras(this);
+            krimbleInstallImageExtras(this);
         }
     });
     // Krimble 2026-10-11: close open menus when the window changes size (rotation).

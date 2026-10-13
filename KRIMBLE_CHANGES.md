@@ -3826,3 +3826,10 @@ George's test: "There is no cancel option for Batch process." The Batch Process 
 - **Close** closes the window; it is disabled while a batch runs, so the window cannot be closed in the middle of one by accident.
 - If the window is closed anyway during a batch (Android's back button), the loop notices and stops instead of using deleted parts of the window.
 **Not verified:** a build or a device.
+
+## 2026-10-12 (90th) — Batch Process moved to the Image menu
+
+**Files:** `libs/ui/KisMainWindow.cpp`
+
+George: "I think it should be in the image menu, not below exit." **Batch Process...** is now at the end of the **Image** menu (after a divider), added the first time the menu opens. It is no longer in the File menu (those lines are commented out; Share as JPG and Share as PNG stay there). Same window and presets as before.
+**Not verified:** a build or a device.
