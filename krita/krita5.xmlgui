@@ -1317,10 +1317,13 @@ xsi:schemaLocation="http://www.kde.org/standards/kxmlgui/1.0  http://www.kde.org
 
 <Menu name="help">
     <text>&amp;Help</text>
+    <!-- Krimble 2026-10-13: George: "Drop Krita handbook until we can write a Krimble handbook." The handbook item and the divider
+         after it are commented out; put them back (remove the comment marks) when the Krimble handbook exists.
     <Action name="help_contents"/>
     
                      <Separator/>
                      
+    -->
     <Action name="help_report_bug"/>
     <Action name="help_feature_request"/>
     <Action name="help_krimble_website"/>

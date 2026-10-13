@@ -4076,3 +4076,10 @@ George (1.0.35): "Landscape has no handle for side panel. Preferences icons are 
 
 George: "Where is? Is unpredictable and has to go." The **Where is...?** item (the menu search of the 50th entry) is no longer in the Help menu. The two lines that add it are commented out; the search window (`krimbleShowWhereIs`) is kept in the code. Help now has: Krita Handbook, Report Bug, Feature Request, Krimble Website, Krimble Forum, Presets, Resource Libraries, Get More Resources, Manage Supporter Benefits, Manage Subscriptions, Author Profile, Reset Preferences, About Krimble, Send Feedback, Menu Diagnostics, QA Overlay.
 **Not verified:** a build or a device.
+
+## 2026-10-13 (118th) — Help > Krita Handbook removed until there is a Krimble handbook
+
+**Files:** `krita/krita5.xmlgui`
+
+George: "Drop Krita handbook until we can write a Krimble handbook." In the Help menu definition the line `<Action name="help_contents"/>` and the divider after it are inside an XML comment, with a note on how to put them back. The action itself and its code (`showManual`) are untouched. The file was checked to be well-formed XML after the change. Help now starts with Report Bug.
+**Not verified:** a build or a device.
