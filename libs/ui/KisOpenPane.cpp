@@ -142,7 +142,17 @@ KisOpenPane::KisOpenPane(QWidget *parent, const QStringList& mimeFilter, const Q
     // width on a landscape screen, so landscape is unaffected.
     if (QScreen *scr = QGuiApplication::primaryScreen()) {
         // d->m_sectionList->setMaximumWidth(int(scr->availableGeometry().width() * 0.22));
-        d->m_sectionList->setMaximumWidth(int(scr->availableGeometry().width() * 0.20));   // Krimble 2026-10-12: thinner
+        // d->m_sectionList->setMaximumWidth(int(scr->availableGeometry().width() * 0.20));   // Krimble 2026-10-12: thinner
+        // Krimble 2026-10-12 (2nd): George's 1.0.34 screenshots: "That column of colored icons in the dialog is still too wide" (it
+        // was about half the screen). In portrait the list is exactly 22% of the screen's width, whatever it would like to be; in
+        // landscape the old cap stays.
+        const int screenWidth = scr->availableGeometry().width();
+        if (screenWidth < 450) {
+            d->m_sectionList->setMinimumWidth(0);
+            d->m_sectionList->setFixedWidth(int(screenWidth * 0.22));
+        } else {
+            d->m_sectionList->setMaximumWidth(int(screenWidth * 0.20));
+        }
     }
     // Krimble 2026-10-12: George: the New Document window wastes a lot of space. Small margins and spacing around and between
     // its parts.

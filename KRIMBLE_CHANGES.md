@@ -3789,3 +3789,13 @@ George's test of 1.0.34: "Handle on toolbox is still too big. Should just be a s
 
 George: "I think the toolbox shouldn't bounce off the bottom. Only the top or sides." A floating toolbox that is let go partly below the bottom of the screen now stays there. Left, right and top still push it back (the top keeps 48 px free for the menu bar), and at least 120 px of it must stay on screen so it cannot be lost. Done in both places that bounced it: after a two-finger drag (new `keepOnScreenSidesAndTop` in `KisApplication.cpp`) and after a one-finger move (`KoToolBoxDocker::moveEvent`). It is no longer shortened to the screen's height by the bounce. Dialogs and other panels are unchanged (they do not bounce).
 **Not verified:** a build or a device.
+
+## 2026-10-12 (86th) — New Document fits a portrait screen
+
+**Files:** `libs/ui/KisOpenPane.cpp`, `libs/ui/widgets/kis_custom_image_widget.cc`
+
+George's 1.0.34 screenshots of the New Document window in portrait: the colored-icon list on the left took about half the screen (about 570 of 1080 px), and with the size fields on the right the window was about two screens wide (Create and Cancel off to the right). The "column of colored icons in the dialog is still too wide" in the 84th entry was this list; the 84th entry's fix was for the Preferences list, a different window.
+- **Left list:** on a screen narrower than 450 logical px (portrait) it is exactly 22% of the screen's width (`setFixedWidth`, and the minimum width is cleared), whatever its natural width. In landscape the 20% cap stays. The text under each icon wraps.
+- **Predefined list:** the wider list from the 69th entry (170 px) is for landscape only; in portrait it is 104 px again, so the right side is about 700 px, not 1000.
+- Expected in portrait (1080 px): list about 240 px + size fields about 700 px + margins, which fits.
+**Not verified:** a build or a device. If the window is still wider than the screen, the next suspect is the white band and the color group's width.

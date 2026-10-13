@@ -12,6 +12,7 @@
 #include <QSlider>
 #include <QApplication>
 #include <QScreen>
+#include <QGuiApplication>
 #include <QDialogButtonBox>
 #include <QFile>
 #include <QSpacerItem>
@@ -89,7 +90,14 @@ KisCustomImageWidget::KisCustomImageWidget(QWidget* parent, qint32 defWidth, qin
     cmbHeightUnit->setMaximumWidth(76);
     cmbResolutionUnit->setMaximumWidth(76);
     // cmbPredefined->setMaximumWidth(104);
-    cmbPredefined->setMaximumWidth(170);   // Krimble 2026-10-12: George: "The little button could be a little wider." (the new size names are long)
+    // cmbPredefined->setMaximumWidth(170);   // Krimble 2026-10-12: George: "The little button could be a little wider." (the new size names are long)
+    // Krimble 2026-10-12: but on a portrait screen the New Document window was two screens wide (George's 1.0.34 screenshots), so the
+    // wider list is for a landscape screen only; in portrait it is 104 px again.
+    {
+        QScreen *screenForWidth = QGuiApplication::primaryScreen();
+        const bool narrowScreen = screenForWidth && screenForWidth->availableGeometry().width() < 450;
+        cmbPredefined->setMaximumWidth(narrowScreen ? 104 : 170);
+    }
 #endif
 
     txtName->setText(imageName);
