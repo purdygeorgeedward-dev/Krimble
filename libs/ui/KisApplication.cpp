@@ -628,13 +628,15 @@ private:
                 // Krimble 2026-10-12: George: "if a window has two finger it doesn't need bounce back. We can dump bounce back except on
                 // the toolbox." Only the toolbox bounces back inside the screen; every other window stays where it was dragged
                 // (as long as part of it is reachable).
-                QDockWidget *movedDock = qobject_cast<QDockWidget*>(moved.data());
-                if (movedDock && movedDock->objectName() == QLatin1String("ToolBox")) {
-                    // keepOnScreen(moved);      // the toolbox bounces back inside the screen
-                    keepOnScreenSidesAndTop(moved);   // Krimble 2026-10-12: only off the top or the sides, not the bottom
-                } else {
-                    keepReachable(moved);     // a dialog stays where it was dragged, as long as part of it is reachable
-                }
+                // Krimble 2026-10-13 (7th): George: "Get rid of bounces. They're annoying." After a two-finger drag nothing is moved any
+                // more: every window and panel, the toolbox included, stays exactly where the fingers let go. The old rules are kept:
+                // QDockWidget *movedDock = qobject_cast<QDockWidget*>(moved.data());
+                // if (movedDock && movedDock->objectName() == QLatin1String("ToolBox")) {
+                //     keepOnScreenSidesAndTop(moved);   // the toolbox was pushed back off the top and the sides
+                // } else {
+                //     keepReachable(moved);             // other windows: at least 160 px had to stay on screen
+                // }
+                Q_UNUSED(moved);
             });
             if (points.count() >= 2) {
                 touch->accept();

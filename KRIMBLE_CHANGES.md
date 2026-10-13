@@ -4114,3 +4114,33 @@ George's rule from now on: ask where every new feature goes before it is built, 
 - **The handle is gone; an invisible grab strip replaces it** (George: "Lose the visible handle. Make an invisible grab area extend out from the side of the edge."). 24 logical px (about 5 mm) wide, as tall as the whole column of panels on that side, OUTSIDE the panels' edge over the canvas (right of the toolbox, left of the right-hand panels). Dragging it resizes that side. Nothing is drawn. A stroke that starts inside the strip grabs the edge instead of drawing. George doubts it will help in portrait; the cause of that is the minimum width above.
 - **Correction:** the previous message said the toolbox was already left out of the no-minimum rule. It was not; this entry makes it so.
 **Not verified:** a build or a device.
+
+## 2026-10-13 (122nd) — Feature freeze; George's decisions on the list of 29 features; no bounces
+
+**Files:** `libs/ui/KisMainWindow.cpp`, `libs/ui/KisApplication.cpp`, `libs/ui/toolbox/KoToolBoxDocker.cpp`
+
+**Feature freeze (George, 2026-10-13):** "We have to stop adding new features until everything we already have works." Parked: fonts, AI upscaling, the Krimble Upscaler app, the camera. Only fixes for things that exist; where a fix goes is asked first; nothing is pushed without approval.
+
+**George's decisions on the list of features (his numbers):**
+- 1 Share as JPG / PNG: **commented out** (the File menu lines; the actions are made but not put in the menu).
+- 2 Take Photo: **out** (already). 3 Image > Upscale...: **commented out.** 4 Image > Batch Process...: **commented out.** (Both are added by `krimbleInstallImageExtras`; its call is commented out.)
+- 5 Layer > Style Presets: **commented out pending testing** (the call of `krimbleInstallLayerExtras` is commented out).
+- 6 View > Rotation Gadget: **kept.**
+- 7 Quick Adjust: **out.** Its two lines in the Window menu are **deleted** (George: "Delete it from the menu."; his rule is to comment out, this was an explicit exception). The panel's own code is parked in the file with nothing pointing to it; to become a dialog window under Image > Adjustments some day, deprioritized.
+- 8 Window > Layout Presets, Save Layout as Startup, Reset Layout: **commented out** (inside `#if 0`). The code that restores a saved layout at start is still there; with nothing saved it does nothing.
+- 9 to 12 (Hide All Panels; Switch to Tabs and Show Contents While Dragging; the toolbar items; Send Feedback and QA Overlay): not answered; **unchanged.**
+- 13 Where is...?: **out** (already).
+- 14 floating windows by default, 15 two-finger move and the corner grip, 16 docking only at an edge, 17 the toolbox Dock menu and Columns, 19 narrowing of windows wider than the screen and the narrow PNG options window, 25 George's icons: **keep.** 18 the toolbox fitting its tools: **keep, test.**
+- 20 Brushes hidden at first start: "Yet to work" (it does not work; the Default workspace file is probably not being applied on his phone).
+- 21 Layers panel, six buttons in two rows of three: "?????" (George did not know what it was); **unchanged** until he decides.
+- 22 polygon tools for a finger: **keep for testing.** 23 New Document size presets and the copied size: **keep for now, "but seems like a too many".** 24 Dodge, Burn, Smudge and Soften: **keep, test.**
+- 26 to 29 (below): **keep, push.**
+
+**The four kept and pushed here:**
+- **26 Canvas Only exit X:** a black X by itself, 36 logical px, top right, drawn only while Canvas Only is on; a tap turns the mode off (`KrimbleCanvasOnlyExit`).
+- **27 No minimum widths:** every panel's content and title bar, and the canvas area, get a minimum of 1 px (`krimbleRemoveMinimumWidths`); the toolbox is left out, its smallest width stays one column.
+- **28 Invisible edge strip:** the visible handle is gone; a 24 logical px, full-height, invisible strip lies outside each side's panel edge, over the canvas, and resizes that side when dragged.
+- **29 No bounces:** after a move or a two-finger drag nothing is pushed back (the toolbox's timer and the two-finger rules are switched off; old code kept in comments); a dialog's first placement on screen is unchanged.
+
+This entry also pushes the removals above (items 1, 3, 4, 5, 7, 8), which are George's decisions in the same message, because they are in the same file as 26 to 29.
+**Not verified:** a build or a device. George is close to his weekly usage limit and will return after he has put 1.0.35 on GitHub.

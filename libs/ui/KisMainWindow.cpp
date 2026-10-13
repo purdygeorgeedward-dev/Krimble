@@ -1453,11 +1453,12 @@ static void krimbleInstallFileExtras(KisMainWindow *win)
         // (krimbleInstallImageExtras); the File menu lines are kept here, commented out.
         // QAction *batch = new QAction(i18n("Batch Process..."), file);
         // QObject::connect(batch, &QAction::triggered, win, [win]() { krimbleShowBatch(win); });
-        QAction *sep = new QAction(file);
-        sep->setSeparator(true);
-        file->insertAction(before, sep);
-        file->insertAction(before, shareJpg);
-        file->insertAction(before, sharePng);
+        // Krimble 2026-10-13 (9th): George: "1. comment out." (Share as JPG / Share as PNG, to be tried again after other things work.)
+        // QAction *sep = new QAction(file);
+        // sep->setSeparator(true);
+        // file->insertAction(before, sep);
+        // file->insertAction(before, shareJpg);
+        // file->insertAction(before, sharePng);
         // Krimble 2026-10-13: Take Photo... (Claude's idea)
         // Krimble 2026-10-13 (3rd): George: "Remove take photo. It's a failure." (1.0.35 crashed after the photo was taken.) Removed from the
         // File menu; the code (krimbleTakePhoto, KrimbleCameraReceiver, the Java helper) is kept, with the thread fix of the 115th entry.
@@ -2925,9 +2926,9 @@ KisMainWindow::KisMainWindow(QUuid uuid)
                 layoutGroup.sync();
             }
             krimbleRestoreSavedLayout(this);
-            krimbleInstallLayerExtras(this);
+            // krimbleInstallLayerExtras(this);   // Krimble 2026-10-13 (9th): George: "5. Comment out pending testing." (Layer > Style Presets)
             krimbleInstallViewExtras(this);
-            krimbleInstallImageExtras(this);
+            // krimbleInstallImageExtras(this);   // Krimble 2026-10-13 (9th): George: "3. Comment out. 4. Comment out." (Image > Upscale... and Batch Process...)
         }
     });
     // Krimble 2026-10-11: close open menus when the window changes size (rotation).
@@ -5625,9 +5626,8 @@ void KisMainWindow::updateWindowMenu()
         //     mirrorLayout->setChecked(!toolBoxDock->isFloating() && dockWidgetArea(toolBoxDock) == Qt::RightDockWidgetArea);
         // }
         // connect(mirrorLayout, &QAction::triggered, this, [this]() { krimbleMirrorLayout(this); });
-        // Krimble 2026-10-12: Quick Adjust (Claude's idea)
-        QAction *quickAdjust = menu->addAction(i18n("Quick Adjust"));
-        connect(quickAdjust, &QAction::triggered, this, [this]() { krimbleToggleQuickAdjust(this); });
+        // Krimble 2026-10-13 (9th): George: "8. Comment out." (Window > Layout Presets, Save Layout as Startup, Reset Layout)
+#if 0
         // Krimble 2026-10-12: Layout Presets (Claude's idea)
         QMenu *presets = menu->addMenu(i18n("Layout Presets"));
         struct PresetDef { const char *label; QStringList panels; };
@@ -5653,6 +5653,7 @@ void KisMainWindow::updateWindowMenu()
         });
         QAction *resetLayout = menu->addAction(i18n("Reset Layout"));
         connect(resetLayout, &QAction::triggered, this, [this]() { krimbleResetLayout(this); });
+#endif
         menu->addSeparator();
         addActionByName("theme_menu");
         addActionByName("style_menu");

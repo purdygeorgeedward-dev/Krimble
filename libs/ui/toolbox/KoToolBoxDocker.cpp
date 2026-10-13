@@ -522,6 +522,10 @@ void KoToolBoxDocker::moveEvent(QMoveEvent *event)
                 m_screenTimer->start();
                 return;
             }
+            // Krimble 2026-10-13 (7th): George: "Get rid of bounces. They're annoying." The toolbox is no longer pushed back after it is moved:
+            // it stays where it is let go. The old rule (pushed back off the top and the sides, 120 px kept on screen) is kept below,
+            // not run.
+            return;
             QScreen *screenPtr = screen() ? screen() : QGuiApplication::primaryScreen();
             if (!screenPtr) return;
             QRect avail = screenPtr->availableGeometry();
