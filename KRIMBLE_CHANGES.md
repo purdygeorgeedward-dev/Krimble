@@ -3816,3 +3816,13 @@ George: "I sometimes accidentally trigger the rotation gadget on the bottom. Can
 
 George: "Default to hiding the rotation gadget." The default of the setting `krimble_show_rotation_gadget` is now 0 (was 1) in both places that read it, so the dial in the status bar is hidden until View > Rotation Gadget is checked. A choice already made is kept. The old defaults are in comments.
 **Not verified:** a build or a device.
+
+## 2026-10-12 (89th) — Batch Process: Cancel and Close buttons
+
+**Files:** `libs/ui/KisMainWindow.cpp`
+
+George's test: "There is no cancel option for Batch process." The Batch Process window has a **Cancel** and a **Close** button under the result line.
+- **Cancel** is enabled only while a batch runs. It stops the batch after the picture being processed; the line then reads "Cancelled: N saved in Pictures/Krimble/Batch, M skipped, the rest not processed." Pictures already saved stay saved.
+- **Close** closes the window; it is disabled while a batch runs, so the window cannot be closed in the middle of one by accident.
+- If the window is closed anyway during a batch (Android's back button), the loop notices and stops instead of using deleted parts of the window.
+**Not verified:** a build or a device.

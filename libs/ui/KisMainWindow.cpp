@@ -36,6 +36,7 @@
 #include <QStatusBar>
 #include <QStyleFactory>
 #include <algorithm>
+#include <QHBoxLayout>
 #include <KisAngleSelector.h>
 #include <QPainterPath>
 #include <kis_selection.h>
@@ -1027,13 +1028,30 @@ static void krimbleShowBatch(KisMainWindow *win)
     bar->setValue(0);
     QLabel *status = new QLabel(dialog);
     status->setWordWrap(true);
+    // Krimble 2026-10-12: George: "There is no cancel option for Batch process." Cancel stops after the picture being processed (it is
+    // enabled only while a batch runs); Close closes the window (enabled only when no batch runs).
+    QPushButton *cancel = new QPushButton(i18n("Cancel"), dialog);
+    cancel->setEnabled(false);
+    QPushButton *closeButton = new QPushButton(i18n("Close"), dialog);
+    QHBoxLayout *buttonRow = new QHBoxLayout;
+    buttonRow->addWidget(cancel);
+    buttonRow->addWidget(closeButton);
     layout->addWidget(intro);
     layout->addWidget(combo);
     layout->addWidget(start);
     layout->addWidget(bar);
     layout->addWidget(status);
+    layout->addLayout(buttonRow);
     layout->addStretch(1);
-    QObject::connect(start, &QPushButton::clicked, dialog, [win, dialog, combo, start, bar, status]() {
+    QSharedPointer<bool> cancelRequested(new bool(false));
+    QPointer<QDialog> guard(dialog);
+    QObject::connect(closeButton, &QPushButton::clicked, dialog, [dialog]() { dialog->close(); });
+    QObject::connect(cancel, &QPushButton::clicked, dialog, [cancel, cancelRequested]() {
+        *cancelRequested = true;
+        cancel->setEnabled(false);
+    });
+    // QObject::connect(start, &QPushButton::clicked, dialog, [win, dialog, combo, start, bar, status]() {   (the first version, without Cancel)
+    QObject::connect(start, &QPushButton::clicked, dialog, [win, dialog, combo, start, bar, status, cancel, closeButton, cancelRequested, guard]() {
         KoFileDialog fileDialog(win, KoFileDialog::OpenFiles, "KrimbleBatch");
         fileDialog.setCaption(i18n("Choose pictures"));
         fileDialog.setMimeTypeFilters(QStringList() << QStringLiteral("image/jpeg") << QStringLiteral("image/png")
@@ -1042,6 +1060,9 @@ static void krimbleShowBatch(KisMainWindow *win)
         if (files.isEmpty()) return;
         const Preset &preset = presets[qBound(0, combo->currentIndex(), 5)];
         start->setEnabled(false);
+        closeButton->setEnabled(false);
+        cancel->setEnabled(true);
+        *cancelRequested = false;
         const QString dirPath = QStandardPaths::writableLocation(QStandardPaths::CacheLocation) + QStringLiteral("/batch");
         QDir().mkpath(dirPath);
         int done = 0, failed = 0;
@@ -1049,6 +1070,8 @@ static void krimbleShowBatch(KisMainWindow *win)
             status->setText(i18n("Picture %1 of %2...", i + 1, files.size()));
             bar->setValue(100 * i / files.size());
             QCoreApplication::processEvents();
+            if (!guard) return;                  // the window was closed (Android's back button) while a picture was processed
+            if (*cancelRequested) break;
             QImage image(files.at(i));
             if (image.isNull()) { ++failed; continue; }
             // if (preset.width > 0 && image.width() > preset.width) {
@@ -1083,8 +1106,13 @@ static void krimbleShowBatch(KisMainWindow *win)
             }
             if (stored) ++done; else ++failed;
         }
-        bar->setValue(100);
-        status->setText(i18n("Done: %1 saved in Pictures/Krimble/Batch, %2 skipped.", done, failed));
+        if (!guard) return;
+        const bool wasCancelled = *cancelRequested;
+        bar->setValue(wasCancelled ? bar->value() : 100);
+        status->setText(wasCancelled ? i18n("Cancelled: %1 saved in Pictures/Krimble/Batch, %2 skipped, the rest not processed.", done, failed)
+                                     : i18n("Done: %1 saved in Pictures/Krimble/Batch, %2 skipped.", done, failed));
+        cancel->setEnabled(false);
+        closeButton->setEnabled(true);
         start->setEnabled(true);
     });
     if (QScreen *scr = QGuiApplication::primaryScreen()) {
