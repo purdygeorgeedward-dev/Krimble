@@ -4060,3 +4060,12 @@ George's test of 1.0.35 (his last message was cut off after "Take photo opens ca
 - **Menu Diagnostics (Help menu):** the menu cap of the 84th entry did not make the menus narrower in 1.0.35 (the Edit menu's first column is still about 770 px wide for text about 340 px wide), and the cause could not be found by reading the code. The new Help > Menu Diagnostics shows numbers about the Edit menu (its width, the widest text, how many actions have a tab in their text or a shortcut, the style classes, the stylesheet lengths). George can send a screenshot of it.
 - **Not changed:** "Brushes open by default": in the 1.0.35 portrait screenshot the panels are Color, Tool Options, Layers and Brushes, which is the program's own built-in default, so the Default workspace file (3 panels, 2026-10-02) is probably not being applied on his phone (an old copy in the app's data, noted as a risk in that entry). Needs a check, not a guess.
 **Not verified:** a build or a device.
+
+## 2026-10-13 (116th) — Preferences icons bigger; the landscape handle
+
+**Files:** `libs/ui/KisApplication.cpp`
+
+George (1.0.35): "Landscape has no handle for side panel. Preferences icons are way too small."
+- **Preferences icons:** the page list (`KPageListView`) drew its pictures at the library's default of 32 logical px. Set to **64 logical px** (about 216 on the screen) when the window is shown, together with the 24%-of-the-screen width cap (84th entry). The text under each icon stays.
+- **No handle in landscape:** the same cause as in portrait, most likely: the handle of the 1.0.35 build was filled with the "Mid" color, which is about the canvas's gray, so it could not be seen anywhere (landscape or portrait). The 115th entry makes it the panel's own color with a light edge, 22 x 64 px. **Not proven** for landscape; if there is still no handle in the next build in landscape, the placement code is the next place to look (it needs a visible, docked panel on the left or right that is the topmost of its side).
+**Not verified:** a build or a device.

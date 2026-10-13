@@ -531,6 +531,10 @@ protected:
                                 if (QScreen *pageScreen = QGuiApplication::primaryScreen()) {
                                     const int cap = int(pageScreen->availableGeometry().width() * 0.24);
                                     if (pageList->maximumWidth() > cap) pageList->setMaximumWidth(cap);
+                                    // Krimble 2026-10-13 (3rd): George (1.0.35): "Preferences icons are way too small." The pictures were drawn at
+                                    // the program's small default (32 logical px); they are now 64 logical px (about 216 on the screen), which
+                                    // is the most that fits in the narrowed list.
+                                    pageList->setIconSize(QSize(64, 64));
                                 }
                             }
                         }
