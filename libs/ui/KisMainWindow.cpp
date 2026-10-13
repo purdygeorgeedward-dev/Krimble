@@ -36,6 +36,7 @@
 #include <QStatusBar>
 #include <QStyleFactory>
 #include <algorithm>
+#include <KisAngleSelector.h>
 #include <QPainterPath>
 #include <kis_selection.h>
 #include <QUuid>
@@ -1678,6 +1679,42 @@ static void krimbleApplyLayerStyle(KisMainWindow *win, int preset)
     image->waitForDone();
 }
 
+// Adds "Rotation Gadget" (a check mark) at the end of the View menu (once, when the menu first opens): turns the canvas rotation
+// dial in the status bar off and on (Claude's design; George: "I sometimes accidentally trigger the rotation gadget on the bottom.
+// Can we turn it off and on at will?").
+static void krimbleInstallViewExtras(KisMainWindow *win)
+{
+    QMenu *viewMenu = nullptr;
+    Q_FOREACH (QAction *top, win->menuBar()->actions()) {
+        QString title = top->text();
+        title.remove(QLatin1Char('&'));
+        if (top->menu() && title == QLatin1String("View")) viewMenu = top->menu();
+    }
+    if (!viewMenu || viewMenu->property("krimbleViewExtras").toBool()) return;
+    viewMenu->setProperty("krimbleViewExtras", true);
+    QObject::connect(viewMenu, &QMenu::aboutToShow, win, [win, viewMenu]() {
+        QAction *gadget = viewMenu->findChild<QAction*>(QStringLiteral("krimbleRotationGadget"));
+        if (!gadget) {
+            gadget = new QAction(i18n("Rotation Gadget"), viewMenu);
+            gadget->setObjectName(QStringLiteral("krimbleRotationGadget"));
+            gadget->setCheckable(true);
+            viewMenu->addSeparator();
+            viewMenu->addAction(gadget);
+            QObject::connect(gadget, &QAction::toggled, win, [win](bool on) {
+                KisConfig cfg(false);
+                cfg.writeEntry<int>("krimble_show_rotation_gadget", on ? 1 : 0);
+                // (only the status bar's dial, not the angle selectors in the panels)
+                if (KisAngleSelector *dial = win->statusBar() ? win->statusBar()->findChild<KisAngleSelector*>() : nullptr) {
+                    if (!on) dial->setVisible(false);
+                    else if (win->viewManager() && win->viewManager()->image()) dial->setVisible(true);
+                }
+            });
+        }
+        QSignalBlocker blocker(gadget);
+        gadget->setChecked(KisConfig(true).readEntry<int>("krimble_show_rotation_gadget", 1) != 0);
+    });
+}
+
 // Adds "Style Presets" right after "Layer Style..." in the Layer menu (once, when the menu first opens).
 static void krimbleInstallLayerExtras(KisMainWindow *win)
 {
@@ -2481,6 +2518,7 @@ KisMainWindow::KisMainWindow(QUuid uuid)
             }
             krimbleRestoreSavedLayout(this);
             krimbleInstallLayerExtras(this);
+            krimbleInstallViewExtras(this);
         }
     });
     // Krimble 2026-10-11: close open menus when the window changes size (rotation).

@@ -3799,3 +3799,13 @@ George's 1.0.34 screenshots of the New Document window in portrait: the colored-
 - **Predefined list:** the wider list from the 69th entry (170 px) is for landscape only; in portrait it is 104 px again, so the right side is about 700 px, not 1000.
 - Expected in portrait (1080 px): list about 240 px + size fields about 700 px + margins, which fits.
 **Not verified:** a build or a device. If the window is still wider than the screen, the next suspect is the white band and the color group's width.
+
+## 2026-10-12 (87th) — View menu: Rotation Gadget on/off (Claude's design)
+
+**Files:** `libs/ui/KisMainWindow.cpp`, `libs/ui/kis_statusbar.cc`
+
+George: "I sometimes accidentally trigger the rotation gadget on the bottom. Can we turn it off and on at will?" The gadget is the canvas rotation dial with the angle number in the status bar.
+- New check item **View > Rotation Gadget** (at the end of the View menu, after a divider). Unchecked hides the dial; checked shows it again, right away. The choice is remembered (setting `krimble_show_rotation_gadget`, default on).
+- `KisStatusBar` shows the dial when a picture is opened only if the setting allows it (the old unconditional `setVisible(true)` is kept in a comment).
+- The canvas can still be rotated other ways (View > Canvas Rotation, the Rotate tool); only the dial is hidden.
+**Not verified:** a build or a device. If View > Rotation Gadget is missing, the View menu was rebuilt by the program; the item is added again each time the menu opens.
