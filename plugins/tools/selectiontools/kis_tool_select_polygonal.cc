@@ -13,6 +13,8 @@
 #include "kis_tool_select_polygonal.h"
 
 #include <KoPathShape.h>
+#include <QHBoxLayout>
+#include <QPushButton>
 
 #include "kis_algebra_2d.h"
 #include "kis_painter.h"
@@ -40,6 +42,34 @@ __KisToolSelectPolygonalLocal::__KisToolSelectPolygonalLocal(KoCanvasBase *canva
 KisToolSelectPolygonal::KisToolSelectPolygonal(KoCanvasBase *canvas):
     KisToolSelectBase<__KisToolSelectPolygonalLocal>(canvas, i18n("Polygonal Selection"))
 {
+}
+
+// Krimble 2026-10-13: George: "Keep working on the Tool Options for polygon selection." A row of three buttons at the top of the tool's
+// options replaces the keys a phone does not have: Undo Point (takes back the last point; the only point left cancels), Close (finishes
+// the polygon and makes the selection; needs three points) and Cancel (throws the polygon away).
+QWidget *KisToolSelectPolygonal::createOptionWidget()
+{
+    QWidget *widget = KisToolSelectBase<__KisToolSelectPolygonalLocal>::createOptionWidget();
+    if (KisSelectionOptions *options = qobject_cast<KisSelectionOptions*>(widget)) {
+        QWidget *buttons = new QWidget(options);
+        QHBoxLayout *row = new QHBoxLayout(buttons);
+        row->setContentsMargins(0, 0, 0, 0);
+        row->setSpacing(4);
+        QPushButton *undoPoint = new QPushButton(i18n("Undo Point"), buttons);
+        QPushButton *closeButton = new QPushButton(i18n("Close"), buttons);
+        QPushButton *cancelButton = new QPushButton(i18n("Cancel"), buttons);
+        undoPoint->setToolTip(i18n("Take back the last point"));
+        closeButton->setToolTip(i18n("Finish the polygon and make the selection"));
+        cancelButton->setToolTip(i18n("Throw the polygon away"));
+        row->addWidget(undoPoint);
+        row->addWidget(closeButton);
+        row->addWidget(cancelButton);
+        connect(undoPoint, &QPushButton::clicked, this, [this]() { touchUndoPoint(); });
+        connect(closeButton, &QPushButton::clicked, this, [this]() { touchClosePolygon(); });
+        connect(cancelButton, &QPushButton::clicked, this, [this]() { touchCancelPolygon(); });
+        options->insertWidget(0, QStringLiteral("krimblePolygonButtons"), buttons);
+    }
+    return widget;
 }
 
 void KisToolSelectPolygonal::finishPolyline(const QVector<QPointF> &points)

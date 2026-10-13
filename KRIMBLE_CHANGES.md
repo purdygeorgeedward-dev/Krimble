@@ -3990,3 +3990,13 @@ Built as described, on Android (the mouse and the keyboard keys work as before).
 **Files:** `BUILD_ANDROID.md`
 
 George: "Remember to document everything as we go." Section 8 of `BUILD_ANDROID.md` stopped at entry 75. A new **section 9** covers entries 76 to 106: the state of the GitHub releases (33 is still a draft, 34 is published, 35 was never built), a table of every feature added since with its main file and entry number, the open problems (including the About Krimble window, which George reported and which has not been looked at yet), and lessons learned (merging with George's README edits, the idle server session, the order of `kb-package.sh` and `kb-apk.sh`, the wording rules). Documents only; no code.
+
+## 2026-10-13 (108th) — Polygon selection: Undo Point, Close and Cancel buttons in Tool Options
+
+**Files:** `plugins/tools/selectiontools/kis_tool_select_polygonal.cc`, `plugins/tools/selectiontools/kis_tool_select_polygonal.h`, `libs/ui/tool/kis_tool_polyline_base.cpp`, `libs/ui/tool/kis_tool_polyline_base.h`, `BUILD_ANDROID.md`
+
+George: "Keep working on the Tool Options for polygon selection. Don't worry about moving points. That's doing too much." and "Check draft status again for .33 please."
+- **Buttons:** a row of three buttons at the top of the Polygonal Selection tool's Tool Options (above the selection mode buttons): **Undo Point** (takes back the last point; if only the first point is left it throws the polygon away), **Close** (finishes the polygon and makes the selection; with fewer than three points it says "A polygon needs at least three points."), **Cancel** (throws the polygon away). They are the actions a keyboard would do (Backspace, Enter, Escape). They work with the touch polygon of the 106th entry and with a mouse. The three methods (`touchUndoPoint`, `touchClosePolygon`, `touchCancelPolygon`) are in `KisToolPolylineBase`, so the polygon and polyline drawing tools could have the same buttons later; only the selection tool has them now.
+- **Not built, by George's decision:** moving a placed point.
+- **GitHub check, Tue Oct 13, 2026:** 1.0.33b is **published** (pre-release, file attached), as are 1.0.34b and 1.0.32b. Section 9 of `BUILD_ANDROID.md` said 33 was a draft; corrected.
+**Not verified:** a build or a device.

@@ -445,7 +445,7 @@ Each tag must sit on the commit the APK was built from, not on `master` at posti
 | Version | Commit | State |
 |---|---|---|
 | 1.0.32 beta | `3774d49` | published |
-| 1.0.33 beta | `3c7f2aa` | draft, file attached, **not published** |
+| 1.0.33 beta | `3c7f2aa` | published (checked on GitHub 2026-10-13), file attached |
 | 1.0.34 beta | `c814ef1` | published, file attached (`Krimble-1.0.34-beta-Oct12-1620.apk`) |
 | 1.0.35 beta | | **not built.** `krimbleBuildNumber` is 35 (`752408e`); the build was started and stopped at George's request before it finished. Nothing from it was released. |
 

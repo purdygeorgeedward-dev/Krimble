@@ -39,6 +39,11 @@ public:
     void requestStrokeCancellation() override;
     KisPopupWidgetInterface* popupWidget() override;
 
+    // Krimble 2026-10-13: what the buttons in Tool Options (Undo Point, Close, Cancel) do, for a finger that has no Enter or Escape key
+    void touchUndoPoint();
+    void touchClosePolygon();
+    void touchCancelPolygon();
+
 protected:
     virtual void finishPolyline(const QVector<QPointF>& points) = 0;
 

@@ -31,6 +31,7 @@ class KisToolSelectPolygonal : public KisToolSelectBase<__KisToolSelectPolygonal
 public:
     KisToolSelectPolygonal(KoCanvasBase* canvas);
     void resetCursorStyle() override;
+    QWidget *createOptionWidget() override;   // Krimble 2026-10-13: adds Undo Point, Close and Cancel buttons
 private:
     void finishPolyline(const QVector<QPointF> &points) override;
     void beginShape() override;

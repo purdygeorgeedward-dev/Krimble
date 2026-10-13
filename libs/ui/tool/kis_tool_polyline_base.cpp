@@ -339,6 +339,36 @@ void KisToolPolylineBase::undoSelection()
     }
 }
 
+// Krimble 2026-10-13: the Tool Options buttons.
+void KisToolPolylineBase::touchUndoPoint()
+{
+    if (!m_dragging) return;
+    if (m_points.size() > 1) {
+        undoSelection();
+        m_dragEnd = m_points.last();
+        m_closeSnappingActivated = false;
+        updateArea();
+    } else {
+        cancelStroke();     // the only point that was left
+    }
+}
+
+void KisToolPolylineBase::touchClosePolygon()
+{
+    if (!m_dragging) return;
+    if (m_points.size() >= 3) {
+        m_points.append(m_points.first());
+        endStroke();
+    } else if (KisCanvas2 *kiscanvas = dynamic_cast<KisCanvas2*>(canvas())) {
+        kiscanvas->viewManager()->showFloatingMessage(i18n("A polygon needs at least three points."), QIcon());
+    }
+}
+
+void KisToolPolylineBase::touchCancelPolygon()
+{
+    cancelStroke();
+}
+
 void KisToolPolylineBase::undoSelectionOrCancel()
 {
     if (m_points.size() > 1) {
