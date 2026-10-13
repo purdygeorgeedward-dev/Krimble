@@ -3943,3 +3943,17 @@ George: "Dock right from the long press menu did nothing." The long-press menu o
 George, with three screenshots of the PNG export options window: "This has lots of dead space in it (fat) and it's super wide. I'm sure on a desktop screen it seems fine, but on small screens it's too much." The window was about two screens wide: a column of labels on the left (Compression (Lossless):, Transparent color:) with nothing next to the check boxes, and the slider's two end labels ("Large file size", "Small file size") laid out beside the slider's own label.
 On Android the controls are moved in the grid (`kis_wdg_options_png.ui` is kept as it is): "Compression (Lossless):" on its own line, "Large file size" and "Small file size" on the next line (left and right), the slider on a line of its own at full width, each check box on its own full-width line, and "Transparent color:" with its color button at the bottom. The window should be about as wide as its longest line ("Store alpha channel (transparency)", about 190 logical px). The options are the same, in the same order.
 **Not verified:** a build or a device. Other export windows (JPEG, WebP, TIFF and so on) likely have the same problem; only PNG is done. The white band at the top of dialogs is not touched.
+
+## 2026-10-13 (104th) — Every window wider than the screen is narrowed (export options and all other dialogs)
+
+**Files:** `libs/ui/KisApplication.cpp`
+
+George: "All of them. Check them all for things like that. Don't let them get big." Survey of the 14 option windows of the file formats (`plugins/impex/*/*.ui`: Brush (GIH), EXR, HEIF, Heightmap, JPEG 2000, JPEG, JPEG-XL, PDF import, PNG, qimageio, RAW import, RGBE, TIFF, WebP): the ones with several grids and forms (JPEG, JPEG-XL with 7 grids and 11 forms, TIFF, WebP, Brush, HEIF) have the same label-column layout, and many have long sentences. Rather than change 14 files by hand (and every other window in the program), the rule is applied at one place, when any window is shown (`KrimbleDialogKeeper`):
+- Only a window whose smallest possible width is **more than the screen's width** is touched; one that fits is left alone.
+- **Form layouts** put every label above its field (`WrapAllRows`).
+- **Grids** whose rows are a label in the first column and a control (not another label) in the second put the label on a line of its own above the control, spanning the full width. A grid with a row that spans several rows, a nested layout or an unusual row is left as it is.
+- Long labels already wrapped (the 2026-10-12 rule); this runs after it.
+- The window is made as small as it can be afterwards (`adjustSize`).
+- The PNG window keeps its own arrangement from the 103rd entry.
+Limits: a check box or a radio button with a very long text cannot wrap; a window that is still too wide after this has such a line, or a control that needs a wide minimum, and has to be looked at by itself (a screenshot of it shows which).
+**Not verified:** a build or a device.

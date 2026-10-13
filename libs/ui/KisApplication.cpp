@@ -36,6 +36,8 @@
 #include <QLabel>
 #include <QPushButton>
 #include <QGridLayout>
+#include <QMap>
+#include <QFormLayout>
 #include <QVBoxLayout>
 #include <QToolTip>
 #include <QMouseEvent>
@@ -318,6 +320,85 @@ private:
 //    the middle point between the fingers (the idea of the unmerged branch move/two-finger-window-mover,
 //    rebuilt here). One finger behaves as before. Lifting the fingers brings the dialog back on screen
 //    if it was dragged too far.
+// Krimble 2026-10-13: George: "All of them. Check them all for things like that. Don't let them get big." (the export option windows;
+// the PNG one was about two screens wide with a column of labels beside nothing). A window that is wider than the screen even at
+// its smallest is narrowed here, whichever window it is:
+//  - a form layout puts each label above its field (WrapAllRows);
+//  - a grid whose rows are "label | control" puts the label on a line of its own above the control;
+//  - long labels wrap (done by the caller, before this).
+// A window that already fits is not touched.
+static void krimbleRestackGrid(QGridLayout *grid)
+{
+    struct Entry { QLayoutItem *item; int row; int col; int rowSpan; int colSpan; };
+    QList<Entry> entries;
+    int maxCol = 0;
+    for (int i = 0; i < grid->count(); ++i) {
+        Entry e;
+        e.item = grid->itemAt(i);
+        grid->getItemPosition(i, &e.row, &e.col, &e.rowSpan, &e.colSpan);
+        if (!e.item || e.item->layout() || e.rowSpan != 1) return;    // anything unusual: leave this grid as it is
+        maxCol = qMax(maxCol, e.col + e.colSpan - 1);
+        entries << e;
+    }
+    QMap<int, QList<Entry> > rows;
+    Q_FOREACH (const Entry &e, entries) rows[e.row] << e;
+    // rows that are exactly a label in the first column and a control (not another label) in the second
+    auto isLabelControlRow = [](const QList<Entry> &row) {
+        if (row.size() != 2) return false;
+        const Entry &a = row.at(0).col == 0 ? row.at(0) : row.at(1);
+        const Entry &b = row.at(0).col == 0 ? row.at(1) : row.at(0);
+        if (a.col != 0 || a.colSpan != 1 || b.col != 1 || b.colSpan != 1) return false;
+        QLabel *label = a.item->widget() ? qobject_cast<QLabel*>(a.item->widget()) : nullptr;
+        QWidget *control = b.item->widget();
+        return label && control && !qobject_cast<QLabel*>(control);
+    };
+    bool any = false;
+    for (auto it = rows.constBegin(); it != rows.constEnd(); ++it) {
+        if (isLabelControlRow(it.value())) any = true;
+    }
+    if (!any || maxCol < 1) return;
+
+    Q_FOREACH (const Entry &e, entries) grid->removeItem(e.item);
+    int newRow = 0;
+    for (auto it = rows.constBegin(); it != rows.constEnd(); ++it) {
+        const QList<Entry> &row = it.value();
+        if (isLabelControlRow(row)) {
+            const Entry &a = row.at(0).col == 0 ? row.at(0) : row.at(1);
+            const Entry &b = row.at(0).col == 0 ? row.at(1) : row.at(0);
+            if (QLabel *label = qobject_cast<QLabel*>(a.item->widget())) {
+                label->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+            }
+            grid->addItem(a.item, newRow, 0, 1, maxCol + 1);
+            grid->addItem(b.item, newRow + 1, 0, 1, maxCol + 1);
+            newRow += 2;
+        } else {
+            Q_FOREACH (const Entry &e, row) {
+                grid->addItem(e.item, newRow, e.col, 1, e.colSpan);
+            }
+            newRow += 1;
+        }
+    }
+}
+
+static void krimbleNarrowDialogLayouts(QDialog *dialog)
+{
+    if (!dialog || !dialog->isWindow() || dialog->property("krimbleNarrowed").toBool()) return;
+    QScreen *screen = dialog->screen() ? dialog->screen() : QGuiApplication::primaryScreen();
+    if (!screen) return;
+    const int available = screen->availableGeometry().width();
+    if (!dialog->layout() || dialog->minimumSizeHint().width() <= available) return;
+    dialog->setProperty("krimbleNarrowed", true);
+    Q_FOREACH (QFormLayout *form, dialog->findChildren<QFormLayout*>()) {
+        form->setRowWrapPolicy(QFormLayout::WrapAllRows);
+        form->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
+    }
+    Q_FOREACH (QGridLayout *grid, dialog->findChildren<QGridLayout*>()) {
+        krimbleRestackGrid(grid);
+    }
+    dialog->layout()->invalidate();
+    dialog->adjustSize();
+}
+
 class KrimbleDialogKeeper : public QObject
 {
 public:
@@ -439,6 +520,7 @@ protected:
                             wrapDialog->adjustSize();
                         }
                     }
+                    krimbleNarrowDialogLayouts(wrapDialog);   // Krimble 2026-10-13: a window wider than the screen is narrowed
                 }
                 // Krimble 2026-10-12: George: "That column of colored icons in the dialog is still too wide." The page list on the
                 // left of a page dialog (Preferences) is at most 24% of the screen's width.
