@@ -4083,3 +4083,10 @@ George: "Where is? Is unpredictable and has to go." The **Where is...?** item (t
 
 George: "Drop Krita handbook until we can write a Krimble handbook." In the Help menu definition the line `<Action name="help_contents"/>` and the divider after it are inside an XML comment, with a note on how to put them back. The action itself and its code (`showManual`) are untouched. The file was checked to be well-formed XML after the change. Help now starts with Report Bug.
 **Not verified:** a build or a device.
+
+## 2026-10-13 (119th) — File > Take Photo... removed
+
+**Files:** `libs/ui/KisMainWindow.cpp`
+
+George: "Remove take photo. It's a failure." In 1.0.35 the camera opened but the app crashed after the photo was taken. The three lines that add **Take Photo...** to the File menu are commented out. The code stays (`krimbleTakePhoto`, `KrimbleCameraReceiver` with the thread fix of the 115th entry, and `ShareHelper.prepareCameraUri` / `deleteUri`), so the feature can come back once it is fixed and tested; it is not reachable from the program now. Entry 109 (the feature) is not undone otherwise.
+**Not verified:** a build or a device.

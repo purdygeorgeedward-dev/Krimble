@@ -1313,9 +1313,11 @@ static void krimbleInstallFileExtras(KisMainWindow *win)
         file->insertAction(before, shareJpg);
         file->insertAction(before, sharePng);
         // Krimble 2026-10-13: Take Photo... (Claude's idea)
-        QAction *takePhoto = new QAction(i18n("Take Photo..."), file);
-        QObject::connect(takePhoto, &QAction::triggered, win, [win]() { krimbleTakePhoto(win); });
-        file->insertAction(before, takePhoto);
+        // Krimble 2026-10-13 (3rd): George: "Remove take photo. It's a failure." (1.0.35 crashed after the photo was taken.) Removed from the
+        // File menu; the code (krimbleTakePhoto, KrimbleCameraReceiver, the Java helper) is kept, with the thread fix of the 115th entry.
+        // QAction *takePhoto = new QAction(i18n("Take Photo..."), file);
+        // QObject::connect(takePhoto, &QAction::triggered, win, [win]() { krimbleTakePhoto(win); });
+        // file->insertAction(before, takePhoto);
         // file->insertAction(before, batch);
     });
 }
