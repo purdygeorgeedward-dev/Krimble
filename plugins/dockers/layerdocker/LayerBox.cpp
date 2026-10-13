@@ -210,8 +210,11 @@ LayerBox::LayerBox()
         };
         for (QToolButton *button : layerButtons) {
             button->setIconSize(QSize(18, 18));
-            button->setMinimumWidth(30);
-            button->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
+            // Krimble 2026-10-12 (2nd): George: "The tools at the bottom of the Layers panel disappeared." In the 1.0.34 screenshots the six buttons
+            // were squeezed on top of each other. The two lines below (a 30 px minimum and a size policy that ignores the buttons' own
+            // size) are switched off; only the smaller icons (18 px) remain.
+            // button->setMinimumWidth(30);
+            // button->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
         }
     }
 #endif

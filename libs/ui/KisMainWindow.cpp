@@ -752,6 +752,7 @@ static void krimbleToggleQuickAdjust(KisMainWindow *win)
     dock->setWidget(content);
     win->addDockWidget(Qt::RightDockWidgetArea, dock);
     dock->setFloating(true);
+    dock->setAllowedAreas(Qt::NoDockWidgetArea);   // Krimble 2026-10-12: Quick Adjust is a floating tool; dragging it never docks it
     if (QScreen *scr = QGuiApplication::primaryScreen()) {
         const QRect avail = scr->availableGeometry();
         dock->resize(int(avail.width() * 0.62), content->sizeHint().height() + 40);
@@ -4723,9 +4724,12 @@ QDockWidget* KisMainWindow::createDockWidget(KoDockFactoryBase* factory)
         //    gets a resize handle in its lower right corner.
         dockWidget->installEventFilter(new KisDockedSizeTracker(dockWidget));
         // KRIMBLE 2026-10-04: the toolbox docks only close to a side of the window (see KrimbleDockTolerance).
-        if (dockWidget->objectName() == QLatin1String("ToolBox")) {
-            dockWidget->installEventFilter(new KrimbleDockTolerance(this, dockWidget));
-        }
+        // if (dockWidget->objectName() == QLatin1String("ToolBox")) {
+        //     dockWidget->installEventFilter(new KrimbleDockTolerance(this, dockWidget));
+        // }
+        // Krimble 2026-10-12: George: the Layers panel, once detached, "tried really hard to attach to edges that were far away from it".
+        // Every floating panel, not only the toolbox, now docks only when the finger is close to a side of the window.
+        dockWidget->installEventFilter(new KrimbleDockTolerance(this, dockWidget));
         connect(dockWidget, &QDockWidget::topLevelChanged, this, [this, dockWidget](bool floating) {
             // KRIMBLE 2026-10-04: Settings > "Attach Panels" decides what a floating panel does.
             // ON (the default) = the standard behaviour: a panel dragged to the edge of the window

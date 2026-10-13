@@ -3840,3 +3840,12 @@ George: "I think it should be in the image menu, not below exit." **Batch Proces
 
 George's idea: "If you select an area in an image and use copy or cut, then use New it defaults to the dimensions of the copied or cut area so you can paste into the new document cleanly." When a picture is on the clipboard (copied or cut in Krimble, or copied in another app), the width and height on the **Custom Document** page start as the size of that picture, in pixels. With nothing copied, the saved default size is used as before. Changing the numbers or choosing a size from the Predefined list works as always. "Create from Clipboard" (which already used the clipboard) is unchanged.
 **Not verified:** a build or a device. A copied picture from another app can be large; the same numbers show in the dialog, so it is visible before Create is pressed.
+
+## 2026-10-12 (92nd) — Layers panel buttons back to normal; floating panels dock only near a side
+
+**Files:** `plugins/dockers/layerdocker/LayerBox.cpp`, `libs/ui/KisMainWindow.cpp`
+
+George: "The tools at the bottom of the Layers panel disappeared, so I detached it. Then it tried really hard to attach to edges that were far away from it."
+- **Layers buttons:** the 68th entry gave the six buttons under the layer list a 30 px minimum width and a size policy that ignores their own size. In the 1.0.34 screenshots they were squeezed on top of one another at the bottom of the panel. Those two lines are switched off (kept in comments); the smaller icons (18 px) stay. The panel's minimum width will be a little larger than the 68th entry aimed for, still smaller than in 1.0.33.
+- **Floating panels:** the "dock only when the finger is within 36 px of a window side" rule (`KrimbleDockTolerance`, made for the toolbox on 2026-10-04) now applies to every panel, so a detached Layers, Color or any other panel stays where it is dropped unless it is taken close to a side. Quick Adjust never docks (its allowed areas are none).
+**Not verified:** a build or a device. If the buttons still look wrong, a QA Overlay screenshot with the Layers panel open shows its real width.
