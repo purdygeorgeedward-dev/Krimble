@@ -420,6 +420,20 @@ protected:
                         }
                     }
                 }
+                // Krimble 2026-10-12: George: "That column of colored icons in the dialog is still too wide." The page list on the
+                // left of a page dialog (Preferences) is at most 24% of the screen's width.
+                if (QDialog *pageDialog = qobject_cast<QDialog*>(dialog)) {
+                    if (pageDialog->isWindow()) {
+                        Q_FOREACH (QAbstractItemView *pageList, pageDialog->findChildren<QAbstractItemView*>()) {
+                            if (QLatin1String(pageList->metaObject()->className()) == QLatin1String("KPageListView")) {
+                                if (QScreen *pageScreen = QGuiApplication::primaryScreen()) {
+                                    const int cap = int(pageScreen->availableGeometry().width() * 0.24);
+                                    if (pageList->maximumWidth() > cap) pageList->setMaximumWidth(cap);
+                                }
+                            }
+                        }
+                    }
+                }
                 // Krimble 2026-10-11: the corner grip on dialogs that have no touch resize of their own
                 if (QDialog *gripDialog = qobject_cast<QDialog*>(dialog)) {
                     if (gripDialog->isWindow() && !qobject_cast<KoDialog*>(gripDialog)

@@ -154,7 +154,12 @@ QSize KisWideDockSeparatorStyle::sizeFromContents(ContentsType type, const QStyl
             const int tab = plain.text.indexOf(QLatin1Char('\t'));
             if (tab >= 0) plain.text = plain.text.left(tab);
             plain.tabWidth = 0;
-            return QProxyStyle::sizeFromContents(type, &plain, size, widget);
+            // return QProxyStyle::sizeFromContents(type, &plain, size, widget);
+            // Krimble 2026-10-12: George: "Menus are still too wide." The width of an item is at most its text plus 60 px (the
+            // check/icon margin on the left and the arrow on the right), however much the base style adds.
+            QSize base = QProxyStyle::sizeFromContents(type, &plain, size, widget);
+            base.setWidth(qMin(base.width(), size.width() + 60));
+            return base;
         }
     }
 #endif

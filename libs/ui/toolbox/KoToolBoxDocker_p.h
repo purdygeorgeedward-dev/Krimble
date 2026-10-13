@@ -68,6 +68,7 @@ private:
     // multiples of tool icon columns on scale?").
     void snapToColumns();
     void applyColumns();
+    void fitHeightToContents();   // Krimble 2026-10-12: a floating toolbox is only as tall as its tools
 public:
     // KRIMBLE 2026-10-07: a floating toolbox has no corner gadget; it is resized by two edge strips (right edge: width,
     // snapped to whole icon columns; bottom edge: height). Called by the strips while they are dragged.

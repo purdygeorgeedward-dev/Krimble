@@ -3770,3 +3770,15 @@ George: "Screen readers are the important issue. Put them back to normal case." 
 
 The first compile of the Quick Adjust, Batch, Layer Style Presets and Startup Layout code stopped on one error: "member access into incomplete type 'KisSelection'" (`kis_shared_ptr.h:201`). Quick Adjust creates an adjustment layer with an empty `KisSelectionSP()`, and that needs the full `KisSelection` class. Added `#include <kis_selection.h>`.
 **Not verified:** a rebuild.
+
+## 2026-10-12 (84th) — Toolbox height, handle curve, menu width, Preferences list (after the 1.0.34 test)
+
+**Files:** `libs/ui/toolbox/KoToolBoxDocker.cpp`, `libs/ui/toolbox/KoToolBoxDocker_p.h`, `libs/ui/KisMainWindow.cpp`, `libs/widgetutils/KisWideDockSeparatorStyle.cpp`, `libs/ui/KisApplication.cpp`
+
+George's test of 1.0.34: "Handle on toolbox is still too big. Should just be a slight curve outward. Toolbox is too tall. Should not have empty space inside the box. Menus are still too wide. ... That column of colored icons in the dialog is still too wide." (Also: "Brush icon looks great"; after floating and changing the columns setting the toolbox scales fine.)
+- **Toolbox height:** a new `fitHeightToContents()` cuts a floating toolbox down to the height of its tools (the layout's height for the current width, plus the title bar and the margins). It runs 350 ms after the toolbox becomes floating (including the first start) and 450 ms after a change of columns. Capped at 95% of the screen height.
+- **Handle:** the panel-edge handle is 7 x 40 px (was 12 x 48) and is drawn as a gentle bulge out from the panel's edge (a curve, no grip lines, bulging toward the canvas), instead of a rounded tab with three lines. The old drawing is kept in a comment.
+- **Menus:** the width of a menu item is capped at its text plus 60 px (the left margin and the arrow), whatever the base style adds. Before, the Layer menu's first column was about 730 device px wide for text about 280 px wide. If text is clipped, the 60 px is too small.
+- **Preferences:** the list of pages (the colored icons) on the left is at most 24% of the screen width (`KPageListView`, set when a window dialog is shown).
+- **Not changed (asked about):** "Brushes still open by default": in the 1.0.34 screenshots the Brushes panel was not shown, so what opens is not yet known. "Portrait mode toolbox doesn't resize (docked), landscape does": not changed in this entry; the toolbox now starts floating and floating resizes correctly.
+**Not verified:** a build or a device.

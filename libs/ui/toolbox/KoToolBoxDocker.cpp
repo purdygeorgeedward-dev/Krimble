@@ -171,6 +171,11 @@ KoToolBoxDocker::KoToolBoxDocker(KoToolBox *toolBox)
     m_restoreTimer = new QTimer(this);
     m_restoreTimer->setSingleShot(true);
     m_restoreTimer->setInterval(300);
+    // Krimble 2026-10-12: George: "Toolbox is too tall. Should not have empty space inside the box." Whenever the toolbox becomes
+    // floating, it is cut down to the height of its tools.
+    connect(this, &QDockWidget::topLevelChanged, this, [this](bool floating) {
+        if (floating) QTimer::singleShot(350, this, [this]() { fitHeightToContents(); });
+    });
     m_edgeRight = new KrimbleToolBoxEdge(this, true);
     m_edgeBottom = new KrimbleToolBoxEdge(this, false);
     m_edgeRight->hide();
@@ -532,6 +537,28 @@ void KoToolBoxDocker::moveEvent(QMoveEvent *event)
     m_screenTimer->start();
 }
 
+// Krimble 2026-10-12: cuts a floating toolbox (vertical layout, columns) down to the height of its tools, so there is no empty space
+// inside the box: the height of the tools for the current width, plus the title bar and the margins around them.
+void KoToolBoxDocker::fitHeightToContents()
+{
+    if (!isFloating() || !isVisible() || !m_toolBox || !m_toolBox->layout() || !m_toolBox->layout()->hasHeightForWidth()) return;
+    if (!widget() || !widget()->layout()) return;
+    const int toolsHeight = m_toolBox->layout()->heightForWidth(m_scrollArea->viewport()->width());
+    if (toolsHeight <= 0) return;
+    const QMargins margins = widget()->layout()->contentsMargins();
+    const int titleAndFrame = height() - widget()->height();
+    const int scrollFrame = m_scrollArea->height() - m_scrollArea->viewport()->height();
+    int target = titleAndFrame + margins.top() + margins.bottom() + scrollFrame + toolsHeight;
+    if (QScreen *screenPtr = screen() ? screen() : QGuiApplication::primaryScreen()) {
+        target = qMin(target, int(screenPtr->availableGeometry().height() * 0.95));
+    }
+    if (target > 0 && qAbs(height() - target) > 2) {
+        m_applying = true;
+        resize(width(), target);
+        QTimer::singleShot(400, this, [this]() { m_applying = false; });
+    }
+}
+
 void KoToolBoxDocker::applyColumns()
 {
     QMainWindow *mainWindow = qobject_cast<QMainWindow*>(parentWidget());
@@ -545,6 +572,7 @@ void KoToolBoxDocker::applyColumns()
             m_applying = true;
             resize(target, height());
             QTimer::singleShot(400, this, [this]() { m_applying = false; });
+            QTimer::singleShot(450, this, [this]() { fitHeightToContents(); });   // Krimble 2026-10-12: the height follows the new columns
         } else {
             const Qt::DockWidgetArea area = mainWindow->dockWidgetArea(this);
             if (area != Qt::LeftDockWidgetArea && area != Qt::RightDockWidgetArea) return;

@@ -36,6 +36,7 @@
 #include <QStatusBar>
 #include <QStyleFactory>
 #include <algorithm>
+#include <QPainterPath>
 #include <kis_selection.h>
 #include <QUuid>
 #include <kis_pointer_utils.h>
@@ -495,8 +496,10 @@ public:
         // centered on the whole column of panels on that side.
         // const int w = 18;
         // const int h = 80;
-        const int w = 12;   // Krimble 2026-10-12 (4th): George: "Handle on toolbox is too big." 12 x 48 (was 18 x 80)
-        const int h = 48;
+        // const int w = 12;   // Krimble 2026-10-12 (4th): George: "Handle on toolbox is too big." 12 x 48 (was 18 x 80)
+        // const int h = 48;
+        const int w = 7;    // Krimble 2026-10-12 (5th): George: "Handle on toolbox is still too big. Should just be a slight curve outward." 7 x 40, a gentle bulge
+        const int h = 40;
         QRect column;                       // the area covered by all docked panels on this side
         bool topmost = true;
         Q_FOREACH (QDockWidget *other, m_win->findChildren<QDockWidget*>()) {
@@ -533,17 +536,21 @@ protected:
         fill.setAlpha(215);
         p.setPen(Qt::NoPen);
         p.setBrush(fill);
-        p.drawRoundedRect(QRectF(rect()), 7, 7);
-        QColor line = palette().color(QPalette::WindowText);
-        line.setAlpha(190);
-        QPen pen(line);
-        pen.setWidthF(1.6);
-        pen.setCapStyle(Qt::RoundCap);
-        p.setPen(pen);
-        const int cx = width() / 2;
-        for (int i = -1; i <= 1; ++i) {
-            p.drawLine(cx + i * 4, height() / 2 - 16, cx + i * 4, height() / 2 + 16);
+        // (the rounded tab with three grip lines, kept:)
+        // p.drawRoundedRect(QRectF(rect()), 7, 7);
+        // Krimble 2026-10-12 (5th): a slight curve outward from the panel edge, no grip lines.
+        const qreal w = width();
+        const qreal h = height();
+        QPainterPath bulge;
+        if (m_win->dockWidgetArea(m_dock) == Qt::LeftDockWidgetArea) {     // the panel is on the left: the curve bulges to the right
+            bulge.moveTo(0, 0);
+            bulge.cubicTo(w * 1.3, h * 0.18, w * 1.3, h * 0.82, 0, h);
+        } else {                                                           // the panels are on the right: the curve bulges to the left
+            bulge.moveTo(w, 0);
+            bulge.cubicTo(-w * 0.3, h * 0.18, -w * 0.3, h * 0.82, w, h);
         }
+        bulge.closeSubpath();
+        p.drawPath(bulge);
     }
     void mousePressEvent(QMouseEvent *e) override
     {
