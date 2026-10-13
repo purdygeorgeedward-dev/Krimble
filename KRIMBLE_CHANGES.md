@@ -3888,3 +3888,12 @@ George: "Polygonal selection tool is not creating polygonal selections. It's lea
 - On the first tap of a polygon selection, a message says: "Tap each corner. Tap the first point again to close the selection."
 - The mouse behavior, double click and Enter are unchanged.
 **Not verified:** a build or a device. If a double tap or another way of finishing is also wanted, say so.
+
+## 2026-10-13 (98th) — Paste into a new document: the picture is moved onto the page if it landed outside it
+
+**Files:** `libs/ui/actions/KisPasteActionFactories.cpp`
+
+George: "I am trying to copy and paste a piece of an image and when I paste it there is nothing in the new image document. I see it in the layers but not in the image itself." Checks, with George: the Layers thumbnail shows the picture; zooming out, hiding and showing the layer, and saving and reloading show nothing (so the pixels are in the layer but outside the image's page); **Paste as New Image works, Paste does not**.
+Cause (not fully proven, from the code): the paste keeps the position the picture had in the source image. Part of the clipboard code moves it to the center when it misses the page (`kis_clipboard.cc`), but not every path does (the layer-copy path through `clipFromKritaLayers`, for one). "Paste as New Image" always moves the picture to the corner of its own page.
+Change: in `KisPasteActionFactory::run`, after the clip is read and when it is not pasted at the cursor, if the pasted picture does not intersect the image at all, it is moved so its center is the center of the image. A picture that already touches the page is left where it is, as before.
+**Not verified:** a build or a device. **If it still does not show after this, the cause is something else and I need a new test.** Until then: "Paste as New Image" or "Create from Clipboard" in File > New.
