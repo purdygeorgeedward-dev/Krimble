@@ -9,6 +9,7 @@
 
 #include <kis_tool_shape.h>
 #include <kis_cursor.h>
+#include <QTimer>
 
 class KRITAUI_EXPORT KisToolPolylineBase : public KisToolShape
 {
@@ -22,6 +23,7 @@ public:
     KisToolPolylineBase(KoCanvasBase * canvas, KisToolPolylineBase::ToolType type, const QCursor & cursor=KisCursor::load("tool_polygon_cursor.png", 6, 6));
 
     void beginPrimaryAction(KoPointerEvent *event) override;
+    void continuePrimaryAction(KoPointerEvent *event) override;   // Krimble 2026-10-13: the point follows the finger
     void endPrimaryAction(KoPointerEvent *event) override;
     void beginPrimaryDoubleClickAction(KoPointerEvent *event) override;
     void mouseMoveEvent(KoPointerEvent *event) override;
@@ -49,6 +51,7 @@ private:
 private Q_SLOTS:
     void undoSelection();
     void undoSelectionOrCancel();
+    void advanceAnts();   // Krimble 2026-10-13: moves the marching ants one step
 
 private:
 
@@ -58,6 +61,12 @@ private:
     vQPointF m_points;
     ToolType m_type;
     bool m_closeSnappingActivated;
+
+    // Krimble 2026-10-13 (George's design): on a touch screen the polygon is built point by point with a finger, with marching ants
+    QTimer *m_antsTimer {nullptr};
+    qreal m_antsOffset {0.0};
+    bool m_firstPointJustPlaced {false};   // the press that is going on put down the first point
+    QPointF m_pressPoint;                  // where that press started (image pixels)
 };
 
 #endif // KIS_TOOL_POLYLINE_BASE_H

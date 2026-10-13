@@ -3970,3 +3970,17 @@ George made the pictures (12 for Preferences, 8 for New Document; 512 px, transp
 - **Sharper list pictures:** `KisOpenPane` made each section picture 32 x 32 pixels and the screen stretched it (about 3.4 times on a phone). It is now made at the screen's real resolution and given its logical size.
 - Size: about 3 MB added to the app (pictures), about 6 MB to the repository (the originals).
 **Not verified:** a build or a device. If a picture looks soft or the wrong one shows, tell me the page or section.
+
+## 2026-10-13 (106th) — The polygon tool for a finger: points with marching ants (George's design)
+
+**Files:** `libs/ui/tool/kis_tool_polyline_base.cpp`, `libs/ui/tool/kis_tool_polyline_base.h`
+
+George, on the polygonal selection tool ("It sucks. I imagine it already sucked in Krita ... In Photoshop it creates anchor points and you drag out selection lines with marquee selection ants"): "How about the first touch lays the first point. Then you drag the next point with a visible marching ants effect on the line. That drag could start immediately or with a subsequent tap. When you release it sets that next point. Then you drag the next one and it again draws the next line of the marching ants in realtime. The process repeats until a point is dropped within a few pixels of the first point, and then it ends and closes the selection area."
+Built as described, on Android (the mouse and the keyboard keys work as before). It is the base of the polygon selection and of the polygon and polyline drawing tools:
+- **First touch:** puts down the first point at once. If the finger keeps moving (more than 12 px), it is dragging the second point from the start; if it lifts without moving, only the first point exists.
+- **Every later press** (a drag, or a tap after lifting): a line from the last point follows the finger, drawn with **marching ants** (a black and a white dashed line that slide along it; a timer moves them 11 times a second while a polygon is being built), together with the lines already placed. A fainter dotted line shows the way back to the first point, so the shape that would be selected can be seen.
+- **Release:** puts the point down where the finger is. Every point has a round white **anchor** with a black outline.
+- **Closing:** once there are three points, the first point gets a ring. When the finger is within 30 px (about 6 mm) of it, the ring turns amber; releasing there closes the polygon and makes the selection (the area is then selected as always).
+- The tap-the-first-point rule of the 97th entry is replaced by this (kept in an `#if 0` block). The message on the first touch reads: "Tap or drag to put down each point. Drop a point on the first one to close the selection."
+- Undo of the last point (`undo_polygon_selection`) still works; buttons for Undo Point, Close and Cancel in Tool Options are not built yet, and neither is moving a placed point.
+**Not verified:** a build or a device. The 30 px closing distance and the 12 px tap distance are guesses and are one line each to change.

@@ -30,6 +30,11 @@
 // not a mouse pointer: nothing hovers before the tap, so the close check cannot wait for a mouse move).
 #define SNAPPING_THRESHOLD_TOUCH 40
 #define SNAPPING_RING_RADIUS_TOUCH 16
+// Krimble 2026-10-13: touch polygon (George's design). Distances are in view px (logical).
+#define TOUCH_CLOSE_DISTANCE 30      // dropping a point this close to the first point closes the polygon
+#define TOUCH_TAP_DISTANCE 12        // a press of the first point that moves less than this is a tap (the first point only)
+#define TOUCH_ANCHOR_RADIUS 6
+#define TOUCH_ANTS_DASH 4
 
 KisToolPolylineBase::KisToolPolylineBase(KoCanvasBase * canvas,  KisToolPolylineBase::ToolType type, const QCursor & cursor)
     : KisToolShape(canvas, cursor),
@@ -40,6 +45,10 @@ KisToolPolylineBase::KisToolPolylineBase(KoCanvasBase * canvas,  KisToolPolyline
     KisCanvas2 *kritaCanvas = dynamic_cast<KisCanvas2*>(canvas);
 
     connect(kritaCanvas->viewManager()->canvasResourceProvider(), SIGNAL(sigEffectiveCompositeOpChanged()), SLOT(resetCursorStyle()));
+
+    m_antsTimer = new QTimer(this);
+    m_antsTimer->setInterval(90);
+    connect(m_antsTimer, SIGNAL(timeout()), SLOT(advanceAnts()));
 }
 
 
@@ -134,9 +143,39 @@ void KisToolPolylineBase::beginPrimaryAction(KoPointerEvent *event)
     setMode(KisTool::PAINT_MODE);
 
 #ifdef Q_OS_ANDROID
-    // Krimble 2026-10-12: George: "Polygonal selection tool is not creating polygonal selections. It's leaving lines." With a finger
-    // there is no mouse move over the first point before the tap, so the polygon was never told to close, and the lines just stayed.
-    // A tap near the first point (once there are three points) now closes it, and the selection is made.
+    // Krimble 2026-10-13: George's design for the polygon on a touch screen: "the first touch lays the first point. Then you drag the
+    // next point with a visible marching ants effect on the line. That drag could start immediately or with a subsequent tap. When you
+    // release it sets that next point ... until a point is dropped within a few pixels of the first point, and then it ends and
+    // closes the selection area."
+    // - a press with no points yet puts down the first point at once;
+    // - every press starts a rubber band (marching ants) from the last point to the finger, which follows the finger;
+    // - releasing puts the next point down (endPrimaryAction), or closes the polygon if it is dropped close to the first point.
+    {
+        const QPointF pressPoint = convertToPixelCoordAndSnap(event);
+        beginShape();
+        m_dragging = true;
+        m_firstPointJustPlaced = false;
+        if (m_points.empty()) {
+            m_points.append(pressPoint);
+            m_firstPointJustPlaced = true;
+            if (m_type == SELECT) {
+                if (KisCanvas2 *kiscanvas = dynamic_cast<KisCanvas2*>(canvas())) {
+                    kiscanvas->viewManager()->showFloatingMessage(i18n("Tap or drag to put down each point. Drop a point on the first one to close the selection."), QIcon());
+                }
+            }
+        }
+        m_pressPoint = pressPoint;
+        m_dragStart = m_points.last();
+        m_dragEnd = pressPoint;
+        m_closeSnappingActivated = false;
+        if (m_antsTimer && !m_antsTimer->isActive()) m_antsTimer->start();
+        updateCanvasViewRect(pixelToView(QRectF(m_dragStart, m_dragEnd).normalized()).adjusted(-40, -40, 40, 40));
+        return;
+    }
+#endif
+
+#if 0
+    // (the first version of the touch polygon, 2026-10-12: a tap near the first point closes it. Kept here as it was.)
     if (m_dragging && m_points.size() > 2) {
         const QPointF basePoint = pixelToView(m_points.first());
         const QPointF tapPoint = pixelToView(convertToPixelCoordAndSnap(event));
@@ -144,7 +183,7 @@ void KisToolPolylineBase::beginPrimaryAction(KoPointerEvent *event)
             m_closeSnappingActivated = true;
         }
     }
-#endif
+#endif   // #if 0
 
     if(m_dragging && m_closeSnappingActivated) {
         m_points.append(m_points.first());
@@ -167,11 +206,70 @@ void KisToolPolylineBase::endPrimaryAction(KoPointerEvent *event)
     CHECK_MODE_SANITY_OR_RETURN(KisTool::PAINT_MODE);
     setMode(KisTool::HOVER_MODE);
 
+#ifdef Q_OS_ANDROID
+    // Krimble 2026-10-13 (George's design): releasing puts the next point down where the finger is; dropping it close to the first
+    // point (once there are at least three points) closes the polygon and makes the selection. A press that only put down the first
+    // point and did not move is just that point.
+    if (m_dragging) {
+        const QPointF releasePoint = convertToPixelCoordAndSnap(event);
+        const qreal movedFromPress = (pixelToView(releasePoint) - pixelToView(m_pressPoint)).manhattanLength();
+        if (m_firstPointJustPlaced && movedFromPress < TOUCH_TAP_DISTANCE) {
+            // only the first point
+        } else if (m_points.size() >= 3
+                   && (pixelToView(m_points.first()) - pixelToView(releasePoint)).manhattanLength() < TOUCH_CLOSE_DISTANCE) {
+            m_firstPointJustPlaced = false;
+            m_points.append(m_points.first());
+            endStroke();
+            return;
+        } else {
+            m_points.append(releasePoint);
+        }
+        m_firstPointJustPlaced = false;
+        m_dragStart = m_points.last();
+        m_dragEnd = m_dragStart;
+        m_closeSnappingActivated = false;
+        updateCanvasViewRect(pixelToView(QRectF(m_points.first(), m_points.last()).normalized()).adjusted(-60, -60, 60, 60));
+        return;
+    }
+#endif
+
     if(m_dragging) {
         m_dragStart = convertToPixelCoordAndSnap(event);
         m_dragEnd = m_dragStart;
         m_points.append(m_dragStart);
     }
+}
+
+void KisToolPolylineBase::continuePrimaryAction(KoPointerEvent *event)
+{
+#ifdef Q_OS_ANDROID
+    // Krimble 2026-10-13 (George's design): while the finger is down, the line from the last point follows it (with marching ants), and
+    // the first point lights up when the finger is close enough to close the polygon.
+    if (m_dragging && !m_points.empty()) {
+        QRectF updateRect = pixelToView(QRectF(m_dragStart, m_dragEnd).normalized());
+        m_dragEnd = convertToPixelCoordAndSnap(event);
+        updateRect |= pixelToView(QRectF(m_dragStart, m_dragEnd).normalized());
+        m_closeSnappingActivated = m_points.size() >= 3
+            && (pixelToView(m_points.first()) - pixelToView(m_dragEnd)).manhattanLength() < TOUCH_CLOSE_DISTANCE;
+        const QPointF basePoint = pixelToView(m_points.first());
+        updateRect |= QRectF(basePoint, QSizeF(1, 1)).adjusted(-40, -40, 40, 40);
+        updateCanvasViewRect(updateRect.adjusted(-40, -40, 40, 40));
+        return;
+    }
+#endif
+    KisToolShape::continuePrimaryAction(event);
+}
+
+void KisToolPolylineBase::advanceAnts()
+{
+    m_antsOffset += 1.0;
+    if (!m_dragging || m_points.empty()) return;
+    QRectF all(m_points.first(), m_points.first());
+    Q_FOREACH (const QPointF &p, m_points) {
+        all = all.united(QRectF(p, p));
+    }
+    all = all.united(QRectF(m_dragEnd, m_dragEnd));
+    updateCanvasViewRect(pixelToView(all).adjusted(-30, -30, 30, 30));
 }
 
 void KisToolPolylineBase::beginPrimaryDoubleClickAction(KoPointerEvent *event)
@@ -257,6 +355,52 @@ void KisToolPolylineBase::paint(QPainter& gc, const KoViewConverter &converter)
     if (!canvas() || !currentImage())
         return;
 
+#ifdef Q_OS_ANDROID
+    // Krimble 2026-10-13 (George's design): the selection being built is drawn with marching ants (a black and a white dashed line that
+    // slide along it), with a round anchor at every point, and the first point is ringed when the polygon can be closed.
+    if (m_type == SELECT && m_dragging && !m_points.empty()) {
+        QPainterPath ants;
+        ants.moveTo(pixelToView(m_points.first()));
+        for (int i = 1; i < m_points.size(); ++i) {
+            ants.lineTo(pixelToView(m_points.at(i)));
+        }
+        ants.lineTo(pixelToView(m_dragEnd));
+        gc.save();
+        gc.setRenderHint(QPainter::Antialiasing, true);
+        QPen blackPen(Qt::black, 1.5);
+        blackPen.setDashPattern(QVector<qreal>() << TOUCH_ANTS_DASH << TOUCH_ANTS_DASH);
+        blackPen.setDashOffset(m_antsOffset);
+        QPen whitePen(Qt::white, 1.5);
+        whitePen.setDashPattern(QVector<qreal>() << TOUCH_ANTS_DASH << TOUCH_ANTS_DASH);
+        whitePen.setDashOffset(m_antsOffset + TOUCH_ANTS_DASH);
+        gc.setBrush(Qt::NoBrush);
+        gc.setPen(blackPen);
+        gc.drawPath(ants);
+        gc.setPen(whitePen);
+        gc.drawPath(ants);
+        // the way back to the first point, fainter, so the shape that would be selected can be seen
+        if (m_points.size() >= 2) {
+            QPen closePen(QColor(255, 255, 255, 110), 1.0);
+            closePen.setStyle(Qt::DotLine);
+            gc.setPen(closePen);
+            gc.drawLine(pixelToView(m_dragEnd), pixelToView(m_points.first()));
+        }
+        gc.setPen(QPen(Qt::black, 1.5));
+        gc.setBrush(Qt::white);
+        for (int i = 0; i < m_points.size(); ++i) {
+            gc.drawEllipse(pixelToView(m_points.at(i)), TOUCH_ANCHOR_RADIUS, TOUCH_ANCHOR_RADIUS);
+        }
+        if (m_points.size() >= 3) {
+            gc.setBrush(Qt::NoBrush);
+            gc.setPen(QPen(m_closeSnappingActivated ? QColor(255, 200, 0) : QColor(255, 255, 255, 170), m_closeSnappingActivated ? 3.0 : 1.5));
+            gc.drawEllipse(pixelToView(m_points.first()), SNAPPING_RING_RADIUS_TOUCH, SNAPPING_RING_RADIUS_TOUCH);
+        }
+        gc.restore();
+        KisToolPaint::paint(gc, converter);
+        return;
+    }
+#endif
+
     QPointF start, end;
     QPointF startPos;
     QPointF endPos;
@@ -309,6 +453,7 @@ void KisToolPolylineBase::endStroke()
     if (!m_dragging) return;
 
     m_dragging = false;
+    if (m_antsTimer) m_antsTimer->stop();
     if(m_points.count() > 1) {
         finishPolyline(m_points);
     }
@@ -323,6 +468,7 @@ void KisToolPolylineBase::cancelStroke()
     if (!m_dragging) return;
 
     m_dragging = false;
+    if (m_antsTimer) m_antsTimer->stop();
     m_points.clear();
     m_closeSnappingActivated = false;
     updateArea();
