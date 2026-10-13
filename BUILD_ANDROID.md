@@ -437,3 +437,52 @@ Each tag must sit on the commit the APK was built from, not on `master` at posti
 - Custom toolbars: no bigger grab handle when vertical, tools do not arrange into columns.
 - Camera button, upscale item and AI upscaling are not built.
 - Each Android phone shows 2 to 3.4 device pixels per logical pixel; use Help > QA Overlay to get real numbers from a screenshot.
+
+### 9. Where things stand on 2026-10-13 (entries 76 to 106; added Tue Oct 13, 2026, 07:00 MDT)
+
+**Releases on GitHub:**
+
+| Version | Commit | State |
+|---|---|---|
+| 1.0.32 beta | `3774d49` | published |
+| 1.0.33 beta | `3c7f2aa` | draft, file attached, **not published** |
+| 1.0.34 beta | `c814ef1` | published, file attached (`Krimble-1.0.34-beta-Oct12-1620.apk`) |
+| 1.0.35 beta | | **not built.** `krimbleBuildNumber` is 35 (`752408e`); the build was started and stopped at George's request before it finished. Nothing from it was released. |
+
+The next build, when George asks, carries everything since `c814ef1`: entries 84 to 106. Version 35 is already set.
+
+**New since section 8 (feature | main file | entry):**
+
+| Feature | Main file | Entry |
+|---|---|---|
+| Version 35 | `packaging/android/apk/build.gradle` | 95 |
+| Toolbox: fits its tools (no empty space), curved handle, no bounce off the bottom, horizontal dock rows | `libs/ui/toolbox/KoToolBoxDocker.cpp`, `KisApplication.cpp`, `KisMainWindow.cpp` | 84, 85, 100 |
+| Menu items capped at their text plus 60 px | `libs/widgetutils/KisWideDockSeparatorStyle.cpp` | 84 |
+| Preferences list 24% of the screen; New Document list 22% in portrait, Predefined list 104 px in portrait | `KisApplication.cpp`, `KisOpenPane.cpp`, `kis_custom_image_widget.cc` | 84, 86 |
+| View > Rotation Gadget (hidden by default) | `KisMainWindow.cpp`, `kis_statusbar.cc` | 87, 88 |
+| Batch Process: Cancel and Close, moved to the Image menu | `KisMainWindow.cpp` | 89, 90 |
+| New Document starts with the copied picture's size, with a preference (Preferences > General > Pasting) | `KisDlgCreateNewDocument.cpp`, `kis_dlg_preferences.cc` | 91, 94 |
+| Layers panel: six buttons in two rows of three | `plugins/dockers/layerdocker/LayerBox.cpp` | 93 |
+| Floating panels dock only right on an edge (8 px); Dock menu choices work on floating panels | `KisMainWindow.cpp`, `KoDockWidgetTitleBar.cpp`, `KoToolBoxDocker.cpp` | 92, 96, 102 |
+| Paste: a picture that misses the page is moved to the center (cause not proven) | `libs/ui/actions/KisPasteActionFactories.cpp` | 98 |
+| Image windows: 12 px frame to grab | `KisWideDockSeparatorStyle.cpp` | 99 |
+| Polygon tools for a finger: marching ants, points by tap or drag, close by dropping on the first point | `libs/ui/tool/kis_tool_polyline_base.cpp` | 97, 106 |
+| PNG export options narrow; every window wider than the screen is narrowed | `plugins/impex/png/kis_png_export.cc`, `KisApplication.cpp` | 103, 104 |
+| George's icons for Preferences and New Document; originals in `krimble-artwork/` | `krita/pics/svg/`, `krita/data/templates/` | 105 |
+| Wording: "docking" for panels and windows, "snapping" for the canvas only | text only | 101 |
+
+**Known open issues (2026-10-13):**
+- **About Krimble** window is too big on a small screen (reported 2026-10-13; not looked at yet).
+- "Brushes still open by default": what opens is unknown (not the Brushes panel in the 1.0.34 screenshots); needs a description from George.
+- A docked toolbox does not change its width in portrait; the toolbox starts floating, so it matters less.
+- Paste into a new document: nothing shows (layer thumbnail fine, page empty, saved file empty); "Paste as New Image" works. The fix in entry 98 is a guess from reading the code and has not been tried.
+- Image windows are hard to resize: entry 99 is a first step; a corner grip is the next if it is not enough.
+- Polygon tools: Tool Options buttons (Undo Point, Close, Cancel) and moving a placed point are not built.
+- Other export windows (JPEG, TIFF, WebP and so on) were not looked at one by one; the rule in entry 104 narrows any window wider than the screen.
+- Camera, the Upscale item, and AI upscaling are not built. Quick Adjust, Batch Process, Style Presets, Startup Layouts and the polygon changes are new and have had little or no testing on a device.
+
+**Lessons added:**
+- George edits `README.md` on GitHub while work is going on. Before every push: fetch, and if the remote moved, `git stash`, `git merge --ff-only FETCH_HEAD`, `git stash pop`, then commit and push. His edits are kept.
+- An idle Termux session to the server is closed after a while ("Connection timed out"); a running build is not affected. Reconnect with the ssh line.
+- `kb-package.sh` before `kb-apk.sh`, always; the stamp in `kb-apk.sh`'s output (`KRIMBLE_BUILD_NUMBER`, `KRIMBLE_BUILD_GIT`) shows what the APK really is.
+- Every change is documented in `KRIMBLE_CHANGES.md` with an entry number, date and what was not verified. Claude's ideas are marked "(Claude's idea)", George's "(George's idea)". The app's own wording: "docking" (panels and windows), "fitting" (toolbox columns), "snapping" (canvas only).

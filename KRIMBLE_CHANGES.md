@@ -3984,3 +3984,9 @@ Built as described, on Android (the mouse and the keyboard keys work as before).
 - The tap-the-first-point rule of the 97th entry is replaced by this (kept in an `#if 0` block). The message on the first touch reads: "Tap or drag to put down each point. Drop a point on the first one to close the selection."
 - Undo of the last point (`undo_polygon_selection`) still works; buttons for Undo Point, Close and Cancel in Tool Options are not built yet, and neither is moving a placed point.
 **Not verified:** a build or a device. The 30 px closing distance and the 12 px tap distance are guesses and are one line each to change.
+
+## 2026-10-13 (107th) — BUILD_ANDROID.md brought up to date (section 9)
+
+**Files:** `BUILD_ANDROID.md`
+
+George: "Remember to document everything as we go." Section 8 of `BUILD_ANDROID.md` stopped at entry 75. A new **section 9** covers entries 76 to 106: the state of the GitHub releases (33 is still a draft, 34 is published, 35 was never built), a table of every feature added since with its main file and entry number, the open problems (including the About Krimble window, which George reported and which has not been looked at yet), and lessons learned (merging with George's README edits, the idle server session, the order of `kb-package.sh` and `kb-apk.sh`, the wording rules). Documents only; no code.
