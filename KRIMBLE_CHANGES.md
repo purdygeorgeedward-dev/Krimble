@@ -3863,3 +3863,10 @@ George: "If it reattaches to the side those bottom tools disappear again. They a
 
 George: "I don't know if the paste behavior with the new dialog is great. I think it should be a preference that can be toggled on and off." (The behavior is the 91st entry.) New check box on **Edit > Preferences > General > Pasting**: "New document starts with the size of the copied picture". **On by default**, so it can be tried; unchecked, File > New always starts with the saved default size. The choice is saved as soon as the box is changed (setting `krimble_new_from_clipboard_size`); "Restore Defaults" does not reset it. The New Document window reads it each time it opens.
 **Not verified:** a build or a device.
+
+## 2026-10-12 (95th) — Version 35
+
+**Files:** `packaging/android/apk/build.gradle`
+
+`krimbleBuildNumber` 34 → 35 (`1.0.35-beta`) for the next build. Changes since 1.0.34 (entries 84 to 94): toolbox height and bottom edge, curved handle, narrower menu items, Preferences and New Document list widths, rotation gadget switch (hidden by default), Batch Process Cancel and its move to the Image menu, New Document size from the clipboard (with a preference), Layers buttons in two rows, floating panels dock only near a side.
+**Not verified:** a build.
