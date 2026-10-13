@@ -3935,3 +3935,11 @@ George: "Dock right from the long press menu did nothing." The long-press menu o
 - All areas are allowed before docking (`setAllowedAreas(AllDockWidgetAreas)`), then `addDockWidget`, then `setFloating(false)` if it floats, then `show()`. Done in both menus.
 - The four Dock choices are never greyed out (the old `setEnabled(allowedAreas() & area)` is kept in a comment).
 **Not verified:** a build or a device.
+
+## 2026-10-13 (103rd) — PNG export options: narrow, no dead space
+
+**Files:** `plugins/impex/png/kis_png_export.cc`
+
+George, with three screenshots of the PNG export options window: "This has lots of dead space in it (fat) and it's super wide. I'm sure on a desktop screen it seems fine, but on small screens it's too much." The window was about two screens wide: a column of labels on the left (Compression (Lossless):, Transparent color:) with nothing next to the check boxes, and the slider's two end labels ("Large file size", "Small file size") laid out beside the slider's own label.
+On Android the controls are moved in the grid (`kis_wdg_options_png.ui` is kept as it is): "Compression (Lossless):" on its own line, "Large file size" and "Small file size" on the next line (left and right), the slider on a line of its own at full width, each check box on its own full-width line, and "Transparent color:" with its color button at the bottom. The window should be about as wide as its longest line ("Store alpha channel (transparency)", about 190 logical px). The options are the same, in the same order.
+**Not verified:** a build or a device. Other export windows (JPEG, WebP, TIFF and so on) likely have the same problem; only PNG is done. The white band at the top of dialogs is not touched.

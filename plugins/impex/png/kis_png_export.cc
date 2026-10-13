@@ -4,6 +4,7 @@
  *  SPDX-License-Identifier: GPL-2.0-or-later
  */
 
+#include <QGridLayout>
 #include "kis_png_export.h"
 
 #include <QCheckBox>
@@ -131,6 +132,33 @@ KisWdgOptionsPNG::KisWdgOptionsPNG(QWidget *parent)
     : KisConfigWidget(parent)
 {
     setupUi(this);
+
+#ifdef Q_OS_ANDROID
+    // Krimble 2026-10-13: George, about the PNG options window: "This has lots of dead space in it (fat) and it's super wide. I'm sure
+    // on a desktop screen it seems fine, but on small screens it's too much." The window had a column of labels on the left
+    // ("Compression (Lossless):", "Transparent color:") with nothing next to the check boxes, and the slider row was as wide as the
+    // slider's two end labels and its label together. On Android the labels are stacked above their controls and the check boxes
+    // use the full width, so the window is only as wide as its longest line ("Store alpha channel (transparency)").
+    {
+        QWidget *moved[] = {textLabel1, textLabel3, textLabel4_2, compressionLevel, tryToSaveAsIndexed, interlacing, chkSaveAsHDR,
+                            chkSRGB, chkForceSRGB, alpha, chkMetaData, chkAuthor, chkDownsample, label_4, bnTransparencyFillColor};
+        for (QWidget *w : moved) {
+            gridLayout->removeWidget(w);
+        }
+        textLabel1->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+        gridLayout->addWidget(textLabel1, 0, 0, 1, 2);            // Compression (Lossless):
+        gridLayout->addWidget(textLabel3, 1, 0);                  // Large file size
+        gridLayout->addWidget(textLabel4_2, 1, 1);                // Small file size
+        gridLayout->addWidget(compressionLevel, 2, 0, 1, 2);      // the slider, full width
+        QWidget *checks[] = {tryToSaveAsIndexed, interlacing, chkSaveAsHDR, chkSRGB, chkForceSRGB, alpha, chkMetaData, chkAuthor, chkDownsample};
+        int row = 3;
+        for (QWidget *w : checks) {
+            gridLayout->addWidget(w, row++, 0, 1, 2);
+        }
+        gridLayout->addWidget(label_4, row, 0);                   // Transparent color:
+        gridLayout->addWidget(bnTransparencyFillColor, row, 1);
+    }
+#endif
 
     connect(chkSaveAsHDR, SIGNAL(toggled(bool)), this, SLOT(slotUseHDRChanged(bool)));
 }
