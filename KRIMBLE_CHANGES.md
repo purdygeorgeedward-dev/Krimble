@@ -3782,3 +3782,10 @@ George's test of 1.0.34: "Handle on toolbox is still too big. Should just be a s
 - **Preferences:** the list of pages (the colored icons) on the left is at most 24% of the screen width (`KPageListView`, set when a window dialog is shown).
 - **Not changed (asked about):** "Brushes still open by default": in the 1.0.34 screenshots the Brushes panel was not shown, so what opens is not yet known. "Portrait mode toolbox doesn't resize (docked), landscape does": not changed in this entry; the toolbox now starts floating and floating resizes correctly.
 **Not verified:** a build or a device.
+
+## 2026-10-12 (85th) — The toolbox does not bounce off the bottom
+
+**Files:** `libs/ui/KisApplication.cpp`, `libs/ui/toolbox/KoToolBoxDocker.cpp`
+
+George: "I think the toolbox shouldn't bounce off the bottom. Only the top or sides." A floating toolbox that is let go partly below the bottom of the screen now stays there. Left, right and top still push it back (the top keeps 48 px free for the menu bar), and at least 120 px of it must stay on screen so it cannot be lost. Done in both places that bounced it: after a two-finger drag (new `keepOnScreenSidesAndTop` in `KisApplication.cpp`) and after a one-finger move (`KoToolBoxDocker::moveEvent`). It is no longer shortened to the screen's height by the bounce. Dialogs and other panels are unchanged (they do not bounce).
+**Not verified:** a build or a device.

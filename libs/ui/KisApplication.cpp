@@ -351,6 +351,26 @@ public:
         }
     }
 
+    // Krimble 2026-10-12: George: "I think the toolbox shouldn't bounce off the bottom. Only the top or sides." Like keepOnScreen, but the
+    // bottom edge is free: only the left, right and top edges push the window back in, and at least 120 px of it must stay on screen.
+    static void keepOnScreenSidesAndTop(QWidget *window)
+    {
+        if (!window || !window->isWindow() || !window->isVisible()) return;
+        QScreen *screen = window->screen();
+        if (!screen) screen = QGuiApplication::primaryScreen();
+        if (!screen) return;
+        QRect avail = screen->availableGeometry();
+        const int titleBar = qMax(0, window->geometry().top() - window->frameGeometry().top());
+        avail.setTop(avail.top() + qMax(48, titleBar));
+        QRect g = window->geometry();
+        const QRect original = g;
+        if (g.width() > avail.width()) g.setWidth(avail.width());
+        g.moveLeft(qBound(avail.left(), g.left(), avail.right() - g.width() + 1));
+        if (g.top() < avail.top()) g.moveTop(avail.top());
+        if (g.top() > avail.bottom() - 120) g.moveTop(avail.bottom() - 120);
+        if (g != original) window->setGeometry(g);
+    }
+
     static void keepOnScreen(QWidget *dialog)
     {
         if (!dialog || !dialog->isWindow() || !dialog->isVisible()) {
@@ -524,7 +544,8 @@ private:
                 // (as long as part of it is reachable).
                 QDockWidget *movedDock = qobject_cast<QDockWidget*>(moved.data());
                 if (movedDock && movedDock->objectName() == QLatin1String("ToolBox")) {
-                    keepOnScreen(moved);      // the toolbox bounces back inside the screen
+                    // keepOnScreen(moved);      // the toolbox bounces back inside the screen
+                    keepOnScreenSidesAndTop(moved);   // Krimble 2026-10-12: only off the top or the sides, not the bottom
                 } else {
                     keepReachable(moved);     // a dialog stays where it was dragged, as long as part of it is reachable
                 }

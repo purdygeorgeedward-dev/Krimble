@@ -528,9 +528,13 @@ void KoToolBoxDocker::moveEvent(QMoveEvent *event)
             avail.setTop(avail.top() + 48);        // keep a strip free at the top, as the dialogs do
             QRect g = geometry();
             g.setWidth(qMin(g.width(), avail.width()));
-            g.setHeight(qMin(g.height(), avail.height()));
+            // g.setHeight(qMin(g.height(), avail.height()));
             g.moveLeft(qBound(avail.left(), g.left(), avail.right() - g.width() + 1));
-            g.moveTop(qBound(avail.top(), g.top(), avail.bottom() - g.height() + 1));
+            // g.moveTop(qBound(avail.top(), g.top(), avail.bottom() - g.height() + 1));
+            // Krimble 2026-10-12: George: "I think the toolbox shouldn't bounce off the bottom. Only the top or sides." The bottom edge is
+            // free; the top edge pushes it back down, and at least 120 px of it must stay on screen.
+            if (g.top() < avail.top()) g.moveTop(avail.top());
+            if (g.top() > avail.bottom() - 120) g.moveTop(avail.bottom() - 120);
             if (g != geometry()) setGeometry(g);
         });
     }
