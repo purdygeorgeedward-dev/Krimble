@@ -2364,7 +2364,7 @@ KisMainWindow::KisMainWindow(QUuid uuid)
     // detachPanelAction->setVisible(false);
 
     // KRIMBLE 2026-10-04: "Attach Panels" on/off (replaces the "Attach Panel" submenu, which is
-    // kept below as a comment). ON = the standard behaviour: a panel that floats snaps to the
+    // kept below as a comment). ON = the standard behaviour: a panel that floats docks at the
     // edge of the window when dragged there. OFF = floating panels stay wherever they are put.
     // The setting is remembered. The menu item keeps the old action name so krita5.xmlgui is
     // unchanged.
@@ -4646,19 +4646,19 @@ QDockWidget* KisMainWindow::createDockWidget(KoDockFactoryBase* factory)
         dockWidget->setParent(this);
         // Krimble (2026-09-04, reverted): this previously called
         // dockWidget->setAllowedAreas(Qt::NoDockWidgetArea) to stop a
-        // dragged panel from auto-snapping back into a dock zone. That
+        // dragged panel from docking itself back into a dock zone. That
         // broke docking entirely instead -- addDockWidget() below
         // immediately places the widget into `side`, an area it had
         // just been told it wasn't allowed in at all, a direct
         // self-contradiction fed to Qt's dock-layout engine. This is a
-        // strong candidate for both bug #7 (window snap broken --
+        // strong candidate for both bug #7 (window docking broken --
         // dragged panels can't be dropped back into ANY area, since
         // zero areas are allowed) and bug #12 (docker panels rendering
         // as unmanageable narrow columns -- plausible symptom of Qt's
         // internal dock-layout width allocation misbehaving for a
         // widget that declares itself allowed nowhere). Removed;
         // QDockWidget defaults to Qt::AllDockWidgetAreas when this is
-        // never called, restoring normal dock/undock/snap behavior.
+        // never called, restoring normal dock/undock behavior.
         // // dockWidget->setAllowedAreas(Qt::NoDockWidgetArea);
         if (!showTitlebars) {
             if (dockWidget->titleBarWidget() && !dockWidget->titleBarWidget()->inherits("KisUtilityTitleBar")) {
@@ -4711,7 +4711,7 @@ QDockWidget* KisMainWindow::createDockWidget(KoDockFactoryBase* factory)
 #ifdef Q_OS_ANDROID
         // KRIMBLE 2026-10-02: floating panels on a touch screen.
         // 1) They re-docked too easily: dragging a floating panel across a dock
-        //    area snapped it back in. While a panel floats it is now allowed in
+        //    area docked it back in. While a panel floats it is now allowed in
         //    no dock area, so it stays where it is dropped. It goes back into the
         //    layout only through its float button or Settings > Panels > Attach
         //    Panel; its allowed areas are restored as soon as it is docked again.
@@ -4736,7 +4736,7 @@ QDockWidget* KisMainWindow::createDockWidget(KoDockFactoryBase* factory)
         connect(dockWidget, &QDockWidget::topLevelChanged, this, [this, dockWidget](bool floating) {
             // KRIMBLE 2026-10-04: Settings > "Attach Panels" decides what a floating panel does.
             // ON (the default) = the standard behaviour: a panel dragged to the edge of the window
-            // docks there. OFF = floating panels never snap anywhere. Old line:
+            // docks there. OFF = floating panels never dock anywhere. Old line:
             // dockWidget->setAllowedAreas(floating ? Qt::NoDockWidgetArea : Qt::AllDockWidgetAreas);
             // KRIMBLE 2026-10-04 (2nd): the Attach/Detach features are switched off again, so panels
             // behave as they did before them: they may always dock, wherever they float. (The

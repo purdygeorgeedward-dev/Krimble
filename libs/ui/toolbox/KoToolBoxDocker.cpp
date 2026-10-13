@@ -362,7 +362,7 @@ void KoToolBoxDocker::resizeEvent(QResizeEvent *event)
         m_edgeRight->raise();
         m_edgeBottom->raise();
     }
-    // KRIMBLE 2026-10-06: when the docked toolbox is resized by hand (not by a rotation, not by us), snap it to a
+    // KRIMBLE 2026-10-06: when the docked toolbox is resized by hand (not by a rotation, not by us), fit it to a
     // whole number of icon columns a moment after the resize stops.
     // Krimble 2026-10-10: only a resize made with a finger or mouse down may change the column count. A rotation has none down.
     // if (m_snapTimer && !m_windowResizing && !m_applying && !isFloating()) {

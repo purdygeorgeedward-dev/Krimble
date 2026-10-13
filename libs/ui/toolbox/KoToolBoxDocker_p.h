@@ -63,7 +63,7 @@ private:
     void changeLayoutDir(Qt::LayoutDirection);
     void changeOrientation(Orientation);
     void changeCompact(bool);
-    // KRIMBLE 2026-10-06: the toolbox keeps its number of icon columns when the screen rotates, and snaps to a
+    // KRIMBLE 2026-10-06: the toolbox keeps its number of icon columns when the screen rotates, and fits to a
     // whole number of columns when it is resized (George: "It should maintain its size. Also, why not snap to
     // multiples of tool icon columns on scale?").
     void snapToColumns();
@@ -71,7 +71,7 @@ private:
     void fitHeightToContents();   // Krimble 2026-10-12: a floating toolbox is only as tall as its tools
 public:
     // KRIMBLE 2026-10-07: a floating toolbox has no corner gadget; it is resized by two edge strips (right edge: width,
-    // snapped to whole icon columns; bottom edge: height). Called by the strips while they are dragged.
+    // fitted to whole icon columns; bottom edge: height). Called by the strips while they are dragged.
     void floatingEdgeDrag(const QSize &startSize, const QPoint &delta, bool changeWidth, bool changeHeight);
 private Q_SLOTS:
     void setFloatingEdges(bool floating);

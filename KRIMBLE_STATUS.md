@@ -11,7 +11,7 @@ KRIMBLE_CHANGES.md if this file and the changelog ever disagree.
 3/6. UI-scale-on-startup dialog / zoom scale — FIXED (2026-09-03)
 4. Contrast doesn't reach full black/white — FIXED (2026-09-03)
 5. Resize handles hard to grab — OPEN, not investigated
-7. Window snap broken — FIXED `c50f03a`, unconfirmed on-device
+7. Window docking broken — FIXED `c50f03a`, unconfirmed on-device
 8. Transform tool does nothing — FIXED `05d1fc1`
 9. Brush painting lag — OPEN, needs on-device profiling
 10. Type tool does nothing — OPEN, needs on-device repro; tool disabled in KoToolRegistry for now

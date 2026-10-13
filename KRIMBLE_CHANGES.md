@@ -78,10 +78,10 @@ wrong initial readings are noted so they aren't repeated.
    again.
 6. **No way to set UI zoom scale.** Same root cause as #3 above — this
    is not about canvas zoom. **Fixed** together with #3.
-7. ~~Window snap is broken~~ — **Likely fixed**, commit `c50f03a`,
+7. ~~Window docking is broken~~ — **Likely fixed**, commit `c50f03a`,
    pending your on-device confirmation. See the 2026-09-04 changelog
    entry above. (Initially misread as a "docked layout doesn't persist
-   across sessions" issue; it is not — it's about the snapping
+   across sessions" issue; it is not — it's about the docking
    behavior itself failing.)
 8. ~~Transform tool does nothing~~ — **Fixed**, commit `05d1fc1`.
    `activateSubtool()` was ignoring the requested mode entirely; each
@@ -115,7 +115,7 @@ wrong initial readings are noted so they aren't repeated.
     initially, corrected to "unmanageable column shapes/proportions".)
     `c50f03a` (2026-09-04) fixed a global docking-mechanism bug in
     `KisMainWindow.cpp` — a self-contradicting `setAllowedAreas()` call
-    was breaking dock/snap layout for every panel. `af46ff2`
+    was breaking dock layout for every panel. `af46ff2`
     (2026-09-10) separately fixed 4 dockers (Advanced Color Selector,
     History, Histogram, SVG Symbol Collection) that all declared
     `defaultDockPosition() = DockRight`, causing them to pile into the
@@ -500,7 +500,7 @@ filter uses for Lab — rather than the heavier templated
 to `plugins/color/colorspaceextensions/`, `krita5.xmlgui`, or any
 `.action` file — self-registers into the existing Adjustments category.
 
-## 2026-09-04 — Fixed docker snap/rendering (setAllowedAreas self-contradiction)
+## 2026-09-04 — Fixed docker docking/rendering (setAllowedAreas self-contradiction)
 
 **Commit:** `c50f03a`
 **File:** `libs/ui/KisMainWindow.cpp`
@@ -512,18 +512,18 @@ into `side` — a direct self-contradiction fed to Qt's dock-layout
 engine (the widget was just told it's allowed in zero areas, then
 force-placed into one anyway).
 
-Strong candidate for both: window snap being broken (a dragged panel
+Strong candidate for both: window docking being broken (a dragged panel
 declaring zero allowed areas can't be dropped back into any dock zone),
 and docker panels rendering as unmanageable narrow columns (plausible
 symptom of Qt's internal dock-layout width allocation misbehaving for
 a widget that structurally shouldn't be docked anywhere, yet is).
 
 The original intent (per the replaced comment) was to stop a dragged
-panel from auto-snapping back into a dock zone — reasonable goal,
+panel from docking itself back into a dock zone — reasonable goal,
 wrong API, broke docking far more broadly than intended. Commented
 out rather than deleted. `QDockWidget` defaults to
 `Qt::AllDockWidgetAreas` when `setAllowedAreas()` is never called,
-restoring normal dock/undock/snap behavior.
+restoring normal dock/undock behavior.
 
 ## 2026-09-04 — Replaced the actual About KDE dialog artwork
 
@@ -1536,7 +1536,7 @@ dropped, and were hard to grab with touch.
 
 - **Stay detached.** When a panel floats it is now allowed in no dock area
   (`setAllowedAreas(Qt::NoDockWidgetArea)`), so dropping it over a dock area
-  does not snap it back. It is docked again through its float button or the new
+  does not dock it back. It is docked again through its float button or the new
   Settings > Panels > Attach Panel item. Its allowed areas are restored when it is
   docked. The change is made only from the `topLevelChanged` signal, i.e. after
   the panel was already added to a dock area. (The 2026-09-04 attempt set
@@ -1772,7 +1772,7 @@ line commented out). It also changes the name in Settings > Panels.
 **3. Settings > Attach Panel now docks where the panel was put**, instead of back
 into its old place. The panel goes to the nearer side of the window (left or right,
 by the position of the panel's centre) and, on that side, between the panels above
-and below it. While detached it still does not snap anywhere. The old behaviour is
+and below it. While detached it still does not dock anywhere. The old behaviour is
 kept in a comment. Panels are not put above or below the canvas.
 Verified in a standalone Qt test with five drop positions: left/right side chosen
 by position; top, middle or bottom of the side order correctly among three docked
@@ -1936,7 +1936,7 @@ create the handle through the same code path as the app.
 
 **File:** `libs/ui/KisMainWindow.cpp` (the tracking is Android only)
 
-Device feedback: detached panels "fly away" instead of snapping to the nearest
+Device feedback: detached panels "fly away" instead of docking to the nearest
 zone. Settings > Attach Panel already docked a panel where it was put (765acdb),
 but the float button in the panel's own title bar still used Qt's default, which
 sends the panel back to its old place. That is the likely path that was used.
@@ -1945,7 +1945,7 @@ sends the panel back to its old place. That is the likely path that was used.
 panel is docked again by any route other than Attach Panel, it is docked with the
 same placement (nearer side, left or right; between the panels above and below).
 Attach Panel sets a flag while it runs so it is not handled twice; the remembered
-position is cleared after use. While floating, panels still do not snap anywhere.
+position is cleared after use. While floating, panels still do not dock anywhere.
 
 **Verified (standalone Qt test, same logic):** a panel that started at the end of
 the right column and was put near the top docks first; put in the middle docks
@@ -2349,7 +2349,7 @@ corner handle was too big.
 **Attach Panels (Settings menu, tick box).** Replaces the Detach Panel and Attach Panel submenus (the code of
 both is kept, commented or hidden; the menu entry keeps the old action name, so `krita5.xmlgui` is unchanged
 and the hidden Detach Panel line simply shows nothing). ON (default) = the standard behaviour: a floating
-panel dragged to the edge of the window docks there. OFF = floating panels never snap anywhere. The choice is
+panel dragged to the edge of the window docks there. OFF = floating panels never dock anywhere. The choice is
 remembered (`Krimble` group, key `AttachPanels`) and applies at once to panels that are already floating. A panel
 is detached with its own float button. The float button is back to the standard behaviour (the "dock where it
 was put" code from 7945b55 is switched off, `if (false && ...)`, the code stays), which is what removes the
@@ -2451,7 +2451,7 @@ George: "Just get rid of it. The sidebar gadget is just causing problems. It's a
 edge of the right-hand panels (tap = hide/show, long press = resize) is no longer created: the block that makes it is
 turned off with `#if 0` (it was `#ifdef Q_OS_ANDROID`; change it back to bring the button back). Nothing is drawn at the
 panels' edge any more. Kept: the menu item Settings > Hide Right Panels / Show Right Panels, and the code for the button.
-George also reported that the floating panels are much better in the same build: the smaller corner handle, and they snap
+George also reported that the floating panels are much better in the same build: the smaller corner handle, and they dock
 into and out of place in a more natural way.
 **Not verified:** a build or a device. (The preprocessor lines of the file balance.)
 
@@ -2766,7 +2766,7 @@ The splash screen (also the About tab, which reuses it) drew two logo files on t
 - `krita-branding.svgz` itself stays in the project (it is still used as the window icon); it is only no longer drawn on this screen.
 **Verified:** the syntax checker reports no error in `kis_splash_screen.cpp`; both `.qrc` files are well-formed. **Not verified:** a build or a device (that the start-up splash and the About tab look right without the logo).
 
-## 2026-10-06 (2nd) — Toolbox keeps its columns through a screen rotation, and snaps to whole icon columns
+## 2026-10-06 (2nd) — Toolbox keeps its columns through a screen rotation, and fits to whole icon columns
 
 **Files:** `libs/ui/toolbox/KoToolBoxDocker.cpp`, `libs/ui/toolbox/KoToolBoxDocker_p.h`
 
@@ -2774,7 +2774,7 @@ George: "The toolbox reverts to a single column when the display rotates. It sho
 - **Remembered columns:** the number of icon columns (default 2, 1 to 4) is kept in the settings (`krimble/ToolBoxColumns`) and applied once after start.
 - **Rotation:** a filter on the main window notices the resize caused by a rotation; once the window has settled (300 ms) the toolbox width is set back to the remembered number of columns (icons x columns + the panel's own frame).
   Resizes that happen during the rotation are not taken as the user's choice.
-- **Snap:** when the docked toolbox (left or right side) is resized by hand, 250 ms after the resize stops (and the finger is up) it snaps to the nearest whole number of columns and remembers it.
+- **Fit:** when the docked toolbox (left or right side) is resized by hand, 250 ms after the resize stops (and the finger is up) it fits to the nearest whole number of columns and remembers it.
 - Only for a toolbox docked on the left or right side; a floating one is left alone.
 **Verified:** the syntax checker reports no error in the toolbox files. **Not verified:** a build or a device: how it behaves during a real rotation on Android is untested (the order of the window and panel resizes is the risk).
 
@@ -3117,7 +3117,7 @@ The 2026-10-09 section of `BUILD_ANDROID.md` still described the counter-based v
 **Files:** `libs/ui/toolbox/KoToolBoxDocker.cpp`, `libs/widgetutils/KisWideDockSeparatorStyle.cpp`
 
 The toolbox could not be stretched past 4 icon columns, so a wide, horizontal toolbox was impossible, and the strips between the docks were too thin to grab by finger.
-- The most columns is now 40 (was 4) in all three places that capped it: the saved-columns read, the floating-toolbox edge drag, and the docked snap. The "Columns" menu still offers 1 to 4; wider is by dragging. Old lines commented out.
+- The most columns is now 40 (was 4) in all three places that capped it: the saved-columns read, the floating-toolbox edge drag, and the docked fit. The "Columns" menu still offers 1 to 4; wider is by dragging. Old lines commented out.
 - On Android the strip between docks (toolbox, canvas, right panels) is at least 20 px (was Qt's default doubled), the same touch size as the dialog edges. Each strip takes 20 px of width.
 **Not verified:** a build or a device.
 
@@ -3915,3 +3915,14 @@ Cause: in a top or bottom dock the Columns number is the number of rows, and `ap
 - After the dock is resized, the height is pinned to the target for 250 ms (as the width already was for side docks), so the dock layout has to use it, then released so a drag can still change it.
 - The saved Columns number is still one number for all positions (a horizontal toolbox treats it as rows). A separate number for horizontal docks is not done.
 **Not verified:** a build or a device. If the dead space stays, the dock's height is being set by the main window's top dock area, and that is the next place to look.
+
+## 2026-10-13 (101st) — Wording: "docking" for panels and windows, "snapping" only for the canvas
+
+**Files:** `KRIMBLE_CHANGES.md`, `KRIMBLE_STATUS.md`, `README.md`, `libs/ui/KisMainWindow.cpp`, `libs/ui/toolbox/KoToolBoxDocker.cpp`, `libs/ui/toolbox/KoToolBoxDocker_p.h`
+
+George: "We should probably call it docking instead of snapping since snapping is something else." and "Old reworded, please. Docking for window/panel behavior." Text only; no code changed.
+- A panel or window attaching to an edge or a dock zone is called **docking** (and a panel that does not attach, "does not dock").
+- The toolbox rounding its width to whole icon columns is called **fitting** to columns (it is not docking, and not snapping).
+- **Snapping** is left for the canvas (View > Snap To, snap to grid and guides).
+- 6 comments in `KisMainWindow.cpp`, 1 in `KoToolBoxDocker.cpp`, 2 in `KoToolBoxDocker_p.h`, 1 line in `README.md` ("Panels no longer dock themselves back into docking zones after being dragged."), 1 in `KRIMBLE_STATUS.md` and 16 places in this file (older entries, including one title) were reworded.
+- Not changed: George's own words in quotation marks (for example the 96th entry and the 2026-10-06 request); the names `snapToColumns`, `m_snapTimer` (renaming a function is a code change; say if wanted); `m_closeSnappingActivated` (the polygon tool's first-point check, which is a canvas thing); View > Snap To and everything about the canvas.

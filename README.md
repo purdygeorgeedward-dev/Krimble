@@ -185,7 +185,7 @@ Krimble has already completed a large restructuring pass. The detailed engineeri
 25. **Version reset to Krimble `1.0.0-alpha1`.**
 26. **Full user-facing Krita → Krimble branding pass**, while deliberately preserving internal compatibility identifiers and historical references where changing them would be harmful.
 27. **Project links redirected** to Krimble resources, source, support, and placeholders for developing documentation/community pages.
-28. **Panels no longer snap back into docking zones** after being dragged.
+28. **Panels no longer dock themselves back into docking zones** after being dragged.
 29. **Crop defaults to subtractive-only**, preventing accidental canvas growth.
 30. **Default color selector changed** to square saturation/value plus hue strip for touch.
 31. **Content-Aware Fill added**, using the existing PatchMatch inpainting engine with a selection-driven workflow.
