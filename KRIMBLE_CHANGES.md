@@ -4022,3 +4022,9 @@ George: "Yes. Go for it." (the Upscale item, steps 1 and 2 of the 2026-10-12 pro
 - A result larger than **100 million pixels** is refused with a message (a phone cannot hold it).
 - Not AI upscaling (that is a separate, large project).
 **Not verified:** a build or a device. The sharpen layer uses the filter's default strength; if it is too much or too little, it can be changed in the layer or the default can be set in the code.
+
+## 2026-10-13 (111th) — Fonts added to the roadmap (George's idea)
+
+**Files:** `KRIMBLE_ROADMAP.md`
+
+George: "add fonts to your list. I want a system built in for browsing fonts and adding them and it would be nice to curate a default font set." Written down in `KRIMBLE_ROADMAP.md` as three parts (browse, add, a curated default set of open-license fonts), with the open questions. Not started; no code.

@@ -184,3 +184,15 @@ Deliberately not attempted blind in this session -- pixel-iteration code
 like this needs to be verified against an actual build, not just read
 through, given how the initial assessment of this same docker turned out
 to be wrong on both counts checked.
+
+## Fonts: browse, add, and a curated default set (George's idea, 2026-10-13)
+
+George: "add fonts to your list. I want a system built in for browsing fonts and adding them and it would be nice to curate a default font set."
+
+**Parts, in the order they would be built:**
+1. **Browse.** A font browser (a panel or a window, and the same list inside the Type tool's font choice): every font drawn in its own face, a sample line the user can edit, a search box, favorites, and filters by kind (text, display, script, monospace). Big rows that suit a finger.
+2. **Add.** "Add Font..." chooses font files (`.ttf`, `.otf`, `.ttc`), or a folder, or a `.zip`, with Android's file picker. The files are copied into Krimble's own fonts folder and registered when the app starts (`QFontDatabase::addApplicationFont`), so they survive restarts. "Remove" takes one out. The font's name, style and license text (from the font file itself) are shown before it is added.
+3. **Curated default set.** A hand-picked group of **open-license** fonts (SIL Open Font License or Apache) shipped with the app, so there is a good choice on every phone. About 25 to 40 families covering clean text, headline/display, script and handwriting, monospace, and a few decorative ones. Each family adds about 100 to 500 KB to the app; a budget of about 10 MB is suggested. The license file of every shipped font is kept in the repository.
+
+**Open questions for George:** the picks (Claude can propose a list with the license of each; George decides); whether the browser is a panel, a window, or both; whether fonts used in a document should be saved with it (not planned); the state of the Type tool (it was switched off on 2026-09 for a self-activation bug and is in the toolbox again; it should be re-tested before this is built).
+**Status:** not started. Nothing in the code yet.
