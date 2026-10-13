@@ -3833,3 +3833,10 @@ George's test: "There is no cancel option for Batch process." The Batch Process 
 
 George: "I think it should be in the image menu, not below exit." **Batch Process...** is now at the end of the **Image** menu (after a divider), added the first time the menu opens. It is no longer in the File menu (those lines are commented out; Share as JPG and Share as PNG stay there). Same window and presets as before.
 **Not verified:** a build or a device.
+
+## 2026-10-12 (91st) — New Document starts with the size of the copied picture (George's idea)
+
+**Files:** `libs/ui/dialogs/KisDlgCreateNewDocument.cpp`
+
+George's idea: "If you select an area in an image and use copy or cut, then use New it defaults to the dimensions of the copied or cut area so you can paste into the new document cleanly." When a picture is on the clipboard (copied or cut in Krimble, or copied in another app), the width and height on the **Custom Document** page start as the size of that picture, in pixels. With nothing copied, the saved default size is used as before. Changing the numbers or choosing a size from the Predefined list works as always. "Create from Clipboard" (which already used the clipboard) is unchanged.
+**Not verified:** a build or a device. A copied picture from another app can be large; the same numbers show in the dialog, so it is visible before Create is pressed.

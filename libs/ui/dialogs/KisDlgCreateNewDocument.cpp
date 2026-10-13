@@ -11,6 +11,7 @@
 #include "kis_custom_image_widget.h"
 #include "kis_image_from_clipboard_widget.h"
 #include "KisPart.h"
+#include "kis_clipboard.h"
 
 #include <QGuiApplication>
 #include <QScreen>
@@ -30,6 +31,18 @@ KisDlgCreateNewDocument::KisDlgCreateNewDocument(QWidget* parent)
     const QString colorModel = cfg.defColorModel();
     const QString colorDepth = cfg.defaultColorDepth();
     const QString colorProfile = cfg.defColorProfile();
+
+    // Krimble 2026-10-12: George's idea ("Here's something Photoshop does that would be nice to have..."): when a picture was copied
+    // or cut, the Custom Document page starts with the size of that picture, so it can be pasted into the new document cleanly.
+    // Without a copied picture, the saved default size is used as before.
+    KisClipboard *krimbleClipboard = KisClipboard::instance();
+    if (krimbleClipboard && krimbleClipboard->hasClip()) {
+        const QSize clipSize = krimbleClipboard->clipSize();
+        if (clipSize.isValid() && clipSize.width() > 0 && clipSize.height() > 0) {
+            w = clipSize.width();
+            h = clipSize.height();
+        }
+    }
 
     // Krimble 2026-10-12: kept so the dialog's height can follow this page (below)
     KisCustomImageWidget *krimbleCustomPage = new KisCustomImageWidget(this, w, h, resolution, colorModel, colorDepth, colorProfile, i18n("Unnamed"));
