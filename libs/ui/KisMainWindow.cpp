@@ -511,6 +511,103 @@ static void krimbleInstallMenuShortcutStripping(QMainWindow *win)
 #endif
 
 #ifdef Q_OS_ANDROID
+// Krimble 2026-10-13 (6th): George: "There is a minimum width on the side panel. There should not be." and "Eliminate all minimum widths."
+// Qt's own code (qdockwidget.cpp, `QDockWidgetItem::minimumSize` and `QDockWidgetLayout::minimumSize`) gives a docked panel as its smallest
+// width the smallest width of the widget inside it (or of its title bar, if that is wider) plus the frame; the main window cannot make it
+// narrower. A widget that has a minimum width of its own set (greater than 0) is measured by that number and not by what it asks for
+// (qSmartMinSize), so the panels' content and title bars, and the canvas area, are given a minimum of 1 px. Whatever does not fit is cut
+// off instead of forcing the panel wide. Done for every panel, the toolbox included, and again every 2 s for panels made later.
+static void krimbleRemoveMinimumWidths(QMainWindow *win)
+{
+    Q_FOREACH (QDockWidget *dock, win->findChildren<QDockWidget*>()) {
+        // George: "Minimum width for the toolbox should be one column." The toolbox is left out: its smallest width stays what its layout
+        // gives (one column of icons).
+        if (dock->objectName() == QLatin1String("ToolBox")) continue;
+        if (QWidget *content = dock->widget()) {
+            if (content->minimumWidth() != 1) content->setMinimumWidth(1);
+        }
+        if (QWidget *title = dock->titleBarWidget()) {
+            if (title->minimumWidth() != 1) title->setMinimumWidth(1);
+        }
+    }
+    if (QWidget *central = win->centralWidget()) {
+        if (central->minimumWidth() != 1) central->setMinimumWidth(1);
+    }
+}
+#endif
+
+#ifdef Q_OS_ANDROID
+// Krimble 2026-10-13 (5th): an X in the top right corner that leaves Canvas Only mode (George: "Just put a X in the top right corner."
+// "Just the X by itself. Black."). Canvas Only hides the menu bar and the toolbox, and a phone has no Tab key, so nothing on the screen
+// could turn it off. The X is drawn only while Canvas Only is on; tapping it turns the mode off (the same switch as View > Screen Mode >
+// Canvas Only). It is not a window or picture close button: it does not close anything.
+class KrimbleCanvasOnlyExit : public QWidget
+{
+public:
+    KrimbleCanvasOnlyExit(QMainWindow *win, QAction *canvasOnly) : QWidget(win), m_win(win), m_action(canvasOnly)
+    {
+        win->installEventFilter(this);
+        QObject::connect(canvasOnly, &QAction::toggled, this, [this](bool) { reposition(); });
+        hide();
+        reposition();
+    }
+    void reposition()
+    {
+        if (!m_action || !m_action->isChecked()) {
+            hide();
+            return;
+        }
+        const int size = 36;     // logical px: about 12 mm on the screen
+        setGeometry(m_win->width() - size - 4, 4, size, size);
+        show();
+        raise();
+    }
+    bool eventFilter(QObject *watched, QEvent *event) override
+    {
+        if (watched == m_win && (event->type() == QEvent::Resize || event->type() == QEvent::Show)) {
+            reposition();
+        }
+        return false;
+    }
+
+protected:
+    void paintEvent(QPaintEvent *) override
+    {
+        QPainter p(this);
+        p.setRenderHint(QPainter::Antialiasing, true);
+        p.setPen(QPen(Qt::black, 3.5, Qt::SolidLine, Qt::RoundCap));
+        const int m = int(width() * 0.28);
+        p.drawLine(m, m, width() - m, height() - m);
+        p.drawLine(width() - m, m, m, height() - m);
+    }
+    void mousePressEvent(QMouseEvent *e) override
+    {
+        e->accept();
+    }
+    void mouseReleaseEvent(QMouseEvent *e) override
+    {
+        if (rect().contains(e->pos()) && m_action) {
+            m_action->setChecked(false);
+        }
+        e->accept();
+    }
+
+private:
+    QPointer<QMainWindow> m_win;
+    QPointer<QAction> m_action;
+};
+
+static void krimbleInstallCanvasOnlyExit(KisMainWindow *win)
+{
+    if (!win->viewManager() || win->findChild<QWidget*>(QStringLiteral("krimbleCanvasOnlyExit"), Qt::FindDirectChildrenOnly)) return;
+    QAction *canvasOnly = win->viewManager()->actionCollection()->action(QStringLiteral("view_show_canvas_only"));
+    if (!canvasOnly) return;
+    KrimbleCanvasOnlyExit *exitX = new KrimbleCanvasOnlyExit(win, canvasOnly);
+    exitX->setObjectName(QStringLiteral("krimbleCanvasOnlyExit"));
+}
+#endif
+
+#ifdef Q_OS_ANDROID
 // Krimble 2026-10-12: an invisible touch zone, 14 px wide, along the inner edge of every docked panel (the right edge of a panel
 // on the left, the left edge of a panel on the right). Dragging it resizes the panel's side of the window. It draws nothing and
 // takes no room of its own, so the edge between the toolbox, the canvas and the panels can be as thin as the base style makes it
@@ -567,8 +664,14 @@ public:
         }
         // const QRect g = m_dock->geometry();
         // setGeometry(area == Qt::LeftDockWidgetArea ? g.right() + 1 : g.left() - w, g.top(), w, g.height());   (the whole edge, the second version)
-        const int y = column.top() + (column.height() - h) / 2;
-        setGeometry(area == Qt::LeftDockWidgetArea ? column.right() + 1 : column.left() - w, y, w, h);
+        // const int y = column.top() + (column.height() - h) / 2;
+        // setGeometry(area == Qt::LeftDockWidgetArea ? column.right() + 1 : column.left() - w, y, w, h);
+        // Krimble 2026-10-13 (6th): George: "Lose the visible handle. Make an invisible grab area extend out from the side of the edge." (and,
+        // about the first list, "4 replaced"). The zone is now 24 logical px wide (about 5 mm), as tall as the whole column of panels on
+        // that side, and lies OUTSIDE the panels' edge, over the canvas (to the right of the toolbox, to the left of the right panels).
+        // Nothing is drawn.
+        const int stripWidth = 24;
+        setGeometry(area == Qt::LeftDockWidgetArea ? column.right() + 1 : column.left() - stripWidth, column.top(), stripWidth, column.height());
         show();
         raise();
     }
@@ -584,6 +687,8 @@ public:
 protected:
     void paintEvent(QPaintEvent *) override
     {
+        // Krimble 2026-10-13 (6th): nothing is drawn any more (the grab zone is invisible). The old drawing is kept below, not run.
+        return;
         QPainter p(this);
         p.setRenderHint(QPainter::Antialiasing, true);
         // QColor fill = palette().color(QPalette::Mid);   (the canvas's gray: it could not be seen)
@@ -1475,6 +1580,8 @@ static void krimbleInstallHelpExtras(QMainWindow *win)
         // QObject::connect(cheatSheet, &QAction::triggered, win, [win]() { krimbleShowCheatSheet(win); });
         QAction *feedback = help->addAction(i18n("Send Feedback"));
         QObject::connect(feedback, &QAction::triggered, win, [win]() { krimbleSendFeedback(win); });
+        // Krimble 2026-10-13 (6th): George: "5 no": Menu Diagnostics is removed from the Help menu; the code is kept here.
+#if 0
         // Krimble 2026-10-13 (2nd): Menu Diagnostics (for George's "Menus are still too wide"): shows numbers about the Edit menu
         QAction *menuDiag = help->addAction(i18n("Menu Diagnostics"));
         QObject::connect(menuDiag, &QAction::triggered, win, [win]() {
@@ -1502,6 +1609,7 @@ static void krimbleInstallHelpExtras(QMainWindow *win)
                 .arg(qApp->styleSheet().length()).arg(edit->styleSheet().length()).arg(qApp->devicePixelRatio()).arg(edit->font().pixelSize());
             QMessageBox::information(win, i18n("Menu Diagnostics"), report);
         });
+#endif
         QAction *overlay = help->addAction(i18n("QA Overlay"));
         overlay->setCheckable(true);
         overlay->setChecked(win->findChild<QLabel*>(QStringLiteral("krimbleQaOverlay"), Qt::FindDirectChildrenOnly) != nullptr);
@@ -2761,6 +2869,8 @@ KisMainWindow::KisMainWindow(QUuid uuid)
             krimbleInstallDockEdgeGrabs(this);
             Q_FOREACH (QAction *top, menuBar()->actions()) krimbleHideMenuShortcuts(top->menu(), 0);   // Krimble 2026-10-12
             krimbleInstallMenuShortcutStripping(this);   // Krimble 2026-10-13 (4th): the real fix for the wide menus (see above)
+            krimbleInstallCanvasOnlyExit(this);          // Krimble 2026-10-13 (5th): the X that leaves Canvas Only mode
+            krimbleRemoveMinimumWidths(this);            // Krimble 2026-10-13 (6th): no minimum widths (see above)
         });
         grabTimer->start(2000);
         Q_FOREACH (QAction *top, menuBar()->actions()) krimbleHideMenuShortcuts(top->menu(), 0);
