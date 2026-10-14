@@ -525,7 +525,9 @@ void KoToolBoxDocker::moveEvent(QMoveEvent *event)
             // Krimble 2026-10-13 (7th): George: "Get rid of bounces. They're annoying." The toolbox is no longer pushed back after it is moved:
             // it stays where it is let go. The old rule (pushed back off the top and the sides, 120 px kept on screen) is kept below,
             // not run.
-            return;
+            // return;
+            // Krimble 2026-10-14: George (1.0.36): "Bounce toolbox off sides and top. Not bottom. It creates weird anomalous artifacts when it slides
+            // off the side." The rule runs again: pushed back off the sides and the top; the bottom is free, but its title area (36 px) stays on screen.
             QScreen *screenPtr = screen() ? screen() : QGuiApplication::primaryScreen();
             if (!screenPtr) return;
             QRect avail = screenPtr->availableGeometry();
@@ -538,7 +540,8 @@ void KoToolBoxDocker::moveEvent(QMoveEvent *event)
             // Krimble 2026-10-12: George: "I think the toolbox shouldn't bounce off the bottom. Only the top or sides." The bottom edge is
             // free; the top edge pushes it back down, and at least 120 px of it must stay on screen.
             if (g.top() < avail.top()) g.moveTop(avail.top());
-            if (g.top() > avail.bottom() - 120) g.moveTop(avail.bottom() - 120);
+            // if (g.top() > avail.bottom() - 120) g.moveTop(avail.bottom() - 120);
+            if (g.top() > avail.bottom() - 36) g.moveTop(avail.bottom() - 36);
             if (g != geometry()) setGeometry(g);
         });
     }

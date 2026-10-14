@@ -448,7 +448,8 @@ public:
         if (g.width() > avail.width()) g.setWidth(avail.width());
         g.moveLeft(qBound(avail.left(), g.left(), avail.right() - g.width() + 1));
         if (g.top() < avail.top()) g.moveTop(avail.top());
-        if (g.top() > avail.bottom() - 120) g.moveTop(avail.bottom() - 120);
+        // if (g.top() > avail.bottom() - 120) g.moveTop(avail.bottom() - 120);
+        if (g.top() > avail.bottom() - 36) g.moveTop(avail.bottom() - 36);   // Krimble 2026-10-14: the title area (36 px) stays on screen
         if (g != original) window->setGeometry(g);
     }
 
@@ -636,7 +637,13 @@ private:
                 // } else {
                 //     keepReachable(moved);             // other windows: at least 160 px had to stay on screen
                 // }
-                Q_UNUSED(moved);
+                // Q_UNUSED(moved);
+                // Krimble 2026-10-14: George (1.0.36): "Bounce toolbox off sides and top. Not bottom." Only the toolbox, after a two-finger drag;
+                // every other window and panel still stays where it is let go.
+                QDockWidget *movedDock = qobject_cast<QDockWidget*>(moved.data());
+                if (movedDock && movedDock->objectName() == QLatin1String("ToolBox")) {
+                    keepOnScreenSidesAndTop(moved);
+                }
             });
             if (points.count() >= 2) {
                 touch->accept();

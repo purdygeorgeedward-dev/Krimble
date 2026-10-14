@@ -937,6 +937,13 @@ static void krimbleShowQuickAdjustDialog(KisMainWindow *win)
     QWidget *content = new QWidget(dialog);
     KrimbleQuickAdjust *adjust = new KrimbleQuickAdjust(win, content);
     QDialogButtonBox *buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, dialog);
+    // Krimble 2026-10-14: George (1.0.36): "Quick Adjust is perfect size. Has no title bar?" The window has none on the phone, so its name is
+    // written at the top of it.
+    QLabel *heading = new QLabel(i18n("Quick Adjust"), dialog);
+    QFont headingFont = heading->font();
+    headingFont.setBold(true);
+    heading->setFont(headingFont);
+    layout->addWidget(heading);
     layout->addWidget(content);
     layout->addWidget(buttons);
     QObject::connect(buttons, &QDialogButtonBox::accepted, dialog, [adjust, dialog]() {
@@ -1669,9 +1676,11 @@ static void krimbleInstallFileExtras(KisMainWindow *win)
         // file->insertAction(before, takePhoto);
         // Krimble 2026-10-13 (12th): George: "Re-enable and I will test your fix." Back in the File menu, in the place it had in 1.0.35 (just above
         // Exit), to test the thread fix of the 115th entry.
-        QAction *takePhoto = new QAction(i18n("Take Photo..."), file);
-        QObject::connect(takePhoto, &QAction::triggered, win, [win]() { krimbleTakePhoto(win); });
-        file->insertAction(before, takePhoto);
+        // Krimble 2026-10-14: George (1.0.36): "The camera generated an error, but it didn't crash! Not crashing is good! We should still comment it
+        // out temporarily." The error was: The file content://media/external/images/media/1000356140 does not exist. Out again; the code stays.
+        // QAction *takePhoto = new QAction(i18n("Take Photo..."), file);
+        // QObject::connect(takePhoto, &QAction::triggered, win, [win]() { krimbleTakePhoto(win); });
+        // file->insertAction(before, takePhoto);
         // file->insertAction(before, batch);
     });
 }
@@ -2281,8 +2290,14 @@ static void krimbleInstallImageExtras(KisMainWindow *win)
                     QAction *quick = new QAction(i18n("Quick Adjust..."), adjustments);
                     quick->setObjectName(QStringLiteral("krimbleQuickAdjust"));
                     QObject::connect(quick, &QAction::triggered, win, [win]() { krimbleShowQuickAdjustDialog(win); });
-                    adjustments->addSeparator();
-                    adjustments->addAction(quick);
+                    // adjustments->addSeparator();
+                    // adjustments->addAction(quick);          (bottom of the submenu, 1.0.36)
+                    // Krimble 2026-10-14: George (1.0.36): "Should be first instead of last under Image - Adjust menu." First, then a divider.
+                    QAction *firstAction = adjustments->actions().value(0);
+                    QAction *divider = new QAction(adjustments);
+                    divider->setSeparator(true);
+                    adjustments->insertAction(firstAction, quick);
+                    adjustments->insertAction(firstAction, divider);
                 });
             }
         }
@@ -5695,6 +5710,9 @@ void KisMainWindow::updateWindowMenu()
     if (screen) {
         fileStringWidth = int(screen->availableGeometry().width() * .40f);
     }
+    // Krimble 2026-10-14: George (1.0.36): "Filename length for open image is stretching the width of Window menu. Could it have a set length ...
+    // like so many characters?" At most 24 characters wide (the middle is left out: "content://c...41984e.png"), instead of 40% of the screen.
+    fileStringWidth = qMin(fileStringWidth, fontMetrics.averageCharWidth() * 24);
     Q_FOREACH (QPointer<KisDocument> doc, KisPart::instance()->documents()) {
         if (doc) {
             QString title = fontMetrics.elidedText(doc->path(), Qt::ElideMiddle, fileStringWidth);
