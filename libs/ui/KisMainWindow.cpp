@@ -820,6 +820,27 @@ public:
         for (int i = 0; i < SliderCount; ++i) m_values[i] = 0;
     }
 
+    // Krimble 2026-10-13 (11th): for the dialog version (George: "Build Quick Adjust as a dialog window launched from Image Adjust."):
+    // OK applies any slider move that is still waiting; Cancel takes back the adjustment layers made while the dialog was open.
+    void flush()
+    {
+        m_timer.stop();
+        apply();
+    }
+    void removeCreatedLayers()
+    {
+        m_timer.stop();
+        KisViewManager *view = m_win->viewManager();
+        if (!view) return;
+        KisNodeCommandsAdapter adapter(view);
+        KisNodeWSP *refs[3] = { &m_bcLayer, &m_hsvLayer, &m_vibLayer };
+        for (int i = 0; i < 3; ++i) {
+            KisNodeSP node = *refs[i];
+            if (node && node->parent()) adapter.removeNode(node);
+            *refs[i] = KisNodeWSP();
+        }
+    }
+
 private:
     enum { Brightness, Contrast, Saturation, Hue, Lightness, Vibrance, SliderCount };
     struct Def { const char *name; int min; int max; };
@@ -895,6 +916,46 @@ private:
     KisNodeWSP m_hsvLayer;
     KisNodeWSP m_vibLayer;
 };
+
+// Krimble 2026-10-13 (11th): Quick Adjust as a dialog window (George: "Quick Adjust should be a dialog window, not a growth of some kind." and
+// "Build Quick Adjust as a dialog window launched from Image Adjust."). One window, not tied to any other: six sliders, Reset, OK and Cancel.
+// While it is open, the picture shows the change live (adjustment layers are made as the sliders move); Cancel takes those layers away, OK keeps
+// them. The window sits at the bottom of the screen so the picture stays visible above it.
+static void krimbleShowQuickAdjustDialog(KisMainWindow *win)
+{
+    KisViewManager *view = win->viewManager();
+    if (!view || !view->image()) {
+        QMessageBox::information(win, i18n("Quick Adjust"), i18n("Open a picture first."));
+        return;
+    }
+    QDialog *dialog = new QDialog(win);
+    dialog->setAttribute(Qt::WA_DeleteOnClose);
+    dialog->setWindowTitle(i18n("Quick Adjust"));
+    dialog->setModal(false);
+    QVBoxLayout *layout = new QVBoxLayout(dialog);
+    layout->setContentsMargins(4, 4, 4, 4);
+    QWidget *content = new QWidget(dialog);
+    KrimbleQuickAdjust *adjust = new KrimbleQuickAdjust(win, content);
+    QDialogButtonBox *buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, dialog);
+    layout->addWidget(content);
+    layout->addWidget(buttons);
+    QObject::connect(buttons, &QDialogButtonBox::accepted, dialog, [adjust, dialog]() {
+        adjust->flush();
+        dialog->accept();
+    });
+    QObject::connect(buttons, &QDialogButtonBox::rejected, dialog, [adjust, dialog]() {
+        adjust->removeCreatedLayers();
+        dialog->reject();
+    });
+    // closing the window another way (Android's back button) counts as Cancel
+    QObject::connect(dialog, &QDialog::rejected, dialog, [adjust]() { adjust->removeCreatedLayers(); });
+    if (QScreen *scr = QGuiApplication::primaryScreen()) {
+        const QRect avail = scr->availableGeometry();
+        dialog->resize(int(avail.width() * 0.94), dialog->sizeHint().height() + 20);
+        dialog->move(avail.left() + int(avail.width() * 0.03), avail.bottom() - dialog->height() - 8);
+    }
+    dialog->show();
+}
 
 // Opens (or shows and hides) the Quick Adjust panel. It starts floating, 62% of the screen wide, so it never has to fit next to the
 // toolbox, canvas and panels.
@@ -2203,6 +2264,23 @@ static void krimbleInstallImageExtras(KisMainWindow *win)
     imageMenu->setProperty("krimbleImageExtras", true);
     QObject::connect(imageMenu, &QMenu::aboutToShow, win, [win, imageMenu]() {
         if (imageMenu->findChild<QAction*>(QStringLiteral("krimbleBatchProcess"))) return;
+        // Krimble 2026-10-13 (11th): Quick Adjust... at the bottom of the Image > Adjustments submenu (George: "launched from Image Adjust";
+        // the place inside the submenu, the bottom, is my choice).
+        Q_FOREACH (QAction *action, imageMenu->actions()) {
+            QString text = action->text();
+            text.remove(QLatin1Char('&'));
+            if (text == QLatin1String("Adjustments") && action->menu()) {
+                QMenu *adjustments = action->menu();
+                QObject::connect(adjustments, &QMenu::aboutToShow, win, [win, adjustments]() {
+                    if (adjustments->findChild<QAction*>(QStringLiteral("krimbleQuickAdjust"))) return;
+                    QAction *quick = new QAction(i18n("Quick Adjust..."), adjustments);
+                    quick->setObjectName(QStringLiteral("krimbleQuickAdjust"));
+                    QObject::connect(quick, &QAction::triggered, win, [win]() { krimbleShowQuickAdjustDialog(win); });
+                    adjustments->addSeparator();
+                    adjustments->addAction(quick);
+                });
+            }
+        }
         QAction *batch = new QAction(i18n("Batch Process..."), imageMenu);
         batch->setObjectName(QStringLiteral("krimbleBatchProcess"));
         QObject::connect(batch, &QAction::triggered, win, [win]() { krimbleShowBatch(win); });
@@ -3068,8 +3146,10 @@ KisMainWindow::KisMainWindow(QUuid uuid)
             }
             krimbleRestoreSavedLayout(this);
             // krimbleInstallLayerExtras(this);   // Krimble 2026-10-13 (9th): George: "5. Comment out pending testing." (Layer > Style Presets)
+            krimbleInstallLayerExtras(this);      // Krimble 2026-10-13 (11th): George: "Re-enable 3, 4, 5 for testing." (Layer > Style Presets)
             krimbleInstallViewExtras(this);
             // krimbleInstallImageExtras(this);   // Krimble 2026-10-13 (9th): George: "3. Comment out. 4. Comment out." (Image > Upscale... and Batch Process...)
+            krimbleInstallImageExtras(this);      // Krimble 2026-10-13 (11th): George: "Re-enable 3, 4, 5 for testing." (Image > Upscale... and Batch Process..., and Quick Adjust... in Image > Adjustments)
         }
     });
     // Krimble 2026-10-11: close open menus when the window changes size (rotation).

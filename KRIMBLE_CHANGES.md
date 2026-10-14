@@ -4155,3 +4155,13 @@ George's words, in order: "What if the menu item for sharing is just Share... an
 - **How it was made:** `krimbleShareWithOptions` is the old `krimbleShareImage` with the options added (scaling with `Qt::SmoothTransformation`, JPG quality from the slider, PNG compression mapped to Qt's 0 to 100 quality as (9 - level) x 100 / 9); `krimbleShowShare` is the dialog.
 - Not done: testing what each receiving app does to the picture (George: "It can be tested, of course"); that needs his phone.
 **Not verified:** a build or a device.
+
+## 2026-10-13 (124th) — Items 3, 4, 5 back on for testing; Quick Adjust as a dialog window under Image > Adjustments
+
+**Files:** `libs/ui/KisMainWindow.cpp`
+
+George: "Re-enable 3, 4, 5 for testing. Build Quick Adjust as a dialog window launched from Image Adjust."
+- **Back on (they were commented out in the 122nd entry):** 3 **Image > Upscale...**, 4 **Image > Batch Process...** (both at the end of the Image menu), 5 **Layer > Style Presets.** The two calls (`krimbleInstallImageExtras`, `krimbleInstallLayerExtras`) are active again; the commented lines stay as a record.
+- **Quick Adjust as a dialog window**, launched from a new item **Quick Adjust...** at the **bottom of Image > Adjustments** (the place in the submenu is Claude's choice; George named the submenu). It is a normal window, not a panel: the six sliders (Brightness, Contrast, Saturation, Hue, Lightness, Vibrance), Reset, **OK** and **Cancel.** It sits at the bottom of the screen (94% of the width), not modal, so the picture stays visible above it. While it is open the picture shows the change live (adjustment layers are made as a slider moves, as before); **Cancel** (or closing it another way, such as Android's back button) takes those layers away again; **OK** applies any move still waiting and keeps them. It reuses the slider code of the old panel (`KrimbleQuickAdjust`, with the new methods `flush` and `removeCreatedLayers`); the old floating panel and its code stay parked with nothing pointing to them.
+- Cancel removes the layers through the same command adapter as other layer changes, so the removal is on the undo list.
+**Not verified:** a build or a device.
