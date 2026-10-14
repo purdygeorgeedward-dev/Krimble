@@ -4193,3 +4193,20 @@ George: "In View: change Wrap Around Mode Direction to just Direction..." The te
 
 George: "Re-enable and I will test your fix." The three lines that add **Take Photo...** to the File menu (removed in the 119th entry) are active again, in the place it had in 1.0.35 (just above Exit). The fix being tested is the one of the 115th entry: the camera's answer arrives on Android's own thread, so the opening of the picture is now queued to the window's own thread. It is a guess from reading the code; the crash was never seen here. If it still crashes, the next step is the Android log of the crash.
 **Not verified:** a build or a device.
+
+## 2026-10-13 (129th) — Version 36; what was found about the saved window state and the portrait toolbox
+
+**Files:** `packaging/android/apk/build.gradle`
+
+George: "Find out where it saves the last window state on close and figure out why vertical display makes the toolbox misbehave. Let's build." `krimbleBuildNumber` 35 -> 36 (`1.0.36-beta`). The next build holds everything pushed after `a3725dc` (entries 115 to 128).
+
+**Where the window state is saved (read from `KisMainWindow.cpp`, nothing changed):**
+- `saveWindowState(true)` is called when the **last image window is closed** (and not when the welcome page is showing: "We don't need to save welcome page's layout"). It writes `ko_geometry` and `State` (`saveGeometry()` and `saveState()`, the panel arrangement) and calls `saveWindowSettings()`, which writes the window size, the toolbars and, per panel, its dock area, position and size. `saveWindowState()` without the flag is also called when the toolbar editor is opened and when a toolbar is shown or hidden.
+- `closeEvent` closes all image windows, which brings it to the first case. **Nothing saves the state when Android stops or kills the app** (swiping it away, or low memory): `closeEvent` is not called then, so the last saved state comes back at the next start. This is a likely reason that closing the Brushes panel did not last. Not proven.
+- The state is read back by `initializeGeometry` (geometry) and the main window's settings restore at start.
+
+**Why the toolbox misbehaves in portrait (read from `KoToolBoxDocker.cpp`):**
+- `snapToColumns()` (the "fit to columns" function, run by a timer after the dock is resized) **works out the number of columns from the toolbox's actual width and writes it to the saved setting `ToolBoxColumns`**, which is the same number the Columns menu sets.
+- In portrait (about 320 logical px wide) there is no room beside the canvas area and the panels, whose smallest widths added up to more than the screen (the canvas area could not be narrower than about 147 logical px; the 115th, 121st and 122nd entries remove those minimums). The toolbox is squeezed to one column. When Columns is set to 2, `applyColumns` asks the main window for a wider dock, the main window cannot give it, the dock stays one column wide, the resize runs `snapToColumns`, which measures one column and writes 1 over the 2. That is the "snaps back to 1 immediately". Detached (floating) it works, because the toolbox has all the room it wants and `snapToColumns` returns at once for a floating toolbox.
+- **Not changed:** `snapToColumns` still overwrites the column count from the measured width. A fix would be to let it change the saved count only when the user dragged the separator, not when the dock was squeezed or after a rotation; that is a code change that George has not approved.
+**Not verified:** a build or a device.
