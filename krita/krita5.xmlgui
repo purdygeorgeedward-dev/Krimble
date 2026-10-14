@@ -1249,7 +1249,9 @@ xsi:schemaLocation="http://www.kde.org/standards/kxmlgui/1.0  http://www.kde.org
     </Action>
     
     <Menu name="wrap_around_mode_direction">
-        <text>Wrap Around Mode Direction</text>
+        <!-- Krimble 2026-10-13: George: "In View: change Wrap Around Mode Direction to just Direction..." The old text was:
+             <text>Wrap Around Mode Direction</text> -->
+        <text>Direction...</text>
         
         <Action name="wrap_around_hv_axis">
             <text>Horizontal and Vertical</text>

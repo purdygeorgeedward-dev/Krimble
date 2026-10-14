@@ -19,7 +19,9 @@
     <text>Management</text>
     <Action name="manage_donations">
       <icon></icon>
-      <text>Manage Supporter Benefits...</text>
+      <!-- Krimble 2026-10-13: George: "In help change Manage Supporter Benefits to just Benefits..." The old text was:
+           <text>Manage Supporter Benefits...</text> -->
+      <text>Benefits...</text>
       <whatsThis></whatsThis>
       <toolTip>Manage Supporter Benefits</toolTip>
       <iconText>Manage Supporter Benefits</iconText>

@@ -4165,3 +4165,31 @@ George: "Re-enable 3, 4, 5 for testing. Build Quick Adjust as a dialog window la
 - **Quick Adjust as a dialog window**, launched from a new item **Quick Adjust...** at the **bottom of Image > Adjustments** (the place in the submenu is Claude's choice; George named the submenu). It is a normal window, not a panel: the six sliders (Brightness, Contrast, Saturation, Hue, Lightness, Vibrance), Reset, **OK** and **Cancel.** It sits at the bottom of the screen (94% of the width), not modal, so the picture stays visible above it. While it is open the picture shows the change live (adjustment layers are made as a slider moves, as before); **Cancel** (or closing it another way, such as Android's back button) takes those layers away again; **OK** applies any move still waiting and keeps them. It reuses the slider code of the old panel (`KrimbleQuickAdjust`, with the new methods `flush` and `removeCreatedLayers`); the old floating panel and its code stay parked with nothing pointing to them.
 - Cancel removes the layers through the same command adapter as other layer changes, so the removal is on the undo list.
 **Not verified:** a build or a device.
+
+## 2026-10-13 (125th) — Window menu: "Show Contents While Dragging" is now "ShowDrag" (a test)
+
+**Files:** `libs/ui/KisMainWindow.cpp`
+
+George: "Try ShowDrag." A test of how much a shorter label narrows the Window menu. Measured from his 1.0.35 screenshot, the widest left-column item was "Show Contents While Dragging" (about 505 px of text) and the next was the open-image name (about 445 px), so the column should shrink by about 60 px, no more, until the image names are shorter too. The old label is kept in a comment. Nothing else about the item changes (it is still the check box that shows a window's contents while it is dragged).
+**Not verified:** a build or a device.
+
+## 2026-10-13 (126th) — Help: "Manage Supporter Benefits..." is now "Benefits..."
+
+**Files:** `krita/kritamenu_android.action`
+
+George: "In help change Manage Supporter Benefits to just Benefits..." The menu text of the action `manage_donations` is `Benefits...` (was `Manage Supporter Benefits...`); the old text is kept in an XML comment. The tool tip and the icon text of the action still read "Manage Supporter Benefits"; the Welcome page's button of the same name (`KisWelcomePage.ui`) is not changed. The file was checked to be well-formed XML.
+**Not verified:** a build or a device.
+\n
+## 2026-10-13 (127th) — View: "Wrap Around Mode Direction" is now "Direction..."
+
+**Files:** `krita/krita5.xmlgui`
+
+George: "In View: change Wrap Around Mode Direction to just Direction..." The text of that submenu is `Direction...` exactly as he typed it, three dots included; the old text is in an XML comment. It is a submenu (it has an arrow and opens a list: Horizontal and Vertical, Horizontal, Vertical), so the dots are not the usual sign of a dialog; they can be dropped if he wants. The file was checked to be well-formed XML.
+**Not verified:** a build or a device.
+
+## 2026-10-13 (128th) — File > Take Photo... back on, to test the thread fix
+
+**Files:** `libs/ui/KisMainWindow.cpp`
+
+George: "Re-enable and I will test your fix." The three lines that add **Take Photo...** to the File menu (removed in the 119th entry) are active again, in the place it had in 1.0.35 (just above Exit). The fix being tested is the one of the 115th entry: the camera's answer arrives on Android's own thread, so the opening of the picture is now queued to the window's own thread. It is a guess from reading the code; the crash was never seen here. If it still crashes, the next step is the Android log of the crash.
+**Not verified:** a build or a device.

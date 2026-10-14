@@ -1667,6 +1667,11 @@ static void krimbleInstallFileExtras(KisMainWindow *win)
         // QAction *takePhoto = new QAction(i18n("Take Photo..."), file);
         // QObject::connect(takePhoto, &QAction::triggered, win, [win]() { krimbleTakePhoto(win); });
         // file->insertAction(before, takePhoto);
+        // Krimble 2026-10-13 (12th): George: "Re-enable and I will test your fix." Back in the File menu, in the place it had in 1.0.35 (just above
+        // Exit), to test the thread fix of the 115th entry.
+        QAction *takePhoto = new QAction(i18n("Take Photo..."), file);
+        QObject::connect(takePhoto, &QAction::triggered, win, [win]() { krimbleTakePhoto(win); });
+        file->insertAction(before, takePhoto);
         // file->insertAction(before, batch);
     });
 }
@@ -5644,7 +5649,9 @@ void KisMainWindow::updateWindowMenu()
                 QTimer::singleShot(0, this, [this]() { d->mdiArea->cascadeSubWindows(); });
             }
         });
-        QAction *showDragAction = menu->addAction(i18n("Show Contents While Dragging"));
+        // QAction *showDragAction = menu->addAction(i18n("Show Contents While Dragging"));
+        // Krimble 2026-10-13 (12th): George: "Try ShowDrag." (a shorter label, to see how much narrower the Window menu gets)
+        QAction *showDragAction = menu->addAction(i18n("ShowDrag"));
         showDragAction->setCheckable(true);
         showDragAction->setChecked(windowCfg.readEntry<int>("mdi_rubberband", krimbleRubberBandDefault(windowCfg)) == 0);
         connect(showDragAction, &QAction::toggled, this, [](bool showContents) {
