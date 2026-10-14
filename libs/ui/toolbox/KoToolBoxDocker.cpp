@@ -637,6 +637,7 @@ void KoToolBoxDocker::snapToColumns()
     if (m_windowResizing || m_applying) return;
     // do not fight a finger that is still down on the separator
     if (QApplication::mouseButtons() != Qt::NoButton) {
+        m_userDragged = true;      // Krimble 2026-10-13: someone is dragging the edge: the width that follows is theirs
         m_snapTimer->start();
         return;
     }
@@ -646,12 +647,19 @@ void KoToolBoxDocker::snapToColumns()
     // const int columns = qBound(1, qRound(qreal(m_scrollArea->viewport()->width()) / iconWidth()), 4);
     // Krimble 2026-10-10: cap raised from 4 to 40 columns
     const int columns = qBound(1, qRound(qreal(m_scrollArea->viewport()->width()) / iconWidth()), 40);
-    if (columns != m_columns) {
+    // Krimble 2026-10-13: George: "Fix snapToColumns behavior. Yes." The saved column count was written from the width the toolbox happened
+    // to have, so when the window could not give it the room (portrait: the toolbox squeezed to one column) the count was overwritten with 1,
+    // and a choice from the Columns menu (2) snapped back to 1 at once. The count is now taken from the width only when someone dragged the
+    // dock's edge; otherwise the saved count stays, and applyColumns() below makes the dock as wide as that count asks, as far as there
+    // is room (and later, when there is more room, in full).
+    // if (columns != m_columns) {
+    if (m_userDragged && columns != m_columns) {
         m_columns = columns;
         KConfigGroup cfg(KSharedConfig::openConfig(), "krimble");
         cfg.writeEntry("ToolBoxColumns", m_columns);
         cfg.sync();
     }
+    m_userDragged = false;
     applyColumns();
 }
 

@@ -4210,3 +4210,17 @@ George: "Find out where it saves the last window state on close and figure out w
 - In portrait (about 320 logical px wide) there is no room beside the canvas area and the panels, whose smallest widths added up to more than the screen (the canvas area could not be narrower than about 147 logical px; the 115th, 121st and 122nd entries remove those minimums). The toolbox is squeezed to one column. When Columns is set to 2, `applyColumns` asks the main window for a wider dock, the main window cannot give it, the dock stays one column wide, the resize runs `snapToColumns`, which measures one column and writes 1 over the 2. That is the "snaps back to 1 immediately". Detached (floating) it works, because the toolbox has all the room it wants and `snapToColumns` returns at once for a floating toolbox.
 - **Not changed:** `snapToColumns` still overwrites the column count from the measured width. A fix would be to let it change the saved count only when the user dragged the separator, not when the dock was squeezed or after a rotation; that is a code change that George has not approved.
 **Not verified:** a build or a device.
+
+## 2026-10-13 (130th) — The panel layout is also saved when the app goes to the background
+
+**Files:** `libs/ui/KisMainWindow.cpp`
+
+George: "The saved window state on close is the most reliable predictor of the next load state. If we can set it, Brushes will behave." (his answer to the open question of the 129th entry, whether to save the layout when the app goes to the background.) Krita writes the layout (`ko_geometry`, `State`, and per panel its area, size and place) when the last image window is closed, and when a toolbar is changed, but never when Android stops the app. The same three writes are now also made when the application state becomes **Hidden or Suspended** (the app leaves the screen), through the existing `saveWindowSettings()`. It does nothing when the **welcome page** is showing (Krita does not save that layout either) or when **Canvas Only mode** is on (its layout hides everything). So a panel closed with its X, such as Brushes, should stay closed at the next start, as long as an image was open when the app left the screen. It does not hide Brushes by itself on a phone that has already saved a layout with Brushes open; close it once.
+**Not verified:** a build or a device.
+
+## 2026-10-13 (131st) — The toolbox no longer overwrites its column count with the width it was squeezed to
+
+**Files:** `libs/ui/toolbox/KoToolBoxDocker.cpp`, `libs/ui/toolbox/KoToolBoxDocker_p.h`
+
+George: "Fix snapToColumns behavior. Yes. Push it." (the proposal of the 129th entry). `snapToColumns()` measured the toolbox's width and wrote the matching number of columns over the saved setting `ToolBoxColumns`, the same setting the Columns menu sets. In portrait the toolbox was squeezed to one column, so a choice of 2 columns was overwritten with 1 at once. Now `snapToColumns()` changes the saved count **only when someone dragged the dock's edge** (a new flag, `m_userDragged`, is set while a finger or mouse is down on it and cleared after each fit); in every other case the saved count stays and `applyColumns()` makes the dock as wide as that count asks, as far as there is room. With the removal of the panels' minimum widths (121st entry) there should be room for 2 columns in portrait. A floating toolbox is not affected (it returns at once). The old condition is kept in a comment.
+**Not verified:** a build or a device.

@@ -68,6 +68,7 @@ private:
     // multiples of tool icon columns on scale?").
     void snapToColumns();
     void applyColumns();
+    bool m_userDragged {false};   // Krimble 2026-10-13: a finger or mouse was down on the dock's edge since the last fit to columns
     void fitHeightToContents();   // Krimble 2026-10-12: a floating toolbox is only as tall as its tools
 public:
     // KRIMBLE 2026-10-07: a floating toolbox has no corner gadget; it is resized by two edge strips (right edge: width,

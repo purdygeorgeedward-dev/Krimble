@@ -3096,6 +3096,23 @@ KisMainWindow::KisMainWindow(QUuid uuid)
             krimbleInstallMenuShortcutStripping(this);   // Krimble 2026-10-13 (4th): the real fix for the wide menus (see above)
             krimbleInstallCanvasOnlyExit(this);          // Krimble 2026-10-13 (5th): the X that leaves Canvas Only mode
             krimbleRemoveMinimumWidths(this);            // Krimble 2026-10-13 (6th): no minimum widths (see above)
+            // Krimble 2026-10-13 (13th): George: "The saved window state on close is the most reliable predictor of the next load state. If we can
+            // set it, Brushes will behave." Krita writes the panel layout only when the last image is closed or a toolbar is changed, never when
+            // Android stops the app (swiping it away, or low memory), so a panel closed in one session came back in the next. The layout is
+            // now also written when the app goes to the background (as it does when the last image is closed), unless the welcome page is
+            // showing (Krita does not save that layout) or Canvas Only mode is on (its layout hides everything).
+            if (!property("krimbleSaveOnBackground").toBool()) {
+                setProperty("krimbleSaveOnBackground", true);
+                connect(qApp, &QGuiApplication::applicationStateChanged, this, [this](Qt::ApplicationState state) {
+                    if (state != Qt::ApplicationHidden && state != Qt::ApplicationSuspended) return;
+                    if (d->widgetStack->currentIndex() == 0) return;
+                    QAction *canvasOnly = d->viewManager ? d->viewManager->actionCollection()->action(QStringLiteral("view_show_canvas_only")) : nullptr;
+                    if (canvasOnly && canvasOnly->isChecked()) return;
+                    d->windowStateConfig.writeEntry("ko_geometry", saveGeometry().toBase64());
+                    d->windowStateConfig.writeEntry("State", saveState().toBase64());
+                    saveWindowSettings();
+                });
+            }
         });
         grabTimer->start(2000);
         Q_FOREACH (QAction *top, menuBar()->actions()) krimbleHideMenuShortcuts(top->menu(), 0);
