@@ -7,6 +7,8 @@
         <!-- Krimble 2026-10-13: George's artwork for Preferences (color selector page) and New Document (custom document, from clipboard) -->
         <file>dark_krimble-config-color-selector.svg</file>
         <file>light_krimble-config-color-selector.svg</file>
+        <file>dark_krimble-share.svg</file>
+        <file>light_krimble-share.svg</file>
         <file>dark_krimble-new-document.png</file>
         <file>light_krimble-new-document.png</file>
         <file>dark_krimble-new-from-clipboard.png</file>

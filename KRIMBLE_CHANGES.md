@@ -4144,3 +4144,14 @@ George's rule from now on: ask where every new feature goes before it is built, 
 
 This entry also pushes the removals above (items 1, 3, 4, 5, 7, 8), which are George's decisions in the same message, because they are in the same file as 26 to 29.
 **Not verified:** a build or a device. George is close to his weekly usage limit and will return after he has put 1.0.35 on GitHub.
+
+## 2026-10-13 (123rd) — File > Share... (George's design; built at his word during the feature freeze)
+
+**Files:** `libs/ui/KisMainWindow.cpp`, `krita/pics/svg/svg-icons.qrc`, `krita/pics/svg/dark_krimble-share.svg`, `krita/pics/svg/light_krimble-share.svg`
+
+George's words, in order: "What if the menu item for sharing is just Share... and it opens a dialog window to get the details?"; "And that universal share symbol."; where: "After export options."; the details: "All of the things you indicated."; "PNG has a quality slider too."; then, after being told that many apps recompress or shrink what they receive: "It can be tested, of course." and "No warnings. Build it."
+- **Menu:** one item, **Share...**, right after **Export Options...** in the File menu, with the share symbol (three dots joined by two lines, drawn for Krimble, dark and light versions, in `svg-icons.qrc`). It replaces the commented-out Share as JPG and Share as PNG (kept commented). A menu that has one item with an icon may show an empty icon column for all its items; not seen yet.
+- **Dialog:** **Format** (JPG or PNG); a **slider**: for JPG "Quality" (10 to 100, default 90), for PNG "Compression" (0 to 9, default 5; more makes a smaller file and the picture stays the same); **Size** (Original size, or Longest side 1920, 1280 or 1080 px; a smaller picture is not enlarged); **Flatten onto white** (JPG only, on by default; unchecked, transparent areas turn black in the JPG). **Share** and **Cancel**. No warning text (George's decision). Share opens Android's share sheet through the existing `ShareHelper.shareFile`.
+- **How it was made:** `krimbleShareWithOptions` is the old `krimbleShareImage` with the options added (scaling with `Qt::SmoothTransformation`, JPG quality from the slider, PNG compression mapped to Qt's 0 to 100 quality as (9 - level) x 100 / 9); `krimbleShowShare` is the dialog.
+- Not done: testing what each receiving app does to the picture (George: "It can be tested, of course"); that needs his phone.
+**Not verified:** a build or a device.

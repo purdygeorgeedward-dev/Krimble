@@ -1153,6 +1153,134 @@ static void krimbleShareImage(KisMainWindow *win, bool asJpg)
 #endif
 }
 
+// Krimble 2026-10-13 (10th): "Share..." (George's design, in his own words and by his choices: "What if the menu item for sharing is just Share...
+// and it opens a dialog window to get the details?", "And that universal share symbol.", "After export options.", "All of the things you
+// indicated.", "PNG has a quality slider too.", "No warnings. Build it."). The dialog has: Format (JPG or PNG); a slider, "Quality" for JPG
+// (10 to 100) and "Compression" for PNG (0 to 9, where more makes a smaller file and the picture stays the same); Size (original, or a
+// longest side of 1920, 1280 or 1080 px); and "Flatten onto white" (JPG only). Share then opens Android's share sheet.
+static void krimbleShareWithOptions(KisMainWindow *win, bool asJpg, int level, int maxSide, bool flatten)
+{
+#ifdef Q_OS_ANDROID
+    KisImageSP image;
+    if (win->viewManager()) {
+        image = win->viewManager()->image();
+    }
+    if (!image) {
+        QMessageBox::information(win, i18n("Share"), i18n("Open an image first."));
+        return;
+    }
+    image->waitForDone();
+    QImage flat = image->convertToQImage(image->bounds(), image->colorSpace()->profile());
+    if (flat.isNull()) {
+        QMessageBox::warning(win, i18n("Share"), i18n("The image could not be prepared for sharing."));
+        return;
+    }
+    if (maxSide > 0 && qMax(flat.width(), flat.height()) > maxSide) {
+        flat = flat.scaled(maxSide, maxSide, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    }
+    const QString dirPath = QStandardPaths::writableLocation(QStandardPaths::CacheLocation) + QStringLiteral("/share");
+    QDir().mkpath(dirPath);
+    const QString base = QStringLiteral("Krimble-%1").arg(QDateTime::currentDateTime().toString(QStringLiteral("yyyyMMdd-HHmmss")));
+    const QString extension = asJpg ? QStringLiteral(".jpg") : QStringLiteral(".png");
+    const QString path = dirPath + QLatin1Char('/') + base + extension;
+    bool saved;
+    if (asJpg) {
+        QImage toSave = flat;
+        if (flatten) {
+            toSave = QImage(flat.size(), QImage::Format_RGB32);
+            toSave.fill(Qt::white);
+            QPainter painter(&toSave);
+            painter.drawImage(0, 0, flat);
+            painter.end();
+        }
+        saved = toSave.save(path, "JPG", level);
+    } else {
+        // Qt's PNG quality: 0 is the smallest file, 100 the largest; the slider's 9 is the smallest file
+        saved = flat.save(path, "PNG", (9 - qBound(0, level, 9)) * 100 / 9);
+    }
+    if (!saved) {
+        QMessageBox::warning(win, i18n("Share"), i18n("The image could not be saved for sharing."));
+        return;
+    }
+    QAndroidJniObject jPath = QAndroidJniObject::fromString(path);
+    QAndroidJniObject jMime = QAndroidJniObject::fromString(asJpg ? QStringLiteral("image/jpeg") : QStringLiteral("image/png"));
+    QAndroidJniObject jName = QAndroidJniObject::fromString(base + extension);
+    const jboolean ok = QAndroidJniObject::callStaticMethod<jboolean>("org/krimble/android/ShareHelper", "shareFile",
+        "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Z", jPath.object<jstring>(), jMime.object<jstring>(), jName.object<jstring>());
+    if (!ok) {
+        QMessageBox::warning(win, i18n("Share"), i18n("Sharing did not work on this phone."));
+    }
+#else
+    Q_UNUSED(win); Q_UNUSED(asJpg); Q_UNUSED(level); Q_UNUSED(maxSide); Q_UNUSED(flatten);
+#endif
+}
+
+static void krimbleShowShare(KisMainWindow *win)
+{
+    if (!win->viewManager() || !win->viewManager()->image()) {
+        QMessageBox::information(win, i18n("Share"), i18n("Open an image first."));
+        return;
+    }
+    QDialog *dialog = new QDialog(win);
+    dialog->setAttribute(Qt::WA_DeleteOnClose);
+    dialog->setWindowTitle(i18n("Share"));
+    QVBoxLayout *layout = new QVBoxLayout(dialog);
+    layout->setContentsMargins(8, 8, 8, 8);
+    QComboBox *format = new QComboBox(dialog);
+    format->addItem(i18n("JPG"));
+    format->addItem(i18n("PNG"));
+    QLabel *levelLabel = new QLabel(dialog);
+    QSlider *level = new QSlider(Qt::Horizontal, dialog);
+    QComboBox *size = new QComboBox(dialog);
+    size->addItem(i18n("Original size"), 0);
+    size->addItem(i18n("Longest side 1920 px"), 1920);
+    size->addItem(i18n("Longest side 1280 px"), 1280);
+    size->addItem(i18n("Longest side 1080 px"), 1080);
+    QCheckBox *flatten = new QCheckBox(i18n("Flatten onto white"), dialog);
+    flatten->setChecked(true);
+    auto updateLevelLabel = [format, levelLabel, level]() {
+        levelLabel->setText(format->currentIndex() == 0 ? i18n("Quality: %1", level->value()) : i18n("Compression: %1", level->value()));
+    };
+    auto updateFormat = [format, level, flatten, updateLevelLabel]() {
+        const bool jpg = format->currentIndex() == 0;
+        flatten->setEnabled(jpg);
+        if (jpg) {
+            level->setRange(10, 100);
+            level->setValue(90);
+        } else {
+            level->setRange(0, 9);
+            level->setValue(5);
+        }
+        updateLevelLabel();
+    };
+    QObject::connect(format, QOverload<int>::of(&QComboBox::currentIndexChanged), dialog, [updateFormat](int) { updateFormat(); });
+    QObject::connect(level, &QSlider::valueChanged, dialog, [updateLevelLabel](int) { updateLevelLabel(); });
+    updateFormat();
+    QDialogButtonBox *buttons = new QDialogButtonBox(dialog);
+    QPushButton *shareButton = buttons->addButton(i18n("Share"), QDialogButtonBox::AcceptRole);
+    buttons->addButton(QDialogButtonBox::Cancel);
+    Q_UNUSED(shareButton);
+    QObject::connect(buttons, &QDialogButtonBox::rejected, dialog, &QDialog::reject);
+    QObject::connect(buttons, &QDialogButtonBox::accepted, dialog, [win, dialog, format, level, size, flatten]() {
+        const bool jpg = format->currentIndex() == 0;
+        const int value = level->value();
+        const int maxSide = size->currentData().toInt();
+        const bool flat = flatten->isChecked();
+        dialog->accept();
+        krimbleShareWithOptions(win, jpg, value, maxSide, flat);
+    });
+    layout->addWidget(format);
+    layout->addWidget(levelLabel);
+    layout->addWidget(level);
+    layout->addWidget(size);
+    layout->addWidget(flatten);
+    layout->addWidget(buttons);
+    if (QScreen *scr = QGuiApplication::primaryScreen()) {
+        dialog->resize(int(scr->availableGeometry().width() * 0.9), dialog->sizeHint().height() + 20);
+    }
+    dialog->show();
+}
+
 // "Batch Process...": resize or convert many pictures with one tap (Claude's idea; George: "Add batch presets.").
 // Pick pictures, pick a preset, and the results are saved in Pictures/Krimble/Batch (the originals are not touched).
 // Works on pictures Qt can read (JPG, PNG, WebP, BMP and the like), not on layered files.
@@ -1443,6 +1571,19 @@ static void krimbleInstallFileExtras(KisMainWindow *win)
             QString text = action->text();
             text.remove(QLatin1Char('&'));
             if (text == QLatin1String("Quit") || text == QLatin1String("Exit")) before = action;
+        }
+        // Krimble 2026-10-13 (10th): Share... (George's design): right after Export Options..., with the share symbol.
+        {
+            QAction *shareAction = new QAction(KisIconUtils::loadIcon(QStringLiteral("krimble-share")), i18n("Share..."), file);
+            QObject::connect(shareAction, &QAction::triggered, win, [win]() { krimbleShowShare(win); });
+            QAction *afterExport = nullptr;
+            const QList<QAction*> fileActions = file->actions();
+            for (int i = 0; i < fileActions.size(); ++i) {
+                QString text = fileActions.at(i)->text();
+                text.remove(QLatin1Char('&'));
+                if (text.startsWith(QLatin1String("Export Options")) && i + 1 < fileActions.size()) afterExport = fileActions.at(i + 1);
+            }
+            file->insertAction(afterExport ? afterExport : before, shareAction);
         }
         QAction *shareJpg = new QAction(i18n("Share as JPG..."), file);
         QObject::connect(shareJpg, &QAction::triggered, win, [win]() { krimbleShareImage(win, true); });
