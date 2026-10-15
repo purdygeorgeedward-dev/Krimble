@@ -923,7 +923,10 @@ void SvgTextCursor::paintDecorations(QPainter &gc, QColor selectionColor, int de
             // already transformed to shape space above -- unlike
             // selectionHandlePos()/hitTestSelectionHandle(), which work in
             // document space for hit-testing against touch points.
-            KisHandlePainterHelper selectionHandleHelper(&gc, handleRadius, decorationThickness);
+            // Krimble 2026-10-15: George (1.0.36): "Text editor still has giant balls." ("yes please shrink the large circles") The selection
+            // handles are drawn at half their radius; the grab area (handleRadius, used for hit tests) is unchanged.
+            // KisHandlePainterHelper selectionHandleHelper(&gc, handleRadius, decorationThickness);
+            KisHandlePainterHelper selectionHandleHelper(&gc, handleRadius * 0.5, decorationThickness);
             selectionHandleHelper.setHandleStyle(KisHandleStyle::secondarySelection(handlePalette));
             QLineF anchorCaret;
             QLineF posCaret;
@@ -960,7 +963,9 @@ void SvgTextCursor::paintDecorations(QPainter &gc, QColor selectionColor, int de
         if (d->typeSettingMode && d->drawTypeSettingHandle) {
             d->handleRadius = handleRadius;
             QTransform painterTf = gc.transform();
-            KisHandlePainterHelper helper(&gc, handleRadius, decorationThickness);
+            // Krimble 2026-10-15: the typesetting handle is drawn at half its radius too (see above); d->handleRadius, the grab area, is unchanged.
+            // KisHandlePainterHelper helper(&gc, handleRadius, decorationThickness);
+            KisHandlePainterHelper helper(&gc, handleRadius * 0.5, decorationThickness);
             const KisHandleStyle highlight = KisHandleStyle::partiallyHighlightedPrimaryHandles(handlePalette);
             const KisHandleStyle regular = KisHandleStyle::secondarySelection(handlePalette);
 

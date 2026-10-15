@@ -2301,6 +2301,32 @@ static void krimbleInstallImageExtras(KisMainWindow *win)
                 });
             }
         }
+        // Krimble 2026-10-15: George (1.0.36): "I want Free rotation in the image rotation menu." and "Rotate the graphic like the old default transform
+        // behavior. Free transform - rotate." A new item, "Free Rotate", first in Image > Image Rotation (the place inside the submenu is my choice),
+        // starts the Free Transform tool, where dragging outside the box turns the graphic by any angle.
+        Q_FOREACH (QAction *action, imageMenu->actions()) {
+            QString text = action->text();
+            text.remove(QLatin1Char('&'));
+            if (text == QLatin1String("Image Rotation") && action->menu()) {
+                QMenu *rotation = action->menu();
+                QObject::connect(rotation, &QMenu::aboutToShow, win, [win, rotation]() {
+                    if (rotation->findChild<QAction*>(QStringLiteral("krimbleFreeRotate"))) return;
+                    QAction *freeRotate = new QAction(i18n("Free Rotate"), rotation);
+                    freeRotate->setObjectName(QStringLiteral("krimbleFreeRotate"));
+                    QObject::connect(freeRotate, &QAction::triggered, win, [win]() {
+                        KisViewManager *view = win->viewManager();
+                        if (!view) return;
+                        QAction *transform = view->actionCollection()->action(QStringLiteral("KisToolTransformFree"));
+                        if (transform) transform->trigger();
+                    });
+                    QAction *firstAction = rotation->actions().value(0);
+                    QAction *divider = new QAction(rotation);
+                    divider->setSeparator(true);
+                    rotation->insertAction(firstAction, freeRotate);
+                    rotation->insertAction(firstAction, divider);
+                });
+            }
+        }
         QAction *batch = new QAction(i18n("Batch Process..."), imageMenu);
         batch->setObjectName(QStringLiteral("krimbleBatchProcess"));
         QObject::connect(batch, &QAction::triggered, win, [win]() { krimbleShowBatch(win); });
@@ -2522,6 +2548,36 @@ private:
 // window. It works by changing the dock areas the toolbox is allowed in while the finger moves (the window
 // system asks for them each time). When the finger is lifted, all areas are allowed again.
 // KrimbleDockTolerance::Distance is that distance in pixels (logical, so about 2.5 times as many on the screen).
+// Krimble 2026-10-15: George (1.0.36): "Floating windows have very small buttons for close and stuff, and ugly aqua colored title bar. Make
+// tiny adjustment to increase size, then make the bar blue." and, asked whether the color should match the UI: "I guess the blue gray." The title bar
+// of an image window (QMdiSubWindow) is drawn by the style: its height, which also sizes its buttons, is `PM_TitleBarHeight`, and its color is the
+// palette's highlight (the aqua). This style is put on the image windows only: the title bar is 25% higher (so its buttons are 25% bigger) and
+// drawn in the app's blue-gray, rgb(55,57,82), "Krimble dark". It is my best guess that this is the bar George means; not seen on a phone.
+class KrimbleMdiTitleStyle : public QProxyStyle
+{
+public:
+    KrimbleMdiTitleStyle() : QProxyStyle(QApplication::style()->objectName()) {}
+    int pixelMetric(PixelMetric metric, const QStyleOption *option = nullptr, const QWidget *widget = nullptr) const override
+    {
+        const int base = QProxyStyle::pixelMetric(metric, option, widget);
+        if (metric == QStyle::PM_TitleBarHeight) return int(base * 1.25);
+        return base;
+    }
+    void drawComplexControl(ComplexControl control, const QStyleOptionComplex *option, QPainter *painter, const QWidget *widget = nullptr) const override
+    {
+        if (control == QStyle::CC_TitleBar) {
+            if (const QStyleOptionTitleBar *titleBar = qstyleoption_cast<const QStyleOptionTitleBar*>(option)) {
+                QStyleOptionTitleBar copy(*titleBar);
+                copy.palette.setColor(QPalette::Highlight, QColor(55, 57, 82));
+                copy.palette.setColor(QPalette::HighlightedText, QColor(230, 230, 230));
+                QProxyStyle::drawComplexControl(control, &copy, painter, widget);
+                return;
+            }
+        }
+        QProxyStyle::drawComplexControl(control, option, painter, widget);
+    }
+};
+
 class KrimbleDockTolerance : public QObject
 {
 public:
@@ -2549,6 +2605,15 @@ protected:
                 if (r.right() - p.x() < Distance) allowed |= Qt::RightDockWidgetArea;
                 if (p.y() - r.top() < Distance) allowed |= Qt::TopDockWidgetArea;
                 if (r.bottom() - p.y() < Distance) allowed |= Qt::BottomDockWidgetArea;
+                // Krimble 2026-10-15: George (1.0.36): "Panels don't go into tabs at all now when you drag them on top of each other." and
+                // "Love the tabs. Bring them back." and "Expand so they tab." Dropping a panel onto another panel needs the area of that panel to be
+                // allowed, and only the window's edges were. While the finger is over a docked panel, that panel's area is allowed too, so the
+                // panel can join it (as a tab, or beside it, as Qt decides from where on that panel the finger is).
+                Q_FOREACH (QDockWidget *other, m_win->findChildren<QDockWidget*>()) {
+                    if (other == m_dock || other->isFloating() || !other->isVisible()) continue;
+                    const QRect otherRect(other->mapToGlobal(QPoint(0, 0)), other->size());
+                    if (otherRect.contains(p)) allowed |= m_win->dockWidgetArea(other);
+                }
                 if (m_dock->allowedAreas() != allowed) {
                     m_dock->setAllowedAreas(allowed);
                 }
@@ -3564,6 +3629,13 @@ void KisMainWindow::showView(KisView *imageView, QMdiSubWindow *subwin)
         // subwin->setOption(QMdiSubWindow::RubberBandResize, cfg.readEntry<int>("mdi_rubberband", cfg.useOpenGL()));
         subwin->setOption(QMdiSubWindow::RubberBandResize, cfg.readEntry<int>("mdi_rubberband", krimbleRubberBandDefault(cfg)));
         subwin->setWindowIcon(qApp->windowIcon());
+#ifdef Q_OS_ANDROID
+        {
+            KrimbleMdiTitleStyle *titleStyle = new KrimbleMdiTitleStyle();   // Krimble 2026-10-15: bigger buttons, blue-gray title bar (see above)
+            titleStyle->setParent(subwin);
+            subwin->setStyle(titleStyle);
+        }
+#endif
 
 #ifdef Q_OS_MACOS
         connect(subwin, SIGNAL(destroyed()), SLOT(updateSubwindowFlags()));
