@@ -4273,3 +4273,10 @@ George's decisions on his 1.0.36 findings (his numbers):
 
 George (1.0.36): "I can't tell where one panel ends and the next begins when they stack. They need a light line at the top and a dark line at the bottom." The title bar of every **docked** panel now draws two lines along its top edge, in `KoDockWidgetTitleBar::paintEvent`: a **dark** line (rgb 18,19,34) at the very top, which is the bottom edge of the panel above, and just under it a **light** line (rgb 110,114,156), which is the top edge of this panel. Each is about 1 logical px (`qMax(2, qRound(devicePixelRatioF()))` device px). The last panel of a column has no panel below it, so its bottom has no dark line (the code only draws the title bar). Floating panels are not changed. The colors and the thickness are Claude's guess, not seen on a phone.
 **Not verified:** a build or a device.
+
+## 2026-10-15 (136th) — Tall menus show their own name as a heading
+
+**Files:** `libs/ui/KisMainWindow.cpp`
+
+George (1.0.36): "Got another stuck menu. Not sure why yet. ... Can we move open menus down so we can still see the selected menu title?" Qt places every menu of two or more columns at the very top of the screen, over the menu bar, on purpose (`QMenu::popup`: `if (ncols > 1) pos.setY(screen.top() + desktopFrame)`), so moving it down would cut off its bottom items. Of the two options given, George chose **a**: the menu's own name as a heading. A menu of **12 or more items** now gets, as its first line, its name in bold on a blue-gray strip (a `QWidgetAction` with a `QLabel`) and a divider after it. It is added each time the menu is about to show, after Krita's own handler has run (the Window menu is rebuilt then). The extra line can tip a borderline menu into two columns. The stuck menu itself (cause unknown) is not addressed; the heading may help to see which one it was.
+**Not verified:** a build or a device.

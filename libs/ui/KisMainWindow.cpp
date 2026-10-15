@@ -96,6 +96,7 @@
 #include <QMimeData>
 #include <QStackedWidget>
 #include <QProxyStyle>
+#include <QWidgetAction>
 #include <QScreen>
 #include <QAction>
 #include <QWindow>
@@ -505,6 +506,42 @@ static void krimbleInstallMenuShortcutStripping(QMainWindow *win)
                 if (saved->at(i).first) saved->at(i).first->setShortcuts(saved->at(i).second);
             }
             saved->clear();
+        });
+        // Krimble 2026-10-15: George (1.0.36): "Got another stuck menu ... Can we move open menus down so we can still see the selected menu title?"
+        // Qt puts every menu with two or more columns at the very top of the screen, over the menu bar, on purpose (QMenu::popup:
+        // `if (ncols > 1) pos.setY(screen.top() + desktopFrame)`), so it cannot be moved down without cutting off its bottom items. George chose
+        // (a): the menu's own name as a heading on its first line. Only for menus of 12 or more items (the others sit under the menu bar), and
+        // added each time the menu is about to show (the Window menu is rebuilt then), after Krita's own handler has run.
+        QString menuTitle = top->text();
+        menuTitle.remove(QLatin1Char('&'));
+        QObject::connect(menu, &QMenu::aboutToShow, menu, [menu, menuTitle]() {
+            if (menu->findChild<QWidgetAction*>(QStringLiteral("krimbleMenuHeading"))) {
+                // still there from the last time: make sure it is the first one
+                QAction *headingAction = menu->findChild<QWidgetAction*>(QStringLiteral("krimbleMenuHeading"));
+                if (menu->actions().value(0) == headingAction) return;
+            }
+            int itemCount = 0;
+            Q_FOREACH (QAction *a, menu->actions()) {
+                if (!a->isSeparator() && a->isVisible()) ++itemCount;
+            }
+            if (itemCount < 12) return;
+            QWidgetAction *heading = menu->findChild<QWidgetAction*>(QStringLiteral("krimbleMenuHeading"));
+            QAction *divider = menu->findChild<QAction*>(QStringLiteral("krimbleMenuHeadingDivider"));
+            if (!heading) {
+                heading = new QWidgetAction(menu);
+                heading->setObjectName(QStringLiteral("krimbleMenuHeading"));
+                QLabel *label = new QLabel(menuTitle);
+                label->setStyleSheet(QStringLiteral("QLabel { font-weight: bold; padding: 8px 14px; color: #e6e6e6; background-color: #373952; }"));
+                heading->setDefaultWidget(label);
+                divider = new QAction(menu);
+                divider->setObjectName(QStringLiteral("krimbleMenuHeadingDivider"));
+                divider->setSeparator(true);
+            }
+            menu->removeAction(heading);
+            menu->removeAction(divider);
+            QAction *firstAction = menu->actions().value(0);
+            menu->insertAction(firstAction, heading);
+            menu->insertAction(firstAction, divider);
         });
     }
 }
