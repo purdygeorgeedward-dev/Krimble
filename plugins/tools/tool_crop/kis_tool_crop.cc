@@ -454,7 +454,17 @@ void KisToolCrop::paintOutlineWithHandles(QPainter& gc)
         pen.setCosmetic(true);
         gc.setPen(pen);
         gc.setBrush(m_transparentGrey);
-        gc.drawPath(handlesPath());
+        // gc.drawPath(handlesPath());
+        // Krimble 2026-10-14: George (1.0.36): "Sizing boxes on the crop tool should be smaller. Grab area is fine but the boxes are too big." The
+        // boxes are drawn at half their size, around the same centers; the grab areas (handlesPath() and the handle rectangles) are unchanged.
+        QPainterPath smallHandles;
+        Q_FOREACH (const QPolygonF &handlePolygon, handlesPath().toSubpathPolygons()) {
+            const QRectF full = handlePolygon.boundingRect();
+            QRectF small(0, 0, full.width() / 2.0, full.height() / 2.0);
+            small.moveCenter(full.center());
+            smallHandles.addRect(small);
+        }
+        gc.drawPath(smallHandles);
 
         gc.setClipRect(borderRect, Qt::IntersectClip);
 

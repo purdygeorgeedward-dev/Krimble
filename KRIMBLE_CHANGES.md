@@ -4241,3 +4241,16 @@ George (1.0.36, `21bf956`): "I got the build. It's good! It's so good! The poly 
 **Answers given, no change:** 18 the Photo Edit toolbar has the Crop **tool** and the **Apply Crop** action (two crop icons); 1 comes from the dock-tolerance rule of the 96th entry (a panel is allowed to dock only within 8 px of a window side, which also stops dropping one panel onto another to make tabs).
 **Not done, waiting for George's decisions:** 1, 3, 4, 5, 7, 8, 9, 10, 12, 13, 14, 15, 19, 20.
 **Not verified:** a build or a device.
+
+## 2026-10-15 (133rd) — More of George's 1.0.36 findings: Photo Edit crop tools out, smaller crop boxes, narrower wait window, bigger icons
+
+**Files:** `krita/krita5.xmlgui`, `plugins/tools/tool_crop/kis_tool_crop.cc`, `libs/ui/dialogs/kis_delayed_save_dialog.cpp`, `libs/ui/KisOpenPane.cpp`, `libs/ui/KisApplication.cpp`
+
+George's decisions on the findings of the 132nd entry (his numbers):
+- **18** "18 sucks. Leave out crop tools." The Crop tool and Apply Crop actions (and the divider after them) of the **Photo Edit** toolbar are inside an XML comment in `krita5.xmlgui` (checked as well-formed XML). The two crop icons were the Crop tool and the Apply Crop action.
+- **15** "Sizing boxes on the crop tool should be smaller. Grab area is fine but the boxes are too big." The boxes are **drawn at half their size** around the same centers (`paintOutlineWithHandles`); the grab areas (`handlesPath()` and the handle rectangles, 44 px) are unchanged.
+- **8** "Yes. Narrow." The Healing Brush wait window ("Waiting for image operation to complete...", `KisDelayedSaveDialog`): the message now wraps and the window is at most **90% of the screen** wide.
+- **3** "Yes. Fix. Need big icons. Small screen." **New Document:** the section list is **34%** of the screen wide (was 20% in landscape and 22% in portrait, the portrait branch being the one in his screenshots), so the icons and their names are not cut off. **Preferences:** the 64 px `setIconSize` of the 116th entry did nothing, because the page list (`KPageListView`, KWidgetsAddons `kpageview_p.cpp`) takes its icon size from the style, `style->pixelMetric(QStyle::PM_IconViewIconSize)`, not from the view. A small style (`KrimblePageListStyle`, a `QProxyStyle`) is put on that one list and returns **64 logical px** (about 216 on the screen).
+**Answers given, no change yet:** 1 (panels do not tab: the dock-tolerance rule of the 96th entry only allows docking within 8 px of a window side; George: "Expand so they tab", "Love the tabs. Bring them back."), 4 (Brushes at launch: "I know. Still sucks."), 19 (the Type Options toolbar is empty because the Type tool fills it only while it is active).
+**Decided, not built yet:** 5 (floating windows: buttons a little bigger, title bar the app's blue-gray), 7 and 9 (free rotate = the Free Transform tool in Rotate mode, a menu item in Image Rotation and an icon in the toolbox), 14 (shrink the text box's large circles), 20 (menus moved down so the menu title stays visible).
+**Not verified:** a build or a device.

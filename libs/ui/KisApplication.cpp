@@ -59,6 +59,7 @@
 #include <QProcessEnvironment>
 #include <QStringList>
 #include <QStyle>
+#include <QProxyStyle>
 #include <QStyleFactory>
 #include <QSysInfo>
 #include <QTimer>
@@ -208,6 +209,21 @@ private:
  * a warning about being destroyed too early
  */
 Q_GLOBAL_STATIC(QThreadStorage<AppRecursionInfo>, s_recursionInfo)
+
+// Krimble 2026-10-14: the page list of Preferences (KPageListView) takes the size of its pictures from the style
+// (`style->pixelMetric(QStyle::PM_IconViewIconSize)`, see kpageview_p.cpp of KWidgetsAddons), not from the view's iconSize(), so the
+// setIconSize(64) of 2026-10-13 did nothing (George, 1.0.36: "The new icons are way too small on the new file and prefs dialogs." and "Need big
+// icons. Small screen."). This style is put on that one list only and gives 64 logical px (about 216 on the screen) for the pictures.
+class KrimblePageListStyle : public QProxyStyle
+{
+public:
+    KrimblePageListStyle() : QProxyStyle(QApplication::style()->objectName()) {}
+    int pixelMetric(PixelMetric metric, const QStyleOption *option = nullptr, const QWidget *widget = nullptr) const override
+    {
+        if (metric == QStyle::PM_IconViewIconSize) return 64;
+        return QProxyStyle::pixelMetric(metric, option, widget);
+    }
+};
 
 class KisApplication::Private
 {
@@ -536,6 +552,11 @@ protected:
                                     // the program's small default (32 logical px); they are now 64 logical px (about 216 on the screen), which
                                     // is the most that fits in the narrowed list.
                                     pageList->setIconSize(QSize(64, 64));
+                                    {
+                                        KrimblePageListStyle *pageListStyle = new KrimblePageListStyle();
+                                        pageListStyle->setParent(pageList);
+                                        pageList->setStyle(pageListStyle);   // Krimble 2026-10-14: the real way to make the pictures big (see above)
+                                    }
                                 }
                             }
                         }

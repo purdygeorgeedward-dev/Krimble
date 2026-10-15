@@ -150,9 +150,13 @@ KisOpenPane::KisOpenPane(QWidget *parent, const QStringList& mimeFilter, const Q
         const int screenWidth = scr->availableGeometry().width();
         if (screenWidth < 450) {
             d->m_sectionList->setMinimumWidth(0);
-            d->m_sectionList->setFixedWidth(int(screenWidth * 0.22));
+            // d->m_sectionList->setFixedWidth(int(screenWidth * 0.22));
+            d->m_sectionList->setFixedWidth(int(screenWidth * 0.34));   // Krimble 2026-10-14: portrait (the screenshots): 34% too, not 22%
         } else {
-            d->m_sectionList->setMaximumWidth(int(screenWidth * 0.20));
+            // d->m_sectionList->setMaximumWidth(int(screenWidth * 0.20));
+            // Krimble 2026-10-14: George (1.0.36): "The new icons are way too small on the new file ... dialogs. Column area for them is too narrow
+            // on one dialog." and "Need big icons. Small screen." The list is 34% of the screen wide, so the icons and their names are not cut.
+            d->m_sectionList->setMaximumWidth(int(screenWidth * 0.34));
         }
     }
     // Krimble 2026-10-12: George: the New Document window wastes a lot of space. Small margins and spacing around and between

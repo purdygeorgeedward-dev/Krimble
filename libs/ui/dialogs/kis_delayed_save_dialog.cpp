@@ -8,6 +8,8 @@
 #include "ui_kis_delayed_save_dialog.h"
 
 #include <QElapsedTimer>
+#include <QGuiApplication>
+#include <QScreen>
 #include <QThread>
 #include <QTimer>
 #include <QtGlobal>
@@ -51,6 +53,13 @@ KisDelayedSaveDialog::KisDelayedSaveDialog(KisImageSP image, Type type, int busy
     KIS_ASSERT_RECOVER_NOOP(image);
 
     setMainWidget(ui);
+
+    // Krimble 2026-10-14: George (1.0.36): "Healing Brush message window is needlessly super wide." ("Yes. Narrow.") The message is allowed to wrap
+    // and the window is at most 90% of the screen wide.
+    ui->lblMessage->setWordWrap(true);
+    if (QScreen *krimbleScreen = QGuiApplication::primaryScreen()) {
+        setMaximumWidth(int(krimbleScreen->availableGeometry().width() * 0.9));
+    }
 
     if (type == SaveDialog) {
         setButtons(KoDialog::Ok | KoDialog::Cancel | KoDialog::User1);

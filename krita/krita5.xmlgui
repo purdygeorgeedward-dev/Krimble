@@ -1520,9 +1520,11 @@ xsi:schemaLocation="http://www.kde.org/standards/kxmlgui/1.0  http://www.kde.org
 
 <ToolBar name="PhotoEditBar" fullWidth="false" position="top" hidden="true">
     <Text>Photo Edit</Text>
+    <!-- Krimble 2026-10-14: George (1.0.36): "18 sucks. Leave out crop tools." The Crop tool and Apply Crop are out of this toolbar:
     <Action name="KisToolCrop"/>
     <Action name="apply_crop"/>
     <Separator/>
+    -->
     <Action name="rotateImageCCW90"/>
     <Action name="rotateImageCW90"/>
     <Action name="rotateImage180"/>
