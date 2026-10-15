@@ -4306,3 +4306,10 @@ George read `Krimble-1.0.37-beta-source.patch` (1,886 lines, made on the server 
 - **14 Default text size.** `SvgTextTool::propertiesForNewText` (Android): new text with no size of its own starts at **24 pt** (the size box showed 12 pt). It does nothing if the current properties already carry a size, so the effect is not certain. An empty style-preset list no longer dereferences (`res.first()` on an empty vector). **Not changed:** the size box of `KisTypeOptionsBar` reads the size with `toDouble()`, but the property holds a `CssLengthPercentage` (Absolute is in pt per `KoSvgText.h`) and the box converts with `pointsPerPixel()` as if it were px; the unit is unclear, so the box is left as it is.
 - **8 Floating messages.** `KisFloatingMessage::determineMetrics` used `qApp->screenAt(p)` with a point local to the parent window; it now uses `parentWidget()->screen()`, and on Android a message is not wider than the canvas. (The Healing Brush wait window of the 133rd entry is a different widget.)
 **Not verified:** a build or a device.
+
+## 2026-10-15 (140th) — Version 37
+
+**Files:** `packaging/android/apk/build.gradle`
+
+George: "Let's build it with the new graphics." `krimbleBuildNumber` 36 -> 37 (`1.0.37-beta`). The build holds everything pushed after `21bf956` (the 1.0.36 build): entries 132 to 139 and the splash images George uploaded on 2026-10-14 (`625af8a`: `logo_splash.png`, `logo_splash.jpg`, `logo_splash_holidays.png`, `logo_splash_holidays.jpg`). A Codex session left its own "1.0.37" files in the server's home folder (a patch, build.json, source-inputs.json, a sha256 and logs); that work is not official and is not in this build; the official 1.0.37 is the one built from this repository, identified by the stamp of `~/kb-apk.sh` (`"37"` and the git hash).
+**Not verified:** a build or a device.
