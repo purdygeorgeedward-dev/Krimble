@@ -104,12 +104,21 @@ double KisTypeOptionsBar::pointsPerPixel() const
 void KisTypeOptionsBar::updateVisibility()
 {
     const bool show = m_interface && KoToolManager::instance()->activeToolId() == QLatin1String("SvgTextTool");
+    // Krimble 2026-10-15: George (1.0.36): "Type Options toolbar is nothing? Why?? There should not be empty or blank toolbars." and "I thought the
+    // type toolbar would just be ghosted when type is inactive." The buttons stay in the bar and are ghosted (disabled) while the Type tool is not
+    // active, so the bar is never empty; it is shown when the Type tool is chosen, and not hidden again by this code.
     Q_FOREACH (QWidgetAction *action, m_actions) {
-        action->setVisible(show);
+        // action->setVisible(show);
+        action->setVisible(true);
+        action->setEnabled(show);
+        if (QWidget *actionWidget = action->defaultWidget()) {
+            actionWidget->setEnabled(show);
+        }
     }
     if (m_view && m_view->mainWindow()) {
         if (QToolBar *toolBar = m_view->mainWindow()->findChild<QToolBar*>(QStringLiteral("TypeOptionsBar"))) {
-            toolBar->setVisible(show);
+            // toolBar->setVisible(show);
+            if (show) toolBar->setVisible(true);
         }
     }
 }

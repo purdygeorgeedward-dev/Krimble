@@ -158,7 +158,10 @@ QRect KisFloatingMessage::determineMetrics( const int M )
     const QSize image = m_icon.isNull() ? QSize(0, 0) : minImageSize;
     QRect geom = parentWidget()->geometry();
     QPoint p(geom.width() / 2 + geom.left(), geom.height() / 2 + geom.top());
-    QScreen *s = qApp->screenAt(p);
+    // QScreen *s = qApp->screenAt(p);
+    // Krimble 2026-10-15: George (1.0.36): "Healing Brush message window is needlessly super wide." The point p is local to the parent window, not a
+    // position on the screen, so the wrong screen could be found; the parent's own screen is used. (Idea from a Codex patch, read as a clue.)
+    QScreen *s = parentWidget() ? parentWidget()->screen() : qApp->screenAt(p);
     QSize max;
     if (s) {
         max = QSize(s->availableGeometry().size() - margin);
@@ -166,6 +169,10 @@ QRect KisFloatingMessage::determineMetrics( const int M )
     else {
         max = QSize(1024, 768);
     }
+#ifdef Q_OS_ANDROID
+    // Krimble 2026-10-15: a message is not wider than the canvas it is shown on.
+    if (parentWidget()) max.setWidth(qMin(max.width(), qMax(40, parentWidget()->width() - margin.width())));
+#endif
     // If we don't do that, the boundingRect() might not be suitable for drawText() (Qt issue N67674)
     m_message.replace(QRegularExpression( " +\n"), "\n");
     // remove consecutive line breaks

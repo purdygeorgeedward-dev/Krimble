@@ -494,7 +494,9 @@ KoSvgTextProperties SvgTextTool::propertiesForNewText() const
     } else {
         KisAllResourcesModel *model = KisResourceModelProvider::resourceModel(ResourceType::CssStyles);
         QVector<KoResourceSP> res = model->resourcesForName(presetName);
-        if (res.first()) {
+        // Krimble 2026-10-15: a removed style preset must not dereference an empty list (idea from a Codex patch, read as a clue)
+        // if (res.first()) {
+        if (!res.isEmpty() && res.first()) {
             KoCssStylePresetSP style = res.first().staticCast<KoCssStylePreset>();
             qreal dpi = 72;
             KisCanvas2 *canvas2 = qobject_cast<KisCanvas2 *>(this->canvas());
@@ -507,6 +509,14 @@ KoSvgTextProperties SvgTextTool::propertiesForNewText() const
         }
     }
 
+#ifdef Q_OS_ANDROID
+    // Krimble 2026-10-15: George (1.0.36): "Default text size is way too small." New text starts at 24 pt (the size box showed 12 pt) when nothing
+    // else gives a size; a size from the selected text or from a style preset is kept. (From a Codex patch, read as a clue; the effect is not
+    // seen: if the current properties already carry a size, this does nothing.)
+    if (!props.hasProperty(KoSvgTextProperties::FontSizeId)) {
+        props.setFontSize(KoSvgText::CssLengthPercentage(24.0));
+    }
+#endif
     QColor fontColor = (canvas()->resourceManager()->isUsingOtherColor()
                 ? canvas()->resourceManager()->backgroundColor()
                 : canvas()->resourceManager()->foregroundColor()).toQColor();

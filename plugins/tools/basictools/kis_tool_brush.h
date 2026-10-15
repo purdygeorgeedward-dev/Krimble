@@ -133,6 +133,11 @@ private:
 
     QCheckBox *m_chkFinishStabilizedCurve {0};
     KisSignalMapper m_signalMapper;
+    // Krimble 2026-10-15: the user's brush while a retouch tool (Smudge, Soften, Dodge, Burn) is active; see KisToolBrush::activate()
+    KisPaintOpPresetSP m_savedRetouchPreset;
+    qreal m_savedRetouchOpacity {1.0};
+    qreal m_savedRetouchFlow {1.0};
+    qreal m_savedRetouchSize {1.0};
 };
 
 

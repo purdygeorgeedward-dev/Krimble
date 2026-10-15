@@ -12,6 +12,7 @@
 #include <KisResourceModel.h>
 #include <KisResourceTypes.h>
 #include <brushengine/kis_paintop_preset.h>
+#include <brushengine/kis_paintop_settings.h>
 
 #include <kis_canvas2.h>
 #include <KisViewManager.h>
@@ -53,6 +54,15 @@ void KisToolSmudge::activate(const QSet<KoShape*> &shapes)
     // KisPaintOpPresetSP smudgePreset = matches.first().dynamicCast<KisPaintOpPreset>();
     KisPaintOpPresetSP smudgePreset = krimbleLoadEmbeddedPreset(QStringLiteral("colorsmudge"));
     if (smudgePreset) {
+        // Krimble 2026-10-15: George (1.0.36): "The smudge tool is just a brush instead of modifying image with smudges. That's not what it's
+        // supposed to do." The default Color Smudge preset (plugins/paintops/defaultpresets/colorsmudge.kpp) has ColorRateValue 0.5: every dab
+        // adds 50% of the foreground color to what it smears, so it paints like a brush. A smudge adds no color: the rate is 0 (not
+        // pressure-controlled). The idea of this change comes from a patch of a Codex session (not applied; read as a clue); the
+        // parameter names are the ones inside the preset file.
+        if (smudgePreset->settings()) {
+            smudgePreset->settings()->setProperty("ColorRateValue", 0.0);
+            smudgePreset->settings()->setProperty("PressureColorRate", false);
+        }
         canvas2->viewManager()->canvasResourceProvider()->setPaintOpPreset(smudgePreset);
     }
 }

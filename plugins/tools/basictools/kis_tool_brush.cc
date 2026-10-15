@@ -36,6 +36,7 @@
 #include "kis_floating_message.h"
 #include "canvas/kis_canvas2.h"
 #include "KisViewManager.h"
+#include "kis_canvas_resource_provider.h"
 
 #define MAXIMUM_SMOOTHNESS_DISTANCE 1000.0 // 0..1000.0 == weight in gui
 #define MAXIMUM_MAGNETISM 1000
@@ -75,6 +76,22 @@ KisToolBrush::~KisToolBrush()
 
 void KisToolBrush::activate(const QSet<KoShape*> &shapes)
 {
+    // Krimble 2026-10-15: George (1.0.36): "Brush tool stops working for no apparent reason." and "If brush is big, stroke does nothing." The
+    // retouch tools (Smudge, Soften, Dodge, Burn) set their own brush (Dodge: white, linear dodge, 4% flow) in their activate(), and nothing gave
+    // the user's brush back, so after using one of them the Brush tool painted with a retouch brush (nearly invisible, or nothing on an empty
+    // layer). The brush, opacity, flow and size that are active when a retouch tool starts are kept here and put back in deactivate(). The
+    // idea comes from a patch of a Codex session (not applied; read as a clue).
+    if (objectName() == QLatin1String("tool_smudge") || objectName() == QLatin1String("tool_soften")
+        || objectName() == QLatin1String("tool_dodge") || objectName() == QLatin1String("tool_burn")) {
+        KisCanvas2 *retouchCanvas = dynamic_cast<KisCanvas2*>(canvas());
+        if (retouchCanvas && retouchCanvas->viewManager()) {
+            KisCanvasResourceProvider *provider = retouchCanvas->viewManager()->canvasResourceProvider();
+            m_savedRetouchPreset = provider->currentPreset();
+            m_savedRetouchOpacity = provider->opacity();
+            m_savedRetouchFlow = provider->flow();
+            m_savedRetouchSize = provider->size();
+        }
+    }
     KisToolFreehand::activate(shapes);
     connect(&m_signalMapper, SIGNAL(mapped(int)), SLOT(slotSetSmoothingType(int)), Qt::UniqueConnection);
 
@@ -91,6 +108,18 @@ void KisToolBrush::deactivate()
     disconnect(toggleaction, 0, m_chkAssistant, 0);
 
     KisToolFreehand::deactivate();
+    // Krimble 2026-10-15: give the user's brush back after a retouch tool (see activate()).
+    if (m_savedRetouchPreset) {
+        KisCanvas2 *retouchCanvas = dynamic_cast<KisCanvas2*>(canvas());
+        if (retouchCanvas && retouchCanvas->viewManager()) {
+            KisCanvasResourceProvider *provider = retouchCanvas->viewManager()->canvasResourceProvider();
+            provider->setPaintOpPreset(m_savedRetouchPreset);
+            provider->setOpacity(m_savedRetouchOpacity);
+            provider->setFlow(m_savedRetouchFlow);
+            provider->setSize(m_savedRetouchSize);
+        }
+        m_savedRetouchPreset.clear();
+    }
 }
 
 int KisToolBrush::smoothingType() const
