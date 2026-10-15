@@ -123,6 +123,17 @@ void KoDockWidgetTitleBar::paintEvent(QPaintEvent*)
     titleOpt.closable = hasFeature(q, QDockWidget::DockWidgetClosable);
     titleOpt.floatable = hasFeature(q, QDockWidget::DockWidgetFloatable);
     p.drawControl(QStyle::CE_DockWidgetTitle, titleOpt);
+
+    // Krimble 2026-10-15: George (1.0.36): "I can't tell where one panel ends and the next begins when they stack. They need a light line at the top
+    // and a dark line at the bottom." A docked panel's top edge gets a light line, and just above it a dark line: that dark line is the bottom
+    // edge of the panel above (the title bar is the only part of a panel this code draws), so every panel is lit at its top and shaded at its
+    // bottom. The last panel of a column has no panel below it, so its bottom has no dark line. Floating panels are not changed.
+    if (!q->isFloating()) {
+        const qreal dpr = devicePixelRatioF();
+        const int line = qMax(2, qRound(dpr));          // about 1 logical px each
+        p.fillRect(QRect(0, 0, width(), line), QColor(18, 19, 34));                 // dark (the bottom of the panel above)
+        p.fillRect(QRect(0, line, width(), line), QColor(110, 114, 156));           // light (the top of this panel)
+    }
 }
 
 void KoDockWidgetTitleBar::resizeEvent(QResizeEvent*)

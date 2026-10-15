@@ -4266,3 +4266,10 @@ George's decisions on his 1.0.36 findings (his numbers):
 - **5** "Floating windows have very small buttons ... ugly aqua colored title bar. Make tiny adjustment to increase size, then make the bar blue." and "I guess the blue gray." The title bar of an **image window** (`QMdiSubWindow`) is drawn by a small style, `KrimbleMdiTitleStyle`: `PM_TitleBarHeight` x 1.25 (which sizes the buttons) and the highlight color replaced by the app's blue-gray, rgb(55,57,82). Claude's best guess for the bar George means; not seen on a phone.
 **Decided but not built:** 9, a Free Rotate icon (a tilted square with two curved arrows; a preview was shown, the icon is not in the program) and a second toolbox button; **20**, the open menu hiding its own title (Qt places every menu of two or more columns at the very top of the screen, on purpose: `QMenu::popup`, `pos.setY(screen.top() + desktopFrame)`); options given: the menu's name as a heading, or one scrolling column.
 **Not verified:** a build or a device.
+
+## 2026-10-15 (135th) — Stacked panels: a light line at the top and a dark line at the bottom
+
+**Files:** `libs/widgets/KoDockWidgetTitleBar.cpp`
+
+George (1.0.36): "I can't tell where one panel ends and the next begins when they stack. They need a light line at the top and a dark line at the bottom." The title bar of every **docked** panel now draws two lines along its top edge, in `KoDockWidgetTitleBar::paintEvent`: a **dark** line (rgb 18,19,34) at the very top, which is the bottom edge of the panel above, and just under it a **light** line (rgb 110,114,156), which is the top edge of this panel. Each is about 1 logical px (`qMax(2, qRound(devicePixelRatioF()))` device px). The last panel of a column has no panel below it, so its bottom has no dark line (the code only draws the title bar). Floating panels are not changed. The colors and the thickness are Claude's guess, not seen on a phone.
+**Not verified:** a build or a device.
