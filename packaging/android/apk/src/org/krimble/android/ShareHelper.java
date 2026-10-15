@@ -15,7 +15,9 @@ import android.widget.Toast;
 
 import org.qtproject.qt5.android.QtNative;
 
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 
@@ -39,6 +41,45 @@ public class ShareHelper {
         } catch (Exception e) {
             Log.w(TAG, "camera uri failed: " + e);
             return "";
+        }
+    }
+
+    // Krimble 2026-10-15: Take Photo, troubleshooting (George, 1.0.36: the camera opened and the photo was taken, then Krimble said "The file
+    // content://media/external/images/media/1000356140 does not exist." and nothing opened). Copies what the camera wrote to the address of
+    // prepareCameraUri into the app's own cache and returns the path of the copy, which Krimble can open like any file. If it cannot, it returns
+    // "EMPTY" (the camera app saved nothing to that address) or "ERROR: ..." with the reason, so the answer is shown instead of a guess.
+    public static String copyCameraPhoto(final String uriString) {
+        final Activity activity = QtNative.activity();
+        if (activity == null) {
+            return "ERROR: no activity";
+        }
+        try {
+            ContentResolver resolver = activity.getContentResolver();
+            InputStream in = resolver.openInputStream(Uri.parse(uriString));
+            if (in == null) {
+                return "ERROR: the picture could not be opened (no stream) at " + uriString;
+            }
+            File dir = new File(activity.getCacheDir(), "camera");
+            dir.mkdirs();
+            File out = new File(dir, "photo-" + System.currentTimeMillis() + ".jpg");
+            OutputStream os = new FileOutputStream(out);
+            byte[] buffer = new byte[65536];
+            long total = 0;
+            int count;
+            while ((count = in.read(buffer)) > 0) {
+                os.write(buffer, 0, count);
+                total += count;
+            }
+            os.close();
+            in.close();
+            if (total == 0) {
+                out.delete();
+                return "EMPTY";
+            }
+            return out.getAbsolutePath();
+        } catch (Exception e) {
+            Log.w(TAG, "copy camera photo failed: " + e);
+            return "ERROR: " + e;
         }
     }
 

@@ -1536,12 +1536,36 @@ public:
             // Krimble 2026-10-13 (2nd): George: "Take photo is a failure. You take a pic and then crash." The camera's answer arrives on
             // Android's own thread, not on the thread that runs Krimble's windows; opening a picture from there crashed the app. The
             // opening is now queued to the window's own thread.
+            // Krimble 2026-10-15: George (1.0.36): the camera opened, the photo was taken, no crash, but "The file
+            // content://media/external/images/media/1000356140 does not exist." The picture is now copied into the app's cache first
+            // (ShareHelper.copyCameraPhoto, on this thread) and the copy is opened like any file; if there is nothing to copy, the reason is shown.
+            // KisMainWindow *window = m_win.data();
+            // const QString uri = m_uri;
+            // if (window) { QMetaObject::invokeMethod(window, [window, uri]() { window->openDocument(uri, KisMainWindow::OpenFlags()); }, Qt::QueuedConnection); }
             KisMainWindow *window = m_win.data();
             const QString uri = m_uri;
-            if (window) {
-                QMetaObject::invokeMethod(window, [window, uri]() {
-                    window->openDocument(uri, KisMainWindow::OpenFlags());
-                }, Qt::QueuedConnection);
+            QAndroidJniObject jUriString = QAndroidJniObject::fromString(uri);
+            QAndroidJniObject jResult = QAndroidJniObject::callStaticObjectMethod("org/krimble/android/ShareHelper", "copyCameraPhoto",
+                "(Ljava/lang/String;)Ljava/lang/String;", jUriString.object<jstring>());
+            const QString result = jResult.isValid() ? jResult.toString() : QStringLiteral("ERROR: no answer from the helper");
+            if (!result.startsWith(QLatin1String("ERROR")) && result != QLatin1String("EMPTY")) {
+                if (window) {
+                    QMetaObject::invokeMethod(window, [window, result]() {
+                        window->openDocument(result, KisMainWindow::OpenFlags());
+                    }, Qt::QueuedConnection);
+                }
+            } else {
+                if (result == QLatin1String("EMPTY")) {
+                    QAndroidJniObject::callStaticMethod<void>("org/krimble/android/ShareHelper", "deleteUri", "(Ljava/lang/String;)V", jUriString.object<jstring>());
+                }
+                if (window) {
+                    const QString message = (result == QLatin1String("EMPTY"))
+                        ? i18n("The camera app said it took the photo but saved nothing to the place Krimble gave it.")
+                        : result;
+                    QMetaObject::invokeMethod(window, [window, message]() {
+                        QMessageBox::warning(window, i18n("Take Photo"), message);
+                    }, Qt::QueuedConnection);
+                }
             }
         } else {
             QAndroidJniObject jUri = QAndroidJniObject::fromString(m_uri);
@@ -1718,6 +1742,11 @@ static void krimbleInstallFileExtras(KisMainWindow *win)
         // QAction *takePhoto = new QAction(i18n("Take Photo..."), file);
         // QObject::connect(takePhoto, &QAction::triggered, win, [win]() { krimbleTakePhoto(win); });
         // file->insertAction(before, takePhoto);
+        // Krimble 2026-10-15: George: "I would like to troubleshoot Take Photo if possible." Back in the File menu, just above Exit, with the copy-first
+        // fix of the 138th entry.
+        QAction *takePhoto = new QAction(i18n("Take Photo..."), file);
+        QObject::connect(takePhoto, &QAction::triggered, win, [win]() { krimbleTakePhoto(win); });
+        file->insertAction(before, takePhoto);
         // file->insertAction(before, batch);
     });
 }

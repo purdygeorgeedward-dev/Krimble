@@ -12,6 +12,17 @@
       <isCheckable>false</isCheckable>
       <statusTip></statusTip>
     </Action>
+    <!-- Krimble 2026-10-15: the Free Rotate toolbox button (see kis_tool_transform.h) -->
+    <Action name="KisToolFreeRotate">
+      <icon>krimble-free-rotate</icon>
+      <text>Free Rotate</text>
+      <whatsThis></whatsThis>
+      <toolTip>Turn a layer by any angle</toolTip>
+      <iconText>Free Rotate</iconText>
+      <shortcut></shortcut>
+      <isCheckable>false</isCheckable>
+      <statusTip></statusTip>
+    </Action>
     <Action name="KisToolTransformFree">
       <icon>transform_icons_main</icon>
       <text>Transform Tool (Free Transform)</text>

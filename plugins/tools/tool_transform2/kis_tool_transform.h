@@ -398,5 +398,30 @@ private Q_SLOTS:
 
 
 
+// Krimble 2026-10-15: a second toolbox button, "Free Rotate" (George: "Draw an icon for free rotate and add it to the toolbox." / "Oh, your icon is
+// even better than my idea. Yes."). It is the same tool as the Transform tool (a KisToolTransform), with its own id, icon and place right after
+// the Transform button; the tool starts in Free Transform mode, where dragging outside the box turns the graphic by any angle. A few places of the
+// code look for the id "KisToolTransform" (for example after a layer change); with this button they treat it as another tool.
+class KisToolFreeRotateFactory : public KisToolPaintFactoryBase
+{
+    Q_OBJECT
+
+public:
+    KisToolFreeRotateFactory()
+            : KisToolPaintFactoryBase("KisToolFreeRotate") {
+        setToolTip(i18n("Free Rotate"));
+        setSection(ToolBoxSection::Transform);
+        setIconName(koIconNameCStr("krimble-free-rotate"));
+        setPriority(3);
+        setActivationShapeId(KRITA_TOOL_ACTIVATION_ID);
+    }
+
+    ~KisToolFreeRotateFactory() override {}
+
+    KoToolBase * createTool(KoCanvasBase *canvas) override {
+        return new KisToolTransform(canvas);
+    }
+};
+
 #endif // KIS_TOOL_TRANSFORM_H_
 

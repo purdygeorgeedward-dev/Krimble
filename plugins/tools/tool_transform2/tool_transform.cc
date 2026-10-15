@@ -40,6 +40,7 @@ ToolTransform::ToolTransform(QObject *parent, const QVariantList &)
         : QObject(parent)
 {
     KoToolRegistry::instance()->add(new KisToolTransformFactory());
+    KoToolRegistry::instance()->add(new KisToolFreeRotateFactory());   // Krimble 2026-10-15: the Free Rotate toolbox button
     KisTransformMaskParamsFactoryRegistry::instance()->setAnimatedParamsHolderFactory(&createAnimatedParamsHolder);
     KisTransformMaskParamsFactoryRegistry::instance()->addFactory("tooltransformparams", &KisTransformMaskAdapter::fromXML);
     KisTransformMaskParamsFactoryRegistry::instance()->addFactory("dumbparams", &KisTransformMaskAdapter::fromDumbXML);
