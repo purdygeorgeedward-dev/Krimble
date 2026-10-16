@@ -579,9 +579,30 @@ static void krimbleRemoveMinimumWidths(QMainWindow *win)
         QWidget *content = dock->widget();
         if (!content || content->property("krimbleEdgeMargin").toBool()) continue;
         content->setProperty("krimbleEdgeMargin", true);
-        QMargins margins = content->contentsMargins();
-        margins.setLeft(margins.left() + 16);
-        content->setContentsMargins(margins);
+        // QMargins margins = content->contentsMargins();
+        // margins.setLeft(margins.left() + 16);
+        // content->setContentsMargins(margins);
+        // Krimble 2026-10-18: George (1.0.37): "6. Layers panel has a big strip on the side instead of just moving the layer type selector over."
+        // Only the row with the blending-mode drop-down gets the 16 px space in front of it; the rest of the panel is as it was.
+        QComboBox *blendCombo = content->findChild<QComboBox*>();
+        if (blendCombo) {
+            QBoxLayout *rowLayout = nullptr;
+            std::function<QBoxLayout*(QLayout*)> findRow = [&](QLayout *layout) -> QBoxLayout* {
+                if (!layout) return nullptr;
+                for (int i = 0; i < layout->count(); ++i) {
+                    QLayoutItem *item = layout->itemAt(i);
+                    if (item->widget() == blendCombo) return qobject_cast<QBoxLayout*>(layout);
+                    if (QLayout *child = item->layout()) {
+                        if (QBoxLayout *found = findRow(child)) return found;
+                    }
+                }
+                return nullptr;
+            };
+            rowLayout = findRow(content->layout());
+            if (rowLayout && (rowLayout->direction() == QBoxLayout::LeftToRight)) {
+                rowLayout->insertSpacing(0, 16);
+            }
+        }
     }
 }
 #endif
@@ -1876,8 +1897,9 @@ static void krimbleInstallHelpExtras(QMainWindow *win)
         // Krimble 2026-10-12: removed (George): choosing a line in the Cheat Sheet crashed the app in 1.0.33. The code is kept.
         // QAction *cheatSheet = help->addAction(i18n("Cheat Sheet"));
         // QObject::connect(cheatSheet, &QAction::triggered, win, [win]() { krimbleShowCheatSheet(win); });
-        QAction *feedback = help->addAction(i18n("Send Feedback"));
-        QObject::connect(feedback, &QAction::triggered, win, [win]() { krimbleSendFeedback(win); });
+        // QAction *feedback = help->addAction(i18n("Send Feedback"));
+        // QObject::connect(feedback, &QAction::triggered, win, [win]() { krimbleSendFeedback(win); });
+        // Krimble 2026-10-18: George (1.0.37): "7. Send feedback does nothing. Might as well remove it." Out of the Help menu; the code stays.
         // Krimble 2026-10-13 (6th): George: "5 no": Menu Diagnostics is removed from the Help menu; the code is kept here.
 #if 0
         // Krimble 2026-10-13 (2nd): Menu Diagnostics (for George's "Menus are still too wide"): shows numbers about the Edit menu
@@ -3335,6 +3357,14 @@ KisMainWindow::KisMainWindow(QUuid uuid)
             krimbleInstallCanvasOnlyExit(this);          // Krimble 2026-10-13 (5th): the X that leaves Canvas Only mode
             krimbleRemoveMinimumWidths(this);            // Krimble 2026-10-13 (6th): no minimum widths (see above)
             krimbleInstallBevels(this);                  // Krimble 2026-10-17: one-pixel bevel lines on panels and toolbars (see above)
+            // Krimble 2026-10-18: George (1.0.37, git 41a4afb): "1. Brushes still loads at start." The hiding at start (2.5 s) came too early: opening
+            // the first image brings the saved layout back, with Brushes. So it is hidden once more, once, the first time an image is open.
+            if (!property("krimbleBrushesHiddenAfterImage").toBool() && d->widgetStack->currentIndex() != 0) {
+                setProperty("krimbleBrushesHiddenAfterImage", true);
+                Q_FOREACH (QDockWidget *dock, findChildren<QDockWidget*>()) {
+                    if (dock->objectName() == QLatin1String("PresetDocker") || dock->windowTitle() == QLatin1String("Brushes")) dock->hide();
+                }
+            }
             // Krimble 2026-10-13 (13th): George: "The saved window state on close is the most reliable predictor of the next load state. If we can
             // set it, Brushes will behave." Krita writes the panel layout only when the last image is closed or a toolbar is changed, never when
             // Android stops the app (swiping it away, or low memory), so a panel closed in one session came back in the next. The layout is

@@ -192,10 +192,22 @@ int KisImageConfig::poolLimit() const
     return totalRAM() * hp * pp;
 }
 
+// Krimble 2026-10-18: George (1.0.37): "9. Krimble does not multi-task well. Tends to reload fresh a lot. Memory issue?" and, about lowering the
+// memory limit: "Change the default values in code." Android ends a background app that holds a lot of memory. On Android the default memory limit
+// is 25% of the phone's RAM (it was 50%); the other systems keep 50%. A limit that was saved from the Performance page of Preferences (by pressing
+// OK there) still wins over this default.
+#ifdef Q_OS_ANDROID
+static const qreal krimbleDefaultMemoryHardLimitPercent = 25.;
+#else
+static const qreal krimbleDefaultMemoryHardLimitPercent = 50.;
+#endif
+
 qreal KisImageConfig::memoryHardLimitPercent(bool requestDefault) const
 {
+    // return !requestDefault ?
+    //     m_config.readEntry("memoryHardLimitPercent", 50.) : 50.;
     return !requestDefault ?
-        m_config.readEntry("memoryHardLimitPercent", 50.) : 50.;
+        m_config.readEntry("memoryHardLimitPercent", krimbleDefaultMemoryHardLimitPercent) : krimbleDefaultMemoryHardLimitPercent;
 }
 
 void KisImageConfig::setMemoryHardLimitPercent(qreal value)

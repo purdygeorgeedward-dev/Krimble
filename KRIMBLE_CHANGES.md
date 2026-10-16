@@ -4351,3 +4351,26 @@ George (1.0.37): "I would rather the toolbar dock at the edge than bounce." (the
 George (1.0.37): "It's also sometimes still hard to grab edges for resize." (asked which edges: "Any."), then "Try a small change first." Each edge zone is about a fifth bigger: the invisible strip beside the side panels (the 28th... `KrimbleDockEdgeGrab`) **24 -> 28** logical px; the edges of dialogs (`KoDialog`, `kResizeMargin`) **20 -> 24**; the frame of image windows (`PM_MdiSubWindowFrameWidth`) **12 -> 14**. The edges of floating panels have no zone of their own in the code (they use the base style and the corner grip of dialogs); not changed. The old numbers are in comments.
 **Not verified:** a build or a device.
 **Second step (same entry, George: "Try just one more pixel? Or 2?"):** +2 logical px each, so the strip beside the side panels is **30**, the edges of dialogs **26**, and the frame of image windows **16**. One logical px is about 3.4 device px on his phone (density 3.375).
+
+## 2026-10-18 (145th) — George's test of 1.0.37 (git 41a4afb): 11 findings, first set of fixes
+
+**Files:** `libs/ui/KisMainWindow.cpp`, `libs/ui/KisOpenPane.cpp`, `libs/ui/KisTypeOptionsBar.cpp`, `libs/ui/kis_composite_ops_model.cc`, `libs/widgetutils/KisWideDockSeparatorStyle.cpp`, `krita/pics/svg/*_krimble-free-rotate.svg`
+
+George's words: "Menus look great. Width is good. Everything feels smoother and better. It feels like a real pro app." and 11 findings (his numbers): 1 Brushes still loads at start. 2 Preferences icons look great. 3 New dialog icons need to be bigger still. 4 The font selector in the type toolbar is too wide and too tall, needs a frame area. 5 The toolbox has a big empty bottom for no reason, hard to resize away. 6 The Layers panel has a big strip on the side instead of just moving the layer type selector over, and it's called "favorites" for some reason; it should say layer type. 7 Send Feedback does nothing; might as well remove it. 8 About Krimble text is all over the place. 9 Krimble does not multi-task well, tends to reload fresh a lot; a memory issue? 10 The rotate tool icon is too small. 11 Can menus have the one pixel highlight and shadow edges?
+**Done:**
+- **1** The hiding of Brushes at 2.5 s came too early: opening the first image brings the saved layout back, with Brushes. It is hidden once more, once, the first time an image is open (`PresetDocker` or the title "Brushes").
+- **3** New Document: icons at **96** logical px (were 64); the section list is at least 20% of the screen wide in landscape and **42%** in portrait.
+- **4** The font box of the Type bar: at most 300 logical px wide and 26 high, with a one-pixel frame (`#6e729c`).
+- **6** The 16 px margin of the 142nd entry is off (it moved the whole contents: "a big strip on the side"); now only the row with the blending-mode drop-down gets 16 px of space in front of it (`insertSpacing` in the `QHBoxLayout` that holds it). The first group of the blending-mode list, "Favorites" (`kis_composite_ops_model.cc`), is called **"Layer Type"**.
+- **7** Help > Send Feedback is commented out (the code stays).
+- **10** The Free Rotate icon fills more of its square (`viewBox` 2.4 2.4 19.2 19.2: the same drawing, 1.25 times as big).
+- **11** The frame of a menu (`PE_FrameMenu` in `KisWideDockSeparatorStyle`) has a one-device-pixel light line on its top and left and a dark one on its bottom and right.
+**Not done, waiting:** 5 (the toolbox's empty bottom: the height is cut to the tools only while floating, and not for a toolbox docked at the top), 8 (About Krimble), 9 (the app being reloaded: Android ends the process in the background; a memory limit and a recovery on return are the options).
+**Not verified:** a build or a device.
+
+## 2026-10-18 (146th) — A lower default memory limit on Android
+
+**Files:** `libs/image/kis_image_config.cpp`
+
+George (1.0.37): "9. Krimble does not multi-task well. Tends to reload fresh a lot. Memory issue?" Of the two options given (a recovery copy saved when the app is left, or a lower memory limit) he chose the memory limit ("B."), asked how, and then said: "Change the default values in code." The **Memory Limit** of Preferences > Performance (`memoryHardLimitPercent`, a percentage of the phone's RAM, which is also the limit of the tile memory) now starts at **25%** on Android (it was 50%); other systems keep 50%. "Swap Undo After" (`memorySoftLimitPercent`, 2% of that limit) and the internal pool (0%) are unchanged. A value that George (or an earlier build) saved by pressing OK on the Performance page is stored and still wins over the default; to use the new default on this phone he would have to set the limit by hand once (about a quarter of "Memory available"). Also tried by hand, with no build: Settings > Apps > Krimble > Battery > Unrestricted, no deep sleeping for Krimble, and "Keep open" in Recents. Whether this stops the reloading is not known; Android also ends apps for battery reasons. If it does not, the recovery copy (a) is the next step.
+**Not verified:** a build or a device.

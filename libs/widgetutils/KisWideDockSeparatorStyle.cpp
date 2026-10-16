@@ -57,6 +57,24 @@ int KisWideDockSeparatorStyle::pixelMetric(PixelMetric metric, const QStyleOptio
 void KisWideDockSeparatorStyle::drawPrimitive(PrimitiveElement element, const QStyleOption *option, QPainter *painter, const QWidget *widget) const
 {
 #ifdef Q_OS_ANDROID
+    // Krimble 2026-10-18: George (1.0.37): "11. Can menus have the one pixel hilight and shadow edges?" The frame of a menu gets a one-device-pixel
+    // light line on its top and left edges and a dark one on its bottom and right edges (the colors of the panel bevels).
+    if (element == QStyle::PE_FrameMenu) {
+        QProxyStyle::drawPrimitive(element, option, painter, widget);
+        const qreal dpr = painter->device() ? painter->device()->devicePixelRatioF() : 1.0;
+        const qreal one = 1.0 / qMax<qreal>(1.0, dpr);
+        const QRectF r = option->rect;
+        painter->save();
+        painter->setRenderHint(QPainter::Antialiasing, false);
+        painter->fillRect(QRectF(r.left(), r.top(), r.width(), one), QColor(110, 114, 156));
+        painter->fillRect(QRectF(r.left(), r.top(), one, r.height()), QColor(110, 114, 156));
+        painter->fillRect(QRectF(r.left(), r.bottom() + 1.0 - one, r.width(), one), QColor(18, 19, 34));
+        painter->fillRect(QRectF(r.right() + 1.0 - one, r.top(), one, r.height()), QColor(18, 19, 34));
+        painter->restore();
+        return;
+    }
+#endif
+#ifdef Q_OS_ANDROID
     if (element == QStyle::PE_IndicatorDockWidgetResizeHandle) {
         // Krimble 2026-10-12: the strip draws nothing now (invisible); the code below is kept, not deleted, and is not reached.
         return;

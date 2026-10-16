@@ -45,6 +45,11 @@ KisTypeOptionsBar::KisTypeOptionsBar(KisViewManager *viewManager)
     , m_view(viewManager)
 {
     m_font = new KisFontComboBoxes();
+    // Krimble 2026-10-18: George (1.0.37): "4. Font selector in type toolbar is too wide and too tall, needs a frame area." The font box is at most
+    // 300 logical px wide and 26 high, and has a one-pixel frame in the bevel colors.
+    m_font->setMaximumWidth(300);
+    m_font->setMaximumHeight(26);
+    m_font->setStyleSheet(QStringLiteral("KisFontComboBoxes { border: 1px solid #6e729c; border-radius: 2px; }"));
     m_size = new QDoubleSpinBox();
     m_size->setRange(1.0, 2000.0);
     m_size->setDecimals(1);
