@@ -2916,11 +2916,17 @@ public:
     {
         widget->installEventFilter(this);
     }
-    void finish()
+    // George: "Yes" to: when the overlay is dropped with a tap, ask "Make this a layer?" (a transparent vector layer with the hexes at that size)
+    void setOnDrop(const std::function<void()> &onDrop) { m_onDrop = onDrop; }
+    void finish(bool dropped = false)
     {
         if (m_deco) m_deco->adjusting = false;
         if (m_widget) m_widget->removeEventFilter(this);
         if (m_canvas) m_canvas->updateCanvas();
+        const std::function<void()> callback = m_onDrop;
+        if (dropped && callback) {
+            QTimer::singleShot(0, qApp, [callback]() { callback(); });
+        }
         deleteLater();
     }
 
@@ -2957,7 +2963,7 @@ protected:
             m_lastDistance = 0.0;
             if (QLineF(points.first().pos(), m_start).length() > 24.0) m_moved = true;
             if (type == QEvent::TouchEnd && !m_pinched && !m_moved && m_clock.elapsed() < 600) {
-                finish();
+                finish(true);
             }
         }
         return true;
@@ -2972,6 +2978,7 @@ private:
     bool m_pinched {false};
     bool m_moved {false};
     QElapsedTimer m_clock;
+    std::function<void()> m_onDrop;
 };
 
 static KrimbleHexDecoration *krimbleHexDecorationOf(KisMainWindow *win, bool create)
@@ -3069,7 +3076,14 @@ static void krimbleInstallHexMenus(KisMainWindow *win)
                         if (on && hexCanvas && hexCanvas->canvasWidget()) {
                             // George: "Hex overlay should be pinch zoom then drop with a tap."
                             deco->adjusting = true;
-                            new KrimbleHexAdjustFilter(hexCanvas->canvasWidget(), deco, hexCanvas);
+                            KrimbleHexAdjustFilter *adjustFilter = new KrimbleHexAdjustFilter(hexCanvas->canvasWidget(), deco, hexCanvas);
+                            adjustFilter->setOnDrop([win]() {
+                                if (QMessageBox::question(win, i18n("Hex Pattern"),
+                                        i18n("Make this a layer? It is a transparent vector layer with the hexes at the size you set."),
+                                        QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
+                                    krimbleMakeHexLayer(win);
+                                }
+                            });
                         } else {
                             deco->adjusting = false;
                         }
