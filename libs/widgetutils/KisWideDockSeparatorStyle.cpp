@@ -16,6 +16,15 @@ KisWideDockSeparatorStyle::KisWideDockSeparatorStyle(QStyle *baseStyle)
 
 int KisWideDockSeparatorStyle::pixelMetric(PixelMetric metric, const QStyleOption *option, const QWidget *widget) const
 {
+#ifdef Q_OS_ANDROID
+    // Krimble 2026-10-17: George (1.0.37): "6. New full color icons are still too small. Should be 2x larger. Both in Prefs and New dialog." The
+    // page list of Preferences takes its picture size from the style and calls it WITHOUT a widget, so a style put on that one list is never asked
+    // (the 133rd entry did that and changed nothing); the app's own style answers: 64 logical px (it was 32). Lists that set their own icon size
+    // do not use this number.
+    if (metric == QStyle::PM_IconViewIconSize) {
+        return 64;
+    }
+#endif
     if (metric == QStyle::PM_DockWidgetSeparatorExtent) {
         // Krimble 2026-10-10: on Android at least 20 px (the same touch size as the dialog edges), so a finger can grab it.
         // return QProxyStyle::pixelMetric(metric, option, widget) * 2;
@@ -36,7 +45,9 @@ int KisWideDockSeparatorStyle::pixelMetric(PixelMetric metric, const QStyleOptio
     // both what is drawn around it and the zone a finger can grab to resize it, and the base style makes it only a few pixels wide.
     // On Android it is at least 12 logical px (about 40 on the screen), the same idea as the 20 px edges of the dialogs.
     if (metric == QStyle::PM_MdiSubWindowFrameWidth) {
-        return qMax(QProxyStyle::pixelMetric(metric, option, widget), 12);
+        // return qMax(QProxyStyle::pixelMetric(metric, option, widget), 12);
+        // return qMax(QProxyStyle::pixelMetric(metric, option, widget), 14);
+        return qMax(QProxyStyle::pixelMetric(metric, option, widget), 16);   // Krimble 2026-10-17 (2nd): "Try just one more pixel? Or 2?" 14 -> 16. Before: 14 // Krimble 2026-10-17: "Try a small change first." 12 -> 14
     }
 #endif
 

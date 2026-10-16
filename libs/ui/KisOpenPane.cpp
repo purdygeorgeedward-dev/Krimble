@@ -389,7 +389,9 @@ QTreeWidgetItem* KisOpenPane::addPane(const QString &title, const QString &untra
     // Krimble 2026-10-13: a 32 x 32 pixel picture was stretched to the size it is shown at (about 108 px on a phone), which made the
     // pictures soft. The picture is now made at the screen's real resolution and told its logical size, so it stays sharp.
     const qreal dpr = qMax<qreal>(1.0, qApp->devicePixelRatio());
-    QPixmap iconPixmap = icon.pixmap(QSize(qRound(32 * dpr), qRound(32 * dpr)));
+    // QPixmap iconPixmap = icon.pixmap(QSize(qRound(32 * dpr), qRound(32 * dpr)));
+    // Krimble 2026-10-17: George (1.0.37): "6. New full color icons are still too small. Should be 2x larger. Both in Prefs and New dialog." 64 logical px.
+    QPixmap iconPixmap = icon.pixmap(QSize(qRound(64 * dpr), qRound(64 * dpr)));
     iconPixmap.setDevicePixelRatio(dpr);
 
     QIcon finalIcon(iconPixmap);
@@ -412,7 +414,8 @@ QTreeWidgetItem* KisOpenPane::addPane(const QString &title, const QString &untra
     // pictures (Animation, Comic, Design, DSLR, Texture) were cut down to 32 x 32 real pixels, about a third of the size. They are made
     // the same way now: 32 logical px times the screen's pixel ratio, and told their logical size.
     const qreal dpr = qMax<qreal>(1.0, qApp->devicePixelRatio());
-    const int iconSize = qRound(32 * dpr);
+    // const int iconSize = qRound(32 * dpr);
+    const int iconSize = qRound(64 * dpr);   // Krimble 2026-10-17: twice as big (see above)
 
     KoSectionListItem* listItem = new KoSectionListItem(d->m_sectionList, title, untranslatedName, sortWeight, id);
 

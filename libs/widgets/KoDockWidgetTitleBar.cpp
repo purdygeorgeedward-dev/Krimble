@@ -128,7 +128,9 @@ void KoDockWidgetTitleBar::paintEvent(QPaintEvent*)
     // and a dark line at the bottom." A docked panel's top edge gets a light line, and just above it a dark line: that dark line is the bottom
     // edge of the panel above (the title bar is the only part of a panel this code draws), so every panel is lit at its top and shaded at its
     // bottom. The last panel of a column has no panel below it, so its bottom has no dark line. Floating panels are not changed.
-    if (!q->isFloating()) {
+    // Krimble 2026-10-17: George (1.0.37): "Giant mega lines again for bevels instead of one pixel." These 3 px lines are off; the one-pixel lines
+    // are drawn by KrimbleBevelOverlay (KisMainWindow.cpp) on panels and toolbars.
+    if (false && !q->isFloating()) {
         const qreal dpr = devicePixelRatioF();
         const int line = qMax(2, qRound(dpr));          // about 1 logical px each
         p.fillRect(QRect(0, 0, width(), line), QColor(18, 19, 34));                 // dark (the bottom of the panel above)

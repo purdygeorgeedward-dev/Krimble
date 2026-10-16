@@ -4313,3 +4313,41 @@ George read `Krimble-1.0.37-beta-source.patch` (1,886 lines, made on the server 
 
 George: "Let's build it with the new graphics." `krimbleBuildNumber` 36 -> 37 (`1.0.37-beta`). The build holds everything pushed after `21bf956` (the 1.0.36 build): entries 132 to 139 and the splash images George uploaded on 2026-10-14 (`625af8a`: `logo_splash.png`, `logo_splash.jpg`, `logo_splash_holidays.png`, `logo_splash_holidays.jpg`). A Codex session left its own "1.0.37" files in the server's home folder (a patch, build.json, source-inputs.json, a sha256 and logs); that work is not official and is not in this build; the official 1.0.37 is the one built from this repository, identified by the stamp of `~/kb-apk.sh` (`"37"` and the git hash).
 **Not verified:** a build or a device.
+
+## 2026-10-17 (141st) — George's test of 1.0.37: one-pixel bevels, icon colors, bigger icons, Brushes, side panel width
+
+**Files:** `libs/ui/KisMainWindow.cpp`, `libs/widgets/KoDockWidgetTitleBar.cpp`, `libs/ui/KisOpenPane.cpp`, `libs/widgetutils/KisWideDockSeparatorStyle.cpp`, `krita/pics/svg/*_krimble-share.svg`, `krita/pics/svg/*_krimble-free-rotate.svg`
+
+George (1.0.37, `6ea3627`; the splash shows "1.0.37-beta (Oct16, git 6ea3627)") reported 8 things (his numbers):
+1. Giant mega lines again for bevels instead of one pixel. 2. The new icon for the rotate tool is black instead of matching the other toolbar items. 3. About Krimble is a mess. 4. Brushes still auto loads on start. 5. The new splash works on the splash (the version number does not map over the logo), but on About Krimble they are moved down. 6. The new full-color icons are still too small; 2x larger, both in Prefs and in the New dialog. 7. The default side panel size is too wide on load, it squeezes the picture. 8. Docked panels have pointless mega bevel lines; detached panels have none at all (the Tool Options panel disappears into the toolbar cluster); they should be one pixel on each edge; toolbars need them too.
+**Done in this entry:**
+- **1 and 8, bevels.** A transparent overlay (`KrimbleBevelOverlay`) is put on every panel and every toolbar (and on panels made later, every 2 s). A **docked** panel: a light line (110,114,156) along its top and a dark line (18,19,34) along its bottom. A **detached** panel and a **toolbar**: light along the top and left edges, dark along the bottom and right edges. Each line is **one device pixel** (`1 / devicePixelRatioF()`, antialiasing off). The 3-device-pixel lines of the 135th entry (`KoDockWidgetTitleBar::paintEvent`) are off (`if (false && ...)`).
+- **2, icon color.** The Share and Free Rotate icons had their colors the wrong way round: in Krita's own set `dark_*.svg` has a dark fill (checked: `dark_krita_tool_freehand.svg` #373737, `light_krita_tool_freehand.svg` #d2d2d2) and is meant for light themes, `light_*.svg` is light and is used on a dark theme. Mine were swapped, so the dark UI got dark icons. Now `dark_` = #373737 and `light_` = #d2d2d2.
+- **4, Brushes.** Hidden at **every** start (the once-only rule, `krimble_default_panels_done`, is commented out), because a saved layout of an older build kept bringing it back; shown again from Window > Panels.
+- **7, side panel.** In landscape (window at least 500 logical px wide) the right-hand column of panels is at most **30%** of the window at start (it was 254 of 665 logical px, 38%); it can still be dragged wider.
+- **6, bigger icons.** New Document: both kinds of icon are made at **64** logical px (were 32). Preferences: `PM_IconViewIconSize` is answered by the app's style, `KisWideDockSeparatorStyle`, with 64 (Android only; it was 32). The page list asks the style **without a widget**, so the per-list style of the 133rd entry was never consulted (the app has a style sheet, whose style answers for it), which is why that change did nothing. Other icon views that set their own icon size are not affected; a list that does not might get bigger icons.
+**Not done, waiting for George:** 3 (About Krimble, "a mess": its look has to be decided) and 5 (the version text on the About page: it uses the same splash widget, shown larger and cropped, with the text at the same fraction of the picture's height, so it lands on busy art; a proposal is to write the version under the picture instead of on it).
+**Not verified:** a build or a device.
+
+## 2026-10-17 (142nd) — The Layers panel's contents are moved away from the panel's left edge
+
+**Files:** `libs/ui/KisMainWindow.cpp`
+
+George (1.0.37): "It's too easy to accidentally grab the layer type selection drop-down list when grabbing the edge. Is there a way to scoot that selection area away from the edge so that layer menu doesn't appear so often by accident?" The Layers panel (`KisLayerBox`) has its blending-mode drop-down as the first thing on its left, right where the finger lands when it looks for the edge. The panel's contents get **16 logical px (about 54 on the screen) more left margin** (`setContentsMargins`, once per panel, in `krimbleRemoveMinimumWidths`, so it also applies to a panel made later). The whole contents move, not only the drop-down. Only the Layers panel; other panels are not changed.
+Also from the same message: "Toolbox bounces low. Has no bevel lines." The toolbox is a detached panel; the old 3-pixel lines were drawn for docked panels only, and the new one-pixel bevels of the 141st entry cover detached panels (the toolbox included). "Bounces low" is not understood yet (asked).
+**Not verified:** a build or a device.
+
+## 2026-10-17 (143rd) — The toolbox docks at the edge instead of bouncing
+
+**Files:** `libs/ui/toolbox/KoToolBoxDocker.cpp`, `libs/ui/toolbox/KoToolBoxDocker_p.h`, `libs/ui/KisApplication.cpp`
+
+George (1.0.37): "I would rather the toolbar dock at the edge than bounce." (the toolbar is the toolbox). A new function, `KoToolBoxDocker::krimbleDockAtEdge()`, docks a floating toolbox that has reached the **left** or **right** edge of the screen (within 4 px) or gone above the top strip (48 px), into that side (left, right, top), the same way the Dock menu of its long press does (`addDockWidget` and `setFloating(false)`). It is called after a one-finger move (the 350 ms timer) and after a two-finger drag (`QMetaObject::invokeMethod` from `KisApplication.cpp`). The sideways and top push-back is commented out; the bottom edge stays free, with the title area (36 px) kept on screen. Not changed: the toolbox starts floating 6 px from the left edge, so it does not dock by itself at start; the 8 px docking rule of a finger near a window side (`KrimbleDockTolerance`) is also still there.
+**Not verified:** a build or a device.
+
+## 2026-10-17 (144th) — A little more to grab: resize edges a fifth bigger
+
+**Files:** `libs/ui/KisMainWindow.cpp`, `libs/widgets/KoDialog.cpp`, `libs/widgetutils/KisWideDockSeparatorStyle.cpp`
+
+George (1.0.37): "It's also sometimes still hard to grab edges for resize." (asked which edges: "Any."), then "Try a small change first." Each edge zone is about a fifth bigger: the invisible strip beside the side panels (the 28th... `KrimbleDockEdgeGrab`) **24 -> 28** logical px; the edges of dialogs (`KoDialog`, `kResizeMargin`) **20 -> 24**; the frame of image windows (`PM_MdiSubWindowFrameWidth`) **12 -> 14**. The edges of floating panels have no zone of their own in the code (they use the base style and the corner grip of dialogs); not changed. The old numbers are in comments.
+**Not verified:** a build or a device.
+**Second step (same entry, George: "Try just one more pixel? Or 2?"):** +2 logical px each, so the strip beside the side panels is **30**, the edges of dialogs **26**, and the frame of image windows **16**. One logical px is about 3.4 device px on his phone (density 3.375).

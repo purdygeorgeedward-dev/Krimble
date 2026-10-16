@@ -528,6 +528,10 @@ void KoToolBoxDocker::moveEvent(QMoveEvent *event)
             // return;
             // Krimble 2026-10-14: George (1.0.36): "Bounce toolbox off sides and top. Not bottom. It creates weird anomalous artifacts when it slides
             // off the side." The rule runs again: pushed back off the sides and the top; the bottom is free, but its title area (36 px) stays on screen.
+            // Krimble 2026-10-17: George (1.0.37): "I would rather the toolbar dock at the edge than bounce." At the left or right edge, or above the
+            // top strip, the toolbox is docked there (krimbleDockAtEdge) and nothing is pushed back; the old sideways and top push-back is off.
+            krimbleDockAtEdge();
+            if (!isFloating()) return;
             QScreen *screenPtr = screen() ? screen() : QGuiApplication::primaryScreen();
             if (!screenPtr) return;
             QRect avail = screenPtr->availableGeometry();
@@ -535,17 +539,45 @@ void KoToolBoxDocker::moveEvent(QMoveEvent *event)
             QRect g = geometry();
             g.setWidth(qMin(g.width(), avail.width()));
             // g.setHeight(qMin(g.height(), avail.height()));
-            g.moveLeft(qBound(avail.left(), g.left(), avail.right() - g.width() + 1));
+            // g.moveLeft(qBound(avail.left(), g.left(), avail.right() - g.width() + 1));
             // g.moveTop(qBound(avail.top(), g.top(), avail.bottom() - g.height() + 1));
             // Krimble 2026-10-12: George: "I think the toolbox shouldn't bounce off the bottom. Only the top or sides." The bottom edge is
             // free; the top edge pushes it back down, and at least 120 px of it must stay on screen.
-            if (g.top() < avail.top()) g.moveTop(avail.top());
+            // if (g.top() < avail.top()) g.moveTop(avail.top());
             // if (g.top() > avail.bottom() - 120) g.moveTop(avail.bottom() - 120);
             if (g.top() > avail.bottom() - 36) g.moveTop(avail.bottom() - 36);
             if (g != geometry()) setGeometry(g);
         });
     }
     m_screenTimer->start();
+}
+
+// Krimble 2026-10-17: George (1.0.37): "I would rather the toolbar dock at the edge than bounce." A floating toolbox that has reached the left or the
+// right edge of the screen (within 4 px), or gone above the top strip, is docked there, as the Dock menu of its long press does, and is no longer
+// pushed back. The bottom edge stays free (its title area, 36 px, stays on screen).
+void KoToolBoxDocker::krimbleDockAtEdge()
+{
+    if (!isFloating() || !isVisible()) return;
+    QMainWindow *mainWindow = qobject_cast<QMainWindow*>(parentWidget());
+    if (!mainWindow) return;
+    QScreen *screenPtr = screen() ? screen() : QGuiApplication::primaryScreen();
+    if (!screenPtr) return;
+    QRect avail = screenPtr->availableGeometry();
+    avail.setTop(avail.top() + 48);
+    const QRect g = geometry();
+    Qt::DockWidgetArea area = Qt::NoDockWidgetArea;
+    if (g.left() <= avail.left() + 4) {
+        area = Qt::LeftDockWidgetArea;
+    } else if (g.right() >= avail.right() - 4) {
+        area = Qt::RightDockWidgetArea;
+    } else if (g.top() < avail.top()) {
+        area = Qt::TopDockWidgetArea;
+    }
+    if (area == Qt::NoDockWidgetArea) return;
+    setAllowedAreas(Qt::AllDockWidgetAreas);
+    mainWindow->addDockWidget(area, this);
+    setFloating(false);
+    show();
 }
 
 // Krimble 2026-10-12: cuts a floating toolbox (vertical layout, columns) down to the height of its tools, so there is no empty space

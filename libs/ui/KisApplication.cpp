@@ -663,7 +663,9 @@ private:
                 // every other window and panel still stays where it is let go.
                 QDockWidget *movedDock = qobject_cast<QDockWidget*>(moved.data());
                 if (movedDock && movedDock->objectName() == QLatin1String("ToolBox")) {
-                    keepOnScreenSidesAndTop(moved);
+                    // keepOnScreenSidesAndTop(moved);
+                    // Krimble 2026-10-17: George (1.0.37): "I would rather the toolbar dock at the edge than bounce." At an edge the toolbox docks.
+                    QMetaObject::invokeMethod(movedDock, "krimbleDockAtEdge");
                 }
             });
             if (points.count() >= 2) {

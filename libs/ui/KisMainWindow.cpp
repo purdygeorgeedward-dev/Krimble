@@ -570,6 +570,19 @@ static void krimbleRemoveMinimumWidths(QMainWindow *win)
     if (QWidget *central = win->centralWidget()) {
         if (central->minimumWidth() != 1) central->setMinimumWidth(1);
     }
+    // Krimble 2026-10-17: George (1.0.37): "it's too easy to accidentally grab the layer type selection drop-down list when grabbing the edge. Is
+    // there a way to scoot that selection area away from the edge so that layer menu doesn't appear so often by accident?" The Layers panel's
+    // contents (its blending-mode drop-down is the first thing on the left) are moved 16 logical px (about 54 on the screen) away from the panel's
+    // left edge, where the finger lands when it looks for the edge. Done once per panel.
+    Q_FOREACH (QDockWidget *dock, win->findChildren<QDockWidget*>()) {
+        if (dock->objectName() != QLatin1String("KisLayerBox")) continue;
+        QWidget *content = dock->widget();
+        if (!content || content->property("krimbleEdgeMargin").toBool()) continue;
+        content->setProperty("krimbleEdgeMargin", true);
+        QMargins margins = content->contentsMargins();
+        margins.setLeft(margins.left() + 16);
+        content->setContentsMargins(margins);
+    }
 }
 #endif
 
@@ -707,7 +720,9 @@ public:
         // about the first list, "4 replaced"). The zone is now 24 logical px wide (about 5 mm), as tall as the whole column of panels on
         // that side, and lies OUTSIDE the panels' edge, over the canvas (to the right of the toolbox, to the left of the right panels).
         // Nothing is drawn.
-        const int stripWidth = 24;
+        // const int stripWidth = 24;
+        // const int stripWidth = 28;
+        const int stripWidth = 30;   // Krimble 2026-10-17 (2nd): George: "Try just one more pixel? Or 2?" 28 -> 30. Before: 28 // Krimble 2026-10-17: George (1.0.37): "It's also sometimes still hard to grab edges for resize." "Try a small change first." 24 -> 28
         setGeometry(area == Qt::LeftDockWidgetArea ? column.right() + 1 : column.left() - stripWidth, column.top(), stripWidth, column.height());
         show();
         raise();
@@ -2619,6 +2634,83 @@ private:
 // of an image window (QMdiSubWindow) is drawn by the style: its height, which also sizes its buttons, is `PM_TitleBarHeight`, and its color is the
 // palette's highlight (the aqua). This style is put on the image windows only: the title bar is 25% higher (so its buttons are 25% bigger) and
 // drawn in the app's blue-gray, rgb(55,57,82), "Krimble dark". It is my best guess that this is the bar George means; not seen on a phone.
+// Krimble 2026-10-17: George (1.0.37): "1. Giant mega lines again for bevels instead of one pixel." and "8. Docked panels have pointless mega bevel lines.
+// Detached panels have no bevel lines at all. See how the Tool Options panel disappears into the toolbar cluster because there are no hilight or
+// shadow lines on the edges? And they should be only one pixel thick on each edge. Toolbars need them too." A transparent overlay is put on every
+// panel and every toolbar. A docked panel gets a light line along its top and a dark line along its bottom; a detached panel and a toolbar get a
+// light line along the top and left edges and a dark line along the bottom and right edges (a raised look). Each line is ONE DEVICE PIXEL thick.
+// (This replaces the lines drawn by KoDockWidgetTitleBar of the 135th entry, which were 3 device px each and only on docked panels.)
+class KrimbleBevelOverlay : public QWidget
+{
+public:
+    explicit KrimbleBevelOverlay(QWidget *target) : QWidget(target), m_target(target)
+    {
+        setAttribute(Qt::WA_TransparentForMouseEvents);
+        setAttribute(Qt::WA_NoSystemBackground);
+        setObjectName(QStringLiteral("krimbleBevelOverlay"));
+        target->installEventFilter(this);
+        reposition();
+    }
+    void reposition()
+    {
+        if (!m_target) return;
+        setGeometry(m_target->rect());
+        raise();
+        show();
+    }
+    bool eventFilter(QObject *watched, QEvent *event) override
+    {
+        if (watched == m_target) {
+            switch (event->type()) {
+            case QEvent::Resize:
+            case QEvent::Show:
+            case QEvent::LayoutRequest:
+                reposition();
+                break;
+            case QEvent::ChildAdded:
+                QTimer::singleShot(0, this, [this]() { raise(); });
+                break;
+            default:
+                break;
+            }
+        }
+        return false;
+    }
+
+protected:
+    void paintEvent(QPaintEvent *) override
+    {
+        QPainter p(this);
+        p.setRenderHint(QPainter::Antialiasing, false);
+        const qreal one = 1.0 / qMax<qreal>(1.0, devicePixelRatioF());   // one device pixel
+        const QColor light(110, 114, 156);
+        const QColor dark(18, 19, 34);
+        const qreal w = width();
+        const qreal h = height();
+        QDockWidget *dock = qobject_cast<QDockWidget*>(m_target.data());
+        const bool allEdges = !dock || dock->isFloating();
+        p.fillRect(QRectF(0, 0, w, one), light);
+        p.fillRect(QRectF(0, h - one, w, one), dark);
+        if (allEdges) {
+            p.fillRect(QRectF(0, 0, one, h), light);
+            p.fillRect(QRectF(w - one, 0, one, h), dark);
+        }
+    }
+
+private:
+    QPointer<QWidget> m_target;
+};
+
+static void krimbleInstallBevels(QMainWindow *win)
+{
+    Q_FOREACH (QDockWidget *dock, win->findChildren<QDockWidget*>()) {
+        if (!dock->findChild<KrimbleBevelOverlay*>(QStringLiteral("krimbleBevelOverlay"), Qt::FindDirectChildrenOnly)) new KrimbleBevelOverlay(dock);
+    }
+    Q_FOREACH (QToolBar *bar, win->findChildren<QToolBar*>()) {
+        if (!bar->findChild<KrimbleBevelOverlay*>(QStringLiteral("krimbleBevelOverlay"), Qt::FindDirectChildrenOnly)) new KrimbleBevelOverlay(bar);
+    }
+}
+
 class KrimbleMdiTitleStyle : public QProxyStyle
 {
 public:
@@ -3242,6 +3334,7 @@ KisMainWindow::KisMainWindow(QUuid uuid)
             krimbleInstallMenuShortcutStripping(this);   // Krimble 2026-10-13 (4th): the real fix for the wide menus (see above)
             krimbleInstallCanvasOnlyExit(this);          // Krimble 2026-10-13 (5th): the X that leaves Canvas Only mode
             krimbleRemoveMinimumWidths(this);            // Krimble 2026-10-13 (6th): no minimum widths (see above)
+            krimbleInstallBevels(this);                  // Krimble 2026-10-17: one-pixel bevel lines on panels and toolbars (see above)
             // Krimble 2026-10-13 (13th): George: "The saved window state on close is the most reliable predictor of the next load state. If we can
             // set it, Brushes will behave." Krita writes the panel layout only when the last image is closed or a toolbar is changed, never when
             // Android stops the app (swiping it away, or low memory), so a panel closed in one session came back in the next. The layout is
@@ -3286,8 +3379,11 @@ KisMainWindow::KisMainWindow(QUuid uuid)
         // "default" layout below is kept, so Reset Layout also comes back without it.
         {
             KisConfig panelsCfg(false);
-            if (!panelsCfg.readEntry<int>("krimble_default_panels_done", 0)) {
-                panelsCfg.writeEntry<int>("krimble_default_panels_done", 1);
+            // if (!panelsCfg.readEntry<int>("krimble_default_panels_done", 0)) {
+            //     panelsCfg.writeEntry<int>("krimble_default_panels_done", 1);
+            // Krimble 2026-10-17: George (1.0.37): "4. Brushes still auto loads on start." Hidden at every start, not only the first (the saved layout
+            // of a phone that had run an older build kept bringing it back); it is shown again from Window > Panels.
+            if (true) {
                 Q_FOREACH (QDockWidget *dock, findChildren<QDockWidget*>()) {
                     const QString title = dock->windowTitle().remove(QLatin1Char('&')).trimmed();
                     if (title.compare(QStringLiteral("Brushes"), Qt::CaseInsensitive) == 0
@@ -3295,6 +3391,23 @@ KisMainWindow::KisMainWindow(QUuid uuid)
                         dock->hide();
                     }
                 }
+            }
+        }
+        // Krimble 2026-10-17: George (1.0.37): "7. Default side panel size is too wide on load. It squeezes the picture." In landscape the column of
+        // panels on the right is not wider than 30% of the window at start (it was 254 of 665 logical px, 38%); it can still be dragged wider.
+        {
+            QDockWidget *firstRight = nullptr;
+            int rightWidth = 0;
+            Q_FOREACH (QDockWidget *dock, findChildren<QDockWidget*>()) {
+                if (dock->isFloating() || !dock->isVisible()) continue;
+                if (dockWidgetArea(dock) == Qt::RightDockWidgetArea) {
+                    if (!firstRight) firstRight = dock;
+                    rightWidth = qMax(rightWidth, dock->width());
+                }
+            }
+            const int maxRightWidth = int(width() * 0.30);
+            if (firstRight && width() >= 500 && rightWidth > maxRightWidth) {
+                resizeDocks({firstRight}, {maxRightWidth}, Qt::Horizontal);
             }
         }
         // Krimble 2026-10-13 (2nd): George, portrait: "the toolbox reverts to one column ... the right panel will not resize in portrait at
