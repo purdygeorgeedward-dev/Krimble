@@ -171,6 +171,18 @@
 #include "kis_action_manager.h"
 #include "KisApplication.h"
 #include "kis_canvas2.h"
+#include "kis_canvas_decoration.h"
+#include <QtMath>
+#include <QElapsedTimer>
+#include <QTouchEvent>
+#include "kis_node_manager.h"
+#include "kis_coordinates_converter.h"
+#include "flake/kis_shape_layer.h"
+#include <KoPathShape.h>
+#include <KoShapeStroke.h>
+#include <KoUnit.h>
+#include <QColorDialog>
+#include <QDoubleSpinBox>
 #include "kis_canvas_controller.h"
 #include "kis_canvas_resource_provider.h"
 #include "kis_clipboard.h"
@@ -2733,6 +2745,364 @@ static void krimbleInstallBevels(QMainWindow *win)
     }
 }
 
+// Krimble 2026-10-18: HEX MAPS (George: "Can we offer a hex mapping feature?" and "View-show-hex and we use an svg to overlay a hex pattern which they
+// can pinch zoom/scale to make it easier to make hex maps. Add a layer that's a hex pattern and the user sets the scale." and "Hexes are drawn as vector
+// art. User can set the line thickness."). Two things: (1) View > Show > Hex: a hexagon pattern drawn over the canvas (a canvas decoration, like the
+// grid), which follows the zoom; its size is set with View > Show > Hex Size...; (2) Layer > New > Hex Pattern...: a VECTOR layer (a KisShapeLayer) holding
+// the pattern as one path shape, so the lines stay sharp at any zoom, with the size, the line thickness and the color chosen by the user.
+// A hexagon is described by its "size" = the distance from the center to a corner, in image pixels. Pointy-top: columns sqrt(3) x size apart, rows 1.5 x size
+// apart, every second row shifted by half a column. Flat-top: the same turned by a quarter turn.
+static void krimbleHexCenters(qreal size, bool flatTop, const QRectF &area, const std::function<void(const QPointF&)> &visit)
+{
+    const qreal s3 = 1.7320508075688772;
+    if (size <= 0.0) return;
+    if (!flatTop) {
+        const qreal colWidth = s3 * size;
+        const qreal rowHeight = 1.5 * size;
+        const int firstRow = int(qFloor(area.top() / rowHeight)) - 1;
+        const int lastRow = int(qCeil(area.bottom() / rowHeight)) + 1;
+        for (int row = firstRow; row <= lastRow; ++row) {
+            const qreal shift = (row & 1) ? colWidth / 2.0 : 0.0;
+            const int firstCol = int(qFloor((area.left() - shift) / colWidth)) - 1;
+            const int lastCol = int(qCeil((area.right() - shift) / colWidth)) + 1;
+            for (int col = firstCol; col <= lastCol; ++col) visit(QPointF(col * colWidth + shift, row * rowHeight));
+        }
+    } else {
+        const qreal colWidth = 1.5 * size;
+        const qreal rowHeight = s3 * size;
+        const int firstCol = int(qFloor(area.left() / colWidth)) - 1;
+        const int lastCol = int(qCeil(area.right() / colWidth)) + 1;
+        for (int col = firstCol; col <= lastCol; ++col) {
+            const qreal shift = (col & 1) ? rowHeight / 2.0 : 0.0;
+            const int firstRow = int(qFloor((area.top() - shift) / rowHeight)) - 1;
+            const int lastRow = int(qCeil((area.bottom() - shift) / rowHeight)) + 1;
+            for (int row = firstRow; row <= lastRow; ++row) visit(QPointF(col * colWidth, row * rowHeight + shift));
+        }
+    }
+}
+
+static QPolygonF krimbleHexPolygon(const QPointF &center, qreal size, bool flatTop)
+{
+    QPolygonF polygon;
+    for (int i = 0; i < 6; ++i) {
+        const qreal angle = qDegreesToRadians((flatTop ? 0.0 : 30.0) + 60.0 * i);
+        polygon << QPointF(center.x() + size * qCos(angle), center.y() + size * qSin(angle));
+    }
+    return polygon;
+}
+
+class KrimbleHexDecoration : public KisCanvasDecoration
+{
+public:
+    explicit KrimbleHexDecoration(KisView *parent) : KisCanvasDecoration(QStringLiteral("krimblehex"), parent)
+    {
+        setPriority(1);
+    }
+    qreal size = 100.0;      // center to corner, in image pixels
+    bool flatTop = false;
+    bool adjusting = false;  // George: "Hex overlay should be pinch zoom then drop with a tap." While true, a pinch scales the hexes and a tap drops them.
+
+protected:
+    void drawDecoration(QPainter &gc, const QRectF &updateArea, const KisCoordinatesConverter *converter, KisCanvas2 *canvas) override
+    {
+        Q_UNUSED(canvas);
+        const QTransform toWidget = converter->imageToWidgetTransform();
+        const qreal scale = KoUnit::approxTransformScale(toWidget);
+        if (scale * size < 6.0) return;                       // too small to be of any use: the same rule as the grid
+        const QRectF imageArea = toWidget.inverted().mapRect(updateArea);
+        gc.save();
+        gc.setRenderHint(QPainter::Antialiasing, true);
+        QPen pen(QColor(30, 30, 30, 210), 1.0);
+        pen.setCosmetic(true);
+        gc.setPen(pen);
+        gc.setBrush(Qt::NoBrush);
+        const qreal sz = size;
+        const bool flat = flatTop;
+        krimbleHexCenters(sz, flat, imageArea.adjusted(-sz, -sz, sz, sz), [&](const QPointF &center) {
+            gc.drawPolygon(toWidget.map(krimbleHexPolygon(center, sz, flat)));
+        });
+        if (adjusting) {
+            // a note while the pattern is being scaled
+            const QString note = i18n("Pinch to scale the hexes, tap to drop");
+            QFont noteFont = gc.font();
+            noteFont.setPointSizeF(noteFont.pointSizeF() * 1.4);
+            noteFont.setBold(true);
+            gc.setFont(noteFont);
+            const QRectF window = gc.window();
+            QRectF plate = QFontMetricsF(noteFont).boundingRect(note);
+            plate.adjust(-14, -8, 14, 8);
+            plate.moveCenter(QPointF(window.center().x(), window.top() + plate.height()));
+            gc.setPen(Qt::NoPen);
+            gc.setBrush(QColor(18, 19, 34, 220));
+            gc.drawRoundedRect(plate, 6, 6);
+            gc.setPen(QColor(230, 230, 230));
+            gc.drawText(plate, Qt::AlignCenter, note);
+        }
+        gc.restore();
+    }
+};
+
+// the small window that asks for the size, the orientation and (for the layer) the line thickness and color
+static bool krimbleAskHex(QMainWindow *win, bool forLayer, qreal *size, bool *flatTop, qreal *thickness, QColor *color)
+{
+    QDialog dialog(win);
+    dialog.setWindowTitle(forLayer ? i18n("Hex Pattern") : i18n("Hex Size"));
+    QVBoxLayout *layout = new QVBoxLayout(&dialog);
+    QLabel *sizeLabel = new QLabel(i18n("Hex size (center to corner, pixels):"), &dialog);
+    QDoubleSpinBox *sizeBox = new QDoubleSpinBox(&dialog);
+    sizeBox->setRange(4.0, 5000.0);
+    sizeBox->setDecimals(1);
+    sizeBox->setValue(*size);
+    QCheckBox *flatBox = new QCheckBox(i18n("Flat-top (otherwise pointy-top)"), &dialog);
+    flatBox->setChecked(*flatTop);
+    layout->addWidget(sizeLabel);
+    layout->addWidget(sizeBox);
+    layout->addWidget(flatBox);
+    QDoubleSpinBox *thicknessBox = nullptr;
+    QPushButton *colorButton = nullptr;
+    QColor chosen = color ? *color : QColor(Qt::black);
+    if (forLayer) {
+        QLabel *thicknessLabel = new QLabel(i18n("Line thickness (pixels):"), &dialog);
+        thicknessBox = new QDoubleSpinBox(&dialog);
+        thicknessBox->setRange(0.1, 200.0);
+        thicknessBox->setDecimals(1);
+        thicknessBox->setValue(*thickness);
+        colorButton = new QPushButton(i18n("Line color..."), &dialog);
+        auto paintColorButton = [colorButton, &chosen]() {
+            colorButton->setStyleSheet(QStringLiteral("QPushButton { border-left: 24px solid %1; }").arg(chosen.name()));
+        };
+        paintColorButton();
+        QObject::connect(colorButton, &QPushButton::clicked, &dialog, [&]() {
+            const QColor picked = QColorDialog::getColor(chosen, &dialog, i18n("Line color"));
+            if (picked.isValid()) {
+                chosen = picked;
+                paintColorButton();
+            }
+        });
+        layout->addWidget(thicknessLabel);
+        layout->addWidget(thicknessBox);
+        layout->addWidget(colorButton);
+    }
+    QDialogButtonBox *buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, &dialog);
+    QObject::connect(buttons, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
+    QObject::connect(buttons, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
+    layout->addWidget(buttons);
+    if (QScreen *scr = QGuiApplication::primaryScreen()) {
+        dialog.resize(int(scr->availableGeometry().width() * 0.9), dialog.sizeHint().height());
+    }
+    if (dialog.exec() != QDialog::Accepted) return false;
+    *size = sizeBox->value();
+    *flatTop = flatBox->isChecked();
+    if (forLayer) {
+        *thickness = thicknessBox->value();
+        if (color) *color = chosen;
+    }
+    return true;
+}
+
+static qreal g_krimbleHexSize = 100.0;
+static bool g_krimbleHexFlat = false;
+static qreal g_krimbleHexThickness = 2.0;
+static QColor g_krimbleHexColor = QColor(Qt::black);
+
+// George: "Hex overlay should be pinch zoom then drop with a tap." While the overlay is being adjusted, two fingers scale the hexes (the distance between
+// them against its last value), a short single tap that does not move drops them (the size is kept; the pattern then follows the canvas as usual), and
+// other touches on the canvas are held back so that the canvas does not zoom or paint at the same time.
+class KrimbleHexAdjustFilter : public QObject
+{
+public:
+    KrimbleHexAdjustFilter(QWidget *widget, KrimbleHexDecoration *deco, KisCanvas2 *canvas)
+        : QObject(widget), m_widget(widget), m_deco(deco), m_canvas(canvas)
+    {
+        widget->installEventFilter(this);
+    }
+    void finish()
+    {
+        if (m_deco) m_deco->adjusting = false;
+        if (m_widget) m_widget->removeEventFilter(this);
+        if (m_canvas) m_canvas->updateCanvas();
+        deleteLater();
+    }
+
+protected:
+    bool eventFilter(QObject *watched, QEvent *event) override
+    {
+        Q_UNUSED(watched);
+        if (!m_deco || !m_deco->adjusting) {
+            finish();
+            return false;
+        }
+        const QEvent::Type type = event->type();
+        if (type != QEvent::TouchBegin && type != QEvent::TouchUpdate && type != QEvent::TouchEnd) return false;
+        QTouchEvent *touch = static_cast<QTouchEvent*>(event);
+        const QList<QTouchEvent::TouchPoint> points = touch->touchPoints();
+        if (points.isEmpty()) return true;
+        if (type == QEvent::TouchBegin) {
+            m_pinched = false;
+            m_moved = false;
+            m_start = points.first().pos();
+            m_lastDistance = 0.0;
+            m_clock.start();
+        }
+        if (points.size() >= 2) {
+            m_pinched = true;
+            const qreal distance = QLineF(points.at(0).pos(), points.at(1).pos()).length();
+            if (m_lastDistance > 0.0 && distance > 0.0) {
+                m_deco->size = qBound<qreal>(8.0, m_deco->size * distance / m_lastDistance, 3000.0);
+                g_krimbleHexSize = m_deco->size;
+                if (m_canvas) m_canvas->updateCanvas();
+            }
+            m_lastDistance = distance;
+        } else {
+            m_lastDistance = 0.0;
+            if (QLineF(points.first().pos(), m_start).length() > 24.0) m_moved = true;
+            if (type == QEvent::TouchEnd && !m_pinched && !m_moved && m_clock.elapsed() < 600) {
+                finish();
+            }
+        }
+        return true;
+    }
+
+private:
+    QPointer<QWidget> m_widget;
+    QPointer<KrimbleHexDecoration> m_deco;
+    QPointer<KisCanvas2> m_canvas;
+    QPointF m_start;
+    qreal m_lastDistance {0.0};
+    bool m_pinched {false};
+    bool m_moved {false};
+    QElapsedTimer m_clock;
+};
+
+static KrimbleHexDecoration *krimbleHexDecorationOf(KisMainWindow *win, bool create)
+{
+    KisViewManager *manager = win->viewManager();
+    KisView *view = manager ? manager->activeView() : nullptr;
+    if (!view || !view->canvasBase()) return nullptr;
+    KisCanvasDecorationSP existing = view->canvasBase()->decoration(QStringLiteral("krimblehex"));
+    KrimbleHexDecoration *hex = dynamic_cast<KrimbleHexDecoration*>(existing.data());
+    if (!hex && create) {
+        hex = new KrimbleHexDecoration(view);
+        view->canvasBase()->addDecoration(hex);
+    }
+    return hex;
+}
+
+static void krimbleMakeHexLayer(KisMainWindow *win)
+{
+    KisViewManager *manager = win->viewManager();
+    if (!manager || !manager->image() || !manager->nodeManager()) {
+        QMessageBox::information(win, i18n("Hex Pattern"), i18n("Open a picture first."));
+        return;
+    }
+    if (!krimbleAskHex(win, true, &g_krimbleHexSize, &g_krimbleHexFlat, &g_krimbleHexThickness, &g_krimbleHexColor)) return;
+    KisImageSP image = manager->image();
+    const QRectF bounds = image->bounds();
+    const qreal size = g_krimbleHexSize;
+    const qreal estimate = (bounds.width() / (1.7320508 * size) + 2.0) * (bounds.height() / (1.5 * size) + 2.0);
+    if (estimate > 15000.0) {
+        QMessageBox::information(win, i18n("Hex Pattern"), i18n("That would be %1 hexes. Choose a bigger size.", qRound(estimate)));
+        return;
+    }
+    KisNodeSP node = manager->nodeManager()->createNode(QStringLiteral("KisShapeLayer"));
+    KisShapeLayer *layer = dynamic_cast<KisShapeLayer*>(node.data());
+    if (!layer) {
+        QMessageBox::warning(win, i18n("Hex Pattern"), i18n("The vector layer could not be made."));
+        return;
+    }
+    // a vector shape lives in points: image pixels per point is xRes()
+    const qreal pointsPerPixel = image->xRes() > 0.0 ? 1.0 / image->xRes() : 1.0;
+    KoPathShape *path = new KoPathShape();
+    path->setShapeId(KoPathShapeId);
+    const bool flat = g_krimbleHexFlat;
+    krimbleHexCenters(size, flat, bounds.adjusted(-size, -size, size, size), [&](const QPointF &center) {
+        const QPolygonF hex = krimbleHexPolygon(center, size, flat);
+        path->moveTo(hex.at(0) * pointsPerPixel);
+        for (int i = 1; i < hex.size(); ++i) path->lineTo(hex.at(i) * pointsPerPixel);
+        path->close();
+    });
+    path->normalize();
+    path->setStroke(toQShared(new KoShapeStroke(g_krimbleHexThickness * pointsPerPixel, g_krimbleHexColor)));
+    path->setBackground(QSharedPointer<KoShapeBackground>());
+    path->setName(QStringLiteral("Hex pattern"));
+    layer->addShape(path);
+    node->setName(image->nextLayerName(i18n("Hex Pattern")));
+}
+
+// View > Show > Hex (a check mark) and Hex Size...; Layer > New > Hex Pattern...
+static void krimbleInstallHexMenus(KisMainWindow *win)
+{
+    Q_FOREACH (QAction *top, win->menuBar()->actions()) {
+        QMenu *menu = top->menu();
+        if (!menu || menu->property("krimbleHexMenus").toBool()) continue;
+        QString topTitle = top->text();
+        topTitle.remove(QLatin1Char('&'));
+        const bool isView = (topTitle == QLatin1String("View"));
+        const bool isLayer = (topTitle == QLatin1String("Layer"));
+        if (!isView && !isLayer) continue;
+        menu->setProperty("krimbleHexMenus", true);
+        QObject::connect(menu, &QMenu::aboutToShow, menu, [win, menu, isView, isLayer]() {
+            Q_FOREACH (QAction *action, menu->actions()) {
+                QString text = action->text();
+                text.remove(QLatin1Char('&'));
+                QMenu *sub = action->menu();
+                if (!sub) continue;
+                if (isView && text == QLatin1String("Show")) {
+                    if (sub->findChild<QAction*>(QStringLiteral("krimbleHex"))) {
+                        QAction *hexAction = sub->findChild<QAction*>(QStringLiteral("krimbleHex"));
+                        KrimbleHexDecoration *deco = krimbleHexDecorationOf(win, false);
+                        QSignalBlocker blocker(hexAction);
+                        hexAction->setChecked(deco && deco->visible());
+                        continue;
+                    }
+                    QAction *hexAction = new QAction(i18n("Hex"), sub);
+                    hexAction->setObjectName(QStringLiteral("krimbleHex"));
+                    hexAction->setCheckable(true);
+                    QObject::connect(hexAction, &QAction::toggled, win, [win](bool on) {
+                        KrimbleHexDecoration *deco = krimbleHexDecorationOf(win, on);
+                        if (!deco) return;
+                        deco->size = g_krimbleHexSize;
+                        deco->flatTop = g_krimbleHexFlat;
+                        deco->setVisible(on);
+                        KisViewManager *manager = win->viewManager();
+                        KisCanvas2 *hexCanvas = (manager && manager->activeView()) ? manager->activeView()->canvasBase() : nullptr;
+                        if (on && hexCanvas && hexCanvas->canvasWidget()) {
+                            // George: "Hex overlay should be pinch zoom then drop with a tap."
+                            deco->adjusting = true;
+                            new KrimbleHexAdjustFilter(hexCanvas->canvasWidget(), deco, hexCanvas);
+                        } else {
+                            deco->adjusting = false;
+                        }
+                        if (hexCanvas) hexCanvas->updateCanvas();
+                    });
+                    QAction *sizeAction = new QAction(i18n("Hex Size..."), sub);
+                    sizeAction->setObjectName(QStringLiteral("krimbleHexSize"));
+                    QObject::connect(sizeAction, &QAction::triggered, win, [win]() {
+                        qreal thickness = g_krimbleHexThickness;
+                        QColor color = g_krimbleHexColor;
+                        if (!krimbleAskHex(win, false, &g_krimbleHexSize, &g_krimbleHexFlat, &thickness, &color)) return;
+                        KrimbleHexDecoration *deco = krimbleHexDecorationOf(win, false);
+                        if (deco) {
+                            deco->size = g_krimbleHexSize;
+                            deco->flatTop = g_krimbleHexFlat;
+                            KisViewManager *manager = win->viewManager();
+                            if (manager && manager->activeView() && manager->activeView()->canvasBase()) manager->activeView()->canvasBase()->updateCanvas();
+                        }
+                    });
+                    sub->addAction(hexAction);
+                    sub->addAction(sizeAction);
+                } else if (isLayer && text == QLatin1String("New")) {
+                    if (sub->findChild<QAction*>(QStringLiteral("krimbleHexLayer"))) continue;
+                    QAction *layerAction = new QAction(i18n("Hex Pattern..."), sub);
+                    layerAction->setObjectName(QStringLiteral("krimbleHexLayer"));
+                    QObject::connect(layerAction, &QAction::triggered, win, [win]() { krimbleMakeHexLayer(win); });
+                    sub->addAction(layerAction);
+                }
+            }
+        });
+    }
+}
+
 class KrimbleMdiTitleStyle : public QProxyStyle
 {
 public:
@@ -3357,6 +3727,7 @@ KisMainWindow::KisMainWindow(QUuid uuid)
             krimbleInstallCanvasOnlyExit(this);          // Krimble 2026-10-13 (5th): the X that leaves Canvas Only mode
             krimbleRemoveMinimumWidths(this);            // Krimble 2026-10-13 (6th): no minimum widths (see above)
             krimbleInstallBevels(this);                  // Krimble 2026-10-17: one-pixel bevel lines on panels and toolbars (see above)
+            krimbleInstallHexMenus(this);                // Krimble 2026-10-18: View > Show > Hex and Layer > New > Hex Pattern... (see above)
             // Krimble 2026-10-18: George (1.0.37, git 41a4afb): "1. Brushes still loads at start." The hiding at start (2.5 s) came too early: opening
             // the first image brings the saved layout back, with Brushes. So it is hidden once more, once, the first time an image is open.
             if (!property("krimbleBrushesHiddenAfterImage").toBool() && d->widgetStack->currentIndex() != 0) {

@@ -132,7 +132,10 @@ void KisSplashScreen::updateSplashImage()
     // and about 480 px wide, wider than a phone in portrait, which made the whole About window bigger than the screen).
     if (m_displayLinks) {
         if (QScreen *screenPtr = QGuiApplication::primaryScreen()) {
-            const int maxWidth = int(screenPtr->availableGeometry().width() * 0.80);
+            // const int maxWidth = int(screenPtr->availableGeometry().width() * 0.80);
+            // Krimble 2026-10-18: George (1.0.37): "8. About Krimble text is all over the place." The picture was sized from the screen, and came out
+            // wider than the window it is in; the About dialog now gives the width of the window (see kis_about_application.cpp).
+            const int maxWidth = m_maxAboutWidth > 0 ? m_maxAboutWidth : int(screenPtr->availableGeometry().width() * 0.80);
             if (maxWidth > 0 && width > maxWidth) {
                 width = maxWidth;
                 height = width * img.height() / img.width();
@@ -239,7 +242,7 @@ void KisSplashScreen::displayLinks(bool show) {
         QStringList lblLinksText;
         lblLinksText    << "<html>"
                         << "<head/>"
-                        << "<body><table style=\"width:100%\" cellpadding=\"30\"><tr><td>"
+                        << "<body><table style=\"width:100%\" cellpadding=\"10\"><tr><td>"
                         << i18n("<p><span style=\" color:%1;\"><b>Using Krimble</b></span></p>",color);
 
 #ifdef Q_OS_MACOS

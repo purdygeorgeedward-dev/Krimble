@@ -39,6 +39,12 @@ KisAboutApplication::KisAboutApplication(QWidget *parent)
 
     KisSplashScreen *splash = new KisSplashScreen(true);
     splash->setWindowFlags(Qt::Widget);
+#ifdef Q_OS_ANDROID
+    // Krimble 2026-10-18: the picture is not wider than 90% of the window this dialog is opened from (George, 1.0.37: "About Krimble text is all over the place").
+    if (parent && parent->window()) {
+        splash->setMaximumAboutWidth(int(parent->window()->width() * 0.90));
+    }
+#endif
     splash->displayLinks(true);
 
     wdgTab->aboutTab->layout()->addWidget(splash);

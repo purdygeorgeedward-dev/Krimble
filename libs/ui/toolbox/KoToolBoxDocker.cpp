@@ -380,8 +380,23 @@ void KoToolBoxDocker::resizeEvent(QResizeEvent *event)
     QTimer::singleShot(0, this, [this]() {
         if (!m_scrollArea || !m_toolBox || !m_toolBox->layout()) return;
         if (!m_toolBox->layout()->hasHeightForWidth()) {
-            m_scrollArea->setMaximumHeight(QWIDGETSIZE_MAX);
-            setMaximumHeight(QWIDGETSIZE_MAX);
+            // m_scrollArea->setMaximumHeight(QWIDGETSIZE_MAX);
+            // setMaximumHeight(QWIDGETSIZE_MAX);
+            // Krimble 2026-10-18: George (1.0.37): "5. Toolbox has a big empty bottom for no reason." (his screenshot: the toolbox docked at the top, 2 rows
+            // of tools and a tall empty space under them). In the rows layout (docked at the top or the bottom) the toolbox is not taller than its
+            // rows, the title bar and the frame. A floating toolbox in rows is left free.
+            if (!isFloating()) {
+                const int rowsHeight = m_toolBox->sizeHint().height();
+                const int frame = m_scrollArea->height() - m_scrollArea->viewport()->height();
+                const int others = qMax(0, height() - m_scrollArea->height());
+                if (rowsHeight > 0) {
+                    m_scrollArea->setMaximumHeight(rowsHeight + frame);
+                    setMaximumHeight(rowsHeight + frame + others);
+                }
+            } else {
+                m_scrollArea->setMaximumHeight(QWIDGETSIZE_MAX);
+                setMaximumHeight(QWIDGETSIZE_MAX);
+            }
             return;
         }
         const int contentHeight = m_toolBox->layout()->heightForWidth(m_scrollArea->viewport()->width());
@@ -594,6 +609,12 @@ void KoToolBoxDocker::fitHeightToContents()
     int target = titleAndFrame + margins.top() + margins.bottom() + scrollFrame + toolsHeight;
     if (QScreen *screenPtr = screen() ? screen() : QGuiApplication::primaryScreen()) {
         target = qMin(target, int(screenPtr->availableGeometry().height() * 0.95));
+    }
+    // Krimble 2026-10-18: George (1.0.37): "5. Toolbox has a big empty bottom for no reason. Hard to resize away." The floating toolbox is also never
+    // taller than this: a window cannot be made taller than its maximum height, so the empty space cannot come back (the cut with resize() alone
+    // was overruled by an older, taller size).
+    if (target > 0) {
+        setMaximumHeight(target);
     }
     if (target > 0 && qAbs(height() - target) > 2) {
         m_applying = true;

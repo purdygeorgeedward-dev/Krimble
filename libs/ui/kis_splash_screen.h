@@ -32,6 +32,8 @@ public:
 
     void show();
     void displayLinks(bool show);
+    // Krimble 2026-10-18: the widest the picture of the About page may be (logical px); 0: 80% of the screen as before
+    void setMaximumAboutWidth(int width) { m_maxAboutWidth = width; }
     void displayRecentFiles(bool show);
 
     void setLoadingText(QString text);
@@ -56,6 +58,7 @@ private:
     QTimer m_timer;
     bool m_themed;
     bool m_displayLinks { false };
+    int m_maxAboutWidth { 0 };
     QSvgWidget *m_brandingSvg;
     QSvgWidget *m_bannerSvg;
     QLabel *m_loadingTextLabel;
