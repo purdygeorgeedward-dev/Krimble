@@ -87,9 +87,19 @@ KisAboutApplication::KisAboutApplication(QWidget *parent)
             "<p><a href=\"https://krimble.org/\">Krimble Website</a></p>"
             "<p><a href=\"https://krimble.org\">User Community</a></p>"
             "<p><a href=\"https://github.com/purdygeorgeedward-dev/krimble\">Source Code</a></p>"));
+        // Krimble 2026-10-18 (11th): George, on the license of the fonts that come with the app: "A. Put in a link to purdy.design and maybe I'll get some licenses out of it."
+        // (A: as written in the fonts: free for non-commercial use, a paid license from Purdy Design for commercial use.)
+        QLabel *fontsLabel = new QLabel(page);
+        fontsLabel->setTextFormat(Qt::RichText);
+        fontsLabel->setOpenExternalLinks(true);
+        fontsLabel->setWordWrap(true);
+        fontsLabel->setText(QStringLiteral(
+            "<p><small>Fonts that come with Krimble (ROBO, Cartoonist Kooky, Cyberspace, Emoticons, Emoticons Outline) &copy; George Edward Purdy, Purdy Design. "
+            "Free for non-commercial use. Commercial use needs a license: <a href=\"https://purdy.design\">purdy.design</a></small></p>"));
         pageLayout->addWidget(pictureLabel);
         pageLayout->addWidget(versionLabel);
         pageLayout->addWidget(linksLabel);
+        pageLayout->addWidget(fontsLabel);
         pageLayout->addStretch(1);
         wdgTab->aboutTab->layout()->addWidget(page);
     }

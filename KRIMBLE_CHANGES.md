@@ -4587,3 +4587,10 @@ George: "I have several fonts which could be included with the app. I can licens
 
 George made two small PNG files of the K and paw logo, 32 x 32 and 64 x 64 (RGBA), "for use as Krimble emojis", and asked to "Just save them in the repo." They are kept with the other artwork (`krimble-artwork/emoji/`). Not used by the app. Possible uses named to him: server emoji (Discord and Slack want 128 x 128), forum emoji (Flarum, through an extension), the browser tab icon (32 x 32).
 
+## 2026-10-18 (174th) — Fonts: the license decision (A) and the link to purdy.design
+
+**Files:** `libs/ui/dialogs/kis_about_application.cpp`, `krita/data/fonts/readme.md`
+
+George, asked what users of Krimble may do with the bundled fonts (A: non-commercial only, as written in the fonts; B: free to use inside Krimble for any work): "A. Put in a link to purdy.design and maybe I'll get some licenses out of it." **Decision A.** `readme.md` of the fonts folder says so (free for non-commercial use; commercial use needs a paid license from Purdy Design, https://purdy.design). The **About Krimble** page (Android) has a small line under the links: the five fonts, © George Edward Purdy / Purdy Design, free for non-commercial use, commercial use needs a license, with the link **purdy.design**. The text embedded in the fonts names purdydesign.com; the new link is the one George gave.
+**Not verified:** a build or a device.
+
