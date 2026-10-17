@@ -6,6 +6,9 @@
  *
  */
 
+#include <QGridLayout>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
 #include "kis_filter_selector_widget.h"
 
 #include <QHeaderView>
@@ -72,6 +75,34 @@ KisFilterSelectorWidget::KisFilterSelectorWidget(QWidget* parent)
     Q_UNUSED(parent);
     setObjectName("KisFilterSelectorWidget");
     d->uiFilterSelector.setupUi(this);
+
+#ifdef Q_OS_ANDROID
+    // Krimble 2026-10-18: George (1.0.37, fc126d8): "11. Image - Mode - Index Color dialog is way too wide." and "On index color, rearrange the UI to fit if you can."
+    // (the Palettize dialog was 366 logical px wide against a 360 px window; the widest part was the top row of this widget: the presets list, "Use last preset",
+    // "Edit Presets" and "XML" side by side). The row is two rows of two: the presets list and Edit Presets above, Use last preset and XML below.
+    {
+        QVBoxLayout *column = d->uiFilterSelector.verticalLayout;
+        QHBoxLayout *row = d->uiFilterSelector.horizontalLayout;
+        const int rowIndex = column->indexOf(row);
+        if (rowIndex >= 0) {
+            QWidget *presets = d->uiFilterSelector.comboBoxPresets;
+            QWidget *remember = d->uiFilterSelector.chkRememberPreset;
+            QWidget *edit = d->uiFilterSelector.pushButtonEditPresets;
+            QWidget *xml = d->uiFilterSelector.btnXML;
+            while (QLayoutItem *item = row->takeAt(0)) delete item;
+            column->takeAt(rowIndex);
+            delete row;
+            QGridLayout *grid = new QGridLayout();
+            grid->setContentsMargins(0, 0, 0, 0);
+            grid->addWidget(presets, 0, 0);
+            grid->addWidget(edit, 0, 1);
+            grid->addWidget(remember, 1, 0);
+            grid->addWidget(xml, 1, 1);
+            grid->setColumnStretch(0, 1);
+            column->insertLayout(rowIndex, grid);
+        }
+    }
+#endif
 
     d->widgetLayout = new QGridLayout(d->uiFilterSelector.centralWidgetHolder);
     d->widgetLayout->setContentsMargins(0,0,0,0);

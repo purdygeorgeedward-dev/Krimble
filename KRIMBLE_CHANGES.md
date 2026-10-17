@@ -4461,3 +4461,18 @@ George (1.0.37): "Text tool: complete disaster. Unusable." (chose "2", a text wi
 - **Not done yet:** tapping existing text to change it (use the Move and Transform tools to move, turn or scale text; to change the words, make new text), line spacing, letter spacing, outline. The old `SvgTextEditor` window is not used.
 **Not verified:** a build or a device. First compile of the new tool.
 
+## 2026-10-18 (156th) — Help > Presets...: a smaller window without the details pane
+
+**Files:** `plugins/extensions/resourcemanager/DlgResourceManager.cpp`
+
+George (1.0.37, fc126d8): "Presets opens a giant dialog window." Asked "a smaller window with the Details pane hidden, or leave it?" he answered "Yes, fix the presets window." Help > Presets... is the action `manage_resources` ("Manage Resources...", `DlgResourceManager`, a `QSplitter` with two panes). On Android the window is **86%** of the window it is opened from (width and height; before it was as big as its two panes together) and the **right-hand pane** (the thumbnail, the Details list and the tags; `widget_2`) is **hidden**. The **Delete** button was in that pane; it is moved into the grid under the buttons of the left pane (Import, Create bundle, Save tags), and still follows the selection. Not seen on a phone.
+**Not verified:** a build or a device.
+
+## 2026-10-18 (157th) — Index Color rearranged; the new (night) splash
+
+**Files:** `libs/ui/widgets/kis_filter_selector_widget.cc`, `krita/data/splash/logo_splash.jpg`, `krita/data/splash/logo_splash.png`
+
+George: "On index color, rearrange the UI to fit if you can." (finding 11: the Image > Mode > Index Color dialog, the **Palettize** filter, 366 logical px wide against a 360 px window.) The widest part was the top row of `KisFilterSelectorWidget` (the presets list, "Use last preset", "Edit Presets", "XML" in one `QHBoxLayout`). On Android that row is a 2 x 2 grid: the presets list and **Edit Presets** above, **Use last preset** and **XML** below (nothing is hidden). Other parts of the dialog (`filterSelection` is 350 px wide as a whole) may still be wide; not seen.
+**Splash:** George uploaded a new splash (a night scene, 1536 x 1024; `1000356870.png`). It replaces the **normal** splash: `logo_splash.png` (the upload as it is) and `logo_splash.jpg` (made from it, quality 88; the JPG is the one the program loads). The holiday splash (December 1 to 26) is not changed. The version text still sits at the top right, over the monitor.
+**Not verified:** a build or a device.
+
