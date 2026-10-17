@@ -176,6 +176,12 @@ KisOpenPane::KisOpenPane(QWidget *parent, const QStringList& mimeFilter, const Q
     // Krimble 2026-10-12: on Android the left list shows the text under the icon, centered and wrapped, so the list can be thin.
     QStyledItemDelegate* delegate = new KrimbleIconAboveTextDelegate(d->m_sectionList);
     d->m_sectionList->setItemDelegate(delegate);
+#ifdef Q_OS_ANDROID
+    // Krimble 2026-10-18 (3rd): George (1.0.37, c666301): "1. File - New dialog still has tiny icons. It must be hard coded somewhere." It was: KisOpenPaneBase.ui gives the
+    // list (m_sectionList) an iconSize of 48 x 48, and a list draws its icons at that size whatever the size of the picture (so the 64, 96 and 112 px pictures of the 150th
+    // entry were drawn at 48 logical px). The list's icon size is now 112 x 112, the size of the pictures.
+    d->m_sectionList->setIconSize(QSize(112, 112));
+#endif
     QScroller *scroller = KisKineticScroller::createPreconfiguredScroller(d->m_sectionList);
     if (scroller) {
         connect(scroller, &QScroller::stateChanged, this, [&](QScroller::State state) {

@@ -4511,3 +4511,10 @@ George: "Also make sure the jpg images never default to saving with the .jpeg ex
 George: "Next build will be .38, okay?" `krimbleBuildNumber` 37 -> 38 (`1.0.38-beta`). Version 37 was built four times (`6ea3627`, `41a4afb`... the APKs `Krimble-1.0.37-beta-Oct16-2114.apk` at `fc126d8` and `Krimble-1.0.37-beta-Oct17-0447.apk` at `c666301` were the last two). The next build starts from `bce1123` and this commit.
 **Not verified:** a build.
 
+## 2026-10-17 (163rd) — `~/kb-release.sh`: attach the APK to its GitHub release from the cloud server
+
+**Files:** `tools/server/kb-release.sh` (new)
+
+George: "It's always so much faster from the cloud server. Let's make that our standard process." A script for the cloud server (copied to `~` by the usual `cp tools/server/kb-*.sh ~/`). It takes the newest `~/Krimble-*.apk`, reads the version from the name (`Krimble-1.0.37-beta-...` -> release tag `1.0.37b`), finds the release with that tag (a draft is found too), removes an asset of the same name if there is one, and uploads the APK (`uploads.github.com`). `--publish` also publishes the release. The GitHub token is asked for with hidden typing and is never saved (or taken from `GITHUB_PAT` if set). The release (with its notes) must exist first; Claude makes it. The script was only syntax-checked (`bash -n`); not run.
+**Not verified:** a run on the server.
+

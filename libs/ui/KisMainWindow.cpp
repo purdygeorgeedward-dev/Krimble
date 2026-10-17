@@ -1765,7 +1765,10 @@ static void krimbleInstallFileExtras(KisMainWindow *win)
                 text.remove(QLatin1Char('&'));
                 if (text.startsWith(QLatin1String("Export Options")) && i + 1 < fileActions.size()) afterExport = fileActions.at(i + 1);
             }
-            file->insertAction(afterExport ? afterExport : before, shareAction);
+            // file->insertAction(afterExport ? afterExport : before, shareAction);
+            // Krimble 2026-10-18 (3rd): George (1.0.37, c666301): "7. Share seems to work. Let's put Share... above Exit." It is inserted below, after Take Photo..., just above Exit.
+            Q_UNUSED(afterExport);
+            Q_UNUSED(shareAction);
         }
         QAction *shareJpg = new QAction(i18n("Share as JPG..."), file);
         QObject::connect(shareJpg, &QAction::triggered, win, [win]() { krimbleShareImage(win, true); });
@@ -1800,6 +1803,10 @@ static void krimbleInstallFileExtras(KisMainWindow *win)
         QAction *takePhoto = new QAction(i18n("Take Photo..."), file);
         QObject::connect(takePhoto, &QAction::triggered, win, [win]() { krimbleTakePhoto(win); });
         file->insertAction(before, takePhoto);
+        // Krimble 2026-10-18 (3rd): Share... just above Exit (below Take Photo...).
+        QAction *shareLast = new QAction(KisIconUtils::loadIcon(QStringLiteral("krimble-share")), i18n("Share..."), file);
+        QObject::connect(shareLast, &QAction::triggered, win, [win]() { krimbleShowShare(win); });
+        file->insertAction(before, shareLast);
         // file->insertAction(before, batch);
     });
 }
