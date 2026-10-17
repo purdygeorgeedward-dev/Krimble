@@ -2984,7 +2984,7 @@ private:
 static KrimbleHexDecoration *krimbleHexDecorationOf(KisMainWindow *win, bool create)
 {
     KisViewManager *manager = win->viewManager();
-    KisView *view = manager ? manager->activeView() : nullptr;
+    KisView *view = win->activeView();   // Krimble 2026-10-18: KisMainWindow::activeView() (KisViewManager has none)
     if (!view || !view->canvasBase()) return nullptr;
     KisCanvasDecorationSP existing = view->canvasBase()->decoration(QStringLiteral("krimblehex"));
     KrimbleHexDecoration *hex = dynamic_cast<KrimbleHexDecoration*>(existing.data());
@@ -3072,7 +3072,7 @@ static void krimbleInstallHexMenus(KisMainWindow *win)
                         deco->flatTop = g_krimbleHexFlat;
                         deco->setVisible(on);
                         KisViewManager *manager = win->viewManager();
-                        KisCanvas2 *hexCanvas = (manager && manager->activeView()) ? manager->activeView()->canvasBase() : nullptr;
+                        KisCanvas2 *hexCanvas = (manager && win->activeView()) ? win->activeView()->canvasBase() : nullptr;
                         if (on && hexCanvas && hexCanvas->canvasWidget()) {
                             // George: "Hex overlay should be pinch zoom then drop with a tap."
                             deco->adjusting = true;
@@ -3100,7 +3100,7 @@ static void krimbleInstallHexMenus(KisMainWindow *win)
                             deco->size = g_krimbleHexSize;
                             deco->flatTop = g_krimbleHexFlat;
                             KisViewManager *manager = win->viewManager();
-                            if (manager && manager->activeView() && manager->activeView()->canvasBase()) manager->activeView()->canvasBase()->updateCanvas();
+                            if (manager && win->activeView() && win->activeView()->canvasBase()) win->activeView()->canvasBase()->updateCanvas();
                         }
                     });
                     sub->addAction(hexAction);
