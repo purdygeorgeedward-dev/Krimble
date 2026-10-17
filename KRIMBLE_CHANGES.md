@@ -4483,3 +4483,10 @@ George: "On index color, rearrange the UI to fit if you can." (finding 11: the I
 George (1.0.37, fc126d8, with screenshots of the File, Edit and Image menus): "There is another bug to fix. I just noticed. The menus, instead of just being right below the menubar so you can see the menu title, has an additional title for some reason. We don't need that." The heading of the 136th entry (the menu's own name, in bold, as the first line of any menu of 12 items or more; George's choice "a" then, when tall menus covered the menu bar) is no longer added: the code is inside `#if 0` in `krimbleInstallMenuShortcutStripping`. The menus now open below the menu bar (the shortcut-column change made them one column), so the title is not covered. Not in the build `1c0486c` that is being made when this was reported.
 **Not verified:** a build or a device.
 
+## 2026-10-18 (159th) — The JPG export options window, narrow like the PNG one
+
+**Files:** `plugins/impex/jpeg/kis_jpeg_export.cc`
+
+George (1.0.37, fc126d8; two screenshots of the JPG "Options" window, cut off on the right): "Did we ever fix the mile wide jpg save dialog?" No: the 103rd entry made only the PNG window narrow on Android. `KisWdgOptionsJPEG` (tabs Basic, Advanced quality, Metadata) was as wide as its widest tab. On Android: **Basic** (Quality slider, Transparent pixel fill color) and **Advanced quality** (Smoothing slider, Subsampling) have every label **above** its control (`gridLayout_4`, `gridLayout_3`), and in **Metadata** the second box (the list of metadata filters) goes **under** the first instead of beside it. Check boxes are as they were. Not seen on a phone.
+**Not verified:** a build or a device.
+

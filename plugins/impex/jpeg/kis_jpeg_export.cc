@@ -4,6 +4,7 @@
  *  SPDX-License-Identifier: GPL-2.0-or-later
  */
 
+#include <QGridLayout>
 #include "kis_jpeg_export.h"
 
 #include <QCheckBox>
@@ -216,6 +217,37 @@ KisWdgOptionsJPEG::KisWdgOptionsJPEG(QWidget *parent)
     KisSpinBoxI18nHelper::setText(qualityLevel, i18nc("{n} is the number value, % is the percent sign", "{n}%"));
     smoothLevel->setRange(0, 100, 0);
     KisSpinBoxI18nHelper::setText(smoothLevel, i18nc("{n} is the number value, % is the percent sign", "{n}%"));
+
+#ifdef Q_OS_ANDROID
+    // Krimble 2026-10-18: George (1.0.37, with screenshots of the JPG Options window): "Did we ever fix the mile wide jpg save dialog?" (No: only the PNG one was, in the
+    // 103rd entry.) The window was as wide as its widest tab: a label beside a slider (Quality, Smoothing), a label beside a list (Subsampling) and the two boxes of the
+    // Metadata tab side by side. On Android every label is stacked above its control, and the second Metadata box goes under the first, as for the PNG window.
+    {
+        // Basic: Quality, Transparent pixel fill color
+        gridLayout_4->removeWidget(label);
+        gridLayout_4->removeWidget(qualityLevel);
+        gridLayout_4->removeWidget(label_4);
+        gridLayout_4->removeWidget(bnTransparencyFillColor);
+        gridLayout_4->addWidget(label, 0, 0);
+        gridLayout_4->addWidget(qualityLevel, 1, 0);
+        gridLayout_4->addWidget(label_4, 2, 0);
+        gridLayout_4->addWidget(bnTransparencyFillColor, 3, 0);
+        // Advanced quality: Smoothing, Subsampling
+        gridLayout_3->removeWidget(label_3);
+        gridLayout_3->removeWidget(smoothLevel);
+        gridLayout_3->removeWidget(label_5);
+        gridLayout_3->removeWidget(subsampling);
+        gridLayout_3->addWidget(label_3, 0, 0);
+        gridLayout_3->addWidget(smoothLevel, 1, 0);
+        gridLayout_3->addWidget(label_5, 2, 0);
+        gridLayout_3->addWidget(subsampling, 3, 0);
+        // Metadata: the two boxes one under the other
+        if (QGridLayout *metadataLayout = qobject_cast<QGridLayout*>(tab_3->layout())) {
+            metadataLayout->removeWidget(groupBox_2);
+            metadataLayout->addWidget(groupBox_2, metadataLayout->rowCount(), 0);
+        }
+    }
+#endif
 }
 
 
