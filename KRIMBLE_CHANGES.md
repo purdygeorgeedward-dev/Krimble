@@ -4476,3 +4476,10 @@ George: "On index color, rearrange the UI to fit if you can." (finding 11: the I
 **Splash:** George uploaded a new splash (a night scene, 1536 x 1024; `1000356870.png`). It replaces the **normal** splash: `logo_splash.png` (the upload as it is) and `logo_splash.jpg` (made from it, quality 88; the JPG is the one the program loads). The holiday splash (December 1 to 26) is not changed. The version text still sits at the top right, over the monitor.
 **Not verified:** a build or a device.
 
+## 2026-10-18 (158th) — The menu name heading is off
+
+**Files:** `libs/ui/KisMainWindow.cpp`
+
+George (1.0.37, fc126d8, with screenshots of the File, Edit and Image menus): "There is another bug to fix. I just noticed. The menus, instead of just being right below the menubar so you can see the menu title, has an additional title for some reason. We don't need that." The heading of the 136th entry (the menu's own name, in bold, as the first line of any menu of 12 items or more; George's choice "a" then, when tall menus covered the menu bar) is no longer added: the code is inside `#if 0` in `krimbleInstallMenuShortcutStripping`. The menus now open below the menu bar (the shortcut-column change made them one column), so the title is not covered. Not in the build `1c0486c` that is being made when this was reported.
+**Not verified:** a build or a device.
+

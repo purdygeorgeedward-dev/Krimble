@@ -524,6 +524,10 @@ static void krimbleInstallMenuShortcutStripping(QMainWindow *win)
         // `if (ncols > 1) pos.setY(screen.top() + desktopFrame)`), so it cannot be moved down without cutting off its bottom items. George chose
         // (a): the menu's own name as a heading on its first line. Only for menus of 12 or more items (the others sit under the menu bar), and
         // added each time the menu is about to show (the Window menu is rebuilt then), after Krita's own handler has run.
+        // Krimble 2026-10-18 (5th): George (1.0.37, fc126d8): "The menus, instead of just being right below the menubar so you can see the menu title, has an additional
+        // title for some reason. We don't need that." The name heading of the 136th entry is off: the menus now open under the menu bar, so their own title is not
+        // covered. The code is kept below, not compiled.
+#if 0
         QString menuTitle = top->text();
         menuTitle.remove(QLatin1Char('&'));
         QObject::connect(menu, &QMenu::aboutToShow, menu, [menu, menuTitle]() {
@@ -555,6 +559,7 @@ static void krimbleInstallMenuShortcutStripping(QMainWindow *win)
             menu->insertAction(firstAction, heading);
             menu->insertAction(firstAction, divider);
         });
+#endif
     }
 }
 #endif
