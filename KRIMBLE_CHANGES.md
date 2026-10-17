@@ -4615,3 +4615,9 @@ George (1.0.37, c666301): "17. Dodge and burn appear to default to black or whit
 **Not verified:** a build or a device.
 **Addition (George, on the 177th entry): "It should start with a larger brush size too."** Both tools set the size of their brush to **80 px** when they are chosen (`setPaintOpSize(80.0)`; the default brush is small). It can be changed in the Tool Options and starts at 80 again the next time the tool is chosen. (80 px is for pictures of about 1,500 to 4,000 px; say if it should be bigger.)
 
+## 2026-10-18 (178th) — Type tool: a live preview in the text window
+
+**Files:** `plugins/tools/svgtexttool/KrimbleTextTool.cpp`
+
+George, asked what to do with fonts (the choices were: Purdy fonts first in the list, each font shown in its own style, a preview of the text in the window, something else): "A preview of the text in the window." The text window now has a **preview** between the Color button and OK / Cancel: the words as typed (or "Sample text" when the box is empty) in the **font, bold, italic, alignment and color** that are chosen, at the chosen size but **at most 40 pt and at least 8 pt** so that it fits; it **changes as each of them is changed** (typing, the font list, the size, B, I, Left / Center / Right, the color). A light color is shown on a dark background (lightness above 190: `#333344`), otherwise on white. **Not changed:** the size of the text that is put on the picture (the real size, as chosen). **Not verified:** a build or a device. First compile of this code (`std::function` for the update, `QOverload` for the signals of the size box and the alignment buttons).
+

@@ -22,6 +22,8 @@
 #include <klocalizedstring.h>
 #include <kundo2command.h>
 
+#include <functional>
+#include <QFrame>
 #include <QApplication>
 #include <QButtonGroup>
 #include <QColorDialog>
@@ -126,6 +128,8 @@ static bool krimbleAskText(QWidget *parent, QString *text, bool editing = false)
     }
     layout->addLayout(row2);
 
+    // Krimble 2026-10-18 (14th): George, asked what to do with fonts: "A preview of the text in the window." (see updatePreview below)
+    std::function<void()> updatePreview;
     QColor chosenColor = s_color;
     QPushButton *colorButton = new QPushButton(i18n("Color..."), &dialog);
     auto paintColorButton = [colorButton, &chosenColor]() {
@@ -137,9 +141,39 @@ static bool krimbleAskText(QWidget *parent, QString *text, bool editing = false)
         if (picked.isValid()) {
             chosenColor = picked;
             paintColorButton();
+            if (updatePreview) updatePreview();
         }
     });
     layout->addWidget(colorButton);
+
+    // the preview: the words in the font, size (at most 40 pt, so that it fits), bold, italic, alignment and color that are chosen, changing as they are chosen. On a dark
+    // background when the color is light, so that it can be seen.
+    QLabel *preview = new QLabel(&dialog);
+    preview->setTextFormat(Qt::PlainText);
+    preview->setWordWrap(true);
+    preview->setFrameShape(QFrame::Box);
+    preview->setMinimumHeight(preview->fontMetrics().height() * 4);
+    layout->addWidget(preview);
+    updatePreview = [&]() {
+        QFont previewFont = fontBox->currentFont();
+        previewFont.setPointSizeF(qBound(8.0, sizeBox->value(), 40.0));
+        previewFont.setBold(boldButton->isChecked());
+        previewFont.setItalic(italicButton->isChecked());
+        preview->setFont(previewFont);
+        const QString background = chosenColor.lightness() > 190 ? QStringLiteral("#333344") : QStringLiteral("#ffffff");
+        preview->setStyleSheet(QStringLiteral("QLabel { background: %1; color: %2; padding: 6px; }").arg(background, chosenColor.name()));
+        const int alignId = qMax(0, alignGroup->checkedId());
+        preview->setAlignment((alignId == 0 ? Qt::AlignLeft : (alignId == 1 ? Qt::AlignHCenter : Qt::AlignRight)) | Qt::AlignVCenter);
+        const QString sample = edit->toPlainText();
+        preview->setText(sample.isEmpty() ? i18n("Sample text") : sample);
+    };
+    QObject::connect(edit, &QPlainTextEdit::textChanged, &dialog, [&]() { updatePreview(); });
+    QObject::connect(fontBox, &QFontComboBox::currentFontChanged, &dialog, [&]() { updatePreview(); });
+    QObject::connect(sizeBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), &dialog, [&]() { updatePreview(); });
+    QObject::connect(boldButton, &QPushButton::toggled, &dialog, [&]() { updatePreview(); });
+    QObject::connect(italicButton, &QPushButton::toggled, &dialog, [&]() { updatePreview(); });
+    QObject::connect(alignGroup, QOverload<int>::of(&QButtonGroup::buttonClicked), &dialog, [&]() { updatePreview(); });
+    updatePreview();
 
     QDialogButtonBox *buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, &dialog);
     QObject::connect(buttons, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
