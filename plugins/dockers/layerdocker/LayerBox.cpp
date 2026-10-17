@@ -11,6 +11,7 @@
  */
 
 #include <QHBoxLayout>
+#include <QEvent>
 #include <QGridLayout>
 #include "LayerBox.h"
 
@@ -157,6 +158,63 @@ qint32 LayerBox::convertOpacityToInt(qreal opacity)
     return qMin(255, int(opacity * 2.55 + 0.5));
 }
 
+#ifdef Q_OS_ANDROID
+// Krimble 2026-10-18 (4th): George (1.0.37, c666301): "Bottom buttons in Layers panel are stacking for some reason." and "Fix layers buttons stacking." The 12 Oct change put the six buttons
+// under the layer list in two rows of three, always, so that they all fit in a narrow panel. When the panel is wide enough for all six, they are in one row; when it is
+// narrower they are in two rows. Decided again at every resize, from the buttons' own widths.
+class KrimbleLayerButtonsFilter : public QObject
+{
+public:
+    KrimbleLayerButtonsFilter(QWidget *box, QGridLayout *grid, const QList<QToolButton*> &buttons)
+        : QObject(box), m_box(box), m_grid(grid), m_buttons(buttons)
+    {
+        box->installEventFilter(this);
+    }
+
+protected:
+    bool eventFilter(QObject *watched, QEvent *event) override
+    {
+        Q_UNUSED(watched);
+        if (event->type() == QEvent::Resize) relayout();
+        return false;
+    }
+
+private:
+    // George: "If all else fails make the buttons smaller." One row of normal buttons (icons 18 px) if they fit; else one row of smaller ones (14 px) if those fit;
+    // else two rows of three, normal size.
+    bool fits(int iconSize)
+    {
+        int needed = 16;
+        Q_FOREACH (QToolButton *button, m_buttons) {
+            button->setIconSize(QSize(iconSize, iconSize));
+            needed += button->sizeHint().width() + 2;
+        }
+        return m_box->width() >= needed;
+    }
+
+    void relayout()
+    {
+        int state = 0;   // 0: two rows, 18 px icons; 1: one row, 18 px; 2: one row, 14 px
+        if (fits(18)) state = 1;
+        else if (fits(14)) state = 2;
+        const int iconSize = (state == 2) ? 14 : 18;
+        Q_FOREACH (QToolButton *button, m_buttons) button->setIconSize(QSize(iconSize, iconSize));
+        if (state == m_state) return;
+        m_state = state;
+        const bool oneRow = (state != 0);
+        Q_FOREACH (QToolButton *button, m_buttons) m_grid->removeWidget(button);
+        for (int i = 0; i < m_buttons.size(); ++i) {
+            m_grid->addWidget(m_buttons.at(i), oneRow ? 0 : i / 3, oneRow ? i : i % 3);
+        }
+    }
+
+    QWidget *m_box;
+    QGridLayout *m_grid;
+    QList<QToolButton*> m_buttons;
+    int m_state {0};
+};
+#endif
+
 LayerBox::LayerBox()
     : QDockWidget(i18n("Layers"))
     , m_canvas(0)
@@ -233,6 +291,10 @@ LayerBox::LayerBox()
                 buttonGrid->addWidget(layerButtons[i], i / 3, i % 3);
             }
             buttonRow->insertLayout(0, buttonGrid, 1);
+            // Krimble 2026-10-18 (4th): one row when the panel is wide enough, two rows when it is not
+            QList<QToolButton*> buttonList;
+            for (int i = 0; i < 6; ++i) buttonList.append(layerButtons[i]);
+            new KrimbleLayerButtonsFilter(this, buttonGrid, buttonList);
         }
     }
 #endif
