@@ -36,6 +36,10 @@ public:
 
     static KoFontRegistry *instance();
 
+    // Krimble 2026-10-18 (18th): addFontFilePathToRegistry() below is private (only the tests may call it). This public function passes a font file to it, so that the fonts that
+    // come with the app (krita/data/fonts) can be registered with the text engine at start (KisApplication.cpp, krimbleLoadBundledFonts).
+    bool addBundledFontFile(const QString &path) { return addFontFilePathToRegistry(path); }
+
     /**
      * @brief facesForCSSValues
      * This selects a font with fontconfig using the given

@@ -1288,7 +1288,8 @@ static void krimbleLoadBundledFonts()
     int loaded = 0;
     Q_FOREACH (const QString &path, files) {
         const int qtId = QFontDatabase::addApplicationFont(path);
-        const bool engineOk = KoFontRegistry::instance()->addFontFilePathToRegistry(path);
+        // const bool engineOk = KoFontRegistry::instance()->addFontFilePathToRegistry(path);   // private: compile error in the 1.0.38 build
+        const bool engineOk = KoFontRegistry::instance()->addBundledFontFile(path);
         if (qtId >= 0 || engineOk) ++loaded;
         else qWarning() << "Krimble: font could not be loaded:" << path;
     }

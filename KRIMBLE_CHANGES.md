@@ -4642,3 +4642,10 @@ George (1.0.37, c666301): "4 and 13 in super close range they should attach, not
 George (1.0.37, c666301), earlier: "Could we have a stack command? Like the side panel would stack instead of overlaying tabs?" and now "Add stack command." The long-press menu of a panel title bar (Dock Left / Right / Top / Bottom, Undock; the 10 October change) has two new items, under a divider: **"Stack Below <name>"** (only for a panel that is **docked in a tab group**: the panel leaves the group and goes **below** the panel it was tabbed with) and **"Stack Under"**, a list of the other visible docked panels (not the ones in the same tab group): choosing one puts this panel, docked or floating, **under that panel** (`QMainWindow::splitDockWidget(other, dock, Qt::Vertical)`, which splits the space of the other panel in two, up and down; a floating panel is docked). The list is greyed when there is no other docked panel. Works as the other items: not on a locked panel (the menu does not open for one).
 **Not verified:** a build or a device. First compile.
 
+## 2026-10-18 (182nd) — Compile error of the 1.0.38 build: the font registry function was private
+
+**Files:** `libs/flake/text/KoFontRegistry.h`, `libs/ui/KisApplication.cpp`
+
+The first 1.0.38 build (`8a9a9ba`) stopped: `libs/ui/KisApplication.cpp:1291:59: error: 'addFontFilePathToRegistry' is a private member of 'KoFontRegistry'` (the font loader of the 172nd entry). The function is private; only the test classes (`friend class TestSvgText`, `SvgTextCursorTest`) may call it. **Fix:** a public inline function `KoFontRegistry::addBundledFontFile(const QString &path)` that calls it; `krimbleLoadBundledFonts()` calls that (the old call is commented out). Nothing else changed.
+**Not verified:** a build (this is the compile error that stopped the first one; the rest of the new code has not been reached yet).
+
