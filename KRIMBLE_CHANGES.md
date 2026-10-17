@@ -4594,3 +4594,9 @@ George made two small PNG files of the K and paw logo, 32 x 32 and 64 x 64 (RGBA
 George, asked what users of Krimble may do with the bundled fonts (A: non-commercial only, as written in the fonts; B: free to use inside Krimble for any work): "A. Put in a link to purdy.design and maybe I'll get some licenses out of it." **Decision A.** `readme.md` of the fonts folder says so (free for non-commercial use; commercial use needs a paid license from Purdy Design, https://purdy.design). The **About Krimble** page (Android) has a small line under the links: the five fonts, © George Edward Purdy / Purdy Design, free for non-commercial use, commercial use needs a license, with the link **purdy.design**. The text embedded in the fonts names purdydesign.com; the new link is the one George gave.
 **Not verified:** a build or a device.
 
+## 2026-10-18 (175th) — purdydesign.com is purdy.design in the text documents
+
+**Files:** `krita/data/fonts/readme.md`
+
+George (said the domain purdydesign.com was taken over by someone else while he was away): "Change listings for PurdyDesign.com to purdy.design in the text documents." A search of every text file in the repository (`git grep -I -i purdydesign.com`) found it in two places: **`krita/data/fonts/readme.md`** (the contact for commercial licenses: `george@purdydesign.com, http://purdydesign.com` is now `https://purdy.design`; the e-mail address is **not** repeated, because mail to that domain may not reach him) and **this file** (the 174th entry, which says the text embedded in the fonts names purdydesign.com; that sentence is history about what the font files say, so it is kept as written). **Not changed:** the text **inside the five font files** (the copyright and license fields still say george@purdydesign.com and purdydesign.com; changing them needs a font tool and George's decision).
+
