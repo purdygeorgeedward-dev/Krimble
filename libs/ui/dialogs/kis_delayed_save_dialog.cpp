@@ -60,6 +60,13 @@ KisDelayedSaveDialog::KisDelayedSaveDialog(KisImageSP image, Type type, int busy
     if (QScreen *krimbleScreen = QGuiApplication::primaryScreen()) {
         setMaximumWidth(int(krimbleScreen->availableGeometry().width() * 0.9));
     }
+#ifdef Q_OS_ANDROID
+    // Krimble 2026-10-18 (3rd): George (1.0.37, c666301): "Response windows to healing brush and content-aware fill are wide. Did you fix?" Not fully: the 90% limit above
+    // loses to the form, which gives the window a minimum width of 449 px (kis_delayed_save_dialog.ui; a minimum beats a maximum in Qt). On Android the form and the
+    // progress bar may be as narrow as the window allows.
+    ui->setMinimumWidth(0);
+    ui->progressBar->setMinimumWidth(0);
+#endif
 
     if (type == SaveDialog) {
         setButtons(KoDialog::Ok | KoDialog::Cancel | KoDialog::User1);
@@ -84,7 +91,9 @@ KisDelayedSaveDialog::KisDelayedSaveDialog(KisImageSP image, Type type, int busy
 
     m_d->image->compositeProgressProxy()->addProxy(ui->progressBar);
 
-    resize(sizeHint());
+    // resize(sizeHint());
+    // Krimble 2026-10-18 (3rd): never wider than the limit set above (the size hint can be, with a long message).
+    resize(qMin(sizeHint().width(), maximumWidth()), sizeHint().height());
 }
 
 KisDelayedSaveDialog::~KisDelayedSaveDialog()
