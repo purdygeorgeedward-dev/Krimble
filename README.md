@@ -244,7 +244,7 @@ The logos belong to their owners and are shown only to say thank you.
 
 ---
 
-## Support Krimble 💰
+## Support Krimble ☕
 
 <div align="center">
 <a href="https://www.buymeacoffee.com/GeorgeEdwardPurdy">
