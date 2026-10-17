@@ -5,6 +5,9 @@
  * SPDX-License-Identifier: LGPL-2.0-or-later
  */
 
+#include <QSplitter>
+#include <QHBoxLayout>
+#include <QBoxLayout>
 #include "KisApplication.h"
 
 #include <stdlib.h>
@@ -410,6 +413,36 @@ static void krimbleNarrowDialogLayouts(QDialog *dialog)
     }
     Q_FOREACH (QGridLayout *grid, dialog->findChildren<QGridLayout*>()) {
         krimbleRestackGrid(grid);
+    }
+    // Krimble 2026-10-18: George (1.0.37, with the JPG Options window): "All those super wide dialogs for no reason have to go. Analyze the rest of the dialog windows for
+    // negative space and width." A scan of the 283 form files found 46 likely offenders: fixed minimum widths written into the form (425, 480, 720, 730 px ...), side-by-side
+    // panes (horizontal splitters: the resource and bundle managers), rows of four or more controls (Image Size, Canvas Size with 6 grid columns, Layer Style options,
+    // Transform options), and tabs whose widest page sets the window's width. The function above handled only simple label and field rows; it now also does these:
+    // (1) a fixed minimum width wider than 90% of the screen is dropped; (2) a horizontal splitter becomes vertical; (3) if the window is still too wide, every row of
+    // three or more controls is stacked; (4) in a window that was too wide the margins and spacing of every layout are tightened (negative space).
+    Q_FOREACH (QWidget *w, dialog->findChildren<QWidget*>()) {
+        if (w->minimumWidth() > int(available * 0.9)) w->setMinimumWidth(0);
+    }
+    Q_FOREACH (QSplitter *splitter, dialog->findChildren<QSplitter*>()) {
+        if (splitter->orientation() == Qt::Horizontal) splitter->setOrientation(Qt::Vertical);
+    }
+    dialog->layout()->invalidate();
+    if (dialog->minimumSizeHint().width() > available) {
+        Q_FOREACH (QHBoxLayout *row, dialog->findChildren<QHBoxLayout*>()) {
+            if (row->count() >= 3) row->setDirection(QBoxLayout::TopToBottom);
+        }
+    }
+    Q_FOREACH (QLayout *l, dialog->findChildren<QLayout*>()) {
+        const QMargins m = l->contentsMargins();
+        if (m.left() > 8 || m.right() > 8 || m.top() > 8 || m.bottom() > 8) {
+            l->setContentsMargins(qMin(m.left(), 6), qMin(m.top(), 6), qMin(m.right(), 6), qMin(m.bottom(), 6));
+        }
+        if (QBoxLayout *box = qobject_cast<QBoxLayout*>(l)) {
+            if (box->spacing() > 6) box->setSpacing(4);
+        } else if (QGridLayout *g = qobject_cast<QGridLayout*>(l)) {
+            if (g->horizontalSpacing() > 6) g->setHorizontalSpacing(4);
+            if (g->verticalSpacing() > 6) g->setVerticalSpacing(4);
+        }
     }
     dialog->layout()->invalidate();
     dialog->adjustSize();

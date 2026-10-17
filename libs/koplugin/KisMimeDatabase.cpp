@@ -123,6 +123,14 @@ QStringList KisMimeDatabase::suffixesForMimeType(const QString &mimeType)
     Q_FOREACH(const KisMimeDatabase::KisMimeType &m, s_mimeDatabase) {
         if (m.mimeType == mimeType) {
             dbgPlugins << "suffixesForMimeType. KisMimeDatabase returned" << m.suffixes;
+            // Krimble 2026-10-18: George: "Also make sure the jpg images never default to saving with the .jpeg extension." "jpg" is always the first suffix of
+            // JPEG, wherever the list comes from (the first suffix is the one that is proposed).
+            if (mimeType == QLatin1String("image/jpeg") && m.suffixes.contains(QStringLiteral("jpg"))) {
+                QStringList ordered = m.suffixes;
+                ordered.removeAll(QStringLiteral("jpg"));
+                ordered.prepend(QStringLiteral("jpg"));
+                return ordered;
+            }
             return m.suffixes;
         }
     }

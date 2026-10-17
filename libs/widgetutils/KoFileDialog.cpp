@@ -355,6 +355,11 @@ QString KoFileDialog::filename()
             if (!extension.startsWith(".")) {
                 extension = "." + extension;
             }
+            // Krimble 2026-10-18: George: "Also make sure the jpg images never default to saving with the .jpeg extension." The extension proposed for a JPEG is .jpg,
+            // whatever the order of the suffixes in the filter.
+            if (extension.compare(QStringLiteral(".jpeg"), Qt::CaseInsensitive) == 0) {
+                extension = QStringLiteral(".jpg");
+            }
             d->fileDialog->selectNameFilter(selectedFilter);
 
             const QString proposedFileBaseName = QFileInfo(d->proposedFileName).baseName();
