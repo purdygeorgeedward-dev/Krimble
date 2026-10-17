@@ -413,12 +413,17 @@ class KisToolFreeRotate : public KisToolTransform
 public:
     explicit KisToolFreeRotate(KoCanvasBase *canvas);
 
+public:
+    // Krimble 2026-10-18 (2nd): turns the layer by this many degrees more (see the 164th entry)
+    void rotateByDegrees(double degrees);
+
 public Q_SLOTS:
     void activate(const QSet<KoShape*> &shapes) override;
     void deactivate() override;
 
 private:
     QPointer<QObject> m_touchFilter;
+    double m_rotationRadians {0.0};
 };
 
 class KisToolFreeRotateFactory : public KisToolPaintFactoryBase

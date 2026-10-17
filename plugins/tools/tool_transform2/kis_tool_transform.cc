@@ -36,6 +36,7 @@
 #include <kis_global.h>
 #include <canvas/kis_canvas2.h>
 #include <KisViewManager.h>
+#include <kis_canvas2.h>
 #include <kis_painter.h>
 #include <kis_cursor.h>
 #include <kis_image.h>
@@ -1587,7 +1588,7 @@ void KisToolTransformFactory::activateSubtoolMesh()
 class KrimbleRotateTouchFilter : public QObject
 {
 public:
-    KrimbleRotateTouchFilter(QWidget *widget, KisToolTransform *tool) : QObject(widget), m_tool(tool)
+    KrimbleRotateTouchFilter(QWidget *widget, KisToolFreeRotate *tool) : QObject(widget), m_tool(tool)
     {
         widget->installEventFilter(this);
     }
@@ -1607,8 +1608,8 @@ protected:
                 qreal turn = angle - m_lastAngle;
                 while (turn > 180.0) turn -= 360.0;
                 while (turn < -180.0) turn += 360.0;
-                m_rotation += turn;
-                m_tool->setRotateZ(m_rotation);
+                // Krimble 2026-10-18 (2nd): the turn is given to the tool, which sets the angle (in radians), refreshes the preview and shows the angle
+                m_tool->rotateByDegrees(turn);
             }
             m_lastAngle = angle;
             m_haveLast = true;
@@ -1619,9 +1620,8 @@ protected:
     }
 
 private:
-    QPointer<KisToolTransform> m_tool;
+    QPointer<KisToolFreeRotate> m_tool;
     qreal m_lastAngle {0.0};
-    qreal m_rotation {0.0};
     bool m_haveLast {false};
 };
 
@@ -1630,9 +1630,26 @@ KisToolFreeRotate::KisToolFreeRotate(KoCanvasBase *canvas)
 {
 }
 
+void KisToolFreeRotate::rotateByDegrees(double degrees)
+{
+    // Krimble 2026-10-18 (2nd): George (1.0.37, c666301): "15. Rotate is just a redundant copy of the transform tool. It scales, but does not rotate." The first version
+    // (152nd entry) gave the angle to setRotateZ(), which only stores the number: it does not redraw the preview, and the angle is in radians (the tool's own widget
+    // gives it kisDegreesToRadians(...)), not degrees. The angle is now kept in radians, given to setRotateZ(), and the tool's own refresh (slotUiChangedConfig, a private
+    // slot, called by name) redraws the preview. The angle is shown on the canvas (a floating message), which also shows that two fingers are seen.
+    m_rotationRadians += kisDegreesToRadians(degrees);
+    setRotateZ(m_rotationRadians);
+    QMetaObject::invokeMethod(this, "slotUiChangedConfig", Qt::DirectConnection, Q_ARG(bool, true));
+    if (KisCanvas2 *kisCanvas = dynamic_cast<KisCanvas2*>(canvas())) {
+        if (kisCanvas->viewManager()) {
+            kisCanvas->viewManager()->showFloatingMessage(i18n("Rotate: %1 degrees", QString::number(kisRadiansToDegrees(m_rotationRadians), 'f', 1)), QIcon(), 600);
+        }
+    }
+}
+
 void KisToolFreeRotate::activate(const QSet<KoShape*> &shapes)
 {
     KisToolTransform::activate(shapes);
+    m_rotationRadians = 0.0;
     if (!m_touchFilter && canvas() && canvas()->canvasWidget()) {
         m_touchFilter = new KrimbleRotateTouchFilter(canvas()->canvasWidget(), this);
     }
