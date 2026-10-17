@@ -2750,6 +2750,17 @@ private:
     QPointer<QWidget> m_target;
 };
 
+// Krimble 2026-10-18 (15th): the title text of a panel is hidden when the panel is in a tab group (docked, with other panels tabbed with it); it shows again when it is alone or floating
+static void krimbleRefreshTabTitles(QMainWindow *win)
+{
+    Q_FOREACH (QDockWidget *dock, win->findChildren<QDockWidget*>()) {
+        KoDockWidgetTitleBar *bar = dynamic_cast<KoDockWidgetTitleBar*>(dock->titleBarWidget());
+        if (!bar) continue;
+        const bool tabbed = !dock->isFloating() && !win->tabifiedDockWidgets(dock).isEmpty();
+        bar->setTitleTextHidden(tabbed);
+    }
+}
+
 static void krimbleInstallBevels(QMainWindow *win)
 {
     Q_FOREACH (QDockWidget *dock, win->findChildren<QDockWidget*>()) {
@@ -2764,6 +2775,13 @@ static void krimbleInstallBevels(QMainWindow *win)
     Q_FOREACH (QMenu *menu, win->findChildren<QMenu*>()) {
         if (!menu->findChild<KrimbleBevelOverlay*>(QStringLiteral("krimbleBevelOverlay"), Qt::FindDirectChildrenOnly)) new KrimbleBevelOverlay(menu);
     }
+    // Krimble 2026-10-18 (15th): the double titles of panels in tabs (see krimbleRefreshTabTitles); at once when a tab is chosen, and every 2 s with the lines above
+    static bool s_tabTitlesHooked = false;
+    if (!s_tabTitlesHooked) {
+        s_tabTitlesHooked = true;
+        QObject::connect(win, &QMainWindow::tabifiedDockWidgetActivated, win, [win](QDockWidget*) { krimbleRefreshTabTitles(win); });
+    }
+    krimbleRefreshTabTitles(win);
 }
 
 // Krimble 2026-10-18: HEX MAPS (George: "Can we offer a hex mapping feature?" and "View-show-hex and we use an svg to overlay a hex pattern which they

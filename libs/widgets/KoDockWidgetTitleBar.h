@@ -28,6 +28,9 @@ public:
 public Q_SLOTS:
     void setLocked(bool locked);
 
+    // Krimble 2026-10-18 (15th): hides the title text (the buttons stay); used for a panel that is in a tab group, whose title is already on its tab
+    void setTitleTextHidden(bool hidden);
+
 protected:
     void paintEvent(QPaintEvent* event) override; ///< reimplemented from QWidget
     void resizeEvent(QResizeEvent* event) override; ///< reimplemented from QWidget

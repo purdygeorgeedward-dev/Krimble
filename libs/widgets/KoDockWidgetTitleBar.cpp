@@ -90,6 +90,13 @@ KoDockWidgetTitleBar::~KoDockWidgetTitleBar()
     delete d;
 }
 
+void KoDockWidgetTitleBar::setTitleTextHidden(bool hidden)
+{
+    // Krimble 2026-10-18 (15th): George (1.0.37, c666301; screenshots of the Color and Tool Options panels in tabs): "8. Double titles in panels look weird. Fix?" A panel in a tab
+    // group shows its name on its tab and again in its own title bar. The title bar keeps its buttons (lock, float, close); only the text is hidden.
+    d->titleLabel->setVisible(!hidden);
+}
+
 void KoDockWidgetTitleBar::paintEvent(QPaintEvent*)
 {
     QStylePainter p(this);
