@@ -314,5 +314,34 @@ void KoDockWidgetTitleBar::contextMenuEvent(QContextMenuEvent *event)
     undock->setCheckable(true);
     undock->setChecked(dock->isFloating());
     connect(undock, &QAction::triggered, dock, [dock]() { dock->setFloating(true); });
+
+    // Krimble 2026-10-18 (17th): George (1.0.37, c666301): "Could we have a stack command? Like the side panel would stack instead of overlaying tabs?" and "Add stack command."
+    // A panel that is in a tab group can be taken out of it and put BELOW the panel it was tabbed with ("Stack Below"); and any panel, docked or floating, can be put
+    // under another panel ("Stack Under" and the list of the other panels). Qt's splitDockWidget does it: the space of the other panel is split in two, up and down.
+    menu.addSeparator();
+    const QList<QDockWidget*> tabMates = mainWindow->tabifiedDockWidgets(dock);
+    if (!dock->isFloating() && !tabMates.isEmpty()) {
+        QDockWidget *mate = tabMates.first();
+        QAction *stackBelow = menu.addAction(i18n("Stack Below %1", mate->windowTitle()));
+        connect(stackBelow, &QAction::triggered, dock, [dock, mainWindow, mate]() {
+            dock->setAllowedAreas(Qt::AllDockWidgetAreas);
+            mainWindow->splitDockWidget(mate, dock, Qt::Vertical);
+            dock->show();
+        });
+    }
+    QMenu *stackUnder = menu.addMenu(i18n("Stack Under"));
+    bool anyOther = false;
+    Q_FOREACH (QDockWidget *other, mainWindow->findChildren<QDockWidget*>()) {
+        if (other == dock || other->isFloating() || !other->isVisible() || tabMates.contains(other)) continue;
+        anyOther = true;
+        QAction *under = stackUnder->addAction(other->windowTitle());
+        connect(under, &QAction::triggered, dock, [dock, mainWindow, other]() {
+            dock->setAllowedAreas(Qt::AllDockWidgetAreas);
+            mainWindow->splitDockWidget(other, dock, Qt::Vertical);
+            if (dock->isFloating()) dock->setFloating(false);
+            dock->show();
+        });
+    }
+    stackUnder->setEnabled(anyOther);
     menu.exec(event->globalPos());
 }

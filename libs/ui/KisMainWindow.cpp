@@ -3274,11 +3274,33 @@ protected:
             }
         } else if (event->type() == QEvent::MouseButtonRelease && m_dragging) {
             m_dragging = false;
+            const QPoint releasePos = static_cast<QMouseEvent*>(event)->globalPos();
             QPointer<QDockWidget> dock(m_dock);
-            QTimer::singleShot(0, m_dock, [dock]() {
+            QPointer<QMainWindow> window(m_win);
+            QTimer::singleShot(0, m_dock, [dock, window, releasePos]() {
                 if (dock) {
                     dock->setAllowedAreas(Qt::AllDockWidgetAreas);
                 }
+                // Krimble 2026-10-18 (16th): George (1.0.37, c666301): "4 and 13 in super close range they should attach, not bounce." (13: "I can't get panels to attach at bottom or top
+                // any more unless I just tell them in menu where to dock. Sometimes Tool options panel bounces.") Qt's own drop test for the top and bottom edges needs a very small
+                // spot, and with a finger (and the 4 px of Distance above) the panel was refused and stayed where it was. When the panel is let go within 14 logical px of a
+                // side of the window and Qt has not docked it, it is docked there, on the nearest side.
+                if (!dock || !window || !dock->isFloating()) return;
+                const QRect r(window->mapToGlobal(QPoint(0, 0)), window->size());
+                const int toLeft = releasePos.x() - r.left();
+                const int toRight = r.right() - releasePos.x();
+                const int toTop = releasePos.y() - r.top();
+                const int toBottom = r.bottom() - releasePos.y();
+                const int nearest = qMin(qMin(toLeft, toRight), qMin(toTop, toBottom));
+                const int reach = 14;
+                if (nearest > reach) return;
+                const Qt::DockWidgetArea area = (nearest == toLeft) ? Qt::LeftDockWidgetArea
+                                              : (nearest == toRight) ? Qt::RightDockWidgetArea
+                                              : (nearest == toTop) ? Qt::TopDockWidgetArea
+                                              : Qt::BottomDockWidgetArea;
+                window->addDockWidget(area, dock);
+                dock->setFloating(false);
+                dock->show();
             });
         }
         return false;
