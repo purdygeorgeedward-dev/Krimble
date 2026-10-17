@@ -22,6 +22,7 @@ set (SvgTextTool_SRCS
     SvgTextCursor.cpp
     SvgTextTool.cpp
     SvgTextToolFactory.cpp
+    KrimbleTextTool.cpp
     SvgTextShapeManagerBlocker.cpp
     SvgTextShortCuts.cpp
     SvgTextToolOptionsData.cpp

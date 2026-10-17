@@ -236,6 +236,7 @@ private:
 
     QScopedPointer<SvgTextToolOptionsManager>m_optionManager;
     QPointer<SvgTextEditor> m_editor;
+    KoSvgTextShape *m_krimbleEditorShape {nullptr};   // Krimble 2026-10-18: the text shape whose editor window was opened by selecting it (Android)
     QPointer<GlyphPaletteDialog> m_glyphPalette;
     QPointer<SvgTextQuickActionBar> m_quickActionBar;
     QPointF m_lastMousePos;

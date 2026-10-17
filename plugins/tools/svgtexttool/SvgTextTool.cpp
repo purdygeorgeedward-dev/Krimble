@@ -554,6 +554,18 @@ void SvgTextTool::slotShapeSelectionChanged()
         return;
     }
     KoSvgTextShape *const shape = selectedShape();
+#ifdef Q_OS_ANDROID
+    // Krimble 2026-10-18: George (1.0.37): "Text tool: complete disaster. Unusable." Chose "2": a text window, "Krita used to have something like that before."
+    // On the phone the on-canvas editing fights Android's own text selection controls. The old editor window of the Type tool ("Krimble - Edit Text", showEditor())
+    // is opened as soon as a text shape is created or tapped (selected), and the text is typed there; OK puts it on the picture (textUpdated). A shape is opened once
+    // until the selection is cleared (tapping outside), then it can be opened again by tapping it.
+    if (shape && shape != m_krimbleEditorShape) {
+        m_krimbleEditorShape = shape;
+        QTimer::singleShot(200, this, SLOT(showEditor()));
+    } else if (!shape) {
+        m_krimbleEditorShape = nullptr;
+    }
+#endif
     if (shape != m_textCursor.shape() || shape == nullptr) {
         m_textCursor.setShape(shape);
         m_textOnPathHelper.setShape(shape);

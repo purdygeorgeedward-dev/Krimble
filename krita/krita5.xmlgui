@@ -754,6 +754,7 @@ xsi:schemaLocation="http://www.kde.org/standards/kxmlgui/1.0  http://www.kde.org
 </Menu>
 
 
+<!-- Krimble 2026-10-18: George: "Just get rid of this crap version." The Type menu belonged to the old Type tool (every item in it is an action of that tool, which is no longer registered); out until the new Type tool has menu items of its own.
 <Menu name="type">
     <text>&amp;Type</text>
     <Menu name="TypePanels">
@@ -850,6 +851,7 @@ xsi:schemaLocation="http://www.kde.org/standards/kxmlgui/1.0  http://www.kde.org
         <text>Reset Letter Positions</text>
     </Action>
 </Menu>
+-->
 
 <Menu name="Select">
     <text>&amp;Select</text>
@@ -1386,7 +1388,8 @@ xsi:schemaLocation="http://www.kde.org/standards/kxmlgui/1.0  http://www.kde.org
     <Action name="KisToolSelectPolygonal"/>
     <Action name="KisToolSelectContiguous"/>
     <Action name="KisToolCrop"/>
-    <Action name="SvgTextTool"/>
+    <!-- <Action name="SvgTextTool"/> -->
+    <Action name="KrimbleTextTool"/>
     <Action name="PanTool"/>
     <Action name="ZoomTool"/>
     <Action name="KritaFill/KisToolFill"/>
@@ -1424,6 +1427,7 @@ xsi:schemaLocation="http://www.kde.org/standards/kxmlgui/1.0  http://www.kde.org
 </ToolBar>
 
 
+<!-- Krimble 2026-10-18: the Type Options toolbar belonged to the old Type tool.
 <ToolBar name="TypeOptionsBar" fullWidth="false" position="top">
     <Text>Type Options</Text>
     <Action name="type_font"/>
@@ -1432,6 +1436,7 @@ xsi:schemaLocation="http://www.kde.org/standards/kxmlgui/1.0  http://www.kde.org
     <Action name="type_align_center"/>
     <Action name="type_align_right"/>
 </ToolBar>
+-->
 
 <ToolBar name="BrushOptions" fullWidth="false" position="top">
     <Text>Brush Options</Text>

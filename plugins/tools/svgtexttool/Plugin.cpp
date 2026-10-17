@@ -15,6 +15,7 @@
 
 #include <KisStaticInitializer.h>
 #include "SvgTextToolFactory.h"
+#include "KrimbleTextTool.h"
 
 #include "glyphpalette/GlyphPaletteProxyModel.h"
 #include "SvgTextToolOptionsModel.h"
@@ -41,7 +42,11 @@ Plugin::Plugin(QObject *parent, const QVariantList &)
     // KRIMBLE 2026-10-02: RE-ENABLED at George's request, with the root cause of
     // the self-activation (bug #9) still not found. If the Type tool activates by
     // itself again, note what was being done and report it.
-    KoToolRegistry::instance()->add(new SvgTextToolFactory());
+    // KoToolRegistry::instance()->add(new SvgTextToolFactory());
+    // Krimble 2026-10-18: George: "The existing type tool is garbage. I'm letting you design the new one from scratch. Just get rid of this crap version." The old
+    // tool is no longer registered (its code stays in the plugin, unused). The new Type tool, KrimbleTextTool (a text window, no editing on the canvas), takes its
+    // place in the toolbox.
+    KoToolRegistry::instance()->add(new KrimbleTextToolFactory());
 }
 
 #include <Plugin.moc>
