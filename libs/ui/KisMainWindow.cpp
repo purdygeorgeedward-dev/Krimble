@@ -2924,6 +2924,25 @@ static bool krimbleAskHex(QMainWindow *win, bool forLayer, qreal *size, bool *fl
 static qreal g_krimbleHexSize = 100.0;
 static bool g_krimbleHexFlat = false;
 static qreal g_krimbleHexThickness = 2.0;
+// Krimble 2026-10-18 (8th): George: "The hexes disappeared at one point while I was working with them." Asked what he had just done: "3" (switched pictures or left the app). The overlay was
+// kept by the picture window (KisView) it was switched on in, so another picture started without it, and an app that was closed by Android started without it too. Whether the hexes are
+// on, and their size and orientation, are now kept for the whole program (these three) and saved in the settings; the overlay follows the picture that is open.
+static bool g_krimbleHexOn = false;
+static void krimbleHexSaveState()
+{
+    KConfigGroup g = KSharedConfig::openConfig()->group("KrimbleHex");
+    g.writeEntry("on", g_krimbleHexOn);
+    g.writeEntry("size", double(g_krimbleHexSize));
+    g.writeEntry("flat", g_krimbleHexFlat);
+    g.sync();
+}
+static void krimbleHexLoadState()
+{
+    KConfigGroup g = KSharedConfig::openConfig()->group("KrimbleHex");
+    g_krimbleHexOn = g.readEntry("on", false);
+    g_krimbleHexSize = g.readEntry("size", double(g_krimbleHexSize));
+    g_krimbleHexFlat = g.readEntry("flat", g_krimbleHexFlat);
+}
 static QColor g_krimbleHexColor = QColor(Qt::black);
 
 // George: "Hex overlay should be pinch zoom then drop with a tap." While the overlay is being adjusted, two fingers scale the hexes (the distance between
@@ -2941,6 +2960,7 @@ public:
     void setOnDrop(const std::function<void()> &onDrop) { m_onDrop = onDrop; }
     void finish(bool dropped = false)
     {
+        krimbleHexSaveState();      // Krimble 2026-10-18 (8th): the size set by pinching is kept
         if (m_deco) m_deco->adjusting = false;
         if (m_widget) m_widget->removeEventFilter(this);
         if (m_canvas) m_canvas->updateCanvas();
@@ -3016,6 +3036,19 @@ static KrimbleHexDecoration *krimbleHexDecorationOf(KisMainWindow *win, bool cre
     return hex;
 }
 
+// puts the hex overlay on the picture that is open now, if the hexes are on
+static void krimbleHexFollowView(KisMainWindow *win)
+{
+    if (!g_krimbleHexOn) return;
+    KrimbleHexDecoration *deco = krimbleHexDecorationOf(win, true);
+    if (!deco) return;
+    deco->size = g_krimbleHexSize;
+    deco->flatTop = g_krimbleHexFlat;
+    deco->adjusting = false;
+    deco->setVisible(true);
+    if (win->activeView() && win->activeView()->canvasBase()) win->activeView()->canvasBase()->updateCanvas();
+}
+
 static void krimbleMakeHexLayer(KisMainWindow *win)
 {
     KisViewManager *manager = win->viewManager();
@@ -3060,6 +3093,15 @@ static void krimbleMakeHexLayer(KisMainWindow *win)
 // View > Show > Hex (a check mark) and Hex Size...; Layer > New > Hex Pattern...
 static void krimbleInstallHexMenus(KisMainWindow *win)
 {
+    // Krimble 2026-10-18 (8th): once: the saved state is read, and the overlay follows the open picture (see g_krimbleHexOn)
+    static bool s_hexFollowHooked = false;
+    if (!s_hexFollowHooked) {
+        s_hexFollowHooked = true;
+        krimbleHexLoadState();
+        QObject::connect(win, &KisMainWindow::activeViewChanged, win, [win]() {
+            QTimer::singleShot(300, win, [win]() { krimbleHexFollowView(win); });
+        });
+    }
     Q_FOREACH (QAction *top, win->menuBar()->actions()) {
         QMenu *menu = top->menu();
         if (!menu || menu->property("krimbleHexMenus").toBool()) continue;
@@ -3087,6 +3129,8 @@ static void krimbleInstallHexMenus(KisMainWindow *win)
                     hexAction->setObjectName(QStringLiteral("krimbleHex"));
                     hexAction->setCheckable(true);
                     QObject::connect(hexAction, &QAction::toggled, win, [win](bool on) {
+                        g_krimbleHexOn = on;          // Krimble 2026-10-18 (8th): on for every picture, and saved
+                        krimbleHexSaveState();
                         KrimbleHexDecoration *deco = krimbleHexDecorationOf(win, on);
                         if (!deco) return;
                         deco->size = g_krimbleHexSize;
@@ -3116,6 +3160,7 @@ static void krimbleInstallHexMenus(KisMainWindow *win)
                         qreal thickness = g_krimbleHexThickness;
                         QColor color = g_krimbleHexColor;
                         if (!krimbleAskHex(win, false, &g_krimbleHexSize, &g_krimbleHexFlat, &thickness, &color)) return;
+                        krimbleHexSaveState();        // Krimble 2026-10-18 (8th)
                         KrimbleHexDecoration *deco = krimbleHexDecorationOf(win, false);
                         if (deco) {
                             deco->size = g_krimbleHexSize;

@@ -13,6 +13,11 @@
 #include <KoShapeFactoryBase.h>
 #include <KoShapeRegistry.h>
 #include <KoSvgTextShape.h>
+#include <KoSvgTextShapeMarkupConverter.h>
+#include <KoShapeManager.h>
+#include <KoViewConverter.h>
+#include <commands/KoShapeBackgroundCommand.h>
+#include "SvgTextChangeCommand.h"
 #include <KoIcon.h>
 #include <klocalizedstring.h>
 #include <kundo2command.h>
@@ -29,9 +34,11 @@
 #include <QLabel>
 #include <QPlainTextEdit>
 #include <QPushButton>
+#include <QRegularExpression>
 #include <QScreen>
 #include <QTimer>
 #include <QVBoxLayout>
+#include <QXmlStreamReader>
 
 namespace {
 // what was chosen last time is what the window starts with next time
@@ -68,10 +75,10 @@ static QString krimbleTextSvg(const QString &text)
 }
 
 // the text window; returns false when it is cancelled
-static bool krimbleAskText(QWidget *parent, QString *text)
+static bool krimbleAskText(QWidget *parent, QString *text, bool editing = false)
 {
     QDialog dialog(parent);
-    dialog.setWindowTitle(i18n("Text"));
+    dialog.setWindowTitle(editing ? i18n("Edit Text") : i18n("Text"));
     QVBoxLayout *layout = new QVBoxLayout(&dialog);
 
     QPlainTextEdit *edit = new QPlainTextEdit(&dialog);
@@ -155,6 +162,76 @@ static bool krimbleAskText(QWidget *parent, QString *text)
     return true;
 }
 
+// Krimble 2026-10-18 (7th): George: "Yes, continue work on the Type tool. It will be our showpiece in this app." Tapping existing text opens the same window with its words and
+// look in it. What the shape says is read back from the SVG the program makes of it (the converter that made it), so text from other files can be edited too.
+static void krimbleApplyTextProperty(const QString &name, const QString &rawValue)
+{
+    const QString value = rawValue.trimmed();
+    if (name == QLatin1String("font-family")) {
+        QString family = value.section(QLatin1Char(','), 0, 0).trimmed();
+        family.remove(QLatin1Char('\'')).remove(QLatin1Char('"'));
+        if (!family.isEmpty()) s_family = family;
+    } else if (name == QLatin1String("font-size")) {
+        bool ok = false;
+        const qreal number = QString(value).remove(QRegularExpression(QStringLiteral("[a-zA-Z%]+$"))).toDouble(&ok);
+        if (ok && number > 0) s_size = value.endsWith(QLatin1String("px")) ? number * 0.75 : number;
+    } else if (name == QLatin1String("font-weight")) {
+        s_bold = (value == QLatin1String("bold") || value.toInt() >= 600);
+    } else if (name == QLatin1String("font-style")) {
+        s_italic = (value == QLatin1String("italic") || value == QLatin1String("oblique"));
+    } else if (name == QLatin1String("text-anchor")) {
+        s_align = (value == QLatin1String("middle")) ? 1 : (value == QLatin1String("end") ? 2 : 0);
+    } else if (name == QLatin1String("fill")) {
+        const QColor color(value);
+        if (color.isValid()) s_color = color;
+    }
+}
+
+static bool krimbleReadTextShape(KoSvgTextShape *shape, QString *text)
+{
+    KoSvgTextShapeMarkupConverter converter(shape);
+    QString svg;
+    QString defs;
+    if (!converter.convertToSvg(&svg, &defs)) return false;
+    QXmlStreamReader xml(svg);
+    QString result;
+    bool inText = false;
+    bool firstLine = true;
+    int tspanDepth = 0;
+    while (!xml.atEnd()) {
+        xml.readNext();
+        if (xml.isStartElement()) {
+            if (xml.name() == QLatin1String("text") && !inText) {
+                inText = true;
+                const QXmlStreamAttributes attributes = xml.attributes();
+                Q_FOREACH (const QXmlStreamAttribute &attribute, attributes) {
+                    krimbleApplyTextProperty(attribute.name().toString(), attribute.value().toString());
+                }
+                const QString style = attributes.value(QStringLiteral("style")).toString();
+                Q_FOREACH (const QString &declaration, style.split(QLatin1Char(';'), QString::SkipEmptyParts)) {
+                    krimbleApplyTextProperty(declaration.section(QLatin1Char(':'), 0, 0).trimmed(), declaration.section(QLatin1Char(':'), 1));
+                }
+            } else if (xml.name() == QLatin1String("tspan") && inText) {
+                if (tspanDepth == 0) {
+                    const QXmlStreamAttributes attributes = xml.attributes();
+                    if (!firstLine && (attributes.hasAttribute(QStringLiteral("x")) || attributes.hasAttribute(QStringLiteral("dy")))) {
+                        result += QLatin1Char('\n');
+                    }
+                    firstLine = false;
+                }
+                ++tspanDepth;
+            }
+        } else if (xml.isEndElement()) {
+            if (xml.name() == QLatin1String("tspan") && tspanDepth > 0) --tspanDepth;
+            if (xml.name() == QLatin1String("text")) inText = false;
+        } else if (xml.isCharacters() && inText && !xml.isWhitespace()) {
+            result += xml.text().toString();
+        }
+    }
+    *text = result;
+    return !result.isEmpty();
+}
+
 KrimbleTextTool::KrimbleTextTool(KoCanvasBase *canvas)
     : KoToolBase(canvas)
 {
@@ -186,9 +263,29 @@ void KrimbleTextTool::mouseReleaseEvent(KoPointerEvent *event)
 
 void KrimbleTextTool::askAndAddText(const QPointF &where)
 {
+    // is there text where the finger was? (the boxes of the shapes, within about 14 view px of the tap)
+    KoSvgTextShape *existing = nullptr;
+    {
+        const QPointF viewPoint = canvas()->viewConverter()->documentToView(where);
+        const QRectF probe = canvas()->viewConverter()->viewToDocument(QRectF(viewPoint - QPointF(14, 14), QSizeF(28, 28)));
+        const QList<KoShape*> shapes = canvas()->shapeManager()->shapesAt(probe);
+        for (int i = shapes.size() - 1; i >= 0 && !existing; --i) {   // the top one first
+            existing = dynamic_cast<KoSvgTextShape*>(shapes.at(i));
+        }
+    }
     QString text;
-    if (!krimbleAskText(QApplication::activeWindow(), &text)) return;
+    if (existing && !krimbleReadTextShape(existing, &text)) existing = nullptr;
+    if (!krimbleAskText(QApplication::activeWindow(), &text, existing != nullptr)) return;
     if (text.trimmed().isEmpty()) return;
+
+    if (existing) {
+        // the words and the look are changed on the shape that is there (one undo step)
+        KUndo2Command *editCommand = new KUndo2Command(i18n("Edit text"));
+        new SvgTextChangeCommand(existing, krimbleTextSvg(text), QStringLiteral("<defs/>"), editCommand);
+        new KoShapeBackgroundCommand(existing, QSharedPointer<KoShapeBackground>(new KoColorBackground(s_color)), editCommand);
+        canvas()->addCommand(editCommand);
+        return;
+    }
 
     KoShapeFactoryBase *factory = KoShapeRegistry::instance()->value(QStringLiteral("KoSvgTextShapeID"));
     if (!factory) return;

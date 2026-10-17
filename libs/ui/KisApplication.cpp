@@ -82,6 +82,8 @@
 #include <KoPluginLoader.h>
 #include <KoShapeRegistry.h>
 #include "KoConfig.h"
+#include <QFontDatabase>
+#include <KoFontRegistry.h>
 #include <KoResourcePaths.h>
 #include <KisMimeDatabase.h>
 #include "thememanager.h"
@@ -433,6 +435,16 @@ static void krimbleNarrowDialogLayouts(QDialog *dialog)
         }
     }
     Q_FOREACH (QLayout *l, dialog->findChildren<QLayout*>()) {
+        // Krimble 2026-10-18 (9th): a spacer in a form file has a design size, and one with a width (a vertical spacer of 414 x 16 in the PNG options form) makes the whole window at least
+        // that wide. In a window that is too wide the width of every spacer is dropped.
+        for (int i = 0; i < l->count(); ++i) {
+            if (QSpacerItem *spacer = l->itemAt(i)->spacerItem()) {
+                if (spacer->sizeHint().width() > 40) {
+                    spacer->changeSize(0, spacer->sizeHint().height(), QSizePolicy::Minimum,
+                                       (spacer->expandingDirections() & Qt::Vertical) ? QSizePolicy::Expanding : QSizePolicy::Minimum);
+                }
+            }
+        }
         const QMargins m = l->contentsMargins();
         if (m.left() > 8 || m.right() > 8 || m.top() > 8 || m.bottom() > 8) {
             l->setContentsMargins(qMin(m.left(), 6), qMin(m.top(), 6), qMin(m.right(), 6), qMin(m.bottom(), 6));
@@ -1259,6 +1271,30 @@ void KisApplication::loadPlugins()
     KisMetadataBackendRegistry::instance();
 }
 
+// Krimble 2026-10-18 (10th): George: "I have several fonts which could be included with the app. I can license them to the project." and "The ttf files are in Krita/data/fonts/ now."
+// The fonts of krita/data/fonts (installed to <data>/krita/fonts) are made known to Qt (the font lists of the Type tool and the dialogs) and to the text engine (KoFontRegistry,
+// fontconfig, which draws text shapes). LICENSE: they are not GPL; they are George Edward Purdy's (Purdy Design) and are included with his permission, to be used inside Krimble;
+// each file carries its own license text (see krita/data/fonts/readme.md).
+static void krimbleLoadBundledFonts()
+{
+    QStringList files;
+    Q_FOREACH (const QString &dir, KoResourcePaths::assetDirs("data")) {
+        const QDir fontDir(dir + QStringLiteral("/fonts"));
+        Q_FOREACH (const QString &name, fontDir.entryList(QStringList() << QStringLiteral("*.ttf") << QStringLiteral("*.otf"), QDir::Files)) {
+            const QString path = fontDir.absoluteFilePath(name);
+            if (!files.contains(path)) files << path;
+        }
+    }
+    int loaded = 0;
+    Q_FOREACH (const QString &path, files) {
+        const int qtId = QFontDatabase::addApplicationFont(path);
+        const bool engineOk = KoFontRegistry::instance()->addFontFilePathToRegistry(path);
+        if (qtId >= 0 || engineOk) ++loaded;
+        else qWarning() << "Krimble: font could not be loaded:" << path;
+    }
+    qInfo() << "Krimble: bundled fonts found:" << files.size() << "loaded:" << loaded;
+}
+
 bool KisApplication::start(const KisApplicationArguments &args)
 {
 #ifdef Q_OS_ANDROID
@@ -1266,6 +1302,8 @@ bool KisApplication::start(const KisApplicationArguments &args)
 #endif
 
     KisConfig cfg(false);
+
+    krimbleLoadBundledFonts();   // Krimble 2026-10-18 (10th)
 
     auto iconsInMenuMode = cfg.iconsInMenu();
     if (iconsInMenuMode == KisConfig::IIM_Yes) {

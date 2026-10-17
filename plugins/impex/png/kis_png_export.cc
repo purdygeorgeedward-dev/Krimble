@@ -157,6 +157,14 @@ KisWdgOptionsPNG::KisWdgOptionsPNG(QWidget *parent)
         }
         gridLayout->addWidget(label_4, row, 0);                   // Transparent color:
         gridLayout->addWidget(bnTransparencyFillColor, row, 1);
+        // Krimble 2026-10-18 (9th): George (1.0.37, c666301; two screenshots): "The PNG save dialog is super wide." The 103rd entry above moved the widgets, but the form also holds a vertical
+        // spacer (row 6) whose design size is 414 x 16 and whose horizontal policy is Minimum, which makes the window at least 414 px wide: a spacer is not a widget and was not moved.
+        // Spacers are made 0 wide.
+        for (int i = 0; i < gridLayout->count(); ++i) {
+            if (QSpacerItem *spacer = gridLayout->itemAt(i)->spacerItem()) {
+                spacer->changeSize(0, spacer->sizeHint().height(), QSizePolicy::Minimum, QSizePolicy::Expanding);
+            }
+        }
     }
 #endif
 
