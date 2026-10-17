@@ -255,7 +255,8 @@ android {
     // def krimbleBuildNumber = 34   (2026-10-12)
     // def krimbleBuildNumber = 35   (2026-10-13)
     // def krimbleBuildNumber = 36   (2026-10-13)
-    def krimbleBuildNumber = 37
+    // def krimbleBuildNumber = 37   (2026-10-15 to 2026-10-17)
+    def krimbleBuildNumber = 38
     // (counter-file reading, replaced by the hand-set number above)
     // def krimbleBuildNumber = 0
     // try {

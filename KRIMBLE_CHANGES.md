@@ -4504,3 +4504,10 @@ George (1.0.37): "All those super wide dialogs for no reason have to go. Analyze
 George: "Also make sure the jpg images never default to saving with the .jpeg extension." The extension proposed for a file is the **first** suffix of its type. Two places: (1) `KisMimeDatabase::suffixesForMimeType`: for "image/jpeg" the fallback through `QMimeDatabase` already put "jpg" first (an old rule), but the first branch (the program's own list, `s_mimeDatabase`) returned its list as it was; now "jpg" is moved to the front there too. (2) The Android Save As window (`KoFileDialog`) takes the extension from the first `*.ext` of the filter the user picks; if that is `.jpeg` (any case) it is made `.jpg`. Typing `.jpeg` by hand in the file name is still possible. Not seen on a phone which of the two paths produced the `.jpeg` George saw; both are covered.
 **Not verified:** a build or a device.
 
+## 2026-10-17 (162nd) — Version 38
+
+**Files:** `packaging/android/apk/build.gradle`
+
+George: "Next build will be .38, okay?" `krimbleBuildNumber` 37 -> 38 (`1.0.38-beta`). Version 37 was built four times (`6ea3627`, `41a4afb`... the APKs `Krimble-1.0.37-beta-Oct16-2114.apk` at `fc126d8` and `Krimble-1.0.37-beta-Oct17-0447.apk` at `c666301` were the last two). The next build starts from `bce1123` and this commit.
+**Not verified:** a build.
+
