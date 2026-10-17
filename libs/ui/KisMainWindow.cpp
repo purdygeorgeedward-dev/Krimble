@@ -6640,7 +6640,9 @@ void KisMainWindow::updateWindowMenu()
 #endif
         menu->addSeparator();
         addActionByName("theme_menu");
-        addActionByName("style_menu");
+        // addActionByName("style_menu");
+        // Krimble 2026-10-18 (5th): George (1.0.37, c666301): "Window - Styles does nothing." On Android the Styles submenu is never filled (the loop that lists the widget styles is inside
+        // #ifndef Q_OS_ANDROID, and the app has its own style), so the item opened an empty submenu. It is out of the Window menu; the action itself is kept.
         addActionByName("switch_application_language");
     }
 
@@ -6674,7 +6676,8 @@ void KisMainWindow::updateWindowMenu()
             menu->addAction(lockToolbars);
         }
         menu->addSeparator();
-        const char *appearanceActions[] = {"theme_menu", "style_menu"};
+        // const char *appearanceActions[] = {"theme_menu", "style_menu"};
+        const char *appearanceActions[] = {"theme_menu"};   // Krimble 2026-10-18 (5th): no Styles item (see above)
         for (const char *name : appearanceActions) {
             if (QAction *action = actionCollection()->action(QLatin1String(name))) {
                 menu->addAction(action);

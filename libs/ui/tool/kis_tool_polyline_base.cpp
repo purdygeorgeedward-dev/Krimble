@@ -29,11 +29,15 @@
 // Krimble 2026-10-12: on a touch screen the polygon is closed by tapping near its first point, within this many view px (a finger is
 // not a mouse pointer: nothing hovers before the tap, so the close check cannot wait for a mouse move).
 #define SNAPPING_THRESHOLD_TOUCH 40
-#define SNAPPING_RING_RADIUS_TOUCH 16
+// #define SNAPPING_RING_RADIUS_TOUCH 16
+// Krimble 2026-10-18 (6th): George (1.0.37, c666301): "19. Poly select tool is awesome, but selection balls for vertices should be smaller." and "19 fix the vertices." The ring on the first point
+// is drawn smaller (16 -> 9 view px; it is only drawn, the distances that close the polygon are the other numbers below, unchanged).
+#define SNAPPING_RING_RADIUS_TOUCH 9
 // Krimble 2026-10-13: touch polygon (George's design). Distances are in view px (logical).
 #define TOUCH_CLOSE_DISTANCE 30      // dropping a point this close to the first point closes the polygon
 #define TOUCH_TAP_DISTANCE 12        // a press of the first point that moves less than this is a tap (the first point only)
-#define TOUCH_ANCHOR_RADIUS 6
+// #define TOUCH_ANCHOR_RADIUS 6
+#define TOUCH_ANCHOR_RADIUS 3        // Krimble 2026-10-18 (6th): the white dots on the points, 6 -> 3 view px (half; only drawn)
 #define TOUCH_ANTS_DASH 4
 
 KisToolPolylineBase::KisToolPolylineBase(KoCanvasBase * canvas,  KisToolPolylineBase::ToolType type, const QCursor & cursor)

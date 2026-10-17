@@ -4540,3 +4540,17 @@ George (1.0.37, c666301, screenshots of the docked and the floating Layers panel
 **Not verified:** a build or a device. Whether the panel in portrait docked is wide enough for one row depends on the buttons' sizes; if it still stacks there, tell me the panel's width (the QA overlay shows it).
 **Addition (George, on approving the 166th entry): "If all else fails make the buttons smaller."** `KrimbleLayerButtonsFilter` now tries, in this order: one row with the normal icons (18 px); else one row with **smaller icons (14 px)**; else two rows of three with the normal icons. The icon size is set on all six buttons together.
 
+## 2026-10-18 (167th) — Window > Styles is out
+
+**Files:** `libs/ui/KisMainWindow.cpp`
+
+George (1.0.37, c666301), asked what "Styles" meant: "Window - Styles does nothing. Not layers." It is the **Window > Styles** submenu (action `style_menu`, a `KActionMenu`): in Krita it lists the widget styles of Qt (Fusion, Breeze ...) to choose from. On Android the loop that fills it is inside `#ifndef Q_OS_ANDROID` (line about 3925), and Krimble draws with its own style, so the submenu was always empty and the item did nothing. Both places that put it in the Window menu (`addActionByName("style_menu")` and the `appearanceActions` list) no longer do (the old lines are commented out); the action and its code stay. **Layer > Layer Style...** is a different item; George's report of 14 had been taken for it. Not changed.
+**Not verified:** a build or a device.
+
+## 2026-10-18 (168th) — Polygon selection: smaller vertex dots
+
+**Files:** `libs/ui/tool/kis_tool_polyline_base.cpp`
+
+George (1.0.37, c666301): "19. Poly select tool is awesome, but selection balls for vertices should be smaller." then "19 fix the vertices." The dots on the points of the polygon being built (`TOUCH_ANCHOR_RADIUS`) are **3** view px (were 6), and the ring on the first point that shows the polygon can be closed (`SNAPPING_RING_RADIUS_TOUCH`) is **9** (was 16). These numbers are only used to **draw**; the distances that decide a tap or a close (`TOUCH_CLOSE_DISTANCE` 30, `TOUCH_TAP_DISTANCE` 12, `SNAPPING_THRESHOLD_TOUCH` 40) are unchanged, so closing the polygon is as easy as before. The old macro lines are commented out.
+**Not verified:** a build or a device. If the dots are now too small to see, say so (4 and 12 are the next numbers I would try).
+
