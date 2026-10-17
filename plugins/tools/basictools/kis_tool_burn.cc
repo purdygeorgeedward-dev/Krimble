@@ -69,7 +69,14 @@ void KisToolBurn::activate(const QSet<KoShape*> &shapes)
     // black while it is active (see below) and a low flow (4% per dab); flow and opacity can be changed.
     burnPreset->settings()->setProperty("CompositeOp", COMPOSITE_LINEAR_BURN);
     burnPreset->settings()->setPaintOpOpacity(1.0);
-    burnPreset->settings()->setPaintOpFlow(0.04);
+    // Krimble 2026-10-18 (12th): George (1.0.37, c666301): "17. Dodge and burn appear to default to black or white crayons." and, asked what he sees: "One drag makes solid black." Every dab
+    // adds a step (flow 4% is about 10 of 255 levels at the center of the dab) and the dabs of a drag overlap many times (a pixel is under about a dozen of them), so one pass
+    // reached solid black. A dab is now 5 times weaker (flow 0.8%, about 2 levels): one pass is a gentle change and passes build up. The flow can still be changed in the Tool Options.
+    // burnPreset->settings()->setPaintOpFlow(0.04);
+    burnPreset->settings()->setPaintOpFlow(0.008);
+    // Krimble 2026-10-18 (13th): George: "It should start with a larger brush size too." The brush of this tool starts at 80 px (the default brush is small, which is right for painting
+    // but not for lightening or darkening areas). The size can be changed in the Tool Options; it starts at 80 again the next time the tool is chosen.
+    burnPreset->settings()->setPaintOpSize(80.0);
     // Krimble: see KisToolDodge.cc for why BUILDUP mode (not the base
     // preset's default WASH mode) is required for continuous darkening
     // while dragging.

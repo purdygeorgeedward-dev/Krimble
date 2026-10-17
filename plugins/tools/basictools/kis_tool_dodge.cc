@@ -69,7 +69,14 @@ void KisToolDodge::activate(const QSet<KoShape*> &shapes)
     // white while it is active (see below) and a low flow (4% per dab); flow and opacity can be changed.
     dodgePreset->settings()->setProperty("CompositeOp", COMPOSITE_LINEAR_DODGE);
     dodgePreset->settings()->setPaintOpOpacity(1.0);
-    dodgePreset->settings()->setPaintOpFlow(0.04);
+    // Krimble 2026-10-18 (12th): George (1.0.37, c666301): "17. Dodge and burn appear to default to black or white crayons." and, asked what he sees: "One drag makes solid white." Every dab
+    // adds a step (flow 4% is about 10 of 255 levels at the center of the dab) and the dabs of a drag overlap many times (a pixel is under about a dozen of them), so one pass
+    // reached solid white. A dab is now 5 times weaker (flow 0.8%, about 2 levels): one pass is a gentle change and passes build up. The flow can still be changed in the Tool Options.
+    // dodgePreset->settings()->setPaintOpFlow(0.04);
+    dodgePreset->settings()->setPaintOpFlow(0.008);
+    // Krimble 2026-10-18 (13th): George: "It should start with a larger brush size too." The brush of this tool starts at 80 px (the default brush is small, which is right for painting
+    // but not for lightening or darkening areas). The size can be changed in the Tool Options; it starts at 80 again the next time the tool is chosen.
+    dodgePreset->settings()->setPaintOpSize(80.0);
     // Krimble: base preset defaults to WASH mode (PaintOpAction=2), which
     // applies opacity once per continuous stroke, not while dragging back
     // and forth. Real Dodge accumulates continuously as you paint over the
