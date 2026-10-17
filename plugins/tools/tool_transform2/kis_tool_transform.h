@@ -402,6 +402,25 @@ private Q_SLOTS:
 // even better than my idea. Yes."). It is the same tool as the Transform tool (a KisToolTransform), with its own id, icon and place right after
 // the Transform button; the tool starts in Free Transform mode, where dragging outside the box turns the graphic by any angle. A few places of the
 // code look for the id "KisToolTransform" (for example after a layer change); with this button they treat it as another tool.
+// Krimble 2026-10-18: George (1.0.37, fc126d8): "7. Rotate tool is just scale. It does not rotate." and "The rotate tool should do what the default pinch zoom and
+// rotate tool originally did, but not scaling. Only rotate." The Free Rotate tool is the Transform tool with one addition: while it is active, two fingers on the
+// canvas turn the layer (the angle of the line between the fingers; the turn is given to the tool's own "rotate Z" setting, so the preview, the rotation
+// center and the Apply of the Transform tool are used as they are), and the canvas does not zoom or turn at the same time. One finger works as in the Transform tool.
+class KisToolFreeRotate : public KisToolTransform
+{
+    Q_OBJECT
+
+public:
+    explicit KisToolFreeRotate(KoCanvasBase *canvas);
+
+public Q_SLOTS:
+    void activate(const QSet<KoShape*> &shapes) override;
+    void deactivate() override;
+
+private:
+    QPointer<QObject> m_touchFilter;
+};
+
 class KisToolFreeRotateFactory : public KisToolPaintFactoryBase
 {
     Q_OBJECT
@@ -419,7 +438,8 @@ public:
     ~KisToolFreeRotateFactory() override {}
 
     KoToolBase * createTool(KoCanvasBase *canvas) override {
-        return new KisToolTransform(canvas);
+        // return new KisToolTransform(canvas);
+        return new KisToolFreeRotate(canvas);   // Krimble 2026-10-18: two fingers rotate
     }
 };
 

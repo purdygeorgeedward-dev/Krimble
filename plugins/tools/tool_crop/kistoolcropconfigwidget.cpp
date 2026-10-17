@@ -5,6 +5,8 @@
 */
 
 
+#include <QLabel>
+#include <QBoxLayout>
 #include "kistoolcropconfigwidget.h"
 #include "kis_tool_crop.h"
 #include <kis_icon.h>
@@ -17,6 +19,24 @@ KisToolCropConfigWidget::KisToolCropConfigWidget(QWidget* parent, KisToolCrop* c
     , m_cropTool(cropTool)
 {
     setupUi(this);
+
+#ifdef Q_OS_ANDROID
+    // Krimble 2026-10-18: George (1.0.37, fc126d8): "6. Crop tool options don't line up well." / "Buttons, contents of panel." The two groups of fields (X and Y, then Width, Height and
+    // Ratio with their lock buttons) stood side by side, wider than the panel, and each group had its own columns. They are stacked, and all the
+    // labels get the same width and are aligned to the right, so the fields start at the same place.
+    if (QBoxLayout *groups = findChild<QBoxLayout*>(QStringLiteral("horizontalLayout"))) {
+        groups->setDirection(QBoxLayout::TopToBottom);
+    }
+    {
+        const QList<QLabel*> labels = { label_horizPos, label_vertiPos, widthLabel, heightLabel, aspectLabel, label, label_2 };
+        int labelWidth = 0;
+        Q_FOREACH (QLabel *l, labels) labelWidth = qMax(labelWidth, l->sizeHint().width());
+        Q_FOREACH (QLabel *l, labels) {
+            l->setMinimumWidth(labelWidth);
+            l->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+        }
+    }
+#endif
 
     // update the UI based off data from crop tool
     cmbType->setCurrentIndex(m_cropTool->cropType());

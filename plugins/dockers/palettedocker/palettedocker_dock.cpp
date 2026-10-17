@@ -54,7 +54,9 @@
 #include "ui_wdgpalettedock.h"
 
 PaletteDockerDock::PaletteDockerDock( )
-    : QDockWidget(i18n("Swatches (Palette)"))
+    // : QDockWidget(i18n("Swatches (Palette)"))
+    // Krimble 2026-10-18: George (1.0.37): "12. Change title from Swatches (Palette) to Swatches Palette."
+    : QDockWidget(i18n("Swatches Palette"))
     , m_ui(new Ui_WdgPaletteDock())
     , m_model(new KisPaletteModel(this))
     , m_paletteChooser(new KisPaletteChooser(this))

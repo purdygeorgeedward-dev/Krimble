@@ -1835,8 +1835,10 @@ static QString krimbleQaReport(QMainWindow *win)
     Q_FOREACH (QDockWidget *dock, win->findChildren<QDockWidget*>()) {
         if (!dock->isVisible()) continue;
         QString where = dock->isFloating() ? QStringLiteral("float") : QString::number(int(win->dockWidgetArea(dock)));
-        r += QStringLiteral("%1 %2x%3  min %4  max %5  %6\n").arg(dock->objectName()).arg(dock->width()).arg(dock->height())
-                .arg(dock->minimumSizeHint().width()).arg(dock->maximumWidth() > 100000 ? QStringLiteral("-") : QString::number(dock->maximumWidth())).arg(where);
+        QWidget *bevelOverlay = dock->findChild<QWidget*>(QStringLiteral("krimbleBevelOverlay"), Qt::FindDirectChildrenOnly);
+        const QString bevelState = !bevelOverlay ? QStringLiteral("no bevel") : (bevelOverlay->isVisible() ? QStringLiteral("bevel on") : QStringLiteral("bevel hidden"));
+        r += QStringLiteral("%1 %2x%3  min %4  max %5  %6  %7\n").arg(dock->objectName()).arg(dock->width()).arg(dock->height())
+                .arg(dock->minimumSizeHint().width()).arg(dock->maximumWidth() > 100000 ? QStringLiteral("-") : QString::number(dock->maximumWidth())).arg(where).arg(bevelState);
     }
     Q_FOREACH (QToolBar *bar, win->findChildren<QToolBar*>()) {
         if (!bar->isVisible()) continue;
@@ -2431,7 +2433,8 @@ static void krimbleInstallImageExtras(KisMainWindow *win)
                     QObject::connect(freeRotate, &QAction::triggered, win, [win]() {
                         KisViewManager *view = win->viewManager();
                         if (!view) return;
-                        QAction *transform = view->actionCollection()->action(QStringLiteral("KisToolTransformFree"));
+                        // QAction *transform = view->actionCollection()->action(QStringLiteral("KisToolTransformFree"));
+                        QAction *transform = view->actionCollection()->action(QStringLiteral("KisToolFreeRotate"));   // Krimble 2026-10-18: the tool that turns with two fingers
                         if (transform) transform->trigger();
                     });
                     QAction *firstAction = rotation->actions().value(0);
@@ -2742,6 +2745,12 @@ static void krimbleInstallBevels(QMainWindow *win)
     }
     Q_FOREACH (QToolBar *bar, win->findChildren<QToolBar*>()) {
         if (!bar->findChild<KrimbleBevelOverlay*>(QStringLiteral("krimbleBevelOverlay"), Qt::FindDirectChildrenOnly)) new KrimbleBevelOverlay(bar);
+    }
+    // Krimble 2026-10-18 (4th): George (1.0.37, fc126d8): "I don't see any edges." (the one-pixel light and dark lines of menus, finding 11). The first way, the
+    // PE_FrameMenu of the app's style, was never reached: the theme's style sheet draws menus itself. The same overlay as for panels and toolbars is put on every
+    // menu and submenu (light on the top and left edges, dark on the bottom and right, one device pixel).
+    Q_FOREACH (QMenu *menu, win->findChildren<QMenu*>()) {
+        if (!menu->findChild<KrimbleBevelOverlay*>(QStringLiteral("krimbleBevelOverlay"), Qt::FindDirectChildrenOnly)) new KrimbleBevelOverlay(menu);
     }
 }
 
@@ -3148,7 +3157,10 @@ public:
     // static const int Distance = 36;
     // Krimble 2026-10-12: George: "Panels should not try to snap into place until they are right on top of the edge they are going to
     // snap to." 8 logical px (about 27 on the screen), was 36.
-    static const int Distance = 8;
+    // static const int Distance = 8;
+    // Krimble 2026-10-18 (2nd): George (1.0.37, fc126d8): "4. When a panel is detached by dragging it is still way too eager to reattach. Distance is an issue."
+    // 8 -> 4 logical px; and a panel can join another panel (tabs) only after the finger has moved 120 logical px from where the drag began.
+    static const int Distance = 4;
 
     KrimbleDockTolerance(QMainWindow *win, QDockWidget *dock)
         : QObject(dock), m_win(win), m_dock(dock) {}
@@ -3163,6 +3175,7 @@ protected:
             QMouseEvent *mouse = static_cast<QMouseEvent*>(event);
             if (mouse->buttons() & Qt::LeftButton) {
                 const QPoint p = mouse->globalPos();
+                if (!m_dragging) m_startPos = p;
                 const QRect r(m_win->mapToGlobal(QPoint(0, 0)), m_win->size());
                 Qt::DockWidgetAreas allowed = Qt::NoDockWidgetArea;
                 if (p.x() - r.left() < Distance) allowed |= Qt::LeftDockWidgetArea;
@@ -3175,6 +3188,7 @@ protected:
                 // panel can join it (as a tab, or beside it, as Qt decides from where on that panel the finger is).
                 Q_FOREACH (QDockWidget *other, m_win->findChildren<QDockWidget*>()) {
                     if (other == m_dock || other->isFloating() || !other->isVisible()) continue;
+                    if (QLineF(QPointF(p), QPointF(m_startPos)).length() < 120.0) continue;     // Krimble 2026-10-18 (2nd): not at once
                     const QRect otherRect(other->mapToGlobal(QPoint(0, 0)), other->size());
                     if (otherRect.contains(p)) allowed |= m_win->dockWidgetArea(other);
                 }
@@ -3199,6 +3213,7 @@ private:
     QMainWindow *m_win;
     QDockWidget *m_dock;
     bool m_dragging {false};
+    QPoint m_startPos;   // Krimble 2026-10-18 (2nd): where the finger was when this drag began
 };
 #endif
 
@@ -3744,6 +3759,34 @@ KisMainWindow::KisMainWindow(QUuid uuid)
             krimbleInstallHexMenus(this);                // Krimble 2026-10-18: View > Show > Hex and Layer > New > Hex Pattern... (see above)
             // Krimble 2026-10-18: George (1.0.37, git 41a4afb): "1. Brushes still loads at start." The hiding at start (2.5 s) came too early: opening
             // the first image brings the saved layout back, with Brushes. So it is hidden once more, once, the first time an image is open.
+            // Krimble 2026-10-18 (2nd): George (1.0.37, fc126d8): "2. Brushes still loads by default." The two hidings above and below happen once, and a
+            // saved layout brought it back again afterwards. For the first 30 s after the start it is hidden whenever it shows up.
+            {
+                static QElapsedTimer brushesClock;
+                if (!brushesClock.isValid()) brushesClock.start();
+                if (brushesClock.elapsed() < 30000) {
+                    Q_FOREACH (QDockWidget *dock, findChildren<QDockWidget*>()) {
+                        if ((dock->objectName() == QLatin1String("PresetDocker") || dock->windowTitle() == QLatin1String("Brushes")) && dock->isVisible()) dock->hide();
+                    }
+                }
+            }
+            // Krimble 2026-10-18 (3rd): George (1.0.37, fc126d8): "2. I don't think so." (about the 30 s rule: an image opened later than that still brings Brushes
+            // back, through the saved layout / the Default workspace). When the first image of the session is opened, whenever that is, Brushes is hidden
+            // again, twice (1.2 s and 3 s after), to come after the layout is restored.
+            if (!property("krimbleBrushesViewHook").toBool()) {
+                setProperty("krimbleBrushesViewHook", true);
+                connect(this, &KisMainWindow::activeViewChanged, this, [this]() {
+                    if (property("krimbleBrushesViewCount").toInt() >= 1) return;
+                    setProperty("krimbleBrushesViewCount", 1);
+                    auto hideBrushes = [this]() {
+                        Q_FOREACH (QDockWidget *dock, findChildren<QDockWidget*>()) {
+                            if ((dock->objectName() == QLatin1String("PresetDocker") || dock->windowTitle() == QLatin1String("Brushes")) && dock->isVisible()) dock->hide();
+                        }
+                    };
+                    QTimer::singleShot(1200, this, hideBrushes);
+                    QTimer::singleShot(3000, this, hideBrushes);
+                });
+            }
             if (!property("krimbleBrushesHiddenAfterImage").toBool() && d->widgetStack->currentIndex() != 0) {
                 setProperty("krimbleBrushesHiddenAfterImage", true);
                 Q_FOREACH (QDockWidget *dock, findChildren<QDockWidget*>()) {

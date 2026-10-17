@@ -1,6 +1,8 @@
 /*
  *  SPDX-License-Identifier: GPL-2.0-or-later
  */
+#include <QStyleOptionSpinBox>
+#include <QAbstractSpinBox>
 #include "KisWideDockSeparatorStyle.h"
 
 #include <QStyleFactory>
@@ -243,4 +245,34 @@ QIcon KisWideDockSeparatorStyle::standardIcon(StandardPixmap standardIcon, const
     }
 #endif
     return QProxyStyle::standardIcon(standardIcon, option, widget);
+}
+
+QRect KisWideDockSeparatorStyle::subControlRect(ComplexControl control, const QStyleOptionComplex *option, SubControl subControl, const QWidget *widget) const
+{
+#ifdef Q_OS_ANDROID
+    // Krimble 2026-10-18: George (1.0.37, fc126d8): "10. Up and down gadgets on predefined sizes list are too small to use." The up and down buttons of a spin
+    // box are 26 logical px wide (about 88 on the screen), each one half of the height; the field takes the rest.
+    if (control == QStyle::CC_SpinBox) {
+        if (const QStyleOptionSpinBox *spin = qstyleoption_cast<const QStyleOptionSpinBox*>(option)) {
+            if (spin->buttonSymbols != QAbstractSpinBox::NoButtons) {
+                const int buttonWidth = 26;
+                const QRect r = spin->rect;
+                const int h = r.height();
+                switch (subControl) {
+                case QStyle::SC_SpinBoxUp:
+                    return QRect(r.right() - buttonWidth + 1, r.top(), buttonWidth, h / 2);
+                case QStyle::SC_SpinBoxDown:
+                    return QRect(r.right() - buttonWidth + 1, r.top() + h / 2, buttonWidth, h - h / 2);
+                case QStyle::SC_SpinBoxEditField:
+                    return QRect(r.left(), r.top(), r.width() - buttonWidth, h);
+                case QStyle::SC_SpinBoxFrame:
+                    return r;
+                default:
+                    break;
+                }
+            }
+        }
+    }
+#endif
+    return QProxyStyle::subControlRect(control, option, subControl, widget);
 }

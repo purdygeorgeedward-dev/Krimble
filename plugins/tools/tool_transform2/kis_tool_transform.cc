@@ -1578,3 +1578,71 @@ void KisToolTransformFactory::activateSubtoolMesh()
 {
     activateSubtool(KisToolTransform::MeshTransformMode);
 }
+
+// ---- Krimble 2026-10-18: the Free Rotate tool (see kis_tool_transform.h) ----
+#include <QTouchEvent>
+#include <QtMath>
+#include <QWidget>
+
+class KrimbleRotateTouchFilter : public QObject
+{
+public:
+    KrimbleRotateTouchFilter(QWidget *widget, KisToolTransform *tool) : QObject(widget), m_tool(tool)
+    {
+        widget->installEventFilter(this);
+    }
+
+protected:
+    bool eventFilter(QObject *watched, QEvent *event) override
+    {
+        Q_UNUSED(watched);
+        const QEvent::Type type = event->type();
+        if (type != QEvent::TouchBegin && type != QEvent::TouchUpdate && type != QEvent::TouchEnd) return false;
+        QTouchEvent *touch = static_cast<QTouchEvent*>(event);
+        const QList<QTouchEvent::TouchPoint> points = touch->touchPoints();
+        if (points.size() >= 2 && m_tool) {
+            const QPointF delta = points.at(1).pos() - points.at(0).pos();
+            const qreal angle = qRadiansToDegrees(qAtan2(delta.y(), delta.x()));
+            if (m_haveLast) {
+                qreal turn = angle - m_lastAngle;
+                while (turn > 180.0) turn -= 360.0;
+                while (turn < -180.0) turn += 360.0;
+                m_rotation += turn;
+                m_tool->setRotateZ(m_rotation);
+            }
+            m_lastAngle = angle;
+            m_haveLast = true;
+            return true;      // the canvas must not zoom or turn at the same time
+        }
+        m_haveLast = false;
+        return false;
+    }
+
+private:
+    QPointer<KisToolTransform> m_tool;
+    qreal m_lastAngle {0.0};
+    qreal m_rotation {0.0};
+    bool m_haveLast {false};
+};
+
+KisToolFreeRotate::KisToolFreeRotate(KoCanvasBase *canvas)
+    : KisToolTransform(canvas)
+{
+}
+
+void KisToolFreeRotate::activate(const QSet<KoShape*> &shapes)
+{
+    KisToolTransform::activate(shapes);
+    if (!m_touchFilter && canvas() && canvas()->canvasWidget()) {
+        m_touchFilter = new KrimbleRotateTouchFilter(canvas()->canvasWidget(), this);
+    }
+}
+
+void KisToolFreeRotate::deactivate()
+{
+    if (m_touchFilter) {
+        m_touchFilter->deleteLater();
+        m_touchFilter.clear();
+    }
+    KisToolTransform::deactivate();
+}

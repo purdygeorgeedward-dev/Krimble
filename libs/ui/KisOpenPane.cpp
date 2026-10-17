@@ -152,7 +152,8 @@ KisOpenPane::KisOpenPane(QWidget *parent, const QStringList& mimeFilter, const Q
             d->m_sectionList->setMinimumWidth(0);
             // d->m_sectionList->setFixedWidth(int(screenWidth * 0.22));
             // d->m_sectionList->setFixedWidth(int(screenWidth * 0.34));   // Krimble 2026-10-14: portrait (the screenshots): 34% too, not 22%
-            d->m_sectionList->setFixedWidth(int(screenWidth * 0.42));      // Krimble 2026-10-18: 42%, so that the 96 px icons and their names fit
+            // d->m_sectionList->setFixedWidth(int(screenWidth * 0.42));      // Krimble 2026-10-18: 42%, so that the 96 px icons and their names fit
+            d->m_sectionList->setFixedWidth(int(screenWidth * 0.46));         // Krimble 2026-10-18 (2nd): 46%, for the 112 px icons
         } else {
             // d->m_sectionList->setMaximumWidth(int(screenWidth * 0.20));
             // Krimble 2026-10-14: George (1.0.36): "The new icons are way too small on the new file ... dialogs. Column area for them is too narrow
@@ -395,7 +396,9 @@ QTreeWidgetItem* KisOpenPane::addPane(const QString &title, const QString &untra
     // Krimble 2026-10-17: George (1.0.37): "6. New full color icons are still too small. Should be 2x larger. Both in Prefs and New dialog." 64 logical px.
     // QPixmap iconPixmap = icon.pixmap(QSize(qRound(64 * dpr), qRound(64 * dpr)));
     // Krimble 2026-10-18: George (1.0.37): "3. New dialog icons need to be bigger still." 64 -> 96 logical px.
-    QPixmap iconPixmap = icon.pixmap(QSize(qRound(96 * dpr), qRound(96 * dpr)));
+    // QPixmap iconPixmap = icon.pixmap(QSize(qRound(96 * dpr), qRound(96 * dpr)));
+    // Krimble 2026-10-18 (2nd): George (1.0.37, fc126d8): "1. I still want bigger icons in File - New dialog. They are small." 96 -> 112 logical px.
+    QPixmap iconPixmap = icon.pixmap(QSize(qRound(112 * dpr), qRound(112 * dpr)));
     iconPixmap.setDevicePixelRatio(dpr);
 
     QIcon finalIcon(iconPixmap);
@@ -420,7 +423,8 @@ QTreeWidgetItem* KisOpenPane::addPane(const QString &title, const QString &untra
     const qreal dpr = qMax<qreal>(1.0, qApp->devicePixelRatio());
     // const int iconSize = qRound(32 * dpr);
     // const int iconSize = qRound(64 * dpr);   // Krimble 2026-10-17: twice as big (see above)
-    const int iconSize = qRound(96 * dpr);      // Krimble 2026-10-18: 96 logical px (see above)
+    // const int iconSize = qRound(96 * dpr);      // Krimble 2026-10-18: 96 logical px (see above)
+    const int iconSize = qRound(112 * dpr);        // Krimble 2026-10-18 (2nd): 112 logical px (see above)
 
     KoSectionListItem* listItem = new KoSectionListItem(d->m_sectionList, title, untranslatedName, sortWeight, id);
 
@@ -429,7 +433,9 @@ QTreeWidgetItem* KisOpenPane::addPane(const QString &title, const QString &untra
     if (!icon.isNull()) {
         QImage image = icon.toImage();
 
-        if (!image.isNull() && ((image.width() > iconSize) || (image.height() > iconSize))) {
+        // if (!image.isNull() && ((image.width() > iconSize) || (image.height() > iconSize))) {
+        // Krimble 2026-10-18 (2nd): the pictures are 256 px; they were only ever made smaller, so a bigger size changed nothing. Scaled to the size either way.
+        if (!image.isNull() && ((image.width() != iconSize) || (image.height() != iconSize))) {
             image = image.scaled(iconSize, iconSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
         }
 

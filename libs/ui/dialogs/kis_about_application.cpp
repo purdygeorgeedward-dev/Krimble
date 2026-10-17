@@ -5,6 +5,11 @@
  *  SPDX-License-Identifier: GPL-2.0-or-later
  */
 
+#include <QPixmap>
+#include <QLabel>
+#include <QVBoxLayout>
+#include <QFont>
+#include <QApplication>
 #include "kis_about_application.h"
 
 #include <KAboutData>
@@ -47,7 +52,51 @@ KisAboutApplication::KisAboutApplication(QWidget *parent)
 #endif
     splash->displayLinks(true);
 
+#ifdef Q_OS_ANDROID
+    // Krimble 2026-10-18 (2nd): George (1.0.37, fc126d8): "9. About Krimble still sucks." On the phone the About page is built here and not from the
+    // splash widget: the picture is as wide as the window and keeps its shape, the version is written UNDER it (not over the art), and the four links
+    // are one column. (Getting Started, Manual, Scripting API and Scripting School are left out: they pointed at the same web page, or at scripting, which
+    // the Android build does not have.)
+    {
+        QWidget *page = new QWidget(wdgTab->aboutTab);
+        QVBoxLayout *pageLayout = new QVBoxLayout(page);
+        pageLayout->setContentsMargins(6, 6, 6, 6);
+        const qreal dpr = qApp->devicePixelRatio();
+        int pageWidth = 600;
+        if (parent && parent->window()) pageWidth = int(parent->window()->width() * 0.86);
+        QPixmap picture(QStringLiteral(":/splash/hd.jpg"));
+        QLabel *pictureLabel = new QLabel(page);
+        if (!picture.isNull()) {
+            QPixmap scaled = picture.scaledToWidth(int(pageWidth * dpr), Qt::SmoothTransformation);
+            scaled.setDevicePixelRatio(dpr);
+            pictureLabel->setPixmap(scaled);
+        }
+        pictureLabel->setAlignment(Qt::AlignCenter);
+        QLabel *versionLabel = new QLabel(qApp->applicationVersion().toHtmlEscaped(), page);
+        QFont versionFont = versionLabel->font();
+        versionFont.setBold(true);
+        versionLabel->setFont(versionFont);
+        versionLabel->setAlignment(Qt::AlignCenter);
+        versionLabel->setWordWrap(true);
+        QLabel *linksLabel = new QLabel(page);
+        linksLabel->setTextFormat(Qt::RichText);
+        linksLabel->setOpenExternalLinks(true);
+        linksLabel->setWordWrap(true);
+        linksLabel->setText(QStringLiteral(
+            "<p><a href=\"https://www.buymeacoffee.com/GeorgeEdwardPurdy\">Support Krimble's Development!</a></p>"
+            "<p><a href=\"https://krimble.org/\">Krimble Website</a></p>"
+            "<p><a href=\"https://krimble.org\">User Community</a></p>"
+            "<p><a href=\"https://github.com/purdygeorgeedward-dev/krimble\">Source Code</a></p>"));
+        pageLayout->addWidget(pictureLabel);
+        pageLayout->addWidget(versionLabel);
+        pageLayout->addWidget(linksLabel);
+        pageLayout->addStretch(1);
+        wdgTab->aboutTab->layout()->addWidget(page);
+    }
+#else
     wdgTab->aboutTab->layout()->addWidget(splash);
+#endif
+    // wdgTab->aboutTab->layout()->addWidget(splash);   (the original line; the phone uses the page above)
 
     QString authors = i18n("<html>"
                           "<head/>"

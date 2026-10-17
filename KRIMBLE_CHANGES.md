@@ -4403,3 +4403,44 @@ George: "Can we offer a hex mapping feature?" (a new feature during the feature 
 The build of `d78bb7d` stopped with 6 errors: "no member named 'activeView' in 'KisViewManager'" (lines 2987, 3075, 3103 of `KisMainWindow.cpp`, in the hex code of the 148th entry). `KisViewManager` has no `activeView()`; the main window has: `KisMainWindow::activeView()` (declared in `KisMainWindow.h`). The six uses are changed to `win->activeView()`. Other errors may show after this one, since the compiler stops a file at the first group.
 **Not verified:** a build.
 
+
+## 2026-10-18 (150th) — George's test of 1.0.37 (git fc126d8): 13 findings, first set of fixes
+
+**Files:** `libs/ui/KisOpenPane.cpp`, `libs/ui/KisMainWindow.cpp`, `plugins/dockers/palettedocker/palettedocker_dock.cpp`, `libs/widgetutils/KisWideDockSeparatorStyle.{h,cpp}`, `libs/ui/dialogs/kis_about_application.cpp`, `krita/pics/svg/*_krimble-free-rotate.svg`
+
+George's findings (his numbers): 1 I still want bigger icons in File > New. 2 Brushes still loads by default. 3 Panels have nice little lines on them now. 4 A panel detached by dragging is still way too eager to reattach; distance is an issue. 5 The toolbox does not have highlight or shadow lines. 6 Crop tool options don't line up well. 7 The Rotate tool is just scale; it does not rotate. 8 The Rotate icon is still too small. 9 About Krimble still sucks. 10 The up and down gadgets on the predefined sizes list are too small to use. 11 Image > Mode > Index Color dialog is way too wide. 12 Change the title from Swatches (Palette) to Swatches Palette. 13 The Text tool and the type toolbar are a non-functional mess.
+**Done:**
+- **1** New Document icons are **112** logical px (were 96), and are now scaled **up** to that size: the pictures are 256 px and the code only ever made them smaller, so the 64 and 96 px settings changed nothing visible. The list is 46% of the screen wide in portrait.
+- **2** For the first **30 s** after the start Brushes is hidden whenever it shows up (the two hidings of the 145th entry happen once, and a saved layout brought it back afterwards).
+- **4** `KrimbleDockTolerance`: the distance from a window side is **4** logical px (was 8), and a detached panel can join another panel (tabs) only after the finger has moved **120** logical px from where the drag began (the rule of the 134th entry let it re-dock at once while it was still over its old place).
+- **8** The Free Rotate icon is redrawn bigger: a tighter box (`viewBox` 3 3 18 18) and lines 2.2 thick (were 1.7).
+- **9** On Android the About page is built in `KisAboutApplication` and not from the splash widget: the picture (`:/splash/hd.jpg`) is as wide as the window (86%) and keeps its shape, the **version is written under it**, and four links stand in **one column**: Support Krimble's Development!, Krimble Website, User Community, Source Code. Getting Started, Manual, Scripting API and Scripting School are left out (the first two went to the same web page, the others to scripting, which the Android build does not have).
+- **10** Spin boxes everywhere: the up and down buttons are **26** logical px wide (about 88 on the screen), each half of the height (`subControlRect` of the app's style).
+- **12** The title of the palette panel is "Swatches Palette" (tool tips and the export title still say "Swatches (Palette)").
+**Not done, waiting:** 5 (the toolbox has no lines although the overlay is put on every panel; the cause is not known), 6 (crop options alignment), 7 (a real touch rotation; the Free Rotate button is the Free Transform tool, which scales unless the drag starts outside the box), 11 (a screenshot of the Index Color dialog is needed), 13 (what fails in the text tool is not known).
+**Not verified:** a build or a device.
+
+## 2026-10-18 (151st) — Brushes hidden after the first image; the QA overlay shows each panel's bevel state
+
+**Files:** `libs/ui/KisMainWindow.cpp`
+
+George (1.0.37, fc126d8), about the 30-second hiding of Brushes: "2. I don't think so." (he doubts it: an image opened later than 30 s brings Brushes back through the saved layout or the Default workspace). When the **first image of a session** is opened, whenever that is (`KisMainWindow::activeViewChanged`, once), Brushes is hidden again at 1.2 s and at 3 s after, to come after the layout is restored. The 30-second rule stays. **Help > QA Overlay**: each panel's line now ends with "bevel on", "bevel hidden" or "no bevel" (whether its one-pixel-line overlay exists and shows), to find out why the **toolbox** shows no lines (George, 5). From George's QA Overlay screenshots: ToolBox 54x278, docked (one column), min 28; GridDocker floating, min 50.
+**Also learned:** Index Color (the **Palettize** filter dialog) is 366 logical px wide against a 360 px window (`KisFilterSelectorWidget 'filterSelection'` 350; its first row is "Default", "Use last preset", "Edit Presets", "XML"); **Help > Presets...** opens the resource manager, a very large window.
+**Not verified:** a build or a device.
+
+## 2026-10-18 (152nd) — A Free Rotate tool that rotates with two fingers; the crop options in one aligned column
+
+**Files:** `plugins/tools/tool_transform2/kis_tool_transform.h`, `plugins/tools/tool_transform2/kis_tool_transform.cc`, `libs/ui/KisMainWindow.cpp`, `plugins/tools/tool_crop/kistoolcropconfigwidget.cpp`
+
+George (1.0.37, fc126d8):
+- **7.** "Rotate tool is just scale. It does not rotate." Asked what he wants: "The rotate tool should do what the default pinch zoom and rotate tool originally did, but not scaling. Only rotate." The Free Rotate button (the 137th entry) was the Transform tool, which scales unless the drag starts outside the box. A new class, **`KisToolFreeRotate`** (a `KisToolTransform`, made by `KisToolFreeRotateFactory`), installs an event filter on the canvas widget while it is active: with **two fingers** on the canvas it takes the **angle of the line between them**, adds the change to a running total and gives the total to the tool's own `setRotateZ()` (degrees), so the preview, the rotation center and the Apply of the Transform tool are used as they are; the touch is held back so the canvas does not zoom or turn at the same time. **Nothing scales.** One finger works as in the Transform tool. The result is applied as the Transform tool applies it (Enter, or choosing another tool). **Image > Image Rotation > Free Rotate** now starts this tool (action `KisToolFreeRotate`). Which way a clockwise turn goes (the sign) is not known until it is tried.
+- **6.** The crop options: the two groups of fields (X and Y, then Width, Height and Ratio with their lock buttons) were side by side and wider than the panel, each with its own columns. On Android they are stacked (the `QHBoxLayout` "horizontalLayout" of the .ui is turned top-to-bottom), and all the labels have the width of the widest one and are aligned to the right, so the fields start at the same place.
+**Not verified:** a build or a device. First compile of `KisToolFreeRotate`.
+
+## 2026-10-18 (153rd) — Menu edges: the overlay is put on menus too
+
+**Files:** `libs/ui/KisMainWindow.cpp`
+
+George (1.0.37, fc126d8), after "The menus look really good now.": "I don't see any edges." The one-pixel light and dark lines of menus (the 145th entry, `PE_FrameMenu` in `KisWideDockSeparatorStyle`) are never drawn: the theme's style sheet draws menus itself, so the base style's `PE_FrameMenu` is not called. `krimbleInstallBevels()` (which already puts `KrimbleBevelOverlay` on every panel and toolbar, every 2 s) now also puts it on every `QMenu` and submenu found under the main window: a light line along the top and left edges and a dark line along the bottom and right, one device pixel each. The `PE_FrameMenu` code is left in place, not used.
+**Not verified:** a build or a device. A menu is a top-level popup window; that a child overlay shows on it is expected, not seen.
+
