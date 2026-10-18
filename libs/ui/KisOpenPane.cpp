@@ -404,7 +404,10 @@ QTreeWidgetItem* KisOpenPane::addPane(const QString &title, const QString &untra
     // Krimble 2026-10-18: George (1.0.37): "3. New dialog icons need to be bigger still." 64 -> 96 logical px.
     // QPixmap iconPixmap = icon.pixmap(QSize(qRound(96 * dpr), qRound(96 * dpr)));
     // Krimble 2026-10-18 (2nd): George (1.0.37, fc126d8): "1. I still want bigger icons in File - New dialog. They are small." 96 -> 112 logical px.
-    QPixmap iconPixmap = icon.pixmap(QSize(qRound(112 * dpr), qRound(112 * dpr)));
+    // QPixmap iconPixmap = icon.pixmap(QSize(qRound(112 * dpr), qRound(112 * dpr)));
+    // Krimble 2026-10-18 (4th): George (1.0.38): "New dialog top 2 icons are just a little too big now." These two (Custom Document, Create from Clipboard) are the icons of the theme, which fill
+    // their whole square; the template pictures below them have room around them and look smaller at the same size. 112 -> 88 logical px for these two (the template pictures stay as they are).
+    QPixmap iconPixmap = icon.pixmap(QSize(qRound(88 * dpr), qRound(88 * dpr)));
     iconPixmap.setDevicePixelRatio(dpr);
 
     QIcon finalIcon(iconPixmap);

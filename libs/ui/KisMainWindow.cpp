@@ -2556,6 +2556,12 @@ public:
             while (QWidget *popup = QApplication::activePopupWidget()) {
                 popup->close();
             }
+            // Krimble 2026-10-18 (5th): a menu that is on the screen but is not the active popup (the case of "stuck") is hidden too
+            Q_FOREACH (QWidget *top, QApplication::topLevelWidgets()) {
+                if (QMenu *shownMenu = qobject_cast<QMenu*>(top)) {
+                    if (shownMenu->isVisible()) shownMenu->hide();
+                }
+            }
             // Krimble 2026-10-11 (2nd): also let go of the menu bar entry (the "Window" button stayed pressed after a rotation).
             if (QMenuBar *bar = m_win->findChild<QMenuBar*>()) {
                 bar->setActiveAction(nullptr);
@@ -3990,6 +3996,13 @@ KisMainWindow::KisMainWindow(QUuid uuid)
     });
     // Krimble 2026-10-11: close open menus when the window changes size (rotation).
     installEventFilter(new KrimbleClosePopupsOnResizeFilter(this));
+    // Krimble 2026-10-18 (5th): and when the program comes back to the front (after another app), no menu stays open
+    connect(qApp, &QGuiApplication::applicationStateChanged, this, [](Qt::ApplicationState state) {
+        if (state != Qt::ApplicationActive) return;
+        while (QWidget *popup = QApplication::activePopupWidget()) {
+            popup->close();
+        }
+    });
 #endif
 
     // KRIMBLE 2026-10-04: apply the labels typed in krita5.xmlgui (see krimbleApplyXmlGuiLabels). Run
@@ -6469,6 +6482,23 @@ void KisMainWindow::windowFocused()
 void KisMainWindow::updateWindowMenu()
 {
     QMenu *menu = d->windowMenu->menu();
+    // Krimble 2026-10-18 (5th): George (1.0.38): "window menu is still sticky" and: "It won't close and won't allow selection and if you rotate the device it is stuck." This function empties
+    // and fills the menu and its submenus (the documents, the workspaces). It is called whenever a document is opened or closed, a workspace is added or removed, or a window is destroyed;
+    // when that happens while the menu is open on the screen, the items are removed from under the finger and the open popup can no longer be used or closed. While the menu is open the
+    // rebuild is put off until it is closed.
+    if (menu->isVisible() || QApplication::activePopupWidget() == menu) {
+        menu->setProperty("krimbleRebuildPending", true);
+        if (!menu->property("krimbleHideHooked").toBool()) {
+            menu->setProperty("krimbleHideHooked", true);
+            connect(menu, &QMenu::aboutToHide, this, [this, menu]() {
+                if (menu->property("krimbleRebuildPending").toBool()) {
+                    menu->setProperty("krimbleRebuildPending", false);
+                    QTimer::singleShot(0, this, SLOT(updateWindowMenu()));
+                }
+            });
+        }
+        return;
+    }
     menu->clear();
 
     // Krimble 2026-10-11: two switches at the very top of the Window menu (George): tabs or floating windows, and showing the

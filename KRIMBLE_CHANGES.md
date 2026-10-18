@@ -4656,3 +4656,33 @@ The first 1.0.38 build (`8a9a9ba`) stopped: `libs/ui/KisApplication.cpp:1291:59:
 The second 1.0.38 build (`dc845dd`) got past the font registry (182nd entry) and stopped at `plugins/tools/svgtexttool/KrimbleTextTool.cpp:317:42: error: no matching constructor for initialization of 'KUndo2Command'`: the command of the "tap text to edit" feature (169th entry) was given `i18n("Edit text")`, a plain string; the constructor wants a `KUndo2MagicString`, which the other undo commands of this plugin make with `kundo2_i18n(...)`. **Fix:** `new KUndo2Command(kundo2_i18n("Edit text"))` (the old line is commented out). Nothing else changed.
 **Not verified:** a build. The other new code of 1.0.38 that is compiled after this file (and anything in files not yet reached) has not been seen by the compiler.
 
+## 2026-10-18 (184th) — The server scripts ignore other projects (Wesnoth builds on the same server)
+
+**(Not pushed: the scripts of this entry are only in Claude's working copy, by George's choice, until Wesnoth gets in the way of Krimble.)**
+
+**Files:** `tools/server/kb-lib.sh` (new), `tools/server/kb-status.sh`, `tools/server/kb-build.sh`, `tools/server/kb-package.sh`
+
+George builds Wesnoth Mobile on the same server (in tmux) and agreed to this change. **Risks that were there:** `kb-status.sh`, `kb-build.sh` and `kb-package.sh` looked for **any** process with `make -j4` (a Wesnoth build would show as "BUILD: STILL RUNNING", and `kb-package.sh` would refuse to start); and `kb-package.sh` stopped **every** `GradleDaemon` and `build-android-package` on the server (it would have killed a Wesnoth Gradle build). **Change:** `kb-lib.sh` has `kb_pids "PATTERN"` and `kb_running "PATTERN"`: a process counts as Krimble's only when its environment holds `KDECI_WORKDIR_PATH=/home/ubuntu/kwd` (set by `kb-env.sh` for every Krimble build and packaging command). The three scripts load it (`source ~/kb-lib.sh`; it is copied to `~` by the usual `cp tools/server/kb-*.sh ~/`) and use it for the `make -j4` check, the packaging check, and the stopping of an old packaging run and its Gradle daemons. The old lines are commented out. **Not changed:** `kb-apk.sh`, `kb-release.sh`, `kb-env.sh`. Only syntax-checked (`bash -n`); not run on the server. One thing to know: a Gradle daemon that was started by something other than a Krimble command (no such variable) is no longer stopped by `kb-package.sh`.
+**Not verified:** a run on the server.
+
+## 2026-10-18 (185th) — New dialog: the top two icons a little smaller
+
+**Files:** `libs/ui/KisOpenPane.cpp`
+
+George (1.0.38, after testing the build): "This build is very near perfect. The only things I see so far: New dialog top 2 icons are just a little too big now." The two icons made from the theme (`addPane(... iconName ...)`: **Custom Document** and **Create from Clipboard**) are made at **88** logical px (were 112); they fill their whole square, while the template pictures under them have room around them and look smaller at the same size. The template pictures (`addPane(... QPixmap ...)`) and the list's icon size (112) are not changed. The old line is commented out.
+**Not verified:** a build or a device. If 88 is still big (or too small), the next numbers are 80 and 96.
+
+## 2026-10-18 (186th) — The Window menu: no rebuild while it is open; popups closed when the app comes back
+
+**Files:** `libs/ui/KisMainWindow.cpp`
+
+George (1.0.38): "window menu is still sticky", then, asked to say what he sees: "It won't close and won't allow selection and if you rotate the device it is stuck." (On the list of known issues since 1.0.36; the 11 October change only closed popups when the window changed size.) **Probable cause (from the code, not seen):** `KisMainWindow::updateWindowMenu()` does `menu->clear()` and refills the menu and its submenus (documents, workspaces), and it is called when a document is opened or closed, when a workspace is added or removed (the workspace model) and when a window is destroyed. If that happens while the Window menu is open, its items are removed from under the finger and the open popup cannot be used or closed. **Changes:** (1) `updateWindowMenu()` does nothing while the menu is **visible** (or is the active popup) except to note that a rebuild is wanted (`krimbleRebuildPending`); when the menu closes (`aboutToHide`, hooked once) it rebuilds. (2) In `KrimbleClosePopupsOnResizeFilter` (when the window changes size, e.g. rotation) every **visible `QMenu` top-level widget** is hidden too, not only the active popup. (3) When the program becomes **active again** (`applicationStateChanged`, after another app) every open popup is closed.
+**Not verified:** a build or a device. If it still sticks, the next thing to find out is what happens in the minute before (a picture opened or closed? an app switch?).
+
+## 2026-10-18 (187th) — Free Rotate: one finger turns the layer
+
+**Files:** `plugins/tools/tool_transform2/kis_tool_transform.h`, `plugins/tools/tool_transform2/kis_tool_transform.cc`
+
+George (1.0.38): "Two fingers is reserved for zoom. It's a conflict." and "We need to make rotate work with one finger." (He had said, of the Rotate tool, that it was "just an extra scale tool"; in 1.0.38 the two-finger turn of the 152nd and 164th entries never took effect: two fingers belong to the canvas zoom and pan.) **Change:** `KisToolFreeRotate` no longer installs the two-finger filter (commented out in `activate`). It now takes the **one-finger drag** itself (`beginPrimaryAction`, `continuePrimaryAction`, `endPrimaryAction`) and **does not call the Transform tool's own handling** (which moves or scales, depending on where the finger is): the finger is a dial around the **center of the transformation** (`krimbleTransformCenter()`, new, read-only: `m_currentArgs.transformedCenter()`); the angle of the finger as seen from that center is measured (`pointerAngle`, image coordinates: a clockwise turn is a growing angle); the **change** of that angle since the last move turns the layer (`rotateByDegrees`, the function of the 164th entry: sets the angle in radians, refreshes the preview, shows "Rotate: N degrees"). Drag a finger **around the layer** to turn it; the distance from the center does not matter. Applying works as in the Transform tool (Enter, or choosing another tool). **Not changed:** `rotateByDegrees` (the refresh by `slotUiChangedConfig`, which has still not been seen working); the box and its handles are still drawn (they do nothing in this tool).
+**Not verified:** a build or a device.
+

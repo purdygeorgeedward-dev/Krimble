@@ -141,6 +141,9 @@ public:
     void mouseMoveEvent(KoPointerEvent *e) override;
     void mouseReleaseEvent(KoPointerEvent *e) override;
     void beginActionImpl(KoPointerEvent *event, bool usePrimaryAction, KisTool::AlternateAction action);
+
+    // Krimble 2026-10-18 (6th): the center of the transformation in image coordinates (read only); used by the Free Rotate tool, which turns the layer around it
+    QPointF krimbleTransformCenter() const { return m_currentArgs.transformedCenter(); }
     void continueActionImpl(KoPointerEvent *event, bool usePrimaryAction, KisTool::AlternateAction action);
     void endActionImpl(KoPointerEvent *event, bool usePrimaryAction, KisTool::AlternateAction action);
     QMenu* popupActionsMenu() override;
@@ -417,6 +420,12 @@ public:
     // Krimble 2026-10-18 (2nd): turns the layer by this many degrees more (see the 164th entry)
     void rotateByDegrees(double degrees);
 
+protected:
+    // Krimble 2026-10-18 (6th): one finger turns the layer (see the 187th entry); the Transform tool's own handling (move, scale) is not called
+    void beginPrimaryAction(KoPointerEvent *event) override;
+    void continuePrimaryAction(KoPointerEvent *event) override;
+    void endPrimaryAction(KoPointerEvent *event) override;
+
 public Q_SLOTS:
     void activate(const QSet<KoShape*> &shapes) override;
     void deactivate() override;
@@ -424,6 +433,9 @@ public Q_SLOTS:
 private:
     QPointer<QObject> m_touchFilter;
     double m_rotationRadians {0.0};
+    bool m_dragging {false};
+    double m_dragLastAngle {0.0};
+    double pointerAngle(KoPointerEvent *event) const;
 };
 
 class KisToolFreeRotateFactory : public KisToolPaintFactoryBase

@@ -1646,13 +1646,55 @@ void KisToolFreeRotate::rotateByDegrees(double degrees)
     }
 }
 
+// the angle, in degrees, of the finger as seen from the center of the transformation (image coordinates; y down, so a clockwise turn is a growing angle)
+double KisToolFreeRotate::pointerAngle(KoPointerEvent *event) const
+{
+    KisCanvas2 *kisCanvas = dynamic_cast<KisCanvas2*>(canvas());
+    if (!kisCanvas) return 0.0;
+    const QPointF finger = kisCanvas->coordinatesConverter()->documentToImage(event->point);
+    const QPointF center = krimbleTransformCenter();
+    return qRadiansToDegrees(qAtan2(finger.y() - center.y(), finger.x() - center.x()));
+}
+
+void KisToolFreeRotate::beginPrimaryAction(KoPointerEvent *event)
+{
+    // Krimble 2026-10-18 (6th): the Transform tool's handling (which would move or scale, depending on where the finger is) is not called: the finger is a dial around the center.
+    if (!nodeEditable()) {
+        event->ignore();
+        return;
+    }
+    m_dragging = true;
+    m_dragLastAngle = pointerAngle(event);
+    setMode(KisTool::PAINT_MODE);
+}
+
+void KisToolFreeRotate::continuePrimaryAction(KoPointerEvent *event)
+{
+    if (!m_dragging || mode() != KisTool::PAINT_MODE) return;
+    const double angle = pointerAngle(event);
+    double turn = angle - m_dragLastAngle;
+    while (turn > 180.0) turn -= 360.0;
+    while (turn < -180.0) turn += 360.0;
+    m_dragLastAngle = angle;
+    if (turn != 0.0) rotateByDegrees(turn);
+}
+
+void KisToolFreeRotate::endPrimaryAction(KoPointerEvent *event)
+{
+    Q_UNUSED(event);
+    m_dragging = false;
+    setMode(KisTool::HOVER_MODE);
+}
+
 void KisToolFreeRotate::activate(const QSet<KoShape*> &shapes)
 {
     KisToolTransform::activate(shapes);
     m_rotationRadians = 0.0;
-    if (!m_touchFilter && canvas() && canvas()->canvasWidget()) {
-        m_touchFilter = new KrimbleRotateTouchFilter(canvas()->canvasWidget(), this);
-    }
+    // Krimble 2026-10-18 (6th): George (1.0.38): "Two fingers is reserved for zoom. It's a conflict." and "We need to make rotate work with one finger." The two-finger filter is not installed
+    // any more (two fingers zoom and pan the canvas, as everywhere); one finger turns the layer (beginPrimaryAction and the others below).
+    // if (!m_touchFilter && canvas() && canvas()->canvasWidget()) {
+    //     m_touchFilter = new KrimbleRotateTouchFilter(canvas()->canvasWidget(), this);
+    // }
 }
 
 void KisToolFreeRotate::deactivate()
