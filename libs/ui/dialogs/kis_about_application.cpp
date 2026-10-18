@@ -93,9 +93,15 @@ KisAboutApplication::KisAboutApplication(QWidget *parent)
         fontsLabel->setTextFormat(Qt::RichText);
         fontsLabel->setOpenExternalLinks(true);
         fontsLabel->setWordWrap(true);
+        // fontsLabel->setText(QStringLiteral(
+        //     "<p><small>Fonts that come with Krimble (ROBO, Cartoonist Kooky, Cyberspace, Emoticons, Emoticons Outline) &copy; George Edward Purdy, Purdy Design. "
+        //     "Free for non-commercial use. Commercial use needs a license: <a href=\"https://purdy.design\">purdy.design</a></small></p>"));
+        // Krimble 2026-10-18 (189th): 52 open-license font families added; the Purdy Design line now names its own fonts only.
         fontsLabel->setText(QStringLiteral(
-            "<p><small>Fonts that come with Krimble (ROBO, Cartoonist Kooky, Cyberspace, Emoticons, Emoticons Outline) &copy; George Edward Purdy, Purdy Design. "
-            "Free for non-commercial use. Commercial use needs a license: <a href=\"https://purdy.design\">purdy.design</a></small></p>"));
+            "<p><small>Purdy Design fonts (ROBO, Cartoonist Kooky, Cyberspace, Emoticons, Emoticons Outline) &copy; George Edward Purdy, Purdy Design. "
+            "Free for non-commercial use. Commercial use needs a license: <a href=\"https://purdy.design\">purdy.design</a></small></p>"
+            "<p><small>Also included: 52 open-license font families (SIL Open Font License 1.1 and Apache License 2.0), free for any use. "
+            "Their licenses: <a href=\"https://github.com/purdygeorgeedward-dev/krimble/tree/master/krita/data/fonts/open\">fonts/open</a></small></p>"));
         pageLayout->addWidget(pictureLabel);
         pageLayout->addWidget(versionLabel);
         pageLayout->addWidget(linksLabel);

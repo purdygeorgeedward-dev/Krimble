@@ -11,3 +11,10 @@ install( FILES
     emoticons_outline.ttf
     readme.md
     DESTINATION ${KDE_INSTALL_DATADIR}/krita/fonts)
+
+# Krimble 2026-10-18 (189th): open-license fonts (SIL OFL 1.1 / Apache 2.0), see open/readme.md. Installed in the same folder as the
+# fonts above (krimbleLoadBundledFonts() reads only that folder, not subfolders); their licenses go to fonts/licenses.
+file(GLOB KRIMBLE_OPEN_FONTS ${CMAKE_CURRENT_SOURCE_DIR}/open/*.ttf)
+install( FILES ${KRIMBLE_OPEN_FONTS} DESTINATION ${KDE_INSTALL_DATADIR}/krita/fonts)
+install( FILES open/readme.md DESTINATION ${KDE_INSTALL_DATADIR}/krita/fonts/licenses RENAME readme-open-fonts.md)
+install( DIRECTORY open/licenses/ DESTINATION ${KDE_INSTALL_DATADIR}/krita/fonts/licenses)
