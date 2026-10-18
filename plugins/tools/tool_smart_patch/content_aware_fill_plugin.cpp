@@ -19,6 +19,18 @@
 #include <kis_transaction.h>
 #include <KisCursorOverrideLock.h>
 
+#include <kis_paint_device.h>
+#include <kis_image.h>
+#include <KoColorSpace.h>
+#include <KoColorSpaceRegistry.h>
+#include <kis_iterator_ng.h>
+#include <QImage>
+#include <QRect>
+#include <vector>
+#include <cstring>
+
+#include "krimble_inpaint.h"
+
 // Declared in kis_inpaint.cpp -- compiled into this plugin module
 // separately from kritatoolSmartPatch's own copy (see CMakeLists.txt);
 // each is an independent shared library, so this is a normal, safe
@@ -27,6 +39,58 @@ QRect patchImage(KisPaintDeviceSP imageDev, KisPaintDeviceSP maskDev, int radius
 
 namespace {
 
+// Krimble 2026-10-18: George: "Can we find a better algorithm?" then "could you write one?" The old fill (Krita's Smart Patch, patchImage() above) leaves "a blurry mess". This
+// one is Krimble's own engine (krimble_inpaint.cpp: a multi-scale PatchMatch fill that solves the smooth colour of the hole from its edges at every size and copies the detail from
+// patches near the hole; see the 188th entry of KRIMBLE_CHANGES.md). It works on the part of the picture around the selection (the box of the selection and a margin of twice its
+// shorter side), as 8-bit sRGB, and writes back only the pixels it replaced. Returns false when it cannot (nothing selected, a hole bigger than the memory allows, the picture too
+// small): the caller then uses the old fill.
+bool krimbleContentAwareFill(KisPaintDeviceSP imageDev, KisPaintDeviceSP maskDev, KisImageSP image)
+{
+    const QRect maskRect = maskDev->exactBounds();
+    if (maskRect.isEmpty()) return false;
+    const int holeShort = qMin(maskRect.width(), maskRect.height());
+    const int margin = qMax(64, 2 * holeShort + 24);
+    const QRect roi = maskRect.adjusted(-margin, -margin, margin, margin) & image->bounds();
+    if (roi.width() < 24 || roi.height() < 24) return false;
+    if (qint64(roi.width()) * roi.height() > 9000000) return false;      // the memory of the engine is about 70 bytes per pixel of this area
+
+    const int w = roi.width(), h = roi.height();
+    const KoColorSpace *rgb8 = KoColorSpaceRegistry::instance()->rgb8();
+    QImage img = imageDev->convertToQImage(rgb8->profile(), roi.x(), roi.y(), w, h).convertToFormat(QImage::Format_ARGB32);
+    if (img.isNull()) return false;
+
+    std::vector<uint8_t> pixels(size_t(w) * h * 4);
+    for (int y = 0; y < h; ++y) std::memcpy(&pixels[size_t(y) * w * 4], img.constScanLine(y), size_t(w) * 4);
+
+    std::vector<uint8_t> maskBytes(size_t(w) * h);
+    maskDev->readBytes(maskBytes.data(), roi);                            // the selection is an 8-bit alpha device: one byte per pixel
+    std::vector<uint8_t> hole(size_t(w) * h);
+    size_t holeCount = 0;
+    for (size_t i = 0; i < hole.size(); ++i) { hole[i] = maskBytes[i] > 127 ? 1 : 0; holeCount += hole[i]; }
+    if (holeCount == 0) return false;
+
+    std::vector<uint8_t> filled(size_t(w) * h, 0);
+    KrimbleInpaint::Options options;
+    if (!KrimbleInpaint::inpaint(pixels.data(), hole.data(), w, h, 4, options, filled.data())) return false;
+
+    // the result, in the colour space of the layer, and only the replaced pixels copied
+    QImage out(w, h, QImage::Format_ARGB32);
+    for (int y = 0; y < h; ++y) std::memcpy(out.scanLine(y), &pixels[size_t(y) * w * 4], size_t(w) * 4);
+    KisPaintDeviceSP result = new KisPaintDevice(imageDev->colorSpace());
+    result->convertFromQImage(out, rgb8->profile(), roi.x(), roi.y());
+    const int pixelSize = imageDev->pixelSize();
+    for (int y = 0; y < h; ++y) {
+        KisHLineIteratorSP dst = imageDev->createHLineIteratorNG(roi.x(), roi.y() + y, w);
+        KisHLineConstIteratorSP src = result->createHLineConstIteratorNG(roi.x(), roi.y() + y, w);
+        int x = 0;
+        do {
+            if (filled[size_t(y) * w + x]) std::memcpy(dst->rawData(), src->rawDataConst(), size_t(pixelSize));
+            ++x;
+        } while (dst->nextPixel() && src->nextPixel());
+    }
+    return true;
+}
+
 // Krimble: same tiny transaction-wrapping command shape as
 // KisToolSmartPatch::InpaintCommand in kis_tool_smart_patch.cpp -- kept as
 // its own local copy here rather than reused across the tool/action
@@ -34,15 +98,19 @@ namespace {
 class ContentAwareFillCommand : public KisTransactionBasedCommand
 {
 public:
-    ContentAwareFillCommand(KisPaintDeviceSP maskDev, KisPaintDeviceSP imageDev, int accuracy, int patchRadius, KisSelectionSP selection)
-        : m_maskDev(maskDev), m_imageDev(imageDev), m_accuracy(accuracy), m_patchRadius(patchRadius), m_selection(selection)
+    ContentAwareFillCommand(KisPaintDeviceSP maskDev, KisPaintDeviceSP imageDev, int accuracy, int patchRadius, KisSelectionSP selection, KisImageSP image)
+        : m_maskDev(maskDev), m_imageDev(imageDev), m_accuracy(accuracy), m_patchRadius(patchRadius), m_selection(selection), m_image(image)
     {
     }
 
     KUndo2Command *paint() override
     {
         KisTransaction transaction(m_imageDev);
-        patchImage(m_imageDev, m_maskDev, m_patchRadius, m_accuracy, m_selection);
+        // Krimble 2026-10-18: the new engine first; Krita's own Smart Patch fill is the fallback (when the engine cannot take the job: see krimbleContentAwareFill)
+        if (!krimbleContentAwareFill(m_imageDev, m_maskDev, m_image)) {
+            patchImage(m_imageDev, m_maskDev, m_patchRadius, m_accuracy, m_selection);
+        }
+        // patchImage(m_imageDev, m_maskDev, m_patchRadius, m_accuracy, m_selection);
         return transaction.endAndTake();
     }
 
@@ -50,6 +118,7 @@ private:
     KisPaintDeviceSP m_maskDev, m_imageDev;
     int m_accuracy, m_patchRadius;
     KisSelectionSP m_selection;
+    KisImageSP m_image;
 };
 
 }
@@ -95,7 +164,7 @@ void ContentAwareFillPlugin::slotContentAwareFill()
     KisProcessingApplicator applicator(image, node, KisProcessingApplicator::NONE,
                                         KisImageSignalVector(), kundo2_i18n("Content-Aware Fill"));
 
-    applicator.applyCommand(new ContentAwareFillCommand(maskDev, node->paintDevice(), accuracy, patchRadius, selection),
+    applicator.applyCommand(new ContentAwareFillCommand(maskDev, node->paintDevice(), accuracy, patchRadius, selection, image),
                              KisStrokeJobData::BARRIER, KisStrokeJobData::EXCLUSIVE);
 
     applicator.end();

@@ -24,6 +24,7 @@ install(TARGETS kritatoolSmartPatch  DESTINATION ${KRITA_PLUGIN_INSTALL_DIR})
 set(kritaContentAwareFill_SOURCES
     content_aware_fill_plugin.cpp
     kis_inpaint.cpp
+    krimble_inpaint.cpp
     )
 
 kis_add_library(kritacontentawarefill MODULE ${kritaContentAwareFill_SOURCES})
