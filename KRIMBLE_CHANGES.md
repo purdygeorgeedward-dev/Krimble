@@ -4649,3 +4649,10 @@ George (1.0.37, c666301), earlier: "Could we have a stack command? Like the side
 The first 1.0.38 build (`8a9a9ba`) stopped: `libs/ui/KisApplication.cpp:1291:59: error: 'addFontFilePathToRegistry' is a private member of 'KoFontRegistry'` (the font loader of the 172nd entry). The function is private; only the test classes (`friend class TestSvgText`, `SvgTextCursorTest`) may call it. **Fix:** a public inline function `KoFontRegistry::addBundledFontFile(const QString &path)` that calls it; `krimbleLoadBundledFonts()` calls that (the old call is commented out). Nothing else changed.
 **Not verified:** a build (this is the compile error that stopped the first one; the rest of the new code has not been reached yet).
 
+## 2026-10-18 (183rd) — Compile error of the 1.0.38 build: the name of the edit-text undo step
+
+**Files:** `plugins/tools/svgtexttool/KrimbleTextTool.cpp`
+
+The second 1.0.38 build (`dc845dd`) got past the font registry (182nd entry) and stopped at `plugins/tools/svgtexttool/KrimbleTextTool.cpp:317:42: error: no matching constructor for initialization of 'KUndo2Command'`: the command of the "tap text to edit" feature (169th entry) was given `i18n("Edit text")`, a plain string; the constructor wants a `KUndo2MagicString`, which the other undo commands of this plugin make with `kundo2_i18n(...)`. **Fix:** `new KUndo2Command(kundo2_i18n("Edit text"))` (the old line is commented out). Nothing else changed.
+**Not verified:** a build. The other new code of 1.0.38 that is compiled after this file (and anything in files not yet reached) has not been seen by the compiler.
+

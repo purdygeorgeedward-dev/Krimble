@@ -314,7 +314,8 @@ void KrimbleTextTool::askAndAddText(const QPointF &where)
 
     if (existing) {
         // the words and the look are changed on the shape that is there (one undo step)
-        KUndo2Command *editCommand = new KUndo2Command(i18n("Edit text"));
+        // KUndo2Command *editCommand = new KUndo2Command(i18n("Edit text"));   // compile error (1.0.38 build): the name of an undo command is a KUndo2MagicString
+        KUndo2Command *editCommand = new KUndo2Command(kundo2_i18n("Edit text"));
         new SvgTextChangeCommand(existing, krimbleTextSvg(text), QStringLiteral("<defs/>"), editCommand);
         new KoShapeBackgroundCommand(existing, QSharedPointer<KoShapeBackground>(new KoColorBackground(s_color)), editCommand);
         canvas()->addCommand(editCommand);
