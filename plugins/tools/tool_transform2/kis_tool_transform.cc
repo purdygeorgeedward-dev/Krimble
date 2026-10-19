@@ -1280,6 +1280,21 @@ void KisToolTransform::slotApplyTransform()
 
 void KisToolTransform::slotResetTransform(ToolTransformArgs::TransformMode mode)
 {
+    // Krimble 2026-10-19: George (1.0.39, test list, item 4): "Switching from one mode to another in transform loses any progress made."
+    // Asked whether a mode change should apply the work done so far (the industry-standard way), he said: "Yes, want mode change apply."
+    // Upstream, a mode button reset the transform to a blank start for the new mode and the unapplied work was thrown away. Now, when
+    // the mode really changes and the current transform is not empty, the transform done so far is APPLIED (endStroke, one undo step)
+    // and a new transform starts in the new mode on the result (startStroke with forceReset, so the step just applied is not reopened).
+    // The Reset button (same mode) and an empty transform still go through the upstream code below, unchanged.
+    if (m_strokeId && !m_transaction.rootNodes().isEmpty()
+            && m_transaction.currentConfig()->mode() != mode
+            && !m_currentArgs.isIdentity()) {
+        KisCursorOverrideLock cursorLock(KisCursor::waitCursor());
+        endStroke();
+        startStroke(mode, true);
+        return;
+    }
+
     ToolTransformArgs *config = m_transaction.currentConfig();
     const ToolTransformArgs::TransformMode previousMode = config->mode();
     config->setMode(mode);

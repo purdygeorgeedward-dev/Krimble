@@ -4752,3 +4752,10 @@ George (1.0.39): "Also the crop sizing boxes could be a little smaller." The box
 
 George (1.0.39, test list, item 3): "The little buttons in the Tool Options which select different modes in the transform tool should be bigger and should change color to show which one is selected." The six mode buttons (Free, Perspective, Warp, Cage, Liquify, Mesh) get **28 px icons** (they had the small default size) and a minimum height of **40 px**, and the **chosen** one is filled with the theme's **highlight color** (they are flat `autoRaise` buttons, so the checked one looked almost like the rest). Done in the constructor with a style sheet on those six buttons only.
 **Not verified:** a build or a device; whether six 28 px buttons fit across a narrow Tool Options panel (if not, 24 px is the next step).
+
+## 2026-10-19 (196th) — Transform tool: changing mode applies the work done so far
+
+**Files:** `plugins/tools/tool_transform2/kis_tool_transform.cc`
+
+George (1.0.39, test list, item 4): "Switching from one mode to another in transform loses any progress made. Not sure if it's a bug or a feature." It was upstream behavior: a mode button (Free, Perspective, Warp, Cage, Liquify, Mesh) calls `slotResetTransform(newMode)`, which reset the transform to a blank start for the new mode and threw away anything not yet applied. Asked whether a mode change should apply the work first (the industry-standard way): "Yes, want mode change apply." **Change:** at the start of `slotResetTransform`, when a transform is running, the mode really changes and the current transform is not empty (`!isIdentity()`), the transform so far is **applied** (`endStroke()`, its own undo step) and a new transform starts in the new mode on the result (`startStroke(mode, true)`: `forceReset`, so the step just applied is not reopened as a "continued" transform). The **Reset** button (same mode) and a mode change with nothing done yet go through the upstream code unchanged. Same pattern as upstream's `slotRestartAndContinueTransform()`.
+**Not verified:** a build or a device. Each mode change with work done is one undo step (Undo takes back the last mode's work).
