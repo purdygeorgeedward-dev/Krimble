@@ -388,7 +388,17 @@ void KoToolBoxDocker::resizeEvent(QResizeEvent *event)
             if (!isFloating()) {
                 const int rowsHeight = m_toolBox->sizeHint().height();
                 const int frame = m_scrollArea->height() - m_scrollArea->viewport()->height();
-                const int others = qMax(0, height() - m_scrollArea->height());
+                // const int others = qMax(0, height() - m_scrollArea->height());
+                // Krimble 2026-10-19: George (1.0.39, test list, item 6, screenshot): the docked toolbox, 2 rows of tools, and the same tall empty space
+                // under them. "others" was the toolbox's height minus the tool area's, and that difference INCLUDES the empty space itself (the
+                // stretch under the tools in m_containerLayout), so the cap was as tall as the toolbox already was and never shrank it. Now "others"
+                // is only what is really around the tools: the title bar and frame of the panel (its height minus its contents') and the margins
+                // of the contents' layout.
+                int others = qMax(0, height() - (widget() ? widget()->height() : height()));
+                if (m_containerLayout) {
+                    const QMargins cm = m_containerLayout->contentsMargins();
+                    others += cm.top() + cm.bottom();
+                }
                 if (rowsHeight > 0) {
                     m_scrollArea->setMaximumHeight(rowsHeight + frame);
                     setMaximumHeight(rowsHeight + frame + others);

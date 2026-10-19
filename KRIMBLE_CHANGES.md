@@ -4780,3 +4780,10 @@ George (1.0.39, test list, item 5): "New dialog icons are too big. The column ho
 
 George (1.0.39, while looking at item 6, the toolbox's empty bottom): "Hard to demonstrate. The toolbox isn't close to an edge and it snaps to one aggressively." Two docking rules reached far from any edge: (1) `KrimbleDockTolerance` (2026-10-15 and 18) lets a dragged panel join a **docked panel** the finger is over, once the finger has moved 120 px; for the toolbox, with the side panels covering much of a phone screen, that docked it into the panel column. The toolbox now never joins other panels this way (only the window's edges, within 4 px, as before). (2) `krimbleDockAtEdge()` docked the toolbox at the **top** as soon as its top went into the 48 px strip under the top of the screen, where the menu bar is; now only when its top reaches the top of the screen (within 4 px), like the sides. Other panels are not changed.
 **Not verified:** a build or a device. Item 6 itself (the empty space at the bottom of the toolbox) is not changed; George will look again once the toolbox stays floating.
+
+## 2026-10-19 (200th) — Toolbox docked at the top: the empty space under the tools is gone (cause found)
+
+**Files:** `libs/ui/toolbox/KoToolBoxDocker.cpp`
+
+George (1.0.39, test list, item 6, with a screenshot: the toolbox docked at the top, two rows of tools, then about 200 px of empty toolbox above the canvas): "all the space at the bottom." The 147th entry tried to cap a docked toolbox in rows at the height of its rows, but the cap was wrong: it added "others" = the toolbox's height minus the tool area's height, and that difference **is** the empty space (the stretch under the tool area in `m_containerLayout`). So the cap always equalled the current height and never shrank anything. **Change:** "others" is now only what really surrounds the tools: the panel's title bar and frame (`height() - widget()->height()`) plus the margins of `m_containerLayout`. The old line is commented out. Only the rows layout (docked at the top or the bottom) is changed.
+**Not verified:** a build or a device.
