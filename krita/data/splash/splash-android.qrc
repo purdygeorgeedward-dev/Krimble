@@ -14,6 +14,8 @@
         <file alias="hd.png">logo_splash.png</file>
         <file alias="holiday.png">logo_splash_holidays.png</file>
         -->
+        <!-- KRIMBLE 2026-10-19: new main splash art by George (made in Krimble; fixes the color balance and the on-screen UI
+             of the old one). Same size (1536 x 1024) and same file names; the JPG is quality 88 from his PNG. -->
         <file alias="hd.jpg">logo_splash.jpg</file>
         <file alias="holiday.jpg">logo_splash_holidays.jpg</file>
     </qresource>

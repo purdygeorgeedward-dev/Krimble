@@ -4709,3 +4709,10 @@ George picked the set in chat (sans, serif, display, script, handwriting, monosp
 
 George: "We are building Krimble." `krimbleBuildNumber` 38 -> 39 (`1.0.39-beta`). Version 38 was built once (`e9cfcf6`, `Krimble-1.0.38-beta-Oct17-2320.apk`, published as `1.0.38b`). The next build carries, since 1.0.38: the New dialog's smaller top icons (185th), the Window menu fix (186th), one-finger Free Rotate (187th), and the new Content-Aware Fill engine (188th). The server script changes of the 184th entry are still not pushed.
 
+
+## 2026-10-19 (190th) — A new splash picture
+
+**Files:** `krita/data/splash/logo_splash.png`, `krita/data/splash/logo_splash.jpg`, `krita/data/splash/splash-android.qrc` (comment only)
+
+George (1.0.39, test list, item 1): "My previous splash has issues with color balance and the Krimble UI on screen was wrong. I made a new one", made in Krimble (the screen in the picture shows Krimble showing the same picture). **Change:** his PNG (1536 x 1024) replaces `logo_splash.png` (saved as RGB: its alpha was fully opaque everywhere), and `logo_splash.jpg`, the file the app actually loads (`:/splash/hd.jpg`), is made from it at JPEG quality 88 (about 423 KB; the old one was about 387 KB). Same names and size, so no code change; a comment in `splash-android.qrc` records it. **Not changed:** the holiday splash (Dec 1-26), desktop `splash.qrc`.
+**Not verified:** a build or a device.
