@@ -1654,6 +1654,11 @@ void KisToolFreeRotate::rotateByDegrees(double degrees)
     m_rotationRadians += kisDegreesToRadians(degrees);
     setRotateZ(m_rotationRadians);
     QMetaObject::invokeMethod(this, "slotUiChangedConfig", Qt::DirectConnection, Q_ARG(bool, true));
+    // Krimble 2026-10-19: George (1.0.39): "Rotate doesn't show rotation in realtime. It shows numbers." slotUiChangedConfig only redraws the
+    // box and outline; the turned PICTURE (the preview inside the layer stack, the default preview style) is made by a job sent to the stroke,
+    // which the Transform tool's own drags ask for through requestImageRecalculation() (a public slot; it does nothing in the overlay preview
+    // style, where the outline refresh above is enough). It is now asked for on every turn, so the layer turns under the finger.
+    requestImageRecalculation();
     if (KisCanvas2 *kisCanvas = dynamic_cast<KisCanvas2*>(canvas())) {
         if (kisCanvas->viewManager()) {
             kisCanvas->viewManager()->showFloatingMessage(i18n("Rotate: %1 degrees", QString::number(kisRadiansToDegrees(m_rotationRadians), 'f', 1)), QIcon(), 600);
@@ -1699,6 +1704,10 @@ void KisToolFreeRotate::endPrimaryAction(KoPointerEvent *event)
     Q_UNUSED(event);
     m_dragging = false;
     setMode(KisTool::HOVER_MODE);
+    // Krimble 2026-10-19: the turn is recorded when the finger lifts, as the Transform tool's own drags are (commitChanges, through the
+    // private slot slotEditingFinished, called by name), so Undo during the transform and the option widget's numbers follow it.
+    QMetaObject::invokeMethod(this, "slotEditingFinished", Qt::DirectConnection);
+    updateOptionWidget();
 }
 
 void KisToolFreeRotate::activate(const QSet<KoShape*> &shapes)

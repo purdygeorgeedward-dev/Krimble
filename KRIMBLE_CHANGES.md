@@ -4787,3 +4787,10 @@ George (1.0.39, while looking at item 6, the toolbox's empty bottom): "Hard to d
 
 George (1.0.39, test list, item 6, with a screenshot: the toolbox docked at the top, two rows of tools, then about 200 px of empty toolbox above the canvas): "all the space at the bottom." The 147th entry tried to cap a docked toolbox in rows at the height of its rows, but the cap was wrong: it added "others" = the toolbox's height minus the tool area's height, and that difference **is** the empty space (the stretch under the tool area in `m_containerLayout`). So the cap always equalled the current height and never shrank anything. **Change:** "others" is now only what really surrounds the tools: the panel's title bar and frame (`height() - widget()->height()`) plus the margins of `m_containerLayout`. The old line is commented out. Only the rows layout (docked at the top or the bottom) is changed.
 **Not verified:** a build or a device.
+
+## 2026-10-19 (201st) — Free Rotate: the picture turns under the finger
+
+**Files:** `plugins/tools/tool_transform2/kis_tool_transform.cc`
+
+George (1.0.39): "Rotate doesn't show rotation in realtime. It shows numbers." (The one-finger dial of the 187th entry works: the "Rotate: N degrees" message follows the finger.) **Cause:** `rotateByDegrees()` stored the angle and called `slotUiChangedConfig(true)`, which only redraws the box and outline; the turned **picture** (the preview inside the layer stack, Krita's default preview style) is made by a job sent to the transform stroke, which the Transform tool's own drags ask for with `requestImageRecalculation()`. Free Rotate never asked. **Change:** `rotateByDegrees()` now calls `requestImageRecalculation()` (a public slot; it does nothing in the overlay preview style, where the outline refresh is enough) on every turn. And when the finger lifts, `endPrimaryAction` records the turn as the Transform tool's drags do (`slotEditingFinished`, which runs `commitChanges()`, called by name) and refreshes the option widget's numbers.
+**Not verified:** a build or a device.
