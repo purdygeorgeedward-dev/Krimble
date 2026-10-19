@@ -372,10 +372,17 @@ void KisToolCrop::endPrimaryAction(KoPointerEvent *event)
 
 
     if (!m_haveCropSelection && !haveValidRect) {
-        if (!tryContinueLastCropAction()) {
-            m_finalRect.setRectInitial(image()->bounds());
-            m_haveCropSelection = true;
-        }
+        // Krimble 2026-10-19: George (1.0.39): "If I crop an image the change should be FINAL. The way it is; if you tap the canvas it
+        // undoes the crop. There are too many ways to accidentally undo a crop even if you save the cropped image. That needs a fix."
+        // A tap (no box drawn) right after a crop called tryContinueLastCropAction(), which UNDOES the last crop to let the box be
+        // edited again (an upstream feature). It is no longer called: a tap now only shows a new crop box around the whole picture,
+        // which changes nothing until Crop is chosen. A crop is taken back only by Undo. The old lines:
+        // if (!tryContinueLastCropAction()) {
+        //     m_finalRect.setRectInitial(image()->bounds());
+        //     m_haveCropSelection = true;
+        // }
+        m_finalRect.setRectInitial(image()->bounds());
+        m_haveCropSelection = true;
     } else if (m_resettingStroke && !haveValidRect) {
         m_lastCanvasUpdateRect = image()->bounds();
         m_haveCropSelection = false;
