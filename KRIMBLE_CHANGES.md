@@ -4745,3 +4745,10 @@ George (1.0.39, test list, item 2, after being asked how the crop area got lost)
 
 George (1.0.39): "Also the crop sizing boxes could be a little smaller." The boxes are drawn at **40%** of the grab size (was 50%, from the 2026-10-14 change): about 18 px instead of 22 on a 44 px grab area. The grab areas (`handlesPath()`, `m_handleSize` 44, `m_handleHitPadding` 16) are not changed, so they are as easy to catch as before. The old line is commented out.
 **Not verified:** a build or a device. If still big, the next step is 33%.
+
+## 2026-10-19 (195th) — Transform tool: bigger mode buttons; the chosen one is colored
+
+**Files:** `plugins/tools/tool_transform2/kis_tool_transform_config_widget.cpp`
+
+George (1.0.39, test list, item 3): "The little buttons in the Tool Options which select different modes in the transform tool should be bigger and should change color to show which one is selected." The six mode buttons (Free, Perspective, Warp, Cage, Liquify, Mesh) get **28 px icons** (they had the small default size) and a minimum height of **40 px**, and the **chosen** one is filled with the theme's **highlight color** (they are flat `autoRaise` buttons, so the checked one looked almost like the rest). Done in the constructor with a style sheet on those six buttons only.
+**Not verified:** a build or a device; whether six 28 px buttons fit across a narrow Tool Options panel (if not, 24 px is the next step).

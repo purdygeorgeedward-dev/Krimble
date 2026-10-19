@@ -6,6 +6,7 @@
 
 #include <QVector3D>
 #include "kis_tool_transform_config_widget.h"
+#include <QToolButton>   // Krimble 2026-10-19: the mode buttons (see the constructor)
 
 #include <kis_icon.h>
 #include "rotation_icons.h"
@@ -326,6 +327,19 @@ KisToolTransformConfigWidget::KisToolTransformConfigWidget(TransformTransactionP
     connect(perspectiveTransformButton, SIGNAL(clicked(bool)), this, SLOT(slotSetPerspectiveModeButtonClicked(bool)));
     connect(liquifyButton, SIGNAL(clicked(bool)), this, SLOT(slotSetLiquifyModeButtonClicked(bool)));
     connect(meshButton, SIGNAL(clicked(bool)), this, SLOT(slotSetMeshModeButtonClicked(bool)));
+
+    // Krimble 2026-10-19: George (1.0.39, test list, item 3): "The little buttons in the Tool Options which select different modes in the
+    // transform tool should be bigger and should change color to show which one is selected." The six mode buttons get 28 px icons
+    // (they had the small default) and a minimum height of 40 px, and the chosen one is filled with the theme's highlight color (with
+    // autoRaise the checked button looked almost the same as the others). Nothing else in the widget is changed.
+    Q_FOREACH (QToolButton *modeButton, QList<QToolButton*>({freeTransformButton, perspectiveTransformButton, warpButton,
+                                                              cageButton, liquifyButton, meshButton})) {
+        modeButton->setIconSize(QSize(28, 28));
+        modeButton->setMinimumHeight(40);
+        modeButton->setStyleSheet(QStringLiteral(
+            "QToolButton { padding: 4px; border-radius: 6px; }"
+            "QToolButton:checked { background-color: palette(highlight); color: palette(highlighted-text); }"));
+    }
 
 
     tooBigLabelWidget->hide();
