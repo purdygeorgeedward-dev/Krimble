@@ -4702,3 +4702,10 @@ George picked the set in chat (sans, serif, display, script, handwriting, monosp
 **How the files were made:** fonts **without** a Reserved Font Name were cut to Latin characters (the OFL allows modified versions; they keep the OFL), and their variable fonts were turned into fixed **Light, Regular, Bold** and the italics where they exist (Saira also **Expanded** Light/Regular/Bold and italics), so every weight is listed as a normal font. Fonts **with** a Reserved Font Name (22 families: Abril Fatface, Alfa Slab One, Cinzel Decorative, Creepster, Dancing Script, IBM Plex Mono, Lato, Libre Baskerville, Lobster, Lora, Marcellus, MedievalSharp, Metamorphous, Orbitron, Playfair Display, Press Start 2P, Six Caps, Source Code Pro, Source Sans 3, UnifrakturMaguntia, Varela Round) are shipped **unmodified**, because the OFL forbids a modified version from using that name; only their file names lost the `[wght]` brackets (`-VF`). Tinos has no license file in the Google repository; its `OFL.txt` was written from the font's own copyright notice and the standard OFL 1.1 text. **Held out:** Merriweather (only published as a 9 MB variable font with a Reserved Font Name; not slimmable). Noto Sans was dropped earlier by George (too big).
 
 **Not verified:** a build; that the fonts are found at run time on Android; how the Type tool lists them; the **variable fonts shipped unmodified** (Dancing Script, Libre Baskerville, Lora, Orbitron, Playfair Display, Source Code Pro, Source Sans 3) may show only their default weight in Qt's font list.
+
+## 2026-10-18 (189th) — Version 39
+
+**Files:** `packaging/android/apk/build.gradle`
+
+George: "We are building Krimble." `krimbleBuildNumber` 38 -> 39 (`1.0.39-beta`). Version 38 was built once (`e9cfcf6`, `Krimble-1.0.38-beta-Oct17-2320.apk`, published as `1.0.38b`). The next build carries, since 1.0.38: the New dialog's smaller top icons (185th), the Window menu fix (186th), one-finger Free Rotate (187th), and the new Content-Aware Fill engine (188th). The server script changes of the 184th entry are still not pushed.
+
