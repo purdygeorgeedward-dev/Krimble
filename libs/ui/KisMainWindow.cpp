@@ -696,6 +696,18 @@ static void krimbleInstallCanvasOnlyExit(KisMainWindow *win)
 #endif
 
 #ifdef Q_OS_ANDROID
+// Krimble 2026-10-19: George (1.0.39, test list, item 2): "Using the crop tool: It was hard to select from the canvas because the resize
+// tool for the toolbox got in the way. Can the resize tools be temporarily disabled during selection?" and "I think any selection tool
+// should disable resize gadgets temporarily for ease of use." True while the Crop tool or any selection tool is the active tool; the
+// panel edge grab zones (KrimbleDockEdgeGrab, below) hide themselves then, and come back when another tool is chosen.
+static bool krimbleSelectionToolActive()
+{
+    const QString id = KoToolManager::instance()->activeToolId();
+    return id.startsWith(QLatin1String("KisToolSelect")) || id == QLatin1String("KisToolCrop");
+}
+#endif
+
+#ifdef Q_OS_ANDROID
 // Krimble 2026-10-12: an invisible touch zone, 14 px wide, along the inner edge of every docked panel (the right edge of a panel
 // on the left, the left edge of a panel on the right). Dragging it resizes the panel's side of the window. It draws nothing and
 // takes no room of its own, so the edge between the toolbox, the canvas and the panels can be as thin as the base style makes it
@@ -716,6 +728,12 @@ public:
     void reposition()
     {
         if (!m_dock || m_dock->isFloating() || !m_dock->isVisible()) {
+            hide();
+            return;
+        }
+        // Krimble 2026-10-19: no grab zone while the Crop tool or a selection tool is in use (see krimbleSelectionToolActive above):
+        // the zone lies over the first 30 px of the canvas, where it took the finger that was drawing the crop or selection box.
+        if (krimbleSelectionToolActive()) {
             hide();
             return;
         }
@@ -4016,6 +4034,12 @@ KisMainWindow::KisMainWindow(QUuid uuid)
     });
     connect(KoToolManager::instance(), &KoToolManager::changedTool, this,
             [this](KoCanvasController*) { krimbleApplyXmlGuiLabels(this); });
+#ifdef Q_OS_ANDROID
+    // Krimble 2026-10-19: the panel edge grab zones hide while the Crop tool or a selection tool is in use and come back for any other
+    // tool (see krimbleSelectionToolActive); this places or hides them right away when the tool changes.
+    connect(KoToolManager::instance(), &KoToolManager::changedTool, this,
+            [this](KoCanvasController*) { krimbleInstallDockEdgeGrabs(this); });
+#endif
 
 
     // Style menu actions

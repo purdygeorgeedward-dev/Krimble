@@ -4723,3 +4723,11 @@ George (1.0.39, test list, item 1): "My previous splash has issues with color ba
 
 George: "I should make a new holiday image too." His PNG (1536 x 1024, the scene of the 190th entry dressed for the holidays) replaces `logo_splash_holidays.png`, and `logo_splash_holidays.jpg`, the file the app shows from Dec 1 through Dec 26 (`:/splash/holiday.jpg`), is made from it at JPEG quality 88 (about 447 KB). Same names and size, so no code change; a comment in `splash-android.qrc` records it.
 **Not verified:** a build or a device (it only shows in December).
+
+## 2026-10-19 (192nd) — Crop and selection tools: the panel edge grab zone steps aside
+
+**Files:** `libs/ui/KisMainWindow.cpp`
+
+George (1.0.39, test list, item 2): "Using the crop tool: It was hard to select from the canvas because the resize tool for the toolbox got in the way. Can the resize tools be temporarily disabled during selection?" and "I think any selection tool should disable resize gadgets temporarily for ease of use." **Cause:** the invisible grab zone beside the docked toolbox and panels (`KrimbleDockEdgeGrab`, 30 logical px wide, the whole height of the panel column) lies over the canvas, so a crop or selection box started near the toolbox resized the toolbox instead. **Change:** `krimbleSelectionToolActive()` (new) is true when the active tool is the Crop tool (`KisToolCrop`) or any selection tool (ids starting with `KisToolSelect`: rectangular, elliptical, polygonal, outline, contiguous, similar, path, magnetic). While it is true, `KrimbleDockEdgeGrab::reposition()` hides every grab zone; when the tool changes (`KoToolManager::changedTool`), the zones are placed or hidden at once. With any other tool they work as before. **Not changed:** the floating toolbox's own edge zones (they lie on the toolbox, not on the canvas), dialog corner grips.
+**Not done (same item):** "sometimes trying to open the Image menu lost my crop area". Nothing in the code was found that clears the crop box when a menu opens; the crop box is cleared by a new press on the canvas outside it, by Undo or Redo, or by changing tools. Needs a description of the steps from George.
+**Not verified:** a build or a device.
