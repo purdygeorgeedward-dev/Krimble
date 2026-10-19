@@ -4716,3 +4716,10 @@ George: "We are building Krimble." `krimbleBuildNumber` 38 -> 39 (`1.0.39-beta`)
 
 George (1.0.39, test list, item 1): "My previous splash has issues with color balance and the Krimble UI on screen was wrong. I made a new one", made in Krimble (the screen in the picture shows Krimble showing the same picture). **Change:** his PNG (1536 x 1024) replaces `logo_splash.png` (saved as RGB: its alpha was fully opaque everywhere), and `logo_splash.jpg`, the file the app actually loads (`:/splash/hd.jpg`), is made from it at JPEG quality 88 (about 423 KB; the old one was about 387 KB). Same names and size, so no code change; a comment in `splash-android.qrc` records it. **Not changed:** the holiday splash (Dec 1-26), desktop `splash.qrc`.
 **Not verified:** a build or a device.
+
+## 2026-10-19 (191st) — A new holiday splash picture
+
+**Files:** `krita/data/splash/logo_splash_holidays.png`, `krita/data/splash/logo_splash_holidays.jpg`, `krita/data/splash/splash-android.qrc` (comment only)
+
+George: "I should make a new holiday image too." His PNG (1536 x 1024, the scene of the 190th entry dressed for the holidays) replaces `logo_splash_holidays.png`, and `logo_splash_holidays.jpg`, the file the app shows from Dec 1 through Dec 26 (`:/splash/holiday.jpg`), is made from it at JPEG quality 88 (about 447 KB). Same names and size, so no code change; a comment in `splash-android.qrc` records it.
+**Not verified:** a build or a device (it only shows in December).

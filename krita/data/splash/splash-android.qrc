@@ -17,6 +17,8 @@
         <!-- KRIMBLE 2026-10-19: new main splash art by George (made in Krimble; fixes the color balance and the on-screen UI
              of the old one). Same size (1536 x 1024) and same file names; the JPG is quality 88 from his PNG. -->
         <file alias="hd.jpg">logo_splash.jpg</file>
+        <!-- KRIMBLE 2026-10-19: new holiday splash art by George (Dec 1-26; the same scene as the main splash, dressed for
+             the holidays). Same size (1536 x 1024) and same file names; the JPG is quality 88 from his PNG. -->
         <file alias="holiday.jpg">logo_splash_holidays.jpg</file>
     </qresource>
 </RCC>
