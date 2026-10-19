@@ -3287,6 +3287,9 @@ protected:
                 // panel can join it (as a tab, or beside it, as Qt decides from where on that panel the finger is).
                 Q_FOREACH (QDockWidget *other, m_win->findChildren<QDockWidget*>()) {
                     if (other == m_dock || other->isFloating() || !other->isVisible()) continue;
+                    // Krimble 2026-10-19: George (1.0.39): "The toolbox isn't close to an edge and it snaps to one aggressively." The toolbox
+                    // does not join other panels (tabs); with the panels covering much of the screen, a finger passing over one docked it there.
+                    if (m_dock->objectName() == QLatin1String("ToolBox")) continue;
                     if (QLineF(QPointF(p), QPointF(m_startPos)).length() < 120.0) continue;     // Krimble 2026-10-18 (2nd): not at once
                     const QRect otherRect(other->mapToGlobal(QPoint(0, 0)), other->size());
                     if (otherRect.contains(p)) allowed |= m_win->dockWidgetArea(other);

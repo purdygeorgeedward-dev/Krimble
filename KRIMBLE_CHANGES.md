@@ -4773,3 +4773,10 @@ George (1.0.39): "I am using selection tools. I switch to additive selection mea
 
 George (1.0.39, test list, item 5): "New dialog icons are too big. The column housing them is too wide." 1.0.39 was the first build where the list really drew the pictures at their own size (the list's icon size was 48 until the 2026-10-18 (3rd) change), so the 112 px of the 2026-10-18 entries showed for the first time. **Changes:** the list's icon size and the template pictures **112 -> 80** logical px; the two theme icons at the top (Custom Document, Create from Clipboard) **88 -> 64** (same ratio as before); the column in portrait **46% -> 36%** of the screen's width; in landscape its widest **34% -> 28%** (narrowest still 20%). Old lines commented out.
 **Not verified:** a build or a device. If the names under the icons are cut in portrait, 40% is the next step for the column.
+
+## 2026-10-19 (199th) — The toolbox snaps less eagerly
+
+**Files:** `libs/ui/KisMainWindow.cpp`, `libs/ui/toolbox/KoToolBoxDocker.cpp`
+
+George (1.0.39, while looking at item 6, the toolbox's empty bottom): "Hard to demonstrate. The toolbox isn't close to an edge and it snaps to one aggressively." Two docking rules reached far from any edge: (1) `KrimbleDockTolerance` (2026-10-15 and 18) lets a dragged panel join a **docked panel** the finger is over, once the finger has moved 120 px; for the toolbox, with the side panels covering much of a phone screen, that docked it into the panel column. The toolbox now never joins other panels this way (only the window's edges, within 4 px, as before). (2) `krimbleDockAtEdge()` docked the toolbox at the **top** as soon as its top went into the 48 px strip under the top of the screen, where the menu bar is; now only when its top reaches the top of the screen (within 4 px), like the sides. Other panels are not changed.
+**Not verified:** a build or a device. Item 6 itself (the empty space at the bottom of the toolbox) is not changed; George will look again once the toolbox stays floating.

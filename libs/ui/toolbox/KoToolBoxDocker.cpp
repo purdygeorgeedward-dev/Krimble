@@ -585,7 +585,11 @@ void KoToolBoxDocker::krimbleDockAtEdge()
         area = Qt::LeftDockWidgetArea;
     } else if (g.right() >= avail.right() - 4) {
         area = Qt::RightDockWidgetArea;
-    } else if (g.top() < avail.top()) {
+    // } else if (g.top() < avail.top()) {
+    // Krimble 2026-10-19: George (1.0.39): "The toolbox isn't close to an edge and it snaps to one aggressively." It docked at the top as soon
+    // as its top went into the 48 px strip under the screen's top (the menu bar is there, so a move near the menus docked it). Now only when
+    // its top reaches the screen's top (within 4 px), like the sides.
+    } else if (g.top() <= avail.top() - 48 + 4) {
         area = Qt::TopDockWidgetArea;
     }
     if (area == Qt::NoDockWidgetArea) return;
