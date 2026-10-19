@@ -23,6 +23,7 @@
 #include <QMoveEvent>
 #include <QGuiApplication>
 #include <QScreen>
+#include <QStyle>   // Krimble 2026-10-19: krimbleFitFloatingShape (the scroll bar extent)
 #include <QEvent>
 #include <QPainter>
 #include <QMouseEvent>
@@ -799,6 +800,47 @@ void KoToolBoxDocker::setToolBoxOrientation(Qt::Orientation orientation)
         setFeatures(features() & ~QDockWidget::DockWidgetVerticalTitleBar);
         m_scrollArea->setOrientation(Qt::Vertical);
     }
+    // Krimble 2026-10-19: George (1.0.39, test list, item 7): "Switching to horizontal in the toolbox menu changes how the icons line up, but not the
+    // shape of the toolbox." A floating toolbox is reshaped to its new layout a moment later, when the layout has settled.
+    if (isFloating()) {
+        QTimer::singleShot(200, this, [this]() { krimbleFitFloatingShape(); });
+    }
+}
+
+// Krimble 2026-10-19: George (1.0.39, test list, item 7). A floating toolbox takes the shape of its layout. Horizontal (rows): as wide as its rows
+// (at most 95% of the screen; beyond that the rows scroll sideways) and as high as the rows, its frame and its title bar (which is at the
+// side in this layout). Vertical (columns): the height is cut to the tools again (fitHeightToContents), keeping the width.
+void KoToolBoxDocker::krimbleFitFloatingShape()
+{
+    if (!isFloating() || !isVisible() || !m_toolBox || !m_scrollArea || !widget() || !widget()->layout()) return;
+    if (m_scrollArea->orientation() != Qt::Horizontal) {
+        setMaximumHeight(QWIDGETSIZE_MAX);
+        m_scrollArea->setMaximumHeight(QWIDGETSIZE_MAX);
+        fitHeightToContents();
+        return;
+    }
+    const QSize tools = m_toolBox->sizeHint();
+    if (tools.isEmpty()) return;
+    const QMargins m = widget()->layout()->contentsMargins();
+    const int titleW = qMax(0, width() - widget()->width());        // the title bar is at the side in the horizontal layout
+    const int titleH = qMax(0, height() - widget()->height());
+    const int frameW = m_scrollArea->width() - m_scrollArea->viewport()->width();
+    const int frameH = m_scrollArea->height() - m_scrollArea->viewport()->height();
+    int w = titleW + m.left() + m.right() + frameW + tools.width();
+    int h = titleH + m.top() + m.bottom() + frameH + tools.height();
+    if (QScreen *screenPtr = screen() ? screen() : QGuiApplication::primaryScreen()) {
+        const QRect avail = screenPtr->availableGeometry();
+        if (w > int(avail.width() * 0.95)) {
+            w = int(avail.width() * 0.95);
+            h += style()->pixelMetric(QStyle::PM_ScrollBarExtent);      // room for the sideways scroll bar
+        }
+        h = qMin(h, int(avail.height() * 0.95));
+    }
+    m_scrollArea->setMaximumHeight(QWIDGETSIZE_MAX);
+    setMaximumHeight(h);
+    m_applying = true;
+    resize(w, h);
+    QTimer::singleShot(400, this, [this]() { m_applying = false; });
 }
 
 void KoToolBoxDocker::updateFloating(bool v)

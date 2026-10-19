@@ -4794,3 +4794,10 @@ George (1.0.39, test list, item 6, with a screenshot: the toolbox docked at the 
 
 George (1.0.39): "Rotate doesn't show rotation in realtime. It shows numbers." (The one-finger dial of the 187th entry works: the "Rotate: N degrees" message follows the finger.) **Cause:** `rotateByDegrees()` stored the angle and called `slotUiChangedConfig(true)`, which only redraws the box and outline; the turned **picture** (the preview inside the layer stack, Krita's default preview style) is made by a job sent to the transform stroke, which the Transform tool's own drags ask for with `requestImageRecalculation()`. Free Rotate never asked. **Change:** `rotateByDegrees()` now calls `requestImageRecalculation()` (a public slot; it does nothing in the overlay preview style, where the outline refresh is enough) on every turn. And when the finger lifts, `endPrimaryAction` records the turn as the Transform tool's drags do (`slotEditingFinished`, which runs `commitChanges()`, called by name) and refreshes the option widget's numbers.
 **Not verified:** a build or a device.
+
+## 2026-10-19 (202nd) — Floating toolbox: Horizontal changes its shape too
+
+**Files:** `libs/ui/toolbox/KoToolBoxDocker.cpp`, `libs/ui/toolbox/KoToolBoxDocker_p.h`
+
+George (1.0.39, test list, item 7): "Switching to horizontal in the toolbox menu changes how the icons line up, but not the shape of the toolbox." `setToolBoxOrientation()` changed the layout (rows) and moved the title bar to the side, but a floating toolbox kept its size: a tall narrow window with the tools in rows at its top. **Change:** a moment (200 ms) after the layout changes, a floating toolbox is reshaped by `krimbleFitFloatingShape()` (new). **Horizontal:** as wide as its rows (the toolbox's size hint, plus the side title bar, the frame and the margins), at most 95% of the screen width (beyond that the rows scroll sideways and room is kept for the scroll bar), and as high as its rows. **Vertical:** the height is cut to the tools again (`fitHeightToContents()`), keeping the width. A docked toolbox is not changed by this (its height follows the 200th entry).
+**Not verified:** a build or a device.
