@@ -280,6 +280,13 @@ public:
 
     KisNodeSP locateSelectionMaskUnderCursor(const QPointF &pos, Qt::KeyboardModifiers modifiers) {
         if (modifiers != Qt::NoModifier) return 0;
+        // Krimble 2026-10-19: George (1.0.39): "I switch to additive selection meaning subsequent strokes should add to the selection
+        // area. Instead it's trying to move the selection area." Upstream, a press on (or near) the edge of the selection MOVES the
+        // selection whenever no modifier key is held. On a desktop, Add is Shift (a modifier), so it never moved; on a phone Add is
+        // chosen with the mode buttons and no key is held, and a new stroke started next to the old edge (the usual way to add to it)
+        // grabbed the selection. Moving by dragging the edge now only happens in Replace mode; Add, Subtract, Intersect and
+        // Symmetric Difference always draw.
+        if (selectionAction() != SELECTION_REPLACE) return 0;
 
         KisCanvas2* canvas = dynamic_cast<KisCanvas2*>(this->canvas());
         KIS_SAFE_ASSERT_RECOVER_RETURN_VALUE(canvas, 0);
