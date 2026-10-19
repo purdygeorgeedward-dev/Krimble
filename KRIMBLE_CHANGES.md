@@ -4801,3 +4801,10 @@ George (1.0.39): "Rotate doesn't show rotation in realtime. It shows numbers." (
 
 George (1.0.39, test list, item 7): "Switching to horizontal in the toolbox menu changes how the icons line up, but not the shape of the toolbox." `setToolBoxOrientation()` changed the layout (rows) and moved the title bar to the side, but a floating toolbox kept its size: a tall narrow window with the tools in rows at its top. **Change:** a moment (200 ms) after the layout changes, a floating toolbox is reshaped by `krimbleFitFloatingShape()` (new). **Horizontal:** as wide as its rows (the toolbox's size hint, plus the side title bar, the frame and the margins), at most 95% of the screen width (beyond that the rows scroll sideways and room is kept for the scroll bar), and as high as its rows. **Vertical:** the height is cut to the tools again (`fitHeightToContents()`), keeping the width. A docked toolbox is not changed by this (its height follows the 200th entry).
 **Not verified:** a build or a device.
+
+## 2026-10-19 (203rd) — Type tool: a title at the top of its window
+
+**Files:** `plugins/tools/svgtexttool/KrimbleTextTool.cpp`
+
+George (1.0.39, test list, item 8): "The new type tool should have a title at the top". The window had a title ("Text", or "Edit Text" for existing text), but on the phone a dialog has no title bar, so it was never seen. It is now also shown as a bold heading (1.3 times the normal size, centered) at the top of the window. The rest of item 8 (emoji, the font list) is not in this change.
+**Not verified:** a build or a device.
