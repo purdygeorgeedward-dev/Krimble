@@ -4738,3 +4738,10 @@ George (1.0.39, test list, item 2): "Using the crop tool: It was hard to select 
 
 George (1.0.39, test list, item 2, after being asked how the crop area got lost): "If I crop an image the change should be FINAL. The way it is; if you tap the canvas it undoes the crop. There are too many ways to accidentally undo a crop even if you save the cropped image. That needs a fix." **Cause:** an upstream feature. With the Crop tool still active after a crop, a tap on the canvas (a press with no box drawn) called `tryContinueLastCropAction()`, which **undoes the last crop** (`undoLastCommand()`) and puts its box back to be edited. This is very likely also the "opening the Image menu lost my crop area" of the same item (a touch on the canvas on the way). **Change:** in `endPrimaryAction`, that call is commented out; a tap with no box drawn now only shows a new crop box around the whole picture (as it already did when the last step was not a crop), which changes nothing until Crop is chosen. A crop is taken back only by Undo. `tryContinueLastCropAction()` itself stays (not called).
 **Not verified:** a build or a device.
+
+## 2026-10-19 (194th) — Crop tool: the sizing boxes a little smaller
+
+**Files:** `plugins/tools/tool_crop/kis_tool_crop.cc`
+
+George (1.0.39): "Also the crop sizing boxes could be a little smaller." The boxes are drawn at **40%** of the grab size (was 50%, from the 2026-10-14 change): about 18 px instead of 22 on a 44 px grab area. The grab areas (`handlesPath()`, `m_handleSize` 44, `m_handleHitPadding` 16) are not changed, so they are as easy to catch as before. The old line is commented out.
+**Not verified:** a build or a device. If still big, the next step is 33%.
