@@ -4766,3 +4766,10 @@ George (1.0.39, test list, item 4): "Switching from one mode to another in trans
 
 George (1.0.39): "I am using selection tools. I switch to additive selection meaning subsequent strokes should add to the selection area. Instead it's trying to move the selection area." **Cause (upstream):** `locateSelectionMaskUnderCursor()` lets a press on or near the edge of the current selection start a **move** of the selection whenever no modifier key is held. On a desktop, Add is Shift (a modifier), so Add never moved; on a phone, Add is chosen with the mode buttons and no key is held, and a stroke started next to the old edge, which is the normal way to add to it, grabbed and moved the selection. **Change:** that function returns nothing unless the selection mode is **Replace**, so moving by dragging the edge only happens in Replace mode; Add, Subtract, Intersect and Symmetric Difference always draw. Applies to every selection tool (they share this base).
 **Not verified:** a build or a device.
+
+## 2026-10-19 (198th) — New dialog: smaller icons, narrower column
+
+**Files:** `libs/ui/KisOpenPane.cpp`
+
+George (1.0.39, test list, item 5): "New dialog icons are too big. The column housing them is too wide." 1.0.39 was the first build where the list really drew the pictures at their own size (the list's icon size was 48 until the 2026-10-18 (3rd) change), so the 112 px of the 2026-10-18 entries showed for the first time. **Changes:** the list's icon size and the template pictures **112 -> 80** logical px; the two theme icons at the top (Custom Document, Create from Clipboard) **88 -> 64** (same ratio as before); the column in portrait **46% -> 36%** of the screen's width; in landscape its widest **34% -> 28%** (narrowest still 20%). Old lines commented out.
+**Not verified:** a build or a device. If the names under the icons are cut in portrait, 40% is the next step for the column.

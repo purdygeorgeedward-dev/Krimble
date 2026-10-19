@@ -153,12 +153,14 @@ KisOpenPane::KisOpenPane(QWidget *parent, const QStringList& mimeFilter, const Q
             // d->m_sectionList->setFixedWidth(int(screenWidth * 0.22));
             // d->m_sectionList->setFixedWidth(int(screenWidth * 0.34));   // Krimble 2026-10-14: portrait (the screenshots): 34% too, not 22%
             // d->m_sectionList->setFixedWidth(int(screenWidth * 0.42));      // Krimble 2026-10-18: 42%, so that the 96 px icons and their names fit
-            d->m_sectionList->setFixedWidth(int(screenWidth * 0.46));         // Krimble 2026-10-18 (2nd): 46%, for the 112 px icons
+            // d->m_sectionList->setFixedWidth(int(screenWidth * 0.46));      // Krimble 2026-10-18 (2nd): 46%, for the 112 px icons
+            d->m_sectionList->setFixedWidth(int(screenWidth * 0.36));         // Krimble 2026-10-19: 36%, for the 80 px icons (George, 1.0.39: column too wide)
         } else {
             // d->m_sectionList->setMaximumWidth(int(screenWidth * 0.20));
             // Krimble 2026-10-14: George (1.0.36): "The new icons are way too small on the new file ... dialogs. Column area for them is too narrow
             // on one dialog." and "Need big icons. Small screen." The list is 34% of the screen wide, so the icons and their names are not cut.
-            d->m_sectionList->setMaximumWidth(int(screenWidth * 0.34));
+            // d->m_sectionList->setMaximumWidth(int(screenWidth * 0.34));
+            d->m_sectionList->setMaximumWidth(int(screenWidth * 0.28));   // Krimble 2026-10-19: George (1.0.39): "The column housing them is too wide."
             d->m_sectionList->setMinimumWidth(int(screenWidth * 0.20));   // Krimble 2026-10-18: wide enough for the 96 px icons
         }
     }
@@ -180,7 +182,10 @@ KisOpenPane::KisOpenPane(QWidget *parent, const QStringList& mimeFilter, const Q
     // Krimble 2026-10-18 (3rd): George (1.0.37, c666301): "1. File - New dialog still has tiny icons. It must be hard coded somewhere." It was: KisOpenPaneBase.ui gives the
     // list (m_sectionList) an iconSize of 48 x 48, and a list draws its icons at that size whatever the size of the picture (so the 64, 96 and 112 px pictures of the 150th
     // entry were drawn at 48 logical px). The list's icon size is now 112 x 112, the size of the pictures.
-    d->m_sectionList->setIconSize(QSize(112, 112));
+    // d->m_sectionList->setIconSize(QSize(112, 112));
+    // Krimble 2026-10-19: George (1.0.39, test list, item 5): "New dialog icons are too big. The column housing them is too wide." (1.0.39 was
+    // the first build where the list really drew them at the picture's size; before, it drew 48 px whatever the picture.) 112 -> 80.
+    d->m_sectionList->setIconSize(QSize(80, 80));
 #endif
     QScroller *scroller = KisKineticScroller::createPreconfiguredScroller(d->m_sectionList);
     if (scroller) {
@@ -407,7 +412,9 @@ QTreeWidgetItem* KisOpenPane::addPane(const QString &title, const QString &untra
     // QPixmap iconPixmap = icon.pixmap(QSize(qRound(112 * dpr), qRound(112 * dpr)));
     // Krimble 2026-10-18 (4th): George (1.0.38): "New dialog top 2 icons are just a little too big now." These two (Custom Document, Create from Clipboard) are the icons of the theme, which fill
     // their whole square; the template pictures below them have room around them and look smaller at the same size. 112 -> 88 logical px for these two (the template pictures stay as they are).
-    QPixmap iconPixmap = icon.pixmap(QSize(qRound(88 * dpr), qRound(88 * dpr)));
+    // QPixmap iconPixmap = icon.pixmap(QSize(qRound(88 * dpr), qRound(88 * dpr)));
+    // Krimble 2026-10-19: George (1.0.39): "New dialog icons are too big." 88 -> 64 logical px (same ratio to the 80 px template pictures as 88 to 112).
+    QPixmap iconPixmap = icon.pixmap(QSize(qRound(64 * dpr), qRound(64 * dpr)));
     iconPixmap.setDevicePixelRatio(dpr);
 
     QIcon finalIcon(iconPixmap);
@@ -433,7 +440,8 @@ QTreeWidgetItem* KisOpenPane::addPane(const QString &title, const QString &untra
     // const int iconSize = qRound(32 * dpr);
     // const int iconSize = qRound(64 * dpr);   // Krimble 2026-10-17: twice as big (see above)
     // const int iconSize = qRound(96 * dpr);      // Krimble 2026-10-18: 96 logical px (see above)
-    const int iconSize = qRound(112 * dpr);        // Krimble 2026-10-18 (2nd): 112 logical px (see above)
+    // const int iconSize = qRound(112 * dpr);     // Krimble 2026-10-18 (2nd): 112 logical px (see above)
+    const int iconSize = qRound(80 * dpr);         // Krimble 2026-10-19: George (1.0.39): "New dialog icons are too big." 112 -> 80 logical px
 
     KoSectionListItem* listItem = new KoSectionListItem(d->m_sectionList, title, untranslatedName, sortWeight, id);
 
