@@ -3,7 +3,10 @@ set(kritatoolSmartPatch_SOURCES
     kis_tool_smart_patch.cpp
     kis_tool_smart_patch_options_widget.cpp
     kis_inpaint.cpp
+    krimble_inpaint.cpp
+    krimble_fill.cpp
     )
+# Krimble 2026-10-19: the healing brush uses Krimble's fill engines too (krimble_inpaint.cpp, krimble_fill.cpp), with the method chosen in its Tool Options
 
 ki18n_wrap_ui(kritatoolSmartPatch_SOURCES kis_tool_smart_patch_options_widget.ui)
 
@@ -25,6 +28,7 @@ set(kritaContentAwareFill_SOURCES
     content_aware_fill_plugin.cpp
     kis_inpaint.cpp
     krimble_inpaint.cpp
+    krimble_fill.cpp
     )
 
 kis_add_library(kritacontentawarefill MODULE ${kritaContentAwareFill_SOURCES})

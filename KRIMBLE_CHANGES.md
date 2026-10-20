@@ -4839,3 +4839,11 @@ George (1.0.39, Edit > Fill > Content-Aware...): "Content Aware Fill still just 
 
 **Tried here** (tools/inpaint-bench, on a PC, one core): the circus stage from George's screenshot (two performers removed): the floor and backdrop are rebuilt sharp (the old engine: a smear); grass and the cat's fur: sharp, no visible edge; a cheek: skin texture. 2000 x 1500 with a 400 x 300 hole: 4.5 s. A hole that cuts the edge of a face can take the background into the face (the known picture beside it decides); a hole that lies in one material fills best.
 **Not verified:** a build or a device (speed on the phone, 4 cores).
+
+## 2026-10-19 (207th) — Fill method in the healing brush's Tool Options (Sharp, Smooth, Classic), used by Content-Aware Fill too
+
+**Files:** `plugins/tools/tool_smart_patch/krimble_fill.h` and `krimble_fill.cpp` (new), `content_aware_fill_plugin.cpp`, `kis_tool_smart_patch.cpp`, `kis_tool_smart_patch_options_widget.cpp`, `krimble_inpaint.h`, `CMakeLists.txt`
+
+George, after the fill methods were described: "Make the different types options in the tool options panel." Edit > Fill > Content-Aware... is a menu command (it has no Tool Options), so the choice is in the Tool Options of the **healing brush** (the Smart Patch tool, which fills the same way), at the top: **Fill method:** **Sharp: copies real pixels** (the 206th entry's engine, the default), **Smooth: blends (skin, sky)** (the first Krimble engine, 188th, kept as `inpaintLegacy()`), **Classic: Krita's fill** (`patchImage()`). The choice is saved (`KrimbleContentAwareFill/method` in the settings) and **Edit > Fill > Content-Aware... uses the same one**. The healing brush, which used only Krita's fill, now fills with the chosen method too. Krita's two settings under it (accuracy, patch radius) only change Classic. Classic, or a job Krimble's engines cannot take (a hole too big for the memory), uses Krita's fill as before.
+The fill code (`krimbleContentAwareFill`) moved to `krimble_fill.cpp` (`KrimbleFill::fill`) so both use it; the old copy in the plugin is kept under `#if 0`. `krimble_inpaint.cpp` and `krimble_fill.cpp` are now built into both modules.
+**Not verified:** a build or a device.

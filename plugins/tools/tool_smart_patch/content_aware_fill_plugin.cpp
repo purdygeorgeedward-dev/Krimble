@@ -30,6 +30,7 @@
 #include <cstring>
 
 #include "krimble_inpaint.h"
+#include "krimble_fill.h"   // Krimble 2026-10-19
 
 // Declared in kis_inpaint.cpp -- compiled into this plugin module
 // separately from kritatoolSmartPatch's own copy (see CMakeLists.txt);
@@ -44,6 +45,7 @@ namespace {
 // patches near the hole; see the 188th entry of KRIMBLE_CHANGES.md). It works on the part of the picture around the selection (the box of the selection and a margin of twice its
 // shorter side), as 8-bit sRGB, and writes back only the pixels it replaced. Returns false when it cannot (nothing selected, a hole bigger than the memory allows, the picture too
 // small): the caller then uses the old fill.
+#if 0   // Krimble 2026-10-19: moved to krimble_fill.cpp (KrimbleFill::fill), with a choice of method; kept here, not compiled
 bool krimbleContentAwareFill(KisPaintDeviceSP imageDev, KisPaintDeviceSP maskDev, KisImageSP image)
 {
     const QRect maskRect = maskDev->exactBounds();
@@ -102,6 +104,7 @@ bool krimbleContentAwareFill(KisPaintDeviceSP imageDev, KisPaintDeviceSP maskDev
     }
     return true;
 }
+#endif
 
 // Krimble: same tiny transaction-wrapping command shape as
 // KisToolSmartPatch::InpaintCommand in kis_tool_smart_patch.cpp -- kept as
@@ -119,7 +122,9 @@ public:
     {
         KisTransaction transaction(m_imageDev);
         // Krimble 2026-10-18: the new engine first; Krita's own Smart Patch fill is the fallback (when the engine cannot take the job: see krimbleContentAwareFill)
-        if (!krimbleContentAwareFill(m_imageDev, m_maskDev, m_image)) {
+        // if (!krimbleContentAwareFill(m_imageDev, m_maskDev, m_image)) {
+        // Krimble 2026-10-19: the method chosen in the healing brush's Tool Options (Sharp, Smooth or Classic); Classic, or a job Krimble's engines cannot take, uses Krita's fill
+        if (!KrimbleFill::fill(m_imageDev, m_maskDev, m_image->bounds(), KrimbleFill::savedMethod())) {
             patchImage(m_imageDev, m_maskDev, m_patchRadius, m_accuracy, m_selection);
         }
         // patchImage(m_imageDev, m_maskDev, m_patchRadius, m_accuracy, m_selection);

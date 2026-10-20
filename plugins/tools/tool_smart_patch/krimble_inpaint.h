@@ -23,4 +23,7 @@ struct Options {
 // filledHole (optional, w * h): set to 1 for every pixel that was replaced (the hole, grown by Options::expand), so that the caller can write back only those.
 bool inpaint(uint8_t *pixels, const uint8_t *hole, int w, int h, int channels, const Options &options = Options(), uint8_t *filledHole = nullptr);
 
+// Krimble 2026-10-19: the first engine (2026-10-18), offered as the "Smooth" method: a smooth colour from the edge with the fine detail blended on top. Same arguments.
+bool inpaintLegacy(uint8_t *pixels, const uint8_t *hole, int w, int h, int channels, const Options &options = Options(), uint8_t *filledHole = nullptr);
+
 }
