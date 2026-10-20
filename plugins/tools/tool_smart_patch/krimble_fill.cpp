@@ -42,7 +42,9 @@ bool fill(KisPaintDeviceSP imageDev, KisPaintDeviceSP maskDev, const QRect &boun
     // Krimble 2026-10-19: George (1.0.39): Content-Aware Fill still "a blurry mess". On a phone photo (12 MP and more) the area above was often over the 9 MP limit, and then
     // Krita's old Smart Patch fill ran instead (the blur). Now the area around the hole is made smaller until it fits a budget (4 MP: the new engine needs about 50 bytes
     // per pixel of it, about 200 MB), so the new engine runs for any hole whose own box fits; only a hole bigger than that still falls back.
-    const qint64 budget = 4000000;
+    // const qint64 budget = 4000000;
+    // Krimble 2026-10-19 (2nd): 3 MP: the Photoshop-style engine keeps a little more per pixel (the transform, the colour shift, the window sums: about 75 bytes)
+    const qint64 budget = 3000000;
     int margin = qMax(64, 2 * holeShort + 24);
     QRect roi = maskRect.adjusted(-margin, -margin, margin, margin) & bounds;
     while (margin > 16 && qint64(roi.width()) * roi.height() > budget) {

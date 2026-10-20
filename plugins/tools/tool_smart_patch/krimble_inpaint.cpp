@@ -774,6 +774,12 @@ struct PLevel {
     std::vector<float> nd;        // its distance
     std::vector<int> srcList;     // the valid sources, as indices
     std::vector<float> conf;      // w * h: how much a pixel counts when patches are compared (known pixels 1; the guessed hole less)
+    // Krimble 2026-10-19 (2nd), the Photoshop-style engine (inpaint(), below): per target, which transform its source is copied with (turned, resized,
+    // mirrored) and the colour shift that adapts the copied patch to where it lands; per pixel, how far it is from the hole and the picture's edge.
+    std::vector<uint8_t> xf;      // w * h: index into the transform table
+    std::vector<float> bias;      // w * h * c
+    std::vector<int> freeR;       // w * h: Chebyshev distance to the nearest hole pixel or the edge of the picture
+    std::vector<int32_t> sat;     // (w + 1) * (h + 1) * c: sums of the picture (whole levels), for the mean colour of any window (the colour shift)
 };
 
 void pBuild(PLevel &L, int r)
@@ -1107,7 +1113,9 @@ void pPeel(PLevel &L)
 
 } // namespace
 
-bool inpaint(uint8_t *pixels, const uint8_t *holeIn, int w, int h, int channels, const Options &opt, uint8_t *filledHole)
+// Krimble 2026-10-19 (2nd): the engine of the 206th entry (whole-colour PatchMatch, real pixels, seamless edge), kept; the engine used now is inpaint() at the end
+// of this file, the same with Photoshop's additions.
+bool inpaintPatchMatchV1(uint8_t *pixels, const uint8_t *holeIn, int w, int h, int channels, const Options &opt, uint8_t *filledHole)
 {
     if (!pixels || !holeIn || w < 8 || h < 8 || channels < 1 || channels > 4) return false;
     const int r = std::max(2, opt.patchRadius);
@@ -1195,6 +1203,498 @@ bool inpaint(uint8_t *pixels, const uint8_t *holeIn, int w, int h, int channels,
             const bool last = (lv == 0 && it == emIters - 1);
             if (last) pFinalSeamless(L, r, T);
             else { pVote(L, r, false, T); pRemeasure(L, r, T); }
+        }
+    }
+
+    const PLevel &F = pyr[0];
+    if (filledHole) for (size_t i = 0; i < F.hole.size(); ++i) filledHole[i] = F.hole[i] ? 1 : 0;
+    for (size_t i = 0; i < F.hole.size(); ++i) {
+        if (!F.hole[i]) continue;
+        for (int k = 0; k < channels; ++k)
+            pixels[i * channels + k] = uint8_t(std::max(0.0f, std::min(255.0f, F.img[i * channels + k] + 0.5f)));
+    }
+    return true;
+}
+
+
+// ====================================================================================================================================================================
+// Krimble 2026-10-19 (2nd): the engine used now. George: "For now try to do Photoshop's way. Develop an algorithm." The same whole-colour multi-scale PatchMatch as
+// inpaintPatchMatchV1 (real pixels, seamless edge), with what Photoshop's Content-Aware Fill adds on top of PatchMatch (Barnes et al. 2010, "The generalized PatchMatch
+// correspondence algorithm"; Darabi et al. 2012, "Image melding"):
+//  - ROTATION and SCALE: a source patch may be copied turned (-30 to +30 degrees) and resized (0.8 to 1.25 times), so curves, perspective and repeated things at
+//    other sizes continue properly;
+//  - MIRRORING: a source patch may be copied flipped left-right;
+//  - COLOUR ADAPTATION: each copied patch gets the colour shift (per channel, at most 28 levels of 255) that makes it fit where it lands, so a darker or warmer copy
+//    of a texture can still be used; the shift is part of the match (patches are compared after it), and a large shift costs a little;
+//  - each transform costs a little more than a plain copy, so a plain copy wins when it is as good.
+// ====================================================================================================================================================================
+namespace {
+
+struct QXf { float a, b, c, d; float reach; float cost; };    // source offset = [a b; c d] * patch offset; reach: how far the patch reaches; cost: the penalty factor
+
+const std::vector<QXf> &qTable(int r)
+{
+    static std::vector<QXf> table;
+    static int tableR = -1;
+    if (tableR == r) return table;
+    table.clear();
+    const float rots[5] = {0.0f, -15.0f, 15.0f, -30.0f, 30.0f};
+    const float scales[5] = {1.0f, 0.9f, 1.12f, 0.8f, 1.25f};
+    for (int flip = 0; flip < 2; ++flip)
+        for (int ri = 0; ri < 5; ++ri)
+            for (int si = 0; si < 5; ++si) {
+                const float th = rots[ri] * 3.14159265f / 180.0f, sc = scales[si];
+                const float fx = flip ? -1.0f : 1.0f;
+                QXf t;
+                t.a = sc * std::cos(th) * fx; t.b = -sc * std::sin(th);
+                t.c = sc * std::sin(th) * fx; t.d = sc * std::cos(th);
+                t.reach = std::ceil(float(r) * sc * 1.4143f) + 1.0f;
+                t.cost = 1.0f + 0.10f * float((ri + 1) / 2) + 0.08f * float((si + 1) / 2) + 0.12f * float(flip);
+                table.push_back(t);
+            }
+    tableR = r;
+    return table;   // index 0 is the plain copy
+}
+
+// the distance (Chebyshev) of every pixel to the nearest hole pixel or the edge of the picture: a transformed source patch must lie wholly in the known picture
+void qFreeRadius(PLevel &L)
+{
+    const int w = L.w, h = L.h;
+    const int INF = 1 << 20;
+    L.freeR.assign(size_t(w) * h, INF);
+    for (int y = 0; y < h; ++y)
+        for (int x = 0; x < w; ++x) {
+            const size_t i = size_t(y) * w + x;
+            if (L.hole[i]) { L.freeR[i] = 0; continue; }
+            int v = std::min(std::min(x + 1, y + 1), std::min(w - x, h - y));   // the edge of the picture
+            if (x > 0) v = std::min(v, L.freeR[i - 1] + 1);
+            if (y > 0) {
+                v = std::min(v, L.freeR[i - w] + 1);
+                if (x > 0) v = std::min(v, L.freeR[i - w - 1] + 1);
+                if (x < w - 1) v = std::min(v, L.freeR[i - w + 1] + 1);
+            }
+            L.freeR[i] = v;
+        }
+    for (int y = h - 1; y >= 0; --y)
+        for (int x = w - 1; x >= 0; --x) {
+            const size_t i = size_t(y) * w + x;
+            int v = L.freeR[i];
+            if (x < w - 1) v = std::min(v, L.freeR[i + 1] + 1);
+            if (y < h - 1) {
+                v = std::min(v, L.freeR[i + w] + 1);
+                if (x < w - 1) v = std::min(v, L.freeR[i + w + 1] + 1);
+                if (x > 0) v = std::min(v, L.freeR[i + w - 1] + 1);
+            }
+            L.freeR[i] = v;
+        }
+}
+
+inline bool qValid(const PLevel &L, int sx, int sy, const QXf &t)
+{
+    if (sx < 0 || sy < 0 || sx >= L.w || sy >= L.h) return false;
+    return float(L.freeR[size_t(sy) * L.w + sx]) > t.reach;
+}
+
+inline void qSample(const PLevel &L, float fx, float fy, float *out)
+{
+    const int c = L.c, w = L.w;
+    const int x0 = int(fx), y0 = int(fy);
+    const float ax = fx - float(x0), ay = fy - float(y0);
+    const float *p00 = &L.img[(size_t(y0) * w + x0) * c];
+    const float *p10 = p00 + c, *p01 = p00 + size_t(w) * c, *p11 = p01 + c;
+    for (int k = 0; k < c; ++k)
+        out[k] = (1 - ay) * ((1 - ax) * p00[k] + ax * p10[k]) + ay * ((1 - ax) * p01[k] + ax * p11[k]);
+}
+
+// the value the match of target q gives to the pixel at offset (dx, dy) from q (the transformed source, plus the colour shift)
+inline void qValue(const PLevel &L, const std::vector<QXf> &tab, size_t q, int dx, int dy, float *out)
+{
+    const QXf &t = tab[L.xf[q]];
+    if (L.xf[q] == 0) {
+        const float *p = &L.img[(size_t(L.ny[q] + dy) * L.w + (L.nx[q] + dx)) * L.c];
+        for (int k = 0; k < L.c; ++k) out[k] = p[k] + L.bias[q * L.c + k];
+        return;
+    }
+    qSample(L, float(L.nx[q]) + t.a * dx + t.b * dy, float(L.ny[q]) + t.c * dx + t.d * dy, out);
+    for (int k = 0; k < L.c; ++k) out[k] += L.bias[q * L.c + k];
+}
+
+const float kMaxBias = 28.0f;      // the largest colour shift, per channel (of 255)
+const float kBiasCost = 0.35f;     // what a shift costs, next to the difference it removes
+
+// the sums of the picture, so that the mean colour of any window takes four reads (rebuilt whenever the hole is rebuilt)
+void qBuildSat(PLevel &L)
+{
+    const int w = L.w, h = L.h, c = L.c;
+    // 32-bit integers (4 bytes a channel): at most 255 * 4 M pixels, below 2^31
+    L.sat.assign(size_t(w + 1) * (h + 1) * c, 0);
+    for (int y = 0; y < h; ++y) {
+        int32_t row[4] = {0, 0, 0, 0};
+        for (int x = 0; x < w; ++x) {
+            const size_t o = (size_t(y + 1) * (w + 1) + (x + 1)) * c, u = (size_t(y) * (w + 1) + (x + 1)) * c;
+            for (int k = 0; k < c; ++k) { row[k] += int32_t(L.img[(size_t(y) * w + x) * c + k] + 0.5f); L.sat[o + k] = L.sat[u + k] + row[k]; }
+        }
+    }
+}
+
+inline void qMean(const PLevel &L, int x, int y, int rad, float *out)
+{
+    const int w = L.w, c = L.c;
+    const int x0 = std::max(0, x - rad), y0 = std::max(0, y - rad), x1 = std::min(L.w - 1, x + rad), y1 = std::min(L.h - 1, y + rad);
+    const double n = double(x1 - x0 + 1) * double(y1 - y0 + 1);
+    const size_t a = (size_t(y1 + 1) * (w + 1) + (x1 + 1)) * c, b = (size_t(y0) * (w + 1) + (x1 + 1)) * c,
+                 d = (size_t(y1 + 1) * (w + 1) + x0) * c, e = (size_t(y0) * (w + 1) + x0) * c;
+    for (int k = 0; k < c; ++k) out[k] = float(double(L.sat[a + k] - L.sat[b + k] - L.sat[d + k] + L.sat[e + k]) / n);
+}
+
+// the distance between the target patch around (tx, ty) and the source patch at (sx, sy) copied with transform `ti`, after the colour shift (returned in `bias`):
+// the shift is the difference of the two patches' mean colours (the source's over its window at its own size), limited to kMaxBias; the patches are then
+// compared pixel by pixel (stopping early once past `cutoff`), and a large shift costs a little. Each transform costs its factor.
+float qDist(const PLevel &L, const std::vector<QXf> &tab, int tx, int ty, int sx, int sy, int ti, int r, float *bias, float cutoff = 1e30f)
+{
+    const int c = L.c, w = L.w, h = L.h;
+    const QXf &t = tab[size_t(ti)];
+    float mt[4], ms[4];
+    qMean(L, tx, ty, r, mt);
+    qMean(L, sx, sy, int(std::lround(float(r) * std::sqrt(t.a * t.a + t.c * t.c))), ms);
+    float bcost = 0.0f;
+    for (int k = 0; k < c; ++k) {
+        bias[k] = std::max(-kMaxBias, std::min(kMaxBias, mt[k] - ms[k]));
+        bcost += bias[k] * bias[k];
+    }
+    const float limit = cutoff / t.cost;
+    float d = kBiasCost * bcost * float((2 * r + 1) * (2 * r + 1));
+    if (d > limit) return d * t.cost;
+    float sv[4];
+    for (int dy = -r; dy <= r; ++dy) {
+        const int y = ty + dy;
+        if (y < 0 || y >= h) continue;
+        for (int dx = -r; dx <= r; ++dx) {
+            const int x = tx + dx;
+            if (x < 0 || x >= w) continue;
+            const float *pt = &L.img[(size_t(y) * w + x) * c];
+            const float *ps;
+            if (ti == 0) ps = &L.img[(size_t(sy + dy) * w + (sx + dx)) * c];
+            else { qSample(L, float(sx) + t.a * dx + t.b * dy, float(sy) + t.c * dx + t.d * dy, sv); ps = sv; }
+            float e2 = 0.0f;
+            for (int k = 0; k < c; ++k) { const float e = pt[k] - ps[k] - bias[k]; e2 += e * e; }
+            d += L.conf[size_t(y) * w + x] * e2;
+        }
+        if (d > limit) return d * t.cost;
+    }
+    return d * t.cost;
+}
+
+inline void qTry(PLevel &L, const std::vector<QXf> &tab, size_t i, int x, int y, int sx, int sy, int ti, int r)
+{
+    if (!qValid(L, sx, sy, tab[size_t(ti)])) return;
+    if (sx == L.nx[i] && sy == L.ny[i] && ti == L.xf[i]) return;
+    float b[4];
+    const float d = qDist(L, tab, x, y, sx, sy, ti, r, b, L.nd[i]);
+    if (d < L.nd[i]) {
+        L.nd[i] = d; L.nx[i] = sx; L.ny[i] = sy; L.xf[i] = uint8_t(ti);
+        for (int k = 0; k < L.c; ++k) L.bias[i * L.c + k] = b[k];
+    }
+}
+
+void qPass(PLevel &L, const std::vector<QXf> &tab, int r, bool forward, int ya, int yb, unsigned seed)
+{
+    std::mt19937 rng(seed);
+    const int w = L.w;
+    const int maxR = std::max(L.w, L.h);
+    const int nT = int(tab.size());
+    const int sY = forward ? ya : yb - 1, eY = forward ? yb : ya - 1, st = forward ? 1 : -1;
+    for (int y = sY; y != eY; y += st) {
+        const int sX = forward ? 0 : w - 1, eX = forward ? w : -1;
+        for (int x = sX; x != eX; x += st) {
+            const size_t i = size_t(y) * w + x;
+            if (!L.tgt[i]) continue;
+            // propagation: the neighbour's match, moved by one step in the neighbour's transform
+            const int px = x - st, py = y - st;
+            if (px >= 0 && px < w && L.tgt[size_t(y) * w + px]) {
+                const size_t q = size_t(y) * w + px;
+                const QXf &t = tab[L.xf[q]];
+                qTry(L, tab, i, x, y, int(std::lround(float(L.nx[q]) + t.a * st)), int(std::lround(float(L.ny[q]) + t.c * st)), L.xf[q], r);
+            }
+            if (py >= 0 && py < L.h && L.tgt[size_t(py) * w + x]) {
+                const size_t q = size_t(py) * w + x;
+                const QXf &t = tab[L.xf[q]];
+                qTry(L, tab, i, x, y, int(std::lround(float(L.nx[q]) + t.b * st)), int(std::lround(float(L.ny[q]) + t.d * st)), L.xf[q], r);
+            }
+            // random search: around the current match, shrinking, with the same transform; and a few other transforms at the current spot
+            for (int rad = maxR; rad >= 1; rad /= 2) {
+                const int sx = L.nx[i] + int(rng() % unsigned(2 * rad + 1)) - rad;
+                const int sy = L.ny[i] + int(rng() % unsigned(2 * rad + 1)) - rad;
+                qTry(L, tab, i, x, y, sx, sy, L.xf[i], r);
+            }
+            qTry(L, tab, i, x, y, L.nx[i], L.ny[i], int(rng() % unsigned(nT)), r);
+            if (L.xf[i] != 0) qTry(L, tab, i, x, y, L.nx[i], L.ny[i], 0, r);
+        }
+    }
+}
+
+void qMatch(PLevel &L, const std::vector<QXf> &tab, int r, int iterations, int threads, unsigned &seed)
+{
+    for (int it = 0; it < iterations; ++it) {
+        const bool fwd = (it & 1) == 0;
+        pParallel(L.h, threads, [&](int a, int b) { qPass(L, tab, r, fwd, a, b, seed + unsigned(a) * 7919u); });
+        seed += 104729u;
+    }
+}
+
+void qRemeasure(PLevel &L, const std::vector<QXf> &tab, int r, int threads)
+{
+    qBuildSat(L);   // the picture (the hole) has changed since the last sums
+    pParallel(int(L.tgt.size()), threads, [&](int a, int b) {
+        for (int i = a; i < b; ++i) {
+            const size_t u = size_t(i);
+            if (!L.tgt[u]) continue;
+            if (!qValid(L, L.nx[u], L.ny[u], tab[L.xf[u]])) { L.nd[u] = 1e30f; continue; }
+            float bb[4];
+            L.nd[u] = qDist(L, tab, i % L.w, i / L.w, L.nx[u], L.ny[u], L.xf[u], r, bb);
+            for (int k = 0; k < L.c; ++k) L.bias[u * L.c + k] = bb[k];
+        }
+    });
+}
+
+// the hole rebuilt from the matches: the weighted mean of what the covering patches say (`winner` false), or the value of the one best covering patch (`winner` true)
+void qVote(PLevel &L, const std::vector<QXf> &tab, int r, bool winner, int threads)
+{
+    const int c = L.c, w = L.w, h = L.h;
+    std::vector<float> ds;
+    for (size_t i = 0; i < L.tgt.size(); ++i) if (L.tgt[i] && L.nd[i] < 1e29f) ds.push_back(L.nd[i]);
+    if (ds.empty()) return;
+    std::nth_element(ds.begin(), ds.begin() + ds.size() * 3 / 4, ds.end());
+    const float sigma2 = std::max(ds[ds.size() * 3 / 4], 1.0f);
+    std::vector<float> out(L.img);
+    pParallel(h, threads, [&](int ya, int yb) {
+        float v[4];
+        for (int y = ya; y < yb; ++y)
+            for (int x = 0; x < w; ++x) {
+                const size_t p = size_t(y) * w + x;
+                if (!L.hole[p]) continue;
+                float acc[4] = {0, 0, 0, 0}, ws = 0.0f, best = 1e30f;
+                for (int dy = -r; dy <= r; ++dy) {
+                    const int qy = y - dy;
+                    if (qy < 0 || qy >= h) continue;
+                    for (int dx = -r; dx <= r; ++dx) {
+                        const int qx = x - dx;
+                        if (qx < 0 || qx >= w) continue;
+                        const size_t q = size_t(qy) * w + qx;
+                        if (!L.tgt[q] || L.nd[q] >= 1e29f) continue;
+                        qValue(L, tab, q, dx, dy, v);
+                        if (winner) {
+                            const float score = L.nd[q] * (1.0f + 0.02f * float(dx * dx + dy * dy));
+                            if (score < best) { best = score; for (int k = 0; k < c; ++k) acc[k] = v[k]; ws = 1.0f; }
+                        } else {
+                            const float wq = std::exp(-L.nd[q] / (2.0f * sigma2));
+                            for (int k = 0; k < c; ++k) acc[k] += wq * v[k];
+                            ws += wq;
+                        }
+                    }
+                }
+                if (ws > 0.0f) for (int k = 0; k < c; ++k) out[p * c + k] = acc[k] / ws;
+            }
+    });
+    L.img.swap(out);
+}
+
+// the final rebuild (each hole pixel from its best covering patch) with the seam taken away (see pFinalSeamless: the same, with the transformed, colour-shifted patches)
+void qFinalSeamless(PLevel &L, const std::vector<QXf> &tab, int r, int threads)
+{
+    const int c = L.c, w = L.w, h = L.h;
+    std::vector<float> pred(L.img.size(), 0.0f);
+    std::vector<uint8_t> has(L.hole.size(), 0);
+    pParallel(h, threads, [&](int ya, int yb) {
+        float v[4];
+        for (int y = ya; y < yb; ++y)
+            for (int x = 0; x < w; ++x) {
+                const size_t p = size_t(y) * w + x;
+                if (!L.tgt[p]) continue;
+                float best = 1e30f;
+                for (int dy = -r; dy <= r; ++dy) {
+                    const int qy = y - dy;
+                    if (qy < 0 || qy >= h) continue;
+                    for (int dx = -r; dx <= r; ++dx) {
+                        const int qx = x - dx;
+                        if (qx < 0 || qx >= w) continue;
+                        const size_t q = size_t(qy) * w + qx;
+                        if (!L.tgt[q] || L.nd[q] >= 1e29f) continue;
+                        if (!L.hole[p] && !L.hole[q]) continue;
+                        const float score = L.nd[q] * (1.0f + 0.02f * float(dx * dx + dy * dy));
+                        if (score < best) {
+                            best = score;
+                            qValue(L, tab, q, dx, dy, v);
+                            for (int k = 0; k < c; ++k) pred[p * c + k] = v[k];
+                            has[p] = 1;
+                        }
+                    }
+                }
+            }
+    });
+    std::vector<float> off(L.img.size(), 0.0f);
+    std::vector<uint8_t> fixedRing(L.hole.size(), 0);
+    for (int y = 0; y < h; ++y)
+        for (int x = 0; x < w; ++x) {
+            const size_t p = size_t(y) * w + x;
+            if (L.hole[p] || !has[p]) continue;
+            bool nearHole = false;
+            for (int dy = -1; dy <= 1 && !nearHole; ++dy)
+                for (int dx = -1; dx <= 1; ++dx) {
+                    const int nx = x + dx, ny = y + dy;
+                    if (nx >= 0 && ny >= 0 && nx < w && ny < h && L.hole[size_t(ny) * w + nx]) { nearHole = true; break; }
+                }
+            if (!nearHole) continue;
+            fixedRing[p] = 1;
+            for (int k = 0; k < c; ++k) off[p * c + k] = L.img[p * c + k] - pred[p * c + k];
+        }
+    for (size_t p = 0; p < L.hole.size(); ++p)
+        if (L.hole[p] && has[p]) for (int k = 0; k < c; ++k) L.img[p * c + k] = pred[p * c + k];
+    std::vector<uint8_t> known(fixedRing);
+    bool changed = true;
+    while (changed) {
+        changed = false;
+        std::vector<size_t> wave;
+        for (int y = 0; y < h; ++y)
+            for (int x = 0; x < w; ++x) {
+                const size_t p = size_t(y) * w + x;
+                if (!L.hole[p] || known[p]) continue;
+                float acc[4] = {0, 0, 0, 0};
+                int n = 0;
+                const int nbx[4] = {x - 1, x + 1, x, x}, nby[4] = {y, y, y - 1, y + 1};
+                for (int j = 0; j < 4; ++j) {
+                    if (nbx[j] < 0 || nby[j] < 0 || nbx[j] >= w || nby[j] >= h) continue;
+                    const size_t q = size_t(nby[j]) * w + nbx[j];
+                    if (!known[q]) continue;
+                    for (int k = 0; k < c; ++k) acc[k] += off[q * c + k];
+                    ++n;
+                }
+                if (n) { for (int k = 0; k < c; ++k) off[p * c + k] = acc[k] / n; wave.push_back(p); }
+            }
+        for (size_t p : wave) { known[p] = 1; changed = true; }
+    }
+    std::vector<size_t> holeList;
+    for (size_t p = 0; p < L.hole.size(); ++p) if (L.hole[p]) holeList.push_back(p);
+    for (int it = 0; it < 400; ++it)
+        for (size_t p : holeList) {
+            const int x = int(p % size_t(w)), y = int(p / size_t(w));
+            float acc[4] = {0, 0, 0, 0};
+            int n = 0;
+            const int nbx[4] = {x - 1, x + 1, x, x}, nby[4] = {y, y, y - 1, y + 1};
+            for (int j = 0; j < 4; ++j) {
+                if (nbx[j] < 0 || nby[j] < 0 || nbx[j] >= w || nby[j] >= h) continue;
+                const size_t q = size_t(nby[j]) * w + nbx[j];
+                if (!L.hole[q] && !fixedRing[q]) continue;
+                for (int k = 0; k < c; ++k) acc[k] += off[q * c + k];
+                ++n;
+            }
+            if (!n) continue;
+            for (int k = 0; k < c; ++k) off[p * c + k] += 1.9f * (acc[k] / n - off[p * c + k]);
+        }
+    for (size_t p : holeList) for (int k = 0; k < c; ++k) L.img[p * c + k] += off[p * c + k];
+}
+
+} // namespace
+
+bool inpaint(uint8_t *pixels, const uint8_t *holeIn, int w, int h, int channels, const Options &opt, uint8_t *filledHole)
+{
+    if (!pixels || !holeIn || w < 8 || h < 8 || channels < 1 || channels > 4) return false;
+    const int r = std::max(2, std::min(5, opt.patchRadius));
+    const int T = opt.threads > 0 ? opt.threads : int(std::max(1u, std::min(4u, std::thread::hardware_concurrency())));
+    const std::vector<QXf> &tab = qTable(r);
+    unsigned seed = opt.seed;
+
+    std::vector<PLevel> pyr(1);
+    PLevel &L0 = pyr[0];
+    L0.w = w; L0.h = h; L0.c = channels;
+    L0.img.resize(size_t(w) * h * channels);
+    for (size_t i = 0; i < L0.img.size(); ++i) L0.img[i] = pixels[i];
+    L0.hole.assign(size_t(w) * h, 0);
+    for (size_t i = 0; i < L0.hole.size(); ++i) L0.hole[i] = holeIn[i] ? 1 : 0;
+    for (int pass = 0; pass < opt.expand; ++pass) {
+        std::vector<uint8_t> grown = L0.hole;
+        for (int y = 0; y < h; ++y)
+            for (int x = 0; x < w; ++x)
+                if (L0.hole[size_t(y) * w + x])
+                    for (int dy = -1; dy <= 1; ++dy)
+                        for (int dx = -1; dx <= 1; ++dx) {
+                            const int nx = x + dx, ny = y + dy;
+                            if (nx >= 0 && ny >= 0 && nx < w && ny < h) grown[size_t(ny) * w + nx] = 1;
+                        }
+        L0.hole.swap(grown);
+    }
+    int minX = w, minY = h, maxX = -1, maxY = -1;
+    size_t holeCount = 0;
+    for (int y = 0; y < h; ++y)
+        for (int x = 0; x < w; ++x)
+            if (L0.hole[size_t(y) * w + x]) { minX = std::min(minX, x); maxX = std::max(maxX, x); minY = std::min(minY, y); maxY = std::max(maxY, y); ++holeCount; }
+    if (holeCount == 0) return true;
+    if (holeCount >= size_t(w) * h) return false;
+
+    const int holeDim = std::max(maxX - minX + 1, maxY - minY + 1);
+    int levels = 1;
+    while (levels < std::max(opt.maxLevels, 10) && (holeDim >> (levels - 1)) > 24 && (std::min(w, h) >> levels) >= 8 * (2 * r + 1)) ++levels;
+    for (int i = 1; i < levels; ++i) pyr.push_back(pDown(pyr[size_t(i - 1)]));
+
+    for (int lv = levels - 1; lv >= 0; --lv) {
+        PLevel &L = pyr[size_t(lv)];
+        pBuild(L, r);
+        qFreeRadius(L);
+        L.xf.assign(size_t(L.w) * L.h, 0);
+        L.bias.assign(size_t(L.w) * L.h * L.c, 0.0f);
+        if (L.srcList.empty()) {
+            if (lv == levels - 1) pPeel(L);
+            continue;
+        }
+        std::mt19937 rng(seed + unsigned(lv));
+        auto randomSource = [&](int &sx, int &sy) {
+            for (int tries = 0; tries < 64; ++tries) {
+                const int s = L.srcList[rng() % L.srcList.size()];
+                sx = s % L.w; sy = s / L.w;
+                if (qValid(L, sx, sy, tab[0])) return;
+            }
+        };
+        if (lv == levels - 1) {
+            pPeel(L);
+            for (size_t i = 0; i < L.tgt.size(); ++i) {
+                if (!L.tgt[i]) continue;
+                int sx = 0, sy = 0;
+                randomSource(sx, sy);
+                L.nx[i] = sx; L.ny[i] = sy; L.xf[i] = 0;
+            }
+        } else {
+            const PLevel &C = pyr[size_t(lv + 1)];
+            for (int y = 0; y < L.h; ++y)
+                for (int x = 0; x < L.w; ++x) {
+                    const size_t i = size_t(y) * L.w + x;
+                    if (!L.tgt[i]) continue;
+                    const int cx = std::min(C.w - 1, x / 2), cy = std::min(C.h - 1, y / 2);
+                    const size_t ci = size_t(cy) * C.w + cx;
+                    int sx = -1, sy = -1, ti = 0;
+                    if (C.tgt[ci] && C.nd[ci] < 1e29f) {
+                        const QXf &t = tab[C.xf[ci]];
+                        const int ox = x - cx * 2, oy = y - cy * 2;
+                        sx = int(std::lround(float(C.nx[ci] * 2) + t.a * ox + t.b * oy));
+                        sy = int(std::lround(float(C.ny[ci] * 2) + t.c * ox + t.d * oy));
+                        ti = C.xf[ci];
+                        for (int k = 0; k < L.c; ++k) L.bias[i * L.c + k] = C.bias[ci * C.c + k];
+                    } else if (!L.hole[i]) { sx = x; sy = y; }
+                    if (!qValid(L, sx, sy, tab[size_t(ti)])) { ti = 0; if (!qValid(L, sx, sy, tab[0])) randomSource(sx, sy); }
+                    L.nx[i] = sx; L.ny[i] = sy; L.xf[i] = uint8_t(ti);
+                }
+            for (size_t i = 0; i < L.tgt.size(); ++i) if (L.tgt[i]) L.nd[i] = 1.0f;
+            qVote(L, tab, r, false, T);
+        }
+        const int emIters = (lv == levels - 1) ? 10 : (lv == 0 ? 3 : 5);
+        pSetConfidence(L, (lv == levels - 1) ? 0.15f : 0.6f);
+        qRemeasure(L, tab, r, T);
+        for (int it = 0; it < emIters; ++it) {
+            if (lv == levels - 1) pSetConfidence(L, 0.15f + 0.6f * float(it) / float(emIters));
+            qMatch(L, tab, r, 2, T, seed);
+            if (opt.progress && !opt.progress(float(levels - 1 - lv) / float(levels) + (float(it + 1) / float(emIters)) / float(levels))) return false;
+            const bool last = (lv == 0 && it == emIters - 1);
+            if (last) qFinalSeamless(L, tab, r, T);
+            else { qVote(L, tab, r, false, T); qRemeasure(L, tab, r, T); }
         }
     }
 
