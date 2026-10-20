@@ -4974,3 +4974,10 @@ George (1.0.40): "Content-Aware fill does nothing now. Also it has no controls i
 
 George (1.0.40): "Content-Aware fill does nothing now." / "It used to just blur stuff." Tested on the bench exactly as the app calls it (4 channels, the default options, 1 and 4 threads): the engine fills. What can make it do nothing on the phone: the area of 3 MP (208th) needs about **450 MB** at the peak (pyramid, matches, colour shifts, window sums, seam correction), and a failed allocation in the fill's job can end the job silently. **Changes:** the area around the hole is now at most **1.5 MP** (about 230 MB); the engine call is in a `try` and an allocation failure (`std::bad_alloc`) falls back to Krita's fill; a result with nothing filled also falls back. Together with the 223rd entry's messages ("working...", "done", or why it stopped), the next build will show which step it reaches.
 **Not verified:** a build or a device.
+
+## 2026-10-20 (225th) — Content-Aware Fill uses every core
+
+**Files:** `plugins/tools/tool_smart_patch/krimble_inpaint.cpp`, `plugins/tools/tool_smart_patch/krimble_inpaint.h` (a comment)
+
+George: "Use as many threads as it takes. That's what multi-core is for." The three engines (`inpaintLegacy`, `inpaintPatchMatchV1`, `inpaint`) used at most 4 threads; they now use **every core the device has** (`std::thread::hardware_concurrency()`; the Galaxy A26 has 8). The work is split by rows (matching, rebuilding) and by pixels (the seam correction), so more cores means more of it at once.
+**Not verified:** a build or a device.

@@ -624,7 +624,9 @@ bool inpaintLegacy(uint8_t *pixels, const uint8_t *holeIn, int w, int h, int cha
 
     if (!pixels || !holeIn || w < 8 || h < 8 || channels < 1 || channels > 4) return false;
     const int r = std::max(1, opt.patchRadius);
-    const int T = opt.threads > 0 ? opt.threads : int(std::max(1u, std::min(4u, std::thread::hardware_concurrency())));
+    // const int T = opt.threads > 0 ? opt.threads : int(std::max(1u, std::min(4u, std::thread::hardware_concurrency())));
+    // Krimble 2026-10-20: George: "Use as many threads as it takes. That's what multi-core is for." Every core the device has (was at most 4).
+    const int T = opt.threads > 0 ? opt.threads : int(std::max(1u, std::thread::hardware_concurrency()));
     std::mt19937 rng(opt.seed);
 
     // level 0: the picture and the hole (grown by `expand` pixels)
@@ -1119,7 +1121,9 @@ bool inpaintPatchMatchV1(uint8_t *pixels, const uint8_t *holeIn, int w, int h, i
 {
     if (!pixels || !holeIn || w < 8 || h < 8 || channels < 1 || channels > 4) return false;
     const int r = std::max(2, opt.patchRadius);
-    const int T = opt.threads > 0 ? opt.threads : int(std::max(1u, std::min(4u, std::thread::hardware_concurrency())));
+    // const int T = opt.threads > 0 ? opt.threads : int(std::max(1u, std::min(4u, std::thread::hardware_concurrency())));
+    // Krimble 2026-10-20: George: "Use as many threads as it takes. That's what multi-core is for." Every core the device has (was at most 4).
+    const int T = opt.threads > 0 ? opt.threads : int(std::max(1u, std::thread::hardware_concurrency()));
     unsigned seed = opt.seed;
 
     std::vector<PLevel> pyr(1);
@@ -1643,7 +1647,9 @@ bool inpaint(uint8_t *pixels, const uint8_t *holeIn, int w, int h, int channels,
 {
     if (!pixels || !holeIn || w < 8 || h < 8 || channels < 1 || channels > 4) return false;
     const int r = std::max(2, std::min(5, opt.patchRadius));
-    const int T = opt.threads > 0 ? opt.threads : int(std::max(1u, std::min(4u, std::thread::hardware_concurrency())));
+    // const int T = opt.threads > 0 ? opt.threads : int(std::max(1u, std::min(4u, std::thread::hardware_concurrency())));
+    // Krimble 2026-10-20: George: "Use as many threads as it takes. That's what multi-core is for." Every core the device has (was at most 4).
+    const int T = opt.threads > 0 ? opt.threads : int(std::max(1u, std::thread::hardware_concurrency()));
     const std::vector<QXf> &tab = qTable(r);
     unsigned seed = opt.seed;
 

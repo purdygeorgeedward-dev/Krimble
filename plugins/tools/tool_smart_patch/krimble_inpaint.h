@@ -11,7 +11,7 @@ struct Options {
     int expand = 2;            // the hole is grown by this many pixels (halos of the selection edge), at full size
     int maxLevels = 8;         // at most this many pyramid levels
     unsigned seed = 1234;      // random seed (the same input gives the same result)
-    int threads = 0;           // 0 = as many as the device has (at most 4)
+    int threads = 0;           // 0 = as many as the device has (Krimble 2026-10-20: no longer at most 4)
     std::function<bool(float)> progress;   // called now and then with 0..1; return false to stop (inpaint() then returns false and changes nothing)
     float sharpness = 8.0f;    // higher = sharper and more "copied" (a few sources win), lower = smoother (many sources are averaged)
                                // Krimble 2026-10-19: used only by the first engine (inpaintLegacy); the engine used now always ends with real pixels, copied
