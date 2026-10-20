@@ -60,7 +60,11 @@ static QString krimbleTextSvg(const QString &text)
     QString family = s_family;
     family.remove(QLatin1Char('\''));
     family.remove(QLatin1Char('"'));
-    QString style = QStringLiteral("font-family:'%1'; font-size:%2pt; fill:%3; text-anchor:%4;")
+    // QString style = QStringLiteral("font-family:'%1'; font-size:%2pt; fill:%3; text-anchor:%4;")
+    // Krimble 2026-10-19: George (1.0.39, test list, item 8): the Type tool "does not display emojis". The chosen font has no emoji, and the text
+    // engine was given only that one family. The phone's color emoji fonts are now listed after it, as fallbacks for the characters it lacks
+    // (Android's own, and Samsung's). Reading the style back (krimbleApplyTextProperty) still takes only the first family.
+    QString style = QStringLiteral("font-family:'%1', 'Noto Color Emoji', 'Samsung Color Emoji'; font-size:%2pt; fill:%3; text-anchor:%4;")
                         .arg(family.toHtmlEscaped(), QString::number(s_size), s_color.name(), anchor);
     if (s_bold) style += QStringLiteral(" font-weight:bold;");
     if (s_italic) style += QStringLiteral(" font-style:italic;");
@@ -96,6 +100,14 @@ static bool krimbleAskText(QWidget *parent, QString *text, bool editing = false)
 
     QPlainTextEdit *edit = new QPlainTextEdit(&dialog);
     edit->setPlainText(*text);
+#if QT_VERSION >= QT_VERSION_CHECK(5, 13, 0)
+    {
+        // Krimble 2026-10-19: emoji show in the typing box too
+        QFont editFont = edit->font();
+        editFont.setFamilies(QStringList() << editFont.family() << QStringLiteral("Noto Color Emoji") << QStringLiteral("Samsung Color Emoji"));
+        edit->setFont(editFont);
+    }
+#endif
     edit->setMinimumHeight(edit->fontMetrics().height() * 5);
     layout->addWidget(edit);
 
@@ -177,6 +189,10 @@ static bool krimbleAskText(QWidget *parent, QString *text, bool editing = false)
     layout->addWidget(preview);
     updatePreview = [&]() {
         QFont previewFont = fontBox->currentFont();
+#if QT_VERSION >= QT_VERSION_CHECK(5, 13, 0)
+        // Krimble 2026-10-19: emoji show in the preview too (the same fallbacks as the text on the canvas)
+        previewFont.setFamilies(QStringList() << previewFont.family() << QStringLiteral("Noto Color Emoji") << QStringLiteral("Samsung Color Emoji"));
+#endif
         previewFont.setPointSizeF(qBound(8.0, sizeBox->value(), 40.0));
         previewFont.setBold(boldButton->isChecked());
         previewFont.setItalic(italicButton->isChecked());
