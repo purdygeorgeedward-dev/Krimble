@@ -4886,3 +4886,10 @@ George: "Build." `krimbleBuildNumber` 39 -> **40**: versionName **1.0.40-beta**,
 
 George (1.0.40, test list, item 2): "Invisible resize gadget on toolbox is 75% down the screen. Why? And I can't see it. The Krita thing was 50% down and at least visible with its little dots. Can I have that back?" Since the 2026-10-12 entries, `drawPrimitive(PE_IndicatorDockWidgetResizeHandle)` on Android returned at once, so the separator between a docked panel (or the toolbox) and the canvas was drawn as nothing; with the invisible grab zones also switched off (204th), nothing showed where to resize. That early `return` is commented out, so the code of 2026-10-11 runs again: the **base style's own handle** (Krita's little dots), drawn in the **middle of the separator** (centred along its length), in a strip of the original width. Nothing else changed (the separator's touch width stays the base style's, as with Krita).
 **Not verified:** a build or a device. Why the invisible zone was felt at about 75% down is not known; with the zones off (204th) and the dots back, the dots show where the separator is.
+
+## 2026-10-20 (213th) — View > Zoom Gadget: the zoom slider in the status bar, hidden by default
+
+**Files:** `libs/ui/kis_statusbar.cc`, `libs/ui/KisMainWindow.cpp`
+
+George (1.0.40, test list, item 4): "Thumb tripped over the gadget on the bottom bar and blew up the image accidentally. Toggle off just like the little rotate gadget on the bar." Done the same way as the Rotation Gadget (87th and 88th entries): a check item **View > Zoom Gadget**, right after View > Rotation Gadget, turns the zoom slider in the status bar on or off at once; the choice is remembered (setting `krimble_show_zoom_gadget`) and it is **off by default**. `KisStatusBar::setView` hides the slider (named `krimbleZoomGadget`) after adding it unless the setting is on, and `showAllStatusBarItems()` skips it while the setting is off. Pinch zoom and the View menu's zoom items still work.
+**Not verified:** a build or a device.

@@ -2530,6 +2530,26 @@ static void krimbleInstallViewExtras(KisMainWindow *win)
         QSignalBlocker blocker(gadget);
         // gadget->setChecked(KisConfig(true).readEntry<int>("krimble_show_rotation_gadget", 1) != 0);   (shown by default)
         gadget->setChecked(KisConfig(true).readEntry<int>("krimble_show_rotation_gadget", 0) != 0);   // George: hidden by default
+
+        // Krimble 2026-10-20: George (1.0.40): "Thumb tripped over the gadget on the bottom bar and blew up the image accidentally. Toggle off just
+        // like the little rotate gadget on the bar." View > Zoom Gadget, right after Rotation Gadget: the zoom slider in the status bar on or off
+        // (setting krimble_show_zoom_gadget, hidden by default).
+        QAction *zoomGadget = viewMenu->findChild<QAction*>(QStringLiteral("krimbleZoomGadget"));
+        if (!zoomGadget) {
+            zoomGadget = new QAction(i18n("Zoom Gadget"), viewMenu);
+            zoomGadget->setObjectName(QStringLiteral("krimbleZoomGadget"));
+            zoomGadget->setCheckable(true);
+            viewMenu->addAction(zoomGadget);
+            QObject::connect(zoomGadget, &QAction::toggled, win, [win](bool on) {
+                KisConfig cfg(false);
+                cfg.writeEntry<int>("krimble_show_zoom_gadget", on ? 1 : 0);
+                if (QWidget *slider = win->statusBar() ? win->statusBar()->findChild<QWidget*>(QStringLiteral("krimbleZoomGadget")) : nullptr) {
+                    slider->setVisible(on);
+                }
+            });
+        }
+        QSignalBlocker zoomBlocker(zoomGadget);
+        zoomGadget->setChecked(KisConfig(true).readEntry<int>("krimble_show_zoom_gadget", 0) != 0);
     });
 }
 

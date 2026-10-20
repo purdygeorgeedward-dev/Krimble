@@ -171,6 +171,14 @@ void KisStatusBar::setView(QPointer<KisView> imageView)
         updateStatusBarProfileLabel();
         slotCanvasRotationChanged();
         addStatusBarItem(m_imageView->zoomManager()->zoomActionWidget());
+        // Krimble 2026-10-20: George (1.0.40, test list, item 4): "Thumb tripped over the gadget on the bottom bar and blew up the image accidentally.
+        // Toggle off just like the little rotate gadget on the bar." The zoom gadget (the zoom slider in the status bar) is hidden unless
+        // View > Zoom Gadget is checked (setting krimble_show_zoom_gadget, hidden by default like the rotation gadget). Pinch zoom and the
+        // View menu's zoom items still work.
+        if (QWidget *zoomGadget = m_imageView->zoomManager()->zoomActionWidget()) {
+            zoomGadget->setObjectName(QStringLiteral("krimbleZoomGadget"));
+            zoomGadget->setVisible(KisConfig(true).readEntry<int>("krimble_show_zoom_gadget", 0) != 0);
+        }
     }
     else {
         m_canvasAngleSelector->setVisible(false);
@@ -218,6 +226,9 @@ void KisStatusBar::hideAllStatusBarItems()
 void KisStatusBar::showAllStatusBarItems()
 {
     Q_FOREACH(const StatusBarItem& sbItem, m_statusBarItems) {
+        // Krimble 2026-10-20: the zoom gadget stays hidden when View > Zoom Gadget is off (see setView)
+        if (sbItem.widget() && sbItem.widget()->objectName() == QLatin1String("krimbleZoomGadget")
+                && KisConfig(true).readEntry<int>("krimble_show_zoom_gadget", 0) == 0) continue;
         sbItem.show();
     }
 }
