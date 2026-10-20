@@ -4900,3 +4900,10 @@ George (1.0.40, test list, item 4): "Thumb tripped over the gadget on the bottom
 
 George (1.0.40, test list, item 6): "About Krimble looks good. Put my name first in list of authors. George Edward Purdy". The About window's "Created By" list is read from `developers.txt` (one name a line, joined with commas); **George Edward Purdy** is added as the first line, before Krita's authors (who stay, in their order).
 **Not verified:** a build or a device.
+
+## 2026-10-20 (215th) — Soften starts with a 100 px brush
+
+**Files:** `plugins/tools/basictools/kis_tool_soften.cc`
+
+George (1.0.40, test list, item 9): "Soften needs to default to a bigger brush size." `KisToolSoften::activate` loads the built-in filter-brush preset (gaussian blur) each time the tool is chosen; its size is now set to **100 px** (`settings()->setPaintOpSize(100)`) before it is used. The size can still be changed while the tool is in use (it starts at 100 again the next time Soften is chosen).
+**Not verified:** a build or a device.

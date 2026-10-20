@@ -12,6 +12,7 @@
 #include <KisResourceModel.h>
 #include <KisResourceTypes.h>
 #include <brushengine/kis_paintop_preset.h>
+#include <brushengine/kis_paintop_settings.h>   // Krimble 2026-10-20: setPaintOpSize
 
 #include <kis_canvas2.h>
 #include <KisViewManager.h>
@@ -52,6 +53,11 @@ void KisToolSoften::activate(const QSet<KoShape*> &shapes)
     // KisPaintOpPresetSP softenPreset = matches.first().dynamicCast<KisPaintOpPreset>();
     KisPaintOpPresetSP softenPreset = krimbleLoadEmbeddedPreset(QStringLiteral("filter"));
     if (softenPreset) {
+        // Krimble 2026-10-20: George (1.0.40, test list, item 9): "Soften needs to default to a bigger brush size." The built-in filter preset is
+        // small for softening on a phone; it starts at 100 px (the size can still be changed as usual while the tool is in use).
+        if (softenPreset->settings()) {
+            softenPreset->settings()->setPaintOpSize(100.0);
+        }
         canvas2->viewManager()->canvasResourceProvider()->setPaintOpPreset(softenPreset);
     }
 }
