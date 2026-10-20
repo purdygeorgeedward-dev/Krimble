@@ -1306,10 +1306,17 @@ inline void qSample(const PLevel &L, float fx, float fy, float *out)
         out[k] = (1 - ay) * ((1 - ax) * p00[k] + ax * p10[k]) + ay * ((1 - ax) * p01[k] + ax * p11[k]);
 }
 
-// the value the match of target q gives to the pixel at offset (dx, dy) from q (the transformed source, plus the colour shift)
-inline void qValue(const PLevel &L, const std::vector<QXf> &tab, size_t q, int dx, int dy, float *out)
+// the value the match of target q gives to the pixel at offset (dx, dy) from q (the transformed source, plus the colour shift). `nearest`: the source pixel nearest
+// to the transformed spot, not a blend of four (the final rebuild: a blend of four neighbours softens every turned or resized copy)
+inline void qValue(const PLevel &L, const std::vector<QXf> &tab, size_t q, int dx, int dy, float *out, bool nearest = false)
 {
     const QXf &t = tab[L.xf[q]];
+    if (nearest && L.xf[q] != 0) {
+        const int sx = int(std::lround(float(L.nx[q]) + t.a * dx + t.b * dy)), sy = int(std::lround(float(L.ny[q]) + t.c * dx + t.d * dy));
+        const float *p = &L.img[(size_t(sy) * L.w + sx) * L.c];
+        for (int k = 0; k < L.c; ++k) out[k] = p[k] + L.bias[q * L.c + k];
+        return;
+    }
     if (L.xf[q] == 0) {
         const float *p = &L.img[(size_t(L.ny[q] + dy) * L.w + (L.nx[q] + dx)) * L.c];
         for (int k = 0; k < L.c; ++k) out[k] = p[k] + L.bias[q * L.c + k];
@@ -1524,7 +1531,7 @@ void qFinalSeamless(PLevel &L, const std::vector<QXf> &tab, int r, int threads)
                         const float score = L.nd[q] * (1.0f + 0.02f * float(dx * dx + dy * dy));
                         if (score < best) {
                             best = score;
-                            qValue(L, tab, q, dx, dy, v);
+                            qValue(L, tab, q, dx, dy, v, true);
                             for (int k = 0; k < c; ++k) pred[p * c + k] = v[k];
                             has[p] = 1;
                         }
