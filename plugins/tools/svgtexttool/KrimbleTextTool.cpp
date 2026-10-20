@@ -31,6 +31,7 @@
 #include <QDialogButtonBox>
 #include <QDoubleSpinBox>
 #include <QFontComboBox>
+#include <QStringListModel>   // Krimble 2026-10-19: Noto families taken out of the font list
 #include <QGuiApplication>
 #include <QHBoxLayout>
 #include <QLabel>
@@ -99,6 +100,16 @@ static bool krimbleAskText(QWidget *parent, QString *text, bool editing = false)
     layout->addWidget(edit);
 
     QFontComboBox *fontBox = new QFontComboBox(&dialog);
+    // Krimble 2026-10-19: George (1.0.39, test list, item 8): "There are still lots of foreign language Noto fonts" and "I'm starting to really hate
+    // Noto." The phone's own Noto families (one per script) are taken out of this list. They stay installed, so text in other scripts still draws
+    // (the text engine falls back to them); they are only not offered here.
+    if (QStringListModel *families = qobject_cast<QStringListModel*>(fontBox->model())) {
+        QStringList kept;
+        Q_FOREACH (const QString &family, families->stringList()) {
+            if (!family.startsWith(QLatin1String("Noto"), Qt::CaseInsensitive)) kept << family;
+        }
+        families->setStringList(kept);
+    }
     fontBox->setCurrentFont(QFont(s_family));
     layout->addWidget(fontBox);
 

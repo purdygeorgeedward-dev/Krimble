@@ -18,6 +18,7 @@
 #include <QStandardPaths>
 #include <QDesktopServices>
 #include <QScreen>
+#include <QRegularExpression>   // Krimble 2026-10-19: krimbleInstallDockEdgeGrabs
 #include <QDialog>
 #include <QDockWidget>
 #include <QIcon>
@@ -852,6 +853,14 @@ private:
 
 static void krimbleInstallDockEdgeGrabs(QMainWindow *win)
 {
+    // Krimble 2026-10-19: George (1.0.39): "it's not just selection tools. Any tool, including text, when you draw will grab the edge of the
+    // toolbox. We should go back to the original handle concept from Krita." The invisible grab zones over the canvas (KrimbleDockEdgeGrab)
+    // are switched off: any that exist are hidden and no new ones are made. Panels are resized with Krita's own handle again, the separator
+    // between a panel and the canvas (widened for fingers by KisWideDockSeparatorStyle, not changed). The code below is kept, not run.
+    Q_FOREACH (QWidget *existing, win->findChildren<QWidget*>(QRegularExpression(QStringLiteral("^krimbleEdgeGrab_")), Qt::FindDirectChildrenOnly)) {
+        existing->hide();
+    }
+    return;
     Q_FOREACH (QDockWidget *dock, win->findChildren<QDockWidget*>()) {
         const QString grabName = QStringLiteral("krimbleEdgeGrab_") + dock->objectName();
         QWidget *grab = win->findChild<QWidget*>(grabName, Qt::FindDirectChildrenOnly);

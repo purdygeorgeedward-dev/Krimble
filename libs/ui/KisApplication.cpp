@@ -83,6 +83,7 @@
 #include <KoShapeRegistry.h>
 #include "KoConfig.h"
 #include <QFontDatabase>
+#include <QFileInfo>   // Krimble 2026-10-19: krimbleLoadBundledFonts
 #include <KoFontRegistry.h>
 #include <KoResourcePaths.h>
 #include <KisMimeDatabase.h>
@@ -1278,11 +1279,43 @@ void KisApplication::loadPlugins()
 static void krimbleLoadBundledFonts()
 {
     QStringList files;
+    // Krimble 2026-10-19: George (1.0.39): none of the bundled fonts (his five, or the 52 open families) are in the Type tool's list. The
+    // folders searched were only KoResourcePaths::assetDirs("data") + "/fonts". On Android the installed share/ folder is packed into the APK's
+    // assets (build.gradle, copyAssets: share/krita/fonts -> assets/krita/fonts), which is not one of those folders. That folder is now
+    // searched too ("assets:/krita/fonts"), and because the text engine (fontconfig, FreeType) can only open real files, every font found in
+    // the assets is first copied to the app's own data folder (<app data>/krimble-fonts, copied again only when its size changed), and the
+    // copy is what is registered with Qt and with the text engine.
+    QStringList fontDirs;
     Q_FOREACH (const QString &dir, KoResourcePaths::assetDirs("data")) {
-        const QDir fontDir(dir + QStringLiteral("/fonts"));
+        fontDirs << dir + QStringLiteral("/fonts");
+    }
+#ifdef Q_OS_ANDROID
+    fontDirs << QStringLiteral("assets:/krita/fonts");
+    const QString copyDir = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + QStringLiteral("/krimble-fonts");
+    QDir().mkpath(copyDir);
+#endif
+    Q_FOREACH (const QString &dirPath, fontDirs) {
+        const QDir fontDir(dirPath);
         Q_FOREACH (const QString &name, fontDir.entryList(QStringList() << QStringLiteral("*.ttf") << QStringLiteral("*.otf"), QDir::Files)) {
-            const QString path = fontDir.absoluteFilePath(name);
-            if (!files.contains(path)) files << path;
+            QString path = fontDir.absoluteFilePath(name);
+#ifdef Q_OS_ANDROID
+            if (path.startsWith(QLatin1String("assets:"))) {
+                const QString target = copyDir + QLatin1Char('/') + name;
+                if (QFileInfo(target).size() != QFileInfo(path).size()) {
+                    QFile::remove(target);
+                    if (!QFile::copy(path, target)) {
+                        qWarning() << "Krimble: font could not be copied:" << path;
+                        continue;
+                    }
+                }
+                path = target;
+            }
+#endif
+            bool known = false;
+            Q_FOREACH (const QString &f, files) {
+                if (QFileInfo(f).fileName() == name) { known = true; break; }
+            }
+            if (!known) files << path;
         }
     }
     int loaded = 0;
