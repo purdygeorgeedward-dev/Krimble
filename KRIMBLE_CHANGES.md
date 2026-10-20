@@ -4858,3 +4858,10 @@ George, after the two ways forward were laid out (Photoshop's additions to Patch
 - Propagation carries a neighbour's transform with its match; the random search keeps the transform and also tries another transform at the same spot, and the plain copy.
 **Tried here** (tools/inpaint-bench, one core, compared with the 206th entry's engine): a hole in a cheek now fills with skin tones instead of grey (colour adaptation); the coffee cup's rim continues further around the curve; the circus stage and grass are as sharp as before; brick rows may bend slightly. About twice as slow (the circus test: 4.9 s against 2.4 s on one core; the phone has 4). The area budget of `krimble_fill.cpp` is now **3 MP** (was 4): this engine keeps about 75 bytes a pixel.
 **Not yet:** Photoshop's **sampling area** (painting where the fill may copy from), which needs its own control. **Not verified:** a build or a device.
+
+## 2026-10-20 (209th) — Select > Similar (Photoshop)
+
+**Files:** `plugins/extensions/colorrange/colorrange.cc`, `plugins/extensions/colorrange/colorrange.h`, `krita/kritamenu.action`
+
+George: asked where "Select Similar" is, then "Well, I want that." The Select menu (`krita5.xmlgui`) already listed an action `similar` (text "Similar"), but no such action was ever defined or created, so the menu item never appeared. **Change:** the Color Range plugin now creates the `similar` action (defined in `kritamenu.action`, enabled only while there is a selection). **Select > Similar** adds to the current selection every pixel of the active layer whose colour is within the **Magic Wand's threshold** (the contiguous selection tool's saved `threshold`, as Photoshop uses the Magic Wand tolerance) of a colour inside the selection. Colours are gathered from the selected pixels into a 64 x 64 x 64 grid, grown by the threshold per channel, then every pixel of the picture is looked up (fast, one pass). Transparent pixels are included only if the selection contained transparent pixels. One undo step, "Select Similar".
+**Not verified:** a build or a device.

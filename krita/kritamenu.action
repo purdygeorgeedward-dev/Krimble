@@ -1522,6 +1522,19 @@
       <isCheckable>false</isCheckable>
       <statusTip></statusTip>
     </Action>
+    <!-- Krimble: Select > Similar (Photoshop) -->
+    <Action name="similar">
+      <icon></icon>
+      <text>Si&amp;milar</text>
+      <whatsThis></whatsThis>
+      <toolTip>Select pixels of similar colour across the layer (Magic Wand tolerance)</toolTip>
+      <iconText>Similar</iconText>
+      <activationFlags>10000000000</activationFlags>
+      <activationConditions>100</activationConditions>
+      <shortcut></shortcut>
+      <isCheckable>false</isCheckable>
+      <statusTip></statusTip>
+    </Action>
     <Action name="selectopaque">
       <icon></icon>
       <text>Select &amp;Opaque (Replace)</text>
