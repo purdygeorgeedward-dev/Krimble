@@ -17,11 +17,12 @@ Goal: build original, from-scratch implementations of standard, well-documented 
 | **Bloom** | Threshold bright areas → blur → Add/Screen back | Threshold, intensity, radius |
 | **Chromatic Aberration** | Per-channel radial offset (R/B shifted outward from center, G fixed) | Offset amount, falloff |
 | **Lens Dirt** | Overlay a smudge/dust texture map, blended via Screen, modulated by scene brightness | Texture asset, intensity |
+| **Light Saber** (added 2026-10-20, George) | A glowing energy blade drawn along a line, a path or a selection: a thin near-white core, a coloured inner glow (small blur radius), and a wide soft outer glow (large blur), composited with Screen/Add; optional faint flicker along the blade. A Glow variant: the same blur/Screen pieces, with a stroked line as the mask instead of the image's own alpha | Colour, core width, glow radius, intensity, blade length/angle (drag a line), flicker amount |
 
 ## Sequencing
 
 1. Ship after: Content-Aware Fill (verified), Healing Brush (verified), Adjustments Panel, text tool rebuild.
-2. Suggested build order: Drop Shadow → Glow → Bevel/Emboss (simplest math first, reuses shared blur/luminance utilities).
+2. Suggested build order: Drop Shadow → Glow → Light Saber (reuses Glow) → Bevel/Emboss (simplest math first, reuses shared blur/luminance utilities).
 3. Chrome/Metallic, Lens Flare, Bloom, Chromatic Aberration, Lens Dirt as a second wave — share a common "render/composite" filter base class where possible.
 
 ## Licensing/attribution note

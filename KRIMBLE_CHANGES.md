@@ -5001,3 +5001,9 @@ George: "Is it time to build?" `krimbleBuildNumber` 40 -> **41**: versionName **
 
 George, on the bold "Text" heading the 203rd entry added at the top of the Type window: "Lame." / "Leave it out. It just sucks." The heading (`QLabel heading`) is commented out; the window opens straight on the typing box as before 1.0.40. (George's original ask, 1.0.39 item 8, was "a title at the top"; this replaces it with nothing, at his word.)
 **Not verified:** a build or a device.
+
+## 2026-10-20 (229th) — Effects pack plan: Light Saber added
+
+**Files:** `KRIMBLE_PHASE2_EFFECTS.md` (a document only; no code)
+
+George, going through what is parked (the Eye Candy-style effects pack): "Light sabre". A **Light Saber** effect is added to the effect catalog: a glowing energy blade along a drawn line, path or selection, made of a thin near-white core, a coloured inner glow and a wide soft outer glow composited with Screen/Add, with optional flicker. It is a variant of **Glow** (same blur and Screen pieces, with a stroked line as the mask), so it comes right after Glow in the suggested build order (Drop Shadow, Glow, Light Saber, Bevel/Emboss). Not started; the pack still waits on the items listed at the top of that file.
