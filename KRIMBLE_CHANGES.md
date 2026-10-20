@@ -4921,3 +4921,10 @@ George (1.0.40, test list, items 11 to 13): "Switch to paintbrush and it's the S
 
 George (1.0.40, test list, item 14): "Dodge and Burn suck. It's just black and white. Comment out these tools for now." and "I am concerned that Dodge and Burn do nothing more than a simple brush could do, and they add clutter to an already cluttered toolbox." They were a brush painting white or black with a lighten or darken blend; real dodge and burn change exposure by tonal range (shadows, midtones, highlights) and keep the colour. The two `KoToolRegistry::instance()->add(...)` lines are commented out, so the tools are not registered and not in the toolbox. Their code (`kis_tool_dodge.cc`, `kis_tool_burn.cc`) is kept and still built. (The retouch give-back of the 216th entry still names them; harmless.)
 **Not verified:** a build or a device.
+
+## 2026-10-20 (218th) — Windows no longer bounce back after a resize
+
+**Files:** `libs/ui/KisApplication.cpp`
+
+George (1.0.40, test list, item 16): "Try to use corner resize on Preferences dialog and it bounces. No resize." and "The bounce behavior in the windows is annoying. It's only useful if a window is about to become stranded offscreen, and that doesn't happen any more thanks to our two finger move." `KrimbleDialogKeeper` ran `keepOnScreen()` (no bigger than the screen, pushed back from the edges) after **every** Show and **every** Resize of a dialog or floating panel, so a window resized with the corner grip (or its own edges) past an edge of the screen was pulled straight back. It now runs only when a window is **shown** (so it still opens fully on screen); a resize is left as the user made it. The two-finger move still keeps at least 160 px on screen (`keepReachable`). The old lines are commented out.
+**Not verified:** a build or a device. If Preferences still will not get smaller, the cause is its minimum size (its page list and button row), not the bounce.

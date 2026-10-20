@@ -642,10 +642,21 @@ protected:
                         }
                     }
                     // After the current event, once the dialog has its final size and place.
-                    QPointer<QWidget> guard(dialog);
-                    QTimer::singleShot(0, dialog, [guard]() {
-                        keepOnScreen(guard);
-                    });
+                    // Krimble 2026-10-20: George (1.0.40, test list, item 16: the corner resize of Preferences "bounces. No resize."): "The bounce
+                    // behavior in the windows is annoying. It's only useful if a window is about to become stranded offscreen, and that doesn't
+                    // happen any more thanks to our two finger move." The pull back inside the screen (keepOnScreen: no bigger than the screen,
+                    // pushed back from the edges) now runs only when a window is SHOWN, so it opens fully on screen; a resize (the corner grip,
+                    // the window's own edges) is no longer pushed back. The two-finger move still keeps 160 px on screen (keepReachable).
+                    // QPointer<QWidget> guard(dialog);
+                    // QTimer::singleShot(0, dialog, [guard]() {
+                    //     keepOnScreen(guard);
+                    // });
+                    if (event->type() == QEvent::Show) {
+                        QPointer<QWidget> guard(dialog);
+                        QTimer::singleShot(0, dialog, [guard]() {
+                            keepOnScreen(guard);
+                        });
+                    }
                 }
             }
             break;
