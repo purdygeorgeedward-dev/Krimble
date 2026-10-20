@@ -4893,3 +4893,10 @@ George (1.0.40, test list, item 2): "Invisible resize gadget on toolbox is 75% d
 
 George (1.0.40, test list, item 4): "Thumb tripped over the gadget on the bottom bar and blew up the image accidentally. Toggle off just like the little rotate gadget on the bar." Done the same way as the Rotation Gadget (87th and 88th entries): a check item **View > Zoom Gadget**, right after View > Rotation Gadget, turns the zoom slider in the status bar on or off at once; the choice is remembered (setting `krimble_show_zoom_gadget`) and it is **off by default**. `KisStatusBar::setView` hides the slider (named `krimbleZoomGadget`) after adding it unless the setting is on, and `showAllStatusBarItems()` skips it while the setting is off. Pinch zoom and the View menu's zoom items still work.
 **Not verified:** a build or a device.
+
+## 2026-10-20 (214th) — About: George Edward Purdy first among the authors
+
+**Files:** `krita/data/aboutdata/developers.txt`
+
+George (1.0.40, test list, item 6): "About Krimble looks good. Put my name first in list of authors. George Edward Purdy". The About window's "Created By" list is read from `developers.txt` (one name a line, joined with commas); **George Edward Purdy** is added as the first line, before Krita's authors (who stay, in their order).
+**Not verified:** a build or a device.
