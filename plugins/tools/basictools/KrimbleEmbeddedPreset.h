@@ -29,6 +29,10 @@ inline KisPaintOpPresetSP krimbleLoadEmbeddedPreset(const QString &paintOpId)
     if (!preset->load(KisGlobalResourcesInterface::instance())) {
         return KisPaintOpPresetSP();
     }
+    // Krimble 2026-10-20: the retouch tools' presets are named "Krimble Retouch <engine>", so that a painting tool chosen afterwards can tell that the
+    // current brush is a retouch brush and take the user's own brush back (KisToolPaint::activate; George, 1.0.40: Brush, Line and Circle were
+    // still the Smudge tool after Smudge).
+    preset->setName(QStringLiteral("Krimble Retouch ") + paintOpId);
     return preset;
 }
 

@@ -43,6 +43,7 @@
 #include <kis_paint_device.h>
 #include <kis_layer.h>
 #include <KisViewManager.h>
+#include <QApplication>   // Krimble 2026-10-20
 #include <kis_canvas2.h>
 #include <kis_cubic_curve.h>
 #include "kis_display_color_converter.h"
@@ -157,6 +158,30 @@ void KisToolPaint::tryRestoreOpacitySnapshot()
 
 void KisToolPaint::activate(const QSet<KoShape*> &shapes)
 {
+    // Krimble 2026-10-20: George (1.0.40, test list, items 11 to 13): "Switch to paintbrush and it's the Smudge tool." Line and Circle too. A painting
+    // tool that is not one of the retouch tools (Smudge, Soften, Dodge, Burn) takes the user's own brush back when it starts while a retouch brush
+    // ("Krimble Retouch ...", see KrimbleEmbeddedPreset.h) is still current; the user's brush is kept by the retouch tools when they start
+    // (KisToolBrush::activate).
+    {
+        const QString me = objectName();
+        const bool retouchTool = me == QLatin1String("tool_smudge") || me == QLatin1String("tool_soften")
+                || me == QLatin1String("tool_dodge") || me == QLatin1String("tool_burn");
+        KisCanvas2 *kisCanvas = dynamic_cast<KisCanvas2*>(canvas());
+        KisPaintOpPresetSP current = currentPaintOpPreset();
+        if (!retouchTool && kisCanvas && kisCanvas->viewManager() && current
+                && current->name().startsWith(QLatin1String("Krimble Retouch"))) {
+            const QVariant saved = qApp->property("krimbleUserPreset");
+            KisPaintOpPresetSP userPreset = saved.isValid() ? saved.value<KisPaintOpPresetSP>() : KisPaintOpPresetSP();
+            if (userPreset) {
+                KisCanvasResourceProvider *provider = kisCanvas->viewManager()->canvasResourceProvider();
+                provider->setPaintOpPreset(userPreset);
+                if (qApp->property("krimbleUserOpacity").isValid()) provider->setOpacity(qApp->property("krimbleUserOpacity").toDouble());
+                if (qApp->property("krimbleUserFlow").isValid()) provider->setFlow(qApp->property("krimbleUserFlow").toDouble());
+                if (qApp->property("krimbleUserSize").isValid()) provider->setSize(qApp->property("krimbleUserSize").toDouble());
+            }
+        }
+    }
+
     if (currentPaintOpPreset()) {
         const QString formattedBrushName = currentPaintOpPreset() ? currentPaintOpPreset()->name().replace("_", " ") : QString();
         Q_EMIT statusTextChanged(formattedBrushName);

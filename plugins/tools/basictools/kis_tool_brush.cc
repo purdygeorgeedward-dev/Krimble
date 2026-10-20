@@ -8,6 +8,7 @@
  */
 
 #include "kis_tool_brush.h"
+#include <QApplication>   // Krimble 2026-10-20: the user's brush, kept for the whole app
 #include <kis_icon.h>
 
 #include <QCheckBox>
@@ -90,6 +91,18 @@ void KisToolBrush::activate(const QSet<KoShape*> &shapes)
             m_savedRetouchOpacity = provider->opacity();
             m_savedRetouchFlow = provider->flow();
             m_savedRetouchSize = provider->size();
+            // Krimble 2026-10-20: George (1.0.40, test list, items 11 to 13): after Smudge, "Switch to paintbrush and it's the Smudge tool", and the same
+            // with Line and Circle. The give-back in deactivate() below did not reach them (Line and Circle are not brush tools, and the order in which
+            // the tool manager deactivates the old tool and activates the new one is not something to rely on). The user's own brush (not a retouch
+            // brush) is now also kept for the whole app, and every painting tool takes it back when it starts while a retouch brush is current
+            // (KisToolPaint::activate).
+            KisPaintOpPresetSP current = provider->currentPreset();
+            if (current && !current->name().startsWith(QLatin1String("Krimble Retouch"))) {
+                qApp->setProperty("krimbleUserPreset", QVariant::fromValue(current));
+                qApp->setProperty("krimbleUserOpacity", provider->opacity());
+                qApp->setProperty("krimbleUserFlow", provider->flow());
+                qApp->setProperty("krimbleUserSize", provider->size());
+            }
         }
     }
     KisToolFreehand::activate(shapes);

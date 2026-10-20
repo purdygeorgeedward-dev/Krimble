@@ -4907,3 +4907,10 @@ George (1.0.40, test list, item 6): "About Krimble looks good. Put my name first
 
 George (1.0.40, test list, item 9): "Soften needs to default to a bigger brush size." `KisToolSoften::activate` loads the built-in filter-brush preset (gaussian blur) each time the tool is chosen; its size is now set to **100 px** (`settings()->setPaintOpSize(100)`) before it is used. The size can still be changed while the tool is in use (it starts at 100 again the next time Soften is chosen).
 **Not verified:** a build or a device.
+
+## 2026-10-20 (216th) — After Smudge (or Soften, Dodge, Burn), Brush, Line, Circle and the other painting tools get the user's brush back
+
+**Files:** `plugins/tools/basictools/KrimbleEmbeddedPreset.h`, `plugins/tools/basictools/kis_tool_brush.cc`, `libs/ui/tool/kis_tool_paint.cc`
+
+George (1.0.40, test list, items 11 to 13): "Switch to paintbrush and it's the Smudge tool. :(", "Switch to line tool and it's the Smudge tool.", "Circle? Smudge tool." The 139th entry's give-back (`KisToolBrush::deactivate` restores the brush kept in `activate`) did not reach them: Line and Circle are not brush tools, and the order in which the tool manager deactivates the old tool and activates the new one is not something to rely on. **Change:** the retouch tools' presets are named **"Krimble Retouch <engine>"** when loaded (`krimbleLoadEmbeddedPreset`). When a retouch tool starts, the user's own brush (preset, opacity, flow, size; only if the current brush is not a retouch brush) is also kept for the whole app (`qApp` properties). `KisToolPaint::activate` (the base of every painting tool: Brush, Line, Ellipse, Rectangle, Polygon and the rest) takes that brush back when it starts while a retouch brush is current, unless it is itself a retouch tool. The 139th entry's code stays.
+**Not verified:** a build or a device.
