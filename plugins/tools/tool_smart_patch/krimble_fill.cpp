@@ -50,7 +50,10 @@ bool fill(KisPaintDeviceSP imageDev, KisPaintDeviceSP maskDev, const QRect &boun
     // app calls it, with 1 or 4 threads; on the phone, an area of 3 MP needs about 450 MB at the peak (the pyramid, the matches, the colour shifts, the
     // window sums, the seam correction), and a failed allocation inside the fill's job may end the job without a word. The area is now at most 1.5 MP
     // (about 230 MB), and an allocation failure falls back to Krita's fill (see the try below) instead of doing nothing.
-    const qint64 budget = 1500000;
+    // const qint64 budget = 1500000;
+    // Krimble 2026-10-20 (2nd): George asked for the leaner storage ("Yes."): the engine now peaks at about 170 MB for a 2.9 MP area (tested, was 425 MB),
+    // so the area goes back to 3 MP.
+    const qint64 budget = 3000000;
     int margin = qMax(64, 2 * holeShort + 24);
     QRect roi = maskRect.adjusted(-margin, -margin, margin, margin) & bounds;
     while (margin > 16 && qint64(roi.width()) * roi.height() > budget) {

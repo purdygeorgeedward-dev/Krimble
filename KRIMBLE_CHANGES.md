@@ -4981,3 +4981,10 @@ George (1.0.40): "Content-Aware fill does nothing now." / "It used to just blur 
 
 George: "Use as many threads as it takes. That's what multi-core is for." The three engines (`inpaintLegacy`, `inpaintPatchMatchV1`, `inpaint`) used at most 4 threads; they now use **every core the device has** (`std::thread::hardware_concurrency()`; the Galaxy A26 has 8). The work is split by rows (matching, rebuilding) and by pixels (the seam correction), so more cores means more of it at once.
 **Not verified:** a build or a device.
+
+## 2026-10-20 (226th) — Content-Aware Fill in less than half the memory; the working area back to 3 MP
+
+**Files:** `plugins/tools/tool_smart_patch/krimble_inpaint.cpp`, `plugins/tools/tool_smart_patch/krimble_fill.cpp`
+
+George asked whether the fill could use compression; compressed data would have to be unpacked for every look, so instead the engine keeps its data in smaller kinds of numbers. He said "Yes." The engine used now (`inpaint()`, at the end of `krimble_inpaint.cpp`; the 208th to 225th entries' engine is kept as `inpaintPhotoshopV2()`) does the same steps with: the picture in **bytes** (not floats; the rebuilt hole is rounded to whole levels, as it is saved anyway); match positions as **16-bit** numbers; colour shifts as **signed bytes** (they are at most 28); the distance map as 16-bit numbers; **no** per-pixel weight array (one weight for the hole per level) and **no** list of all valid sources (a random source is found by trying random spots); the rebuild keeps aside only the hole's pixels, not a copy of the picture; the seam correction works **only inside the hole's box**; a smaller size's arrays are freed as soon as the next size has its matches. **Tested** (tools/inpaint-bench, called as the app calls it): a 1700 x 1700 area with a 500 x 700 hole: peak **172 MB** (was 425 MB), same time, the result differs by 0.7 of 255 on average (rounding); the circus, a cheek and cat fur: the same within 0.3. The working area in `krimble_fill.cpp` goes back to **3 MP** (it was cut to 1.5 MP in the 224th entry). Pictures wider or taller than 32 767 px use the kept engine.
+**Not verified:** a build or a device.

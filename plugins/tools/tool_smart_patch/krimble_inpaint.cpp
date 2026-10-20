@@ -1643,7 +1643,9 @@ void qFinalSeamless(PLevel &L, const std::vector<QXf> &tab, int r, int threads)
 
 } // namespace
 
-bool inpaint(uint8_t *pixels, const uint8_t *holeIn, int w, int h, int channels, const Options &opt, uint8_t *filledHole)
+// Krimble 2026-10-20: the Photoshop-style engine of the 208th to 225th entries, kept; the engine used now is inpaint() at the end of this file (the same,
+// in less memory).
+bool inpaintPhotoshopV2(uint8_t *pixels, const uint8_t *holeIn, int w, int h, int channels, const Options &opt, uint8_t *filledHole)
 {
     if (!pixels || !holeIn || w < 8 || h < 8 || channels < 1 || channels > 4) return false;
     const int r = std::max(2, std::min(5, opt.patchRadius));
@@ -1757,6 +1759,601 @@ bool inpaint(uint8_t *pixels, const uint8_t *holeIn, int w, int h, int channels,
         if (!F.hole[i]) continue;
         for (int k = 0; k < channels; ++k)
             pixels[i * channels + k] = uint8_t(std::max(0.0f, std::min(255.0f, F.img[i * channels + k] + 0.5f)));
+    }
+    return true;
+}
+
+
+// ====================================================================================================================================================================
+// Krimble 2026-10-20: the engine used now: the Photoshop-style engine above (now inpaintPhotoshopV2, kept), the same steps and results, kept in less memory.
+// George, asked whether the fill could use less memory (it needed about 450 MB at its peak for a 3 MP area): "Yes." Per pixel of each level:
+//  - the picture in bytes, not floats (4 bytes a pixel instead of 16; the rebuilt hole is rounded to whole levels of 0 to 255, as it is saved anyway);
+//  - the match positions as 16-bit numbers (pictures up to 32 767 px a side), the colour shifts as signed bytes (they are at most 28), the distance map
+//    as 16-bit numbers;
+//  - no per-pixel weight array (a pixel's weight is 1, or the hole's weight for the whole level), no list of every valid source (a random source is found
+//    by trying random spots);
+//  - the seam correction works only inside the hole's box;
+//  - a smaller size's arrays are freed as soon as the next size has taken its matches.
+// About 55 bytes a pixel of the full size at the peak (was about 150), so the area around the hole can be bigger again (krimble_fill.cpp).
+// ====================================================================================================================================================================
+namespace {
+
+struct RLevel {
+    int w = 0, h = 0, c = 0;
+    std::vector<uint8_t> img;      // w * h * c
+    std::vector<uint8_t> hole;     // 1 = to be filled
+    std::vector<uint8_t> tgt;      // 1 = the patch centred here touches the hole
+    std::vector<int16_t> nx, ny;   // the match of every target
+    std::vector<float> nd;         // its distance
+    std::vector<uint8_t> xf;       // its transform (index into the table)
+    std::vector<int8_t> bias;      // its colour shift, per channel (w * h * c)
+    std::vector<uint16_t> freeR;   // Chebyshev distance to the nearest hole pixel or the picture's edge (capped at 65535)
+    std::vector<int32_t> sat;      // window sums of the picture ((w + 1) * (h + 1) * c)
+    float holeWeight = 1.0f;       // how much a hole pixel counts in the comparisons (known pixels count 1)
+    size_t sourceCount = 0;        // how many valid sources there are (plain copies)
+    inline float conf(size_t i) const { return hole[i] ? holeWeight : 1.0f; }
+};
+
+inline uint8_t rClamp(float v) { return uint8_t(std::max(0.0f, std::min(255.0f, v + 0.5f))); }
+
+void rBuild(RLevel &L, int r)
+{
+    const int w = L.w, h = L.h;
+    std::vector<int> sat(size_t(w + 1) * (h + 1), 0);
+    for (int y = 0; y < h; ++y) {
+        int row = 0;
+        for (int x = 0; x < w; ++x) {
+            row += L.hole[size_t(y) * w + x] ? 1 : 0;
+            sat[size_t(y + 1) * (w + 1) + (x + 1)] = sat[size_t(y) * (w + 1) + (x + 1)] + row;
+        }
+    }
+    auto holesIn = [&](int x0, int y0, int x1, int y1) {
+        x0 = std::max(0, x0); y0 = std::max(0, y0); x1 = std::min(w - 1, x1); y1 = std::min(h - 1, y1);
+        if (x1 < x0 || y1 < y0) return 0;
+        return sat[size_t(y1 + 1) * (w + 1) + (x1 + 1)] - sat[size_t(y0) * (w + 1) + (x1 + 1)] - sat[size_t(y1 + 1) * (w + 1) + x0] + sat[size_t(y0) * (w + 1) + x0];
+    };
+    L.tgt.assign(size_t(w) * h, 0);
+    L.sourceCount = 0;
+    for (int y = 0; y < h; ++y)
+        for (int x = 0; x < w; ++x) {
+            const size_t i = size_t(y) * w + x;
+            const int holes = holesIn(x - r, y - r, x + r, y + r);
+            if (holes > 0) L.tgt[i] = 1;
+            else if (x >= r && y >= r && x < w - r && y < h - r) ++L.sourceCount;
+        }
+    L.nx.assign(size_t(w) * h, 0);
+    L.ny.assign(size_t(w) * h, 0);
+    L.nd.assign(size_t(w) * h, 1e30f);
+    L.xf.assign(size_t(w) * h, 0);
+    L.bias.assign(size_t(w) * h * L.c, 0);
+}
+
+void rFreeRadius(RLevel &L)
+{
+    const int w = L.w, h = L.h;
+    std::vector<int> fr(size_t(w) * h, 1 << 20);
+    for (int y = 0; y < h; ++y)
+        for (int x = 0; x < w; ++x) {
+            const size_t i = size_t(y) * w + x;
+            if (L.hole[i]) { fr[i] = 0; continue; }
+            int v = std::min(std::min(x + 1, y + 1), std::min(w - x, h - y));
+            if (x > 0) v = std::min(v, fr[i - 1] + 1);
+            if (y > 0) {
+                v = std::min(v, fr[i - w] + 1);
+                if (x > 0) v = std::min(v, fr[i - w - 1] + 1);
+                if (x < w - 1) v = std::min(v, fr[i - w + 1] + 1);
+            }
+            fr[i] = v;
+        }
+    for (int y = h - 1; y >= 0; --y)
+        for (int x = w - 1; x >= 0; --x) {
+            const size_t i = size_t(y) * w + x;
+            int v = fr[i];
+            if (x < w - 1) v = std::min(v, fr[i + 1] + 1);
+            if (y < h - 1) {
+                v = std::min(v, fr[i + w] + 1);
+                if (x < w - 1) v = std::min(v, fr[i + w + 1] + 1);
+                if (x > 0) v = std::min(v, fr[i + w - 1] + 1);
+            }
+            fr[i] = v;
+        }
+    L.freeR.resize(fr.size());
+    for (size_t i = 0; i < fr.size(); ++i) L.freeR[i] = uint16_t(std::min(fr[i], 65535));
+}
+
+inline bool rValid(const RLevel &L, int sx, int sy, const QXf &t)
+{
+    if (sx < 0 || sy < 0 || sx >= L.w || sy >= L.h) return false;
+    return float(L.freeR[size_t(sy) * L.w + sx]) > t.reach;
+}
+
+void rBuildSat(RLevel &L)
+{
+    const int w = L.w, h = L.h, c = L.c;
+    L.sat.assign(size_t(w + 1) * (h + 1) * c, 0);
+    for (int y = 0; y < h; ++y) {
+        int32_t row[4] = {0, 0, 0, 0};
+        for (int x = 0; x < w; ++x) {
+            const size_t o = (size_t(y + 1) * (w + 1) + (x + 1)) * c, u = (size_t(y) * (w + 1) + (x + 1)) * c;
+            for (int k = 0; k < c; ++k) { row[k] += L.img[(size_t(y) * w + x) * c + k]; L.sat[o + k] = L.sat[u + k] + row[k]; }
+        }
+    }
+}
+
+inline void rMean(const RLevel &L, int x, int y, int rad, float *out)
+{
+    const int w = L.w, c = L.c;
+    const int x0 = std::max(0, x - rad), y0 = std::max(0, y - rad), x1 = std::min(L.w - 1, x + rad), y1 = std::min(L.h - 1, y + rad);
+    const double n = double(x1 - x0 + 1) * double(y1 - y0 + 1);
+    const size_t a = (size_t(y1 + 1) * (w + 1) + (x1 + 1)) * c, b = (size_t(y0) * (w + 1) + (x1 + 1)) * c,
+                 d = (size_t(y1 + 1) * (w + 1) + x0) * c, e = (size_t(y0) * (w + 1) + x0) * c;
+    for (int k = 0; k < c; ++k) out[k] = float(double(L.sat[a + k] - L.sat[b + k] - L.sat[d + k] + L.sat[e + k]) / n);
+}
+
+inline void rSample(const RLevel &L, float fx, float fy, float *out)
+{
+    const int c = L.c, w = L.w;
+    const int x0 = int(fx), y0 = int(fy);
+    const float ax = fx - float(x0), ay = fy - float(y0);
+    const uint8_t *p00 = &L.img[(size_t(y0) * w + x0) * c];
+    const uint8_t *p10 = p00 + c, *p01 = p00 + size_t(w) * c, *p11 = p01 + c;
+    for (int k = 0; k < c; ++k)
+        out[k] = (1 - ay) * ((1 - ax) * p00[k] + ax * p10[k]) + ay * ((1 - ax) * p01[k] + ax * p11[k]);
+}
+
+inline void rValue(const RLevel &L, const std::vector<QXf> &tab, size_t q, int dx, int dy, float *out, bool nearest = false)
+{
+    const QXf &t = tab[L.xf[q]];
+    if (L.xf[q] == 0 || nearest) {
+        int sx = L.nx[q] + dx, sy = L.ny[q] + dy;
+        if (L.xf[q] != 0) { sx = int(std::lround(float(L.nx[q]) + t.a * dx + t.b * dy)); sy = int(std::lround(float(L.ny[q]) + t.c * dx + t.d * dy)); }
+        const uint8_t *p = &L.img[(size_t(sy) * L.w + sx) * L.c];
+        for (int k = 0; k < L.c; ++k) out[k] = float(p[k]) + float(L.bias[q * L.c + k]);
+        return;
+    }
+    rSample(L, float(L.nx[q]) + t.a * dx + t.b * dy, float(L.ny[q]) + t.c * dx + t.d * dy, out);
+    for (int k = 0; k < L.c; ++k) out[k] += float(L.bias[q * L.c + k]);
+}
+
+float rDist(const RLevel &L, const std::vector<QXf> &tab, int tx, int ty, int sx, int sy, int ti, int r, int8_t *bias, float cutoff = 1e30f)
+{
+    const int c = L.c, w = L.w, h = L.h;
+    const QXf &t = tab[size_t(ti)];
+    float mt[4], ms[4], b[4];
+    rMean(L, tx, ty, r, mt);
+    rMean(L, sx, sy, int(std::lround(float(r) * std::sqrt(t.a * t.a + t.c * t.c))), ms);
+    float bcost = 0.0f;
+    for (int k = 0; k < c; ++k) {
+        b[k] = std::round(std::max(-kMaxBias, std::min(kMaxBias, mt[k] - ms[k])));
+        bias[k] = int8_t(b[k]);
+        bcost += b[k] * b[k];
+    }
+    const float limit = cutoff / t.cost;
+    float d = kBiasCost * bcost * float((2 * r + 1) * (2 * r + 1));
+    if (d > limit) return d * t.cost;
+    float sv[4];
+    for (int dy = -r; dy <= r; ++dy) {
+        const int y = ty + dy;
+        if (y < 0 || y >= h) continue;
+        for (int dx = -r; dx <= r; ++dx) {
+            const int x = tx + dx;
+            if (x < 0 || x >= w) continue;
+            const uint8_t *pt = &L.img[(size_t(y) * w + x) * c];
+            if (ti == 0) {
+                const uint8_t *ps = &L.img[(size_t(sy + dy) * w + (sx + dx)) * c];
+                for (int k = 0; k < c; ++k) sv[k] = ps[k];
+            } else {
+                rSample(L, float(sx) + t.a * dx + t.b * dy, float(sy) + t.c * dx + t.d * dy, sv);
+            }
+            float e2 = 0.0f;
+            for (int k = 0; k < c; ++k) { const float e = float(pt[k]) - sv[k] - b[k]; e2 += e * e; }
+            d += L.conf(size_t(y) * w + x) * e2;
+        }
+        if (d > limit) return d * t.cost;
+    }
+    return d * t.cost;
+}
+
+inline void rTry(RLevel &L, const std::vector<QXf> &tab, size_t i, int x, int y, int sx, int sy, int ti, int r)
+{
+    if (!rValid(L, sx, sy, tab[size_t(ti)])) return;
+    if (sx == L.nx[i] && sy == L.ny[i] && ti == L.xf[i]) return;
+    int8_t b[4];
+    const float d = rDist(L, tab, x, y, sx, sy, ti, r, b, L.nd[i]);
+    if (d < L.nd[i]) {
+        L.nd[i] = d; L.nx[i] = int16_t(sx); L.ny[i] = int16_t(sy); L.xf[i] = uint8_t(ti);
+        for (int k = 0; k < L.c; ++k) L.bias[i * L.c + k] = b[k];
+    }
+}
+
+void rPass(RLevel &L, const std::vector<QXf> &tab, int r, bool forward, int ya, int yb, unsigned seed, bool tryTransforms)
+{
+    std::mt19937 rng(seed);
+    const int w = L.w;
+    const int maxR = std::max(L.w, L.h);
+    const int nT = int(tab.size());
+    const int sY = forward ? ya : yb - 1, eY = forward ? yb : ya - 1, st = forward ? 1 : -1;
+    for (int y = sY; y != eY; y += st) {
+        const int sX = forward ? 0 : w - 1, eX = forward ? w : -1;
+        for (int x = sX; x != eX; x += st) {
+            const size_t i = size_t(y) * w + x;
+            if (!L.tgt[i]) continue;
+            const int px = x - st, py = y - st;
+            if (px >= 0 && px < w && L.tgt[size_t(y) * w + px]) {
+                const size_t q = size_t(y) * w + px;
+                const QXf &t = tab[L.xf[q]];
+                rTry(L, tab, i, x, y, int(std::lround(float(L.nx[q]) + t.a * st)), int(std::lround(float(L.ny[q]) + t.c * st)), L.xf[q], r);
+            }
+            if (py >= 0 && py < L.h && L.tgt[size_t(py) * w + x]) {
+                const size_t q = size_t(py) * w + x;
+                const QXf &t = tab[L.xf[q]];
+                rTry(L, tab, i, x, y, int(std::lround(float(L.nx[q]) + t.b * st)), int(std::lround(float(L.ny[q]) + t.d * st)), L.xf[q], r);
+            }
+            for (int rad = maxR; rad >= 1; rad /= 2) {
+                const int sx = L.nx[i] + int(rng() % unsigned(2 * rad + 1)) - rad;
+                const int sy = L.ny[i] + int(rng() % unsigned(2 * rad + 1)) - rad;
+                rTry(L, tab, i, x, y, sx, sy, L.xf[i], r);
+            }
+            if (tryTransforms) {
+                rTry(L, tab, i, x, y, L.nx[i], L.ny[i], int(rng() % unsigned(nT)), r);
+                if (L.xf[i] != 0) rTry(L, tab, i, x, y, L.nx[i], L.ny[i], 0, r);
+            }
+        }
+    }
+}
+
+void rMatch(RLevel &L, const std::vector<QXf> &tab, int r, int iterations, int threads, unsigned &seed, bool tryTransforms)
+{
+    for (int it = 0; it < iterations; ++it) {
+        const bool fwd = (it & 1) == 0;
+        pParallel(L.h, threads, [&](int a, int b) { rPass(L, tab, r, fwd, a, b, seed + unsigned(a) * 7919u, tryTransforms); });
+        seed += 104729u;
+    }
+}
+
+void rRemeasure(RLevel &L, const std::vector<QXf> &tab, int r, int threads)
+{
+    rBuildSat(L);
+    pParallel(int(L.tgt.size()), threads, [&](int a, int b) {
+        for (int i = a; i < b; ++i) {
+            const size_t u = size_t(i);
+            if (!L.tgt[u]) continue;
+            if (!rValid(L, L.nx[u], L.ny[u], tab[L.xf[u]])) { L.nd[u] = 1e30f; continue; }
+            int8_t bb[4];
+            L.nd[u] = rDist(L, tab, i % L.w, i / L.w, L.nx[u], L.ny[u], L.xf[u], r, bb);
+            for (int k = 0; k < L.c; ++k) L.bias[u * L.c + k] = bb[k];
+        }
+    });
+}
+
+// the hole rebuilt as the weighted mean of what the covering patches say; only the hole's pixels are kept aside (not a copy of the whole picture)
+void rVote(RLevel &L, const std::vector<QXf> &tab, int r, int threads)
+{
+    const int c = L.c, w = L.w, h = L.h;
+    std::vector<float> ds;
+    for (size_t i = 0; i < L.tgt.size(); ++i) if (L.tgt[i] && L.nd[i] < 1e29f) ds.push_back(L.nd[i]);
+    if (ds.empty()) return;
+    std::nth_element(ds.begin(), ds.begin() + ds.size() * 3 / 4, ds.end());
+    const float sigma2 = std::max(ds[ds.size() * 3 / 4], 1.0f);
+    std::vector<size_t> holeList;
+    for (size_t p = 0; p < L.hole.size(); ++p) if (L.hole[p]) holeList.push_back(p);
+    std::vector<uint8_t> out(holeList.size() * c);
+    pParallel(int(holeList.size()), threads, [&](int a, int b) {
+        float v[4];
+        for (int hi = a; hi < b; ++hi) {
+            const size_t p = holeList[size_t(hi)];
+            const int x = int(p % size_t(w)), y = int(p / size_t(w));
+            float acc[4] = {0, 0, 0, 0}, ws = 0.0f;
+            for (int dy = -r; dy <= r; ++dy) {
+                const int qy = y - dy;
+                if (qy < 0 || qy >= h) continue;
+                for (int dx = -r; dx <= r; ++dx) {
+                    const int qx = x - dx;
+                    if (qx < 0 || qx >= w) continue;
+                    const size_t q = size_t(qy) * w + qx;
+                    if (!L.tgt[q] || L.nd[q] >= 1e29f) continue;
+                    rValue(L, tab, q, dx, dy, v);
+                    const float wq = std::exp(-L.nd[q] / (2.0f * sigma2));
+                    for (int k = 0; k < c; ++k) acc[k] += wq * v[k];
+                    ws += wq;
+                }
+            }
+            for (int k = 0; k < c; ++k) out[size_t(hi) * c + k] = ws > 0.0f ? rClamp(acc[k] / ws) : L.img[p * c + k];
+        }
+    });
+    for (size_t hi = 0; hi < holeList.size(); ++hi)
+        for (int k = 0; k < c; ++k) L.img[holeList[hi] * c + k] = out[hi * c + k];
+}
+
+// the final rebuild with the seam taken away (see qFinalSeamless), worked only inside the hole's box (and the ring around it)
+void rFinalSeamless(RLevel &L, const std::vector<QXf> &tab, int r, int threads)
+{
+    const int c = L.c, w = L.w, h = L.h;
+    int bx0 = w, by0 = h, bx1 = -1, by1 = -1;
+    for (int y = 0; y < h; ++y)
+        for (int x = 0; x < w; ++x)
+            if (L.hole[size_t(y) * w + x]) { bx0 = std::min(bx0, x); bx1 = std::max(bx1, x); by0 = std::min(by0, y); by1 = std::max(by1, y); }
+    if (bx1 < 0) return;
+    bx0 = std::max(0, bx0 - 1); by0 = std::max(0, by0 - 1); bx1 = std::min(w - 1, bx1 + 1); by1 = std::min(h - 1, by1 + 1);
+    const int bw = bx1 - bx0 + 1, bh = by1 - by0 + 1;
+    auto B = [&](int x, int y) { return size_t(y - by0) * bw + size_t(x - bx0); };   // index in the box
+    std::vector<float> pred(size_t(bw) * bh * c, 0.0f), off(size_t(bw) * bh * c, 0.0f);
+    std::vector<uint8_t> has(size_t(bw) * bh, 0), fixedRing(size_t(bw) * bh, 0);
+    pParallel(bh, threads, [&](int ya, int yb) {
+        float v[4];
+        for (int yy = ya; yy < yb; ++yy) {
+            const int y = by0 + yy;
+            for (int x = bx0; x <= bx1; ++x) {
+                const size_t p = size_t(y) * w + x;
+                if (!L.tgt[p]) continue;
+                float best = 1e30f;
+                for (int dy = -r; dy <= r; ++dy) {
+                    const int qy = y - dy;
+                    if (qy < 0 || qy >= h) continue;
+                    for (int dx = -r; dx <= r; ++dx) {
+                        const int qx = x - dx;
+                        if (qx < 0 || qx >= w) continue;
+                        const size_t q = size_t(qy) * w + qx;
+                        if (!L.tgt[q] || L.nd[q] >= 1e29f) continue;
+                        if (!L.hole[p] && !L.hole[q]) continue;
+                        const float score = L.nd[q] * (1.0f + 0.02f * float(dx * dx + dy * dy));
+                        if (score < best) {
+                            best = score;
+                            rValue(L, tab, q, dx, dy, v, true);
+                            for (int k = 0; k < c; ++k) pred[B(x, y) * c + k] = v[k];
+                            has[B(x, y)] = 1;
+                        }
+                    }
+                }
+            }
+        }
+    });
+    for (int y = by0; y <= by1; ++y)
+        for (int x = bx0; x <= bx1; ++x) {
+            const size_t p = size_t(y) * w + x, b = B(x, y);
+            if (L.hole[p] || !has[b]) continue;
+            bool nearHole = false;
+            for (int dy = -1; dy <= 1 && !nearHole; ++dy)
+                for (int dx = -1; dx <= 1; ++dx) {
+                    const int nx = x + dx, ny = y + dy;
+                    if (nx >= 0 && ny >= 0 && nx < w && ny < h && L.hole[size_t(ny) * w + nx]) { nearHole = true; break; }
+                }
+            if (!nearHole) continue;
+            fixedRing[b] = 1;
+            for (int k = 0; k < c; ++k) off[b * c + k] = float(L.img[p * c + k]) - pred[b * c + k];
+        }
+    std::vector<uint8_t> known(fixedRing);
+    bool changed = true;
+    while (changed) {
+        changed = false;
+        std::vector<size_t> wave;
+        for (int y = by0; y <= by1; ++y)
+            for (int x = bx0; x <= bx1; ++x) {
+                const size_t b = B(x, y);
+                if (!L.hole[size_t(y) * w + x] || known[b]) continue;
+                float acc[4] = {0, 0, 0, 0};
+                int n = 0;
+                const int nbx[4] = {x - 1, x + 1, x, x}, nby[4] = {y, y, y - 1, y + 1};
+                for (int j = 0; j < 4; ++j) {
+                    if (nbx[j] < bx0 || nby[j] < by0 || nbx[j] > bx1 || nby[j] > by1) continue;
+                    const size_t q = B(nbx[j], nby[j]);
+                    if (!known[q]) continue;
+                    for (int k = 0; k < c; ++k) acc[k] += off[q * c + k];
+                    ++n;
+                }
+                if (n) { for (int k = 0; k < c; ++k) off[b * c + k] = acc[k] / n; wave.push_back(b); }
+            }
+        for (size_t b : wave) { known[b] = 1; changed = true; }
+    }
+    std::vector<int> redBlack[2];   // box indices of the hole's pixels, by colour
+    size_t holeCount = 0;
+    for (int y = by0; y <= by1; ++y)
+        for (int x = bx0; x <= bx1; ++x)
+            if (L.hole[size_t(y) * w + x]) { redBlack[(x + y) & 1].push_back(int(B(x, y))); ++holeCount; }
+    const int rounds = holeCount > 60000 ? 200 : 400;
+    for (int it = 0; it < rounds; ++it)
+        for (int colour = 0; colour < 2; ++colour) {
+            const std::vector<int> &list = redBlack[colour];
+            pParallel(int(list.size()), threads, [&](int a, int bEnd) {
+                for (int idx = a; idx < bEnd; ++idx) {
+                    const int b = list[size_t(idx)];
+                    const int x = bx0 + b % bw, y = by0 + b / bw;
+                    float acc[4] = {0, 0, 0, 0};
+                    int n = 0;
+                    const int nbx[4] = {x - 1, x + 1, x, x}, nby[4] = {y, y, y - 1, y + 1};
+                    for (int jn = 0; jn < 4; ++jn) {
+                        if (nbx[jn] < bx0 || nby[jn] < by0 || nbx[jn] > bx1 || nby[jn] > by1) continue;
+                        const size_t q = B(nbx[jn], nby[jn]);
+                        if (!L.hole[size_t(nby[jn]) * w + nbx[jn]] && !fixedRing[q]) continue;
+                        for (int k = 0; k < c; ++k) acc[k] += off[q * c + k];
+                        ++n;
+                    }
+                    if (!n) continue;
+                    for (int k = 0; k < c; ++k) off[size_t(b) * c + k] += 1.9f * (acc[k] / n - off[size_t(b) * c + k]);
+                }
+            });
+        }
+    for (int y = by0; y <= by1; ++y)
+        for (int x = bx0; x <= bx1; ++x) {
+            const size_t p = size_t(y) * w + x, b = B(x, y);
+            if (!L.hole[p] || !has[b]) continue;
+            for (int k = 0; k < c; ++k) L.img[p * c + k] = rClamp(pred[b * c + k] + off[b * c + k]);
+        }
+}
+
+RLevel rDown(const RLevel &F)
+{
+    RLevel L;
+    L.c = F.c; L.w = (F.w + 1) / 2; L.h = (F.h + 1) / 2;
+    L.img.assign(size_t(L.w) * L.h * L.c, 0);
+    L.hole.assign(size_t(L.w) * L.h, 0);
+    for (int y = 0; y < L.h; ++y)
+        for (int x = 0; x < L.w; ++x) {
+            int acc[4] = {0, 0, 0, 0};
+            int n = 0, holes = 0;
+            for (int dy = 0; dy < 2; ++dy)
+                for (int dx = 0; dx < 2; ++dx) {
+                    const int sx = std::min(F.w - 1, 2 * x + dx), sy = std::min(F.h - 1, 2 * y + dy);
+                    const size_t s = size_t(sy) * F.w + sx;
+                    if (F.hole[s]) { ++holes; continue; }
+                    for (int k = 0; k < F.c; ++k) acc[k] += F.img[s * F.c + k];
+                    ++n;
+                }
+            const size_t i = size_t(y) * L.w + x;
+            if (holes > 0 || n == 0) L.hole[i] = 1;
+            else for (int k = 0; k < L.c; ++k) L.img[i * L.c + k] = uint8_t((acc[k] + n / 2) / n);
+        }
+    return L;
+}
+
+void rPeel(RLevel &L)
+{
+    const int w = L.w, h = L.h, c = L.c;
+    std::vector<uint8_t> known(L.hole.size());
+    for (size_t i = 0; i < known.size(); ++i) known[i] = L.hole[i] ? 0 : 1;
+    bool changed = true;
+    while (changed) {
+        changed = false;
+        std::vector<uint8_t> next = known;
+        for (int y = 0; y < h; ++y)
+            for (int x = 0; x < w; ++x) {
+                const size_t i = size_t(y) * w + x;
+                if (known[i]) continue;
+                int acc[4] = {0, 0, 0, 0};
+                int n = 0;
+                for (int dy = -1; dy <= 1; ++dy)
+                    for (int dx = -1; dx <= 1; ++dx) {
+                        const int nx = x + dx, ny = y + dy;
+                        if (nx < 0 || ny < 0 || nx >= w || ny >= h) continue;
+                        const size_t q = size_t(ny) * w + nx;
+                        if (!known[q]) continue;
+                        for (int k = 0; k < c; ++k) acc[k] += L.img[q * c + k];
+                        ++n;
+                    }
+                if (n) { for (int k = 0; k < c; ++k) L.img[i * c + k] = uint8_t((acc[k] + n / 2) / n); next[i] = 1; changed = true; }
+            }
+        known.swap(next);
+    }
+}
+
+// a random valid source (a plain copy), found by trying random spots
+bool rRandomSource(const RLevel &L, const std::vector<QXf> &tab, std::mt19937 &rng, int &sx, int &sy)
+{
+    for (int tries = 0; tries < 2000; ++tries) {
+        sx = int(rng() % unsigned(L.w));
+        sy = int(rng() % unsigned(L.h));
+        if (rValid(L, sx, sy, tab[0])) return true;
+    }
+    return false;
+}
+
+} // namespace
+
+bool inpaint(uint8_t *pixels, const uint8_t *holeIn, int w, int h, int channels, const Options &opt, uint8_t *filledHole)
+{
+    if (!pixels || !holeIn || w < 8 || h < 8 || channels < 1 || channels > 4) return false;
+    if (w > 32767 || h > 32767) return inpaintPhotoshopV2(pixels, holeIn, w, h, channels, opt, filledHole);   // the 16-bit match positions
+    const int r = std::max(2, std::min(5, opt.patchRadius));
+    const int T = opt.threads > 0 ? opt.threads : int(std::max(1u, std::thread::hardware_concurrency()));
+    const std::vector<QXf> &tab = qTable(r);
+    unsigned seed = opt.seed;
+
+    std::vector<RLevel> pyr(1);
+    {
+        RLevel &L0 = pyr[0];
+        L0.w = w; L0.h = h; L0.c = channels;
+        L0.img.assign(pixels, pixels + size_t(w) * h * channels);
+        L0.hole.assign(size_t(w) * h, 0);
+        for (size_t i = 0; i < L0.hole.size(); ++i) L0.hole[i] = holeIn[i] ? 1 : 0;
+        for (int pass = 0; pass < opt.expand; ++pass) {
+            std::vector<uint8_t> grown = L0.hole;
+            for (int y = 0; y < h; ++y)
+                for (int x = 0; x < w; ++x)
+                    if (L0.hole[size_t(y) * w + x])
+                        for (int dy = -1; dy <= 1; ++dy)
+                            for (int dx = -1; dx <= 1; ++dx) {
+                                const int nx = x + dx, ny = y + dy;
+                                if (nx >= 0 && ny >= 0 && nx < w && ny < h) grown[size_t(ny) * w + nx] = 1;
+                            }
+            L0.hole.swap(grown);
+        }
+    }
+    int minX = w, minY = h, maxX = -1, maxY = -1;
+    size_t holeCount = 0;
+    for (int y = 0; y < h; ++y)
+        for (int x = 0; x < w; ++x)
+            if (pyr[0].hole[size_t(y) * w + x]) { minX = std::min(minX, x); maxX = std::max(maxX, x); minY = std::min(minY, y); maxY = std::max(maxY, y); ++holeCount; }
+    if (holeCount == 0) return true;
+    if (holeCount >= size_t(w) * h) return false;
+
+    const int holeDim = std::max(maxX - minX + 1, maxY - minY + 1);
+    int levels = 1;
+    while (levels < std::max(opt.maxLevels, 10) && (holeDim >> (levels - 1)) > 24 && (std::min(w, h) >> levels) >= 8 * (2 * r + 1)) ++levels;
+    for (int i = 1; i < levels; ++i) pyr.push_back(rDown(pyr[size_t(i - 1)]));
+
+    for (int lv = levels - 1; lv >= 0; --lv) {
+        RLevel &L = pyr[size_t(lv)];
+        rBuild(L, r);
+        rFreeRadius(L);
+        if (L.sourceCount == 0) {
+            if (lv == levels - 1) rPeel(L);
+            continue;
+        }
+        std::mt19937 rng(seed + unsigned(lv));
+        if (lv == levels - 1) {
+            rPeel(L);
+            for (size_t i = 0; i < L.tgt.size(); ++i) {
+                if (!L.tgt[i]) continue;
+                int sx = 0, sy = 0;
+                if (!rRandomSource(L, tab, rng, sx, sy)) continue;
+                L.nx[i] = int16_t(sx); L.ny[i] = int16_t(sy); L.xf[i] = 0;
+            }
+        } else {
+            RLevel &C = pyr[size_t(lv + 1)];
+            for (int y = 0; y < L.h; ++y)
+                for (int x = 0; x < L.w; ++x) {
+                    const size_t i = size_t(y) * L.w + x;
+                    if (!L.tgt[i]) continue;
+                    const int cx = std::min(C.w - 1, x / 2), cy = std::min(C.h - 1, y / 2);
+                    const size_t ci = size_t(cy) * C.w + cx;
+                    int sx = -1, sy = -1, ti = 0;
+                    if (!C.tgt.empty() && C.tgt[ci] && C.nd[ci] < 1e29f) {
+                        const QXf &t = tab[C.xf[ci]];
+                        const int ox = x - cx * 2, oy = y - cy * 2;
+                        sx = int(std::lround(float(C.nx[ci] * 2) + t.a * ox + t.b * oy));
+                        sy = int(std::lround(float(C.ny[ci] * 2) + t.c * ox + t.d * oy));
+                        ti = C.xf[ci];
+                        for (int k = 0; k < L.c; ++k) L.bias[i * L.c + k] = C.bias[ci * C.c + k];
+                    } else if (!L.hole[i]) { sx = x; sy = y; }
+                    if (!rValid(L, sx, sy, tab[size_t(ti)])) { ti = 0; if (!rValid(L, sx, sy, tab[0])) rRandomSource(L, tab, rng, sx, sy); }
+                    L.nx[i] = int16_t(sx); L.ny[i] = int16_t(sy); L.xf[i] = uint8_t(ti);
+                }
+            // the smaller size is no longer needed: its memory goes back
+            RLevel freed;
+            std::swap(C, freed);
+            for (size_t i = 0; i < L.tgt.size(); ++i) if (L.tgt[i]) L.nd[i] = 1.0f;
+            rVote(L, tab, r, T);
+        }
+        const int emIters = (lv == levels - 1) ? 10 : (lv == 0 ? 3 : 5);
+        L.holeWeight = (lv == levels - 1) ? 0.15f : 0.6f;
+        rRemeasure(L, tab, r, T);
+        for (int it = 0; it < emIters; ++it) {
+            if (lv == levels - 1) L.holeWeight = 0.15f + 0.6f * float(it) / float(emIters);
+            if (lv == 0) rMatch(L, tab, r, 1, T, seed, false);
+            else rMatch(L, tab, r, 2, T, seed, true);
+            if (opt.progress && !opt.progress(float(levels - 1 - lv) / float(levels) + (float(it + 1) / float(emIters)) / float(levels))) return false;
+            const bool last = (lv == 0 && it == emIters - 1);
+            if (last) rFinalSeamless(L, tab, r, T);
+            else { rVote(L, tab, r, T); rRemeasure(L, tab, r, T); }
+        }
+        if (lv > 0) { std::vector<int32_t>().swap(L.sat); std::vector<uint16_t>().swap(L.freeR); }   // not needed by the bigger size
+    }
+
+    const RLevel &F = pyr[0];
+    if (filledHole) for (size_t i = 0; i < F.hole.size(); ++i) filledHole[i] = F.hole[i] ? 1 : 0;
+    for (size_t i = 0; i < F.hole.size(); ++i) {
+        if (!F.hole[i]) continue;
+        for (int k = 0; k < channels; ++k) pixels[i * channels + k] = F.img[i * channels + k];
     }
     return true;
 }
