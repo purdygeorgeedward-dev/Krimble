@@ -4914,3 +4914,10 @@ George (1.0.40, test list, item 9): "Soften needs to default to a bigger brush s
 
 George (1.0.40, test list, items 11 to 13): "Switch to paintbrush and it's the Smudge tool. :(", "Switch to line tool and it's the Smudge tool.", "Circle? Smudge tool." The 139th entry's give-back (`KisToolBrush::deactivate` restores the brush kept in `activate`) did not reach them: Line and Circle are not brush tools, and the order in which the tool manager deactivates the old tool and activates the new one is not something to rely on. **Change:** the retouch tools' presets are named **"Krimble Retouch <engine>"** when loaded (`krimbleLoadEmbeddedPreset`). When a retouch tool starts, the user's own brush (preset, opacity, flow, size; only if the current brush is not a retouch brush) is also kept for the whole app (`qApp` properties). `KisToolPaint::activate` (the base of every painting tool: Brush, Line, Ellipse, Rectangle, Polygon and the rest) takes that brush back when it starts while a retouch brush is current, unless it is itself a retouch tool. The 139th entry's code stays.
 **Not verified:** a build or a device.
+
+## 2026-10-20 (217th) — Dodge and Burn taken out of the toolbox (commented out)
+
+**Files:** `plugins/tools/basictools/default_tools.cc`
+
+George (1.0.40, test list, item 14): "Dodge and Burn suck. It's just black and white. Comment out these tools for now." and "I am concerned that Dodge and Burn do nothing more than a simple brush could do, and they add clutter to an already cluttered toolbox." They were a brush painting white or black with a lighten or darken blend; real dodge and burn change exposure by tonal range (shadows, midtones, highlights) and keep the colour. The two `KoToolRegistry::instance()->add(...)` lines are commented out, so the tools are not registered and not in the toolbox. Their code (`kis_tool_dodge.cc`, `kis_tool_burn.cc`) is kept and still built. (The retouch give-back of the 216th entry still names them; harmless.)
+**Not verified:** a build or a device.
