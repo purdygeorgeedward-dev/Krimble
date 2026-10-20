@@ -15,6 +15,8 @@
 #include <kis_pixel_selection.h>
 #include <kis_action.h>
 #include <kis_processing_applicator.h>
+#include <QCoreApplication>   // Krimble 2026-10-20
+#include <QIcon>
 #include <commands_new/kis_transaction_based_command.h>
 #include <kis_transaction.h>
 #include <KisCursorOverrideLock.h>
@@ -162,11 +164,23 @@ void ContentAwareFillPlugin::slotContentAwareFill()
     if (!node || !node->paintDevice()) return;
 
     KisSelectionSP selection = viewManager()->selection();
-    if (!selection) return; // nothing to fill without an active selection
+    // if (!selection) return; // nothing to fill without an active selection
+    // Krimble 2026-10-20: George (1.0.40): "Content-Aware fill does nothing now." Every way it could quietly do nothing now says so, and the fill says
+    // it is working (a big hole can take several seconds on the phone) and when it is done.
+    if (!selection) {
+        viewManager()->showFloatingMessage(i18n("Content-Aware Fill: select the area to fill first"), QIcon());
+        return;
+    }
 
     KisCursorOverrideLock cursorLock(Qt::WaitCursor);
 
-    if (!viewManager()->blockUntilOperationsFinished(image)) return;
+    // if (!viewManager()->blockUntilOperationsFinished(image)) return;
+    if (!viewManager()->blockUntilOperationsFinished(image)) {
+        viewManager()->showFloatingMessage(i18n("Content-Aware Fill: the picture is busy, try again"), QIcon());
+        return;
+    }
+    viewManager()->showFloatingMessage(i18n("Content-Aware Fill: working..."), QIcon());
+    QCoreApplication::processEvents();
 
     // Krimble: unlike the sloppy KisFilter-based first pass, this passes
     // the selection's own real pixel mask straight through -- correct for
@@ -186,6 +200,7 @@ void ContentAwareFillPlugin::slotContentAwareFill()
 
     applicator.end();
     image->waitForDone();
+    viewManager()->showFloatingMessage(i18n("Content-Aware Fill: done"), QIcon());   // Krimble 2026-10-20
 }
 
 #include "content_aware_fill_plugin.moc"

@@ -1404,7 +1404,7 @@ inline void qTry(PLevel &L, const std::vector<QXf> &tab, size_t i, int x, int y,
     }
 }
 
-void qPass(PLevel &L, const std::vector<QXf> &tab, int r, bool forward, int ya, int yb, unsigned seed)
+void qPass(PLevel &L, const std::vector<QXf> &tab, int r, bool forward, int ya, int yb, unsigned seed, bool tryTransforms = true)
 {
     std::mt19937 rng(seed);
     const int w = L.w;
@@ -1434,17 +1434,20 @@ void qPass(PLevel &L, const std::vector<QXf> &tab, int r, bool forward, int ya, 
                 const int sy = L.ny[i] + int(rng() % unsigned(2 * rad + 1)) - rad;
                 qTry(L, tab, i, x, y, sx, sy, L.xf[i], r);
             }
-            qTry(L, tab, i, x, y, L.nx[i], L.ny[i], int(rng() % unsigned(nT)), r);
-            if (L.xf[i] != 0) qTry(L, tab, i, x, y, L.nx[i], L.ny[i], 0, r);
+            // Krimble 2026-10-20: at full size the transforms found on the smaller sizes are kept and refined, not searched again (speed)
+            if (tryTransforms) {
+                qTry(L, tab, i, x, y, L.nx[i], L.ny[i], int(rng() % unsigned(nT)), r);
+                if (L.xf[i] != 0) qTry(L, tab, i, x, y, L.nx[i], L.ny[i], 0, r);
+            }
         }
     }
 }
 
-void qMatch(PLevel &L, const std::vector<QXf> &tab, int r, int iterations, int threads, unsigned &seed)
+void qMatch(PLevel &L, const std::vector<QXf> &tab, int r, int iterations, int threads, unsigned &seed, bool tryTransforms = true)
 {
     for (int it = 0; it < iterations; ++it) {
         const bool fwd = (it & 1) == 0;
-        pParallel(L.h, threads, [&](int a, int b) { qPass(L, tab, r, fwd, a, b, seed + unsigned(a) * 7919u); });
+        pParallel(L.h, threads, [&](int a, int b) { qPass(L, tab, r, fwd, a, b, seed + unsigned(a) * 7919u, tryTransforms); });
         seed += 104729u;
     }
 }
@@ -1558,12 +1561,17 @@ void qFinalSeamless(PLevel &L, const std::vector<QXf> &tab, int r, int threads)
     for (size_t p = 0; p < L.hole.size(); ++p)
         if (L.hole[p] && has[p]) for (int k = 0; k < c; ++k) L.img[p * c + k] = pred[p * c + k];
     std::vector<uint8_t> known(fixedRing);
-    bool changed = true;
+    // Krimble 2026-10-20: the peel only looks inside the hole's box (it scanned the whole picture once a ring: about 6 s for a big hole)
+    int bx0 = w, by0 = h, bx1 = -1, by1 = -1;
+    for (int y = 0; y < h; ++y)
+        for (int x = 0; x < w; ++x)
+            if (L.hole[size_t(y) * w + x]) { bx0 = std::min(bx0, x); bx1 = std::max(bx1, x); by0 = std::min(by0, y); by1 = std::max(by1, y); }
+    bool changed = bx1 >= 0;
     while (changed) {
         changed = false;
         std::vector<size_t> wave;
-        for (int y = 0; y < h; ++y)
-            for (int x = 0; x < w; ++x) {
+        for (int y = by0; y <= by1; ++y)
+            for (int x = bx0; x <= bx1; ++x) {
                 const size_t p = size_t(y) * w + x;
                 if (!L.hole[p] || known[p]) continue;
                 float acc[4] = {0, 0, 0, 0};
@@ -1582,6 +1590,34 @@ void qFinalSeamless(PLevel &L, const std::vector<QXf> &tab, int r, int threads)
     }
     std::vector<size_t> holeList;
     for (size_t p = 0; p < L.hole.size(); ++p) if (L.hole[p]) holeList.push_back(p);
+    // Krimble 2026-10-20: red-black order, each colour in parallel (the same result as the one-by-one sweep converges to, about 4 times faster on
+    // the phone's 4 cores), and fewer rounds for a very big hole (the peeled guess above is already close).
+    std::vector<size_t> redBlack[2];
+    for (size_t p : holeList) redBlack[((p % size_t(w)) + (p / size_t(w))) & 1].push_back(p);
+    const int rounds = holeList.size() > 60000 ? 200 : 400;
+    for (int it = 0; it < rounds; ++it)
+        for (int colour = 0; colour < 2; ++colour) {
+            const std::vector<size_t> &list = redBlack[colour];
+            pParallel(int(list.size()), threads, [&](int a, int b) {
+                for (int idx = a; idx < b; ++idx) {
+                    const size_t p = list[size_t(idx)];
+                    const int x = int(p % size_t(w)), y = int(p / size_t(w));
+                    float acc[4] = {0, 0, 0, 0};
+                    int n = 0;
+                    const int nbx[4] = {x - 1, x + 1, x, x}, nby[4] = {y, y, y - 1, y + 1};
+                    for (int jn = 0; jn < 4; ++jn) {
+                        if (nbx[jn] < 0 || nby[jn] < 0 || nbx[jn] >= w || nby[jn] >= h) continue;
+                        const size_t q = size_t(nby[jn]) * w + nbx[jn];
+                        if (!L.hole[q] && !fixedRing[q]) continue;
+                        for (int k = 0; k < c; ++k) acc[k] += off[q * c + k];
+                        ++n;
+                    }
+                    if (!n) continue;
+                    for (int k = 0; k < c; ++k) off[p * c + k] += 1.9f * (acc[k] / n - off[p * c + k]);
+                }
+            });
+        }
+    if (false)   // Krimble 2026-10-20: the one-by-one sweep (kept, not run)
     for (int it = 0; it < 400; ++it)
         for (size_t p : holeList) {
             const int x = int(p % size_t(w)), y = int(p / size_t(w));
@@ -1697,7 +1733,11 @@ bool inpaint(uint8_t *pixels, const uint8_t *holeIn, int w, int h, int channels,
         qRemeasure(L, tab, r, T);
         for (int it = 0; it < emIters; ++it) {
             if (lv == levels - 1) pSetConfidence(L, 0.15f + 0.6f * float(it) / float(emIters));
-            qMatch(L, tab, r, 2, T, seed);
+            // qMatch(L, tab, r, 2, T, seed);
+            // Krimble 2026-10-20: George (1.0.40): "Content-Aware fill does nothing now." A big hole took about 20 s or more (one core, a PC) with no sign of
+            // work. At full size: one PatchMatch pass per round instead of two, and no new transforms tried (those of the smaller sizes are kept).
+            if (lv == 0) qMatch(L, tab, r, 1, T, seed, false);
+            else qMatch(L, tab, r, 2, T, seed);
             if (opt.progress && !opt.progress(float(levels - 1 - lv) / float(levels) + (float(it + 1) / float(emIters)) / float(levels))) return false;
             const bool last = (lv == 0 && it == emIters - 1);
             if (last) qFinalSeamless(L, tab, r, T);

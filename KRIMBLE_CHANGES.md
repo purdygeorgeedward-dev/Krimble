@@ -4960,3 +4960,10 @@ George (1.0.40, with his own fonts in the list): "they have horrible kerning iss
 - The **preview** is now drawn by hand so tracking and kerning show in it: each line is drawn in pieces between kerned letters (the font's own kerning still applies inside a piece).
 Tapping existing text to edit it reads its `letter-spacing` and `dx` back.
 **Not verified:** a build or a device (whether the text engine applies `dx` with `white-space: pre-wrap` in a box exactly per typed character, emoji included).
+
+## 2026-10-20 (223rd) — Content-Aware Fill: says what it is doing, and is faster on big holes
+
+**Files:** `plugins/tools/tool_smart_patch/content_aware_fill_plugin.cpp`, `plugins/tools/tool_smart_patch/krimble_inpaint.cpp`
+
+George (1.0.40): "Content-Aware fill does nothing now. Also it has no controls in Tool Options." The command gave no sign of anything: it quietly did nothing without a selection or when the picture was busy, and a big hole with the 208th entry's engine took about 20 s on a PC core (the phone has 4 slower cores), with only a wait cursor. **Changes:** (1) floating messages: "select the area to fill first" (no selection), "the picture is busy, try again", **"working..."** when it starts and **"done"** when it ends. (2) Speed (a 1700 x 1700 area with a 500 x 700 hole: 23 s to 17 s on one core, more on 4): at full size one PatchMatch pass a round instead of two and no new transforms tried (those found on the smaller sizes are kept); the seam correction's membrane is solved in red-black order, each colour in parallel, with 200 rounds instead of 400 for a hole over 60 000 pixels (the result differs by at most 5 of 255, 0.07 on average); the peel that starts it only scans the hole's box. Content-Aware Fill is a menu command, so the Tool Options show the current tool's options; the fill's method is in the healing brush's Tool Options (207th).
+**Not verified:** a build or a device. Not known yet whether 1.0.40 really did nothing or was still working.
