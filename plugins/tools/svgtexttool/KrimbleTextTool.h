@@ -10,6 +10,7 @@
 #include <KoToolBase.h>
 #include <KoToolFactoryBase.h>
 #include <QPointF>
+#include <QRectF>
 
 class KrimbleTextTool : public KoToolBase
 {
@@ -22,7 +23,13 @@ public:
     void mouseReleaseEvent(KoPointerEvent *event) override;
 
 private:
-    void askAndAddText(const QPointF &where);
+    // void askAndAddText(const QPointF &where);
+    void askAndAddText(const QPointF &where, const QRectF &box = QRectF());   // Krimble 2026-10-20: box = a dragged text box (or none)
+
+    // Krimble 2026-10-20: dragging a text box
+    QPointF m_pressPoint;
+    QPointF m_dragPoint;
+    bool m_dragging = false;
 };
 
 class KrimbleTextToolFactory : public KoToolFactoryBase

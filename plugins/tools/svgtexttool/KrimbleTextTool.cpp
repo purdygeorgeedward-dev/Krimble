@@ -16,6 +16,7 @@
 #include <KoSvgTextShapeMarkupConverter.h>
 #include <KoShapeManager.h>
 #include <KoViewConverter.h>
+#include <QPainter>   // Krimble 2026-10-20: the dashed text box
 #include <commands/KoShapeBackgroundCommand.h>
 #include "SvgTextChangeCommand.h"
 #include <KoIcon.h>
@@ -49,6 +50,9 @@ QString s_family = QStringLiteral("sans-serif");
 qreal s_size = 24.0;
 bool s_bold = false;
 bool s_italic = false;
+// Krimble 2026-10-20: George (1.0.39, test list, item 9): "New type tool just makes one long line of text. You can't make a paragraph area and have it
+// flow into it." The width of the text box (document units), or 0 for text that is one line per typed line (no box).
+qreal s_boxWidth = 0.0;
 int s_align = 0;               // 0 left, 1 center, 2 right
 QColor s_color = QColor(Qt::black);
 }
@@ -68,6 +72,12 @@ static QString krimbleTextSvg(const QString &text)
                         .arg(family.toHtmlEscaped(), QString::number(s_size), s_color.name(), anchor);
     if (s_bold) style += QStringLiteral(" font-weight:bold;");
     if (s_italic) style += QStringLiteral(" font-style:italic;");
+    // Krimble 2026-10-20: a text box: the text engine wraps the words at the box's width (SVG 2 inline-size), and the lines the user typed are kept
+    // (white-space: pre-wrap), all in one piece of text instead of one tspan a line (separate tspans with their own x would not flow).
+    if (s_boxWidth > 0.0) {
+        style += QStringLiteral(" inline-size:%1; white-space:pre-wrap;").arg(QString::number(s_boxWidth, 'f', 2));
+        return QStringLiteral("<text style=\"%1\">%2</text>").arg(style, text.toHtmlEscaped());
+    }
     QString svg = QStringLiteral("<text xml:space=\"preserve\" style=\"%1\">").arg(style);
     for (int i = 0; i < lines.size(); ++i) {
         const QString line = lines.at(i).isEmpty() ? QStringLiteral(" ") : lines.at(i).toHtmlEscaped();
@@ -255,11 +265,17 @@ static void krimbleApplyTextProperty(const QString &name, const QString &rawValu
     } else if (name == QLatin1String("fill")) {
         const QColor color(value);
         if (color.isValid()) s_color = color;
+    } else if (name == QLatin1String("inline-size")) {
+        // Krimble 2026-10-20: the width of a text box (see s_boxWidth)
+        bool ok = false;
+        const qreal number = QString(value).remove(QRegularExpression(QStringLiteral("[a-zA-Z%]+$"))).toDouble(&ok);
+        s_boxWidth = (ok && number > 0) ? number : 0.0;
     }
 }
 
 static bool krimbleReadTextShape(KoSvgTextShape *shape, QString *text)
 {
+    s_boxWidth = 0.0;   // Krimble 2026-10-20: set again below if this text is a box
     KoSvgTextShapeMarkupConverter converter(shape);
     QString svg;
     QString defs;
@@ -308,31 +324,61 @@ KrimbleTextTool::KrimbleTextTool(KoCanvasBase *canvas)
 {
 }
 
+// Krimble 2026-10-20: George (1.0.39, test list, item 9): "You can't make a paragraph area and have it flow into it." A tap still makes text where it
+// was tapped (one line per typed line); a DRAG draws a text box (a dashed frame while dragging): the text then wraps at the box's width.
 void KrimbleTextTool::paint(QPainter &painter, const KoViewConverter &converter)
 {
-    Q_UNUSED(painter);
-    Q_UNUSED(converter);
+    if (!m_dragging) return;
+    const QRectF viewRect = converter.documentToView(QRectF(m_pressPoint, m_dragPoint).normalized());
+    painter.save();
+    QPen pen(QColor(255, 140, 0));
+    pen.setWidthF(2.0);
+    pen.setStyle(Qt::DashLine);
+    pen.setCosmetic(true);
+    painter.setPen(pen);
+    painter.setBrush(Qt::NoBrush);
+    painter.drawRect(viewRect);
+    painter.restore();
 }
 
 void KrimbleTextTool::mousePressEvent(KoPointerEvent *event)
 {
     event->accept();
+    m_pressPoint = event->point;
+    m_dragPoint = event->point;
+    m_dragging = false;
 }
 
 void KrimbleTextTool::mouseMoveEvent(KoPointerEvent *event)
 {
-    Q_UNUSED(event);
+    if (!(event->buttons() & Qt::LeftButton)) return;
+    const QRectF before = QRectF(m_pressPoint, m_dragPoint).normalized();
+    m_dragPoint = event->point;
+    const QPointF viewDelta = canvas()->viewConverter()->documentToView(m_dragPoint) - canvas()->viewConverter()->documentToView(m_pressPoint);
+    if (!m_dragging && viewDelta.manhattanLength() > 24) m_dragging = true;   // a drag, not a shaky tap
+    if (m_dragging) {
+        canvas()->updateCanvas(before.united(QRectF(m_pressPoint, m_dragPoint).normalized()).adjusted(-20, -20, 20, 20));
+    }
+    event->accept();
 }
 
 void KrimbleTextTool::mouseReleaseEvent(KoPointerEvent *event)
 {
     event->accept();
-    const QPointF where = event->point;
+    QPointF where = event->point;
+    QRectF box;
+    if (m_dragging) {
+        box = QRectF(m_pressPoint, event->point).normalized();
+        canvas()->updateCanvas(box.adjusted(-20, -20, 20, 20));
+        where = box.topLeft();
+    }
+    m_dragging = false;
     // the window opens after this event is finished
-    QTimer::singleShot(0, QApplication::instance(), [this, where]() { askAndAddText(where); });
+    // QTimer::singleShot(0, QApplication::instance(), [this, where]() { askAndAddText(where); });
+    QTimer::singleShot(0, QApplication::instance(), [this, where, box]() { askAndAddText(where, box); });
 }
 
-void KrimbleTextTool::askAndAddText(const QPointF &where)
+void KrimbleTextTool::askAndAddText(const QPointF &where, const QRectF &box)
 {
     // is there text where the finger was? (the boxes of the shapes, within about 14 view px of the tap)
     KoSvgTextShape *existing = nullptr;
@@ -346,6 +392,8 @@ void KrimbleTextTool::askAndAddText(const QPointF &where)
     }
     QString text;
     if (existing && !krimbleReadTextShape(existing, &text)) existing = nullptr;
+    // Krimble 2026-10-20: new text: a box if one was dragged (its width), else no box. Existing text keeps its own (read above).
+    if (!existing) s_boxWidth = box.isValid() ? box.width() : 0.0;
     if (!krimbleAskText(QApplication::activeWindow(), &text, existing != nullptr)) return;
     if (text.trimmed().isEmpty()) return;
 
@@ -365,8 +413,19 @@ void KrimbleTextTool::askAndAddText(const QPointF &where)
     KoProperties *params = new KoProperties();
     params->setProperty("svgText", krimbleTextSvg(text));
     params->setProperty("defs", QStringLiteral("<defs/>"));
-    params->setProperty("shapeRect", QVariant(QRectF(where, QSizeF(200, 60))));
-    params->setProperty("origin", QVariant(where));
+    // params->setProperty("shapeRect", QVariant(QRectF(where, QSizeF(200, 60))));
+    // params->setProperty("origin", QVariant(where));
+    // Krimble 2026-10-20: in a box, the first line's baseline is one font size below the box's top, and the anchor point is the box's left, middle or
+    // right edge (the text's alignment), so the text sits inside the box that was dragged.
+    QPointF origin = where;
+    QRectF shapeRect(where, QSizeF(200, 60));
+    if (box.isValid() && s_boxWidth > 0.0) {
+        const qreal anchorX = (s_align == 1) ? box.center().x() : (s_align == 2 ? box.right() : box.left());
+        origin = QPointF(anchorX, box.top() + s_size);
+        shapeRect = box;
+    }
+    params->setProperty("shapeRect", QVariant(shapeRect));
+    params->setProperty("origin", QVariant(origin));
 
     KoShape *shape = factory->createShape(params, canvas()->shapeController()->resourceManager());
     if (!shape) return;
