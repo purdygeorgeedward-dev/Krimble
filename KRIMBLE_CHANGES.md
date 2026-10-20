@@ -4942,3 +4942,10 @@ George (1.0.39, test list, item 9): "New type tool just makes one long line of t
 
 George (1.0.40): "Transform tool mode buttons are HUGE now. Please reduce." (1.0.40 had the 195th entry's 28 px icons, 40 px minimum height.) Now **20 px** icons and a **30 px** minimum height; the chosen button keeps its highlight colour. The old lines are commented out.
 **Not verified:** a build or a device.
+
+## 2026-10-20 (221st) — Type tool font list: no Noto, no Samsung SEC fonts (the filter now holds)
+
+**Files:** `plugins/tools/svgtexttool/KrimbleTextTool.cpp`
+
+George (1.0.40, with his fonts in): "There is also still a ton of Noto and SEC crapola in the fonts. Can we remove all of that or is it built in?" They are the **phone's own** system fonts (Android's Noto, one per script; Samsung's "SEC" and "Samsung" fonts), not Krimble's. The 204th entry's filter did not hold: it edited `QFontComboBox`'s list once, and that box rebuilds its list from the font database whenever it likes (`setCurrentFont` does it). The list is now a **plain combo box filled once** with every family except names starting with **Noto, SEC, New SEC, Samsung, AndroidClock**, sorted, each name drawn in its own font. The hidden fonts stay installed, so text in other scripts still draws (font fallback). The old box is commented out.
+**Not verified:** a build or a device.

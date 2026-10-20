@@ -32,6 +32,8 @@
 #include <QDialogButtonBox>
 #include <QDoubleSpinBox>
 #include <QFontComboBox>
+#include <QFontDatabase>   // Krimble 2026-10-20: the font list
+#include <QComboBox>   // Krimble 2026-10-20: the font list
 #include <QStringListModel>   // Krimble 2026-10-19: Noto families taken out of the font list
 #include <QGuiApplication>
 #include <QHBoxLayout>
@@ -121,18 +123,46 @@ static bool krimbleAskText(QWidget *parent, QString *text, bool editing = false)
     edit->setMinimumHeight(edit->fontMetrics().height() * 5);
     layout->addWidget(edit);
 
-    QFontComboBox *fontBox = new QFontComboBox(&dialog);
-    // Krimble 2026-10-19: George (1.0.39, test list, item 8): "There are still lots of foreign language Noto fonts" and "I'm starting to really hate
-    // Noto." The phone's own Noto families (one per script) are taken out of this list. They stay installed, so text in other scripts still draws
-    // (the text engine falls back to them); they are only not offered here.
-    if (QStringListModel *families = qobject_cast<QStringListModel*>(fontBox->model())) {
-        QStringList kept;
-        Q_FOREACH (const QString &family, families->stringList()) {
-            if (!family.startsWith(QLatin1String("Noto"), Qt::CaseInsensitive)) kept << family;
+    // QFontComboBox *fontBox = new QFontComboBox(&dialog);
+    // // Krimble 2026-10-19: George (1.0.39, test list, item 8): "There are still lots of foreign language Noto fonts" and "I'm starting to really hate
+    // // Noto." The phone's own Noto families (one per script) are taken out of this list. They stay installed, so text in other scripts still draws
+    // // (the text engine falls back to them); they are only not offered here.
+    // if (QStringListModel *families = qobject_cast<QStringListModel*>(fontBox->model())) {
+    //     QStringList kept;
+    //     Q_FOREACH (const QString &family, families->stringList()) {
+    //         if (!family.startsWith(QLatin1String("Noto"), Qt::CaseInsensitive)) kept << family;
+    //     }
+    //     families->setStringList(kept);
+    // }
+    // fontBox->setCurrentFont(QFont(s_family));
+    // layout->addWidget(fontBox);
+    // Krimble 2026-10-20: George (1.0.40): "There is also still a ton of Noto and SEC crapola in the fonts. Can we remove all of that or is it built in?"
+    // They are the phone's own system fonts (Android's Noto, one per script; Samsung's SEC and Samsung fonts), not Krimble's. The filter above did
+    // not hold: QFontComboBox rebuilds its list from the font database whenever it likes (setCurrentFont does it), so the Noto names came back. The
+    // list is now a plain combo box filled once, here, with every family except the phone's script and system fonts (names starting with Noto, SEC,
+    // New SEC, Samsung, AndroidClock); each name is drawn in its own font. The hidden fonts stay installed, so text in other scripts still draws.
+    QComboBox *fontBox = new QComboBox(&dialog);
+    {
+        const QStringList hiddenPrefixes = {QStringLiteral("Noto"), QStringLiteral("SEC"), QStringLiteral("New SEC"),
+                                            QStringLiteral("Samsung"), QStringLiteral("AndroidClock")};
+        QStringList families = QFontDatabase().families();
+        families.removeDuplicates();
+        families.sort(Qt::CaseInsensitive);
+        Q_FOREACH (const QString &family, families) {
+            bool hidden = false;
+            Q_FOREACH (const QString &prefix, hiddenPrefixes) {
+                if (family.startsWith(prefix, Qt::CaseInsensitive)) { hidden = true; break; }
+            }
+            if (hidden) continue;
+            fontBox->addItem(family);
+            QFont itemFont(family);
+            itemFont.setPointSizeF(fontBox->font().pointSizeF() * 1.15);
+            fontBox->setItemData(fontBox->count() - 1, itemFont, Qt::FontRole);
         }
-        families->setStringList(kept);
+        int index = fontBox->findText(s_family, Qt::MatchFixedString);
+        if (index < 0) index = fontBox->findText(QStringLiteral("sans-serif"), Qt::MatchFixedString);
+        fontBox->setCurrentIndex(qMax(0, index));
     }
-    fontBox->setCurrentFont(QFont(s_family));
     layout->addWidget(fontBox);
 
     QHBoxLayout *row1 = new QHBoxLayout();
@@ -198,7 +228,8 @@ static bool krimbleAskText(QWidget *parent, QString *text, bool editing = false)
     preview->setMinimumHeight(preview->fontMetrics().height() * 4);
     layout->addWidget(preview);
     updatePreview = [&]() {
-        QFont previewFont = fontBox->currentFont();
+        // QFont previewFont = fontBox->currentFont();
+        QFont previewFont(fontBox->currentText());   // Krimble 2026-10-20: a plain combo box now
 #if QT_VERSION >= QT_VERSION_CHECK(5, 13, 0)
         // Krimble 2026-10-19: emoji show in the preview too (the same fallbacks as the text on the canvas)
         previewFont.setFamilies(QStringList() << previewFont.family() << QStringLiteral("Noto Color Emoji") << QStringLiteral("Samsung Color Emoji"));
@@ -215,7 +246,8 @@ static bool krimbleAskText(QWidget *parent, QString *text, bool editing = false)
         preview->setText(sample.isEmpty() ? i18n("Sample text") : sample);
     };
     QObject::connect(edit, &QPlainTextEdit::textChanged, &dialog, [&]() { updatePreview(); });
-    QObject::connect(fontBox, &QFontComboBox::currentFontChanged, &dialog, [&]() { updatePreview(); });
+    // QObject::connect(fontBox, &QFontComboBox::currentFontChanged, &dialog, [&]() { updatePreview(); });
+    QObject::connect(fontBox, QOverload<int>::of(&QComboBox::currentIndexChanged), &dialog, [&]() { updatePreview(); });
     QObject::connect(sizeBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), &dialog, [&]() { updatePreview(); });
     QObject::connect(boldButton, &QPushButton::toggled, &dialog, [&]() { updatePreview(); });
     QObject::connect(italicButton, &QPushButton::toggled, &dialog, [&]() { updatePreview(); });
@@ -234,7 +266,8 @@ static bool krimbleAskText(QWidget *parent, QString *text, bool editing = false)
 
     if (dialog.exec() != QDialog::Accepted) return false;
     *text = edit->toPlainText();
-    s_family = fontBox->currentFont().family();
+    // s_family = fontBox->currentFont().family();
+    s_family = fontBox->currentText();
     s_size = sizeBox->value();
     s_bold = boldButton->isChecked();
     s_italic = italicButton->isChecked();
