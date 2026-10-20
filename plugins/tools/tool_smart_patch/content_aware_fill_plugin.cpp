@@ -49,10 +49,22 @@ bool krimbleContentAwareFill(KisPaintDeviceSP imageDev, KisPaintDeviceSP maskDev
     const QRect maskRect = maskDev->exactBounds();
     if (maskRect.isEmpty()) return false;
     const int holeShort = qMin(maskRect.width(), maskRect.height());
-    const int margin = qMax(64, 2 * holeShort + 24);
-    const QRect roi = maskRect.adjusted(-margin, -margin, margin, margin) & image->bounds();
+    // const int margin = qMax(64, 2 * holeShort + 24);
+    // const QRect roi = maskRect.adjusted(-margin, -margin, margin, margin) & image->bounds();
+    // if (roi.width() < 24 || roi.height() < 24) return false;
+    // if (qint64(roi.width()) * roi.height() > 9000000) return false;      // the memory of the engine is about 70 bytes per pixel of this area
+    // Krimble 2026-10-19: George (1.0.39): Content-Aware Fill still "a blurry mess". On a phone photo (12 MP and more) the area above was often over the 9 MP limit, and then
+    // Krita's old Smart Patch fill ran instead (the blur). Now the area around the hole is made smaller until it fits a budget (4 MP: the new engine needs about 50 bytes
+    // per pixel of it, about 200 MB), so the new engine runs for any hole whose own box fits; only a hole bigger than that still falls back.
+    const qint64 budget = 4000000;
+    int margin = qMax(64, 2 * holeShort + 24);
+    QRect roi = maskRect.adjusted(-margin, -margin, margin, margin) & image->bounds();
+    while (margin > 16 && qint64(roi.width()) * roi.height() > budget) {
+        margin = margin * 3 / 4;
+        roi = maskRect.adjusted(-margin, -margin, margin, margin) & image->bounds();
+    }
     if (roi.width() < 24 || roi.height() < 24) return false;
-    if (qint64(roi.width()) * roi.height() > 9000000) return false;      // the memory of the engine is about 70 bytes per pixel of this area
+    if (qint64(roi.width()) * roi.height() > budget) return false;
 
     const int w = roi.width(), h = roi.height();
     const KoColorSpace *rgb8 = KoColorSpaceRegistry::instance()->rgb8();

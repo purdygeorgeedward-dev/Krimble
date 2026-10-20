@@ -14,6 +14,7 @@ struct Options {
     int threads = 0;           // 0 = as many as the device has (at most 4)
     std::function<bool(float)> progress;   // called now and then with 0..1; return false to stop (inpaint() then returns false and changes nothing)
     float sharpness = 8.0f;    // higher = sharper and more "copied" (a few sources win), lower = smoother (many sources are averaged)
+                               // Krimble 2026-10-19: used only by the first engine (inpaintLegacy); the engine used now always ends with real pixels, copied
 };
 
 // pixels: w * h * channels, 8 bit, interleaved (RGB or RGBA); hole: w * h, non-zero = to be filled.

@@ -611,7 +611,10 @@ inline float sampleBilinear(const Level &C, float fx, float fy, int k)
 
 } // namespace
 
-bool inpaint(uint8_t *pixels, const uint8_t *holeIn, int w, int h, int channels, const Options &opt, uint8_t *filledHole)
+// Krimble 2026-10-19: the first engine (2026-10-18), kept, no longer called. It fills the hole with a smooth colour (a Laplace solution from the edge) and votes only the
+// fine detail (a radius-3 high-pass) on top of it; anything larger than the fine detail came from the smooth colour, which is why George saw "a smear" ("anything with
+// detail is going to fail", "Still looked blurry"). The engine that is used now is inpaint() at the end of this file.
+bool inpaintLegacy(uint8_t *pixels, const uint8_t *holeIn, int w, int h, int channels, const Options &opt, uint8_t *filledHole)
 {
 
 
@@ -739,6 +742,463 @@ bool inpaint(uint8_t *pixels, const uint8_t *holeIn, int w, int h, int channels,
 
     // write the hole back (only the pixels the caller asked for, not the pixels of the grown edge unless they were in the hole)
     const Level &F = pyr[0];
+    if (filledHole) for (size_t i = 0; i < F.hole.size(); ++i) filledHole[i] = F.hole[i] ? 1 : 0;
+    for (size_t i = 0; i < F.hole.size(); ++i) {
+        if (!F.hole[i]) continue;
+        for (int k = 0; k < channels; ++k)
+            pixels[i * channels + k] = uint8_t(std::max(0.0f, std::min(255.0f, F.img[i * channels + k] + 0.5f)));
+    }
+    return true;
+}
+
+
+// ====================================================================================================================================================================
+// Krimble 2026-10-19: the engine used now. George (1.0.39): Content-Aware Fill "just leaves a blurry mess", "anything with detail is going to fail", "We need it to look like
+// magic. Not a smear.", and, of the plan: "Using real pixels is better." This is the classic way (Wexler, Shechtman and Irani 2007; Barnes et al. 2009, PatchMatch), with
+// the whole colour of the patches, at every size:
+//  - a pyramid of the picture, down to a size where the hole is small;
+//  - at every size, every patch that touches the hole gets the most similar patch of the known picture (PatchMatch: neighbours' matches spread, plus a random search);
+//  - the hole is rebuilt from those matches (each pixel from the patches that cover it), and the matching is done again on the rebuilt hole, a few times;
+//  - going up a size, the matches are carried up and the hole is rebuilt from the bigger picture's OWN pixels (not an enlarged smaller picture), so no blur comes up;
+//  - at full size, the last rebuild takes every pixel from the ONE best patch that covers it: real pixels, copied, never averaged.
+// ====================================================================================================================================================================
+namespace {
+
+struct PLevel {
+    int w = 0, h = 0, c = 0;
+    std::vector<float> img;       // w * h * c
+    std::vector<uint8_t> hole;    // w * h, 1 = to be filled
+    std::vector<uint8_t> src;     // w * h, 1 = a patch centred here lies wholly in the known picture (a valid source)
+    std::vector<uint8_t> tgt;     // w * h, 1 = the patch centred here touches the hole (a target)
+    std::vector<int> nx, ny;      // the match of every target
+    std::vector<float> nd;        // its distance
+    std::vector<int> srcList;     // the valid sources, as indices
+    std::vector<float> conf;      // w * h: how much a pixel counts when patches are compared (known pixels 1; the guessed hole less)
+};
+
+void pBuild(PLevel &L, int r)
+{
+    const int w = L.w, h = L.h;
+    // integral image of the hole, to test whole windows at once
+    std::vector<int> sat(size_t(w + 1) * (h + 1), 0);
+    for (int y = 0; y < h; ++y) {
+        int row = 0;
+        for (int x = 0; x < w; ++x) {
+            row += L.hole[size_t(y) * w + x] ? 1 : 0;
+            sat[size_t(y + 1) * (w + 1) + (x + 1)] = sat[size_t(y) * (w + 1) + (x + 1)] + row;
+        }
+    }
+    auto holesIn = [&](int x0, int y0, int x1, int y1) {   // inclusive, clamped
+        x0 = std::max(0, x0); y0 = std::max(0, y0); x1 = std::min(w - 1, x1); y1 = std::min(h - 1, y1);
+        if (x1 < x0 || y1 < y0) return 0;
+        return sat[size_t(y1 + 1) * (w + 1) + (x1 + 1)] - sat[size_t(y0) * (w + 1) + (x1 + 1)] - sat[size_t(y1 + 1) * (w + 1) + x0] + sat[size_t(y0) * (w + 1) + x0];
+    };
+    L.src.assign(size_t(w) * h, 0);
+    L.tgt.assign(size_t(w) * h, 0);
+    L.srcList.clear();
+    for (int y = 0; y < h; ++y)
+        for (int x = 0; x < w; ++x) {
+            const size_t i = size_t(y) * w + x;
+            if (x >= r && y >= r && x < w - r && y < h - r && holesIn(x - r, y - r, x + r, y + r) == 0) { L.src[i] = 1; L.srcList.push_back(int(i)); }
+            if (holesIn(x - r, y - r, x + r, y + r) > 0) L.tgt[i] = 1;
+        }
+    L.nx.assign(size_t(w) * h, 0);
+    L.ny.assign(size_t(w) * h, 0);
+    L.nd.assign(size_t(w) * h, 1e30f);
+    L.conf.assign(size_t(w) * h, 1.0f);
+}
+
+// how much the guessed hole counts in the comparisons: little while the guess is rough (the known picture around the hole decides what is copied), more as it improves
+void pSetConfidence(PLevel &L, float holeWeight)
+{
+    for (size_t i = 0; i < L.hole.size(); ++i) L.conf[i] = L.hole[i] ? holeWeight : 1.0f;
+}
+
+// the distance between the patch around target (tx, ty) and the patch around source (sx, sy); pixels of the target patch outside the picture are skipped
+inline float pDist(const PLevel &L, int tx, int ty, int sx, int sy, int r, float cutoff)
+{
+    const int c = L.c, w = L.w, h = L.h;
+    float d = 0.0f;
+    for (int dy = -r; dy <= r; ++dy) {
+        const int y = ty + dy;
+        if (y < 0 || y >= h) continue;
+        const float *a = &L.img[(size_t(y) * w) * c];
+        const float *b = &L.img[(size_t(sy + dy) * w) * c];
+        for (int dx = -r; dx <= r; ++dx) {
+            const int x = tx + dx;
+            if (x < 0 || x >= w) continue;
+            const float *pa = a + size_t(x) * c, *pb = b + size_t(sx + dx) * c;
+            float e2 = 0.0f;
+            for (int k = 0; k < c; ++k) { const float e = pa[k] - pb[k]; e2 += e * e; }
+            d += e2 * L.conf[size_t(y) * w + x];
+        }
+        if (d > cutoff) return d;
+    }
+    return d;
+}
+
+template <typename F>
+void pParallel(int n, int threads, F f)
+{
+    if (threads <= 1 || n < 64) { f(0, n); return; }
+    std::vector<std::thread> pool;
+    const int step = (n + threads - 1) / threads;
+    for (int t = 0; t < threads; ++t) {
+        const int a = t * step, b = std::min(n, a + step);
+        if (a < b) pool.emplace_back([=]() { f(a, b); });
+    }
+    for (auto &th : pool) th.join();
+}
+
+inline void pTry(PLevel &L, size_t i, int x, int y, int sx, int sy, int r)
+{
+    if (sx < r || sy < r || sx >= L.w - r || sy >= L.h - r) return;
+    if (!L.src[size_t(sy) * L.w + sx]) return;
+    if (sx == L.nx[i] && sy == L.ny[i]) return;
+    const float d = pDist(L, x, y, sx, sy, r, L.nd[i]);
+    if (d < L.nd[i]) { L.nd[i] = d; L.nx[i] = sx; L.ny[i] = sy; }
+}
+
+// one PatchMatch pass over rows [ya, yb): propagation from the two neighbours already visited, then a random search of shrinking size around the current match
+void pPass(PLevel &L, int r, bool forward, int ya, int yb, unsigned seed)
+{
+    std::mt19937 rng(seed);
+    const int w = L.w;
+    const int maxR = std::max(L.w, L.h);
+    const int sY = forward ? ya : yb - 1, eY = forward ? yb : ya - 1, st = forward ? 1 : -1;
+    for (int y = sY; y != eY; y += st) {
+        const int sX = forward ? 0 : w - 1, eX = forward ? w : -1;
+        for (int x = sX; x != eX; x += st) {
+            const size_t i = size_t(y) * w + x;
+            if (!L.tgt[i]) continue;
+            const int px = x - st, py = y - st;
+            if (px >= 0 && px < w && L.tgt[size_t(y) * w + px]) { const size_t q = size_t(y) * w + px; pTry(L, i, x, y, L.nx[q] + st, L.ny[q], r); }
+            if (py >= 0 && py < L.h && L.tgt[size_t(py) * w + x]) { const size_t q = size_t(py) * w + x; pTry(L, i, x, y, L.nx[q], L.ny[q] + st, r); }
+            for (int rad = maxR; rad >= 1; rad /= 2) {
+                const int sx = L.nx[i] + int(rng() % unsigned(2 * rad + 1)) - rad;
+                const int sy = L.ny[i] + int(rng() % unsigned(2 * rad + 1)) - rad;
+                pTry(L, i, x, y, sx, sy, r);
+            }
+        }
+    }
+}
+
+void pMatch(PLevel &L, int r, int iterations, int threads, unsigned &seed)
+{
+    for (int it = 0; it < iterations; ++it) {
+        const bool fwd = (it & 1) == 0;
+        pParallel(L.h, threads, [&](int a, int b) { pPass(L, r, fwd, a, b, seed + unsigned(a) * 7919u); });
+        seed += 104729u;
+    }
+}
+
+// The hole is rebuilt from the matches. `winner` false: every pixel is the weighted mean of what the patches that cover it say (weights from the match quality); used while the
+// matches are still being found. `winner` true: every pixel is taken from the one covering patch with the best match (sharp; the final rebuild).
+void pVote(PLevel &L, int r, bool winner, int threads)
+{
+    const int c = L.c, w = L.w, h = L.h;
+    std::vector<float> ds;
+    for (size_t i = 0; i < L.tgt.size(); ++i) if (L.tgt[i] && L.nd[i] < 1e29f) ds.push_back(L.nd[i]);
+    if (ds.empty()) return;
+    std::nth_element(ds.begin(), ds.begin() + ds.size() * 3 / 4, ds.end());
+    const float sigma2 = std::max(ds[ds.size() * 3 / 4], 1.0f);
+    std::vector<float> out(L.img);
+    pParallel(h, threads, [&](int ya, int yb) {
+        for (int y = ya; y < yb; ++y)
+            for (int x = 0; x < w; ++x) {
+                const size_t p = size_t(y) * w + x;
+                if (!L.hole[p]) continue;
+                float acc[4] = {0, 0, 0, 0}, ws = 0.0f, best = 1e30f;
+                for (int dy = -r; dy <= r; ++dy) {
+                    const int qy = y - dy;
+                    if (qy < 0 || qy >= h) continue;
+                    for (int dx = -r; dx <= r; ++dx) {
+                        const int qx = x - dx;
+                        if (qx < 0 || qx >= w) continue;
+                        const size_t q = size_t(qy) * w + qx;
+                        if (!L.tgt[q] || L.nd[q] >= 1e29f) continue;
+                        const size_t s = (size_t(L.ny[q] + dy) * w + (L.nx[q] + dx)) * c;
+                        if (winner) {
+                            // the best match wins; a patch centred nearer the pixel wins a tie
+                            const float score = L.nd[q] * (1.0f + 0.02f * float(dx * dx + dy * dy));
+                            if (score < best) { best = score; for (int k = 0; k < c; ++k) acc[k] = L.img[s + k]; ws = 1.0f; }
+                        } else {
+                            const float wq = std::exp(-L.nd[q] / (2.0f * sigma2));
+                            for (int k = 0; k < c; ++k) acc[k] += wq * L.img[s + k];
+                            ws += wq;
+                        }
+                    }
+                }
+                if (ws > 0.0f) for (int k = 0; k < c; ++k) out[p * c + k] = acc[k] / ws;
+            }
+    });
+    L.img.swap(out);
+}
+
+// The final rebuild with the seam taken away. Every hole pixel is taken from its best covering patch (real pixels), and the same patches also predict the known pixels
+// in a thin ring around the hole. Where a prediction differs from the real pixel (a copied piece is a little lighter, darker or of another hue than this spot), that
+// difference is spread smoothly into the hole (a membrane, as in seamless cloning) and added, so the copied pixels meet the picture with no visible edge. Only a smooth
+// colour shift is added: the copied detail stays as sharp as it was.
+void pFinalSeamless(PLevel &L, int r, int threads)
+{
+    const int c = L.c, w = L.w, h = L.h;
+    std::vector<float> pred(L.img.size(), 0.0f);
+    std::vector<uint8_t> has(L.hole.size(), 0);
+    pParallel(h, threads, [&](int ya, int yb) {
+        for (int y = ya; y < yb; ++y)
+            for (int x = 0; x < w; ++x) {
+                const size_t p = size_t(y) * w + x;
+                if (!L.tgt[p]) continue;    // the hole and the ring of known pixels whose patches touch it
+                float best = 1e30f;
+                for (int dy = -r; dy <= r; ++dy) {
+                    const int qy = y - dy;
+                    if (qy < 0 || qy >= h) continue;
+                    for (int dx = -r; dx <= r; ++dx) {
+                        const int qx = x - dx;
+                        if (qx < 0 || qx >= w) continue;
+                        const size_t q = size_t(qy) * w + qx;
+                        if (!L.tgt[q] || L.nd[q] >= 1e29f) continue;
+                        // ring pixels (known): only patches CENTRED IN THE HOLE count. A patch centred on a known pixel near the hole is matched mostly by its known part
+                        // and predicts the ring almost exactly, which would hide the seam; the patches centred in the hole are the ones whose pixels were copied.
+                        if (!L.hole[p] && !L.hole[q]) continue;
+                        const float score = L.nd[q] * (1.0f + 0.02f * float(dx * dx + dy * dy));
+                        if (score < best) {
+                            best = score;
+                            const size_t s = (size_t(L.ny[q] + dy) * w + (L.nx[q] + dx)) * c;
+                            for (int k = 0; k < c; ++k) pred[p * c + k] = L.img[s + k];
+                            has[p] = 1;
+                        }
+                    }
+                }
+            }
+    });
+    // the offset: fixed on the ring (real - predicted), unknown in the hole
+    std::vector<float> off(L.img.size(), 0.0f);
+    std::vector<uint8_t> fixedRing(L.hole.size(), 0);
+    for (int y = 0; y < h; ++y)
+        for (int x = 0; x < w; ++x) {
+            const size_t p = size_t(y) * w + x;
+            if (L.hole[p] || !has[p]) continue;
+            bool nearHole = false;
+            for (int dy = -1; dy <= 1 && !nearHole; ++dy)
+                for (int dx = -1; dx <= 1; ++dx) {
+                    const int nx = x + dx, ny = y + dy;
+                    if (nx >= 0 && ny >= 0 && nx < w && ny < h && L.hole[size_t(ny) * w + nx]) { nearHole = true; break; }
+                }
+            if (!nearHole) continue;
+            fixedRing[p] = 1;
+            for (int k = 0; k < c; ++k) off[p * c + k] = L.img[p * c + k] - pred[p * c + k];
+        }
+    // the hole pixels take their best patch
+    for (size_t p = 0; p < L.hole.size(); ++p)
+        if (L.hole[p] && has[p]) for (int k = 0; k < c; ++k) L.img[p * c + k] = pred[p * c + k];
+    // the membrane: first an onion-peel guess, then over-relaxation (each hole value toward the mean of its four neighbours)
+    std::vector<uint8_t> known(L.hole.size(), 0);
+    for (size_t p = 0; p < known.size(); ++p) known[p] = fixedRing[p];
+    std::vector<size_t> order;
+    bool changed = true;
+    while (changed) {
+        changed = false;
+        std::vector<size_t> wave;
+        for (int y = 0; y < h; ++y)
+            for (int x = 0; x < w; ++x) {
+                const size_t p = size_t(y) * w + x;
+                if (!L.hole[p] || known[p]) continue;
+                float acc[4] = {0, 0, 0, 0};
+                int n = 0;
+                const int nbx[4] = {x - 1, x + 1, x, x}, nby[4] = {y, y, y - 1, y + 1};
+                for (int j = 0; j < 4; ++j) {
+                    if (nbx[j] < 0 || nby[j] < 0 || nbx[j] >= w || nby[j] >= h) continue;
+                    const size_t q = size_t(nby[j]) * w + nbx[j];
+                    if (!known[q]) continue;
+                    for (int k = 0; k < c; ++k) acc[k] += off[q * c + k];
+                    ++n;
+                }
+                if (n) { for (int k = 0; k < c; ++k) off[p * c + k] = acc[k] / n; wave.push_back(p); }
+            }
+        for (size_t p : wave) { known[p] = 1; order.push_back(p); changed = true; }
+    }
+    std::vector<size_t> holeList;
+    for (size_t p = 0; p < L.hole.size(); ++p) if (L.hole[p]) holeList.push_back(p);
+    const float omega = 1.9f;
+    for (int it = 0; it < 400; ++it) {
+        for (size_t p : holeList) {
+            const int x = int(p % size_t(w)), y = int(p / size_t(w));
+            float acc[4] = {0, 0, 0, 0};
+            int n = 0;
+            const int nbx[4] = {x - 1, x + 1, x, x}, nby[4] = {y, y, y - 1, y + 1};
+            for (int j = 0; j < 4; ++j) {
+                if (nbx[j] < 0 || nby[j] < 0 || nbx[j] >= w || nby[j] >= h) continue;
+                const size_t q = size_t(nby[j]) * w + nbx[j];
+                if (!L.hole[q] && !fixedRing[q]) continue;   // the outer edge of the picture: free (no pull)
+                for (int k = 0; k < c; ++k) acc[k] += off[q * c + k];
+                ++n;
+            }
+            if (!n) continue;
+            for (int k = 0; k < c; ++k) off[p * c + k] += omega * (acc[k] / n - off[p * c + k]);
+        }
+    }
+    for (size_t p : holeList) for (int k = 0; k < c; ++k) L.img[p * c + k] += off[p * c + k];
+}
+
+void pRemeasure(PLevel &L, int r, int threads)
+{
+    pParallel(int(L.tgt.size()), threads, [&](int a, int b) {
+        for (int i = a; i < b; ++i)
+            if (L.tgt[size_t(i)]) L.nd[size_t(i)] = pDist(L, i % L.w, i / L.w, L.nx[size_t(i)], L.ny[size_t(i)], r, 1e30f);
+    });
+}
+
+PLevel pDown(const PLevel &F)
+{
+    PLevel L;
+    L.c = F.c; L.w = (F.w + 1) / 2; L.h = (F.h + 1) / 2;
+    L.img.assign(size_t(L.w) * L.h * L.c, 0.0f);
+    L.hole.assign(size_t(L.w) * L.h, 0);
+    for (int y = 0; y < L.h; ++y)
+        for (int x = 0; x < L.w; ++x) {
+            float acc[4] = {0, 0, 0, 0};
+            int n = 0, holes = 0;
+            for (int dy = 0; dy < 2; ++dy)
+                for (int dx = 0; dx < 2; ++dx) {
+                    const int sx = std::min(F.w - 1, 2 * x + dx), sy = std::min(F.h - 1, 2 * y + dy);
+                    const size_t s = size_t(sy) * F.w + sx;
+                    if (F.hole[s]) { ++holes; continue; }
+                    for (int k = 0; k < F.c; ++k) acc[k] += F.img[s * F.c + k];
+                    ++n;
+                }
+            const size_t i = size_t(y) * L.w + x;
+            if (holes > 0 || n == 0) L.hole[i] = 1;
+            else for (int k = 0; k < L.c; ++k) L.img[i * L.c + k] = acc[k] / n;
+        }
+    return L;
+}
+
+// the first guess at the smallest size: the hole is filled from its edge inward, each pixel the mean of its neighbours that are already known or filled (onion peel)
+void pPeel(PLevel &L)
+{
+    const int w = L.w, h = L.h, c = L.c;
+    std::vector<uint8_t> known(L.hole.size());
+    for (size_t i = 0; i < known.size(); ++i) known[i] = L.hole[i] ? 0 : 1;
+    bool changed = true;
+    while (changed) {
+        changed = false;
+        std::vector<uint8_t> next = known;
+        for (int y = 0; y < h; ++y)
+            for (int x = 0; x < w; ++x) {
+                const size_t i = size_t(y) * w + x;
+                if (known[i]) continue;
+                float acc[4] = {0, 0, 0, 0};
+                int n = 0;
+                for (int dy = -1; dy <= 1; ++dy)
+                    for (int dx = -1; dx <= 1; ++dx) {
+                        const int nx = x + dx, ny = y + dy;
+                        if (nx < 0 || ny < 0 || nx >= w || ny >= h) continue;
+                        const size_t q = size_t(ny) * w + nx;
+                        if (!known[q]) continue;
+                        for (int k = 0; k < c; ++k) acc[k] += L.img[q * c + k];
+                        ++n;
+                    }
+                if (n) { for (int k = 0; k < c; ++k) L.img[i * c + k] = acc[k] / n; next[i] = 1; changed = true; }
+            }
+        known.swap(next);
+    }
+}
+
+} // namespace
+
+bool inpaint(uint8_t *pixels, const uint8_t *holeIn, int w, int h, int channels, const Options &opt, uint8_t *filledHole)
+{
+    if (!pixels || !holeIn || w < 8 || h < 8 || channels < 1 || channels > 4) return false;
+    const int r = std::max(2, opt.patchRadius);
+    const int T = opt.threads > 0 ? opt.threads : int(std::max(1u, std::min(4u, std::thread::hardware_concurrency())));
+    unsigned seed = opt.seed;
+
+    std::vector<PLevel> pyr(1);
+    PLevel &L0 = pyr[0];
+    L0.w = w; L0.h = h; L0.c = channels;
+    L0.img.resize(size_t(w) * h * channels);
+    for (size_t i = 0; i < L0.img.size(); ++i) L0.img[i] = pixels[i];
+    L0.hole.assign(size_t(w) * h, 0);
+    for (size_t i = 0; i < L0.hole.size(); ++i) L0.hole[i] = holeIn[i] ? 1 : 0;
+    for (int pass = 0; pass < opt.expand; ++pass) {
+        std::vector<uint8_t> grown = L0.hole;
+        for (int y = 0; y < h; ++y)
+            for (int x = 0; x < w; ++x)
+                if (L0.hole[size_t(y) * w + x])
+                    for (int dy = -1; dy <= 1; ++dy)
+                        for (int dx = -1; dx <= 1; ++dx) {
+                            const int nx = x + dx, ny = y + dy;
+                            if (nx >= 0 && ny >= 0 && nx < w && ny < h) grown[size_t(ny) * w + nx] = 1;
+                        }
+        L0.hole.swap(grown);
+    }
+    int minX = w, minY = h, maxX = -1, maxY = -1;
+    size_t holeCount = 0;
+    for (int y = 0; y < h; ++y)
+        for (int x = 0; x < w; ++x)
+            if (L0.hole[size_t(y) * w + x]) { minX = std::min(minX, x); maxX = std::max(maxX, x); minY = std::min(minY, y); maxY = std::max(maxY, y); ++holeCount; }
+    if (holeCount == 0) return true;
+    if (holeCount >= size_t(w) * h) return false;
+
+    // the levels: down until the hole is at most about 24 px across (or the picture gets too small to find patches in)
+    const int holeDim = std::max(maxX - minX + 1, maxY - minY + 1);
+    int levels = 1;
+    while (levels < std::max(opt.maxLevels, 10) && (holeDim >> (levels - 1)) > 24 && (std::min(w, h) >> levels) >= 8 * (2 * r + 1)) ++levels;
+    for (int i = 1; i < levels; ++i) pyr.push_back(pDown(pyr[size_t(i - 1)]));
+
+    for (int lv = levels - 1; lv >= 0; --lv) {
+        PLevel &L = pyr[size_t(lv)];
+        pBuild(L, r);
+        if (L.srcList.empty()) {
+            if (lv == levels - 1) pPeel(L);
+            continue;
+        }
+        std::mt19937 rng(seed + unsigned(lv));
+        if (lv == levels - 1) {
+            pPeel(L);
+            for (size_t i = 0; i < L.tgt.size(); ++i) {
+                if (!L.tgt[i]) continue;
+                const int s = L.srcList[rng() % L.srcList.size()];
+                L.nx[i] = s % L.w; L.ny[i] = s / L.w;
+            }
+        } else {
+            // the matches of the smaller size, carried up (doubled), each checked; the hole is then rebuilt from THIS size's own pixels
+            const PLevel &C = pyr[size_t(lv + 1)];
+            for (int y = 0; y < L.h; ++y)
+                for (int x = 0; x < L.w; ++x) {
+                    const size_t i = size_t(y) * L.w + x;
+                    if (!L.tgt[i]) continue;
+                    const int cx = std::min(C.w - 1, x / 2), cy = std::min(C.h - 1, y / 2);
+                    const size_t ci = size_t(cy) * C.w + cx;
+                    int sx = -1, sy = -1;
+                    if (C.tgt[ci] && C.nd[ci] < 1e29f) { sx = C.nx[ci] * 2 + (x - cx * 2); sy = C.ny[ci] * 2 + (y - cy * 2); }
+                    else if (!L.hole[i]) { sx = x; sy = y; }
+                    if (sx < r || sy < r || sx >= L.w - r || sy >= L.h - r || !L.src[size_t(sy) * L.w + sx]) {
+                        const int s = L.srcList[rng() % L.srcList.size()];
+                        sx = s % L.w; sy = s / L.w;
+                    }
+                    L.nx[i] = sx; L.ny[i] = sy;
+                }
+            // a first rebuild of the hole from the carried matches (the distances are not known yet: all equal)
+            for (size_t i = 0; i < L.tgt.size(); ++i) if (L.tgt[i]) L.nd[i] = 1.0f;
+            pVote(L, r, false, T);
+        }
+        const int emIters = (lv == levels - 1) ? 10 : (lv == 0 ? 3 : 5);
+        // the guessed hole counts little at the smallest size (its first guess is only a peeled average), more on the bigger sizes (their guess came from real patches)
+        pSetConfidence(L, (lv == levels - 1) ? 0.15f : 0.6f);
+        pRemeasure(L, r, T);
+        for (int it = 0; it < emIters; ++it) {
+            if (lv == levels - 1) { pSetConfidence(L, 0.15f + 0.6f * float(it) / float(emIters)); }
+            pMatch(L, r, 2, T, seed);
+            if (opt.progress && !opt.progress(float(levels - 1 - lv) / float(levels) + (float(it + 1) / float(emIters)) / float(levels))) return false;
+            const bool last = (lv == 0 && it == emIters - 1);
+            if (last) pFinalSeamless(L, r, T);
+            else { pVote(L, r, false, T); pRemeasure(L, r, T); }
+        }
+    }
+
+    const PLevel &F = pyr[0];
     if (filledHole) for (size_t i = 0; i < F.hole.size(); ++i) filledHole[i] = F.hole[i] ? 1 : 0;
     for (size_t i = 0; i < F.hole.size(); ++i) {
         if (!F.hole[i]) continue;
