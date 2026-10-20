@@ -13,6 +13,7 @@
 #include <QImage>
 #include <vector>
 #include <cstring>
+#include <new>   // Krimble 2026-10-20: std::bad_alloc
 
 namespace KrimbleFill {
 
@@ -44,7 +45,12 @@ bool fill(KisPaintDeviceSP imageDev, KisPaintDeviceSP maskDev, const QRect &boun
     // per pixel of it, about 200 MB), so the new engine runs for any hole whose own box fits; only a hole bigger than that still falls back.
     // const qint64 budget = 4000000;
     // Krimble 2026-10-19 (2nd): 3 MP: the Photoshop-style engine keeps a little more per pixel (the transform, the colour shift, the window sums: about 75 bytes)
-    const qint64 budget = 3000000;
+    // const qint64 budget = 3000000;
+    // Krimble 2026-10-20: George (1.0.40): "Content-Aware fill does nothing now." (1.0.39 at least blurred.) The engine, on the bench, fills exactly as the
+    // app calls it, with 1 or 4 threads; on the phone, an area of 3 MP needs about 450 MB at the peak (the pyramid, the matches, the colour shifts, the
+    // window sums, the seam correction), and a failed allocation inside the fill's job may end the job without a word. The area is now at most 1.5 MP
+    // (about 230 MB), and an allocation failure falls back to Krita's fill (see the try below) instead of doing nothing.
+    const qint64 budget = 1500000;
     int margin = qMax(64, 2 * holeShort + 24);
     QRect roi = maskRect.adjusted(-margin, -margin, margin, margin) & bounds;
     while (margin > 16 && qint64(roi.width()) * roi.height() > budget) {
@@ -71,10 +77,22 @@ bool fill(KisPaintDeviceSP imageDev, KisPaintDeviceSP maskDev, const QRect &boun
 
     std::vector<uint8_t> filled(size_t(w) * h, 0);
     KrimbleInpaint::Options options;
-    const bool ok = (method == Smooth)
-        ? KrimbleInpaint::inpaintLegacy(pixels.data(), hole.data(), w, h, 4, options, filled.data())
-        : KrimbleInpaint::inpaint(pixels.data(), hole.data(), w, h, 4, options, filled.data());
+    // const bool ok = (method == Smooth)
+    //     ? KrimbleInpaint::inpaintLegacy(pixels.data(), hole.data(), w, h, 4, options, filled.data())
+    //     : KrimbleInpaint::inpaint(pixels.data(), hole.data(), w, h, 4, options, filled.data());
+    bool ok = false;
+    try {
+        ok = (method == Smooth)
+            ? KrimbleInpaint::inpaintLegacy(pixels.data(), hole.data(), w, h, 4, options, filled.data())
+            : KrimbleInpaint::inpaint(pixels.data(), hole.data(), w, h, 4, options, filled.data());
+    } catch (const std::bad_alloc &) {
+        ok = false;   // Krimble 2026-10-20: out of memory: Krita's fill instead
+    }
     if (!ok) return false;
+    // Krimble 2026-10-20: nothing filled (should not happen): Krita's fill instead, rather than doing nothing
+    size_t filledCount = 0;
+    for (uint8_t v : filled) filledCount += v ? 1 : 0;
+    if (filledCount == 0) return false;
 
     // the result, in the colour space of the layer, and only the replaced pixels copied
     QImage out(w, h, QImage::Format_ARGB32);
