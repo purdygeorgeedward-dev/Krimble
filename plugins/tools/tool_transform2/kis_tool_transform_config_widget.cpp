@@ -334,8 +334,11 @@ KisToolTransformConfigWidget::KisToolTransformConfigWidget(TransformTransactionP
     // autoRaise the checked button looked almost the same as the others). Nothing else in the widget is changed.
     Q_FOREACH (QToolButton *modeButton, QList<QToolButton*>({freeTransformButton, perspectiveTransformButton, warpButton,
                                                               cageButton, liquifyButton, meshButton})) {
-        modeButton->setIconSize(QSize(28, 28));
-        modeButton->setMinimumHeight(40);
+        // modeButton->setIconSize(QSize(28, 28));
+        // modeButton->setMinimumHeight(40);
+        // Krimble 2026-10-20: George (1.0.40): "Transform tool mode buttons are HUGE now. Please reduce." 28 -> 20 px icons, 40 -> 30 px height.
+        modeButton->setIconSize(QSize(20, 20));
+        modeButton->setMinimumHeight(30);
         modeButton->setStyleSheet(QStringLiteral(
             "QToolButton { padding: 4px; border-radius: 6px; }"
             "QToolButton:checked { background-color: palette(highlight); color: palette(highlighted-text); }"));

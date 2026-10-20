@@ -4935,3 +4935,10 @@ George (1.0.40, test list, item 16): "Try to use corner resize on Preferences di
 
 George (1.0.39, test list, item 9): "New type tool just makes one long line of text. You can't make a paragraph area and have it flow into it." A **tap** still makes text where it was tapped (one line per typed line, as before). A **drag** (more than 24 view px) draws a **text box**: a dashed orange frame follows the finger; when it lifts, the text window opens, and the text is made with SVG 2 `inline-size` = the box's width and `white-space: pre-wrap`, as one piece of text, so the text engine **wraps the words at the box's width** and keeps the line breaks that were typed. The text sits in the box: the first baseline one font size below its top, anchored at its left edge, middle or right edge by the alignment (Left, Center, Right). Tapping a boxed text later edits it and keeps its box (`inline-size` is read back). Not yet (same item): selecting part of the text to restyle it, and the window as a properties panel.
 **Not verified:** a build or a device.
+
+## 2026-10-20 (220th) — Transform mode buttons smaller again
+
+**Files:** `plugins/tools/tool_transform2/kis_tool_transform_config_widget.cpp`
+
+George (1.0.40): "Transform tool mode buttons are HUGE now. Please reduce." (1.0.40 had the 195th entry's 28 px icons, 40 px minimum height.) Now **20 px** icons and a **30 px** minimum height; the chosen button keeps its highlight colour. The old lines are commented out.
+**Not verified:** a build or a device.
