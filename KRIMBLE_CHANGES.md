@@ -4994,3 +4994,10 @@ George asked whether the fill could use compression; compressed data would have 
 **Files:** `packaging/android/apk/build.gradle`
 
 George: "Is it time to build?" `krimbleBuildNumber` 40 -> **41**: versionName **1.0.41-beta**. It brings the 212th to 226th entries (Krita's dotted panel handle back; View > Zoom Gadget; George Edward Purdy first in About; Soften at 100 px; painting tools get the user's brush back after Smudge; Dodge and Burn taken out; no bounce after a resize; Type tool text boxes, the font list without Noto and Samsung fonts, Spacing and Kern; smaller transform mode buttons; Content-Aware Fill messages, speed, every core, a lean-memory engine and a fall-back instead of nothing).
+
+## 2026-10-20 (228th) — Type tool: the title heading is taken out again
+
+**Files:** `plugins/tools/svgtexttool/KrimbleTextTool.cpp`
+
+George, on the bold "Text" heading the 203rd entry added at the top of the Type window: "Lame." / "Leave it out. It just sucks." The heading (`QLabel heading`) is commented out; the window opens straight on the typing box as before 1.0.40. (George's original ask, 1.0.39 item 8, was "a title at the top"; this replaces it with nothing, at his word.)
+**Not verified:** a build or a device.

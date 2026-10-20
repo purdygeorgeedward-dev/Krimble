@@ -138,13 +138,14 @@ static bool krimbleAskText(QWidget *parent, QString *text, bool editing = false)
 
     // Krimble 2026-10-19: George (1.0.39, test list, item 8): "The new type tool should have a title at the top". On the phone a dialog has no
     // title bar, so the window's title is not seen; it is now also shown as a bold heading at the top of the window.
-    QLabel *heading = new QLabel(dialog.windowTitle(), &dialog);
-    QFont headingFont = heading->font();
-    headingFont.setBold(true);
-    headingFont.setPointSizeF(headingFont.pointSizeF() * 1.3);
-    heading->setFont(headingFont);
-    heading->setAlignment(Qt::AlignHCenter);
-    layout->addWidget(heading);
+// Krimble 2026-10-20 (2nd): George: "Leave it out. It just sucks." The heading is not shown (the 203rd entry's lines, kept, not run).
+    // QLabel *heading = new QLabel(dialog.windowTitle(), &dialog);
+    // QFont headingFont = heading->font();
+    // headingFont.setBold(true);
+    // headingFont.setPointSizeF(headingFont.pointSizeF() * 1.3);
+    // heading->setFont(headingFont);
+    // heading->setAlignment(Qt::AlignHCenter);
+    // layout->addWidget(heading);
 
     QPlainTextEdit *edit = new QPlainTextEdit(&dialog);
     edit->setPlainText(*text);
