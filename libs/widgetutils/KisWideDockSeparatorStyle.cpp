@@ -79,7 +79,11 @@ void KisWideDockSeparatorStyle::drawPrimitive(PrimitiveElement element, const QS
 #ifdef Q_OS_ANDROID
     if (element == QStyle::PE_IndicatorDockWidgetResizeHandle) {
         // Krimble 2026-10-12: the strip draws nothing now (invisible); the code below is kept, not deleted, and is not reached.
-        return;
+        // return;
+        // Krimble 2026-10-20: George (1.0.40, test list, item 2): "Invisible resize gadget on toolbox is 75% down the screen. Why? And I can't see it.
+        // The Krita thing was 50% down and at least visible with its little dots. Can I have that back?" The return above is commented out, so the
+        // separator between a panel (or the toolbox) and the canvas draws Krita's own handle again: the base style's little dots, in the middle of the
+        // separator (centred along it), in a strip of the original width (the 2026-10-11 code just below).
         // Krimble 2026-10-11: George wants the ORIGINAL default look of these edges, with only the grabbing made bigger. The
         // strip is wider so a finger can catch it, but what is drawn is exactly what the base style drew before: its own
         // handle, in a strip of the original width, centered in the wide one.

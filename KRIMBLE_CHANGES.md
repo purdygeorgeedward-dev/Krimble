@@ -4879,3 +4879,10 @@ George: "Test it in your sandbox." A wider test (tools/inpaint-bench, six object
 **Files:** `packaging/android/apk/build.gradle`
 
 George: "Build." `krimbleBuildNumber` 39 -> **40**: versionName **1.0.40-beta**, version code 5050440. It brings the 190th to 210th entries (new splash and holiday splash; crop, selection, transform, toolbox, New dialog and Type tool fixes; bundled fonts on Android; emoji fallbacks; Krita's panel handle back; Content-Aware Fill's new engines and the Fill method in the healing brush's Tool Options; Select > Similar).
+
+## 2026-10-20 (212th) — Krita's visible panel handle (the little dots, in the middle) is back
+
+**Files:** `libs/widgetutils/KisWideDockSeparatorStyle.cpp`
+
+George (1.0.40, test list, item 2): "Invisible resize gadget on toolbox is 75% down the screen. Why? And I can't see it. The Krita thing was 50% down and at least visible with its little dots. Can I have that back?" Since the 2026-10-12 entries, `drawPrimitive(PE_IndicatorDockWidgetResizeHandle)` on Android returned at once, so the separator between a docked panel (or the toolbox) and the canvas was drawn as nothing; with the invisible grab zones also switched off (204th), nothing showed where to resize. That early `return` is commented out, so the code of 2026-10-11 runs again: the **base style's own handle** (Krita's little dots), drawn in the **middle of the separator** (centred along its length), in a strip of the original width. Nothing else changed (the separator's touch width stays the base style's, as with Krita).
+**Not verified:** a build or a device. Why the invisible zone was felt at about 75% down is not known; with the zones off (204th) and the dots back, the dots show where the separator is.
