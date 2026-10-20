@@ -32,6 +32,9 @@
 #include <QDialogButtonBox>
 #include <QDoubleSpinBox>
 #include <QFontComboBox>
+#include <QFontMetricsF>   // Krimble 2026-10-20: kerning preview
+#include <QTextDocument>   // Krimble 2026-10-20: kerning preview
+#include <QPixmap>   // Krimble 2026-10-20: kerning preview
 #include <QFontDatabase>   // Krimble 2026-10-20: the font list
 #include <QComboBox>   // Krimble 2026-10-20: the font list
 #include <QStringListModel>   // Krimble 2026-10-19: Noto families taken out of the font list
@@ -55,8 +58,29 @@ bool s_italic = false;
 // Krimble 2026-10-20: George (1.0.39, test list, item 9): "New type tool just makes one long line of text. You can't make a paragraph area and have it
 // flow into it." The width of the text box (document units), or 0 for text that is one line per typed line (no box).
 qreal s_boxWidth = 0.0;
+// Krimble 2026-10-20: George (1.0.40, with his fonts): "they have horrible kerning issues. I think we need kerning controls for the small adjustments
+// between letters in a display typeface." Tracking (letter-spacing for the whole text, pt) and kerning (an extra gap, pt, before the character at each
+// position of the typed text; negative pulls the letters together).
+qreal s_tracking = 0.0;
+QVector<qreal> s_kern;
 int s_align = 0;               // 0 left, 1 center, 2 right
 QColor s_color = QColor(Qt::black);
+}
+
+// Krimble 2026-10-20: the dx list (SVG per-character shifts) for the characters text[from .. from+count), from the kerning; empty when all are 0
+static QString krimbleDxList(int from, int count)
+{
+    int last = -1;
+    for (int i = 0; i < count; ++i) {
+        if (from + i < s_kern.size() && qAbs(s_kern.at(from + i)) > 0.0001) last = i;
+    }
+    if (last < 0) return QString();
+    QStringList values;
+    for (int i = 0; i <= last; ++i) {
+        const qreal v = (from + i < s_kern.size()) ? s_kern.at(from + i) : 0.0;
+        values << QString::number(v, 'f', 2);
+    }
+    return values.join(QLatin1Char(' '));
 }
 
 static QString krimbleTextSvg(const QString &text)
@@ -74,20 +98,32 @@ static QString krimbleTextSvg(const QString &text)
                         .arg(family.toHtmlEscaped(), QString::number(s_size), s_color.name(), anchor);
     if (s_bold) style += QStringLiteral(" font-weight:bold;");
     if (s_italic) style += QStringLiteral(" font-style:italic;");
+    if (qAbs(s_tracking) > 0.0001) style += QStringLiteral(" letter-spacing:%1;").arg(QString::number(s_tracking, 'f', 2));   // Krimble 2026-10-20: tracking
     // Krimble 2026-10-20: a text box: the text engine wraps the words at the box's width (SVG 2 inline-size), and the lines the user typed are kept
     // (white-space: pre-wrap), all in one piece of text instead of one tspan a line (separate tspans with their own x would not flow).
     if (s_boxWidth > 0.0) {
         style += QStringLiteral(" inline-size:%1; white-space:pre-wrap;").arg(QString::number(s_boxWidth, 'f', 2));
-        return QStringLiteral("<text style=\"%1\">%2</text>").arg(style, text.toHtmlEscaped());
+        // return QStringLiteral("<text style=\"%1\">%2</text>").arg(style, text.toHtmlEscaped());
+        const QString dx = krimbleDxList(0, text.size());   // Krimble 2026-10-20: kerning
+        const QString dxAttr = dx.isEmpty() ? QString() : QStringLiteral(" dx=\"%1\"").arg(dx);
+        return QStringLiteral("<text style=\"%1\"%3>%2</text>").arg(style, text.toHtmlEscaped(), dxAttr);
     }
     QString svg = QStringLiteral("<text xml:space=\"preserve\" style=\"%1\">").arg(style);
+    int lineStart = 0;   // Krimble 2026-10-20: where each line starts in the typed text (for the kerning)
     for (int i = 0; i < lines.size(); ++i) {
         const QString line = lines.at(i).isEmpty() ? QStringLiteral(" ") : lines.at(i).toHtmlEscaped();
+        // Krimble 2026-10-20: the kerning of this line's characters (the first one of a line is not shifted)
+        QString dx = lines.at(i).isEmpty() ? QString() : krimbleDxList(lineStart, lines.at(i).size());
+        if (!dx.isEmpty()) dx = QStringLiteral("0") + dx.mid(dx.indexOf(QLatin1Char(' ')) < 0 ? dx.size() : dx.indexOf(QLatin1Char(' ')));
+        const QString dxAttr = dx.isEmpty() || dx == QLatin1String("0") ? QString() : QStringLiteral(" dx=\"%1\"").arg(dx);
         if (i == 0) {
-            svg += QStringLiteral("<tspan>%1</tspan>").arg(line);
+            // svg += QStringLiteral("<tspan>%1</tspan>").arg(line);
+            svg += QStringLiteral("<tspan%2>%1</tspan>").arg(line, dxAttr);
         } else {
-            svg += QStringLiteral("<tspan x=\"0\" dy=\"1.2em\">%1</tspan>").arg(line);
+            // svg += QStringLiteral("<tspan x=\"0\" dy=\"1.2em\">%1</tspan>").arg(line);
+            svg += QStringLiteral("<tspan x=\"0\" dy=\"1.2em\"%2>%1</tspan>").arg(line, dxAttr);
         }
+        lineStart += lines.at(i).size() + 1;
     }
     svg += QStringLiteral("</text>");
     return svg;
@@ -201,6 +237,46 @@ static bool krimbleAskText(QWidget *parent, QString *text, bool editing = false)
     }
     layout->addLayout(row2);
 
+    // Krimble 2026-10-20: George (1.0.40): "I think we need kerning controls for the small adjustments between letters in a display typeface."
+    // Spacing: tracking for the whole text, in pt. Kern: the gap before the letter at the typing cursor (put the cursor between two letters in the
+    // box above), tighter or looser by 2% of the size a tap; Reset clears all kerning. The preview shows both.
+    QVector<qreal> kern = s_kern;
+    if (kern.size() < text->size()) kern.resize(text->size());
+    QHBoxLayout *row3 = new QHBoxLayout();
+    QLabel *trackLabel = new QLabel(i18n("Spacing (pt):"), &dialog);
+    QDoubleSpinBox *trackBox = new QDoubleSpinBox(&dialog);
+    trackBox->setRange(-50.0, 200.0);
+    trackBox->setDecimals(1);
+    trackBox->setSingleStep(0.5);
+    trackBox->setValue(s_tracking);
+    row3->addWidget(trackLabel);
+    row3->addWidget(trackBox, 1);
+    layout->addLayout(row3);
+    QHBoxLayout *row4 = new QHBoxLayout();
+    QLabel *kernLabel = new QLabel(&dialog);
+    QPushButton *tighterButton = new QPushButton(i18n("◀ Tighter"), &dialog);
+    QPushButton *looserButton = new QPushButton(i18n("Looser ▶"), &dialog);
+    QPushButton *kernResetButton = new QPushButton(i18n("Reset"), &dialog);
+    row4->addWidget(kernLabel, 1);
+    row4->addWidget(tighterButton);
+    row4->addWidget(looserButton);
+    row4->addWidget(kernResetButton);
+    layout->addLayout(row4);
+    // the kerning follows the typing: characters typed or deleted move the kerning after them
+    QObject::connect(edit->document(), &QTextDocument::contentsChange, &dialog, [&kern](int position, int removed, int added) {
+        if (position < 0) return;
+        if (position > kern.size()) kern.resize(position);
+        kern.remove(position, qMin(removed, kern.size() - position));
+        kern.insert(position, added, 0.0);
+    });
+    auto showKern = [&]() {
+        const int at = edit->textCursor().position();
+        const qreal v = (at >= 0 && at < kern.size()) ? kern.at(at) : 0.0;
+        kernLabel->setText(i18n("Kern at cursor: %1 pt", QString::number(v, 'f', 1)));
+    };
+    QObject::connect(edit, &QPlainTextEdit::cursorPositionChanged, &dialog, [&]() { showKern(); });
+    showKern();
+
     // Krimble 2026-10-18 (14th): George, asked what to do with fonts: "A preview of the text in the window." (see updatePreview below)
     std::function<void()> updatePreview;
     QColor chosenColor = s_color;
@@ -243,7 +319,54 @@ static bool krimbleAskText(QWidget *parent, QString *text, bool editing = false)
         const int alignId = qMax(0, alignGroup->checkedId());
         preview->setAlignment((alignId == 0 ? Qt::AlignLeft : (alignId == 1 ? Qt::AlignHCenter : Qt::AlignRight)) | Qt::AlignVCenter);
         const QString sample = edit->toPlainText();
-        preview->setText(sample.isEmpty() ? i18n("Sample text") : sample);
+        // preview->setText(sample.isEmpty() ? i18n("Sample text") : sample);
+        // Krimble 2026-10-20: drawn by hand, so the tracking and the kerning show: each line is drawn in pieces between kerned letters (the font's own
+        // kerning still applies inside a piece), with the tracking as the font's letter spacing, scaled to the preview's size.
+        const QString shown = sample.isEmpty() ? i18n("Sample text") : sample;
+        const qreal scale = previewFont.pointSizeF() / qMax(1.0, sizeBox->value());
+        QFont drawFont = previewFont;
+        drawFont.setLetterSpacing(QFont::AbsoluteSpacing, trackBox->value() * scale * preview->logicalDpiX() / 72.0);
+        const QFontMetricsF fm(drawFont);
+        const qreal toPx = scale * preview->logicalDpiX() / 72.0;
+        const QStringList lines = shown.split(QLatin1Char('\n'));
+        const int width = qMax(100, preview->width() - 12);
+        const int height = int(fm.lineSpacing() * lines.size()) + 8;
+        QPixmap pixmap(width, height);
+        pixmap.fill(QColor(background));
+        {
+            QPainter p(&pixmap);
+            p.setFont(drawFont);
+            p.setPen(chosenColor);
+            int lineStart = 0;
+            for (int li = 0; li < lines.size(); ++li) {
+                const QString &line = lines.at(li);
+                // the pieces and the width of the line
+                QList<QPair<QString, qreal>> pieces;   // text, gap before it (px)
+                int pieceStart = 0;
+                for (int ci = 1; ci <= line.size(); ++ci) {
+                    const int pos = lineStart + ci;
+                    const bool cut = ci == line.size() || (!sample.isEmpty() && pos < kern.size() && qAbs(kern.at(pos)) > 0.0001);
+                    if (cut) {
+                        const int gapPos = lineStart + pieceStart;
+                        const qreal gap = (pieceStart > 0 && !sample.isEmpty() && gapPos < kern.size()) ? kern.at(gapPos) * toPx : 0.0;
+                        pieces << qMakePair(line.mid(pieceStart, ci - pieceStart), gap);
+                        pieceStart = ci;
+                    }
+                }
+                qreal lineWidth = 0.0;
+                for (const auto &piece : pieces) lineWidth += piece.second + fm.horizontalAdvance(piece.first);
+                const int alignNow = qMax(0, alignGroup->checkedId());
+                qreal x = alignNow == 0 ? 0.0 : (alignNow == 1 ? (width - lineWidth) / 2.0 : width - lineWidth);
+                const qreal y = 4 + fm.ascent() + li * fm.lineSpacing();
+                for (const auto &piece : pieces) {
+                    x += piece.second;
+                    p.drawText(QPointF(x, y), piece.first);
+                    x += fm.horizontalAdvance(piece.first);
+                }
+                lineStart += line.size() + 1;
+            }
+        }
+        preview->setPixmap(pixmap);
     };
     QObject::connect(edit, &QPlainTextEdit::textChanged, &dialog, [&]() { updatePreview(); });
     // QObject::connect(fontBox, &QFontComboBox::currentFontChanged, &dialog, [&]() { updatePreview(); });
@@ -252,6 +375,20 @@ static bool krimbleAskText(QWidget *parent, QString *text, bool editing = false)
     QObject::connect(boldButton, &QPushButton::toggled, &dialog, [&]() { updatePreview(); });
     QObject::connect(italicButton, &QPushButton::toggled, &dialog, [&]() { updatePreview(); });
     QObject::connect(alignGroup, QOverload<int>::of(&QButtonGroup::buttonClicked), &dialog, [&]() { updatePreview(); });
+    // Krimble 2026-10-20: tracking and kerning
+    QObject::connect(trackBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), &dialog, [&]() { updatePreview(); });
+    auto nudge = [&](qreal direction) {
+        const int at = edit->textCursor().position();
+        if (at <= 0 || at >= edit->toPlainText().size()) return;   // between two letters only
+        if (kern.size() <= at) kern.resize(at + 1);
+        kern[at] += direction * sizeBox->value() * 0.02;
+        showKern();
+        updatePreview();
+    };
+    QObject::connect(tighterButton, &QPushButton::clicked, &dialog, [&]() { nudge(-1.0); edit->setFocus(); });
+    QObject::connect(looserButton, &QPushButton::clicked, &dialog, [&]() { nudge(1.0); edit->setFocus(); });
+    QObject::connect(kernResetButton, &QPushButton::clicked, &dialog, [&]() { kern.fill(0.0); showKern(); updatePreview(); });
+    QObject::connect(edit, &QPlainTextEdit::textChanged, &dialog, [&]() { showKern(); });
     updatePreview();
 
     QDialogButtonBox *buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, &dialog);
@@ -273,6 +410,9 @@ static bool krimbleAskText(QWidget *parent, QString *text, bool editing = false)
     s_italic = italicButton->isChecked();
     s_align = qMax(0, alignGroup->checkedId());
     s_color = chosenColor;
+    s_tracking = trackBox->value();   // Krimble 2026-10-20
+    s_kern = kern;
+    s_kern.resize(text->size());
     return true;
 }
 
@@ -298,6 +438,11 @@ static void krimbleApplyTextProperty(const QString &name, const QString &rawValu
     } else if (name == QLatin1String("fill")) {
         const QColor color(value);
         if (color.isValid()) s_color = color;
+    } else if (name == QLatin1String("letter-spacing")) {
+        // Krimble 2026-10-20: tracking
+        bool ok = false;
+        const qreal number = QString(value).remove(QRegularExpression(QStringLiteral("[a-zA-Z%]+$"))).toDouble(&ok);
+        s_tracking = ok ? number : 0.0;
     } else if (name == QLatin1String("inline-size")) {
         // Krimble 2026-10-20: the width of a text box (see s_boxWidth)
         bool ok = false;
@@ -309,6 +454,8 @@ static void krimbleApplyTextProperty(const QString &name, const QString &rawValu
 static bool krimbleReadTextShape(KoSvgTextShape *shape, QString *text)
 {
     s_boxWidth = 0.0;   // Krimble 2026-10-20: set again below if this text is a box
+    s_tracking = 0.0;   // Krimble 2026-10-20: and the tracking and kerning
+    s_kern.clear();
     KoSvgTextShapeMarkupConverter converter(shape);
     QString svg;
     QString defs;
@@ -321,6 +468,20 @@ static bool krimbleReadTextShape(KoSvgTextShape *shape, QString *text)
     while (!xml.atEnd()) {
         xml.readNext();
         if (xml.isStartElement()) {
+            // Krimble 2026-10-20: a dx list (kerning) on the text or a line: its values belong to the characters from here on
+            if (xml.name() == QLatin1String("text") || xml.name() == QLatin1String("tspan")) {
+                const QString dxText = xml.attributes().value(QStringLiteral("dx")).toString();
+                if (!dxText.isEmpty()) {
+                    int at = result.size();
+                    if (xml.name() == QLatin1String("tspan") && inText && tspanDepth == 0 && !firstLine
+                            && (xml.attributes().hasAttribute(QStringLiteral("x")) || xml.attributes().hasAttribute(QStringLiteral("dy")))) {
+                        at += 1;   // the line break added just below comes first
+                    }
+                    const QStringList values = dxText.split(QRegularExpression(QStringLiteral("[\\s,]+")), QString::SkipEmptyParts);
+                    if (s_kern.size() < at + values.size()) s_kern.resize(at + values.size());
+                    for (int k = 0; k < values.size(); ++k) s_kern[at + k] = values.at(k).toDouble();
+                }
+            }
             if (xml.name() == QLatin1String("text") && !inText) {
                 inText = true;
                 const QXmlStreamAttributes attributes = xml.attributes();

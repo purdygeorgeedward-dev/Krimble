@@ -4949,3 +4949,14 @@ George (1.0.40): "Transform tool mode buttons are HUGE now. Please reduce." (1.0
 
 George (1.0.40, with his fonts in): "There is also still a ton of Noto and SEC crapola in the fonts. Can we remove all of that or is it built in?" They are the **phone's own** system fonts (Android's Noto, one per script; Samsung's "SEC" and "Samsung" fonts), not Krimble's. The 204th entry's filter did not hold: it edited `QFontComboBox`'s list once, and that box rebuilds its list from the font database whenever it likes (`setCurrentFont` does it). The list is now a **plain combo box filled once** with every family except names starting with **Noto, SEC, New SEC, Samsung, AndroidClock**, sorted, each name drawn in its own font. The hidden fonts stay installed, so text in other scripts still draws (font fallback). The old box is commented out.
 **Not verified:** a build or a device.
+
+## 2026-10-20 (222nd) — Type tool: Spacing (tracking) and Kern (the gap between two letters)
+
+**Files:** `plugins/tools/svgtexttool/KrimbleTextTool.cpp`
+
+George (1.0.40, with his own fonts in the list): "they have horrible kerning issues. I think we need kerning controls for the small adjustments between letters in a display typeface." Two new rows in the Type window, under the alignment buttons:
+- **Spacing (pt):** tracking for the whole text (-50 to 200 pt, steps of 0.5), written as `letter-spacing`.
+- **Kern:** put the typing cursor between two letters (in the typing box), then **◀ Tighter** / **Looser ▶** change the gap before the letter after the cursor by **2% of the text size** a tap (negative pulls the pair together); the row shows "Kern at cursor: N pt"; **Reset** clears all kerning. The kerning follows the typing (letters typed or deleted move the kerning after them). It is written as SVG `dx` lists (per-character shifts): on the text for a text box (219th), on each line's `tspan` for line text (the first letter of a line is not shifted).
+- The **preview** is now drawn by hand so tracking and kerning show in it: each line is drawn in pieces between kerned letters (the font's own kerning still applies inside a piece).
+Tapping existing text to edit it reads its `letter-spacing` and `dx` back.
+**Not verified:** a build or a device (whether the text engine applies `dx` with `white-space: pre-wrap` in a box exactly per typed character, emoji included).
