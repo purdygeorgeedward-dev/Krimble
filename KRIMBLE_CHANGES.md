@@ -4873,3 +4873,9 @@ George: asked where "Select Similar" is, then "Well, I want that." The Select me
 George: "Test it in your sandbox." A wider test (tools/inpaint-bench, six object removals from the standard test photos, plus the earlier ones) showed the final rebuild of the 208th entry blended four source pixels for every turned or resized copy (bilinear), which softens it. `qValue()` has a `nearest` mode (the source pixel nearest to the transformed spot), used by the final rebuild (`qFinalSeamless`); the matching and the in-between rebuilds still blend (smoother matching).
 **What the tests showed** (the 206th entry's engine against this one): better here: the spoon on the wooden table (the grain continues), a cheek (skin tones), the cup's rim (follows the curve); the same: sky (the rocket), the circus stage, grass; worse or no better: a cat's fur near the eye (softer, though closer to the soft fur around it), the tripod legs on grass and the motorcycle engine (big objects on busy backgrounds: both engines leave visible faults there), the flag behind the astronaut's head (both copy hair into it). Big objects on busy backgrounds are where an AI fill (the planned add-on) is needed.
 **Not verified:** a build or a device.
+
+## 2026-10-19 (211th) — Version 40
+
+**Files:** `packaging/android/apk/build.gradle`
+
+George: "Build." `krimbleBuildNumber` 39 -> **40**: versionName **1.0.40-beta**, version code 5050440. It brings the 190th to 210th entries (new splash and holiday splash; crop, selection, transform, toolbox, New dialog and Type tool fixes; bundled fonts on Android; emoji fallbacks; Krita's panel handle back; Content-Aware Fill's new engines and the Fill method in the healing brush's Tool Options; Select > Similar).
