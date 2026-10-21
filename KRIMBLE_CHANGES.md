@@ -5007,3 +5007,10 @@ George, on the bold "Text" heading the 203rd entry added at the top of the Type 
 **Files:** `KRIMBLE_PHASE2_EFFECTS.md` (a document only; no code)
 
 George, going through what is parked (the Eye Candy-style effects pack): "Light sabre". A **Light Saber** effect is added to the effect catalog: a glowing energy blade along a drawn line, path or selection, made of a thin near-white core, a coloured inner glow and a wide soft outer glow composited with Screen/Add, with optional flicker. It is a variant of **Glow** (same blur and Screen pieces, with a stroked line as the mask), so it comes right after Glow in the suggested build order (Drop Shadow, Glow, Light Saber, Bevel/Emboss). Not started; the pack still waits on the items listed at the top of that file.
+
+## 2026-10-20 (230th) — Panel buttons (lock, float, close) stay on the far right
+
+**Files:** `libs/widgets/KoDockWidgetTitleBar.cpp`, `libs/widgets/KoDockWidgetTitleBar_p.h`
+
+George (1.0.40, screenshots of the Color and Layers panels): "Gadgets on the panels should be on the far right." **Cause:** the title bar is a row of lock button, title label (stretch 1), float button, close button; the label takes all the spare room, which keeps the float and close buttons at the right edge. For panels shown as tabs, the 15th entry of 2026-10-18 hid the label (to avoid double titles), and with it went the spare room: the three buttons were spread evenly across the bar. **Change:** `setTitleTextHidden()` no longer hides the label; it empties its text (and `dockWidgetTitleChanged()` keeps it empty while hidden), so the label keeps its room and the buttons sit at the right edge as before. The lock button stays at the left end, as in Krita.
+**Not verified:** a build or a device.

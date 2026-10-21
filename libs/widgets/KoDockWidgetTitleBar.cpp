@@ -94,7 +94,15 @@ void KoDockWidgetTitleBar::setTitleTextHidden(bool hidden)
 {
     // Krimble 2026-10-18 (15th): George (1.0.37, c666301; screenshots of the Color and Tool Options panels in tabs): "8. Double titles in panels look weird. Fix?" A panel in a tab
     // group shows its name on its tab and again in its own title bar. The title bar keeps its buttons (lock, float, close); only the text is hidden.
-    d->titleLabel->setVisible(!hidden);
+    // d->titleLabel->setVisible(!hidden);
+    // Krimble 2026-10-20: George (1.0.40, screenshots of the Color and Layers panels): "Gadgets on the panels should be on the far right." The label
+    // is the part of the title bar that takes all the spare room (stretch 1), which pushes the float and close buttons to the right edge. Hiding the
+    // label took that room away, and the lock, float and close buttons were spread evenly across the bar. The label now stays (it keeps its room) and
+    // only its text is emptied while hidden; the buttons stay at the right edge.
+    d->titleTextHidden = hidden;
+    QDockWidget *dock = qobject_cast<QDockWidget*>(parentWidget());
+    d->titleLabel->setVisible(true);
+    d->titleLabel->setText(hidden || !dock ? QString() : dock->windowTitle());
 }
 
 void KoDockWidgetTitleBar::paintEvent(QPaintEvent*)
@@ -214,7 +222,8 @@ void KoDockWidgetTitleBar::Private::featuresChanged(QDockWidget::DockWidgetFeatu
 
 void KoDockWidgetTitleBar::Private::dockWidgetTitleChanged(const QString &title)
 {
-    titleLabel->setText(title);
+    // titleLabel->setText(title);
+    titleLabel->setText(titleTextHidden ? QString() : title);   // Krimble 2026-10-20: stays empty while the title text is hidden
 }
 
 

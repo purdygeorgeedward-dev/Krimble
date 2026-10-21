@@ -38,6 +38,7 @@ public:
     QAbstractButton* floatButton {nullptr};
     QAbstractButton* lockButton {nullptr};
     KSqueezedTextLabel* titleLabel {nullptr};
+    bool titleTextHidden {false};   // Krimble 2026-10-20: the title text is not shown (the panel is a tab), but its label keeps its place
     bool locked {false};
     QDockWidget::DockWidgetFeatures features;
 
