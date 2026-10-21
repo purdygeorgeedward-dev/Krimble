@@ -5014,3 +5014,24 @@ George, going through what is parked (the Eye Candy-style effects pack): "Light 
 
 George (1.0.40, screenshots of the Color and Layers panels): "Gadgets on the panels should be on the far right." **Cause:** the title bar is a row of lock button, title label (stretch 1), float button, close button; the label takes all the spare room, which keeps the float and close buttons at the right edge. For panels shown as tabs, the 15th entry of 2026-10-18 hid the label (to avoid double titles), and with it went the spare room: the three buttons were spread evenly across the bar. **Change:** `setTitleTextHidden()` no longer hides the label; it empties its text (and `dockWidgetTitleChanged()` keeps it empty while hidden), so the label keeps its room and the buttons sit at the right edge as before. The lock button stays at the left end, as in Krita.
 **Not verified:** a build or a device.
+
+## 2026-10-20 (231st) — File > Save options window no wider than the screen
+
+**Files:** `libs/ui/KisImportExportManager.cpp`
+
+George (1.0.41, screenshot of the JPEG options: "Basic / Advanced quality / Metadata" tabs, its Cancel and OK cut off at the right edge): "File - Save dialog is super wide for no reason." The window (`KoDialog`) is as wide as the widest of the filter's pages, which can be wider than a phone's screen, and a window cannot be made smaller than its content's minimum width (the pull back onto the screen of `KrimbleDialogKeeper` cannot shrink it either). The options tabs (`QTabWidget`) are now put in a **scroll area** (`QScrollArea`, no frame): the window takes the scroll area's width (capped), and a page wider than that scrolls sideways. The "Also save as a Krimble file" box stays outside it.
+**Not verified:** a build or a device.
+
+## 2026-10-20 (232nd) — Image window title: the text is drawn once
+
+**Files:** `libs/ui/KisMainWindow.cpp`
+
+George (1.0.41, a close-up of "alchemist.webp (6.5 MiB)" in an image window's title bar): "Image window title text is weird double image." The base style (Fusion) draws the title twice: a light copy one logical pixel down and to the right as a shadow, and the text on top. At this phone's density (3.19) the shadow lies 3 device pixels away and shows as a double image. `KrimbleMdiTitleStyle` (the 134th entry's style for image windows) now draws the title bar **without its text** and draws the text itself **once**: bold, rgb(230,230,230), centered, cut with "..." when too long.
+**Not verified:** a build or a device.
+
+## 2026-10-20 (233rd) — Help: "Benefits..." taken out
+
+**Files:** `krita/krita5.xmlgui`
+
+George (1.0.41): "Benefits in Help menu refer to Krita. Remove it." The menu item `manage_donations` ("Benefits...", Krita's supporter-benefits window) is commented out in the menu definition, so it is no longer in the menu; the code (the action, `KisDonationManagementDialog`) stays. The 2026-10-13 rename entry stays as history. **Left in place** (not asked): "Manage Subscriptions..." (only exists in an Android build with Krita's donations service) and "Get More Resources..." (Krita supporter bundles).
+**Not verified:** a build or a device.

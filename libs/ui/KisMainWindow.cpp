@@ -3271,7 +3271,22 @@ public:
                 QStyleOptionTitleBar copy(*titleBar);
                 copy.palette.setColor(QPalette::Highlight, QColor(55, 57, 82));
                 copy.palette.setColor(QPalette::HighlightedText, QColor(230, 230, 230));
+                // QProxyStyle::drawComplexControl(control, &copy, painter, widget);
+                // Krimble 2026-10-20: George (1.0.41, screenshot of an image window's title): "Image window title text is weird double image." The base style
+                // (Fusion) draws the title twice, a light copy one logical pixel down and right as a shadow and the text on top; at this phone's density
+                // (3.19) the shadow is 3 device pixels away and shows as a double image. The bar is drawn without its text, and the text is drawn once.
+                const QString title = copy.text;
+                copy.text = QString();
                 QProxyStyle::drawComplexControl(control, &copy, painter, widget);
+                const QRect textRect = subControlRect(control, titleBar, QStyle::SC_TitleBarLabel, widget);
+                painter->save();
+                QFont titleFont = painter->font();
+                titleFont.setBold(true);
+                painter->setFont(titleFont);
+                painter->setPen(QColor(230, 230, 230));
+                painter->drawText(textRect, Qt::AlignHCenter | Qt::AlignVCenter,
+                                  QFontMetrics(titleFont).elidedText(title, Qt::ElideRight, textRect.width()));
+                painter->restore();
                 return;
             }
         }

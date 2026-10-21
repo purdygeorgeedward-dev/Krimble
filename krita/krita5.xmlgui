@@ -1351,7 +1351,9 @@ xsi:schemaLocation="http://www.kde.org/standards/kxmlgui/1.0  http://www.kde.org
                      
                      <Separator/>
                      
+    <!-- Krimble 2026-10-20: George (1.0.41): "Benefits in Help menu refer to Krita. Remove it." (the Krita supporter benefits window)
     <Action name="manage_donations"/>
+    -->
     <Action name="manage_subscriptions"/>
     
                      <Separator/>
