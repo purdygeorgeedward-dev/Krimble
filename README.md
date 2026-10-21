@@ -29,7 +29,7 @@ Krimble remains built on the extraordinary foundation of [Krita](https://invent.
 <img src="https://krimble.org/assets/kimmy-phone.jpg" alt="Kimmy using Krimble on a phone" width="100%">
 </div>
 
-### What is mobile-first? 📱
+### What is Mobile-First? 📱
 
 Krimble is designed around **phones and touch** and reproducing a desktop workstation on a smaller display. The focus is not on painting, but on graphics editing tasks.
 
@@ -58,7 +58,7 @@ I found myself using Krita on my smartphone as a daily driver for graphics tasks
 
 ---
 
-## What Krimble changes 🪄
+## What Krimble Changes 🪄
 
 Krimble already includes changes to make the application more practical and familiar on mobile:
 
@@ -77,7 +77,7 @@ Krimble already includes changes to make the application more practical and fami
 
 ---
 
-## New creative tools 🎨
+## New Creative Tools 🎨
 
 <div align="center">
 <img src="https://krimble.org/assets/holograms.jpg" alt="Kimmy exploring new Krimble tools" width="100%">
@@ -100,7 +100,7 @@ Some of these are already implemented; others are still in development.
 
 ---
 
-## A gift for you! 🎁
+## A Gift for You! 🎁
 
 <div align="center">
 <img src="https://krimble.org/assets/a-gift-for-you.jpg" alt="Kimmy offering a gift — A gift for you!" width="100%">
@@ -116,7 +116,7 @@ Krimble is meant to be something creators can actually possess and work with —
 
 ---
 
-## We love A.I.! ❤️
+## WE LOVE A.I.! ❤️
 
 <div align="center">
 <img src="https://krimble.org/assets/kimmy-robot-ai.jpg" alt="Kimmy and the Krimble robot — We love A.I." width="100%">
@@ -143,11 +143,11 @@ Artificial Intelligence is like a brilliant child. Children sometimes make mista
 </a>
 </div>
 
-## Development roadmap 🗺️
+## Development Roadmap 🗺️
 
 Krimble has already completed a large restructuring pass. The detailed engineering log is preserved below, but collapsed so the README remains readable.
 
-### Current open work 🚧
+### Current Open Work 🚧
 
 - Finish the text-selection **magnifier/loupe** for precise cursor placement.
 - Extend two-finger movement selectively to additional floating windows where useful.
@@ -211,9 +211,9 @@ Krimble has already completed a large restructuring pass. The detailed engineeri
 
 ---
 
-## Build targets 🎯
+## Build Targets 🎯
 
-Planned targets:
+Planned Targets:
 
 | Platform | Target |
 |---|---|
@@ -230,7 +230,7 @@ Android is the primary focus. Other platforms are intended to share the same Kri
 
 ---
 
-## Thank you! 🙏
+## Thank You! 🙏
 
 Krimble exists because of these. They are not connected to Krimble and have not endorsed it; we are simply grateful.
 
