@@ -17,7 +17,7 @@
 
 <p align="center"><img src="packaging/android/apk/ic_launcher-playstore.png" alt="Krimble icon" width="112"></p>
 
-## What is Krimble?
+## WHAT IS KRIMBLE?
 
 Krimble is a **mobile-first fork of Krita** designed to be a graphics workhorse for Android phones rather than a paint/animation app squeezed onto a small screen.
 
@@ -44,7 +44,7 @@ That means:
 
 ---
 
-## Why Krimble? 🐱
+## WHY KRIMBLE? 🤔
 
 I am a lifelong graphics professional trained across traditional media and digital tools. On a phone, I do not want to paint. I want a practical graphics editor in the palm of my hand.
 
@@ -58,7 +58,7 @@ I found myself using Krita on my smartphone as a daily driver for graphics tasks
 
 ---
 
-## What Krimble Changes 🪄
+## WHAT KRIMBLE CHANGES 🪄
 
 Krimble already includes changes to make the application more practical and familiar on mobile:
 
@@ -77,7 +77,7 @@ Krimble already includes changes to make the application more practical and fami
 
 ---
 
-## New Creative Tools 🎨
+## NEW CREATIVE TOOLS 🎨
 
 <div align="center">
 <img src="https://krimble.org/assets/holograms.jpg" alt="Kimmy exploring new Krimble tools" width="100%">
@@ -100,7 +100,7 @@ Some of these are already implemented; others are still in development.
 
 ---
 
-## A Gift for You! 🎁
+## A GIFT FOR YOU! 🎁
 
 <div align="center">
 <img src="https://krimble.org/assets/a-gift-for-you.jpg" alt="Kimmy offering a gift — A gift for you!" width="100%">
@@ -116,7 +116,7 @@ Krimble is meant to be something creators can actually possess and work with —
 
 ---
 
-## WE LOVE A.I.! ❤️
+## I ❤️ A.I.! 
 
 <div align="center">
 <img src="https://krimble.org/assets/kimmy-robot-ai.jpg" alt="Kimmy and the Krimble robot — We love A.I." width="100%">
@@ -143,7 +143,7 @@ Artificial Intelligence is like a brilliant child. Children sometimes make mista
 </a>
 </div>
 
-## Development Roadmap 🗺️
+## DEVELOPMENT ROADMAP 🗺️
 
 Krimble has already completed a large restructuring pass. The detailed engineering log is preserved below, but collapsed so the README remains readable.
 
@@ -200,18 +200,24 @@ Krimble has already completed a large restructuring pass. The detailed engineeri
 <summary><strong>Bug fixes and corrections</strong></summary>
 
 1. Fixed Move-tool behavior that could accidentally trigger whole-image movement from a touch long-press path.
+
 2. Fixed the remaining hardcoded Brush activation in `KisView.cpp` so the Pan/Hand default is actually honored.
+
 3. Replaced remaining “Next” launcher/adaptive icon assets that still contained the old Krita mark.
+
 4. Corrected developer-build/version-flag handling; the current alpha status is deliberate under Krimble versioning.
+
 5. Removed the hardcoded “Artwork by: Tyson Tan” splash credit from the Krimble-specific splash.
+
 6. Removed a leftover invented legal-entity reference and replaced it with: **“The Krimble Project is committed to preserving Krimble as free software.”**
+
 7. Removed references to a competing graphics application that had been inserted into the README by an AI tool.
 
 </details>
 
 ---
 
-## Build Targets 🎯
+## BUILD TARGETS 🎯
 
 Planned Targets:
 
@@ -230,7 +236,7 @@ Android is the primary focus. Other platforms are intended to share the same Kri
 
 ---
 
-## Thank You! 🙏
+## THANK YOU! 🙏
 
 Krimble exists because of these. They are not connected to Krimble and have not endorsed it; we are simply grateful.
 
@@ -244,7 +250,7 @@ The logos belong to their owners and are shown only to say thank you.
 
 ---
 
-## Support Krimble ☕
+## SUPPORT KRIMBLE! ☕
 
 <div align="center">
 <a href="https://www.buymeacoffee.com/GeorgeEdwardPurdy">
@@ -255,6 +261,8 @@ The logos belong to their owners and are shown only to say thank you.
 Krimble is free and open source, but development still takes time and resources.
 
 If Krimble is useful to you, voluntary support helps fund continued development, testing, infrastructure, artwork, and future distribution.
+
+(I am currently indigent and living in a halfway house in El Paso, Texas. All development is being done on a Samsung Galaxy smartphone.)
 
 ### [☕ Support Krimble on Buy Me a Coffee](https://www.buymeacoffee.com/GeorgeEdwardPurdy)
 
