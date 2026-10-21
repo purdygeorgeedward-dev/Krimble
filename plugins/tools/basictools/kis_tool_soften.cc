@@ -58,6 +58,7 @@ void KisToolSoften::activate(const QSet<KoShape*> &shapes)
         if (softenPreset->settings()) {
             softenPreset->settings()->setPaintOpSize(100.0);
         }
-        canvas2->viewManager()->canvasResourceProvider()->setPaintOpPreset(softenPreset);
+        // canvas2->viewManager()->canvasResourceProvider()->setPaintOpPreset(softenPreset);
+        krimbleSetBrushPreset(canvas2->viewManager(), softenPreset);   // Krimble 2026-10-20 (2nd): through the brush panel
     }
 }

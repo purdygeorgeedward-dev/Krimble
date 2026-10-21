@@ -57,6 +57,7 @@
 #include "widgets/kis_cmb_composite.h"
 #include "kis_slider_spin_box.h"
 #include "kis_canvas_resource_provider.h"
+#include "kis_paintop_box.h"   // Krimble 2026-10-20 (2nd)
 #include "kis_tool_utils.h"
 #include <brushengine/kis_paintop.h>
 #include <brushengine/kis_paintop_preset.h>
@@ -174,7 +175,10 @@ void KisToolPaint::activate(const QSet<KoShape*> &shapes)
             KisPaintOpPresetSP userPreset = saved.isValid() ? saved.value<KisPaintOpPresetSP>() : KisPaintOpPresetSP();
             if (userPreset) {
                 KisCanvasResourceProvider *provider = kisCanvas->viewManager()->canvasResourceProvider();
-                provider->setPaintOpPreset(userPreset);
+                // provider->setPaintOpPreset(userPreset);
+                // Krimble 2026-10-20 (2nd): through the brush panel, which keeps its widget and preset maps in step (see KrimbleEmbeddedPreset.h)
+                if (KisPaintopBox *box = kisCanvas->viewManager()->paintOpBox()) box->resourceSelected(userPreset);
+                if (provider->currentPreset() != userPreset) provider->setPaintOpPreset(userPreset);
                 if (qApp->property("krimbleUserOpacity").isValid()) provider->setOpacity(qApp->property("krimbleUserOpacity").toDouble());
                 if (qApp->property("krimbleUserFlow").isValid()) provider->setFlow(qApp->property("krimbleUserFlow").toDouble());
                 if (qApp->property("krimbleUserSize").isValid()) provider->setSize(qApp->property("krimbleUserSize").toDouble());

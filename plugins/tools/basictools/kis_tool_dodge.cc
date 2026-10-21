@@ -90,7 +90,8 @@ void KisToolDodge::activate(const QSet<KoShape*> &shapes)
         m_foregroundSaved = true;
     }
     provider->setFGColor(KoColor(Qt::white, m_savedForeground.colorSpace()));
-    provider->setPaintOpPreset(dodgePreset);
+    // provider->setPaintOpPreset(dodgePreset);
+    krimbleSetBrushPreset(canvas2->viewManager(), dodgePreset);   // Krimble 2026-10-20 (2nd): through the brush panel
 }
 
 void KisToolDodge::deactivate()

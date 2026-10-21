@@ -63,6 +63,7 @@ void KisToolSmudge::activate(const QSet<KoShape*> &shapes)
             smudgePreset->settings()->setProperty("ColorRateValue", 0.0);
             smudgePreset->settings()->setProperty("PressureColorRate", false);
         }
-        canvas2->viewManager()->canvasResourceProvider()->setPaintOpPreset(smudgePreset);
+        // canvas2->viewManager()->canvasResourceProvider()->setPaintOpPreset(smudgePreset);
+        krimbleSetBrushPreset(canvas2->viewManager(), smudgePreset);   // Krimble 2026-10-20 (2nd): through the brush panel (see KrimbleEmbeddedPreset.h)
     }
 }
