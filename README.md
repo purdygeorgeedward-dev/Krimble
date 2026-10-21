@@ -264,7 +264,7 @@ If Krimble is useful to you, voluntary support helps fund continued development,
 
 (I am currently indigent and living in a halfway house in El Paso, Texas. All development is being done on a Samsung Galaxy smartphone.)
 
-### [☕ Support Krimble on Buy Me a Coffee](https://www.buymeacoffee.com/GeorgeEdwardPurdy)
+### [Support Krimble on Buy Me a Coffee ☕](https://www.buymeacoffee.com/GeorgeEdwardPurdy)
 
 You can also help by testing, reporting issues, improving documentation, contributing code, or simply sharing the project.
 
