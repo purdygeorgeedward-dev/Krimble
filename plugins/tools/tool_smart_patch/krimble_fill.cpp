@@ -11,6 +11,7 @@
 #include <KoColorSpaceRegistry.h>
 #include <kis_iterator_ng.h>
 #include <QImage>
+#include <QMutex>   // Krimble 2026-10-20 (2nd): the status of the last fill
 #include <vector>
 #include <cstring>
 #include <new>   // Krimble 2026-10-20: std::bad_alloc
@@ -30,11 +31,26 @@ void saveMethod(int method)
     group.sync();
 }
 
+static QString s_lastStatus;
+static QMutex s_statusMutex;
+static bool say(const QString &status)   // Krimble 2026-10-20 (2nd): remember what happened, and return false (every use of it is a "could not")
+{
+    QMutexLocker lock(&s_statusMutex);
+    s_lastStatus = status;
+    return false;
+}
+
+QString lastStatus()
+{
+    QMutexLocker lock(&s_statusMutex);
+    return s_lastStatus;
+}
+
 bool fill(KisPaintDeviceSP imageDev, KisPaintDeviceSP maskDev, const QRect &bounds, int method)
 {
-    if (method != Sharp && method != Smooth) return false;
+    if (method != Sharp && method != Smooth) return say(QStringLiteral("Classic method chosen"));
     const QRect maskRect = maskDev->exactBounds();
-    if (maskRect.isEmpty()) return false;
+    if (maskRect.isEmpty()) return say(QStringLiteral("nothing selected"));
     const int holeShort = qMin(maskRect.width(), maskRect.height());
     // const int margin = qMax(64, 2 * holeShort + 24);
     // const QRect roi = maskRect.adjusted(-margin, -margin, margin, margin) & bounds;
@@ -60,13 +76,13 @@ bool fill(KisPaintDeviceSP imageDev, KisPaintDeviceSP maskDev, const QRect &boun
         margin = margin * 3 / 4;
         roi = maskRect.adjusted(-margin, -margin, margin, margin) & bounds;
     }
-    if (roi.width() < 24 || roi.height() < 24) return false;
-    if (qint64(roi.width()) * roi.height() > budget) return false;
+    if (roi.width() < 24 || roi.height() < 24) return say(QStringLiteral("area too small"));
+    if (qint64(roi.width()) * roi.height() > budget) return say(QStringLiteral("area too big"));
 
     const int w = roi.width(), h = roi.height();
     const KoColorSpace *rgb8 = KoColorSpaceRegistry::instance()->rgb8();
     QImage img = imageDev->convertToQImage(rgb8->profile(), roi.x(), roi.y(), w, h).convertToFormat(QImage::Format_ARGB32);
-    if (img.isNull()) return false;
+    if (img.isNull()) return say(QStringLiteral("picture could not be read"));
 
     std::vector<uint8_t> pixels(size_t(w) * h * 4);
     for (int y = 0; y < h; ++y) std::memcpy(&pixels[size_t(y) * w * 4], img.constScanLine(y), size_t(w) * 4);
@@ -76,7 +92,7 @@ bool fill(KisPaintDeviceSP imageDev, KisPaintDeviceSP maskDev, const QRect &boun
     std::vector<uint8_t> hole(size_t(w) * h);
     size_t holeCount = 0;
     for (size_t i = 0; i < hole.size(); ++i) { hole[i] = maskBytes[i] > 127 ? 1 : 0; holeCount += hole[i]; }
-    if (holeCount == 0) return false;
+    if (holeCount == 0) return say(QStringLiteral("nothing selected"));
 
     std::vector<uint8_t> filled(size_t(w) * h, 0);
     KrimbleInpaint::Options options;
@@ -90,12 +106,13 @@ bool fill(KisPaintDeviceSP imageDev, KisPaintDeviceSP maskDev, const QRect &boun
             : KrimbleInpaint::inpaint(pixels.data(), hole.data(), w, h, 4, options, filled.data());
     } catch (const std::bad_alloc &) {
         ok = false;   // Krimble 2026-10-20: out of memory: Krita's fill instead
+        return say(QStringLiteral("out of memory"));
     }
-    if (!ok) return false;
+    if (!ok) return say(QStringLiteral("engine could not fill"));
     // Krimble 2026-10-20: nothing filled (should not happen): Krita's fill instead, rather than doing nothing
     size_t filledCount = 0;
     for (uint8_t v : filled) filledCount += v ? 1 : 0;
-    if (filledCount == 0) return false;
+    if (filledCount == 0) return say(QStringLiteral("nothing filled"));
 
     // the result, in the colour space of the layer, and only the replaced pixels copied
     QImage out(w, h, QImage::Format_ARGB32);
@@ -111,6 +128,10 @@ bool fill(KisPaintDeviceSP imageDev, KisPaintDeviceSP maskDev, const QRect &boun
             if (filled[size_t(y) * w + x]) std::memcpy(dst->rawData(), src->rawDataConst(), size_t(pixelSize));
             ++x;
         } while (dst->nextPixel() && src->nextPixel());
+    }
+    {
+        QMutexLocker lock(&s_statusMutex);
+        s_lastStatus = (method == Smooth) ? QStringLiteral("Smooth engine") : QStringLiteral("Sharp engine");
     }
     return true;
 }

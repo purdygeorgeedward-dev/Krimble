@@ -3,6 +3,7 @@
 // healing brush's Tool Options (saved, so the menu command uses the same one).
 #pragma once
 #include <QRect>
+#include <QString>
 #include <kis_types.h>
 
 namespace KrimbleFill {
@@ -20,5 +21,9 @@ void saveMethod(int method);
 // (inside `bounds`). Returns false when it cannot (nothing to fill, a hole too big for the memory, the picture too small, or method Classic): the caller
 // then uses Krita's fill.
 bool fill(KisPaintDeviceSP imageDev, KisPaintDeviceSP maskDev, const QRect &bounds, int method);
+
+// Krimble 2026-10-20 (2nd): what the last fill() did, in words: "Sharp engine", "Smooth engine", or why it returned false (so that Krita's fill ran):
+// "Classic method chosen", "nothing selected", "area too small", "area too big", "engine could not fill", "out of memory", "nothing filled".
+QString lastStatus();
 
 }

@@ -200,7 +200,16 @@ void ContentAwareFillPlugin::slotContentAwareFill()
 
     applicator.end();
     image->waitForDone();
-    viewManager()->showFloatingMessage(i18n("Content-Aware Fill: done"), QIcon());   // Krimble 2026-10-20
+    // viewManager()->showFloatingMessage(i18n("Content-Aware Fill: done"), QIcon());   // Krimble 2026-10-20
+    // Krimble 2026-10-20 (2nd): George (1.0.41): "Content Aware Fill is faster, but just a blur." The message says which fill ran, and if it was Krita's
+    // old fill (the blur), why Krimble's engine did not take the job.
+    {
+        const QString status = KrimbleFill::lastStatus();
+        const bool engine = status.endsWith(QLatin1String("engine"));
+        viewManager()->showFloatingMessage(engine ? i18n("Content-Aware Fill: done (%1)", status)
+                                                  : i18n("Content-Aware Fill: done with Krita's old fill (%1)", status.isEmpty() ? i18n("unknown") : status),
+                                           QIcon());
+    }
 }
 
 #include "content_aware_fill_plugin.moc"
