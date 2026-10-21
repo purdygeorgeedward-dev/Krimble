@@ -116,7 +116,7 @@ Krimble is meant to be something creators can actually possess and work with —
 
 ---
 
-## I ❤️ A.I.! 
+## I ❤️ A. I.! 
 
 <div align="center">
 <img src="https://krimble.org/assets/kimmy-robot-ai.jpg" alt="Kimmy and the Krimble robot — We love A.I." width="100%">
