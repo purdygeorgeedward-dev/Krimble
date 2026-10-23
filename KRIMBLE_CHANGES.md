@@ -5077,3 +5077,10 @@ George (1.0.41): "the dialog where you set the level of jpeg compression is ENOR
 
 George (1.0.41 test list item 4): "The Save and Export windows should open a little taller." The window that lists the file formats (Save As:) before Android's own file picker opened at 60% of the screen's height; now 75% (old line commented out). Width unchanged (85%). Android's own file picker that follows is drawn by Android and can't be sized from Krimble.
 **Not verified:** a build or a device.
+
+## 2026-10-23 (240th) — Panel handle: the tab from George's drawing
+
+**Files:** `libs/ui/KisMainWindow.cpp`
+
+George (1.0.41 test list item 27): "Handles on toolbox and side panel still too small to grab easy, but close. I drew an idea." His drawing: a tab sticking out from the middle of the toolbox's edge onto the canvas, in the toolbox's color, with angled top and bottom ends and a dotted line down its middle. `KrimbleDockEdgeGrab` is switched back on as that tab: 10 logical px deep, 140 tall (at most the column's height), centred on the column of docked panels on each side (toolbox on the left, panels on the right); its touch zone is 20 px wide and only as tall as the tab, not the whole edge (the full-edge strip of 2026-10-13 took fingers that were drawing, and was switched off on 2026-10-19). Still hidden while Crop or a selection tool is active. Dragging it resizes that side. Tuning values `kTabDepth`, `kTabZone`, `kTabHeight` at the top of the paint code. Krita's dotted separator handle is unchanged.
+**Not verified:** a build or a device.

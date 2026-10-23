@@ -26,7 +26,7 @@ Status: DONE = pushed (in the build after 1.0.41); OPEN = not done yet; ASK = a 
 24. Filter menu looks good (too much to analyze right now).
 25. The Text window is way too wide; it needs a complete redesign. **OPEN**
 26. No Text menu at all? **OPEN**
-27. The handles on the toolbox and side panel are still too small to grab easily, but close. George drew an idea (the drawing was not in the chat yet). **OPEN / ASK**
+27. The handles on the toolbox and side panel are still too small to grab easily, but close. George drew an idea. **DONE** (240th, from his drawing)
 28. Where is File > Revert? Put it back. **DONE** (237th)
 29. Window > Stack panels (in the panels section, to stack the side panels). **OPEN**
 30. Detaching the toolbox goes to one column, then has the dangling empty bottom. **OPEN**

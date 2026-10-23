@@ -780,7 +780,15 @@ public:
         // const int stripWidth = 24;
         // const int stripWidth = 28;
         const int stripWidth = 30;   // Krimble 2026-10-17 (2nd): George: "Try just one more pixel? Or 2?" 28 -> 30. Before: 28 // Krimble 2026-10-17: George (1.0.37): "It's also sometimes still hard to grab edges for resize." "Try a small change first." 24 -> 28
-        setGeometry(area == Qt::LeftDockWidgetArea ? column.right() + 1 : column.left() - stripWidth, column.top(), stripWidth, column.height());
+        // setGeometry(area == Qt::LeftDockWidgetArea ? column.right() + 1 : column.left() - stripWidth, column.top(), stripWidth, column.height());
+        Q_UNUSED(stripWidth);
+        // Krimble 2026-10-23: George (1.0.41 test list item 27): "Handles on toolbox and side panel still too small to grab easy, but close. I drew an
+        // idea." His drawing: a tab sticking out of the middle of the toolbox's edge onto the canvas, the toolbox's own color, angled top and bottom
+        // ends, a dotted line down its middle. The zone is now only that tab (not the whole edge, which took fingers that were drawing), centred on
+        // the column of panels on that side. kTabDepth is what is drawn; the zone is kTabZone wide so a finger can catch it.
+        const int zoneH = qMin(kTabHeight, column.height());
+        const int y = column.top() + (column.height() - zoneH) / 2;
+        setGeometry(area == Qt::LeftDockWidgetArea ? column.right() + 1 : column.left() - kTabZone, y, kTabZone, zoneH);
         show();
         raise();
     }
@@ -794,10 +802,44 @@ public:
     }
 
 protected:
+    // Krimble 2026-10-23: the tab from George's drawing (see reposition). Tuning values.
+    static constexpr int kTabDepth = 10;    // logical px the tab sticks out from the panel's edge
+    static constexpr int kTabZone = 20;     // logical px wide touch zone (the tab plus room for a finger)
+    static constexpr int kTabHeight = 140;  // logical px tall, at most the height of the panels' column
+
     void paintEvent(QPaintEvent *) override
     {
         // Krimble 2026-10-13 (6th): nothing is drawn any more (the grab zone is invisible). The old drawing is kept below, not run.
-        return;
+        // return;
+        // Krimble 2026-10-23: the tab from George's drawing: panel color, angled ends, dotted line down the middle.
+        {
+            QPainter p(this);
+            p.setRenderHint(QPainter::Antialiasing, true);
+            const bool leftArea = m_win->dockWidgetArea(m_dock) == Qt::LeftDockWidgetArea;
+            const qreal h = height();
+            const qreal d = kTabDepth;
+            const qreal slope = d * 1.6;                      // how far down the angled end runs
+            const qreal x0 = leftArea ? 0 : width();          // the panel's edge
+            const qreal x1 = leftArea ? d : width() - d;      // the tab's outer edge
+            QPainterPath tab;
+            tab.moveTo(x0, 0);
+            tab.lineTo(x1, slope);
+            tab.lineTo(x1, h - slope);
+            tab.lineTo(x0, h);
+            tab.closeSubpath();
+            p.setPen(Qt::NoPen);
+            p.setBrush(m_dock->palette().color(QPalette::Window));
+            p.drawPath(tab);
+            QColor dots = m_dock->palette().color(QPalette::WindowText);
+            dots.setAlpha(170);
+            QPen pen(dots, 1.6);
+            pen.setStyle(Qt::DotLine);
+            pen.setCapStyle(Qt::RoundCap);
+            p.setPen(pen);
+            const qreal mid = (x0 + x1) / 2.0;
+            p.drawLine(QPointF(mid, slope + 4), QPointF(mid, h - slope - 4));
+            return;
+        }
         QPainter p(this);
         p.setRenderHint(QPainter::Antialiasing, true);
         // QColor fill = palette().color(QPalette::Mid);   (the canvas's gray: it could not be seen)
@@ -857,10 +899,12 @@ static void krimbleInstallDockEdgeGrabs(QMainWindow *win)
     // toolbox. We should go back to the original handle concept from Krita." The invisible grab zones over the canvas (KrimbleDockEdgeGrab)
     // are switched off: any that exist are hidden and no new ones are made. Panels are resized with Krita's own handle again, the separator
     // between a panel and the canvas (widened for fingers by KisWideDockSeparatorStyle, not changed). The code below is kept, not run.
-    Q_FOREACH (QWidget *existing, win->findChildren<QWidget*>(QRegularExpression(QStringLiteral("^krimbleEdgeGrab_")), Qt::FindDirectChildrenOnly)) {
-        existing->hide();
-    }
-    return;
+    // Krimble 2026-10-23: no longer hidden here: this runs on a timer, and each tab decides for itself whether it shows (reposition()).
+    // Q_FOREACH (QWidget *existing, win->findChildren<QWidget*>(QRegularExpression(QStringLiteral("^krimbleEdgeGrab_")), Qt::FindDirectChildrenOnly)) {
+    //     existing->hide();
+    // }
+    // return;
+    // Krimble 2026-10-23: back on, as the small visible tab from George's drawing (1.0.41 test list item 27), not the full-edge strip.
     Q_FOREACH (QDockWidget *dock, win->findChildren<QDockWidget*>()) {
         const QString grabName = QStringLiteral("krimbleEdgeGrab_") + dock->objectName();
         QWidget *grab = win->findChild<QWidget*>(grabName, Qt::FindDirectChildrenOnly);
