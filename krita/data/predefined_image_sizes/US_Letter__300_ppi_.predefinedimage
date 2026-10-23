@@ -1,7 +1,7 @@
 <!DOCTYPE params>
 <params>
  <param name="height">3300</param>
- <param name="name"><![CDATA[US Letter (300 ppi)]]></param>
+ <param name="name"><![CDATA[US Letter 8.5 x 11 in (300 ppi)]]></param>
  <param name="resolution">300</param>
  <param name="width">2550</param>
  <param name="x-unit">7</param>

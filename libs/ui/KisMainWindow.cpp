@@ -5511,6 +5511,28 @@ void KisMainWindow::slotFileOpenRecent(const QUrl &url)
     (void) openDocument(url.toLocalFile(), None);
 }
 
+// Krimble 2026-10-23: File > Revert (see the action's creation above)
+void KisMainWindow::slotFileRevert()
+{
+    KisView *view = activeView();
+    if (!view || !view->document()) return;
+    KisDocument *doc = view->document();
+    const QString path = doc->path();
+    if (path.isEmpty() || !QFileInfo::exists(path)) {
+        QMessageBox::information(this, i18n("Revert"), i18n("This picture has not been saved yet, so there is no saved file to go back to."));
+        return;
+    }
+    if (doc->isModified()) {
+        const QMessageBox::StandardButton answer = QMessageBox::question(this, i18n("Revert"),
+            i18n("Go back to the saved file? All changes made since the last save will be lost."), QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
+        if (answer != QMessageBox::Yes) return;
+    }
+    doc->setModified(false);   // so that closing it does not ask to save
+    view->closeView();
+    // opened again once the closing has finished (opening at once could find the old picture still open and just switch to it)
+    QTimer::singleShot(200, this, [this, path]() { openDocument(path, None); });
+}
+
 void KisMainWindow::slotFileSave()
 {
     if (saveDocument(d->activeView->document(), false, false,false)) {
@@ -7178,6 +7200,16 @@ void KisMainWindow::createActions()
 
     d->saveActionAs = actionManager->createStandardAction(KStandardAction::SaveAs, this, SLOT(slotFileSaveAs()));
     d->saveActionAs->setActivationFlags(KisAction::ACTIVE_IMAGE);
+
+    // Krimble 2026-10-23: George (test list "Mercury's Shadow"): "Where is File - Revert??? Put it back." The menu definition (krita5.xmlgui) still has the line
+    // "file_reload_file" under Save As, but no action of that name was ever created, so nothing showed. It is created here, and named Revert.
+    {
+        KisAction *revertAction = actionManager->createAction("file_reload_file");
+        revertAction->setText(i18n("Revert"));
+        revertAction->setToolTip(i18n("Go back to the saved file; changes made since the last save are lost"));
+        revertAction->setActivationFlags(KisAction::ACTIVE_IMAGE);
+        connect(revertAction, SIGNAL(triggered()), this, SLOT(slotFileRevert()));
+    }
 
     d->undo = actionManager->createStandardAction(KStandardAction::Undo, this, SLOT(undo()));
     d->undo->setActivationFlags(KisAction::ACTIVE_IMAGE);

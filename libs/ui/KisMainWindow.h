@@ -253,6 +253,11 @@ public Q_SLOTS:
      */
     void slotFileSave();
 
+    /**
+     * Krimble 2026-10-23: File > Revert: goes back to the saved file (closes the picture and opens it again), after asking when it has unsaved changes.
+     */
+    void slotFileRevert();
+
     void slotChangeInterfaceScale();
 
 

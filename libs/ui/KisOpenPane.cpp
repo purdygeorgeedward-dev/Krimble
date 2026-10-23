@@ -130,6 +130,20 @@ protected:
     }
 };
 
+// Krimble 2026-10-23: a scroll area that asks for the size of the page inside it (the base class caps its size hint at about 36 by 24 text heights) and can be
+// made small (its minimum size hint is small), used for the pages of the New window.
+class KrimblePageScroll : public QScrollArea
+{
+public:
+    using QScrollArea::QScrollArea;
+    QSize sizeHint() const override
+    {
+        if (!widget()) return QScrollArea::sizeHint();
+        return widget()->sizeHint() + QSize(2 * frameWidth(), 2 * frameWidth());
+    }
+    QSize minimumSizeHint() const override { return QSize(160, 160); }
+};
+
 KisOpenPane::KisOpenPane(QWidget *parent, const QStringList& mimeFilter, const QString& templatesResourcePath)
     : QDialog(parent)
     , d(new KisOpenPanePrivate)
@@ -185,7 +199,10 @@ KisOpenPane::KisOpenPane(QWidget *parent, const QStringList& mimeFilter, const Q
     // d->m_sectionList->setIconSize(QSize(112, 112));
     // Krimble 2026-10-19: George (1.0.39, test list, item 5): "New dialog icons are too big. The column housing them is too wide." (1.0.39 was
     // the first build where the list really drew them at the picture's size; before, it drew 48 px whatever the picture.) 112 -> 80.
-    d->m_sectionList->setIconSize(QSize(80, 80));
+    // d->m_sectionList->setIconSize(QSize(80, 80));
+    // Krimble 2026-10-23: George (test list "Mercury's Shadow"): "Make clipboard icon smaller, camera icon larger." The list draws a picture at its own size when
+    // it is smaller than this, so the list is 96 and the pictures are 48 (clipboard), 64 (custom document), 80 (templates) and 96 (the camera).
+    d->m_sectionList->setIconSize(QSize(96, 96));
 #endif
     QScroller *scroller = KisKineticScroller::createPreconfiguredScroller(d->m_sectionList);
     if (scroller) {
@@ -352,6 +369,17 @@ void KisOpenPane::addCustomDocumentWidget(QWidget *widget, const QString& title,
     QWidget *paneWidget = widget;
 // Krimble 2026-10-12: George: the scroll area made the Create button harder to find. Switched off; the window is made smaller
 // instead (narrow left list with the text under the icons, a label that wraps). The version below is kept, not deleted.
+// Krimble 2026-10-23: George (test list "Mercury's Shadow"): "File - New dialog minimum size too big." The window could not be made smaller than these pages
+// (a phone screen is smaller than they are). They are in a scroll area again, with a difference: its size hint is the page's own (KrimblePageScroll, above),
+// so the window opens as large as the page needs (as before the 2026-10-12 change), and its minimum is small, so the window can be made smaller, and a page
+// larger than the window scrolls.
+{
+    KrimblePageScroll *pageScroll = new KrimblePageScroll;
+    pageScroll->setWidgetResizable(true);
+    pageScroll->setFrameShape(QFrame::NoFrame);
+    pageScroll->setWidget(widget);
+    paneWidget = pageScroll;
+}
 #if 0
     {
         QScrollArea *scrollArea = new QScrollArea;
@@ -414,7 +442,10 @@ QTreeWidgetItem* KisOpenPane::addPane(const QString &title, const QString &untra
     // their whole square; the template pictures below them have room around them and look smaller at the same size. 112 -> 88 logical px for these two (the template pictures stay as they are).
     // QPixmap iconPixmap = icon.pixmap(QSize(qRound(88 * dpr), qRound(88 * dpr)));
     // Krimble 2026-10-19: George (1.0.39): "New dialog icons are too big." 88 -> 64 logical px (same ratio to the 80 px template pictures as 88 to 112).
-    QPixmap iconPixmap = icon.pixmap(QSize(qRound(64 * dpr), qRound(64 * dpr)));
+    // QPixmap iconPixmap = icon.pixmap(QSize(qRound(64 * dpr), qRound(64 * dpr)));
+    // Krimble 2026-10-23: the clipboard picture is smaller (48 logical px; the custom document picture stays 64)
+    const int topIconSize = untranslatedName.contains(QLatin1String("clipboard"), Qt::CaseInsensitive) ? 48 : 64;
+    QPixmap iconPixmap = icon.pixmap(QSize(qRound(topIconSize * dpr), qRound(topIconSize * dpr)));
     iconPixmap.setDevicePixelRatio(dpr);
 
     QIcon finalIcon(iconPixmap);
@@ -441,7 +472,10 @@ QTreeWidgetItem* KisOpenPane::addPane(const QString &title, const QString &untra
     // const int iconSize = qRound(64 * dpr);   // Krimble 2026-10-17: twice as big (see above)
     // const int iconSize = qRound(96 * dpr);      // Krimble 2026-10-18: 96 logical px (see above)
     // const int iconSize = qRound(112 * dpr);     // Krimble 2026-10-18 (2nd): 112 logical px (see above)
-    const int iconSize = qRound(80 * dpr);         // Krimble 2026-10-19: George (1.0.39): "New dialog icons are too big." 112 -> 80 logical px
+    // const int iconSize = qRound(80 * dpr);         // Krimble 2026-10-19: George (1.0.39): "New dialog icons are too big." 112 -> 80 logical px
+    // Krimble 2026-10-23: George: "camera icon larger": the camera (the DSLR templates) is drawn at 96 logical px, the other pictures stay 80
+    const bool isCamera = title.contains(QLatin1String("DSLR"), Qt::CaseInsensitive) || untranslatedName.contains(QLatin1String("DSLR"), Qt::CaseInsensitive);
+    const int iconSize = qRound((isCamera ? 96 : 80) * dpr);
 
     KoSectionListItem* listItem = new KoSectionListItem(d->m_sectionList, title, untranslatedName, sortWeight, id);
 
