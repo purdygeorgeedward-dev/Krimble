@@ -5126,3 +5126,10 @@ George (1.0.41 test list item 7): "Edit - Free Transform is just scale?" and, wh
 
 George (1.0.41 test list item 7), asked whether to add visible rotate targets just outside the corners: "Sure." In Free Transform a curved arrow (an open 270-degree arc with an arrowhead, facing away from the box) is drawn just outside each corner, 36 logical px out along the line from the box's centre through the corner, 17 px radius, in the same two-tone lines as the handles, so it stays the same size at any zoom. It only shows where rotating works: touching anywhere outside the box rotates (245th). Tuning values `kRotateTargetGap` and `kRotateTargetRadius` in `paint()`.
 **Not verified:** a build or a device.
+
+## 2026-10-23 (247th) — Floating toolbox: width and height together, so no empty bottom after detaching
+
+**Files:** `libs/ui/toolbox/KoToolBoxDocker.cpp`, `libs/ui/toolbox/KoToolBoxDocker_p.h`
+
+George (1.0.41 test list "Mercury's Shadow", item 30): "Detaching toolbox goes to one column, then has the dangling empty bottom." **Cause:** when the toolbox floats, `fitHeightToContents()` (350 ms later) worked the height out for the width the window had at that moment: the docked width, so one column and a tall pile of tools. The width was changed to the chosen number of columns afterwards, the tools reflowed into fewer rows, and the window kept the taller height (it is also held there by `setMaximumHeight`). **Change:** `fitHeightToContents(bool setWidthToo)`: after floating (at 350 ms and again at 900 ms, when the layout has settled), the height is worked out for the width the window is going to have (`m_columns * iconWidth()`), and the window gets that width and that height in one `resize`. Other calls (after a column change, after Vertical) work as before.
+**Not verified:** a build or a device.

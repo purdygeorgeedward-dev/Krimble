@@ -175,7 +175,15 @@ KoToolBoxDocker::KoToolBoxDocker(KoToolBox *toolBox)
     // Krimble 2026-10-12: George: "Toolbox is too tall. Should not have empty space inside the box." Whenever the toolbox becomes
     // floating, it is cut down to the height of its tools.
     connect(this, &QDockWidget::topLevelChanged, this, [this](bool floating) {
-        if (floating) QTimer::singleShot(350, this, [this]() { fitHeightToContents(); });
+        // if (floating) QTimer::singleShot(350, this, [this]() { fitHeightToContents(); });
+        // Krimble 2026-10-23: George (test list "Mercury's Shadow", item 30): "Detaching toolbox goes to one column, then has the dangling empty bottom." The
+        // height was worked out for the width the window had at that moment (the docked width: one column, so a tall pile of tools) and the width was changed
+        // to the chosen columns later, so the tools reflowed into fewer rows and the window kept the taller height. Now width and height are given together,
+        // the height worked out for the width that is going to be used; and once more a moment later, when the layout has settled.
+        if (floating) {
+            QTimer::singleShot(350, this, [this]() { fitHeightToContents(true); });
+            QTimer::singleShot(900, this, [this]() { fitHeightToContents(true); });
+        }
     });
     m_edgeRight = new KrimbleToolBoxEdge(this, true);
     m_edgeBottom = new KrimbleToolBoxEdge(this, false);
@@ -612,11 +620,14 @@ void KoToolBoxDocker::krimbleDockAtEdge()
 
 // Krimble 2026-10-12: cuts a floating toolbox (vertical layout, columns) down to the height of its tools, so there is no empty space
 // inside the box: the height of the tools for the current width, plus the title bar and the margins around them.
-void KoToolBoxDocker::fitHeightToContents()
+void KoToolBoxDocker::fitHeightToContents(bool setWidthToo)
 {
     if (!isFloating() || !isVisible() || !m_toolBox || !m_toolBox->layout() || !m_toolBox->layout()->hasHeightForWidth()) return;
     if (!widget() || !widget()->layout()) return;
-    const int toolsHeight = m_toolBox->layout()->heightForWidth(m_scrollArea->viewport()->width());
+    // const int toolsHeight = m_toolBox->layout()->heightForWidth(m_scrollArea->viewport()->width());
+    // Krimble 2026-10-23: with setWidthToo, the height is worked out for the width the window is going to have (the chosen number of columns), not the one it has now
+    const int columnsWidth = qMax(1, m_columns) * iconWidth();
+    const int toolsHeight = m_toolBox->layout()->heightForWidth(setWidthToo ? columnsWidth : m_scrollArea->viewport()->width());
     if (toolsHeight <= 0) return;
     const QMargins margins = widget()->layout()->contentsMargins();
     const int titleAndFrame = height() - widget()->height();
@@ -631,9 +642,15 @@ void KoToolBoxDocker::fitHeightToContents()
     if (target > 0) {
         setMaximumHeight(target);
     }
-    if (target > 0 && qAbs(height() - target) > 2) {
+    // if (target > 0 && qAbs(height() - target) > 2) {
+    //     m_applying = true;
+    //     resize(width(), target);
+    //     QTimer::singleShot(400, this, [this]() { m_applying = false; });
+    // }
+    const int wantedWidth = setWidthToo ? columnsWidth + chromeWidth() : width();   // Krimble 2026-10-23
+    if (target > 0 && (qAbs(height() - target) > 2 || qAbs(width() - wantedWidth) > 2)) {
         m_applying = true;
-        resize(width(), target);
+        resize(wantedWidth, target);
         QTimer::singleShot(400, this, [this]() { m_applying = false; });
     }
 }
