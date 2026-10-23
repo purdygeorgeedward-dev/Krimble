@@ -6,7 +6,7 @@ Status: DONE = pushed (in the build after 1.0.41); OPEN = not done yet; ASK = a 
 2. Presets: 8.5 x 11 @ 300 and 11 x 17 @ 300 (they existed as "US Letter" and "US Tabloid"; the names now show the inches), the comic page / daily strip / digest sizes, A4 and A3 (exist as "A4 (300 ppi)", "A3 (300 ppi)"), photo prints 3.5x5, 4x6, 5x7, 8x10, 11x14, 16x20 @ 300. **DONE** (236th)
 3. Open Recent: great.
 4. The Save and Export windows should open a little taller. **DONE** (239th)
-5. File Info window is WAY TOO BIG; replace the Author picture with a robot head. Size **DONE** (241st); robot head **OPEN** (needs the picture)
+5. File Info window is WAY TOO BIG; replace the Author picture with a robot head. **DONE** (241st size, 242nd robot head)
 6. Edit > Puppet Warp opens the polygon select tool? No explanation? **OPEN / ASK**
 7. Edit > Free Transform is just scale? Add rotate targets outside the corners? **OPEN / ASK**
 8. Edit > Sample Color: what does it do exactly? **ASK**

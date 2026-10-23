@@ -140,7 +140,8 @@ KoDocumentInfoDlg::KoDocumentInfoDlg(QWidget* parent, KoDocumentInfo* docInfo)
     page = new KPageWidgetItem(authordlg, i18n("Author"));
 #endif
     page->setHeader(i18n("Last saved by"));
-    page->setIcon(koIcon("user-identity"));
+    // page->setIcon(koIcon("user-identity"));
+    page->setIcon(koIcon("krimble-file-info-author"));   // Krimble 2026-10-23: George (1.0.41 test list item 5): "replace Author pic with robot head."
     addPage(page);
     d->pages.append(page);
 

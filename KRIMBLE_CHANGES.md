@@ -5091,3 +5091,10 @@ George (1.0.41 test list item 27): "Handles on toolbox and side panel still too 
 
 George (1.0.41 test list item 5): "File Info dialog is WAY TOO BIG!!" On Android, the General and Author pages are each put in a scroll area (`krimbleScrollPage`), so the window no longer has to be as big as its largest page; the Description box is capped at 110 px tall (it asked for 192); and the window opens no larger than 90% of the screen's width and 80% of its height. The robot head for the Author page is still open: it needs the picture.
 **Not verified:** a build or a device.
+
+## 2026-10-23 (242nd) — File Info: robot head on the Author page
+
+**Files:** `libs/ui/KoDocumentInfoDlg.cpp`, `krita/pics/svg/dark_krimble-file-info-author.svg`, `krita/pics/svg/light_krimble-file-info-author.svg`, `krita/pics/svg/svg-icons.qrc`, `krimble-artwork/file-info/author-robot.png`
+
+George (1.0.41 test list item 5): "replace Author pic with robot head." His robot picture (Oct 23), cropped square (the left 755 x 755 px, whole head), corners rounded (radius 72 of 512), saved at 512 px in `krimble-artwork/file-info/`, and embedded at 192 px in a new icon `krimble-file-info-author` (dark and light copies are the same picture). The File Info Author page uses it; the old `user-identity` line is commented out. Preferences > Author keeps George's existing user-identity picture.
+**Not verified:** a build or a device.
