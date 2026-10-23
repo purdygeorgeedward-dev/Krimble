@@ -5133,3 +5133,10 @@ George (1.0.41 test list item 7), asked whether to add visible rotate targets ju
 
 George (1.0.41 test list "Mercury's Shadow", item 30): "Detaching toolbox goes to one column, then has the dangling empty bottom." **Cause:** when the toolbox floats, `fitHeightToContents()` (350 ms later) worked the height out for the width the window had at that moment: the docked width, so one column and a tall pile of tools. The width was changed to the chosen number of columns afterwards, the tools reflowed into fewer rows, and the window kept the taller height (it is also held there by `setMaximumHeight`). **Change:** `fitHeightToContents(bool setWidthToo)`: after floating (at 350 ms and again at 900 ms, when the layout has settled), the height is worked out for the width the window is going to have (`m_columns * iconWidth()`), and the window gets that width and that height in one `resize`. Other calls (after a column change, after Vertical) work as before.
 **Not verified:** a build or a device.
+
+## 2026-10-23 (248th) — Window > Stack Panels
+
+**Files:** `libs/ui/KisMainWindow.cpp`
+
+George (1.0.41 test list "Mercury's Shadow", item 29): "Window - Stack panels (in panels section to stack the side panels)." A new item **Stack Panels** in the Window menu's panels section, right after Hide All Panels: the panels docked on the right (not floating, not closed, not the toolbox) are put **one above the other**, each in its own part of the column (they may have been tabs: the Color and Tool Options tabs become separate panels), in the order they have now from the top, with equal heights (`krimbleStackPanels()`: `splitDockWidget` for each, then `resizeDocks`). Panels that were closed stay closed.
+**Not verified:** a build or a device.

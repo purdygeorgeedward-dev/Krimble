@@ -6616,6 +6616,39 @@ void KisMainWindow::windowFocused()
 }
 
 
+// Krimble 2026-10-23: George (test list "Mercury's Shadow", item 29): "Window - Stack panels (in panels section to stack the side panels)." Puts the panels docked on the
+// right side one above the other, each in its own part of the column (they may have been tabs), with equal heights. The toolbox is not touched.
+static void krimbleStackPanels(QMainWindow *win)
+{
+    QList<QDockWidget*> docks;
+    Q_FOREACH (QDockWidget *dock, win->findChildren<QDockWidget*>()) {
+        if (dock->isFloating() || dock->objectName() == QLatin1String("ToolBox")) continue;
+        if (win->dockWidgetArea(dock) != Qt::RightDockWidgetArea) continue;
+        if (!dock->toggleViewAction()->isChecked()) continue;   // closed panels stay closed (a panel behind another tab still counts as open)
+        docks << dock;
+    }
+    if (docks.size() < 2) return;
+    // keep the order the panels have now, from top to bottom (the ones behind a tab are put after the one in front of them)
+    std::stable_sort(docks.begin(), docks.end(), [](QDockWidget *a, QDockWidget *b) {
+        const int ya = a->isVisible() ? a->mapToGlobal(QPoint(0, 0)).y() : 1 << 20;
+        const int yb = b->isVisible() ? b->mapToGlobal(QPoint(0, 0)).y() : 1 << 20;
+        return ya < yb;
+    });
+    int totalHeight = 0;
+    Q_FOREACH (QDockWidget *dock, docks) {
+        if (dock->isVisible()) totalHeight += dock->height();
+    }
+    for (int i = 1; i < docks.size(); ++i) {
+        win->splitDockWidget(docks.at(i - 1), docks.at(i), Qt::Vertical);
+        docks.at(i)->show();
+    }
+    docks.first()->show();
+    QList<int> sizes;
+    const int each = qMax(1, totalHeight / docks.size());
+    for (int i = 0; i < docks.size(); ++i) sizes << each;
+    win->resizeDocks(docks, sizes, Qt::Vertical);
+}
+
 void KisMainWindow::updateWindowMenu()
 {
     QMenu *menu = d->windowMenu->menu();
@@ -6854,6 +6887,9 @@ void KisMainWindow::updateWindowMenu()
         connect(hideAllPanels, &QAction::triggered, this, [this]() {
             d->toggleDockers->setChecked(!d->toggleDockers->isChecked());
         });
+        // Krimble 2026-10-23: Stack Panels (George, test list item 29), right after Hide All Panels
+        QAction *stackPanelsAction = menu->addAction(i18n("Stack Panels"));
+        connect(stackPanelsAction, &QAction::triggered, this, [this]() { krimbleStackPanels(this); });
         // Krimble 2026-10-12: Mirror Layout (Left-Handed) (Claude's idea): checked while the toolbox is on the right
         // Krimble 2026-10-12: Mirror Layout removed from the menu (George): it corrupted the display in 1.0.33. The code is kept.
         // QAction *mirrorLayout = menu->addAction(i18n("Mirror Layout (Left-Handed)"));
