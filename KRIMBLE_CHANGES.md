@@ -5063,3 +5063,10 @@ George (1.0.41, test list "Mercury's Shadow", item 1 and 2; the whole list is in
 
 George: "Where is File - Revert??? Put it back." The menu definition (`krita5.xmlgui`) still lists `file_reload_file` under Save As, but no action of that name was ever created in the code, so the item never showed. It is created (text **Revert**) with a new slot `slotFileRevert()`: it asks, when the picture has unsaved changes, "Go back to the saved file? All changes made since the last save will be lost."; then marks the picture unmodified, closes it and opens the saved file again (200 ms later, so the old picture is gone). A picture that was never saved gets a message that there is no saved file.
 **Not verified:** a build or a device.
+
+## 2026-10-23 (238th) — JPEG save options window shrinks to fit the screen
+
+**Files:** `plugins/impex/jpeg/kis_wdg_options_jpeg.ui`, `libs/ui/KisImportExportManager.cpp`
+
+George (1.0.41): "the dialog where you set the level of jpeg compression is ENORMOUS, and needs to shrink." Three causes. **1.** The Metadata page had a vertical spacer with a 505 px size hint; a vertical spacer's width is a minimum, so every page of the JPEG options was at least 505 px wide. Now 20 px (old value noted in a comment). **2.** The Metadata Filters list asked for 256 x 192 px; its height is capped at 120. **3.** The export options window (all formats) now opens at the size its contents ask for, capped at 90% of the screen's width and 80% of its height; anything larger scrolls inside the window (the scroll area from the 231st, which is not in 1.0.41, built from `987c5ef`).
+**Not verified:** a build or a device.

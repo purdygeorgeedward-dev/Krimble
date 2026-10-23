@@ -12,6 +12,8 @@
 #include <QVBoxLayout>
 #include <QList>
 #include <QApplication>
+#include <QGuiApplication>  // Krimble 2026-10-23: export options window fitted to the screen
+#include <QScreen>
 #include <QByteArray>
 #include <QPluginLoader>
 #include <QFileInfo>
@@ -709,6 +711,16 @@ bool KisImportExportManager::askUserAboutExportConfiguration(
         page->setParent(&dlg);
         dlg.setButtons(KoDialog::Ok | KoDialog::Cancel);
         dlg.setWindowTitle(mimeUserDescription);
+
+        // Krimble 2026-10-23: George: "the dialog where you set the level of jpeg compression is ENORMOUS, and needs to shrink."
+        // The window opens at the size its contents ask for, but never larger than 90% of the screen's width or
+        // 80% of its height; anything bigger scrolls inside the window (scroll area above).
+        if (QScreen *scr = QGuiApplication::primaryScreen()) {
+            const QRect avail = scr->availableGeometry();
+            dlg.adjustSize();
+            const QSize want = dlg.sizeHint().boundedTo(QSize(avail.width() * 9 / 10, avail.height() * 8 / 10));
+            dlg.resize(want);
+        }
 
         if (showWarnings || wdg || isAdvancedExporting) {
             if (!dlg.exec()) {
