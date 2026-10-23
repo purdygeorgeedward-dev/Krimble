@@ -5098,3 +5098,10 @@ George (1.0.41 test list item 5): "File Info dialog is WAY TOO BIG!!" On Android
 
 George (1.0.41 test list item 5): "replace Author pic with robot head." His robot picture (Oct 23), cropped square (the left 755 x 755 px, whole head), corners rounded (radius 72 of 512), saved at 512 px in `krimble-artwork/file-info/`, and embedded at 192 px in a new icon `krimble-file-info-author` (dark and light copies are the same picture). The File Info Author page uses it; the old `user-identity` line is commented out. Preferences > Author keeps George's existing user-identity picture.
 **Not verified:** a build or a device.
+
+## 2026-10-23 (243rd) — Preferences > Author: robot head
+
+**Files:** `krita/pics/svg/dark_user-identity.svg`, `krita/pics/svg/light_user-identity.svg`
+
+George: "Preferences - Author was the ugly thing I wanted to get rid of." The `user-identity` icon (Preferences > Author) is now the same robot head as the File Info Author page (242nd). The file names are unchanged, so nothing in the code changes. The previous picture is still kept at full size in `krimble-artwork/preferences/user-identity.png`.
+**Not verified:** a build or a device.
