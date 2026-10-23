@@ -8,7 +8,7 @@ Status: DONE = pushed (in the build after 1.0.41); OPEN = not done yet; ASK = a 
 4. The Save and Export windows should open a little taller. **DONE** (239th)
 5. File Info window is WAY TOO BIG; replace the Author picture with a robot head. **DONE** (241st size, 242nd robot head)
 6. Edit > Puppet Warp opens the polygon select tool? No explanation? **DONE** (244th: it is the cage transform; a floating message now explains it)
-7. Edit > Free Transform is just scale? Add rotate targets outside the corners? **OPEN / ASK**
+7. Edit > Free Transform is just scale? Add rotate targets outside the corners? Rotation **DONE** (245th: touching outside the box rotates again); visible targets **ASK**
 8. Edit > Sample Color: what does it do exactly? **ASK**
 9. Edit > Convert to Profile window is too wide. **OPEN**
 10. Edit > Customize Toolbar is double the width it should be; why is it in Edit and not with the other toolbar menu items? Move it. **OPEN**

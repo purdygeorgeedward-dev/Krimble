@@ -224,11 +224,21 @@ void KisFreeTransformStrategy::setTransformFunction(const QPointF &mousePos, boo
     qreal rotationHandleRadius = KisTransformUtils::effectiveHandleGrabRadius(m_d->converter);
 
 
+       // StrokeFunction defaultFunction = MOVE;
+       // if (transformedPolygon.containsPoint(mousePos, Qt::OddEvenFill))
+       //    defaultFunction = MOVE;
+       // else if (m_d->transaction.boundsRotationAllowed() && altModifierActive)
+       //    defaultFunction = MOVE;
+       // Krimble 2026-10-23: George (1.0.41 test list item 7): "Edit - Free Transform is just scale?" The lines above made every touch
+       // outside the box a Move, so Free Transform could not rotate. Krita's own rule is back: inside the box moves, outside the box
+       // rotates (Alt rotates the bounds, as in Krita).
        StrokeFunction defaultFunction = MOVE;
        if (transformedPolygon.containsPoint(mousePos, Qt::OddEvenFill))
           defaultFunction = MOVE;
        else if (m_d->transaction.boundsRotationAllowed() && altModifierActive)
-          defaultFunction = MOVE;
+          defaultFunction = ROTATEBOUNDS;
+       else
+          defaultFunction = ROTATE;
     
     KisTransformUtils::HandleChooser<StrokeFunction>
         handleChooser(mousePos, defaultFunction);

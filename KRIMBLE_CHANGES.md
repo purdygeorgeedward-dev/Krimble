@@ -5112,3 +5112,10 @@ George: "Preferences - Author was the ugly thing I wanted to get rid of." The `u
 
 George (1.0.41 test list item 6): "Edit - Puppet Warp opens poly select tool? No explanation?" Edit > Puppet Warp starts Krita's cage transform: first you draw a shape of points around the part to bend (which looks like the polygon selection tool), close it on the first point, then drag the points to bend the picture. Krita has no pin-based puppet warp; the cage is the closest. When Puppet Warp is started from the menu, a floating message (8 s) now says: "Puppet Warp: tap points around the part to bend, tap the first point to close the shape, then drag the points."
 **Not verified:** a build or a device.
+
+## 2026-10-23 (245th) — Free Transform rotates again
+
+**Files:** `plugins/tools/tool_transform2/kis_free_transform_strategy.cpp`
+
+George (1.0.41 test list item 7): "Edit - Free Transform is just scale?" and, when told dragging outside the box rotates: "no, it doesn't." He was right: in `setTransformFunction()` every touch outside the box had been set to Move (both branches set `MOVE`), so the only things Free Transform could do were move and scale. Krita's own rule is back (the changed lines are commented out above it): inside the box moves, outside the box rotates, Alt outside rotates the bounds. Visible rotate targets outside the corners: not done, waiting for George.
+**Not verified:** a build or a device.
