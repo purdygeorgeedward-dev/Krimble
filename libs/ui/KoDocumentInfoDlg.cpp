@@ -28,6 +28,23 @@
 #include <QLineEdit>
 #include <QDateTime>
 #include <KisMimeDatabase.h>
+#ifdef Q_OS_ANDROID
+#include <QScrollArea>     // Krimble 2026-10-23: File Info window fitted to the screen
+#include <QGuiApplication>
+#include <QScreen>
+#include <QTextEdit>
+
+// Krimble 2026-10-23: George (1.0.41 test list item 5): "File Info dialog is WAY TOO BIG!!" Each page is put in a scroll area, so the
+// window no longer has to be as big as its largest page; a page that does not fit scrolls.
+static QWidget *krimbleScrollPage(QWidget *page)
+{
+    QScrollArea *scroll = new QScrollArea;
+    scroll->setWidget(page);
+    scroll->setWidgetResizable(true);
+    scroll->setFrameShape(QFrame::NoFrame);
+    return scroll;
+}
+#endif
 
 class KoPageWidgetItemAdapter : public KPageWidgetItem
 {
@@ -88,7 +105,13 @@ KoDocumentInfoDlg::KoDocumentInfoDlg(QWidget* parent, KoDocumentInfo* docInfo)
     examples->setCompletionMode(QCompleter::PopupCompletion);
     d->aboutUi->leLicense->setCompleter(examples);
 
+#ifdef Q_OS_ANDROID
+    // Krimble 2026-10-23: the description box asked for 192 px of height; capped (see krimbleScrollPage above)
+    d->aboutUi->meDescription->setMaximumHeight(110);
+    KPageWidgetItem *page = new KPageWidgetItem(krimbleScrollPage(infodlg), i18n("General"));
+#else
     KPageWidgetItem *page = new KPageWidgetItem(infodlg, i18n("General"));
+#endif
     page->setHeader(i18n("General"));
 
     // Ugly hack, the mimetype should be a parameter, instead
@@ -111,13 +134,26 @@ KoDocumentInfoDlg::KoDocumentInfoDlg(QWidget* parent, KoDocumentInfo* docInfo)
     d->authorUi = new Ui::KoDocumentInfoAuthorWidget();
     QWidget *authordlg = new QWidget();
     d->authorUi->setupUi(authordlg);
+#ifdef Q_OS_ANDROID
+    page = new KPageWidgetItem(krimbleScrollPage(authordlg), i18n("Author"));   // Krimble 2026-10-23 (see krimbleScrollPage)
+#else
     page = new KPageWidgetItem(authordlg, i18n("Author"));
+#endif
     page->setHeader(i18n("Last saved by"));
     page->setIcon(koIcon("user-identity"));
     addPage(page);
     d->pages.append(page);
 
     initAuthorTab();
+
+#ifdef Q_OS_ANDROID
+    // Krimble 2026-10-23: the window opens no larger than 90% of the screen's width and 80% of its height.
+    if (QScreen *scr = QGuiApplication::primaryScreen()) {
+        const QRect avail = scr->availableGeometry();
+        adjustSize();
+        resize(sizeHint().boundedTo(QSize(avail.width() * 9 / 10, avail.height() * 8 / 10)));
+    }
+#endif
 }
 
 KoDocumentInfoDlg::~KoDocumentInfoDlg()

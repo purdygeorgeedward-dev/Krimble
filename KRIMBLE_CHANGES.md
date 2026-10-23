@@ -5084,3 +5084,10 @@ George (1.0.41 test list item 4): "The Save and Export windows should open a lit
 
 George (1.0.41 test list item 27): "Handles on toolbox and side panel still too small to grab easy, but close. I drew an idea." His drawing: a tab sticking out from the middle of the toolbox's edge onto the canvas, in the toolbox's color, with angled top and bottom ends and a dotted line down its middle. `KrimbleDockEdgeGrab` is switched back on as that tab: 10 logical px deep, 140 tall (at most the column's height), centred on the column of docked panels on each side (toolbox on the left, panels on the right); its touch zone is 20 px wide and only as tall as the tab, not the whole edge (the full-edge strip of 2026-10-13 took fingers that were drawing, and was switched off on 2026-10-19). Still hidden while Crop or a selection tool is active. Dragging it resizes that side. Tuning values `kTabDepth`, `kTabZone`, `kTabHeight` at the top of the paint code. Krita's dotted separator handle is unchanged.
 **Not verified:** a build or a device.
+
+## 2026-10-23 (241st) — File Info window shrinks to fit the screen
+
+**Files:** `libs/ui/KoDocumentInfoDlg.cpp`
+
+George (1.0.41 test list item 5): "File Info dialog is WAY TOO BIG!!" On Android, the General and Author pages are each put in a scroll area (`krimbleScrollPage`), so the window no longer has to be as big as its largest page; the Description box is capped at 110 px tall (it asked for 192); and the window opens no larger than 90% of the screen's width and 80% of its height. The robot head for the Author page is still open: it needs the picture.
+**Not verified:** a build or a device.
