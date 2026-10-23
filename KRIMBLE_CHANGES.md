@@ -5070,3 +5070,10 @@ George: "Where is File - Revert??? Put it back." The menu definition (`krita5.xm
 
 George (1.0.41): "the dialog where you set the level of jpeg compression is ENORMOUS, and needs to shrink." Three causes. **1.** The Metadata page had a vertical spacer with a 505 px size hint; a vertical spacer's width is a minimum, so every page of the JPEG options was at least 505 px wide. Now 20 px (old value noted in a comment). **2.** The Metadata Filters list asked for 256 x 192 px; its height is capped at 120. **3.** The export options window (all formats) now opens at the size its contents ask for, capped at 90% of the screen's width and 80% of its height; anything larger scrolls inside the window (the scroll area from the 231st, which is not in 1.0.41, built from `987c5ef`).
 **Not verified:** a build or a device.
+
+## 2026-10-23 (239th) — Save As / Export format window opens taller
+
+**Files:** `libs/widgetutils/KoFileDialog.cpp`
+
+George (1.0.41 test list item 4): "The Save and Export windows should open a little taller." The window that lists the file formats (Save As:) before Android's own file picker opened at 60% of the screen's height; now 75% (old line commented out). Width unchanged (85%). Android's own file picker that follows is drawn by Android and can't be sized from Krimble.
+**Not verified:** a build or a device.
