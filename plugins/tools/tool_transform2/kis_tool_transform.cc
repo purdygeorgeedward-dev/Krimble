@@ -36,6 +36,9 @@
 #include <kis_global.h>
 #include <canvas/kis_canvas2.h>
 #include <KisViewManager.h>
+#include <QTimer>              // Krimble 2026-10-23: Puppet Warp hint
+#include <KoCanvasController.h>
+#include <KoToolManager.h>
 #include <kis_canvas2.h>
 #include <kis_painter.h>
 #include <kis_cursor.h>
@@ -1585,6 +1588,19 @@ void KisToolTransformFactory::activateSubtoolWarp()
 void KisToolTransformFactory::activateSubtoolCage()
 {
     activateSubtool(KisToolTransform::CageTransformMode);
+    // Krimble 2026-10-23: George (1.0.41 test list item 6): "Edit - Puppet Warp opens poly select tool? No explanation?" It is the cage
+    // transform: you first draw a shape around the part to bend (which looks like the polygon selection), then drag its points. A
+    // floating message says so each time Puppet Warp is started from the menu.
+    QTimer::singleShot(400, []() {
+        KoCanvasController *controller = KoToolManager::instance()->activeCanvasController();
+        KisCanvas2 *kisCanvas = controller ? dynamic_cast<KisCanvas2*>(controller->canvas()) : nullptr;
+        if (kisCanvas && kisCanvas->viewManager()) {
+            kisCanvas->viewManager()->showFloatingMessage(
+                i18nc("floating message in transformation tool",
+                      "Puppet Warp: tap points around the part to bend, tap the first point to close the shape, then drag the points."),
+                QIcon(), 8000, KisFloatingMessage::High);
+        }
+    });
 }
 void KisToolTransformFactory::activateSubtoolLiquify()
 {

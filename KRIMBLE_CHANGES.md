@@ -5105,3 +5105,10 @@ George (1.0.41 test list item 5): "replace Author pic with robot head." His robo
 
 George: "Preferences - Author was the ugly thing I wanted to get rid of." The `user-identity` icon (Preferences > Author) is now the same robot head as the File Info Author page (242nd). The file names are unchanged, so nothing in the code changes. The previous picture is still kept at full size in `krimble-artwork/preferences/user-identity.png`.
 **Not verified:** a build or a device.
+
+## 2026-10-23 (244th) — Puppet Warp explains itself
+
+**Files:** `plugins/tools/tool_transform2/kis_tool_transform.cc`
+
+George (1.0.41 test list item 6): "Edit - Puppet Warp opens poly select tool? No explanation?" Edit > Puppet Warp starts Krita's cage transform: first you draw a shape of points around the part to bend (which looks like the polygon selection tool), close it on the first point, then drag the points to bend the picture. Krita has no pin-based puppet warp; the cage is the closest. When Puppet Warp is started from the menu, a floating message (8 s) now says: "Puppet Warp: tap points around the part to bend, tap the first point to close the shape, then drag the points."
+**Not verified:** a build or a device.
