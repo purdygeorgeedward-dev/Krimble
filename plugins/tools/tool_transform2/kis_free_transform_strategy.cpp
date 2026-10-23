@@ -4,6 +4,8 @@
  *  SPDX-License-Identifier: GPL-2.0-or-later
  */
 
+#include <cmath>   // Krimble 2026-10-23: rotate targets
+#include <QtMath>
 #include "kis_free_transform_strategy.h"
 
 #include <QPointF>
@@ -457,6 +459,46 @@ void KisFreeTransformStrategy::paint(QPainter &gc, const KoColorDisplayRendererI
     pen[1].setWidth(decorationThickness() * 2);
     pen[1].setCosmetic(true);
     pen[1].setColor(displayRendererInterface->convertColorToDisplayColorSpace(KoColor(Qt::lightGray, KoColorSpaceRegistry::instance()->rgb8())));
+
+    // Krimble 2026-10-23: George (1.0.41 test list item 7), asked "visible rotate targets just outside the corners?": "Sure." Touching
+    // anywhere outside the box rotates (245th); a curved arrow just outside each corner shows where. They are drawn in screen units, so
+    // they stay the same size at any zoom, and point away from the box's centre. kRotateTargetGap / kRotateTargetRadius are the tuning values.
+    {
+        const qreal kRotateTargetGap = KisTransformUtils::handleVisualRadius * 3.0;   // from the corner, outwards
+        const qreal kRotateTargetRadius = KisTransformUtils::handleVisualRadius * 1.4;
+        const QPointF centre = m_d->handlesTransform.map(m_d->bounds.center());
+        const QPointF corners[4] = {
+            m_d->handlesTransform.map(m_d->bounds.topLeft()),
+            m_d->handlesTransform.map(m_d->bounds.topRight()),
+            m_d->handlesTransform.map(m_d->bounds.bottomRight()),
+            m_d->handlesTransform.map(m_d->bounds.bottomLeft())
+        };
+        QPainterPath targets;
+        for (const QPointF &corner : corners) {
+            QPointF out = corner - centre;
+            const qreal len = std::hypot(out.x(), out.y());
+            if (len < 1e-6) continue;
+            out /= len;
+            const QPointF c = corner + out * kRotateTargetGap;
+            const qreal r = kRotateTargetRadius;
+            // an open arc of 270 degrees, facing away from the box, with an arrowhead at its end
+            const qreal facing = std::atan2(-out.y(), out.x()) * 180.0 / M_PI;   // QPainterPath angles are counter-clockwise
+            const qreal start = facing - 135.0;
+            const qreal sweep = 270.0;
+            const QRectF circle(c.x() - r, c.y() - r, 2 * r, 2 * r);
+            targets.arcMoveTo(circle, start);
+            targets.arcTo(circle, start, sweep);
+            const qreal endRad = (start + sweep) * M_PI / 180.0;
+            const QPointF tip(c.x() + r * std::cos(endRad), c.y() - r * std::sin(endRad));
+            const QPointF tangent(-std::sin(endRad), -std::cos(endRad));      // direction of travel at the arc's end (counter-clockwise)
+            const QPointF normal(std::cos(endRad), -std::sin(endRad));
+            const qreal head = r * 0.6;
+            targets.moveTo(tip - tangent * head + normal * head * 0.6);
+            targets.lineTo(tip);
+            targets.lineTo(tip - tangent * head - normal * head * 0.6);
+        }
+        mappedHandles.addPath(targets);
+    }
 
     for (int i = 1; i >= 0; --i) {
         gc.setPen(pen[i]);

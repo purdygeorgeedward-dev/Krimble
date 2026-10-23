@@ -5119,3 +5119,10 @@ George (1.0.41 test list item 6): "Edit - Puppet Warp opens poly select tool? No
 
 George (1.0.41 test list item 7): "Edit - Free Transform is just scale?" and, when told dragging outside the box rotates: "no, it doesn't." He was right: in `setTransformFunction()` every touch outside the box had been set to Move (both branches set `MOVE`), so the only things Free Transform could do were move and scale. Krita's own rule is back (the changed lines are commented out above it): inside the box moves, outside the box rotates, Alt outside rotates the bounds. Visible rotate targets outside the corners: not done, waiting for George.
 **Not verified:** a build or a device.
+
+## 2026-10-23 (246th) — Free Transform: rotate targets outside the corners
+
+**Files:** `plugins/tools/tool_transform2/kis_free_transform_strategy.cpp`
+
+George (1.0.41 test list item 7), asked whether to add visible rotate targets just outside the corners: "Sure." In Free Transform a curved arrow (an open 270-degree arc with an arrowhead, facing away from the box) is drawn just outside each corner, 36 logical px out along the line from the box's centre through the corner, 17 px radius, in the same two-tone lines as the handles, so it stays the same size at any zoom. It only shows where rotating works: touching anywhere outside the box rotates (245th). Tuning values `kRotateTargetGap` and `kRotateTargetRadius` in `paint()`.
+**Not verified:** a build or a device.
