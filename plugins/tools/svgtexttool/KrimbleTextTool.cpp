@@ -5,6 +5,7 @@
 #include "KrimbleTextDialog.h"   // Krimble 2026-10-24: the redesigned window
 #include <KoCanvasResourceProvider.h>   // Krimble 2026-10-24: the foreground color for the eyedropper button
 #include <KoColor.h>
+#include <commands/KoShapeMoveCommand.h>   // Krimble 2026-10-24: moving the chosen text
 
 #include <KoCanvasBase.h>
 #include <KoColorBackground.h>
@@ -593,6 +594,35 @@ KrimbleTextTool::KrimbleTextTool(KoCanvasBase *canvas)
 // was tapped (one line per typed line); a DRAG draws a text box (a dashed frame while dragging): the text then wraps at the box's width.
 void KrimbleTextTool::paint(QPainter &painter, const KoViewConverter &converter)
 {
+    // Krimble 2026-10-24: the frame and handles of the chosen text
+    if (selectedStillThere()) {
+        const QRectF frame = (m_handle != NoHandle) ? m_frameNow : selectedFrame();
+        const QRectF viewFrame = converter.documentToView(frame).adjusted(-6, -6, 6, 6);
+        painter.save();
+        QPen light(QColor(255, 255, 255));
+        light.setWidthF(3.0);
+        light.setCosmetic(true);
+        painter.setPen(light);
+        painter.setBrush(Qt::NoBrush);
+        painter.drawRect(viewFrame);
+        QPen dark(QColor(30, 30, 40));
+        dark.setWidthF(1.5);
+        dark.setStyle(Qt::DashLine);
+        dark.setCosmetic(true);
+        painter.setPen(dark);
+        painter.drawRect(viewFrame);
+        const qreal half = 9.0;
+        const QPointF centers[6] = {viewFrame.topLeft(), viewFrame.topRight(), viewFrame.bottomLeft(), viewFrame.bottomRight(),
+                                    QPointF(viewFrame.left(), viewFrame.center().y()), QPointF(viewFrame.right(), viewFrame.center().y())};
+        painter.setPen(QPen(QColor(30, 30, 40), 2.0));
+        painter.setBrush(QColor(255, 255, 255));
+        for (int i = 0; i < 6; ++i) {
+            const QRectF handleRect(centers[i] - QPointF(half, half), QSizeF(2 * half, 2 * half));
+            if (i < 4) painter.drawRect(handleRect);   // corners: size
+            else painter.drawEllipse(handleRect);      // sides: width of the text box
+        }
+        painter.restore();
+    }
     if (!m_dragging) return;
     const QRectF viewRect = converter.documentToView(QRectF(m_pressPoint, m_dragPoint).normalized());
     painter.save();
@@ -612,11 +642,29 @@ void KrimbleTextTool::mousePressEvent(KoPointerEvent *event)
     m_pressPoint = event->point;
     m_dragPoint = event->point;
     m_dragging = false;
+    // Krimble 2026-10-24: a press on a handle or inside the frame of the chosen text works on that text (a drag moves or resizes it, a tap opens the window as before)
+    m_handle = NoHandle;
+    if (selectedStillThere()) {
+        const Handle hit = handleAt(event->point);
+        if (hit != NoHandle) {
+            m_handle = hit;
+            m_frameStart = selectedFrame();
+            m_frameNow = m_frameStart;
+        }
+    }
 }
 
 void KrimbleTextTool::mouseMoveEvent(KoPointerEvent *event)
 {
     if (!(event->buttons() & Qt::LeftButton)) return;
+    // Krimble 2026-10-24: a handle or the frame is being dragged: only the frame follows the finger; the text is changed when the finger is lifted
+    if (m_handle != NoHandle) {
+        const QRectF before = m_frameNow;
+        m_frameNow = frameForDrag(m_handle, m_frameStart, event->point - m_pressPoint);
+        repaintFrame(before.united(m_frameNow));
+        event->accept();
+        return;
+    }
     const QRectF before = QRectF(m_pressPoint, m_dragPoint).normalized();
     m_dragPoint = event->point;
     const QPointF viewDelta = canvas()->viewConverter()->documentToView(m_dragPoint) - canvas()->viewConverter()->documentToView(m_pressPoint);
@@ -630,6 +678,23 @@ void KrimbleTextTool::mouseMoveEvent(KoPointerEvent *event)
 void KrimbleTextTool::mouseReleaseEvent(KoPointerEvent *event)
 {
     event->accept();
+    // Krimble 2026-10-24: a handle or the frame was pressed
+    if (m_handle != NoHandle) {
+        const Handle handle = m_handle;
+        const QRectF from = m_frameStart;
+        const QRectF to = m_frameNow;
+        const QPointF viewDelta = canvas()->viewConverter()->documentToView(event->point) - canvas()->viewConverter()->documentToView(m_pressPoint);
+        m_handle = NoHandle;
+        repaintFrame(from.united(to));
+        if (viewDelta.manhattanLength() > 10) {
+            applyFrameChange(handle, from, to);
+        } else if (handle == MoveHandle) {
+            // a tap inside the frame: the window opens, as it did before the frame was there
+            const QPointF where = event->point;
+            QTimer::singleShot(0, QApplication::instance(), [this, where]() { askAndAddText(where, QRectF()); });
+        }
+        return;
+    }
     QPointF where = event->point;
     QRectF box;
     if (m_dragging) {
@@ -641,6 +706,133 @@ void KrimbleTextTool::mouseReleaseEvent(KoPointerEvent *event)
     // the window opens after this event is finished
     // QTimer::singleShot(0, QApplication::instance(), [this, where]() { askAndAddText(where); });
     QTimer::singleShot(0, QApplication::instance(), [this, where, box]() { askAndAddText(where, box); });
+}
+
+// ---- Krimble 2026-10-24: the frame of the chosen text ----
+
+void KrimbleTextTool::deactivate()
+{
+    if (m_selected) repaintFrame(selectedFrame());
+    m_selected = nullptr;
+    m_handle = NoHandle;
+    KoToolBase::deactivate();
+}
+
+bool KrimbleTextTool::selectedStillThere() const
+{
+    // the shape may have been taken away (undo, a deleted layer) since it was chosen
+    if (!m_selected) return false;
+    return canvas()->shapeManager()->shapes().contains(static_cast<KoShape*>(m_selected));
+}
+
+QRectF KrimbleTextTool::selectedFrame() const
+{
+    return m_selected ? m_selected->boundingRect() : QRectF();
+}
+
+void KrimbleTextTool::repaintFrame(const QRectF &frame)
+{
+    if (!canvas()) return;
+    // a margin of 40 view pixels, for the handles and the line
+    const QRectF viewRect = canvas()->viewConverter()->documentToView(frame).adjusted(-40, -40, 40, 40);
+    canvas()->updateCanvas(canvas()->viewConverter()->viewToDocument(viewRect));
+}
+
+// which handle (or the inside of the frame) is at the point; the handles are tested in view pixels so that a finger can hit them
+KrimbleTextTool::Handle KrimbleTextTool::handleAt(const QPointF &documentPoint) const
+{
+    const QRectF frame = canvas()->viewConverter()->documentToView(selectedFrame()).adjusted(-6, -6, 6, 6);
+    const QPointF p = canvas()->viewConverter()->documentToView(documentPoint);
+    const qreal reach = 34.0;
+    struct Candidate { QPointF at; Handle handle; };
+    const Candidate candidates[6] = {
+        {frame.topLeft(), TopLeftHandle}, {frame.topRight(), TopRightHandle}, {frame.bottomLeft(), BottomLeftHandle}, {frame.bottomRight(), BottomRightHandle},
+        {QPointF(frame.left(), frame.center().y()), LeftHandle}, {QPointF(frame.right(), frame.center().y()), RightHandle}};
+    Handle best = NoHandle;
+    qreal bestDistance = reach;
+    for (int i = 0; i < 6; ++i) {
+        const qreal d = QLineF(p, candidates[i].at).length();
+        if (d < bestDistance) { bestDistance = d; best = candidates[i].handle; }
+    }
+    if (best != NoHandle) return best;
+    if (frame.contains(p)) return MoveHandle;
+    return NoHandle;
+}
+
+// the frame while a handle is dragged by delta (document units)
+QRectF KrimbleTextTool::frameForDrag(Handle handle, const QRectF &start, const QPointF &delta) const
+{
+    const qreal minWidth = 20.0;
+    QRectF r = start;
+    switch (handle) {
+    case MoveHandle:
+        r.translate(delta);
+        break;
+    case LeftHandle:
+        r.setLeft(qMin(start.left() + delta.x(), start.right() - minWidth));
+        break;
+    case RightHandle:
+        r.setRight(qMax(start.right() + delta.x(), start.left() + minWidth));
+        break;
+    default: {
+        // a corner: the text is made bigger or smaller, in proportion; the opposite corner stays
+        const bool left = (handle == TopLeftHandle || handle == BottomLeftHandle);
+        const bool top = (handle == TopLeftHandle || handle == TopRightHandle);
+        const qreal width = qMax(minWidth, start.width() + (left ? -delta.x() : delta.x()));
+        const qreal scale = width / qMax(1.0, start.width());
+        const qreal height = start.height() * scale;
+        const QPointF anchor(left ? start.right() : start.left(), top ? start.bottom() : start.top());
+        r = QRectF(QPointF(left ? anchor.x() - width : anchor.x(), top ? anchor.y() - height : anchor.y()), QSizeF(width, height));
+        break;
+    }
+    }
+    return r;
+}
+
+// the text is changed to fit the frame that was dragged
+void KrimbleTextTool::applyFrameChange(Handle handle, const QRectF &from, const QRectF &to)
+{
+    KoSvgTextShape *shape = m_selected;
+    if (!shape || !selectedStillThere()) return;
+    if (handle == MoveHandle) {
+        const QPointF offset = to.topLeft() - from.topLeft();
+        if (offset.manhattanLength() < 0.01) return;
+        KUndo2Command *move = new KoShapeMoveCommand(QList<KoShape*>({shape}), offset);
+        move->setText(kundo2_i18n("Move text"));
+        canvas()->addCommand(move);
+        repaintFrame(from.united(to));
+        return;
+    }
+    // the words and the look of the text as it is now (this sets what was chosen last time, s_family and the others, to the text's own)
+    QString text;
+    if (!krimbleReadTextShape(shape, &text)) return;
+    // the fill is not written into the svg: it is the shape's own
+    QSharedPointer<KoColorBackground> fill = qSharedPointerDynamicCast<KoColorBackground>(shape->background());
+    if (fill) s_color = fill->color();
+    if (s_kern.size() < text.size()) s_kern.resize(text.size());
+    if (handle == LeftHandle || handle == RightHandle) {
+        s_boxWidth = qMax(20.0, to.width());   // a text box of this width (text that had no box gets one)
+    } else {
+        const qreal ratio = to.width() / qMax(1.0, from.width());
+        s_size = qBound(4.0, s_size * ratio, 600.0);
+        if (s_boxWidth > 0.0) s_boxWidth = qMax(20.0, s_boxWidth * ratio);
+        s_tracking *= ratio;
+        for (int i = 0; i < s_kern.size(); ++i) s_kern[i] *= ratio;
+    }
+    KUndo2Command *change = new KUndo2Command(kundo2_i18n("Resize text"));
+    new SvgTextChangeCommand(shape, krimbleTextSvg(text), QStringLiteral("<defs/>"), change);
+    canvas()->addCommand(change);
+    // the edge or corner opposite to the handle stays where it was: the text is moved by what it moved
+    const QRectF now = shape->boundingRect();
+    const bool left = (handle == LeftHandle || handle == TopLeftHandle || handle == BottomLeftHandle);
+    const bool top = (handle == TopLeftHandle || handle == TopRightHandle);
+    const QPointF shift((left ? from.right() - now.right() : from.left() - now.left()), (top ? from.bottom() - now.bottom() : from.top() - now.top()));
+    if (shift.manhattanLength() > 0.01) {
+        KUndo2Command *move = new KoShapeMoveCommand(QList<KoShape*>({shape}), shift);
+        move->setText(kundo2_i18n("Resize text"));
+        canvas()->addCommand(move);
+    }
+    repaintFrame(from.united(to).united(shape->boundingRect()));
 }
 
 void KrimbleTextTool::askAndAddText(const QPointF &where, const QRectF &box)
@@ -657,6 +849,10 @@ void KrimbleTextTool::askAndAddText(const QPointF &where, const QRectF &box)
     }
     QString text;
     if (existing && !krimbleReadTextShape(existing, &text)) existing = nullptr;
+    // Krimble 2026-10-24: the text that was tapped is the chosen one (its frame and handles are drawn); a tap on nothing chooses nothing
+    if (m_selected && selectedStillThere()) repaintFrame(selectedFrame());
+    m_selected = existing;
+    if (m_selected) repaintFrame(selectedFrame());
     // Krimble 2026-10-20: new text: a box if one was dragged (its width), else no box. Existing text keeps its own (read above).
     if (!existing) s_boxWidth = box.isValid() ? box.width() : 0.0;
     // if (!krimbleAskText(QApplication::activeWindow(), &text, existing != nullptr)) return;
@@ -670,6 +866,7 @@ void KrimbleTextTool::askAndAddText(const QPointF &where, const QRectF &box)
         new SvgTextChangeCommand(existing, krimbleTextSvg(text), QStringLiteral("<defs/>"), editCommand);
         new KoShapeBackgroundCommand(existing, QSharedPointer<KoShapeBackground>(new KoColorBackground(s_color)), editCommand);
         canvas()->addCommand(editCommand);
+        repaintFrame(existing->boundingRect());   // Krimble 2026-10-24: the frame follows the changed text
         return;
     }
 
@@ -703,6 +900,9 @@ void KrimbleTextTool::askAndAddText(const QPointF &where, const QRectF &box)
     KUndo2Command *cmd = canvas()->shapeController()->addShape(shape, parent, parentCommand);
     parentCommand->setText(cmd->text());
     canvas()->addCommand(parentCommand);
+    // Krimble 2026-10-24: the new text is the chosen one: its frame and handles are drawn
+    m_selected = dynamic_cast<KoSvgTextShape*>(shape);
+    if (m_selected) repaintFrame(m_selected->boundingRect());
 }
 
 KrimbleTextToolFactory::KrimbleTextToolFactory()

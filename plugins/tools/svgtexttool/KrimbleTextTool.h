@@ -12,6 +12,8 @@
 #include <QPointF>
 #include <QRectF>
 
+class KoSvgTextShape;
+
 class KrimbleTextTool : public KoToolBase
 {
 public:
@@ -21,8 +23,24 @@ public:
     void mousePressEvent(KoPointerEvent *event) override;
     void mouseMoveEvent(KoPointerEvent *event) override;
     void mouseReleaseEvent(KoPointerEvent *event) override;
+    void deactivate() override;   // Krimble 2026-10-24: the frame of the chosen text goes away
 
 private:
+    // Krimble 2026-10-24: George: "it would be nice if the text frame on screen had gadgets like crop to resize it or move it around." The text that was just made or tapped is
+    // chosen: a frame with handles is drawn around it. Dragging inside the frame moves the text; the handles in the middle of the left and right edges change the width of its text box;
+    // the corner handles make the text bigger or smaller.
+    enum Handle { NoHandle, MoveHandle, LeftHandle, RightHandle, TopLeftHandle, TopRightHandle, BottomLeftHandle, BottomRightHandle };
+    KoSvgTextShape *m_selected = nullptr;
+    Handle m_handle = NoHandle;
+    QRectF m_frameStart;     // the frame when a handle was pressed (document coordinates)
+    QRectF m_frameNow;       // the frame while it is dragged
+    bool selectedStillThere() const;
+    QRectF selectedFrame() const;
+    Handle handleAt(const QPointF &documentPoint) const;
+    QRectF frameForDrag(Handle handle, const QRectF &start, const QPointF &delta) const;
+    void applyFrameChange(Handle handle, const QRectF &from, const QRectF &to);
+    void repaintFrame(const QRectF &frame);
+
     // void askAndAddText(const QPointF &where);
     void askAndAddText(const QPointF &where, const QRectF &box = QRectF());   // Krimble 2026-10-20: box = a dragged text box (or none)
 
