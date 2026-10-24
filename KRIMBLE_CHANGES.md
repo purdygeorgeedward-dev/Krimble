@@ -5249,3 +5249,10 @@ George (1.0.41, item 6: "Content Aware Fill is faster, but just a blur"; 1.0.42:
 **Files:** `packaging/android/apk/build.gradle`
 
 George: "Go." `krimbleBuildNumber` 42 -> **43**: versionName **1.0.43-beta**. It brings the 255th to 263rd entries (everything pushed after Version 42): the panel edge tab half as tall and visible on the right with a status line in the layout-info overlay, **the real fix for the Smudge leak** (the retouch tools are found by their real tool ids), Window > Stack Panels by remove and add, the earlier File > New pictures back (the Preferences 3D icons stay), right panels attach from 28 px, Free Transform's corner gadgets as small arrows, the toolbox no longer flips to horizontal while it is dragged, the research notes on PhotoCraft, and **Content-Aware Fill filled ring by ring from the best patches at the coarsest level** (less blur) with thin holes measured by thickness.
+
+## 2026-10-24 (265th) — About > Also Thanks To: Claude and ChatGPT
+
+**Files:** `libs/ui/dialogs/kis_about_application.cpp`, `KRIMBLE_TEST_LIST_2026-10-23.md`
+
+George: "The Thanks to... Page needs an update since it's for Krita. I'd like to put Claude and ChatGPT in my Thanks to page." The page (built in `kis_about_application.cpp` from the text and from `credits.txt`) now begins: **Claude (Anthropic) and ChatGPT (OpenAI)**, "The AI assistants that helped design, write and test Krimble.", then "The **Krita** team and community, whose work Krimble is built on.", and then the list that came with Krita under "Also, from the Krita project:". That list (`credits.txt`: Peter Sikking, Ramon Miranda, David Revoy, the MyPaint shade selector authors, Saisho Kazuki, Pasquale D'Antuono, David Gowers, L.Sumireneko.M, Brian Wong, MossGreenEddie, greenajd, mibambakso) is **kept**: several entries are CC-BY-SA artwork and code that Krimble may still carry, which needs the names. The closing line reads "For advice, icons, brush sets and more, which Krimble carries on." Whoever of them is not wanted can be taken out of `credits.txt` (one line each; the format is `Name:Role`, with no colon inside the role).
+**Not verified:** a build or a device.

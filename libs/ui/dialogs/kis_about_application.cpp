@@ -173,11 +173,22 @@ KisAboutApplication::KisAboutApplication(QWidget *parent)
         "</body></html>");
     wdgTab->lblKickstarter->setText(sponsors);
 
+    // QString credits = i18n("<html>"
+    //                       "<head/>"
+    //                       "<body>"
+    //                       "<h1 align=\"center\">Thanks To</h1>"
+    //                       "<p>");
+    // Krimble 2026-10-24: George: "The Thanks to... Page needs an update since it's for Krita. I'd like to put Claude and ChatGPT in my Thanks to page." The page now begins with
+    // Claude and ChatGPT, and the list that came with Krita (credits.txt: the artists, brush and icon makers and others whose work Krimble still carries, several of them
+    // CC-BY-SA, which needs their names) follows under its own line.
     QString credits = i18n("<html>"
                           "<head/>"
                           "<body>"
                           "<h1 align=\"center\">Thanks To</h1>"
-                          "<p>");
+                          "<p align=\"center\"><b>Claude</b> (Anthropic) and <b>ChatGPT</b> (OpenAI)</p>"
+                          "<p align=\"center\"><i>The AI assistants that helped design, write and test Krimble.</i></p>"
+                          "<p align=\"center\">The <b>Krita</b> team and community, whose work Krimble is built on.</p>"
+                          "<p><b>Also, from the Krita project:</b> ");
 
     QFile fileCredits(":/credits.txt");
     Q_ASSERT(fileCredits.exists());
@@ -196,7 +207,8 @@ KisAboutApplication::KisAboutApplication(QWidget *parent)
         }
         credits.chop(2);
     }
-    credits.append(i18n(".</p><p><i>For supporting Krimble development with advice, icons, brush sets and more.</i></p></body></html>"));
+    // credits.append(i18n(".</p><p><i>For supporting Krimble development with advice, icons, brush sets and more.</i></p></body></html>"));
+    credits.append(i18n(".</p><p><i>For advice, icons, brush sets and more, which Krimble carries on.</i></p></body></html>"));
 
     wdgTab->lblCredits->setText(credits);
 
