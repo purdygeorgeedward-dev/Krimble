@@ -37,3 +37,11 @@ Status: DONE = pushed (in the build after 1.0.41); OPEN = not done yet; ASK = a 
 33. (added 2026-10-23, George) The selection mode (Add / Subtract ...) was saved on exit and restored on the next start; he wants it to start on Replace. Everything else the tools remember stays. **DONE** (252nd)
 34. (added 2026-10-23, George) A toggle to reset all options to defaults on restart. **DONE** (253rd: "Reset Tool Options on Start", next to Reset Preferences; resets the tools' saved options, not Preferences/panels/brushes)
 35. (added 2026-10-23, George, 1.0.42) The toolbox's edge tab is about twice as tall as it should be (but works great); the side (right) panel has no tab. **DONE in part** (255th: tab 70 instead of 140; right tab drawn with a thin light edge, and the layout-info overlay says whether each tab is shown and why not; the cause of the missing right tab is not known yet)
+36. (added 2026-10-23, George, 1.0.42) Window > Stack Panels does not work. **DONE** (257th, not yet seen)
+37. (George, 1.0.42) "Toolbox got caught in horizontal mode for a minute." **ASK** (what was done just before: dragged it near the top? Stack Panels?)
+38. (George, 1.0.42) Right panels could stand to be a touch more eager to attach. **DONE** (259th: the right side reaches 28 px, was 14)
+39. (George, 1.0.42) The 3D icons in File > New are giant and he does not like them: go back; the Preferences icons are good. **DONE** (258th: the New window's pictures are the 2026-10-13 ones again; the Preferences 3D icons stay)
+40. (George, 1.0.42) Smudge still takes over the other tools. **DONE** (256th: the real cause found, see the entry)
+41. (George, 1.0.42) Free Transform's corner rotate gadgets are massive overkill: a little arrow, not loops. **DONE** (260th)
+42. (George, 1.0.42) Image Properties is awkward but okay; Image Size is good; Content-Aware Fill works okay; Revert works; the right panel's size tab appeared. (notes)
+

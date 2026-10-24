@@ -5188,3 +5188,38 @@ George: "Go." `krimbleBuildNumber` 41 -> **42**: versionName **1.0.42-beta**. It
 
 George (1.0.42, two screenshots; test list item 35): "The handle on the toolbox is about 2x the height it should be, but it works great. The side panel has none." (1) `kTabHeight` 140 -> **70** logical px (the toolbox tab). (2) **Right panel:** in his screenshots no tab is on the right. Reading `KrimbleDockEdgeGrab`: the tab on the right lies over the canvas's vertical scroll bar, whose track has the panel's own colour, so a panel-coloured tab could not show there; the tab on the right is now drawn with a thin light edge (the toolbox side is drawn as before). That may not be the whole cause: if the tab is hidden by one of its conditions (a crop or selection tool is active, the panel is not the topmost on its side, ...) the edge would not help. So `status()` was added to the tab and the **layout-info overlay** (the QA overlay with the dock sizes) now prints one line per panel, "edge tab <panel>: shown at x y, w x h" or "hidden: <reason>". If the right tab is still missing in the next build, a screenshot of the overlay names the cause.
 **Not verified:** a build or a device.
+
+## 2026-10-23 (256th) — Smudge: the real cause of "Smudge takes over the other tools"
+
+**Files:** `libs/ui/tool/kis_tool_paint.cc`, `plugins/tools/basictools/kis_tool_brush.cc`
+
+George (1.0.42; the same complaint on 1.0.36, 1.0.40, 1.0.41): "Smudge tool still takes over other tools." The 216th and 234th entries could not work, and this is why: both find a retouch tool by `objectName() == "tool_smudge"` (and soften, dodge, burn). The tool constructors do set those names (`kis_tool_smudge.cc:24`), but right after a tool is created `KoToolManager` renames it after its action id (`KoToolManager.cpp:415`, `tool->setObjectName(toolAction->id())`), here `"KritaShape/KisToolSmudge"`, so the test was **never true**. The user's brush was never kept, nothing was given back, and the other tools found a smudge brush with no brush to go back to. **Change:** a tool is a retouch tool when its object name ends in `KisToolSmudge`, `KisToolSoften`, `KisToolDodge` or `KisToolBurn` (the old names also still count). Everything built on that (the 216th entry's app-wide user brush, the 234th entry's give-back through the brush panel) now runs for the first time.
+**Not verified:** a build or a device.
+
+## 2026-10-23 (257th) — Window > Stack Panels, second try
+
+**Files:** `libs/ui/KisMainWindow.cpp`
+
+George (1.0.42): "Stacking does not work." His screenshot: Color on top, and Tool Options and Layers side by side below it. `splitDockWidget(.., Qt::Vertical)` splits the way the area is already divided, not the way it is asked. `krimbleStackPanels()` now takes each right-side panel out of the window (`removeDockWidget`) and adds it again with `addDockWidget(Qt::RightDockWidgetArea, ..)`, one after the other, and shows it: on the left and right sides Qt lays added panels one above the other, and a panel that was a tab is no longer one. Equal heights as before. The splitDockWidget lines are kept, commented out.
+**Not verified:** a build or a device.
+
+## 2026-10-23 (258th) — File > New: the earlier pictures are back
+
+**Files:** `krita/pics/svg/{dark,light}_krimble-new-document.png`, `..._krimble-new-from-clipboard.png`, `krita/data/templates/{animation,comics,design,dslr,texture}/*template*.png` (24 files)
+
+George (1.0.42): "File - new has giant icons. I don't like the new icons. Go back. Prefs icons are good." The 24 pictures of the New window are put back to those of the 2026-10-13 set (the files as they were before the 249th entry). The 3D pictures stay in `krimble-artwork/3d/` and the **Preferences pages keep the 3D icons** (George likes them). The list's sizes from the 236th entry (clipboard 48, custom document 64, templates 80, the camera 96 logical px) are unchanged: tell me if the window still looks too big with the old pictures.
+**Not verified:** a build or a device.
+
+## 2026-10-23 (259th) — Right panels attach from further away
+
+**Files:** `libs/ui/KisMainWindow.cpp`
+
+George (1.0.42): "Right panels could stand to be a touch more eager to attach." A floating panel let go within 14 logical px of a side of the window and not docked by Qt is docked there (the 16th entry of 2026-10-18); for the **right** side the reach is now 28 px. Left, top and bottom stay at 14.
+**Not verified:** a build or a device.
+
+## 2026-10-23 (260th) — Free Transform: the rotate gadgets at the corners are small arrows
+
+**Files:** `plugins/tools/tool_transform2/kis_free_transform_strategy.cpp`
+
+George (1.0.42): "Free Transform works but the corner gadgets are massive overkill. Should just be a little arrow thing, not loops." The 246th entry drew a 270 degree loop with an arrowhead, 1.4 handle radii wide and 3 radii from the corner. Now a **100 degree arc**, 0.9 radii wide, 2.2 radii from the corner, with a slightly larger head. The lines of the old values are commented out.
+**Not verified:** a build or a device.

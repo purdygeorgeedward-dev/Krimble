@@ -1,3 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- Krimble 2026-10-18: Free Rotate icon (a tilted square turned by two arrows), drawn for Krimble; bigger and thicker than the first version -->
-<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="3 3 18 18"><g fill="none" stroke="#d2d2d2" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="7.5" y="7.5" width="9" height="9" rx="1" transform="rotate(25 12 12)"/><path d="M4.29 9.20 A8.2 8.2 0 0 1 14.80 4.29"/><path d="M12.51 1.02 L14.80 4.29 L10.94 5.33"/><g transform="rotate(180 12 12)"><path d="M4.29 9.20 A8.2 8.2 0 0 1 14.80 4.29"/><path d="M12.51 1.02 L14.80 4.29 L10.94 5.33"/></g></g></svg>

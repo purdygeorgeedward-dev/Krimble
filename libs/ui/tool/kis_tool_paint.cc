@@ -165,8 +165,14 @@ void KisToolPaint::activate(const QSet<KoShape*> &shapes)
     // (KisToolBrush::activate).
     {
         const QString me = objectName();
-        const bool retouchTool = me == QLatin1String("tool_smudge") || me == QLatin1String("tool_soften")
-                || me == QLatin1String("tool_dodge") || me == QLatin1String("tool_burn");
+        // const bool retouchTool = me == QLatin1String("tool_smudge") || me == QLatin1String("tool_soften")
+        //         || me == QLatin1String("tool_dodge") || me == QLatin1String("tool_burn");
+        // Krimble 2026-10-23: THE REAL CAUSE of the Smudge leak (George, 1.0.36 to 1.0.42: "Smudge still takes over other tools"). Nothing ever gave the tools the object names
+        // "tool_smudge" etc.: the tool manager names every tool after its action id (KoToolManager.cpp: tool->setObjectName(toolAction->id())), here "KritaShape/KisToolSmudge", so
+        // this test (and the same one in KisToolBrush::activate) was never true, the user's brush was never kept, and nothing could be given back. The ids are used now.
+        const bool retouchTool = me.endsWith(QLatin1String("KisToolSmudge")) || me.endsWith(QLatin1String("KisToolSoften"))
+                || me.endsWith(QLatin1String("KisToolDodge")) || me.endsWith(QLatin1String("KisToolBurn"))
+                || me == QLatin1String("tool_smudge") || me == QLatin1String("tool_soften") || me == QLatin1String("tool_dodge") || me == QLatin1String("tool_burn");
         KisCanvas2 *kisCanvas = dynamic_cast<KisCanvas2*>(canvas());
         KisPaintOpPresetSP current = currentPaintOpPreset();
         if (!retouchTool && kisCanvas && kisCanvas->viewManager() && current

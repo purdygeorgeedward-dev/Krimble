@@ -464,8 +464,12 @@ void KisFreeTransformStrategy::paint(QPainter &gc, const KoColorDisplayRendererI
     // anywhere outside the box rotates (245th); a curved arrow just outside each corner shows where. They are drawn in screen units, so
     // they stay the same size at any zoom, and point away from the box's centre. kRotateTargetGap / kRotateTargetRadius are the tuning values.
     {
-        const qreal kRotateTargetGap = KisTransformUtils::handleVisualRadius * 3.0;   // from the corner, outwards
-        const qreal kRotateTargetRadius = KisTransformUtils::handleVisualRadius * 1.4;
+        // const qreal kRotateTargetGap = KisTransformUtils::handleVisualRadius * 3.0;   // from the corner, outwards
+        // const qreal kRotateTargetRadius = KisTransformUtils::handleVisualRadius * 1.4;
+        // Krimble 2026-10-23 (2nd): George (1.0.42): "Free Transform works but the corner gadgets are massive overkill. Should just be a little arrow thing, not loops." A short curved
+        // arrow (100 degrees, not 270) at about half the size, nearer the corner.
+        const qreal kRotateTargetGap = KisTransformUtils::handleVisualRadius * 2.2;   // from the corner, outwards
+        const qreal kRotateTargetRadius = KisTransformUtils::handleVisualRadius * 0.9;
         const QPointF centre = m_d->handlesTransform.map(m_d->bounds.center());
         const QPointF corners[4] = {
             m_d->handlesTransform.map(m_d->bounds.topLeft()),
@@ -483,8 +487,10 @@ void KisFreeTransformStrategy::paint(QPainter &gc, const KoColorDisplayRendererI
             const qreal r = kRotateTargetRadius;
             // an open arc of 270 degrees, facing away from the box, with an arrowhead at its end
             const qreal facing = std::atan2(-out.y(), out.x()) * 180.0 / M_PI;   // QPainterPath angles are counter-clockwise
-            const qreal start = facing - 135.0;
-            const qreal sweep = 270.0;
+            // const qreal start = facing - 135.0;
+            // const qreal sweep = 270.0;
+            const qreal start = facing - 50.0;     // Krimble 2026-10-23 (2nd): a short arc
+            const qreal sweep = 100.0;
             const QRectF circle(c.x() - r, c.y() - r, 2 * r, 2 * r);
             targets.arcMoveTo(circle, start);
             targets.arcTo(circle, start, sweep);
@@ -492,7 +498,8 @@ void KisFreeTransformStrategy::paint(QPainter &gc, const KoColorDisplayRendererI
             const QPointF tip(c.x() + r * std::cos(endRad), c.y() - r * std::sin(endRad));
             const QPointF tangent(-std::sin(endRad), -std::cos(endRad));      // direction of travel at the arc's end (counter-clockwise)
             const QPointF normal(std::cos(endRad), -std::sin(endRad));
-            const qreal head = r * 0.6;
+            // const qreal head = r * 0.6;
+            const qreal head = r * 0.8;      // Krimble 2026-10-23 (2nd): a little more head on the shorter arc
             targets.moveTo(tip - tangent * head + normal * head * 0.6);
             targets.lineTo(tip);
             targets.lineTo(tip - tangent * head - normal * head * 0.6);

@@ -3427,7 +3427,9 @@ protected:
                 const int toTop = releasePos.y() - r.top();
                 const int toBottom = r.bottom() - releasePos.y();
                 const int nearest = qMin(qMin(toLeft, toRight), qMin(toTop, toBottom));
-                const int reach = 14;
+                // const int reach = 14;
+                // Krimble 2026-10-23 (2nd): George (1.0.42): "Right panels could stand to be a touch more eager to attach." The right side reaches twice as far (28 logical px).
+                const int reach = (nearest == toRight) ? 28 : 14;
                 if (nearest > reach) return;
                 const Qt::DockWidgetArea area = (nearest == toLeft) ? Qt::LeftDockWidgetArea
                                               : (nearest == toRight) ? Qt::RightDockWidgetArea
@@ -6658,11 +6660,21 @@ static void krimbleStackPanels(QMainWindow *win)
     Q_FOREACH (QDockWidget *dock, docks) {
         if (dock->isVisible()) totalHeight += dock->height();
     }
-    for (int i = 1; i < docks.size(); ++i) {
-        win->splitDockWidget(docks.at(i - 1), docks.at(i), Qt::Vertical);
-        docks.at(i)->show();
+    // for (int i = 1; i < docks.size(); ++i) {
+    //     win->splitDockWidget(docks.at(i - 1), docks.at(i), Qt::Vertical);
+    //     docks.at(i)->show();
+    // }
+    // docks.first()->show();
+    // Krimble 2026-10-23: George (1.0.42): "Stacking does not work." The result of the splitDockWidget version was the Color panel on top and the other two SIDE BY SIDE under
+    // it (Qt's split goes the way the area is already divided, not the way it is asked). Each panel is now taken out of the window and added again to the right area, one after
+    // the other: on the left and right sides Qt lays added panels out one above the other, and a panel that was a tab is no longer one.
+    Q_FOREACH (QDockWidget *dock, docks) {
+        win->removeDockWidget(dock);
     }
-    docks.first()->show();
+    Q_FOREACH (QDockWidget *dock, docks) {
+        win->addDockWidget(Qt::RightDockWidgetArea, dock);
+        dock->show();
+    }
     QList<int> sizes;
     const int each = qMax(1, totalHeight / docks.size());
     for (int i = 0; i < docks.size(); ++i) sizes << each;

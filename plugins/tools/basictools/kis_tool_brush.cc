@@ -83,8 +83,12 @@ void KisToolBrush::activate(const QSet<KoShape*> &shapes)
     // the user's brush back, so after using one of them the Brush tool painted with a retouch brush (nearly invisible, or nothing on an empty
     // layer). The brush, opacity, flow and size that are active when a retouch tool starts are kept here and put back in deactivate(). The
     // idea comes from a patch of a Codex session (not applied; read as a clue).
-    if (objectName() == QLatin1String("tool_smudge") || objectName() == QLatin1String("tool_soften")
-        || objectName() == QLatin1String("tool_dodge") || objectName() == QLatin1String("tool_burn")) {
+    // if (objectName() == QLatin1String("tool_smudge") || objectName() == QLatin1String("tool_soften")
+    //     || objectName() == QLatin1String("tool_dodge") || objectName() == QLatin1String("tool_burn")) {
+    // Krimble 2026-10-23: those names never existed (the tool manager names a tool after its action id: "KritaShape/KisToolSmudge" ...), so this block never ran; see KisToolPaint::activate.
+    const QString krimbleToolName = objectName();
+    if (krimbleToolName.endsWith(QLatin1String("KisToolSmudge")) || krimbleToolName.endsWith(QLatin1String("KisToolSoften"))
+        || krimbleToolName.endsWith(QLatin1String("KisToolDodge")) || krimbleToolName.endsWith(QLatin1String("KisToolBurn"))) {
         KisCanvas2 *retouchCanvas = dynamic_cast<KisCanvas2*>(canvas());
         if (retouchCanvas && retouchCanvas->viewManager()) {
             KisCanvasResourceProvider *provider = retouchCanvas->viewManager()->canvasResourceProvider();
