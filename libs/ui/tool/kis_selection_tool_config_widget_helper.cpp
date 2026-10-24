@@ -241,6 +241,17 @@ void KisSelectionToolConfigWidgetHelper::slotToolActivatedChanged(bool isActivat
     const SelectionMode selectionMode =
         (SelectionMode)cfg.readEntry("selectionMode",
                                      static_cast<int>(SHAPE_PROTECTION));
+    // const SelectionAction selectionAction =
+    //     (SelectionAction)cfg.readEntry("selectionAction",
+    //                                    static_cast<int>(SELECTION_REPLACE));
+    // Krimble 2026-10-23: George: "I had selected subtractive selections and closed the app, and on restart it was still subtractive. I'd rather start with standard defaults." The
+    // first time the options are loaded in a run of the program, the saved action (Add, Subtract, Intersect ...) is thrown away and the action is Replace; after that (the tool
+    // is changed, another selection tool is picked) the choice made in this run is kept as before. Everything else the tools remember is left alone.
+    static bool s_actionResetThisRun = false;
+    if (!s_actionResetThisRun) {
+        s_actionResetThisRun = true;
+        cfg.writeEntry("selectionAction", static_cast<int>(SELECTION_REPLACE));
+    }
     const SelectionAction selectionAction =
         (SelectionAction)cfg.readEntry("selectionAction",
                                        static_cast<int>(SELECTION_REPLACE));
