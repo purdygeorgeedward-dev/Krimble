@@ -44,4 +44,4 @@ Status: DONE = pushed (in the build after 1.0.41); OPEN = not done yet; ASK = a 
 40. (George, 1.0.42) Smudge still takes over the other tools. **DONE** (256th: the real cause found, see the entry)
 41. (George, 1.0.42) Free Transform's corner rotate gadgets are massive overkill: a little arrow, not loops. **DONE** (260th)
 42. (George, 1.0.42) Image Properties is awkward but okay; Image Size is good; Content-Aware Fill works okay; Revert works; the right panel's size tab appeared. (notes)
-
+43. (George, 1.0.41 item 6, again with 1.0.42 "works okay") Content-Aware Fill is a blur. **IMPROVED** (263rd: the coarsest level is filled ring by ring from the best patches instead of an average; thin holes measured by thickness; tested only on the bench pictures, not on the phone)

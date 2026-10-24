@@ -2247,6 +2247,95 @@ bool rRandomSource(const RLevel &L, const std::vector<QXf> &tab, std::mt19937 &r
     return false;
 }
 
+// Krimble 2026-10-23: the coarsest level, filled the way Photoshop's Content-Aware Fill does it (measured as a black box by the PhotoCraft project, github.com/storytold/photocraft,
+// notes in crates/algo/src/inpaint.rs; Wexler, Shechtman, Irani, "Space-Time Completion of Video", 2007): from the edge of the hole inwards, ring by ring, each pixel is copied
+// from the middle of the patch that best matches what is already known around it. The first version of this engine started the coarsest level from an AVERAGE of the surroundings
+// (rPeel): a smooth start that "draws the fill towards flat areas", and the finer levels, which only refine what they start from, kept the smoothness (George, 1.0.41:
+// "Content Aware Fill is faster, but just a blur"). A pixel is matched against random sources, the matches of its already filled neighbours (shifted), and a small search around
+// the best. matchX/matchY get the source of every hole pixel.
+void rRingFill(RLevel &L, const std::vector<QXf> &tab, int r, unsigned seed, int threads, std::vector<int16_t> &matchX, std::vector<int16_t> &matchY)
+{
+
+    const int w = L.w, h = L.h, c = L.c;
+    const size_t n = size_t(w) * h;
+    matchX.assign(n, -1);
+    matchY.assign(n, -1);
+    std::vector<uint8_t> known(n);
+    for (size_t i = 0; i < n; ++i) known[i] = L.hole[i] ? 0 : 1;
+    std::vector<int> pending;
+    for (size_t i = 0; i < n; ++i) if (L.hole[i]) pending.push_back(int(i));
+    const int pr = std::min(r, 3);   // the patch used for matching
+    const int kRandom = 2500;
+    while (!pending.empty()) {
+        // the layer: hole pixels with a known 4-neighbour (if none has one, the nearest remaining pixel is taken so that the loop ends)
+        std::vector<int> layer, rest;
+        for (int i : pending) {
+            const int x = i % w, y = i / w;
+            const bool edge = (x > 0 && known[i - 1]) || (x < w - 1 && known[i + 1]) || (y > 0 && known[i - w]) || (y < h - 1 && known[i + w]);
+            (edge ? layer : rest).push_back(i);
+        }
+        if (layer.empty()) { layer.push_back(rest.back()); rest.pop_back(); }
+        pParallel(int(layer.size()), threads, [&](int a, int b) {
+            for (int li = a; li < b; ++li) {
+                const int p = layer[size_t(li)];
+                const int px = p % w, py = p / w;
+                std::mt19937 rng(seed ^ (unsigned(p) * 2654435761u));
+                auto cost = [&](int sx, int sy, float best) -> float {
+                    float sum = 0.0f; int cnt = 0;
+                    for (int dy = -pr; dy <= pr; ++dy) {
+                        const int y = py + dy; if (y < 0 || y >= h) continue;
+                        for (int dx = -pr; dx <= pr; ++dx) {
+                            const int x = px + dx; if (x < 0 || x >= w) continue;
+                            const size_t q = size_t(y) * w + x;
+                            if (!known[q]) continue;
+                            const uint8_t *a = &L.img[q * c];
+                            const uint8_t *s = &L.img[(size_t(sy + dy) * w + (sx + dx)) * c];
+                            for (int k = 0; k < c; ++k) { const float e = float(a[k]) - float(s[k]); sum += e * e; }
+                            ++cnt;
+                        }
+                        if (cnt > 0 && sum / cnt > best * 1.5f && sum > best * 2.0f) return 1e30f;   // clearly worse, stop early
+                    }
+                    return cnt > 0 ? sum / float(cnt) : 1e30f;
+                };
+                float bestCost = 1e30f; int bx = -1, by = -1;
+                auto tryCand = [&](int sx, int sy) {
+                    if (!rValid(L, sx, sy, tab[0])) return;
+                    const float cst = cost(sx, sy, bestCost);
+                    if (cst < bestCost) { bestCost = cst; bx = sx; by = sy; }
+                };
+                // the matches of the filled neighbours, shifted by the offset between the pixels
+                for (int dy = -1; dy <= 1; ++dy) for (int dx = -1; dx <= 1; ++dx) {
+                    if (!dx && !dy) continue;
+                    const int x = px + dx, y = py + dy;
+                    if (x < 0 || y < 0 || x >= w || y >= h) continue;
+                    const size_t q = size_t(y) * w + x;
+                    if (matchX[q] >= 0) tryCand(matchX[q] - dx, matchY[q] - dy);
+                }
+                // (a version that took half of the candidates from near the hole, as Photoshop's sampling window does, was tried and made the fill hazier on the cup and spoon
+                // pictures of tools/inpaint-bench: the nearby colours pull the match towards a smooth look; not used.)
+                for (int t = 0; t < kRandom; ++t) tryCand(int(rng() % unsigned(w)), int(rng() % unsigned(h)));
+                if (bx >= 0) {
+                    for (int rad = std::max(w, h) / 4; rad >= 1; rad /= 2) {
+                        const int cx = bx, cy = by;
+                        for (int t = 0; t < 10; ++t) tryCand(cx + int(rng() % unsigned(2 * rad + 1)) - rad, cy + int(rng() % unsigned(2 * rad + 1)) - rad);
+                    }
+                    matchX[size_t(p)] = int16_t(bx);
+                    matchY[size_t(p)] = int16_t(by);
+                }
+            }
+        });
+        // take the layer in: copy the middle pixel of the best patch
+        for (int p : layer) {
+            if (matchX[size_t(p)] >= 0) {
+                const size_t s = size_t(matchY[size_t(p)]) * w + matchX[size_t(p)];
+                for (int k = 0; k < c; ++k) L.img[size_t(p) * c + k] = L.img[s * c + k];
+            }
+            known[size_t(p)] = 1;
+        }
+        pending.swap(rest);
+    }
+}
+
 } // namespace
 
 bool inpaint(uint8_t *pixels, const uint8_t *holeIn, int w, int h, int channels, const Options &opt, uint8_t *filledHole)
@@ -2287,8 +2376,39 @@ bool inpaint(uint8_t *pixels, const uint8_t *holeIn, int w, int h, int channels,
     if (holeCount >= size_t(w) * h) return false;
 
     const int holeDim = std::max(maxX - minX + 1, maxY - minY + 1);
+    // Krimble 2026-10-23: a thin hole (a selected wire, string or hair: long but only a few patches thick) is measured by its THICKNESS, not its bounds (PhotoCraft/Photoshop notes,
+    // crates/algo/src/inpaint.rs): shrunk until its bounds are four patches across, a long thin hole would vanish into its surroundings and the coarse matches would copy a blur. The
+    // thickness is twice the largest distance (in pixels, square steps) from a hole pixel to a known pixel; no level is added that would make the hole thinner than two patches.
+    int thickness = 0;
+    {
+        std::vector<uint16_t> dist(size_t(w) * h, 0);
+        const std::vector<uint8_t> &hm = pyr[0].hole;
+        for (int y = 0; y < h; ++y)
+            for (int x = 0; x < w; ++x) {
+                const size_t i = size_t(y) * w + x;
+                if (!hm[i]) continue;
+                int v = 60000;
+                if (x == 0 || y == 0) v = 1;
+                else v = std::min(std::min(int(dist[i - 1]), int(dist[i - w])), std::min(int(dist[i - w - 1]), x < w - 1 ? int(dist[i - w + 1]) : 60000)) + 1;
+                dist[i] = uint16_t(std::min(v, 60000));
+            }
+        int best = 0;
+        for (int y = h - 1; y >= 0; --y)
+            for (int x = w - 1; x >= 0; --x) {
+                const size_t i = size_t(y) * w + x;
+                if (!hm[i]) continue;
+                int v = dist[i];
+                if (x == w - 1 || y == h - 1) v = std::min(v, 1);
+                else v = std::min(v, std::min(std::min(int(dist[i + 1]), int(dist[i + w])), std::min(int(dist[i + w + 1]), x > 0 ? int(dist[i + w - 1]) : 60000)) + 1);
+                dist[i] = uint16_t(v);
+                best = std::max(best, v);
+            }
+        thickness = 2 * best - 1;
+    }
     int levels = 1;
-    while (levels < std::max(opt.maxLevels, 10) && (holeDim >> (levels - 1)) > 24 && (std::min(w, h) >> levels) >= 8 * (2 * r + 1)) ++levels;
+    // while (levels < std::max(opt.maxLevels, 10) && (holeDim >> (levels - 1)) > 24 && (std::min(w, h) >> levels) >= 8 * (2 * r + 1)) ++levels;
+    while (levels < std::max(opt.maxLevels, 10) && (holeDim >> (levels - 1)) > 24 && (std::min(w, h) >> levels) >= 8 * (2 * r + 1)
+           && (thickness >> levels) >= 2 * (2 * r + 1)) ++levels;
     for (int i = 1; i < levels; ++i) pyr.push_back(rDown(pyr[size_t(i - 1)]));
 
     for (int lv = levels - 1; lv >= 0; --lv) {
@@ -2301,11 +2421,15 @@ bool inpaint(uint8_t *pixels, const uint8_t *holeIn, int w, int h, int channels,
         }
         std::mt19937 rng(seed + unsigned(lv));
         if (lv == levels - 1) {
-            rPeel(L);
+            // rPeel(L);   // Krimble 2026-10-23: the average start is kept for the case that the ring fill finds nothing (see rRingFill)
+            std::vector<int16_t> ringX, ringY;
+            rPeel(L);                                                   // a first guess for every pixel, replaced where the ring fill finds a match
+            rRingFill(L, tab, r, seed + unsigned(lv), T, ringX, ringY);
             for (size_t i = 0; i < L.tgt.size(); ++i) {
                 if (!L.tgt[i]) continue;
                 int sx = 0, sy = 0;
-                if (!rRandomSource(L, tab, rng, sx, sy)) continue;
+                if (L.hole[i] && ringX[i] >= 0) { sx = ringX[i]; sy = ringY[i]; }
+                else if (!rRandomSource(L, tab, rng, sx, sy)) continue;
                 L.nx[i] = int16_t(sx); L.ny[i] = int16_t(sy); L.xf[i] = 0;
             }
         } else {
