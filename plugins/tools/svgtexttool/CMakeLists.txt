@@ -23,6 +23,7 @@ set (SvgTextTool_SRCS
     SvgTextTool.cpp
     SvgTextToolFactory.cpp
     KrimbleTextTool.cpp
+    KrimbleTextDialog.cpp   # Krimble 2026-10-24: the redesigned Type tool window
     SvgTextShapeManagerBlocker.cpp
     SvgTextShortCuts.cpp
     SvgTextToolOptionsData.cpp

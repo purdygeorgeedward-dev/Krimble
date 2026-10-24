@@ -2,6 +2,9 @@
  * Krimble 2026-10-18: see KrimbleTextTool.h.
  */
 #include "KrimbleTextTool.h"
+#include "KrimbleTextDialog.h"   // Krimble 2026-10-24: the redesigned window
+#include <KoCanvasResourceProvider.h>   // Krimble 2026-10-24: the foreground color for the eyedropper button
+#include <KoColor.h>
 
 #include <KoCanvasBase.h>
 #include <KoColorBackground.h>
@@ -63,7 +66,10 @@ qreal s_boxWidth = 0.0;
 // position of the typed text; negative pulls the letters together).
 qreal s_tracking = 0.0;
 QVector<qreal> s_kern;
-int s_align = 0;               // 0 left, 1 center, 2 right
+int s_align = 0;               // 0 left, 1 center, 2 right (3 justified: Krimble 2026-10-24)
+bool s_underline = false;      // Krimble 2026-10-24: the redesigned window: underline, strike-out, line spacing (percent)
+bool s_strike = false;
+int s_lineSpacing = 100;
 QColor s_color = QColor(Qt::black);
 }
 
@@ -86,7 +92,9 @@ static QString krimbleDxList(int from, int count)
 static QString krimbleTextSvg(const QString &text)
 {
     const QStringList lines = text.split(QLatin1Char('\n'));
-    const QString anchor = (s_align == 0) ? QStringLiteral("start") : (s_align == 1 ? QStringLiteral("middle") : QStringLiteral("end"));
+    const QString anchor = (s_align == 0 || s_align == 3) ? QStringLiteral("start") : (s_align == 1 ? QStringLiteral("middle") : QStringLiteral("end"));
+    // Krimble 2026-10-24: the distance between lines: 1.2 times the font size is 100%
+    const QString lineStepEm = QString::number(1.2 * qBound(50, s_lineSpacing, 400) / 100.0, 'f', 3);
     QString family = s_family;
     family.remove(QLatin1Char('\''));
     family.remove(QLatin1Char('"'));
@@ -99,10 +107,18 @@ static QString krimbleTextSvg(const QString &text)
     if (s_bold) style += QStringLiteral(" font-weight:bold;");
     if (s_italic) style += QStringLiteral(" font-style:italic;");
     if (qAbs(s_tracking) > 0.0001) style += QStringLiteral(" letter-spacing:%1;").arg(QString::number(s_tracking, 'f', 2));   // Krimble 2026-10-20: tracking
+    // Krimble 2026-10-24: underline and strike-out
+    if (s_underline || s_strike) {
+        style += QStringLiteral(" text-decoration:%1%2%3;").arg(s_underline ? QStringLiteral("underline") : QString(), (s_underline && s_strike) ? QStringLiteral(" ") : QString(),
+                                                              s_strike ? QStringLiteral("line-through") : QString());
+    }
     // Krimble 2026-10-20: a text box: the text engine wraps the words at the box's width (SVG 2 inline-size), and the lines the user typed are kept
     // (white-space: pre-wrap), all in one piece of text instead of one tspan a line (separate tspans with their own x would not flow).
     if (s_boxWidth > 0.0) {
         style += QStringLiteral(" inline-size:%1; white-space:pre-wrap;").arg(QString::number(s_boxWidth, 'f', 2));
+        // Krimble 2026-10-24: line spacing (only when it is not the usual 100%) and justified lines, in a box
+        if (s_lineSpacing != 100) style += QStringLiteral(" line-height:%1;").arg(lineStepEm);
+        if (s_align == 3) style += QStringLiteral(" text-align:justify;");
         // return QStringLiteral("<text style=\"%1\">%2</text>").arg(style, text.toHtmlEscaped());
         const QString dx = krimbleDxList(0, text.size());   // Krimble 2026-10-20: kerning
         const QString dxAttr = dx.isEmpty() ? QString() : QStringLiteral(" dx=\"%1\"").arg(dx);
@@ -121,7 +137,8 @@ static QString krimbleTextSvg(const QString &text)
             svg += QStringLiteral("<tspan%2>%1</tspan>").arg(line, dxAttr);
         } else {
             // svg += QStringLiteral("<tspan x=\"0\" dy=\"1.2em\">%1</tspan>").arg(line);
-            svg += QStringLiteral("<tspan x=\"0\" dy=\"1.2em\"%2>%1</tspan>").arg(line, dxAttr);
+            // svg += QStringLiteral("<tspan x=\"0\" dy=\"1.2em\"%2>%1</tspan>").arg(line, dxAttr);
+            svg += QStringLiteral("<tspan x=\"0\" dy=\"%3em\"%2>%1</tspan>").arg(line, dxAttr, lineStepEm);   // Krimble 2026-10-24: line spacing
         }
         lineStart += lines.at(i).size() + 1;
     }
@@ -130,6 +147,45 @@ static QString krimbleTextSvg(const QString &text)
 }
 
 // the text window; returns false when it is cancelled
+// Krimble 2026-10-24: George: "Text tool UI sucks. Here's what it is and what it should be." The window is now KrimbleTextDialog (KrimbleTextDialog.cpp), built after his picture: the title, the
+// tabs Text, Font, Style and Layout, the font with its favorite star, size, color, B I U S Aa, the four alignments, the spacing, the kerning at the cursor, the preview, and Reset, Cancel,
+// OK. The version before is kept below, switched off.
+static bool krimbleAskText(QWidget *parent, QString *text, bool editing = false, const QColor &foreground = QColor())
+{
+    KrimbleTextStyle chosen;
+    chosen.family = s_family;
+    chosen.size = s_size;
+    chosen.bold = s_bold;
+    chosen.italic = s_italic;
+    chosen.underline = s_underline;
+    chosen.strike = s_strike;
+    chosen.align = s_align;
+    chosen.tracking = s_tracking;
+    chosen.lineSpacing = s_lineSpacing;
+    chosen.color = s_color;
+    chosen.kern = s_kern;
+    chosen.boxWidth = s_boxWidth;
+    KrimbleTextDialog dialog(parent, *text, chosen, editing, foreground);
+    if (dialog.exec() != QDialog::Accepted) return false;
+    *text = dialog.text();
+    chosen = dialog.style();
+    s_family = chosen.family;
+    s_size = chosen.size;
+    s_bold = chosen.bold;
+    s_italic = chosen.italic;
+    s_underline = chosen.underline;
+    s_strike = chosen.strike;
+    s_align = chosen.align;
+    s_tracking = chosen.tracking;
+    s_lineSpacing = chosen.lineSpacing;
+    s_color = chosen.color;
+    s_kern = chosen.kern;
+    s_kern.resize(text->size());
+    s_boxWidth = chosen.boxWidth;
+    return true;
+}
+
+#if 0   // Krimble 2026-10-24: the window before the redesign (1.0.42 and earlier), kept
 static bool krimbleAskText(QWidget *parent, QString *text, bool editing = false)
 {
     QDialog dialog(parent);
@@ -417,6 +473,8 @@ static bool krimbleAskText(QWidget *parent, QString *text, bool editing = false)
     return true;
 }
 
+#endif
+
 // Krimble 2026-10-18 (7th): George: "Yes, continue work on the Type tool. It will be our showpiece in this app." Tapping existing text opens the same window with its words and
 // look in it. What the shape says is read back from the SVG the program makes of it (the converter that made it), so text from other files can be edited too.
 static void krimbleApplyTextProperty(const QString &name, const QString &rawValue)
@@ -436,6 +494,15 @@ static void krimbleApplyTextProperty(const QString &name, const QString &rawValu
         s_italic = (value == QLatin1String("italic") || value == QLatin1String("oblique"));
     } else if (name == QLatin1String("text-anchor")) {
         s_align = (value == QLatin1String("middle")) ? 1 : (value == QLatin1String("end") ? 2 : 0);
+    } else if (name == QLatin1String("text-align")) {
+        if (value == QLatin1String("justify")) s_align = 3;   // Krimble 2026-10-24
+    } else if (name == QLatin1String("text-decoration") || name == QLatin1String("text-decoration-line")) {
+        s_underline = value.contains(QLatin1String("underline"));   // Krimble 2026-10-24
+        s_strike = value.contains(QLatin1String("line-through"));
+    } else if (name == QLatin1String("line-height")) {
+        bool ok = false;   // Krimble 2026-10-24: written as 1.2 times the line spacing (see krimbleTextSvg)
+        const qreal number = QString(value).remove(QRegularExpression(QStringLiteral("[a-zA-Z%]+$"))).toDouble(&ok);
+        if (ok && number > 0.0) s_lineSpacing = qBound(50, qRound(number / 1.2 * 100.0), 400);
     } else if (name == QLatin1String("fill")) {
         const QColor color(value);
         if (color.isValid()) s_color = color;
@@ -456,6 +523,9 @@ static bool krimbleReadTextShape(KoSvgTextShape *shape, QString *text)
 {
     s_boxWidth = 0.0;   // Krimble 2026-10-20: set again below if this text is a box
     s_tracking = 0.0;   // Krimble 2026-10-20: and the tracking and kerning
+    s_underline = false;   // Krimble 2026-10-24: and the underline, strike-out and line spacing
+    s_strike = false;
+    s_lineSpacing = 100;
     s_kern.clear();
     KoSvgTextShapeMarkupConverter converter(shape);
     QString svg;
@@ -589,7 +659,8 @@ void KrimbleTextTool::askAndAddText(const QPointF &where, const QRectF &box)
     if (existing && !krimbleReadTextShape(existing, &text)) existing = nullptr;
     // Krimble 2026-10-20: new text: a box if one was dragged (its width), else no box. Existing text keeps its own (read above).
     if (!existing) s_boxWidth = box.isValid() ? box.width() : 0.0;
-    if (!krimbleAskText(QApplication::activeWindow(), &text, existing != nullptr)) return;
+    // if (!krimbleAskText(QApplication::activeWindow(), &text, existing != nullptr)) return;
+    if (!krimbleAskText(QApplication::activeWindow(), &text, existing != nullptr, canvas()->resourceManager()->foregroundColor().toQColor())) return;   // Krimble 2026-10-24: and the foreground color
     if (text.trimmed().isEmpty()) return;
 
     if (existing) {
