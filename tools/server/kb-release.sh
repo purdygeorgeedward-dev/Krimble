@@ -9,7 +9,11 @@ REPO="purdygeorgeedward-dev/krimble"
 APK=$(ls -t "$HOME"/Krimble-*.apk 2>/dev/null | head -1)
 if [ -z "$APK" ]; then echo "NO APK found in $HOME (run ~/kb-apk.sh first)"; exit 1; fi
 NAME=$(basename "$APK")
-TAG=$(echo "$NAME" | sed -n 's/^Krimble-\(1\.0\.[0-9]*\)-beta.*/\1b/p')
+# TAG=$(echo "$NAME" | sed -n 's/^Krimble-\(1\.0\.[0-9]*\)-beta.*/\1b/p')
+# Krimble 2026-10-24: George: GitHub says a version tag traditionally starts with v, and a beta is -beta (the name the app shows), not b. New tags are v1.0.N-beta (the name of the
+# APK file without its date and time, with a v in front); the old form 1.0.Nb is still accepted, so that releases made before 2026-10-24 can be found.
+TAG=$(echo "$NAME" | sed -n 's/^Krimble-\(1\.0\.[0-9]*-beta\).*/v\1/p')
+OLDTAG=$(echo "$NAME" | sed -n 's/^Krimble-\(1\.0\.[0-9]*\)-beta.*/\1b/p')
 if [ -z "$TAG" ]; then echo "Cannot read the version from $NAME"; exit 1; fi
 echo "APK: $NAME ($(du -h "$APK" | cut -f1))"
 echo "RELEASE TAG: $TAG"
@@ -21,9 +25,10 @@ AUTH="Authorization: Bearer $GITHUB_PAT"
 ID=$(curl -s -H "$AUTH" -H "Accept: application/vnd.github+json" "https://api.github.com/repos/$REPO/releases?per_page=30" \
   | python3 -c "import sys,json
 t='$TAG'
+o='$OLDTAG'
 for r in json.load(sys.stdin):
-    if r['tag_name']==t: print(r['id']); break")
-if [ -z "$ID" ]; then echo "NO release with tag $TAG found (check the token, or make the release first)"; exit 1; fi
+    if r['tag_name'] in (t, o): print(r['id']); break")
+if [ -z "$ID" ]; then echo "NO release with tag $TAG (or $OLDTAG) found (check the token, or make the release first)"; exit 1; fi
 echo "RELEASE ID: $ID"
 # an asset with the same name is removed first, so the command can be run again
 OLD=$(curl -s -H "$AUTH" "https://api.github.com/repos/$REPO/releases/$ID/assets" \
