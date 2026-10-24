@@ -729,17 +729,20 @@ public:
     void reposition()
     {
         if (!m_dock || m_dock->isFloating() || !m_dock->isVisible()) {
+            m_reason = QStringLiteral("hidden: panel floating or not visible");   // Krimble 2026-10-23 (2nd): the reasons are shown by the layout-info overlay
             hide();
             return;
         }
         // Krimble 2026-10-19: no grab zone while the Crop tool or a selection tool is in use (see krimbleSelectionToolActive above):
         // the zone lies over the first 30 px of the canvas, where it took the finger that was drawing the crop or selection box.
         if (krimbleSelectionToolActive()) {
+            m_reason = QStringLiteral("hidden: crop or selection tool active");
             hide();
             return;
         }
         const Qt::DockWidgetArea area = m_win->dockWidgetArea(m_dock);
         if (area != Qt::LeftDockWidgetArea && area != Qt::RightDockWidgetArea) {
+            m_reason = QStringLiteral("hidden: panel is not on the left or right (area %1)").arg(int(area));
             hide();
             return;
         }
@@ -766,6 +769,7 @@ public:
             if (other->geometry().top() < m_dock->geometry().top()) topmost = false;
         }
         if (!topmost || column.isNull()) {
+            m_reason = column.isNull() ? QStringLiteral("hidden: no visible panels on this side") : QStringLiteral("hidden: another panel on this side is higher");
             hide();
             return;
         }
@@ -791,7 +795,10 @@ public:
         setGeometry(area == Qt::LeftDockWidgetArea ? column.right() + 1 : column.left() - kTabZone, y, kTabZone, zoneH);
         show();
         raise();
+        m_reason = QStringLiteral("shown at x%1 y%2, %3x%4").arg(x()).arg(y).arg(width()).arg(height());
     }
+    // Krimble 2026-10-23 (2nd): one line for the layout-info overlay (Window > ... QA overlay): is this panel's edge tab shown, and if not, why
+    QString status() const { return QStringLiteral("edge tab %1: %2").arg(m_dock ? m_dock->objectName() : QString(), m_reason); }
     bool eventFilter(QObject *watched, QEvent *event) override
     {
         if (watched == m_dock && (event->type() == QEvent::Resize || event->type() == QEvent::Show
@@ -805,7 +812,8 @@ protected:
     // Krimble 2026-10-23: the tab from George's drawing (see reposition). Tuning values.
     static constexpr int kTabDepth = 10;    // logical px the tab sticks out from the panel's edge
     static constexpr int kTabZone = 20;     // logical px wide touch zone (the tab plus room for a finger)
-    static constexpr int kTabHeight = 140;  // logical px tall, at most the height of the panels' column
+    // static constexpr int kTabHeight = 140;  // logical px tall, at most the height of the panels' column
+    static constexpr int kTabHeight = 70;   // Krimble 2026-10-23 (2nd): George (1.0.42): "The handle on the toolbox is about 2x the height it should be, but it works great." 140 -> 70
 
     void paintEvent(QPaintEvent *) override
     {
@@ -827,7 +835,12 @@ protected:
             tab.lineTo(x1, h - slope);
             tab.lineTo(x0, h);
             tab.closeSubpath();
-            p.setPen(Qt::NoPen);
+            // p.setPen(Qt::NoPen);
+            // Krimble 2026-10-23 (2nd): on the right the tab lies over the canvas's scroll bar, which has the panel's own color, so the tab could not be seen there; a thin light edge
+            // makes it show. The toolbox side (George: "it works great") is drawn as before.
+            QColor edgeColor = m_dock->palette().color(QPalette::WindowText);
+            edgeColor.setAlpha(140);
+            p.setPen(leftArea ? QPen(Qt::NoPen) : QPen(edgeColor, 1.2));
             p.setBrush(m_dock->palette().color(QPalette::Window));
             p.drawPath(tab);
             QColor dots = m_dock->palette().color(QPalette::WindowText);
@@ -891,6 +904,7 @@ private:
     QDockWidget *m_dock;
     int m_startX {0};
     int m_startWidth {0};
+    QString m_reason {QStringLiteral("not placed yet")};   // Krimble 2026-10-23 (2nd)
 };
 
 static void krimbleInstallDockEdgeGrabs(QMainWindow *win)
@@ -1927,6 +1941,12 @@ static QString krimbleQaReport(QMainWindow *win)
         if (!bar->isVisible()) continue;
         r += QStringLiteral("bar %1 %2x%3\n").arg(bar->objectName()).arg(bar->width()).arg(bar->height());
     }
+#ifdef Q_OS_ANDROID
+    // Krimble 2026-10-23 (2nd): the panels' edge tabs (KrimbleDockEdgeGrab): shown, or why not (George, 1.0.42: the right panel has none)
+    Q_FOREACH (QWidget *grab, win->findChildren<QWidget*>(QRegularExpression(QStringLiteral("^krimbleEdgeGrab_")), Qt::FindDirectChildrenOnly)) {
+        r += static_cast<KrimbleDockEdgeGrab*>(grab)->status() + QLatin1Char('\n');
+    }
+#endif
     if (QWidget *active = QApplication::activeWindow()) {
         if (QDialog *dlg = qobject_cast<QDialog*>(active)) {
             r += QStringLiteral("DIALOG %1 %2x%3  minHint %4x%5\n").arg(QString::fromLatin1(dlg->metaObject()->className())).arg(dlg->width()).arg(dlg->height())
