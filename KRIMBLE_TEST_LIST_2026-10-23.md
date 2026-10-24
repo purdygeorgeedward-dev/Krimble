@@ -12,15 +12,15 @@ Status: DONE = pushed (in the build after 1.0.41); OPEN = not done yet; ASK = a 
 6. Edit > Puppet Warp opens the polygon select tool? No explanation? **DONE** (244th: it is the cage transform; a floating message now explains it)
 7. Edit > Free Transform is just scale? Add rotate targets outside the corners? **DONE** (245th: touching outside the box rotates again; 246th: curved-arrow rotate targets outside the corners)
 8. Edit > Sample Color: what does it do exactly? **ASK**
-9. Edit > Convert to Profile window is too wide. **OPEN**
+9. Edit > Convert to Profile window is too wide. **IN PROGRESS** (250th: every KoDialog window now has its main part in a scroll area; George's Oct 23 screenshots of Image Size, Image Properties, Split Image and File Info) **CLAIMED by the KRIMBLE-MAIN chat (2026-10-23)**
 10. Edit > Customize Toolbar is double the width it should be; why is it in Edit and not with the other toolbar menu items? Move it. **OPEN**
 11. Edit > Preferences: smaller icons, narrower column (they are cool though). **OPEN**
 12. Image > Mode > Color Mode: what does it do? **ASK**
 13. Image > Mode > Edit Presets is too wide; it should come with more presets; 8-bit 256-colour palettes (old days): where is the option? **OPEN**
 14. Image > Auto Color is bad: it should default to sweetening the colour saturation without changing the overall tone; these features need tweaking. **OPEN** **CLAIMED by the KRIMBLE-MAIN chat (2026-10-23, in progress; other chats: skip)**
-15. Image Size window is too wide. **OPEN**
+15. Image Size window is too wide. **IN PROGRESS** (250th: every KoDialog window now has its main part in a scroll area; George's Oct 23 screenshots of Image Size, Image Properties, Split Image and File Info) **CLAIMED by the KRIMBLE-MAIN chat (2026-10-23)**
 16. Canvas Size is perfect. 17. Image Rotation is good. 18. Crop tools are good.
-19. Image Properties is too wide and has no corner sizing handle. **OPEN**
+19. Image Properties is too wide and has no corner sizing handle. **IN PROGRESS** (250th: every KoDialog window now has its main part in a scroll area; George's Oct 23 screenshots of Image Size, Image Properties, Split Image and File Info) **CLAIMED by the KRIMBLE-MAIN chat (2026-10-23)**
 20. Upscale and Batch look good, need more testing.
 21. Layers menu looks good.
 22. Quick Mask Edit: like what Photoshop has at the bottom of the toolbox; not sure how to implement. **OPEN / design**

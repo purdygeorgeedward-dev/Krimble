@@ -38,6 +38,22 @@
 #include <kurllabel.h>
 #include <kwindowconfig.h>
 
+#ifdef Q_OS_ANDROID
+// Krimble 2026-10-23: a scroll area that asks for the size of the widget inside it (the base class caps its size hint at about 36 by 24 text heights) and can be made
+// small (its minimum size hint is small); used for the main widget of KoDialog windows (see setupLayout).
+class KrimbleDialogScroll : public QScrollArea
+{
+public:
+    using QScrollArea::QScrollArea;
+    QSize sizeHint() const override
+    {
+        if (!widget()) return QScrollArea::sizeHint();
+        return widget()->sizeHint() + QSize(2 * frameWidth(), 2 * frameWidth());
+    }
+    QSize minimumSizeHint() const override { return QSize(120, 120); }
+};
+#endif
+
 void KoDialogPrivate::setupLayout()
 {
     Q_Q(KoDialog);
@@ -79,7 +95,29 @@ void KoDialogPrivate::queuedLayoutUpdate()
     }
 
     if (mMainWidget) {
+        // mTopLayout->addWidget(mMainWidget, 10);
+#ifdef Q_OS_ANDROID
+        // Krimble 2026-10-23: George (test list "Mercury's Shadow", items 9, 15, 19 and his screenshots of Image Size, Image Properties, Split Image, File Info): "too wide."
+        // A window cannot be made smaller than its contents' minimum width (the narrowing in KisApplication.cpp makes the contents narrower but cannot always get below the
+        // screen), so the main widget of every KoDialog window (most of the program's windows) is put in a scroll area: the window opens as large as the contents want
+        // (KrimbleDialogScroll asks for the size of what is inside), is cut to the screen when it is shown, and what does not fit scrolls. The buttons (OK, Cancel ...)
+        // stay outside the scroll area, so they are always in reach.
+        if (!mKrimbleScroll || mKrimbleScroll->widget() != mMainWidget) {
+            if (mKrimbleScroll) {
+                mKrimbleScroll->takeWidget();
+                mKrimbleScroll->hide();
+                mKrimbleScroll->deleteLater();
+            }
+            mKrimbleScroll = new KrimbleDialogScroll(q);
+            mKrimbleScroll->setObjectName(QStringLiteral("krimbleDialogScroll"));   // KisApplication.cpp looks for it by this name
+            mKrimbleScroll->setWidgetResizable(true);
+            mKrimbleScroll->setFrameShape(QFrame::NoFrame);
+            mKrimbleScroll->setWidget(mMainWidget);
+        }
+        mTopLayout->addWidget(mKrimbleScroll, 10);
+#else
         mTopLayout->addWidget(mMainWidget, 10);
+#endif
     }
 
     if (mDetailsWidget) {

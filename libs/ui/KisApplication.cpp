@@ -54,6 +54,7 @@
 #include <QTimer>
 #endif
 #include <QScreen>
+#include <QScrollArea>   // Krimble 2026-10-23: krimbleDialogMinWidth
 #include <QDir>
 #include <QFile>
 #include <QLocale>
@@ -402,13 +403,27 @@ static void krimbleRestackGrid(QGridLayout *grid)
     }
 }
 
+// Krimble 2026-10-23: how wide a window's contents want to be at least. For a KoDialog window the main widget sits in a scroll area (KoDialog.cpp), so the window's own
+// minimum width is small whatever the contents need; the contents' minimum width is what decides whether the narrowing below is wanted.
+static int krimbleDialogMinWidth(QDialog *dialog)
+{
+    int w = dialog->minimumSizeHint().width();
+    if (QScrollArea *scroll = dialog->findChild<QScrollArea*>(QStringLiteral("krimbleDialogScroll"))) {
+        if (scroll->widget()) {
+            w = qMax(w, scroll->widget()->minimumSizeHint().width() + 2 * scroll->frameWidth() + 24);   // 24: the window's margins and a scroll bar
+        }
+    }
+    return w;
+}
+
 static void krimbleNarrowDialogLayouts(QDialog *dialog)
 {
     if (!dialog || !dialog->isWindow() || dialog->property("krimbleNarrowed").toBool()) return;
     QScreen *screen = dialog->screen() ? dialog->screen() : QGuiApplication::primaryScreen();
     if (!screen) return;
     const int available = screen->availableGeometry().width();
-    if (!dialog->layout() || dialog->minimumSizeHint().width() <= available) return;
+    // if (!dialog->layout() || dialog->minimumSizeHint().width() <= available) return;
+    if (!dialog->layout() || krimbleDialogMinWidth(dialog) <= available) return;   // Krimble 2026-10-23: the contents' width for windows with a scroll area
     dialog->setProperty("krimbleNarrowed", true);
     Q_FOREACH (QFormLayout *form, dialog->findChildren<QFormLayout*>()) {
         form->setRowWrapPolicy(QFormLayout::WrapAllRows);
@@ -430,7 +445,8 @@ static void krimbleNarrowDialogLayouts(QDialog *dialog)
         if (splitter->orientation() == Qt::Horizontal) splitter->setOrientation(Qt::Vertical);
     }
     dialog->layout()->invalidate();
-    if (dialog->minimumSizeHint().width() > available) {
+    // if (dialog->minimumSizeHint().width() > available) {
+    if (krimbleDialogMinWidth(dialog) > available) {   // Krimble 2026-10-23
         Q_FOREACH (QHBoxLayout *row, dialog->findChildren<QHBoxLayout*>()) {
             if (row->count() >= 3) row->setDirection(QBoxLayout::TopToBottom);
         }

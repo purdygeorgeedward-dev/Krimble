@@ -10,6 +10,7 @@
 
 #include "KoDialog.h"
 #include <QPointer>
+#include <QScrollArea>   // Krimble 2026-10-23
 #include <KisSignalMapper.h>
 #include <QSize>
 #include <QHash>
@@ -53,6 +54,7 @@ protected:
 
     QBoxLayout *mTopLayout {nullptr};
     QPointer<QWidget> mMainWidget;
+    QPointer<QScrollArea> mKrimbleScroll;   // Krimble 2026-10-23: the scroll area that holds the main widget (Android)
     KUrlLabel *mUrlHelp {nullptr};
     KSeparator *mActionSeparator {nullptr};
 
