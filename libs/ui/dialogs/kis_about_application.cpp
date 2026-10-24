@@ -181,13 +181,28 @@ KisAboutApplication::KisAboutApplication(QWidget *parent)
     // Krimble 2026-10-24: George: "The Thanks to... Page needs an update since it's for Krita. I'd like to put Claude and ChatGPT in my Thanks to page." The page now begins with
     // Claude and ChatGPT, and the list that came with Krita (credits.txt: the artists, brush and icon makers and others whose work Krimble still carries, several of them
     // CC-BY-SA, which needs their names) follows under its own line.
+    // QString credits = i18n("<html>"
+    //                       "<head/>"
+    //                       "<body>"
+    //                       "<h1 align=\"center\">Thanks To</h1>"
+    //                       "<p align=\"center\"><b>Claude</b> (Anthropic) and <b>ChatGPT</b> (OpenAI)</p>"
+    //                       "<p align=\"center\"><i>The AI assistants that helped design, write and test Krimble.</i></p>"
+    //                       "<p align=\"center\">The <b>Krita</b> team and community, whose work Krimble is built on.</p>"
+    //                       "<p><b>Also, from the Krita project:</b> ");
+    // Krimble 2026-10-24 (2nd): George: "We need to add our thank you list from the readme to the list in the app." The five of the README's THANK YOU section (README.md, with the
+    // logos of thanks-icons/, here as 96 px PNG copies in aboutdata.qrc: thanks-claude.png ...), word for word. If the README's list changes, change this too.
     QString credits = i18n("<html>"
                           "<head/>"
                           "<body>"
                           "<h1 align=\"center\">Thanks To</h1>"
-                          "<p align=\"center\"><b>Claude</b> (Anthropic) and <b>ChatGPT</b> (OpenAI)</p>"
-                          "<p align=\"center\"><i>The AI assistants that helped design, write and test Krimble.</i></p>"
-                          "<p align=\"center\">The <b>Krita</b> team and community, whose work Krimble is built on.</p>"
+                          "<p>Krimble exists because of these. They are not connected to Krimble and have not endorsed it; we are simply grateful.</p>"
+                          "<p><img src=\":/thanks-claude.png\" width=\"24\" height=\"24\"> <b>Claude</b> (Anthropic): helped design and write much of Krimble's code and documentation.</p>"
+                          "<p><img src=\":/thanks-openai.png\" width=\"24\" height=\"24\"> <b>ChatGPT</b> (OpenAI): ideas, art direction and troubleshooting along the way.</p>"
+                          "<p><img src=\":/thanks-oracle.png\" width=\"24\" height=\"24\"> <b>Oracle Cloud</b>: its free tier hosts the build server that compiles every release.</p>"
+                          "<p><img src=\":/thanks-termux.png\" width=\"24\" height=\"24\"> <b>Termux</b>: the Android terminal that runs the whole build from a phone.</p>"
+                          "<p><img src=\":/thanks-github.png\" width=\"24\" height=\"24\"> <b>GitHub</b>: hosts the code, the releases and the issue tracker. What would we do without it?</p>"
+                          "<p><i>The logos belong to their owners and are shown only to say thank you.</i></p>"
+                          "<p>The <b>Krita</b> team and community, whose work Krimble is built on.</p>"
                           "<p><b>Also, from the Krita project:</b> ");
 
     QFile fileCredits(":/credits.txt");

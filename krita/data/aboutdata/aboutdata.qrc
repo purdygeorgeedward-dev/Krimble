@@ -9,5 +9,10 @@
         <file>developers.txt</file>
         <file>LICENSE</file>
         <file>libraries.txt</file>
+        <file>thanks-claude.png</file>
+        <file>thanks-openai.png</file>
+        <file>thanks-oracle.png</file>
+        <file>thanks-termux.png</file>
+        <file>thanks-github.png</file>
     </qresource>
 </RCC>
