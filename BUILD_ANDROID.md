@@ -356,6 +356,20 @@ stripped APK (157.8 MiB). Not known whether stripping was applied to the AAB.
 Runs on the cloud server unless marked. Check each result before the next
 step.
 
+0. **RULE (George, 2026-10-24): the current build must be on GitHub before the
+   version number is changed.** Claude looks at the repository's Releases list
+   for the tag of the current version (1.0.N has the tag `1.0.Nb`). It must be
+   **published** (not a draft), with the notes ("New in" and "Known issues") and
+   the APK attached. If it is not: Claude creates the draft release (tag
+   `1.0.Nb`, target = the commit that set that version's number, pre-release,
+   notes and known issues); then on the server, **before any new packaging**
+   (packaging replaces the APK in `_packaging`): `~/kb-apk.sh`, then
+   `~/kb-release.sh --publish` (it asks for the GitHub token). Claude then
+   checks with the GitHub API that the release is published and has its APK.
+   Only after that does Claude change the version number (step 1) and tell
+   George to build. Nothing is built or packaged while the previous version is
+   unreleased. (Learned the hard way on 2026-10-24: Version 43 was pushed and a
+   build started while 1.0.42 had no release; George stopped the build.)
 1. Claude sets the version number and pushes (section 2).
 2. Pull and refresh the scripts:
    `cd ~/krimble && git pull origin master | tail -3 && cp tools/server/kb-*.sh ~/ && git log -1 --oneline`
