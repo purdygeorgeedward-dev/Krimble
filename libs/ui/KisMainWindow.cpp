@@ -7359,6 +7359,21 @@ void KisMainWindow::createActions()
     d->resetConfigurations  = actionManager->createAction("reset_configurations");
     connect(d->resetConfigurations, SIGNAL(triggered()), this, SLOT(slotResetConfigurations()));
 
+    // Krimble 2026-10-23: George: "Can we have a toggle to reset all options to defaults on restart?" A checkable item next to Reset Preferences; the work is done at the next start
+    // (krimbleResetToolOptionsIfWanted in KisApplication.cpp).
+    {
+        KisAction *resetToolOptionsOnStart = actionManager->createAction("krimble_reset_tool_options_on_start");
+        resetToolOptionsOnStart->setText(i18n("Reset Tool Options on Start"));
+        resetToolOptionsOnStart->setToolTip(i18n("When checked, the tools start with their default options every time the program starts"));
+        resetToolOptionsOnStart->setCheckable(true);
+        resetToolOptionsOnStart->setChecked(KSharedConfig::openConfig()->group(QStringLiteral("Krimble")).readEntry("resetToolOptionsOnStart", false));
+        connect(resetToolOptionsOnStart, &QAction::toggled, this, [](bool on) {
+            KConfigGroup group = KSharedConfig::openConfig()->group(QStringLiteral("Krimble"));
+            group.writeEntry("resetToolOptionsOnStart", on);
+            group.sync();
+        });
+    }
+
 #ifndef Q_OS_ANDROID
     d->toggleDetachCanvas = actionManager->createAction("view_detached_canvas");
     d->toggleDetachCanvas->setChecked(false);

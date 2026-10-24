@@ -1426,11 +1426,30 @@ static void krimbleLoadBundledFonts()
     qInfo() << "Krimble: bundled fonts found:" << files.size() << "loaded:" << loaded;
 }
 
+// Krimble 2026-10-23: George: "Can we have a toggle to reset all options to defaults on restart?" With Window/Help-menu item "Reset Tool Options on Start" checked, the saved options of
+// the tools are thrown away when the program starts: every configuration group whose name has "Tool" in it (KisToolBrush, KisToolSelectBase, KritaShape/KisToolBrush, KritaTransform/
+// KisToolTransform, KritaFill/KisToolFill ...; the toolbox's own layout settings are not touched). The tools then start with their defaults. Preferences, panel layout, brushes
+// and the recent files are not touched.
+static void krimbleResetToolOptionsIfWanted()
+{
+    KSharedConfigPtr config = KSharedConfig::openConfig();
+    if (!config->group(QStringLiteral("Krimble")).readEntry("resetToolOptionsOnStart", false)) return;
+    const QStringList groups = config->groupList();
+    Q_FOREACH (const QString &name, groups) {
+        if (name.contains(QLatin1String("Tool")) && !name.contains(QLatin1String("ToolBox"), Qt::CaseInsensitive)) {
+            config->group(name).deleteGroup();
+        }
+    }
+    config->sync();
+}
+
 bool KisApplication::start(const KisApplicationArguments &args)
 {
 #ifdef Q_OS_ANDROID
     KisAndroidDonations::showDonationDialog(true);
 #endif
+
+    krimbleResetToolOptionsIfWanted();   // Krimble 2026-10-23 (before any tool reads its options)
 
     KisConfig cfg(false);
 
