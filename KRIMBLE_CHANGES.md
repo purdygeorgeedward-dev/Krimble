@@ -5223,3 +5223,10 @@ George (1.0.42): "Right panels could stand to be a touch more eager to attach." 
 
 George (1.0.42): "Free Transform works but the corner gadgets are massive overkill. Should just be a little arrow thing, not loops." The 246th entry drew a 270 degree loop with an arrowhead, 1.4 handle radii wide and 3 radii from the corner. Now a **100 degree arc**, 0.9 radii wide, 2.2 radii from the corner, with a slightly larger head. The lines of the old values are commented out.
 **Not verified:** a build or a device.
+
+## 2026-10-23 (261st) — Toolbox: no more "caught in horizontal mode" while it is dragged
+
+**Files:** `libs/ui/toolbox/KoToolBoxDocker.cpp`
+
+George (1.0.42, test list item 37: "Toolbox got caught in horizontal mode for a minute", and, asked what he was doing: "Dragging it."). In **Auto** orientation `resizeEvent()` and `updateToolBoxOrientation()` chose rows or columns from the SHAPE of the window: wider than tall = horizontal. A window that is dragged or reshaped changes size all the time, so one wide moment turned the layout horizontal, the rows made the window wider still, and it stayed so (his screenshot: a 1030 px wide strip, scroll arrows at both ends, a big empty window below). **Change:** while the toolbox is **floating**, the shape no longer changes the layout; when it **becomes** floating in Auto it starts as columns (vertical); when it is **docked**, the side decides (top or bottom: horizontal; left or right: vertical). Choosing Horizontal or Vertical in the toolbox menu works as before.
+**Not verified:** a build or a device.

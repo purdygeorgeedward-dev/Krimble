@@ -181,6 +181,8 @@ KoToolBoxDocker::KoToolBoxDocker(KoToolBox *toolBox)
         // to the chosen columns later, so the tools reflowed into fewer rows and the window kept the taller height. Now width and height are given together,
         // the height worked out for the width that is going to be used; and once more a moment later, when the layout has settled.
         if (floating) {
+            // Krimble 2026-10-23: a toolbox that becomes floating starts as columns (vertical) in Auto, whatever side it came from (see resizeEvent)
+            if (m_orientation == Auto) setToolBoxOrientation(Qt::Vertical);
             QTimer::singleShot(350, this, [this]() { fitHeightToContents(true); });
             QTimer::singleShot(900, this, [this]() { fitHeightToContents(true); });
         }
@@ -350,8 +352,21 @@ void KoToolBoxDocker::slotUpdateDisplayRenderer()
 void KoToolBoxDocker::resizeEvent(QResizeEvent *event)
 {
     QDockWidget::resizeEvent(event);
-    if (m_orientation == Auto) {
-        setToolBoxOrientation(width() > height() ? Qt::Horizontal : Qt::Vertical);
+    // if (m_orientation == Auto) {
+    //     setToolBoxOrientation(width() > height() ? Qt::Horizontal : Qt::Vertical);
+    // }
+    // Krimble 2026-10-23: George (1.0.42), asked what he was doing when "Toolbox got caught in horizontal mode for a minute": "Dragging it." In Auto the layout followed the SHAPE of the
+    // window on every resize (wider than tall = horizontal), and the window changes size all the time while it is dragged or reshaped, so one wide moment turned it horizontal, the
+    // horizontal layout made it wider still, and it stayed so (the 1030 px wide strip of his screenshot). While the toolbox is floating the layout is no longer changed by the
+    // shape; docked, it follows the side it is docked at (top or bottom: horizontal; left or right: vertical).
+    if (m_orientation == Auto && !isFloating()) {
+        if (m_dockArea == Qt::TopDockWidgetArea || m_dockArea == Qt::BottomDockWidgetArea) {
+            setToolBoxOrientation(Qt::Horizontal);
+        } else if (m_dockArea == Qt::LeftDockWidgetArea || m_dockArea == Qt::RightDockWidgetArea) {
+            setToolBoxOrientation(Qt::Vertical);
+        } else {
+            setToolBoxOrientation(width() > height() ? Qt::Horizontal : Qt::Vertical);
+        }
     }
     // Krimble 2026-10-10: the foreground/background color wells at the bottom grow with the toolbox width:
     // one icon wide at 1 column (as before), up to 72 px when the toolbox is wider.
@@ -756,7 +771,14 @@ void KoToolBoxDocker::updateToolBoxOrientation(Qt::DockWidgetArea area)
     m_dockArea = area;
     updateLayoutDir();
     if (m_orientation == Auto) {
-        setToolBoxOrientation(width() > height() ? Qt::Horizontal : Qt::Vertical);
+        // setToolBoxOrientation(width() > height() ? Qt::Horizontal : Qt::Vertical);
+        if (area == Qt::TopDockWidgetArea || area == Qt::BottomDockWidgetArea) {        // Krimble 2026-10-23: by the side it is docked at (see resizeEvent)
+            setToolBoxOrientation(Qt::Horizontal);
+        } else if (area == Qt::LeftDockWidgetArea || area == Qt::RightDockWidgetArea) {
+            setToolBoxOrientation(Qt::Vertical);
+        } else {
+            setToolBoxOrientation(width() > height() ? Qt::Horizontal : Qt::Vertical);
+        }
     }
 }
 
