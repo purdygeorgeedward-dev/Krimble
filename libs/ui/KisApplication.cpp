@@ -53,6 +53,8 @@
 #include <QPointer>
 #include <QTimer>
 #endif
+#include <QTabWidget>   // Krimble 2026-10-23: krimbleCompactDialog
+#include <QSpacerItem>   // Krimble 2026-10-23: krimbleCompactDialog
 #include <QScreen>
 #include <QScrollArea>   // Krimble 2026-10-23: krimbleDialogMinWidth
 #include <QDir>
@@ -477,6 +479,73 @@ static void krimbleNarrowDialogLayouts(QDialog *dialog)
     dialog->adjustSize();
 }
 
+// Krimble 2026-10-23: George (1.0.41 screenshots of Image Size, the JPEG options, File Info ...): "There's just a lot of empty negative space in these windows." Three causes,
+// each handled here for the plain windows of the program (not Preferences, the New window or the system dialogs, which have their own handling):
+// (1) a vertical spacer in a form is a gap of its design size (or an expanding one that takes whatever height the window has): it becomes a small gap;
+// (2) margins and spacing of the default size: capped (6 px margins, 4 px spacing), as the narrowing above does for windows that are too wide;
+// (3) a tab widget is as tall as its tallest page, so a short page (JPEG Basic) floats in blank: the pages that are not showing do not count for the height.
+// The window then opens at the size its contents ask for (but no larger than 95% x 92% of the screen), not at a taller size left over from before.
+static void krimbleFitTabHeight(QTabWidget *tabs)
+{
+    for (int i = 0; i < tabs->count(); ++i) {
+        QWidget *page = tabs->widget(i);
+        if (!page->property("krimbleVPolicy").isValid()) page->setProperty("krimbleVPolicy", int(page->sizePolicy().verticalPolicy()));
+        QSizePolicy sp = page->sizePolicy();
+        sp.setVerticalPolicy(i == tabs->currentIndex() ? QSizePolicy::Policy(page->property("krimbleVPolicy").toInt()) : QSizePolicy::Ignored);
+        page->setSizePolicy(sp);
+    }
+    tabs->updateGeometry();
+}
+
+static void krimbleCompactDialog(QDialog *dialog)
+{
+    if (!dialog || !dialog->isWindow() || !dialog->layout() || dialog->property("krimbleCompacted").toBool()) return;
+    static const char *const skip[] = { "KisDlgPreferences", "KisOpenPane", "QFileDialog", "QMessageBox", "QColorDialog", "QFontDialog", "QProgressDialog", "QInputDialog", "KoFileDialog" };
+    for (const char *name : skip) {
+        if (dialog->inherits(name)) return;
+    }
+    dialog->setProperty("krimbleCompacted", true);
+    Q_FOREACH (QLayout *l, dialog->findChildren<QLayout*>()) {
+        for (int i = 0; i < l->count(); ++i) {
+            if (QSpacerItem *spacer = l->itemAt(i)->spacerItem()) {
+                const QSize hint = spacer->sizeHint();
+                if (hint.width() <= 24 && (hint.height() > 10 || (spacer->expandingDirections() & Qt::Vertical))) {   // a vertical spacer
+                    spacer->changeSize(hint.width(), 6, QSizePolicy::Minimum, QSizePolicy::Minimum);
+                }
+            }
+        }
+        const QMargins m = l->contentsMargins();
+        if (m.left() > 8 || m.right() > 8 || m.top() > 8 || m.bottom() > 8) {
+            l->setContentsMargins(qMin(m.left(), 6), qMin(m.top(), 6), qMin(m.right(), 6), qMin(m.bottom(), 6));
+        }
+        if (QBoxLayout *box = qobject_cast<QBoxLayout*>(l)) {
+            if (box->spacing() > 6) box->setSpacing(4);
+        } else if (QGridLayout *g = qobject_cast<QGridLayout*>(l)) {
+            if (g->horizontalSpacing() > 6) g->setHorizontalSpacing(4);
+            if (g->verticalSpacing() > 6) g->setVerticalSpacing(4);
+        }
+    }
+    Q_FOREACH (QTabWidget *tabs, dialog->findChildren<QTabWidget*>()) {
+        krimbleFitTabHeight(tabs);
+        QObject::connect(tabs, &QTabWidget::currentChanged, tabs, [tabs](int) {
+            krimbleFitTabHeight(tabs);
+            if (QWidget *window = tabs->window()) {
+                QTimer::singleShot(0, window, [window]() {
+                    if (!window->layout()) return;
+                    window->layout()->invalidate();
+                    QScreen *screen = window->screen() ? window->screen() : QGuiApplication::primaryScreen();
+                    const int maxH = screen ? int(screen->availableGeometry().height() * 0.92) : 100000;
+                    window->resize(window->width(), qMin(window->sizeHint().height(), maxH));
+                });
+            }
+        });
+    }
+    dialog->layout()->invalidate();
+    QScreen *screen = dialog->screen() ? dialog->screen() : QGuiApplication::primaryScreen();
+    const QSize limit = screen ? QSize(int(screen->availableGeometry().width() * 0.95), int(screen->availableGeometry().height() * 0.92)) : QSize(100000, 100000);
+    dialog->resize(dialog->sizeHint().boundedTo(limit).expandedTo(dialog->minimumSizeHint()));
+}
+
 class KrimbleDialogKeeper : public QObject
 {
 public:
@@ -600,6 +669,7 @@ protected:
                         }
                     }
                     krimbleNarrowDialogLayouts(wrapDialog);   // Krimble 2026-10-13: a window wider than the screen is narrowed
+                    if (event->type() == QEvent::Show) krimbleCompactDialog(wrapDialog);   // Krimble 2026-10-23: no empty negative space (see krimbleCompactDialog)
                 }
                 // Krimble 2026-10-12: George: "That column of colored icons in the dialog is still too wide." The page list on the
                 // left of a page dialog (Preferences) is at most 24% of the screen's width.
