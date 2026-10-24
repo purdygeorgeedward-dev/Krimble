@@ -197,7 +197,7 @@ Each bump is one line in `KRIMBLE_CHANGES.md` under "Version numbers".
   day: the counter (below) grew on `make` and packaging runs that were never
   released, reaching 42 when the last release was 1.0.29. George wanted no
   automation.
-- 1.0.29-beta matches the GitHub release 1.0.29b (2026-10-07, commit
+- 1.0.29-beta matches the GitHub release v1.0.29-beta (was 1.0.29b until 2026-10-24) (2026-10-07, commit
   f01a17e, 158 MB). The next build is 30.
 
 **The build counter (separate from the version. Ignore it for releases.)**
@@ -235,7 +235,7 @@ Each bump is one line in `KRIMBLE_CHANGES.md` under "Version numbers".
 - Largest case, `lib_kritalcmsengine_arm64-v8a.so`:
   219,082,456 bytes -> 23,180,648 bytes (89.4% smaller). [recorded]
 - APK: about 509 MB -> 165,553,065 bytes (157.8 MiB). [recorded; matches
-  the 158 MB asset on the GitHub release 1.0.29b, verified]
+  the 158 MB asset on the GitHub release v1.0.29-beta (was 1.0.29b), verified]
 
 **How it was found** [recorded, commands from `~/.bash_history`: verified]
 1. Stale NDK references were replaced (see section 4).
@@ -396,10 +396,10 @@ step.
 
 | Version | Commit | Tag | Notes |
 |---|---|---|---|
-| 1.0.29 beta | `f01a17e` | `1.0.29b` | |
-| 1.0.30 beta | `baa1509` | `1.0.30b` | |
-| 1.0.31 beta | `117207e` | `1.0.31b` | first build with the toolbox/menu work |
-| 1.0.32 beta | `3774d49` | `1.0.32b` | |
+| 1.0.29 beta | `f01a17e` | `v1.0.29-beta` (was `1.0.29b` until 2026-10-24) | |
+| 1.0.30 beta | `baa1509` | `v1.0.30-beta` (was `1.0.30b` until 2026-10-24) | |
+| 1.0.31 beta | `117207e` | `v1.0.31-beta` (was `1.0.31b` until 2026-10-24) | first build with the toolbox/menu work |
+| 1.0.32 beta | `3774d49` | `v1.0.32-beta` (was `1.0.32b` until 2026-10-24) | |
 | 1.0.33 beta | `3c7f2aa` | not tagged yet | first build with Share, Quick tools, Help items |
 | 1.0.34 beta | see `git log` | | |
 
