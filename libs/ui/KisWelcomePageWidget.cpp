@@ -402,6 +402,25 @@ void KisWelcomePageWidget::slotUpdateThemeColors()
         kritaWebsiteIcon->hide();
     }
 #endif
+
+    // Krimble 2026-10-24: George (1.0.42 screenshots of the start page, shown while no image is open): "This stuff that floats in the negative space... mentions Krita (again) and wasted
+    // space on useless crap." Left out: the DEV BUILD warning, User Manual, Getting Started and User Community (all pointed at the same krimble.org page, or at Krita's),
+    // Powered by KDE, the empty News column (and its menu) and the closing paragraph about Krita ("Krita is an open source and community-driven tool ..."). What stays:
+    // New Image, Open Image, Recent Images, Support Krimble, Source Code, Krimble Website. The widgets are hidden, not deleted (the .ui and the code that fills them are unchanged).
+    devBuildIcon->hide();
+    devBuildLabel->hide();
+    userManualIcon->hide();
+    manualLink->hide();
+    gettingStartedIcon->hide();
+    gettingStartedLink->hide();
+    userCommunityIcon->hide();
+    userCommunityLink->hide();
+    kdeIcon->hide();
+    poweredByKDELink->hide();
+    labelSupportText->hide();
+    newsTitleLabel->hide();
+    btnNewsOptions->hide();
+    newsFrame->hide();
 }
 
 void KisWelcomePageWidget::dragEnterEvent(QDragEnterEvent *event)
@@ -594,7 +613,8 @@ void KisWelcomePageWidget::setupNewsLangSelection(QMenu *newsOptionsMenu)
 void KisWelcomePageWidget::showDevVersionHighlight()
 {
     // always flag development version
-    if (isDevelopmentBuild()) {
+    // Krimble 2026-10-24: not shown any more (see the end of the constructor); the lines below are kept as they were
+    if (false && isDevelopmentBuild()) {
         QString devBuildLabelText = QString("<a style=\"color: " +
                                            blendedColor.name() +
                                            " \" href=\"https://krimble.org\">")

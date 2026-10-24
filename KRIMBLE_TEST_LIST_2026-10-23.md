@@ -47,3 +47,4 @@ Status: DONE = pushed (in the build after 1.0.41); OPEN = not done yet; ASK = a 
 43. (George, 1.0.41 item 6, again with 1.0.42 "works okay") Content-Aware Fill is a blur. **IMPROVED** (263rd: the coarsest level is filled ring by ring from the best patches instead of an average; thin holes measured by thickness; tested only on the bench pictures, not on the phone)
 44. (added 2026-10-24, George) The About > "Also Thanks To" page is Krita's: put Claude and ChatGPT in it. **DONE** (265th)
 45. (added 2026-10-24, George) Add the README's thank-you list (Claude, ChatGPT, Oracle Cloud, Termux, GitHub) to the in-app Also Thanks To page. **DONE** (266th)
+46. (added 2026-10-24, George, 1.0.42 screenshots) The start page (no image open) mentions Krita again and wastes space on useless items. **DONE** (271st: only New Image, Open Image, Recent Images, Support Krimble, Source Code, Krimble Website stay). "2..." of that message did not arrive: **ASK**

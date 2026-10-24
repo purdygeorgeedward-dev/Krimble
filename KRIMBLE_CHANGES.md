@@ -5288,3 +5288,10 @@ George: "Can you do the name changes to follow convention?" The 13 published rel
 **Files:** `SESSION_CATCHUP.md`
 
 George: the chat that had done the work was outside the Krimble project, and a chat in the project cannot search it ("Do." to a catch-up note). `SESSION_CATCHUP.md` (last written Sept 19–20, out of date) is rewritten: how to work with George (including "answer what I ask; suggestions as offers"), where things are (server, scripts, docs, push method with the partial-clone rules), the process rules (release before the next version number; tag format `v1.0.N-beta`), and the state at 5:30 AM MT on 2026-10-24 (1.0.42 published, 1.0.43 compiling, what is untested, what is open, the Play Store plan). A new chat can be told to read this file first.
+
+## 2026-10-24 (271st) — Start page: no Krita text, no useless items
+
+**Files:** `libs/ui/KisWelcomePageWidget.cpp`, `KRIMBLE_TEST_LIST_2026-10-23.md`
+
+George (his screenshots of the start page, the screen shown while no image is open; the message began "This needs your attention. 1. This stuff that floats in the negative space... mentions Krita (again) and wasted space on useless crap." and ended at "2...", which did not arrive). **Left out** (the widgets are hidden at the end of the constructor, not deleted): the **DEV BUILD** warning (and `showDevVersionHighlight()` no longer shows it); **User Manual**, **Getting Started**, **User Community** (all linked to the same krimble.org page); **Powered by KDE**; the **News** column with its menu and its text "You can enable news from krimble.org ..."; and the closing paragraph "Krita is an open source and community-driven tool for digital artists everywhere. Progress is made possible thanks to ongoing support from our community of contributors, sponsors, and development fund members." **What stays:** New Image, Open Image, Recent Images (with Clear), Support Krimble, Source Code, Krimble Website. The Recent Images column is expected to take the room the news column had (not seen on a phone).
+**Not verified:** a build or a device.
