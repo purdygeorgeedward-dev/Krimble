@@ -9,6 +9,7 @@
 #include "widgets/kis_custom_image_widget.h"
 
 #include <QMimeData>
+#include <QFormLayout>   // Krimble 2026-10-25
 #include <QSlider>
 #include <QApplication>
 #include <QScreen>
@@ -98,6 +99,15 @@ KisCustomImageWidget::KisCustomImageWidget(QWidget* parent, qint32 defWidth, qin
         const bool narrowScreen = screenForWidth && screenForWidth->availableGeometry().width() < 450;
         cmbPredefined->setMaximumWidth(narrowScreen ? 104 : 170);
     }
+    // Krimble 2026-10-25: George: "The new dialog is too tall. Put Predefined: beside the drop down list instead of above it. Put width, height, and resolution beside the number fields instead of
+    // above them. Put model, depth, and profile beside the selectors instead of above them. Put the Cancel and Create buttons beside each other, not stacked." The narrowing of windows that are wider
+    // than the screen (KisApplication.cpp) put every label above its field and stacked the buttons; these three parts are marked so that it leaves them as designed, and their forms are set to
+    // "label beside field" explicitly.
+    grpImage->setProperty("krimbleKeepRows", true);
+    colorSpaceSelector->setProperty("krimbleKeepRows", true);
+    newDialogConfirmationButtonBox->setProperty("krimbleKeepRows", true);
+    if (QFormLayout *imageForm = qobject_cast<QFormLayout*>(grpImage->layout())) imageForm->setRowWrapPolicy(QFormLayout::DontWrapRows);
+    if (QFormLayout *colorForm = qobject_cast<QFormLayout*>(colorSpaceSelector->layout())) colorForm->setRowWrapPolicy(QFormLayout::DontWrapRows);
 #endif
 
     txtName->setText(imageName);

@@ -418,6 +418,17 @@ static int krimbleDialogMinWidth(QDialog *dialog)
     return w;
 }
 
+// Krimble 2026-10-25: George (the New window): "The new dialog is too tall." The narrowing below puts every label above its field, and stacks every row of three controls (the Cancel and Create buttons too:
+// the layout inside a QDialogButtonBox is a row with a spacer and two buttons). A part of a window can be marked, by the property "krimbleKeepRows" on a widget (or on a layout): the narrowing leaves the
+// form rows, the grid rows and the button rows of that part, and of everything inside it, as they were designed (label beside its field, buttons side by side).
+static bool krimbleKeepsRows(QObject *layoutOrWidget)
+{
+    for (QObject *o = layoutOrWidget; o; o = o->parent()) {
+        if (o->property("krimbleKeepRows").toBool()) return true;
+    }
+    return false;
+}
+
 static void krimbleNarrowDialogLayouts(QDialog *dialog)
 {
     if (!dialog || !dialog->isWindow() || dialog->property("krimbleNarrowed").toBool()) return;
@@ -428,10 +439,12 @@ static void krimbleNarrowDialogLayouts(QDialog *dialog)
     if (!dialog->layout() || krimbleDialogMinWidth(dialog) <= available) return;   // Krimble 2026-10-23: the contents' width for windows with a scroll area
     dialog->setProperty("krimbleNarrowed", true);
     Q_FOREACH (QFormLayout *form, dialog->findChildren<QFormLayout*>()) {
+        if (krimbleKeepsRows(form)) continue;   // Krimble 2026-10-25: a marked part keeps its label beside its field
         form->setRowWrapPolicy(QFormLayout::WrapAllRows);
         form->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
     }
     Q_FOREACH (QGridLayout *grid, dialog->findChildren<QGridLayout*>()) {
+        if (krimbleKeepsRows(grid)) continue;
         krimbleRestackGrid(grid);
     }
     // Krimble 2026-10-18: George (1.0.37, with the JPG Options window): "All those super wide dialogs for no reason have to go. Analyze the rest of the dialog windows for
@@ -450,6 +463,7 @@ static void krimbleNarrowDialogLayouts(QDialog *dialog)
     // if (dialog->minimumSizeHint().width() > available) {
     if (krimbleDialogMinWidth(dialog) > available) {   // Krimble 2026-10-23
         Q_FOREACH (QHBoxLayout *row, dialog->findChildren<QHBoxLayout*>()) {
+            if (krimbleKeepsRows(row)) continue;   // Krimble 2026-10-25: the Cancel and Create buttons stay side by side
             if (row->count() >= 3) row->setDirection(QBoxLayout::TopToBottom);
         }
     }
