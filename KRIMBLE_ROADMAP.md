@@ -218,3 +218,62 @@ Goal: Image > Upscale... gets AI methods next to the classic ones (Lanczos3 and 
 **How the two would work together:** Image > Upscale... in Krimble would offer "AI (Krimble Upscaler)", send the picture to the accessory app through Android's share mechanism (the same kind of hand-off as Take Photo, entry 109) and open the result when it comes back. If the accessory is not installed, Krimble opens its store page.
 **Other ways to the same end, for comparison:** one app that downloads the model the first time it is used (the app stays small, one listing, but a download is needed); Play Feature Delivery (needs the app bundle format, not yet built).
 **Status:** an option, not decided, not started. The first step is the same for all: pick a model and read its license (see the list above).
+
+## Animation and game sprites (proposed; George, 2026-10-25)
+
+Status: **proposed. Nothing in this section is started.** George: "Animated GIF seems like a must for an alleged animation tool. We should have a whole category of proposed future features related to animation, especially for making game sprites." He also wants simple looping animations for Wesnoth, "as long as they're not huge".
+
+### Where it stands today (read in the code on 2026-10-25; none of it tried on a phone)
+
+- **Animated WebP:** the WebP import and export have animation code: import reads each frame onto the timeline; export writes the frames as an animated WebP. Not tried on a phone.
+- **GIF:** GIF import reads **only the first frame** (no animation code found). A GIF export exists (not checked for animation).
+- **Video (MPEG, MP4):** cannot be imported; the code says video import needs ffmpeg, which Android does not have. There is no render-to-video either.
+- **Batch Process and Krimble Script:** cannot read animated pictures (an animated WebP is skipped and counted).
+- **Wesnoth-Mobile:** a static WebP works (the game looks for `name.webp` when `name.png` or `name.jpg` is not there). An animated GIF or WebP would show only its first frame: the picture loader is SDL3_image's `IMG_Load`, and no use of its animated-image loader was found in `picture.cpp`. Wesnoth makes animations from **lists of separate frames, each with a duration** (its own animation class and its data files), not from animated picture files.
+
+### The must-haves (George: "a must")
+
+1. **Animated GIF import:** every frame, each frame's delay, and transparency, onto the timeline.
+2. **Animated GIF export:** a good palette (with dithering choice), transparency, loop count, and a **size estimate** before saving.
+3. **Animated WebP:** try it on the phone, then make it reliable (import, export, lossless or lossy, with transparency).
+4. **Batch Process and Krimble Script that read and write animated GIF and WebP**, so that a folder of GIFs can become animated WebP (and back) without the timeline.
+5. **Frames out and in:** write an animation as numbered pictures (`walk-001.webp`, `walk-002.webp`...), and make an animation from a folder of numbered pictures.
+6. **APNG** (animated PNG) import and export.
+
+### Making game sprites
+
+- **Animation preview window:** frames per second, loop mode (forward, ping-pong, once), whole-number zoom without blur (nearest neighbor, 1 to 8 times), a choice of background.
+- **Onion skin controls:** how many frames before and after, and their tint.
+- **Frame work:** a time for each frame, duplicate, reverse, copy a range, remove frames that are the same as the one before.
+- **Tags:** named ranges of frames (idle, walk, run, attack, die) and directions (a sprite that faces 4 or 8 ways).
+- **Pixel-art helpers:** a pencil that gives clean one-pixel lines ("pixel perfect"), whole-number scaling, a locked palette (the retro palettes are already in), **palette cycling** (color animation, as on the Amiga), mirror drawing, a tile preview that repeats the picture to check seams.
+- **Grids and templates:** a **hex grid** and a **72 by 72 hex tile** template for Wesnoth; a preview of Wesnoth's team colors.
+- **Anchors and hitboxes:** a pivot point and a box for each frame (or for each tag), kept with the animation.
+- **Trim and unify:** cut the empty edges of the frames, and make all frames one size, for a sheet.
+
+### Sprite sheets and game engines
+
+- **Sprite sheet export:** a grid or a packed sheet, spacing between frames, power-of-two size, with a data file (JSON or XML) for Godot, Unity, Tiled, GameMaker and Aseprite-style readers.
+- **Sprite sheet import:** cut a sheet into frames by a grid, or by the transparent gaps.
+- **Wesnoth:** write the frames and a ready-to-paste piece of Wesnoth data-file text (the frame list with the durations). Later, a change in Wesnoth-Mobile so that it can read an animated WebP directly (SDL3_image has a loader for animated pictures that the game does not use yet).
+
+### Video
+
+- **MP4 or MPEG import through Android's own video decoder** (no ffmpeg): choose the time range and frames per second, and a size limit; then save as animated GIF or WebP, or as frames.
+
+### Keeping animations small
+
+- A **size estimate** before saving, and in Batch Process; a warning over a size the user sets (for a game: a budget in KB for each animation).
+- Ways to make one smaller: fewer colors, fewer frames, a smaller picture, drop duplicate frames, a lower WebP quality. For scale: a 72 by 72 tile with 10 frames of lossy WebP with transparency should be tens of KB (to be measured, not yet).
+
+### Krimble Script for animation (proposed commands)
+
+`frames` (write the pictures one by one), `sheet cols N` (make a sprite sheet), `fps N`, `loop N`, `reverse`, `trim`, `delay N`; and a script that works on a whole folder of GIFs.
+
+### A possible order (Claude's suggestion, not George's decision)
+
+1. Batch Process and Krimble Script reading and writing animated GIF and WebP (smallest step; it needs no timeline, and the engine and its tests are already in place).
+2. Animated GIF import and export on the timeline.
+3. The preview window and frame tags.
+4. Sprite sheets, and the Wesnoth, Godot and Unity exports.
+5. Video import.

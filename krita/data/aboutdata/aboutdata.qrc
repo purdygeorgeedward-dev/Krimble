@@ -6,6 +6,7 @@
 <RCC version="1.0">
     <qresource>
         <file>credits.txt</file>
+        <file>krimble-help.md</file>
         <file>developers.txt</file>
         <file>LICENSE</file>
         <file>libraries.txt</file>

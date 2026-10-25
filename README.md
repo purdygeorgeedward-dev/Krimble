@@ -139,6 +139,7 @@ Recent and active work includes:
 - improved graphics editing workflows
 - replayable Actions with captured parameters
 - **Batch Process** 🧰 with saved **recipes**: resize, convert to JPG, PNG or **WebP with transparency**, rename, many pictures at once
+- **Krimble Help** 📖: a handbook inside the app (Help > Krimble Help), with search and a list of its parts; it includes the Krimble Script reference
 - **Krimble Script** 📜: a tiny script language (12 commands) for simple operations on many pictures: resize, crop, rotate, flip, gray, brightness, contrast, flatten, format, name, folder. See [KRIMBLE_SCRIPT.md](KRIMBLE_SCRIPT.md)
 - additional restoration and editing tools
 
@@ -200,6 +201,7 @@ Krimble has already completed a large restructuring pass. The detailed engineeri
 - Decide how replayable **Actions** should target layers across different documents.
 - Complete and test planned **Upscaling**, **Vibrance**, and additional restoration/editing tools.
 - Build and validate distribution targets.
+- **Animation and game sprites** (proposed): animated GIF and WebP, frame tags, sprite sheets, game-engine export. See the roadmap (`KRIMBLE_ROADMAP.md`).
 
 <details>
 <summary><strong>Completed and implemented work — 35 major roadmap items</strong></summary>

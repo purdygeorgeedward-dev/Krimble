@@ -101,4 +101,4 @@ The script is checked as you type, and the first mistake is shown under the box,
 
 ## For the developers
 
-The engine is `libs/ui/KrimbleBatch.cpp` (parser: `parseScript`; runner: `runProgram`); the window is `libs/ui/KrimbleBatchDialog.cpp`. They need only Qt and, for WebP, libwebp. The tests are in `tools/batch-bench/` (`build_script_test.sh` runs 59 checks of the commands, the messages and the recipes; `build_engine.sh` and `build_dialog.sh` run the engine and the window on real pictures).
+The engine is `libs/ui/KrimbleBatch.cpp` (parser: `parseScript`; runner: `runProgram`); the window is `libs/ui/KrimbleBatchDialog.cpp`. They need only Qt and, for WebP, libwebp. The same text is inside the app, in **Help > Krimble Help**: after changing this file, run `python3 tools/help/make_help.py` (it rebuilds `krita/data/aboutdata/krimble-help.md` from this file and the parts in `tools/help/`). The tests are in `tools/batch-bench/` (`build_script_test.sh` runs 59 checks of the commands, the messages and the recipes; `build_engine.sh` and `build_dialog.sh` run the engine and the window on real pictures).

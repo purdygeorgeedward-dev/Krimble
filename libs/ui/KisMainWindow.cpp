@@ -9,6 +9,7 @@
 
 #include "KisMainWindow.h"
 #include "KrimbleBatchDialog.h"   // Krimble 2026-10-25: Batch Process with recipes and WebP
+#include "KrimbleHelpDialog.h"    // Krimble 2026-10-25: Help > Krimble Help
 
 #include <KoConfig.h>
 
@@ -4297,7 +4298,12 @@ KisMainWindow::KisMainWindow(QUuid uuid)
     // KDE' libs 4''s help contents action is broken outside kde, for some reason... We can handle it just as easily ourselves
     QAction *helpAction = actionCollection()->action("help_contents");
     helpAction->disconnect();
-    connect(helpAction, SIGNAL(triggered()), this, SLOT(showManual()));
+    // connect(helpAction, SIGNAL(triggered()), this, SLOT(showManual()));   // the Krita manual on the web (taken out of the Help menu on 2026-10-13)
+    // Krimble 2026-10-25: George: "Do we have a help file? We should." Help > Krimble Help shows the Krimble handbook (krita/data/aboutdata/krimble-help.md, in the app's resources).
+    helpAction->setText(i18n("Krimble Help"));
+    connect(helpAction, &QAction::triggered, this, [this]() {
+        (new KrimbleHelpDialog(this, KrimbleHelpDialog::handbookText()))->show();
+    });
 
 #if 0
     //check for colliding shortcuts

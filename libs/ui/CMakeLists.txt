@@ -171,6 +171,7 @@ set(kritaui_LIB_SRCS
     KisWelcomePageWidget.cpp
     KrimbleBatch.cpp         # Krimble 2026-10-25: Batch Process with recipes and WebP (engine)
     KrimbleBatchDialog.cpp   # and its window
+    KrimbleHelpDialog.cpp    # Krimble 2026-10-25: Help > Krimble Help (the handbook)
     KisUiFont.cpp
     KisIdleTasksManager.cpp
     KisIdleTaskStrokeStrategy.cpp
