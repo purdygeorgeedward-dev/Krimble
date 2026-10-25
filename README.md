@@ -49,16 +49,41 @@ That means:
 Krimble works the way people actually work in Photoshop: **several images open at once, each in its own window**, with the toolbox and panels where you want them, on a phone held sideways or upright.
 
 <div align="center">
+<img src="screenshots/krimble-queen-sideways.jpg" alt="Krimble on an Android phone held sideways: the toolbox on the left, an image in the middle, the Tool Options and Layers panels on the right" width="100%">
+</div>
+
+*The whole editor on one phone screen: toolbox, image, Tool Options and Layers.*
+
+<div align="center">
+<img src="screenshots/krimble-floating-toolbox.jpg" alt="Krimble on an Android phone held sideways with the toolbox pulled off the edge and floating over the work area" width="100%">
+</div>
+
+*Pull the toolbox off its edge and put it where you want it.*
+
+<div align="center">
 <img src="screenshots/krimble-several-images-panels.jpg" alt="Krimble on an Android phone held sideways: the full toolbox on the left, three image windows overlapping in the middle, the Tool Options, Color and Layers panels on the right" width="100%">
 </div>
 
-*Three images open in their own windows, with the full toolbox and the Tool Options, Color and Layers panels on one phone screen.*
+*Three images open in their own windows, with the full toolbox and the Tool Options, Color and Layers panels.*
 
 <div align="center">
 <img src="screenshots/krimble-sideways-alarm.jpg" alt="Krimble on an Android phone held sideways: a thin toolbox on the left, two image windows side by side, the panels on the right" width="100%">
 </div>
 
 *A slimmer toolbox and two images side by side. (Cover art: "ALARM" by Spyder Charles.)*
+
+<div align="center">
+<table>
+<tr>
+<td align="center" width="50%"><img src="screenshots/krimble-upright-windows.jpg" alt="Krimble held upright: a two-column toolbox and three image windows stacked" width="100%"></td>
+<td align="center" width="50%"><img src="screenshots/krimble-adjustments-menu.jpg" alt="Krimble held upright: the Image menu with Adjustments open: Levels, Curves, Vibrance, Gradient Map, Match Color and more" width="100%"></td>
+</tr>
+<tr>
+<td align="center"><em>Held upright: a two-column toolbox and images stacked.</em></td>
+<td align="center"><em>Image &gt; Adjustments: Levels, Curves, Vibrance, Gradient Map, Match Color and more.</em></td>
+</tr>
+</table>
+</div>
 
 ---
 
