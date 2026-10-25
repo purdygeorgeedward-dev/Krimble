@@ -62,7 +62,7 @@ Select the part you want to remove (with any selection tool), then choose **Edit
 3. **Save recipe...** keeps your settings under a name (marked with a star in the list); **Delete** removes one of yours.
 4. **Choose Pictures and Start...**, pick the pictures, and wait for "Done". **Cancel** stops after the picture it is working on.
 
-WebP is read and written **with its transparency**. (Animated WebP and GIF files are not read yet.)
+WebP is read and written **with its transparency**. An animated **GIF** or **WebP** stays an animation when it is saved as WebP (as JPG or PNG, only its first frame is saved). For more, such as saving every frame as its own picture, use a script.
 
 For more than the settings can do, use a script.
 

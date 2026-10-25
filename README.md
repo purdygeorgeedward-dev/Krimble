@@ -140,7 +140,8 @@ Recent and active work includes:
 - replayable Actions with captured parameters
 - **Batch Process** 🧰 with saved **recipes**: resize, convert to JPG, PNG or **WebP with transparency**, rename, many pictures at once
 - **Krimble Help** 📖: a handbook inside the app (Help > Krimble Help), with search and a list of its parts; it includes the Krimble Script reference
-- **Krimble Script** 📜: a tiny script language (12 commands) for simple operations on many pictures: resize, crop, rotate, flip, gray, brightness, contrast, flatten, format, name, folder. See [KRIMBLE_SCRIPT.md](KRIMBLE_SCRIPT.md)
+- **Animated GIF and WebP in Batch Process** 🎞️: read animated GIF and WebP, write animated WebP (smaller than the GIF, with transparency), or save the frames as separate numbered pictures
+- **Krimble Script** 📜: a tiny script language (15 commands) for simple operations on many pictures: resize, crop, rotate, flip, gray, brightness, contrast, flatten, format, name, folder, frames, fps, loop. See [KRIMBLE_SCRIPT.md](KRIMBLE_SCRIPT.md)
 - additional restoration and editing tools
 
 Some of these are already implemented; others are still in development.

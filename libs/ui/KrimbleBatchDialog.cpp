@@ -10,6 +10,7 @@
 #include <QCoreApplication>
 #include <QDir>
 #include <QFile>
+#include <QFileInfo>
 #include <QFormLayout>
 #include <QFrame>
 #include <QGuiApplication>
@@ -291,6 +292,7 @@ void KrimbleBatchDialog::updateFieldStates()
     else hint = i18n("WebP, lossy: keeps transparency; a smaller file than lossless, with a little loss of detail.");
     if (!webpAvailable() && (r.format == FormatWebPLossless || r.format == FormatWebPLossy)) hint += QLatin1Char(' ') + i18n("This version of Krimble cannot write WebP: choose another format.");
     hint += QLatin1Char('\n') + i18n("Example: photo.png becomes %1", outputName(QStringLiteral("photo.png"), r));
+    hint += QLatin1Char('\n') + i18n("An animated GIF or WebP stays animated when it is saved as WebP; as JPG or PNG only its first frame is saved. To save every frame as its own picture, use a script with the line: frames");
     m_hint->setText(hint);
     m_deleteRecipeButton->setEnabled(m_recipeCombo->currentIndex() >= 0 && m_recipeCombo->currentIndex() < m_recipes.size() && !m_recipes.at(m_recipeCombo->currentIndex()).builtIn);
 }
@@ -345,6 +347,43 @@ void KrimbleBatchDialog::deleteRecipe()
     fillRecipeCombo();
 }
 
+// one animated picture: every frame gets the steps of the program; then it is written as an animated WebP, or as separate numbered pictures ("frames"),
+// or, for JPG and PNG (which cannot move), as its first frame only
+bool KrimbleBatchDialog::processAnimation(const QString &path, KrimbleBatch::Animation animation, const KrimbleBatch::Program &program, int format, const QString &dirPath)
+{
+    using namespace KrimbleBatch;
+    if (program.fps > 0) {
+        for (Frame &f : animation.frames) f.delayMs = qMax(1, qRound(1000.0 / program.fps));
+    }
+    if (program.loop >= 0) animation.loopCount = program.loop;
+    for (Frame &f : animation.frames) f.image = runProgram(f.image, program, format);
+    const auto store = [&](const QByteArray &bytes, const QString &name) {
+        const QString temp = dirPath + QLatin1Char('/') + name;
+        QFile file(temp);
+        bool stored = false;
+        if (file.open(QIODevice::WriteOnly) && file.write(bytes) == bytes.size()) {
+            file.close();
+            stored = m_save ? m_save(temp, mimeOf(format), name, program.folder) : false;
+        }
+        QFile::remove(temp);
+        return stored;
+    };
+    QByteArray bytes;
+    if (program.framesOut) {
+        for (int i = 0; i < animation.frames.size(); ++i) {
+            if (!encodeAs(animation.frames.at(i).image, format, program.quality, &bytes)) return false;
+            if (!store(bytes, outputNameFor(path, program, i + 1))) return false;
+        }
+        return true;
+    }
+    if (format == FormatWebPLossless || format == FormatWebPLossy) {
+        if (!encodeAnimation(animation, format, program.quality, &bytes)) return false;
+    } else if (!encodeAs(animation.frames.first().image, format, program.quality, &bytes)) {
+        return false;
+    }
+    return store(bytes, outputNameFor(path, program));
+}
+
 void KrimbleBatchDialog::runOn(const QStringList &files)
 {
     using namespace KrimbleBatch;
@@ -373,6 +412,16 @@ void KrimbleBatchDialog::runOn(const QStringList &files)
         if (*m_cancelRequested) break;
         const int format = resolveFormat(program, files.at(i));
         if ((format == FormatWebPLossless || format == FormatWebPLossy) && !webpAvailable()) { ++failed; continue; }   // this build cannot write WebP
+        // an animated GIF or WebP: kept as an animated WebP, or written frame by frame, or (JPG, PNG) its first frame
+        const QString ext = QFileInfo(files.at(i)).suffix().toLower();
+        if (ext == QLatin1String("gif") || ext == QLatin1String("webp")) {
+            Animation animation;
+            if (loadAnimation(files.at(i), &animation) && animation.frames.size() > 1) {
+                if (processAnimation(files.at(i), animation, program, format, dirPath)) ++done; else ++failed;
+                continue;
+            }
+            if (ext == QLatin1String("gif") && !gifReadable()) { ++failed; continue; }   // this build has no GIF reader
+        }
         QImage image = loadPicture(files.at(i));
         if (image.isNull()) { ++failed; continue; }
         image = runProgram(image, program, format);

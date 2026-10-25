@@ -36,6 +36,7 @@ public:
     void setScript(const QString &text);             // switches to "use a script" with this text (for the bench)
     bool buildProgram(KrimbleBatch::Program *program, QString *error) const;   // the script, or the settings, as what is to be done
     void runOn(const QStringList &files);            // the run (used by the button, and by the bench)
+    bool processAnimation(const QString &path, KrimbleBatch::Animation animation, const KrimbleBatch::Program &program, int format, const QString &dirPath);
 
 private:
     void fillRecipeCombo(const QString &select = QString());

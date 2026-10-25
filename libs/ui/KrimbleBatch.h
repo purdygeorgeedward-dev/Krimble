@@ -55,7 +55,25 @@ struct Program {
     QString nameAdd;       // "photo-web.webp"
     QString namePrefix;    // "web-photo.webp"
     QString folder = QStringLiteral("Batch");   // the folder in Pictures/Krimble
+    bool framesOut = false;   // an animation is written as separate numbered pictures ("frames")
+    int fps = 0;              // an animation's speed in frames per second (0: each frame keeps its own time)
+    int loop = -1;            // how many times an animation plays (0: for ever; -1: as the file said)
 };
+
+// ---- animated pictures (GIF and WebP are read; WebP is written) ----
+struct Frame {
+    QImage image;
+    int delayMs = 100;
+};
+
+struct Animation {
+    QList<Frame> frames;
+    int loopCount = 0;        // 0: for ever
+};
+
+bool gifReadable();                                                         // Qt in this build has its GIF reader
+bool loadAnimation(const QString &path, Animation *animation);             // an animated GIF or WebP; false if it cannot be read (a picture with one frame gives true and one frame)
+bool encodeAnimation(const Animation &animation, int format, int quality, QByteArray *bytes);   // format: FormatWebPLossless or FormatWebPLossy
 
 bool parseScript(const QString &text, Program *program, QString *error);   // error: "Line 3: ..." (empty program and no error for an empty script)
 Program programFromRecipe(const Recipe &recipe);
@@ -63,7 +81,7 @@ QString scriptFromRecipe(const Recipe &recipe);                              // 
 int resolveFormat(const Program &program, const QString &sourcePath);        // FormatSame becomes JPG for a JPG, WebP (lossless) for a WebP, PNG for everything else
 QImage runProgram(const QImage &source, const Program &program, int outputFormat = -1);   // outputFormat: what resolveFormat said (if not given: the program's own, PNG when it is "same")
 bool encodeAs(const QImage &image, int format, int quality, QByteArray *bytes);
-QString outputNameFor(const QString &sourcePath, const Program &program);
+QString outputNameFor(const QString &sourcePath, const Program &program, int frameNumber = 0);   // frameNumber from 1: "name-web-001.webp"
 QString extensionOf(int format);
 QString mimeOf(int format);
 QString scriptHelp();                                                        // the short reference shown by the Help button

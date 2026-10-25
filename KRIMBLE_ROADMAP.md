@@ -236,8 +236,8 @@ Status: **proposed. Nothing in this section is started.** George: "Animated GIF 
 1. **Animated GIF import:** every frame, each frame's delay, and transparency, onto the timeline.
 2. **Animated GIF export:** a good palette (with dithering choice), transparency, loop count, and a **size estimate** before saving.
 3. **Animated WebP:** try it on the phone, then make it reliable (import, export, lossless or lossy, with transparency).
-4. **Batch Process and Krimble Script that read and write animated GIF and WebP**, so that a folder of GIFs can become animated WebP (and back) without the timeline.
-5. **Frames out and in:** write an animation as numbered pictures (`walk-001.webp`, `walk-002.webp`...), and make an animation from a folder of numbered pictures.
+4. **Batch Process and Krimble Script that read and write animated GIF and WebP**, so that a folder of GIFs can become animated WebP (and back) without the timeline. **Built on 2026-10-25 (288th), not tried on a phone:** animated GIF and WebP are read, animated WebP is written (lossless or lossy, with transparency, times and loop count kept). **Not built:** writing an animated GIF.
+5. **Frames out and in:** write an animation as numbered pictures (`walk-001.webp`, `walk-002.webp`...), and make an animation from a folder of numbered pictures. **Frames out: built on 2026-10-25 (288th)** (the `frames` command). **Frames in: not built.**
 6. **APNG** (animated PNG) import and export.
 
 ### Making game sprites
@@ -272,7 +272,7 @@ Status: **proposed. Nothing in this section is started.** George: "Animated GIF 
 
 ### A possible order (Claude's suggestion, not George's decision)
 
-1. Batch Process and Krimble Script reading and writing animated GIF and WebP (smallest step; it needs no timeline, and the engine and its tests are already in place).
+1. Batch Process and Krimble Script reading and writing animated GIF and WebP (smallest step; it needs no timeline, and the engine and its tests are already in place). **Done on 2026-10-25, except writing a GIF.**
 2. Animated GIF import and export on the timeline.
 3. The preview window and frame tags.
 4. Sprite sheets, and the Wesnoth, Godot and Unity exports.

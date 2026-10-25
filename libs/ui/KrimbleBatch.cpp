@@ -6,6 +6,7 @@
 #include <QBuffer>
 #include <QFile>
 #include <QFileInfo>
+#include <QImageReader>
 #include <QImageWriter>
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -14,7 +15,9 @@
 
 #ifdef KRIMBLE_HAVE_WEBP
 #include <webp/decode.h>
+#include <webp/demux.h>
 #include <webp/encode.h>
+#include <webp/mux.h>
 #endif
 
 namespace KrimbleBatch {
@@ -238,6 +241,7 @@ int resolveFormat(const Program &program, const QString &sourcePath)
     const QString ext = QFileInfo(sourcePath).suffix().toLower();
     if (ext == QLatin1String("jpg") || ext == QLatin1String("jpeg")) return FormatJpg;
     if (ext == QLatin1String("webp")) return FormatWebPLossless;
+    if (ext == QLatin1String("gif")) return FormatWebPLossless;   // a GIF cannot be written yet: a lossless WebP (animated, if the GIF is) is the closest
     return FormatPng;
 }
 
@@ -360,18 +364,156 @@ bool encodeAs(const QImage &image, int format, int quality, QByteArray *bytes)
 #endif
 }
 
-QString outputNameFor(const QString &sourcePath, const Program &program)
+QString outputNameFor(const QString &sourcePath, const Program &program, int frameNumber)
 {
     QString base = QFileInfo(sourcePath).completeBaseName();
     if (base.isEmpty()) base = QStringLiteral("picture");
     const QString add = program.nameAdd.trimmed();
-    return program.namePrefix.trimmed() + base + (add.isEmpty() ? QString() : QLatin1Char('-') + add) + QLatin1Char('.') + extensionOf(resolveFormat(program, sourcePath));
+    const QString frame = frameNumber > 0 ? QStringLiteral("-%1").arg(frameNumber, 3, 10, QLatin1Char('0')) : QString();
+    return program.namePrefix.trimmed() + base + (add.isEmpty() ? QString() : QLatin1Char('-') + add) + frame + QLatin1Char('.') + extensionOf(resolveFormat(program, sourcePath));
 }
 
 // the older functions of the recipes, now written with the programs
 QImage applyRecipe(const QImage &source, const Recipe &recipe) { return runProgram(source, programFromRecipe(recipe)); }
 bool encodePicture(const QImage &image, const Recipe &recipe, QByteArray *bytes) { return encodeAs(image, recipe.format, recipe.quality, bytes); }
 QString outputName(const QString &sourcePath, const Recipe &recipe) { return outputNameFor(sourcePath, programFromRecipe(recipe)); }
+
+// ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// animated pictures
+// ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+static const qint64 kMaxAnimationPixels = 60LL * 1000 * 1000;   // frames x width x height: about 240 MB as pictures; more is refused (a phone has not the memory)
+
+bool gifReadable()
+{
+    return QImageReader::supportedImageFormats().contains("gif");
+}
+
+static bool loadAnimatedGif(const QString &path, Animation *animation)
+{
+    if (!gifReadable()) return false;
+    QImageReader reader(path, "gif");
+    if (!reader.canRead()) return false;
+    qint64 pixels = 0;
+    while (reader.canRead()) {
+        QImage image = reader.read();
+        if (image.isNull()) break;
+        pixels += qint64(image.width()) * image.height();
+        if (pixels > kMaxAnimationPixels || animation->frames.size() >= 2000) { animation->frames.clear(); return false; }
+        Frame frame;
+        frame.image = image.convertToFormat(QImage::Format_ARGB32);
+        int delay = reader.nextImageDelay();      // how long the frame just read is shown
+        if (delay <= 10) delay = 100;             // 0 or 1 hundredth of a second: browsers show it for a tenth of a second
+        frame.delayMs = delay;
+        animation->frames << frame;
+    }
+    return !animation->frames.isEmpty();
+}
+
+static bool loadAnimatedWebP(const QString &path, Animation *animation)
+{
+#ifdef KRIMBLE_HAVE_WEBP
+    QFile file(path);
+    if (!file.open(QIODevice::ReadOnly)) return false;
+    const QByteArray data = file.readAll();
+    WebPData webpData;
+    webpData.bytes = reinterpret_cast<const uint8_t*>(data.constData());
+    webpData.size = size_t(data.size());
+    WebPAnimDecoderOptions options;
+    if (!WebPAnimDecoderOptionsInit(&options)) return false;
+    options.color_mode = MODE_RGBA;
+    options.use_threads = 0;
+    WebPAnimDecoder *decoder = WebPAnimDecoderNew(&webpData, &options);
+    if (!decoder) return false;
+    WebPAnimInfo info;
+    bool ok = WebPAnimDecoderGetInfo(decoder, &info) != 0;
+    if (ok && qint64(info.canvas_width) * info.canvas_height * info.frame_count > kMaxAnimationPixels) ok = false;
+    if (ok) {
+        animation->loopCount = int(info.loop_count);
+        int previous = 0;
+        while (WebPAnimDecoderHasMoreFrames(decoder)) {
+            uint8_t *buffer = nullptr;
+            int timestamp = 0;
+            if (!WebPAnimDecoderGetNext(decoder, &buffer, &timestamp)) { ok = false; break; }
+            QImage image(int(info.canvas_width), int(info.canvas_height), QImage::Format_RGBA8888);
+            for (int y = 0; y < image.height(); ++y) memcpy(image.scanLine(y), buffer + size_t(y) * size_t(info.canvas_width) * 4, size_t(info.canvas_width) * 4);
+            Frame frame;
+            frame.image = image.convertToFormat(QImage::Format_ARGB32);
+            frame.delayMs = qMax(1, timestamp - previous);
+            previous = timestamp;
+            animation->frames << frame;
+        }
+    }
+    WebPAnimDecoderDelete(decoder);
+    if (!ok) animation->frames.clear();
+    return ok && !animation->frames.isEmpty();
+#else
+    Q_UNUSED(path);
+    Q_UNUSED(animation);
+    return false;
+#endif
+}
+
+bool loadAnimation(const QString &path, Animation *animation)
+{
+    if (!animation) return false;
+    animation->frames.clear();
+    animation->loopCount = 0;
+    const QString ext = QFileInfo(path).suffix().toLower();
+    if (ext == QLatin1String("gif")) return loadAnimatedGif(path, animation);
+    if (ext == QLatin1String("webp")) return loadAnimatedWebP(path, animation);
+    return false;
+}
+
+bool encodeAnimation(const Animation &animation, int format, int quality, QByteArray *bytes)
+{
+    if (!bytes || animation.frames.isEmpty()) return false;
+    bytes->clear();
+    const QSize size = animation.frames.first().image.size();
+    if (size.isEmpty() || size.width() > 16383 || size.height() > 16383) return false;
+#ifdef KRIMBLE_HAVE_WEBP
+    WebPAnimEncoderOptions options;
+    if (!WebPAnimEncoderOptionsInit(&options)) return false;
+    options.anim_params.loop_count = qBound(0, animation.loopCount, 65535);
+    options.anim_params.bgcolor = 0x00000000;           // transparent
+    options.minimize_size = (qint64(size.width()) * size.height() * animation.frames.size() <= 2000000) ? 1 : 0;   // smaller files, slower: only for small animations
+    WebPAnimEncoder *encoder = WebPAnimEncoderNew(size.width(), size.height(), &options);
+    if (!encoder) return false;
+    WebPConfig config;
+    bool ok = WebPConfigInit(&config) != 0;
+    if (ok) {
+        config.lossless = (format == FormatWebPLossless) ? 1 : 0;
+        config.quality = (format == FormatWebPLossless) ? 70.0f : float(quality);
+        ok = WebPValidateConfig(&config) != 0;
+    }
+    int timestamp = 0;
+    for (int i = 0; ok && i < animation.frames.size(); ++i) {
+        QImage image = animation.frames.at(i).image;
+        if (image.size() != size) image = image.scaled(size, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);   // every frame must be as big as the first
+        const QImage rgba = image.convertToFormat(QImage::Format_RGBA8888);
+        WebPPicture picture;
+        if (!WebPPictureInit(&picture)) { ok = false; break; }
+        picture.use_argb = 1;
+        picture.width = size.width();
+        picture.height = size.height();
+        ok = WebPPictureImportRGBA(&picture, rgba.constBits(), int(rgba.bytesPerLine())) != 0 && WebPAnimEncoderAdd(encoder, &picture, timestamp, &config) != 0;
+        WebPPictureFree(&picture);
+        timestamp += qMax(1, animation.frames.at(i).delayMs);
+    }
+    if (ok) ok = WebPAnimEncoderAdd(encoder, nullptr, timestamp, nullptr) != 0;
+    WebPData assembled;
+    WebPDataInit(&assembled);
+    if (ok) ok = WebPAnimEncoderAssemble(encoder, &assembled) != 0;
+    if (ok && assembled.size > 0) bytes->append(reinterpret_cast<const char*>(assembled.bytes), int(assembled.size));
+    WebPDataClear(&assembled);
+    WebPAnimEncoderDelete(encoder);
+    return ok && !bytes->isEmpty();
+#else
+    Q_UNUSED(format);
+    Q_UNUSED(quality);
+    return false;   // no libwebp in this build: Qt cannot write an animated WebP
+#endif
+}
 
 // ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // Krimble Script: the parser
@@ -394,6 +536,9 @@ QString scriptHelp()
         "format jpg [Q]  |  png  |  webp [Q]  |  webp lossless\n"
         "name add TEXT  |  name prefix TEXT\n"
         "folder NAME\n"
+        "frames    (an animation is written as separate pictures)\n"
+        "fps N    (an animation's speed)\n"
+        "loop N    (how many times it plays; 0 = for ever)\n"
         "\n"
         "A picture is never made bigger, unless the command ends with grow.\n"
         "Without a format line a picture keeps its kind: a JPG stays a JPG, a PNG a PNG, a WebP a WebP.\n"
@@ -530,13 +675,23 @@ bool parseScript(const QString &text, Program *program, QString *error)
             else if (what == QLatin1String("prefix")) p.namePrefix = w.at(2);
             else return fail(QStringLiteral("name: \"%1\" is not add or prefix").arg(w.at(1)));
             continue;
+        } else if (cmd == QLatin1String("frames")) {
+            if (w.size() != 1) return fail(QStringLiteral("frames has nothing after it"));
+            p.framesOut = true;
+            continue;
+        } else if (cmd == QLatin1String("fps")) {
+            if (!number(1, 1, 100, &p.fps) || w.size() != 2) return fail(QStringLiteral("fps needs a number from 1 to 100, like: fps 12"));
+            continue;
+        } else if (cmd == QLatin1String("loop")) {
+            if (!number(1, 0, 65535, &p.loop) || w.size() != 2) return fail(QStringLiteral("loop needs a number from 0 to 65535 (0 plays for ever), like: loop 0"));
+            continue;
         } else if (cmd == QLatin1String("folder")) {
             const QString name = w.mid(1).join(QLatin1Char(' '));
             if (!safeWord(name, true)) return fail(QStringLiteral("folder needs a name of letters, numbers, spaces, - and _, like: folder Web"));
             p.folder = name;
             continue;
         } else {
-            return fail(QStringLiteral("\"%1\" is not a Krimble Script command (resize, fit, crop, rotate, flip, gray, brightness, contrast, flatten, format, name, folder)").arg(w.at(0)));
+            return fail(QStringLiteral("\"%1\" is not a Krimble Script command (resize, fit, crop, rotate, flip, gray, brightness, contrast, flatten, format, name, folder, frames, fps, loop)").arg(w.at(0)));
         }
         if (++steps > 40) return fail(QStringLiteral("a script can have at most 40 steps"));
         p.steps << step;
