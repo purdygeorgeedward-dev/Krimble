@@ -18,6 +18,8 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QMessageBox>
+#include <QPlainTextEdit>
+#include <QFontDatabase>
 #include <QPointer>
 #include <QProgressBar>
 #include <QPushButton>
@@ -54,7 +56,7 @@ KrimbleBatchDialog::KrimbleBatchDialog(QWidget *parent, PickFunction pick, SaveF
 
     m_recipeCombo = new QComboBox(form);
     m_recipeCombo->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLengthWithIcon);
-    m_recipeCombo->setMinimumContentsLength(12);
+    m_recipeCombo->setMinimumContentsLength(8);
     QHBoxLayout *recipeRow = new QHBoxLayout();
     m_saveRecipeButton = new QPushButton(i18n("Save recipe..."), form);
     m_deleteRecipeButton = new QPushButton(i18n("Delete"), form);
@@ -72,11 +74,13 @@ KrimbleBatchDialog::KrimbleBatchDialog(QWidget *parent, PickFunction pick, SaveF
     // resize
     m_resizeCombo = new QComboBox(form);
     m_resizeCombo->addItems(QStringList() << i18n("Keep the size") << i18n("Longest side") << i18n("Width") << i18n("Height"));
+    m_resizeCombo->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLengthWithIcon);
+    m_resizeCombo->setMinimumContentsLength(8);
     m_sizeBox = new QSpinBox(form);
     m_sizeBox->setRange(16, 16000);
     m_sizeBox->setSingleStep(10);
     m_sizeBox->setSuffix(i18n(" px"));
-    m_noEnlarge = new QCheckBox(i18n("Don't make small pictures bigger"), form);
+    m_noEnlarge = new QCheckBox(i18n("Don't enlarge small pictures"), form);
     formLayout->addWidget(new QLabel(i18n("Size"), form));
     QHBoxLayout *sizeRow = new QHBoxLayout();
     sizeRow->addWidget(m_resizeCombo, 1);
@@ -87,6 +91,8 @@ KrimbleBatchDialog::KrimbleBatchDialog(QWidget *parent, PickFunction pick, SaveF
     // format and quality
     m_formatCombo = new QComboBox(form);
     m_formatCombo->addItems(QStringList() << i18n("JPG") << i18n("PNG") << i18n("WebP, lossless") << i18n("WebP, lossy"));
+    m_formatCombo->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLengthWithIcon);
+    m_formatCombo->setMinimumContentsLength(8);
     m_qualitySlider = new QSlider(Qt::Horizontal, form);
     m_qualitySlider->setRange(1, 100);
     m_qualityValue = new QLabel(form);
@@ -109,6 +115,29 @@ KrimbleBatchDialog::KrimbleBatchDialog(QWidget *parent, PickFunction pick, SaveF
     m_hint = new QLabel(form);
     m_hint->setWordWrap(true);
     formLayout->addWidget(m_hint);
+
+    // Krimble Script (KRIMBLE_SCRIPT.md): the same things, and a few more, written as lines of text
+    QFrame *line2 = new QFrame(form);
+    line2->setFrameShape(QFrame::HLine);
+    line2->setFrameShadow(QFrame::Sunken);
+    formLayout->addWidget(line2);
+    m_useScript = new QCheckBox(i18n("Use a script instead"), form);
+    m_scriptEdit = new QPlainTextEdit(form);
+    m_scriptEdit->setFont(QFontDatabase::systemFont(QFontDatabase::FixedFont));
+    m_scriptEdit->setPlaceholderText(i18n("resize longest 1920\nformat webp 85\nname add web"));
+    m_scriptEdit->setMinimumHeight(m_scriptEdit->fontMetrics().height() * 7);
+    m_scriptError = new QLabel(form);
+    m_scriptError->setWordWrap(true);
+    m_scriptError->setStyleSheet(QStringLiteral("color: #ff9a9a;"));
+    m_scriptFromSettings = new QPushButton(i18n("Settings as script"), form);
+    m_scriptHelpButton = new QPushButton(i18n("Help"), form);
+    QHBoxLayout *scriptButtons = new QHBoxLayout();
+    scriptButtons->addWidget(m_scriptFromSettings, 1);
+    scriptButtons->addWidget(m_scriptHelpButton);
+    formLayout->addWidget(m_useScript);
+    formLayout->addWidget(m_scriptEdit);
+    formLayout->addWidget(m_scriptError);
+    formLayout->addLayout(scriptButtons);
     formLayout->addStretch(1);
 
     QScrollArea *area = new QScrollArea(this);
@@ -155,6 +184,14 @@ KrimbleBatchDialog::KrimbleBatchDialog(QWidget *parent, PickFunction pick, SaveF
     connect(m_resizeCombo, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [this]() { updateFieldStates(); });
     connect(m_formatCombo, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [this]() { updateFieldStates(); });
     connect(m_qualitySlider, &QSlider::valueChanged, this, [this](int v) { m_qualityValue->setText(QStringLiteral("%1 %").arg(v)); });
+    connect(m_useScript, &QCheckBox::toggled, this, [this]() { updateFieldStates(); checkScript(); });
+    connect(m_scriptEdit, &QPlainTextEdit::textChanged, this, [this]() { checkScript(); });
+    connect(m_scriptFromSettings, &QPushButton::clicked, this, [this]() {
+        KrimbleBatch::Recipe r = currentRecipe();
+        r.script.clear();
+        m_scriptEdit->setPlainText(KrimbleBatch::scriptFromRecipe(r));
+    });
+    connect(m_scriptHelpButton, &QPushButton::clicked, this, [this]() { QMessageBox::information(this, i18n("Krimble Script"), KrimbleBatch::scriptHelp()); });
     connect(m_saveRecipeButton, &QPushButton::clicked, this, [this]() { saveRecipeAs(); });
     connect(m_deleteRecipeButton, &QPushButton::clicked, this, [this]() { deleteRecipe(); });
     connect(m_closeButton, &QPushButton::clicked, this, [this]() { close(); });
@@ -195,19 +232,58 @@ void KrimbleBatchDialog::loadRecipeIntoFields(const KrimbleBatch::Recipe &recipe
     m_qualitySlider->setValue(recipe.quality);
     m_qualityValue->setText(QStringLiteral("%1 %").arg(recipe.quality));
     m_suffixEdit->setText(recipe.suffix);
+    m_scriptEdit->setPlainText(recipe.script.isEmpty() ? KrimbleBatch::scriptFromRecipe(recipe) : recipe.script);
+    m_useScript->setChecked(!recipe.script.isEmpty());
     updateFieldStates();
+    checkScript();
+}
+
+void KrimbleBatchDialog::setScript(const QString &text)
+{
+    m_scriptEdit->setPlainText(text);
+    m_useScript->setChecked(true);
+    updateFieldStates();
+    checkScript();
+}
+
+// the script is checked as it is typed: the first mistake is shown under it
+void KrimbleBatchDialog::checkScript()
+{
+    QString error;
+    KrimbleBatch::Program program;
+    if (!m_useScript->isChecked() || KrimbleBatch::parseScript(m_scriptEdit->toPlainText(), &program, &error)) m_scriptError->clear();
+    else m_scriptError->setText(error);
+}
+
+bool KrimbleBatchDialog::buildProgram(KrimbleBatch::Program *program, QString *error) const
+{
+    if (m_useScript->isChecked()) {
+        if (m_scriptEdit->toPlainText().trimmed().isEmpty()) {
+            if (error) *error = i18n("The script is empty.");
+            return false;
+        }
+        return KrimbleBatch::parseScript(m_scriptEdit->toPlainText(), program, error);
+    }
+    if (program) *program = KrimbleBatch::programFromRecipe(currentRecipe());
+    return true;
 }
 
 void KrimbleBatchDialog::updateFieldStates()
 {
     using namespace KrimbleBatch;
+    const bool scripted = m_useScript->isChecked();
     const bool resizes = m_resizeCombo->currentIndex() != ResizeNone;
-    m_sizeBox->setEnabled(resizes);
-    m_noEnlarge->setEnabled(resizes);
+    m_resizeCombo->setEnabled(!scripted);
+    m_formatCombo->setEnabled(!scripted);
+    m_suffixEdit->setEnabled(!scripted);
+    m_sizeBox->setEnabled(resizes && !scripted);
+    m_noEnlarge->setEnabled(resizes && !scripted);
+    m_scriptEdit->setEnabled(scripted);
+    m_scriptFromSettings->setEnabled(scripted);
     const Recipe r = currentRecipe();
-    m_qualitySlider->setEnabled(r.usesQuality());
-    m_qualityLabel->setEnabled(r.usesQuality());
-    m_qualityValue->setEnabled(r.usesQuality());
+    m_qualitySlider->setEnabled(r.usesQuality() && !scripted);
+    m_qualityLabel->setEnabled(r.usesQuality() && !scripted);
+    m_qualityValue->setEnabled(r.usesQuality() && !scripted);
     QString hint;
     if (r.format == FormatJpg) hint = i18n("JPG has no transparency: transparent parts become white.");
     else if (r.format == FormatPng) hint = i18n("PNG keeps transparency. The file is not made smaller by quality.");
@@ -228,6 +304,7 @@ KrimbleBatch::Recipe KrimbleBatchDialog::currentRecipe() const
     r.format = m_formatCombo->currentIndex();
     r.quality = m_qualitySlider->value();
     r.suffix = m_suffixEdit->text().trimmed();
+    if (m_useScript->isChecked()) r.script = m_scriptEdit->toPlainText();
     const int index = m_recipeCombo->currentIndex();
     if (index >= 0 && index < m_recipes.size()) r.name = m_recipes.at(index).name;
     return r;
@@ -272,9 +349,10 @@ void KrimbleBatchDialog::runOn(const QStringList &files)
 {
     using namespace KrimbleBatch;
     if (files.isEmpty()) return;
-    const Recipe recipe = currentRecipe();
-    if (!webpAvailable() && (recipe.format == FormatWebPLossless || recipe.format == FormatWebPLossy)) {
-        m_status->setText(i18n("This version of Krimble cannot write WebP: choose another format."));
+    Program program;
+    QString error;
+    if (!buildProgram(&program, &error)) {
+        m_status->setText(i18n("Script: %1", error));
         return;
     }
     m_startButton->setEnabled(false);
@@ -284,6 +362,7 @@ void KrimbleBatchDialog::runOn(const QStringList &files)
     *m_cancelRequested = false;
     const QString dirPath = QStandardPaths::writableLocation(QStandardPaths::CacheLocation) + QStringLiteral("/batch");
     QDir().mkpath(dirPath);
+    const QString where = m_where + QLatin1Char('/') + program.folder;
     QPointer<KrimbleBatchDialog> guard(this);
     int done = 0, failed = 0;
     for (int i = 0; i < files.size(); ++i) {
@@ -292,18 +371,20 @@ void KrimbleBatchDialog::runOn(const QStringList &files)
         QCoreApplication::processEvents();
         if (!guard) return;                     // the window was closed (Android's back button) while a picture was processed
         if (*m_cancelRequested) break;
+        const int format = resolveFormat(program, files.at(i));
+        if ((format == FormatWebPLossless || format == FormatWebPLossy) && !webpAvailable()) { ++failed; continue; }   // this build cannot write WebP
         QImage image = loadPicture(files.at(i));
         if (image.isNull()) { ++failed; continue; }
-        image = applyRecipe(image, recipe);
+        image = runProgram(image, program, format);
         QByteArray bytes;
-        if (!encodePicture(image, recipe, &bytes)) { ++failed; continue; }
-        const QString name = outputName(files.at(i), recipe);
+        if (!encodeAs(image, format, program.quality, &bytes)) { ++failed; continue; }
+        const QString name = outputNameFor(files.at(i), program);
         const QString temp = dirPath + QLatin1Char('/') + name;
         QFile file(temp);
         bool stored = false;
         if (file.open(QIODevice::WriteOnly) && file.write(bytes) == bytes.size()) {
             file.close();
-            stored = m_save ? m_save(temp, recipe.mime(), name) : false;
+            stored = m_save ? m_save(temp, mimeOf(format), name, program.folder) : false;
         }
         QFile::remove(temp);
         if (stored) ++done; else ++failed;
@@ -311,8 +392,8 @@ void KrimbleBatchDialog::runOn(const QStringList &files)
     if (!guard) return;
     const bool wasCancelled = *m_cancelRequested;
     m_bar->setValue(wasCancelled ? m_bar->value() : 100);
-    m_status->setText(wasCancelled ? i18n("Cancelled: %1 saved in %2, %3 skipped, the rest not processed.", done, m_where, failed)
-                                   : i18n("Done: %1 saved in %2, %3 skipped.", done, m_where, failed));
+    m_status->setText(wasCancelled ? i18n("Cancelled: %1 saved in %2, %3 skipped, the rest not processed.", done, where, failed)
+                                   : i18n("Done: %1 saved in %2, %3 skipped.", done, where, failed));
     m_cancelButton->setEnabled(false);
     m_closeButton->setEnabled(true);
     m_startButton->setEnabled(true);

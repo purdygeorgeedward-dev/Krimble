@@ -16,6 +16,7 @@ class QCheckBox;
 class QComboBox;
 class QLabel;
 class QLineEdit;
+class QPlainTextEdit;
 class QProgressBar;
 class QPushButton;
 class QSlider;
@@ -26,17 +27,21 @@ class KrimbleBatchDialog : public QDialog
 public:
     // pick: asks the user for the pictures (returns their paths); save: puts one finished file (a path in the cache, its mime type and name) where it belongs, true if it worked
     typedef std::function<QStringList()> PickFunction;
-    typedef std::function<bool(const QString &tempPath, const QString &mime, const QString &name)> SaveFunction;
+    // folder: the folder in Pictures/Krimble (a script can name it with "folder")
+    typedef std::function<bool(const QString &tempPath, const QString &mime, const QString &name, const QString &folder)> SaveFunction;
 
     KrimbleBatchDialog(QWidget *parent, PickFunction pick, SaveFunction save, const QString &whereText);
 
-    KrimbleBatch::Recipe currentRecipe() const;      // what the fields say now
+    KrimbleBatch::Recipe currentRecipe() const;      // what the fields (or the script) say now
+    void setScript(const QString &text);             // switches to "use a script" with this text (for the bench)
+    bool buildProgram(KrimbleBatch::Program *program, QString *error) const;   // the script, or the settings, as what is to be done
     void runOn(const QStringList &files);            // the run (used by the button, and by the bench)
 
 private:
     void fillRecipeCombo(const QString &select = QString());
     void loadRecipeIntoFields(const KrimbleBatch::Recipe &recipe);
     void updateFieldStates();
+    void checkScript();
     void saveRecipeAs();
     void deleteRecipe();
 
@@ -56,6 +61,11 @@ private:
     QLabel *m_qualityLabel = nullptr;
     QLineEdit *m_suffixEdit = nullptr;
     QLabel *m_hint = nullptr;
+    QCheckBox *m_useScript = nullptr;
+    QPlainTextEdit *m_scriptEdit = nullptr;
+    QLabel *m_scriptError = nullptr;
+    QPushButton *m_scriptFromSettings = nullptr;
+    QPushButton *m_scriptHelpButton = nullptr;
     QPushButton *m_saveRecipeButton = nullptr;
     QPushButton *m_deleteRecipeButton = nullptr;
     QPushButton *m_startButton = nullptr;

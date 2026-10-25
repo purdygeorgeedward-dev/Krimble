@@ -7,6 +7,7 @@
 #define KRIMBLE_BATCH_H
 
 #include <QByteArray>
+#include <QColor>
 #include <QImage>
 #include <QJsonObject>
 #include <QList>
@@ -15,7 +16,7 @@
 namespace KrimbleBatch {
 
 enum ResizeMode { ResizeNone = 0, ResizeLongestSide, ResizeWidth, ResizeHeight };
-enum Format { FormatJpg = 0, FormatPng, FormatWebPLossless, FormatWebPLossy };
+enum Format { FormatJpg = 0, FormatPng, FormatWebPLossless, FormatWebPLossy, FormatSame = 4 };   // FormatSame (a script without a format line): the picture keeps its kind
 
 struct Recipe {
     QString name;
@@ -25,6 +26,7 @@ struct Recipe {
     int format = FormatJpg;
     int quality = 90;          // 1 to 100: JPG and lossy WebP
     QString suffix;            // added to the name: "photo-suffix.webp"
+    QString script;            // Krimble Script (see KRIMBLE_SCRIPT.md): when it is not empty it is what the recipe does, instead of the settings above
     bool builtIn = false;
 
     QString extension() const;
@@ -34,6 +36,37 @@ struct Recipe {
     QJsonObject toJson() const;
     static Recipe fromJson(const QJsonObject &object);
 };
+
+// ---- Krimble Script: a very small language for simple picture operations (KRIMBLE_SCRIPT.md) ----
+struct ScriptStep {
+    enum Kind { Resize, Fit, Crop, Rotate, Flip, Gray, Brightness, Contrast, Flatten };
+    Kind kind = Resize;
+    int mode = 0;          // Resize: a ResizeMode; Crop: 0 = square, 1 = W x H; Flip: 0 = horizontal, 1 = vertical
+    int a = 0;             // the number: size, width, degrees, amount
+    int b = 0;             // the second number: height
+    bool grow = false;     // the picture may be made bigger
+    QColor color;          // Flatten
+};
+
+struct Program {
+    QList<ScriptStep> steps;
+    int format = FormatSame;
+    int quality = 90;
+    QString nameAdd;       // "photo-web.webp"
+    QString namePrefix;    // "web-photo.webp"
+    QString folder = QStringLiteral("Batch");   // the folder in Pictures/Krimble
+};
+
+bool parseScript(const QString &text, Program *program, QString *error);   // error: "Line 3: ..." (empty program and no error for an empty script)
+Program programFromRecipe(const Recipe &recipe);
+QString scriptFromRecipe(const Recipe &recipe);                              // the recipe written as a script
+int resolveFormat(const Program &program, const QString &sourcePath);        // FormatSame becomes JPG for a JPG, WebP (lossless) for a WebP, PNG for everything else
+QImage runProgram(const QImage &source, const Program &program, int outputFormat = -1);   // outputFormat: what resolveFormat said (if not given: the program's own, PNG when it is "same")
+bool encodeAs(const QImage &image, int format, int quality, QByteArray *bytes);
+QString outputNameFor(const QString &sourcePath, const Program &program);
+QString extensionOf(int format);
+QString mimeOf(int format);
+QString scriptHelp();                                                        // the short reference shown by the Help button
 
 QList<Recipe> builtInRecipes();
 QList<Recipe> userRecipes();

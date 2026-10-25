@@ -26,11 +26,19 @@ int main(int argc, char **argv)
     QStringList pictures;
     for (int i = 4; i < argc; ++i) pictures << QString::fromUtf8(argv[i]);
     KrimbleBatchDialog dialog(nullptr, []() { return QStringList(); },
-                              [&](const QString &temp, const QString &mime, const QString &name) { Q_UNUSED(mime); return QFile::copy(temp, QDir(outDir).filePath(name)); },
-                              QStringLiteral("Pictures/Krimble/Batch"));
+                              [&](const QString &temp, const QString &mime, const QString &name, const QString &folder) {
+                                  Q_UNUSED(mime);
+                                  QDir().mkpath(QDir(outDir).filePath(folder));
+                                  return QFile::copy(temp, QDir(outDir).filePath(folder + "/" + name));
+                              },
+                              QStringLiteral("Pictures/Krimble"));
+    if (qEnvironmentVariableIsSet("BATCH_SCRIPT_FILE")) {
+        QFile sf(qEnvironmentVariable("BATCH_SCRIPT_FILE"));
+        if (sf.open(QIODevice::ReadOnly)) dialog.setScript(QString::fromUtf8(sf.readAll()));
+    }
     dialog.resize(w, h);
     dialog.show();
-    app.processEvents();
+    for (int i = 0; i < 5; ++i) app.processEvents();   // the layout settles (the scroll bar appears after the first layout)
     dialog.grab().save(outDir + "/dialog.png");
     if (!pictures.isEmpty()) {
         dialog.runOn(pictures);

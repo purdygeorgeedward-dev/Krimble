@@ -116,6 +116,7 @@ Krimble already includes changes to make the application more practical and fami
 | **Color** | User-friendly simple square color selector; improved Match Color |
 | **Editing** | Healing Brush, Content-Aware Fill, improved adjustments and replayable Actions |
 | **Branding** | Krimble identity, app labels, splash, icons, links, versioning and support graphics |
+| **Automation** | Batch Process recipes (JPG, PNG, WebP with transparency) and **Krimble Script**, a tiny script language for simple operations on many pictures |
 | **Shortcuts** | Large shortcut-alignment pass for familiar tool keys where practical |
 
 ---
@@ -137,6 +138,8 @@ Recent and active work includes:
 - **advanced Color Match tool** 🦚
 - improved graphics editing workflows
 - replayable Actions with captured parameters
+- **Batch Process** 🧰 with saved **recipes**: resize, convert to JPG, PNG or **WebP with transparency**, rename, many pictures at once
+- **Krimble Script** 📜: a tiny script language (12 commands) for simple operations on many pictures: resize, crop, rotate, flip, gray, brightness, contrast, flatten, format, name, folder. See [KRIMBLE_SCRIPT.md](KRIMBLE_SCRIPT.md)
 - additional restoration and editing tools
 
 Some of these are already implemented; others are still in development.

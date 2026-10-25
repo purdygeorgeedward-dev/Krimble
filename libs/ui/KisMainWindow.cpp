@@ -1541,16 +1541,16 @@ static void krimbleShowBatch(KisMainWindow *win)
                                                     << QStringLiteral("image/webp") << QStringLiteral("image/bmp"));
         return fileDialog.filenames();
     };
-    auto savePicture = [](const QString &temp, const QString &mime, const QString &name) -> bool {
+    auto savePicture = [](const QString &temp, const QString &mime, const QString &name, const QString &folder) -> bool {
         QAndroidJniObject jPath = QAndroidJniObject::fromString(temp);
         QAndroidJniObject jMime = QAndroidJniObject::fromString(mime);
         QAndroidJniObject jName = QAndroidJniObject::fromString(name);
-        QAndroidJniObject jFolder = QAndroidJniObject::fromString(QStringLiteral("Batch"));
+        QAndroidJniObject jFolder = QAndroidJniObject::fromString(folder);   // "Batch", or the folder a script names
         return QAndroidJniObject::callStaticMethod<jboolean>("org/krimble/android/ShareHelper", "saveToPictures",
             "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Z",
             jPath.object<jstring>(), jMime.object<jstring>(), jName.object<jstring>(), jFolder.object<jstring>());
     };
-    KrimbleBatchDialog *batchDialog = new KrimbleBatchDialog(win, pickPictures, savePicture, QStringLiteral("Pictures/Krimble/Batch"));
+    KrimbleBatchDialog *batchDialog = new KrimbleBatchDialog(win, pickPictures, savePicture, QStringLiteral("Pictures/Krimble"));
     batchDialog->show();
 #if 0   // Krimble 2026-10-25: the Batch Process window before the recipes (2026-10-12 to 2026-10-24: six presets, JPG and PNG only), kept
     struct Preset { const char *label; int width; bool jpg; int quality; const char *suffix; };
