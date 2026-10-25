@@ -438,13 +438,18 @@ static void krimbleNarrowDialogLayouts(QDialog *dialog)
     // if (!dialog->layout() || dialog->minimumSizeHint().width() <= available) return;
     if (!dialog->layout() || krimbleDialogMinWidth(dialog) <= available) return;   // Krimble 2026-10-23: the contents' width for windows with a scroll area
     dialog->setProperty("krimbleNarrowed", true);
+    // Krimble 2026-10-25: George: "How do we change global rules? That's a dumb rule." (labels above their fields, and the Cancel and Create buttons one above the other). Since 2026-10-23 the main
+    // part of a KoDialog window is in a scroll area ("krimbleDialogScroll"), so a window that is wider than the screen can be scrolled and nothing is out of reach: the two rules that move things
+    // around (labels above their fields, and every row of three or more controls turned into a column) are now used only for a window that has NO scroll area, because its right side would be off the screen.
+    // Everything else below (the fixed widths, the splitters, the margins and spacing) is as before. To switch the two rules off for every window, make stackLabelsAndRows false.
+    const bool stackLabelsAndRows = (dialog->findChild<QScrollArea*>(QStringLiteral("krimbleDialogScroll")) == nullptr);
     Q_FOREACH (QFormLayout *form, dialog->findChildren<QFormLayout*>()) {
-        if (krimbleKeepsRows(form)) continue;   // Krimble 2026-10-25: a marked part keeps its label beside its field
+        if (!stackLabelsAndRows || krimbleKeepsRows(form)) continue;   // Krimble 2026-10-25: a marked part, or a window that scrolls, keeps its label beside its field
         form->setRowWrapPolicy(QFormLayout::WrapAllRows);
         form->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
     }
     Q_FOREACH (QGridLayout *grid, dialog->findChildren<QGridLayout*>()) {
-        if (krimbleKeepsRows(grid)) continue;
+        if (!stackLabelsAndRows || krimbleKeepsRows(grid)) continue;
         krimbleRestackGrid(grid);
     }
     // Krimble 2026-10-18: George (1.0.37, with the JPG Options window): "All those super wide dialogs for no reason have to go. Analyze the rest of the dialog windows for
@@ -463,7 +468,7 @@ static void krimbleNarrowDialogLayouts(QDialog *dialog)
     // if (dialog->minimumSizeHint().width() > available) {
     if (krimbleDialogMinWidth(dialog) > available) {   // Krimble 2026-10-23
         Q_FOREACH (QHBoxLayout *row, dialog->findChildren<QHBoxLayout*>()) {
-            if (krimbleKeepsRows(row)) continue;   // Krimble 2026-10-25: the Cancel and Create buttons stay side by side
+            if (!stackLabelsAndRows || krimbleKeepsRows(row)) continue;   // Krimble 2026-10-25: the Cancel and Create buttons (and every other row) stay side by side in a window that scrolls
             if (row->count() >= 3) row->setDirection(QBoxLayout::TopToBottom);
         }
     }
