@@ -5336,3 +5336,9 @@ George (1.0.39 item 8, then 1.0.41 and 1.0.42: emoji are invisible in the Type t
 **Files:** `KRIMBLE_TEST_LIST_2026-10-23.md`
 
 George asked whether the Text menu had been taken out to reduce clutter and said that a Type/Text menu should not matter if the important features are elsewhere. It was taken out on **2026-10-18** (George: "Just get rid of this crap version."): every item in it was an action of the **old** Type tool, which is no longer registered, so none of them could work; it was not about clutter. The features it would hold (font, size, style, alignment, spacing, kerning, case, colour, move and resize) are now in the Type tool window and the frame with handles. No Text menu is made. Item 26 of the test list is closed. No code was changed.
+
+## 2026-10-24 (278th) — README: a screenshot section ("See it in action")
+
+**Files:** `README.md`, `screenshots/krimble-sideways-alarm.jpg` (new)
+
+George: "We were trying to add screenshots to the readme so people get what the app is." A new section **SEE IT IN ACTION** sits after "What is Mobile-First?" and before "Why Krimble?". It shows one screenshot of Krimble 1.0.42 on a phone held sideways (the toolbox, image windows and the Tool Options, Color and Layers panels; the cover art "ALARM" by Spyder Charles), cropped of the black strip at the phone's left edge and shrunk to 1600 px wide (209 KB). It is the only one of George's keepers whose file was still available (the others, the queen, the elf, the Image > Adjustments menu and the two upright shots, were uploaded earlier and are no longer on hand: they can be sent again). More screenshots, the better ones from 1.0.43, can be added to `screenshots/` and to the same section.

@@ -44,6 +44,16 @@ That means:
 
 ---
 
+## SEE IT IN ACTION 📸
+
+<div align="center">
+<img src="screenshots/krimble-sideways-alarm.jpg" alt="Krimble on an Android phone held sideways: the toolbox on the left, several image windows open, the Tool Options, Color and Layers panels on the right" width="100%">
+</div>
+
+*Krimble 1.0.42 on a phone held sideways: toolbox, image windows and panels on one screen. (Cover art: "ALARM" by Spyder Charles.)*
+
+---
+
 ## WHY KRIMBLE? 🤔
 
 I am a lifelong graphics professional trained across traditional media and digital tools. On a phone, I do not want to paint. I want a practical graphics editor in the palm of my hand.
