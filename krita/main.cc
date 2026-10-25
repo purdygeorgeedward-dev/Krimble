@@ -159,8 +159,14 @@ void resetRotation()
 #endif
 
 #ifdef Q_OS_ANDROID
+// Krimble 2026-10-25: George: "Krimble relaunches constantly on switching ... I want it to stop crashing." THE CAUSE (found in the code): when the Java package was renamed
+// from org.krita.android to org.krimble.android, these three native functions kept the old name (Java_org_krita_android_JNIWrappers_...), so the Java methods of
+// org.krimble.android.JNIWrappers had nothing to call: hasMainWindowLoaded() is called by MainActivity.onKeyUp on EVERY Back key or back gesture (an UnsatisfiedLinkError on the main
+// thread = the app crashes and starts again), openFileFromIntent() when a file is sent to a running Krimble, and saveState() on every pause (it was caught there, so nothing was saved).
+// The old name is kept in the comment above each function.
+// was: Java_org_krita_android_JNIWrappers_saveState
 extern "C" JNIEXPORT void JNICALL
-Java_org_krita_android_JNIWrappers_saveState(JNIEnv* /*env*/,
+Java_org_krimble_android_JNIWrappers_saveState(JNIEnv* /*env*/,
                                              jobject /*obj*/,
                                              jint    /*n*/)
 {
@@ -178,8 +184,9 @@ Java_org_krita_android_JNIWrappers_saveState(JNIEnv* /*env*/,
     kritarc.setValue("canvasState", "OPENGL_SUCCESS");
 }
 
+// was: Java_org_krita_android_JNIWrappers_hasMainWindowLoaded
 extern "C" JNIEXPORT jboolean JNICALL
-Java_org_krita_android_JNIWrappers_hasMainWindowLoaded(JNIEnv * /*env*/,
+Java_org_krimble_android_JNIWrappers_hasMainWindowLoaded(JNIEnv * /*env*/,
                                                        jobject /*obj*/,
                                                        jint /*n*/)
 {
@@ -191,8 +198,9 @@ Java_org_krita_android_JNIWrappers_hasMainWindowLoaded(JNIEnv * /*env*/,
     return (bool)mainWindow;
 }
 
+// was: Java_org_krita_android_JNIWrappers_openFileFromIntent
 extern "C" JNIEXPORT void JNICALL
-Java_org_krita_android_JNIWrappers_openFileFromIntent(JNIEnv* /*env*/,
+Java_org_krimble_android_JNIWrappers_openFileFromIntent(JNIEnv* /*env*/,
                                                       jobject /*obj*/,
                                                       jstring str)
 {

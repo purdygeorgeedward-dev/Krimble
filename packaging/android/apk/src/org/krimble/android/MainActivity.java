@@ -134,7 +134,12 @@ public class MainActivity extends QtActivity {
     protected void onNewIntent (Intent intent) {
         String uri = getUri(intent);
         if (uri != null) {
-            JNIWrappers.openFileFromIntent(uri);
+            // Krimble 2026-10-25: a missing native function (UnsatisfiedLinkError) must never crash the app again (see krita/main.cc)
+            try {
+                JNIWrappers.openFileFromIntent(uri);
+            } catch (UnsatisfiedLinkError e) {
+                Log.e(TAG, "openFileFromIntent: native function not found: " + e);
+            }
         }
 
         super.onNewIntent(intent);
@@ -208,7 +213,15 @@ public class MainActivity extends QtActivity {
     @Override
     public boolean onKeyUp(final int keyCode, final KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
-            if (!JNIWrappers.hasMainWindowLoaded()) {
+            // Krimble 2026-10-25: if the native function cannot be found, do not crash on Back (see krita/main.cc)
+            boolean mainWindowLoaded = true;
+            try {
+                mainWindowLoaded = JNIWrappers.hasMainWindowLoaded();
+            } catch (UnsatisfiedLinkError e) {
+                Log.e(TAG, "hasMainWindowLoaded: native function not found: " + e);
+            }
+            // if (!JNIWrappers.hasMainWindowLoaded()) {
+            if (!mainWindowLoaded) {
                 // back button was pressed during splash screen, letting this
                 // propagate leaves native side in an undefined state. So, it's
                 // best we finish the activity here.
