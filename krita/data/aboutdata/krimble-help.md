@@ -52,6 +52,12 @@ Emoji (as plain black shapes) can be used in text.
 - For erasing that you can change your mind about, add a **transparency mask** to the layer (**Layer > Add Transparency Mask**) and paint on it: black hides, white shows.
 - To clear a whole area: select it, then **Edit > Clear**.
 
+## Selecting
+
+- **Rectangle, Ellipse and Lasso** selections are made with one drag.
+- **Polygonal Selection:** tap or drag to put down each point. The point stays where you lift your finger. To finish, drop a point on the **first point** (it rings when it is close enough), or tap **END**. While the polygon is being made, a bar at the bottom of the picture has three buttons: **Undo point** (takes back the last point), **END** (closes the polygon and makes the selection; it needs at least three points) and **Cancel** (throws the polygon away). The same three buttons are at the top of **Tool Options**. Changing to another tool also throws an unfinished polygon away.
+- **Select > Deselect** and **Edit > Undo** work on a finished selection as on any other change.
+
 ## Content-Aware Fill
 
 Select the part you want to remove (with any selection tool), then choose **Edit > Fill > Content-Aware...**. Krimble fills the hole from the picture around it. It works best on plain or repeating backgrounds; on very busy pictures the fill can look soft.

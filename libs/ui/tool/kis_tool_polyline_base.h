@@ -10,6 +10,9 @@
 #include <kis_tool_shape.h>
 #include <kis_cursor.h>
 #include <QTimer>
+#include <QPointer>
+
+class QWidget;
 
 class KRITAUI_EXPORT KisToolPolylineBase : public KisToolShape
 {
@@ -44,6 +47,10 @@ public:
     void touchClosePolygon();
     void touchCancelPolygon();
 
+    // Krimble 2026-10-25: George: "I need an END button to stop a selection in progress. No keyboard obviously." While a polygon selection is being made, a bar with
+    // Undo point, END and Cancel is shown at the bottom of the canvas (the same three things as the buttons in Tool Options, which are behind a tab on a portrait screen).
+    void showStrokeBar(bool show);
+
 protected:
     virtual void finishPolyline(const QVector<QPointF>& points) = 0;
 
@@ -72,6 +79,7 @@ private:
     qreal m_antsOffset {0.0};
     bool m_firstPointJustPlaced {false};   // the press that is going on put down the first point
     QPointF m_pressPoint;                  // where that press started (image pixels)
+    QPointer<QWidget> m_strokeBar;         // Krimble 2026-10-25: the Undo point / END / Cancel bar over the canvas
 };
 
 #endif // KIS_TOOL_POLYLINE_BASE_H

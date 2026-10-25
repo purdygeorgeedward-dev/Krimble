@@ -6,6 +6,10 @@
 
 
 #include <QAction>
+#include <QApplication>
+#include <QHBoxLayout>
+#include <QPalette>
+#include <QPushButton>
 
 #include <KoPointerEvent.h>
 #include <KoCanvasBase.h>
@@ -17,6 +21,7 @@
 #include "kis_canvas2.h"
 #include <kis_canvas_resource_provider.h>
 #include <KisViewManager.h>
+#include "KisView.h"   // Krimble 2026-10-25: the bar over the canvas is a child of the view
 #include <kis_action.h>
 #include <kactioncollection.h>
 #include <kis_icon.h>
@@ -158,6 +163,7 @@ void KisToolPolylineBase::beginPrimaryAction(KoPointerEvent *event)
         const QPointF pressPoint = convertToPixelCoordAndSnap(event);
         beginShape();
         m_dragging = true;
+        showStrokeBar(true);   // Krimble 2026-10-25: Undo point / END / Cancel over the canvas
         m_firstPointJustPlaced = false;
         if (m_points.empty()) {
             m_points.append(pressPoint);
@@ -197,6 +203,7 @@ void KisToolPolylineBase::beginPrimaryAction(KoPointerEvent *event)
     } else {
         beginShape();
         m_dragging = true;
+        showStrokeBar(true);   // Krimble 2026-10-25
 #ifdef Q_OS_ANDROID
         // if (m_type == SELECT && m_points.empty()) {
         //     if (KisCanvas2 *kiscanvas = dynamic_cast<KisCanvas2*>(canvas())) {
@@ -376,6 +383,55 @@ void KisToolPolylineBase::touchCancelPolygon()
     cancelStroke();
 }
 
+// Krimble 2026-10-25: George: "I need an END button to stop a selection in progress. No keyboard obviously." The bar is a child of the view (like the floating messages), at the bottom
+// in the middle, above the scroll bar; it is only for the selection tool, and only while a polygon is being made. END is the same as Close in Tool Options (it needs three points).
+void KisToolPolylineBase::showStrokeBar(bool show)
+{
+    if (m_type != SELECT) return;
+    if (!show) {
+        if (m_strokeBar) m_strokeBar->hide();
+        return;
+    }
+    KisCanvas2 *kiscanvas = dynamic_cast<KisCanvas2*>(canvas());
+    QPointer<KisView> view = kiscanvas ? kiscanvas->imageView() : QPointer<KisView>();
+    if (!view) return;
+    if (!m_strokeBar) {
+        QWidget *bar = new QWidget(view);
+        bar->setObjectName(QStringLiteral("krimbleStrokeBar"));
+        bar->setAutoFillBackground(true);
+        QPalette pal = QApplication::palette();
+        QColor background = pal.color(QPalette::Window);
+        background.setAlpha(235);
+        pal.setColor(QPalette::Window, background);
+        bar->setPalette(pal);
+        QHBoxLayout *row = new QHBoxLayout(bar);
+        row->setContentsMargins(6, 6, 6, 6);
+        row->setSpacing(6);
+        QPushButton *undoButton = new QPushButton(i18n("Undo point"), bar);
+        QPushButton *endButton = new QPushButton(i18n("END"), bar);
+        QPushButton *cancelButton = new QPushButton(i18n("Cancel"), bar);
+        QFont boldFont = endButton->font();
+        boldFont.setBold(true);
+        endButton->setFont(boldFont);
+        const int buttonHeight = qMax(40, bar->fontMetrics().height() * 2);
+        QList<QPushButton*> buttons;
+        buttons << undoButton << endButton << cancelButton;
+        Q_FOREACH (QPushButton *b, buttons) {
+            b->setMinimumHeight(buttonHeight);
+            b->setFocusPolicy(Qt::NoFocus);   // the canvas keeps the focus
+            row->addWidget(b);
+        }
+        connect(undoButton, &QPushButton::clicked, this, [this]() { touchUndoPoint(); });
+        connect(endButton, &QPushButton::clicked, this, [this]() { touchClosePolygon(); });
+        connect(cancelButton, &QPushButton::clicked, this, [this]() { touchCancelPolygon(); });
+        m_strokeBar = bar;
+    }
+    m_strokeBar->adjustSize();
+    m_strokeBar->move(qMax(0, (view->width() - m_strokeBar->width()) / 2), qMax(0, view->height() - m_strokeBar->height() - 36));
+    m_strokeBar->show();
+    m_strokeBar->raise();
+}
+
 void KisToolPolylineBase::undoSelectionOrCancel()
 {
     if (m_points.size() > 1) {
@@ -490,6 +546,7 @@ void KisToolPolylineBase::endStroke()
     if (!m_dragging) return;
 
     m_dragging = false;
+    showStrokeBar(false);   // Krimble 2026-10-25
     if (m_antsTimer) m_antsTimer->stop();
     if(m_points.count() > 1) {
         finishPolyline(m_points);
@@ -505,6 +562,7 @@ void KisToolPolylineBase::cancelStroke()
     if (!m_dragging) return;
 
     m_dragging = false;
+    showStrokeBar(false);   // Krimble 2026-10-25
     if (m_antsTimer) m_antsTimer->stop();
     m_points.clear();
     m_closeSnappingActivated = false;
