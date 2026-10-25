@@ -5,6 +5,14 @@ need the full explanation, reasoning, or diff for a specific fix. Update
 this file whenever a bug's status changes; regenerate from
 KRIMBLE_CHANGES.md if this file and the changelog ever disagree.
 
+## Now (2026-10-25, 2:55 PM MT)
+- **Released:** v1.0.29-beta to v1.0.42-beta. **1.0.43** is built, packaged and installed on George's phone; its release is a **draft without the APK** (needs `~/kb-release.sh --publish`).
+- **In the repo, not in 1.0.43:** see `KRIMBLE_NEXT_BUILD.md`. Repo version number: 43 (no bump to 44 until 1.0.43 is published and George says go).
+- **Biggest open problem:** Krimble relaunches when George switches apps (the picture is gone). Likely cause found and fixed in the repo (entry 299: native functions with old Krita names crashed the app on every Back press); a log window (Help > Show Krimble Log...) was added for evidence (entry 300). Untested.
+- **Every push with its time:** `KRIMBLE_WORKLOG.md`. **Full explanation of each change:** `KRIMBLE_CHANGES.md`. **George's test list:** `KRIMBLE_TEST_LIST_2026-10-23.md` (items up to 67). **Where to pick up:** `SESSION_CATCHUP.md`.
+
+## Older list (September 2026; kept as it was, not kept up to date)
+
 ## Bugs
 1. Krita icon instead of Krimble icon — FIXED `a4a5b53`
 2. Brush presets open on load — LIKELY FIXED `a73387e`, unconfirmed on-device
@@ -47,4 +55,4 @@ mobile-first design priority, then industry-standard parity.
   (2026-09-06). No confirmed packaged APK yet — full cheat sheet at
   `claude/KRIMBLE-BUILD-CHEATSHEET.md`
 
-Last updated: 2026-09-10
+Last updated: 2026-10-25 (the "Now" part at the top; the bug list below is from 2026-09-10)

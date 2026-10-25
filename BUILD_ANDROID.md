@@ -502,3 +502,18 @@ The next build, when George asks, carries everything since `c814ef1`: entries 84
 - An idle Termux session to the server is closed after a while ("Connection timed out"); a running build is not affected. Reconnect with the ssh line.
 - `kb-package.sh` before `kb-apk.sh`, always; the stamp in `kb-apk.sh`'s output (`KRIMBLE_BUILD_NUMBER`, `KRIMBLE_BUILD_GIT`) shows what the APK really is.
 - Every change is documented in `KRIMBLE_CHANGES.md` with an entry number, date and what was not verified. Claude's ideas are marked "(Claude's idea)", George's "(George's idea)". The app's own wording: "docking" (panels and windows), "fitting" (toolbox columns), "snapping" (canvas only).
+
+## Before pushing Android code (added 2026-10-25)
+
+1. `python3 tools/check-jni-names.py`: every `native` method in `packaging/android/apk/src/org/krimble/android/*.java` must have a C++ function `Java_org_krimble_android_<Class>_<method>`. On 2026-10-25 three (`saveState`, `hasMainWindowLoaded`, `openFileFromIntent`) still had `org_krita` names: Java threw `UnsatisfiedLinkError` on every Back press and back gesture, and the app crashed and started again.
+2. `python3 tools/syntax-check/syntax_check.py <file.cpp>` for the C++ files (about a minute each; it cannot check `KisMainWindow.cpp` whole; `KisApplication.cpp` reports errors only in unrelated headers, read for errors in the file's own lines). New windows and engines have benches in `tools/*-bench` (Qt 5.15, offscreen) that draw them or run them on sample files.
+3. Java: the sandbox has no Android SDK; new Java methods were compiled against small stand-ins for the Android classes. Gradle compiles the real thing at `kb-package.sh`; a failure shows there.
+4. The whole app cannot be compiled in the sandbox: the first compile of a batch of changes can fail. George sends the last 30 lines of `~/build-latest.log`.
+
+## Why Krimble ended (added 2026-10-25)
+
+- `MainActivity.onDestroy()` starts `DocumentSaverService` with `KILL_PROCESS`, which kills the whole process (a Qt activity cannot be made again in a live process). So **any destroy of the activity is a full relaunch with the open picture gone.** `onPause` starts the same service with `START_SAVING` (it calls `JNIWrappers.saveState()`).
+- At every start the program writes "Last exit: reason ..., importance ..., exit code/signal ..." into `krita.log` (`KisAndroidExitInfo`; Android's `getHistoricalProcessExitReasons`), and marks a run that did not end correctly ("KRITA DID NOT CLOSE CORRECTLY").
+- **Help > Show Krimble Log...** (added in entry 300) shows the last 12 sessions, those "Last exit" lines, the end of the log, and "What Android told Krimble": whether the window was destroyed with `isFinishing` or because of a configuration change, with the configuration then and at the start (the difference names what changed); if `onDestroy` did not run it says the process was killed or crashed.
+- Reading it: `reason 3 (LOW_MEMORY)` = Android needed the memory; `CRASH_NATIVE` / `CRASH` = a crash; `SIGNALED` with signal 9 = the process was killed (also what Krimble's own `KILL_PROCESS` does, so read it together with the "What Android told Krimble" line); `isChangingConfigurations=true` = a configuration change the manifest does not list.
+
