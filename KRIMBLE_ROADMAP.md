@@ -41,6 +41,7 @@ export-and-reassemble approach if not.
 - **Smudge tool** -- ✅ shipped (commit `7390d6b`). Dedicated toolbox tool
   wrapping Krita's existing colorsmudge paintop engine, own icon/shortcut/
   toolbox slot, auto-loads the "smudge" preset on activation.
+- **Eraser tool** -- ✅ written 2026-10-25 (290th entry; not compiled or tried on a phone yet). Dedicated toolbox tool after Soften: the Brush tool with the eraser switch turned on while it is active; it paints transparency with the current brush. Pencil, Path Selection and Clone Stamp icons are still waiting in `krita/pics/tools/krimble-future-icons`.
 - **Soften tool** -- not started. Photoshop's Blur tool equivalent: a
   localized blur/softening brush for softening edges/skin/detail in specific
   areas without running a full-image filter. Krita's `filterop` paintop

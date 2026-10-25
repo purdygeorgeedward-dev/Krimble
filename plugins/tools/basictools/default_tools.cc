@@ -19,6 +19,7 @@
 #include "kis_tool_brush.h"
 #include "kis_tool_smudge.h"
 #include "kis_tool_soften.h"
+#include "kis_tool_eraser.h"   // Krimble 2026-10-25
 #include "kis_tool_dodge.h"
 #include "kis_tool_burn.h"
 #include "kis_tool_multihand.h"
@@ -45,6 +46,7 @@ DefaultTools::DefaultTools(QObject *parent, const QVariantList &)
     KoToolRegistry::instance()->add(new KisToolBrushFactory());
     KoToolRegistry::instance()->add(new KisToolSmudgeFactory()); // Krimble: dedicated Smudge tool (colorsmudge paintop)
     KoToolRegistry::instance()->add(new KisToolSoftenFactory()); // Krimble: dedicated Soften tool (filterop + Gaussian Blur)
+    KoToolRegistry::instance()->add(new KisToolEraserFactory()); // Krimble 2026-10-25: dedicated Eraser tool (the brush with the eraser switch on)
     // Krimble 2026-10-20: George (1.0.40, test list, item 14): "Dodge and Burn suck. It's just black and white. Comment out these tools for now." and
     // "Dodge and Burn do nothing more than a simple brush could do, and they add clutter to an already cluttered toolbox." Not registered, so they are
     // not in the toolbox; their code (kis_tool_dodge.cc, kis_tool_burn.cc) stays and is still built, ready to come back as real exposure tools.

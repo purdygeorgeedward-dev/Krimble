@@ -15,6 +15,7 @@
         <file>dark_krita_tool_freehand.svg</file>
         <file>dark_krita_tool_smudge.svg</file>
         <file>dark_krita_tool_soften.svg</file>
+        <file>dark_krita_tool_eraser.svg</file>
         <file>dark_krita_tool_dodge.svg</file>
         <file>dark_krita_tool_burn.svg</file>
         <file>dark_krita_tool_freehandvector.svg</file>
@@ -57,6 +58,7 @@
         <file>light_krita_tool_freehand.svg</file>
         <file>light_krita_tool_smudge.svg</file>
         <file>light_krita_tool_soften.svg</file>
+        <file>light_krita_tool_eraser.svg</file>
         <file>light_krita_tool_dodge.svg</file>
         <file>light_krita_tool_burn.svg</file>
         <file>light_krita_tool_freehandvector.svg</file>

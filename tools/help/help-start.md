@@ -45,6 +45,13 @@ Emoji (as plain black shapes) can be used in text.
 - **Upscale...** makes a picture 2, 3 or 4 times larger.
 - **Batch Process...** works on many pictures at once (see below).
 
+## Erasing: painting with transparency
+
+- The **Eraser** tool (in the toolbox, after Brush, Smudge and Soften) is the brush that paints **transparency** instead of color. It uses the brush you have picked: its size, softness and opacity. Pick the Brush tool again to paint with color.
+- Another way to the same: the **eraser switch** of the brush toolbar (the Retouch toolbar has one too; turn a toolbar on in **Window > Toolbars**). The Eraser tool turns this switch on while it is the tool, and puts it back as it was when you change tools.
+- For erasing that you can change your mind about, add a **transparency mask** to the layer (**Layer > Add Transparency Mask**) and paint on it: black hides, white shows.
+- To clear a whole area: select it, then **Edit > Clear**.
+
 ## Content-Aware Fill
 
 Select the part you want to remove (with any selection tool), then choose **Edit > Fill > Content-Aware...**. Krimble fills the hole from the picture around it. It works best on plain or repeating backgrounds; on very busy pictures the fill can look soft.

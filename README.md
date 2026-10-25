@@ -138,6 +138,7 @@ Recent and active work includes:
 - **advanced Color Match tool** 🦚
 - improved graphics editing workflows
 - replayable Actions with captured parameters
+- **Eraser tool** 🧽: a dedicated toolbox tool that paints transparency with the current brush
 - **Batch Process** 🧰 with saved **recipes**: resize, convert to JPG, PNG or **WebP with transparency**, rename, many pictures at once
 - **Krimble Help** 📖: a handbook inside the app (Help > Krimble Help), with search and a list of its parts; it includes the Krimble Script reference
 - **Animated GIF and WebP in Batch Process** 🎞️: read animated GIF and WebP, write animated WebP (smaller than the GIF, with transparency), or save the frames as separate numbered pictures
