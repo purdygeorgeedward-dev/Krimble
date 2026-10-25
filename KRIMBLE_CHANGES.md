@@ -5330,3 +5330,9 @@ George (test list item 13): "Image > Mode > Edit Presets is too wide; it should 
 
 George (1.0.39 item 8, then 1.0.41 and 1.0.42: emoji are invisible in the Type tool). The 1.0.39 change named the phone's color emoji fonts as fallbacks, and they still did not show: the text engine probably cannot draw them (bitmap or layered glyphs). **Noto Emoji**, Google's **monochrome outline** emoji font (SIL OFL 1.1, 1.9 MB, 1,489 characters, checked for the common emoji), is bundled with the other open fonts and is **first** among the fallbacks: `font-family:'<chosen>', 'Noto Emoji', 'Noto Color Emoji', 'Samsung Color Emoji'`. An emoji is drawn as a shape in the text's color, not in colors. The Type tool's font list still hides families starting with "Noto" (so Noto Emoji is not offered as a font to choose). The About text now says 53 open fonts.
 **Not verified:** a build or a device; whether the engine takes this font as a fallback.
+
+## 2026-10-24 (277th) — Test list item 26 (a Text menu): closed
+
+**Files:** `KRIMBLE_TEST_LIST_2026-10-23.md`
+
+George asked whether the Text menu had been taken out to reduce clutter and said that a Type/Text menu should not matter if the important features are elsewhere. It was taken out on **2026-10-18** (George: "Just get rid of this crap version."): every item in it was an action of the **old** Type tool, which is no longer registered, so none of them could work; it was not about clutter. The features it would hold (font, size, style, alignment, spacing, kerning, case, colour, move and resize) are now in the Type tool window and the frame with handles. No Text menu is made. Item 26 of the test list is closed. No code was changed.

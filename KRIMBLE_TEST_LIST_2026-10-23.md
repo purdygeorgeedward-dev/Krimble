@@ -27,7 +27,7 @@ Status: DONE = pushed (in the build after 1.0.41); OPEN = not done yet; ASK = a 
 23. Select menu looks good.
 24. Filter menu looks good (too much to analyze right now).
 25. The Text window is way too wide; it needs a complete redesign. **OPEN** **CLAIMED by the KRIMBLE-MAIN chat (2026-10-23, in progress; other chats: skip)**
-26. No Text menu at all? **OPEN** **CLAIMED by the KRIMBLE-MAIN chat (2026-10-23, in progress; other chats: skip)**
+26. No Text menu at all? **CLOSED** (George, 2026-10-24: the Type/Text menu does not matter when the features are elsewhere: the Type tool window, its frame with handles, the toolbox; the old menu was taken out on 2026-10-18 because every item belonged to the old tool)
 27. The handles on the toolbox and side panel are still too small to grab easily, but close. George drew an idea. **DONE** (240th, from his drawing)
 28. Where is File > Revert? Put it back. **DONE** (237th)
 29. Window > Stack panels (in the panels section, to stack the side panels). **DONE** (248th)
