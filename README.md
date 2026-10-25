@@ -46,11 +46,19 @@ That means:
 
 ## SEE IT IN ACTION 📸
 
+Krimble works the way people actually work in Photoshop: **several images open at once, each in its own window**, with the toolbox and panels where you want them, on a phone held sideways or upright.
+
 <div align="center">
-<img src="screenshots/krimble-sideways-alarm.jpg" alt="Krimble on an Android phone held sideways: the toolbox on the left, several image windows open, the Tool Options, Color and Layers panels on the right" width="100%">
+<img src="screenshots/krimble-several-images-panels.jpg" alt="Krimble on an Android phone held sideways: the full toolbox on the left, three image windows overlapping in the middle, the Tool Options, Color and Layers panels on the right" width="100%">
 </div>
 
-*Krimble 1.0.42 on a phone held sideways: toolbox, image windows and panels on one screen. (Cover art: "ALARM" by Spyder Charles.)*
+*Three images open in their own windows, with the full toolbox and the Tool Options, Color and Layers panels on one phone screen.*
+
+<div align="center">
+<img src="screenshots/krimble-sideways-alarm.jpg" alt="Krimble on an Android phone held sideways: a thin toolbox on the left, two image windows side by side, the panels on the right" width="100%">
+</div>
+
+*A slimmer toolbox and two images side by side. (Cover art: "ALARM" by Spyder Charles.)*
 
 ---
 

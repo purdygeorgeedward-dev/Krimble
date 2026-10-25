@@ -206,9 +206,14 @@ void ContentAwareFillPlugin::slotContentAwareFill()
     {
         const QString status = KrimbleFill::lastStatus();
         const bool engine = status.endsWith(QLatin1String("engine"));
-        viewManager()->showFloatingMessage(engine ? i18n("Content-Aware Fill: done (%1)", status)
-                                                  : i18n("Content-Aware Fill: done with Krita's old fill (%1)", status.isEmpty() ? i18n("unknown") : status),
-                                           QIcon());
+        // viewManager()->showFloatingMessage(engine ? i18n("Content-Aware Fill: done (%1)", status)
+        //                                           : i18n("Content-Aware Fill: done with Krita's old fill (%1)", status.isEmpty() ? i18n("unknown") : status),
+        //                                    QIcon());
+        // Krimble 2026-10-24: George: "sometimes the UI puts messages on screen that are unnecessary": the fill working is seen in the picture; the message is only shown when Krita's old fill
+        // (the blur) had to be used instead of Krimble's engine, and why.
+        if (!engine) {
+            viewManager()->showFloatingMessage(i18n("Content-Aware Fill: done with Krita's old fill (%1)", status.isEmpty() ? i18n("unknown") : status), QIcon());
+        }
     }
 }
 

@@ -132,7 +132,15 @@ void KisFloatingMessage::showMessage()
 
     QWidget::setVisible(true);
     m_fadeTimeLine.stop();
-    m_timer.start(m_timeout);
+    // m_timer.start(m_timeout);
+    // Krimble 2026-10-24: George: "sometimes the UI puts messages on screen that are unnecessary or last too long." A message asked to stay 4.5 s (the usual) now stays as long as it
+    // takes to read it: 0.9 s plus 45 ms for each character, between 1.4 and 3.2 s, unless it asks for less. High priority messages (the ones that matter, errors and warnings)
+    // keep the time they asked for.
+    int timeout = m_timeout;
+    if (m_priority != High) {
+        timeout = qMin(timeout, qBound(1400, 900 + 45 * int(m_message.length()), 3200));
+    }
+    m_timer.start(timeout);
 }
 
 void KisFloatingMessage::setShowOverParent(bool show)

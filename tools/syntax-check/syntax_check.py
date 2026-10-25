@@ -24,7 +24,7 @@ def main():
     os.makedirs(STUBS, exist_ok=True)
     # every folder under libs/ and plugins/ that has headers (that is what the CMake files of Krita give as include folders, more or less)
     walked = [d for top in ("libs", "plugins") if os.path.isdir(top) for d, _, files in os.walk(top) if any(f.endswith(".h") for f in files) and "/tests" not in d]
-    inc = ["-I" + STUBS] + ["-I" + d for d in DIRS + [os.path.dirname(source)] + walked if os.path.isdir(d)]
+    inc = ["-I" + STUBS, "-I."] + ["-I" + d for d in DIRS + [os.path.dirname(source)] + walked if os.path.isdir(d)]
     qt = subprocess.run(["pkg-config", "--cflags", "Qt5Widgets", "Qt5Gui", "Qt5Core", "Qt5Xml"], capture_output=True, text=True).stdout.split()
     cmd = ["g++", "-std=c++17", "-fsyntax-only", "-fno-operator-names", "-fPIC"] + inc + qt + ["-I/usr/include/KF5", "-I/usr/include/eigen3"] + ["-I" + d for d in sorted(glob.glob("/usr/include/KF5/*")) if os.path.isdir(d)] + [source]
     for _ in range(60):
@@ -53,7 +53,7 @@ def main():
                 uic = next((u for u in ("/usr/lib/qt5/bin/uic", "/usr/lib/x86_64-linux-gnu/qt5/bin/uic", "uic") if os.path.exists(u) or u == "uic"), "uic")
                 if found and subprocess.run([uic, found[0], "-o", os.path.join(STUBS, base)], capture_output=True).returncode == 0:
                     continue
-            if re.match(r"(KoConfig\.h|config-.*\.h|.*_config\.h|moc_.*\.(cpp|h))$", base):
+            if re.match(r"(KoConfig\.h|config-.*\.h|.*_config\.h|moc_.*\.(cpp|h)|.*\.moc)$", base):
                 open(os.path.join(STUBS, base), "w").write("#pragma once\n")
                 continue
         print("\n".join(errors[:12]))

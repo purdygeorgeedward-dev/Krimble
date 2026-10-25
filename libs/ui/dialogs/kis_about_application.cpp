@@ -8,8 +8,14 @@
 #include <QPixmap>
 #include <QLabel>
 #include <QVBoxLayout>
+#include <QHBoxLayout>   // Krimble 2026-10-24
+#include <QScrollArea>
+#include <QTabWidget>
+#include <QTabBar>
 #include <QFont>
 #include <QApplication>
+#include <QGuiApplication>   // Krimble 2026-10-24
+#include <QScreen>
 #include "kis_about_application.h"
 
 #include <KAboutData>
@@ -63,7 +69,12 @@ KisAboutApplication::KisAboutApplication(QWidget *parent)
         pageLayout->setContentsMargins(6, 6, 6, 6);
         const qreal dpr = qApp->devicePixelRatio();
         int pageWidth = 600;
-        if (parent && parent->window()) pageWidth = int(parent->window()->width() * 0.86);
+        // if (parent && parent->window()) pageWidth = int(parent->window()->width() * 0.86);
+        // Krimble 2026-10-24: George: "the about dialog is still enormous." Held sideways (the window is wider than tall) the picture alone was 86% of the window's width and
+        // about 420 px high on a screen only 340 px high. Sideways the page is now two columns (the picture and the version on the left, 40% of the width; the links and the
+        // fonts text on the right, scrolling); upright it is one column as before.
+        const bool sideways = parent && parent->window() && parent->window()->width() > parent->window()->height();
+        if (parent && parent->window()) pageWidth = int(parent->window()->width() * (sideways ? 0.40 : 0.86));
         QPixmap picture(QStringLiteral(":/splash/hd.jpg"));
         QLabel *pictureLabel = new QLabel(page);
         if (!picture.isNull()) {
@@ -102,11 +113,37 @@ KisAboutApplication::KisAboutApplication(QWidget *parent)
             "Free for non-commercial use. Commercial use needs a license: <a href=\"https://purdy.design\">purdy.design</a></small></p>"
             "<p><small>Also included: 53 open-license font families (SIL Open Font License 1.1 and Apache License 2.0), free for any use. "
             "Their licenses: <a href=\"https://github.com/purdygeorgeedward-dev/krimble/tree/master/krita/data/fonts/open\">fonts/open</a></small></p>"));
-        pageLayout->addWidget(pictureLabel);
-        pageLayout->addWidget(versionLabel);
-        pageLayout->addWidget(linksLabel);
-        pageLayout->addWidget(fontsLabel);
-        pageLayout->addStretch(1);
+        if (sideways) {
+            QHBoxLayout *columns = new QHBoxLayout();
+            QVBoxLayout *left = new QVBoxLayout();
+            left->addWidget(pictureLabel);
+            left->addWidget(versionLabel);
+            left->addStretch(1);
+            QWidget *right = new QWidget();
+            QVBoxLayout *rightLayout = new QVBoxLayout(right);
+            rightLayout->addWidget(linksLabel);
+            rightLayout->addWidget(fontsLabel);
+            rightLayout->addStretch(1);
+            QScrollArea *rightArea = new QScrollArea(page);
+            rightArea->setWidgetResizable(true);
+            rightArea->setFrameShape(QFrame::NoFrame);
+            rightArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+            rightArea->setWidget(right);
+            columns->addLayout(left);
+            columns->addWidget(rightArea, 1);
+            pageLayout->addLayout(columns, 1);
+        } else {
+            pageLayout->addWidget(pictureLabel);
+            pageLayout->addWidget(versionLabel);
+            pageLayout->addWidget(linksLabel);
+            pageLayout->addWidget(fontsLabel);
+            pageLayout->addStretch(1);
+        }
+        // The seven tabs (About, Authors, Translators, Sponsors, Also Thanks To, License, Third-party libraries) were as wide as the window needs: the tab row scrolls now
+        if (QTabWidget *tabs = wdgTab->findChild<QTabWidget*>()) {
+            tabs->tabBar()->setUsesScrollButtons(true);
+            tabs->tabBar()->setElideMode(Qt::ElideNone);
+        }
         wdgTab->aboutTab->layout()->addWidget(page);
     }
 #else
@@ -282,7 +319,14 @@ KisAboutApplication::KisAboutApplication(QWidget *parent)
     }
 
     setMainWidget(wdgTab);
-    setMinimumSize(sizeHint());
+    // setMinimumSize(sizeHint());
+    // Q_ASSERT(layout());
+    // layout()->setSizeConstraint(QLayout::SetFixedSize);
+    // Krimble 2026-10-24: George: "the about dialog is still enormous." The window was fixed at exactly the size its contents ask for (the picture, the seven tabs, the text), which
+    // is bigger than a phone's screen, and could not be made smaller. It can be now: it opens at 92% by 90% of the screen and its pages scroll.
     Q_ASSERT(layout());
-    layout()->setSizeConstraint(QLayout::SetFixedSize);
+    if (QScreen *screen = QGuiApplication::primaryScreen()) {
+        const QRect available = screen->availableGeometry();
+        resize(int(available.width() * 0.92), int(available.height() * 0.90));
+    }
 }

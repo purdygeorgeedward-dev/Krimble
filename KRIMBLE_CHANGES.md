@@ -5342,3 +5342,23 @@ George asked whether the Text menu had been taken out to reduce clutter and said
 **Files:** `README.md`, `screenshots/krimble-sideways-alarm.jpg` (new)
 
 George: "We were trying to add screenshots to the readme so people get what the app is." A new section **SEE IT IN ACTION** sits after "What is Mobile-First?" and before "Why Krimble?". It shows one screenshot of Krimble 1.0.42 on a phone held sideways (the toolbox, image windows and the Tool Options, Color and Layers panels; the cover art "ALARM" by Spyder Charles), cropped of the black strip at the phone's left edge and shrunk to 1600 px wide (209 KB). It is the only one of George's keepers whose file was still available (the others, the queen, the elf, the Image > Adjustments menu and the two upright shots, were uploaded earlier and are no longer on hand: they can be sent again). More screenshots, the better ones from 1.0.43, can be added to `screenshots/` and to the same section.
+
+## 2026-10-24 (279th) — README: a second screenshot and a line on how people work
+
+**Files:** `README.md`, `screenshots/krimble-several-images-panels.jpg` (new)
+
+George (the 15 screenshots, "I wanted to show the flexibility of the interface and use the way people actually work in Photoshop. Take your pick."). Only 7 of the 15 files reached me again; of those the README now has **three image windows open with the full toolbox and the Tool Options, Color and Layers panels** (new) and the **ALARM** shot (from the 278th entry), under a line saying that Krimble works the way people work in Photoshop: several images, each in its own window, toolbox and panels where you want them, sideways or upright. The best shots (the queen, the elf with the toolbox floating in the middle, the upright one with the two-column toolbox, the Image > Adjustments menu) were among the files that did not arrive; they can be added when they are sent again.
+
+## 2026-10-24 (280th) — About dialog: no longer enormous
+
+**Files:** `libs/ui/dialogs/kis_about_application.cpp`
+
+George: "the about dialog is still enormous." Two causes. (1) At the end of the constructor the window was **locked to exactly the size its contents ask for** (`setMinimumSize(sizeHint())` and `QLayout::SetFixedSize`), and the About page asks for a 631 x 420 px picture (86% of the window's width) plus the version, four links and two paragraphs: far more than the 339 px of height of a phone held sideways, and it could not be made smaller. (2) The tab row of seven tabs needed its full width. **Now:** the lock is off (the lines are commented out) and the window opens at 92% x 90% of the screen; **sideways** the About page is two columns (the picture at 40% of the window's width with the version under it on the left; the links and the font text, scrolling, on the right); upright it is one column as before; the tab row has scroll buttons (`setUsesScrollButtons(true)`). `tools/syntax-check` reports no errors.
+**Not verified:** a build or a device.
+
+## 2026-10-24 (281st) — On-screen messages: shorter, and fewer
+
+**Files:** `libs/ui/widgets/kis_floating_message.cpp`, `plugins/tools/tool_smart_patch/content_aware_fill_plugin.cpp`, `tools/syntax-check/syntax_check.py`
+
+George: "sometimes the UI puts messages on screen that are unnecessary or last too long." **Time:** a message that asked for the usual 4.5 s now stays for 0.9 s plus 45 ms for each character of its text, between 1.4 s and 3.2 s (never longer than it asked); **high-priority** messages (errors, warnings) keep the time they asked for. **Fewer:** the Content-Aware Fill message "done (Sharp engine)" (mine, from the 235th entry, to find out which fill ran) is no longer shown when Krimble's own engine ran (the picture shows it worked); it is shown only when Krita's old fill had to be used instead, with the reason. **Still to do:** which other messages are unnecessary: George to say which he sees. **Start page, asked in the same message** ("Did you remove the Krita reference from the start screen?"): yes, in the 271st entry; the closing paragraph "Krita is an open source and community-driven tool..." is hidden, the links that said Krita are rewritten in the code ("Support Krimble", "Krimble Website"), and no other visible text on that page says Krita; it shows once the 1.0.43 build is installed. The checker (`syntax_check.py`) now also finds `KoAlwaysInline.h` (the repository root) and stands in for `.moc` files.
+**Not verified:** a build or a device.
