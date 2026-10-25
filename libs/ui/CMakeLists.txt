@@ -169,6 +169,8 @@ set(kritaui_LIB_SRCS
     kis_canvas_controls_manager.cpp
     kis_multinode_property.cpp
     KisWelcomePageWidget.cpp
+    KrimbleBatch.cpp         # Krimble 2026-10-25: Batch Process with recipes and WebP (engine)
+    KrimbleBatchDialog.cpp   # and its window
     KisUiFont.cpp
     KisIdleTasksManager.cpp
     KisIdleTaskStrokeStrategy.cpp
@@ -739,6 +741,12 @@ if (KRITA_USE_SURFACE_COLOR_MANAGEMENT_API)
         PRIVATE
             kritasurfacecolormanagementapi
     )
+endif()
+
+# Krimble 2026-10-25: Batch Process reads and writes WebP with libwebp (the same library as the WebP import and export plugins)
+if (WebP_FOUND)
+    target_link_libraries(kritaui PRIVATE WebP::webp)
+    target_compile_definitions(kritaui PRIVATE KRIMBLE_HAVE_WEBP)
 endif()
 
 if(WIN32)

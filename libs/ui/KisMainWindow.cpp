@@ -8,6 +8,7 @@
 */
 
 #include "KisMainWindow.h"
+#include "KrimbleBatchDialog.h"   // Krimble 2026-10-25: Batch Process with recipes and WebP
 
 #include <KoConfig.h>
 
@@ -1530,6 +1531,28 @@ static void krimbleShowShare(KisMainWindow *win)
 static void krimbleShowBatch(KisMainWindow *win)
 {
 #ifdef Q_OS_ANDROID
+    // Krimble 2026-10-25: George: "I'm working a lot with webp. I would like to add this feature." Batch Process is now KrimbleBatchDialog (KrimbleBatchDialog.cpp, with the engine
+    // in KrimbleBatch.cpp): recipes (resize, format JPG / PNG / WebP lossless / WebP lossy, quality, name) that can be changed and saved, WebP read and written with its transparency.
+    // Only the two things that need Android are here: asking for the pictures, and saving each result in Pictures/Krimble/Batch.
+    auto pickPictures = [win]() -> QStringList {
+        KoFileDialog fileDialog(win, KoFileDialog::OpenFiles, "KrimbleBatch");
+        fileDialog.setCaption(i18n("Choose pictures"));
+        fileDialog.setMimeTypeFilters(QStringList() << QStringLiteral("image/jpeg") << QStringLiteral("image/png")
+                                                    << QStringLiteral("image/webp") << QStringLiteral("image/bmp"));
+        return fileDialog.filenames();
+    };
+    auto savePicture = [](const QString &temp, const QString &mime, const QString &name) -> bool {
+        QAndroidJniObject jPath = QAndroidJniObject::fromString(temp);
+        QAndroidJniObject jMime = QAndroidJniObject::fromString(mime);
+        QAndroidJniObject jName = QAndroidJniObject::fromString(name);
+        QAndroidJniObject jFolder = QAndroidJniObject::fromString(QStringLiteral("Batch"));
+        return QAndroidJniObject::callStaticMethod<jboolean>("org/krimble/android/ShareHelper", "saveToPictures",
+            "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Z",
+            jPath.object<jstring>(), jMime.object<jstring>(), jName.object<jstring>(), jFolder.object<jstring>());
+    };
+    KrimbleBatchDialog *batchDialog = new KrimbleBatchDialog(win, pickPictures, savePicture, QStringLiteral("Pictures/Krimble/Batch"));
+    batchDialog->show();
+#if 0   // Krimble 2026-10-25: the Batch Process window before the recipes (2026-10-12 to 2026-10-24: six presets, JPG and PNG only), kept
     struct Preset { const char *label; int width; bool jpg; int quality; const char *suffix; };
     static const Preset presets[] = {
         // (the first version, by width, kept:)
@@ -1652,6 +1675,7 @@ static void krimbleShowBatch(KisMainWindow *win)
         dialog->resize(int(scr->availableGeometry().width() * 0.92), dialog->sizeHint().height() + 30);
     }
     dialog->show();
+#endif
 #else
     Q_UNUSED(win);
 #endif
