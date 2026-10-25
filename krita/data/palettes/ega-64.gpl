@@ -1,0 +1,68 @@
+GIMP Palette
+Name: EGA 64
+Columns: 8
+#
+  0   0   0	Index 0
+  0   0  85	Index 1
+  0   0 170	Index 2
+  0   0 255	Index 3
+  0  85   0	Index 4
+  0  85  85	Index 5
+  0  85 170	Index 6
+  0  85 255	Index 7
+  0 170   0	Index 8
+  0 170  85	Index 9
+  0 170 170	Index 10
+  0 170 255	Index 11
+  0 255   0	Index 12
+  0 255  85	Index 13
+  0 255 170	Index 14
+  0 255 255	Index 15
+ 85   0   0	Index 16
+ 85   0  85	Index 17
+ 85   0 170	Index 18
+ 85   0 255	Index 19
+ 85  85   0	Index 20
+ 85  85  85	Index 21
+ 85  85 170	Index 22
+ 85  85 255	Index 23
+ 85 170   0	Index 24
+ 85 170  85	Index 25
+ 85 170 170	Index 26
+ 85 170 255	Index 27
+ 85 255   0	Index 28
+ 85 255  85	Index 29
+ 85 255 170	Index 30
+ 85 255 255	Index 31
+170   0   0	Index 32
+170   0  85	Index 33
+170   0 170	Index 34
+170   0 255	Index 35
+170  85   0	Index 36
+170  85  85	Index 37
+170  85 170	Index 38
+170  85 255	Index 39
+170 170   0	Index 40
+170 170  85	Index 41
+170 170 170	Index 42
+170 170 255	Index 43
+170 255   0	Index 44
+170 255  85	Index 45
+170 255 170	Index 46
+170 255 255	Index 47
+255   0   0	Index 48
+255   0  85	Index 49
+255   0 170	Index 50
+255   0 255	Index 51
+255  85   0	Index 52
+255  85  85	Index 53
+255  85 170	Index 54
+255  85 255	Index 55
+255 170   0	Index 56
+255 170  85	Index 57
+255 170 170	Index 58
+255 170 255	Index 59
+255 255   0	Index 60
+255 255  85	Index 61
+255 255 170	Index 62
+255 255 255	Index 63

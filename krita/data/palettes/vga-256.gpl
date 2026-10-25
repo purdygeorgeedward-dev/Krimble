@@ -1,0 +1,262 @@
+GIMP Palette
+Name: VGA 256 (mode 13h)
+Columns: 16
+#
+# The default VGA palette of 256 colors: 16 CGA colors, 16 grays, 9 groups of 24 hues, 8 blacks.
+#
+  0   0   0	Index 0
+  0   0 170	Index 1
+  0 170   0	Index 2
+  0 170 170	Index 3
+170   0   0	Index 4
+170   0 170	Index 5
+170  85   0	Index 6
+170 170 170	Index 7
+ 85  85  85	Index 8
+ 85  85 255	Index 9
+ 85 255  85	Index 10
+ 85 255 255	Index 11
+255  85  85	Index 12
+255  85 255	Index 13
+255 255  85	Index 14
+255 255 255	Index 15
+  0   0   0	Index 16
+ 20  20  20	Index 17
+ 32  32  32	Index 18
+ 45  45  45	Index 19
+ 57  57  57	Index 20
+ 69  69  69	Index 21
+ 81  81  81	Index 22
+ 97  97  97	Index 23
+113 113 113	Index 24
+130 130 130	Index 25
+146 146 146	Index 26
+162 162 162	Index 27
+182 182 182	Index 28
+202 202 202	Index 29
+227 227 227	Index 30
+255 255 255	Index 31
+  0   0 255	Index 32
+ 65   0 255	Index 33
+125   0 255	Index 34
+190   0 255	Index 35
+255   0 255	Index 36
+255   0 190	Index 37
+255   0 125	Index 38
+255   0  65	Index 39
+255   0   0	Index 40
+255  65   0	Index 41
+255 125   0	Index 42
+255 190   0	Index 43
+255 255   0	Index 44
+190 255   0	Index 45
+125 255   0	Index 46
+ 65 255   0	Index 47
+  0 255   0	Index 48
+  0 255  65	Index 49
+  0 255 125	Index 50
+  0 255 190	Index 51
+  0 255 255	Index 52
+  0 190 255	Index 53
+  0 125 255	Index 54
+  0  65 255	Index 55
+125 125 255	Index 56
+158 125 255	Index 57
+190 125 255	Index 58
+223 125 255	Index 59
+255 125 255	Index 60
+255 125 223	Index 61
+255 125 190	Index 62
+255 125 158	Index 63
+255 125 125	Index 64
+255 158 125	Index 65
+255 190 125	Index 66
+255 223 125	Index 67
+255 255 125	Index 68
+223 255 125	Index 69
+190 255 125	Index 70
+158 255 125	Index 71
+125 255 125	Index 72
+125 255 158	Index 73
+125 255 190	Index 74
+125 255 223	Index 75
+125 255 255	Index 76
+125 223 255	Index 77
+125 190 255	Index 78
+125 158 255	Index 79
+182 182 255	Index 80
+198 182 255	Index 81
+219 182 255	Index 82
+235 182 255	Index 83
+255 182 255	Index 84
+255 182 235	Index 85
+255 182 219	Index 86
+255 182 198	Index 87
+255 182 182	Index 88
+255 198 182	Index 89
+255 219 182	Index 90
+255 235 182	Index 91
+255 255 182	Index 92
+235 255 182	Index 93
+219 255 182	Index 94
+198 255 182	Index 95
+182 255 182	Index 96
+182 255 198	Index 97
+182 255 219	Index 98
+182 255 235	Index 99
+182 255 255	Index 100
+182 235 255	Index 101
+182 219 255	Index 102
+182 198 255	Index 103
+  0   0 113	Index 104
+ 28   0 113	Index 105
+ 57   0 113	Index 106
+ 85   0 113	Index 107
+113   0 113	Index 108
+113   0  85	Index 109
+113   0  57	Index 110
+113   0  28	Index 111
+113   0   0	Index 112
+113  28   0	Index 113
+113  57   0	Index 114
+113  85   0	Index 115
+113 113   0	Index 116
+ 85 113   0	Index 117
+ 57 113   0	Index 118
+ 28 113   0	Index 119
+  0 113   0	Index 120
+  0 113  28	Index 121
+  0 113  57	Index 122
+  0 113  85	Index 123
+  0 113 113	Index 124
+  0  85 113	Index 125
+  0  57 113	Index 126
+  0  28 113	Index 127
+ 57  57 113	Index 128
+ 69  57 113	Index 129
+ 85  57 113	Index 130
+ 97  57 113	Index 131
+113  57 113	Index 132
+113  57  97	Index 133
+113  57  85	Index 134
+113  57  69	Index 135
+113  57  57	Index 136
+113  69  57	Index 137
+113  85  57	Index 138
+113  97  57	Index 139
+113 113  57	Index 140
+ 97 113  57	Index 141
+ 85 113  57	Index 142
+ 69 113  57	Index 143
+ 57 113  57	Index 144
+ 57 113  69	Index 145
+ 57 113  85	Index 146
+ 57 113  97	Index 147
+ 57 113 113	Index 148
+ 57  97 113	Index 149
+ 57  85 113	Index 150
+ 57  69 113	Index 151
+ 81  81 113	Index 152
+ 89  81 113	Index 153
+ 97  81 113	Index 154
+105  81 113	Index 155
+113  81 113	Index 156
+113  81 105	Index 157
+113  81  97	Index 158
+113  81  89	Index 159
+113  81  81	Index 160
+113  89  81	Index 161
+113  97  81	Index 162
+113 105  81	Index 163
+113 113  81	Index 164
+105 113  81	Index 165
+ 97 113  81	Index 166
+ 89 113  81	Index 167
+ 81 113  81	Index 168
+ 81 113  89	Index 169
+ 81 113  97	Index 170
+ 81 113 105	Index 171
+ 81 113 113	Index 172
+ 81 105 113	Index 173
+ 81  97 113	Index 174
+ 81  89 113	Index 175
+  0   0  65	Index 176
+ 16   0  65	Index 177
+ 32   0  65	Index 178
+ 49   0  65	Index 179
+ 65   0  65	Index 180
+ 65   0  49	Index 181
+ 65   0  32	Index 182
+ 65   0  16	Index 183
+ 65   0   0	Index 184
+ 65  16   0	Index 185
+ 65  32   0	Index 186
+ 65  49   0	Index 187
+ 65  65   0	Index 188
+ 49  65   0	Index 189
+ 32  65   0	Index 190
+ 16  65   0	Index 191
+  0  65   0	Index 192
+  0  65  16	Index 193
+  0  65  32	Index 194
+  0  65  49	Index 195
+  0  65  65	Index 196
+  0  49  65	Index 197
+  0  32  65	Index 198
+  0  16  65	Index 199
+ 32  32  65	Index 200
+ 40  32  65	Index 201
+ 49  32  65	Index 202
+ 57  32  65	Index 203
+ 65  32  65	Index 204
+ 65  32  57	Index 205
+ 65  32  49	Index 206
+ 65  32  40	Index 207
+ 65  32  32	Index 208
+ 65  40  32	Index 209
+ 65  49  32	Index 210
+ 65  57  32	Index 211
+ 65  65  32	Index 212
+ 57  65  32	Index 213
+ 49  65  32	Index 214
+ 40  65  32	Index 215
+ 32  65  32	Index 216
+ 32  65  40	Index 217
+ 32  65  49	Index 218
+ 32  65  57	Index 219
+ 32  65  65	Index 220
+ 32  57  65	Index 221
+ 32  49  65	Index 222
+ 32  40  65	Index 223
+ 45  45  65	Index 224
+ 49  45  65	Index 225
+ 53  45  65	Index 226
+ 61  45  65	Index 227
+ 65  45  65	Index 228
+ 65  45  61	Index 229
+ 65  45  53	Index 230
+ 65  45  49	Index 231
+ 65  45  45	Index 232
+ 65  49  45	Index 233
+ 65  53  45	Index 234
+ 65  61  45	Index 235
+ 65  65  45	Index 236
+ 61  65  45	Index 237
+ 53  65  45	Index 238
+ 49  65  45	Index 239
+ 45  65  45	Index 240
+ 45  65  49	Index 241
+ 45  65  53	Index 242
+ 45  65  61	Index 243
+ 45  65  65	Index 244
+ 45  61  65	Index 245
+ 45  53  65	Index 246
+ 45  49  65	Index 247
+  0   0   0	Index 248
+  0   0   0	Index 249
+  0   0   0	Index 250
+  0   0   0	Index 251
+  0   0   0	Index 252
+  0   0   0	Index 253
+  0   0   0	Index 254
+  0   0   0	Index 255

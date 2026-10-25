@@ -1,0 +1,22 @@
+GIMP Palette
+Name: Commodore 64
+Columns: 8
+#
+# The Pepto palette.
+#
+  0   0   0	Index 0
+255 255 255	Index 1
+104  55  43	Index 2
+112 164 178	Index 3
+111  61 134	Index 4
+ 88 141  67	Index 5
+ 53  40 121	Index 6
+184 199 111	Index 7
+111  79  37	Index 8
+ 67  57   0	Index 9
+154 103  89	Index 10
+ 68  68  68	Index 11
+108 108 108	Index 12
+154 210 132	Index 13
+108  94 181	Index 14
+149 149 149	Index 15

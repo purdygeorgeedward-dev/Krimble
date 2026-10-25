@@ -103,7 +103,10 @@ static QString krimbleTextSvg(const QString &text)
     // Krimble 2026-10-19: George (1.0.39, test list, item 8): the Type tool "does not display emojis". The chosen font has no emoji, and the text
     // engine was given only that one family. The phone's color emoji fonts are now listed after it, as fallbacks for the characters it lacks
     // (Android's own, and Samsung's). Reading the style back (krimbleApplyTextProperty) still takes only the first family.
-    QString style = QStringLiteral("font-family:'%1', 'Noto Color Emoji', 'Samsung Color Emoji'; font-size:%2pt; fill:%3; text-anchor:%4;")
+    // QString style = QStringLiteral("font-family:'%1', 'Noto Color Emoji', 'Samsung Color Emoji'; font-size:%2pt; fill:%3; text-anchor:%4;")
+    // Krimble 2026-10-24: emoji still did not show (George, 1.0.41 and 1.0.42): the text engine probably cannot draw the phone's color emoji fonts (bitmap or layered). "Noto Emoji", the
+    // monochrome outline font (SIL OFL 1.1, bundled in fonts/open), comes first among the fallbacks: an emoji is drawn as a shape in the text color. The color fonts follow, as before.
+    QString style = QStringLiteral("font-family:'%1', 'Noto Emoji', 'Noto Color Emoji', 'Samsung Color Emoji'; font-size:%2pt; fill:%3; text-anchor:%4;")
                         .arg(family.toHtmlEscaped(), QString::number(s_size), s_color.name(), anchor);
     if (s_bold) style += QStringLiteral(" font-weight:bold;");
     if (s_italic) style += QStringLiteral(" font-style:italic;");

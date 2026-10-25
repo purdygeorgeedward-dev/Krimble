@@ -1,0 +1,20 @@
+GIMP Palette
+Name: Windows 16
+Columns: 8
+#
+  0   0   0	Index 0
+128   0   0	Index 1
+  0 128   0	Index 2
+128 128   0	Index 3
+  0   0 128	Index 4
+128   0 128	Index 5
+  0 128 128	Index 6
+192 192 192	Index 7
+128 128 128	Index 8
+255   0   0	Index 9
+  0 255   0	Index 10
+255 255   0	Index 11
+  0   0 255	Index 12
+255   0 255	Index 13
+  0 255 255	Index 14
+255 255 255	Index 15

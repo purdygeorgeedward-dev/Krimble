@@ -1,0 +1,20 @@
+GIMP Palette
+Name: CGA 16
+Columns: 8
+#
+  0   0   0	Index 0
+  0   0 170	Index 1
+  0 170   0	Index 2
+  0 170 170	Index 3
+170   0   0	Index 4
+170   0 170	Index 5
+170  85   0	Index 6
+170 170 170	Index 7
+ 85  85  85	Index 8
+ 85  85 255	Index 9
+ 85 255  85	Index 10
+ 85 255 255	Index 11
+255  85  85	Index 12
+255  85 255	Index 13
+255 255  85	Index 14
+255 255 255	Index 15

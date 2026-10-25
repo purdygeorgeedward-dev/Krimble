@@ -22,6 +22,8 @@
 #include <QToolButton>
 #include <QLabel>
 #include <QApplication>
+#include <QGuiApplication>   // Krimble 2026-10-24
+#include <QScreen>
 #include <QGridLayout>
 #include <QCheckBox>
 #include <QMimeData>
@@ -998,6 +1000,13 @@ void KisKEditToolBarWidget::rebuildKisKXMLGUIClients()
 
 void KisKEditToolBarWidgetPrivate::setupLayout()
 {
+    // Krimble 2026-10-24: George (test list item 10): "Edit > Customize Toolbar is double the width it should be". The two lists (180 px at least each) side by side with a grid of arrow
+    // buttons between them need about 500 px; a phone held upright is about 340. On a narrow or upright screen the lists are one above the other: Available actions, a row with the
+    // Add (down) and Remove (up) buttons, then Current actions with the Up and Down buttons beside it. Sideways the lists are side by side as before, but smaller.
+    bool narrow = false;
+    if (QScreen *screen = QGuiApplication::primaryScreen()) {
+        narrow = screen->availableGeometry().width() < screen->availableGeometry().height() || screen->availableGeometry().width() < 600;
+    }
     // the toolbar name combo
     m_comboLabel = new QLabel(i18n("&Toolbar:"), m_widget);
     m_toolbarCombo = new QComboBox(m_widget);
@@ -1018,7 +1027,8 @@ void KisKEditToolBarWidgetPrivate::setupLayout()
     m_inactiveList = new ToolBarListWidget(m_widget);
     m_inactiveList->setDragEnabled(true);
     m_inactiveList->setActiveList(false);
-    m_inactiveList->setMinimumSize(180, 250);
+    // m_inactiveList->setMinimumSize(180, 250);
+    m_inactiveList->setMinimumSize(narrow ? 100 : 130, narrow ? 80 : 150);   // Krimble 2026-10-24: smaller
     m_inactiveList->setDropIndicatorShown(false); // #165663
     inactive_label->setBuddy(m_inactiveList);
     QObject::connect(m_inactiveList, SIGNAL(itemSelectionChanged()),
@@ -1046,7 +1056,8 @@ void KisKEditToolBarWidgetPrivate::setupLayout()
     m_activeList->setDragEnabled(true);
     m_activeList->setActiveList(true);
     // With Qt-4.1 only setting MiniumWidth results in a 0-width icon column ...
-    m_activeList->setMinimumSize(m_inactiveList->minimumWidth(), 100);
+    // m_activeList->setMinimumSize(m_inactiveList->minimumWidth(), 100);
+    m_activeList->setMinimumSize(m_inactiveList->minimumWidth(), narrow ? 80 : 100);   // Krimble 2026-10-24
     active_label->setBuddy(m_activeList);
 
     QObject::connect(m_activeList, SIGNAL(itemSelectionChanged()),
@@ -1100,6 +1111,12 @@ void KisKEditToolBarWidgetPrivate::setupLayout()
     m_downAction->setAutoRepeat(true);
     QObject::connect(m_downAction, SIGNAL(clicked()), m_widget, SLOT(slotDownButton()));
 
+    if (narrow) {
+        // the lists are one above the other: Add moves down, Remove moves up
+        m_insertAction->setIcon(KisIconUtils::loadIcon(QStringLiteral("arrow-down")));
+        m_removeAction->setIcon(KisIconUtils::loadIcon(QStringLiteral("arrow-up")));
+    }
+
     m_helpArea = new QLabel(m_widget);
     m_helpArea->setWordWrap(true);
 
@@ -1137,13 +1154,47 @@ void KisKEditToolBarWidgetPrivate::setupLayout()
     active_layout->addWidget(m_activeList, 1);
     active_layout->addWidget(m_changeIconAction);
 
-    list_layout->addLayout(inactive_layout);
-    list_layout->addLayout(button_layout);
-    list_layout->addLayout(active_layout);
+    // list_layout->addLayout(inactive_layout);
+    // list_layout->addLayout(button_layout);
+    // list_layout->addLayout(active_layout);
+    QVBoxLayout *stacked_layout = new QVBoxLayout();   // Krimble 2026-10-24: used on a narrow or upright screen
+    if (!narrow) {
+        list_layout->addLayout(inactive_layout);
+        list_layout->addLayout(button_layout);
+        list_layout->addLayout(active_layout);
+    } else {
+        QHBoxLayout *move_row = new QHBoxLayout();
+        move_row->addStretch(1);
+        move_row->addWidget(m_insertAction);
+        move_row->addWidget(m_removeAction);
+        move_row->addStretch(1);
+        // Up and Down sit beside the list of current actions (the arrows were in the middle grid, which is not used here)
+        QVBoxLayout *reorder_column = new QVBoxLayout();
+        reorder_column->addStretch(1);
+        reorder_column->addWidget(m_upAction);
+        reorder_column->addWidget(m_downAction);
+        reorder_column->addStretch(1);
+        QHBoxLayout *active_row = new QHBoxLayout();
+        active_row->addWidget(m_activeList, 1);
+        active_row->addLayout(reorder_column);
+        // active_layout has the list in it already (added above); it is emptied and filled again in the new order
+        QLayoutItem *item = nullptr;
+        while ((item = active_layout->takeAt(0)) != nullptr) {
+            delete item;   // only the layout items: the widgets stay (they are added again below)
+        }
+        active_layout->addWidget(active_label);
+        active_layout->addWidget(activeListSearchLine);
+        active_layout->addLayout(active_row, 1);
+        active_layout->addWidget(m_changeIconAction);
+        stacked_layout->addLayout(inactive_layout, 1);
+        stacked_layout->addLayout(move_row);
+        stacked_layout->addLayout(active_layout, 1);
+    }
 
     top_layout->addLayout(name_layout);
     top_layout->addWidget(m_comboSeparator);
-    top_layout->addLayout(list_layout, 10);
+    if (narrow) top_layout->addLayout(stacked_layout, 10);
+    else top_layout->addLayout(list_layout, 10);
     top_layout->addWidget(m_helpArea);
     top_layout->addWidget(new KSeparator(m_widget));
 }

@@ -6907,6 +6907,8 @@ void KisMainWindow::updateWindowMenu()
                 QTimer::singleShot(0, this, [this]() { krimbleStackToolBars(this); });
             });
         });
+        // Krimble 2026-10-24: Customize Toolbar... is here, with the other toolbar items (George, test list item 10); it was in the Edit menu
+        addActionByName("options_configure_toolbars");
         addActionByName("lock_toolbars");
         menu->addSeparator();
         menu->addAction(d->dockWidgetMenu);

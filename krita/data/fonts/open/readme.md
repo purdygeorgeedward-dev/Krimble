@@ -1,6 +1,6 @@
 # Open-license fonts that come with Krimble
 
-Added 2026-10-18. 52 families, picked by George Edward Purdy; files from the Google Fonts repository (https://github.com/google/fonts).
+Added 2026-10-18. 53 families (Noto Emoji added 2026-10-24), picked by George Edward Purdy; files from the Google Fonts repository (https://github.com/google/fonts).
 
 - These fonts are **not** part of Krimble's GPL code and are **not** Purdy Design fonts. Each is under its own open license: the **SIL Open Font License 1.1** (OFL) or the **Apache License 2.0**. Both allow use for any purpose, commercial included, and allow them to be bundled with software. They may not be sold by themselves.
 - The license of every family is in `licenses/` (file name: family, then license). The copyright notices inside the font files are kept.
@@ -61,5 +61,6 @@ Added 2026-10-18. 52 families, picked by George Edward Purdy; files from the Goo
 | Tinos | OFL 1.1 | Latin subset |
 | UnifrakturMaguntia | OFL 1.1 | as published |
 | Varela Round | OFL 1.1 | as published |
+| Noto Emoji | OFL 1.1 | as published (the monochrome emoji outlines; used by the Type tool for emoji, 2026-10-24) |
 
 (Last updated 2026-10-18.)

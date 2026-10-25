@@ -100,7 +100,7 @@ KisAboutApplication::KisAboutApplication(QWidget *parent)
         fontsLabel->setText(QStringLiteral(
             "<p><small>Purdy Design fonts (ROBO, Cartoonist Kooky, Cyberspace, Emoticons, Emoticons Outline) &copy; George Edward Purdy, Purdy Design. "
             "Free for non-commercial use. Commercial use needs a license: <a href=\"https://purdy.design\">purdy.design</a></small></p>"
-            "<p><small>Also included: 52 open-license font families (SIL Open Font License 1.1 and Apache License 2.0), free for any use. "
+            "<p><small>Also included: 53 open-license font families (SIL Open Font License 1.1 and Apache License 2.0), free for any use. "
             "Their licenses: <a href=\"https://github.com/purdygeorgeedward-dev/krimble/tree/master/krita/data/fonts/open\">fonts/open</a></small></p>"));
         pageLayout->addWidget(pictureLabel);
         pageLayout->addWidget(versionLabel);

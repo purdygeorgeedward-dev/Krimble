@@ -1,0 +1,8 @@
+GIMP Palette
+Name: Game Boy
+Columns: 4
+#
+ 15  56  15	Index 0
+ 48  98  48	Index 1
+139 172  15	Index 2
+155 188  15	Index 3
