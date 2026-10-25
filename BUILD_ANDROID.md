@@ -402,7 +402,7 @@ step.
 | 1.0.32 beta | `3774d49` | `v1.0.32-beta` (was `1.0.32b` until 2026-10-24) | |
 | 1.0.33 beta | `3c7f2aa` | not tagged yet | first build with Share, Quick tools, Help items |
 | 1.0.34 beta | see `git log` | | |
-| 1.0.43 beta | `d6b6b48` | `v1.0.43-beta` (tag made on 2026-10-25) | The release is a **draft** (id 423033197, notes written) until the APK is attached with `~/kb-release.sh --publish`. Later pushes are not in this build. 1.0.35 to 1.0.42 are on the Releases page (this table was not kept up). |
+| 1.0.43 beta | `d6b6b48` | `v1.0.43-beta` (tag made on 2026-10-25) | **Published 2026-10-25, 3:09 PM MT** (id 423033197, pre-release, `Krimble-1.0.43-beta-Oct25-0813.apk`, 180,983,744 bytes attached; checked through the API). Later pushes are not in this build. 1.0.35 to 1.0.42 are on the Releases page (this table was not kept up). |
 
 Each tag must sit on the commit the APK was built from, not on `master` at posting time. Create it with
 `git push origin <commit>:refs/tags/<name>` before choosing "existing tag" on the release page.
