@@ -5,7 +5,7 @@ Pictures made for Krimble, kept here at full size. The program uses smaller copi
 ## Used by the program
 
 - `3d/` - the pictures for the pages of Edit > Preferences (512 x 512 PNG, transparent background): general (George's house picture, 2026-10-25), keyboard (George's keyboard picture, 2026-10-25; the picture as he sent it is `keyboard-george-2026-10-25.png`), canvas-input, display, color-manage (Color Management), performance, tablet, canvas-only, popup-palette (Pop-up Palette), color-selector (Color Selector Settings), spen-remote (S-Pen Actions). The others came from the 3D icon sheet of 2026-10-23.
-- `new-document/` - the 7 pictures for the sections of File > New (the pictures of 2026-10-13): custom-document, create-from-clipboard, animation, comics, design, dslr, texture.
+- `new-document/` - the 7 pictures for the sections of File > New (the pictures of 2026-10-13): custom-document, create-from-clipboard, animation, comics, design, dslr, texture. The picture for create-from-clipboard was replaced on 2026-10-25 by George's clipboard with the pencil sketch (the rainbow clipboard was removed; it is in the git history).
 - `file-info/author-robot.png` - the robot head: the picture of Edit > Preferences > Author, and of the Author part of File > File Information.
 
 Where the copies are:
