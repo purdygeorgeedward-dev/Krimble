@@ -817,8 +817,15 @@ protected:
     // static constexpr int kTabHeight = 140;  // logical px tall, at most the height of the panels' column
     static constexpr int kTabHeight = 70;   // Krimble 2026-10-23 (2nd): George (1.0.42): "The handle on the toolbox is about 2x the height it should be, but it works great." 140 -> 70
 
+    // Krimble 2026-10-25: George (1.0.43): "Now we have the little dots and the handle and more dots. As long as we have the little dots there I think we can make the handle
+    // invisible (as long as it works)." The tab (its shape and its dotted line) is not drawn any more; its touch zone (kTabZone wide, kTabHeight tall, in the middle of the
+    // column of panels) is exactly as before, so a finger on it still resizes that side. Krita's own dotted handle in the separator (the "little dots", 212th entry) stays.
+    // Set this to true to see the tab again.
+    static constexpr bool kTabVisible = false;
+
     void paintEvent(QPaintEvent *) override
     {
+        if (!kTabVisible) return;
         // Krimble 2026-10-13 (6th): nothing is drawn any more (the grab zone is invisible). The old drawing is kept below, not run.
         // return;
         // Krimble 2026-10-23: the tab from George's drawing: panel color, angled ends, dotted line down the middle.
