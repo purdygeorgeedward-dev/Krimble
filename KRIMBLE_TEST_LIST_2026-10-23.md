@@ -54,4 +54,4 @@ Status: DONE = pushed (in the build after 1.0.41); OPEN = not done yet; ASK = a 
 50. (George, 1.0.41) Restyle part of a text (a word bold, a letter another color). **NOT DONE** (needs per-range styling in the window and in the SVG).
 51. (George, 2026-10-24) The About dialog is still enormous. **DONE** (280th, not seen: it opens at 92% x 90% of the screen, is no longer locked to its contents' size; sideways the About page is two columns; the tab row scrolls)
 52. (George, 2026-10-24) The UI sometimes puts messages on screen that are unnecessary or last too long. **DONE** (281st, not seen: messages last 0.9 s + 45 ms a character, 1.4 to 3.2 s; high-priority ones keep their time; the Content-Aware Fill message only appears when the old fallback fill ran). **ASK** which messages are unnecessary, to remove them.
-
+53. (George, 2026-10-24) The how-to message of the Polygonal Selection tool has to go ("it just gets in the way; they can read the manual after we write it"). **DONE** (282nd, not seen)

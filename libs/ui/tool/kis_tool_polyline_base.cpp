@@ -162,11 +162,13 @@ void KisToolPolylineBase::beginPrimaryAction(KoPointerEvent *event)
         if (m_points.empty()) {
             m_points.append(pressPoint);
             m_firstPointJustPlaced = true;
-            if (m_type == SELECT) {
-                if (KisCanvas2 *kiscanvas = dynamic_cast<KisCanvas2*>(canvas())) {
-                    kiscanvas->viewManager()->showFloatingMessage(i18n("Tap or drag to put down each point. Drop a point on the first one to close the selection."), QIcon());
-                }
-            }
+            // if (m_type == SELECT) {
+            //     if (KisCanvas2 *kiscanvas = dynamic_cast<KisCanvas2*>(canvas())) {
+            //         kiscanvas->viewManager()->showFloatingMessage(i18n("Tap or drag to put down each point. Drop a point on the first one to close the selection."), QIcon());
+            //     }
+            // }
+            // Krimble 2026-10-24: George: "that message on the poly select tool has to go. It just gets in the way. They can read the manual after we write it." (the how-to text of the
+            // Polygonal Selection tool, shown at the first point; the manual will have it)
         }
         m_pressPoint = pressPoint;
         m_dragStart = m_points.last();
@@ -196,11 +198,12 @@ void KisToolPolylineBase::beginPrimaryAction(KoPointerEvent *event)
         beginShape();
         m_dragging = true;
 #ifdef Q_OS_ANDROID
-        if (m_type == SELECT && m_points.empty()) {
-            if (KisCanvas2 *kiscanvas = dynamic_cast<KisCanvas2*>(canvas())) {
-                kiscanvas->viewManager()->showFloatingMessage(i18n("Tap each corner. Tap the first point again to close the selection."), QIcon());
-            }
-        }
+        // if (m_type == SELECT && m_points.empty()) {
+        //     if (KisCanvas2 *kiscanvas = dynamic_cast<KisCanvas2*>(canvas())) {
+        //         kiscanvas->viewManager()->showFloatingMessage(i18n("Tap each corner. Tap the first point again to close the selection."), QIcon());
+        //     }
+        // }
+        // Krimble 2026-10-24: the same how-to message, the older version of it: gone (see above)
 #endif
     }
 }
