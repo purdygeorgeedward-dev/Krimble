@@ -70,7 +70,7 @@ Krimble works the way people actually work in Photoshop: **several images open a
 <img src="screenshots/krimble-sideways-alarm.jpg" alt="Krimble on an Android phone held sideways: a thin toolbox on the left, two image windows side by side, the panels on the right" width="100%">
 </div>
 
-*A slimmer toolbox and two images side by side. (Cover art: "ALARM" by Spyder Charles.)*
+*A slimmer toolbox and two images side by side. (Cover art: "20" by Marque English and "ALARM" by Spyder Charles.)*
 
 <div align="center">
 <table>
