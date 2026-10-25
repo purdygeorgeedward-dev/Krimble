@@ -2,7 +2,7 @@
 
 Written 2026-10-25, 2:55 PM Mountain Time. The 1.0.43 build on George's phone was compiled from commit **`d6b6b48`**. Everything below was pushed after it. **None of it has been compiled or run on a phone** (the sandbox cannot compile the app; changes were syntax-checked with `tools/syntax-check/syntax_check.py` where that works, and the benches in `tools/*-bench` run the new windows and engines on a desktop with Qt 5.15). The next build is the first time it is all built together, so **the compile may fail**: if it does, George sends the last 30 lines of `~/build-latest.log`.
 
-**The version number in the repo is still 43.** 1.0.43 was published on GitHub on 2026-10-25 at 3:09 PM MT (APK attached), so the process rule is satisfied: the number can change to 44 when George says go.
+**The version number in the repo is now 44** (entry 303, 2026-10-25, after George said "Let's build"). 1.0.43 was published on GitHub on 2026-10-25 at 3:09 PM MT (APK attached), so the process rule was satisfied. This list is what **1.0.44** adds to 1.0.43.
 
 ## The changes (entry numbers are in `KRIMBLE_CHANGES.md`; times in `KRIMBLE_WORKLOG.md`)
 

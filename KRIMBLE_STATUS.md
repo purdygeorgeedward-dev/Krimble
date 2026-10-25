@@ -7,7 +7,7 @@ KRIMBLE_CHANGES.md if this file and the changelog ever disagree.
 
 ## Now (2026-10-25, 2:55 PM MT)
 - **Released:** v1.0.29-beta to **v1.0.43-beta** (published 2026-10-25, 3:09 PM MT, APK attached, verified through the API). 1.0.43 is installed on George's phone.
-- **In the repo, not in 1.0.43:** see `KRIMBLE_NEXT_BUILD.md`. Repo version number: 43 (1.0.43 is published; Version 44 when George says go).
+- **In the repo, not in 1.0.43:** see `KRIMBLE_NEXT_BUILD.md`. Repo version number: 44 (set 2026-10-25; 1.0.43 is published; the 1.0.44 build is being made).
 - **Biggest open problem:** Krimble relaunches when George switches apps (the picture is gone). Likely cause found and fixed in the repo (entry 299: native functions with old Krita names crashed the app on every Back press); a log window (Help > Show Krimble Log...) was added for evidence (entry 300). Untested.
 - **Every push with its time:** `KRIMBLE_WORKLOG.md`. **Full explanation of each change:** `KRIMBLE_CHANGES.md`. **George's test list:** `KRIMBLE_TEST_LIST_2026-10-23.md` (items up to 67). **Where to pick up:** `SESSION_CATCHUP.md`.
 
