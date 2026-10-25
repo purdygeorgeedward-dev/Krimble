@@ -10,7 +10,7 @@
                  android:roundIcon="@mipmap/ic_launcher_round"
                  android:hasFragileUserData="true" >
 
-        <activity android:configChanges="orientation|uiMode|screenLayout|screenSize|smallestScreenSize|layoutDirection|locale|fontScale|keyboard|keyboardHidden|navigation|mcc|mnc|density"
+        <activity android:configChanges="orientation|uiMode|screenLayout|screenSize|smallestScreenSize|layoutDirection|locale|fontScale|keyboard|keyboardHidden|navigation|mcc|mnc|density|colorMode|touchscreen|fontWeightAdjustment|grammaticalGender"
                   android:name="org.krimble.android.MainActivity"
                   android:label="Krimble"
                   android:screenOrientation="unspecified"

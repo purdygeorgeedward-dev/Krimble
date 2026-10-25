@@ -15,6 +15,7 @@ import android.app.ApplicationExitInfo;
 import android.app.ForegroundServiceStartNotAllowedException;
 import android.app.ServiceStartNotAllowedException;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Rect;
@@ -69,6 +70,7 @@ public class MainActivity extends QtActivity {
         SDLAudioManager.nativeSetupJNI();
 
         super.onCreate(savedInstanceState);
+        krimbleDiagAtStart();   // Krimble 2026-10-25: how the previous run ended (see Help > Show Krimble Log...)
         Log.i(TAG, "TouchSlop: " + ViewConfiguration.get(this).getScaledTouchSlop());
         Log.i(TAG, "LibsLoaded");
         haveLibsLoaded = true;
@@ -205,6 +207,7 @@ public class MainActivity extends QtActivity {
         // is killed. This means, for us that the service has been stopped.
 
         Log.i(TAG, "[onDestroy]");
+        krimbleDiagAtDestroy();   // Krimble 2026-10-25: write down that and why Android destroyed the window (the next line kills the whole process)
         startServiceGeneric(DocumentSaverService.KILL_PROCESS);
 
         super.onDestroy();
@@ -285,6 +288,50 @@ public class MainActivity extends QtActivity {
 
     private static boolean containsXiaomi(String s) {
         return s != null && s.toLowerCase().contains("xiaomi");
+    }
+
+    // Krimble 2026-10-25: George: "Krimble relaunches constantly on switching ... I want it to stop crashing." When Android destroys the activity, onDestroy() kills the whole process
+    // (it has to: QtActivity cannot be made again in a process that is still alive), so every destroy is a full relaunch with the open picture gone. To learn WHY Android destroys it, onDestroy
+    // writes down whether the activity was finishing (the user went Back) or being changed by a configuration change, and the configuration then and at the start (the difference names what
+    // changed). The next run keeps that as "previousRun"; if onDestroy never ran, Android ended the process without destroying the window (killed, or a crash), and that is written instead.
+    // Help > Show Krimble Log... shows it, with the "Last exit:" lines of the log (what Android says about how the process ended).
+    private static final String DIAG_PREFS = "krimble_diag";
+
+    private void krimbleDiagAtStart() {
+        try {
+            SharedPreferences prefs = getSharedPreferences(DIAG_PREFS, MODE_PRIVATE);
+            String last = prefs.getString("lastDestroy", null);
+            prefs.edit()
+                .putString("previousRun", last != null ? last
+                        : "onDestroy did NOT run in the previous run: Android ended the process without destroying the window (killed, or a crash).")
+                .remove("lastDestroy")
+                .putString("startConfig", getResources().getConfiguration().toString())
+                .apply();
+        } catch (Exception e) {
+            Log.w(TAG, "krimbleDiagAtStart: " + e);
+        }
+    }
+
+    private void krimbleDiagAtDestroy() {
+        try {
+            SharedPreferences prefs = getSharedPreferences(DIAG_PREFS, MODE_PRIVATE);
+            String record = new java.util.Date() + ": onDestroy, isFinishing=" + isFinishing()
+                    + ", isChangingConfigurations=" + isChangingConfigurations()
+                    + "\n  configuration now: " + getResources().getConfiguration()
+                    + "\n  configuration at start: " + prefs.getString("startConfig", "?");
+            prefs.edit().putString("lastDestroy", record).commit();
+        } catch (Exception e) {
+            Log.w(TAG, "krimbleDiagAtDestroy: " + e);
+        }
+    }
+
+    // called from C++ (Help > Show Krimble Log...)
+    public String getLastDestroyRecord() {
+        try {
+            return getSharedPreferences(DIAG_PREFS, MODE_PRIVATE).getString("previousRun", "");
+        } catch (Exception e) {
+            return "";
+        }
     }
 
     public ApplicationExitInfo getLastApplicationExitInfo() {

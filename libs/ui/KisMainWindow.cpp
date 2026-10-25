@@ -10,6 +10,7 @@
 #include "KisMainWindow.h"
 #include "KrimbleBatchDialog.h"   // Krimble 2026-10-25: Batch Process with recipes and WebP
 #include "KrimbleHelpDialog.h"    // Krimble 2026-10-25: Help > Krimble Help
+#include "KrimbleLogDialog.h"     // Krimble 2026-10-25: Help > Show Krimble Log...
 
 #include <KoConfig.h>
 
@@ -4297,6 +4298,29 @@ KisMainWindow::KisMainWindow(QUuid uuid)
         }
         if (aboutKdeAction) {
             actions->addAction(aboutKdeAction->objectName(), aboutKdeAction);
+        }
+        // Krimble 2026-10-25: George: "Krimble relaunches constantly on switching ... I want it to stop crashing." The log (krita.log) already says at every start why the run before ended; this shows it.
+        {
+            QAction *showLogAction = new QAction(i18n("Show Krimble Log..."), this);
+            connect(showLogAction, &QAction::triggered, this, [this]() {
+                QString extra;
+#ifdef Q_OS_ANDROID
+                {
+                    QAndroidJniEnvironment env;
+                    QAndroidJniObject activity = QtAndroid::androidActivity();
+                    if (activity.isValid()) {
+                        QAndroidJniObject record = activity.callObjectMethod("getLastDestroyRecord", "()Ljava/lang/String;");
+                        if (env->ExceptionCheck()) {
+                            env->ExceptionClear();
+                        } else if (record.isValid()) {
+                            extra = record.toString();
+                        }
+                    }
+                }
+#endif
+                (new KrimbleLogDialog(this, QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) + QStringLiteral("/krita.log"), extra))->show();
+            });
+            actions->addAction(QStringLiteral("krimble_show_log"), showLogAction);
         }
 
         connect(d->helpMenu, SIGNAL(showAboutApplication()), SLOT(showAboutApplication()));

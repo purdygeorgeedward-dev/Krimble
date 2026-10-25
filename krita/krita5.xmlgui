@@ -1333,6 +1333,8 @@ xsi:schemaLocation="http://www.kde.org/standards/kxmlgui/1.0  http://www.kde.org
     <!-- Krimble 2026-10-25: George: "Do we have a help file? We should." The Krimble handbook (krita/data/aboutdata/krimble-help.md) is in the menu as "Krimble Help". -->
     <Action name="help_contents"><text>Krimble Help</text></Action>
     <Separator/>
+    <!-- Krimble 2026-10-25: why Krimble ended last time (the log of the program) -->
+    <Action name="krimble_show_log"/>
     <Action name="help_report_bug"/>
     <Action name="help_feature_request"/>
     <Action name="help_krimble_website"/>
