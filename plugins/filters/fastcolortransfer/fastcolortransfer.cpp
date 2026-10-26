@@ -100,23 +100,31 @@ void KisFilterFastColorTransfer::processImpl(KisPaintDeviceSP device,
     double meanL_src = 0., meanA_src = 0., meanB_src = 0.;
     double sigmaL_src = 0., sigmaA_src = 0., sigmaB_src = 0.;
 
+    // Krimble 2026-10-26: George, about a cut-out picture with a transparent background: the statistics counted every pixel of the rectangle, the transparent ones (black)
+    // too, so they were pulled toward black and the match was wrong. Now each pixel counts as much as it is opaque (a weight from its alpha, so a fully transparent pixel
+    // counts nothing and the soft edge of a cut-out counts a little). A picture with no transparent pixel gives exactly the numbers it gave before.
+    double totalWeight = 0.;
     {
         KisSequentialConstIteratorProgress srcIt(srcLAB, applyRect, updaterStats);
         while (srcIt.nextPixel()) {
             const quint16* data = reinterpret_cast<const quint16*>(srcIt.oldRawData());
-            quint32 L = data[0];
-            quint32 A = data[1];
-            quint32 B = data[2];
-            meanL_src += L;
-            meanA_src += A;
-            meanB_src += B;
-            sigmaL_src += L * L;
-            sigmaA_src += A * A;
-            sigmaB_src += B * B;
+            const double w = double(data[3]) / 65535.0;
+            if (w <= 0.) continue;
+            const double L = data[0];
+            const double A = data[1];
+            const double B = data[2];
+            meanL_src += w * L;
+            meanA_src += w * A;
+            meanB_src += w * B;
+            sigmaL_src += w * L * L;
+            sigmaA_src += w * A * A;
+            sigmaB_src += w * B * B;
+            totalWeight += w;
         }
     }
     
-    double totalSize = 1. / (applyRect.width() * applyRect.height());
+    // double totalSize = 1. / (applyRect.width() * applyRect.height());   // the old divisor: every pixel of the rectangle, transparent or not
+    double totalSize = totalWeight > 0. ? 1. / totalWeight : 1. / (applyRect.width() * applyRect.height());
     meanL_src *= totalSize;
     meanA_src *= totalSize;
     meanB_src *= totalSize;
@@ -162,9 +170,18 @@ void KisFilterFastColorTransfer::processImpl(KisPaintDeviceSP device,
     // Transfer colors
     dbgPlugins << "Transfer colors";
     {
-        double coefL = sqrt((sigmaL_ref - meanL_ref * meanL_ref) / (sigmaL_src - meanL_src * meanL_src));
-        double coefA = sqrt((sigmaA_ref - meanA_ref * meanA_ref) / (sigmaA_src - meanA_src * meanA_src));
-        double coefB = sqrt((sigmaB_ref - meanB_ref * meanB_ref) / (sigmaB_src - meanB_src * meanB_src));
+        // Krimble 2026-10-26: a picture of one flat color (no spread) divided by zero and gave NaN: then the factor is 1 (the pixel keeps its distance from the mean).
+        auto spreadRatio = [](double refSigma, double refMean, double srcSigma, double srcMean) {
+            const double num = refSigma - refMean * refMean;
+            const double den = srcSigma - srcMean * srcMean;
+            return (den > 1e-6 && num >= 0.) ? sqrt(num / den) : 1.0;
+        };
+        // double coefL = sqrt((sigmaL_ref - meanL_ref * meanL_ref) / (sigmaL_src - meanL_src * meanL_src));
+        // double coefA = sqrt((sigmaA_ref - meanA_ref * meanA_ref) / (sigmaA_src - meanA_src * meanA_src));
+        // double coefB = sqrt((sigmaB_ref - meanB_ref * meanB_ref) / (sigmaB_src - meanB_src * meanB_src));
+        double coefL = spreadRatio(sigmaL_ref, meanL_ref, sigmaL_src, meanL_src);
+        double coefA = spreadRatio(sigmaA_ref, meanA_ref, sigmaA_src, meanA_src);
+        double coefB = spreadRatio(sigmaB_ref, meanB_ref, sigmaB_src, meanB_src);
 
         const double neutralAB = 32768.0;
         quint16 labPixel[4];

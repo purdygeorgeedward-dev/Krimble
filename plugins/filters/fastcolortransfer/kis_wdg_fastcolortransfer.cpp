@@ -149,7 +149,8 @@ void computeLabStatistics(KisPaintDeviceSP device, const QRect &bounds, KisSelec
     }
     if (rc.isEmpty()) return;
 
-    qint64 count = 0;
+    // Krimble 2026-10-26: each pixel counts as much as it is opaque (see fastcolortransfer.cpp): the transparent pixels of a cut-out are not part of its colors.
+    double count = 0.;
     KisSequentialConstIterator it(lab, rc);
     while (it.nextPixel()) {
         // Krimble: sloppy first pass -- iterates the full rc rect rather
@@ -158,16 +159,18 @@ void computeLabStatistics(KisPaintDeviceSP device, const QRect &bounds, KisSelec
         // roughly-rectangular selection; an irregular one will pull in a
         // few extra unselected pixels at the edges of its bounding rect.
         const quint16* data = reinterpret_cast<const quint16*>(it.oldRawData());
-        meanL += data[0];
-        meanA += data[1];
-        meanB += data[2];
-        sigmaL += double(data[0]) * data[0];
-        sigmaA += double(data[1]) * data[1];
-        sigmaB += double(data[2]) * data[2];
-        ++count;
+        const double w = double(data[3]) / 65535.0;
+        if (w <= 0.) continue;
+        meanL += w * data[0];
+        meanA += w * data[1];
+        meanB += w * data[2];
+        sigmaL += w * double(data[0]) * data[0];
+        sigmaA += w * double(data[1]) * data[1];
+        sigmaB += w * double(data[2]) * data[2];
+        count += w;
     }
 
-    if (count == 0) return;
+    if (count <= 0.) return;
     const double totalSize = 1.0 / count;
     meanL *= totalSize; meanA *= totalSize; meanB *= totalSize;
     sigmaL *= totalSize; sigmaA *= totalSize; sigmaB *= totalSize;
