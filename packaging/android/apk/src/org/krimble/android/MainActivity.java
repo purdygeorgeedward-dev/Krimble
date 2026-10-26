@@ -325,10 +325,46 @@ public class MainActivity extends QtActivity {
         }
     }
 
+    // Krimble 2026-10-26: George: "that giant blue droplet in the images is the cursor for text selection. It's huge. I don't know how that happened." and "There must be some trigger that tells
+    // Android the scale for that." Qt's text handle (CursorHandle.java, Qt 5.15) takes the picture from the activity's THEME (textSelectHandle, ...Left, ...Right) and makes its window as big
+    // as the picture's own size (getIntrinsicWidth/Height) at the density of the app's resources: nothing else scales it. This writes down the numbers that decide that, now: the density
+    // the app runs at and the density the system has (if they differ, the app is being scaled), the font scale, and the size of the three droplet pictures. Shown at the top of
+    // Help > Show Krimble Log... with the record of the previous run.
+    private String krimbleDisplayDiag() {
+        StringBuilder sb = new StringBuilder();
+        try {
+            android.util.DisplayMetrics dm = getResources().getDisplayMetrics();
+            android.util.DisplayMetrics sys = android.content.res.Resources.getSystem().getDisplayMetrics();
+            android.content.res.Configuration cfg = getResources().getConfiguration();
+            sb.append("Display (").append(Build.MANUFACTURER).append(" ").append(Build.MODEL).append(", Android ").append(Build.VERSION.RELEASE).append("): app density ")
+              .append(dm.density).append(" (").append(dm.densityDpi).append(" dpi), system density ").append(sys.density).append(" (").append(sys.densityDpi).append(" dpi), fontScale ")
+              .append(cfg.fontScale).append(", smallestScreenWidthDp ").append(cfg.smallestScreenWidthDp).append(", screen ").append(dm.widthPixels).append(" x ").append(dm.heightPixels).append(" px");
+            final int[] attrs = { android.R.attr.textSelectHandle, android.R.attr.textSelectHandleLeft, android.R.attr.textSelectHandleRight };
+            final String[] names = { "middle", "left", "right" };
+            sb.append("\nText selection droplet (from the app theme):");
+            for (int i = 0; i < attrs.length; i++) {
+                android.content.res.TypedArray a = getTheme().obtainStyledAttributes(new int[] { attrs[i] });
+                android.graphics.drawable.Drawable d = a.getDrawable(0);
+                sb.append(" ").append(names[i]).append(" = ");
+                if (d == null) {
+                    sb.append("none");
+                } else {
+                    sb.append(d.getClass().getSimpleName()).append(" ").append(d.getIntrinsicWidth()).append(" x ").append(d.getIntrinsicHeight()).append(" px (")
+                      .append(Math.round(d.getIntrinsicWidth() / dm.density)).append(" x ").append(Math.round(d.getIntrinsicHeight() / dm.density)).append(" dp)");
+                }
+                a.recycle();
+            }
+        } catch (Exception e) {
+            sb.append("Display diag failed: ").append(e);
+        }
+        return sb.toString();
+    }
+
     // called from C++ (Help > Show Krimble Log...)
     public String getLastDestroyRecord() {
         try {
-            return getSharedPreferences(DIAG_PREFS, MODE_PRIVATE).getString("previousRun", "");
+            // return getSharedPreferences(DIAG_PREFS, MODE_PRIVATE).getString("previousRun", "");
+            return getSharedPreferences(DIAG_PREFS, MODE_PRIVATE).getString("previousRun", "") + "\n\n" + krimbleDisplayDiag();
         } catch (Exception e) {
             return "";
         }
