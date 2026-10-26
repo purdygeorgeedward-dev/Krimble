@@ -816,7 +816,11 @@ protected:
     static constexpr int kTabDepth = 10;    // logical px the tab sticks out from the panel's edge
     static constexpr int kTabZone = 20;     // logical px wide touch zone (the tab plus room for a finger)
     // static constexpr int kTabHeight = 140;  // logical px tall, at most the height of the panels' column
-    static constexpr int kTabHeight = 70;   // Krimble 2026-10-23 (2nd): George (1.0.42): "The handle on the toolbox is about 2x the height it should be, but it works great." 140 -> 70
+    // Krimble 2026-10-26: George (1.0.44, with a screenshot): "Way too hard to grab the side panel sizing gadget. Try to grab sizing gadget and I get this from color panel" (the black
+    // square: the color selector's pop-up, opened by a touch that fell on the Color panel just below the zone: the zone covered y 425 to 615 and the touch was at about y 624). With the tab
+    // no longer drawn (kTabVisible = false) nothing shows where the zone is, so it is 140 again, the height of which he said in 1.0.42: "it works great" (the tab itself was too big then).
+    static constexpr int kTabHeight = 140;  // 70 -> 140 (2026-10-26)
+    // static constexpr int kTabHeight = 70;   // Krimble 2026-10-23 (2nd): George (1.0.42): "The handle on the toolbox is about 2x the height it should be, but it works great." 140 -> 70
 
     // Krimble 2026-10-25: George (1.0.43): "Now we have the little dots and the handle and more dots. As long as we have the little dots there I think we can make the handle
     // invisible (as long as it works)." The tab (its shape and its dotted line) is not drawn any more; its touch zone (kTabZone wide, kTabHeight tall, in the middle of the
