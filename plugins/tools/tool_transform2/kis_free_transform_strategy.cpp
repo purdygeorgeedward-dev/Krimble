@@ -508,12 +508,60 @@ void KisFreeTransformStrategy::paint(QPainter &gc, const KoColorDisplayRendererI
             targets.lineTo(tip);
             targets.lineTo(tip - tangent * head - normal * head * 0.6);
         }
-        mappedHandles.addPath(targets);
+        // mappedHandles.addPath(targets);   // Krimble 2026-10-26: the thin arrows are not drawn any more (George: "almost invisible thin little lines"): see the thick gadgets after the handles
+        Q_UNUSED(targets);
     }
 
     for (int i = 1; i >= 0; --i) {
         gc.setPen(pen[i]);
         gc.drawPath(mappedHandles);
+    }
+
+    // Krimble 2026-10-26: George (1.0.44) drew on a screenshot what he wants for rotating: "A curve with arrow heads at each end. Thick." (the gadgets had been "almost invisible
+    // thin little lines"). At each corner a thick arc bowed around the corner (the corner is the centre of the arc), 80 degrees long, with an open arrowhead at both ends. It is
+    // drawn beyond the size handle's grab area (handleRadius + handleGrabPadding = 38 px; the arc is 54 px from the corner) so that touching it can never scale. Two strokes: a
+    // dark one under a white one, so it shows on any picture. Sizes are in screen pixels, so they do not change with the zoom.
+    {
+        const qreal kArcRadius = KisTransformUtils::handleRadius + KisTransformUtils::handleGrabPadding + 16.0;
+        const qreal kHalfSweep = 40.0;       // degrees each side of the line from the box's centre through the corner
+        const qreal kHeadLength = 14.0;
+        const qreal kHeadHalfWidth = 9.0;
+        const QPointF centre = m_d->handlesTransform.map(m_d->bounds.center());
+        const QPointF corners[4] = {
+            m_d->handlesTransform.map(m_d->bounds.topLeft()),
+            m_d->handlesTransform.map(m_d->bounds.topRight()),
+            m_d->handlesTransform.map(m_d->bounds.bottomRight()),
+            m_d->handlesTransform.map(m_d->bounds.bottomLeft())
+        };
+        QPainterPath arrows;
+        for (const QPointF &corner : corners) {
+            QPointF out = corner - centre;
+            const qreal len = std::hypot(out.x(), out.y());
+            if (len < 1e-6) continue;
+            out /= len;
+            const qreal facing = std::atan2(-out.y(), out.x()) * 180.0 / M_PI;   // QPainterPath angles are counter-clockwise
+            const qreal start = facing - kHalfSweep;
+            const qreal sweep = 2.0 * kHalfSweep;
+            const QRectF circle(corner.x() - kArcRadius, corner.y() - kArcRadius, 2.0 * kArcRadius, 2.0 * kArcRadius);
+            arrows.arcMoveTo(circle, start);
+            arrows.arcTo(circle, start, sweep);
+            for (int end = 0; end < 2; ++end) {
+                const qreal angle = (end == 0 ? start + sweep : start) * M_PI / 180.0;
+                const QPointF tip(corner.x() + kArcRadius * std::cos(angle), corner.y() - kArcRadius * std::sin(angle));
+                QPointF direction(-std::sin(angle), -std::cos(angle));   // the way the arc goes at its end (counter-clockwise)
+                if (end == 1) direction = -direction;                     // at the start it goes the other way
+                const QPointF normal(std::cos(angle), -std::sin(angle));
+                arrows.moveTo(tip - direction * kHeadLength + normal * kHeadHalfWidth);
+                arrows.lineTo(tip);
+                arrows.lineTo(tip - direction * kHeadLength - normal * kHeadHalfWidth);
+            }
+        }
+        gc.setRenderHint(QPainter::Antialiasing, true);
+        gc.setBrush(Qt::NoBrush);
+        gc.setPen(QPen(QColor(15, 15, 20, 235), 9.0, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+        gc.drawPath(arrows);
+        gc.setPen(QPen(QColor(255, 255, 255, 245), 5.0, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+        gc.drawPath(arrows);
     }
 
     gc.restore();
