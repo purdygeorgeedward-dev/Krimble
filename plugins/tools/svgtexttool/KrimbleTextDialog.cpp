@@ -189,7 +189,12 @@ void KrimbleTextDialog::build(const QString &text, bool editing)
         header->addWidget(badge);
         header->addWidget(title, 1);
         header->addWidget(close);
-        if (landscape) {
+        // if (landscape) {
+        // Krimble 2026-10-26: George: "The new Text tool menu is beautiful, but the title line at the top is wasted real estate. Kill it. The teeny X at the top is just cancel, isn't it?"
+        // (yes: the x called reject(), the same as the Cancel button at the bottom). The title row is not shown held upright either now, the way it already was held sideways. The
+        // row is still built (so the old code stays), but no widget of it is shown; the Cancel button at the bottom closes the window.
+        const bool showTitleRow = false;
+        if (!showTitleRow) {
             // sideways there is no room for the title row (the Cancel button closes the window)
             badge->hide();
             title->hide();
