@@ -149,22 +149,6 @@ Some of these are already implemented; others are still in development.
 
 ---
 
-## A GIFT FOR YOU! 🎁
-
-<div align="center">
-<img src="https://krimble.org/assets/a-gift-for-you.jpg" alt="Kimmy offering a gift — A gift for you!" width="100%">
-</div>
-
-Krimble is **free and open-source software**. 
-
-That is more than a price. It means the program is shared with its source code under a free-software license so people can study it, modify it, improve it, build it, and share compatible versions.
-
-Krimble is meant to be something creators can actually possess and work with — not temporary access to a service.
-
-**Free software is the gift that keeps on giving.**
-
----
-
 ## I ❤️ A. I.! 
 
 <div align="center">
