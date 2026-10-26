@@ -2,6 +2,17 @@
 
 Status: **planning only** — not started. Captured here so they don't stay stuck in chat.
 
+## George's priorities (2026-10-26, answering the "wish we could do it" list)
+
+- **AI upscaling: a separate app is a MUST** ("I think a separate upscaler is a must."). The "Krimble Upscaler" app, not a feature inside Krimble. Not started.
+- **Selective compression (Advanced JPEG Export): "would be awesome".** Wanted. Not started.
+- **Quick Mask: wanted** ("in Photoshop it's very useful"; George was not sure how it works now). What exists now: **Select > Show Global Selection Mask** (and Add New Selection Mask / Convert to Selection Mask): the selection is shown as an ordinary grey mask *layer* in the Layers panel that can be painted on; there is no Photoshop-style toggle with a red overlay and a Q key. See the Quick Mask section below. Not started.
+- **Fonts (browser, add your own, curated set): "future must".**
+- **Auto Tone / Auto Contrast / Auto Color on curves:** George wrote "There are ways to edit images with curves. I would assume these" and the message ended there: waiting for the rest.
+- **The small things: "Do all the small things."** Magnetic Selection bar (done, 320th entry), Match Color's exact selection shape and its two selection options, a Channels panel tap to load a channel as a selection, styling part of a text, Krimble's own smaller text-selection droplets (waits for the log numbers, 318th entry), Google Play (an app bundle, a closed test of 12 testers for 14 days; process, not code).
+- **Linux build next** (George: "Next we should build for Linux. It's already part of the process."). The repository has Krita's own Linux packaging (`packaging/linux/appimage`, `build-tools/ci-scripts/build-appimage.py`, `.gitlab-ci.yml`); our server is ARM64, so a Linux x86_64 AppImage needs an x86_64 builder (a free GitHub Actions runner, since the policy is against spending money, not against Actions). Not started; the six tools hidden on the phone are shown by a desktop build (see "New Tools").
+- **Android ABIs:** George asked: "we have the 8a builds for Android, but no 7a?" (arm64-v8a is built; armeabi-v7a, 32-bit, is not: `BUILD_ANDROID.md`, "Target ABI: arm64-v8a"). A 32-bit build needs its own dependency build, has about 3 GB of address space (the low-memory kills would be worse) and Google Play only requires 64-bit. Open: whether to build it at all.
+
 ## Advanced JPEG Export Module
 
 Goal: selective/regional compression instead of one global quality slider — get

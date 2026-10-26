@@ -8,6 +8,7 @@
 #define KIS_TOOL_SELECT_MAGNETIC_H_
 
 #include <QPoint>
+#include <QPointer>   // Krimble 2026-10-26: the bar over the canvas
 #include "KisSelectionToolFactoryBase.h"
 #include <kis_tool_select_base.h>
 #include <kis_signal_compressor.h>
@@ -63,6 +64,7 @@ private:
     void updateCanvas();
     void updatePaintPath();
     void resetVariables();
+    void showStrokeBar(bool show);   // Krimble 2026-10-26: Undo point / END / Cancel over the canvas (the same bar as the Polygonal Selection's)
     void drawAnchors(QPainter &gc);
     void checkIfAnchorIsSelected(QPointF pt);
     vQPointF computeEdgeWrapper(QPoint a, QPoint b);
@@ -89,6 +91,7 @@ private:
     qreal m_filterRadius {3.0};
     QRectF m_snapBound;
     KConfigGroup m_configGroup;
+    QPointer<QWidget> m_strokeBar;   // Krimble 2026-10-26
     QVector<vQPointF> m_pointCollection;
     KisSignalCompressor m_mouseHoverCompressor;
 };

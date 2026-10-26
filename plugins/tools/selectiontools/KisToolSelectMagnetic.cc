@@ -30,6 +30,11 @@
 #include <kis_default_bounds.h>
 
 #include "canvas/kis_canvas2.h"
+#include "KisView.h"   // Krimble 2026-10-26: the bar over the canvas is a child of the view
+#include <QApplication>
+#include <QHBoxLayout>
+#include <QPushButton>
+#include <QPalette>
 #include "kis_painter.h"
 #include "kis_pixel_selection.h"
 #include "kis_selection_tool_helper.h"
@@ -235,6 +240,7 @@ void KisToolSelectMagnetic::beginPrimaryAction(KoPointerEvent *event)
         beginSelectInteraction();
         updateInitialAnchorBounds(temp.toPoint());
         Q_EMIT setButtonsEnabled(true);
+        showStrokeBar(true);   // Krimble 2026-10-26: Undo point / END / Cancel over the canvas, from the first anchor
     }
 
     m_lastAnchor = temp.toPoint();
@@ -586,11 +592,62 @@ void KisToolSelectMagnetic::finishSelectionAction()
 
 void KisToolSelectMagnetic::resetVariables()
 {
+    showStrokeBar(false);   // Krimble 2026-10-26: finished, cancelled, all anchors gone, or the tool was changed
     m_points.clear();
     m_anchorPoints.clear();
     m_pointCollection.clear();
     m_paintPath = QPainterPath();
     m_complete = false;
+}
+
+// Krimble 2026-10-26: George (the "small things", Magnetic Selection bar): the same bar as the Polygonal Selection's (the 298th entry), because the Tool Options buttons (Complete and
+// Discard) are a tab behind Color on a portrait screen, and there was no way to take back an anchor with a finger. A child of the view, at the bottom in the middle above the scroll bar,
+// shown from the first anchor until the selection is finished, cancelled, or the tool is changed (resetVariables() hides it). Undo point is undoPoints() (the last anchor is taken
+// back; the only anchor left throws the selection away), END is requestStrokeEnd() (the same as Complete selection; it needs two anchors), Cancel is requestStrokeCancellation().
+void KisToolSelectMagnetic::showStrokeBar(bool show)
+{
+    if (!show) {
+        if (m_strokeBar) m_strokeBar->hide();
+        return;
+    }
+    KisCanvas2 *kiscanvas = dynamic_cast<KisCanvas2*>(canvas());
+    QPointer<KisView> view = kiscanvas ? kiscanvas->imageView() : QPointer<KisView>();
+    if (!view) return;
+    if (!m_strokeBar) {
+        QWidget *bar = new QWidget(view);
+        bar->setObjectName(QStringLiteral("krimbleStrokeBar"));
+        bar->setAutoFillBackground(true);
+        QPalette pal = QApplication::palette();
+        QColor background = pal.color(QPalette::Window);
+        background.setAlpha(235);
+        pal.setColor(QPalette::Window, background);
+        bar->setPalette(pal);
+        QHBoxLayout *row = new QHBoxLayout(bar);
+        row->setContentsMargins(6, 6, 6, 6);
+        row->setSpacing(6);
+        QPushButton *undoButton = new QPushButton(i18n("Undo point"), bar);
+        QPushButton *endButton = new QPushButton(i18n("END"), bar);
+        QPushButton *cancelButton = new QPushButton(i18n("Cancel"), bar);
+        QFont boldFont = endButton->font();
+        boldFont.setBold(true);
+        endButton->setFont(boldFont);
+        const int buttonHeight = qMax(40, bar->fontMetrics().height() * 2);
+        QList<QPushButton*> buttons;
+        buttons << undoButton << endButton << cancelButton;
+        Q_FOREACH (QPushButton *b, buttons) {
+            b->setMinimumHeight(buttonHeight);
+            b->setFocusPolicy(Qt::NoFocus);   // the canvas keeps the focus
+            row->addWidget(b);
+        }
+        connect(undoButton, &QPushButton::clicked, this, [this]() { undoPoints(); updateCanvasPixelRect(image()->bounds()); });
+        connect(endButton, &QPushButton::clicked, this, [this]() { requestStrokeEnd(); });
+        connect(cancelButton, &QPushButton::clicked, this, [this]() { requestStrokeCancellation(); updateCanvasPixelRect(image()->bounds()); });
+        m_strokeBar = bar;
+    }
+    m_strokeBar->adjustSize();
+    m_strokeBar->move(qMax(0, (view->width() - m_strokeBar->width()) / 2), qMax(0, view->height() - m_strokeBar->height() - 36));
+    m_strokeBar->show();
+    m_strokeBar->raise();
 }
 
 void KisToolSelectMagnetic::updatePaintPath()
