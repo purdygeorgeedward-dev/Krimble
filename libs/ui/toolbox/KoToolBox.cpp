@@ -178,6 +178,25 @@ void KoToolBox::addButton(KoToolAction *toolAction)
         return;
     }
 
+#ifdef Q_OS_ANDROID
+    // Krimble 2026-10-26: George, about the six tools under Rotate: "I question their usefulness in mobile." and "When we build the desktop version for Linux, Windows, and
+    // MacOS we will enable those. For mobile, comment them out." So on Android they get no toolbox button (the tools stay registered, and the code is untouched); this block
+    // is only compiled for Android, so a desktop build shows all of them. To bring one back on the phone, delete its line from the list.
+    {
+        static const QStringList krimbleHiddenOnMobile = {
+            QStringLiteral("KritaShape/KisToolLazyBrush"),   // Colorize Mask Editing Tool
+            QStringLiteral("KisToolEncloseAndFill"),         // Enclose and Fill Tool
+            QStringLiteral("KisAssistantTool"),              // Assistant Tool
+            QStringLiteral("KritaShape/KisToolMeasure"),     // Ruler Tool
+            QStringLiteral("ToolReferenceImages"),           // Reference Images Tool
+            QStringLiteral("KisToolSelectPath"),             // Path-Based Selection Tool
+        };
+        if (krimbleHiddenOnMobile.contains(toolAction->id())) {
+            return;
+        }
+    }
+#endif
+
     KoToolBoxButton *button = new KoToolBoxButton(toolAction, this);
 
     d->buttons << button;

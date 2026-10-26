@@ -38,6 +38,7 @@ export-and-reassemble approach if not.
 
 ## New Tools
 
+- **Desktop builds (Linux, Windows, macOS): show the six tools hidden on the phone** -- decided 2026-10-26 (George: "When we build the desktop version for Linux, Windows, and MacOS we will enable those. For mobile, comment them out."). On Android the toolbox has no button for: Colorize Mask Editing, Enclose and Fill, Assistant, Ruler (Measure), Reference Images and Path-Based Selection (the list `krimbleHiddenOnMobile` in `libs/ui/toolbox/KoToolBox.cpp`, inside `#ifdef Q_OS_ANDROID`: a desktop build shows them with no change). The tools themselves are still built and registered.
 - **Smudge tool** -- ✅ shipped (commit `7390d6b`). Dedicated toolbox tool
   wrapping Krita's existing colorsmudge paintop engine, own icon/shortcut/
   toolbox slot, auto-loads the "smudge" preset on activation.
