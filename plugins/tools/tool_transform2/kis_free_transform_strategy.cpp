@@ -468,8 +468,12 @@ void KisFreeTransformStrategy::paint(QPainter &gc, const KoColorDisplayRendererI
         // const qreal kRotateTargetRadius = KisTransformUtils::handleVisualRadius * 1.4;
         // Krimble 2026-10-23 (2nd): George (1.0.42): "Free Transform works but the corner gadgets are massive overkill. Should just be a little arrow thing, not loops." A short curved
         // arrow (100 degrees, not 270) at about half the size, nearer the corner.
-        const qreal kRotateTargetGap = KisTransformUtils::handleVisualRadius * 2.2;   // from the corner, outwards
+        // const qreal kRotateTargetGap = KisTransformUtils::handleVisualRadius * 2.2;   // from the corner, outwards (26 px: INSIDE the 38 px grab area of the size handle)
         const qreal kRotateTargetRadius = KisTransformUtils::handleVisualRadius * 0.9;
+        // Krimble 2026-10-26: George (1.0.44): "In free transform the rotate gadgets are ugly and it's way too likely you will grab the sizing gadget instead of rotate."
+        // A touch within handleRadius + handleGrabPadding (8 + 30 = 38 px, effectiveHandleGrabRadius) of a corner is the size handle. The arrow was drawn 26 px from the
+        // corner, so touching it grabbed the size handle. Now it is drawn beyond that area: the grab radius, plus the arrow's own radius, plus 10 px of clear space.
+        const qreal kRotateTargetGap = KisTransformUtils::handleRadius + KisTransformUtils::handleGrabPadding + kRotateTargetRadius + 10.0;
         const QPointF centre = m_d->handlesTransform.map(m_d->bounds.center());
         const QPointF corners[4] = {
             m_d->handlesTransform.map(m_d->bounds.topLeft()),

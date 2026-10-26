@@ -93,7 +93,9 @@ KisPalettizeWidget::KisPalettizeWidget(QWidget* parent)
     Q_UNUSED(m_ditherPatternWidget);
     setupUi(this);
 
-    paletteIconWidget->setFixedSize(32, 32);
+    // paletteIconWidget->setFixedSize(32, 32);
+    // Krimble 2026-10-26: George (1.0.44): "Palette icon in index color is too small." 32 -> 64 logical px (the same 2x as the icons of the Preferences window)
+    paletteIconWidget->setFixedSize(64, 64);
     m_paletteWidget = new KisResourceItemChooser(ResourceType::Palettes, false, this);
     paletteIconWidget->setPopupWidget(m_paletteWidget);
     QObject::connect(m_paletteWidget, &KisResourceItemChooser::resourceSelected, paletteIconWidget, &KisIconWidget::setResource);
