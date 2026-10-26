@@ -558,9 +558,13 @@ void KisFreeTransformStrategy::paint(QPainter &gc, const KoColorDisplayRendererI
         }
         gc.setRenderHint(QPainter::Antialiasing, true);
         gc.setBrush(Qt::NoBrush);
-        gc.setPen(QPen(QColor(15, 15, 20, 235), 9.0, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
-        gc.drawPath(arrows);
-        gc.setPen(QPen(QColor(255, 255, 255, 245), 5.0, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+        // Krimble 2026-10-26 (2nd): George: "Those arrows are not on a picture. They are on the canvas. I see them fine. No need for outlines." The dark stroke under the
+        // white one is not drawn; the arrows are plain white, 6 px thick (the old two strokes are kept as comments).
+        // gc.setPen(QPen(QColor(15, 15, 20, 235), 9.0, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+        // gc.drawPath(arrows);
+        // gc.setPen(QPen(QColor(255, 255, 255, 245), 5.0, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+        // gc.drawPath(arrows);
+        gc.setPen(QPen(QColor(255, 255, 255), 6.0, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
         gc.drawPath(arrows);
     }
 
