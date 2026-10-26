@@ -401,7 +401,12 @@ void KoToolBoxDocker::resizeEvent(QResizeEvent *event)
     // Krimble 2026-10-10: keep the tool area exactly as tall as the tools are at this width, so the color wells cling to the
     // bottom of the tools instead of sitting far below them when the toolbox gets wider (the tool area kept the height it
     // had at a narrower width). Done a moment later, when the layout has settled. Only for the vertical layout.
-    QTimer::singleShot(0, this, [this]() {
+    // Krimble 2026-10-26: George ("Did you fix the toolbox?", about "the whole bottom of the toolbox is blocked from displaying tool icons for no apparent reason. It's
+    // dead space": the tools stop part way down, the scroll arrow shows, and there is empty room under it). The height limit below is worked out ONCE, a moment after a
+    // resize, from the width the tool area has at that moment; when that width was not the final one (the layout settles later: a rotation, the columns snapping) the
+    // limit stayed too low for the tools as they are laid out afterwards, so the tool area was cut short and had to scroll. Now: (1) the limit is never lower than the
+    // height the tools are laid out at now (m_toolBox->height()), and (2) it is worked out again 400 ms and 1.5 s later, when the layout has settled.
+    auto krimbleFitToolArea = [this]() {
         if (!m_scrollArea || !m_toolBox || !m_toolBox->layout()) return;
         if (!m_toolBox->layout()->hasHeightForWidth()) {
             // m_scrollArea->setMaximumHeight(QWIDGETSIZE_MAX);
@@ -433,7 +438,8 @@ void KoToolBoxDocker::resizeEvent(QResizeEvent *event)
             }
             return;
         }
-        const int contentHeight = m_toolBox->layout()->heightForWidth(m_scrollArea->viewport()->width());
+        // const int contentHeight = m_toolBox->layout()->heightForWidth(m_scrollArea->viewport()->width());
+        const int contentHeight = qMax(m_toolBox->layout()->heightForWidth(m_scrollArea->viewport()->width()), m_toolBox->height());   // Krimble 2026-10-26
         if (contentHeight > 0) {
             const int frame = m_scrollArea->height() - m_scrollArea->viewport()->height();
             m_scrollArea->setMaximumHeight(contentHeight + frame);
@@ -441,7 +447,10 @@ void KoToolBoxDocker::resizeEvent(QResizeEvent *event)
             const int others = qMax(0, height() - m_scrollArea->height());
             setMaximumHeight(contentHeight + frame + others);
         }
-    });
+    };
+    QTimer::singleShot(0, this, krimbleFitToolArea);
+    QTimer::singleShot(400, this, krimbleFitToolArea);     // Krimble 2026-10-26: again when the layout has settled
+    QTimer::singleShot(1500, this, krimbleFitToolArea);
 }
 
 bool KoToolBoxDocker::eventFilter(QObject *watched, QEvent *event)
