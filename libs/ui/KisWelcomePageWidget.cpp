@@ -421,6 +421,14 @@ void KisWelcomePageWidget::slotUpdateThemeColors()
     newsTitleLabel->hide();
     btnNewsOptions->hide();
     newsFrame->hide();
+
+    // Krimble 2026-10-26: George (1.0.44, a screenshot with arrows and "CRAP" written on it, then): "How about screaming out the useless crap on the start screen. Too much
+    // handholding. I get that having some of the file menu up front looks like a good idea for faster workflows, but it's really not that great." The whole left column is
+    // not shown any more: Start (New Image, Open Image) and Community (Support Krimble, Source Code, Krimble Website); and the right column (News), which has nothing left in
+    // it. What stays on the start page is the Recent Images list, which takes the whole width (its column is the one that expands). File > New and File > Open do the same
+    // as the two buttons; Help > Krimble Website is the website link. The widgets are hidden, not deleted (the .ui and the code that fills them are unchanged).
+    widgetCenter->hide();
+    widgetRight->hide();
 }
 
 void KisWelcomePageWidget::dragEnterEvent(QDragEnterEvent *event)
