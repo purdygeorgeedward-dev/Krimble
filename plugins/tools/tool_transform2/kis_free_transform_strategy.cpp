@@ -522,10 +522,18 @@ void KisFreeTransformStrategy::paint(QPainter &gc, const KoColorDisplayRendererI
     // drawn beyond the size handle's grab area (handleRadius + handleGrabPadding = 38 px; the arc is 54 px from the corner) so that touching it can never scale. Two strokes: a
     // dark one under a white one, so it shows on any picture. Sizes are in screen pixels, so they do not change with the zoom.
     {
-        const qreal kArcRadius = KisTransformUtils::handleRadius + KisTransformUtils::handleGrabPadding + 16.0;
-        const qreal kHalfSweep = 40.0;       // degrees each side of the line from the box's centre through the corner
-        const qreal kHeadLength = 14.0;
-        const qreal kHeadHalfWidth = 9.0;
+        // const qreal kArcRadius = KisTransformUtils::handleRadius + KisTransformUtils::handleGrabPadding + 16.0;   // 54: an arc centred ON the corner (too big)
+        // const qreal kHalfSweep = 40.0;       // degrees each side of the line from the box's centre through the corner
+        // const qreal kHeadLength = 14.0;
+        // const qreal kHeadHalfWidth = 9.0;
+        // Krimble 2026-10-26 (3rd): George: "Need to be smaller, closer, and more curved." A small circle (radius 25) whose centre is 26 px beyond the corner; the arc is its far side,
+        // 116 degrees long (it was 80 on a circle of radius 54), so it bends much more, is 40 px across (it was 69) and its nearest point is 39 px from the corner (it was 54).
+        // Every point of it, with the arrowheads, stays outside the 38 px grab area of the size handle (handleRadius + handleGrabPadding).
+        const qreal kArcRadius = 25.0;
+        const qreal kCentreOut = 26.0;       // from the corner, along the line from the box's centre through the corner, to the centre of the circle
+        const qreal kHalfSweep = 58.0;       // degrees each side of that line
+        const qreal kHeadLength = 11.0;
+        const qreal kHeadHalfWidth = 7.0;
         const QPointF centre = m_d->handlesTransform.map(m_d->bounds.center());
         const QPointF corners[4] = {
             m_d->handlesTransform.map(m_d->bounds.topLeft()),
@@ -542,12 +550,13 @@ void KisFreeTransformStrategy::paint(QPainter &gc, const KoColorDisplayRendererI
             const qreal facing = std::atan2(-out.y(), out.x()) * 180.0 / M_PI;   // QPainterPath angles are counter-clockwise
             const qreal start = facing - kHalfSweep;
             const qreal sweep = 2.0 * kHalfSweep;
-            const QRectF circle(corner.x() - kArcRadius, corner.y() - kArcRadius, 2.0 * kArcRadius, 2.0 * kArcRadius);
+            const QPointF arcCentre = corner + out * kCentreOut;
+            const QRectF circle(arcCentre.x() - kArcRadius, arcCentre.y() - kArcRadius, 2.0 * kArcRadius, 2.0 * kArcRadius);
             arrows.arcMoveTo(circle, start);
             arrows.arcTo(circle, start, sweep);
             for (int end = 0; end < 2; ++end) {
                 const qreal angle = (end == 0 ? start + sweep : start) * M_PI / 180.0;
-                const QPointF tip(corner.x() + kArcRadius * std::cos(angle), corner.y() - kArcRadius * std::sin(angle));
+                const QPointF tip(arcCentre.x() + kArcRadius * std::cos(angle), arcCentre.y() - kArcRadius * std::sin(angle));
                 QPointF direction(-std::sin(angle), -std::cos(angle));   // the way the arc goes at its end (counter-clockwise)
                 if (end == 1) direction = -direction;                     // at the start it goes the other way
                 const QPointF normal(std::cos(angle), -std::sin(angle));
@@ -564,7 +573,7 @@ void KisFreeTransformStrategy::paint(QPainter &gc, const KoColorDisplayRendererI
         // gc.drawPath(arrows);
         // gc.setPen(QPen(QColor(255, 255, 255, 245), 5.0, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
         // gc.drawPath(arrows);
-        gc.setPen(QPen(QColor(255, 255, 255), 6.0, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+        gc.setPen(QPen(QColor(255, 255, 255), 5.0, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));   // 6 -> 5 with the smaller arrow (2026-10-26, 3rd)
         gc.drawPath(arrows);
     }
 
