@@ -71,6 +71,7 @@ public class MainActivity extends QtActivity {
 
         super.onCreate(savedInstanceState);
         krimbleDiagAtStart();   // Krimble 2026-10-25: how the previous run ended (see Help > Show Krimble Log...)
+        krimbleMemTrailStart();   // Krimble 2026-10-26: how much memory this run uses, every 30 s (see below)
         Log.i(TAG, "TouchSlop: " + ViewConfiguration.get(this).getScaledTouchSlop());
         Log.i(TAG, "LibsLoaded");
         haveLibsLoaded = true;
@@ -160,6 +161,8 @@ public class MainActivity extends QtActivity {
     @Override
     public void onPause() {
         super.onPause();
+        krimbleForeground = false;
+        krimbleMemSample("pause");   // Krimble 2026-10-26
         // onPause() _is_ called when the app starts. If the native lib
         // isn't loaded, it crashes.
         if (haveLibsLoaded) {
@@ -305,6 +308,8 @@ public class MainActivity extends QtActivity {
                 .putString("previousRun", last != null ? last
                         : "onDestroy did NOT run in the previous run: Android ended the process without destroying the window (killed, or a crash).")
                 .remove("lastDestroy")
+                .putString("prevMemTrail", prefs.getString("memTrail", ""))   // Krimble 2026-10-26: the memory samples of the run that just ended
+                .remove("memTrail")
                 .putString("startConfig", getResources().getConfiguration().toString())
                 .apply();
         } catch (Exception e) {
@@ -323,6 +328,78 @@ public class MainActivity extends QtActivity {
         } catch (Exception e) {
             Log.w(TAG, "krimbleDiagAtDestroy: " + e);
         }
+    }
+
+    // Krimble 2026-10-26: George sent the log screen: both of the last two ends of Krimble were "reason 3 (LOW_MEMORY)": Android's low-memory killer ended the process (one while Krimble was
+    // cached in the background, "sits in the background too long"; one while it was in the FOREGROUND, "[OOM KILL] oom", the "crash in the type tool"). Not a crash in the code: Krimble holds
+    // too much memory. To see what holds it, and how much, the app writes a line every 30 seconds (and when it is paused, resumed, or told by Android to trim its memory) into a short trail kept in
+    // the app's preferences (it survives a kill); the next run shows the trail of the run before at the top of Help > Show Krimble Log... (the newest line last).
+    private boolean krimbleForeground = false;
+    private final android.os.Handler krimbleMemHandler = new android.os.Handler(android.os.Looper.getMainLooper());
+    private final Runnable krimbleMemTimer = new Runnable() {
+        @Override
+        public void run() {
+            krimbleMemSample("every 30 s");
+            krimbleMemHandler.postDelayed(this, 30000);
+        }
+    };
+
+    private void krimbleMemTrailStart() {
+        krimbleMemSample("start");
+        krimbleMemHandler.postDelayed(krimbleMemTimer, 30000);
+    }
+
+    private static int krimbleKb(java.util.Map<String, String> stats, String key) {
+        try {
+            String v = stats.get(key);
+            return v == null ? 0 : Integer.parseInt(v.trim());
+        } catch (Exception e) {
+            return 0;
+        }
+    }
+
+    private void krimbleMemSample(String why) {
+        try {
+            android.os.Debug.MemoryInfo mi = new android.os.Debug.MemoryInfo();
+            android.os.Debug.getMemoryInfo(mi);
+            java.util.Map<String, String> st = mi.getMemoryStats();
+            ActivityManager.MemoryInfo sys = new ActivityManager.MemoryInfo();
+            ActivityManager am = getSystemService(ActivityManager.class);
+            if (am != null) {
+                am.getMemoryInfo(sys);
+            }
+            final long mb = 1024L * 1024L;
+            String line = new java.text.SimpleDateFormat("HH:mm:ss", java.util.Locale.US).format(new java.util.Date())
+                    + (krimbleForeground ? " fg " : " bg ") + why + ": app " + (mi.getTotalPss() / 1024) + " MB (native " + (krimbleKb(st, "summary.native-heap") / 1024)
+                    + ", java " + (krimbleKb(st, "summary.java-heap") / 1024) + ", graphics " + (krimbleKb(st, "summary.graphics") / 1024)
+                    + ", other " + (krimbleKb(st, "summary.private-other") / 1024) + "); system free " + (sys.availMem / mb) + " of " + (sys.totalMem / mb)
+                    + " MB, Android's low line " + (sys.threshold / mb) + " MB" + (sys.lowMemory ? ", LOW" : "");
+            SharedPreferences prefs = getSharedPreferences(DIAG_PREFS, MODE_PRIVATE);
+            String[] old = prefs.getString("memTrail", "").split("\n");
+            StringBuilder sb = new StringBuilder();
+            for (int i = Math.max(0, old.length - 23); i < old.length; i++) {
+                if (!old[i].isEmpty()) {
+                    sb.append(old[i]).append("\n");
+                }
+            }
+            sb.append(line);
+            prefs.edit().putString("memTrail", sb.toString()).commit();
+        } catch (Exception e) {
+            Log.w(TAG, "krimbleMemSample: " + e);
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        krimbleForeground = true;
+        krimbleMemSample("resume");
+    }
+
+    @Override
+    public void onTrimMemory(int level) {
+        super.onTrimMemory(level);
+        krimbleMemSample("Android asks to trim memory, level " + level);
     }
 
     // Krimble 2026-10-26: George: "that giant blue droplet in the images is the cursor for text selection. It's huge. I don't know how that happened." and "There must be some trigger that tells
@@ -364,7 +441,10 @@ public class MainActivity extends QtActivity {
     public String getLastDestroyRecord() {
         try {
             // return getSharedPreferences(DIAG_PREFS, MODE_PRIVATE).getString("previousRun", "");
-            return getSharedPreferences(DIAG_PREFS, MODE_PRIVATE).getString("previousRun", "") + "\n\n" + krimbleDisplayDiag();
+            // return getSharedPreferences(DIAG_PREFS, MODE_PRIVATE).getString("previousRun", "") + "\n\n" + krimbleDisplayDiag();
+            SharedPreferences p = getSharedPreferences(DIAG_PREFS, MODE_PRIVATE);
+            return p.getString("previousRun", "") + "\n\nMemory of the previous run, newest last (fg = in front, bg = in the background):\n" + p.getString("prevMemTrail", "(none)")
+                    + "\n\n" + krimbleDisplayDiag();
         } catch (Exception e) {
             return "";
         }
