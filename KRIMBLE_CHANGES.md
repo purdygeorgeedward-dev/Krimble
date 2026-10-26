@@ -5610,3 +5610,9 @@ George, answering the "wish we could do it" list: "1. I think a separate upscale
 
 George asked "How big is the 32 bit Android market?"; Claude looked it up (no published global figure; developers' own Play Console numbers: roughly 5 to 10 percent of active devices still run 32-bit ARM, mostly cheap and Android Go phones with little RAM, some 64-bit phones with a 32-bit system; Google Play requires 64-bit and does not require 32-bit), and George decided: "Okay, 7a is off the map." Recorded in the roadmap (the Android ABIs line, which had said "Open") and in the catch-up note's decided list. **Docs only; no code changed.**
 
+## 2026-10-26 (322nd) — README: the 32-bit Android targets are removed
+
+**File:** `README.md`
+
+George: "Remove it from the readme." (after "Okay, 7a is off the map.", the 321st entry). The "BUILD TARGETS" table of `README.md` listed **Android armeabi-v7a, Play Store** and **Android armeabi-v7a, F-Droid** as planned targets: the two rows are removed (the table keeps Android arm64-v8a for Play Store and F-Droid, Linux x86-64, Windows, iOS and macOS). `README.android.md` and `README.packagers.md` do not mention 32-bit builds (the one `-p=all` line of `README.android.md` is Krita's own build instruction, not touched). **Docs only; no code changed.**
+

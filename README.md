@@ -259,8 +259,6 @@ Planned Targets:
 |---|---|
 | Android | arm64-v8a — Play Store |
 | Android | arm64-v8a — F-Droid |
-| Android | armeabi-v7a — Play Store |
-| Android | armeabi-v7a — F-Droid |
 | Linux | x86-64 |
 | Windows | Desktop |
 | iOS | Planned |
