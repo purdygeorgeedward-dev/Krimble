@@ -2,7 +2,7 @@
 
 <img src="https://krimble.org/assets/hero.jpg" alt="Krimble — Your Creative Companion" width="100%">
 
-**A mobile-first graphics editor built from Krita for Android phones.**
+**A mobile-first graphics editor built for Android phones.**
 
 [![Website](https://img.shields.io/badge/Website-krimble.org-ff7a00?style=for-the-badge)](https://krimble.org)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-white?style=for-the-badge&logo=gnu&logoColor=black)](LICENSE)
@@ -46,7 +46,7 @@ That means:
 
 ## SEE IT IN ACTION 📸
 
-Krimble works the way people actually work in Photoshop: **several images open at once, each in its own window**, with the toolbox and panels where you want them, on a phone held sideways or upright.
+Krimble works the way people actually work; **several images open at once, each in its own window**, with the toolbox and panels where you want them, on a phone held sideways or upright.
 
 <div align="center">
 <img src="screenshots/krimble-queen-sideways.jpg" alt="Krimble on an Android phone held sideways: the toolbox on the left, an image in the middle, the Tool Options and Layers panels on the right" width="100%">
@@ -89,9 +89,7 @@ Krimble works the way people actually work in Photoshop: **several images open a
 
 ## WHY KRIMBLE? 🤔
 
-I am a lifelong graphics professional trained across traditional media and digital tools. On a phone, I do not want to paint. I want a practical graphics editor in the palm of my hand.
-
-I found myself using Krita on my smartphone as a daily driver for graphics tasks, so I began modifying it for that purpose. Krimble is the resulting work-in-progress.
+I am a lifelong graphics professional trained across traditional media and digital tools. Trying to paint with a phone is about as appealing as writing with a bar of soap. Instead of a paint app, Krimble is a graphics editor for simple tasks.
 
 **Same job, but smaller.**
 
@@ -155,7 +153,7 @@ Some of these are already implemented; others are still in development.
 <img src="https://krimble.org/assets/kimmy-robot-ai.jpg" alt="Kimmy and the Krimble robot — We love A.I." width="100%">
 </div>
 
-Krimble does **not** have a blanket moratorium on artificial intelligence.
+Unlike Krita, Krimble does **not** have a moratorium on artificial intelligence.
 
 AI is treated as another class of creative technology: useful when it can make a real workflow better, inappropriate when it cannot, and always subject to experimentation, revision, and improvement.
 
@@ -164,7 +162,6 @@ The goal is not to turn Krimble into an “AI app.” The goal is to build a str
 <div align="center">
 <img src="https://krimble.org/assets/friend-robot-2.jpg" alt="Robot — I am your friend!" width="80%">
 </div>
-
 
 Artificial Intelligence is like a brilliant child. Children sometimes make mistakes. That's what Daddy is there for.
 
@@ -270,7 +267,7 @@ Android is the primary focus. Other platforms are intended to share the same Kri
 
 ## THANK YOU! 🙏
 
-Krimble exists because of these. They are not connected to Krimble and have not endorsed it; we are simply grateful.
+Krimble exists because of these. They are not connected to Krimble and have not endorsed it; we are simply grateful for their services.
 
 - <img src="thanks-icons/claude.svg" width="24" height="24" align="absmiddle"> **Claude** (Anthropic): helped design and write much of Krimble's code and documentation.
 - <img src="thanks-icons/openai.svg" width="24" height="24" align="absmiddle"> **ChatGPT** (OpenAI): ideas, art direction and troubleshooting along the way.
