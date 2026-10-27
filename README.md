@@ -31,7 +31,7 @@ Krimble remains built on the extraordinary foundation of [Krita](https://invent.
 
 ### What is Mobile-First? 📱
 
-Krimble is designed around **phones and touch** and reproducing a desktop workstation on a smaller display. The focus is not on painting, but on graphics editing tasks.
+Krimble is designed around **phones and touch** on a smaller display.
 
 That means:
 
