@@ -5616,3 +5616,9 @@ George asked "How big is the 32 bit Android market?"; Claude looked it up (no pu
 
 George: "Remove it from the readme." (after "Okay, 7a is off the map.", the 321st entry). The "BUILD TARGETS" table of `README.md` listed **Android armeabi-v7a, Play Store** and **Android armeabi-v7a, F-Droid** as planned targets: the two rows are removed (the table keeps Android arm64-v8a for Play Store and F-Droid, Linux x86-64, Windows, iOS and macOS). `README.android.md` and `README.packagers.md` do not mention 32-bit builds (the one `-p=all` line of `README.android.md` is Krita's own build instruction, not touched). **Docs only; no code changed.**
 
+## 2026-10-26 (323rd) — 1.0.44 is published on GitHub
+
+**Files:** `KRIMBLE_STATUS.md` (docs only)
+
+George asked "Do we not have 44 on GitHub yet?" (it was a draft with no APK, tag `v1.0.44-beta` on `f3960e9`); then: "I sent it." **Verified through the API:** release `v1.0.44-beta` (id 423665630) is **published** (2026-10-27 03:32 UTC = 2026-10-26 9:32 PM MT), prerelease, target `f3960e98`, asset `Krimble-1.0.44-beta-Oct25-2229.apk`, 181,273,588 bytes (the size of the APK that was packaged on the server), state `uploaded`; the tag points at `f3960e98c8`, the commit the app was built from (the app's own build stamp says `f3960e9`). So 1.0.29 to 1.0.44 are all published. Everything since (entries 305 to 322) is not in it. **Docs only; no code changed.**
+
