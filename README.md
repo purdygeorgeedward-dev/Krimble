@@ -105,15 +105,15 @@ Krimble already includes changes to make the application more practical and fami
 
 | Area | Krimble direction |
 |---|---|
-| **Navigation** | Pan/Hand as the default tool, touch-first movement, fewer accidental gestures |
-| **Toolbox** | Reordered around familiar graphics-editing terminology |
-| **Menus** | Simplified, renamed, and reorganized for mobile use |
+| **Navigation** | Pan/Hand (non-destructive) as the default tool instead of Paintbrush (destructive) |
+| **Toolbox** | Reordered around familiar graphics-editing applications |
+| **Menus** | Simplified, renamed, and reorganized based on popular applications for familiarity |
 | **Panels** | User-facing “docker” terminology replaced with **panel**; **Detach Panel** and **Attach Panel** in the Settings menu float any panel and dock it back; floating panels stay where dropped and have a corner resize handle |
 | **Touch** | Larger crop handles, wider resize targets, mobile selection handles |
-| **Transform** | Free Transform as the predictable default; accidental shear reduced |
+| **Transform** | Free Transform as the predictable default scaling; accidental shear reduced |
 | **Color** | User-friendly simple square color selector; improved Match Color |
 | **Editing** | Healing Brush, Content-Aware Fill, improved adjustments and replayable Actions |
-| **Branding** | Krimble identity, app labels, splash, icons, links, versioning and support graphics |
+| **Branding** | Krimble identity, mascot, icon, app labels, splash, links, versioning and support graphics |
 | **Automation** | Batch Process recipes (JPG, PNG, WebP with transparency) and **Krimble Script**, a tiny script language for simple operations on many pictures |
 | **Shortcuts** | Large shortcut-alignment pass for familiar tool keys where practical |
 
@@ -138,9 +138,9 @@ Recent and active work includes:
 - replayable Actions with captured parameters
 - **Eraser tool** 🧽: a dedicated toolbox tool that paints transparency with the current brush
 - **Batch Process** 🧰 with saved **recipes**: resize, convert to JPG, PNG or **WebP with transparency**, rename, many pictures at once
-- **Krimble Help** 📖: a handbook inside the app (Help > Krimble Help), with search and a list of its parts; it includes the Krimble Script reference
+- **Krimble Help** 📖: a help file inside the app (Help > Krimble Help), with search and a list of its parts; it includes the Krimble Script reference
 - **Animated GIF and WebP in Batch Process** 🎞️: read animated GIF and WebP, write animated WebP (smaller than the GIF, with transparency), or save the frames as separate numbered pictures
-- **Krimble Script** 📜: a tiny script language (15 commands) for simple operations on many pictures: resize, crop, rotate, flip, gray, brightness, contrast, flatten, format, name, folder, frames, fps, loop. See [KRIMBLE_SCRIPT.md](KRIMBLE_SCRIPT.md)
+- **Krimble Script** 📜: a tiny scripting language (15 commands) for simple operations: resize, crop, rotate, flip, gray, brightness, contrast, flatten, format, name, folder, frames, fps, loop. See [KRIMBLE_SCRIPT.md](KRIMBLE_SCRIPT.md)
 - additional restoration and editing tools
 
 Some of these are already implemented; others are still in development.
@@ -155,9 +155,7 @@ Some of these are already implemented; others are still in development.
 
 Unlike Krita, Krimble does **not** have a moratorium on artificial intelligence.
 
-AI is treated as another class of creative technology: useful when it can make a real workflow better, inappropriate when it cannot, and always subject to experimentation, revision, and improvement.
-
-The goal is not to turn Krimble into an “AI app.” The goal is to build a strong graphics editor and use new technology where it genuinely helps.
+AI is way too useful to exclude, and honestly without Claude this project would be impossible. Claude does a lot of the heavy lifting with coding, as is rapidly becoming an industry standard, and ChatGPT handles most of the original graphics.
 
 <div align="center">
 <img src="https://krimble.org/assets/friend-robot-2.jpg" alt="Robot — I am your friend!" width="80%">
