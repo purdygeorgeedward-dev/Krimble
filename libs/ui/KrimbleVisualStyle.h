@@ -24,7 +24,7 @@ QGroupBox {
                                 stop:0 #353d61, stop:1 #292e49);
 }
 QGroupBox::title { subcontrol-origin: margin; left: 12px; padding: 0 5px; }
-QPushButton, QToolButton {
+QPushButton, QDialog QToolButton {
     color: #f1f4fc;
     border: 1px solid #59668d;
     border-top: 1px solid #8795bc;
@@ -34,19 +34,19 @@ QPushButton, QToolButton {
                                 stop:0 #515d84, stop:0.48 #3c456a,
                                 stop:1 #242a48);
 }
-QPushButton:hover, QToolButton:hover {
+QPushButton:hover, QDialog QToolButton:hover {
     border-color: #59b8f4;
     background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
                                 stop:0 #4775a7, stop:1 #234770);
 }
-QPushButton:pressed, QToolButton:pressed,
-QPushButton:checked, QToolButton:checked {
+QPushButton:pressed, QDialog QToolButton:pressed,
+QPushButton:checked, QDialog QToolButton:checked {
     border: 2px solid #38c6ff;
     background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
                                 stop:0 #167bb7, stop:0.5 #095889,
                                 stop:1 #07345e);
 }
-QPushButton:disabled, QToolButton:disabled {
+QPushButton:disabled, QDialog QToolButton:disabled {
     color: #8990a6;
     border-color: #444c67;
     background: #303650;
