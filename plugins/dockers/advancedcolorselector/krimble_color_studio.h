@@ -4,6 +4,9 @@
 #include <QImage>
 #include <QSizePolicy>
 #include <QMenu>
+#include <QTimer>
+#include <QAction>
+#include <QCursor>
 
 #include <QWidget>
 #include <QPainter>
@@ -29,6 +32,43 @@
 #include "kis_canvas_resource_provider.h"
 #include "KoColor.h"
 #include "KoColorSpaceRegistry.h"
+
+// Swatch button supports a touch long-press without requiring a mouse right-click.
+class KrimbleSwatchButton : public QPushButton
+{
+public:
+    explicit KrimbleSwatchButton(QWidget *parent=nullptr) : QPushButton(parent) {
+        m_hold.setSingleShot(true);
+        m_hold.setInterval(550);
+        connect(&m_hold, &QTimer::timeout, this, [this]() {
+            m_longPressed=true;
+            if (onLongPress) onLongPress(mapToGlobal(rect().center()));
+        });
+    }
+    std::function<void(const QPoint &)> onLongPress;
+protected:
+    void mousePressEvent(QMouseEvent *event) override {
+        m_longPressed=false;
+        if (event->button()==Qt::LeftButton) m_hold.start();
+        QPushButton::mousePressEvent(event);
+    }
+    void mouseMoveEvent(QMouseEvent *event) override {
+        if (!rect().adjusted(-8,-8,8,8).contains(event->pos())) m_hold.stop();
+        QPushButton::mouseMoveEvent(event);
+    }
+    void mouseReleaseEvent(QMouseEvent *event) override {
+        m_hold.stop();
+        if (m_longPressed) {
+            setDown(false);
+            event->accept();
+            return;
+        }
+        QPushButton::mouseReleaseEvent(event);
+    }
+private:
+    QTimer m_hold;
+    bool m_longPressed=false;
+};
 
 // Hue/saturation/value picker. The painting is local to the widget; edits are
 // committed through the same canvas resource manager as Krita's other selectors.
@@ -169,8 +209,9 @@ public:
 private:
     void select(QColor c,bool commit=true) {
         if(!c.isValid()) return;
+        const bool changed = c != m_current;
         m_current=c;
-        if (commit && c != m_current) {
+        if (commit && changed) {
             m_recent.removeAll(c);
             m_recent.prepend(c);
             while (m_recent.size()>12) m_recent.removeLast();
@@ -226,21 +267,31 @@ private:
         }
         for(int i=0;i<m_colors.size();++i) {
             QColor color=m_colors[i];
-            auto *button=new QPushButton(this);
-            button->setFixedHeight(28);
+            auto *button=new KrimbleSwatchButton(this);
+            button->setFixedHeight(36);
             button->setToolTip(color.name());
             button->setStyleSheet(QStringLiteral("background:%1;border:1px solid #7381a8;border-radius:4px;").arg(color.name()));
             connect(button,&QPushButton::clicked,this,[this,color](){select(color);});
             button->setContextMenuPolicy(Qt::CustomContextMenu);
-            connect(button,&QWidget::customContextMenuRequested,this,[this,button,i](const QPoint &pos) {
+            auto editSwatch=[this,button,i](const QPoint &globalPos) {
                 QMenu menu(button);
                 QAction *replace=menu.addAction(tr("Replace with current color"));
                 QAction *remove=menu.addAction(tr("Remove swatch"));
-                QAction *chosen=menu.exec(button->mapToGlobal(pos));
+                QAction *moveLeft=menu.addAction(tr("Move left"));
+                QAction *moveRight=menu.addAction(tr("Move right"));
+                moveLeft->setEnabled(i>0);
+                moveRight->setEnabled(i+1<m_colors.size());
+                QAction *chosen=menu.exec(globalPos);
                 if(chosen==replace) m_colors[i]=m_current;
                 else if(chosen==remove) m_colors.removeAt(i);
+                else if(chosen==moveLeft && i>0) m_colors.swapItemsAt(i,i-1);
+                else if(chosen==moveRight && i+1<m_colors.size()) m_colors.swapItemsAt(i,i+1);
                 else return;
                 savePalette(); rebuildSwatches();
+            };
+            button->onLongPress=editSwatch;
+            connect(button,&QWidget::customContextMenuRequested,this,[button,editSwatch](const QPoint &pos) {
+                editSwatch(button->mapToGlobal(pos));
             });
             m_swatches->addWidget(button,i/6,i%6);
         }
