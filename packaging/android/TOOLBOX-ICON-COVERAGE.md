@@ -66,3 +66,13 @@ feature branch**. Neither represented the actual Colorize Mask Editing or
 Enclose and Fill tool. The remaining staged set contains **32 PNGs**.
 New drawings for those two tools are still needed; preserve their original
 application icons until replacements are correctly identified.
+
+## Toolbox inclusion decision (2026-10-28)
+
+**Exclude only the six bottom tools after Rotate:** Colorize Mask Editing,
+Enclose and Fill, Assistant Tool, Ruler Tool, Reference Images Tool,
+and Path-Based Selection Tool. All other existing toolbox tools must
+remain available in the build. Do not exclude tools merely because there
+is no approved replacement image or because an artwork filename is wrong.
+These six exclusions concern visible toolbox registration; do not delete
+underlying tools, files or artwork without a separate request.
