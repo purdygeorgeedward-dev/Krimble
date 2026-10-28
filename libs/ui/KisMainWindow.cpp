@@ -1041,6 +1041,12 @@ public:
         m_timer.stop();
         apply();
     }
+    void commitVisible()
+    {
+        m_previewEnabled = true;
+        if (m_preview) m_preview->setChecked(true);
+        flush();
+    }
     void removeCreatedLayers()
     {
         m_timer.stop();
@@ -1165,7 +1171,7 @@ static void krimbleShowQuickAdjustDialog(KisMainWindow *win)
     layout->addWidget(content);
     layout->addWidget(buttons);
     QObject::connect(buttons, &QDialogButtonBox::accepted, dialog, [adjust, dialog]() {
-        adjust->flush();
+        adjust->commitVisible();
         dialog->accept();
     });
     QObject::connect(buttons, &QDialogButtonBox::rejected, dialog, [adjust, dialog]() {
