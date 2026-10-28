@@ -10,6 +10,8 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QToolButton>
+#include <QTabWidget>
+#include "krimble_color_studio.h"
 
 #include <kconfig.h>
 #include <kconfiggroup.h>
@@ -99,8 +101,18 @@ KisColorSelectorNgDockerWidget::KisColorSelectorNgDockerWidget(QWidget *parent) 
 
     m_sidebarLayout->addLayout(m_verticalColorPatchesLayout);
 
-    m_widgetLayout->addLayout(m_mainLayout);
-    m_widgetLayout->addLayout(m_sidebarLayout);
+    QWidget *classicPanel = new QWidget(this);
+    QHBoxLayout *classicLayout = new QHBoxLayout(classicPanel);
+    classicLayout->setContentsMargins(0, 0, 0, 0);
+    classicLayout->setSpacing(0);
+    classicLayout->addLayout(m_mainLayout);
+    classicLayout->addLayout(m_sidebarLayout);
+
+    QTabWidget *colorTabs = new QTabWidget(this);
+    m_krimbleStudio = new KrimbleColorStudio(colorTabs);
+    colorTabs->addTab(m_krimbleStudio, tr("Picker"));
+    colorTabs->addTab(classicPanel, tr("Classic"));
+    m_widgetLayout->addWidget(colorTabs);
 
     updateLayout();
 
@@ -136,6 +148,7 @@ void KisColorSelectorNgDockerWidget::unsetCanvas()
     m_commonColorsWidget->unsetCanvas();
     m_colorHistoryWidget->unsetCanvas();
     m_colorSelectorContainer->unsetCanvas();
+    m_krimbleStudio->setCanvas(nullptr);
 }
 
 void KisColorSelectorNgDockerWidget::setCanvas(KisCanvas2 *canvas)
@@ -152,6 +165,7 @@ void KisColorSelectorNgDockerWidget::setCanvas(KisCanvas2 *canvas)
     m_commonColorsWidget->setCanvas(canvas);
     m_colorHistoryWidget->setCanvas(canvas);
     m_colorSelectorContainer->setCanvas(canvas);
+    m_krimbleStudio->setCanvas(canvas);
 
     if (m_canvas && m_canvas->viewManager()) {
         KisKActionCollection* actionCollection = canvas->viewManager()->actionCollection();
