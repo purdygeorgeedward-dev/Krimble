@@ -197,6 +197,16 @@ public:
         });
         loadPalette();
         select(QColor("#459ad3"),false);
+        // Keep the controls in sync when another docker or the eyedropper changes
+        // the foreground color. Only poll while the Studio is visible.
+        m_syncTimer.setInterval(350);
+        connect(&m_syncTimer, &QTimer::timeout, this, [this]() {
+            if (!m_canvas || !isVisible()) return;
+            const QColor foreground=m_canvas->resourceManager()->foregroundColor().toQColor();
+            if (foreground.isValid() && foreground != m_current)
+                select(foreground, false);
+        });
+        m_syncTimer.start();
     }
     void setCanvas(KisCanvas2 *canvas) {
         m_canvas=canvas;
@@ -297,6 +307,7 @@ private:
         }
     }
     QPointer<KisCanvas2> m_canvas;
+    QTimer m_syncTimer;
     QColor m_current;
     KrimbleSvSquare *m_square=nullptr;
     QSlider *m_hue=nullptr;
