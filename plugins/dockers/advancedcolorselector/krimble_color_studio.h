@@ -134,7 +134,7 @@ public:
         });
         connect(add,&QPushButton::clicked,this,[this]() {
             if (!m_colors.contains(m_current)) m_colors.append(m_current);
-            while(m_colors.size()>24) m_colors.removeFirst();
+            while(m_colors.size()>24) m_colors.remove(0);
             savePalette(); rebuildSwatches();
         });
         loadPalette();
