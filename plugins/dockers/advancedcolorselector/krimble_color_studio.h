@@ -1,6 +1,9 @@
-#include <functional>
 // SPDX-License-Identifier: GPL-2.0-or-later
 #pragma once
+#include <functional>
+#include <QImage>
+#include <QSizePolicy>
+#include <QMenu>
 
 #include <QWidget>
 #include <QPainter>
@@ -92,6 +95,13 @@ public:
         hueRow->addWidget(new QLabel(tr("Hue"),this));
         m_hue = new QSlider(Qt::Horizontal,this);
         m_hue->setRange(0,359);
+        m_hue->setStyleSheet(QStringLiteral(
+            "QSlider::groove:horizontal { height:12px;"
+            "background:qlineargradient(x1:0,y1:0,x2:1,y2:0,"
+            "stop:0 red,stop:0.167 yellow,stop:0.333 lime,"
+            "stop:0.5 cyan,stop:0.667 blue,stop:0.833 magenta,stop:1 red); }"
+            "QSlider::handle:horizontal { width:20px; margin:-5px 0;"
+            "border-radius:9px; border:2px solid white; background:#3d507c; }"));
         hueRow->addWidget(m_hue);
         layout->addLayout(hueRow);
         auto *values = new QGridLayout;
@@ -177,6 +187,17 @@ private:
             button->setToolTip(color.name());
             button->setStyleSheet(QStringLiteral("background:%1;border:1px solid #7381a8;border-radius:4px;").arg(color.name()));
             connect(button,&QPushButton::clicked,this,[this,color](){select(color);});
+            button->setContextMenuPolicy(Qt::CustomContextMenu);
+            connect(button,&QWidget::customContextMenuRequested,this,[this,button,i](const QPoint &pos) {
+                QMenu menu(button);
+                QAction *replace=menu.addAction(tr("Replace with current color"));
+                QAction *remove=menu.addAction(tr("Remove swatch"));
+                QAction *chosen=menu.exec(button->mapToGlobal(pos));
+                if(chosen==replace) m_colors[i]=m_current;
+                else if(chosen==remove) m_colors.removeAt(i);
+                else return;
+                savePalette(); rebuildSwatches();
+            });
             m_swatches->addWidget(button,i/6,i%6);
         }
     }
