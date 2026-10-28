@@ -11,6 +11,7 @@
 #include <QHBoxLayout>
 #include <QToolButton>
 #include <QTabWidget>
+#include <QScrollArea>
 #include "krimble_color_studio.h"
 
 #include <kconfig.h>
@@ -110,7 +111,11 @@ KisColorSelectorNgDockerWidget::KisColorSelectorNgDockerWidget(QWidget *parent) 
 
     QTabWidget *colorTabs = new QTabWidget(this);
     m_krimbleStudio = new KrimbleColorStudio(colorTabs);
-    colorTabs->addTab(m_krimbleStudio, tr("Picker"));
+    QScrollArea *studioScroll = new QScrollArea(colorTabs);
+    studioScroll->setWidgetResizable(true);
+    studioScroll->setFrameShape(QFrame::NoFrame);
+    studioScroll->setWidget(m_krimbleStudio);
+    colorTabs->addTab(studioScroll, tr("Picker"));
     colorTabs->addTab(classicPanel, tr("Classic"));
     m_widgetLayout->addWidget(colorTabs);
 
