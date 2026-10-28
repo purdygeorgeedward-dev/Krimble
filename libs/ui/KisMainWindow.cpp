@@ -41,6 +41,8 @@
 #include <QStyleFactory>
 #include <algorithm>
 #include <QCheckBox>
+#include <QSpinBox>
+#include <QSignalBlocker>
 #include "kis_image_manager.h"
 #include <kis_filter_strategy.h>
 #include <QDialogButtonBox>
@@ -979,34 +981,57 @@ public:
     KrimbleQuickAdjust(KisMainWindow *win, QWidget *content) : QObject(content), m_win(win)
     {
         QVBoxLayout *layout = new QVBoxLayout(content);
-        layout->setContentsMargins(6, 6, 6, 6);
-        layout->setSpacing(2);
+        layout->setContentsMargins(10, 10, 10, 10);
+        layout->setSpacing(8);
+        QHBoxLayout *options = new QHBoxLayout;
+        QLabel *title = new QLabel(i18n("Adjustments"), content);
+        QFont font = title->font(); font.setBold(true); title->setFont(font);
+        options->addWidget(title);
+        options->addStretch();
+        m_preview = new QCheckBox(i18n("Preview"), content);
+        m_preview->setChecked(true);
+        options->addWidget(m_preview);
+        layout->addLayout(options);
         for (int i = 0; i < SliderCount; ++i) {
-            m_labels[i] = new QLabel(content);
+            QHBoxLayout *row = new QHBoxLayout;
+            row->setSpacing(8);
+            m_labels[i] = new QLabel(i18n(def(i).name), content);
+            m_labels[i]->setMinimumWidth(90);
+            row->addWidget(m_labels[i]);
+            m_numbers[i] = new QSpinBox(content);
+            m_numbers[i]->setRange(def(i).min, def(i).max);
+            m_numbers[i]->setMinimumWidth(72);
+            row->addWidget(m_numbers[i]);
             m_sliders[i] = new QSlider(Qt::Horizontal, content);
             m_sliders[i]->setRange(def(i).min, def(i).max);
-            m_sliders[i]->setValue(0);
             m_sliders[i]->setMinimumWidth(1);
-            layout->addWidget(m_labels[i]);
-            layout->addWidget(m_sliders[i]);
-            updateLabel(i);
+            m_sliders[i]->setMinimumHeight(38);
+            m_sliders[i]->setObjectName(QStringLiteral("krimbleQuickAdjustSlider"));
+            row->addWidget(m_sliders[i], 1);
+            layout->addLayout(row);
             connect(m_sliders[i], &QSlider::valueChanged, this, [this, i](int value) {
                 m_values[i] = value;
-                updateLabel(i);
+                QSignalBlocker blocker(m_numbers[i]);
+                m_numbers[i]->setValue(value);
                 m_timer.start(90);
+            });
+            connect(m_numbers[i], qOverload<int>(&QSpinBox::valueChanged), this, [this, i](int value) {
+                m_sliders[i]->setValue(value);
             });
         }
         QPushButton *reset = new QPushButton(i18n("Reset"), content);
         layout->addWidget(reset);
         layout->addStretch(1);
         connect(reset, &QPushButton::clicked, this, [this]() {
-            for (int i = 0; i < SliderCount; ++i) {
-                m_sliders[i]->setValue(0);     // each change updates its layer
-            }
+            for (int i = 0; i < SliderCount; ++i) m_sliders[i]->setValue(0);
         });
         m_timer.setSingleShot(true);
         connect(&m_timer, &QTimer::timeout, this, [this]() { apply(); });
         for (int i = 0; i < SliderCount; ++i) m_values[i] = 0;
+        connect(m_preview, &QCheckBox::toggled, this, [this](bool enabled) {
+            m_previewEnabled = enabled;
+            flush();
+        });
     }
 
     // Krimble 2026-10-13 (11th): for the dialog version (George: "Build Quick Adjust as a dialog window launched from Image Adjust."):
@@ -1041,10 +1066,6 @@ private:
         };
         return defs[i];
     }
-    void updateLabel(int i)
-    {
-        m_labels[i]->setText(QStringLiteral("%1   %2").arg(i18n(def(i).name)).arg(m_sliders[i]->value()));
-    }
     void apply()
     {
         updateLayer(m_bcLayer, QStringLiteral("brightnesscontrast"), i18n("Quick Adjust: Brightness/Contrast"),
@@ -1055,6 +1076,11 @@ private:
                     m_values[Hue] != 0 || m_values[Saturation] != 0 || m_values[Lightness] != 0);
         updateLayer(m_vibLayer, QStringLiteral("vibrance"), i18n("Quick Adjust: Vibrance"),
                     { { QStringLiteral("vibrance"), m_values[Vibrance] } }, m_values[Vibrance] != 0);
+        KisNodeWSP *refs[3] = { &m_bcLayer, &m_hsvLayer, &m_vibLayer };
+        for (KisNodeWSP *ref : refs) {
+            KisNodeSP node = *ref;
+            if (node && node->parent()) node->setVisible(m_previewEnabled);
+        }
     }
     void updateLayer(KisNodeWSP &ref, const QString &filterId, const QString &layerName, const QMap<QString, QVariant> &props, bool anyNonZero)
     {
@@ -1098,6 +1124,9 @@ private:
     KisMainWindow *m_win;
     QLabel *m_labels[SliderCount];
     QSlider *m_sliders[SliderCount];
+    QSpinBox *m_numbers[SliderCount];
+    QCheckBox *m_preview = nullptr;
+    bool m_previewEnabled = true;
     int m_values[SliderCount];
     QTimer m_timer;
     KisImageWSP m_image;
@@ -1128,7 +1157,7 @@ static void krimbleShowQuickAdjustDialog(KisMainWindow *win)
     QDialogButtonBox *buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, dialog);
     // Krimble 2026-10-14: George (1.0.36): "Quick Adjust is perfect size. Has no title bar?" The window has none on the phone, so its name is
     // written at the top of it.
-    QLabel *heading = new QLabel(i18n("Quick Adjust"), dialog);
+    QLabel *heading = new QLabel(i18n("Krimble  |  QuickAdjust"), dialog);
     QFont headingFont = heading->font();
     headingFont.setBold(true);
     heading->setFont(headingFont);
