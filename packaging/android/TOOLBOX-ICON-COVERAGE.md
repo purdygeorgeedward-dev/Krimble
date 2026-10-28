@@ -57,3 +57,12 @@ artwork in place for any mismatched or unavailable design.
 
 The 34 uploaded PNGs were copied to this feature branch as **staged assets**;
 copying files alone does not replace Qt's installed toolbar icons.
+
+## Removed incorrect artwork (2026-10-28)
+
+The two concept files `06_04_light_adjustment.png` (sun) and
+`06_05_color_selector.png` (color wheel) have been **deleted from this
+feature branch**. Neither represented the actual Colorize Mask Editing or
+Enclose and Fill tool. The remaining staged set contains **32 PNGs**.
+New drawings for those two tools are still needed; preserve their original
+application icons until replacements are correctly identified.
