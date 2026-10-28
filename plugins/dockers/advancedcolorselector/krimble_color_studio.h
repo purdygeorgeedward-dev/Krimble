@@ -115,10 +115,22 @@ public:
         m_hex=new QLineEdit(this); m_hex->setMaxLength(7);
         m_hex->setPlaceholderText(QStringLiteral("#RRGGBB"));
         values->addWidget(m_hex,1,1,1,5);
+        const char *hsvNames[] = {"H", "S", "V"};
+        for (int i=0;i<3;++i) {
+            values->addWidget(new QLabel(QString::fromLatin1(hsvNames[i]),this),2,i*2);
+            m_hsv[i] = new QSpinBox(this);
+            m_hsv[i]->setRange(0, i==0 ? 359 : 100);
+            m_hsv[i]->setSuffix(i==0 ? QStringLiteral("°") : QStringLiteral("%"));
+            values->addWidget(m_hsv[i],2,i*2+1);
+        }
         layout->addLayout(values);
         m_preview=new QLabel(this); m_preview->setFixedHeight(24);
         layout->addWidget(m_preview);
-        layout->addWidget(new QLabel(tr("My Palette  •  tap to select, long-press not required"),this));
+        layout->addWidget(new QLabel(tr("RECENT COLORS"),this));
+        m_recentLayout = new QGridLayout;
+        m_recentLayout->setSpacing(3);
+        layout->addLayout(m_recentLayout);
+        layout->addWidget(new QLabel(tr("MY PALETTE  •  tap to select, long-press to edit"),this));
         m_swatches=new QGridLayout; m_swatches->setSpacing(3);
         layout->addLayout(m_swatches);
         m_square->onPick=[this](QColor c){ select(c); };
@@ -128,6 +140,12 @@ public:
         for (int i=0;i<3;++i)
             connect(m_rgb[i],qOverload<int>(&QSpinBox::valueChanged),this,[this](int) {
                 select(QColor(m_rgb[0]->value(),m_rgb[1]->value(),m_rgb[2]->value()));
+            });
+        for (int i=0;i<3;++i)
+            connect(m_hsv[i],qOverload<int>(&QSpinBox::valueChanged),this,[this](int) {
+                select(QColor::fromHsv(m_hsv[0]->value(),
+                                      qRound(m_hsv[1]->value()*255.0/100.0),
+                                      qRound(m_hsv[2]->value()*255.0/100.0)));
             });
         connect(m_hex,&QLineEdit::editingFinished,this,[this]() {
             QColor c(m_hex->text()); if(c.isValid()) select(c);
@@ -152,7 +170,18 @@ private:
     void select(QColor c,bool commit=true) {
         if(!c.isValid()) return;
         m_current=c;
+        if (commit && c != m_current) {
+            m_recent.removeAll(c);
+            m_recent.prepend(c);
+            while (m_recent.size()>12) m_recent.removeLast();
+            rebuildRecent();
+        }
         m_square->setColor(c);
+        for (int i=0;i<3;++i) {
+            QSignalBlocker b(m_hsv[i]);
+            m_hsv[i]->setValue(i==0 ? qMax(0,c.hsvHue()) :
+                               qRound((i==1 ? c.hsvSaturation() : c.value())*100.0/255.0));
+        }
         { QSignalBlocker b(m_hue); m_hue->setValue(qMax(0,c.hsvHue())); }
         for(int i=0;i<3;++i) {
             QSignalBlocker b(m_rgb[i]);
@@ -175,6 +204,21 @@ private:
         QStringList items;
         for(const QColor &c:m_colors) items<<c.name(QColor::HexRgb);
         QSettings settings; settings.setValue(QStringLiteral("Krimble/ColorStudioSwatches"),items);
+    }
+    void rebuildRecent() {
+        while (QLayoutItem *item=m_recentLayout->takeAt(0)) {
+            delete item->widget(); delete item;
+        }
+        for (int i=0;i<m_recent.size();++i) {
+            QColor color=m_recent[i];
+            auto *button=new QPushButton(this);
+            button->setFixedHeight(24);
+            button->setToolTip(color.name());
+            button->setStyleSheet(QStringLiteral(
+                "background:%1;border:1px solid #7381a8;border-radius:4px;").arg(color.name()));
+            connect(button,&QPushButton::clicked,this,[this,color](){select(color);});
+            m_recentLayout->addWidget(button,i/6,i%6);
+        }
     }
     void rebuildSwatches() {
         while(QLayoutItem *item=m_swatches->takeAt(0)) {
@@ -206,8 +250,11 @@ private:
     KrimbleSvSquare *m_square=nullptr;
     QSlider *m_hue=nullptr;
     QSpinBox *m_rgb[3]{};
+    QSpinBox *m_hsv[3]{};
     QLineEdit *m_hex=nullptr;
     QLabel *m_preview=nullptr;
     QGridLayout *m_swatches=nullptr;
+    QGridLayout *m_recentLayout=nullptr;
+    QVector<QColor> m_recent;
     QVector<QColor> m_colors;
 };
