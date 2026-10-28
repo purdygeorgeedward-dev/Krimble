@@ -9,6 +9,7 @@
 #include <QHBoxLayout>
 #include <QBoxLayout>
 #include "KisApplication.h"
+#include "KrimbleVisualStyle.h"   // Krimble shared visual refresh
 
 #include <stdlib.h>
 #ifdef Q_OS_WIN
@@ -229,7 +230,7 @@ public:
     KrimblePageListStyle() : QProxyStyle(QApplication::style()->objectName()) {}
     int pixelMetric(PixelMetric metric, const QStyleOption *option = nullptr, const QWidget *widget = nullptr) const override
     {
-        if (metric == QStyle::PM_IconViewIconSize) return 64;
+        if (metric == QStyle::PM_IconViewIconSize) return 44;
         return QProxyStyle::pixelMetric(metric, option, widget);
     }
 };
@@ -702,7 +703,7 @@ protected:
                                     // Krimble 2026-10-13 (3rd): George (1.0.35): "Preferences icons are way too small." The pictures were drawn at
                                     // the program's small default (32 logical px); they are now 64 logical px (about 216 on the screen), which
                                     // is the most that fits in the narrowed list.
-                                    pageList->setIconSize(QSize(64, 64));
+                                    pageList->setIconSize(QSize(44, 44));
                                     {
                                         KrimblePageListStyle *pageListStyle = new KrimblePageListStyle();
                                         pageListStyle->setParent(pageList);
@@ -1167,6 +1168,11 @@ KisApplication::KisApplication(const QString &key, int &argc, char **argv)
     // Krimble: double the dock widget (panel) separator width so it's a
     // reliable touch target for resizing docked panels, not just a mouse one.
     qApp->setStyle(new KisWideDockSeparatorStyle(qApp->style()));
+#ifdef Q_OS_ANDROID
+    // A single visual skin for dialogs and controls. Do not change window flags,
+    // dialog movement, touch behavior, or the customizable toolbox layout.
+    qApp->setStyleSheet(krimbleVisualStyleSheet());
+#endif
 
     /**
      * Load platform plugin for modifiers fetching
