@@ -76,3 +76,7 @@ remain available in the build. Do not exclude tools merely because there
 is no approved replacement image or because an artwork filename is wrong.
 These six exclusions concern visible toolbox registration; do not delete
 underlying tools, files or artwork without a separate request.
+
+## Revision: retain two tools (2026-10-28)
+
+User confirmed **Path-Based Selection** and **Assistant Tool** are to be retained. Their `KoToolRegistry` registration statements have been restored. Only these four remain excluded: Colorize Mask Editing, Enclose and Fill, Ruler/Measure, and Reference Images. This revision supersedes the earlier six-tool exclusion statement above.
