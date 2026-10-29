@@ -32,7 +32,7 @@ AssistantToolPlugin::AssistantToolPlugin(QObject *parent, const QVariantList &)
         : QObject(parent)
 {
     // Krimble 1.0.45-beta: Assistant Tool excluded; guide factories remain registered.
-    // KoToolRegistry::instance()->add(new KisAssistantToolFactory());
+    KoToolRegistry::instance()->add(new KisAssistantToolFactory()); // Retained: drawing guides
 
     KisPaintingAssistantFactoryRegistry::instance()->add(new RulerAssistantFactory);
     KisPaintingAssistantFactoryRegistry::instance()->add(new EllipseAssistantFactory);
