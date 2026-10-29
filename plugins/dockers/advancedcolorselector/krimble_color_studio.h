@@ -2,6 +2,7 @@
 #pragma once
 #include <functional>
 #include <QImage>
+#include <cmath>
 #include <QSizePolicy>
 #include <QMenu>
 #include <QTimer>
@@ -202,6 +203,7 @@ protected:
             return;
         }
         snapshot();
+        ++m_strokeId;
         m_drawing=true;
         m_last=event->pos();
         stroke(m_last,m_last);
@@ -234,9 +236,35 @@ private:
                                       : QPainter::CompositionMode_SourceOver);
         QColor c=m_color;
         c.setAlphaF(m_opacity/100.0);
-        QPen pen(c, m_size, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
-        p.setPen(pen);
-        p.drawLine(from,to);
+        if (m_eraser) {
+            QPen pen(c, m_size, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
+            p.setPen(pen);
+            p.drawLine(from,to);
+        } else {
+            // Default oil-bristle simulation: individual semi-transparent
+            // strands create ridges and broken coverage as colors overlap.
+            // This is local QPainter rendering, not a Krita brush preset.
+            const QPointF delta=QPointF(to-from);
+            const qreal length=std::hypot(delta.x(),delta.y());
+            const QPointF tangent=length>0.01 ? delta/length : QPointF(1,0);
+            const QPointF normal(-tangent.y(),tangent.x());
+            const int bristles=qBound(5,m_size/2,34);
+            for (int strand=0;strand<bristles;++strand) {
+                const qreal t=(strand+0.5)/bristles-0.5;
+                const qreal offset=t*m_size;
+                const quint32 seed=quint32(strand*7919u + m_strokeId*104729u);
+                const qreal wobble=qreal(seed%17)/17.0-0.5;
+                QColor pigment=c;
+                pigment.setAlphaF(qBound(0.03,(m_opacity/100.0)*(0.18+0.56*qreal((seed>>4)%101)/100.0),1.0));
+                if (strand%4==0) pigment=pigment.lighter(120);
+                else if (strand%5==0) pigment=pigment.darker(115);
+                p.setPen(QPen(pigment,qMax(1.0,m_size/qreal(bristles)*1.4),
+                              Qt::SolidLine,Qt::RoundCap,Qt::RoundJoin));
+                const QPointF spread=normal*(offset+wobble*m_size*0.12);
+                if ((seed%11)!=0)
+                    p.drawLine(QPointF(from)+spread,QPointF(to)+spread);
+            }
+        }
         update();
     }
     QImage m_paint;
@@ -244,6 +272,7 @@ private:
     QColor m_color=QColor("#459ad3");
     QPoint m_last;
     int m_size=18,m_opacity=85;
+    quint32 m_strokeId=0;
     bool m_drawing=false,m_eraser=false,m_sampling=false;
 };
 
@@ -283,6 +312,7 @@ public:
         paintButton->setChecked(true);
         mixLayout->addLayout(mixTools);
         m_mixingPad=new KrimbleMixingPad(mixer);
+        mixLayout->addWidget(new QLabel(tr("Oil Bristle  •  paint and blend colors"),mixer));
         mixLayout->addWidget(m_mixingPad,1);
         auto *brushControls=new QHBoxLayout;
         brushControls->addWidget(new QLabel(tr("Size"),mixer));
