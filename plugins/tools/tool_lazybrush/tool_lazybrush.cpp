@@ -23,7 +23,7 @@ ToolLazyBrush::ToolLazyBrush(QObject *parent, const QVariantList &)
         : QObject(parent)
 {
     // Krimble 1.0.45-beta: Colorize Mask Editing excluded from toolbox.
-    // KoToolRegistry::instance()->add(new KisToolLazyBrushFactory());
+    KoToolRegistry::instance()->add(new KisToolLazyBrushFactory());
 }
 
 ToolLazyBrush::~ToolLazyBrush()
