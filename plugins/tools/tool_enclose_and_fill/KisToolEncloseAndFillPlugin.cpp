@@ -18,7 +18,7 @@ KisToolEncloseAndFillPlugin::KisToolEncloseAndFillPlugin(QObject *parent, const 
         : QObject(parent)
 {
     // Krimble 1.0.45-beta: Enclose and Fill excluded from toolbox.
-    // KoToolRegistry::instance()->add(new KisToolEncloseAndFillFactory());
+    KoToolRegistry::instance()->add(new KisToolEncloseAndFillFactory());
 }
 
 KisToolEncloseAndFillPlugin::~KisToolEncloseAndFillPlugin()
