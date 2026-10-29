@@ -11,6 +11,7 @@
 #include <QWidget>
 #include <QPainter>
 #include <QMouseEvent>
+#include <QHideEvent>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QGridLayout>
@@ -59,11 +60,18 @@ protected:
     void mouseReleaseEvent(QMouseEvent *event) override {
         m_hold.stop();
         if (m_longPressed) {
+            // Suppress clicked() after the long-press context menu without
+            // leaving the underlying QPushButton in a pressed state.
             setDown(false);
+            setCheckable(false);
             event->accept();
             return;
         }
         QPushButton::mouseReleaseEvent(event);
+    }
+    void hideEvent(QHideEvent *event) override {
+        m_hold.stop();
+        QPushButton::hideEvent(event);
     }
 private:
     QTimer m_hold;
