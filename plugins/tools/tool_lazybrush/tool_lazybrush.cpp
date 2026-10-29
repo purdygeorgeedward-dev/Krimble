@@ -22,7 +22,8 @@ K_PLUGIN_FACTORY_WITH_JSON(DefaultToolsFactory, "kritatoollazybrush.json", regis
 ToolLazyBrush::ToolLazyBrush(QObject *parent, const QVariantList &)
         : QObject(parent)
 {
-    KoToolRegistry::instance()->add(new KisToolLazyBrushFactory());
+    // Krimble 1.0.45-beta: Colorize Mask Editing excluded from toolbox.
+    // KoToolRegistry::instance()->add(new KisToolLazyBrushFactory());
 }
 
 ToolLazyBrush::~ToolLazyBrush()
