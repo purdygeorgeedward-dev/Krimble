@@ -17,7 +17,8 @@ K_PLUGIN_FACTORY_WITH_JSON(KisToolEncloseAndFillPluginFactory, "kritatoolenclose
 KisToolEncloseAndFillPlugin::KisToolEncloseAndFillPlugin(QObject *parent, const QVariantList &)
         : QObject(parent)
 {
-    KoToolRegistry::instance()->add(new KisToolEncloseAndFillFactory());
+    // Krimble 1.0.45-beta: Enclose and Fill excluded from toolbox.
+    // KoToolRegistry::instance()->add(new KisToolEncloseAndFillFactory());
 }
 
 KisToolEncloseAndFillPlugin::~KisToolEncloseAndFillPlugin()
