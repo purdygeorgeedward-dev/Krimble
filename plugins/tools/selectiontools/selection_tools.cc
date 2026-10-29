@@ -38,7 +38,7 @@ SelectionTools::SelectionTools(QObject *parent, const QVariantList &)
     KoToolRegistry::instance()->add(new KisToolSelectEllipticalFactory());
     KoToolRegistry::instance()->add(new KisToolSelectContiguousFactory());
     // Krimble 1.0.45-beta: Path-Based Selection excluded from toolbox.
-    // KoToolRegistry::instance()->add(new KisToolSelectPathFactory());
+    KoToolRegistry::instance()->add(new KisToolSelectPathFactory()); // Retained: precision path selection
     KoToolRegistry::instance()->add(new KisToolSelectSimilarFactory());
     KoToolRegistry::instance()->add(new KisToolSelectMagneticFactory());
 }
