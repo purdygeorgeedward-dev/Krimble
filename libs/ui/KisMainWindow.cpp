@@ -1002,13 +1002,13 @@ public:
             m_numbers[i]->setRange(def(i).min, def(i).max);
             m_numbers[i]->setMinimumWidth(72);
             row->addWidget(m_numbers[i]);
+            layout->addLayout(row);
             m_sliders[i] = new QSlider(Qt::Horizontal, content);
             m_sliders[i]->setRange(def(i).min, def(i).max);
             m_sliders[i]->setMinimumWidth(1);
             m_sliders[i]->setMinimumHeight(38);
             m_sliders[i]->setObjectName(QStringLiteral("krimbleQuickAdjustSlider"));
-            row->addWidget(m_sliders[i], 1);
-            layout->addLayout(row);
+            layout->addWidget(m_sliders[i]);
             connect(m_sliders[i], &QSlider::valueChanged, this, [this, i](int value) {
                 m_values[i] = value;
                 QSignalBlocker blocker(m_numbers[i]);
@@ -1182,8 +1182,11 @@ static void krimbleShowQuickAdjustDialog(KisMainWindow *win)
     QObject::connect(dialog, &QDialog::rejected, dialog, [adjust]() { adjust->removeCreatedLayers(); });
     if (QScreen *scr = QGuiApplication::primaryScreen()) {
         const QRect avail = scr->availableGeometry();
-        dialog->resize(int(avail.width() * 0.94), dialog->sizeHint().height() + 20);
-        dialog->move(avail.left() + int(avail.width() * 0.03), avail.bottom() - dialog->height() - 8);
+        const int width = int(avail.width() * 0.94);
+        const int height = qMin(dialog->sizeHint().height() + 20, int(avail.height() * 0.90));
+        dialog->resize(width, height);
+        dialog->move(avail.left() + (avail.width() - width)/2,
+                     avail.bottom() - height - 8);
     }
     dialog->show();
 }
