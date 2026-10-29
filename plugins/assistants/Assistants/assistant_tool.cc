@@ -31,7 +31,8 @@ K_PLUGIN_FACTORY_WITH_JSON(AssistantToolFactory, "kritaassistanttool.json", regi
 AssistantToolPlugin::AssistantToolPlugin(QObject *parent, const QVariantList &)
         : QObject(parent)
 {
-    KoToolRegistry::instance()->add(new KisAssistantToolFactory());
+    // Krimble 1.0.45-beta: Assistant Tool excluded; guide factories remain registered.
+    // KoToolRegistry::instance()->add(new KisAssistantToolFactory());
 
     KisPaintingAssistantFactoryRegistry::instance()->add(new RulerAssistantFactory);
     KisPaintingAssistantFactoryRegistry::instance()->add(new EllipseAssistantFactory);
