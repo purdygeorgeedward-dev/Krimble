@@ -81,20 +81,25 @@ public:
     }
     QColor selected() const { return QColor::fromHsv(m_hue, m_sat, m_val); }
     void setColor(QColor c) {
-        if (c.hsvHue() >= 0) m_hue = c.hsvHue();
+        if (c.hsvHue() >= 0 && m_hue != c.hsvHue()) { m_hue = c.hsvHue(); m_cachedHue = -1; }
         m_sat = c.hsvSaturation(); m_val = c.value(); update();
     }
-    void setHue(int hue) { m_hue = hue; update(); }
+    void setHue(int hue) { if (m_hue != hue) { m_hue = hue; m_cachedHue = -1; update(); } }
     std::function<void(QColor)> onPick;
 protected:
     void paintEvent(QPaintEvent *) override {
         QPainter p(this);
-        QImage image(size(), QImage::Format_RGB32);
         const int w = qMax(1, width()-1), h = qMax(1, height()-1);
-        for (int y=0; y<height(); ++y)
-            for (int x=0; x<width(); ++x)
-                image.setPixelColor(x,y,QColor::fromHsv(m_hue, x*255/w, 255-y*255/h));
-        p.drawImage(0,0,image);
+        // The SV field depends only on hue and dimensions; reuse its pixels
+        // when moving the selection cursor or synchronizing RGB/HEX values.
+        if (m_cachedHue != m_hue || m_cachedSquare.size() != size()) {
+            m_cachedSquare = QImage(size(), QImage::Format_RGB32);
+            for (int y=0; y<height(); ++y)
+                for (int x=0; x<width(); ++x)
+                    m_cachedSquare.setPixelColor(x,y,QColor::fromHsv(m_hue, x*255/w, 255-y*255/h));
+            m_cachedHue = m_hue;
+        }
+        p.drawImage(0,0,m_cachedSquare);
         p.setRenderHint(QPainter::Antialiasing);
         QPointF pt(m_sat*w/255.0, (255-m_val)*h/255.0);
         p.setPen(QPen(Qt::black, 3)); p.setBrush(Qt::NoBrush);
@@ -113,6 +118,8 @@ private:
         if (onPick) onPick(selected());
     }
     int m_hue=210, m_sat=150, m_val=220;
+    int m_cachedHue=-1;
+    QImage m_cachedSquare;
 };
 
 class KrimbleColorStudio : public QWidget
