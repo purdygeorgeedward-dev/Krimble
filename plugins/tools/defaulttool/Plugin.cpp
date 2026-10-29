@@ -18,7 +18,7 @@ Plugin::Plugin(QObject *parent, const QVariantList &)
 {
     KoToolRegistry::instance()->add(new DefaultToolFactory());
     // Krimble 1.0.45-beta: Reference Images Tool excluded from toolbox.
-    // KoToolRegistry::instance()->add(new ToolReferenceImagesFactory());
+    KoToolRegistry::instance()->add(new ToolReferenceImagesFactory());
 }
 
 #include <Plugin.moc>
