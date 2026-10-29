@@ -56,7 +56,8 @@ DefaultTools::DefaultTools(QObject *parent, const QVariantList &)
     KoToolRegistry::instance()->add(new KisToolLineFactory());
     KoToolRegistry::instance()->add(new KisToolEllipseFactory());
     KoToolRegistry::instance()->add(new KisToolRectangleFactory());
-    KoToolRegistry::instance()->add(new KisToolMeasureFactory());
+    // Krimble 1.0.45-beta: Ruler/Measure tool excluded from toolbox.
+    // KoToolRegistry::instance()->add(new KisToolMeasureFactory());
     KoToolRegistry::instance()->add(new KisToolPathFactory());
     KoToolRegistry::instance()->add(new KisToolMoveFactory());
     // KRIMBLE 2026-10-03: removed from the toolbox at George's request so the first button is the Move tool (industry-standard order). Uncomment to bring it back. (Multibrush, Pencil)
