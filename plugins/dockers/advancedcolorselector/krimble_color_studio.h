@@ -28,6 +28,14 @@
 #include <QGroupBox>
 #include <QFrame>
 #include <QPointer>
+#include <QTabWidget>
+#include <QStack>
+#include <QComboBox>
+#include <QTabletEvent>
+#include <QResizeEvent>
+#include <QPainterPath>
+#include <QImage>
+
 #include <algorithm>
 #include "kis_canvas2.h"
 #include "kis_canvas_resource_provider.h"
@@ -130,6 +138,115 @@ private:
     QImage m_cachedSquare;
 };
 
+
+/**
+ * Independent mixing scratchpad: its raster is never connected to the
+ * document's projection or undo stack. Color picking is the only operation
+ * that can explicitly send a sampled color back to Color Studio.
+ */
+class KrimbleMixingPad : public QWidget
+{
+public:
+    explicit KrimbleMixingPad(QWidget *parent=nullptr) : QWidget(parent) {
+        setMinimumHeight(220);
+        setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+        setAttribute(Qt::WA_AcceptTouchEvents, false); // Qt synthesizes mouse strokes
+        setAutoFillBackground(false);
+    }
+    void setColor(const QColor &color) { if (color.isValid()) m_color=color; }
+    void setBrushSize(int value) { m_size=qBound(1,value,100); }
+    void setOpacity(int value) { m_opacity=qBound(1,value,100); }
+    void setEraser(bool enabled) { m_eraser=enabled; m_sampling=false; }
+    void setSampling(bool enabled) { m_sampling=enabled; if (enabled) m_eraser=false; }
+    std::function<void(QColor)> onSample;
+    void clearPad() { snapshot(); m_paint.fill(Qt::transparent); update(); }
+    void undo() {
+        if (m_undo.isEmpty()) return;
+        m_redo.append(m_paint);
+        m_paint=m_undo.takeLast();
+        update();
+    }
+    void redo() {
+        if (m_redo.isEmpty()) return;
+        m_undo.append(m_paint);
+        m_paint=m_redo.takeLast();
+        update();
+    }
+protected:
+    void resizeEvent(QResizeEvent *event) override {
+        if (m_paint.size()!=event->size()) {
+            QImage newImage(event->size(),QImage::Format_ARGB32_Premultiplied);
+            newImage.fill(Qt::transparent);
+            if (!m_paint.isNull()) {
+                QPainter painter(&newImage);
+                painter.drawImage(0,0,m_paint);
+            }
+            m_paint=newImage;
+        }
+        QWidget::resizeEvent(event);
+    }
+    void paintEvent(QPaintEvent *) override {
+        QPainter p(this);
+        p.fillRect(rect(), QColor("#eee9df"));
+        const int cell=20;
+        p.setPen(QColor(0,0,0,12));
+        for (int x=cell;x<width();x+=cell) p.drawLine(x,0,x,height());
+        for (int y=cell;y<height();y+=cell) p.drawLine(0,y,width(),y);
+        p.drawImage(0,0,m_paint);
+    }
+    void mousePressEvent(QMouseEvent *event) override {
+        if (event->button()!=Qt::LeftButton) return;
+        if (m_sampling) {
+            QColor sampled=sample(event->pos());
+            if (sampled.isValid() && onSample) onSample(sampled);
+            return;
+        }
+        snapshot();
+        m_drawing=true;
+        m_last=event->pos();
+        stroke(m_last,m_last);
+    }
+    void mouseMoveEvent(QMouseEvent *event) override {
+        if (!m_drawing || !(event->buttons() & Qt::LeftButton)) return;
+        stroke(m_last,event->pos());
+        m_last=event->pos();
+    }
+    void mouseReleaseEvent(QMouseEvent *event) override {
+        if (event->button()==Qt::LeftButton) m_drawing=false;
+    }
+private:
+    void snapshot() {
+        if (m_paint.isNull()) return;
+        m_undo.append(m_paint);
+        while (m_undo.size()>15) m_undo.removeFirst();
+        m_redo.clear();
+    }
+    QColor sample(QPoint at) const {
+        if (!m_paint.rect().contains(at)) return QColor();
+        const QColor c=m_paint.pixelColor(at);
+        return c.alpha() ? c : QColor("#eee9df");
+    }
+    void stroke(const QPoint &from,const QPoint &to) {
+        if (m_paint.isNull()) return;
+        QPainter p(&m_paint);
+        p.setRenderHint(QPainter::Antialiasing);
+        p.setCompositionMode(m_eraser ? QPainter::CompositionMode_Clear
+                                      : QPainter::CompositionMode_SourceOver);
+        QColor c=m_color;
+        c.setAlphaF(m_opacity/100.0);
+        QPen pen(c, m_size, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
+        p.setPen(pen);
+        p.drawLine(from,to);
+        update();
+    }
+    QImage m_paint;
+    QVector<QImage> m_undo,m_redo;
+    QColor m_color=QColor("#459ad3");
+    QPoint m_last;
+    int m_size=18,m_opacity=85;
+    bool m_drawing=false,m_eraser=false,m_sampling=false;
+};
+
 class KrimbleColorStudio : public QWidget
 {
 public:
@@ -144,8 +261,72 @@ public:
         add->setToolTip(tr("Add foreground color to palette"));
         header->addWidget(add);
         layout->addLayout(header);
+        auto *tabs = new QTabWidget(this);
+        auto *picker = new QWidget(tabs);
+        auto *mixer = new QWidget(tabs);
+        auto *pickerLayout = new QVBoxLayout(picker);
+        pickerLayout->setContentsMargins(0,4,0,0);
+        pickerLayout->setSpacing(5);
+        tabs->addTab(picker,tr("Picker"));
+        tabs->addTab(mixer,tr("Mixer"));
+        layout->addWidget(tabs);
+        auto *mixLayout = new QVBoxLayout(mixer);
+        mixLayout->setContentsMargins(2,6,2,2);
+        auto *mixTools=new QHBoxLayout;
+        auto *paintButton=new QPushButton(tr("Paint"),mixer);
+        auto *eraseButton=new QPushButton(tr("Erase"),mixer);
+        auto *sampleButton=new QPushButton(tr("Sample"),mixer);
+        for (QPushButton *button : {paintButton,eraseButton,sampleButton}) {
+            button->setCheckable(true);
+            mixTools->addWidget(button);
+        }
+        paintButton->setChecked(true);
+        mixLayout->addLayout(mixTools);
+        m_mixingPad=new KrimbleMixingPad(mixer);
+        mixLayout->addWidget(m_mixingPad,1);
+        auto *brushControls=new QHBoxLayout;
+        brushControls->addWidget(new QLabel(tr("Size"),mixer));
+        auto *brushSize=new QSpinBox(mixer);
+        brushSize->setRange(1,100); brushSize->setValue(18);
+        brushControls->addWidget(brushSize);
+        brushControls->addWidget(new QLabel(tr("Opacity"),mixer));
+        auto *brushOpacity=new QSpinBox(mixer);
+        brushOpacity->setRange(1,100); brushOpacity->setValue(85);
+        brushOpacity->setSuffix(QStringLiteral("%"));
+        brushControls->addWidget(brushOpacity);
+        mixLayout->addLayout(brushControls);
+        auto *padActions=new QHBoxLayout;
+        auto *undoButton=new QPushButton(tr("Undo"),mixer);
+        auto *redoButton=new QPushButton(tr("Redo"),mixer);
+        auto *clearButton=new QPushButton(tr("Clear"),mixer);
+        auto *addMixed=new QPushButton(tr("+ Palette"),mixer);
+        for (QPushButton *button : {undoButton,redoButton,clearButton,addMixed}) padActions->addWidget(button);
+        mixLayout->addLayout(padActions);
+        connect(paintButton,&QPushButton::clicked,this,[=]() {
+            paintButton->setChecked(true); eraseButton->setChecked(false);
+            sampleButton->setChecked(false); m_mixingPad->setEraser(false);
+        });
+        connect(eraseButton,&QPushButton::clicked,this,[=]() {
+            paintButton->setChecked(false); eraseButton->setChecked(true);
+            sampleButton->setChecked(false); m_mixingPad->setEraser(true);
+        });
+        connect(sampleButton,&QPushButton::clicked,this,[=]() {
+            paintButton->setChecked(false); eraseButton->setChecked(false);
+            sampleButton->setChecked(true); m_mixingPad->setSampling(true);
+        });
+        connect(brushSize,qOverload<int>(&QSpinBox::valueChanged),m_mixingPad,&KrimbleMixingPad::setBrushSize);
+        connect(brushOpacity,qOverload<int>(&QSpinBox::valueChanged),m_mixingPad,&KrimbleMixingPad::setOpacity);
+        connect(undoButton,&QPushButton::clicked,m_mixingPad,&KrimbleMixingPad::undo);
+        connect(redoButton,&QPushButton::clicked,m_mixingPad,&KrimbleMixingPad::redo);
+        connect(clearButton,&QPushButton::clicked,m_mixingPad,&KrimbleMixingPad::clearPad);
+        connect(addMixed,&QPushButton::clicked,this,[this]() {
+            if (!m_colors.contains(m_current)) m_colors.append(m_current);
+            while (m_colors.size()>24) m_colors.remove(0);
+            savePalette(); rebuildSwatches();
+        });
+        m_mixingPad->onSample=[this](QColor c){ select(c); };
         m_square = new KrimbleSvSquare(this);
-        layout->addWidget(m_square);
+        pickerLayout->addWidget(m_square);
         auto *hueRow = new QHBoxLayout;
         hueRow->addWidget(new QLabel(tr("Hue"),this));
         m_hue = new QSlider(Qt::Horizontal,this);
@@ -158,7 +339,7 @@ public:
             "QSlider::handle:horizontal { width:20px; margin:-5px 0;"
             "border-radius:9px; border:2px solid white; background:#3d507c; }"));
         hueRow->addWidget(m_hue);
-        layout->addLayout(hueRow);
+        pickerLayout->addLayout(hueRow);
         auto *values = new QGridLayout;
         const char *names[]={"R","G","B"};
         for (int i=0;i<3;++i) {
@@ -178,16 +359,16 @@ public:
             m_hsv[i]->setSuffix(i==0 ? QStringLiteral("°") : QStringLiteral("%"));
             values->addWidget(m_hsv[i],2,i*2+1);
         }
-        layout->addLayout(values);
+        pickerLayout->addLayout(values);
         m_preview=new QLabel(this); m_preview->setFixedHeight(24);
-        layout->addWidget(m_preview);
-        layout->addWidget(new QLabel(tr("RECENT COLORS"),this));
+        pickerLayout->addWidget(m_preview);
+        pickerLayout->addWidget(new QLabel(tr("RECENT COLORS"),this));
         m_recentLayout = new QGridLayout;
         m_recentLayout->setSpacing(3);
-        layout->addLayout(m_recentLayout);
-        layout->addWidget(new QLabel(tr("MY PALETTE  •  tap to select, long-press to edit"),this));
+        pickerLayout->addLayout(m_recentLayout);
+        pickerLayout->addWidget(new QLabel(tr("MY PALETTE  •  tap to select, long-press to edit"),this));
         m_swatches=new QGridLayout; m_swatches->setSpacing(3);
-        layout->addLayout(m_swatches);
+        pickerLayout->addLayout(m_swatches);
         m_square->onPick=[this](QColor c){ select(c); };
         connect(m_hue,&QSlider::valueChanged,this,[this](int h) {
             m_square->setHue(h); select(m_square->selected());
@@ -236,6 +417,7 @@ private:
         if(!c.isValid()) return;
         const bool changed = c != m_current;
         m_current=c;
+        if (m_mixingPad) m_mixingPad->setColor(c);
         if (commit && changed) {
             m_recent.removeAll(c);
             m_recent.prepend(c);
@@ -325,6 +507,7 @@ private:
     QTimer m_syncTimer;
     QColor m_current;
     KrimbleSvSquare *m_square=nullptr;
+    KrimbleMixingPad *m_mixingPad=nullptr;
     QSlider *m_hue=nullptr;
     QSpinBox *m_rgb[3]{};
     QSpinBox *m_hsv[3]{};
