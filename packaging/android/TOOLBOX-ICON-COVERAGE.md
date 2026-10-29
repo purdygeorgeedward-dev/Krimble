@@ -80,3 +80,7 @@ underlying tools, files or artwork without a separate request.
 ## Revision: retain two tools (2026-10-28)
 
 User confirmed **Path-Based Selection** and **Assistant Tool** are to be retained. Their `KoToolRegistry` registration statements have been restored. Only these four remain excluded: Colorize Mask Editing, Enclose and Fill, Ruler/Measure, and Reference Images. This revision supersedes the earlier six-tool exclusion statement above.
+
+## Final toolbox decision (2026-10-28)
+
+**Retain all six bottom tools.** Restore Colorize Mask Editing, Enclose and Fill, Assistant, Ruler/Measure, Reference Images, and Path-Based Selection registration. All six registrations have been restored on the feature branch. The earlier exclusions are superseded. Two incorrectly assumed concept images (sun and color wheel) remain deleted; their correct replacements are pending. All other toolbox tools remain unchanged.
