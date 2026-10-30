@@ -56,7 +56,9 @@ DefaultTools::DefaultTools(QObject *parent, const QVariantList &)
     KoToolRegistry::instance()->add(new KisToolLineFactory());
     KoToolRegistry::instance()->add(new KisToolEllipseFactory());
     KoToolRegistry::instance()->add(new KisToolRectangleFactory());
-    // Krimble 1.0.45-beta: Ruler/Measure tool excluded from toolbox.
+    // Krimble 2026-10-30: the Ruler/Measure tool is NOT excluded: it is registered here and is in the toolbox (George's final decision of 2026-10-28, "retain all
+    // toolbox tools", and again on 2026-10-30: "I don't think they should be excluded"). The comment that stood here, "Krimble 1.0.45-beta: Ruler/Measure excluded
+    // from toolbox.", was the plan before that decision.
     KoToolRegistry::instance()->add(new KisToolMeasureFactory());
     KoToolRegistry::instance()->add(new KisToolPathFactory());
     KoToolRegistry::instance()->add(new KisToolMoveFactory());

@@ -31,7 +31,9 @@ K_PLUGIN_FACTORY_WITH_JSON(AssistantToolFactory, "kritaassistanttool.json", regi
 AssistantToolPlugin::AssistantToolPlugin(QObject *parent, const QVariantList &)
         : QObject(parent)
 {
-    // Krimble 1.0.45-beta: Assistant Tool excluded; guide factories remain registered.
+    // Krimble 2026-10-30: the Assistant tool is NOT excluded: it is registered and is in the toolbox (George's final decision of 2026-10-28, "retain all
+    // toolbox tools", and again on 2026-10-30). The comment that stood here, "Krimble 1.0.45-beta: Assistant Tool excluded; guide factories remain
+    // registered.", was the plan before that decision.
     KoToolRegistry::instance()->add(new KisAssistantToolFactory()); // Retained: drawing guides
 
     KisPaintingAssistantFactoryRegistry::instance()->add(new RulerAssistantFactory);
