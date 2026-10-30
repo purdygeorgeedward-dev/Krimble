@@ -96,6 +96,6 @@ User confirmed **Path-Based Selection** and **Assistant Tool** are to be retaine
 ## Update 2026-10-30, 2:55 PM MT: the icons are wired (348th entry)
 - George's refined sheet was cut into **32 transparent PNGs** (240 x 240), `krita/pics/krimble-toolbox-color/` (a new folder: `krimble-toolbox/` was deleted on master), resource prefix `:/krimble-toolbox/`, resource file `krimble-toolbox-color.qrc` added to `krita/CMakeLists.txt`. The three new shapes are not included.
 - **Mapped by the tool's icon name**, not by grid position (`libs/ui/toolbox/KrimbleToolboxIcons.h`, 32 entries). A tool with no picture keeps its own icon: **Dodge, Burn, Colorize Mask Editing, Enclose and Fill** (no new drawing exists), and any tool not in the table. No tool is hidden or removed.
-- **Two styles, switched by the user:** touch and hold the toolbox > Icon Style > **Full color** (the default) or **Clear** (the old line icons). Saved as `Krimble/ToolboxColorIcons`.
+- **Two styles, switched by the user:** touch and hold the toolbox > Icon Style > **Full color** (the default) or **Silhouette** (the old line icons). Saved as `Krimble/ToolboxColorIcons`.
 - To check on the phone: the bandage is on **Smart Patch** and the pointing hand on **Smudge** (my reading); the pictures at 16 px (scaled down by Qt); the 5-column and scrolled toolbox layouts of the process above.
 - **Still to do:** smaller sizes made by script; pictures for the four tools without one.

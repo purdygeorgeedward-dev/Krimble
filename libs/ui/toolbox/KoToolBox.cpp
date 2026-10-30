@@ -432,13 +432,15 @@ void KoToolBox::setupIconSizeMenu(QMenu *menu)
 }
 
 // Krimble 2026-10-30: George: "I want the user to be able to switch between the full color themed toolbox icons and your clear icons." Two items in the toolbox's
-// menu (touch and hold): Full color (the picture icons) and Clear (the program's own line icons). The choice is saved and applies at once.
+// menu (touch and hold): Full color (the picture icons) and Silhouette (the line icons made for Krimble). The choice is saved and applies at once.
 void KoToolBox::setupIconStyleMenu(QMenu *menu)
 {
     QActionGroup *styleGroup = new QActionGroup(menu);
     const bool color = KrimbleToolboxIcons::colorMode();
     QAction *colorAction = menu->addAction(i18n("Full color"));
-    QAction *clearAction = menu->addAction(i18n("Clear"));
+    // QAction *clearAction = menu->addAction(i18n("Clear"));
+    // Krimble 2026-10-30: George: "I was going to call them silhouette icons." The style's name is Silhouette (it was Clear).
+    QAction *clearAction = menu->addAction(i18n("Silhouette"));
     for (QAction *action : {colorAction, clearAction}) {
         action->setActionGroup(styleGroup);
         action->setCheckable(true);

@@ -5802,3 +5802,10 @@ George (2026-10-30): "All panels with selections like little buttons or whatever
 **Files:** `KRIMBLE_STATUS.md`, `KRIMBLE_TEST_LIST_2026-10-23.md`, `KRIMBLE_NEXT_BUILD.md`, `SESSION_CATCHUP.md`, `KRIMBLE_WORKLOG.md`, `KRIMBLE_ROADMAP.md`, `packaging/android/TOOLBOX-ICON-COVERAGE.md`
 
 Status, test list (B21, B22), next build, session catch-up, worklog, roadmap and the icon coverage document brought up to date for entries 347 to 349 (the memory bar, the Full color / Clear toolbox icons, the blue glow). Text only.
+
+## 2026-10-30 (351st) — Toolbox icon style renamed: Clear is now Silhouette
+
+**Files:** `libs/ui/toolbox/KrimbleToolboxIcons.h`, `libs/ui/toolbox/KoToolBox.cpp`, `libs/ui/toolbox/KoToolBoxDocker.cpp`, `KRIMBLE_STATUS.md`, `KRIMBLE_TEST_LIST_2026-10-23.md`, `KRIMBLE_NEXT_BUILD.md`, `SESSION_CATCHUP.md`, `KRIMBLE_ROADMAP.md`, `packaging/android/TOOLBOX-ICON-COVERAGE.md`, `KRIMBLE_WORKLOG.md`
+
+George (2026-10-30): "I was going to call them silhouette icons." and, when asked whether to rename: "yes". The second toolbox icon style, the program's line icons (many of them made in earlier Claude sessions for Krimble), was called **Clear** in the 348th entry. It is now **Silhouette**: the item in the toolbox menu (Icon Style > Full color / Silhouette), the comments in `KrimbleToolboxIcons.h`, `KoToolBox.cpp` and `KoToolBoxDocker.cpp` (the old menu line is commented out), and the current text of `KRIMBLE_STATUS.md`, `KRIMBLE_TEST_LIST_2026-10-23.md`, `KRIMBLE_NEXT_BUILD.md`, `SESSION_CATCHUP.md`, `KRIMBLE_ROADMAP.md` and `packaging/android/TOOLBOX-ICON-COVERAGE.md`. The saved setting (`Krimble/ToolboxColorIcons`) and its behaviour are unchanged. The earlier entries 348 and 350 and the first worklog rows still say Clear: they are the record of what was pushed and are not rewritten; this entry is the note that Clear and Silhouette are the same style.
+**Not verified:** a build or a device.
