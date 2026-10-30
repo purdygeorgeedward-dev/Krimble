@@ -67,3 +67,9 @@ Also on the branch from ChatGPT (reviewed 2026-10-30, not changed): the app-wide
 | 342 | **Mixer** panel (its own dock, `KrimbleMixer`, header only) | Window menu | a new dock registration: check it appears and opens |
 
 Not in the branch yet: the 32 icons wired to the toolbox (see `packaging/android/TOOLBOX-ICON-COVERAGE.md`).
+
+### Also on the branch (entries 344 and 345, written 2026-10-30, 2:40 PM MT)
+| Entry | What | Where to look on the phone | Risk |
+|---|---|---|---|
+| 344 | progress bars, slider fills and number-slider fills are Krimble orange `#FD6001` | any progress dialog, Tool Options sliders, Brushes panel | white text over the orange (contrast about 3.4 to 1) |
+| 345 | new main splash (1672 x 941, JPG quality 88 is the packaged one) | start screen, Help > About | about 18% wider than the old splash at the same height |

@@ -108,3 +108,5 @@ B15. (338th) Drag a floating panel to a side of the window: it docks only if the
 B16. (341st) Color panel: one page, no tabs; the SV square is painted with gradients and gets bigger when the panel is made bigger. **DONE on the branch**, untested.
 B17. (342nd) **Mixer** panel: Window menu; paint, erase, sample, undo, redo, clear, + Palette; the swatch shows in the Color panel. **DONE on the branch**, untested; look first at whether the panel shows in the Window menu.
 B18. (339th) six stale "excluded from toolbox" comments corrected (no behaviour). **DONE on the branch**.
+B19. (344th) Progress bars (the progress dialogs, the status bar), the filled part of plain sliders and of the number sliders are **Krimble orange #FD6001**. **DONE on the branch**, untested; look at the white text over the orange.
+B20. (345th) New main splash (start screen and Help > About): shown whole (16:9, not cropped); the width on a portrait screen; the loading text under it. **DONE on the branch**, untested.

@@ -5769,3 +5769,9 @@ George (2026-10-30): "I would like all the dialogs that show a bar or fill area 
 
 George (2026-10-30): "I also have a new splash." The main splash (`logo_splash.png`, and `logo_splash.jpg`, which is the one that is packaged: `splash-android.qrc` aliases `hd.jpg` to it) is replaced with his new picture: the sculpted orange, white and glass K in motion, with "Krimble" and "Your Creative Companion" in the lower right. The PNG is his file as it came (1672 x 941); the JPG is quality 88 made from it, as on 2026-10-19. The file names are the same, so no resource list changes. The holiday splash (`logo_splash_holidays.*`, Dec 1 to 26) is not changed. The splash code sizes the window from the picture's own proportions (`width = height * img.width() / img.height()`), so the new 16:9 picture is shown whole, not cropped; it is about 18% wider than the old 3:2 one (1536 x 1024) at the same height.
 **Not verified:** a build or a device. The first things to look at: the start screen and Help > About on the phone (the width on a portrait screen; the loading text under the picture).
+
+## 2026-10-30 (346th) — Documentation: entries 344 and 345
+
+**Files:** `KRIMBLE_STATUS.md`, `KRIMBLE_TEST_LIST_2026-10-23.md`, `KRIMBLE_NEXT_BUILD.md`, `SESSION_CATCHUP.md`, `KRIMBLE_WORKLOG.md`
+
+Status, test list (B19, B20), next build, session catch-up (Krimble orange `#FD6001`) and worklog brought up to date for entries 344 and 345. Text only.

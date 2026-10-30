@@ -79,3 +79,5 @@ Written from the Claude session inside the Krimble project. The text above is fr
 - George's answers: QuickAdjust adjustments are **not layers by default** (a "Keep as layers" toggle); the Brushes panel attached to an **edge**; Line Thickness as the brush's own size is fine; **do not exclude** the toolbox from the stylesheet ("we will know in the next build"); the Brushes panel should show the **current brush's name**; "implement all changes pending."
 - Done from that: 334 to 342. Not done: wiring the 32 icons (needs the mapping by tool ID, the glow, the Color/Silver switch, sizes by script). The other stylesheet "faults" were guesses and were not changed.
 - Answer given in chat: Transform (Scale) acts on the **active layer**, or only on the **selected pixels** of it when there is a selection; on a vector layer, on the selected shapes.
+
+- **Krimble orange is `#FD6001`** (George, 2026-10-30: bars and fill areas that show a percentage use it; sampled from the K of the logo on his new splash). The main splash is the new picture (345th entry); the holiday splash is unchanged.
