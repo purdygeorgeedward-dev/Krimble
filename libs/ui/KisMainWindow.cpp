@@ -186,6 +186,7 @@
 #include "flake/kis_shape_layer.h"
 #include <KoPathShape.h>
 #include <KoShapeRegistry.h>      // Krimble 2026-10-30: Layer > New > Star...
+#include <QGraphicsDropShadowEffect>   // Krimble 2026-10-30: the blue glow of a selected button
 #include <kis_paint_layer.h>      // Krimble 2026-10-30: QuickAdjust bakes its layers into the paint layer below
 #include <KoShapeFactoryBase.h>
 #include <KoProperties.h>
@@ -3452,6 +3453,57 @@ static void krimbleMakeStarLayer(KisMainWindow *win)
     QTimer::singleShot(0, win, []() { KoToolManager::instance()->switchToolRequested(QStringLiteral("InteractionTool")); });
 }
 
+// Krimble 2026-10-30: George: "All panels with selections like little buttons or whatever should have the blue glow if possible when selected." and "use that
+// light up blue glow for selections like the mockups." A checked tool button or push button (the selected tool in the toolbox, a pressed-in option button in a
+// panel or a dialog) gets a soft blue glow around it. The style sheet cannot blur, so this is a drop shadow effect with no offset, in light blue, put on the
+// button when it is checked and taken off when it is not. Check boxes and radio buttons are left alone (they are not "little buttons"). Every button is found when
+// it is first shown (the filter sees its Polish event) and the ones that exist already are found when the filter is installed.
+static void krimbleSetButtonGlow(QAbstractButton *button, bool on)
+{
+    if (on) {
+        if (button->graphicsEffect()) return;       // it has an effect already (this one, or another that is not ours)
+        QGraphicsDropShadowEffect *glow = new QGraphicsDropShadowEffect(button);
+        glow->setColor(QColor(56, 198, 255, 230));  // the blue of the selected tab and checked button
+        glow->setBlurRadius(18);
+        glow->setOffset(0, 0);
+        button->setGraphicsEffect(glow);
+    } else if (qobject_cast<QGraphicsDropShadowEffect*>(button->graphicsEffect())) {
+        button->setGraphicsEffect(nullptr);
+    }
+}
+
+class KrimbleGlowFilter : public QObject
+{
+public:
+    explicit KrimbleGlowFilter(QObject *parent) : QObject(parent) {}
+    void hook(QAbstractButton *button)
+    {
+        if (!button || !button->isCheckable() || button->property("krimbleGlowHooked").toBool()) return;
+        if (!qobject_cast<QToolButton*>(button) && !qobject_cast<QPushButton*>(button)) return;   // not check boxes or radio buttons
+        button->setProperty("krimbleGlowHooked", true);
+        QObject::connect(button, &QAbstractButton::toggled, button, [button](bool on) { krimbleSetButtonGlow(button, on); });
+        krimbleSetButtonGlow(button, button->isChecked());
+    }
+    bool eventFilter(QObject *watched, QEvent *event) override
+    {
+        if (event->type() == QEvent::Polish) {
+            if (QAbstractButton *button = qobject_cast<QAbstractButton*>(watched)) hook(button);
+        }
+        return false;
+    }
+};
+
+static void krimbleInstallSelectionGlow(KisMainWindow *win)
+{
+    if (win->findChild<KrimbleGlowFilter*>(QStringLiteral("krimbleGlowFilter"))) return;
+    KrimbleGlowFilter *filter = new KrimbleGlowFilter(win);
+    filter->setObjectName(QStringLiteral("krimbleGlowFilter"));
+    qApp->installEventFilter(filter);
+    Q_FOREACH (QAbstractButton *button, win->findChildren<QAbstractButton*>()) {
+        filter->hook(button);
+    }
+}
+
 // View > Show > Hex (a check mark) and Hex Size...; Layer > New > Hex Pattern...
 static void krimbleInstallHexMenus(KisMainWindow *win)
 {
@@ -4249,6 +4301,7 @@ KisMainWindow::KisMainWindow(QUuid uuid)
             krimbleRemoveMinimumWidths(this);            // Krimble 2026-10-13 (6th): no minimum widths (see above)
             krimbleInstallBevels(this);                  // Krimble 2026-10-17: one-pixel bevel lines on panels and toolbars (see above)
             krimbleInstallHexMenus(this);                // Krimble 2026-10-18: View > Show > Hex and Layer > New > Hex Pattern... (see above)
+            krimbleInstallSelectionGlow(this);           // Krimble 2026-10-30: the blue glow of a selected (checked) button
             // Krimble 2026-10-18: George (1.0.37, git 41a4afb): "1. Brushes still loads at start." The hiding at start (2.5 s) came too early: opening
             // the first image brings the saved layout back, with Brushes. So it is hidden once more, once, the first time an image is open.
             // Krimble 2026-10-18 (2nd): George (1.0.37, fc126d8): "2. Brushes still loads by default." The two hidings above and below happen once, and a
