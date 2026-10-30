@@ -5775,3 +5775,10 @@ George (2026-10-30): "I also have a new splash." The main splash (`logo_splash.p
 **Files:** `KRIMBLE_STATUS.md`, `KRIMBLE_TEST_LIST_2026-10-23.md`, `KRIMBLE_NEXT_BUILD.md`, `SESSION_CATCHUP.md`, `KRIMBLE_WORKLOG.md`
 
 Status, test list (B19, B20), next build, session catch-up (Krimble orange `#FD6001`) and worklog brought up to date for entries 344 and 345. Text only.
+
+## 2026-10-30 (347th) — Memory bar in Krimble orange; the accent rule (orange for amounts, blue for selections)
+
+**Files:** `libs/ui/widgets/KisMemoryReportButton.cpp`
+
+George (2026-10-30): "Anywhere you have a dialog that uses an accent color like that, use the same orange as the logo. But use that light up blue glow for selections like the mockups." Rule: a **fill or bar that shows an amount** is Krimble orange `#FD6001`; a **selection** (the selected tab, tool, list item, checked button, focus) stays blue. The status bar's memory bar (`KisMemoryReportButton`) took the palette's highlight color for its base; it now starts in Krimble orange (it still shades to yellow, then red, as the memory fills). The code was searched for other uses of the palette's highlight color: the rest are selections or handles, not amounts (the toolbox and tool buttons when checked, the popup palette's ring, the Levels and gradient sliders' handles, the angle gauge, the timeline, the layer box) and were **not changed**. The stylesheet's selection look (a 2 px blue border and a blue gradient on the checked button and the selected tab, the blue border on the selected list item and on focus) is unchanged. The stylesheet cannot draw a soft outer glow (no blur or shadow in Qt style sheets); a real glow needs painted code or glow pictures: planned for the toolbox as a glow copy of each icon, not built.
+**Not verified:** a build or a device.
