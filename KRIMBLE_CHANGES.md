@@ -5708,3 +5708,10 @@ George (2026-10-30): "I created a new file and the Brushes panel appeared. Why?"
 
 George (2026-10-30), of the transparent default brush: "I didn't check. the panel should have a text field that displays the current brushes name." A read-only text field, **Brush**, 38 px high, is the first row of the Brushes panel (above Size, Opacity, Flow). The 0.4 s timer that keeps the sliders in step also copies the current preset's name (`KisPaintOpPreset::name()`) into it, so picking a preset or any other change shows the new name. It is also what will say which brush is the transparent default.
 **Not verified:** a build or a device.
+
+## 2026-10-30 (337th) — Stylesheet: tool buttons app-wide, toolbox included
+
+**Files:** `libs/ui/KrimbleVisualStyle.h`
+
+George (2026-10-30), asked whether the toolbox and panel tool buttons should stay outside the new stylesheet: "I don't think they should be excluded. we will know in the next build." The stylesheet's five button rules (normal, hover, pressed/checked, disabled) named `QDialog QToolButton`, so only tool buttons inside dialogs were styled (commit `74828b7f4f` had left the toolbox and the panels' tool buttons out on purpose). They now name `QToolButton`: every tool button in the app, the toolbox included. A checked tool button, the selected tool, gets the blue border and gradient that the stylesheet already had for checked buttons. The padding stays 5 px by 9 px inside dialogs (`QDialog QToolButton`); other tool buttons get 3 px so the toolbox buttons do not grow. The old selector text is kept in a CSS comment. The other stylesheet faults listed on 2026-10-30 (combo/spin arrows, checkbox indicator, slider handle height, hardcoded colors vs theme) are **not changed**: they were guesses from reading, not seen on a device.
+**Not verified:** a build or a device. The toolbox button size and icon clipping are the things to look at; this is the real test George meant by "the next build".

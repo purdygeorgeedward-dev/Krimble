@@ -24,7 +24,7 @@ QGroupBox {
                                 stop:0 #353d61, stop:1 #292e49);
 }
 QGroupBox::title { subcontrol-origin: margin; left: 12px; padding: 0 5px; }
-QPushButton, QDialog QToolButton {
+QPushButton, QToolButton {
     color: #f1f4fc;
     border: 1px solid #59668d;
     border-top: 1px solid #8795bc;
@@ -34,23 +34,29 @@ QPushButton, QDialog QToolButton {
                                 stop:0 #515d84, stop:0.48 #3c456a,
                                 stop:1 #242a48);
 }
-QPushButton:hover, QDialog QToolButton:hover {
+QPushButton:hover, QToolButton:hover {
     border-color: #59b8f4;
     background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
                                 stop:0 #4775a7, stop:1 #234770);
 }
-QPushButton:pressed, QDialog QToolButton:pressed,
-QPushButton:checked, QDialog QToolButton:checked {
+QPushButton:pressed, QToolButton:pressed,
+QPushButton:checked, QToolButton:checked {
     border: 2px solid #38c6ff;
     background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
                                 stop:0 #167bb7, stop:0.5 #095889,
                                 stop:1 #07345e);
 }
-QPushButton:disabled, QDialog QToolButton:disabled {
+QPushButton:disabled, QToolButton:disabled {
     color: #8990a6;
     border-color: #444c67;
     background: #303650;
 }
+/* Krimble 2026-10-30: George: "I don't think they should be excluded. we will know in the next build." The five button rules above said
+   "QDialog QToolButton" (tool buttons inside dialogs only, so the toolbox and the panels' tool buttons were left out on purpose); they now say
+   "QToolButton": every tool button in the app, the toolbox and the panels included. The checked button has the blue border and gradient (the selected
+   tool). The roomy padding is kept for tool buttons in dialogs; elsewhere it is small, so the toolbox buttons do not grow. */
+QToolButton { padding: 3px; }
+QDialog QToolButton { padding: 5px 9px; }
 QTabBar::tab {
     color: #e3e8f6;
     padding: 7px 13px;
