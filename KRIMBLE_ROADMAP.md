@@ -316,3 +316,6 @@ Branch `feature/krimble-ui-refresh`. Entries 324 to 332 are done on the branch (
 
 ### Update 2026-10-30, 12:55 PM MT
 Color panels 1, 2 and 3 above are **done on the branch** (entries 341 and 342, untested): one page, gradient-painted SV square that grows both ways, the Mixer as its own panel. Panel docking on a deliberate approach is done as a 350 ms dwell (338th). Icons: wiring, glow, Color/Silver switch and smaller sizes are **not started**. Shape options stay on hold.
+
+### Update 2026-10-30, 2:55 PM MT
+Icons: the 32 pictures are wired with a **Full color / Clear** switch in the toolbox menu, and checked buttons have a blue glow (348th and 349th entries, untested). Not done: smaller sizes by script; pictures for Dodge, Burn, Colorize Mask Editing and Enclose and Fill.

@@ -5796,3 +5796,9 @@ George (2026-10-30), with his refined icon sheet: "I want the user to be able to
 
 George (2026-10-30): "All panels with selections like little buttons or whatever should have the blue glow if possible when selected." and "use that light up blue glow for selections like the mockups." A **soft blue glow** around every checked tool button and push button: the selected tool in the toolbox, a pressed-in option button in a panel or a dialog. Qt style sheets cannot blur, so it is a `QGraphicsDropShadowEffect` with no offset (blue `#38C6FF`, 18 px blur), set on the button when it is checked and removed when it is not. A filter on the application sees each button's `Polish` event (its first showing) and connects its `toggled` signal; the buttons that exist already are found when the filter is installed (`krimbleInstallSelectionGlow`, called with the other Krimble installers at the start). Check boxes and radio buttons are left alone, and so is a button that already has some other effect. List items, tabs and the number sliders keep the stylesheet's blue border and gradient (no glow): the drop shadow works on a widget, not on one tab or one item.
 **Not verified:** a build or a device. Possible problems to look for: a clipped glow where the panel's edge cuts it, a slower toolbox on the phone (each effect draws the button off screen; only checked buttons have one), a button that shows its glow when unchecked.
+
+## 2026-10-30 (350th) — Documentation: entries 347 to 349
+
+**Files:** `KRIMBLE_STATUS.md`, `KRIMBLE_TEST_LIST_2026-10-23.md`, `KRIMBLE_NEXT_BUILD.md`, `SESSION_CATCHUP.md`, `KRIMBLE_WORKLOG.md`, `KRIMBLE_ROADMAP.md`, `packaging/android/TOOLBOX-ICON-COVERAGE.md`
+
+Status, test list (B21, B22), next build, session catch-up, worklog, roadmap and the icon coverage document brought up to date for entries 347 to 349 (the memory bar, the Full color / Clear toolbox icons, the blue glow). Text only.

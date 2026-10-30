@@ -82,3 +82,5 @@ Written from the Claude session inside the Krimble project. The text above is fr
 
 - **Krimble orange is `#FD6001`** (George, 2026-10-30: bars and fill areas that show a percentage use it; sampled from the K of the logo on his new splash). The main splash is the new picture (345th entry); the holiday splash is unchanged.
 - **Accent rule (George, 2026-10-30):** a bar or fill that shows an amount is Krimble orange `#FD6001`; a **selection** (selected tab, tool, item, checked button, focus) is the **blue glow** of the mockups. The style sheet cannot blur: a true glow needs painted code or glow copies of the icons (planned, not built). 347th entry.
+
+- **Toolbox icons (George, 2026-10-30):** two styles, **Full color** (his 32 pictures, the default) and **Clear** (the program's own line icons), switched in the toolbox's menu (touch and hold) under Icon Style (348th entry). The new three shapes are not toolbox icons. **Blue glow** for selections: a drop shadow effect on checked tool buttons and push buttons (349th). Tabs, list items and number sliders keep the style sheet's blue border (the style sheet cannot glow).

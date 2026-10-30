@@ -73,3 +73,10 @@ Not in the branch yet: the 32 icons wired to the toolbox (see `packaging/android
 |---|---|---|---|
 | 344 | progress bars, slider fills and number-slider fills are Krimble orange `#FD6001` | any progress dialog, Tool Options sliders, Brushes panel | white text over the orange (contrast about 3.4 to 1) |
 | 345 | new main splash (1672 x 941, JPG quality 88 is the packaged one) | start screen, Help > About | about 18% wider than the old splash at the same height |
+
+### Also on the branch (entries 347 to 349, written 2026-10-30, 2:55 PM MT)
+| Entry | What | Where to look on the phone | Risk |
+|---|---|---|---|
+| 347 | the status bar memory bar starts in Krimble orange | status bar | none known |
+| 348 | toolbox icons: **Full color** (32 pictures, `krita/pics/krimble-toolbox-color/`, a new resource file in `krita/CMakeLists.txt`) or **Clear** (the old icons), switched in the toolbox menu | touch and hold the toolbox | a new resource list in CMake; two mappings are guesses (Smart Patch, Smudge); the 240 px pictures are scaled down by Qt |
+| 349 | blue glow (drop shadow effect) on checked tool buttons and push buttons | the selected tool, option buttons | clipping, speed, a glow that stays |
