@@ -97,8 +97,14 @@ B4. (327th, 328th) Transform Tool Options: seven buttons (Scale, Rotate, Perspec
 B5. (329th) Line tool Tool Options: Thickness slider and px box change the line width and the brush's size. **DONE on the branch**, untested.
 B6. (330th) Brushes panel: Size, Opacity, Flow rows; they follow a preset pick; the preset picker below still works. **DONE on the branch**, untested.
 B7. (331st) Layer > New > Star...: dialog, vector layer, star in the middle, Select Shapes tool; rotate it. **DONE on the branch**, untested.
-B8. **OPEN** QuickAdjust: collapse its layers when done (merge into the layer below or group; a toggle). **ASK**.
-B9. **OPEN** Edit > Fill > Foreground Color while QuickAdjust layers are active pasted a weird image (likely the adjustment layer is the active layer). 
-B10. **OPEN** the Brushes panel appears when a new file is made.
-B11. **OPEN** the default brush is a transparent preset; what is its name? **ASK**
-B12. **OPEN** File > New dialog icons too big for small screens (Preferences icons were made 44 px on the branch).
+B8. QuickAdjust: "I didn't expect operations as layers. Offer it as a toggle." Checkbox **Keep as layers** (off at first): off = the adjustment layers are merged down into the paint layer below when OK is pressed; on = they stay as layers. **DONE on the branch** (334th), untested: merge down onto a paint layer, undo steps.
+B9. Edit > Fill > Foreground Color while QuickAdjust layers were active pasted a weird image (the adjustment layer was the active layer). The earlier layer is active again after OK. **DONE on the branch** (334th), untested.
+B10. The Brushes panel appeared when a new file was made. It is hidden every time it shows up by itself; only the Window menu keeps it open. **DONE on the branch** (335th), untested.
+B11. The default brush is a transparent preset. The Brushes panel has a read-only **Brush** name field (336th), untested; with it George can say which brush it is. **ASK** (the name).
+B12. File > New dialog icons too big for small screens: the list icons are at most 64 px and the column 30% (340th); Preferences icons 44 px. **DONE on the branch**, untested.
+B13. (334th) Image menu: **Quick Adjust...** is the first item, above a divider (it is also first in Image > Adjustments). **DONE on the branch**, untested.
+B14. (337th) Every tool button has the stylesheet look, the toolbox included; the selected tool has the blue border. Look at the toolbox button size and icon clipping. **DONE on the branch**, untested.
+B15. (338th) Drag a floating panel to a side of the window: it docks only if the finger stays at the side for about 0.35 s; a quick pass does not dock it. **DONE on the branch**, untested.
+B16. (341st) Color panel: one page, no tabs; the SV square is painted with gradients and gets bigger when the panel is made bigger. **DONE on the branch**, untested.
+B17. (342nd) **Mixer** panel: Window menu; paint, erase, sample, undo, redo, clear, + Palette; the swatch shows in the Color panel. **DONE on the branch**, untested; look first at whether the panel shows in the Window menu.
+B18. (339th) six stale "excluded from toolbox" comments corrected (no behaviour). **DONE on the branch**.

@@ -74,3 +74,8 @@ Written from the Claude session inside the Krimble project. The text above is fr
 - **Read the existing code before proposing.** The docking proposal repeated what was already built (`KisMainWindow.cpp` has many "Krimble" notes with his own words); search there first.
 - His phone's spell-check changes words ("asking" for "using"); read for the meaning and ask if it matters.
 - "Implement all" or "Do everything" after a plan he has seen is approval for that plan; keep one commit and one changelog entry per change anyway.
+
+### Update 2026-10-30, 12:55 PM MT (entries 334 to 342, see `KRIMBLE_STATUS.md`)
+- George's answers: QuickAdjust adjustments are **not layers by default** (a "Keep as layers" toggle); the Brushes panel attached to an **edge**; Line Thickness as the brush's own size is fine; **do not exclude** the toolbox from the stylesheet ("we will know in the next build"); the Brushes panel should show the **current brush's name**; "implement all changes pending."
+- Done from that: 334 to 342. Not done: wiring the 32 icons (needs the mapping by tool ID, the glow, the Color/Silver switch, sizes by script). The other stylesheet "faults" were guesses and were not changed.
+- Answer given in chat: Transform (Scale) acts on the **active layer**, or only on the **selected pixels** of it when there is a selection; on a vector layer, on the selected shapes.

@@ -51,3 +51,19 @@ None of this is compiled or run on a phone. Entry numbers are in `KRIMBLE_CHANGE
 | 332 | the 32 old toolbox PNGs deleted from the branch | none | none (they were not used) |
 
 Also on the branch from ChatGPT (reviewed 2026-10-30, not changed): the app-wide stylesheet (`KrimbleVisualStyle.h`; known faults: combo/spin arrows, checkbox indicator, slider handle height, hardcoded colors), Color Studio (picker and mixing pad in the color docker, per-pixel SV square), QuickAdjust spinboxes and Preview, Preferences icons 44 px, build number 45, packaging scripts, `RELEASE-CHECKLIST.md`.
+
+### More on the branch `feature/krimble-ui-refresh` (entries 334 to 342, written 2026-10-30, 12:55 PM MT)
+
+| Entry | What | Where to look on the phone | Risk |
+|---|---|---|---|
+| 334 | QuickAdjust: **Keep as layers** (off at first; off merges the adjustment layers down into the paint layer below on OK); the earlier layer is active again; **Quick Adjust...** first in the Image menu | Image menu, the QuickAdjust window | merge down onto a paint layer; a layer not on a paint layer stays a layer |
+| 335 | the Brushes panel is hidden every time it shows by itself; the Window menu opens it | make a new file | a saved layout with Brushes open no longer shows it |
+| 336 | Brushes panel: read-only **Brush** name field | Brushes panel | none known |
+| 337 | stylesheet: **all tool buttons**, toolbox and panels included, get the look; the selected tool has the blue border | the toolbox | toolbox buttons may change size, icons may clip |
+| 338 | floating panels dock at a window side only after the finger stays within reach for 350 ms | drag a panel to an edge | 350 ms is a first guess |
+| 339 | six stale comments corrected | none | none (comments) |
+| 340 | File > New: list icons at most 64 px, column 30% | File > New | the size is a choice from the history |
+| 341 | Color panel: one page; **SV square painted with gradients**, grows both ways | Color panel | the classic widgets are hidden, not removed |
+| 342 | **Mixer** panel (its own dock, `KrimbleMixer`, header only) | Window menu | a new dock registration: check it appears and opens |
+
+Not in the branch yet: the 32 icons wired to the toolbox (see `packaging/android/TOOLBOX-ICON-COVERAGE.md`).

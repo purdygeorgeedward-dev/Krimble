@@ -313,3 +313,6 @@ Branch `feature/krimble-ui-refresh`. Entries 324 to 332 are done on the branch (
 ### Transform and panels
 - Scale and Rotate are modes of Transform (done on the branch). Open: should dragging inside the box still move in Scale.
 - Panel docking only on deliberate intent: **already built** (`KrimbleDockTolerance`, Settings > Attach Panels, Attach Panel and Detach Panel). Open: the Brushes panel still attached eagerly; waiting for what it attached to. A dwell timer (about half a second near an edge) is an idea, not built.
+
+### Update 2026-10-30, 12:55 PM MT
+Color panels 1, 2 and 3 above are **done on the branch** (entries 341 and 342, untested): one page, gradient-painted SV square that grows both ways, the Mixer as its own panel. Panel docking on a deliberate approach is done as a 350 ms dwell (338th). Icons: wiring, glow, Color/Silver switch and smaller sizes are **not started**. Shape options stay on hold.
