@@ -5633,3 +5633,10 @@ George: "QuickAdjust does not need to say Krimble in it." The QuickAdjust dialog
 **File:** `plugins/dockers/advancedcolorselector/kis_color_selector_ng_docker_widget.cpp`
 
 George: "I don't like the classic Krita color docker. It's useless. Comment it out." The classic selector tab and the outer Picker/Classic tab bar are removed from view: the Color Studio scroll area is now added to the docker layout directly. The classic widgets are still constructed and parented to a hidden `classicPanel` so the history/common-colors popup actions and the settings code keep valid pointers. The previous tab-widget lines are commented out in place, with an inline comment. Color Studio's own Picker/Mixer tabs are unchanged for now (the mixer is planned to become its own panel). The Preferences ▸ Advanced Color Selector settings remain but no longer change anything visible.
+
+## 2026-10-30 (326th) — Scale mode: no rotating (strategy)
+
+**File:** `plugins/tools/tool_transform2/kis_free_transform_strategy.cpp`
+
+George: "Remove the rotation functions from the default Transform (Scale) tool." and "No 'free transform' with multiple mode gadgets." In the Free Transform strategy a touch outside the box no longer rotates (and Alt no longer rotates the bounds): a new function, `KRIMBLENONE`, does nothing and shows the plain cursor; inside the box still moves, the eight handles still scale. The two corner rotate-arrow drawing blocks (the thin one of 2026-10-23 draws nothing, the thick one of 2026-10-26) are switched off with `if (false)`; their code is kept. The old 2026-10-23 rule is kept, commented out. Rotating is done by the Rotate tool (327th, 328th entries).
+**Not verified:** a build or a device. Whether dragging inside the box should still move in Scale was asked and not answered; it is unchanged.
