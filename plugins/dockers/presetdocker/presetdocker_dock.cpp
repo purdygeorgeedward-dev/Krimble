@@ -9,6 +9,7 @@
 #include <QHBoxLayout>
 #include <QVBoxLayout>   // Krimble 2026-10-30: the new controls
 #include <QSlider>
+#include <QLineEdit>   // Krimble 2026-10-30: the current brush's name
 #include <QSpinBox>
 #include <QLabel>
 #include <QTimer>
@@ -46,6 +47,19 @@ PresetDockerDock::PresetDockerDock( )
     QVBoxLayout *panelLayout = new QVBoxLayout(panel);
     panelLayout->setContentsMargins(6, 6, 6, 6);
     panelLayout->setSpacing(4);
+
+    // Krimble 2026-10-30: George: "the panel should have a text field that displays the current brushes name." A read-only field above the rows.
+    {
+        QHBoxLayout *nameRow = new QHBoxLayout();
+        QLabel *nameLabel = new QLabel(i18n("Brush"), panel);
+        nameLabel->setMinimumWidth(70);
+        m_nameField = new QLineEdit(panel);
+        m_nameField->setReadOnly(true);
+        m_nameField->setMinimumHeight(38);
+        nameRow->addWidget(nameLabel);
+        nameRow->addWidget(m_nameField, 1);
+        panelLayout->addLayout(nameRow);
+    }
 
     auto addRow = [&](const QString &label, QSlider *&slider, QSpinBox *&spin, int maximum, const QString &suffix) {
         QHBoxLayout *row = new QHBoxLayout();
@@ -111,6 +125,13 @@ void PresetDockerDock::slotKrimbleSync()
     if (!provider) return;
 
     KisPaintOpPresetSP preset = provider->currentPreset();
+    if (m_nameField) {   // Krimble 2026-10-30: the current brush's name
+        const QString brushName = preset ? preset->name() : QString();
+        if (m_nameField->text() != brushName) {
+            m_nameField->setText(brushName);
+            m_nameField->setCursorPosition(0);
+        }
+    }
     if (preset && preset->settings() && !m_sizeSpin->hasFocus()) {
         const int size = qBound(m_sizeSpin->minimum(), qRound(preset->settings()->paintOpSize()), m_sizeSpin->maximum());
         if (m_sizeSpin->value() != size) {

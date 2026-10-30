@@ -14,6 +14,7 @@
 
 class KisPaintOpPresetsChooserPopup;
 class QSlider;   // Krimble 2026-10-30: the Size, Opacity and Flow controls
+class QLineEdit; // Krimble 2026-10-30: the name of the current brush
 class QSpinBox;
 class QTimer;
 
@@ -35,6 +36,7 @@ private:
     QPointer<KisCanvas2> m_canvas;
     KisPaintOpPresetsChooserPopup* m_presetChooser;
     // Krimble 2026-10-30: the new controls above the presets
+    QLineEdit *m_nameField {nullptr};   // Krimble 2026-10-30: shows the current brush's name
     QSlider *m_sizeSlider {nullptr};
     QSpinBox *m_sizeSpin {nullptr};
     QSlider *m_opacitySlider {nullptr};

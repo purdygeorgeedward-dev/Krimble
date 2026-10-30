@@ -5701,3 +5701,10 @@ George, on the open questions of 2026-10-30: "I didn't expect operations as laye
 
 George (2026-10-30): "I created a new file and the Brushes panel appeared. Why?" The earlier hiding of the Brushes panel (2.5 s after the start, once after the first image, and for the first 30 s of the run) did not cover a new file made later, when a saved layout brings the panel back. Now every time the Brushes panel (object name `PresetDocker`, title "Brushes") becomes visible by itself it is hidden again (a zero-delay timer after `visibilityChanged(true)`). It stays only when it was opened from the Window menu: its own show/hide action (`toggleViewAction()`) sets a flag when `triggered` (a person, not layout code, triggers it; `triggered` comes right after the panel is shown, which is why the check waits one event-loop turn). Closing the panel with its X (it is then hidden, not merely behind another tab) clears the flag, so the next appearance is hidden again. A panel behind another tab is not cleared, so switching tabs does not hide it.
 **Not verified:** a build or a device. A saved layout that had Brushes open will no longer show it at the start; it is opened from the Window menu.
+
+## 2026-10-30 (336th) — Brushes panel: the current brush's name
+
+**Files:** `plugins/dockers/presetdocker/presetdocker_dock.cpp`, `plugins/dockers/presetdocker/presetdocker_dock.h`
+
+George (2026-10-30), of the transparent default brush: "I didn't check. the panel should have a text field that displays the current brushes name." A read-only text field, **Brush**, 38 px high, is the first row of the Brushes panel (above Size, Opacity, Flow). The 0.4 s timer that keeps the sliders in step also copies the current preset's name (`KisPaintOpPreset::name()`) into it, so picking a preset or any other change shows the new name. It is also what will say which brush is the transparent default.
+**Not verified:** a build or a device.
