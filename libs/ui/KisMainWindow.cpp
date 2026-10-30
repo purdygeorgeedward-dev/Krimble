@@ -1163,7 +1163,9 @@ static void krimbleShowQuickAdjustDialog(KisMainWindow *win)
     QDialogButtonBox *buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, dialog);
     // Krimble 2026-10-14: George (1.0.36): "Quick Adjust is perfect size. Has no title bar?" The window has none on the phone, so its name is
     // written at the top of it.
-    QLabel *heading = new QLabel(i18n("Krimble  |  QuickAdjust"), dialog);
+    // Krimble 2026-10-30: George: "QuickAdjust does not need to say Krimble in it." The heading shows the tool name only.
+    // QLabel *heading = new QLabel(i18n("Krimble  |  QuickAdjust"), dialog);
+    QLabel *heading = new QLabel(i18n("QuickAdjust"), dialog);
     QFont headingFont = heading->font();
     headingFont.setBold(true);
     heading->setFont(headingFont);

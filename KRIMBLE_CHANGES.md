@@ -5622,3 +5622,8 @@ George: "Remove it from the readme." (after "Okay, 7a is off the map.", the 321s
 
 George asked "Do we not have 44 on GitHub yet?" (it was a draft with no APK, tag `v1.0.44-beta` on `f3960e9`); then: "I sent it." **Verified through the API:** release `v1.0.44-beta` (id 423665630) is **published** (2026-10-27 03:32 UTC = 2026-10-26 9:32 PM MT), prerelease, target `f3960e98`, asset `Krimble-1.0.44-beta-Oct25-2229.apk`, 181,273,588 bytes (the size of the APK that was packaged on the server), state `uploaded`; the tag points at `f3960e98c8`, the commit the app was built from (the app's own build stamp says `f3960e9`). So 1.0.29 to 1.0.44 are all published. Everything since (entries 305 to 322) is not in it. **Docs only; no code changed.**
 
+## 2026-10-30 (324th) — QuickAdjust heading shows the tool name only
+
+**File:** `libs/ui/KisMainWindow.cpp`
+
+George: "QuickAdjust does not need to say Krimble in it." The QuickAdjust dialog heading was changed on the UI-refresh branch to "Krimble  |  QuickAdjust". It now reads "QuickAdjust". The previous line is commented out in place, with an inline comment.
