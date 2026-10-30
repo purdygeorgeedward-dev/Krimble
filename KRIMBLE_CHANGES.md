@@ -5647,3 +5647,10 @@ George: "Remove the rotation functions from the default Transform (Scale) tool."
 
 George: "the various transform modes should be selectable buttons inside the Tool Options panel for Transform tool." `KisToolFreeRotate` (the Rotate tool) turned every one-finger drag into the rotation dial, in any mode. Now the dial is used only in the Free mode (`transformMode() == FreeTransformMode`); in Perspective, Warp, Cage, Liquify and Mesh, `beginPrimaryAction`, `continuePrimaryAction` and `endPrimaryAction` call the Transform tool's own handling.
 **Not verified:** a build or a device.
+
+## 2026-10-30 (328th) — Rotate mode button in the Transform tool's Tool Options
+
+**Files:** `plugins/tools/tool_transform2/kis_tool_transform_config_widget.cpp`, `plugins/tools/tool_transform2/kis_tool_transform_config_widget.h`
+
+George: "if there is no rotate button in the tool options panel, there should be." (there was none: the six buttons were Free, Perspective, Warp, Cage, Liquify, Mesh). A seventh mode button, **Rotate**, is added after the first (made in code, `m_krimbleRotateButton`, same style as the others; icon `krimble-free-rotate`, which is the toolbox Rotate icon, until the new artwork is connected). The first button's tool tip, and so the label under the buttons, is now **Scale** (was "Free Transform"). Clicking Rotate switches to the Rotate tool (`KisToolFreeRotate`); clicking Scale in the Rotate tool switches back to the Transform tool; the switch is queued (`QTimer::singleShot(0)`) and the tool being left applies its work (`deactivate` ends the stroke). In the Rotate tool the Free mode shows as the Rotate button checked.
+**Not verified:** a build or a device. The six old buttons' styling list is kept, commented out, and replaced by one that also holds Rotate.
