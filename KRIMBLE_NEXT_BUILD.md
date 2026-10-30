@@ -33,3 +33,21 @@ Also in the repo: the roadmap section "Animation and game sprites (proposed)", `
 
 - Not built: writing an animated GIF, APNG, frames in (numbered pictures to an animation), the animation timeline tools, sprite sheets, the Magnetic Selection bar (it still needs Enter and Escape), partial-text styling in the Type tool, Auto Color as a vibrance-style default, Quick Mask design, the user manual.
 - Open questions to George: hide the status bar by default? what is the teal teardrop in the Layers list (probably Android's text-cursor handle)? which on-screen messages are unnecessary? did "the handle" mean the edge tab? the Type tool "red box" (needs a screenshot); the polygon Tool Options buttons were not seen in 1.0.43 (probably clipped in the narrow panel; a screenshot would show).
+
+## On the branch `feature/krimble-ui-refresh` (NOT on master; written 2026-10-30, 12:45 PM MT)
+
+None of this is compiled or run on a phone. Entry numbers are in `KRIMBLE_CHANGES.md`; times in `KRIMBLE_WORKLOG.md`. Before it can be built from master the branch needs a test merge (master has deleted `krita/pics/krimble-toolbox`; the branch has now deleted its 32 PNGs too).
+
+| Entry | What | Where to look on the phone | Risk |
+|---|---|---|---|
+| 324 | QuickAdjust heading reads "QuickAdjust" | Image > Adjustments > Quick Adjust... | none known |
+| 325 | classic color selector hidden; Color docker has no outer tabs (Color Studio's own Picker/Mixer tabs remain) | Color panel | the hidden classic widgets could draw stray on the picker |
+| 326 | Scale mode: outside the box does nothing, no rotate arrows, Alt no longer rotates the bounds | Transform tool | inside the box still moves |
+| 327 | the Rotate tool uses its dial only in the Free mode; other modes act as the Transform tool | Rotate tool, Warp/Cage/Liquify/Mesh/Perspective buttons | mode switching |
+| 328 | seventh mode button **Rotate**; first button is **Scale**; Rotate and Scale switch between the two tools | Transform Tool Options | tool switch applies the stroke; the button state in the Rotate tool |
+| 329 | **Thickness** slider and number box = the current brush's size | Line tool Tool Options | changes the brush's size for every brush tool |
+| 330 | Brushes panel: **Size, Opacity, Flow** rows above the presets; a 0.4 s timer keeps them in step | Brushes panel | the preset picker below is unchanged Krita |
+| 331 | **Layer > New > Star...** (Points, Inner circle, Size): a vector star, foreground fill, no outline, on a new vector layer | Layer > New | rotate handles may be small; the star is not auto-selected |
+| 332 | the 32 old toolbox PNGs deleted from the branch | none | none (they were not used) |
+
+Also on the branch from ChatGPT (reviewed 2026-10-30, not changed): the app-wide stylesheet (`KrimbleVisualStyle.h`; known faults: combo/spin arrows, checkbox indicator, slider handle height, hardcoded colors), Color Studio (picker and mixing pad in the color docker, per-pixel SV square), QuickAdjust spinboxes and Preview, Preferences icons 44 px, build number 45, packaging scripts, `RELEASE-CHECKLIST.md`.

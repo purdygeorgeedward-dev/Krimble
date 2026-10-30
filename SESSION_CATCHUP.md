@@ -50,3 +50,27 @@ I'm **George** (George Edward Purdy), building **Krimble**, a professional Andro
 - Labels beside their fields and buttons side by side are the default again (a window with no scroll area is still squeezed).
 - **Design premise (George, 2026-10-26): "My whole premise was that drawing or painting on a phone sucks, but editing works fine."** Krimble on the phone is an editing app (Photoshop-style edits: selections, layers, adjustments, filters, transforms), not a drawing or painting app. Too many options overwhelm: pare the phone down. Six inherited tools have no toolbox button on Android (313th entry: Colorize Mask, Enclose and Fill, Assistant, Ruler, Reference Images, Path-Based Selection); desktop builds (Linux, Windows, macOS) will enable them. They were Krita's own, nobody chose them for Krimble. Judge any new or existing feature by that premise.
 - **No 32-bit Android build (George, 2026-10-26: "Okay, 7a is off the map.")**: only arm64-v8a. About 5 to 10 percent of active devices are 32-bit ARM, mostly cheap low-RAM phones where Krimble would be killed by Android anyway. Check Google Play Console "Reach and devices" after publishing before reopening this.
+
+## State as of 2026-10-30, 12:45 PM MT (branch `feature/krimble-ui-refresh`)
+
+Written from the Claude session inside the Krimble project. The text above is from 2026-10-25 and is kept. Everything below is new, and **none of it is compiled or tested on a phone**.
+
+- **Where the work is:** branch `feature/krimble-ui-refresh` (not master). Head `a9c18e1b67` before this docs commit. Changelog entries 324 to 332 (333 is this docs update). See `KRIMBLE_STATUS.md` for the short list and `KRIMBLE_NEXT_BUILD.md` for what to look for on the phone.
+- **The branch began** as ChatGPT's cosmetic work (gradients and bevels, `KrimbleVisualStyle.h`, a Color Studio in the color docker, QuickAdjust restyled, 32 icon PNGs). It was reviewed on 2026-10-30; the review found it was more than cosmetic (about 1000 added lines). The global stylesheet is **app-wide on purpose** (George, 2026-10-30).
+- **Working method that worked:** a partial clone with `git sparse-checkout` for only the files being changed; a full checkout of the tree timed out (300 s). One commit per change, each with its changelog entry; push to the branch with the PAT; check with `git ls-remote` and a `git fetch`.
+
+### Decisions (2026-10-30), so they are not asked again
+- **Transform:** the Transform tool's first mode is **Scale** (no rotating, no corner arrows); the mode buttons (Scale, Perspective, Warp, Cage, Liquify, Mesh) **stay in the Tool Options**, never on the canvas; **Rotate** is the seventh button and also its own toolbox button (the Free Rotate tool, one-finger dial); it transforms a selection like the other modes. No "free transform with multiple mode gadgets."
+- **Color docker:** one page, no tabs; the classic Krita selector is hidden (code kept, commented out). The **mixing scratch pad is its own panel**, not a tab. The gradient square must be gradient-painted (two layered gradients, no per-pixel loop) and stretch as far as the user wants.
+- **Star** is a menu item (Layer > New > Star...), a vector shape on a new vector layer. **No new tools in the toolbox** (it is full). Rounded Box and the Tail option (any oval, box or rounded box: tap sets the attach point, drag or tap sets the tip, shape waits unpainted, a tap far away skips the tail) are designed and **on hold**.
+- **Brushes panel:** replaced the empty-handed picker with Size, Opacity, Flow rows plus the preset chooser. George: "much better."
+- **Panels attaching:** George wants docking only when deliberate, with menu items as the sure way. **This already exists** (`KrimbleDockTolerance`: 4 px, 120 px move before tabbing; Settings > Attach Panels; Attach Panel and Detach Panel menus). The Brushes panel still "attached eagerly"; waiting for what it attached to.
+- **Icons:** the toolbox set is **32 icons**; the three new ones (Rounded Box, Speech Balloon, Star) are **not** toolbox icons. Colorize Mask Editing and Enclose and Fill have no new icon (keep their old ones). George will keep the transparent PNGs; the cut set made on 2026-10-30 was a zip in the chat, not in the repo.
+- **Rotate** is not "rotate canvas" (that wording came from ChatGPT's filename); it is Transform > Rotate.
+- **QuickAdjust** needs no "Krimble" in its name; its layers should collapse when it is done (could be a toggle), merge or group not yet chosen.
+
+### How to work with George (new, 2026-10-30)
+- **No colored-circle emoji.** Use ✅ done, ⚠️ needs his decision, ❌ problem, ℹ️ information; more emoji where they mean something.
+- **Read the existing code before proposing.** The docking proposal repeated what was already built (`KisMainWindow.cpp` has many "Krimble" notes with his own words); search there first.
+- His phone's spell-check changes words ("asking" for "using"); read for the meaning and ask if it matters.
+- "Implement all" or "Do everything" after a plan he has seen is approval for that plan; keep one commit and one changelog entry per change anyway.

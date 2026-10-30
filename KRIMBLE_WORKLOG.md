@@ -73,3 +73,19 @@ The column "Author" is the name on the commit. **Two Claude sessions work on Kri
 - **Oct 25, 8:13 AM MT** (14:13 UTC): the 1.0.43 APK was packaged: `Krimble-1.0.43-beta-Oct25-0813.apk`, 180,983,744 bytes, build stamp 43, commit `d6b6b48`.
 - **Oct 25, 9:37 AM MT** (15:37 UTC): `kb-status.sh`: BUILD FINISHED OK, PACKAGING FINISHED OK. **9:40 AM MT**: `kb-apk.sh` made the copy to download. George installed it from there.
 - The tag `v1.0.43-beta` was made through the API on `d6b6b48`. **Oct 25, 3:09 PM MT** (21:09 UTC): `~/kb-release.sh --publish` was run on the server; the release was **published with the APK attached** (180,983,744 bytes; checked through the API).
+
+## Branch `feature/krimble-ui-refresh`, 2026-10-30 (pushes with their real times)
+
+Times are Mountain Time from the clock of the sandbox that pushed (`date`), checked with `git ls-remote`. Commits are named "George Purdy" (the identity set for this session; the work was done by the Claude session inside the Krimble project). None is on master.
+
+| Time (MT) | Commit | What |
+|---|---|---|
+| Oct 30  9:41 AM | `c270d0dc53` | QuickAdjust heading shows the tool name only; changelog 324th |
+| Oct 30  9:41 AM | `d0a5e0b387` | classic color selector hidden, outer tab bar removed; changelog 325th |
+| Oct 30 10:06 AM | `1a6968320c` | Scale mode: outside the box no longer rotates, rotate arrows off; changelog 326th |
+| Oct 30 10:06 AM | `9c4ccd7421` | Rotate tool: modes other than Free act as the Transform tool; changelog 327th |
+| Oct 30 10:06 AM | `dc1a432a93` | Rotate mode button in Transform Tool Options, first button is Scale; changelog 328th |
+| Oct 30 10:45 AM | `73b50863b8` | Line tool: Thickness slider and number box; changelog 329th |
+| Oct 30 10:52 AM | `bd5f52d7cc` | Brushes panel: Size, Opacity, Flow rows; changelog 330th |
+| Oct 30 12:23 PM | `760e8c87ed` | Layer > New > Star...; changelog 331st |
+| Oct 30 12:30 PM | `a9c18e1b67` | the 32 old toolbox PNGs removed from the branch; changelog 332nd |

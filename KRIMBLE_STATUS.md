@@ -5,7 +5,16 @@ need the full explanation, reasoning, or diff for a specific fix. Update
 this file whenever a bug's status changes; regenerate from
 KRIMBLE_CHANGES.md if this file and the changelog ever disagree.
 
-## Now (2026-10-25, 2:55 PM MT)
+## Now (2026-10-30, 12:45 PM MT): branch `feature/krimble-ui-refresh`
+- **Branch head:** `a9c18e1b67` (before the docs commit). Changelog entries **324 to 332** are on this branch only, **not on master, not compiled, not run on a phone**. The branch was cut from `3cf6fc0`; master has moved on (13 commits at last count, all the `krita/pics/krimble-toolbox` folder). A test merge into master was **not done** (the checkout timed out); do it before merging. The docs on this branch are as they were at `3cf6fc0` plus this day's additions: master's copies may be newer.
+- **Done on the branch (324 to 332):** QuickAdjust heading is just "QuickAdjust"; the classic Krita color selector is hidden and the Color docker has no outer tabs; Scale mode has no rotating and the Transform Tool Options have a seventh button, **Rotate**; the Line tool has a **Thickness** slider (the current brush's size); the Brushes panel has **Size, Opacity, Flow** rows above the presets; **Layer > New > Star...**; the 32 old icon PNGs are deleted from `krita/pics/krimble-toolbox/`.
+- **Waiting for George's answer:** QuickAdjust collapse (merge into the layer below, or group); what the Brushes panel attached to (an edge, or another panel as a tab); Line Thickness as the brush's own size (built) or a separate shape-tool setting; Scale: dragging inside the box moves (unchanged); the stylesheet and toolbox/dock tool buttons; the name of the transparent default brush.
+- **Approved, not started:** Mixer as its own panel; Color docker as one page with a gradient-painted, resizable SV square; wiring the 32 new icons (mapping, glow for the selected tool, Color/Silver switch, smaller sizes made by script); Rotate icon swap; QuickAdjust first in the Image menu (`krita5.xmlgui`, needs George's specific permission); Fill Foreground bug (the QuickAdjust layer stays the active layer); Brushes panel appearing on New file; New File dialog icons too big; six stale "excluded from toolbox" comments; stylesheet faults.
+- **On hold (George, 2026-10-30):** Rounded Box, the Tail option (on Rectangle, Ellipse, Rounded Box), Speech Balloon. **Not toolbox tools**: the toolbox is full.
+- **Details:** `SESSION_CATCHUP.md` (decisions), `KRIMBLE_NEXT_BUILD.md` (what to look for on the phone), `KRIMBLE_WORKLOG.md` (push times), `KRIMBLE_TEST_LIST_2026-10-23.md` (branch list B1 to B12), `packaging/android/TOOLBOX-ICON-COVERAGE.md` (icons).
+
+## Older "Now" (2026-10-25; the section above is newer)
+### Now (2026-10-25, 2:55 PM MT)
 - **Released:** v1.0.29-beta to **v1.0.44-beta** (1.0.44 published by George 2026-10-26, 9:32 PM MT = 03:32 UTC on the 27th; APK `Krimble-1.0.44-beta-Oct25-2229.apk`, 181,273,588 bytes, attached; tag on `f3960e9`, the build commit; verified through the API). 1.0.44 is installed on George's phone. 1.0.43 was published 2026-10-25, 3:09 PM MT.
 - **In the repo, not in 1.0.43:** see `KRIMBLE_NEXT_BUILD.md`. Repo version number: still 44 (the next build, 1.0.45, needs the number bumped first). 20 commits (entries 305 to 322) are in the repo and not in 1.0.44.
 - **Biggest open problem:** Krimble relaunches when George switches apps (the picture is gone). Likely cause found and fixed in the repo (entry 299: native functions with old Krita names crashed the app on every Back press); a log window (Help > Show Krimble Log...) was added for evidence (entry 300). **Update 2026-10-26 (George sent the log screen of 1.0.44): the restarts are Android's low-memory killer, not crashes:** both recorded ends were "reason 3 (LOW_MEMORY)": one while Krimble was cached in the background (importance 400, "sits in the background too long"), one while it was in the foreground ("[OOM KILL] oom", importance 100: the "crash in the type tool"). So the 299th fix was not the (only) cause: Krimble holds too much memory for Android. Next: the memory trail (entry 319) shows what holds it; then lower it (and swap or release memory when going to the background).
@@ -55,4 +64,4 @@ mobile-first design priority, then industry-standard parity.
   (2026-09-06). No confirmed packaged APK yet — full cheat sheet at
   `claude/KRIMBLE-BUILD-CHEATSHEET.md`
 
-Last updated: 2026-10-25 (the "Now" part at the top; the bug list below is from 2026-09-10)
+Last updated: 2026-10-30 (the branch section at the top); the 2026-10-25 "Now" part and the bug list below are older (bug list: 2026-09-10)

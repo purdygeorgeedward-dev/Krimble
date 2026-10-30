@@ -290,3 +290,26 @@ Status: **proposed. Nothing in this section is started.** George: "Animated GIF 
 3. The preview window and frame tags.
 4. Sprite sheets, and the Wesnoth, Godot and Unity exports.
 5. Video import.
+
+## Interface refresh, color panels and shape options (George, 2026-10-30; proposed, not built unless it says so)
+
+Branch `feature/krimble-ui-refresh`. Entries 324 to 332 are done on the branch (see `KRIMBLE_STATUS.md`).
+
+### Color panels (approved, not started)
+1. **Color docker on one page, no tabs**: picker (SV square and hue slider), values (RGB/HSV/HEX), recent colors, palette. The classic Krita selector is hidden.
+2. **The SV square gradient-painted** (a horizontal white-to-hue gradient and a vertical transparent-to-black gradient layered in `paintEvent`; no per-pixel loop), and it **stretches as far as the user wants** (the old dialog's square does not scale; this was the reason for a new one).
+3. **Mixing and brush test pad as its own panel** (George: "I specifically asked for a color mixing scratch pad ... It should be a panel."). It reads the foreground color; its raster is never part of the picture.
+4. The mockups ChatGPT drew (tabs, brush test settings, blend mode, pad backgrounds) were **too ambitious**; keep what the list above says.
+
+### Shape options (on hold)
+- **Rounded Box**: the Rectangle tool already has rounded corners in code (`m_roundCornersX/Y`); a preset or a radius field in its options. Easy.
+- **Tail option** on Rectangle, Ellipse and Rounded Box: Tail checkbox and Tail Width in Tool Options; with Tail on, the shape stays unpainted until a tap near the outline sets the attach point and a drag or tap sets the tip; the shape and tail are painted as one joined outline; a tap far from the shape skips the tail. Raster first; vector mode later.
+- **Speech Balloon** is this tail option, not a tool. **Star** is the menu item (done on the branch, 331st entry).
+- **No new toolbox tools** (George, 2026-10-30).
+
+### Icons and highlights (approved, not started)
+- Wire the 32 icons; Rotate icon first (the old one has corner lines without arrows). Glow for the selected tool; Color/Silver switch; smaller sizes by script. See `packaging/android/TOOLBOX-ICON-COVERAGE.md`.
+
+### Transform and panels
+- Scale and Rotate are modes of Transform (done on the branch). Open: should dragging inside the box still move in Scale.
+- Panel docking only on deliberate intent: **already built** (`KrimbleDockTolerance`, Settings > Attach Panels, Attach Panel and Detach Panel). Open: the Brushes panel still attached eagerly; waiting for what it attached to. A dwell timer (about half a second near an edge) is an idea, not built.
