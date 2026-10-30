@@ -186,6 +186,7 @@
 #include "flake/kis_shape_layer.h"
 #include <KoPathShape.h>
 #include <KoShapeRegistry.h>      // Krimble 2026-10-30: Layer > New > Star...
+#include <kis_paint_layer.h>      // Krimble 2026-10-30: QuickAdjust bakes its layers into the paint layer below
 #include <KoShapeFactoryBase.h>
 #include <KoProperties.h>
 #include <QDialogButtonBox>
@@ -980,6 +981,9 @@ static void krimbleApplyPanelPreset(QMainWindow *win, const QStringList &show)
 // hide the layer, or change it later in the Layers panel. Brightness/Contrast, Saturation/Hue/Lightness and Vibrance.
 // Narrow on purpose: one slider per row, no side-by-side controls.
 // ============================================================================================================================
+// Krimble 2026-10-30: "Keep as layers" in the Quick Adjust window (off at first; kept while the program runs)
+static bool g_krimbleQuickKeepLayers = false;
+
 class KrimbleQuickAdjust : public QObject
 {
 public:
@@ -997,6 +1001,12 @@ public:
         m_preview->setChecked(true);
         options->addWidget(m_preview);
         layout->addLayout(options);
+        // Krimble 2026-10-30: George: "I didn't expect operations as layers. Offer it as a toggle." The adjustments are applied to the layer when OK is
+        // pressed (merged down into the paint layer below), unless this is checked: then they stay as adjustment layers (the old behaviour).
+        m_keepLayers = new QCheckBox(i18n("Keep as layers"), content);
+        m_keepLayers->setChecked(g_krimbleQuickKeepLayers);
+        connect(m_keepLayers, &QCheckBox::toggled, this, [](bool on) { g_krimbleQuickKeepLayers = on; });
+        layout->addWidget(m_keepLayers);
         for (int i = 0; i < SliderCount; ++i) {
             QHBoxLayout *row = new QHBoxLayout;
             row->setSpacing(8);
@@ -1051,6 +1061,36 @@ public:
         m_previewEnabled = true;
         if (m_preview) m_preview->setChecked(true);
         flush();
+    }
+    // Krimble 2026-10-30: called when OK is pressed, after commitVisible(). Not checked "Keep as layers": the adjustment layers are merged down, bottom one first,
+    // each into the paint layer directly below it (a layer that is not on a paint layer stays as a layer). Either way the layer that was active before
+    // Quick Adjust is the active layer again (George: Edit > Fill > Foreground Color pasted a weird image while the adjustment layers were active: the fill
+    // went into an adjustment layer).
+    void finish()
+    {
+        KisViewManager *view = m_win->viewManager();
+        if (!view || !view->nodeManager()) return;
+        KisImageSP image = view->image();
+        if (image && !(m_keepLayers && m_keepLayers->isChecked())) {
+            QList<KisNodeSP> made;
+            KisNodeWSP *refs[3] = { &m_bcLayer, &m_hsvLayer, &m_vibLayer };
+            for (KisNodeWSP *ref : refs) {
+                KisNodeSP node = *ref;
+                if (node && node->parent()) made.append(node);
+            }
+            std::sort(made.begin(), made.end(), [](const KisNodeSP &a, const KisNodeSP &b) {
+                return a->parent() == b->parent() && a->parent()->index(a) < b->parent()->index(b);
+            });
+            QAction *mergeDown = view->actionCollection()->action(QStringLiteral("merge_layer"));
+            Q_FOREACH (KisNodeSP node, made) {
+                KisNodeSP below = node->prevSibling();
+                if (!below || !dynamic_cast<KisPaintLayer*>(below.data()) || !mergeDown) continue;
+                view->nodeManager()->slotNonUiActivatedNode(node);
+                mergeDown->trigger();
+                image->waitForDone();
+            }
+        }
+        if (m_activeBefore && m_activeBefore->parent()) view->nodeManager()->slotNonUiActivatedNode(m_activeBefore);
     }
     void removeCreatedLayers()
     {
@@ -1117,6 +1157,7 @@ private:
             }
             KisAdjustmentLayerSP newLayer = new KisAdjustmentLayer(image, layerName, config, KisSelectionSP());
             KisNodeSP active = view->activeNode();
+            if (!m_activeBefore) m_activeBefore = active;   // Krimble 2026-10-30: finish() makes it the active layer again
             KisNodeSP parent = active ? active->parent() : KisNodeSP();
             if (!parent) parent = image->root();
             KisNodeCommandsAdapter adapter(view);
@@ -1137,6 +1178,8 @@ private:
     QSlider *m_sliders[SliderCount];
     QSpinBox *m_numbers[SliderCount];
     QCheckBox *m_preview = nullptr;
+    QCheckBox *m_keepLayers = nullptr;     // Krimble 2026-10-30
+    KisNodeWSP m_activeBefore;             // Krimble 2026-10-30: the layer that was active when the first adjustment layer was made
     bool m_previewEnabled = true;
     int m_values[SliderCount];
     QTimer m_timer;
@@ -1179,6 +1222,7 @@ static void krimbleShowQuickAdjustDialog(KisMainWindow *win)
     layout->addWidget(buttons);
     QObject::connect(buttons, &QDialogButtonBox::accepted, dialog, [adjust, dialog]() {
         adjust->commitVisible();
+        adjust->finish();     // Krimble 2026-10-30: merge down unless "Keep as layers"; the earlier layer is active again
         dialog->accept();
     });
     QObject::connect(buttons, &QDialogButtonBox::rejected, dialog, [adjust, dialog]() {
@@ -2579,6 +2623,18 @@ static void krimbleInstallImageExtras(KisMainWindow *win)
     if (!imageMenu || imageMenu->property("krimbleImageExtras").toBool()) return;
     imageMenu->setProperty("krimbleImageExtras", true);
     QObject::connect(imageMenu, &QMenu::aboutToShow, win, [win, imageMenu]() {
+        // Krimble 2026-10-30: George: "QuickAdjust should be the first item in the Image menu. It's a shortcut to adjustments." First item, then a divider
+        // (the same item stays first in Image > Adjustments).
+        if (!imageMenu->findChild<QAction*>(QStringLiteral("krimbleQuickAdjustTop"))) {
+            QAction *quickTop = new QAction(i18n("Quick Adjust..."), imageMenu);
+            quickTop->setObjectName(QStringLiteral("krimbleQuickAdjustTop"));
+            QObject::connect(quickTop, &QAction::triggered, win, [win]() { krimbleShowQuickAdjustDialog(win); });
+            QAction *topFirst = imageMenu->actions().value(0);
+            QAction *topDivider = new QAction(imageMenu);
+            topDivider->setSeparator(true);
+            imageMenu->insertAction(topFirst, quickTop);
+            imageMenu->insertAction(topFirst, topDivider);
+        }
         if (imageMenu->findChild<QAction*>(QStringLiteral("krimbleBatchProcess"))) return;
         // Krimble 2026-10-13 (11th): Quick Adjust... at the bottom of the Image > Adjustments submenu (George: "launched from Image Adjust";
         // the place inside the submenu, the bottom, is my choice).
