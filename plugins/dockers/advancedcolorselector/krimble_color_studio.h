@@ -93,9 +93,13 @@ class KrimbleSvSquare : public QWidget
 {
 public:
     explicit KrimbleSvSquare(QWidget *parent = nullptr) : QWidget(parent) {
-        setMinimumHeight(100);
-        setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+        // setMinimumHeight(100);
+        // setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+        // Krimble 2026-10-30: George: "At the very least that color gradient box should stretch out as far as the user wants." It grows in both directions.
+        setMinimumSize(100, 100);
+        setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     }
+    QSize sizeHint() const override { return QSize(240, 200); }
     QColor selected() const { return QColor::fromHsv(m_hue, m_sat, m_val); }
     void setColor(QColor c) {
         if (c.hsvHue() >= 0 && m_hue != c.hsvHue()) { m_hue = c.hsvHue(); m_cachedHue = -1; }
@@ -109,14 +113,27 @@ protected:
         const int w = qMax(1, width()-1), h = qMax(1, height()-1);
         // The SV field depends only on hue and dimensions; reuse its pixels
         // when moving the selection cursor or synchronizing RGB/HEX values.
-        if (m_cachedHue != m_hue || m_cachedSquare.size() != size()) {
-            m_cachedSquare = QImage(size(), QImage::Format_RGB32);
-            for (int y=0; y<height(); ++y)
-                for (int x=0; x<width(); ++x)
-                    m_cachedSquare.setPixelColor(x,y,QColor::fromHsv(m_hue, x*255/w, 255-y*255/h));
-            m_cachedHue = m_hue;
+        // if (m_cachedHue != m_hue || m_cachedSquare.size() != size()) {
+        //     m_cachedSquare = QImage(size(), QImage::Format_RGB32);
+        //     for (int y=0; y<height(); ++y)
+        //         for (int x=0; x<width(); ++x)
+        //             m_cachedSquare.setPixelColor(x,y,QColor::fromHsv(m_hue, x*255/w, 255-y*255/h));
+        //     m_cachedHue = m_hue;
+        // }
+        // p.drawImage(0,0,m_cachedSquare);
+        // Krimble 2026-10-30: George: "That color box should be a gradient filled vector image, right?" Two layered gradients painted at draw time, so no
+        // per-pixel loop and no cached bitmap: white to the pure hue from left to right (saturation), then transparent to black from top to bottom (value).
+        {
+            const QRect field(0, 0, width(), height());
+            QLinearGradient saturation(0, 0, width()-1, 0);
+            saturation.setColorAt(0.0, Qt::white);
+            saturation.setColorAt(1.0, QColor::fromHsv(m_hue, 255, 255));
+            p.fillRect(field, saturation);
+            QLinearGradient value(0, 0, 0, height()-1);
+            value.setColorAt(0.0, QColor(0, 0, 0, 0));
+            value.setColorAt(1.0, QColor(0, 0, 0, 255));
+            p.fillRect(field, value);
         }
-        p.drawImage(0,0,m_cachedSquare);
         p.setRenderHint(QPainter::Antialiasing);
         QPointF pt(m_sat*w/255.0, (255-m_val)*h/255.0);
         p.setPen(QPen(Qt::black, 3)); p.setBrush(Qt::NoBrush);
@@ -290,15 +307,22 @@ public:
         add->setToolTip(tr("Add foreground color to palette"));
         header->addWidget(add);
         layout->addLayout(header);
-        auto *tabs = new QTabWidget(this);
-        auto *picker = new QWidget(tabs);
-        auto *mixer = new QWidget(tabs);
+        // Krimble 2026-10-30: George: "Color docker designed by ChatGPT was too ambitious and doesn't need tabs. Should be all in one design." and, of the mixing
+        // pad: "It should be a panel." One page: the picker, values, recent colors and palette. The mixing pad is its own panel, "Mixer"
+        // (krimble_mixer_dock.h); the code that built the Mixer tab is kept below inside #if 0.
+        // auto *tabs = new QTabWidget(this);
+        // auto *picker = new QWidget(tabs);
+        // auto *mixer = new QWidget(tabs);
+        auto *picker = new QWidget(this);
         auto *pickerLayout = new QVBoxLayout(picker);
         pickerLayout->setContentsMargins(0,4,0,0);
         pickerLayout->setSpacing(5);
-        tabs->addTab(picker,tr("Picker"));
-        tabs->addTab(mixer,tr("Mixer"));
-        layout->addWidget(tabs);
+        // tabs->addTab(picker,tr("Picker"));
+        // tabs->addTab(mixer,tr("Mixer"));
+        // layout->addWidget(tabs);
+        layout->addWidget(picker, 1);
+#if 0   // Krimble 2026-10-30: the Mixer tab, now the Mixer panel (krimble_mixer_dock.h)
+        auto *mixer = new QWidget(this);
         auto *mixLayout = new QVBoxLayout(mixer);
         mixLayout->setContentsMargins(2,6,2,2);
         auto *mixTools=new QHBoxLayout;
@@ -355,6 +379,7 @@ public:
             savePalette(); rebuildSwatches();
         });
         m_mixingPad->onSample=[this](QColor c){ select(c); };
+#endif   // Krimble 2026-10-30
         m_square = new KrimbleSvSquare(this);
         pickerLayout->addWidget(m_square);
         auto *hueRow = new QHBoxLayout;
@@ -428,6 +453,13 @@ public:
         m_syncTimer.setInterval(350);
         connect(&m_syncTimer, &QTimer::timeout, this, [this]() {
             if (!m_canvas || !isVisible()) return;
+            // Krimble 2026-10-30: a swatch added from the Mixer panel (it writes the same saved list) shows here too
+            {
+                const QStringList stored = QSettings().value(QStringLiteral("Krimble/ColorStudioSwatches")).toStringList();
+                QStringList mine;
+                for (const QColor &c : m_colors) mine << c.name(QColor::HexRgb);
+                if (stored != mine) { m_colors.clear(); loadPalette(); }
+            }
             const QColor foreground=m_canvas->resourceManager()->foregroundColor().toQColor();
             if (foreground.isValid() && foreground != m_current)
                 select(foreground, false);
