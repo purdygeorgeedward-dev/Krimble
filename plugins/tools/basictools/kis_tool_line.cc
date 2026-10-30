@@ -34,6 +34,16 @@
 
 #include "kis_tool_line_helper.h"
 
+#include <QSlider>      // Krimble 2026-10-30: the Thickness setting
+#include <QSpinBox>
+#include <QTimer>
+#include <QHBoxLayout>
+#include <QLabel>
+#include <QSignalBlocker>
+#include <brushengine/kis_paintop_settings.h>
+#include <brushengine/kis_paintop_preset.h>
+#include <kis_image_config.h>
+
 
 const KisCoordinatesConverter* getCoordinatesConverter(KoCanvasBase * canvas)
 {
@@ -87,11 +97,16 @@ void KisToolLine::activate(const QSet<KoShape*> &shapes)
 {
    KisToolPaint::activate(shapes);
    configGroup =  KSharedConfig::openConfig()->group(toolId());
+   if (m_krimbleThicknessTimer) {   // Krimble 2026-10-30: the Thickness controls follow the brush size again
+       m_krimbleThicknessTimer->start();
+       syncKrimbleThickness();
+   }
 }
 
 void KisToolLine::deactivate()
 {
     KisToolPaint::deactivate();
+    if (m_krimbleThicknessTimer) m_krimbleThicknessTimer->stop();   // Krimble 2026-10-30
     cancelStroke();
 }
 
@@ -114,6 +129,43 @@ QWidget* KisToolLine::createOptionWidget()
     m_chkSnapEraser = new QCheckBox(i18n("Snap Eraser"));
     addOptionWidgetOption(m_chkSnapEraser);
 
+    // Krimble 2026-10-30: George: "There is no option in the Tool Options for the line tool to set the line thickness." and "Add a size setting for line
+    // thickness to the tool options for line." The line is drawn with the current brush, so Thickness is that brush's size (the same size the Brushes
+    // panel and the brush settings change). A slider with a number box; they follow the brush if its size is changed somewhere else (checked every 0.4 s
+    // while the tool is active).
+    {
+        QWidget *thicknessRow = new QWidget();
+        QHBoxLayout *thicknessLayout = new QHBoxLayout(thicknessRow);
+        thicknessLayout->setContentsMargins(0, 0, 0, 0);
+        m_krimbleThicknessSlider = new QSlider(Qt::Horizontal, thicknessRow);
+        m_krimbleThicknessSlider->setMinimumHeight(38);
+        m_krimbleThicknessSpin = new QSpinBox(thicknessRow);
+        const int maxThickness = qMax(1, int(KisImageConfig(true).maxBrushSize()));   // the largest brush size the program allows
+        m_krimbleThicknessSlider->setRange(1, qMin(maxThickness, 500));
+        m_krimbleThicknessSpin->setRange(1, maxThickness);
+        m_krimbleThicknessSpin->setSuffix(QStringLiteral(" px"));
+        thicknessLayout->addWidget(m_krimbleThicknessSlider, 1);
+        thicknessLayout->addWidget(m_krimbleThicknessSpin, 0);
+        addOptionWidgetOption(thicknessRow, new QLabel(i18n("Thickness")));
+
+        connect(m_krimbleThicknessSlider, &QSlider::valueChanged, this, [this](int value) {
+            QSignalBlocker blocker(m_krimbleThicknessSpin);
+            m_krimbleThicknessSpin->setValue(value);
+            setKrimbleThickness(value);
+        });
+        connect(m_krimbleThicknessSpin, qOverload<int>(&QSpinBox::valueChanged), this, [this](int value) {
+            QSignalBlocker blocker(m_krimbleThicknessSlider);
+            m_krimbleThicknessSlider->setValue(value);
+            setKrimbleThickness(value);
+        });
+
+        m_krimbleThicknessTimer = new QTimer(widget);
+        m_krimbleThicknessTimer->setInterval(400);
+        connect(m_krimbleThicknessTimer, SIGNAL(timeout()), this, SLOT(syncKrimbleThickness()));
+        m_krimbleThicknessTimer->start();
+        syncKrimbleThickness();
+    }
+
 
 
 
@@ -135,6 +187,30 @@ QWidget* KisToolLine::createOptionWidget()
     }
 
     return widget;
+}
+
+// Krimble 2026-10-30: writes the Thickness setting into the current brush's size.
+void KisToolLine::setKrimbleThickness(int value)
+{
+    KisPaintOpPresetSP preset = currentPaintOpPreset();
+    if (!preset || !preset->settings()) return;
+    if (qRound(preset->settings()->paintOpSize()) == value) return;
+    preset->settings()->setPaintOpSize(value);
+}
+
+// Krimble 2026-10-30: shows the current brush's size in the Thickness controls (not while the number box is being typed in).
+void KisToolLine::syncKrimbleThickness()
+{
+    if (!m_krimbleThicknessSpin || !m_krimbleThicknessSlider) return;
+    if (m_krimbleThicknessSpin->hasFocus()) return;
+    KisPaintOpPresetSP preset = currentPaintOpPreset();
+    if (!preset || !preset->settings()) return;
+    const int size = qBound(m_krimbleThicknessSpin->minimum(), qRound(preset->settings()->paintOpSize()), m_krimbleThicknessSpin->maximum());
+    if (m_krimbleThicknessSpin->value() == size) return;
+    QSignalBlocker blockSpin(m_krimbleThicknessSpin);
+    QSignalBlocker blockSlider(m_krimbleThicknessSlider);
+    m_krimbleThicknessSpin->setValue(size);
+    m_krimbleThicknessSlider->setValue(size);
 }
 
 void KisToolLine::setUseSensors(bool value)
