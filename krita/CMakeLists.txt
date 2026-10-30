@@ -120,6 +120,7 @@ set(krita_QRCS
     ${CMAKE_SOURCE_DIR}/krita/pics/tools/SVG/16/tools-svg-16-icons.qrc
     ${CMAKE_SOURCE_DIR}/krita/pics/tool_transform/tool-transform-icons.qrc
     ${CMAKE_SOURCE_DIR}/krita/pics/svg/svg-icons.qrc
+    ${CMAKE_SOURCE_DIR}/krita/pics/krimble-toolbox-color/krimble-toolbox-color.qrc
     ${CMAKE_SOURCE_DIR}/libs/flake/flake.qrc
     ${CMAKE_SOURCE_DIR}/libs/widgets/kritawidgets.qrc
     ${CMAKE_SOURCE_DIR}/pics/icons.qrc

@@ -909,6 +909,10 @@ void KoToolBoxDocker::contextMenuEvent(QContextMenuEvent *event)
         m_contextMenu->addSection(i18n("Icon Size"));
         m_toolBox->setupIconSizeMenu(m_contextMenu);
 
+        // Krimble 2026-10-30: Full color / Clear icons
+        m_contextMenu->addSection(i18n("Icon Style"));
+        m_toolBox->setupIconStyleMenu(m_contextMenu);
+
         m_contextMenu->addSection(i18nc("Toolbox layout", "Layout"));
         QActionGroup *layoutActionGroup = new QActionGroup(m_contextMenu);
 

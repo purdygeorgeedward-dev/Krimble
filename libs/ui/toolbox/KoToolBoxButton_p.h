@@ -18,6 +18,7 @@ public:
     explicit KoToolBoxButton(KoToolAction *toolAction, QWidget * parent);
     void attachAction(QAction *action);
     void setHighlightColor();
+    void krimbleRefreshIcon();   // Krimble 2026-10-30: the icon again after the icon style was changed
 
 private:
     void setDataFromToolAction(QAction *action); // Generates tooltips.

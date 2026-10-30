@@ -10,6 +10,7 @@
 #include "KoToolBox_p.h"
 #include "KoToolBoxLayout_p.h"
 #include "KoToolBoxButton_p.h"
+#include "KrimbleToolboxIcons.h"   // Krimble 2026-10-30
 #include "kis_assert.h"
 
 #include <QButtonGroup>
@@ -428,6 +429,30 @@ void KoToolBox::setupIconSizeMenu(QMenu *menu)
             }
         }
     }
+}
+
+// Krimble 2026-10-30: George: "I want the user to be able to switch between the full color themed toolbox icons and your clear icons." Two items in the toolbox's
+// menu (touch and hold): Full color (the picture icons) and Clear (the program's own line icons). The choice is saved and applies at once.
+void KoToolBox::setupIconStyleMenu(QMenu *menu)
+{
+    QActionGroup *styleGroup = new QActionGroup(menu);
+    const bool color = KrimbleToolboxIcons::colorMode();
+    QAction *colorAction = menu->addAction(i18n("Full color"));
+    QAction *clearAction = menu->addAction(i18n("Clear"));
+    for (QAction *action : {colorAction, clearAction}) {
+        action->setActionGroup(styleGroup);
+        action->setCheckable(true);
+    }
+    colorAction->setChecked(color);
+    clearAction->setChecked(!color);
+    auto apply = [this](bool useColor) {
+        KrimbleToolboxIcons::setColorMode(useColor);
+        Q_FOREACH (KoToolBoxButton *button, d->buttonsByToolId) {
+            button->krimbleRefreshIcon();
+        }
+    };
+    connect(colorAction, &QAction::triggered, this, [apply]() { apply(true); });
+    connect(clearAction, &QAction::triggered, this, [apply]() { apply(false); });
 }
 
 KoToolBoxLayout *KoToolBox::toolBoxLayout() const
