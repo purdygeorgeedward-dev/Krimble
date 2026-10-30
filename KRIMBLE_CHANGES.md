@@ -5640,3 +5640,10 @@ George: "I don't like the classic Krita color docker. It's useless. Comment it o
 
 George: "Remove the rotation functions from the default Transform (Scale) tool." and "No 'free transform' with multiple mode gadgets." In the Free Transform strategy a touch outside the box no longer rotates (and Alt no longer rotates the bounds): a new function, `KRIMBLENONE`, does nothing and shows the plain cursor; inside the box still moves, the eight handles still scale. The two corner rotate-arrow drawing blocks (the thin one of 2026-10-23 draws nothing, the thick one of 2026-10-26) are switched off with `if (false)`; their code is kept. The old 2026-10-23 rule is kept, commented out. Rotating is done by the Rotate tool (327th, 328th entries).
 **Not verified:** a build or a device. Whether dragging inside the box should still move in Scale was asked and not answered; it is unchanged.
+
+## 2026-10-30 (327th) — Rotate tool: other modes behave as the Transform tool
+
+**File:** `plugins/tools/tool_transform2/kis_tool_transform.cc`
+
+George: "the various transform modes should be selectable buttons inside the Tool Options panel for Transform tool." `KisToolFreeRotate` (the Rotate tool) turned every one-finger drag into the rotation dial, in any mode. Now the dial is used only in the Free mode (`transformMode() == FreeTransformMode`); in Perspective, Warp, Cage, Liquify and Mesh, `beginPrimaryAction`, `continuePrimaryAction` and `endPrimaryAction` call the Transform tool's own handling.
+**Not verified:** a build or a device.

@@ -1695,6 +1695,11 @@ double KisToolFreeRotate::pointerAngle(KoPointerEvent *event) const
 void KisToolFreeRotate::beginPrimaryAction(KoPointerEvent *event)
 {
     // Krimble 2026-10-18 (6th): the Transform tool's handling (which would move or scale, depending on where the finger is) is not called: the finger is a dial around the center.
+    // Krimble 2026-10-30: the dial is only used in the Free (Rotate) mode. In Perspective, Warp, Cage, Liquify and Mesh this tool works as the Transform tool.
+    if (transformMode() != FreeTransformMode) {
+        KisToolTransform::beginPrimaryAction(event);
+        return;
+    }
     if (!nodeEditable()) {
         event->ignore();
         return;
@@ -1706,6 +1711,11 @@ void KisToolFreeRotate::beginPrimaryAction(KoPointerEvent *event)
 
 void KisToolFreeRotate::continuePrimaryAction(KoPointerEvent *event)
 {
+    // Krimble 2026-10-30: see beginPrimaryAction
+    if (transformMode() != FreeTransformMode) {
+        KisToolTransform::continuePrimaryAction(event);
+        return;
+    }
     if (!m_dragging || mode() != KisTool::PAINT_MODE) return;
     const double angle = pointerAngle(event);
     double turn = angle - m_dragLastAngle;
@@ -1717,6 +1727,11 @@ void KisToolFreeRotate::continuePrimaryAction(KoPointerEvent *event)
 
 void KisToolFreeRotate::endPrimaryAction(KoPointerEvent *event)
 {
+    // Krimble 2026-10-30: see beginPrimaryAction
+    if (transformMode() != FreeTransformMode) {
+        KisToolTransform::endPrimaryAction(event);
+        return;
+    }
     Q_UNUSED(event);
     m_dragging = false;
     setMode(KisTool::HOVER_MODE);
