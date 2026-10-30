@@ -3602,6 +3602,7 @@ public:
     // Krimble 2026-10-18 (2nd): George (1.0.37, fc126d8): "4. When a panel is detached by dragging it is still way too eager to reattach. Distance is an issue."
     // 8 -> 4 logical px; and a panel can join another panel (tabs) only after the finger has moved 120 logical px from where the drag began.
     static const int Distance = 4;
+    static const int DwellMs = 350;   // Krimble 2026-10-30: how long the finger must stay within reach of a side before the panel may dock there
 
     KrimbleDockTolerance(QMainWindow *win, QDockWidget *dock)
         : QObject(dock), m_win(win), m_dock(dock) {}
@@ -3623,6 +3624,23 @@ protected:
                 if (r.right() - p.x() < Distance) allowed |= Qt::RightDockWidgetArea;
                 if (p.y() - r.top() < Distance) allowed |= Qt::TopDockWidgetArea;
                 if (r.bottom() - p.y() < Distance) allowed |= Qt::BottomDockWidgetArea;
+                // Krimble 2026-10-30: George: "I think there should be a proximity sensor that has a feel for when it's deliberate." (the Brushes panel attached to an
+                // edge too eagerly). A side of the window is allowed only after the finger has stayed within reach of it for DwellMs (350 ms), so a finger
+                // passing the edge on its way somewhere else does not dock the panel. "Within reach" is the zone used on release below (14 px, 28 px on the right).
+                {
+                    Qt::DockWidgetAreas reachAreas = Qt::NoDockWidgetArea;
+                    if (p.x() - r.left() < 14) reachAreas |= Qt::LeftDockWidgetArea;
+                    if (r.right() - p.x() < 28) reachAreas |= Qt::RightDockWidgetArea;
+                    if (p.y() - r.top() < 14) reachAreas |= Qt::TopDockWidgetArea;
+                    if (r.bottom() - p.y() < 14) reachAreas |= Qt::BottomDockWidgetArea;
+                    if (reachAreas != m_reachMask) {
+                        m_reachMask = reachAreas;
+                        m_reachClock.restart();
+                    }
+                    if (m_reachMask == Qt::NoDockWidgetArea || m_reachClock.elapsed() < DwellMs) {
+                        allowed = Qt::NoDockWidgetArea;       // not deliberate (yet): no side of the window (panels to tab with are added below)
+                    }
+                }
                 // Krimble 2026-10-15: George (1.0.36): "Panels don't go into tabs at all now when you drag them on top of each other." and
                 // "Love the tabs. Bring them back." and "Expand so they tab." Dropping a panel onto another panel needs the area of that panel to be
                 // allowed, and only the window's edges were. While the finger is over a docked panel, that panel's area is allowed too, so the
@@ -3644,9 +3662,12 @@ protected:
         } else if (event->type() == QEvent::MouseButtonRelease && m_dragging) {
             m_dragging = false;
             const QPoint releasePos = static_cast<QMouseEvent*>(event)->globalPos();
+            // Krimble 2026-10-30: deliberate = the finger stayed within reach of a side for DwellMs (see the move handler above)
+            const bool dwelled = m_reachMask != Qt::NoDockWidgetArea && m_reachClock.isValid() && m_reachClock.elapsed() >= DwellMs;
+            m_reachMask = Qt::NoDockWidgetArea;
             QPointer<QDockWidget> dock(m_dock);
             QPointer<QMainWindow> window(m_win);
-            QTimer::singleShot(0, m_dock, [dock, window, releasePos]() {
+            QTimer::singleShot(0, m_dock, [dock, window, releasePos, dwelled]() {
                 if (dock) {
                     dock->setAllowedAreas(Qt::AllDockWidgetAreas);
                 }
@@ -3655,6 +3676,7 @@ protected:
                 // spot, and with a finger (and the 4 px of Distance above) the panel was refused and stayed where it was. When the panel is let go within 14 logical px of a
                 // side of the window and Qt has not docked it, it is docked there, on the nearest side.
                 if (!dock || !window || !dock->isFloating()) return;
+                if (!dwelled) return;     // Krimble 2026-10-30: not deliberate: it stays where it was let go
                 const QRect r(window->mapToGlobal(QPoint(0, 0)), window->size());
                 const int toLeft = releasePos.x() - r.left();
                 const int toRight = r.right() - releasePos.x();
@@ -3682,6 +3704,8 @@ private:
     QDockWidget *m_dock;
     bool m_dragging {false};
     QPoint m_startPos;   // Krimble 2026-10-18 (2nd): where the finger was when this drag began
+    Qt::DockWidgetAreas m_reachMask {Qt::NoDockWidgetArea};   // Krimble 2026-10-30: the sides the finger is within reach of
+    QElapsedTimer m_reachClock;                              // since when
 };
 #endif
 
