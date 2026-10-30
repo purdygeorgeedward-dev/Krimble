@@ -5627,3 +5627,9 @@ George asked "Do we not have 44 on GitHub yet?" (it was a draft with no APK, tag
 **File:** `libs/ui/KisMainWindow.cpp`
 
 George: "QuickAdjust does not need to say Krimble in it." The QuickAdjust dialog heading was changed on the UI-refresh branch to "Krimble  |  QuickAdjust". It now reads "QuickAdjust". The previous line is commented out in place, with an inline comment.
+
+## 2026-10-30 (325th) — Classic color selector hidden; Color docker is one page
+
+**File:** `plugins/dockers/advancedcolorselector/kis_color_selector_ng_docker_widget.cpp`
+
+George: "I don't like the classic Krita color docker. It's useless. Comment it out." The classic selector tab and the outer Picker/Classic tab bar are removed from view: the Color Studio scroll area is now added to the docker layout directly. The classic widgets are still constructed and parented to a hidden `classicPanel` so the history/common-colors popup actions and the settings code keep valid pointers. The previous tab-widget lines are commented out in place, with an inline comment. Color Studio's own Picker/Mixer tabs are unchanged for now (the mixer is planned to become its own panel). The Preferences ▸ Advanced Color Selector settings remain but no longer change anything visible.

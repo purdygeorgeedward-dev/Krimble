@@ -109,15 +109,22 @@ KisColorSelectorNgDockerWidget::KisColorSelectorNgDockerWidget(QWidget *parent) 
     classicLayout->addLayout(m_mainLayout);
     classicLayout->addLayout(m_sidebarLayout);
 
-    QTabWidget *colorTabs = new QTabWidget(this);
-    m_krimbleStudio = new KrimbleColorStudio(colorTabs);
-    QScrollArea *studioScroll = new QScrollArea(colorTabs);
+    // Krimble 2026-10-30: George: "I don't like the classic Krita color docker. It's useless. Comment it out."
+    // The classic selector is no longer shown and the outer tab bar is gone. The classic objects are still
+    // constructed (hidden inside classicPanel) so the history/common-colors popups and the settings code keep valid pointers.
+    classicPanel->hide();
+    // QTabWidget *colorTabs = new QTabWidget(this);
+    // m_krimbleStudio = new KrimbleColorStudio(colorTabs);
+    m_krimbleStudio = new KrimbleColorStudio(this);
+    // QScrollArea *studioScroll = new QScrollArea(colorTabs);
+    QScrollArea *studioScroll = new QScrollArea(this);
     studioScroll->setWidgetResizable(true);
     studioScroll->setFrameShape(QFrame::NoFrame);
     studioScroll->setWidget(m_krimbleStudio);
-    colorTabs->addTab(studioScroll, tr("Picker"));
-    colorTabs->addTab(classicPanel, tr("Classic"));
-    m_widgetLayout->addWidget(colorTabs);
+    // colorTabs->addTab(studioScroll, tr("Picker"));
+    // colorTabs->addTab(classicPanel, tr("Classic"));
+    // m_widgetLayout->addWidget(colorTabs);
+    m_widgetLayout->addWidget(studioScroll);
 
     updateLayout();
 
