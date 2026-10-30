@@ -185,6 +185,11 @@
 #include "kis_coordinates_converter.h"
 #include "flake/kis_shape_layer.h"
 #include <KoPathShape.h>
+#include <KoShapeRegistry.h>      // Krimble 2026-10-30: Layer > New > Star...
+#include <KoShapeFactoryBase.h>
+#include <KoProperties.h>
+#include <QDialogButtonBox>
+#include <QSpinBox>
 #include <KoShapeStroke.h>
 #include <KoUnit.h>
 #include <QColorDialog>
@@ -3302,6 +3307,95 @@ static void krimbleMakeHexLayer(KisMainWindow *win)
     node->setName(image->nextLayerName(i18n("Hex Pattern")));
 }
 
+// Krimble 2026-10-30: Layer > New > Star... George: "The star tool in Illustrator is a cool tool. it's essentially two invisible circles with equidistant
+// vertices on them and lines drawn between them to make the star shapes. The user changes the number of points to change the star and moves the inner
+// circle inward or outward. The whole thing can be rotated as a vector object." and "Instead of a new tool in the already full toolbox, we can just have a menu
+// item called Star or Create Star somewhere appropriate." and, of the plan (a vector layer, the Points and Inner Radius in a small dialog, the foreground color as
+// the fill, no outline): "sounds great". The star is Krita's own StarShape (shape id "StarShape": corner count, tip radius = the outer circle, base radius = the
+// inner circle), on a new vector layer in the middle of the picture. It can be moved, scaled and rotated with the Select Shapes tool, and its circles changed
+// with the shape edit handles. Only the dialog's last values are remembered while the program runs.
+static int g_krimbleStarPoints = 5;
+static int g_krimbleStarInner = 40;      // percent of the outer circle
+static int g_krimbleStarSize = 0;        // outer circle diameter in pixels; 0 = half of the picture's shorter side
+
+static void krimbleMakeStarLayer(KisMainWindow *win)
+{
+    KisViewManager *manager = win->viewManager();
+    if (!manager || !manager->image() || !manager->nodeManager()) {
+        QMessageBox::information(win, i18n("Star"), i18n("Open a picture first."));
+        return;
+    }
+    KisImageSP image = manager->image();
+    const QRectF bounds = image->bounds();
+    if (g_krimbleStarSize <= 0) g_krimbleStarSize = qMax(10, int(qMin(bounds.width(), bounds.height()) / 2.0));
+
+    QDialog dialog(win);
+    dialog.setWindowTitle(i18n("Star"));
+    QVBoxLayout *layout = new QVBoxLayout(&dialog);
+    QSpinBox *pointsBox = new QSpinBox(&dialog);
+    pointsBox->setRange(3, 100);
+    pointsBox->setValue(g_krimbleStarPoints);
+    QSpinBox *innerBox = new QSpinBox(&dialog);
+    innerBox->setRange(5, 95);
+    innerBox->setSuffix(QStringLiteral(" %"));
+    innerBox->setValue(g_krimbleStarInner);
+    QSpinBox *sizeBox = new QSpinBox(&dialog);
+    sizeBox->setRange(10, qMax(100, int(qMax(bounds.width(), bounds.height()) * 2.0)));
+    sizeBox->setSuffix(QStringLiteral(" px"));
+    sizeBox->setValue(g_krimbleStarSize);
+    layout->addWidget(new QLabel(i18n("Points:"), &dialog));
+    layout->addWidget(pointsBox);
+    layout->addWidget(new QLabel(i18n("Inner circle (percent of the outer circle):"), &dialog));
+    layout->addWidget(innerBox);
+    layout->addWidget(new QLabel(i18n("Size (width of the outer circle):"), &dialog));
+    layout->addWidget(sizeBox);
+    QDialogButtonBox *buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, &dialog);
+    layout->addWidget(buttons);
+    QObject::connect(buttons, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
+    QObject::connect(buttons, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
+    if (dialog.exec() != QDialog::Accepted) return;
+    g_krimbleStarPoints = pointsBox->value();
+    g_krimbleStarInner = innerBox->value();
+    g_krimbleStarSize = sizeBox->value();
+
+    KoShapeFactoryBase *factory = KoShapeRegistry::instance()->value(QStringLiteral("StarShape"));
+    if (!factory) {
+        QMessageBox::warning(win, i18n("Star"), i18n("The star shape is not available in this build."));
+        return;
+    }
+    KisNodeSP node = manager->nodeManager()->createNode(QStringLiteral("KisShapeLayer"));
+    KisShapeLayer *layer = dynamic_cast<KisShapeLayer*>(node.data());
+    if (!layer) {
+        QMessageBox::warning(win, i18n("Star"), i18n("The vector layer could not be made."));
+        return;
+    }
+    // a vector shape lives in points: image pixels per point is xRes() (as in the Hex Pattern layer)
+    const qreal pointsPerPixel = image->xRes() > 0.0 ? 1.0 / image->xRes() : 1.0;
+    const qreal tipRadius = (g_krimbleStarSize / 2.0) * pointsPerPixel;
+    KoProperties props;
+    props.setProperty("corners", g_krimbleStarPoints);
+    props.setProperty("convex", false);
+    props.setProperty("tipRadius", tipRadius);
+    props.setProperty("baseRadius", tipRadius * g_krimbleStarInner / 100.0);
+    props.setProperty("baseRoundness", 0.0);
+    props.setProperty("tipRoundness", 0.0);
+    QVariant fill;
+    fill.setValue(manager->canvasResourceProvider()->fgColor().toQColor());   // the foreground color is the fill
+    props.setProperty("background", fill);
+    KoShape *shape = factory->createShape(&props, nullptr);
+    if (!shape) {
+        QMessageBox::warning(win, i18n("Star"), i18n("The star could not be made."));
+        return;
+    }
+    shape->setStroke(KoShapeStrokeModelSP());   // no outline
+    shape->setName(QStringLiteral("Star"));
+    shape->setAbsolutePosition(QPointF(bounds.center().x() * pointsPerPixel, bounds.center().y() * pointsPerPixel), KoFlake::Center);
+    layer->addShape(shape);
+    node->setName(image->nextLayerName(i18n("Star")));
+    // so that it can be moved, rotated and its circles changed at once
+    QTimer::singleShot(0, win, []() { KoToolManager::instance()->switchToolRequested(QStringLiteral("InteractionTool")); });
+}
+
 // View > Show > Hex (a check mark) and Hex Size...; Layer > New > Hex Pattern...
 static void krimbleInstallHexMenus(KisMainWindow *win)
 {
@@ -3384,6 +3478,13 @@ static void krimbleInstallHexMenus(KisMainWindow *win)
                     sub->addAction(hexAction);
                     sub->addAction(sizeAction);
                 } else if (isLayer && text == QLatin1String("New")) {
+                    // Krimble 2026-10-30: Layer > New > Star... (see krimbleMakeStarLayer), above Hex Pattern...
+                    if (!sub->findChild<QAction*>(QStringLiteral("krimbleStarLayer"))) {
+                        QAction *starAction = new QAction(i18n("Star..."), sub);
+                        starAction->setObjectName(QStringLiteral("krimbleStarLayer"));
+                        QObject::connect(starAction, &QAction::triggered, win, [win]() { krimbleMakeStarLayer(win); });
+                        sub->addAction(starAction);
+                    }
                     if (sub->findChild<QAction*>(QStringLiteral("krimbleHexLayer"))) continue;
                     QAction *layerAction = new QAction(i18n("Hex Pattern..."), sub);
                     layerAction->setObjectName(QStringLiteral("krimbleHexLayer"));
