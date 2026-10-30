@@ -5,7 +5,7 @@ need the full explanation, reasoning, or diff for a specific fix. Update
 this file whenever a bug's status changes; regenerate from
 KRIMBLE_CHANGES.md if this file and the changelog ever disagree.
 
-## Now (2026-10-30, 12:45 PM MT): branch `feature/krimble-ui-refresh`
+## Now (2026-10-30, 12:37 PM MT): branch `feature/krimble-ui-refresh`
 - **Branch head:** `a9c18e1b67` (before the docs commit). Changelog entries **324 to 332** are on this branch only, **not on master, not compiled, not run on a phone**. The branch was cut from `3cf6fc0`; master has moved on (13 commits at last count, all the `krita/pics/krimble-toolbox` folder). A test merge into master was **not done** (the checkout timed out); do it before merging. The docs on this branch are as they were at `3cf6fc0` plus this day's additions: master's copies may be newer.
 - **Done on the branch (324 to 332):** QuickAdjust heading is just "QuickAdjust"; the classic Krita color selector is hidden and the Color docker has no outer tabs; Scale mode has no rotating and the Transform Tool Options have a seventh button, **Rotate**; the Line tool has a **Thickness** slider (the current brush's size); the Brushes panel has **Size, Opacity, Flow** rows above the presets; **Layer > New > Star...**; the 32 old icon PNGs are deleted from `krita/pics/krimble-toolbox/`.
 - **Waiting for George's answer:** QuickAdjust collapse (merge into the layer below, or group); what the Brushes panel attached to (an edge, or another panel as a tab); Line Thickness as the brush's own size (built) or a separate shape-tool setting; Scale: dragging inside the box moves (unchanged); the stylesheet and toolbox/dock tool buttons; the name of the transparent default brush.

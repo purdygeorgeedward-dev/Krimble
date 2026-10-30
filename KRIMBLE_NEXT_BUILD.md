@@ -34,7 +34,7 @@ Also in the repo: the roadmap section "Animation and game sprites (proposed)", `
 - Not built: writing an animated GIF, APNG, frames in (numbered pictures to an animation), the animation timeline tools, sprite sheets, the Magnetic Selection bar (it still needs Enter and Escape), partial-text styling in the Type tool, Auto Color as a vibrance-style default, Quick Mask design, the user manual.
 - Open questions to George: hide the status bar by default? what is the teal teardrop in the Layers list (probably Android's text-cursor handle)? which on-screen messages are unnecessary? did "the handle" mean the edge tab? the Type tool "red box" (needs a screenshot); the polygon Tool Options buttons were not seen in 1.0.43 (probably clipped in the narrow panel; a screenshot would show).
 
-## On the branch `feature/krimble-ui-refresh` (NOT on master; written 2026-10-30, 12:45 PM MT)
+## On the branch `feature/krimble-ui-refresh` (NOT on master; written 2026-10-30, 12:37 PM MT)
 
 None of this is compiled or run on a phone. Entry numbers are in `KRIMBLE_CHANGES.md`; times in `KRIMBLE_WORKLOG.md`. Before it can be built from master the branch needs a test merge (master has deleted `krita/pics/krimble-toolbox`; the branch has now deleted its 32 PNGs too).
 
