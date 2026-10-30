@@ -6583,6 +6583,26 @@ QDockWidget* KisMainWindow::createDockWidget(KoDockFactoryBase* factory)
         // Krimble 2026-10-12: George: the Layers panel, once detached, "tried really hard to attach to edges that were far away from it".
         // Every floating panel, not only the toolbox, now docks only when the finger is close to a side of the window.
         dockWidget->installEventFilter(new KrimbleDockTolerance(this, dockWidget));
+        // Krimble 2026-10-30: George: "I created a new file and the Brushes panel appeared. Why?" The hiding above (at the start, once after the first image,
+        // for 30 s) did not cover a later new file, when a saved layout brings the panel back. The Brushes panel is now hidden every time it shows up by
+        // itself. It stays only when George opens it from the Window menu (the panel's own show/hide action, which is triggered only by a person, not
+        // by the layout code); it is forgotten when the panel is closed with its X, so the next appearance is hidden again.
+        if (dockWidget->objectName() == QLatin1String("PresetDocker") || dockWidget->windowTitle() == QLatin1String("Brushes")) {
+            dockWidget->setProperty("krimbleUserOpened", false);
+            connect(dockWidget->toggleViewAction(), &QAction::triggered, dockWidget, [dockWidget](bool on) {
+                dockWidget->setProperty("krimbleUserOpened", on);
+            });
+            connect(dockWidget, &QDockWidget::visibilityChanged, dockWidget, [dockWidget](bool visible) {
+                if (visible) {
+                    // a moment later: the menu action's "triggered" comes right after the panel is shown
+                    QTimer::singleShot(0, dockWidget, [dockWidget]() {
+                        if (!dockWidget->property("krimbleUserOpened").toBool() && dockWidget->isVisible()) dockWidget->hide();
+                    });
+                } else if (dockWidget->isHidden()) {
+                    dockWidget->setProperty("krimbleUserOpened", false);
+                }
+            });
+        }
         connect(dockWidget, &QDockWidget::topLevelChanged, this, [this, dockWidget](bool floating) {
             // KRIMBLE 2026-10-04: Settings > "Attach Panels" decides what a floating panel does.
             // ON (the default) = the standard behaviour: a panel dragged to the edge of the window
