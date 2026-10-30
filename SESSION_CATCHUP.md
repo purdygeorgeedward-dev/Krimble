@@ -81,3 +81,4 @@ Written from the Claude session inside the Krimble project. The text above is fr
 - Answer given in chat: Transform (Scale) acts on the **active layer**, or only on the **selected pixels** of it when there is a selection; on a vector layer, on the selected shapes.
 
 - **Krimble orange is `#FD6001`** (George, 2026-10-30: bars and fill areas that show a percentage use it; sampled from the K of the logo on his new splash). The main splash is the new picture (345th entry); the holiday splash is unchanged.
+- **Accent rule (George, 2026-10-30):** a bar or fill that shows an amount is Krimble orange `#FD6001`; a **selection** (selected tab, tool, item, checked button, focus) is the **blue glow** of the mockups. The style sheet cannot blur: a true glow needs painted code or glow copies of the icons (planned, not built). 347th entry.
