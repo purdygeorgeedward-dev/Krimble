@@ -112,5 +112,29 @@ QCheckBox::indicator:checked {
     border: 1px solid #39ccff;
     background: #087eae;
 }
+/* Krimble 2026-10-30: George: "I would like all the dialogs that show a bar or fill area to represent a percentage to use Krimble orange." Krimble
+   orange is #FD6001, the orange of the K in the logo (sampled from the new splash). Progress bars (the progress dialogs, the status bar) and the filled part
+   of a slider are orange; the groove stays dark. The value sliders with a number (KisSliderSpinBox) are painted by the code, see kis_slider_spin_box_p.h. */
+QProgressBar {
+    color: #f4f6ff;
+    text-align: center;
+    border: 1px solid #535c80;
+    border-radius: 4px;
+    background: #20263f;
+}
+QProgressBar::chunk {
+    border-radius: 3px;
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
+                                stop:0 #ff8d42, stop:0.5 #fd6001,
+                                stop:1 #c44a00);
+}
+QSlider::sub-page:horizontal {
+    height: 7px;
+    border: 1px solid #c44a00;
+    border-radius: 3px;
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
+                                stop:0 #ff8d42, stop:0.5 #fd6001,
+                                stop:1 #c44a00);
+}
 )KRIMBLE");
 }
