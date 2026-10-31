@@ -15,6 +15,7 @@
 #include <klocalizedstring.h>
 #include <QKeySequence>
 #include <KoIcon.h>
+#include "KrimbleToolboxIcons.h"   // Krimble 2026-10-30
 
 KoToolBoxButton::KoToolBoxButton(KoToolAction *toolAction, QWidget *parent)
     : QToolButton(parent)
@@ -24,12 +25,20 @@ KoToolBoxButton::KoToolBoxButton(KoToolAction *toolAction, QWidget *parent)
     // ensure same L&F
     setCheckable(true);
     setAutoRaise(true);
-    setIcon(kisIcon(m_toolAction->iconName()));
+    // setIcon(kisIcon(m_toolAction->iconName()));
+    // Krimble 2026-10-30: the Full color or the Clear style (see KrimbleToolboxIcons.h)
+    setIcon(KrimbleToolboxIcons::icon(m_toolAction->iconName()));
 
     // only a fallback
     setToolTip(m_toolAction->toolTip());
 
     connect(this, SIGNAL(clicked(bool)), m_toolAction, SLOT(trigger()));
+}
+
+// Krimble 2026-10-30: the icon again, after the user changed the icon style in the toolbox's menu
+void KoToolBoxButton::krimbleRefreshIcon()
+{
+    setIcon(KrimbleToolboxIcons::icon(m_toolAction->iconName()));
 }
 
 void KoToolBoxButton::attachAction(QAction *action)

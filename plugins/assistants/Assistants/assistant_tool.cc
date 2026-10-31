@@ -31,7 +31,9 @@ K_PLUGIN_FACTORY_WITH_JSON(AssistantToolFactory, "kritaassistanttool.json", regi
 AssistantToolPlugin::AssistantToolPlugin(QObject *parent, const QVariantList &)
         : QObject(parent)
 {
-    KoToolRegistry::instance()->add(new KisAssistantToolFactory());
+    // Krimble 2026-10-30: the Assistant tool is registered and stays in the toolbox; George has not said otherwise. (ChatGPT's notes of 2026-10-28 said to retain it;
+    // the comment that stood here, "Krimble 1.0.45-beta: Assistant excluded from toolbox.", was an earlier plan.)
+    KoToolRegistry::instance()->add(new KisAssistantToolFactory()); // Retained: drawing guides
 
     KisPaintingAssistantFactoryRegistry::instance()->add(new RulerAssistantFactory);
     KisPaintingAssistantFactoryRegistry::instance()->add(new EllipseAssistantFactory);

@@ -19,6 +19,7 @@ class QAction;
 class KisCommonColors;
 class KisColorHistory;
 class KisColorSelectorContainer;
+class KrimbleColorStudio;
 
 class QVBoxLayout;
 class QHBoxLayout;
@@ -41,6 +42,7 @@ protected Q_SLOTS:
 
 private:
     KisColorSelectorContainer* m_colorSelectorContainer;
+    KrimbleColorStudio* m_krimbleStudio = nullptr;
     KisColorHistory* m_colorHistoryWidget;
     KisCommonColors* m_commonColorsWidget;
 

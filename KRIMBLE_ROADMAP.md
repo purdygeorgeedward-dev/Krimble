@@ -290,3 +290,50 @@ Status: **proposed. Nothing in this section is started.** George: "Animated GIF 
 3. The preview window and frame tags.
 4. Sprite sheets, and the Wesnoth, Godot and Unity exports.
 5. Video import.
+
+## Interface refresh, color panels and shape options (George, 2026-10-30; proposed, not built unless it says so)
+
+Branch `feature/krimble-ui-refresh`. Entries 324 to 332 are done on the branch (see `KRIMBLE_STATUS.md`).
+
+### Color panels (approved, not started)
+1. **Color docker on one page, no tabs**: picker (SV square and hue slider), values (RGB/HSV/HEX), recent colors, palette. The classic Krita selector is hidden.
+2. **The SV square gradient-painted** (a horizontal white-to-hue gradient and a vertical transparent-to-black gradient layered in `paintEvent`; no per-pixel loop), and it **stretches as far as the user wants** (the old dialog's square does not scale; this was the reason for a new one).
+3. **Mixing and brush test pad as its own panel** (George: "I specifically asked for a color mixing scratch pad ... It should be a panel."). It reads the foreground color; its raster is never part of the picture.
+4. The mockups ChatGPT drew (tabs, brush test settings, blend mode, pad backgrounds) were **too ambitious**; keep what the list above says.
+
+### Shape options (on hold)
+- **Rounded Box**: the Rectangle tool already has rounded corners in code (`m_roundCornersX/Y`); a preset or a radius field in its options. Easy.
+- **Tail option** on Rectangle, Ellipse and Rounded Box: Tail checkbox and Tail Width in Tool Options; with Tail on, the shape stays unpainted until a tap near the outline sets the attach point and a drag or tap sets the tip; the shape and tail are painted as one joined outline; a tap far from the shape skips the tail. Raster first; vector mode later.
+- **Speech Balloon** is this tail option, not a tool. **Star** is the menu item (done on the branch, 331st entry).
+- **No new toolbox tools** (George, 2026-10-30).
+
+### Icons and highlights (approved, not started)
+- Wire the 32 icons; Rotate icon first (the old one has corner lines without arrows). Glow for the selected tool; Color/Silver switch; smaller sizes by script. See `packaging/android/TOOLBOX-ICON-COVERAGE.md`.
+
+### Transform and panels
+- Scale and Rotate are modes of Transform (done on the branch). Open: should dragging inside the box still move in Scale.
+- Panel docking only on deliberate intent: **already built** (`KrimbleDockTolerance`, Settings > Attach Panels, Attach Panel and Detach Panel). Open: the Brushes panel still attached eagerly; waiting for what it attached to. A dwell timer (about half a second near an edge) is an idea, not built.
+
+### Update 2026-10-30, 12:55 PM MT
+Color panels 1, 2 and 3 above are **done on the branch** (entries 341 and 342, untested): one page, gradient-painted SV square that grows both ways, the Mixer as its own panel. Panel docking on a deliberate approach is done as a 350 ms dwell (338th). Icons: wiring, glow, Color/Silver switch and smaller sizes are **not started**. Shape options stay on hold.
+
+### Update 2026-10-30, 2:55 PM MT
+Icons: the 32 pictures are wired with a **Full color / Silhouette** switch in the toolbox menu, and checked buttons have a blue glow (348th and 349th entries, untested). Not done: smaller sizes by script; (Dodge, Burn, Colorize Mask Editing and Enclose and Fill are commented out of the toolbox, 357th entry).
+
+### Closed or decided by George, 2026-10-30, 6:35 PM MT
+- **Scale** acts on the active **layer** (the selected pixels of it when there is a selection) on a raster layer, and on the selected **objects** on a vector layer.
+- **The transparent default brush is fixed** ("back to normal").
+- **Rounded Box is not a tool.** It is a setting in the Rectangle tool's options (the box preferences). The **Tail** and the **Speech Balloon** are features to add to a box or an oval; **no separate tool and no separate toolbox icon** for any of them. Still on hold.
+- **The stylesheet "faults"** (combo and spin arrows, checkbox indicator, slider handle height, colors vs theme) were my guesses from reading the code, never seen on a device: dropped unless George sees a problem.
+- **Quick Adjust:** complete the ChatGPT dialog, do not replace it (352nd entry). George, 2026-10-30: "I Did not say the mockups logo is left out. I said it shouldn't say KRIMBLE."; of the K and paw mark: "no. QuickAdjust should have its own logo, a big bold stylize QuickAdjust."; of the code-drawn version (355th): **"not drawn in code. I will provide a graphic."** So the heading is the plain "QuickAdjust" label again (356th) **until George's graphic arrives**; the graphic must not say Krimble. The row pictures and the Preview switch of the 352nd entry are also drawn in code; George has not said whether they should be graphics too.
+- **The Play Store .aab** made before is out of date; **another is made when release candidate 1 (rc-1) is reached.**
+- **The full-APK 16 KB alignment check was completed.**
+- **The Flarum forum setup was completed.**
+- **Channels docker:** the panel **exists** (George, 2026-10-30: "I think the channels docker/panel exists?" Yes: it has per-channel thumbnails and visibility boxes). Only **Ctrl+click to load a selection** is dropped (no keyboard). Single-click isolation (hide the other channels) is **not decided**; the line that said the Channels docker was dropped was wrong.
+- **Toolbox exclusions (George), recorded 7:12 PM MT 2026-10-30:** "The four tools you listed are supposed to be commented out." = **Dodge, Burn, Colorize Mask Editing, Enclose and Fill** (the four tools with no new graphic). Then: **"keep ruler and reference images."** (so Ruler/Measure and Reference Images stay in the toolbox; they were never among the four). **Dodge and Burn were already commented out** (George, 2026-10-20: "Dodge and Burn suck. It's just black and white. Comment out these tools for now."): my earlier statement that they are in the toolbox and keep their own icons was **wrong**. **Done in the 357th entry:** Colorize Mask Editing and Enclose and Fill are now commented out too (not registered; their code stays). Path-Based Selection and Assistant are registered and stay (George has not said otherwise). Consequence: **colorize masks can no longer be edited with a tool** until Colorize Mask Editing comes back.
+
+### The toolbox is 32 tools (George, 2026-10-30, 7:28 PM MT: "we should have 32 tools.")
+The 32: Move; the 8 selection tools (Rectangular, Elliptical, Freehand/Outline, Polygonal, Magnetic, Contiguous, Similar, Path-Based); Crop; Color Sampler; Healing Brush (Smart Patch); Freehand Brush; Smudge; Soften; Eraser; Gradient; Fill; Pen (Path); Edit Shapes (the arrow); Text; Rectangle; Ellipse; Line; Polygon; Pan; Zoom; Transform; Rotate; Assistant; Ruler/Measure; Reference Images. **Done in the 358th entry** (before it, the phone showed 26: the Android-only list `krimbleHiddenOnMobile` in `KoToolBox::addButton()` (George, 2026-10-26: "For mobile, comment them out.") also hid Assistant, Ruler, Reference Images and Path-Based Selection; the 357th entry\'s statement that Ruler and Reference Images "stay in the toolbox" was wrong for the phone). Now only **Colorize Mask Editing** and **Enclose and Fill** are out (no picture; commented out of the registry too). **Not in the toolbox:** Dodge, Burn (commented out 2026-10-20), the Select Shapes tool (no button, it is the default tool). The arrow picture is the **Edit Shapes** tool (`shape_handling`), not Select Shapes (mapping fixed).
+
+### Select Shapes and Edit Shapes (George, 2026-10-30, 7:35 PM MT)
+George: "I think you should have left it. Edit shapes can be a toggle or something." **Done in the 359th entry:** the arrow button (his picture) is the **Select Shapes** tool again (the black arrow: a whole vector object); the **Edit Shapes** tool (the white arrow: points and handles) has **no toolbox button**; it is the **Edit points** button in a new row, **Whole object / Edit points**, at the top of the Tool Options of Select Shapes (and of Edit Shapes, to go back). Still **32 buttons**. The 358th entry's move of the picture to Edit Shapes was my decision, made without asking, and is undone. Startup tool: George, "kritas default tool is the brush, much to my dismay" (not changed; I offered to start on Move).

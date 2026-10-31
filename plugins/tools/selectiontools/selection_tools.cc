@@ -37,7 +37,9 @@ SelectionTools::SelectionTools(QObject *parent, const QVariantList &)
     KoToolRegistry::instance()->add(new KisToolSelectRectangularFactory());
     KoToolRegistry::instance()->add(new KisToolSelectEllipticalFactory());
     KoToolRegistry::instance()->add(new KisToolSelectContiguousFactory());
-    KoToolRegistry::instance()->add(new KisToolSelectPathFactory());
+    // Krimble 2026-10-30: the Path-Based Selection tool is registered and stays in the toolbox; George has not said otherwise. (ChatGPT's notes of 2026-10-28 said to retain it;
+    // the comment that stood here, "Krimble 1.0.45-beta: Path-Based Selection excluded from toolbox.", was an earlier plan.)
+    KoToolRegistry::instance()->add(new KisToolSelectPathFactory()); // Retained: precision path selection
     KoToolRegistry::instance()->add(new KisToolSelectSimilarFactory());
     KoToolRegistry::instance()->add(new KisToolSelectMagneticFactory());
 }

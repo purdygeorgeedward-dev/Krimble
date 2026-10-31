@@ -8,6 +8,7 @@
    SPDX-License-Identifier: LGPL-2.0-or-later
 */
 
+#include <KrimbleShapeModeRow.h>   // Krimble 2026-10-30
 #include "DefaultTool.h"
 #include "DefaultToolGeometryWidget.h"
 #include "DefaultToolTabbedWidget.h"
@@ -1949,6 +1950,9 @@ void DefaultTool::selectionReorder(KoShapeReorderCommand::MoveShapeType order)
 QList<QPointer<QWidget> > DefaultTool::createOptionWidgets()
 {
     QList<QPointer<QWidget> > widgets;
+
+    // Krimble 2026-10-30: the Whole object / Edit points row (Edit Shapes has no toolbox button, see KrimbleShapeModeRow.h)
+    widgets.append(krimbleShapeModeRow(false));
 
     m_tabbedOptionWidget = new DefaultToolTabbedWidget(this);
 

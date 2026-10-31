@@ -10,6 +10,7 @@
 #include "KoToolBox_p.h"
 #include "KoToolBoxLayout_p.h"
 #include "KoToolBoxButton_p.h"
+#include "KrimbleToolboxIcons.h"   // Krimble 2026-10-30
 #include "kis_assert.h"
 
 #include <QButtonGroup>
@@ -174,7 +175,12 @@ void KoToolBox::addButton(KoToolAction *toolAction)
     // KRIMBLE 2026-10-03: the Select Shapes tool ("InteractionTool") stays registered because
     // the tool manager needs it as the default tool, but it gets no toolbox button, so the
     // first button is the Move tool. (An empty toolbox section is skipped by the layout.)
-    if (toolAction->id() == QLatin1String("InteractionTool")) {
+    // if (toolAction->id() == QLatin1String("InteractionTool")) {
+    //     return;
+    // }
+    // Krimble 2026-10-30: George: "I think you should have left it. Edit shapes can be a toggle or something." The Select Shapes tool has a toolbox button again (his
+    // arrow picture); the Edit Shapes tool ("PathTool") has none: it is the "Edit points" button in the Tool Options of Select Shapes (KrimbleShapeModeRow.h).
+    if (toolAction->id() == QLatin1String("PathTool")) {
         return;
     }
 
@@ -186,10 +192,13 @@ void KoToolBox::addButton(KoToolAction *toolAction)
         static const QStringList krimbleHiddenOnMobile = {
             QStringLiteral("KritaShape/KisToolLazyBrush"),   // Colorize Mask Editing Tool
             QStringLiteral("KisToolEncloseAndFill"),         // Enclose and Fill Tool
-            QStringLiteral("KisAssistantTool"),              // Assistant Tool
-            QStringLiteral("KritaShape/KisToolMeasure"),     // Ruler Tool
-            QStringLiteral("ToolReferenceImages"),           // Reference Images Tool
-            QStringLiteral("KisToolSelectPath"),             // Path-Based Selection Tool
+            // Krimble 2026-10-30: George: "keep ruler and reference images." and "we should have 32 tools." The four tools below have a picture in the new
+            // set of 32 toolbox icons, so they are shown on the phone too: Assistant, Ruler, Reference Images and Path-Based Selection. Only Colorize Mask Editing
+            // and Enclose and Fill stay out (they have no picture, and are commented out of the registry too). The lines are kept as comments.
+            // QStringLiteral("KisAssistantTool"),              // Assistant Tool
+            // QStringLiteral("KritaShape/KisToolMeasure"),     // Ruler Tool
+            // QStringLiteral("ToolReferenceImages"),           // Reference Images Tool
+            // QStringLiteral("KisToolSelectPath"),             // Path-Based Selection Tool
         };
         if (krimbleHiddenOnMobile.contains(toolAction->id())) {
             return;
@@ -428,6 +437,32 @@ void KoToolBox::setupIconSizeMenu(QMenu *menu)
             }
         }
     }
+}
+
+// Krimble 2026-10-30: George: "I want the user to be able to switch between the full color themed toolbox icons and your clear icons." Two items in the toolbox's
+// menu (touch and hold): Full color (the picture icons) and Silhouette (the line icons made for Krimble). The choice is saved and applies at once.
+void KoToolBox::setupIconStyleMenu(QMenu *menu)
+{
+    QActionGroup *styleGroup = new QActionGroup(menu);
+    const bool color = KrimbleToolboxIcons::colorMode();
+    QAction *colorAction = menu->addAction(i18n("Full color"));
+    // QAction *clearAction = menu->addAction(i18n("Clear"));
+    // Krimble 2026-10-30: George: "I was going to call them silhouette icons." The style's name is Silhouette (it was Clear).
+    QAction *clearAction = menu->addAction(i18n("Silhouette"));
+    for (QAction *action : {colorAction, clearAction}) {
+        action->setActionGroup(styleGroup);
+        action->setCheckable(true);
+    }
+    colorAction->setChecked(color);
+    clearAction->setChecked(!color);
+    auto apply = [this](bool useColor) {
+        KrimbleToolboxIcons::setColorMode(useColor);
+        Q_FOREACH (KoToolBoxButton *button, d->buttonsByToolId) {
+            button->krimbleRefreshIcon();
+        }
+    };
+    connect(colorAction, &QAction::triggered, this, [apply]() { apply(true); });
+    connect(clearAction, &QAction::triggered, this, [apply]() { apply(false); });
 }
 
 KoToolBoxLayout *KoToolBox::toolBoxLayout() const

@@ -12,6 +12,7 @@
 #include "ui_wdg_tool_transform.h"
 
 class KisCanvas2;
+class QToolButton;
 
 
 class KisToolTransformConfigWidget : public QWidget, private Ui::WdgToolTransform
@@ -79,6 +80,7 @@ public Q_SLOTS:
     void slotWarpResetPointsButtonClicked();
 
     void slotSetFreeTransformModeButtonClicked(bool);
+    void slotKrimbleRotateButtonClicked(bool);   // Krimble 2026-10-30: the Rotate mode button
     void slotSetWarpModeButtonClicked(bool);
     void slotSetCageModeButtonClicked(bool);
     void slotCageOptionsChanged(int);
@@ -140,6 +142,7 @@ private:
     TransformTransactionProperties *m_transaction;
     QPointF m_handleDir[9];
     QButtonGroup *m_rotationCenterButtons;
+    QToolButton *m_krimbleRotateButton = nullptr;   // Krimble 2026-10-30: the Rotate mode button
     int m_notificationsBlocked;
     int m_uiSlotsBlocked;
     double m_scaleRatio;

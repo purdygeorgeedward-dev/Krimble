@@ -45,7 +45,8 @@ enum StrokeFunction {
     MOVECENTER,
     PERSPECTIVE,
     CAMERAHEIGHT,
-    ROTATEBOUNDS
+    ROTATEBOUNDS,
+    KRIMBLENONE    // Krimble 2026-10-30: a touch outside the box does nothing (Scale mode does not rotate)
 };
 }
 
@@ -234,13 +235,20 @@ void KisFreeTransformStrategy::setTransformFunction(const QPointF &mousePos, boo
        // Krimble 2026-10-23: George (1.0.41 test list item 7): "Edit - Free Transform is just scale?" The lines above made every touch
        // outside the box a Move, so Free Transform could not rotate. Krita's own rule is back: inside the box moves, outside the box
        // rotates (Alt rotates the bounds, as in Krita).
+       // Krimble 2026-10-30: George: "Remove the rotation functions from the default Transform (Scale) tool." Rotating is the Rotate tool's job
+       // (KisToolFreeRotate). Inside the box still moves; outside the box does nothing, and Alt no longer rotates the bounds. The 2026-10-23 rule is kept below, commented out.
+       // StrokeFunction defaultFunction = MOVE;
+       // if (transformedPolygon.containsPoint(mousePos, Qt::OddEvenFill))
+       //    defaultFunction = MOVE;
+       // else if (m_d->transaction.boundsRotationAllowed() && altModifierActive)
+       //    defaultFunction = ROTATEBOUNDS;
+       // else
+       //    defaultFunction = ROTATE;
        StrokeFunction defaultFunction = MOVE;
        if (transformedPolygon.containsPoint(mousePos, Qt::OddEvenFill))
           defaultFunction = MOVE;
-       else if (m_d->transaction.boundsRotationAllowed() && altModifierActive)
-          defaultFunction = ROTATEBOUNDS;
        else
-          defaultFunction = ROTATE;
+          defaultFunction = KRIMBLENONE;
     
     KisTransformUtils::HandleChooser<StrokeFunction>
         handleChooser(mousePos, defaultFunction);
@@ -337,6 +345,8 @@ QCursor KisFreeTransformStrategy::getCurrentCursor() const
         break;
     case ROTATEBOUNDS:
         cursor = m_d->rotateHandlesCursor;
+        break;
+    case KRIMBLENONE:   // Krimble 2026-10-30: plain arrow outside the box
         break;
     case ROTATE:
         cursor = KisCursor::rotateCursor();
@@ -521,7 +531,7 @@ void KisFreeTransformStrategy::paint(QPainter &gc, const KoColorDisplayRendererI
     // thin little lines"). At each corner a thick arc bowed around the corner (the corner is the centre of the arc), 80 degrees long, with an open arrowhead at both ends. It is
     // drawn beyond the size handle's grab area (handleRadius + handleGrabPadding = 38 px; the arc is 54 px from the corner) so that touching it can never scale. Two strokes: a
     // dark one under a white one, so it shows on any picture. Sizes are in screen pixels, so they do not change with the zoom.
-    {
+    if (false /* Krimble 2026-10-30: the corner rotate arrows are not drawn: Scale mode does not rotate */) {
         // const qreal kArcRadius = KisTransformUtils::handleRadius + KisTransformUtils::handleGrabPadding + 16.0;   // 54: an arc centred ON the corner (too big)
         // const qreal kHalfSweep = 40.0;       // degrees each side of the line from the box's centre through the corner
         // const qreal kHeadLength = 14.0;
@@ -1038,6 +1048,8 @@ void KisFreeTransformStrategy::continuePrimaryAction(const QPointF &mousePos,
         m_d->currentArgs.setTransformedCenter(m_d->currentArgs.transformedCenter() + oldStaticPoint - newStaticPoint);
         break;
     }
+    case KRIMBLENONE:   // Krimble 2026-10-30: nothing to do
+        break;
     }
 
     m_d->recalculateTransformations();

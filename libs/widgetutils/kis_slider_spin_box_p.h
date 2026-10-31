@@ -628,7 +628,10 @@ public:
     void paintSlider(QPainter &painter, const QString &text, double slider01Width, double slider02Width = -1.0)
     {
         const QRectF rect = m_lineEdit->rect();
-        const QColor highlightColor = m_q->palette().highlight().color();
+        // const QColor highlightColor = m_q->palette().highlight().color();
+        // Krimble 2026-10-30: George: "all the dialogs that show a bar or fill area to represent a percentage [should] use Krimble orange." The filled part of the
+        // slider is Krimble orange, #FD6001 (the K of the logo), whatever the palette's highlight color is.
+        const QColor highlightColor(0xFD, 0x60, 0x01);
         if (slider02Width < 0.0) {
             const QRectF sliderRect = rect.adjusted(0, 0, -(rect.width() - slider01Width), 0);
             paintSliderRect(painter, sliderRect, highlightColor);

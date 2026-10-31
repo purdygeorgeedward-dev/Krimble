@@ -13,6 +13,7 @@
 #include <KoDockRegistry.h>
 
 #include "kis_color_selector_ng_dock.h"
+#include "krimble_mixer_dock.h"   // Krimble 2026-10-30: the Mixer panel
 #include "kis_color_selector_settings.h"
 #include "kis_preference_set_registry.h"
 
@@ -48,10 +49,24 @@ public:
 };
 
 
+// Krimble 2026-10-30: the Mixer panel (the mixing pad that was a tab of Color Studio)
+class KrimbleMixerDockFactory : public KoDockFactoryBase
+{
+public:
+    QString id() const override { return QString("KrimbleMixer"); }
+    QDockWidget* createDockWidget() override {
+        KrimbleMixerDock *dockWidget = new KrimbleMixerDock();
+        dockWidget->setObjectName(id());
+        return dockWidget;
+    }
+    DockPosition defaultDockPosition() const override { return DockMinimized; }   // opened from the Window menu
+};
+
 ColorSelectorNgPlugin::ColorSelectorNgPlugin(QObject *parent, const QVariantList &)
         : QObject(parent)
 {
     KoDockRegistry::instance()->add(new ColorSelectorNgDockFactory());
+    KoDockRegistry::instance()->add(new KrimbleMixerDockFactory());   // Krimble 2026-10-30
 
     KisPreferenceSetRegistry *preferenceSetRegistry = KisPreferenceSetRegistry::instance();
 

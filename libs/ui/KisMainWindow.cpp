@@ -41,6 +41,8 @@
 #include <QStyleFactory>
 #include <algorithm>
 #include <QCheckBox>
+#include <QSpinBox>
+#include <QSignalBlocker>
 #include "kis_image_manager.h"
 #include <kis_filter_strategy.h>
 #include <QDialogButtonBox>
@@ -87,6 +89,8 @@
 #include <QMouseEvent>
 // #include <QSizeGrip>  // no longer used, see KisFloatingDockSizeGrip
 #include <QPainter>
+#include <QAbstractButton>   // Krimble 2026-10-30: the Quick Adjust Preview switch
+#include <cmath>              // Krimble 2026-10-30: the Quick Adjust row pictures
 #include <QPolygonF>
 #include <QDomDocument>
 #include <QDomElement>
@@ -183,6 +187,13 @@
 #include "kis_coordinates_converter.h"
 #include "flake/kis_shape_layer.h"
 #include <KoPathShape.h>
+#include <KoShapeRegistry.h>      // Krimble 2026-10-30: Layer > New > Star...
+#include <QGraphicsDropShadowEffect>   // Krimble 2026-10-30: the blue glow of a selected button
+#include <kis_paint_layer.h>      // Krimble 2026-10-30: QuickAdjust bakes its layers into the paint layer below
+#include <KoShapeFactoryBase.h>
+#include <KoProperties.h>
+#include <QDialogButtonBox>
+#include <QSpinBox>
 #include <KoShapeStroke.h>
 #include <KoUnit.h>
 #include <QColorDialog>
@@ -973,40 +984,268 @@ static void krimbleApplyPanelPreset(QMainWindow *win, const QStringList &show)
 // hide the layer, or change it later in the Layers panel. Brightness/Contrast, Saturation/Hue/Lightness and Vibrance.
 // Narrow on purpose: one slider per row, no side-by-side controls.
 // ============================================================================================================================
+// Krimble 2026-10-30: George: "new QuickAdjust dialog was supposed to already be built by ChatGPT. Either complete it or replace it." The drawing
+// (ChatGPT's mockup) has a small picture at the start of each slider row, a rainbow Hue slider and a Preview switch that says ON or OFF. These are the
+// missing parts, drawn in code (no picture files). The mockup's "Krimble" logo in the heading is left out: George, "QuickAdjust does not need to say
+// Krimble in it."
+static QPixmap krimbleQuickAdjustIcon(int which, int px)
+{
+    QPixmap pm(px, px);
+    pm.fill(Qt::transparent);
+    QPainter p(&pm);
+    p.setRenderHint(QPainter::Antialiasing);
+    const QRectF r(3, 3, px - 6, px - 6);
+    const QPointF c = r.center();
+    const QColor ink(0xf4, 0xf6, 0xff);
+    p.setPen(QPen(ink, 2));
+    p.setBrush(Qt::NoBrush);
+    switch (which) {
+    case 0: {   // Brightness: a sun
+        const qreal core = r.width() * 0.22;
+        p.drawEllipse(c, core, core);
+        for (int k = 0; k < 8; ++k) {
+            const qreal a = k * M_PI / 4.0;
+            const QPointF dir(std::cos(a), std::sin(a));
+            p.drawLine(c + dir * (core + 3), c + dir * (r.width() * 0.46));
+        }
+        break; }
+    case 1:     // Contrast: a circle, the left half filled
+        p.drawEllipse(r);
+        p.setBrush(ink);
+        p.drawPie(r, 90 * 16, 180 * 16);
+        break;
+    case 2: {   // Saturation: three overlapping drops of color
+        const qreal d = r.width() * 0.58;
+        p.setPen(Qt::NoPen);
+        const QColor cols[3] = { QColor(40, 190, 255, 215), QColor(255, 90, 170, 215), QColor(255, 200, 40, 215) };
+        const QPointF pts[3] = { QPointF(r.left() + d / 2, r.top() + d / 2), QPointF(r.right() - d / 2, r.top() + d / 2), QPointF(c.x(), r.bottom() - d / 2) };
+        for (int k = 0; k < 3; ++k) { p.setBrush(cols[k]); p.drawEllipse(pts[k], d / 2, d / 2); }
+        break; }
+    case 3: {   // Hue: a ring of all the colors
+        QConicalGradient g(c, 0);
+        for (int k = 0; k <= 6; ++k) g.setColorAt(k / 6.0, QColor::fromHsv((k * 60) % 360, 255, 255));
+        const qreal w = r.width() * 0.22;
+        p.setPen(QPen(QBrush(g), w));
+        p.drawEllipse(r.adjusted(w / 2, w / 2, -w / 2, -w / 2));
+        break; }
+    case 4: {   // Lightness: a square, the left half light
+        const QRectF sq = r.adjusted(2, 2, -2, -2);
+        p.drawRoundedRect(sq, 3, 3);
+        p.setBrush(ink);
+        p.drawRect(QRectF(sq.left(), sq.top(), sq.width() / 2, sq.height()));
+        break; }
+    case 5: {   // Vibrance: a four-point sparkle
+        const qreal R = r.width() * 0.5, q = r.width() * 0.14;
+        QPainterPath path;
+        path.moveTo(c.x(), c.y() - R); path.lineTo(c.x() + q, c.y() - q); path.lineTo(c.x() + R, c.y());
+        path.lineTo(c.x() + q, c.y() + q); path.lineTo(c.x(), c.y() + R); path.lineTo(c.x() - q, c.y() + q);
+        path.lineTo(c.x() - R, c.y()); path.lineTo(c.x() - q, c.y() - q); path.closeSubpath();
+        p.setPen(QPen(ink, 1.5));
+        p.setBrush(QColor(0x9d, 0x8c, 0xff));
+        p.drawPath(path);
+        break; }
+    }
+    return pm;
+}
+
+// the Preview switch of the drawing: a pill that says ON or OFF, with a round knob, and a blue glow when it is on
+class KrimbleToggleSwitch : public QAbstractButton
+{
+public:
+    explicit KrimbleToggleSwitch(QWidget *parent = nullptr) : QAbstractButton(parent)
+    {
+        setCheckable(true);
+        setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    }
+    QSize sizeHint() const override { return QSize(84, 40); }
+protected:
+    void paintEvent(QPaintEvent *) override
+    {
+        QPainter p(this);
+        p.setRenderHint(QPainter::Antialiasing);
+        const QRectF r = QRectF(rect()).adjusted(5, 5, -5, -5);
+        const qreal radius = r.height() / 2.0;
+        if (isChecked()) {
+            p.setBrush(Qt::NoBrush);
+            for (int i = 4; i >= 1; --i) {
+                p.setPen(QPen(QColor(56, 198, 255, 20 * (5 - i)), i * 2.0));
+                p.drawRoundedRect(r, radius, radius);
+            }
+        }
+        QLinearGradient bg(r.topLeft(), r.bottomLeft());
+        if (isChecked()) { bg.setColorAt(0, QColor(0x38, 0xc6, 0xff)); bg.setColorAt(1, QColor(0x0b, 0x6f, 0xd6)); }
+        else             { bg.setColorAt(0, QColor(0x4a, 0x52, 0x76)); bg.setColorAt(1, QColor(0x2a, 0x30, 0x48)); }
+        p.setPen(QPen(isChecked() ? QColor(0x9f, 0xe3, 0xff) : QColor(0x6b, 0x74, 0x98), 1.5));
+        p.setBrush(bg);
+        p.drawRoundedRect(r, radius, radius);
+        const qreal knob = r.height() - 8;
+        const qreal x = isChecked() ? r.right() - knob - 4 : r.left() + 4;
+        p.setPen(Qt::NoPen);
+        p.setBrush(QColor(0xf4, 0xf6, 0xff));
+        p.drawEllipse(QRectF(x, r.top() + 4, knob, knob));
+        p.setPen(QColor(0xf4, 0xf6, 0xff));
+        QFont f = font(); f.setBold(true); p.setFont(f);
+        const QRectF textRect = isChecked() ? QRectF(r.left() + 6, r.top(), r.width() - knob - 14, r.height())
+                                            : QRectF(r.left() + knob + 10, r.top(), r.width() - knob - 14, r.height());
+        p.drawText(textRect, Qt::AlignCenter, isChecked() ? QStringLiteral("ON") : QStringLiteral("OFF"));
+    }
+};
+
+#if 0   // Krimble 2026-10-30: switched off: George: "not drawn in code. I will provide a graphic." The code is kept, not run.
+// Krimble 2026-10-30: George: "QuickAdjust should have its own logo, a big bold stylize QuickAdjust." (not the Krimble K and paw: "no.") A logo made of the
+// word itself, drawn in code: heavy italic letters, "Quick" light with a blue glow and "Adjust" in Krimble orange (#FD6001) with a dark edge, and a thin
+// slider line under them with a round knob. It shrinks to fit the width of the window.
+class KrimbleQuickAdjustLogo : public QWidget
+{
+public:
+    explicit KrimbleQuickAdjustLogo(QWidget *parent = nullptr) : QWidget(parent)
+    {
+        setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+        setMinimumHeight(66);
+        setAccessibleName(QStringLiteral("QuickAdjust"));
+    }
+    QSize sizeHint() const override { return QSize(300, 70); }
+protected:
+    void paintEvent(QPaintEvent *) override
+    {
+        QPainter p(this);
+        p.setRenderHint(QPainter::Antialiasing);
+        const QString quick = QStringLiteral("Quick"), adjust = QStringLiteral("Adjust");
+        QFont f = font();
+        f.setBold(true);
+        f.setItalic(true);
+        f.setWeight(QFont::Black);
+        f.setLetterSpacing(QFont::PercentageSpacing, 96);
+        f.setPixelSize(44);
+        QFontMetricsF fm(f);
+        const qreal total = fm.horizontalAdvance(quick) + fm.horizontalAdvance(adjust);
+        const qreal avail = width() - 28.0;
+        if (total > avail) {
+            f.setPixelSize(qMax(18, int(44.0 * avail / total)));
+            fm = QFontMetricsF(f);
+        }
+        const qreal quickWidth = fm.horizontalAdvance(quick);
+        const qreal textWidth = quickWidth + fm.horizontalAdvance(adjust);
+        const qreal x = (width() - textWidth) / 2.0;
+        const qreal y = 8.0 + fm.ascent();
+        QPainterPath quickPath, adjustPath;
+        quickPath.addText(x, y, f, quick);
+        adjustPath.addText(x + quickWidth, y, f, adjust);
+        // glow behind the letters
+        p.setBrush(Qt::NoBrush);
+        p.setPen(QPen(QColor(56, 198, 255, 80), 7, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+        p.drawPath(quickPath);
+        p.setPen(QPen(QColor(253, 96, 1, 90), 7, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+        p.drawPath(adjustPath);
+        // the letters
+        QLinearGradient quickFill(0, y - fm.ascent(), 0, y + fm.descent());
+        quickFill.setColorAt(0.0, QColor(0xff, 0xff, 0xff));
+        quickFill.setColorAt(1.0, QColor(0xb4, 0xc2, 0xff));
+        p.setPen(QPen(QColor(8, 12, 36), 2.2, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+        p.setBrush(quickFill);
+        p.drawPath(quickPath);
+        QLinearGradient adjustFill(0, y - fm.ascent(), 0, y + fm.descent());
+        adjustFill.setColorAt(0.0, QColor(0xff, 0x8d, 0x42));
+        adjustFill.setColorAt(0.5, QColor(0xfd, 0x60, 0x01));
+        adjustFill.setColorAt(1.0, QColor(0xc4, 0x4a, 0x00));
+        p.setBrush(adjustFill);
+        p.drawPath(adjustPath);
+        // the slider line under the word, with its knob
+        const qreal lineY = y + fm.descent() + 7.0;
+        p.setPen(QPen(QColor(0x53, 0x5c, 0x80), 3, Qt::SolidLine, Qt::RoundCap));
+        p.drawLine(QPointF(x, lineY), QPointF(x + textWidth, lineY));
+        p.setPen(QPen(QColor(0xfd, 0x60, 0x01), 3, Qt::SolidLine, Qt::RoundCap));
+        const qreal knobX = x + textWidth * 0.62;
+        p.drawLine(QPointF(x, lineY), QPointF(knobX, lineY));
+        p.setPen(QPen(QColor(0xf4, 0xf6, 0xff), 1.5));
+        p.setBrush(QColor(0xf4, 0xf6, 0xff));
+        p.drawEllipse(QPointF(knobX, lineY), 5.0, 5.0);
+    }
+};
+#endif   // Krimble 2026-10-30: end of the logo drawn in code (switched off)
+
+// Krimble 2026-10-30: "Keep as layers" in the Quick Adjust window (off at first; kept while the program runs)
+static bool g_krimbleQuickKeepLayers = false;
+
 class KrimbleQuickAdjust : public QObject
 {
 public:
     KrimbleQuickAdjust(KisMainWindow *win, QWidget *content) : QObject(content), m_win(win)
     {
         QVBoxLayout *layout = new QVBoxLayout(content);
-        layout->setContentsMargins(6, 6, 6, 6);
-        layout->setSpacing(2);
+        layout->setContentsMargins(10, 10, 10, 10);
+        layout->setSpacing(8);
+        QHBoxLayout *options = new QHBoxLayout;
+        QLabel *title = new QLabel(i18n("Adjustments"), content);
+        QFont font = title->font(); font.setBold(true); title->setFont(font);
+        options->addWidget(title);
+        options->addStretch();
+        // m_preview = new QCheckBox(i18n("Preview"), content);
+        // Krimble 2026-10-30: the Preview switch of the drawing (a pill that says ON or OFF), with its label
+        options->addWidget(new QLabel(i18n("Preview"), content));
+        m_preview = new KrimbleToggleSwitch(content);
+        m_preview->setChecked(true);
+        options->addWidget(m_preview);
+        layout->addLayout(options);
+        // Krimble 2026-10-30: George: "I didn't expect operations as layers. Offer it as a toggle." The adjustments are applied to the layer when OK is
+        // pressed (merged down into the paint layer below), unless this is checked: then they stay as adjustment layers (the old behaviour).
+        m_keepLayers = new QCheckBox(i18n("Keep as layers"), content);
+        m_keepLayers->setChecked(g_krimbleQuickKeepLayers);
+        connect(m_keepLayers, &QCheckBox::toggled, this, [](bool on) { g_krimbleQuickKeepLayers = on; });
+        layout->addWidget(m_keepLayers);
         for (int i = 0; i < SliderCount; ++i) {
-            m_labels[i] = new QLabel(content);
+            QHBoxLayout *row = new QHBoxLayout;
+            row->setSpacing(8);
+            // Krimble 2026-10-30: the small picture at the start of the row (the drawing's sun, half circle, drops, color ring, half square, sparkle)
+            QLabel *rowIcon = new QLabel(content);
+            rowIcon->setPixmap(krimbleQuickAdjustIcon(i, 34));
+            rowIcon->setFixedSize(34, 34);
+            row->addWidget(rowIcon);
+            m_labels[i] = new QLabel(i18n(def(i).name), content);
+            m_labels[i]->setMinimumWidth(90);
+            row->addWidget(m_labels[i]);
+            m_numbers[i] = new QSpinBox(content);
+            m_numbers[i]->setRange(def(i).min, def(i).max);
+            m_numbers[i]->setMinimumWidth(72);
+            row->addWidget(m_numbers[i]);
+            layout->addLayout(row);
             m_sliders[i] = new QSlider(Qt::Horizontal, content);
             m_sliders[i]->setRange(def(i).min, def(i).max);
-            m_sliders[i]->setValue(0);
             m_sliders[i]->setMinimumWidth(1);
-            layout->addWidget(m_labels[i]);
+            m_sliders[i]->setMinimumHeight(38);
+            m_sliders[i]->setObjectName(QStringLiteral("krimbleQuickAdjustSlider"));
+            if (i == Hue) {
+                // Krimble 2026-10-30: the drawing's rainbow Hue slider: the groove shows the colors the slider goes through (and has no orange fill)
+                m_sliders[i]->setStyleSheet(QStringLiteral(
+                    "QSlider::groove:horizontal { height: 9px; border: 1px solid #535c80; border-radius: 4px;"
+                    " background: qlineargradient(x1:0,y1:0,x2:1,y2:0, stop:0 #ff00c8, stop:0.2 #4a3cff, stop:0.4 #00c8ff,"
+                    " stop:0.6 #1fdc3f, stop:0.8 #ffe600, stop:1 #ff2a00); }"
+                    "QSlider::sub-page:horizontal { background: transparent; border: none; }"));
+            }
             layout->addWidget(m_sliders[i]);
-            updateLabel(i);
             connect(m_sliders[i], &QSlider::valueChanged, this, [this, i](int value) {
                 m_values[i] = value;
-                updateLabel(i);
+                QSignalBlocker blocker(m_numbers[i]);
+                m_numbers[i]->setValue(value);
                 m_timer.start(90);
+            });
+            connect(m_numbers[i], qOverload<int>(&QSpinBox::valueChanged), this, [this, i](int value) {
+                m_sliders[i]->setValue(value);
             });
         }
         QPushButton *reset = new QPushButton(i18n("Reset"), content);
         layout->addWidget(reset);
         layout->addStretch(1);
         connect(reset, &QPushButton::clicked, this, [this]() {
-            for (int i = 0; i < SliderCount; ++i) {
-                m_sliders[i]->setValue(0);     // each change updates its layer
-            }
+            for (int i = 0; i < SliderCount; ++i) m_sliders[i]->setValue(0);
         });
         m_timer.setSingleShot(true);
         connect(&m_timer, &QTimer::timeout, this, [this]() { apply(); });
         for (int i = 0; i < SliderCount; ++i) m_values[i] = 0;
+        connect(m_preview, &QAbstractButton::toggled, this, [this](bool enabled) {
+            m_previewEnabled = enabled;
+            flush();
+        });
     }
 
     // Krimble 2026-10-13 (11th): for the dialog version (George: "Build Quick Adjust as a dialog window launched from Image Adjust."):
@@ -1015,6 +1254,42 @@ public:
     {
         m_timer.stop();
         apply();
+    }
+    void commitVisible()
+    {
+        m_previewEnabled = true;
+        if (m_preview) m_preview->setChecked(true);
+        flush();
+    }
+    // Krimble 2026-10-30: called when OK is pressed, after commitVisible(). Not checked "Keep as layers": the adjustment layers are merged down, bottom one first,
+    // each into the paint layer directly below it (a layer that is not on a paint layer stays as a layer). Either way the layer that was active before
+    // Quick Adjust is the active layer again (George: Edit > Fill > Foreground Color pasted a weird image while the adjustment layers were active: the fill
+    // went into an adjustment layer).
+    void finish()
+    {
+        KisViewManager *view = m_win->viewManager();
+        if (!view || !view->nodeManager()) return;
+        KisImageSP image = view->image();
+        if (image && !(m_keepLayers && m_keepLayers->isChecked())) {
+            QList<KisNodeSP> made;
+            KisNodeWSP *refs[3] = { &m_bcLayer, &m_hsvLayer, &m_vibLayer };
+            for (KisNodeWSP *ref : refs) {
+                KisNodeSP node = *ref;
+                if (node && node->parent()) made.append(node);
+            }
+            std::sort(made.begin(), made.end(), [](const KisNodeSP &a, const KisNodeSP &b) {
+                return a->parent() == b->parent() && a->parent()->index(a) < b->parent()->index(b);
+            });
+            QAction *mergeDown = view->actionCollection()->action(QStringLiteral("merge_layer"));
+            Q_FOREACH (KisNodeSP node, made) {
+                KisNodeSP below = node->prevSibling();
+                if (!below || !dynamic_cast<KisPaintLayer*>(below.data()) || !mergeDown) continue;
+                view->nodeManager()->slotNonUiActivatedNode(node);
+                mergeDown->trigger();
+                image->waitForDone();
+            }
+        }
+        if (m_activeBefore && m_activeBefore->parent()) view->nodeManager()->slotNonUiActivatedNode(m_activeBefore);
     }
     void removeCreatedLayers()
     {
@@ -1041,10 +1316,6 @@ private:
         };
         return defs[i];
     }
-    void updateLabel(int i)
-    {
-        m_labels[i]->setText(QStringLiteral("%1   %2").arg(i18n(def(i).name)).arg(m_sliders[i]->value()));
-    }
     void apply()
     {
         updateLayer(m_bcLayer, QStringLiteral("brightnesscontrast"), i18n("Quick Adjust: Brightness/Contrast"),
@@ -1055,6 +1326,11 @@ private:
                     m_values[Hue] != 0 || m_values[Saturation] != 0 || m_values[Lightness] != 0);
         updateLayer(m_vibLayer, QStringLiteral("vibrance"), i18n("Quick Adjust: Vibrance"),
                     { { QStringLiteral("vibrance"), m_values[Vibrance] } }, m_values[Vibrance] != 0);
+        KisNodeWSP *refs[3] = { &m_bcLayer, &m_hsvLayer, &m_vibLayer };
+        for (KisNodeWSP *ref : refs) {
+            KisNodeSP node = *ref;
+            if (node && node->parent()) node->setVisible(m_previewEnabled);
+        }
     }
     void updateLayer(KisNodeWSP &ref, const QString &filterId, const QString &layerName, const QMap<QString, QVariant> &props, bool anyNonZero)
     {
@@ -1080,6 +1356,7 @@ private:
             }
             KisAdjustmentLayerSP newLayer = new KisAdjustmentLayer(image, layerName, config, KisSelectionSP());
             KisNodeSP active = view->activeNode();
+            if (!m_activeBefore) m_activeBefore = active;   // Krimble 2026-10-30: finish() makes it the active layer again
             KisNodeSP parent = active ? active->parent() : KisNodeSP();
             if (!parent) parent = image->root();
             KisNodeCommandsAdapter adapter(view);
@@ -1098,6 +1375,12 @@ private:
     KisMainWindow *m_win;
     QLabel *m_labels[SliderCount];
     QSlider *m_sliders[SliderCount];
+    QSpinBox *m_numbers[SliderCount];
+    // QCheckBox *m_preview = nullptr;
+    QAbstractButton *m_preview = nullptr;   // Krimble 2026-10-30: the Preview switch
+    QCheckBox *m_keepLayers = nullptr;     // Krimble 2026-10-30
+    KisNodeWSP m_activeBefore;             // Krimble 2026-10-30: the layer that was active when the first adjustment layer was made
+    bool m_previewEnabled = true;
     int m_values[SliderCount];
     QTimer m_timer;
     KisImageWSP m_image;
@@ -1128,15 +1411,21 @@ static void krimbleShowQuickAdjustDialog(KisMainWindow *win)
     QDialogButtonBox *buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, dialog);
     // Krimble 2026-10-14: George (1.0.36): "Quick Adjust is perfect size. Has no title bar?" The window has none on the phone, so its name is
     // written at the top of it.
-    QLabel *heading = new QLabel(i18n("Quick Adjust"), dialog);
+    // Krimble 2026-10-30: George: "QuickAdjust does not need to say Krimble in it." The heading shows the tool name only.
+    // QLabel *heading = new QLabel(i18n("Krimble  |  QuickAdjust"), dialog);
+    // Krimble 2026-10-30: George: "not drawn in code. I will provide a graphic." The logo drawn in code (KrimbleQuickAdjustLogo, switched off above with #if 0)
+    // is not used; the plain heading is back until his graphic of QuickAdjust arrives.
+    QLabel *heading = new QLabel(i18n("QuickAdjust"), dialog);
     QFont headingFont = heading->font();
     headingFont.setBold(true);
     heading->setFont(headingFont);
     layout->addWidget(heading);
+    // layout->addWidget(new KrimbleQuickAdjustLogo(dialog));
     layout->addWidget(content);
     layout->addWidget(buttons);
     QObject::connect(buttons, &QDialogButtonBox::accepted, dialog, [adjust, dialog]() {
-        adjust->flush();
+        adjust->commitVisible();
+        adjust->finish();     // Krimble 2026-10-30: merge down unless "Keep as layers"; the earlier layer is active again
         dialog->accept();
     });
     QObject::connect(buttons, &QDialogButtonBox::rejected, dialog, [adjust, dialog]() {
@@ -1147,8 +1436,11 @@ static void krimbleShowQuickAdjustDialog(KisMainWindow *win)
     QObject::connect(dialog, &QDialog::rejected, dialog, [adjust]() { adjust->removeCreatedLayers(); });
     if (QScreen *scr = QGuiApplication::primaryScreen()) {
         const QRect avail = scr->availableGeometry();
-        dialog->resize(int(avail.width() * 0.94), dialog->sizeHint().height() + 20);
-        dialog->move(avail.left() + int(avail.width() * 0.03), avail.bottom() - dialog->height() - 8);
+        const int width = int(avail.width() * 0.94);
+        const int height = qMin(dialog->sizeHint().height() + 20, int(avail.height() * 0.90));
+        dialog->resize(width, height);
+        dialog->move(avail.left() + (avail.width() - width)/2,
+                     avail.bottom() - height - 8);
     }
     dialog->show();
 }
@@ -2534,6 +2826,18 @@ static void krimbleInstallImageExtras(KisMainWindow *win)
     if (!imageMenu || imageMenu->property("krimbleImageExtras").toBool()) return;
     imageMenu->setProperty("krimbleImageExtras", true);
     QObject::connect(imageMenu, &QMenu::aboutToShow, win, [win, imageMenu]() {
+        // Krimble 2026-10-30: George: "QuickAdjust should be the first item in the Image menu. It's a shortcut to adjustments." First item, then a divider
+        // (the same item stays first in Image > Adjustments).
+        if (!imageMenu->findChild<QAction*>(QStringLiteral("krimbleQuickAdjustTop"))) {
+            QAction *quickTop = new QAction(i18n("Quick Adjust..."), imageMenu);
+            quickTop->setObjectName(QStringLiteral("krimbleQuickAdjustTop"));
+            QObject::connect(quickTop, &QAction::triggered, win, [win]() { krimbleShowQuickAdjustDialog(win); });
+            QAction *topFirst = imageMenu->actions().value(0);
+            QAction *topDivider = new QAction(imageMenu);
+            topDivider->setSeparator(true);
+            imageMenu->insertAction(topFirst, quickTop);
+            imageMenu->insertAction(topFirst, topDivider);
+        }
         if (imageMenu->findChild<QAction*>(QStringLiteral("krimbleBatchProcess"))) return;
         // Krimble 2026-10-13 (11th): Quick Adjust... at the bottom of the Image > Adjustments submenu (George: "launched from Image Adjust";
         // the place inside the submenu, the bottom, is my choice).
@@ -3262,6 +3566,146 @@ static void krimbleMakeHexLayer(KisMainWindow *win)
     node->setName(image->nextLayerName(i18n("Hex Pattern")));
 }
 
+// Krimble 2026-10-30: Layer > New > Star... George: "The star tool in Illustrator is a cool tool. it's essentially two invisible circles with equidistant
+// vertices on them and lines drawn between them to make the star shapes. The user changes the number of points to change the star and moves the inner
+// circle inward or outward. The whole thing can be rotated as a vector object." and "Instead of a new tool in the already full toolbox, we can just have a menu
+// item called Star or Create Star somewhere appropriate." and, of the plan (a vector layer, the Points and Inner Radius in a small dialog, the foreground color as
+// the fill, no outline): "sounds great". The star is Krita's own StarShape (shape id "StarShape": corner count, tip radius = the outer circle, base radius = the
+// inner circle), on a new vector layer in the middle of the picture. It can be moved, scaled and rotated with the Select Shapes tool, and its circles changed
+// with the shape edit handles. Only the dialog's last values are remembered while the program runs.
+static int g_krimbleStarPoints = 5;
+static int g_krimbleStarInner = 40;      // percent of the outer circle
+static int g_krimbleStarSize = 0;        // outer circle diameter in pixels; 0 = half of the picture's shorter side
+
+static void krimbleMakeStarLayer(KisMainWindow *win)
+{
+    KisViewManager *manager = win->viewManager();
+    if (!manager || !manager->image() || !manager->nodeManager()) {
+        QMessageBox::information(win, i18n("Star"), i18n("Open a picture first."));
+        return;
+    }
+    KisImageSP image = manager->image();
+    const QRectF bounds = image->bounds();
+    if (g_krimbleStarSize <= 0) g_krimbleStarSize = qMax(10, int(qMin(bounds.width(), bounds.height()) / 2.0));
+
+    QDialog dialog(win);
+    dialog.setWindowTitle(i18n("Star"));
+    QVBoxLayout *layout = new QVBoxLayout(&dialog);
+    QSpinBox *pointsBox = new QSpinBox(&dialog);
+    pointsBox->setRange(3, 100);
+    pointsBox->setValue(g_krimbleStarPoints);
+    QSpinBox *innerBox = new QSpinBox(&dialog);
+    innerBox->setRange(5, 95);
+    innerBox->setSuffix(QStringLiteral(" %"));
+    innerBox->setValue(g_krimbleStarInner);
+    QSpinBox *sizeBox = new QSpinBox(&dialog);
+    sizeBox->setRange(10, qMax(100, int(qMax(bounds.width(), bounds.height()) * 2.0)));
+    sizeBox->setSuffix(QStringLiteral(" px"));
+    sizeBox->setValue(g_krimbleStarSize);
+    layout->addWidget(new QLabel(i18n("Points:"), &dialog));
+    layout->addWidget(pointsBox);
+    layout->addWidget(new QLabel(i18n("Inner circle (percent of the outer circle):"), &dialog));
+    layout->addWidget(innerBox);
+    layout->addWidget(new QLabel(i18n("Size (width of the outer circle):"), &dialog));
+    layout->addWidget(sizeBox);
+    QDialogButtonBox *buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, &dialog);
+    layout->addWidget(buttons);
+    QObject::connect(buttons, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
+    QObject::connect(buttons, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
+    if (dialog.exec() != QDialog::Accepted) return;
+    g_krimbleStarPoints = pointsBox->value();
+    g_krimbleStarInner = innerBox->value();
+    g_krimbleStarSize = sizeBox->value();
+
+    KoShapeFactoryBase *factory = KoShapeRegistry::instance()->value(QStringLiteral("StarShape"));
+    if (!factory) {
+        QMessageBox::warning(win, i18n("Star"), i18n("The star shape is not available in this build."));
+        return;
+    }
+    KisNodeSP node = manager->nodeManager()->createNode(QStringLiteral("KisShapeLayer"));
+    KisShapeLayer *layer = dynamic_cast<KisShapeLayer*>(node.data());
+    if (!layer) {
+        QMessageBox::warning(win, i18n("Star"), i18n("The vector layer could not be made."));
+        return;
+    }
+    // a vector shape lives in points: image pixels per point is xRes() (as in the Hex Pattern layer)
+    const qreal pointsPerPixel = image->xRes() > 0.0 ? 1.0 / image->xRes() : 1.0;
+    const qreal tipRadius = (g_krimbleStarSize / 2.0) * pointsPerPixel;
+    KoProperties props;
+    props.setProperty("corners", g_krimbleStarPoints);
+    props.setProperty("convex", false);
+    props.setProperty("tipRadius", tipRadius);
+    props.setProperty("baseRadius", tipRadius * g_krimbleStarInner / 100.0);
+    props.setProperty("baseRoundness", 0.0);
+    props.setProperty("tipRoundness", 0.0);
+    QVariant fill;
+    fill.setValue(manager->canvasResourceProvider()->fgColor().toQColor());   // the foreground color is the fill
+    props.setProperty("background", fill);
+    KoShape *shape = factory->createShape(&props, nullptr);
+    if (!shape) {
+        QMessageBox::warning(win, i18n("Star"), i18n("The star could not be made."));
+        return;
+    }
+    shape->setStroke(KoShapeStrokeModelSP());   // no outline
+    shape->setName(QStringLiteral("Star"));
+    shape->setAbsolutePosition(QPointF(bounds.center().x() * pointsPerPixel, bounds.center().y() * pointsPerPixel), KoFlake::Center);
+    layer->addShape(shape);
+    node->setName(image->nextLayerName(i18n("Star")));
+    // so that it can be moved, rotated and its circles changed at once
+    QTimer::singleShot(0, win, []() { KoToolManager::instance()->switchToolRequested(QStringLiteral("InteractionTool")); });
+}
+
+// Krimble 2026-10-30: George: "All panels with selections like little buttons or whatever should have the blue glow if possible when selected." and "use that
+// light up blue glow for selections like the mockups." A checked tool button or push button (the selected tool in the toolbox, a pressed-in option button in a
+// panel or a dialog) gets a soft blue glow around it. The style sheet cannot blur, so this is a drop shadow effect with no offset, in light blue, put on the
+// button when it is checked and taken off when it is not. Check boxes and radio buttons are left alone (they are not "little buttons"). Every button is found when
+// it is first shown (the filter sees its Polish event) and the ones that exist already are found when the filter is installed.
+static void krimbleSetButtonGlow(QAbstractButton *button, bool on)
+{
+    if (on) {
+        if (button->graphicsEffect()) return;       // it has an effect already (this one, or another that is not ours)
+        QGraphicsDropShadowEffect *glow = new QGraphicsDropShadowEffect(button);
+        glow->setColor(QColor(56, 198, 255, 230));  // the blue of the selected tab and checked button
+        glow->setBlurRadius(18);
+        glow->setOffset(0, 0);
+        button->setGraphicsEffect(glow);
+    } else if (qobject_cast<QGraphicsDropShadowEffect*>(button->graphicsEffect())) {
+        button->setGraphicsEffect(nullptr);
+    }
+}
+
+class KrimbleGlowFilter : public QObject
+{
+public:
+    explicit KrimbleGlowFilter(QObject *parent) : QObject(parent) {}
+    void hook(QAbstractButton *button)
+    {
+        if (!button || !button->isCheckable() || button->property("krimbleGlowHooked").toBool()) return;
+        if (!qobject_cast<QToolButton*>(button) && !qobject_cast<QPushButton*>(button)) return;   // not check boxes or radio buttons
+        button->setProperty("krimbleGlowHooked", true);
+        QObject::connect(button, &QAbstractButton::toggled, button, [button](bool on) { krimbleSetButtonGlow(button, on); });
+        krimbleSetButtonGlow(button, button->isChecked());
+    }
+    bool eventFilter(QObject *watched, QEvent *event) override
+    {
+        if (event->type() == QEvent::Polish) {
+            if (QAbstractButton *button = qobject_cast<QAbstractButton*>(watched)) hook(button);
+        }
+        return false;
+    }
+};
+
+static void krimbleInstallSelectionGlow(KisMainWindow *win)
+{
+    if (win->findChild<KrimbleGlowFilter*>(QStringLiteral("krimbleGlowFilter"))) return;
+    KrimbleGlowFilter *filter = new KrimbleGlowFilter(win);
+    filter->setObjectName(QStringLiteral("krimbleGlowFilter"));
+    qApp->installEventFilter(filter);
+    Q_FOREACH (QAbstractButton *button, win->findChildren<QAbstractButton*>()) {
+        filter->hook(button);
+    }
+}
+
 // View > Show > Hex (a check mark) and Hex Size...; Layer > New > Hex Pattern...
 static void krimbleInstallHexMenus(KisMainWindow *win)
 {
@@ -3344,6 +3788,13 @@ static void krimbleInstallHexMenus(KisMainWindow *win)
                     sub->addAction(hexAction);
                     sub->addAction(sizeAction);
                 } else if (isLayer && text == QLatin1String("New")) {
+                    // Krimble 2026-10-30: Layer > New > Star... (see krimbleMakeStarLayer), above Hex Pattern...
+                    if (!sub->findChild<QAction*>(QStringLiteral("krimbleStarLayer"))) {
+                        QAction *starAction = new QAction(i18n("Star..."), sub);
+                        starAction->setObjectName(QStringLiteral("krimbleStarLayer"));
+                        QObject::connect(starAction, &QAction::triggered, win, [win]() { krimbleMakeStarLayer(win); });
+                        sub->addAction(starAction);
+                    }
                     if (sub->findChild<QAction*>(QStringLiteral("krimbleHexLayer"))) continue;
                     QAction *layerAction = new QAction(i18n("Hex Pattern..."), sub);
                     layerAction->setObjectName(QStringLiteral("krimbleHexLayer"));
@@ -3405,6 +3856,7 @@ public:
     // Krimble 2026-10-18 (2nd): George (1.0.37, fc126d8): "4. When a panel is detached by dragging it is still way too eager to reattach. Distance is an issue."
     // 8 -> 4 logical px; and a panel can join another panel (tabs) only after the finger has moved 120 logical px from where the drag began.
     static const int Distance = 4;
+    static const int DwellMs = 350;   // Krimble 2026-10-30: how long the finger must stay within reach of a side before the panel may dock there
 
     KrimbleDockTolerance(QMainWindow *win, QDockWidget *dock)
         : QObject(dock), m_win(win), m_dock(dock) {}
@@ -3426,6 +3878,23 @@ protected:
                 if (r.right() - p.x() < Distance) allowed |= Qt::RightDockWidgetArea;
                 if (p.y() - r.top() < Distance) allowed |= Qt::TopDockWidgetArea;
                 if (r.bottom() - p.y() < Distance) allowed |= Qt::BottomDockWidgetArea;
+                // Krimble 2026-10-30: George: "I think there should be a proximity sensor that has a feel for when it's deliberate." (the Brushes panel attached to an
+                // edge too eagerly). A side of the window is allowed only after the finger has stayed within reach of it for DwellMs (350 ms), so a finger
+                // passing the edge on its way somewhere else does not dock the panel. "Within reach" is the zone used on release below (14 px, 28 px on the right).
+                {
+                    Qt::DockWidgetAreas reachAreas = Qt::NoDockWidgetArea;
+                    if (p.x() - r.left() < 14) reachAreas |= Qt::LeftDockWidgetArea;
+                    if (r.right() - p.x() < 28) reachAreas |= Qt::RightDockWidgetArea;
+                    if (p.y() - r.top() < 14) reachAreas |= Qt::TopDockWidgetArea;
+                    if (r.bottom() - p.y() < 14) reachAreas |= Qt::BottomDockWidgetArea;
+                    if (reachAreas != m_reachMask) {
+                        m_reachMask = reachAreas;
+                        m_reachClock.restart();
+                    }
+                    if (m_reachMask == Qt::NoDockWidgetArea || m_reachClock.elapsed() < DwellMs) {
+                        allowed = Qt::NoDockWidgetArea;       // not deliberate (yet): no side of the window (panels to tab with are added below)
+                    }
+                }
                 // Krimble 2026-10-15: George (1.0.36): "Panels don't go into tabs at all now when you drag them on top of each other." and
                 // "Love the tabs. Bring them back." and "Expand so they tab." Dropping a panel onto another panel needs the area of that panel to be
                 // allowed, and only the window's edges were. While the finger is over a docked panel, that panel's area is allowed too, so the
@@ -3447,9 +3916,12 @@ protected:
         } else if (event->type() == QEvent::MouseButtonRelease && m_dragging) {
             m_dragging = false;
             const QPoint releasePos = static_cast<QMouseEvent*>(event)->globalPos();
+            // Krimble 2026-10-30: deliberate = the finger stayed within reach of a side for DwellMs (see the move handler above)
+            const bool dwelled = m_reachMask != Qt::NoDockWidgetArea && m_reachClock.isValid() && m_reachClock.elapsed() >= DwellMs;
+            m_reachMask = Qt::NoDockWidgetArea;
             QPointer<QDockWidget> dock(m_dock);
             QPointer<QMainWindow> window(m_win);
-            QTimer::singleShot(0, m_dock, [dock, window, releasePos]() {
+            QTimer::singleShot(0, m_dock, [dock, window, releasePos, dwelled]() {
                 if (dock) {
                     dock->setAllowedAreas(Qt::AllDockWidgetAreas);
                 }
@@ -3458,6 +3930,7 @@ protected:
                 // spot, and with a finger (and the 4 px of Distance above) the panel was refused and stayed where it was. When the panel is let go within 14 logical px of a
                 // side of the window and Qt has not docked it, it is docked there, on the nearest side.
                 if (!dock || !window || !dock->isFloating()) return;
+                if (!dwelled) return;     // Krimble 2026-10-30: not deliberate: it stays where it was let go
                 const QRect r(window->mapToGlobal(QPoint(0, 0)), window->size());
                 const int toLeft = releasePos.x() - r.left();
                 const int toRight = r.right() - releasePos.x();
@@ -3485,6 +3958,8 @@ private:
     QDockWidget *m_dock;
     bool m_dragging {false};
     QPoint m_startPos;   // Krimble 2026-10-18 (2nd): where the finger was when this drag began
+    Qt::DockWidgetAreas m_reachMask {Qt::NoDockWidgetArea};   // Krimble 2026-10-30: the sides the finger is within reach of
+    QElapsedTimer m_reachClock;                              // since when
 };
 #endif
 
@@ -4028,6 +4503,7 @@ KisMainWindow::KisMainWindow(QUuid uuid)
             krimbleRemoveMinimumWidths(this);            // Krimble 2026-10-13 (6th): no minimum widths (see above)
             krimbleInstallBevels(this);                  // Krimble 2026-10-17: one-pixel bevel lines on panels and toolbars (see above)
             krimbleInstallHexMenus(this);                // Krimble 2026-10-18: View > Show > Hex and Layer > New > Hex Pattern... (see above)
+            krimbleInstallSelectionGlow(this);           // Krimble 2026-10-30: the blue glow of a selected (checked) button
             // Krimble 2026-10-18: George (1.0.37, git 41a4afb): "1. Brushes still loads at start." The hiding at start (2.5 s) came too early: opening
             // the first image brings the saved layout back, with Brushes. So it is hidden once more, once, the first time an image is open.
             // Krimble 2026-10-18 (2nd): George (1.0.37, fc126d8): "2. Brushes still loads by default." The two hidings above and below happen once, and a
@@ -6386,6 +6862,26 @@ QDockWidget* KisMainWindow::createDockWidget(KoDockFactoryBase* factory)
         // Krimble 2026-10-12: George: the Layers panel, once detached, "tried really hard to attach to edges that were far away from it".
         // Every floating panel, not only the toolbox, now docks only when the finger is close to a side of the window.
         dockWidget->installEventFilter(new KrimbleDockTolerance(this, dockWidget));
+        // Krimble 2026-10-30: George: "I created a new file and the Brushes panel appeared. Why?" The hiding above (at the start, once after the first image,
+        // for 30 s) did not cover a later new file, when a saved layout brings the panel back. The Brushes panel is now hidden every time it shows up by
+        // itself. It stays only when George opens it from the Window menu (the panel's own show/hide action, which is triggered only by a person, not
+        // by the layout code); it is forgotten when the panel is closed with its X, so the next appearance is hidden again.
+        if (dockWidget->objectName() == QLatin1String("PresetDocker") || dockWidget->windowTitle() == QLatin1String("Brushes")) {
+            dockWidget->setProperty("krimbleUserOpened", false);
+            connect(dockWidget->toggleViewAction(), &QAction::triggered, dockWidget, [dockWidget](bool on) {
+                dockWidget->setProperty("krimbleUserOpened", on);
+            });
+            connect(dockWidget, &QDockWidget::visibilityChanged, dockWidget, [dockWidget](bool visible) {
+                if (visible) {
+                    // a moment later: the menu action's "triggered" comes right after the panel is shown
+                    QTimer::singleShot(0, dockWidget, [dockWidget]() {
+                        if (!dockWidget->property("krimbleUserOpened").toBool() && dockWidget->isVisible()) dockWidget->hide();
+                    });
+                } else if (dockWidget->isHidden()) {
+                    dockWidget->setProperty("krimbleUserOpened", false);
+                }
+            });
+        }
         connect(dockWidget, &QDockWidget::topLevelChanged, this, [this, dockWidget](bool floating) {
             // KRIMBLE 2026-10-04: Settings > "Attach Panels" decides what a floating panel does.
             // ON (the default) = the standard behaviour: a panel dragged to the edge of the window

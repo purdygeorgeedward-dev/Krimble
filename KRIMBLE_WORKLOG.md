@@ -73,3 +73,35 @@ The column "Author" is the name on the commit. **Two Claude sessions work on Kri
 - **Oct 25, 8:13 AM MT** (14:13 UTC): the 1.0.43 APK was packaged: `Krimble-1.0.43-beta-Oct25-0813.apk`, 180,983,744 bytes, build stamp 43, commit `d6b6b48`.
 - **Oct 25, 9:37 AM MT** (15:37 UTC): `kb-status.sh`: BUILD FINISHED OK, PACKAGING FINISHED OK. **9:40 AM MT**: `kb-apk.sh` made the copy to download. George installed it from there.
 - The tag `v1.0.43-beta` was made through the API on `d6b6b48`. **Oct 25, 3:09 PM MT** (21:09 UTC): `~/kb-release.sh --publish` was run on the server; the release was **published with the APK attached** (180,983,744 bytes; checked through the API).
+
+## Branch `feature/krimble-ui-refresh`, 2026-10-30 (pushes with their real times)
+
+Times are Mountain Time from the clock of the sandbox that pushed (`date`), checked with `git ls-remote`. Commits are named "George Purdy" (the identity set for this session; the work was done by the Claude session inside the Krimble project). None is on master.
+
+| Time (MT) | Commit | What |
+|---|---|---|
+| Oct 30  9:41 AM | `c270d0dc53` | QuickAdjust heading shows the tool name only; changelog 324th |
+| Oct 30  9:41 AM | `d0a5e0b387` | classic color selector hidden, outer tab bar removed; changelog 325th |
+| Oct 30 10:06 AM | `1a6968320c` | Scale mode: outside the box no longer rotates, rotate arrows off; changelog 326th |
+| Oct 30 10:06 AM | `9c4ccd7421` | Rotate tool: modes other than Free act as the Transform tool; changelog 327th |
+| Oct 30 10:06 AM | `dc1a432a93` | Rotate mode button in Transform Tool Options, first button is Scale; changelog 328th |
+| Oct 30 10:45 AM | `73b50863b8` | Line tool: Thickness slider and number box; changelog 329th |
+| Oct 30 10:52 AM | `bd5f52d7cc` | Brushes panel: Size, Opacity, Flow rows; changelog 330th |
+| Oct 30 12:23 PM | `760e8c87ed` | Layer > New > Star...; changelog 331st |
+| Oct 30 12:30 PM | `a9c18e1b67` | the 32 old toolbox PNGs removed from the branch; changelog 332nd |
+| Oct 30 12:37 PM | `3bc2e91217` | documentation updated (STATUS, SESSION_CATCHUP, NEXT_BUILD, WORKLOG, ROADMAP, test list, icon coverage); changelog 333rd. The first text said 12:45 PM, a guessed time; the clock said 12:37 PM, corrected in the next commit |
+| Oct 30 12:43 PM | `d720ab2485` `85f6f57493` `ceb84c87f2` `dbc37944be` `eb0bc3f31f` | one push: QuickAdjust Keep as layers and Image menu item (334th); Brushes panel never appears by itself (335th); Brush name field (336th); tool buttons app-wide in the stylesheet (337th); panel docking dwell 350 ms (338th) |
+| Oct 30 12:55 PM | `cdcac43d9b` `30cb7cecc8` `e9e9285c6b` `1d54a0a7aa` | one push: six stale comments (339th); File > New icons 64 px (340th); Color Studio one page, gradient SV square (341st); Mixer panel (342nd) |
+| Oct 30 2:40 PM | `5c5c35f1cc` `47cae9dddf` | one push: orange progress bars and fills (344th); new main splash (345th) |
+| Oct 30 2:55 PM | `752e5de643` `e61dba9d82` | one push: toolbox icons Full color / Clear (348th); blue glow on checked buttons (349th) |
+| Oct 30 5:41 PM | (this push) | toolbox icon style renamed Clear to Silhouette (351st) |
+| Oct 30 6:35 PM | `79d49255ea` + docs | one push: Quick Adjust completed (352nd); George's answers recorded in the docs (353rd) |
+| Oct 30 7:04 PM | (docs push, 354th) | corrections: the four tools are to be commented out (not yet done), the Channels docker exists, the Quick Adjust logo mark, keeping notes |
+| Oct 30 7:10 PM | (this push) | Quick Adjust own logo (355th) |
+| Oct 30 7:11 PM | (this push, 356th) | the Quick Adjust logo drawn in code switched off; waiting for George's graphic |
+| Oct 30 7:12 PM | (this push, 357th) | Colorize Mask Editing and Enclose and Fill commented out; George: keep Ruler and Reference Images; comments corrected |
+| Oct 30 7:28 PM | (this push, 358th) | toolbox is 32 tools: four tools shown on the phone again, arrow mapped to Edit Shapes |
+| Oct 30 7:35 PM | (this push, 359th) | Select Shapes has the toolbox button; Edit Shapes is an Edit points toggle |
+| Oct 30 7:39 PM | (docs push, 360th) | the app starts on the Hand tool: recorded; my wrong statements withdrawn |
+| Oct 30 7:40 PM | (docs push, 361st) | Rule zero: never answer without checking the notes (top of SESSION_CATCHUP.md) |
+| Oct 30 7:41 PM | (docs push, 362nd) | seven docs restored after the 359th to 361st commits had cut them down |

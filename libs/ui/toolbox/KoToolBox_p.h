@@ -99,6 +99,7 @@ protected:
 
 private:
     void setupIconSizeMenu(QMenu *menu);
+    void setupIconStyleMenu(QMenu *menu);   // Krimble 2026-10-30: Full color / Clear
 
     friend class KoToolBoxDocker;
 
