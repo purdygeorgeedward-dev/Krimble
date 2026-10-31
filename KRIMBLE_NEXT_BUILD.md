@@ -80,3 +80,9 @@ Not in the branch yet: the 32 icons wired to the toolbox (see `packaging/android
 | 347 | the status bar memory bar starts in Krimble orange | status bar | none known |
 | 348 | toolbox icons: **Full color** (32 pictures, `krita/pics/krimble-toolbox-color/`, a new resource file in `krita/CMakeLists.txt`) or **Silhouette** (the old icons), switched in the toolbox menu | touch and hold the toolbox | a new resource list in CMake; two mappings are guesses (Smart Patch, Smudge); the 240 px pictures are scaled down by Qt |
 | 349 | blue glow (drop shadow effect) on checked tool buttons and push buttons | the selected tool, option buttons | clipping, speed, a glow that stays |
+
+### Also on the branch (entries 351 and 352, written 2026-10-30, 6:35 PM MT)
+| Entry | What | Where to look on the phone | Risk |
+|---|---|---|---|
+| 351 | the second toolbox icon style is named **Silhouette** (was Clear) | touch and hold the toolbox > Icon Style | none known |
+| 352 | **Quick Adjust completed**: a picture on each row, a rainbow Hue slider, an ON/OFF Preview switch | Image > Quick Adjust... | the switch replaced a check box; the pictures are drawn in code |

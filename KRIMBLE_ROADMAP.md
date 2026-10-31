@@ -319,3 +319,15 @@ Color panels 1, 2 and 3 above are **done on the branch** (entries 341 and 342, u
 
 ### Update 2026-10-30, 2:55 PM MT
 Icons: the 32 pictures are wired with a **Full color / Silhouette** switch in the toolbox menu, and checked buttons have a blue glow (348th and 349th entries, untested). Not done: smaller sizes by script; pictures for Dodge, Burn, Colorize Mask Editing and Enclose and Fill.
+
+### Closed or decided by George, 2026-10-30, 6:35 PM MT
+- **Scale** acts on the active **layer** (the selected pixels of it when there is a selection) on a raster layer, and on the selected **objects** on a vector layer.
+- **The transparent default brush is fixed** ("back to normal").
+- **Rounded Box is not a tool.** It is a setting in the Rectangle tool's options (the box preferences). The **Tail** and the **Speech Balloon** are features to add to a box or an oval; **no separate tool and no separate toolbox icon** for any of them. Still on hold.
+- **The stylesheet "faults"** (combo and spin arrows, checkbox indicator, slider handle height, colors vs theme) were my guesses from reading the code, never seen on a device: dropped unless George sees a problem.
+- **Quick Adjust:** complete the ChatGPT dialog, do not replace it (352nd entry). No "Krimble" logo in its heading.
+- **The Play Store .aab** made before is out of date; **another is made when release candidate 1 (rc-1) is reached.**
+- **The full-APK 16 KB alignment check was completed.**
+- **The Flarum forum setup was completed.**
+- **Channels docker** (Ctrl+click to load a selection, single-click isolation): **dropped**. It is a touchscreen app and there is no keyboard.
+- **Icon pictures for Dodge, Burn, Colorize Mask Editing and Enclose and Fill:** those four tools are **not** commented out; they are all in the toolbox and keep their own (silhouette) icons. A picture for each is optional. If the 240 px pictures look soft when scaled down, George can rework them at the small sizes.
