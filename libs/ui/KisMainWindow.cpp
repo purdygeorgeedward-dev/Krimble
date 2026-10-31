@@ -1091,6 +1091,77 @@ protected:
     }
 };
 
+// Krimble 2026-10-30: George: "QuickAdjust should have its own logo, a big bold stylize QuickAdjust." (not the Krimble K and paw: "no.") A logo made of the
+// word itself, drawn in code: heavy italic letters, "Quick" light with a blue glow and "Adjust" in Krimble orange (#FD6001) with a dark edge, and a thin
+// slider line under them with a round knob. It shrinks to fit the width of the window.
+class KrimbleQuickAdjustLogo : public QWidget
+{
+public:
+    explicit KrimbleQuickAdjustLogo(QWidget *parent = nullptr) : QWidget(parent)
+    {
+        setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+        setMinimumHeight(66);
+        setAccessibleName(QStringLiteral("QuickAdjust"));
+    }
+    QSize sizeHint() const override { return QSize(300, 70); }
+protected:
+    void paintEvent(QPaintEvent *) override
+    {
+        QPainter p(this);
+        p.setRenderHint(QPainter::Antialiasing);
+        const QString quick = QStringLiteral("Quick"), adjust = QStringLiteral("Adjust");
+        QFont f = font();
+        f.setBold(true);
+        f.setItalic(true);
+        f.setWeight(QFont::Black);
+        f.setLetterSpacing(QFont::PercentageSpacing, 96);
+        f.setPixelSize(44);
+        QFontMetricsF fm(f);
+        const qreal total = fm.horizontalAdvance(quick) + fm.horizontalAdvance(adjust);
+        const qreal avail = width() - 28.0;
+        if (total > avail) {
+            f.setPixelSize(qMax(18, int(44.0 * avail / total)));
+            fm = QFontMetricsF(f);
+        }
+        const qreal quickWidth = fm.horizontalAdvance(quick);
+        const qreal textWidth = quickWidth + fm.horizontalAdvance(adjust);
+        const qreal x = (width() - textWidth) / 2.0;
+        const qreal y = 8.0 + fm.ascent();
+        QPainterPath quickPath, adjustPath;
+        quickPath.addText(x, y, f, quick);
+        adjustPath.addText(x + quickWidth, y, f, adjust);
+        // glow behind the letters
+        p.setBrush(Qt::NoBrush);
+        p.setPen(QPen(QColor(56, 198, 255, 80), 7, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+        p.drawPath(quickPath);
+        p.setPen(QPen(QColor(253, 96, 1, 90), 7, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+        p.drawPath(adjustPath);
+        // the letters
+        QLinearGradient quickFill(0, y - fm.ascent(), 0, y + fm.descent());
+        quickFill.setColorAt(0.0, QColor(0xff, 0xff, 0xff));
+        quickFill.setColorAt(1.0, QColor(0xb4, 0xc2, 0xff));
+        p.setPen(QPen(QColor(8, 12, 36), 2.2, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+        p.setBrush(quickFill);
+        p.drawPath(quickPath);
+        QLinearGradient adjustFill(0, y - fm.ascent(), 0, y + fm.descent());
+        adjustFill.setColorAt(0.0, QColor(0xff, 0x8d, 0x42));
+        adjustFill.setColorAt(0.5, QColor(0xfd, 0x60, 0x01));
+        adjustFill.setColorAt(1.0, QColor(0xc4, 0x4a, 0x00));
+        p.setBrush(adjustFill);
+        p.drawPath(adjustPath);
+        // the slider line under the word, with its knob
+        const qreal lineY = y + fm.descent() + 7.0;
+        p.setPen(QPen(QColor(0x53, 0x5c, 0x80), 3, Qt::SolidLine, Qt::RoundCap));
+        p.drawLine(QPointF(x, lineY), QPointF(x + textWidth, lineY));
+        p.setPen(QPen(QColor(0xfd, 0x60, 0x01), 3, Qt::SolidLine, Qt::RoundCap));
+        const qreal knobX = x + textWidth * 0.62;
+        p.drawLine(QPointF(x, lineY), QPointF(knobX, lineY));
+        p.setPen(QPen(QColor(0xf4, 0xf6, 0xff), 1.5));
+        p.setBrush(QColor(0xf4, 0xf6, 0xff));
+        p.drawEllipse(QPointF(knobX, lineY), 5.0, 5.0);
+    }
+};
+
 // Krimble 2026-10-30: "Keep as layers" in the Quick Adjust window (off at first; kept while the program runs)
 static bool g_krimbleQuickKeepLayers = false;
 
@@ -1340,11 +1411,13 @@ static void krimbleShowQuickAdjustDialog(KisMainWindow *win)
     // written at the top of it.
     // Krimble 2026-10-30: George: "QuickAdjust does not need to say Krimble in it." The heading shows the tool name only.
     // QLabel *heading = new QLabel(i18n("Krimble  |  QuickAdjust"), dialog);
-    QLabel *heading = new QLabel(i18n("QuickAdjust"), dialog);
-    QFont headingFont = heading->font();
-    headingFont.setBold(true);
-    heading->setFont(headingFont);
-    layout->addWidget(heading);
+    // QLabel *heading = new QLabel(i18n("QuickAdjust"), dialog);
+    // QFont headingFont = heading->font();
+    // headingFont.setBold(true);
+    // heading->setFont(headingFont);
+    // layout->addWidget(heading);
+    // Krimble 2026-10-30: its own logo, a big bold stylized "QuickAdjust" (KrimbleQuickAdjustLogo, above)
+    layout->addWidget(new KrimbleQuickAdjustLogo(dialog));
     layout->addWidget(content);
     layout->addWidget(buttons);
     QObject::connect(buttons, &QDialogButtonBox::accepted, dialog, [adjust, dialog]() {
