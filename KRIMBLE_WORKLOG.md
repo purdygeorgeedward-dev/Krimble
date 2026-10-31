@@ -96,3 +96,4 @@ Times are Mountain Time from the clock of the sandbox that pushed (`date`), chec
 | Oct 30 2:55 PM | `752e5de643` `e61dba9d82` | one push: toolbox icons Full color / Clear (348th); blue glow on checked buttons (349th) |
 | Oct 30 5:41 PM | (this push) | toolbox icon style renamed Clear to Silhouette (351st) |
 | Oct 30 6:35 PM | `79d49255ea` + docs | one push: Quick Adjust completed (352nd); George's answers recorded in the docs (353rd) |
+| Oct 30 7:04 PM | (docs push, 354th) | corrections: the four tools are to be commented out (not yet done), the Channels docker exists, the Quick Adjust logo mark, keeping notes |
