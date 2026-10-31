@@ -2,8 +2,8 @@
 // Krimble 2026-10-30: the toolbox icons come in two styles, and the user switches between them (George: "I want the user to be able to switch between the full
 // color themed toolbox icons and your clear icons you made for the toolbox."): **Full color**, the picture icons drawn by George (32 PNGs in the resource
 // prefix :/krimble-toolbox/, one per tool), and **Silhouette**, the line icons made for Krimble (what the toolbox showed before; George calls them silhouette icons). The choice is the key
-// Krimble/ToolboxColorIcons (full color is the default). A tool with no picture icon (Dodge, Burn, Colorize Mask Editing, Enclose and Fill, and any other tool
-// not in the table below) always shows its own icon. The table maps a tool's icon name (what its factory gives to setIconName) to the picture file.
+// Krimble/ToolboxColorIcons (full color is the default). A tool with no picture icon (any tool not in the table below) always shows its own icon. (Dodge, Burn, Colorize Mask Editing and Enclose and Fill
+// are not in the toolbox at all, see the 357th entry.) The table maps a tool's icon name (what its factory gives to setIconName) to the picture file.
 #pragma once
 
 #include <QHash>

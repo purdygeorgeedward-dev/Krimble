@@ -86,3 +86,5 @@ Not in the branch yet: the 32 icons wired to the toolbox (see `packaging/android
 |---|---|---|---|
 | 351 | the second toolbox icon style is named **Silhouette** (was Clear) | touch and hold the toolbox > Icon Style | none known |
 | 352 | **Quick Adjust completed**: a picture on each row, a rainbow Hue slider, an ON/OFF Preview switch | Image > Quick Adjust... | the switch replaced a check box; the pictures are drawn in code |
+
+| 357 | **Colorize Mask Editing** and **Enclose and Fill** commented out of the toolbox (not registered); six comments corrected | the toolbox | a colorize mask can not be edited with a tool until it comes back |

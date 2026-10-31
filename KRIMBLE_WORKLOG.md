@@ -99,3 +99,4 @@ Times are Mountain Time from the clock of the sandbox that pushed (`date`), chec
 | Oct 30 7:04 PM | (docs push, 354th) | corrections: the four tools are to be commented out (not yet done), the Channels docker exists, the Quick Adjust logo mark, keeping notes |
 | Oct 30 7:10 PM | (this push) | Quick Adjust own logo (355th) |
 | Oct 30 7:11 PM | (this push, 356th) | the Quick Adjust logo drawn in code switched off; waiting for George's graphic |
+| Oct 30 7:12 PM | (this push, 357th) | Colorize Mask Editing and Enclose and Fill commented out; George: keep Ruler and Reference Images; comments corrected |
