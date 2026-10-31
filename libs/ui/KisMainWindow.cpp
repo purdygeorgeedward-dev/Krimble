@@ -89,6 +89,8 @@
 #include <QMouseEvent>
 // #include <QSizeGrip>  // no longer used, see KisFloatingDockSizeGrip
 #include <QPainter>
+#include <QAbstractButton>   // Krimble 2026-10-30: the Quick Adjust Preview switch
+#include <cmath>              // Krimble 2026-10-30: the Quick Adjust row pictures
 #include <QPolygonF>
 #include <QDomDocument>
 #include <QDomElement>
@@ -982,6 +984,113 @@ static void krimbleApplyPanelPreset(QMainWindow *win, const QStringList &show)
 // hide the layer, or change it later in the Layers panel. Brightness/Contrast, Saturation/Hue/Lightness and Vibrance.
 // Narrow on purpose: one slider per row, no side-by-side controls.
 // ============================================================================================================================
+// Krimble 2026-10-30: George: "new QuickAdjust dialog was supposed to already be built by ChatGPT. Either complete it or replace it." The drawing
+// (ChatGPT's mockup) has a small picture at the start of each slider row, a rainbow Hue slider and a Preview switch that says ON or OFF. These are the
+// missing parts, drawn in code (no picture files). The mockup's "Krimble" logo in the heading is left out: George, "QuickAdjust does not need to say
+// Krimble in it."
+static QPixmap krimbleQuickAdjustIcon(int which, int px)
+{
+    QPixmap pm(px, px);
+    pm.fill(Qt::transparent);
+    QPainter p(&pm);
+    p.setRenderHint(QPainter::Antialiasing);
+    const QRectF r(3, 3, px - 6, px - 6);
+    const QPointF c = r.center();
+    const QColor ink(0xf4, 0xf6, 0xff);
+    p.setPen(QPen(ink, 2));
+    p.setBrush(Qt::NoBrush);
+    switch (which) {
+    case 0: {   // Brightness: a sun
+        const qreal core = r.width() * 0.22;
+        p.drawEllipse(c, core, core);
+        for (int k = 0; k < 8; ++k) {
+            const qreal a = k * M_PI / 4.0;
+            const QPointF dir(std::cos(a), std::sin(a));
+            p.drawLine(c + dir * (core + 3), c + dir * (r.width() * 0.46));
+        }
+        break; }
+    case 1:     // Contrast: a circle, the left half filled
+        p.drawEllipse(r);
+        p.setBrush(ink);
+        p.drawPie(r, 90 * 16, 180 * 16);
+        break;
+    case 2: {   // Saturation: three overlapping drops of color
+        const qreal d = r.width() * 0.58;
+        p.setPen(Qt::NoPen);
+        const QColor cols[3] = { QColor(40, 190, 255, 215), QColor(255, 90, 170, 215), QColor(255, 200, 40, 215) };
+        const QPointF pts[3] = { QPointF(r.left() + d / 2, r.top() + d / 2), QPointF(r.right() - d / 2, r.top() + d / 2), QPointF(c.x(), r.bottom() - d / 2) };
+        for (int k = 0; k < 3; ++k) { p.setBrush(cols[k]); p.drawEllipse(pts[k], d / 2, d / 2); }
+        break; }
+    case 3: {   // Hue: a ring of all the colors
+        QConicalGradient g(c, 0);
+        for (int k = 0; k <= 6; ++k) g.setColorAt(k / 6.0, QColor::fromHsv((k * 60) % 360, 255, 255));
+        const qreal w = r.width() * 0.22;
+        p.setPen(QPen(QBrush(g), w));
+        p.drawEllipse(r.adjusted(w / 2, w / 2, -w / 2, -w / 2));
+        break; }
+    case 4: {   // Lightness: a square, the left half light
+        const QRectF sq = r.adjusted(2, 2, -2, -2);
+        p.drawRoundedRect(sq, 3, 3);
+        p.setBrush(ink);
+        p.drawRect(QRectF(sq.left(), sq.top(), sq.width() / 2, sq.height()));
+        break; }
+    case 5: {   // Vibrance: a four-point sparkle
+        const qreal R = r.width() * 0.5, q = r.width() * 0.14;
+        QPainterPath path;
+        path.moveTo(c.x(), c.y() - R); path.lineTo(c.x() + q, c.y() - q); path.lineTo(c.x() + R, c.y());
+        path.lineTo(c.x() + q, c.y() + q); path.lineTo(c.x(), c.y() + R); path.lineTo(c.x() - q, c.y() + q);
+        path.lineTo(c.x() - R, c.y()); path.lineTo(c.x() - q, c.y() - q); path.closeSubpath();
+        p.setPen(QPen(ink, 1.5));
+        p.setBrush(QColor(0x9d, 0x8c, 0xff));
+        p.drawPath(path);
+        break; }
+    }
+    return pm;
+}
+
+// the Preview switch of the drawing: a pill that says ON or OFF, with a round knob, and a blue glow when it is on
+class KrimbleToggleSwitch : public QAbstractButton
+{
+public:
+    explicit KrimbleToggleSwitch(QWidget *parent = nullptr) : QAbstractButton(parent)
+    {
+        setCheckable(true);
+        setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    }
+    QSize sizeHint() const override { return QSize(84, 40); }
+protected:
+    void paintEvent(QPaintEvent *) override
+    {
+        QPainter p(this);
+        p.setRenderHint(QPainter::Antialiasing);
+        const QRectF r = QRectF(rect()).adjusted(5, 5, -5, -5);
+        const qreal radius = r.height() / 2.0;
+        if (isChecked()) {
+            p.setBrush(Qt::NoBrush);
+            for (int i = 4; i >= 1; --i) {
+                p.setPen(QPen(QColor(56, 198, 255, 20 * (5 - i)), i * 2.0));
+                p.drawRoundedRect(r, radius, radius);
+            }
+        }
+        QLinearGradient bg(r.topLeft(), r.bottomLeft());
+        if (isChecked()) { bg.setColorAt(0, QColor(0x38, 0xc6, 0xff)); bg.setColorAt(1, QColor(0x0b, 0x6f, 0xd6)); }
+        else             { bg.setColorAt(0, QColor(0x4a, 0x52, 0x76)); bg.setColorAt(1, QColor(0x2a, 0x30, 0x48)); }
+        p.setPen(QPen(isChecked() ? QColor(0x9f, 0xe3, 0xff) : QColor(0x6b, 0x74, 0x98), 1.5));
+        p.setBrush(bg);
+        p.drawRoundedRect(r, radius, radius);
+        const qreal knob = r.height() - 8;
+        const qreal x = isChecked() ? r.right() - knob - 4 : r.left() + 4;
+        p.setPen(Qt::NoPen);
+        p.setBrush(QColor(0xf4, 0xf6, 0xff));
+        p.drawEllipse(QRectF(x, r.top() + 4, knob, knob));
+        p.setPen(QColor(0xf4, 0xf6, 0xff));
+        QFont f = font(); f.setBold(true); p.setFont(f);
+        const QRectF textRect = isChecked() ? QRectF(r.left() + 6, r.top(), r.width() - knob - 14, r.height())
+                                            : QRectF(r.left() + knob + 10, r.top(), r.width() - knob - 14, r.height());
+        p.drawText(textRect, Qt::AlignCenter, isChecked() ? QStringLiteral("ON") : QStringLiteral("OFF"));
+    }
+};
+
 // Krimble 2026-10-30: "Keep as layers" in the Quick Adjust window (off at first; kept while the program runs)
 static bool g_krimbleQuickKeepLayers = false;
 
@@ -998,7 +1107,10 @@ public:
         QFont font = title->font(); font.setBold(true); title->setFont(font);
         options->addWidget(title);
         options->addStretch();
-        m_preview = new QCheckBox(i18n("Preview"), content);
+        // m_preview = new QCheckBox(i18n("Preview"), content);
+        // Krimble 2026-10-30: the Preview switch of the drawing (a pill that says ON or OFF), with its label
+        options->addWidget(new QLabel(i18n("Preview"), content));
+        m_preview = new KrimbleToggleSwitch(content);
         m_preview->setChecked(true);
         options->addWidget(m_preview);
         layout->addLayout(options);
@@ -1011,6 +1123,11 @@ public:
         for (int i = 0; i < SliderCount; ++i) {
             QHBoxLayout *row = new QHBoxLayout;
             row->setSpacing(8);
+            // Krimble 2026-10-30: the small picture at the start of the row (the drawing's sun, half circle, drops, color ring, half square, sparkle)
+            QLabel *rowIcon = new QLabel(content);
+            rowIcon->setPixmap(krimbleQuickAdjustIcon(i, 34));
+            rowIcon->setFixedSize(34, 34);
+            row->addWidget(rowIcon);
             m_labels[i] = new QLabel(i18n(def(i).name), content);
             m_labels[i]->setMinimumWidth(90);
             row->addWidget(m_labels[i]);
@@ -1024,6 +1141,14 @@ public:
             m_sliders[i]->setMinimumWidth(1);
             m_sliders[i]->setMinimumHeight(38);
             m_sliders[i]->setObjectName(QStringLiteral("krimbleQuickAdjustSlider"));
+            if (i == Hue) {
+                // Krimble 2026-10-30: the drawing's rainbow Hue slider: the groove shows the colors the slider goes through (and has no orange fill)
+                m_sliders[i]->setStyleSheet(QStringLiteral(
+                    "QSlider::groove:horizontal { height: 9px; border: 1px solid #535c80; border-radius: 4px;"
+                    " background: qlineargradient(x1:0,y1:0,x2:1,y2:0, stop:0 #ff00c8, stop:0.2 #4a3cff, stop:0.4 #00c8ff,"
+                    " stop:0.6 #1fdc3f, stop:0.8 #ffe600, stop:1 #ff2a00); }"
+                    "QSlider::sub-page:horizontal { background: transparent; border: none; }"));
+            }
             layout->addWidget(m_sliders[i]);
             connect(m_sliders[i], &QSlider::valueChanged, this, [this, i](int value) {
                 m_values[i] = value;
@@ -1044,7 +1169,7 @@ public:
         m_timer.setSingleShot(true);
         connect(&m_timer, &QTimer::timeout, this, [this]() { apply(); });
         for (int i = 0; i < SliderCount; ++i) m_values[i] = 0;
-        connect(m_preview, &QCheckBox::toggled, this, [this](bool enabled) {
+        connect(m_preview, &QAbstractButton::toggled, this, [this](bool enabled) {
             m_previewEnabled = enabled;
             flush();
         });
@@ -1178,7 +1303,8 @@ private:
     QLabel *m_labels[SliderCount];
     QSlider *m_sliders[SliderCount];
     QSpinBox *m_numbers[SliderCount];
-    QCheckBox *m_preview = nullptr;
+    // QCheckBox *m_preview = nullptr;
+    QAbstractButton *m_preview = nullptr;   // Krimble 2026-10-30: the Preview switch
     QCheckBox *m_keepLayers = nullptr;     // Krimble 2026-10-30
     KisNodeWSP m_activeBefore;             // Krimble 2026-10-30: the layer that was active when the first adjustment layer was made
     bool m_previewEnabled = true;
