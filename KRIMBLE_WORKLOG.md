@@ -100,3 +100,4 @@ Times are Mountain Time from the clock of the sandbox that pushed (`date`), chec
 | Oct 30 7:10 PM | (this push) | Quick Adjust own logo (355th) |
 | Oct 30 7:11 PM | (this push, 356th) | the Quick Adjust logo drawn in code switched off; waiting for George's graphic |
 | Oct 30 7:12 PM | (this push, 357th) | Colorize Mask Editing and Enclose and Fill commented out; George: keep Ruler and Reference Images; comments corrected |
+| Oct 30 7:28 PM | (this push, 358th) | toolbox is 32 tools: four tools shown on the phone again, arrow mapped to Edit Shapes |

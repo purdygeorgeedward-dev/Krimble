@@ -187,10 +187,13 @@ void KoToolBox::addButton(KoToolAction *toolAction)
         static const QStringList krimbleHiddenOnMobile = {
             QStringLiteral("KritaShape/KisToolLazyBrush"),   // Colorize Mask Editing Tool
             QStringLiteral("KisToolEncloseAndFill"),         // Enclose and Fill Tool
-            QStringLiteral("KisAssistantTool"),              // Assistant Tool
-            QStringLiteral("KritaShape/KisToolMeasure"),     // Ruler Tool
-            QStringLiteral("ToolReferenceImages"),           // Reference Images Tool
-            QStringLiteral("KisToolSelectPath"),             // Path-Based Selection Tool
+            // Krimble 2026-10-30: George: "keep ruler and reference images." and "we should have 32 tools." The four tools below have a picture in the new
+            // set of 32 toolbox icons, so they are shown on the phone too: Assistant, Ruler, Reference Images and Path-Based Selection. Only Colorize Mask Editing
+            // and Enclose and Fill stay out (they have no picture, and are commented out of the registry too). The lines are kept as comments.
+            // QStringLiteral("KisAssistantTool"),              // Assistant Tool
+            // QStringLiteral("KritaShape/KisToolMeasure"),     // Ruler Tool
+            // QStringLiteral("ToolReferenceImages"),           // Reference Images Tool
+            // QStringLiteral("KisToolSelectPath"),             // Path-Based Selection Tool
         };
         if (krimbleHiddenOnMobile.contains(toolAction->id())) {
             return;
