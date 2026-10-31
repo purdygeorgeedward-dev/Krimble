@@ -1091,6 +1091,7 @@ protected:
     }
 };
 
+#if 0   // Krimble 2026-10-30: switched off: George: "not drawn in code. I will provide a graphic." The code is kept, not run.
 // Krimble 2026-10-30: George: "QuickAdjust should have its own logo, a big bold stylize QuickAdjust." (not the Krimble K and paw: "no.") A logo made of the
 // word itself, drawn in code: heavy italic letters, "Quick" light with a blue glow and "Adjust" in Krimble orange (#FD6001) with a dark edge, and a thin
 // slider line under them with a round knob. It shrinks to fit the width of the window.
@@ -1161,6 +1162,7 @@ protected:
         p.drawEllipse(QPointF(knobX, lineY), 5.0, 5.0);
     }
 };
+#endif   // Krimble 2026-10-30: end of the logo drawn in code (switched off)
 
 // Krimble 2026-10-30: "Keep as layers" in the Quick Adjust window (off at first; kept while the program runs)
 static bool g_krimbleQuickKeepLayers = false;
@@ -1411,13 +1413,14 @@ static void krimbleShowQuickAdjustDialog(KisMainWindow *win)
     // written at the top of it.
     // Krimble 2026-10-30: George: "QuickAdjust does not need to say Krimble in it." The heading shows the tool name only.
     // QLabel *heading = new QLabel(i18n("Krimble  |  QuickAdjust"), dialog);
-    // QLabel *heading = new QLabel(i18n("QuickAdjust"), dialog);
-    // QFont headingFont = heading->font();
-    // headingFont.setBold(true);
-    // heading->setFont(headingFont);
-    // layout->addWidget(heading);
-    // Krimble 2026-10-30: its own logo, a big bold stylized "QuickAdjust" (KrimbleQuickAdjustLogo, above)
-    layout->addWidget(new KrimbleQuickAdjustLogo(dialog));
+    // Krimble 2026-10-30: George: "not drawn in code. I will provide a graphic." The logo drawn in code (KrimbleQuickAdjustLogo, switched off above with #if 0)
+    // is not used; the plain heading is back until his graphic of QuickAdjust arrives.
+    QLabel *heading = new QLabel(i18n("QuickAdjust"), dialog);
+    QFont headingFont = heading->font();
+    headingFont.setBold(true);
+    heading->setFont(headingFont);
+    layout->addWidget(heading);
+    // layout->addWidget(new KrimbleQuickAdjustLogo(dialog));
     layout->addWidget(content);
     layout->addWidget(buttons);
     QObject::connect(buttons, &QDialogButtonBox::accepted, dialog, [adjust, dialog]() {
