@@ -90,7 +90,7 @@ Written from the Claude session inside the Krimble project. The text above is fr
 - **The transparent default brush is fixed** ("back to normal").
 - **Rounded Box is not a tool.** It is a setting in the Rectangle tool's options (the box preferences). The **Tail** and the **Speech Balloon** are features to add to a box or an oval; **no separate tool and no separate toolbox icon** for any of them. Still on hold.
 - **The stylesheet "faults"** (combo and spin arrows, checkbox indicator, slider handle height, colors vs theme) were my guesses from reading the code, never seen on a device: dropped unless George sees a problem.
-- **Quick Adjust:** complete the ChatGPT dialog, do not replace it (352nd entry). George, 2026-10-30: "I Did not say the mockups logo is left out. I said it shouldn't say KRIMBLE." So the heading must not say the word Krimble; the mockup's logo **mark** (the K and paw) is wanted and **not yet in the heading** (its artwork is not a picture file the program can load; the launcher icon art is an Android resource).
+- **Quick Adjust:** complete the ChatGPT dialog, do not replace it (352nd entry). George, 2026-10-30: "I Did not say the mockups logo is left out. I said it shouldn't say KRIMBLE." and, when the K and paw mark was offered: "no. QuickAdjust should have its own logo, a big bold stylize QuickAdjust." **Done in the 355th entry:** the heading is a stylized "QuickAdjust" logotype drawn in code (no Krimble in it, no K and paw).
 - **The Play Store .aab** made before is out of date; **another is made when release candidate 1 (rc-1) is reached.**
 - **The full-APK 16 KB alignment check was completed.**
 - **The Flarum forum setup was completed.**
