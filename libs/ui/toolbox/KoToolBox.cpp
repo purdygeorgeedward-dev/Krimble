@@ -175,7 +175,12 @@ void KoToolBox::addButton(KoToolAction *toolAction)
     // KRIMBLE 2026-10-03: the Select Shapes tool ("InteractionTool") stays registered because
     // the tool manager needs it as the default tool, but it gets no toolbox button, so the
     // first button is the Move tool. (An empty toolbox section is skipped by the layout.)
-    if (toolAction->id() == QLatin1String("InteractionTool")) {
+    // if (toolAction->id() == QLatin1String("InteractionTool")) {
+    //     return;
+    // }
+    // Krimble 2026-10-30: George: "I think you should have left it. Edit shapes can be a toggle or something." The Select Shapes tool has a toolbox button again (his
+    // arrow picture); the Edit Shapes tool ("PathTool") has none: it is the "Edit points" button in the Tool Options of Select Shapes (KrimbleShapeModeRow.h).
+    if (toolAction->id() == QLatin1String("PathTool")) {
         return;
     }
 

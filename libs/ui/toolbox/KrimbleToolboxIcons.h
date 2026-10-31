@@ -37,8 +37,8 @@ inline const QHash<QString, QString> &files()
         { QStringLiteral("krita_tool_gradient"),        QStringLiteral("04_01_gradient") },
         { QStringLiteral("krita_tool_color_fill"),      QStringLiteral("04_02_fill") },
         { QStringLiteral("krita_draw_path"),            QStringLiteral("04_03_bezier_curve") },
-        // { QStringLiteral("select"),                     QStringLiteral("04_04_shape_select") },   // the Select Shapes tool has no toolbox button (KoToolBox::addButton)
-        { QStringLiteral("shape_handling"),             QStringLiteral("04_04_shape_select") },   // Krimble 2026-10-30: the arrow is the Edit Shapes tool (Direct Selection)
+        { QStringLiteral("select"),                     QStringLiteral("04_04_shape_select") },   // Krimble 2026-10-30: the arrow is the Select Shapes tool (it has its button again)
+        // { QStringLiteral("shape_handling"),             QStringLiteral("04_04_shape_select") },   // (the 358th entry put it on Edit Shapes; George: "I think you should have left it.")
         { QStringLiteral("draw-text"),                  QStringLiteral("04_05_text") },
         { QStringLiteral("krita_tool_rectangle"),       QStringLiteral("05_01_rectangle") },
         { QStringLiteral("krita_tool_ellipse"),         QStringLiteral("05_02_ellipse") },
