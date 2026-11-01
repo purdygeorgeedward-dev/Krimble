@@ -5888,8 +5888,8 @@ George (2026-10-30): "NEVER ANSWER ANY QUESTION WITHOUT CHECKING THE NOTES." Wri
 
 George (2026-10-30): "It's time to build 1.0.45-beta." **`feature/krimble-ui-refresh` is merged into master** (GitHub API merge, commit `07910db16e`, 7:42 PM MT). Before the merge: 1.0.44 is published (2026-10-27, so the rule "publish before a new build" is met); no file was changed on both master and the branch since they parted (`3cf6fc0`); the branch changes no Java or Kotlin file (so the JNI name check is not needed). Master's version number is now **45** (`krimbleBuildNumber = 45`), so the next `~/kb-build.sh` builds **1.0.45-beta** with entries 324 to 362. Also recorded: George does not read the repo docs ("That's all your internal reference material."); what he needs goes in the chat.
 
-## 2026-10-30 (364th) — KRIMBLE_STATUS.md: the branch is merged; 1.0.45 is built from master
+## 2026-10-31 (364th) — KRIMBLE_STATUS.md: the branch is merged; 1.0.45 is built from master
 
 **Files:** `KRIMBLE_STATUS.md`, `KRIMBLE_WORKLOG.md`
 
-George (2026-10-30): "update" (the top of `KRIMBLE_STATUS.md` still said the UI refresh branch was not merged). The "Now" section now says: the branch was merged into master at 7:42 PM MT (`07910db16e`), master is the working branch again, version 45, the next `~/kb-build.sh` builds 1.0.45-beta with entries 324 to 363, nothing compiled yet, the riskiest parts, and that the server did not answer SSH at 7:44 PM MT so the build has not started. Text only.
+George (2026-10-31): "update" (the top of `KRIMBLE_STATUS.md` still said the UI refresh branch was not merged). The "Now" section now says: the branch was merged into master at 7:42 PM MT (`07910db16e`), master is the working branch again, version 45, the next `~/kb-build.sh` builds 1.0.45-beta with entries 324 to 363, nothing compiled yet, the riskiest parts, and that the server did not answer SSH at 7:44 PM MT so the build has not started. Text only.
