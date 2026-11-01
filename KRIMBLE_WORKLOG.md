@@ -107,3 +107,4 @@ Times are Mountain Time from the clock of the sandbox that pushed (`date`), chec
 | Oct 30 7:41 PM | (docs push, 362nd) | seven docs restored after the 359th to 361st commits had cut them down |
 | Oct 30 7:42 PM | `07910db16e` | **merge of `feature/krimble-ui-refresh` into master** (GitHub API) for 1.0.45-beta |
 | Oct 30 7:42 PM | (docs push, 363rd) | 1.0.45 merge recorded |
+| Oct 30 7:15 PM | (docs push, 364th) | KRIMBLE_STATUS.md: the branch is merged; 1.0.45 from master |
