@@ -10,8 +10,12 @@ on:
   workflow_dispatch:
     inputs:
       beta:
-        description: "Beta label used in the APK file name"
-        default: "Beta2"
+        description: "Version label used in the APK file name"
+        # KRIMBLE 2026-11-03: default was "Beta2", which is the old version. Master's build.gradle
+        # has krimbleBuildNumber = 45 (versionName 1.0.45-beta), so the default now matches it.
+        # Change this by hand when the build number changes.
+        # default: "Beta2"
+        default: "1.0.45-beta"
 
 concurrency:
   group: krimble-android
