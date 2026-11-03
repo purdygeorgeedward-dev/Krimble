@@ -1,0 +1,137 @@
+# Krimble Android build on GitHub Actions (replaces the Oracle server).
+# Mirrors build-tools/ci-scripts/android.yml and BUILD_ANDROID.md steps 1-3.
+# Runs only when started by hand (Actions tab > Run workflow).
+# A full build exceeds the 6-hour job limit, so the native build is stopped
+# at 5h, ccache is saved, and the run is marked failed. Run it again and it
+# resumes from the ccache until the build finishes.
+name: Krimble Android build
+
+on:
+  workflow_dispatch:
+    inputs:
+      beta:
+        description: "Beta label used in the APK file name"
+        default: "Beta2"
+
+concurrency:
+  group: krimble-android
+  cancel-in-progress: false
+
+jobs:
+  build:
+    # x64 runner: NDK host tools are x86_64, so they run natively here.
+    runs-on: ubuntu-24.04
+    timeout-minutes: 355
+    env:
+      NDK_VERSION: 27.3.13750724
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Free disk space
+        run: |
+          sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/share/boost /opt/hostedtoolcache/CodeQL
+          df -h /
+
+      - name: Install tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ccache ninja-build python3-venv gettext
+
+      - name: Install NDK 27.3.13750724
+        run: |
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --install "ndk;${NDK_VERSION}"
+          ls "$ANDROID_HOME/ndk"
+
+      - name: Restore ccache
+        uses: actions/cache/restore@v4
+        with:
+          path: ccache
+          key: krimble-ccache-${{ github.run_id }}
+          restore-keys: krimble-ccache-
+
+      - name: Fetch dependencies (step 1)
+        run: |
+          git clone https://invent.kde.org/packaging/krita-deps-management.git -b master --depth=1
+          git clone https://invent.kde.org/packaging/krita-ci-utilities.git krita-deps-management/ci-utilities --depth=1
+          python3 -m venv venv --upgrade-deps
+          . venv/bin/activate
+          pip install -r krita-deps-management/requirements.txt
+          python3 -u krita-deps-management/tools/setup-env.py --full-krita-env --android-abi arm64-v8a -r "$GITHUB_WORKSPACE" -o env
+          # Shared settings for every later step (same values as BUILD_ANDROID.md step 2)
+          cat > "$RUNNER_TEMP/krimble-env.sh" <<EOF
+          cd "$GITHUB_WORKSPACE"
+          source "$GITHUB_WORKSPACE/env"
+          export ANDROID_NDK_ROOT="$ANDROID_HOME/ndk/$NDK_VERSION"
+          export ANDROID_NDK_HOME="\$ANDROID_NDK_ROOT"
+          export KDECI_ANDROID_NDK_ROOT="\$ANDROID_NDK_ROOT"
+          export KDECI_CACHE_PATH="$GITHUB_WORKSPACE/cache"
+          export KDECI_GITLAB_SERVER=https://invent.kde.org/
+          export KDECI_PACKAGE_PROJECT=teams/ci-artifacts/krita-android-arm64-v8a
+          export KDECI_WORKDIR_PATH="$HOME/kwd"
+          export CMAKE_TOOLCHAIN_FILE="$GITHUB_WORKSPACE/krita-deps-management/tools/android-toolchain-krita.cmake"
+          export KDECI_EXTRA_CMAKE_ARGS="-DHIDE_SAFE_ASSERTS=ON -DBUILD_TESTING=OFF"
+          export KRITACI_ANDROID_PACKAGE_TYPE=release
+          export KRITACI_ANDROID_RELEASE_MODE=1
+          export CCACHE_DIR="$GITHUB_WORKSPACE/ccache"
+          export CCACHE_MAXSIZE=8G
+          export CCACHE_COMPRESS=1
+          unset VIRTUAL_ENV
+          EOF
+          grep -n "NDK" env || true
+
+      - name: Native build (step 2, stops at 5h)
+        id: native
+        run: |
+          source "$RUNNER_TEMP/krimble-env.sh"
+          set +e
+          timeout 5h python3 -u krita-deps-management/ci-utilities/run-ci-build.py \
+            --project krita --branch master \
+            --platform Android/arm64-v8a/Qt5/Shared \
+            --only-build --skip-publishing 2>&1 | tee "$HOME/build-krita.log"
+          rc=${PIPESTATUS[0]}
+          echo "rc=$rc" >> "$GITHUB_OUTPUT"
+          exit 0
+
+      - name: Save ccache
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: ccache
+          key: krimble-ccache-${{ github.run_id }}
+
+      - name: Stop here if native build did not finish
+        if: steps.native.outputs.rc != '0'
+        run: |
+          echo "Native build exit code ${{ steps.native.outputs.rc }}."
+          echo "124 = hit the 5h limit. ccache is saved. Run the workflow again to resume."
+          exit 1
+
+      - name: Install signing keystore
+        env:
+          KEYSTORE_B64: ${{ secrets.KRIMBLE_KEYSTORE_BASE64 }}
+        run: |
+          # build.gradle reads $HOME/krimble-release.jks (user.home)
+          echo "$KEYSTORE_B64" | base64 -d > "$HOME/krimble-release.jks"
+
+      - name: Package APK (step 3)
+        env:
+          KRIMBLE_KEYSTORE_PASSWORD: ${{ secrets.KRIMBLE_KEYSTORE_PASSWORD }}
+          KRIMBLE_KEY_PASSWORD: ${{ secrets.KRIMBLE_KEY_PASSWORD }}
+        run: |
+          source "$RUNNER_TEMP/krimble-env.sh"
+          python3 -u build-tools/ci-scripts/build-android-package.py 2>&1 | tee "$HOME/build-apk.log"
+
+      - name: Verify signature and name the APK
+        run: |
+          APK=$(ls "$HOME"/kwd/krita/_packaging/*.apk | head -n 1)
+          "$ANDROID_HOME"/build-tools/*/apksigner verify --verbose "$APK" | head -n 8
+          NAME="Krimble-${{ inputs.beta }}-$(TZ=America/Denver date +%b%d-%H%M).apk"
+          mkdir -p out && cp "$APK" "out/$NAME"
+          ls -l out
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: krimble-apk
+          path: out/*.apk
+          retention-days: 14
