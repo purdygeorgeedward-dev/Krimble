@@ -68,6 +68,7 @@ jobs:
           export ANDROID_NDK_ROOT="$ANDROID_HOME/ndk/$NDK_VERSION"
           export ANDROID_NDK_HOME="\$ANDROID_NDK_ROOT"
           export KDECI_ANDROID_NDK_ROOT="\$ANDROID_NDK_ROOT"
+          export KDECI_ANDROID_SDK_ROOT="$ANDROID_HOME"
           export KDECI_CACHE_PATH="$GITHUB_WORKSPACE/cache"
           export KDECI_GITLAB_SERVER=https://invent.kde.org/
           export KDECI_PACKAGE_PROJECT=teams/ci-artifacts/krita-android-arm64-v8a
@@ -93,6 +94,9 @@ jobs:
             --platform Android/arm64-v8a/Qt5/Shared \
             --only-build --skip-publishing 2>&1 | tee "$HOME/build-krita.log"
           rc=${PIPESTATUS[0]}
+          # KRIMBLE 2026-11-04: run-ci-build.py exits 0 even when cmake fails to configure,
+          # so also treat a "## Failed" line in its log as a failure.
+          if grep -q '^## Failed' "$HOME/build-krita.log"; then rc=1; fi
           echo "rc=$rc" >> "$GITHUB_OUTPUT"
           exit 0
 
