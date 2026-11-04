@@ -47,6 +47,7 @@
 // Calligra
 #include <kis_icon.h>
 #include <kis_config_notifier.h>
+#include "KrimbleVisualStyle.h"   // Krimble 2026-11-04: krimbleVisualStyleSheet(), re-applied after the theme palette
 
 #ifdef __APPLE__
 #include <QStyle>
@@ -194,6 +195,14 @@ void ThemeManager::slotChangePalette()
     // hint for the style to synchronize the color scheme with the window manager/compositor
     qApp->setProperty("KDE_COLOR_SCHEME_PATH", filename);
     qApp->setPalette(palette);
+#ifdef Q_OS_ANDROID
+    // Krimble 2026-11-04: George: the app starts with a weird gray (window and behind the toolbox) that goes away
+    // after using it a while. The application style sheet is set early in KisApplication.cpp, before this palette is
+    // applied; widgets styled before the palette changed can keep the old (gray) colors until something makes Qt
+    // repolish them. Setting the same style sheet again here, right after the palette, makes Qt repolish every widget
+    // with the theme's colors. This also runs when the theme is changed from the menu.
+    qApp->setStyleSheet(krimbleVisualStyleSheet());
+#endif
     KisConfigNotifier::instance()->notifyColorThemeChanged(filename);
 
     Q_EMIT signalThemeChanged();
