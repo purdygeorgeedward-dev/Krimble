@@ -47,10 +47,15 @@ ForegroundPositive=151,202,64
 ForegroundVisited=160,160,160
 
 [Colors:Selection]
-BackgroundAlternate=96,126,163
-BackgroundNormal=83,114,142
-DecorationFocus=138,190,236
-DecorationHover=138,190,236
+# Krimble 2026-11-04: selection blue matches the stylesheet's selected rows and buttons (old values below)
+# BackgroundAlternate=96,126,163
+# BackgroundNormal=83,114,142
+# DecorationFocus=138,190,236
+# DecorationHover=138,190,236
+BackgroundAlternate=29,124,178
+BackgroundNormal=19,96,146
+DecorationFocus=67,201,255
+DecorationHover=67,201,255
 ForegroundActive=235,235,235
 ForegroundInactive=187,194,208
 ForegroundLink=216,216,216
