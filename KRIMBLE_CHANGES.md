@@ -5893,3 +5893,15 @@ George (2026-10-30): "It's time to build 1.0.45-beta." **`feature/krimble-ui-ref
 **Files:** `KRIMBLE_STATUS.md`, `KRIMBLE_WORKLOG.md`
 
 George (2026-10-31): "update" (the top of `KRIMBLE_STATUS.md` still said the UI refresh branch was not merged). The "Now" section now says: the branch was merged into master at 7:42 PM MT (`07910db16e`), master is the working branch again, version 45, the next `~/kb-build.sh` builds 1.0.45-beta with entries 324 to 363, nothing compiled yet, the riskiest parts, and that the server did not answer SSH at 7:44 PM MT so the build has not started. Text only.
+
+## 2026-11-04 (365th) — Builds move to GitHub Actions (the Oracle server is gone)
+
+**Files:** `.github/workflows/android-build.yml`, `BUILD_ANDROID.md`, `KRIMBLE_STATUS.md`, `KRIMBLE_WORKLOG.md`
+
+The Oracle server was deleted (2026-11-02) and Oracle had no capacity to restore it, so George (2026-11-03) approved building on GitHub Actions (the repo is public, so the minutes are free). New workflow `android-build.yml`: started by hand (Actions tab > Run workflow), x64 runner `ubuntu-24.04` (the NDK host tools are x86_64, so they run natively and the lld-18 swap is not needed), NDK 27.3.13750724, Krita's own CI steps 1 to 3 (setup-env.py, run-ci-build.py, build-android-package.py), ccache saved and restored, the native build stopped at 5 hours so a second run resumes from the cache, signing from three repo secrets, the APK uploaded as the run artifact `krimble-apk` and named `Krimble-<label>-<date>-<time>.apk` (label input, default `1.0.45-beta`).
+
+Pushes (Mountain Time): `01b495d` Nov 3 1:46 PM (workflow added); `3c7fcaa` Nov 3 3:00 PM (label default 1.0.45-beta, was Beta2); `b278e96` Nov 4 8:14 AM (sets `KDECI_ANDROID_SDK_ROOT`; the step now fails when the log shows `## Failed`).
+
+Run 1 (Nov 3, 1:47 PM, commit `01b495d`) failed at cmake configure: "KDECI_ANDROID_SDK_ROOT environment variable is not set". `run-ci-build.py` exits 0 even when configure fails, so the old workflow went on to a do-nothing packaging step and only failed at the APK check. That is why `b278e96` checks the log. Run 2 (Nov 4, 8:15 AM, commit `b278e96`) was in progress when this entry was written; whether the full compile works on GitHub is not yet confirmed.
+
+New release keystore (2026-11-03): the old `krimble-release.jks` was only on the deleted server. A new one was made on George's phone (alias `krimble`) and stored as the repo secrets `KRIMBLE_KEYSTORE_BASE64`, `KRIMBLE_KEYSTORE_PASSWORD`, `KRIMBLE_KEY_PASSWORD`. Its key does not match builds up to 1.0.44: a phone with an older build must uninstall first. Nothing was uploaded to Google Play with the old key. Oracle still holds a boot volume backup of the old server; George chose not to recover it.

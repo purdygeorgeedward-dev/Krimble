@@ -108,3 +108,7 @@ Times are Mountain Time from the clock of the sandbox that pushed (`date`), chec
 | Oct 30 7:42 PM | `07910db16e` | **merge of `feature/krimble-ui-refresh` into master** (GitHub API) for 1.0.45-beta |
 | Oct 30 7:42 PM | (docs push, 363rd) | 1.0.45 merge recorded |
 | Oct 31 7:15 PM | (docs push, 364th) | KRIMBLE_STATUS.md: the branch is merged; 1.0.45 from master |
+| Nov 3  1:46 PM | `01b495d` | purdygeorgeedward-dev | GitHub Actions workflow added (`android-build.yml`) |
+| Nov 3  3:00 PM | `3c7fcaa` | purdygeorgeedward-dev | Workflow: APK label default 1.0.45-beta (was Beta2) |
+| Nov 4  8:14 AM | `b278e96` | purdygeorgeedward-dev | Workflow: KDECI_ANDROID_SDK_ROOT set; step fails on `## Failed` in the build log |
+| Nov 4  8:17 AM | (docs push, 365th) | builds moved to GitHub Actions: changelog, status, build doc, worklog |
