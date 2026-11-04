@@ -7,8 +7,17 @@
 inline QString krimbleVisualStyleSheet()
 {
     return QStringLiteral(R"KRIMBLE(
+/* Krimble 2026-11-04: George: "Make the other elements match the buttons." Dialogs now use the app's own window color #373952
+   (theme "Krimble dark"), not the separate dark blue #282d49; fields and lists use the theme's list color #282a43 (flat). */
+QMainWindow, QDockWidget, QToolBar, QStatusBar {
+    background-color: #373952;
+}
+QAbstractItemView {
+    background-color: #282a43;
+}
 QDialog, QMessageBox, QInputDialog, QColorDialog, QFileDialog {
-    background-color: #282d49;
+    /* background-color: #282d49; */
+    background-color: #373952;
     color: #eef1fa;
 }
 QDialog QLabel, QDialog QGroupBox, QDialog QCheckBox,
@@ -21,32 +30,32 @@ QGroupBox {
     margin-top: 12px;
     padding: 12px 6px 6px 6px;
     background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
-                                stop:0 #353d61, stop:1 #292e49);
+                                stop:0 #3d4060, stop:1 #383a58);
 }
 QGroupBox::title { subcontrol-origin: margin; left: 12px; padding: 0 5px; }
-QPushButton, QToolButton {
+QPushButton, QDialog QToolButton {
     color: #f1f4fc;
     border: 1px solid #59668d;
     border-top: 1px solid #8795bc;
     border-radius: 5px;
     padding: 5px 9px;
     background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
-                                stop:0 #515d84, stop:0.48 #3c456a,
-                                stop:1 #242a48);
+                                stop:0 #4a567b, stop:0.48 #3c4569,
+                                stop:1 #2b3251);
 }
-QPushButton:hover, QToolButton:hover {
+QPushButton:hover, QDialog QToolButton:hover {
     border-color: #59b8f4;
     background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
                                 stop:0 #4775a7, stop:1 #234770);
 }
-QPushButton:pressed, QToolButton:pressed,
-QPushButton:checked, QToolButton:checked {
+QPushButton:pressed, QDialog QToolButton:pressed,
+QPushButton:checked, QDialog QToolButton:checked {
     border: 2px solid #38c6ff;
     background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
                                 stop:0 #167bb7, stop:0.5 #095889,
                                 stop:1 #07345e);
 }
-QPushButton:disabled, QToolButton:disabled {
+QPushButton:disabled, QDialog QToolButton:disabled {
     color: #8990a6;
     border-color: #444c67;
     background: #303650;
@@ -55,7 +64,11 @@ QPushButton:disabled, QToolButton:disabled {
    "QDialog QToolButton" (tool buttons inside dialogs only, so the toolbox and the panels' tool buttons were left out on purpose); they now say
    "QToolButton": every tool button in the app, the toolbox and the panels included. The checked button has the blue border and gradient (the selected
    tool). The roomy padding is kept for tool buttons in dialogs; elsewhere it is small, so the toolbox buttons do not grow. */
-QToolButton { padding: 3px; }
+/* Krimble 2026-11-04: George: no shaded buttons in the toolbox; shaded buttons stay in dialogs. The button rules above are back to
+   "QDialog QToolButton" (tool buttons inside dialogs only), as before the 337th entry. The old selectors were "QToolButton" and
+   "QToolButton:hover/pressed/checked/disabled". Selections (checked button, selected tab, selected list row, the blue glow) are unchanged:
+   George: "I think it got the selections right before." */
+/* QToolButton { padding: 3px; }   (switched off 2026-11-04, see the note above) */
 QDialog QToolButton { padding: 5px 9px; }
 QTabBar::tab {
     color: #e3e8f6;
@@ -65,7 +78,7 @@ QTabBar::tab {
     border-top-left-radius: 6px;
     border-top-right-radius: 6px;
     background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
-                                stop:0 #424c72, stop:1 #272d4c);
+                                stop:0 #3e476c, stop:1 #2b3252);
 }
 QTabBar::tab:selected {
     color: white;
@@ -81,8 +94,9 @@ QLineEdit, QSpinBox, QDoubleSpinBox, QComboBox {
     border: 1px solid #5a6489;
     border-radius: 4px;
     padding: 3px 5px;
-    background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
-                                stop:0 #222740, stop:1 #363d5e);
+    /* Krimble 2026-11-04: George: no shading on text fields or any other fields: one flat color, the theme's list color. */
+    /* background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #222740, stop:1 #363d5e); */
+    background: #282a43;
 }
 QLineEdit:focus, QSpinBox:focus, QDoubleSpinBox:focus, QComboBox:focus {
     border: 1px solid #43c9ff;
