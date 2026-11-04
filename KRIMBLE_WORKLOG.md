@@ -113,3 +113,9 @@ Times are Mountain Time from the clock of the sandbox that pushed (`date`), chec
 | Nov 4  8:14 AM | `b278e96` | purdygeorgeedward-dev | Workflow: KDECI_ANDROID_SDK_ROOT set; step fails on `## Failed` in the build log |
 | Nov 4  8:17 AM | (docs push, 365th) | builds moved to GitHub Actions: changelog, status, build doc, worklog |
 | Nov 4  10:15 AM | (this push, 366th) | Color panel: the 42% height cap applies only while docked; a floating panel can be made taller |
+| Nov 4  10:17 AM | `190efe3` | purdygeorgeedward-dev | Style sheet: one blue family, flat fields, softer shading, toolbox unshaded (367th) |
+| Nov 4  10:17 AM | `5a8f3a5` | purdygeorgeedward-dev | Theme Krimble dark: selection colors (368th) |
+| Nov 4  10:17 AM | `2f5a995` | purdygeorgeedward-dev | Toolbox icons: Silhouette default (369th) |
+| Nov 4  10:17 AM | `96e58f6` | purdygeorgeedward-dev | Style sheet set again after the theme palette, for the startup gray (370th) |
+| Nov 4  10:17 AM | `6f1046c` | purdygeorgeedward-dev | Percentage fills: selection blue instead of orange (371st) |
+| Nov 4  10:17 AM | (docs push, 367th to 371st) | changelog, worklog, status for the five changes above; none built yet |

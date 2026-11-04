@@ -5911,3 +5911,33 @@ New release keystore (2026-11-03): the old `krimble-release.jks` was only on the
 **Files:** `plugins/dockers/advancedcolorselector/kis_color_selector_ng_dock.cpp`
 
 George (1.0.45-beta, first GitHub build): the Color panel (Color Studio) could only be scrolled, and its corner sizing gadget would not drag it taller. Cause: an old Krimble line capped the panel's content at 42% of the screen's shorter side (`setMaximumHeight(int(shortSide * 0.42))`, about 454 px on his phone), made when the classic color selector was about 910 px tall in portrait. Color Studio sits inside the same widget and needs more room, so the cap stopped the gadget. The cap is now applied by a small function that runs at start and whenever the panel is docked or floated (`QDockWidget::topLevelChanged`): docked keeps the cap, floating has no height limit. The old lines are commented out. **Not verified:** a build or a device; the cap may not be the only thing limiting the gadget.
+
+## 2026-11-04 (367th) — Style sheet: one blue family (dialogs use the window color, flat fields, softer shading, toolbox unshaded)
+
+**Files:** `libs/ui/KrimbleVisualStyle.h`
+
+George (1.0.45-beta): the blue-gray areas and the shaded-blue areas clashed, the toolbox tool buttons had a button look he did not ask for, and he wanted the shading kept but "lessened a little", flat fields ("NO shading on the fields"), and "the other elements to match the buttons". Changes: dialogs use the app's window color `#373952` (was `#282d49`); the main window, panels, toolbars and status bar get that color explicitly, and lists get the theme's list color `#282a43`; text fields, spin boxes and combo boxes are one flat `#282a43` (gradient commented out); group box, button and unselected tab gradients have about 30% less difference between light and dark; the five button rules say `QDialog QToolButton` again, so the toolbox and panels are unshaded (the 337th entry's widening is switched off). **Unchanged on purpose** (George: "I think it got the selections right before."): checked and selected states, hover, focus borders, the slider handle, and the blue glow (349th). **Not verified:** a build or a device.
+
+## 2026-11-04 (368th) — Theme "Krimble dark": selection colors are the stylesheet's blues
+
+**Files:** `krita/data/themes/KritaDark.colors`
+
+George: one blue family across the app. The `[Colors:Selection]` block now uses `#136092` (BackgroundNormal, the average of the stylesheet's selected-row gradient), `#1D7CB2` (BackgroundAlternate) and `#43C9FF` (DecorationFocus and DecorationHover), so a selected menu item, list row or focus ring that the style sheet does not cover matches the ones it does. The old values are kept as `#` comment lines in the file. **Not verified:** that the theme loader accepts `#` comment lines (KConfig should), a build, or a device.
+
+## 2026-11-04 (369th) — Toolbox icons: Silhouette is the default again
+
+**Files:** `libs/ui/toolbox/KrimbleToolboxIcons.h`
+
+George: "The new toolbox icons look good at large sizes, but not at small sizes. I think we should go back to the other icons." `colorMode()` defaults to false: the Silhouette (line) icons show unless the user chose Full color. Full color stays in the toolbox menu under Icon Style. A phone that saved an earlier choice keeps it. The rotation tool's arrows are not part of this change. **Not verified:** a build or a device.
+
+## 2026-11-04 (370th) — Startup gray: the style sheet is set again after the theme palette
+
+**Files:** `libs/ui/thememanager.cpp`
+
+George: the app starts with a weird gray (window and behind the toolbox) that goes away after a while. The style sheet is set early in `KisApplication.cpp`; the theme palette is applied later in `ThemeManager::slotChangePalette()`. Widgets styled before the palette changed may keep the old colors until Qt repolishes them. The same style sheet is now set again right after `qApp->setPalette()` (Android only), which makes Qt repolish every widget; it also runs on a theme change from the menu. This is a hypothesis that fits the symptom, **not verified**: if the gray still shows at start, the cause is something else.
+
+## 2026-11-04 (371st) — Percentage fills: selection blue instead of orange
+
+**Files:** `libs/widgetutils/kis_slider_spin_box_p.h`, `libs/ui/widgets/KisMemoryReportButton.cpp`, `libs/ui/KrimbleVisualStyle.h`
+
+George: the bright orange on the opacity tool is obnoxious ("that was my bad idea"); "light blue like the selection highlight might work better." The filled part of the number sliders (`paintSlider`), the memory bar's start color (it still shades to yellow and red), and the style sheet's progress bar chunk and slider sub-page are now the selection blue `#1D7CB2` (gradient `#2A93CC` to `#146A9F` in the style sheet). The old orange lines are commented out. This switches off the 344th and 347th entries' orange. **Not verified:** a build or a device.
