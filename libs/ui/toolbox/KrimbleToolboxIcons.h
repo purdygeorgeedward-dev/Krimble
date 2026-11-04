@@ -58,7 +58,10 @@ inline const QHash<QString, QString> &files()
 
 inline bool colorMode()
 {
-    return KSharedConfig::openConfig()->group("Krimble").readEntry("ToolboxColorIcons", true);
+    // return KSharedConfig::openConfig()->group("Krimble").readEntry("ToolboxColorIcons", true);
+    // Krimble 2026-11-04: George: the full color toolbox icons look good large but not small, so the
+    // default is Silhouette (the line icons) again. Full color stays in the toolbox menu (Icon Style).
+    return KSharedConfig::openConfig()->group("Krimble").readEntry("ToolboxColorIcons", false);
 }
 
 inline void setColorMode(bool on)
