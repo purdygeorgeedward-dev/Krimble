@@ -112,3 +112,4 @@ Times are Mountain Time from the clock of the sandbox that pushed (`date`), chec
 | Nov 3  3:00 PM | `3c7fcaa` | purdygeorgeedward-dev | Workflow: APK label default 1.0.45-beta (was Beta2) |
 | Nov 4  8:14 AM | `b278e96` | purdygeorgeedward-dev | Workflow: KDECI_ANDROID_SDK_ROOT set; step fails on `## Failed` in the build log |
 | Nov 4  8:17 AM | (docs push, 365th) | builds moved to GitHub Actions: changelog, status, build doc, worklog |
+| Nov 4  10:15 AM | (this push, 366th) | Color panel: the 42% height cap applies only while docked; a floating panel can be made taller |

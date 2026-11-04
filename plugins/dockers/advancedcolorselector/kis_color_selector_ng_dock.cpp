@@ -29,11 +29,27 @@ KisColorSelectorNgDock::KisColorSelectorNgDock()
     // screen's shorter side (about 454px on a 1080px-wide portrait screen,
     // roughly half of before). In landscape the docker is already shorter
     // than this cap, so it is unaffected.
-    if (QScreen *scr = QGuiApplication::primaryScreen()) {
-        const QSize screenSize = scr->availableGeometry().size();
-        const int shortSide = qMin(screenSize.width(), screenSize.height());
-        m_colorSelectorNgWidget->setMaximumHeight(int(shortSide * 0.42));
-    }
+    // if (QScreen *scr = QGuiApplication::primaryScreen()) {
+    //     const QSize screenSize = scr->availableGeometry().size();
+    //     const int shortSide = qMin(screenSize.width(), screenSize.height());
+    //     m_colorSelectorNgWidget->setMaximumHeight(int(shortSide * 0.42));
+    // }
+    // KRIMBLE 2026-11-04: George: the Color panel has a hard size limit and the corner gadget cannot
+    // enlarge it (Color Studio needs more than 42% of the screen's short side). The cap above now
+    // applies only while the panel is docked; a floating panel has no height limit.
+    auto krimbleApplyHeightCap = [this](bool floating) {
+        if (floating) {
+            m_colorSelectorNgWidget->setMaximumHeight(QWIDGETSIZE_MAX);
+            return;
+        }
+        if (QScreen *scr = QGuiApplication::primaryScreen()) {
+            const QSize screenSize = scr->availableGeometry().size();
+            const int shortSide = qMin(screenSize.width(), screenSize.height());
+            m_colorSelectorNgWidget->setMaximumHeight(int(shortSide * 0.42));
+        }
+    };
+    krimbleApplyHeightCap(isFloating());
+    connect(this, &QDockWidget::topLevelChanged, this, krimbleApplyHeightCap);
 
     // KRIMBLE: renamed from "Advanced Color Selector" - original kept below.
     // setWindowTitle(i18n("Advanced Color Selector"));
