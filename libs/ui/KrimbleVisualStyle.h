@@ -138,17 +138,19 @@ QProgressBar {
 }
 QProgressBar::chunk {
     border-radius: 3px;
+    /* Krimble 2026-11-04: George: the orange is obnoxious; light blue like the selection highlight. Old orange rule: stop:0 #ff8d42,
+       stop:0.5 #fd6001, stop:1 #c44a00. */
     background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
-                                stop:0 #ff8d42, stop:0.5 #fd6001,
-                                stop:1 #c44a00);
+                                stop:0 #2a93cc, stop:0.5 #1d7cb2,
+                                stop:1 #146a9f);
 }
 QSlider::sub-page:horizontal {
     height: 7px;
-    border: 1px solid #c44a00;
+    border: 1px solid #146a9f;   /* was #c44a00 (orange) until 2026-11-04 */
     border-radius: 3px;
     background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
-                                stop:0 #ff8d42, stop:0.5 #fd6001,
-                                stop:1 #c44a00);
+                                stop:0 #2a93cc, stop:0.5 #1d7cb2,
+                                stop:1 #146a9f);
 }
 )KRIMBLE");
 }

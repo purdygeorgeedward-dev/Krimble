@@ -631,7 +631,10 @@ public:
         // const QColor highlightColor = m_q->palette().highlight().color();
         // Krimble 2026-10-30: George: "all the dialogs that show a bar or fill area to represent a percentage [should] use Krimble orange." The filled part of the
         // slider is Krimble orange, #FD6001 (the K of the logo), whatever the palette's highlight color is.
-        const QColor highlightColor(0xFD, 0x60, 0x01);
+        // const QColor highlightColor(0xFD, 0x60, 0x01);
+        // Krimble 2026-11-04: George: the orange is obnoxious; "light blue like the selection highlight might work better." The
+        // filled part of the slider is the selection blue, #1D7CB2 (the same blue as a selected button).
+        const QColor highlightColor(0x1D, 0x7C, 0xB2);
         if (slider02Width < 0.0) {
             const QRectF sliderRect = rect.adjusted(0, 0, -(rect.width() - slider01Width), 0);
             paintSliderRect(painter, sliderRect, highlightColor);
