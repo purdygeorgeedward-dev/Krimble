@@ -5989,3 +5989,9 @@ George (Mixer screenshots): strokes only appeared on the left part of the pad, t
 **Files:** `libs/ui/thememanager.cpp`
 
 George's screenshots show thin white lines (beside the canvas, along panel edges) and a white frame around dialogs; an analysis he pasted points at Qt's Fusion style, which draws the highlight edge of frames and window frames (`PE_FrameWindow` in `QFusionStyle`) with `palette.light()`. The theme manager sets Light from the "light shade" of the window color, a bright gray. On Android Light is now `#4A5074` and Midlight `#41466A` (the original lines are kept). **This is a test of that explanation, not a proven fix:** it should remove the thin white lines; the large white box around dialogs may have another cause. **Not verified:** a build or a device.
+
+## 2026-11-05 (380th) — Image window frame: drawn in the theme's window color, not a bright edge
+
+**Files:** `libs/widgetutils/KisWideDockSeparatorStyle.cpp`
+
+George: the white lines and frames do not match the theme ("Is there a way to make them match the theme at least?"). An image window (QMdiSubWindow) asks the style to draw its frame with `QStyle::PE_FrameWindow`; Fusion draws it with a light edge (`palette.light()`), and on Android Krimble made that frame 16 logical px wide (`PM_MdiSubWindowFrameWidth`, 2026-10-13, so a finger can grab it), about 54 px on the screen. On Android `drawPrimitive` now draws `PE_FrameWindow` as one flat band in the palette's window color with a 1 px outline `#4C5275`; the width, and so the resize zone, is unchanged. Together with the 379th entry (Light and Midlight blue-gray) this is the test of the explanation that the white comes from Fusion's frame drawing. Android's own window background in the theme is black, so the white is not Android's. If the large white box around dialogs is still pure white after these two, another palette color is behind it. **Not verified:** a build or a device.

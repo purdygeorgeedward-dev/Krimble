@@ -128,3 +128,4 @@ Times are Mountain Time from the clock of the sandbox that pushed (`date`), chec
 | Nov 5  8:25 AM | `64376af` | purdygeorgeedward-dev | Mixer panel scrolls; mixing pad never cut off (378th) |
 | Nov 5  8:25 AM | `79113b1` | purdygeorgeedward-dev | Theme palette: Light and Midlight blue-gray (379th) |
 | Nov 5  8:25 AM | (docs push, 375th to 379th) | changelog, worklog, status |
+| Nov 5  8:42 AM | `3cda7ae` | purdygeorgeedward-dev | Image window frame drawn in the window color, 16 px width kept (380th) |
