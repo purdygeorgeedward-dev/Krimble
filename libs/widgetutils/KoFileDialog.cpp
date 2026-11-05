@@ -342,7 +342,9 @@ QString KoFileDialog::filename()
             const QRect avail = screen->availableGeometry();
             // mimeSelector.setMinimumSize(avail.width() * 0.85, avail.height() * 0.6);
             // Krimble 2026-10-23: George (1.0.41 test list item 4): "The Save and Export windows should open a little taller." 60% -> 75% of the screen's height.
-            mimeSelector.setMinimumSize(avail.width() * 0.85, avail.height() * 0.75);
+            // mimeSelector.setMinimumSize(avail.width() * 0.85, avail.height() * 0.75);   (Oct 23: 60% to 75%)
+            // Krimble 2026-11-04: George: "the Save As dialog with the file type selector default height is too short." 75% to 90%, the most the fit-to-screen filter allows.
+            mimeSelector.setMinimumSize(avail.width() * 0.85, avail.height() * 0.90);
         }
 #ifdef Q_OS_ANDROID
         mimeSelector.installEventFilter(new KrimbleFitToScreenFilter(&mimeSelector));
