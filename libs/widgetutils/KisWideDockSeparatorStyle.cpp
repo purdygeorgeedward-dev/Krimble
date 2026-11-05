@@ -59,6 +59,21 @@ int KisWideDockSeparatorStyle::pixelMetric(PixelMetric metric, const QStyleOptio
 void KisWideDockSeparatorStyle::drawPrimitive(PrimitiveElement element, const QStyleOption *option, QPainter *painter, const QWidget *widget) const
 {
 #ifdef Q_OS_ANDROID
+    // Krimble 2026-11-05: George's screenshots show white lines and frames; ChatGPT's reading of Qt's code: an image window (QMdiSubWindow) asks the style to
+    // draw its frame with QStyle::PE_FrameWindow, and Fusion draws that frame with a light edge (palette.light()). On Android the frame is made 16 logical
+    // px wide (PM_MdiSubWindowFrameWidth, 2026-10-13, so a finger can grab it to resize), so the bright edge is about 54 px wide on the screen. The width stays
+    // (the grab zone is unchanged); the frame is drawn as one flat window-colored band with a thin 1 px blue-gray outline instead.
+    if (element == QStyle::PE_FrameWindow) {
+        painter->save();
+        painter->setRenderHint(QPainter::Antialiasing, false);
+        painter->fillRect(option->rect, option->palette.window());
+        painter->setPen(QColor(76, 82, 117));
+        painter->drawRect(option->rect.adjusted(0, 0, -1, -1));
+        painter->restore();
+        return;
+    }
+#endif
+#ifdef Q_OS_ANDROID
     // Krimble 2026-10-18: George (1.0.37): "11. Can menus have the one pixel hilight and shadow edges?" The frame of a menu gets a one-device-pixel
     // light line on its top and left edges and a dark one on its bottom and right edges (the colors of the panel bevels).
     if (element == QStyle::PE_FrameMenu) {
