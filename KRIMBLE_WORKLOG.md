@@ -120,3 +120,5 @@ Times are Mountain Time from the clock of the sandbox that pushed (`date`), chec
 | Nov 4  10:17 AM | `6f1046c` | purdygeorgeedward-dev | Percentage fills: selection blue instead of orange (371st) |
 | Nov 4  10:17 AM | (docs push, 367th to 371st) | changelog, worklog, status for the five changes above; none built yet |
 | Nov 4  6:29 PM | (this push, 372nd) | File menu: no invisible system-menu button over "File" (WindowSystemMenuHint removed from image windows) |
+| Nov 4  7:10 PM | (this push, 373rd) | Save As: the file type selector opens at 90% of the screen height (was 75%) |
+| Nov 4  7:10 PM | (this push, 374th) | Splash: the version number is at the bottom left |

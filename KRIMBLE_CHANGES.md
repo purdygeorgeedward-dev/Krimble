@@ -5947,3 +5947,15 @@ George: the bright orange on the opacity tool is obnoxious ("that was my bad ide
 **Files:** `libs/ui/KisMainWindow.cpp`
 
 George (1.0.45-beta, with screenshots): "I tapped directly onto the word FILE over and over and got that menu" (the image window's system menu: Restore, Move, Size, Minimize, Maximize, Stay on Top) and the real File menu never opened. Cause, read in Qt 5.15's `qmdisubwindow.cpp` (not yet seen running on the device): with an image window maximized, Qt puts a small icon button (`ControlLabel`) at the left end of the menu bar; its window icon is blank, so it is invisible. On a style change (`QEvent::StyleChange`, which the app-wide style sheet causes) Qt sets its fixed size with `setFixedSize(label.size())` without dividing by the device pixel ratio, so on his phone (ratio 3.375) it is about 3.4 times too big, around 180 device px wide, and covers the word "File" (about 70 to 125 px) while the menu bar still lays the items out for the small size. Tapping it opens the system menu. Fix: where an image window is created (`addViewAndUpdateGUI`), `Qt::WindowSystemMenuHint` is removed from its flags; without that hint `ControlContainer::showButtonsInMenuBar` does not add the button to the menu bar. Side effect: a floating (not maximized) image window has no system-menu icon at the left of its title bar (it was blank). **Not verified:** a build or a device.
+
+## 2026-11-04 (373rd) — Save As: the file type selector opens at 90% of the screen height
+
+**Files:** `libs/widgetutils/KoFileDialog.cpp`
+
+George (1.0.45-beta): "the Save As dialog with the file type selector default height is too short." The window's minimum height (`mimeSelector.setMinimumSize`) goes from 75% of the usable screen height (set on 2026-10-23, up from 60%) to 90%, the most `KrimbleFitToScreenFilter` allows on the same dialog. The width stays at 85%. The old line is commented out. **Not verified:** a build or a device; if 90% is still too short, the fit-to-screen cap has to be raised as well.
+
+## 2026-11-04 (374th) — Splash: the version number is at the bottom left
+
+**Files:** `libs/ui/kis_splash_screen.cpp`, `libs/ui/kis_splash_screen.h`
+
+George: "Can we put the version number at the bottom of the splash instead of the top?" The version number was the bold first line of the loading text (top). It is now its own label `m_versionLabel`, bottom left, on the same line as the art credit (bottom right): white text with the same drop shadow, half the text width, as tall as the credit line. `setLoadingText()` keeps only the italic loading message at the top (the old two lines are commented out). The About window uses the same splash, so the version moves there too. **Not verified:** a build or a device.
