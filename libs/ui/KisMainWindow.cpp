@@ -47,6 +47,7 @@
 #include <kis_filter_strategy.h>
 #include <QDialogButtonBox>
 #include <QHBoxLayout>
+#include <QFrame>   // Krimble 2026-11-05: the framed rows of Quick Adjust
 #include <KisAngleSelector.h>
 #include <QPainterPath>
 #include <kis_selection.h>
@@ -1164,6 +1165,48 @@ protected:
 };
 #endif   // Krimble 2026-10-30: end of the logo drawn in code (switched off)
 
+// Krimble 2026-11-05: a picture that fills the width it is given and keeps its shape (George's QuickAdjust and Color Studio logos, white on a
+// transparent background). It is drawn smoothly at the screen's own resolution, so it is much bigger than the text and stays sharp.
+class KrimbleLogoLabel : public QWidget
+{
+public:
+    explicit KrimbleLogoLabel(const QString &resource, const QString &name, QWidget *parent = nullptr) : QWidget(parent), m_pix(resource)
+    {
+        QSizePolicy policy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+        policy.setHeightForWidth(true);
+        setSizePolicy(policy);
+        setAccessibleName(name);
+        setMaximumWidth(340);   // Krimble 2026-11-05: large, but not wider than 340 px of layout on a wide panel
+    }
+    bool hasHeightForWidth() const override { return !m_pix.isNull(); }
+    int heightForWidth(int w) const override { return m_pix.isNull() ? 0 : int(double(w) * m_pix.height() / m_pix.width()); }
+    QSize sizeHint() const override { return QSize(200, heightForWidth(200)); }
+protected:
+    void resizeEvent(QResizeEvent *) override
+    {
+        // the height follows the width, so the logo keeps its shape whatever layout it sits in
+        const int h = heightForWidth(width());
+        if (h > 0 && (height() != h || minimumHeight() != h)) setFixedHeight(h);
+    }
+    void paintEvent(QPaintEvent *) override
+    {
+        if (m_pix.isNull()) return;
+        const qreal ratio = devicePixelRatioF();
+        const QSize target = (size() * ratio).boundedTo(QSize(100000, 100000));
+        if (m_cache.isNull() || m_cacheSize != target) {
+            m_cache = m_pix.scaled(target, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+            m_cache.setDevicePixelRatio(ratio);
+            m_cacheSize = target;
+        }
+        QPainter p(this);
+        p.drawPixmap(QPointF(0, 0), m_cache);
+    }
+private:
+    QPixmap m_pix;
+    QPixmap m_cache;
+    QSize m_cacheSize;
+};
+
 // Krimble 2026-10-30: "Keep as layers" in the Quick Adjust window (off at first; kept while the program runs)
 static bool g_krimbleQuickKeepLayers = false;
 
@@ -1173,8 +1216,15 @@ public:
     KrimbleQuickAdjust(KisMainWindow *win, QWidget *content) : QObject(content), m_win(win)
     {
         QVBoxLayout *layout = new QVBoxLayout(content);
-        layout->setContentsMargins(10, 10, 10, 10);
-        layout->setSpacing(8);
+        // layout->setContentsMargins(10, 10, 10, 10);
+        // layout->setSpacing(8);
+        // Krimble 2026-11-05: George: QuickAdjust is a "complete disaster" next to ChatGPT's mockup (screenshots 2026-11-05). The mockup has ONE line per
+        // adjustment, in its own rounded frame: picture, name, number box, then the slider filling the rest of the line, a thin groove and a small round
+        // handle, with Reset at the left and Cancel and OK at the right. Ours had the slider on a second line, with a groove and handle about three times
+        // too big. Rows are one framed line each, the columns line up, the pictures are smaller, and the groove and handle sizes are set for the
+        // QuickAdjust sliders only (the app-wide style sheet is unchanged). The text stays as large as in the rest of the app.
+        layout->setContentsMargins(8, 8, 8, 8);
+        layout->setSpacing(6);
         QHBoxLayout *options = new QHBoxLayout;
         QLabel *title = new QLabel(i18n("Adjustments"), content);
         QFont font = title->font(); font.setBold(true); title->setFont(font);
@@ -1193,36 +1243,64 @@ public:
         m_keepLayers->setChecked(g_krimbleQuickKeepLayers);
         connect(m_keepLayers, &QCheckBox::toggled, this, [](bool on) { g_krimbleQuickKeepLayers = on; });
         layout->addWidget(m_keepLayers);
+        // Krimble 2026-11-05: every name has the width of the longest one, so the number boxes and sliders line up in columns
+        int nameWidth = 0;
+        for (int i = 0; i < SliderCount; ++i) nameWidth = qMax(nameWidth, content->fontMetrics().horizontalAdvance(i18n(def(i).name)));
         for (int i = 0; i < SliderCount; ++i) {
-            QHBoxLayout *row = new QHBoxLayout;
-            row->setSpacing(8);
+            // QHBoxLayout *row = new QHBoxLayout;
+            // row->setSpacing(8);
+            QFrame *frame = new QFrame(content);
+            frame->setObjectName(QStringLiteral("krimbleQuickRow"));
+            frame->setStyleSheet(QStringLiteral("QFrame#krimbleQuickRow { background: #3b3e5c; border: 1px solid #4c5275; border-radius: 8px; }"));
+            QHBoxLayout *row = new QHBoxLayout(frame);
+            row->setContentsMargins(6, 3, 6, 3);
+            row->setSpacing(6);
             // Krimble 2026-10-30: the small picture at the start of the row (the drawing's sun, half circle, drops, color ring, half square, sparkle)
             QLabel *rowIcon = new QLabel(content);
-            rowIcon->setPixmap(krimbleQuickAdjustIcon(i, 34));
-            rowIcon->setFixedSize(34, 34);
+            // rowIcon->setPixmap(krimbleQuickAdjustIcon(i, 34));
+            // rowIcon->setFixedSize(34, 34);
+            rowIcon->setPixmap(krimbleQuickAdjustIcon(i, 16));
+            rowIcon->setFixedSize(16, 16);
             row->addWidget(rowIcon);
             m_labels[i] = new QLabel(i18n(def(i).name), content);
-            m_labels[i]->setMinimumWidth(90);
+            // m_labels[i]->setMinimumWidth(90);
+            m_labels[i]->setFixedWidth(nameWidth + 4);
             row->addWidget(m_labels[i]);
             m_numbers[i] = new QSpinBox(content);
             m_numbers[i]->setRange(def(i).min, def(i).max);
-            m_numbers[i]->setMinimumWidth(72);
+            // m_numbers[i]->setMinimumWidth(72);
+            m_numbers[i]->setFixedWidth(50);
             row->addWidget(m_numbers[i]);
-            layout->addLayout(row);
+            // layout->addLayout(row);
+            layout->addWidget(frame);
             m_sliders[i] = new QSlider(Qt::Horizontal, content);
             m_sliders[i]->setRange(def(i).min, def(i).max);
             m_sliders[i]->setMinimumWidth(1);
-            m_sliders[i]->setMinimumHeight(38);
+            // m_sliders[i]->setMinimumHeight(38);
+            m_sliders[i]->setMinimumHeight(22);
             m_sliders[i]->setObjectName(QStringLiteral("krimbleQuickAdjustSlider"));
+            // Krimble 2026-11-05: thin groove (4 px) and a small round handle (14 px; a border radius of exactly half the handle size draws a square in Qt,
+            // so it is 8 px, not 9) for the QuickAdjust sliders; the filled part is the selection blue.
+            const QString thinHandle = QStringLiteral(
+                "QSlider::handle:horizontal { width: 14px; height: 14px; margin: -6px 0; border: 2px solid #c9dfff; border-radius: 8px;"
+                " background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #f1f5ff, stop:1 #728eb8); }");
+            if (i != Hue) {
+                m_sliders[i]->setStyleSheet(QStringLiteral(
+                    "QSlider::groove:horizontal { height: 4px; border: 1px solid #535c80; border-radius: 3px; background: #20263f; }"
+                    "QSlider::sub-page:horizontal { height: 4px; border: 1px solid #146a9f; border-radius: 3px; background: #1d7cb2; }")
+                    + thinHandle);
+            }
             if (i == Hue) {
                 // Krimble 2026-10-30: the drawing's rainbow Hue slider: the groove shows the colors the slider goes through (and has no orange fill)
                 m_sliders[i]->setStyleSheet(QStringLiteral(
-                    "QSlider::groove:horizontal { height: 9px; border: 1px solid #535c80; border-radius: 4px;"
+                    // "QSlider::groove:horizontal { height: 9px; border: 1px solid #535c80; border-radius: 4px;"
+                    "QSlider::groove:horizontal { height: 5px; border: 1px solid #535c80; border-radius: 4px;"
                     " background: qlineargradient(x1:0,y1:0,x2:1,y2:0, stop:0 #ff00c8, stop:0.2 #4a3cff, stop:0.4 #00c8ff,"
                     " stop:0.6 #1fdc3f, stop:0.8 #ffe600, stop:1 #ff2a00); }"
-                    "QSlider::sub-page:horizontal { background: transparent; border: none; }"));
+                    "QSlider::sub-page:horizontal { background: transparent; border: none; }") + thinHandle);
             }
-            layout->addWidget(m_sliders[i]);
+            // layout->addWidget(m_sliders[i]);
+            row->addWidget(m_sliders[i], 1);   // Krimble 2026-11-05: on the same line as the picture, name and number
             connect(m_sliders[i], &QSlider::valueChanged, this, [this, i](int value) {
                 m_values[i] = value;
                 QSignalBlocker blocker(m_numbers[i]);
@@ -1233,12 +1311,10 @@ public:
                 m_sliders[i]->setValue(value);
             });
         }
-        QPushButton *reset = new QPushButton(i18n("Reset"), content);
-        layout->addWidget(reset);
+        // QPushButton *reset = new QPushButton(i18n("Reset"), content);
+        // layout->addWidget(reset);
+        // Krimble 2026-11-05: Reset is in the button row now, at the left of Cancel and OK, like the mockup (see resetAll() and krimbleShowQuickAdjustDialog)
         layout->addStretch(1);
-        connect(reset, &QPushButton::clicked, this, [this]() {
-            for (int i = 0; i < SliderCount; ++i) m_sliders[i]->setValue(0);
-        });
         m_timer.setSingleShot(true);
         connect(&m_timer, &QTimer::timeout, this, [this]() { apply(); });
         for (int i = 0; i < SliderCount; ++i) m_values[i] = 0;
@@ -1246,6 +1322,12 @@ public:
             m_previewEnabled = enabled;
             flush();
         });
+    }
+
+    // Krimble 2026-11-05: Reset (every slider back to 0), called from the Reset button in the dialog's button row
+    void resetAll()
+    {
+        for (int i = 0; i < SliderCount; ++i) m_sliders[i]->setValue(0);
     }
 
     // Krimble 2026-10-13 (11th): for the dialog version (George: "Build Quick Adjust as a dialog window launched from Image Adjust."):
@@ -1415,13 +1497,28 @@ static void krimbleShowQuickAdjustDialog(KisMainWindow *win)
     // QLabel *heading = new QLabel(i18n("Krimble  |  QuickAdjust"), dialog);
     // Krimble 2026-10-30: George: "not drawn in code. I will provide a graphic." The logo drawn in code (KrimbleQuickAdjustLogo, switched off above with #if 0)
     // is not used; the plain heading is back until his graphic of QuickAdjust arrives.
-    QLabel *heading = new QLabel(i18n("QuickAdjust"), dialog);
-    QFont headingFont = heading->font();
-    headingFont.setBold(true);
-    heading->setFont(headingFont);
-    layout->addWidget(heading);
+    // QLabel *heading = new QLabel(i18n("QuickAdjust"), dialog);
+    // QFont headingFont = heading->font();
+    // headingFont.setBold(true);
+    // heading->setFont(headingFont);
+    // layout->addWidget(heading);
+    // Krimble 2026-11-05: George's QuickAdjust logo graphic (white on transparent), 80% of the window width, much larger than the text.
+    {
+        QHBoxLayout *logoRow = new QHBoxLayout;
+        logoRow->addStretch(1);
+        logoRow->addWidget(new KrimbleLogoLabel(QStringLiteral(":/dark_krimble-quickadjust-logo.png"), QStringLiteral("QuickAdjust"), dialog), 8);
+        logoRow->addStretch(1);
+        layout->addLayout(logoRow);
+    }
     // layout->addWidget(new KrimbleQuickAdjustLogo(dialog));
     layout->addWidget(content);
+    // Krimble 2026-11-05: Reset at the left of Cancel and OK; OK is blue (the mockup's default button)
+    QPushButton *resetButton = buttons->addButton(i18n("Reset"), QDialogButtonBox::ResetRole);
+    QObject::connect(resetButton, &QPushButton::clicked, adjust, [adjust]() { adjust->resetAll(); });
+    if (QPushButton *okButton = buttons->button(QDialogButtonBox::Ok)) {
+        okButton->setStyleSheet(QStringLiteral(
+            "QPushButton { background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #1d7cb2, stop:1 #146a9f); border: 1px solid #43c9ff; border-radius: 6px; }"));
+    }
     layout->addWidget(buttons);
     QObject::connect(buttons, &QDialogButtonBox::accepted, dialog, [adjust, dialog]() {
         adjust->commitVisible();
