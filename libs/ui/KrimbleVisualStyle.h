@@ -108,17 +108,25 @@ QAbstractItemView::item:selected {
                                 stop:1 #073e68);
     border: 1px solid #43c9ff;
 }
+/* Krimble 2026-11-05: George: "I want normal sized handles that match the UI. I want thin lines, not giant lines." Every slider in the app (QuickAdjust,
+   Brushes, the On-Canvas Brush Editor): a 4 px groove (was 7) and a 14 px round handle (was 19). The old values: groove height 7px, handle width 19px,
+   margin -7px 0, border-radius 9px. A border radius of exactly half the handle size (9 px on 18 px) is drawn as a square by Qt, so it is 8 px. */
 QSlider::groove:horizontal {
-    height: 7px;
+    /* height: 7px; */
+    height: 4px;
     border: 1px solid #535c80;
     border-radius: 3px;
     background: #20263f;
 }
 QSlider::handle:horizontal {
-    width: 19px;
-    margin: -7px 0;
+    /* width: 19px; */
+    /* margin: -7px 0; */
+    width: 14px;
+    height: 14px;
+    margin: -6px 0;
     border: 2px solid #c9dfff;
-    border-radius: 9px;
+    /* border-radius: 9px; */
+    border-radius: 8px;
     background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
                                 stop:0 #f1f5ff, stop:1 #728eb8);
 }
@@ -145,7 +153,8 @@ QProgressBar::chunk {
                                 stop:1 #146a9f);
 }
 QSlider::sub-page:horizontal {
-    height: 7px;
+    /* height: 7px; */
+    height: 4px;   /* Krimble 2026-11-05: thin, like the groove (see the QSlider note above) */
     border: 1px solid #146a9f;   /* was #c44a00 (orange) until 2026-11-04 */
     border-radius: 3px;
     background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
