@@ -5047,6 +5047,11 @@ void KisMainWindow::showView(KisView *imageView, QMdiSubWindow *subwin)
         imageView->setSubWindow(subwin);
         subwin->setAttribute(Qt::WA_DeleteOnClose, true);
         connect(subwin, SIGNAL(destroyed()), SLOT(updateWindowMenu()));
+        // Krimble 2026-11-04: George: tapping "File" opened the image window's system menu (Restore, Move, Size, Minimize ...) instead of the File menu.
+        // With the window maximized, Qt puts an invisible icon button at the left end of the menu bar (ControlLabel); on a style change Qt sizes it
+        // without dividing by the screen density, so it is about 3.4 times too big and covers "File". Without the system menu hint Qt does not
+        // put that button in the menu bar at all (ControlContainer::showButtonsInMenuBar, qmdisubwindow.cpp).
+        subwin->setWindowFlags(subwin->windowFlags() & ~Qt::WindowSystemMenuHint);
 
         KisConfig cfg(true);
         // subwin->setOption(QMdiSubWindow::RubberBandMove, cfg.readEntry<int>("mdi_rubberband", cfg.useOpenGL()));

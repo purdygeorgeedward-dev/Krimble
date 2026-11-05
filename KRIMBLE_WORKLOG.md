@@ -119,3 +119,4 @@ Times are Mountain Time from the clock of the sandbox that pushed (`date`), chec
 | Nov 4  10:17 AM | `96e58f6` | purdygeorgeedward-dev | Style sheet set again after the theme palette, for the startup gray (370th) |
 | Nov 4  10:17 AM | `6f1046c` | purdygeorgeedward-dev | Percentage fills: selection blue instead of orange (371st) |
 | Nov 4  10:17 AM | (docs push, 367th to 371st) | changelog, worklog, status for the five changes above; none built yet |
+| Nov 4  6:29 PM | (this push, 372nd) | File menu: no invisible system-menu button over "File" (WindowSystemMenuHint removed from image windows) |
