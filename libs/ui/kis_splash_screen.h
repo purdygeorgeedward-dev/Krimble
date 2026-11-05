@@ -62,6 +62,7 @@ private:
     QSvgWidget *m_brandingSvg;
     QSvgWidget *m_bannerSvg;
     QLabel *m_loadingTextLabel;
+    QLabel *m_versionLabel;   // Krimble 2026-11-04: the version number, bottom left (it was in the loading text at the top)
     QLabel *m_artCreditsLabel;
     QString m_versionHtml;
 };

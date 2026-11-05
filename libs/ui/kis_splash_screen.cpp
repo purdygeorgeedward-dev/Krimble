@@ -75,6 +75,15 @@ KisSplashScreen::KisSplashScreen(bool themed, QWidget *parent, Qt::WindowFlags f
     m_artCreditsLabel->setAlignment(Qt::AlignRight | Qt::AlignBottom);
     addDropShadow(m_artCreditsLabel);
 
+    // Krimble 2026-11-04: George: "Can we put the version number at the bottom of the splash instead of the top?" The version number is its own label
+    // at the bottom left now, on the same line as the art credit (bottom right). It used to be the first line of the loading text at the top.
+    m_versionLabel = new QLabel(lblSplash);
+    m_versionLabel->setTextFormat(Qt::RichText);
+    m_versionLabel->setStyleSheet(QStringLiteral("QLabel { color: #fff; background-color: transparent; }"));
+    m_versionLabel->setAlignment(Qt::AlignLeft | Qt::AlignBottom);
+    m_versionLabel->setText(QStringLiteral("<span style='font: bold 12pt;'>%1</span>").arg(m_versionHtml));
+    addDropShadow(m_versionLabel);
+
     updateSplashImage();
     setLoadingText(QString());
 
@@ -181,6 +190,11 @@ void KisSplashScreen::updateSplashImage()
     m_artCreditsLabel->setFixedWidth(m_loadingTextLabel->width());
     m_artCreditsLabel->setFixedHeight(20);
     m_artCreditsLabel->move(m_loadingTextLabel->x(), height - marginTop - m_artCreditsLabel->height());
+
+    // Krimble 2026-11-04: the version number, bottom left, on the same line as the art credit (bottom right).
+    m_versionLabel->setFixedWidth(m_loadingTextLabel->width() / 2);
+    m_versionLabel->setFixedHeight(m_artCreditsLabel->height());
+    m_versionLabel->move(m_loadingTextLabel->x(), m_artCreditsLabel->y());
 
     if (m_displayLinks) {
         setFixedSize(sizeHint());
@@ -299,8 +313,12 @@ void KisSplashScreen::setLoadingText(QString text)
 {
     int larger = 12;
     int notAsLarge = larger - 1;
-    QString htmlText = QStringLiteral("<span style='font: %3pt;'><span style='font: bold %4pt;'>%1</span><br><i>%2</i></span>")
-            .arg(m_versionHtml, text.toHtmlEscaped(), QString::number(notAsLarge), QString::number(larger));
+    // QString htmlText = QStringLiteral("<span style='font: %3pt;'><span style='font: bold %4pt;'>%1</span><br><i>%2</i></span>")
+    //         .arg(m_versionHtml, text.toHtmlEscaped(), QString::number(notAsLarge), QString::number(larger));
+    // Krimble 2026-11-04: the version number is not in this text any more (it is m_versionLabel, bottom left); only the loading message stays at the top.
+    Q_UNUSED(larger);
+    QString htmlText = QStringLiteral("<span style='font: %2pt;'><i>%1</i></span>")
+            .arg(text.toHtmlEscaped(), QString::number(notAsLarge));
     m_loadingTextLabel->setText(htmlText);
 }
 
