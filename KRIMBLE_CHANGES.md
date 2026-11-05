@@ -5959,3 +5959,33 @@ George (1.0.45-beta): "the Save As dialog with the file type selector default he
 **Files:** `libs/ui/kis_splash_screen.cpp`, `libs/ui/kis_splash_screen.h`
 
 George: "Can we put the version number at the bottom of the splash instead of the top?" The version number was the bold first line of the loading text (top). It is now its own label `m_versionLabel`, bottom left, on the same line as the art credit (bottom right): white text with the same drop shadow, half the text width, as tall as the credit line. `setLoadingText()` keeps only the italic loading message at the top (the old two lines are commented out). The About window uses the same splash, so the version moves there too. **Not verified:** a build or a device.
+
+## 2026-11-05 (375th) — QuickAdjust rebuilt to follow ChatGPT's mockup, with George's QuickAdjust logo
+
+**Files:** `libs/ui/KisMainWindow.cpp`, `krita/pics/svg/svg-icons.qrc`, `krita/pics/svg/dark_krimble-quickadjust-logo.png`, `krita/pics/svg/dark_krimble-colorstudio-logo.png`
+
+George (screenshots, 2026-11-05): QuickAdjust was a "complete disaster" next to the mockup: the slider was on its own second line under each name, the groove and handle were about three times too big, the dialog was taller than the screen so Cancel and OK were cut off, and the heading was plain text. Rebuilt: each adjustment is one framed, rounded line (picture 16 px, name, number box 50 px, then the slider filling the rest); the name column has the width of the longest name so the number boxes and sliders line up; the groove is 4 px (Hue's rainbow 5 px) and the handle a 14 px round one, set for the QuickAdjust sliders only; Reset moved into the button row at the left of Cancel and OK, and OK is blue (`resetAll()`); the heading is George's QuickAdjust logo graphic (`KrimbleLogoLabel`, white on transparent, 80% of the window width, at most 340 px, drawn smoothly at the screen's resolution). The two logo images (tight-cropped, 1200 px wide) are in the resource file; the ColorStudio logo is used by the 377th entry. The old lines are commented out. Checked by compiling the new widget classes against Qt 5.15 and by rendering the layout with real Qt, the real style sheet and the phone's screen density (the old layout rendered like George's screenshot). **Not verified:** a build or a device.
+
+## 2026-11-05 (376th) — Sliders everywhere: thin groove, normal round handle
+
+**Files:** `libs/ui/KrimbleVisualStyle.h`
+
+George: "I want normal sized handles that match the UI. I want thin lines, not giant lines." The app-wide slider rules: groove 7 px to 4 px, handle 19 px to 14 px with a 14 px height, margin -6 px, round border radius 8 px (9 px on an 18 px handle is drawn as a square by Qt, tested), the filled part 4 px. This covers QuickAdjust, the Brushes panel and the On-Canvas Brush Editor sliders. The number bars painted by `KisSliderSpinBox` (Layers opacity) are painted in code and not part of this. Old values are kept in comments. **Not verified:** a build or a device.
+
+## 2026-11-05 (377th) — Color Studio rewritten to follow the Picker mockup
+
+**Files:** `plugins/dockers/advancedcolorselector/krimble_color_studio.h`
+
+George (screenshots): "Complete mess. Nothing like the mockups at all." The first all-in-one picker (one tall column: a color square stretched into a wide band, a horizontal Hue slider, full-width value rows, a black bar, empty Recent Colors and My Palette) is kept inside `#if 0`. New: George's ColorStudio logo at the top (`KrimbleStudioLogoLabel`); the color square keeps a near-square shape (`heightForWidth`) next to a vertical rainbow hue strip (`KrimbleHueStrip`, a slider 0 to 359 with a white ring handle); a column of H, S, V, R, G, B and HEX boxes, all 76 px wide; under them the foreground box, a swap button (swaps foreground and background in the canvas), the background box and the Recent Colors in one row of up to 10; then "MY PALETTE" with "+ Swatch" and the swatches 10 across. The first time the panel opens, My Palette is filled with 40 starting swatches (10 grays, three rows of 10 hues); a user's own saved list is never replaced. No tabs, as George decided on 2026-10-30 ("all in one design"); the Mixer is its own panel. Checked by compiling the whole header against Qt 5.15 with stand-ins for Krita's classes and by rendering the real compiled widget at the phone's width (it matches the mockup's Picker page). **Not verified:** a build or a device.
+
+## 2026-11-05 (378th) — Mixer: the pad is never cut off, the panel scrolls instead of overlapping
+
+**Files:** `plugins/dockers/advancedcolorselector/krimble_color_studio.h`, `plugins/dockers/advancedcolorselector/krimble_mixer_dock.h`
+
+George (Mixer screenshots): strokes only appeared on the left part of the pad, the right part stayed blank, and in a small panel the Size and Opacity row sat on top of the pad. Cause of the first: the saved undo and redo pictures keep the size the pad had when they were taken; after the panel was resized, an undo or redo put a smaller picture back and everything drawn after that was cut off at its edge. `KrimbleMixingPad::ensureSize()` makes the picture the pad's size whenever it is replaced (undo, redo, clear). The second: the Mixer panel is now inside a `QScrollArea` (no frame), so a panel smaller than its contents scrolls. **Not verified:** a build or a device.
+
+## 2026-11-05 (379th) — Theme palette: Light and Midlight are blue-gray, not bright gray (the thin white lines)
+
+**Files:** `libs/ui/thememanager.cpp`
+
+George's screenshots show thin white lines (beside the canvas, along panel edges) and a white frame around dialogs; an analysis he pasted points at Qt's Fusion style, which draws the highlight edge of frames and window frames (`PE_FrameWindow` in `QFusionStyle`) with `palette.light()`. The theme manager sets Light from the "light shade" of the window color, a bright gray. On Android Light is now `#4A5074` and Midlight `#41466A` (the original lines are kept). **This is a test of that explanation, not a proven fix:** it should remove the thin white lines; the large white box around dialogs may have another cause. **Not verified:** a build or a device.

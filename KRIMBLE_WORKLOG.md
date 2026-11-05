@@ -122,3 +122,9 @@ Times are Mountain Time from the clock of the sandbox that pushed (`date`), chec
 | Nov 4  6:29 PM | (this push, 372nd) | File menu: no invisible system-menu button over "File" (WindowSystemMenuHint removed from image windows) |
 | Nov 4  7:10 PM | (this push, 373rd) | Save As: the file type selector opens at 90% of the screen height (was 75%) |
 | Nov 4  7:10 PM | (this push, 374th) | Splash: the version number is at the bottom left |
+| Nov 5  8:25 AM | `4a3620a` | purdygeorgeedward-dev | QuickAdjust rebuilt to follow the mockup, QuickAdjust logo, logo images (375th) |
+| Nov 5  8:25 AM | `8a9e437` | purdygeorgeedward-dev | Sliders everywhere: 4 px groove, 14 px round handle (376th) |
+| Nov 5  8:25 AM | `04e0b78` | purdygeorgeedward-dev | Color Studio rewritten to follow the Picker mockup (377th) |
+| Nov 5  8:25 AM | `64376af` | purdygeorgeedward-dev | Mixer panel scrolls; mixing pad never cut off (378th) |
+| Nov 5  8:25 AM | `79113b1` | purdygeorgeedward-dev | Theme palette: Light and Midlight blue-gray (379th) |
+| Nov 5  8:25 AM | (docs push, 375th to 379th) | changelog, worklog, status |
