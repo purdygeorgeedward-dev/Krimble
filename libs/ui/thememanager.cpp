@@ -185,6 +185,15 @@ void ThemeManager::slotChangePalette()
         palette.setColor(state, QPalette::Mid,             schemeWindow.shade(KColorScheme::MidShade));
         palette.setColor(state, QPalette::Dark,            schemeWindow.shade(KColorScheme::DarkShade));
         palette.setColor(state, QPalette::Shadow,          schemeWindow.shade(KColorScheme::ShadowShade));
+#ifdef Q_OS_ANDROID
+        // Krimble 2026-11-05: George's screenshots show thin white lines (beside the canvas, along the edges of panels) and a white frame around dialogs. Qt's Fusion
+        // style, which Krimble uses, draws the highlight edge of frames and window frames (QStyle::PE_FrameWindow, QFusionStyle) with palette.light() and
+        // palette.midlight(), and the lines above make those a bright gray (the "light shade" of the window color). They are the theme's blue-gray family
+        // now: Light #4A5074, Midlight #41466A. The five lines above are kept; this only replaces two of their results on Android. This is the
+        // white-line part only: it does not by itself prove that the large white box around dialogs comes from the same drawing.
+        palette.setColor(state, QPalette::Light,           QColor(0x4A, 0x50, 0x74));
+        palette.setColor(state, QPalette::Midlight,        QColor(0x41, 0x46, 0x6A));
+#endif
 
         palette.setBrush(state, QPalette::AlternateBase,   schemeView.background(KColorScheme::AlternateBackground));
         palette.setBrush(state, QPalette::Link,            schemeView.foreground(KColorScheme::LinkText));
