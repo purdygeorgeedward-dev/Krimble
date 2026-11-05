@@ -8,6 +8,7 @@
 
 #include <QDockWidget>
 #include <QPointer>
+#include <QScrollArea>   // Krimble 2026-11-05: the Mixer panel scrolls instead of overlapping when it is small
 #include <KoCanvasObserverBase.h>
 #include <KoCanvasBase.h>
 #include <KoCanvasResourceProvider.h>
@@ -62,7 +63,16 @@ public:
             padActions->addWidget(button);
         }
         mixLayout->addLayout(padActions);
-        setWidget(panel);
+        // setWidget(panel);
+        // Krimble 2026-11-05: George (Mixer screenshots): in a small panel the Size and Opacity row sat on top of the pad. The panel is inside a scroll
+        // area now, so a panel smaller than its contents scrolls (the contents keep their own minimum size).
+        {
+            auto *scroll = new QScrollArea(this);
+            scroll->setWidgetResizable(true);
+            scroll->setFrameShape(QFrame::NoFrame);
+            scroll->setWidget(panel);
+            setWidget(scroll);
+        }
 
         connect(paintButton, &QPushButton::clicked, this, [=]() {
             paintButton->setChecked(true); eraseButton->setChecked(false);
