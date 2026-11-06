@@ -134,3 +134,8 @@ Times are Mountain Time from the clock of the sandbox that pushed (`date`), chec
 | Nov 5  7:10 PM | `21ade60` | purdygeorgeedward-dev | Every slider: 2 px line, 12 px metal ball (383rd) |
 | Nov 5  7:10 PM | `c3d2c62` | purdygeorgeedward-dev | Color Studio logo left aligned, 40% (382nd) |
 | Nov 5  7:10 PM | (docs push, 381st to 385th) | changelog, worklog, status |
+| Nov 5  3:18 AM | `dd4b191` | purdygeorgeedward-dev | Rotate icon redrawn with clean arrowheads (386th) |
+| Nov 5  3:18 AM | `e2275a1` | purdygeorgeedward-dev | Polygon / magnetic selection: the Undo point / END / Cancel bar off (387th) |
+| Nov 5  3:18 AM | `50496f0` | purdygeorgeedward-dev | Toolbox: no 8 columns after docking, no dead space when floating (388th) |
+| Nov 5  3:18 AM | `12a5340` | purdygeorgeedward-dev | DIAGNOSTIC (temporary): dialog layers dark red, green, blue (389th) |
+| Nov 5  3:18 AM | (docs push, 386th to 389th) | changelog, worklog, status |

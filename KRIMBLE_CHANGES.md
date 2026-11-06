@@ -6025,3 +6025,27 @@ George: (1) the Preferences keyboard icon "is STILL HALF THE SIZE IT SHOULD BE":
 **Files:** none (a note)
 
 George's build b065f8f already had the 379th entry (Light and Midlight blue-gray); the white boxes around dialogs were unchanged, and the white strip at the top of a dialog is about 19 logical px tall, with a frame about 4 logical px wide and a thin black outline. So the white is not Fusion's `palette.light()`. Android's own window background is black (`styles.xml`), so it is not that either. Still unknown; next step is a diagnostic that paints each layer a different loud color. The 380th entry (image window frame drawn flat) is still in the code and is a separate, smaller fix.
+
+## 2026-11-05 (386th) — Rotate tool icon redrawn with clean arrowheads (the 384th entry's fix was not enough)
+
+**Files:** `krita/pics/svg/{dark,light}_krimble-free-rotate.svg`
+
+George (screenshot of b065f8f, which predates the 384th entry): "THE ARROWHEADS IN THE ROTATE TOOL ICON WERE NOT CUT OFF BY THE FRAME. ITS JUST THE SAME OLD ICON." Rendered here with Qt's SVG renderer: the old file (viewBox `3 3 18 18`) shows two arcs with flat, cut-off ends and no heads at all, and the 384th entry's viewBox change alone would have left blobby, still-clipped heads (stroke 2.2 with round joins). The icon is redrawn on a `0 0 24 24` frame: a sharp-cornered square turned 25 degrees, two arcs of radius 9 around it, each ending in a filled triangular arrowhead (3.8 long, 5.4 wide), stroke 1.9 with butt caps and mitered joins; the second arc and head are the first turned 180 degrees; everything is inside the frame. Checked at 440 px and at the toolbox's 81 px. **Not verified:** a device.
+
+## 2026-11-05 (387th) — Polygon and magnetic selection: the on-canvas Undo point / END / Cancel bar is switched off
+
+**Files:** `libs/ui/tool/kis_tool_polyline_base.cpp`, `plugins/tools/selectiontools/KisToolSelectMagnetic.cc`
+
+George: "crazy unnecessary menu appears when using polygon select tool ... it was perfect before." The bar added by the 298th entry (2026-10-25, at his request for an END button) and the Magnetic tool's (2026-10-26) is not shown any more: its three `showStrokeBar(true)` calls are commented out with a dated note. Undo Point, Close and Cancel are still in Tool Options, and Enter, Escape and Shift+Z still work. To bring the bar back, remove the two slashes at each of the three calls. **Not verified:** a device.
+
+## 2026-11-05 (388th) — Toolbox: no 8 columns after docking, and no dead space at the bottom of a floating toolbox
+
+**Files:** `libs/ui/toolbox/KoToolBoxDocker.cpp`, `libs/ui/toolbox/KoToolBoxDocker_p.h`
+
+George: (a) "Dragged the toolbox to right edge to attach and it exploded from 2 columns to 8 columns including one empty column. Tear it off again and it's 3 columns." Cause found by reading `snapToColumns()`: when the toolbox is dropped on a dock edge the finger is still down while the dock takes the width of the dock area, and a width change with a finger down is taken for a drag of the dock's edge (`m_userDragged`), so that wide width became the saved column count (written to `ToolBoxColumns`). New member `m_justDocked`: for 1.5 s after a drop (`topLevelChanged(false)`) `snapToColumns()` and the resize handler ignore the finger, and then the saved count is put back with `applyColumns()`. (b) "There is still a huge unnecessary dead space at the bottom of the toolbox. still. WHY????" The tool area has stretch 0 and the spacer under it stretch 1 (2026-10-05); a floating toolbox is made as tall as all its tools, but the tool area stayed at its short natural height (13 rows and the "more" arrow) and the spacer took the rest. While the toolbox floats, the tool area now gets the stretch and the spacer none (`applyContainerStretch`); docked it is as before. **Not verified:** a device; the toolbox code has a long history of fixes for this symptom (2026-10-12, 10-18, 10-23, 10-26), so this may not be the last word.
+
+## 2026-11-05 (389th) — DIAGNOSTIC (temporary): dialog layers in dark red, green and blue
+
+**Files:** `libs/ui/KrimbleVisualStyle.h`
+
+George: "WHITE FRAMES UNCHANGED." The palette's Light color was not the cause (385th entry). Rules at the end of the style sheet color a dialog's layers: the dialog window `#7A1F1F` (dark red), the KoDialog scroll area and its viewport `#1F7A1F` (dark green), the contents of the scroll area `#1F1F7A` (dark blue). A screenshot of a dialog with a white frame then shows which layer the white is, or that it is none of them (the native Android window). Tested in real Qt (the layers color differently; the whole style sheet parses without warnings). **These rules are temporary and are removed once the answer is known.**
