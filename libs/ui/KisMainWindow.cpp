@@ -1207,6 +1207,27 @@ private:
     QSize m_cacheSize;
 };
 
+// Krimble 2026-11-05: the image window's menu bar icon button (Qt's QMdi::ControlLabel; it is invisible because the window icon is blank) is made click-through
+// whenever Qt puts it in the menu bar. On a style change Qt sizes it without dividing by the screen density, so on this phone it is about 3.4 times too
+// big and covers "File"; a tap on "File" then opened the image window's system menu (George, 1.0.45-beta). Taps go through it to the menu bar now.
+// Tested with real Qt: the label gets the attribute while the window keeps its system menu hint (so the close button and Close stay).
+class KrimbleMenuBarFilter : public QObject
+{
+public:
+    explicit KrimbleMenuBarFilter(QObject *parent) : QObject(parent) {}
+protected:
+    bool eventFilter(QObject *, QEvent *event) override
+    {
+        if (event->type() == QEvent::ChildAdded) {
+            if (QWidget *child = qobject_cast<QWidget *>(static_cast<QChildEvent *>(event)->child())) {
+                if (QByteArray(child->metaObject()->className()).endsWith("ControlLabel"))
+                    child->setAttribute(Qt::WA_TransparentForMouseEvents, true);
+            }
+        }
+        return false;
+    }
+};
+
 // Krimble 2026-10-30: "Keep as layers" in the Quick Adjust window (off at first; kept while the program runs)
 static bool g_krimbleQuickKeepLayers = false;
 
@@ -1281,20 +1302,30 @@ public:
             m_sliders[i]->setObjectName(QStringLiteral("krimbleQuickAdjustSlider"));
             // Krimble 2026-11-05: thin groove (4 px) and a small round handle (14 px; a border radius of exactly half the handle size draws a square in Qt,
             // so it is 8 px, not 9) for the QuickAdjust sliders; the filled part is the selection blue.
+            // const QString thinHandle = QStringLiteral(
+            //     "QSlider::handle:horizontal { width: 14px; height: 14px; margin: -6px 0; border: 2px solid #c9dfff; border-radius: 8px;"
+            //     " background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #f1f5ff, stop:1 #728eb8); }");
+            // Krimble 2026-11-05 (2nd): George: "Quick Adjust lines are too thick. Gadgets are goofy looking. Make them tiny metal balls." A 12 px metal ball
+            // (light radial gradient, bright spot at the top left, 1 px dark rim; 5.5 px radius, because exactly half draws a square in Qt) on a 2 px line.
             const QString thinHandle = QStringLiteral(
-                "QSlider::handle:horizontal { width: 14px; height: 14px; margin: -6px 0; border: 2px solid #c9dfff; border-radius: 8px;"
-                " background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #f1f5ff, stop:1 #728eb8); }");
+                "QSlider::handle:horizontal { width: 12px; height: 12px; margin: -5px 0; border: 1px solid #4d5573; border-radius: 5.5px;"
+                " background: qradialgradient(cx:0.4,cy:0.35,radius:0.75,fx:0.35,fy:0.3, stop:0 #ffffff, stop:0.35 #d9dde6, stop:0.75 #9aa1b3, stop:1 #6b7390); }");
             if (i != Hue) {
+                // m_sliders[i]->setStyleSheet(QStringLiteral(
+                //     "QSlider::groove:horizontal { height: 4px; border: 1px solid #535c80; border-radius: 3px; background: #20263f; }"
+                //     "QSlider::sub-page:horizontal { height: 4px; border: 1px solid #146a9f; border-radius: 3px; background: #1d7cb2; }")
+                //     + thinHandle);
                 m_sliders[i]->setStyleSheet(QStringLiteral(
-                    "QSlider::groove:horizontal { height: 4px; border: 1px solid #535c80; border-radius: 3px; background: #20263f; }"
-                    "QSlider::sub-page:horizontal { height: 4px; border: 1px solid #146a9f; border-radius: 3px; background: #1d7cb2; }")
+                    "QSlider::groove:horizontal { height: 2px; border: none; border-radius: 1px; background: #6f789c; }"
+                    "QSlider::sub-page:horizontal { height: 2px; border: none; border-radius: 1px; background: #2aa6e8; }")
                     + thinHandle);
             }
             if (i == Hue) {
                 // Krimble 2026-10-30: the drawing's rainbow Hue slider: the groove shows the colors the slider goes through (and has no orange fill)
                 m_sliders[i]->setStyleSheet(QStringLiteral(
                     // "QSlider::groove:horizontal { height: 9px; border: 1px solid #535c80; border-radius: 4px;"
-                    "QSlider::groove:horizontal { height: 5px; border: 1px solid #535c80; border-radius: 4px;"
+                    // "QSlider::groove:horizontal { height: 5px; border: 1px solid #535c80; border-radius: 4px;"
+                    "QSlider::groove:horizontal { height: 3px; border: none; border-radius: 1px;"
                     " background: qlineargradient(x1:0,y1:0,x2:1,y2:0, stop:0 #ff00c8, stop:0.2 #4a3cff, stop:0.4 #00c8ff,"
                     " stop:0.6 #1fdc3f, stop:0.8 #ffe600, stop:1 #ff2a00); }"
                     "QSlider::sub-page:horizontal { background: transparent; border: none; }") + thinHandle);
@@ -1505,9 +1536,13 @@ static void krimbleShowQuickAdjustDialog(KisMainWindow *win)
     // Krimble 2026-11-05: George's QuickAdjust logo graphic (white on transparent), 80% of the window width, much larger than the text.
     {
         QHBoxLayout *logoRow = new QHBoxLayout;
-        logoRow->addStretch(1);
-        logoRow->addWidget(new KrimbleLogoLabel(QStringLiteral(":/dark_krimble-quickadjust-logo.png"), QStringLiteral("QuickAdjust"), dialog), 8);
-        logoRow->addStretch(1);
+        // logoRow->addStretch(1);
+        // logoRow->addWidget(new KrimbleLogoLabel(QStringLiteral(":/dark_krimble-quickadjust-logo.png"), QStringLiteral("QuickAdjust"), dialog), 8);
+        // logoRow->addStretch(1);
+        // Krimble 2026-11-05 (2nd): George: "Title logos ... are twice the size they should be and they are centered when they should be left aligned."
+        // Left aligned, 40% of the window width (was centered, 80%).
+        logoRow->addWidget(new KrimbleLogoLabel(QStringLiteral(":/dark_krimble-quickadjust-logo.png"), QStringLiteral("QuickAdjust"), dialog), 4);
+        logoRow->addStretch(6);
         layout->addLayout(logoRow);
     }
     // layout->addWidget(new KrimbleQuickAdjustLogo(dialog));
@@ -5148,7 +5183,20 @@ void KisMainWindow::showView(KisView *imageView, QMdiSubWindow *subwin)
         // With the window maximized, Qt puts an invisible icon button at the left end of the menu bar (ControlLabel); on a style change Qt sizes it
         // without dividing by the screen density, so it is about 3.4 times too big and covers "File". Without the system menu hint Qt does not
         // put that button in the menu bar at all (ControlContainer::showButtonsInMenuBar, qmdisubwindow.cpp).
-        subwin->setWindowFlags(subwin->windowFlags() & ~Qt::WindowSystemMenuHint);
+        // subwin->setWindowFlags(subwin->windowFlags() & ~Qt::WindowSystemMenuHint);
+        // Krimble 2026-11-05: George (1.0.45-beta, screenshots): "no X in the top right corner of image windows to close them", and the system menu has no
+        // Close. That line caused it: Qt shows the close button and the system menu's Close only for windows WITH the system menu hint (QMdiSubWindow
+        // and QCommonStyle check it). The hint is back. The invisible oversized icon button that covered "File" is made click-through instead (below).
+        if (QMenuBar *bar = menuBar()) {
+            if (!bar->property("krimbleCornerGuard").toBool()) {
+                bar->setProperty("krimbleCornerGuard", true);
+                bar->installEventFilter(new KrimbleMenuBarFilter(bar));
+                Q_FOREACH (QWidget *child, bar->findChildren<QWidget *>()) {
+                    if (QByteArray(child->metaObject()->className()).endsWith("ControlLabel"))
+                        child->setAttribute(Qt::WA_TransparentForMouseEvents, true);
+                }
+            }
+        }
 
         KisConfig cfg(true);
         // subwin->setOption(QMdiSubWindow::RubberBandMove, cfg.readEntry<int>("mdi_rubberband", cfg.useOpenGL()));
