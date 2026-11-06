@@ -689,7 +689,7 @@ Qt::DockWidgetArea KoToolBoxDocker::krimbleEdgeArea() const
 
 // Krimble 2026-11-06: George (1.0.45-beta), after the toolbox jumped to the bottom and docked from a long press: "maybe there should be a delay before reattaching,
 // just to make sure that is the users intention." A floating toolbox that has reached a screen edge is docked there only after it has stayed at that edge for
-// 0.8 s with no finger down. Moving it away, or touching it again, cancels the docking (a counter, m_edgeDockToken, is raised at every call and at every
+// 1 s (first 0.8 s) with no finger down. Moving it away, or touching it again, cancels the docking (a counter, m_edgeDockToken, is raised at every call and at every
 // move away, and the timer only acts if it is still the latest). The Dock entries of the long-press menu are deliberate taps and dock at once.
 void KoToolBoxDocker::krimbleDockAtEdge()
 {
@@ -697,7 +697,9 @@ void KoToolBoxDocker::krimbleDockAtEdge()
     const Qt::DockWidgetArea area = krimbleEdgeArea();
     const int token = ++m_edgeDockToken;
     if (area == Qt::NoDockWidgetArea) return;
-    QTimer::singleShot(800, this, [this, token, area]() {
+    // QTimer::singleShot(800, this, [this, token, area]() {
+    // Krimble 2026-11-06 (2nd): George: "Like one second would be enough. Just to be sure." 0.8 s became 1 s.
+    QTimer::singleShot(1000, this, [this, token, area]() {
         if (token != m_edgeDockToken || !isFloating() || !isVisible()) return;
         if (QApplication::mouseButtons() != Qt::NoButton) return;     // a finger is down again: the screen timer looks again when it lifts
         if (krimbleEdgeArea() != area) return;                         // it was moved away from the edge meanwhile
