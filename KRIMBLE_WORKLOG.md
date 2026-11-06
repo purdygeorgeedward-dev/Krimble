@@ -140,3 +140,4 @@ Times are Mountain Time from the clock of the sandbox that pushed (`date`), chec
 | Nov 5  3:18 AM | `12a5340` | purdygeorgeedward-dev | DIAGNOSTIC (temporary): dialog layers dark red, green, blue (389th) |
 | Nov 5  3:18 AM | (docs push, 386th to 389th) | changelog, worklog, status |
 | Nov 6  4:00 AM | (this push, 390th) | Buy Me a Coffee picture: the robot mascot (product_donation.png) |
+| Nov 6  4:02 AM | `ca98b1f` | purdygeorgeedward-dev | Long press: the finger-up no longer picks a menu item (toolbox jumping to Dock Bottom) (391st) |
