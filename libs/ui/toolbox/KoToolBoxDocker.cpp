@@ -641,6 +641,7 @@ void KoToolBoxDocker::moveEvent(QMoveEvent *event)
 // Krimble 2026-10-17: George (1.0.37): "I would rather the toolbar dock at the edge than bounce." A floating toolbox that has reached the left or the
 // right edge of the screen (within 4 px), or gone above the top strip, is docked there, as the Dock menu of its long press does, and is no longer
 // pushed back. The bottom edge stays free (its title area, 36 px, stays on screen).
+#if 0   // Krimble 2026-11-06: the first version docked at once; see the delayed one below (the old code is the base of krimbleEdgeArea())
 void KoToolBoxDocker::krimbleDockAtEdge()
 {
     if (!isFloating() || !isVisible()) return;
@@ -668,6 +669,45 @@ void KoToolBoxDocker::krimbleDockAtEdge()
     mainWindow->addDockWidget(area, this);
     setFloating(false);
     show();
+}
+#endif
+
+// Krimble 2026-11-06: which dock edge a floating toolbox is at (the same test as before: within 4 px of the left or right edge, or its top at the screen's
+// top), or NoDockWidgetArea.
+Qt::DockWidgetArea KoToolBoxDocker::krimbleEdgeArea() const
+{
+    QScreen *screenPtr = screen() ? screen() : QGuiApplication::primaryScreen();
+    if (!screenPtr) return Qt::NoDockWidgetArea;
+    QRect avail = screenPtr->availableGeometry();
+    avail.setTop(avail.top() + 48);
+    const QRect g = geometry();
+    if (g.left() <= avail.left() + 4) return Qt::LeftDockWidgetArea;
+    if (g.right() >= avail.right() - 4) return Qt::RightDockWidgetArea;
+    if (g.top() <= avail.top() - 48 + 4) return Qt::TopDockWidgetArea;
+    return Qt::NoDockWidgetArea;
+}
+
+// Krimble 2026-11-06: George (1.0.45-beta), after the toolbox jumped to the bottom and docked from a long press: "maybe there should be a delay before reattaching,
+// just to make sure that is the users intention." A floating toolbox that has reached a screen edge is docked there only after it has stayed at that edge for
+// 0.8 s with no finger down. Moving it away, or touching it again, cancels the docking (a counter, m_edgeDockToken, is raised at every call and at every
+// move away, and the timer only acts if it is still the latest). The Dock entries of the long-press menu are deliberate taps and dock at once.
+void KoToolBoxDocker::krimbleDockAtEdge()
+{
+    if (!isFloating() || !isVisible()) return;
+    const Qt::DockWidgetArea area = krimbleEdgeArea();
+    const int token = ++m_edgeDockToken;
+    if (area == Qt::NoDockWidgetArea) return;
+    QTimer::singleShot(800, this, [this, token, area]() {
+        if (token != m_edgeDockToken || !isFloating() || !isVisible()) return;
+        if (QApplication::mouseButtons() != Qt::NoButton) return;     // a finger is down again: the screen timer looks again when it lifts
+        if (krimbleEdgeArea() != area) return;                         // it was moved away from the edge meanwhile
+        QMainWindow *mainWindow = qobject_cast<QMainWindow*>(parentWidget());
+        if (!mainWindow) return;
+        setAllowedAreas(Qt::AllDockWidgetAreas);
+        mainWindow->addDockWidget(area, this);
+        setFloating(false);
+        show();
+    });
 }
 
 // Krimble 2026-10-12: cuts a floating toolbox (vertical layout, columns) down to the height of its tools, so there is no empty space

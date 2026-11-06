@@ -71,6 +71,8 @@ private:
     bool m_userDragged {false};   // Krimble 2026-10-13: a finger or mouse was down on the dock's edge since the last fit to columns
     bool m_justDocked {false};    // Krimble 2026-11-05: true for a moment after the toolbox was dropped on a dock edge (the finger is still down, but it is not dragging the edge)
     Q_INVOKABLE void krimbleDockAtEdge();   // Krimble 2026-10-17: docks a floating toolbox that has reached the left, right or top edge of the screen
+    Qt::DockWidgetArea krimbleEdgeArea() const;   // Krimble 2026-11-06: the dock edge the floating toolbox is at, or NoDockWidgetArea
+    int m_edgeDockToken {0};                      // Krimble 2026-11-06: raised at every check; the 0.8 s delay before docking at an edge only acts if it is still the latest
     // void fitHeightToContents();   // Krimble 2026-10-12: a floating toolbox is only as tall as its tools
     void fitHeightToContents(bool setWidthToo = false);   // Krimble 2026-10-12: a floating toolbox is only as tall as its tools (2026-10-23: and, when asked, as wide as its columns)
     void krimbleFitFloatingShape();   // Krimble 2026-10-19: a floating toolbox takes the shape of its layout (rows or columns)
