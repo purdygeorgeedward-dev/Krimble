@@ -129,3 +129,8 @@ Times are Mountain Time from the clock of the sandbox that pushed (`date`), chec
 | Nov 5  8:25 AM | `79113b1` | purdygeorgeedward-dev | Theme palette: Light and Midlight blue-gray (379th) |
 | Nov 5  8:25 AM | (docs push, 375th to 379th) | changelog, worklog, status |
 | Nov 5  8:42 AM | `3cda7ae` | purdygeorgeedward-dev | Image window frame drawn in the window color, 16 px width kept (380th) |
+| Nov 5  7:10 PM | `68d35b5` | purdygeorgeedward-dev | Icons: keyboard taller, Rotate arrows, sharp rectangle corners (384th) |
+| Nov 5  7:10 PM | `be7d3b4` | purdygeorgeedward-dev | Close button back (hint restored, menu bar icon click-through); QuickAdjust thin lines, metal balls, left logo (381st to 383rd) |
+| Nov 5  7:10 PM | `21ade60` | purdygeorgeedward-dev | Every slider: 2 px line, 12 px metal ball (383rd) |
+| Nov 5  7:10 PM | `c3d2c62` | purdygeorgeedward-dev | Color Studio logo left aligned, 40% (382nd) |
+| Nov 5  7:10 PM | (docs push, 381st to 385th) | changelog, worklog, status |

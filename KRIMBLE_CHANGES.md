@@ -5995,3 +5995,33 @@ George's screenshots show thin white lines (beside the canvas, along panel edges
 **Files:** `libs/widgetutils/KisWideDockSeparatorStyle.cpp`
 
 George: the white lines and frames do not match the theme ("Is there a way to make them match the theme at least?"). An image window (QMdiSubWindow) asks the style to draw its frame with `QStyle::PE_FrameWindow`; Fusion draws it with a light edge (`palette.light()`), and on Android Krimble made that frame 16 logical px wide (`PM_MdiSubWindowFrameWidth`, 2026-10-13, so a finger can grab it), about 54 px on the screen. On Android `drawPrimitive` now draws `PE_FrameWindow` as one flat band in the palette's window color with a 1 px outline `#4C5275`; the width, and so the resize zone, is unchanged. Together with the 379th entry (Light and Midlight blue-gray) this is the test of the explanation that the white comes from Fusion's frame drawing. Android's own window background in the theme is black, so the white is not Android's. If the large white box around dialogs is still pure white after these two, another palette color is behind it. **Not verified:** a build or a device.
+
+## 2026-11-05 (381st) — Image windows: the close button and the system menu's Close are back (a regression from the 372nd entry)
+
+**Files:** `libs/ui/KisMainWindow.cpp`
+
+George (1.0.45-beta, b065f8f): "no X in the top right corner of image windows", "Restore, Minimize, Maximize ... no way to close an image window." Cause: the 372nd entry removed `Qt::WindowSystemMenuHint` from every image window. Qt (qmdisubwindow.cpp, `updateActions`, and `QCommonStyle`/Fusion's title bar) shows the close button, and the system menu's Close, only for windows that have that hint, so with it removed there was no way to close an image window. That line is commented out and the hint is back. The File-menu problem it was fixing (an invisible, oversized icon button of the maximized window, Qt's `QMdi::ControlLabel`, covers "File") is fixed another way: `KrimbleMenuBarFilter` is installed on the menu bar and sets `Qt::WA_TransparentForMouseEvents` on that label when Qt adds it, so taps go through it to the menu bar. Tested with real Qt 5.15 (offscreen): the label is found, becomes click-through, and the window keeps the hint. **Not verified:** a build or a device.
+
+## 2026-11-05 (382nd) — Title logos: left aligned, 40% of the width (were centered, 70 to 80%)
+
+**Files:** `libs/ui/KisMainWindow.cpp`, `plugins/dockers/advancedcolorselector/krimble_color_studio.h`
+
+George: the QuickAdjust and Color Studio logos "are twice the size they should be and they are centered when they should be left aligned." Both now sit at the left, 40% of the window or panel width (layout stretch 4 : 6; at most 340 px). The old lines are commented out. **Not verified:** a device (rendered with the real Color Studio code at the phone's density).
+
+## 2026-11-05 (383rd) — Sliders: a 2 px line and a tiny metal ball
+
+**Files:** `libs/ui/KrimbleVisualStyle.h`, `libs/ui/KisMainWindow.cpp`
+
+George: "Quick Adjust lines are too thick. Gadgets are goofy looking. Make them tiny metal balls." Every `QSlider` (app-wide style sheet) and the QuickAdjust sliders (their own style sheets): the groove is a 2 px line without border, the filled part a 2 px line in the selection blue `#2AA6E8`, the handle a 12 px ball with a light radial gradient (bright spot at the top left, `#FFFFFF` to `#6B7390`) and a 1 px rim; Hue's rainbow line is 3 px. The ball's border radius is 5.5 px (exactly half, 6 px, is drawn as a square by Qt; tested with real Qt). The 4 px and 14 px values of the 376th entry are kept in comments. **Not verified:** a device.
+
+## 2026-11-05 (384th) — Icons: Preferences keyboard, Rotate arrows, sharp rectangle corners
+
+**Files:** `krita/pics/svg/{dark,light}_config-keyboard.svg`, `krita/pics/svg/{dark,light}_krimble-free-rotate.svg`, `krita/pics/tools/SVG/16/{dark,light}_tool_rect_selection.svg`, `krita/pics/tools/SVG/16/{dark,light}_krita_tool_rectangle.svg`
+
+George: (1) the Preferences keyboard icon "is STILL HALF THE SIZE IT SHOULD BE": his keyboard picture is 2.6 times wider than tall, so at the width of the other icons it was 74 px tall; the icon now uses the left part of the picture (x 0 to 640 of 1200, 640 x 461), shown 192 x 138 in the 192 x 192 cell, about 1.9 times taller (the whole picture stays in `krimble-artwork/3d/`). (2) "Rotate tool ... icon has no arrows": the two arrowheads are at y 1.0 and y 23.0, outside the icon's old viewBox (`3 3 18 18`) and were cut off; the viewBox is `0.5 0.5 23 23` now. (3) "square icons in toolbox have ugly rounded corners": the rectangle selection and rectangle tool icons have `rx` 0, mitered joins and butt ends (were `rx` 1.4 and 2, round joins and caps). **Not verified:** a device.
+
+## 2026-11-05 (385th) — Note: the white frames are NOT the palette's Light color (379th entry's explanation disproved)
+
+**Files:** none (a note)
+
+George's build b065f8f already had the 379th entry (Light and Midlight blue-gray); the white boxes around dialogs were unchanged, and the white strip at the top of a dialog is about 19 logical px tall, with a frame about 4 logical px wide and a thin black outline. So the white is not Fusion's `palette.light()`. Android's own window background is black (`styles.xml`), so it is not that either. Still unknown; next step is a diagnostic that paints each layer a different loud color. The 380th entry (image window frame drawn flat) is still in the code and is a separate, smaller fix.
