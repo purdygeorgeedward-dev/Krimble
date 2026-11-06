@@ -143,3 +143,4 @@ Times are Mountain Time from the clock of the sandbox that pushed (`date`), chec
 | Nov 6  4:02 AM | `ca98b1f` | purdygeorgeedward-dev | Long press: the finger-up no longer picks a menu item (toolbox jumping to Dock Bottom) (391st) |
 | Nov 6  4:13 AM | `fe8669d` | purdygeorgeedward-dev | Toolbox: docking at a screen edge waits 1 s (392nd) |
 | Nov 6  11:25 AM | `e1658d8` | purdygeorgeedward-dev | Diagnostic dialog colors switched off (393rd) |
+| Nov 6  11:36 AM | `2e7ba06` | purdygeorgeedward-dev | Color panel: no height cap, no logo, narrow enough to dock (394th) |
