@@ -69,6 +69,7 @@ private:
     void snapToColumns();
     void applyColumns();
     bool m_userDragged {false};   // Krimble 2026-10-13: a finger or mouse was down on the dock's edge since the last fit to columns
+    bool m_justDocked {false};    // Krimble 2026-11-05: true for a moment after the toolbox was dropped on a dock edge (the finger is still down, but it is not dragging the edge)
     Q_INVOKABLE void krimbleDockAtEdge();   // Krimble 2026-10-17: docks a floating toolbox that has reached the left, right or top edge of the screen
     // void fitHeightToContents();   // Krimble 2026-10-12: a floating toolbox is only as tall as its tools
     void fitHeightToContents(bool setWidthToo = false);   // Krimble 2026-10-12: a floating toolbox is only as tall as its tools (2026-10-23: and, when asked, as wide as its columns)

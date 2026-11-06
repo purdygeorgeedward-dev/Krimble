@@ -185,6 +185,19 @@ KoToolBoxDocker::KoToolBoxDocker(KoToolBox *toolBox)
             if (m_orientation == Auto) setToolBoxOrientation(Qt::Vertical);
             QTimer::singleShot(350, this, [this]() { fitHeightToContents(true); });
             QTimer::singleShot(900, this, [this]() { fitHeightToContents(true); });
+        } else {
+            // Krimble 2026-11-05: George (1.0.45-beta): "Dragged the toolbox to right edge to attach and it exploded from 2 columns to 8 columns including one
+            // empty column. Tear it off again and it's 3 columns." Cause: when the toolbox is dropped on a dock edge the finger is still down while the dock
+            // is resized to the width of the dock area. snapToColumns() takes a width change with a finger down for a drag of the edge (m_userDragged), so
+            // that wide width became the saved number of columns (8), and the next tear-off kept it. For a moment after the drop the finger is ignored and the
+            // saved number of columns (the Columns menu's choice, 2 at first) is put back.
+            m_justDocked = true;
+            m_userDragged = false;
+            QTimer::singleShot(1500, this, [this]() {
+                m_justDocked = false;
+                m_userDragged = false;
+                applyColumns();
+            });
         }
     });
     m_edgeRight = new KrimbleToolBoxEdge(this, true);
@@ -192,6 +205,19 @@ KoToolBoxDocker::KoToolBoxDocker(KoToolBox *toolBox)
     m_edgeRight->hide();
     m_edgeBottom->hide();
     connect(this, &QDockWidget::topLevelChanged, this, &KoToolBoxDocker::setFloatingEdges);
+    // Krimble 2026-11-05: George (1.0.45-beta, screenshots): "There is still a huge unnecessary dead space at the bottom of the toolbox. still. WHY????"
+    // The tool area has stretch 0 and the spacer after it stretch 1 (2026-10-05, so the color wells cling to the tools when the toolbox is docked). A floating
+    // toolbox is made as tall as ALL its tools (fitHeightToContents), but the tool area stays at its own natural, shorter height (it showed 13 rows and the
+    // "more" arrow) and the spacer took the rest: that was the dead space. While the toolbox floats, the tool area gets the spare height instead (stretch 1,
+    // the spacer 0), so all the tools show and nothing is left over; docked, it is as before.
+    auto applyContainerStretch = [this](bool floating) {
+        m_containerLayout->setStretchFactor(m_scrollArea, floating ? 1 : 0);
+        for (int i = 0; i < m_containerLayout->count(); ++i) {
+            if (m_containerLayout->itemAt(i)->spacerItem()) m_containerLayout->setStretch(i, floating ? 0 : 1);
+        }
+    };
+    connect(this, &QDockWidget::topLevelChanged, this, applyContainerStretch);
+    QTimer::singleShot(0, this, [this, applyContainerStretch]() { applyContainerStretch(isFloating()); });
     // the toolbox may already be floating when the app starts (saved layout): no signal comes then
     QTimer::singleShot(0, this, [this]() { setFloatingEdges(isFloating()); });
     connect(m_restoreTimer, &QTimer::timeout, this, [this]() {
@@ -390,7 +416,9 @@ void KoToolBoxDocker::resizeEvent(QResizeEvent *event)
     // whole number of icon columns a moment after the resize stops.
     // Krimble 2026-10-10: only a resize made with a finger or mouse down may change the column count. A rotation has none down.
     // if (m_snapTimer && !m_windowResizing && !m_applying && !isFloating()) {
-    if (m_snapTimer && !m_windowResizing && !m_applying && !isFloating() && QApplication::mouseButtons() != Qt::NoButton) {
+    if (m_justDocked) {
+        // Krimble 2026-11-05: just dropped on a dock edge: no snapping to the width of the moment
+    } else if (m_snapTimer && !m_windowResizing && !m_applying && !isFloating() && QApplication::mouseButtons() != Qt::NoButton) {
         m_snapTimer->start();
     } else if (m_restoreTimer && !m_windowResizing && !m_applying && !isFloating() && isVisible() && QApplication::mouseButtons() == Qt::NoButton) {
         // Krimble 2026-10-10: a width change with no finger down (a workspace or layout restore, a rotation): put the saved
@@ -745,6 +773,8 @@ void KoToolBoxDocker::applyColumns()
 void KoToolBoxDocker::snapToColumns()
 {
     if (isFloating() || !isVisible()) return;
+    // Krimble 2026-11-05: right after a drop on a dock edge the width is the dock area's, not a choice of the user (see topLevelChanged above)
+    if (m_justDocked) { m_userDragged = false; return; }
     // Krimble 2026-10-10: never change the saved column count during a rotation or while we are setting the width ourselves.
     if (m_windowResizing || m_applying) return;
     // do not fight a finger that is still down on the separator
