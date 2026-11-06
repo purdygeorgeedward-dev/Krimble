@@ -48,6 +48,8 @@ private:
     int m_longPressTimeout;
 #endif
     bool m_handlingEvent = false;
+    // Krimble 2026-11-06: set when a long press has opened a context menu; the finger-up that ends that same touch is not allowed to pick an item of the menu
+    bool m_swallowMenuRelease = false;
 };
 
 #endif

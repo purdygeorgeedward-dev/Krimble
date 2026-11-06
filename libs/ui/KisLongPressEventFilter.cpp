@@ -36,6 +36,17 @@ KisLongPressEventFilter::KisLongPressEventFilter(QObject *parent)
 
 bool KisLongPressEventFilter::eventFilter(QObject *watched, QEvent *event)
 {
+    // Krimble 2026-11-06: George (1.0.45-beta): "I just tried to long press the toolbox and it leaped down to the bottom and reattached!" The long press opens the
+    // toolbox's context menu (Orientation, Columns, Dock Left / Right / Top / Bottom, Undock) under the finger, and the finger is still down. When it lifts,
+    // Qt sends that release to the menu, and a finger always moves a few pixels, which Qt counts as the mouse having moved, so it picks the item under the
+    // finger: "Dock Bottom". The release that ends the touch which opened the menu is now swallowed when it goes to the menu; a new touch (a press) is not
+    // affected, so tapping an item works as before. This covers every long-press menu in the program.
+    if (event->type() == QEvent::MouseButtonPress) {
+        m_swallowMenuRelease = false;
+    } else if (event->type() == QEvent::MouseButtonRelease && m_swallowMenuRelease && qobject_cast<QMenu *>(watched)) {
+        m_swallowMenuRelease = false;
+        return true;
+    }
     if (!m_handlingEvent) {
         QScopedValueRollback rollback(m_handlingEvent, true);
         switch (event->type()) {
@@ -176,6 +187,7 @@ void KisLongPressEventFilter::triggerLongPress()
             qApp->sendEvent(target, &releaseEvent);
         }
         qApp->postEvent(target, new QContextMenuEvent(QContextMenuEvent::Mouse, m_pressLocalPos, m_pressGlobalPos));
+        m_swallowMenuRelease = true;   // Krimble 2026-11-06: see eventFilter()
     }
 }
 
