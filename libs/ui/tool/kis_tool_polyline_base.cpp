@@ -163,7 +163,8 @@ void KisToolPolylineBase::beginPrimaryAction(KoPointerEvent *event)
         const QPointF pressPoint = convertToPixelCoordAndSnap(event);
         beginShape();
         m_dragging = true;
-        showStrokeBar(true);   // Krimble 2026-10-25: Undo point / END / Cancel over the canvas
+        // showStrokeBar(true);   // Krimble 2026-10-25: Undo point / END / Cancel over the canvas
+        // Krimble 2026-11-05: George (1.0.45-beta): "crazy unnecessary menu appears when using polygon select tool ... it was perfect before." The on-canvas bar (Undo point / END / Cancel, added 2026-10-25 and 26) is switched off: it is not shown any more. Undo Point, Close and Cancel are still in Tool Options, and Enter, Escape and Shift+Z still work. To bring the bar back, remove the two slashes.
         m_firstPointJustPlaced = false;
         if (m_points.empty()) {
             m_points.append(pressPoint);
@@ -203,7 +204,7 @@ void KisToolPolylineBase::beginPrimaryAction(KoPointerEvent *event)
     } else {
         beginShape();
         m_dragging = true;
-        showStrokeBar(true);   // Krimble 2026-10-25
+        // showStrokeBar(true);   // Krimble 2026-10-25 (switched off 2026-11-05, see above)
 #ifdef Q_OS_ANDROID
         // if (m_type == SELECT && m_points.empty()) {
         //     if (KisCanvas2 *kiscanvas = dynamic_cast<KisCanvas2*>(canvas())) {

@@ -240,7 +240,8 @@ void KisToolSelectMagnetic::beginPrimaryAction(KoPointerEvent *event)
         beginSelectInteraction();
         updateInitialAnchorBounds(temp.toPoint());
         Q_EMIT setButtonsEnabled(true);
-        showStrokeBar(true);   // Krimble 2026-10-26: Undo point / END / Cancel over the canvas, from the first anchor
+        // showStrokeBar(true);   // Krimble 2026-10-26: Undo point / END / Cancel over the canvas, from the first anchor
+        // Krimble 2026-11-05: George (1.0.45-beta): "crazy unnecessary menu appears when using polygon select tool ... it was perfect before." The on-canvas bar (Undo point / END / Cancel, added 2026-10-25 and 26) is switched off: it is not shown any more. Undo Point, Close and Cancel are still in Tool Options, and Enter, Escape and Shift+Z still work. To bring the bar back, remove the two slashes.
     }
 
     m_lastAnchor = temp.toPoint();
