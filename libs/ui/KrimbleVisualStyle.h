@@ -176,6 +176,7 @@ QSlider::sub-page:horizontal {
    379th entry's explanation is disproved). These rules color the layers of a dialog differently, in dark colors, so one screenshot of a dialog with a white frame
    shows which layer the white is: the dialog window itself = dark red, the scroll area of a KoDialog = dark green, the contents of the scroll area = dark blue. If the
    white stays white, it is not any of them but outside the dialog's own widgets (the native window). */
+/* Krimble 2026-11-06: George: "Worry about white frames later. Build." The diagnostic colors are switched off (the rules are kept in this comment):
 QDialog {
     background-color: #7a1f1f;
 }
@@ -188,5 +189,6 @@ QScrollArea#krimbleDialogScroll > QWidget {
 QScrollArea#krimbleDialogScroll > QWidget > QWidget {
     background-color: #1f1f7a;
 }
+*/
 )KRIMBLE");
 }
