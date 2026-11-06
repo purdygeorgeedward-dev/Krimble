@@ -6049,3 +6049,9 @@ George: (a) "Dragged the toolbox to right edge to attach and it exploded from 2 
 **Files:** `libs/ui/KrimbleVisualStyle.h`
 
 George: "WHITE FRAMES UNCHANGED." The palette's Light color was not the cause (385th entry). Rules at the end of the style sheet color a dialog's layers: the dialog window `#7A1F1F` (dark red), the KoDialog scroll area and its viewport `#1F7A1F` (dark green), the contents of the scroll area `#1F1F7A` (dark blue). A screenshot of a dialog with a white frame then shows which layer the white is, or that it is none of them (the native Android window). Tested in real Qt (the layers color differently; the whole style sheet parses without warnings). **These rules are temporary and are removed once the answer is known.**
+
+## 2026-11-06 (390th) — Buy Me a Coffee: the robot mascot is the picture of the Donate item
+
+**Files:** `packaging/android/apk/res/drawable/product_donation.png`
+
+George, with his robot mascot picture (`robothead.jpg`, 822 x 755): "I think this guy should be the image for the Buy me a Coffee campaign in the app." The in-app Support Krimble window has one "Donate" item (`DonationProductView.java`) whose picture is `product_donation.png`; it links to https://www.buymeacoffee.com/GeorgeEdwardPurdy. The picture (an anime girl holding a heart, with the words "Support Krimble / Your Creative Companion", 380 x 380, 279 KB) is replaced by a centered square crop of the robot (755 x 755, 631 KB, same file name so no code changes). It is shown at 100 dp. The mascot rules hold: the blue LED rings are on the ear cups, the K is on the chest, and it is not painting. The old picture stays in the git history. The image on krimble.org (`support-coffee.jpg`, used in the README) is on the website and not touched. **Not verified:** a build or a device.
