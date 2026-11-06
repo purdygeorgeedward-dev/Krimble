@@ -171,5 +171,22 @@ QSlider::sub-page:horizontal {
     border-radius: 1px;
     background: #2aa6e8;
 }
+
+/* Krimble 2026-11-05: DIAGNOSTIC, TEMPORARY (remove after one screenshot). George: "WHITE FRAMES UNCHANGED." The palette's Light color was NOT the cause (the
+   379th entry's explanation is disproved). These rules color the layers of a dialog differently, in dark colors, so one screenshot of a dialog with a white frame
+   shows which layer the white is: the dialog window itself = dark red, the scroll area of a KoDialog = dark green, the contents of the scroll area = dark blue. If the
+   white stays white, it is not any of them but outside the dialog's own widgets (the native window). */
+QDialog {
+    background-color: #7a1f1f;
+}
+QScrollArea#krimbleDialogScroll {
+    background-color: #1f7a1f;
+}
+QScrollArea#krimbleDialogScroll > QWidget {
+    background-color: #1f7a1f;
+}
+QScrollArea#krimbleDialogScroll > QWidget > QWidget {
+    background-color: #1f1f7a;
+}
 )KRIMBLE");
 }
