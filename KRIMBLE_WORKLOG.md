@@ -144,3 +144,4 @@ Times are Mountain Time from the clock of the sandbox that pushed (`date`), chec
 | Nov 6  4:13 AM | `fe8669d` | purdygeorgeedward-dev | Toolbox: docking at a screen edge waits 1 s (392nd) |
 | Nov 6  11:25 AM | `e1658d8` | purdygeorgeedward-dev | Diagnostic dialog colors switched off (393rd) |
 | Nov 6  11:36 AM | `2e7ba06` | purdygeorgeedward-dev | Color panel: no height cap, no logo, narrow enough to dock (394th) |
+| Nov 6  12:05 PM | `14156cf` | purdygeorgeedward-dev | QuickAdjust: shorter, no empty space, logo 50%, gradient lines for Brightness, Saturation, Lightness (395th, 396th) |
