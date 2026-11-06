@@ -1244,8 +1244,13 @@ public:
         // handle, with Reset at the left and Cancel and OK at the right. Ours had the slider on a second line, with a groove and handle about three times
         // too big. Rows are one framed line each, the columns line up, the pictures are smaller, and the groove and handle sizes are set for the
         // QuickAdjust sliders only (the app-wide style sheet is unchanged). The text stays as large as in the rest of the app.
-        layout->setContentsMargins(8, 8, 8, 8);
-        layout->setSpacing(6);
+        // layout->setContentsMargins(8, 8, 8, 8);
+        // layout->setSpacing(6);
+        // Krimble 2026-11-06: George: "way too big still. Shorten it. Eliminate space between the adjusters. Eliminate negative space." Tighter: the rows are 2 px
+        // apart (were 6), margins 4 (were 8), a row has 1 px above and below (was 3), the number boxes are 20 px tall and the sliders 16 (were about 24 and 22), and
+        // there is no stretch before the buttons.
+        layout->setContentsMargins(4, 4, 4, 4);
+        layout->setSpacing(2);
         QHBoxLayout *options = new QHBoxLayout;
         QLabel *title = new QLabel(i18n("Adjustments"), content);
         QFont font = title->font(); font.setBold(true); title->setFont(font);
@@ -1274,8 +1279,10 @@ public:
             frame->setObjectName(QStringLiteral("krimbleQuickRow"));
             frame->setStyleSheet(QStringLiteral("QFrame#krimbleQuickRow { background: #3b3e5c; border: 1px solid #4c5275; border-radius: 8px; }"));
             QHBoxLayout *row = new QHBoxLayout(frame);
-            row->setContentsMargins(6, 3, 6, 3);
-            row->setSpacing(6);
+            // row->setContentsMargins(6, 3, 6, 3);
+            // row->setSpacing(6);
+            row->setContentsMargins(6, 1, 6, 1);
+            row->setSpacing(4);
             // Krimble 2026-10-30: the small picture at the start of the row (the drawing's sun, half circle, drops, color ring, half square, sparkle)
             QLabel *rowIcon = new QLabel(content);
             // rowIcon->setPixmap(krimbleQuickAdjustIcon(i, 34));
@@ -1291,6 +1298,7 @@ public:
             m_numbers[i]->setRange(def(i).min, def(i).max);
             // m_numbers[i]->setMinimumWidth(72);
             m_numbers[i]->setFixedWidth(50);
+            m_numbers[i]->setFixedHeight(20);   // Krimble 2026-11-06: was the style sheet's height (about 24)
             row->addWidget(m_numbers[i]);
             // layout->addLayout(row);
             layout->addWidget(frame);
@@ -1298,7 +1306,8 @@ public:
             m_sliders[i]->setRange(def(i).min, def(i).max);
             m_sliders[i]->setMinimumWidth(1);
             // m_sliders[i]->setMinimumHeight(38);
-            m_sliders[i]->setMinimumHeight(22);
+            // m_sliders[i]->setMinimumHeight(22);
+            m_sliders[i]->setMinimumHeight(16);   // Krimble 2026-11-06: was 22 (the ball is 12 px + 2 px rim)
             m_sliders[i]->setObjectName(QStringLiteral("krimbleQuickAdjustSlider"));
             // Krimble 2026-11-05: thin groove (4 px) and a small round handle (14 px; a border radius of exactly half the handle size draws a square in Qt,
             // so it is 8 px, not 9) for the QuickAdjust sliders; the filled part is the selection blue.
@@ -1318,6 +1327,64 @@ public:
                 m_sliders[i]->setStyleSheet(QStringLiteral(
                     "QSlider::groove:horizontal { height: 2px; border: none; border-radius: 1px; background: #6f789c; }"
                     "QSlider::sub-page:horizontal { height: 2px; border: none; border-radius: 1px; background: #2aa6e8; }")
+                    + thinHandle);
+            }
+            if (i == Lightness) {
+                // Krimble 2026-11-06: George: "lightness could go from max saturated color to white. If we can't use the selected foreground color, just use red." The Lightness
+                // line goes from the foreground color's hue at maximum saturation and brightness (left end) to white (right end), and follows the foreground color while the
+                // window is open. A gray foreground color has no hue, so it is red then. No blue fill.
+                const QString handleStyle = thinHandle;
+                auto updateLightnessLine = [this, handleStyle]() {
+                    QColor foreground(Qt::red);
+                    if (KisViewManager *view = m_win->viewManager()) {
+                        if (view->canvasResourceProvider()) foreground = view->canvasResourceProvider()->fgColor().toQColor();
+                    }
+                    int hue = 0, saturation = 0, value = 0;
+                    foreground.getHsv(&hue, &saturation, &value);
+                    const QColor pure = QColor::fromHsv(hue < 0 || saturation == 0 ? 0 : hue, 255, 255);
+                    m_sliders[Lightness]->setStyleSheet(QStringLiteral(
+                        "QSlider::groove:horizontal { height: 3px; border: 1px solid #59618a; border-radius: 2px;"
+                        " background: qlineargradient(x1:0,y1:0,x2:1,y2:0, stop:0 %1, stop:1 #ffffff); }"
+                        "QSlider::sub-page:horizontal { background: transparent; border: none; }").arg(pure.name()) + handleStyle);
+                };
+                updateLightnessLine();
+                if (KisViewManager *view = m_win->viewManager()) {
+                    if (view->canvasResourceProvider())
+                        connect(view->canvasResourceProvider(), &KisCanvasResourceProvider::sigFGColorChanged, this, [updateLightnessLine](const KoColor &) { updateLightnessLine(); });
+                }
+            }
+            if (i == Saturation) {
+                // Krimble 2026-11-06: George: "could saturation hold a gradient from black to the max intensity of the current selected color?" The Saturation line goes
+                // from black at the left end to the foreground color at its maximum intensity (its hue and saturation, brightest value) at the right end, and follows
+                // the foreground color while the window is open. A gray foreground color (no hue) gives black to white. No blue fill.
+                const QString handleStyle = thinHandle;
+                auto updateSaturationLine = [this, handleStyle]() {
+                    QColor foreground(Qt::white);
+                    if (KisViewManager *view = m_win->viewManager()) {
+                        if (view->canvasResourceProvider()) foreground = view->canvasResourceProvider()->fgColor().toQColor();
+                    }
+                    int hue = 0, saturation = 0, value = 0;
+                    foreground.getHsv(&hue, &saturation, &value);
+                    const QColor brightest = QColor::fromHsv(qMax(0, hue), saturation, 255);
+                    m_sliders[Saturation]->setStyleSheet(QStringLiteral(
+                        "QSlider::groove:horizontal { height: 3px; border: 1px solid #59618a; border-radius: 2px;"
+                        " background: qlineargradient(x1:0,y1:0,x2:1,y2:0, stop:0 #000000, stop:1 %1); }"
+                        "QSlider::sub-page:horizontal { background: transparent; border: none; }").arg(brightest.name()) + handleStyle);
+                };
+                updateSaturationLine();
+                if (KisViewManager *view = m_win->viewManager()) {
+                    if (view->canvasResourceProvider())
+                        connect(view->canvasResourceProvider(), &KisCanvasResourceProvider::sigFGColorChanged, this, [updateSaturationLine](const KoColor &) { updateSaturationLine(); });
+                }
+            }
+            if (i == Brightness) {
+                // Krimble 2026-11-06: George: "shouldn't the brightness line have a gradient from black to white in the line?" The Brightness line (Lightness has its own, below) shows
+                // what the slider does, black at the left end to white at the right end (like the Hue line shows its colors), with a thin outline so the black end
+                // can be seen on the dark window, and no blue fill.
+                m_sliders[i]->setStyleSheet(QStringLiteral(
+                    "QSlider::groove:horizontal { height: 3px; border: 1px solid #59618a; border-radius: 2px;"
+                    " background: qlineargradient(x1:0,y1:0,x2:1,y2:0, stop:0 #000000, stop:1 #ffffff); }"
+                    "QSlider::sub-page:horizontal { background: transparent; border: none; }")
                     + thinHandle);
             }
             if (i == Hue) {
@@ -1345,7 +1412,7 @@ public:
         // QPushButton *reset = new QPushButton(i18n("Reset"), content);
         // layout->addWidget(reset);
         // Krimble 2026-11-05: Reset is in the button row now, at the left of Cancel and OK, like the mockup (see resetAll() and krimbleShowQuickAdjustDialog)
-        layout->addStretch(1);
+        // layout->addStretch(1);   // Krimble 2026-11-06: no stretch: the window is as tall as its contents, no empty space under the last adjuster
         m_timer.setSingleShot(true);
         connect(&m_timer, &QTimer::timeout, this, [this]() { apply(); });
         for (int i = 0; i < SliderCount; ++i) m_values[i] = 0;
@@ -1541,8 +1608,11 @@ static void krimbleShowQuickAdjustDialog(KisMainWindow *win)
         // logoRow->addStretch(1);
         // Krimble 2026-11-05 (2nd): George: "Title logos ... are twice the size they should be and they are centered when they should be left aligned."
         // Left aligned, 40% of the window width (was centered, 80%).
-        logoRow->addWidget(new KrimbleLogoLabel(QStringLiteral(":/dark_krimble-quickadjust-logo.png"), QStringLiteral("QuickAdjust"), dialog), 4);
-        logoRow->addStretch(6);
+        // logoRow->addWidget(new KrimbleLogoLabel(QStringLiteral(":/dark_krimble-quickadjust-logo.png"), QStringLiteral("QuickAdjust"), dialog), 4);
+        // logoRow->addStretch(6);
+        // Krimble 2026-11-06: George: "make QuickAdjust logo slightly larger." 40% of the window width became 50%.
+        logoRow->addWidget(new KrimbleLogoLabel(QStringLiteral(":/dark_krimble-quickadjust-logo.png"), QStringLiteral("QuickAdjust"), dialog), 5);
+        logoRow->addStretch(5);
         layout->addLayout(logoRow);
     }
     // layout->addWidget(new KrimbleQuickAdjustLogo(dialog));
@@ -1569,7 +1639,10 @@ static void krimbleShowQuickAdjustDialog(KisMainWindow *win)
     if (QScreen *scr = QGuiApplication::primaryScreen()) {
         const QRect avail = scr->availableGeometry();
         const int width = int(avail.width() * 0.94);
-        const int height = qMin(dialog->sizeHint().height() + 20, int(avail.height() * 0.90));
+        // const int height = qMin(dialog->sizeHint().height() + 20, int(avail.height() * 0.90));
+        // Krimble 2026-11-06: the exact height for this width (the logo's height depends on its width, which sizeHint() does not know), no 20 px extra
+        const int contentHeight = dialog->layout()->hasHeightForWidth() ? dialog->layout()->heightForWidth(width) : dialog->sizeHint().height();
+        const int height = qMin(contentHeight, int(avail.height() * 0.90));
         dialog->resize(width, height);
         dialog->move(avail.left() + (avail.width() - width)/2,
                      avail.bottom() - height - 8);
