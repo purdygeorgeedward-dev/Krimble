@@ -42,11 +42,15 @@ KisColorSelectorNgDock::KisColorSelectorNgDock()
             m_colorSelectorNgWidget->setMaximumHeight(QWIDGETSIZE_MAX);
             return;
         }
-        if (QScreen *scr = QGuiApplication::primaryScreen()) {
-            const QSize screenSize = scr->availableGeometry().size();
-            const int shortSide = qMin(screenSize.width(), screenSize.height());
-            m_colorSelectorNgWidget->setMaximumHeight(int(shortSide * 0.42));
-        }
+        // if (QScreen *scr = QGuiApplication::primaryScreen()) {
+        //     const QSize screenSize = scr->availableGeometry().size();
+        //     const int shortSide = qMin(screenSize.width(), screenSize.height());
+        //     m_colorSelectorNgWidget->setMaximumHeight(int(shortSide * 0.42));
+        // }
+        // KRIMBLE 2026-11-06: George (1.0.45-beta, screenshot of the docked Color panel): "It's still trapped in a scrolling box." Docked, the panel showed
+        // only the top 454 px of Color Studio (the 42% cap above) inside a scrolling box, with the rest of the panel empty. That cap was made for the old
+        // selector (910 px tall); Color Studio fills the panel and scrolls only when the panel is shorter than it. No cap, docked or floating.
+        m_colorSelectorNgWidget->setMaximumHeight(QWIDGETSIZE_MAX);
     };
     krimbleApplyHeightCap(isFloating());
     connect(this, &QDockWidget::topLevelChanged, this, krimbleApplyHeightCap);

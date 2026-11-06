@@ -101,7 +101,8 @@ public:
         // setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
         // Krimble 2026-11-05: George: Color Studio "is a complete mess" (screenshots 2026-11-05): the square was stretched into a wide band. It
         // follows the mockup: a near-square (0.95 tall for its width) next to the vertical hue strip, and it grows with the width it gets.
-        setMinimumSize(100, 95);
+        // setMinimumSize(100, 95);
+        setMinimumSize(60, 57);   // Krimble 2026-11-06: narrower, so the docked panel does not need a horizontal scroll bar (was 100 x 95)
         QSizePolicy policy(QSizePolicy::Expanding, QSizePolicy::Preferred);
         policy.setHeightForWidth(true);
         setSizePolicy(policy);
@@ -409,6 +410,8 @@ public:
         // header->addWidget(add);
         // layout->addLayout(header);
         // Krimble 2026-11-05: George's ColorStudio logo graphic, 70% of the panel width, replaces the text heading ("+ Swatch" is in the palette heading below).
+        // Krimble 2026-11-06: George: "Remove Color Studio logo." The logo (KrimbleStudioLogoLabel and the picture) stays in the program, not shown.
+#if 0
         {
             auto *logoRow = new QHBoxLayout;
             // logoRow->addStretch(1);
@@ -419,6 +422,7 @@ public:
             logoRow->addStretch(6);
             layout->addLayout(logoRow);
         }
+#endif
         auto *add = new QPushButton(tr("+ Swatch"), this);
         add->setToolTip(tr("Add foreground color to palette"));
         // Krimble 2026-10-30: George: "Color docker designed by ChatGPT was too ambitious and doesn't need tabs. Should be all in one design." and, of the mixing
@@ -558,19 +562,19 @@ public:
             m_hsv[i] = new QSpinBox(this);
             m_hsv[i]->setRange(0, i==0 ? 359 : 100);
             m_hsv[i]->setSuffix(i==0 ? QStringLiteral("°") : QStringLiteral("%"));
-            m_hsv[i]->setFixedWidth(76);
+            m_hsv[i]->setFixedWidth(62);   // Krimble 2026-11-06: was 76 (narrower panel, no horizontal scroll bar)
             values->addWidget(m_hsv[i],i,1);
         }
         for (int i=0;i<3;++i) {
             values->addWidget(new QLabel(QString::fromLatin1(names[i]),this),i+3,0);
             m_rgb[i]=new QSpinBox(this); m_rgb[i]->setRange(0,255);
-            m_rgb[i]->setFixedWidth(76);
+            m_rgb[i]->setFixedWidth(62);   // Krimble 2026-11-06: was 76 (narrower panel, no horizontal scroll bar)
             values->addWidget(m_rgb[i],i+3,1);
         }
         values->addWidget(new QLabel(tr("HEX"),this),6,0);
         m_hex=new QLineEdit(this); m_hex->setMaxLength(7);
         m_hex->setPlaceholderText(QStringLiteral("#RRGGBB"));
-        m_hex->setFixedWidth(76);
+        m_hex->setFixedWidth(76);   // Krimble 2026-11-06: stays 76 (the H S V R G B boxes are 62): "#RRGGBB" is clipped in less
         values->addWidget(m_hex,6,1);
         auto *valuesBox = new QWidget(this);
         valuesBox->setLayout(values);
@@ -578,8 +582,8 @@ public:
         pickerLayout->addLayout(topRow);
         auto *colorRow = new QHBoxLayout;
         colorRow->setSpacing(5);
-        m_preview=new QLabel(this); m_preview->setFixedSize(38,38);          // the foreground color
-        m_background=new QLabel(this); m_background->setFixedSize(38,38);    // the background color
+        m_preview=new QLabel(this); m_preview->setFixedSize(32,32);          // the foreground color (32 px, was 38, so the panel can be narrower)
+        m_background=new QLabel(this); m_background->setFixedSize(32,32);    // the background color
         auto *swap = new QToolButton(this);
         swap->setText(QStringLiteral("\u21C4"));
         swap->setToolTip(tr("Swap foreground and background colors"));
@@ -587,7 +591,8 @@ public:
         colorRow->addWidget(swap);
         colorRow->addWidget(m_background);
         auto *recentBox = new QVBoxLayout;
-        recentBox->addWidget(new QLabel(tr("RECENT COLORS"),this));
+        // recentBox->addWidget(new QLabel(tr("RECENT COLORS"),this));
+        recentBox->addWidget(new QLabel(tr("RECENT"),this));   // Krimble 2026-11-06: shorter, so the panel can be narrower (it was "RECENT COLORS")
         m_recentLayout = new QGridLayout;
         m_recentLayout->setSpacing(3);
         recentBox->addLayout(m_recentLayout);
@@ -730,7 +735,7 @@ private:
             QColor color=m_recent[i];
             auto *button=new QPushButton(this);
             button->setFixedHeight(28);
-            button->setMinimumWidth(10);
+            button->setMinimumWidth(6);   // Krimble 2026-11-06: was 10 (narrower panel, no horizontal scroll bar)
             button->setToolTip(color.name());
             button->setStyleSheet(QStringLiteral(
                 "background:%1;border:1px solid #7381a8;border-radius:4px;").arg(color.name()));
@@ -748,7 +753,7 @@ private:
             auto *button=new KrimbleSwatchButton(this);
             // button->setFixedHeight(36);
             button->setFixedHeight(30);   // Krimble 2026-11-05: 10 across and a little shorter, like the mockup
-            button->setMinimumWidth(10);
+            button->setMinimumWidth(6);   // Krimble 2026-11-06: was 10 (narrower panel, no horizontal scroll bar)
             button->setToolTip(color.name());
             button->setStyleSheet(QStringLiteral("background:%1;border:1px solid #7381a8;border-radius:4px;").arg(color.name()));
             connect(button,&QPushButton::clicked,this,[this,color](){select(color);});
