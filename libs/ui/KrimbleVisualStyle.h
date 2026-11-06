@@ -111,24 +111,32 @@ QAbstractItemView::item:selected {
 /* Krimble 2026-11-05: George: "I want normal sized handles that match the UI. I want thin lines, not giant lines." Every slider in the app (QuickAdjust,
    Brushes, the On-Canvas Brush Editor): a 4 px groove (was 7) and a 14 px round handle (was 19). The old values: groove height 7px, handle width 19px,
    margin -7px 0, border-radius 9px. A border radius of exactly half the handle size (9 px on 18 px) is drawn as a square by Qt, so it is 8 px. */
+/* Krimble 2026-11-05 (2nd): George (1.0.45-beta, screenshots): "Quick Adjust lines are too thick. Gadgets are goofy looking. Make them tiny metal balls."
+   Every slider: a thin 2 px line (the 4 px groove with a 1 px border above is switched off) and a 12 px metal ball: a light radial gradient with a
+   bright spot at its top left and a 1 px dark rim. A border radius of 5.5 px on 12 px draws round in Qt (half the size, 6 px, draws a square). */
 QSlider::groove:horizontal {
-    /* height: 7px; */
-    height: 4px;
-    border: 1px solid #535c80;
-    border-radius: 3px;
-    background: #20263f;
+    /* height: 4px; */
+    /* border: 1px solid #535c80; */
+    /* border-radius: 3px; */
+    /* background: #20263f; */
+    height: 2px;
+    border: none;
+    border-radius: 1px;
+    background: #6f789c;
 }
 QSlider::handle:horizontal {
-    /* width: 19px; */
-    /* margin: -7px 0; */
-    width: 14px;
-    height: 14px;
-    margin: -6px 0;
-    border: 2px solid #c9dfff;
-    /* border-radius: 9px; */
-    border-radius: 8px;
-    background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
-                                stop:0 #f1f5ff, stop:1 #728eb8);
+    /* width: 14px; */
+    /* height: 14px; */
+    /* margin: -6px 0; */
+    /* border: 2px solid #c9dfff; */
+    /* border-radius: 8px; */
+    width: 12px;
+    height: 12px;
+    margin: -5px 0;
+    border: 1px solid #4d5573;
+    border-radius: 5.5px;
+    background: qradialgradient(cx:0.4,cy:0.35,radius:0.75,fx:0.35,fy:0.3,
+                                stop:0 #ffffff, stop:0.35 #d9dde6, stop:0.75 #9aa1b3, stop:1 #6b7390);
 }
 QCheckBox::indicator:checked {
     border: 1px solid #39ccff;
@@ -154,12 +162,14 @@ QProgressBar::chunk {
 }
 QSlider::sub-page:horizontal {
     /* height: 7px; */
-    height: 4px;   /* Krimble 2026-11-05: thin, like the groove (see the QSlider note above) */
-    border: 1px solid #146a9f;   /* was #c44a00 (orange) until 2026-11-04 */
-    border-radius: 3px;
-    background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
-                                stop:0 #2a93cc, stop:0.5 #1d7cb2,
-                                stop:1 #146a9f);
+    /* height: 4px; */
+    /* border: 1px solid #146a9f; */
+    /* border-radius: 3px; */
+    /* background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #2a93cc, stop:0.5 #1d7cb2, stop:1 #146a9f); */
+    height: 2px;   /* Krimble 2026-11-05 (2nd): the same thin 2 px line as the groove, in the selection blue (was #c44a00 orange until 2026-11-04) */
+    border: none;
+    border-radius: 1px;
+    background: #2aa6e8;
 }
 )KRIMBLE");
 }
