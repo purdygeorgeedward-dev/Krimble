@@ -411,9 +411,12 @@ public:
         // Krimble 2026-11-05: George's ColorStudio logo graphic, 70% of the panel width, replaces the text heading ("+ Swatch" is in the palette heading below).
         {
             auto *logoRow = new QHBoxLayout;
-            logoRow->addStretch(1);
-            logoRow->addWidget(new KrimbleStudioLogoLabel(QStringLiteral(":/dark_krimble-colorstudio-logo.png"), this), 7);
-            logoRow->addStretch(1);
+            // logoRow->addStretch(1);
+            // logoRow->addWidget(new KrimbleStudioLogoLabel(QStringLiteral(":/dark_krimble-colorstudio-logo.png"), this), 7);
+            // logoRow->addStretch(1);
+            // Krimble 2026-11-05 (2nd): George: the title logo is twice the size it should be and should be left aligned: 40% of the panel width, at the left.
+            logoRow->addWidget(new KrimbleStudioLogoLabel(QStringLiteral(":/dark_krimble-colorstudio-logo.png"), this), 4);
+            logoRow->addStretch(6);
             layout->addLayout(logoRow);
         }
         auto *add = new QPushButton(tr("+ Swatch"), this);
