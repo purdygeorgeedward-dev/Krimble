@@ -1671,4 +1671,26 @@ t>
 </ToolBar>
 -->
 
+<!-- Krimble 2026-11-07: George: "Anything that is trivial to make for a custom DPaint toolbar just do it. It will be a nice little addon to the toolbars available." A Deluxe Paint
+     style toolbar made only of actions that already exist (no new tools), in Deluxe Paint's order: freehand, line, rectangle, ellipse, polygon, fill, gradient, text, magnify, then
+     Undo, Redo, Clear and Select All. Like the other extra toolbars it starts hidden: turn it on in Window > Toolbars. The things that need new work are not here: the dotted
+     freehand and spray can (brush presets), the picked-up brush, color cycling and animation. The palette is the Color panel's color cells. -->
+<ToolBar name="DeluxePaintBar" fullWidth="false" position="top" hidden="true">
+    <Text>Deluxe Paint</Text>
+    <Action name="KritaShape/KisToolBrush"/>
+    <Action name="KritaShape/KisToolLine"/>
+    <Action name="KritaShape/KisToolRectangle"/>
+    <Action name="KritaShape/KisToolEllipse"/>
+    <Action name="KisToolPolygon"/>
+    <Action name="KritaFill/KisToolFill"/>
+    <Action name="KritaFill/KisToolGradient"/>
+    <Action name="KrimbleTextTool"/>
+    <Action name="ZoomTool"/>
+    <Separator/>
+    <Action name="edit_undo"/>
+    <Action name="edit_redo"/>
+    <Action name="clear"/>
+    <Action name="select_all"/>
+</ToolBar>
+
 </kpartgui>
