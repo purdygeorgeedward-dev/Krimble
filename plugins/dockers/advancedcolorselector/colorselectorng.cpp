@@ -14,6 +14,7 @@
 
 #include "kis_color_selector_ng_dock.h"
 #include "krimble_mixer_dock.h"   // Krimble 2026-10-30: the Mixer panel
+#include "krimble_dpaint_dock.h"   // Krimble 2026-11-07: the DPaint panel
 #include "kis_color_selector_settings.h"
 #include "kis_preference_set_registry.h"
 
@@ -62,11 +63,25 @@ public:
     DockPosition defaultDockPosition() const override { return DockMinimized; }   // opened from the Window menu
 };
 
+// Krimble 2026-11-07: the DPaint panel (tools, UNDO / CLR, the color indicator and a 256 color palette, all in the classic gray bevelled look)
+class KrimbleDPaintDockFactory : public KoDockFactoryBase
+{
+public:
+    QString id() const override { return QString("KrimbleDPaint"); }
+    QDockWidget* createDockWidget() override {
+        KrimbleDPaintDock *dockWidget = new KrimbleDPaintDock();
+        dockWidget->setObjectName(id());
+        return dockWidget;
+    }
+    DockPosition defaultDockPosition() const override { return DockMinimized; }   // opened from the Window menu
+};
+
 ColorSelectorNgPlugin::ColorSelectorNgPlugin(QObject *parent, const QVariantList &)
         : QObject(parent)
 {
     KoDockRegistry::instance()->add(new ColorSelectorNgDockFactory());
     KoDockRegistry::instance()->add(new KrimbleMixerDockFactory());   // Krimble 2026-10-30
+    KoDockRegistry::instance()->add(new KrimbleDPaintDockFactory());   // Krimble 2026-11-07
 
     KisPreferenceSetRegistry *preferenceSetRegistry = KisPreferenceSetRegistry::instance();
 
