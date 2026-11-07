@@ -604,10 +604,11 @@
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
+            <!-- Krimble 2026-11-07: George: "why is there a giant description area pushing it down?" It was 100 px tall at most, now 54 px (about three lines); it was 100: -->
             <property name="maximumSize">
              <size>
               <width>16777215</width>
-              <height>100</height>
+              <height>54</height>
              </size>
             </property>
            </widget>

@@ -24,6 +24,8 @@
 #include <QGuiApplication>
 #include <QScreen>
 #include <QScrollArea>
+#include <QDialogButtonBox>   // Krimble 2026-11-07: the OK and Cancel buttons stay under the scroll area
+#include <QVBoxLayout>
 #include <QMimeData>
 
 #include <klocalizedstring.h>
@@ -383,7 +385,24 @@ void KisOpenPane::addCustomDocumentWidget(QWidget *widget, const QString& title,
     pageScroll->setWidgetResizable(true);
     pageScroll->setFrameShape(QFrame::NoFrame);
     pageScroll->setWidget(widget);
-    paneWidget = pageScroll;
+    // paneWidget = pageScroll;
+    // Krimble 2026-11-07: George: "in the New dialog it is a huge pain in the ass that the cancel button is hidden by default. why is there a giant description area pushing it down? why
+    // isn't the most important part, the two buttons in the lower right hand corner, visible and shielded from disappearing? this is a major priority." The OK and Cancel buttons were
+    // the last row of the page, inside the scroll area, so on a phone a tall page pushed them out of sight. They are taken out of the page and put under the scroll area: only the
+    // fields scroll, the buttons are always at the bottom right of the window. (The pages connect to the button box by name; moving it does not change that.) The description box
+    // is also shorter now (wdgnewimage.ui).
+    QWidget *pageColumn = new QWidget;
+    QVBoxLayout *pageColumnLayout = new QVBoxLayout(pageColumn);
+    pageColumnLayout->setContentsMargins(0, 0, 0, 0);
+    pageColumnLayout->setSpacing(4);
+    pageColumnLayout->addWidget(pageScroll, 1);
+    if (QDialogButtonBox *confirmButtons = widget->findChild<QDialogButtonBox *>(QStringLiteral("newDialogConfirmationButtonBox"))) {
+        confirmButtons->setParent(pageColumn);   // leaves the page's layout
+        confirmButtons->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+        pageColumnLayout->addWidget(confirmButtons, 0, Qt::AlignRight);
+        confirmButtons->show();
+    }
+    paneWidget = pageColumn;
 }
 #if 0
     {
