@@ -338,6 +338,36 @@ void KoToolBoxDocker::setViewManager(KisViewManager *viewManager)
         trailingLayout->addWidget(m_dualColorButton, 0, Qt::AlignHCenter);
         m_toolBox->toolBoxLayout()->setTrailingWidget(trailingBox);
 
+        // Krimble 2026-11-07: George: "Let's make an UNDO button! It will be retro! I like it!" (after "What do you think about putting an UNDO button in the toolbox like Deluxe
+        // Paint?"). A blocky text button, UNDO, under the color wells, away from the tools so it is not hit by accident. A tap is Undo (the program's own Edit > Undo action: it
+        // follows that action's enabled state and its shortcut); a long press (the program's long press opens a context menu) offers Redo.
+        {
+            QAction *undoAction = viewManager->actionCollection()->action("edit_undo");
+            QAction *redoAction = viewManager->actionCollection()->action("edit_redo");
+            if (undoAction) {
+                QToolButton *undoButton = new QToolButton(trailingBox);
+                undoButton->setObjectName(QStringLiteral("krimbleUndoButton"));
+                undoButton->setText(i18nc("@action:button", "UNDO"));
+                undoButton->setToolButtonStyle(Qt::ToolButtonTextOnly);
+                undoButton->setToolTip(i18n("Undo (long press for Redo)"));
+                undoButton->setMinimumHeight(26);
+                undoButton->setMinimumWidth(1);
+                undoButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+                undoButton->setStyleSheet(QStringLiteral(
+                    "QToolButton { color: #f1f4fc; font-weight: bold; border: 2px solid #5c678f; border-radius: 0px; background: #2a3148; padding: 1px; }"
+                    "QToolButton:pressed { color: white; border-color: #3bbcf5; background: #0867b8; }"
+                    "QToolButton:disabled { color: #6a7190; border-color: #3a4260; background: #232a40; }"));
+                undoButton->setEnabled(undoAction->isEnabled());
+                connect(undoButton, &QToolButton::clicked, undoAction, &QAction::trigger);
+                connect(undoAction, &QAction::changed, undoButton, [undoButton, undoAction]() { undoButton->setEnabled(undoAction->isEnabled()); });
+                if (redoAction) {
+                    undoButton->setContextMenuPolicy(Qt::ActionsContextMenu);
+                    undoButton->addAction(redoAction);
+                }
+                trailingLayout->addWidget(undoButton);
+            }
+        }
+
         connect(m_dualColorButton, SIGNAL(foregroundColorChanged(KoColor)), viewManager->canvasResourceProvider(), SLOT(slotSetFGColor(KoColor)));
         connect(m_dualColorButton, SIGNAL(backgroundColorChanged(KoColor)), viewManager->canvasResourceProvider(), SLOT(slotSetBGColor(KoColor)));
         connect(viewManager->canvasResourceProvider(), SIGNAL(sigBGColorChanged(KoColor)), m_dualColorButton, SLOT(setBackgroundColor(KoColor)));

@@ -6181,3 +6181,9 @@ George: "I've been working with transform. Selecting position from the tool opti
 **Files:** `libs/ui/widgets/kis_floating_message.cpp`
 
 George: "there are lots of little reports that appear on screen to tell you something is done or whatever. Do they have to appear right in my way? Can't they appear at bottom left?" `KisFloatingMessage::determineMetrics()` put a message at the top left of the canvas (20 px in, 70 px down), over the picture, or at the top right of the screen when it has no parent. It is now at the bottom left of the canvas: 20 px from the left edge, its bottom edge 50 px above the canvas bottom (room for the horizontal scroll bar), so a taller message grows upward; with no parent window it is at the bottom left of the screen. The old lines are in comments. **Not verified:** a compile against Krita's classes, a build or a device.
+
+## 2026-11-07 (412th) — UNDO button in the toolbox
+
+**Files:** `libs/ui/toolbox/KoToolBoxDocker.cpp`
+
+George: "What do you think about putting an UNDO button in the toolbox like Deluxe Paint? Is that cool?" and "Let's make an UNDO button! It will be retro! I like it!" A blocky text button, UNDO (square corners, a 2 px outline, bold capitals; blue when pressed; gray when there is nothing to undo), sits in the toolbox's trailing box under the color wells and above the screen mode button, away from the tool grid so it is not hit by accident (the reason Rotate left the toolbox). A tap triggers the program's own `edit_undo` action and the button follows that action's enabled state; a long press (the program's long press opens a context menu) offers Redo (`edit_redo`). It is in the trailing box, so it scrolls with the tools and is as wide as the toolbox. **Not verified:** a compile against Krita's classes, a build or a device; how a one-column toolbox (about 34 px) fits the word UNDO.
