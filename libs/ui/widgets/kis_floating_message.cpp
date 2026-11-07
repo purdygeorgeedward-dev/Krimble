@@ -222,12 +222,20 @@ QRect KisFloatingMessage::determineMetrics( const int M )
 
     if (parentWidget() && m_showOverParent) {
         screen = parentWidget()->geometry();
-        screen.setTopLeft(parentWidget()->mapToGlobal(QPoint(MARGIN, MARGIN + 50)));
-        newPos = screen.topLeft();
+        // screen.setTopLeft(parentWidget()->mapToGlobal(QPoint(MARGIN, MARGIN + 50)));
+        // newPos = screen.topLeft();
+        // Krimble 2026-11-07: George: "there are lots of little reports that appear on screen to tell you something is done or whatever. Do they have to appear right in my way? Can't they
+        // appear at bottom left?" They were at the top left of the canvas, over the picture. Now the bottom left of the canvas, 20 px from the left edge and 50 px above the bottom
+        // edge (room for the horizontal scroll bar), whatever their height (taller messages grow upward).
+        newPos = parentWidget()->mapToGlobal(QPoint(MARGIN, qMax(MARGIN, parentWidget()->height() - 50 - newSize.height())));
+        screen.setTopLeft(newPos);
     }
     else {
         // move to the right
-        newPos.rx() = screen.width() - MARGIN - newSize.width();
+        // newPos.rx() = screen.width() - MARGIN - newSize.width();
+        // Krimble 2026-11-07: bottom left of the screen when the message has no parent window (see above)
+        newPos.rx() = MARGIN;
+        newPos.ry() = screen.height() - MARGIN - 50 - newSize.height();
 
         //ensure we don't dip below the screen
         if (newPos.y() + newSize.height() > screen.height() - MARGIN) {
