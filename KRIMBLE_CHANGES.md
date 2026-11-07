@@ -6133,3 +6133,9 @@ George (screenshot with arrows): "Version info is still at top of splash instead
 **Files:** `libs/ui/toolbox/KoToolBoxDocker.cpp`, `libs/ui/toolbox/KoToolBoxDocker_p.h`
 
 George: "the number of columns changes if you tear off the attached toolbox. it goes from 2 to a cockeyed 1. then if you try to select 2 columns it goes horizontal for no apparent reason." The cause was not found by reading the code (a tear-off runs several timers that set the layout, the width, the height and the saved column count), so `krimbleLogState()` writes one `KRIMBLE-TOOLBOX` line to krita.log (Help > Show Krimble Log) at the tear-off and docking, 0.35 s, 0.9 s and 2 s after a tear-off (before and after the fit), when the Columns menu is used, when the layout orientation changes and when columns are applied: floating, dock area, orientation setting and layout, columns, size, icon and frame width, and the three flags. It changes nothing else. **Not verified:** a compile against Krita's classes.
+
+## 2026-11-07 (404th) — Window ▸ Stack Panels includes floating panels
+
+**Files:** `libs/ui/KisMainWindow.cpp`
+
+George: "stack panels doesn't work with floating panels." `krimbleStackPanels()` (Window ▸ Stack Panels, entry of 2026-10-23) only took panels docked on the right side and skipped every floating one. Now an open floating panel is stacked too: it is docked into the right column, one above another with equal heights, in the order of its position on the screen; a closed floating panel stays closed, and the toolbox is not touched. The total height is at most the window's height less 140 px (floating panels' heights are added to it). The old conditions are in comments. If George meant that floating panels should stay floating and line up one above another, this is not that. **Not verified:** a compile against Krita's classes, a build or a device.

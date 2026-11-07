@@ -7564,8 +7564,16 @@ static void krimbleStackPanels(QMainWindow *win)
 {
     QList<QDockWidget*> docks;
     Q_FOREACH (QDockWidget *dock, win->findChildren<QDockWidget*>()) {
-        if (dock->isFloating() || dock->objectName() == QLatin1String("ToolBox")) continue;
-        if (win->dockWidgetArea(dock) != Qt::RightDockWidgetArea) continue;
+        // if (dock->isFloating() || dock->objectName() == QLatin1String("ToolBox")) continue;
+        // if (win->dockWidgetArea(dock) != Qt::RightDockWidgetArea) continue;
+        // Krimble 2026-11-07: George: "stack panels doesn't work with floating panels." A panel that is floating (torn off) and open is stacked with the others now: it is docked
+        // into the right column. A floating panel that is closed stays closed, and the toolbox is still not touched.
+        if (dock->objectName() == QLatin1String("ToolBox")) continue;
+        if (dock->isFloating()) {
+            if (!dock->isVisible()) continue;
+        } else if (win->dockWidgetArea(dock) != Qt::RightDockWidgetArea) {
+            continue;
+        }
         if (!dock->toggleViewAction()->isChecked()) continue;   // closed panels stay closed (a panel behind another tab still counts as open)
         docks << dock;
     }
@@ -7580,6 +7588,8 @@ static void krimbleStackPanels(QMainWindow *win)
     Q_FOREACH (QDockWidget *dock, docks) {
         if (dock->isVisible()) totalHeight += dock->height();
     }
+    // Krimble 2026-11-07: the floating panels' heights add to the total, which can be more than the window has: at most the window's height less its bars
+    totalHeight = qMin(totalHeight, qMax(200, win->height() - 140));
     // for (int i = 1; i < docks.size(); ++i) {
     //     win->splitDockWidget(docks.at(i - 1), docks.at(i), Qt::Vertical);
     //     docks.at(i)->show();
@@ -7593,6 +7603,7 @@ static void krimbleStackPanels(QMainWindow *win)
     }
     Q_FOREACH (QDockWidget *dock, docks) {
         win->addDockWidget(Qt::RightDockWidgetArea, dock);
+        if (dock->isFloating()) dock->setFloating(false);   // Krimble 2026-11-07: a floating panel is docked into the column
         dock->show();
     }
     QList<int> sizes;
