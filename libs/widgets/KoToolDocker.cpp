@@ -9,6 +9,9 @@
 #include "KoToolDocker.h"
 
 #include <klocalizedstring.h>
+#include <KoToolManager.h>      // Krimble 2026-11-06: the name of the selected tool at the top of Tool Options
+#include <KoToolRegistry.h>
+#include <KoToolFactoryBase.h>
 
 #include <QApplication>
 #include <QBoxLayout>
@@ -38,6 +41,22 @@ public:
     QWidget *housekeeperWidget {nullptr};
     QGridLayout *housekeeperLayout {nullptr};
     QBoxLayout *housekeeperMainLayout{nullptr};
+    QLabel *toolNameLabel {nullptr};   // Krimble 2026-11-06: George: "tool options should have the current selected tool name in the top. This is easy confirmation of tool selection."
+
+    // the name of the selected tool (the tool's own name, what its tool tip says) is shown at the top of the docker
+    void updateToolName()
+    {
+        if (!toolNameLabel) return;
+        QString name;
+        const QString id = KoToolManager::instance()->activeToolId();
+        if (!id.isEmpty()) {
+            if (KoToolFactoryBase *factory = KoToolRegistry::instance()->get(id)) {
+                name = factory->toolTip();
+            }
+        }
+        toolNameLabel->setText(name);
+        toolNameLabel->setVisible(!name.isEmpty());
+    }
     KoToolDocker *q {nullptr};
     Qt::DockWidgetArea dockingArea {Qt::NoDockWidgetArea};
 
@@ -160,6 +179,19 @@ KoToolDocker::KoToolDocker(QWidget *parent)
     d->housekeeperMainLayout->setSpacing(0);
     d->housekeeperMainLayout->addLayout(d->housekeeperLayout, 0);
     d->housekeeperMainLayout->addStretch(1);
+
+    // Krimble 2026-11-06: the name of the selected tool, first in the docker (bold white text, a thin line under it); it follows every tool change
+    d->toolNameLabel = new QLabel(d->housekeeperWidget);
+    d->toolNameLabel->setObjectName(QStringLiteral("krimbleToolOptionsName"));
+    {
+        QFont nameFont = d->toolNameLabel->font();
+        nameFont.setBold(true);
+        d->toolNameLabel->setFont(nameFont);
+    }
+    d->toolNameLabel->setStyleSheet(QStringLiteral("QLabel#krimbleToolOptionsName { color: #ffffff; padding: 3px 6px; border-bottom: 1px solid #343c57; }"));
+    d->housekeeperMainLayout->insertWidget(0, d->toolNameLabel);
+    d->updateToolName();
+    connect(KoToolManager::instance(), &KoToolManager::changedTool, this, [this](KoCanvasController *) { d->updateToolName(); });
 
     d->hiderWidget = new QWidget();
     d->hiderWidget->setVisible(false);

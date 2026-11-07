@@ -248,7 +248,11 @@ void KisFreeTransformStrategy::setTransformFunction(const QPointF &mousePos, boo
        if (transformedPolygon.containsPoint(mousePos, Qt::OddEvenFill))
           defaultFunction = MOVE;
        else
-          defaultFunction = KRIMBLENONE;
+          // defaultFunction = KRIMBLENONE;
+          // Krimble 2026-11-06: George: "Transform - scale no longer lets you move the selection. fix it." and "can the scale tool also move the selection now?" The 2026-10-30 rule
+          // above made a touch outside the box do nothing, and on a small box the handles (a grab radius of about 76 px) cover most of the inside, so there was no place left to
+          // drag it. A touch that is not on a handle moves the selection again, inside the box or outside it, as before 2026-10-30 (the 2026-10-23 rule). It still does not rotate.
+          defaultFunction = MOVE;
     
     KisTransformUtils::HandleChooser<StrokeFunction>
         handleChooser(mousePos, defaultFunction);
@@ -270,8 +274,12 @@ void KisFreeTransformStrategy::setTransformFunction(const QPointF &mousePos, boo
                               handleRadius, LEFTSCALE);
     handleChooser.addFunction(m_d->transformedHandles.topLeft,
                               handleRadius, TOPLEFTSCALE);
-    handleChooser.addFunction(m_d->transformedHandles.rotationCenter,
-                              rotationHandleRadius, MOVECENTER);
+    // handleChooser.addFunction(m_d->transformedHandles.rotationCenter,
+    //                           rotationHandleRadius, MOVECENTER);
+    // Krimble 2026-11-06: George: "there is a thing in the middle of the scale areas that moves, but it doesn't move the selection. what is that thing?" It is the pivot (rotation
+    // center) handle, a small circle with a cross. It only moves the point the box rotates around; Scale does not rotate here (2026-10-30), and its large touch radius (about 76 px)
+    // sat over the middle of the box, so a touch there moved the pivot instead of the selection. It does nothing useful now, so it is neither drawn nor touchable, and the
+    // middle of the box moves the selection.
 
     m_d->function = handleChooser.function();
 
@@ -445,14 +453,18 @@ void KisFreeTransformStrategy::paint(QPainter &gc, const KoColorDisplayRendererI
     handles.addRect(handleRect.translated(topMiddle(m_d->bounds)));
     handles.addRect(handleRect.translated(bottomMiddle(m_d->bounds)));
 
-    QPointF rotationCenter = m_d->boundsTransform.inverted().map(m_d->currentArgs.originalCenter() + m_d->currentArgs.rotationCenterOffset());
-    QPointF dx(rX + 3, 0);
-    QPointF dy(0, rY + 3);
-    handles.addEllipse(rotationCenterRect.translated(rotationCenter));
-    handles.moveTo(rotationCenter - dx);
-    handles.lineTo(rotationCenter + dx);
-    handles.moveTo(rotationCenter - dy);
-    handles.lineTo(rotationCenter + dy);
+    // Krimble 2026-11-06: the pivot handle is not drawn (see the comment at its touch test above); the old drawing:
+    // QPointF rotationCenter = m_d->boundsTransform.inverted().map(m_d->currentArgs.originalCenter() + m_d->currentArgs.rotationCenterOffset());
+    // QPointF dx(rX + 3, 0);
+    // QPointF dy(0, rY + 3);
+    // handles.addEllipse(rotationCenterRect.translated(rotationCenter));
+    // handles.moveTo(rotationCenter - dx);
+    // handles.lineTo(rotationCenter + dx);
+    // handles.moveTo(rotationCenter - dy);
+    // handles.lineTo(rotationCenter + dy);
+    Q_UNUSED(rotationCenterRect);
+    Q_UNUSED(rX);
+    Q_UNUSED(rY);
 
     gc.save();
 

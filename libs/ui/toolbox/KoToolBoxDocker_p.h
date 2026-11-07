@@ -68,6 +68,7 @@ private:
     // multiples of tool icon columns on scale?").
     void snapToColumns();
     void applyColumns();
+    void krimbleLogState(const char *where) const;   // Krimble 2026-11-07: one line in krita.log (Help > Show Krimble Log) with the toolbox's state, to find why a tear-off goes to one column
     bool m_userDragged {false};   // Krimble 2026-10-13: a finger or mouse was down on the dock's edge since the last fit to columns
     bool m_justDocked {false};    // Krimble 2026-11-05: true for a moment after the toolbox was dropped on a dock edge (the finger is still down, but it is not dragging the edge)
     Q_INVOKABLE void krimbleDockAtEdge();   // Krimble 2026-10-17: docks a floating toolbox that has reached the left, right or top edge of the screen

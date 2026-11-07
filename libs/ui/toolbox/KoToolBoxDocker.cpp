@@ -19,6 +19,8 @@
 #include <QActionGroup>
 #include <QVBoxLayout>
 #include <QMainWindow>
+#include <QDebug>   // Krimble 2026-11-07: the KRIMBLE-TOOLBOX log lines
+#include <QTimer>
 #include <QApplication>
 #include <QMoveEvent>
 #include <QGuiApplication>
@@ -180,11 +182,15 @@ KoToolBoxDocker::KoToolBoxDocker(KoToolBox *toolBox)
         // height was worked out for the width the window had at that moment (the docked width: one column, so a tall pile of tools) and the width was changed
         // to the chosen columns later, so the tools reflowed into fewer rows and the window kept the taller height. Now width and height are given together,
         // the height worked out for the width that is going to be used; and once more a moment later, when the layout has settled.
+        krimbleLogState(floating ? "topLevelChanged: became floating (before)" : "topLevelChanged: became docked (before)");
         if (floating) {
             // Krimble 2026-10-23: a toolbox that becomes floating starts as columns (vertical) in Auto, whatever side it came from (see resizeEvent)
             if (m_orientation == Auto) setToolBoxOrientation(Qt::Vertical);
-            QTimer::singleShot(350, this, [this]() { fitHeightToContents(true); });
-            QTimer::singleShot(900, this, [this]() { fitHeightToContents(true); });
+            // QTimer::singleShot(350, this, [this]() { fitHeightToContents(true); });
+            // QTimer::singleShot(900, this, [this]() { fitHeightToContents(true); });
+            QTimer::singleShot(350, this, [this]() { krimbleLogState("tear-off: 350 ms, before fitHeightToContents"); fitHeightToContents(true); krimbleLogState("tear-off: 350 ms, after"); });
+            QTimer::singleShot(900, this, [this]() { krimbleLogState("tear-off: 900 ms, before fitHeightToContents"); fitHeightToContents(true); krimbleLogState("tear-off: 900 ms, after"); });
+            QTimer::singleShot(2000, this, [this]() { krimbleLogState("tear-off: 2 s later"); });
         } else {
             // Krimble 2026-11-05: George (1.0.45-beta): "Dragged the toolbox to right edge to attach and it exploded from 2 columns to 8 columns including one
             // empty column. Tear it off again and it's 3 columns." Cause: when the toolbox is dropped on a dock edge the finger is still down while the dock
@@ -749,8 +755,24 @@ void KoToolBoxDocker::fitHeightToContents(bool setWidthToo)
     }
 }
 
+// Krimble 2026-11-07: George (1.0.45-beta): "the number of columns changes if you tear off the attached toolbox. it goes from 2 to a cockeyed 1. then if you try to select 2
+// columns it goes horizontal for no apparent reason." Reading the code did not show the cause (a tear-off runs several timers that set the layout, the width, the height and the
+// saved column count), so every step of it writes one line to krita.log (Help > Show Krimble Log). Lines start with KRIMBLE-TOOLBOX. It changes nothing else.
+void KoToolBoxDocker::krimbleLogState(const char *where) const
+{
+    qWarning().noquote() << "KRIMBLE-TOOLBOX" << where
+        << "| floating" << isFloating()
+        << "| dockArea" << int(m_dockArea)
+        << "| orientation setting" << int(m_orientation) << "layout" << (m_scrollArea ? (m_scrollArea->orientation() == Qt::Horizontal ? "horizontal" : "vertical") : "none")
+        << "| columns" << m_columns
+        << "| size" << width() << "x" << height()
+        << "| iconWidth" << iconWidth() << "chromeWidth" << chromeWidth()
+        << "| justDocked" << m_justDocked << "applying" << m_applying << "userDragged" << m_userDragged;
+}
+
 void KoToolBoxDocker::applyColumns()
 {
+    krimbleLogState("applyColumns (start)");
     QMainWindow *mainWindow = qobject_cast<QMainWindow*>(parentWidget());
     if (!mainWindow || !isVisible() || !m_toolBox || !m_toolBox->layout()) return;
     const bool columns = m_toolBox->layout()->hasHeightForWidth();   // true: vertical layout (columns); false: rows
@@ -913,6 +935,7 @@ void KoToolBoxDocker::setToolBoxOrientation(Qt::Orientation orientation)
     if (m_scrollArea->orientation() == orientation) {
         return;
     }
+    krimbleLogState(orientation == Qt::Horizontal ? "setToolBoxOrientation: changing to HORIZONTAL (before)" : "setToolBoxOrientation: changing to vertical (before)");
     if (orientation == Qt::Horizontal) {
         setFeatures(features() | QDockWidget::DockWidgetVerticalTitleBar);
         m_scrollArea->setOrientation(Qt::Horizontal);
@@ -1067,6 +1090,7 @@ void KoToolBoxDocker::contextMenuEvent(QContextMenuEvent *event)
             columnsAction->setCheckable(true);
             m_columnActions[i] = columnsAction;
             connect(columnsAction, &QAction::triggered, this, [this, i]() {
+                krimbleLogState(qPrintable(QStringLiteral("Columns menu: picked %1 (before)").arg(i + 1)));
                 m_columns = i + 1;
                 KConfigGroup cfg(KSharedConfig::openConfig(), "krimble");
                 cfg.writeEntry("ToolBoxColumns", m_columns);
