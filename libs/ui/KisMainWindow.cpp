@@ -1242,6 +1242,22 @@ public:
         }
     }
 
+    // Krimble 2026-11-07: George (screenshot of a Settings menu with Full Screen, Configure Toolbars and Preferences): "Why do we have a Settings menu???" He asked for it to be gone on
+    // 2026-10-06 (everything in it moved: Preferences to Edit, Full Screen to View > Screen Mode, Customize Toolbar to Window). KDE's standard menu file supplies a Settings
+    // menu on its own when the program's menu file has none, so it comes back with those three. Any menu bar entry called Settings is hidden, now and whenever the menu bar
+    // is built again (the actions are in other menus too, so nothing is lost).
+    static void hideSettingsMenu(QMenuBar *bar)
+    {
+        if (!bar) return;
+        Q_FOREACH (QAction *entry, bar->actions()) {
+            if (!entry->menu()) continue;
+            QString title = entry->text();
+            title.remove(QLatin1Char('&'));
+            if (title.trimmed().compare(QLatin1String("Settings"), Qt::CaseInsensitive) == 0 && entry->isVisible())
+                entry->setVisible(false);
+        }
+    }
+
     // Qt lays the menus out as if the button were its own 16 px (it ignores a fixed size), so with a 28 px button "File" would sit under the K. Tested in real Qt: a small
     // empty item in front of the first menu pushes all the menus to the right (File starts 13 px later). If the menu bar is rebuilt and the item is lost, it is put back.
     static void ensureSpacer(QMenuBar *bar)
@@ -1276,6 +1292,7 @@ protected:
             }
         } else if ((event->type() == QEvent::ActionAdded || event->type() == QEvent::ActionRemoved) && qobject_cast<QMenuBar *>(watched)) {
             QMenuBar *bar = qobject_cast<QMenuBar *>(watched);
+            QTimer::singleShot(0, bar, [bar]() { KrimbleMenuBarFilter::hideSettingsMenu(bar); });   // 2026-11-07: no Settings menu, also after the menu bar is rebuilt
             QWidgetAction *spacer = bar->findChild<QWidgetAction *>(QStringLiteral("krimbleKSpacer"));
             const QList<QAction *> all = bar->actions();
             if (spacer && (all.isEmpty() || all.first() != spacer))
@@ -5390,6 +5407,7 @@ void KisMainWindow::showView(KisView *imageView, QMdiSubWindow *subwin)
                 bar->setProperty("krimbleCornerGuard", true);
                 KrimbleMenuBarFilter *kFilter = new KrimbleMenuBarFilter(bar);
                 bar->installEventFilter(kFilter);
+                KrimbleMenuBarFilter::hideSettingsMenu(bar);   // 2026-11-07
                 Q_FOREACH (QWidget *child, bar->findChildren<QWidget *>()) {
                     if (QByteArray(child->metaObject()->className()).endsWith("ControlLabel")) {
                         // child->setAttribute(Qt::WA_TransparentForMouseEvents, true);

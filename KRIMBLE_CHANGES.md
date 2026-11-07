@@ -6163,3 +6163,9 @@ Build 42356342646 (commit `bff632e`) failed in 4 minutes: "Native build (step 2)
 **Files:** `libs/widgets/KoToolDocker.cpp`
 
 Build 42370096183 (commit `4345149`) failed in `libs/widgets/KoToolDocker.cpp`: "invalid application of 'sizeof' to an incomplete type 'KoCanvasController'" (qmetatype.h). The connection to `KoToolManager::changedTool(KoCanvasController *)` added in the 400th entry needs the complete type. `#include <KoCanvasController.h>` added. This was found by the annotations added in the 407th entry. **Not verified:** the next build (other compile errors may follow; make stops at the first failing target of each library).
+
+## 2026-11-07 (409th) — The Settings menu is hidden again
+
+**Files:** `libs/ui/KisMainWindow.cpp`
+
+George (screenshot of a Settings menu with Full Screen, Configure Toolbars... and Preferences...): "Why do we have a Settings menu???" He had asked on 2026-10-06 for it to be removed ("Move everything below Presets in the Settings menu to the Help menu. Everything above that move to Window menu. Then remove Settings menu."), and its items were moved (Preferences to Edit, Full Screen to View > Screen Mode, Customize Toolbar to Window; the program's own `krita5.xmlgui` has no Settings menu). The menu comes back because KDE's standard menu file (`ui_standards.rc`) supplies a Settings menu on its own when the program's menu file has none, with the standard actions that exist (full screen, configure toolbars, preferences); this is the likely cause, not proven. `KrimbleMenuBarFilter::hideSettingsMenu()` hides any menu bar entry named Settings at start-up and whenever the menu bar gets or loses an action (menus are rebuilt by the GUI loader); the same actions stay in their menus above. **Not verified:** a compile against Krita's classes, a build or a device.
