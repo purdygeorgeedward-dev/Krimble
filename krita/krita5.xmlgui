@@ -1671,12 +1671,13 @@ t>
 </ToolBar>
 -->
 
-<!-- Krimble 2026-11-07: George: "Anything that is trivial to make for a custom DPaint toolbar just do it. It will be a nice little addon to the toolbars available." A Deluxe Paint
-     style toolbar made only of actions that already exist (no new tools), in Deluxe Paint's order: freehand, line, rectangle, ellipse, polygon, fill, gradient, text, magnify, then
+<!-- Krimble 2026-11-07: George: "Anything that is trivial to make for a custom DPaint toolbar just do it. It will be a nice little addon to the toolbars available." A DPaint
+     style toolbar made only of actions that already exist (no new tools), in DPaint's order: freehand, line, rectangle, ellipse, polygon, fill, gradient, text, magnify, then
      Undo, Redo, Clear and Select All. Like the other extra toolbars it starts hidden: turn it on in Window > Toolbars. The things that need new work are not here: the dotted
      freehand and spray can (brush presets), the picked-up brush, color cycling and animation. The palette is the Color panel's color cells. -->
-<ToolBar name="DeluxePaintBar" fullWidth="false" position="top" hidden="true">
-    <Text>Deluxe Paint</Text>
+<!-- Krimble 2026-11-07 (2nd): George: "[The longer name] may be a trademark of Electronic Arts. Call it DPaint instead." The toolbar is called DPaint (it was titled with the longer name, toolbar name DeluxePaintBar). -->
+<ToolBar name="DPaintBar" fullWidth="false" position="top" hidden="true">
+    <Text>DPaint</Text>
     <Action name="KritaShape/KisToolBrush"/>
     <Action name="KritaShape/KisToolLine"/>
     <Action name="KritaShape/KisToolRectangle"/>
