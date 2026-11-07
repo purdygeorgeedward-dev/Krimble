@@ -460,9 +460,9 @@
                 <text>To Animated Layer</text>
             </Action>
             <Action name="layercolorspaceconversion">
-                <text>
-t>
-    </Action>
+                <text>Color Profile...</text>
+            </Action>
+        </Menu>
 
     <Action name="separate">
         <text>Separate</text>
