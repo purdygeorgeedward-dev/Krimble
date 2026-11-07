@@ -45,6 +45,15 @@
 #include "KoColorSpaceRegistry.h"
 
 // Swatch button supports a touch long-press without requiring a mouse right-click.
+// Krimble 2026-11-06 (3rd): the recent colors' cell: a square that touches its neighbors (see KrimbleSwatchButton)
+class KrimbleSquareCell : public QPushButton
+{
+public:
+    explicit KrimbleSquareCell(QWidget *parent=nullptr) : QPushButton(parent) {}
+    bool hasHeightForWidth() const override { return true; }
+    int heightForWidth(int w) const override { return w; }
+};
+
 class KrimbleSwatchButton : public QPushButton
 {
 public:
@@ -57,6 +66,10 @@ public:
         });
     }
     std::function<void(const QPoint &)> onLongPress;
+    // Krimble 2026-11-06 (3rd): George: "Why are you rendering all the elements with spaces between them? The mockups have the color wells separated by a black line." The wells
+    // are cells that touch, each as tall as it is wide (the grid gives each the same width), with a 1 px dark line between them; no gap, no rounded corners.
+    bool hasHeightForWidth() const override { return true; }
+    int heightForWidth(int w) const override { return w; }
 protected:
     void mousePressEvent(QMouseEvent *event) override {
         m_longPressed=false;
@@ -176,7 +189,8 @@ class KrimbleMixingPad : public QWidget
 {
 public:
     explicit KrimbleMixingPad(QWidget *parent=nullptr) : QWidget(parent) {
-        setMinimumHeight(220);
+        // setMinimumHeight(220);
+        setMinimumHeight(140);   // Krimble 2026-11-06 (2nd): George: "Make them fit on screen." The pad may be shorter (was 220)
         setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
         setAttribute(Qt::WA_AcceptTouchEvents, false); // Qt synthesizes mouse strokes
         setAutoFillBackground(false);
@@ -190,10 +204,20 @@ public:
     // Krimble 2026-11-05: George (Mixer screenshots): strokes only showed on the left part of the pad, and the right part stayed blank. The saved
     // undo and redo pictures keep the size the pad had when they were taken, so after the panel was resized an undo or a redo put a smaller picture
     // back, and everything drawn after that was cut off at its edge. The picture is made the size of the pad again whenever it is replaced.
+    // Krimble 2026-11-06: George: "Can we get things to render in native resolution so they're sharp? ... bluR". The pad's picture was one pixel per logical pixel and
+    // was stretched 3.4 times to the screen (the phone's density), so strokes looked soft and blocky. The picture now has one pixel per SCREEN pixel
+    // (devicePixelRatio set), and everything is still drawn in logical coordinates, so nothing else changes.
+    QImage newPaintImage(const QSize &logicalSize) const {
+        const qreal ratio=devicePixelRatioF();
+        QImage image(QSize(qMax(1,qRound(logicalSize.width()*ratio)),qMax(1,qRound(logicalSize.height()*ratio))),QImage::Format_ARGB32_Premultiplied);
+        image.setDevicePixelRatio(ratio);
+        image.fill(Qt::transparent);
+        return image;
+    }
     void ensureSize() {
-        if (m_paint.size()==size()) return;
-        QImage fitted(size(),QImage::Format_ARGB32_Premultiplied);
-        fitted.fill(Qt::transparent);
+        const QImage wanted=newPaintImage(size());
+        if (m_paint.size()==wanted.size()) return;
+        QImage fitted=wanted;
         if (!m_paint.isNull()) { QPainter painter(&fitted); painter.drawImage(0,0,m_paint); }
         m_paint=fitted;
     }
@@ -214,14 +238,24 @@ public:
     }
 protected:
     void resizeEvent(QResizeEvent *event) override {
-        if (m_paint.size()!=event->size()) {
-            QImage newImage(event->size(),QImage::Format_ARGB32_Premultiplied);
-            newImage.fill(Qt::transparent);
-            if (!m_paint.isNull()) {
-                QPainter painter(&newImage);
-                painter.drawImage(0,0,m_paint);
+        // if (m_paint.size()!=event->size()) {
+        //     QImage newImage(event->size(),QImage::Format_ARGB32_Premultiplied);
+        //     newImage.fill(Qt::transparent);
+        //     if (!m_paint.isNull()) {
+        //         QPainter painter(&newImage);
+        //         painter.drawImage(0,0,m_paint);
+        //     }
+        //     m_paint=newImage;
+        // }
+        {
+            QImage newImage=newPaintImage(event->size());
+            if (m_paint.size()!=newImage.size()) {
+                if (!m_paint.isNull()) {
+                    QPainter painter(&newImage);
+                    painter.drawImage(0,0,m_paint);
+                }
+                m_paint=newImage;
             }
-            m_paint=newImage;
         }
         QWidget::resizeEvent(event);
     }
@@ -263,8 +297,10 @@ private:
         m_redo.clear();
     }
     QColor sample(QPoint at) const {
-        if (!m_paint.rect().contains(at)) return QColor();
-        const QColor c=m_paint.pixelColor(at);
+        // the picture has one pixel per screen pixel now: the logical point is scaled to it (before it was one to one)
+        const QPoint deviceAt=QPointF(at*m_paint.devicePixelRatio()).toPoint();
+        if (!m_paint.rect().contains(deviceAt)) return QColor();
+        const QColor c=m_paint.pixelColor(deviceAt);
         return c.alpha() ? c : QColor("#eee9df");
     }
     void stroke(const QPoint &from,const QPoint &to) {
@@ -280,6 +316,7 @@ private:
             p.setPen(pen);
             p.drawLine(from,to);
         } else {
+#if 0   // Krimble 2026-11-06: the oil-bristle default (strands with ridges and broken coverage); George: "Default brush for the scratch pad panel should be a soft generic commonly used brush, nothing weird."
             // Default oil-bristle simulation: individual semi-transparent
             // strands create ridges and broken coverage as colors overlap.
             // This is local QPainter rendering, not a Krita brush preset.
@@ -303,6 +340,30 @@ private:
                 if ((seed%11)!=0)
                     p.drawLine(QPointF(from)+spread,QPointF(to)+spread);
             }
+#endif
+            // Krimble 2026-11-06: a soft round brush, the ordinary one: round stamps with a soft edge (a radial fade from the middle to nothing at the rim), placed
+            // close together along the stroke so they run into a smooth line, and building up smoothly where strokes overlap. Size and opacity work as before.
+            const QPointF delta=QPointF(to-from);
+            const qreal length=std::hypot(delta.x(),delta.y());
+            const qreal radius=qMax(1.0,m_size/2.0);
+            const qreal spacing=qMax(1.0,m_size*0.12);
+            const int steps=qMax(1,int(length/spacing));
+            QColor inner=c;
+            inner.setAlphaF(qBound(0.02,(m_opacity/100.0)*0.28,1.0));   // each stamp is light; the stamps along the line add up to the chosen opacity
+            QColor middle=inner;
+            middle.setAlphaF(inner.alphaF()*0.55);
+            QColor rim=inner;
+            rim.setAlphaF(0.0);
+            p.setPen(Qt::NoPen);
+            for (int step=0;step<=steps;++step) {
+                const QPointF at=QPointF(from)+delta*(qreal(step)/steps);
+                QRadialGradient fade(at,radius);
+                fade.setColorAt(0.0,inner);
+                fade.setColorAt(0.55,middle);
+                fade.setColorAt(1.0,rim);
+                p.setBrush(fade);
+                p.drawEllipse(at,radius,radius);
+            }
         }
         update();
     }
@@ -324,7 +385,8 @@ public:
     {
         setOrientation(Qt::Vertical);
         setRange(0, 359);
-        setFixedWidth(24);
+        // setFixedWidth(24);
+        setFixedWidth(16);   // Krimble 2026-11-06: George: "Thinner hue rainbow." The rainbow is 10 px wide (was 18; the strip is 16 px wide with 3 px each side, was 24)
         setMinimumHeight(95);
         setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
     }
@@ -399,8 +461,17 @@ class KrimbleColorStudio : public QWidget
 {
 public:
     explicit KrimbleColorStudio(QWidget *parent=nullptr) : QWidget(parent) {
+        // Krimble 2026-11-06: George: "Smaller font for color panel." The text of this panel is 15% smaller than the program's (labels, number boxes, HEX).
+        // Krimble 2026-11-06 (4th): George: "use smaller fonts": 25% smaller (was 15%).
+        {
+            QFont smaller = font();
+            if (smaller.pixelSize() > 0) smaller.setPixelSize(qMax(8, int(smaller.pixelSize() * 0.75)));
+            else smaller.setPointSizeF(qMax(6.0, smaller.pointSizeF() * 0.75));
+            setFont(smaller);
+        }
         auto *layout = new QVBoxLayout(this);
-        layout->setContentsMargins(5,5,5,5); layout->setSpacing(5);
+        // layout->setContentsMargins(5,5,5,5); layout->setSpacing(5);
+        layout->setContentsMargins(3,3,3,3); layout->setSpacing(2);   // Krimble 2026-11-06 (3rd): George: "more and more unnecessary negative space": 3 px margins and 2 px between the parts (was 5 and 5)
         // auto *header = new QHBoxLayout;
         // auto *title = new QLabel(tr("COLOR STUDIO"), this);
         // QFont f=title->font(); f.setBold(true); title->setFont(f);
@@ -434,7 +505,8 @@ public:
         auto *picker = new QWidget(this);
         auto *pickerLayout = new QVBoxLayout(picker);
         pickerLayout->setContentsMargins(0,4,0,0);
-        pickerLayout->setSpacing(5);
+        // pickerLayout->setSpacing(5);
+        pickerLayout->setSpacing(2);   // Krimble 2026-11-06 (3rd): was 5
         // tabs->addTab(picker,tr("Picker"));
         // tabs->addTab(mixer,tr("Mixer"));
         // layout->addWidget(tabs);
@@ -550,11 +622,11 @@ public:
         m_square = new KrimbleSvSquare(this);
         m_hue = new KrimbleHueStrip(this);
         auto *topRow = new QHBoxLayout;
-        topRow->setSpacing(6);
+        topRow->setSpacing(3);   // Krimble 2026-11-06 (3rd): was 6
         topRow->addWidget(m_square, 5);
         topRow->addWidget(m_hue);
         auto *values = new QGridLayout;
-        values->setSpacing(4);
+        values->setSpacing(1);   // Krimble 2026-11-06 (3rd): was 4
         const char *hsvNames[] = {"H", "S", "V"};
         const char *names[]={"R","G","B"};
         for (int i=0;i<3;++i) {
@@ -562,28 +634,33 @@ public:
             m_hsv[i] = new QSpinBox(this);
             m_hsv[i]->setRange(0, i==0 ? 359 : 100);
             m_hsv[i]->setSuffix(i==0 ? QStringLiteral("°") : QStringLiteral("%"));
-            m_hsv[i]->setFixedWidth(62);   // Krimble 2026-11-06: was 76 (narrower panel, no horizontal scroll bar)
+            m_hsv[i]->setFixedWidth(46);   // Krimble 2026-11-06 (4th): George: "narrower areas for the values at the top" 46 (was 62, 76 first)
             values->addWidget(m_hsv[i],i,1);
         }
         for (int i=0;i<3;++i) {
             values->addWidget(new QLabel(QString::fromLatin1(names[i]),this),i+3,0);
             m_rgb[i]=new QSpinBox(this); m_rgb[i]->setRange(0,255);
-            m_rgb[i]->setFixedWidth(62);   // Krimble 2026-11-06: was 76 (narrower panel, no horizontal scroll bar)
+            m_rgb[i]->setFixedWidth(46);   // Krimble 2026-11-06 (4th): 46 (was 62, 76 first)
             values->addWidget(m_rgb[i],i+3,1);
         }
         values->addWidget(new QLabel(tr("HEX"),this),6,0);
         m_hex=new QLineEdit(this); m_hex->setMaxLength(7);
         m_hex->setPlaceholderText(QStringLiteral("#RRGGBB"));
-        m_hex->setFixedWidth(76);   // Krimble 2026-11-06: stays 76 (the H S V R G B boxes are 62): "#RRGGBB" is clipped in less
+        m_hex->setFixedWidth(58);   // Krimble 2026-11-06 (4th): 58 (was 76); the text is 25% smaller now
         values->addWidget(m_hex,6,1);
+        // Krimble 2026-11-06 (3rd): the number boxes are 20 px tall (they were about 24), so the column of six and the HEX box take less height
+        for (QSpinBox *box : {m_hsv[0], m_hsv[1], m_hsv[2], m_rgb[0], m_rgb[1], m_rgb[2]}) box->setFixedHeight(20);
+        m_hex->setFixedHeight(20);
         auto *valuesBox = new QWidget(this);
         valuesBox->setLayout(values);
         topRow->addWidget(valuesBox, 0, Qt::AlignTop);
         pickerLayout->addLayout(topRow);
         auto *colorRow = new QHBoxLayout;
-        colorRow->setSpacing(5);
-        m_preview=new QLabel(this); m_preview->setFixedSize(32,32);          // the foreground color (32 px, was 38, so the panel can be narrower)
-        m_background=new QLabel(this); m_background->setFixedSize(32,32);    // the background color
+        colorRow->setSpacing(3);   // Krimble 2026-11-06 (3rd): was 5
+        // m_preview=new QLabel(this); m_preview->setFixedSize(32,32);          // the foreground color (32 px, was 38, so the panel can be narrower)
+        // m_background=new QLabel(this); m_background->setFixedSize(32,32);    // the background color
+        m_preview=new QLabel(this); m_preview->setFixedSize(18,18);            // the foreground color: a square, 24 px (was 32; George 2026-11-06: smaller and square)
+        m_background=new QLabel(this); m_background->setFixedSize(18,18);      // the background color: a square, 24 px
         auto *swap = new QToolButton(this);
         swap->setText(QStringLiteral("\u21C4"));
         swap->setToolTip(tr("Swap foreground and background colors"));
@@ -594,7 +671,8 @@ public:
         // recentBox->addWidget(new QLabel(tr("RECENT COLORS"),this));
         recentBox->addWidget(new QLabel(tr("RECENT"),this));   // Krimble 2026-11-06: shorter, so the panel can be narrower (it was "RECENT COLORS")
         m_recentLayout = new QGridLayout;
-        m_recentLayout->setSpacing(3);
+        // m_recentLayout->setSpacing(3);
+        m_recentLayout->setSpacing(0);   // Krimble 2026-11-06 (3rd): no gap between the cells; the dark line is the border of each cell
         recentBox->addLayout(m_recentLayout);
         colorRow->addLayout(recentBox, 1);
         pickerLayout->addLayout(colorRow);
@@ -603,7 +681,8 @@ public:
         paletteHeader->addStretch(1);
         paletteHeader->addWidget(add);
         pickerLayout->addLayout(paletteHeader);
-        m_swatches=new QGridLayout; m_swatches->setSpacing(3);
+        // m_swatches=new QGridLayout; m_swatches->setSpacing(3);
+        m_swatches=new QGridLayout; m_swatches->setSpacing(0);   // Krimble 2026-11-06 (3rd): no gap between the cells
         pickerLayout->addLayout(m_swatches);
         connect(swap,&QToolButton::clicked,this,[this]() {
             if (!m_canvas) return;
@@ -733,15 +812,26 @@ private:
         }
         for (int i=0;i<m_recent.size();++i) {
             QColor color=m_recent[i];
-            auto *button=new QPushButton(this);
-            button->setFixedHeight(28);
-            button->setMinimumWidth(6);   // Krimble 2026-11-06: was 10 (narrower panel, no horizontal scroll bar)
+            // auto *button=new QPushButton(this);
+            auto *button=new KrimbleSquareCell(this);
+            // button->setFixedHeight(28);
+            // button->setMinimumWidth(6);   // Krimble 2026-11-06: was 10 (narrower panel, no horizontal scroll bar)
+            // Krimble 2026-11-06 (2nd): George: "Color is too big overall ... Make the little color wells square and smaller." Square, 20 x 20 (were as wide as the
+            // panel allowed, 28 tall).
+            // button->setFixedSize(20, 20);
+            button->setMinimumWidth(1);   // 1, not 0: a minimum of 0 means "use the button's own minimum", which is wider
+            button->setMaximumWidth(20);   // the cells grow with the panel, up to 20 px (was 26)
+            button->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
             button->setToolTip(color.name());
+            // button->setStyleSheet(QStringLiteral(
+            //     "background:%1;border:1px solid #7381a8;border-radius:4px;").arg(color.name()));
             button->setStyleSheet(QStringLiteral(
-                "background:%1;border:1px solid #7381a8;border-radius:4px;").arg(color.name()));
+                "background:%1;border:none;border-right:1px solid #0b0c18;border-bottom:1px solid #0b0c18;border-radius:0;").arg(color.name()));
             connect(button,&QPushButton::clicked,this,[this,color](){select(color);});
             // m_recentLayout->addWidget(button,i/6,i%6);
-            m_recentLayout->addWidget(button,0,i);   // Krimble 2026-11-05: one row, like the mockup (the list keeps the last 10)
+            // m_recentLayout->addWidget(button,0,i);   // Krimble 2026-11-05: one row, like the mockup (the list keeps the last 10)
+            // m_recentLayout->addWidget(button,0,i,Qt::AlignLeft | Qt::AlignTop);   // Krimble 2026-11-06 (2nd): square wells sit side by side at the left
+            m_recentLayout->addWidget(button,0,i);   // Krimble 2026-11-06 (3rd): cells that touch
         }
     }
     void rebuildSwatches() {
@@ -752,10 +842,15 @@ private:
             QColor color=m_colors[i];
             auto *button=new KrimbleSwatchButton(this);
             // button->setFixedHeight(36);
-            button->setFixedHeight(30);   // Krimble 2026-11-05: 10 across and a little shorter, like the mockup
-            button->setMinimumWidth(6);   // Krimble 2026-11-06: was 10 (narrower panel, no horizontal scroll bar)
+            // button->setFixedHeight(30);   // Krimble 2026-11-05: 10 across and a little shorter, like the mockup
+            // button->setMinimumWidth(6);   // Krimble 2026-11-06: was 10 (narrower panel, no horizontal scroll bar)
+            // button->setFixedSize(20, 20);   // Krimble 2026-11-06 (2nd): square and smaller (they stretched to the panel's width, 30 tall)
+            button->setMinimumWidth(1);   // 1, not 0: a minimum of 0 means "use the button's own minimum", which is wider
+            button->setMaximumWidth(20);   // the cells grow with the panel, up to 20 px (was 26)
+            button->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
             button->setToolTip(color.name());
-            button->setStyleSheet(QStringLiteral("background:%1;border:1px solid #7381a8;border-radius:4px;").arg(color.name()));
+            // button->setStyleSheet(QStringLiteral("background:%1;border:1px solid #7381a8;border-radius:4px;").arg(color.name()));
+            button->setStyleSheet(QStringLiteral("background:%1;border:none;border-right:1px solid #0b0c18;border-bottom:1px solid #0b0c18;border-radius:0;").arg(color.name()));
             connect(button,&QPushButton::clicked,this,[this,color](){select(color);});
             button->setContextMenuPolicy(Qt::CustomContextMenu);
             auto editSwatch=[this,button,i](const QPoint &globalPos) {
@@ -779,7 +874,10 @@ private:
                 editSwatch(button->mapToGlobal(pos));
             });
             // m_swatches->addWidget(button,i/6,i%6);
-            m_swatches->addWidget(button,i/10,i%10);
+            // m_swatches->addWidget(button,i/10,i%10);
+            // m_swatches->addWidget(button,i/10,i%10,Qt::AlignLeft | Qt::AlignTop);   // Krimble 2026-11-06 (2nd): square wells sit side by side at the left
+            // m_swatches->addWidget(button,i/10,i%10);   // Krimble 2026-11-06 (3rd): cells that touch
+            m_swatches->addWidget(button,i/14,i%14);   // Krimble 2026-11-06 (4th): George: "smaller color wells": 14 across, so each cell is about 17 px (was 10 across, 23 px)
         }
     }
     QPointer<KisCanvas2> m_canvas;

@@ -21,9 +21,23 @@ public:
     KrimbleMixerDock() : QDockWidget(QObject::tr("Mixer"))
     {
         auto *panel = new QWidget(this);
+        // Krimble 2026-11-06 (2nd): George: "Let's fix all these new panels and make them look sharp. Make them fit on screen." Measured with the real code (real Qt, stand-ins
+        // for Krita's classes): the panel needed 269 x 383 logical px, wider than a docked panel (about 242), so it needed a sideways scroll bar. Its text is 15% smaller like the
+        // Color panel's, the buttons are 30 px tall (were 38), Size and Opacity are a thin slider with a number box each, as in the mockup (they were two number boxes in one
+        // row), and the pad may be shorter. The pad's picture is sharp (one pixel per screen pixel).
+        {
+            QFont smaller = panel->font();
+            if (smaller.pixelSize() > 0) smaller.setPixelSize(qMax(8, int(smaller.pixelSize() * 0.85)));
+            else smaller.setPointSizeF(qMax(6.0, smaller.pointSizeF() * 0.85));
+            panel->setFont(smaller);
+        }
+        // the buttons of this panel have less padding, so a row of four fits a docked panel (3 px above and below, 5 px at the sides)
+        panel->setStyleSheet(QStringLiteral("QPushButton { padding: 3px 5px; }"));
         auto *mixLayout = new QVBoxLayout(panel);
-        mixLayout->setContentsMargins(6, 6, 6, 6);
-        mixLayout->setSpacing(5);
+        // mixLayout->setContentsMargins(5, 5, 5, 5);
+        // mixLayout->setSpacing(4);
+        mixLayout->setContentsMargins(3, 3, 3, 3);   // Krimble 2026-11-06 (3rd): George: "more and more unnecessary negative space": 3 px margins, 2 px between the parts (were 5 and 4)
+        mixLayout->setSpacing(2);
 
         auto *mixTools = new QHBoxLayout;
         auto *paintButton = new QPushButton(tr("Paint"), panel);
@@ -31,35 +45,72 @@ public:
         auto *sampleButton = new QPushButton(tr("Sample"), panel);
         for (QPushButton *button : {paintButton, eraseButton, sampleButton}) {
             button->setCheckable(true);
-            button->setMinimumHeight(38);
+            // button->setMinimumHeight(38);
+            button->setMinimumHeight(30);
+            button->setMinimumWidth(0);
             mixTools->addWidget(button);
         }
         paintButton->setChecked(true);
         mixLayout->addLayout(mixTools);
 
         m_pad = new KrimbleMixingPad(panel);
-        mixLayout->addWidget(new QLabel(tr("Oil Bristle  \u2022  paint and blend colors"), panel));
+        // mixLayout->addWidget(new QLabel(tr("Oil Bristle  \u2022  paint and blend colors"), panel));
+        // mixLayout->addWidget(new QLabel(tr("Soft Round  \u2022  paint and blend colors"), panel));   // Krimble 2026-11-06: the default brush is a soft round brush now
+        // mixLayout->addWidget(new QLabel(tr("Mixing & Brush Test Pad  \u2022  soft round brush"), panel));
+        {
+            auto *title = new QLabel(tr("Mixing & Brush Test Pad"), panel);   // Krimble 2026-11-06 (2nd): the mockup's title; it may shrink (clip) in a narrow panel
+            title->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
+            mixLayout->addWidget(title);
+        }
         mixLayout->addWidget(m_pad, 1);
 
-        auto *brushControls = new QHBoxLayout;
-        brushControls->addWidget(new QLabel(tr("Size"), panel));
-        auto *brushSize = new QSpinBox(panel);
-        brushSize->setRange(1, 100); brushSize->setValue(18); brushSize->setMinimumHeight(38);
-        brushControls->addWidget(brushSize);
-        brushControls->addWidget(new QLabel(tr("Opacity"), panel));
-        auto *brushOpacity = new QSpinBox(panel);
-        brushOpacity->setRange(1, 100); brushOpacity->setValue(85); brushOpacity->setMinimumHeight(38);
-        brushOpacity->setSuffix(QStringLiteral("%"));
-        brushControls->addWidget(brushOpacity);
-        mixLayout->addLayout(brushControls);
+        // auto *brushControls = new QHBoxLayout;
+        // brushControls->addWidget(new QLabel(tr("Size"), panel));
+        // auto *brushSize = new QSpinBox(panel);
+        // brushSize->setRange(1, 100); brushSize->setValue(18); brushSize->setMinimumHeight(38);
+        // brushControls->addWidget(brushSize);
+        // brushControls->addWidget(new QLabel(tr("Opacity"), panel));
+        // auto *brushOpacity = new QSpinBox(panel);
+        // brushOpacity->setRange(1, 100); brushOpacity->setValue(85); brushOpacity->setMinimumHeight(38);
+        // brushOpacity->setSuffix(QStringLiteral("%"));
+        // brushControls->addWidget(brushOpacity);
+        // mixLayout->addLayout(brushControls);
+        QSpinBox *brushSize = nullptr;
+        QSpinBox *brushOpacity = nullptr;
+        for (int row = 0; row < 2; ++row) {
+            auto *line = new QHBoxLayout;
+            line->setSpacing(4);
+            auto *name = new QLabel(row == 0 ? tr("Size") : tr("Opacity"), panel);
+            name->setFixedWidth(panel->fontMetrics().horizontalAdvance(tr("Opacity")) + 12);   // 12 px extra: the style adds some padding
+            line->addWidget(name);
+            auto *slider = new QSlider(Qt::Horizontal, panel);
+            slider->setRange(1, 100);
+            slider->setMinimumHeight(16);
+            line->addWidget(slider, 1);
+            auto *number = new QSpinBox(panel);
+            number->setRange(1, 100);
+            number->setFixedWidth(62);   // the same width in both rows, so the sliders end at the same place
+            number->setFixedHeight(20);
+            if (row == 1) number->setSuffix(QStringLiteral("%"));
+            line->addWidget(number);
+            number->setValue(row == 0 ? 18 : 85);
+            slider->setValue(row == 0 ? 18 : 85);
+            connect(slider, &QSlider::valueChanged, number, &QSpinBox::setValue);
+            connect(number, qOverload<int>(&QSpinBox::valueChanged), slider, &QSlider::setValue);
+            (row == 0 ? brushSize : brushOpacity) = number;
+            mixLayout->addLayout(line);
+        }
 
         auto *padActions = new QHBoxLayout;
         auto *undoButton = new QPushButton(tr("Undo"), panel);
         auto *redoButton = new QPushButton(tr("Redo"), panel);
         auto *clearButton = new QPushButton(tr("Clear"), panel);
-        auto *addMixed = new QPushButton(tr("+ Palette"), panel);
+        // auto *addMixed = new QPushButton(tr("+ Palette"), panel);
+        auto *addMixed = new QPushButton(tr("+ Color"), panel);   // Krimble 2026-11-06 (2nd): shorter (was "+ Palette"); it adds the foreground color to the palette
         for (QPushButton *button : {undoButton, redoButton, clearButton, addMixed}) {
-            button->setMinimumHeight(38);
+            // button->setMinimumHeight(38);
+            button->setMinimumHeight(30);
+            button->setMinimumWidth(0);
             padActions->addWidget(button);
         }
         mixLayout->addLayout(padActions);
