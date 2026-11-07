@@ -6,6 +6,8 @@
 #include <KoCanvasResourceProvider.h>   // Krimble 2026-10-24: the foreground color for the eyedropper button
 #include <KoColor.h>
 #include <commands/KoShapeMoveCommand.h>   // Krimble 2026-10-24: moving the chosen text
+#include <KoSelection.h>   // Krimble 2026-11-07: only the new text is selected
+#include <KoShapeManager.h>
 
 #include <KoCanvasBase.h>
 #include <KoColorBackground.h>
@@ -899,10 +901,19 @@ void KrimbleTextTool::askAndAddText(const QPointF &where, const QRectF &box)
     shape->setBackground(QSharedPointer<KoShapeBackground>(new KoColorBackground(s_color)));
 
     KUndo2Command *parentCommand = new KUndo2Command();
-    KoShapeContainer *parent = canvas()->shapeController()->documentBase()->createParentForShapes(QList<KoShape*>({shape}), false, parentCommand);
+    // KoShapeContainer *parent = canvas()->shapeController()->documentBase()->createParentForShapes(QList<KoShape*>({shape}), false, parentCommand);
+    // Krimble 2026-11-07: George: "How do I put two different text frames on a page without them interfering with each other?" and "my solution was to create a new layer." / "let's do
+    // that." Two texts on one vector layer moved together with the Move tool and could both be selected by the arrow (a drag then stretched both). Every new text now gets its own
+    // new vector layer (forceNewLayer = true), and only the new text is selected.
+    KoShapeContainer *parent = canvas()->shapeController()->documentBase()->createParentForShapes(QList<KoShape*>({shape}), true, parentCommand);
     KUndo2Command *cmd = canvas()->shapeController()->addShape(shape, parent, parentCommand);
     parentCommand->setText(cmd->text());
     canvas()->addCommand(parentCommand);
+    // Krimble 2026-11-07: only the new text is selected on the canvas (the old selection would stretch or move both with the arrow)
+    if (KoSelection *selection = canvas()->shapeManager()->selection()) {
+        selection->deselectAll();
+        selection->select(shape);
+    }
     // Krimble 2026-10-24: the new text is the chosen one: its frame and handles are drawn
     m_selected = dynamic_cast<KoSvgTextShape*>(shape);
     if (m_selected) repaintFrame(m_selected->boundingRect());
