@@ -1074,15 +1074,17 @@ protected:
             }
         }
         QLinearGradient bg(r.topLeft(), r.bottomLeft());
-        if (isChecked()) { bg.setColorAt(0, QColor(0x38, 0xc6, 0xff)); bg.setColorAt(1, QColor(0x0b, 0x6f, 0xd6)); }
+        // if (isChecked()) { bg.setColorAt(0, QColor(0x38, 0xc6, 0xff)); bg.setColorAt(1, QColor(0x0b, 0x6f, 0xd6)); }
+        // Krimble 2026-11-06 (3rd): the mockup's ON switch (sampled): #0050B4 at the top, #0069D8, #026AE5 at the bottom, a #54E5FF outline, a #EAEDF6 knob
+        if (isChecked()) { bg.setColorAt(0, QColor(0x00, 0x50, 0xb4)); bg.setColorAt(0.35, QColor(0x00, 0x69, 0xd8)); bg.setColorAt(1, QColor(0x02, 0x6a, 0xe5)); }
         else             { bg.setColorAt(0, QColor(0x4a, 0x52, 0x76)); bg.setColorAt(1, QColor(0x2a, 0x30, 0x48)); }
-        p.setPen(QPen(isChecked() ? QColor(0x9f, 0xe3, 0xff) : QColor(0x6b, 0x74, 0x98), 1.5));
+        p.setPen(QPen(isChecked() ? QColor(0x54, 0xe5, 0xff) : QColor(0x6b, 0x74, 0x98), 1.5));
         p.setBrush(bg);
         p.drawRoundedRect(r, radius, radius);
         const qreal knob = r.height() - 8;
         const qreal x = isChecked() ? r.right() - knob - 4 : r.left() + 4;
         p.setPen(Qt::NoPen);
-        p.setBrush(QColor(0xf4, 0xf6, 0xff));
+        p.setBrush(QColor(0xea, 0xed, 0xf6));
         p.drawEllipse(QRectF(x, r.top() + 4, knob, knob));
         p.setPen(QColor(0xf4, 0xf6, 0xff));
         QFont f = font(); f.setBold(true); p.setFont(f);
@@ -1170,13 +1172,14 @@ protected:
 class KrimbleLogoLabel : public QWidget
 {
 public:
-    explicit KrimbleLogoLabel(const QString &resource, const QString &name, QWidget *parent = nullptr) : QWidget(parent), m_pix(resource)
+    explicit KrimbleLogoLabel(const QString &resource, const QString &name, QWidget *parent = nullptr, int maxLogicalWidth = 340) : QWidget(parent), m_pix(resource)
     {
         QSizePolicy policy(QSizePolicy::Expanding, QSizePolicy::Fixed);
         policy.setHeightForWidth(true);
         setSizePolicy(policy);
         setAccessibleName(name);
-        setMaximumWidth(340);   // Krimble 2026-11-05: large, but not wider than 340 px of layout on a wide panel
+        // setMaximumWidth(340);   // Krimble 2026-11-05: large, but not wider than 340 px of layout on a wide panel
+        setMaximumWidth(maxLogicalWidth);   // Krimble 2026-11-06 (2nd): 340 unless the caller says otherwise (the QuickAdjust banner is as wide as the window)
     }
     bool hasHeightForWidth() const override { return !m_pix.isNull(); }
     int heightForWidth(int w) const override { return m_pix.isNull() ? 0 : int(double(w) * m_pix.height() / m_pix.width()); }
@@ -1215,13 +1218,75 @@ class KrimbleMenuBarFilter : public QObject
 {
 public:
     explicit KrimbleMenuBarFilter(QObject *parent) : QObject(parent) {}
+
+    // Krimble 2026-11-06: George (screenshot with an arrow): "THE ORANGE K AT TOP LEFT IS RUNNING AWAY AT THE TOP." and "MAKE TOP BAR TALLER AND ORANGE K BIGGER." The "orange K" is the
+    // image window's icon button in the menu bar (Qt's QMdi::ControlLabel) showing the program icon (the window icon was set to it on 2026-11-05). Qt draws that icon at 16 x 16
+    // whatever the size of the button, and the button is sized without dividing by the screen density, so on this phone the K was a small piece at the top edge of the bar.
+    // Tested in real Qt: the button is the menu bar's top left corner widget, a fixed size is respected, and the bar grows to fit if it is given a minimum height. Now the button is
+    // 28 px square (logical), the bar is at least 32 px tall (it was 22), and the K is drawn by this filter scaled to the whole button.
+    static void adopt(QWidget *label, QMenuBar *bar)
+    {
+        if (!label || label->property("krimbleKAdopted").toBool()) return;
+        label->setProperty("krimbleKAdopted", true);
+        label->setAttribute(Qt::WA_TransparentForMouseEvents, true);
+        // label->setFixedSize(28, 28);
+        // Krimble 2026-11-07: George: "make the K and the menubar smaller." 22 px (was 28; Qt's own size was 16) and a 26 px bar (was 32; Qt's own was 22).
+        label->setFixedSize(22, 22);
+        if (bar) {
+            // bar->setMinimumHeight(32);
+            bar->setMinimumHeight(26);
+            bar->updateGeometry();
+            // ensureSpacer(bar);
+            // Krimble 2026-11-07: not needed at 22 px: Qt reserves 16 px + 6 px for the button, so a 22 px K ends where the first menu starts (tested in real Qt; a spacer item is
+            // 13 px wide at least and pushed the menus too far). The spacer code below stays, for a bigger K.
+        }
+    }
+
+    // Qt lays the menus out as if the button were its own 16 px (it ignores a fixed size), so with a 28 px button "File" would sit under the K. Tested in real Qt: a small
+    // empty item in front of the first menu pushes all the menus to the right (File starts 13 px later). If the menu bar is rebuilt and the item is lost, it is put back.
+    static void ensureSpacer(QMenuBar *bar)
+    {
+        if (!bar) return;
+        QWidgetAction *spacer = bar->findChild<QWidgetAction *>(QStringLiteral("krimbleKSpacer"));
+        if (!spacer) {
+            spacer = new QWidgetAction(bar);
+            spacer->setObjectName(QStringLiteral("krimbleKSpacer"));
+            QWidget *gap = new QWidget(bar);
+            // gap->setFixedSize(10, 28);
+            gap->setFixedSize(4, 22);   // 4 px: the 22 px button leaves room for Qt's own 16 px reservation plus this small gap
+            gap->setAttribute(Qt::WA_TransparentForMouseEvents, true);
+            spacer->setDefaultWidget(gap);
+        }
+        const QList<QAction *> all = bar->actions();
+        if (!all.isEmpty() && all.first() == spacer) return;
+        if (all.contains(spacer)) bar->removeAction(spacer);
+        const QList<QAction *> rest = bar->actions();
+        if (rest.isEmpty()) bar->addAction(spacer); else bar->insertAction(rest.first(), spacer);
+    }
 protected:
-    bool eventFilter(QObject *, QEvent *event) override
+    bool eventFilter(QObject *watched, QEvent *event) override
     {
         if (event->type() == QEvent::ChildAdded) {
             if (QWidget *child = qobject_cast<QWidget *>(static_cast<QChildEvent *>(event)->child())) {
-                if (QByteArray(child->metaObject()->className()).endsWith("ControlLabel"))
-                    child->setAttribute(Qt::WA_TransparentForMouseEvents, true);
+                if (QByteArray(child->metaObject()->className()).endsWith("ControlLabel")) {
+                    // child->setAttribute(Qt::WA_TransparentForMouseEvents, true);
+                    adopt(child, qobject_cast<QMenuBar *>(watched));
+                    child->installEventFilter(this);
+                }
+            }
+        } else if ((event->type() == QEvent::ActionAdded || event->type() == QEvent::ActionRemoved) && qobject_cast<QMenuBar *>(watched)) {
+            QMenuBar *bar = qobject_cast<QMenuBar *>(watched);
+            QWidgetAction *spacer = bar->findChild<QWidgetAction *>(QStringLiteral("krimbleKSpacer"));
+            const QList<QAction *> all = bar->actions();
+            if (spacer && (all.isEmpty() || all.first() != spacer))
+                QTimer::singleShot(0, bar, [bar]() { KrimbleMenuBarFilter::ensureSpacer(bar); });   // the menu bar was rebuilt: put the spacer back in front
+        } else if (event->type() == QEvent::Paint) {
+            QWidget *label = qobject_cast<QWidget *>(watched);
+            if (label && QByteArray(label->metaObject()->className()).endsWith("ControlLabel")) {
+                QPainter painter(label);
+                painter.setRenderHint(QPainter::SmoothPixmapTransform, true);
+                qApp->windowIcon().paint(&painter, label->rect());   // the whole button, not a 16 x 16 square
+                return true;
             }
         }
         return false;
@@ -1252,9 +1317,11 @@ public:
         layout->setContentsMargins(4, 4, 4, 4);
         layout->setSpacing(2);
         QHBoxLayout *options = new QHBoxLayout;
-        QLabel *title = new QLabel(i18n("Adjustments"), content);
-        QFont font = title->font(); font.setBold(true); title->setFont(font);
-        options->addWidget(title);
+        // QLabel *title = new QLabel(i18n("Adjustments"), content);
+        // QFont font = title->font(); font.setBold(true); title->setFont(font);
+        // options->addWidget(title);
+        // Krimble 2026-11-06 (2nd): the mockup's purple sliders picture (cut out of the mockup, 104 x 60 px, about 30 px wide on the screen) instead of the word "Adjustments"
+        options->addWidget(new KrimbleLogoLabel(QStringLiteral(":/dark_krimble-quickadjust-sliders.png"), i18n("Adjustments"), content, 34));
         options->addStretch();
         // m_preview = new QCheckBox(i18n("Preview"), content);
         // Krimble 2026-10-30: the Preview switch of the drawing (a pill that says ON or OFF), with its label
@@ -1262,7 +1329,18 @@ public:
         m_preview = new KrimbleToggleSwitch(content);
         m_preview->setChecked(true);
         options->addWidget(m_preview);
-        layout->addLayout(options);
+        // layout->addLayout(options);
+        // Krimble 2026-11-06 (3rd): George: "match colors in areas at top." The row with the sliders picture and the Preview switch is a panel, as in the mockup: a fill from #313251
+        // (top) to #2D314E (bottom) and a #343458 outline (sampled from the mockup picture).
+        {
+            QFrame *topPanel = new QFrame(content);
+            topPanel->setObjectName(QStringLiteral("krimbleQuickTop"));
+            topPanel->setStyleSheet(QStringLiteral("QFrame#krimbleQuickTop { background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #313251, stop:1 #2d314e); border: 1px solid #343458; border-radius: 6px; }"
+                                                   "QFrame#krimbleQuickTop QLabel { background: transparent; border: none; }"));
+            options->setContentsMargins(4, 1, 4, 1);
+            topPanel->setLayout(options);
+            layout->addWidget(topPanel);
+        }
         // Krimble 2026-10-30: George: "I didn't expect operations as layers. Offer it as a toggle." The adjustments are applied to the layer when OK is
         // pressed (merged down into the paint layer below), unless this is checked: then they stay as adjustment layers (the old behaviour).
         m_keepLayers = new QCheckBox(i18n("Keep as layers"), content);
@@ -1277,7 +1355,9 @@ public:
             // row->setSpacing(8);
             QFrame *frame = new QFrame(content);
             frame->setObjectName(QStringLiteral("krimbleQuickRow"));
-            frame->setStyleSheet(QStringLiteral("QFrame#krimbleQuickRow { background: #3b3e5c; border: 1px solid #4c5275; border-radius: 8px; }"));
+            // frame->setStyleSheet(QStringLiteral("QFrame#krimbleQuickRow { background: #3b3e5c; border: 1px solid #4c5275; border-radius: 8px; }"));
+            // Krimble 2026-11-06 (2nd): the mockup's row: a fill from #282A41 (top) to #1F2235 (bottom) and a #404565 outline (sampled from the mockup picture)
+            frame->setStyleSheet(QStringLiteral("QFrame#krimbleQuickRow { background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #282a41, stop:1 #1f2235); border: 1px solid #404565; border-radius: 6px; }"));
             QHBoxLayout *row = new QHBoxLayout(frame);
             // row->setContentsMargins(6, 3, 6, 3);
             // row->setSpacing(6);
@@ -1287,7 +1367,15 @@ public:
             QLabel *rowIcon = new QLabel(content);
             // rowIcon->setPixmap(krimbleQuickAdjustIcon(i, 34));
             // rowIcon->setFixedSize(34, 34);
-            rowIcon->setPixmap(krimbleQuickAdjustIcon(i, 16));
+            // rowIcon->setPixmap(krimbleQuickAdjustIcon(i, 16));
+            // Krimble 2026-11-06: George: "Can we get things to render in native resolution so they're sharp?" The picture was 16 x 16 pixels, stretched 3.4 times to the
+            // screen; it is drawn at the screen's own resolution now (devicePixelRatio set), still 16 logical px wide.
+            {
+                const qreal ratio = content->devicePixelRatioF();
+                QPixmap sharp = krimbleQuickAdjustIcon(i, qRound(16 * ratio));
+                sharp.setDevicePixelRatio(ratio);
+                rowIcon->setPixmap(sharp);
+            }
             rowIcon->setFixedSize(16, 16);
             row->addWidget(rowIcon);
             m_labels[i] = new QLabel(i18n(def(i).name), content);
@@ -1316,17 +1404,29 @@ public:
             //     " background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #f1f5ff, stop:1 #728eb8); }");
             // Krimble 2026-11-05 (2nd): George: "Quick Adjust lines are too thick. Gadgets are goofy looking. Make them tiny metal balls." A 12 px metal ball
             // (light radial gradient, bright spot at the top left, 1 px dark rim; 5.5 px radius, because exactly half draws a square in Qt) on a 2 px line.
+            // const QString thinHandle = QStringLiteral(
+            //     "QSlider::handle:horizontal { width: 12px; height: 12px; margin: -5px 0; border: 1px solid #4d5573; border-radius: 5.5px;"
+            //     " background: qradialgradient(cx:0.4,cy:0.35,radius:0.75,fx:0.35,fy:0.3, stop:0 #ffffff, stop:0.35 #d9dde6, stop:0.75 #9aa1b3, stop:1 #6b7390); }");
+            // Krimble 2026-11-06 (3rd): George: "match the sliders perfectly in color and scale." Measured on the mockup picture (999 px wide; the window here is about 300 px, so 0.3 px
+            // per mockup pixel): the ball is 44 px across = 13 px, light at the top (#F9FDFF, #CFD1E6, #AEB2CD, #8F93B0) down to #8A8EAB, with a #9DA0C9 rim; the line is about
+            // 11 px = 3 px thick; its filled part is cyan at the top (#3FD1F6) through #0DA0FF to #008CEC at the bottom, and the rest is #72749D, #5C5F88, #7378A0.
             const QString thinHandle = QStringLiteral(
-                "QSlider::handle:horizontal { width: 12px; height: 12px; margin: -5px 0; border: 1px solid #4d5573; border-radius: 5.5px;"
-                " background: qradialgradient(cx:0.4,cy:0.35,radius:0.75,fx:0.35,fy:0.3, stop:0 #ffffff, stop:0.35 #d9dde6, stop:0.75 #9aa1b3, stop:1 #6b7390); }");
+                "QSlider::handle:horizontal { width: 13px; height: 13px; margin: -5px 0; border: 1px solid #9da0c9; border-radius: 6px;"
+                " background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #f9fdff, stop:0.2 #cfd1e6, stop:0.4 #aeb2cd, stop:0.7 #8f93b0, stop:1 #8a8eab); }");
             if (i != Hue) {
                 // m_sliders[i]->setStyleSheet(QStringLiteral(
                 //     "QSlider::groove:horizontal { height: 4px; border: 1px solid #535c80; border-radius: 3px; background: #20263f; }"
                 //     "QSlider::sub-page:horizontal { height: 4px; border: 1px solid #146a9f; border-radius: 3px; background: #1d7cb2; }")
                 //     + thinHandle);
+                // m_sliders[i]->setStyleSheet(QStringLiteral(
+                //     "QSlider::groove:horizontal { height: 2px; border: none; border-radius: 1px; background: #6f789c; }"
+                //     "QSlider::sub-page:horizontal { height: 2px; border: none; border-radius: 1px; background: #2aa6e8; }")
+                //     + thinHandle);
                 m_sliders[i]->setStyleSheet(QStringLiteral(
-                    "QSlider::groove:horizontal { height: 2px; border: none; border-radius: 1px; background: #6f789c; }"
-                    "QSlider::sub-page:horizontal { height: 2px; border: none; border-radius: 1px; background: #2aa6e8; }")
+                    "QSlider::groove:horizontal { height: 3px; border: none; border-radius: 1px;"
+                    " background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #72749d, stop:0.4 #5c5f88, stop:1 #7378a0); }"
+                    "QSlider::sub-page:horizontal { height: 3px; border: none; border-radius: 1px;"
+                    " background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #3fd1f6, stop:0.4 #0da0ff, stop:1 #008cec); }")
                     + thinHandle);
             }
             if (i == Lightness) {
@@ -1581,6 +1681,25 @@ static void krimbleShowQuickAdjustDialog(KisMainWindow *win)
         return;
     }
     QDialog *dialog = new QDialog(win);
+    // Krimble 2026-11-06 (2nd): George: "CAPTURE DARKER COLOR SCHEME FROM MOCK-UPS." The QuickAdjust window has the mockup's colors, sampled from the mockup picture: window
+    // #181B2E, number boxes #121420 with a #5A5D80 outline, grey buttons #4A4B6A (top) to #26283D (bottom) with a #6B6C8C outline.
+    // Krimble 2026-11-06 (3rd): George: "make QuickAdjust text smaller (not talking about the logo)". The text of the window (rows, Preview, Keep as layers, buttons) is 25% smaller,
+    // white like the mockup's.
+    {
+        QFont smaller = dialog->font();
+        if (smaller.pixelSize() > 0) smaller.setPixelSize(qMax(8, int(smaller.pixelSize() * 0.75)));
+        else smaller.setPointSizeF(qMax(6.0, smaller.pointSizeF() * 0.75));
+        dialog->setFont(smaller);
+    }
+    dialog->setStyleSheet(QStringLiteral(
+        "QLabel, QCheckBox { color: #ffffff; }"
+        "QDialog { background-color: #181b2e; }"
+        "QSpinBox { background-color: #121420; border: 1px solid #5a5d80; border-radius: 4px; }"
+        // "QPushButton { color: #f1f4fc; border: 1px solid #6b6c8c; border-radius: 6px;"
+        // " background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #4a4b6a, stop:1 #26283d); }"));
+        // Krimble 2026-11-06 (3rd): George: "long smooth subtle gradients, not shaping every item with shading": the buttons have only a hair of shading
+        "QPushButton { color: #f1f4fc; border: 1px solid #4d4f72; border-radius: 6px;"
+        " background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #3b3d5a, stop:1 #323450); }"));
     dialog->setAttribute(Qt::WA_DeleteOnClose);
     dialog->setWindowTitle(i18n("Quick Adjust"));
     dialog->setModal(false);
@@ -1611,8 +1730,12 @@ static void krimbleShowQuickAdjustDialog(KisMainWindow *win)
         // logoRow->addWidget(new KrimbleLogoLabel(QStringLiteral(":/dark_krimble-quickadjust-logo.png"), QStringLiteral("QuickAdjust"), dialog), 4);
         // logoRow->addStretch(6);
         // Krimble 2026-11-06: George: "make QuickAdjust logo slightly larger." 40% of the window width became 50%.
-        logoRow->addWidget(new KrimbleLogoLabel(QStringLiteral(":/dark_krimble-quickadjust-logo.png"), QStringLiteral("QuickAdjust"), dialog), 5);
-        logoRow->addStretch(5);
+        // logoRow->addWidget(new KrimbleLogoLabel(QStringLiteral(":/dark_krimble-quickadjust-logo.png"), QStringLiteral("QuickAdjust"), dialog), 5);
+        // logoRow->addStretch(5);
+        // Krimble 2026-11-06 (2nd): George: "I am thinking the Quick Adjust can use the graphics from the mock up as the title and purple graphics at the top". The header of the
+        // mockup (the Krimble wordmark with the orange K and paw, "QuickAdjust", the purple light streak) is cut out of the mockup picture (969 x 106 px, about one to one on the
+        // phone) and fills the width of the window.
+        logoRow->addWidget(new KrimbleLogoLabel(QStringLiteral(":/dark_krimble-quickadjust-banner.png"), QStringLiteral("Krimble QuickAdjust"), dialog, 100000), 1);
         layout->addLayout(logoRow);
     }
     // layout->addWidget(new KrimbleQuickAdjustLogo(dialog));
@@ -1622,7 +1745,9 @@ static void krimbleShowQuickAdjustDialog(KisMainWindow *win)
     QObject::connect(resetButton, &QPushButton::clicked, adjust, [adjust]() { adjust->resetAll(); });
     if (QPushButton *okButton = buttons->button(QDialogButtonBox::Ok)) {
         okButton->setStyleSheet(QStringLiteral(
-            "QPushButton { background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #1d7cb2, stop:1 #146a9f); border: 1px solid #43c9ff; border-radius: 6px; }"));
+            // "QPushButton { background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #1d7cb2, stop:1 #146a9f); border: 1px solid #43c9ff; border-radius: 6px; }"));
+            // Krimble 2026-11-06 (2nd): the mockup's OK button: #2986F0 at the top to #05429D at the bottom, a #3DA7FF outline (sampled from the mockup picture)
+            "QPushButton { background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #2986f0, stop:1 #05429d); border: 1px solid #3da7ff; border-radius: 6px; }"));
     }
     layout->addWidget(buttons);
     QObject::connect(buttons, &QDialogButtonBox::accepted, dialog, [adjust, dialog]() {
@@ -5263,10 +5388,21 @@ void KisMainWindow::showView(KisView *imageView, QMdiSubWindow *subwin)
         if (QMenuBar *bar = menuBar()) {
             if (!bar->property("krimbleCornerGuard").toBool()) {
                 bar->setProperty("krimbleCornerGuard", true);
-                bar->installEventFilter(new KrimbleMenuBarFilter(bar));
+                KrimbleMenuBarFilter *kFilter = new KrimbleMenuBarFilter(bar);
+                bar->installEventFilter(kFilter);
                 Q_FOREACH (QWidget *child, bar->findChildren<QWidget *>()) {
-                    if (QByteArray(child->metaObject()->className()).endsWith("ControlLabel"))
-                        child->setAttribute(Qt::WA_TransparentForMouseEvents, true);
+                    if (QByteArray(child->metaObject()->className()).endsWith("ControlLabel")) {
+                        // child->setAttribute(Qt::WA_TransparentForMouseEvents, true);
+                        KrimbleMenuBarFilter::adopt(child, bar);
+                        child->installEventFilter(kFilter);
+                    }
+                }
+                // Krimble 2026-11-06: the button can already be the menu bar's left corner widget (found that way in real Qt; findChildren() did not list it)
+                if (QWidget *corner = bar->cornerWidget(Qt::TopLeftCorner)) {
+                    if (QByteArray(corner->metaObject()->className()).endsWith("ControlLabel")) {
+                        KrimbleMenuBarFilter::adopt(corner, bar);
+                        corner->installEventFilter(kFilter);
+                    }
                 }
             }
         }
