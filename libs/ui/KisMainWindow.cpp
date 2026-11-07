@@ -1302,7 +1302,12 @@ protected:
             if (label && QByteArray(label->metaObject()->className()).endsWith("ControlLabel")) {
                 QPainter painter(label);
                 painter.setRenderHint(QPainter::SmoothPixmapTransform, true);
-                qApp->windowIcon().paint(&painter, label->rect());   // the whole button, not a 16 x 16 square
+                // qApp->windowIcon().paint(&painter, label->rect());   // the whole button, not a 16 x 16 square
+                // Krimble 2026-11-07: George (screenshot): "Giant K in the corner is very bad." The button is about 34 x 26 logical px on this phone (Qt sizes it as it likes; see above), so
+                // a K drawn into the whole button was as tall as the bar and its paw covered the F of File. It is drawn 18 x 18 logical px, 2 px from the left edge, in the middle of the
+                // button's height, so it ends before the first menu starts.
+                const int kSize = 18;
+                qApp->windowIcon().paint(&painter, QRect(2, qMax(0, (label->height() - kSize) / 2), kSize, kSize));
                 return true;
             }
         }

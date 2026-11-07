@@ -2774,7 +2774,9 @@ public:
         style->drawPrimitive(QStyle::PE_PanelItemViewItem, &opt, p, opt.widget);
         const bool selected = opt.state & QStyle::State_Selected;
         const QSize isz = option.decorationSize;
-        index.data(Qt::DecorationRole).value<QIcon>().paint(p, QRect(opt.rect.x() + (opt.rect.width() - isz.width()) / 2, opt.rect.y() + pad, isz.width(), isz.height()), Qt::AlignCenter, selected ? QIcon::Selected : QIcon::Normal);
+        // Krimble 2026-11-07: George: "The new keyboard icon in Prefs is chopped in half." The icon is drawn in the whole width of the list item (a wide picture, the whole keyboard, now fits, a square one is as large as before: QIcon::paint keeps the picture's shape inside the box).
+        // index.data(Qt::DecorationRole).value<QIcon>().paint(p, QRect(opt.rect.x() + (opt.rect.width() - isz.width()) / 2, opt.rect.y() + pad, isz.width(), isz.height()), Qt::AlignCenter, selected ? QIcon::Selected : QIcon::Normal);
+        index.data(Qt::DecorationRole).value<QIcon>().paint(p, QRect(opt.rect.x() + pad, opt.rect.y() + pad, opt.rect.width() - 2 * pad, isz.height()), Qt::AlignCenter, selected ? QIcon::Selected : QIcon::Normal);
         const QRect tr(opt.rect.x() + pad, opt.rect.y() + pad + isz.height() + 2, opt.rect.width() - 2 * pad, opt.rect.height() - (pad + isz.height() + 2 + pad));
         p->save();
         p->setPen(opt.palette.color(selected ? QPalette::HighlightedText : QPalette::Text));
