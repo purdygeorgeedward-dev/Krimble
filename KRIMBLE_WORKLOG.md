@@ -145,3 +145,9 @@ Times are Mountain Time from the clock of the sandbox that pushed (`date`), chec
 | Nov 6  11:25 AM | `e1658d8` | purdygeorgeedward-dev | Diagnostic dialog colors switched off (393rd) |
 | Nov 6  11:36 AM | `2e7ba06` | purdygeorgeedward-dev | Color panel: no height cap, no logo, narrow enough to dock (394th) |
 | Nov 6  12:05 PM | `14156cf` | purdygeorgeedward-dev | QuickAdjust: shorter, no empty space, logo 50%, gradient lines for Brightness, Saturation, Lightness (395th, 396th) |
+| Nov 6-7  1:34 AM | `5a77c11` | purdygeorgeedward-dev | Toolbox icons: rectangular select, magnet, wand, select similar, eraser, paint bucket, triangle, thumbtack (401st) |
+| Nov 6-7  1:34 AM | `f0f1dec` | purdygeorgeedward-dev | Style sheet: ChatGPT's as the base, mockup colors and gradients, whole-app menu bar and menus (397th) |
+| Nov 6-7  1:34 AM | `9b65a3f` | purdygeorgeedward-dev | QuickAdjust from the mockup; the K in the menu bar (398th) |
+| Nov 6-7  1:34 AM | `6a65b3f` | purdygeorgeedward-dev | Color Studio and Mixer: touching cells, smaller, sharp, soft brush (399th) |
+| Nov 6-7  1:34 AM | `63a5df7` | purdygeorgeedward-dev | Toolbox selected tool, Tool Options tool name, Scale moves the selection, toolbox log lines (400th, 403rd) |
+| Nov 6-7  1:34 AM | `c44a484` | purdygeorgeedward-dev | Android splash dialog: version text at the bottom left (402nd) |
