@@ -6157,3 +6157,9 @@ George: "in the New dialog it is a huge pain in the ass that the cancel button i
 **Files:** `.github/workflows/android-build.yml`
 
 Build 42356342646 (commit `bff632e`) failed in 4 minutes: "Native build (step 2)" reported success, "Package APK" reported success, and "Verify signature and name the APK" failed because no APK existed. `run-ci-build.py` had failed to compile but exits 0, and the existing check only looks for a `## Failed` line; the job log cannot be read from outside GitHub (it redirects to a blob host the sandbox cannot reach). The step now also treats a compiler error line (` error: `) or a make or ninja failure in `~/build-krita.log` as a failure (`rc=1`, so "Stop here if native build did not finish" stops the job right away), writes the first 12 such lines as `::error::` annotations (readable through the GitHub API) and a new step uploads the whole log as the artifact `krimble-native-build-log` (kept 5 days). **Not verified:** the YAML is valid; the new lines run for the first time in the next build.
+
+## 2026-11-07 (408th) — Tool Options tool name: the include that was missing
+
+**Files:** `libs/widgets/KoToolDocker.cpp`
+
+Build 42370096183 (commit `4345149`) failed in `libs/widgets/KoToolDocker.cpp`: "invalid application of 'sizeof' to an incomplete type 'KoCanvasController'" (qmetatype.h). The connection to `KoToolManager::changedTool(KoCanvasController *)` added in the 400th entry needs the complete type. `#include <KoCanvasController.h>` added. This was found by the annotations added in the 407th entry. **Not verified:** the next build (other compile errors may follow; make stops at the first failing target of each library).

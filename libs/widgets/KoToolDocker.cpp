@@ -10,6 +10,7 @@
 
 #include <klocalizedstring.h>
 #include <KoToolManager.h>      // Krimble 2026-11-06: the name of the selected tool at the top of Tool Options
+#include <KoCanvasController.h>   // Krimble 2026-11-07: needed for the changedTool(KoCanvasController *) connection below (build 42370096183: "invalid application of sizeof to an incomplete type KoCanvasController")
 #include <KoToolRegistry.h>
 #include <KoToolFactoryBase.h>
 
