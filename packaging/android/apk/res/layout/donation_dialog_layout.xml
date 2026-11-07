@@ -66,13 +66,15 @@
         <!-- Krimble 2026-11-07: George (screenshot with arrows): "Version info is still at top of splash instead of bottom." This is the Android splash dialog;
              the 2026-11-04 change (374th entry) was made in the program's own splash, not in this layout. The version text is at the bottom left of the picture now
              (the Krimble wordmark is at the bottom right). The old attributes were: gravity right|top, paddingTop 6dp, paddingRight 6dp -->
+        <!-- Krimble 2026-11-07 (2nd): George: "version text should be bottom right, not left. it goes under the logo." Bottom right now (gravity right|bottom, paddingBottom 6dp,
+             paddingRight 6dp), under the Krimble wordmark. The first version here was left|bottom, paddingBottom 6dp, paddingLeft 6dp. -->
         <TextView
             android:id="@+id/splashText"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:gravity="left|bottom"
+            android:gravity="right|bottom"
             android:paddingBottom="6dp"
-            android:paddingLeft="6dp"
+            android:paddingRight="6dp"
             android:textColor="#ffffff"
             android:shadowColor="#000000"
             android:shadowDx="0"

@@ -6126,7 +6126,7 @@ George: "The rectangular selection icon needs 4 corners.", "get rid of the lines
 
 **Files:** `packaging/android/apk/res/layout/donation_dialog_layout.xml`
 
-George (screenshot with arrows): "Version info is still at top of splash instead of bottom." That screen is the Android splash dialog (this layout), not the program's own splash that entry 374 changed. The `splashText` is `left|bottom` with 6 dp padding (was `right|top`); the Krimble wordmark is at the bottom right. The old attributes are in a comment. **Not verified:** a build or a device.
+George (screenshot with arrows): "Version info is still at top of splash instead of bottom." That screen is the Android splash dialog (this layout), not the program's own splash that entry 374 changed. The `splashText` is `left|bottom` with 6 dp padding (was `right|top`); the Krimble wordmark is at the bottom right. The old attributes are in a comment. **Changed the same day:** George: "version text should be bottom right, not left. it goes under the logo." It is `right|bottom` with 6 dp padding now, under the wordmark; the `left|bottom` version is in the comment. **Not verified:** a build or a device.
 
 ## 2026-11-07 (403rd) — Toolbox: log lines to find why a tear-off goes to one column
 
