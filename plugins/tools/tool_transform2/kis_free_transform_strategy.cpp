@@ -254,6 +254,29 @@ void KisFreeTransformStrategy::setTransformFunction(const QPointF &mousePos, boo
           // drag it. A touch that is not on a handle moves the selection again, inside the box or outside it, as before 2026-10-30 (the 2026-10-23 rule). It still does not rotate.
           defaultFunction = MOVE;
     
+    // Krimble 2026-11-07: the drag mode chosen with the radio buttons in the Tool Options (Position, Rotate, Scale, Shear): George: "Selecting position from the tool options does not
+    // put it in move mode." Position: every touch moves, the handles are not touchable. Rotate: a touch inside the box moves, outside it turns the graphic around the center.
+    // Shear: the four middle handles shear, any other touch moves. Scale (the default): the code below, as before.
+    {
+        const ToolTransformArgs::FreeGesture gesture = m_d->currentArgs.freeGesture();
+        const bool insideBox = transformedPolygon.containsPoint(mousePos, Qt::OddEvenFill);
+        if (gesture == ToolTransformArgs::GestureMove) {
+            m_d->function = MOVE;
+            return;
+        } else if (gesture == ToolTransformArgs::GestureRotate) {
+            m_d->function = insideBox ? MOVE : ROTATE;
+            return;
+        } else if (gesture == ToolTransformArgs::GestureShear) {
+            KisTransformUtils::HandleChooser<StrokeFunction> shearChooser(mousePos, MOVE);
+            shearChooser.addFunction(m_d->transformedHandles.topMiddle, handleRadius, TOPSHEAR);
+            shearChooser.addFunction(m_d->transformedHandles.bottomMiddle, handleRadius, BOTTOMSHEAR);
+            shearChooser.addFunction(m_d->transformedHandles.middleRight, handleRadius, RIGHTSHEAR);
+            shearChooser.addFunction(m_d->transformedHandles.middleLeft, handleRadius, LEFTSHEAR);
+            m_d->function = shearChooser.function();
+            return;
+        }
+    }
+
     KisTransformUtils::HandleChooser<StrokeFunction>
         handleChooser(mousePos, defaultFunction);
 

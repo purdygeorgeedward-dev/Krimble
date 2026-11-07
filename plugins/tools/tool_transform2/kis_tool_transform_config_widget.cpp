@@ -618,6 +618,18 @@ void KisToolTransformConfigWidget::updateConfig(const ToolTransformArgs &config)
         aZBox->setAngle(normalizeAngleDegrees(kisRadiansToDegrees(config.aZ())));
         cameraHeightBox->setValue(config.cameraPos().z());
         aspectButton->setKeepAspectRatio(config.keepAspectRatio());
+        // Krimble 2026-11-07: the radio buttons show the drag mode of the arguments (Scale at the start of every transform)
+        {
+            const ToolTransformArgs::FreeGesture gesture = config.freeGesture();
+            freeMoveRadioButton->setChecked(gesture == ToolTransformArgs::GestureMove);
+            freeRotationRadioButton->setChecked(gesture == ToolTransformArgs::GestureRotate);
+            freeScaleRadioButton->setChecked(gesture == ToolTransformArgs::GestureScale);
+            freeShearRadioButton->setChecked(gesture == ToolTransformArgs::GestureShear);
+            moveGroup->setVisible(gesture == ToolTransformArgs::GestureMove);
+            rotationGroup->setVisible(gesture == ToolTransformArgs::GestureRotate);
+            scaleGroup->setVisible(gesture == ToolTransformArgs::GestureScale);
+            shearGroup->setVisible(gesture == ToolTransformArgs::GestureShear);
+        }
         cmbFilter->setCurrent(config.filterId());
 
         QPointF pt = m_transaction->currentConfig()->rotationCenterOffset();
@@ -1180,21 +1192,29 @@ void KisToolTransformConfigWidget::slotTransformAreaVisible(bool value)
     moveGroup->hide();
 
 
+    // Krimble 2026-11-07: the radio buttons also choose the drag mode (see ToolTransformArgs::freeGesture())
+    ToolTransformArgs::FreeGesture gesture = ToolTransformArgs::GestureRotate;
     if ("freeMoveRadioButton" == senderName)
     {
         moveGroup->show();
+        gesture = ToolTransformArgs::GestureMove;
     }
     else  if ("freeShearRadioButton" == senderName)
     {
         shearGroup->show();
+        gesture = ToolTransformArgs::GestureShear;
     }
     else if ("freeScaleRadioButton" == senderName)
     {
         scaleGroup->show();
+        gesture = ToolTransformArgs::GestureScale;
     }
     else
     {
         rotationGroup->show();
+    }
+    if (m_transaction && m_transaction->currentConfig()) {
+        m_transaction->currentConfig()->setFreeGesture(gesture);
     }
 
 }

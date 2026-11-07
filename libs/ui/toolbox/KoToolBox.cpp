@@ -183,6 +183,12 @@ void KoToolBox::addButton(KoToolAction *toolAction)
     if (toolAction->id() == QLatin1String("PathTool")) {
         return;
     }
+    // Krimble 2026-11-07: George: "I think I have also decided Rotate does not need a separate tool in the toolbox. It's too easy to hit accidentally. better to leave rotate to a mode
+    // change in the tool options for transform." The Free Rotate tool stays registered (its Rotate button in the Tool Options of Transform and Edit > Transform > Rotate start it, and
+    // the Rotate radio button there turns the graphic with one finger too); it has no toolbox button.
+    if (toolAction->id() == QLatin1String("KisToolFreeRotate")) {
+        return;
+    }
 
 #ifdef Q_OS_ANDROID
     // Krimble 2026-10-26: George, about the six tools under Rotate: "I question their usefulness in mobile." and "When we build the desktop version for Linux, Windows, and

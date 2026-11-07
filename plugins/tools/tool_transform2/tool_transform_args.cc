@@ -71,6 +71,7 @@ void ToolTransformArgs::init(const ToolTransformArgs& args)
     m_alpha = args.alpha();
     m_defaultPoints = args.defaultPoints();
     m_keepAspectRatio = args.keepAspectRatio();
+    m_freeGesture = args.freeGesture();   // Krimble 2026-11-07
     m_filter = args.m_filter;
     m_flattenedPerspectiveTransform = args.m_flattenedPerspectiveTransform;
     m_editTransformPoints = args.m_editTransformPoints;
