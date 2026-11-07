@@ -97,8 +97,26 @@ jobs:
           # KRIMBLE 2026-11-04: run-ci-build.py exits 0 even when cmake fails to configure,
           # so also treat a "## Failed" line in its log as a failure.
           if grep -q '^## Failed' "$HOME/build-krita.log"; then rc=1; fi
+          # KRIMBLE 2026-11-07: build 42356342646 (commit bff632e) failed to compile but this step still reported success, and the job log cannot be read from outside GitHub.
+          # Any compiler error line (" error: ") or make failure now fails this step, and the first 12 error lines are written as annotations, which can be read through the
+          # API; the whole log is also uploaded as the artifact krimble-native-build-log (next steps).
+          if grep -qE ' error: |\*\*\* \[.*\] Error [0-9]+|ninja: build stopped' "$HOME/build-krita.log"; then
+            rc=1
+            grep -nE ' error: |\*\*\* \[.*\] Error [0-9]+|ninja: build stopped' "$HOME/build-krita.log" | head -12 | while IFS= read -r errline; do
+              echo "::error title=compile error::${errline:0:900}"
+            done
+          fi
           echo "rc=$rc" >> "$GITHUB_OUTPUT"
           exit 0
+
+      - name: Upload the native build log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: krimble-native-build-log
+          path: ~/build-krita.log
+          retention-days: 5
+          if-no-files-found: ignore
 
       - name: Save ccache
         if: always()
