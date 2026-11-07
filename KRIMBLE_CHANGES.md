@@ -6139,3 +6139,9 @@ George: "the number of columns changes if you tear off the attached toolbox. it 
 **Files:** `libs/ui/KisMainWindow.cpp`
 
 George: "stack panels doesn't work with floating panels." `krimbleStackPanels()` (Window ▸ Stack Panels, entry of 2026-10-23) only took panels docked on the right side and skipped every floating one. Now an open floating panel is stacked too: it is docked into the right column, one above another with equal heights, in the order of its position on the screen; a closed floating panel stays closed, and the toolbox is not touched. The total height is at most the window's height less 140 px (floating panels' heights are added to it). The old conditions are in comments. If George meant that floating panels should stay floating and line up one above another, this is not that. **Not verified:** a compile against Krita's classes, a build or a device.
+
+## 2026-11-07 (405th) — Transform (Scale): uniform scaling is the default
+
+**Files:** `plugins/tools/tool_transform2/tool_transform_args.h`
+
+George: "scale tool should always default to uniform scaling (locked 100%/100%) before doing anything loose by user selection." `ToolTransformArgs::m_keepAspectRatio` (the lock between the two scale boxes in Tool Options, also used by the corner handles) starts ON (it was OFF), so every new transform begins locked at 100% and 100%; the user can unlock it afterwards. Every new transform makes new arguments, so it applies each time the tool starts, not only the first time. The old default is in a comment. **Not verified:** a compile against Krita's classes, a build or a device; transforms read back from a transform mask also get the lock ON when the saved data has no value for it.

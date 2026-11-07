@@ -365,7 +365,10 @@ private:
     double m_shearX {0.0};
     double m_shearY {0.0};
     double m_boundsRotation {0.0};
-    bool m_keepAspectRatio {false};
+    // bool m_keepAspectRatio {false};
+    // Krimble 2026-11-07: George: "scale tool should always default to uniform scaling (locked 100%/100%) before doing anything loose by user selection." Every new transform starts
+    // with the aspect ratio lock ON (the chain between the two scale boxes), at 100% and 100%; the user can unlock it afterwards. It was off.
+    bool m_keepAspectRatio {true};
 
     // perspective transform related
     QTransform m_flattenedPerspectiveTransform;
