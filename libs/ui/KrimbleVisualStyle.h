@@ -175,6 +175,21 @@ QToolBar {
     background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
                                 stop:0 #2e354e, stop:1 #212639);
 }
+/* Krimble 2026-11-07: George (screenshots of the build of fd62f88): "The bland gray sucks for large areas. I'd like to see a smooth gradient as discussed." and, asked whether it is the
+   flat blue-gray of the toolbox, the panels and the status bar: "Yeah, the gray blue is bland." and "Would like all colors to match." The main window, the panels (docks, docked or
+   floating) and the status bar get the same long smooth gradients as the dialogs and the menu bar: #212638 to #1A2034 (the mockup's panel background) and #2E354E to #212639 for the
+   status bar (the tool bar's pair). The contents of a panel and its scroll areas are transparent so the gradient shows through; fields, buttons and sliders keep their own rules.
+   Tested in real Qt (PyQt5 5.15) with a main window with a toolbox, tabbed panels with a scroll area of ordinary controls, a status bar and a floating panel. Before: the theme's flat #373952. */
+QMainWindow, QDockWidget {
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #212638, stop:1 #1a2034);
+}
+QDockWidget > QWidget, QScrollArea, QScrollArea > QWidget > QWidget {
+    background: transparent;
+}
+QStatusBar {
+    color: #eef1fa;
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #2e354e, stop:1 #212639);
+}
 QHeaderView::section {
     color: #e9edf8;
     border: 1px solid #343c57;
