@@ -301,15 +301,16 @@ QHeaderView::section {
     background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
                                 stop:0 #434b68, stop:1 #383f57);
 }
+/* Krimble 2026-11-08: George: "Left to right looks good on progress bars. Please no curved ends. Just straight edges on progress bars." Square corners (the bar had 4 px, the fill 3 px). */
 QProgressBar {
     color: white;
     border: 1px solid #3d4967;
-    border-radius: 4px;
+    border-radius: 0px;   /* was 4px */
     background: #0d1221;
 }
 /* Krimble 2026-11-08: left to right, like the slider bars (it was top to bottom: x2:0,y2:1). */
 QProgressBar::chunk {
-    border-radius: 3px;
+    border-radius: 0px;   /* was 3px */
     background: qlineargradient(x1:0,y1:0,x2:1,y2:0,
                                 stop:0 #0a84f2, stop:0.55 #25bff6, stop:1 #58dcfc);
 }

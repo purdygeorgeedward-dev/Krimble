@@ -6337,3 +6337,5 @@ George: "The menu bar looks like shit currently. FIX IT." and, of the mockups: "
 **Files:** `libs/ui/KrimbleVisualStyle.h`
 
 George: "progress bar gradients would be a nice touch if they are smooth. Show me." (the three versions are in `progress_bars_options.png`; the style sheet one is applied for now). `QProgressBar::chunk` is a gradient from the left end to the right end (#0A84F2, #25BFF6 at 55%, #58DCFC) instead of top to bottom (the old rule is in a comment). A gradient painted in code over the whole bar with a sheen (version 3) is not done: it waits for George's choice. The slider rules were NOT changed (a left-to-right version was tried and taken out: George asked about title bars and progress bars). **Not verified:** a build or a device.
+
+**2026-11-08, added to the 437th entry:** George: "Left to right looks good on progress bars. Please no curved ends. Just straight edges on progress bars." The bar and its fill have square corners now (`border-radius: 0px`; they were 4 px and 3 px). Rendered in real Qt (`progress_bars_square.png`). **Not verified:** a build or a device.
