@@ -2776,7 +2776,9 @@ public:
         const QSize isz = option.decorationSize;
         // Krimble 2026-11-07: George: "The new keyboard icon in Prefs is chopped in half." The icon is drawn in the whole width of the list item (a wide picture, the whole keyboard, now fits, a square one is as large as before: QIcon::paint keeps the picture's shape inside the box).
         // index.data(Qt::DecorationRole).value<QIcon>().paint(p, QRect(opt.rect.x() + (opt.rect.width() - isz.width()) / 2, opt.rect.y() + pad, isz.width(), isz.height()), Qt::AlignCenter, selected ? QIcon::Selected : QIcon::Normal);
-        index.data(Qt::DecorationRole).value<QIcon>().paint(p, QRect(opt.rect.x() + pad, opt.rect.y() + pad, opt.rect.width() - 2 * pad, isz.height()), Qt::AlignCenter, selected ? QIcon::Selected : QIcon::Normal);
+        // index.data(Qt::DecorationRole).value<QIcon>().paint(p, QRect(opt.rect.x() + pad, opt.rect.y() + pad, opt.rect.width() - 2 * pad, isz.height()), Qt::AlignCenter, selected ? QIcon::Selected : QIcon::Normal);
+        // 2026-11-08: only 3 px at each side for the picture (a wide picture such as the keyboard uses the whole width; a square one is as before)
+        index.data(Qt::DecorationRole).value<QIcon>().paint(p, QRect(opt.rect.x() + 3, opt.rect.y() + pad, opt.rect.width() - 6, isz.height()), Qt::AlignCenter, selected ? QIcon::Selected : QIcon::Normal);
         const QRect tr(opt.rect.x() + pad, opt.rect.y() + pad + isz.height() + 2, opt.rect.width() - 2 * pad, opt.rect.height() - (pad + isz.height() + 2 + pad));
         p->save();
         p->setPen(opt.palette.color(selected ? QPalette::HighlightedText : QPalette::Text));
@@ -2978,7 +2980,10 @@ KisDlgPreferences::KisDlgPreferences(QWidget* parent, const char* name)
         if (QListView *navList = findChild<QListView*>()) {
             if (navList->model() && navList->model()->rowCount() == m_pages.size()) {
                 const int shortSide = qMin(screenSize.width(), screenSize.height());
-                navList->setItemDelegate(new KrimblePrefsListDelegate(int(shortSide * 0.20), navList));
+                // navList->setItemDelegate(new KrimblePrefsListDelegate(int(shortSide * 0.20), navList));
+                // Krimble 2026-11-08: George: "Keyboard icon in Prefs is too small." A whole keyboard is 2.6 times wider than tall, so its height is what the list item's width allows: the
+                // items were 20% of the screen's short side wide (the keyboard 52 logical px wide and 20 px tall on this phone); 28% now (the keyboard about 1.6 times larger, whole).
+                navList->setItemDelegate(new KrimblePrefsListDelegate(int(shortSide * 0.28), navList));
                 navList->setUniformItemSizes(false);
             }
         }

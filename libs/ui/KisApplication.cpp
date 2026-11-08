@@ -55,6 +55,10 @@
 #include <QTimer>
 #endif
 #include <QTabWidget>   // Krimble 2026-10-23: krimbleCompactDialog
+#include <QAbstractButton>   // Krimble 2026-11-08: krimbleNoSqueeze
+#include <QAbstractScrollArea>   // Krimble 2026-11-08: krimbleNoSqueeze
+#include <QComboBox>   // Krimble 2026-11-08: krimbleNoSqueeze
+#include <QGroupBox>   // Krimble 2026-11-08: krimbleNoSqueeze
 #include <QSpacerItem>   // Krimble 2026-10-23: krimbleCompactDialog
 #include <QScreen>
 #include <QScrollArea>   // Krimble 2026-10-23: krimbleDialogMinWidth
@@ -566,6 +570,49 @@ static void krimbleCompactDialog(QDialog *dialog)
     dialog->resize(dialog->sizeHint().boundedTo(limit).expandedTo(dialog->minimumSizeHint()));
 }
 
+// Krimble 2026-11-08: George (screenshots of Preferences: File Handling, Window and Cursor pages): "Prefs dialog is a mess." The rows inside the group boxes were pressed together
+// (the text of one row cut by the next: Show outline / Use effective outline size, the compression options, Multiple Document Mode / Subwindows): a group box was given less height than its
+// own layout needs. This could not be reproduced in real Qt on a computer (tabbed pages with wrapped form rows in a narrow scroll area, with this style sheet, with and without a short
+// window), so the rule does not depend on the cause: in Preferences, every widget that has a layout (the group boxes, the tab pages and what is inside them) is never smaller than its layout
+// needs (its minimum height, or the height for its width if the layout wraps), re-checked when the widget is shown, resized or laid out again. The page then scrolls instead of pressing
+// its rows together. Only Preferences (the other windows have their own handling).
+class KrimbleNoSqueeze : public QObject
+{
+public:
+    explicit KrimbleNoSqueeze(QObject *parent) : QObject(parent) {}
+    static void fix(QWidget *w)
+    {
+        QLayout *layout = w ? w->layout() : nullptr;
+        if (!layout || !w->isVisible()) return;
+        // QLayout::totalMinimumSize() and totalHeightForWidth() already include the widget's own contents margins (measured in real Qt: a group box's 168 px), so none are added here
+        int need = layout->totalMinimumSize().height();
+        if (layout->hasHeightForWidth() && w->width() > 0) need = qMax(need, layout->totalHeightForWidth(w->width()));
+        // only a widget that really is smaller than that is raised: a widget that has its room is left alone
+        if (w->height() + 1 < need && need > w->minimumHeight() && need < 6000 && need <= w->maximumHeight()) w->setMinimumHeight(need);
+    }
+protected:
+    bool eventFilter(QObject *o, QEvent *e) override
+    {
+        if (e->type() == QEvent::Show || e->type() == QEvent::Resize || e->type() == QEvent::LayoutRequest) {
+            if (QWidget *w = qobject_cast<QWidget *>(o)) QTimer::singleShot(0, w, [w]() { fix(w); });
+        }
+        return false;
+    }
+};
+
+static void krimbleNoSqueeze(QDialog *dialog)
+{
+    if (!dialog || !dialog->inherits("KisDlgPreferences") || dialog->property("krimbleNoSqueeze").toBool()) return;
+    dialog->setProperty("krimbleNoSqueeze", true);
+    KrimbleNoSqueeze *filter = new KrimbleNoSqueeze(dialog);
+    Q_FOREACH (QWidget *w, dialog->findChildren<QWidget *>()) {
+        if (w->layout() && !qobject_cast<QAbstractScrollArea *>(w) && !qobject_cast<QComboBox *>(w) && !qobject_cast<QAbstractButton *>(w)) {
+            w->installEventFilter(filter);
+            QTimer::singleShot(0, w, [w]() { KrimbleNoSqueeze::fix(w); });
+        }
+    }
+}
+
 class KrimbleDialogKeeper : public QObject
 {
 public:
@@ -690,6 +737,7 @@ protected:
                     }
                     krimbleNarrowDialogLayouts(wrapDialog);   // Krimble 2026-10-13: a window wider than the screen is narrowed
                     if (event->type() == QEvent::Show) krimbleCompactDialog(wrapDialog);   // Krimble 2026-10-23: no empty negative space (see krimbleCompactDialog)
+                    if (event->type() == QEvent::Show) krimbleNoSqueeze(wrapDialog);       // Krimble 2026-11-08: Preferences rows are never pressed together (see krimbleNoSqueeze)
                 }
                 // Krimble 2026-10-12: George: "That column of colored icons in the dialog is still too wide." The page list on the
                 // left of a page dialog (Preferences) is at most 24% of the screen's width.
