@@ -185,6 +185,7 @@ Times are Mountain Time from the clock of the sandbox that pushed (`date`), chec
 | Nov 8  3:40 AM | `ec45565` | George Purdy | Style sheet: one hue for the whole UI, stronger gradient, 16 px check boxes (430th) |
 | Nov 8  3:40 AM | `4b446d5` | George Purdy | Preferences: rows never pressed together (krimbleNoSqueeze), wider page list, larger keyboard icon (431st) |
 | Nov 8  3:40 AM | `7ba23a8` | George Purdy | Color panel: number boxes show their numbers (66 px), framed picker, rounded square, larger swatches; Mixer boxes 76 px (432nd) |
+| Nov 8  3:51 AM | (this push, docs only) | George Purdy | Dev journal rows fixed (a stray backslash-n). Build 42472436825 on `8c38709` succeeded (APK 172 MB); its first step, the XML check, passed |
 
 ## Notes of Saturday 2026-11-07 (written 10:3x PM MT)
 
