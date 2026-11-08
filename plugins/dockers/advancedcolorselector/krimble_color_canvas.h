@@ -20,12 +20,14 @@
 #include <QPaintEvent>
 #include <QResizeEvent>
 #include "krimble_color_symbols.h"
+#include "krimble_color_paint.h"
+#include "krimble_color_pages.h"
 
-class KrimbleColorCanvas : public QWidget
+class KrimbleColorCanvas : public KrimbleColorBase
 {
 public:
-    static constexpr double DW = 1178.0;   // the card's width in design units
     static constexpr double DH = 1100.0;   // the card's height
+    double designHeight() const override { return DH; }
 
     // the parts the color studio hands over (all children of this canvas)
     QWidget *square = nullptr;
@@ -44,10 +46,19 @@ public:
     QToolButton *add = nullptr;
     QToolButton *trash = nullptr;
     QToolButton *mode = nullptr;
+    // Krimble 2026-11-08: the top part of the card is the Picker (painted here), the Sliders page or the Values page; the bottom part (colors, recent, palette) is shared
+    int topPage = 0;
+    KrimbleSlidersTop *sliders = nullptr;
+    KrimbleValuesTop *values = nullptr;
+    void setTopPage(int page)
+    {
+        topPage = qBound(0, page, 2);
+        relayout();
+    }
     QString modeText = QStringLiteral("HSV");
     QString paletteName = QStringLiteral("My Palette");
 
-    explicit KrimbleColorCanvas(QWidget *parent = nullptr) : QWidget(parent)
+    explicit KrimbleColorCanvas(QWidget *parent = nullptr) : KrimbleColorBase(parent)
     {
         QSizePolicy policy(QSizePolicy::Preferred, QSizePolicy::Preferred);
         policy.setHeightForWidth(true);
@@ -60,11 +71,8 @@ public:
         trash = makeButton();
         mode = makeButton();
     }
-    bool hasHeightForWidth() const override { return true; }
-    int heightForWidth(int w) const override { return qRound(w * DH / DW); }
     QSize sizeHint() const override { return QSize(330, heightForWidth(330)); }
     QSize minimumSizeHint() const override { return QSize(240, heightForWidth(240)); }
-    qreal scale() const { return width() / DW; }
 
     // the up and down parts of the six number boxes: call once, after hsv[] and rgb[] are set
     void createSteppers()
@@ -103,6 +111,15 @@ public:
     void relayout()
     {
         const qreal s = scale();
+        {
+            const bool picker = (topPage == 0);
+            for (QWidget *w : {square, hue, static_cast<QWidget *>(hex), static_cast<QWidget *>(mode), static_cast<QWidget *>(eyedropper), static_cast<QWidget *>(copy)})
+                if (w) w->setVisible(picker);
+            for (int i = 0; i < 3; ++i) { if (hsv[i]) hsv[i]->setVisible(picker); if (rgb[i]) rgb[i]->setVisible(picker); }
+            for (int i = 0; i < 6; ++i) { if (m_up[i]) m_up[i]->setVisible(picker); if (m_down[i]) m_down[i]->setVisible(picker); }
+            if (sliders) { sliders->setGeometry(r(0, 0, DW, 590).toAlignedRect()); sliders->setVisible(topPage == 1); }
+            if (values) { values->setGeometry(r(0, 0, DW, 590).toAlignedRect()); values->setVisible(topPage == 2); }
+        }
         QFont f = font();
         f.setPixelSize(qMax(8, qRound(38 * s)));
         if (square) square->setGeometry(r(29, 27, 617, 557).toAlignedRect());
@@ -184,7 +201,8 @@ protected:
 
         const QColor label("#d9deee");
 
-        // the mode drop-down (HSV or HSL) and the eyedropper button
+        // the mode drop-down (HSV or HSL) and the eyedropper button (the Picker page only: the other pages are widgets over this part)
+        if (topPage == 0) {
         paintButton(p, r(804, 26, 237, 62), 12 * s);
         p.setPen(label);
         p.drawText(r(826 - 22 + 22, 26, 150, 62), Qt::AlignVCenter | Qt::AlignLeft, modeText);
@@ -241,6 +259,7 @@ protected:
         paintButton(p, r(1100, 520, 56, 54), 11 * s);
         drawSymbol(p, QStringLiteral("copy"), r(1100, 520, 56, 54).center(), 1.0);
 
+        }   // the Picker page's own painting
         // the foreground color's glow, the swap arrows between the two colors
         if (fg) {
             const QRectF ring = QRectF(fg->geometry());
@@ -284,19 +303,6 @@ protected:
     }
 
 private:
-    QToolButton *makeButton()
-    {
-        auto *b = new QToolButton(this);
-        b->setAutoRaise(true);
-        b->setFocusPolicy(Qt::NoFocus);
-        b->setStyleSheet(QStringLiteral("QToolButton { background: transparent; border: none; }"));
-        return b;
-    }
-    QRectF r(double x, double y, double w, double h) const
-    {
-        const qreal s = scale();
-        return QRectF(x * s, y * s, w * s, h * s);
-    }
     void layoutCells(const QVector<QWidget *> &cells, int cols, int rows, const QRectF &host, double gapX, double gapY)
     {
         const qreal s = scale();
@@ -325,88 +331,6 @@ private:
             p.drawRoundedRect(QRectF((host.left() + col * (cellW + gapX)) * s, (host.top() + row * (cellH + gapY)) * s, cellW * s, cellH * s), radius, radius);
         }
     }
-    // the largest font (up to the base size) in which the text is not wider than the width
-    static QFont fittedFont(const QFont &base, const QString &text, qreal width)
-    {
-        QFont f = base;
-        int px = f.pixelSize() > 0 ? f.pixelSize() : 12;
-        while (px > 8) {
-            f.setPixelSize(px);
-            if (QFontMetricsF(f).horizontalAdvance(text) <= width) break;
-            --px;
-        }
-        f.setPixelSize(qMax(8, px));
-        return f;
-    }
-    void drawSymbol(QPainter &p, const QString &name, const QPointF &center, qreal factor)
-    {
-        const QPixmap pm = krimbleStudioSymbol(name);
-        if (pm.isNull()) return;
-        const qreal s = scale() * factor;
-        const QSizeF size(pm.width() * s, pm.height() * s);
-        p.drawPixmap(QRectF(center.x() - size.width() / 2, center.y() - size.height() / 2, size.width(), size.height()), pm, QRectF(pm.rect()));
-    }
-    void paintLine(QPainter &p, double x0, double y, double x1, qreal s)
-    {
-        p.setPen(QPen(QColor(8, 11, 26, 200), 1.2));
-        p.drawLine(QPointF(x0 * s, y * s), QPointF(x1 * s, y * s));
-        p.setPen(QPen(QColor(110, 125, 175, 95), 1.0));
-        p.drawLine(QPointF(x0 * s, y * s + 1.6), QPointF(x1 * s, y * s + 1.6));
-    }
-    // a raised button frame: a gradient from lighter to darker, a dark outline and a light line along the inside top
-    static void paintButton(QPainter &p, const QRectF &rect, qreal radius)
-    {
-        const QRectF b = rect.adjusted(0.5, 0.5, -0.5, -0.5);
-        QLinearGradient g(0, b.top(), 0, b.bottom());
-        g.setColorAt(0.0, QColor("#3a4568"));
-        g.setColorAt(0.5, QColor("#2c3555"));
-        g.setColorAt(1.0, QColor("#212a46"));
-        p.setPen(Qt::NoPen);
-        p.setBrush(g);
-        p.drawRoundedRect(b, radius, radius);
-        p.setBrush(Qt::NoBrush);
-        p.setPen(QPen(QColor("#0b0f20"), 1.3));
-        p.drawRoundedRect(b, radius, radius);
-        QLinearGradient hl(0, b.top(), 0, b.bottom());
-        hl.setColorAt(0.0, QColor(170, 185, 235, 170));
-        hl.setColorAt(0.3, QColor(120, 135, 190, 40));
-        hl.setColorAt(1.0, QColor(0, 0, 0, 0));
-        p.setPen(QPen(QBrush(hl), 1.2));
-        p.drawRoundedRect(b.adjusted(1.6, 1.6, -1.6, -1.6), qMax<qreal>(1.0, radius - 1.6), qMax<qreal>(1.0, radius - 1.6));
-    }
-    // a dark inset field (number boxes, HEX, the name of the palette): dark at the top, a lighter outline, a light line along the bottom edge
-    static void paintField(QPainter &p, const QRectF &rect, qreal radius)
-    {
-        const QRectF b = rect.adjusted(0.5, 0.5, -0.5, -0.5);
-        QLinearGradient g(0, b.top(), 0, b.bottom());
-        g.setColorAt(0.0, QColor("#141724"));
-        g.setColorAt(1.0, QColor("#1f2333"));
-        p.setPen(Qt::NoPen);
-        p.setBrush(g);
-        p.drawRoundedRect(b, radius, radius);
-        p.setBrush(Qt::NoBrush);
-        p.setPen(QPen(QColor("#4a557b"), 1.3));
-        p.drawRoundedRect(b, radius, radius);
-        p.setPen(QPen(QColor(6, 8, 18, 210), 1.2));
-        p.drawLine(QPointF(b.left() + radius, b.top() + 1.6), QPointF(b.right() - radius, b.top() + 1.6));
-    }
-    // a recessed well (recent colors, palette): very dark, a dark outline and a light line along the bottom edge
-    static void paintWell(QPainter &p, const QRectF &rect, qreal radius)
-    {
-        const QRectF b = rect.adjusted(0.5, 0.5, -0.5, -0.5);
-        QLinearGradient g(0, b.top(), 0, b.bottom());
-        g.setColorAt(0.0, QColor("#04050e"));
-        g.setColorAt(1.0, QColor("#0a0e1c"));
-        p.setPen(Qt::NoPen);
-        p.setBrush(g);
-        p.drawRoundedRect(b, radius, radius);
-        p.setBrush(Qt::NoBrush);
-        p.setPen(QPen(QColor("#394568"), 1.4));
-        p.drawRoundedRect(b, radius, radius);
-        p.setPen(QPen(QColor(110, 125, 185, 130), 1.2));
-        p.drawLine(QPointF(b.left() + radius, b.bottom() + 0.2), QPointF(b.right() - radius, b.bottom() + 0.2));
-    }
-
     QToolButton *m_up[6] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
     QToolButton *m_down[6] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
 };

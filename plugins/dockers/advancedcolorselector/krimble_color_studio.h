@@ -565,9 +565,24 @@ public:
 #endif
         // Krimble 2026-11-08: George: "Measure everything for proportions. Don't wing it." and "Remember this app asks the user to scale it as a percentage. Issues of scale are not a
         // problem." The Picker page is the mockup's card, measured (color_panel_measurements.md), placed by KrimbleColorCanvas at the mockup's proportions at any width.
+        // Krimble 2026-11-08: George: "make the new tabs work just like the mockups." A tab strip above the card (Picker, Sliders, Values, Palette, History); the first three share
+        // the card (its top part changes), Palette and History are cards of their own.
+        m_tabs = new KrimbleColorTabBar(this);
+        layout->addWidget(m_tabs);
         m_ui = new KrimbleColorCanvas(this);
         layout->addWidget(m_ui);
         layout->addStretch(1);
+        m_sliders = new KrimbleSlidersTop(m_ui);
+        m_values = new KrimbleValuesTop(m_ui);
+        m_sliders->state = &m_state;
+        m_values->state = &m_state;
+        m_ui->sliders = m_sliders;
+        m_ui->values = m_values;
+        m_sliders->onColor = [this](const QColor &c) { select(c); };
+        m_values->onColor = [this](const QColor &c) { select(c); };
+        m_sliders->onAlpha = [this](int a) { setAlpha(a); };
+        m_values->onAlpha = [this](int a) { setAlpha(a); };
+        m_tabs->onTab = [this](int i) { showTab(i); };
 #if 0   // Krimble 2026-10-30: the Mixer tab, now the Mixer panel (krimble_mixer_dock.h)
         auto *mixer = new QWidget(this);
         auto *mixLayout = new QVBoxLayout(mixer);
@@ -857,8 +872,14 @@ public:
                 if (stored != mine) { m_colors.clear(); loadPalette(); }
             }
             const QColor foreground=m_canvas->resourceManager()->foregroundColor().toQColor();
-            if (foreground.isValid() && foreground != m_current)
-                select(foreground, false);
+            if (foreground.isValid()) {
+                QColor opaque = foreground;
+                opaque.setAlpha(255);
+                if (opaque != m_current || foreground.alpha() != m_state.alpha) {
+                    m_state.alpha = foreground.alpha();   // Krimble 2026-11-08: a foreground color from another panel keeps its alpha here too
+                    select(opaque, false);
+                }
+            }
             showBackground(m_canvas->resourceManager()->backgroundColor().toQColor());   // Krimble 2026-11-05
         });
         m_syncTimer.start();
@@ -874,8 +895,11 @@ public:
 private:
     void select(QColor c,bool commit=true) {
         if(!c.isValid()) return;
+        c.setAlpha(255);   // Krimble 2026-11-08: the color is opaque RGB; its alpha is m_state.alpha (the Sliders and Values pages set it)
         const bool changed = c != m_current;
         m_current=c;
+        m_state.color = c;
+        if (c.hsvHue() >= 0) m_state.hue = c.hsvHue();
         if (m_mixingPad) m_mixingPad->setColor(c);
         if (commit && changed) {
             m_recent.removeAll(c);
@@ -905,8 +929,34 @@ private:
         // m_preview->setStyleSheet(QStringLiteral("background:%1;border:1px solid #8498bd;border-radius:4px;").arg(c.name()));
         // m_preview->setStyleSheet(QStringLiteral("background:%1;border:2px solid #35d8f8;border-radius:5px;").arg(c.name()));
         m_ui->setForeground(c);   // Krimble 2026-11-08: the frame's size follows the panel's scale   // Krimble 2026-11-08: the foreground has the bright cyan outline of a selected item (mockup)
-        if(commit && m_canvas)
-            m_canvas->resourceManager()->setForegroundColor(KoColor(c,KoColorSpaceRegistry::instance()->rgb8()));
+        refreshPages();
+        if(commit && m_canvas) {
+            QColor withAlpha = c;
+            withAlpha.setAlpha(m_state.alpha);
+            m_canvas->resourceManager()->setForegroundColor(KoColor(withAlpha,KoColorSpaceRegistry::instance()->rgb8()));
+        }
+    }
+    // Krimble 2026-11-08: the alpha channel of the foreground color (0 to 255): the A slider and the Alpha boxes
+    void setAlpha(int a) {
+        m_state.alpha = qBound(0, a, 255);
+        if (m_canvas) {
+            QColor withAlpha = m_current;
+            withAlpha.setAlpha(m_state.alpha);
+            m_canvas->resourceManager()->setForegroundColor(KoColor(withAlpha,KoColorSpaceRegistry::instance()->rgb8()));
+        }
+        refreshPages();
+    }
+    void refreshPages() {
+        if (m_sliders) m_sliders->refresh();
+        if (m_values) m_values->refresh();
+        if (m_ui) m_ui->update();
+    }
+    void showTab(int i) {
+        m_tab = qBound(0, i, 4);
+        if (m_tabs) m_tabs->setCurrent(m_tab);
+        if (m_ui) { m_ui->setVisible(m_tab <= 2); if (m_tab <= 2) m_ui->setTopPage(m_tab); }
+        refreshPages();
+        QSettings().setValue(QStringLiteral("Krimble/ColorStudioTab"), m_tab);
     }
     // Krimble 2026-11-05: the background color box next to the foreground one
     void showBackground(const QColor &c) {
@@ -1087,6 +1137,11 @@ private:
     QLabel *m_preview=nullptr;
     QGridLayout *m_swatches=nullptr;
     KrimbleColorCanvas *m_ui=nullptr;   // Krimble 2026-11-08: the measured Picker page
+    KrimbleColorTabBar *m_tabs=nullptr;
+    KrimbleSlidersTop *m_sliders=nullptr;
+    KrimbleValuesTop *m_values=nullptr;
+    KrimbleColorState m_state;
+    int m_tab=0;
     QVector<QWidget *> m_recentCells;
     QVector<QWidget *> m_swatchCells;
     int m_selectedSwatch=-1;
