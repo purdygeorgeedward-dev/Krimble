@@ -55,10 +55,20 @@ QPushButton:hover, QDialog QToolButton:hover {
 }
 QPushButton:pressed, QDialog QToolButton:pressed,
 QPushButton:checked, QDialog QToolButton:checked {
+    /* Krimble 2026-11-07: the mockup's selected look (see the selected tab). Before: a 2 px #3BBCF5 outline and the flat blue gradient #0B87DD to #05429D.
     border: 2px solid #3bbcf5;
     background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
                                 stop:0 #0b87dd, stop:0.4 #0867b8, stop:0.75 #0652ad,
                                 stop:1 #05429d);
+    */
+    border: 2px solid #35d8f8;
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #1196d8, stop:0.10 #0a78bb, stop:0.5 #073d6b, stop:1 #074a85);
+}
+QPushButton:default {
+    /* Krimble 2026-11-07: the mockup's OK button (sampled): #0A89CD at the top, #085892, #07497E, #044A9C at the bottom, a bright cyan outline. */
+    color: white;
+    border: 2px solid #35d8f8;
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #0a89cd, stop:0.3 #085892, stop:0.6 #07497e, stop:1 #044a9c);
 }
 QPushButton:disabled, QDialog QToolButton:disabled {
     color: #7a8199;
@@ -79,12 +89,22 @@ QTabBar::tab {
     background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #2b324a, stop:1 #252b42);
 }
 QTabBar::tab:selected {
+    /* Krimble 2026-11-07: George: "Look at the selected items in the Prefs mockup." The mockup's selected tab, list entry and OK button (colors sampled from the picture): a teal blue that is
+       lighter along the top edge, #073D6B in the middle and #074A85 at the bottom, with a 2 px bright cyan outline (#27F8FF to #35D8F8) and rounder corners. Before: the flat blue
+       gradient #0B87DD, #0867B8, #0652AD, #05429D with a #3BBCF5 outline. The soft glow around the outline is not possible in a style sheet (see the notes of 2026-11-07).
     color: white;
     border: 1px solid #3bbcf5;
     border-bottom: 2px solid #3bbcf5;
     background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
                                 stop:0 #0b87dd, stop:0.4 #0867b8, stop:0.75 #0652ad,
                                 stop:1 #05429d);
+    */
+    color: white;
+    border: 2px solid #35d8f8;
+    border-bottom: 2px solid #35d8f8;
+    border-top-left-radius: 9px;
+    border-top-right-radius: 9px;
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #1196d8, stop:0.10 #0a78bb, stop:0.5 #073d6b, stop:1 #074a85);
 }
 QLineEdit, QSpinBox, QDoubleSpinBox {
     color: #f0f3ff;
@@ -113,11 +133,17 @@ QLineEdit:focus, QSpinBox:focus, QDoubleSpinBox:focus, QComboBox:focus {
     border: 1px solid #3bbcf5;
 }
 QAbstractItemView::item:selected {
+    /* Krimble 2026-11-07: the mockup's selected look (see the selected tab above). Before: the flat blue gradient #0B87DD to #05429D and a 1 px #3BBCF5 outline.
     color: white;
     background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
                                 stop:0 #0b87dd, stop:0.4 #0867b8, stop:0.75 #0652ad,
                                 stop:1 #05429d);
     border: 1px solid #3bbcf5;
+    */
+    color: white;
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #1196d8, stop:0.10 #0a78bb, stop:0.5 #073d6b, stop:1 #074a85);
+    border: 2px solid #35d8f8;
+    border-radius: 9px;
 }
 QSlider::groove:horizontal {
     height: 3px;
@@ -145,16 +171,19 @@ QSlider::handle:horizontal {
 }
 /* Krimble 2026-11-07: George: "checked should have an actual check in the box if possible." A checked box shows a white check mark (krimble-checkmark.svg, in svg-icons.qrc), and the
    box is 18 px, checked or not (a picture would otherwise make the checked box bigger than the others). Tested in real Qt (PyQt5 5.15): the check scales to the box. */
+/* Krimble 2026-11-07 (2nd): George: "Look at the selected items in the Prefs mockup." The mockup's check box (sampled): a dark box (#16192A), a bright cyan outline (#74ECFD, #28BFE5) when
+   checked and a bright cyan-white check (#EAFFFF). The box is 20 px. Before (earlier today): an 18 px box, a blue gradient and a #3BBCF5 outline with a white check. */
 QCheckBox::indicator {
-    width: 18px;
-    height: 18px;
+    width: 20px;
+    height: 20px;
+    border: 1px solid #5a6a8c;
+    border-radius: 4px;
+    background: #14182b;
 }
 QCheckBox::indicator:checked {
     image: url(:/krimble-checkmark.svg);
-    border: 1px solid #3bbcf5;
-    background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
-                                stop:0 #0b87dd, stop:0.4 #0867b8, stop:0.75 #0652ad,
-                                stop:1 #05429d);
+    border: 2px solid #3be0f6;
+    background: #14233f;
 }
 QMenuBar {
     color: #eef1fa;
