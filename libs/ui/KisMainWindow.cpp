@@ -1307,14 +1307,13 @@ protected:
         } else if (event->type() == QEvent::Paint) {
             QWidget *label = qobject_cast<QWidget *>(watched);
             if (label && QByteArray(label->metaObject()->className()).endsWith("ControlLabel")) {
-                QPainter painter(label);
-                painter.setRenderHint(QPainter::SmoothPixmapTransform, true);
-                // qApp->windowIcon().paint(&painter, label->rect());   // the whole button, not a 16 x 16 square
-                // Krimble 2026-11-07: George (screenshot): "Giant K in the corner is very bad." The button is about 34 x 26 logical px on this phone (Qt sizes it as it likes; see above), so
-                // a K drawn into the whole button was as tall as the bar and its paw covered the F of File. It is drawn 18 x 18 logical px, 2 px from the left edge, in the middle of the
-                // button's height, so it ends before the first menu starts.
-                const int kSize = 18;
-                qApp->windowIcon().paint(&painter, QRect(2, qMax(0, (label->height() - kSize) / 2), kSize, kSize));
+                // Krimble 2026-11-08: George: "Also do something about the stupid orange K in the corner. Get rid of it." Nothing is drawn in the button now (returning true swallows the
+                // paint, so Qt's own icon is not drawn either). The button stays, invisible and click-through as before 2026-11-05, so the image window keeps its system menu hint (the
+                // close and restore buttons on the right are separate). The code that drew the K (18 x 18 px, 2026-11-07; earlier the whole button) is kept in this comment:
+                // QPainter painter(label);
+                // painter.setRenderHint(QPainter::SmoothPixmapTransform, true);
+                // const int kSize = 18;
+                // qApp->windowIcon().paint(&painter, QRect(2, qMax(0, (label->height() - kSize) / 2), kSize, kSize));
                 return true;
             }
         }
