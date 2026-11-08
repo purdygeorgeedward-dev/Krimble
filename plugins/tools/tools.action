@@ -52,10 +52,10 @@
     </Action>
     <Action name="PanTool">
       <icon>tool_pan</icon>
-      <text>Pan Tool</text>
+      <text>Pan</text>   <!-- Krimble 2026-11-08: was "Pan Tool" -->
       <whatsThis/>
-      <toolTip>Pan Tool</toolTip>
-      <iconText>Pan Tool</iconText>
+      <toolTip>Pan</toolTip>
+      <iconText>Pan</iconText>
       <shortcut>H</shortcut>
       <statusTip/>
     </Action>

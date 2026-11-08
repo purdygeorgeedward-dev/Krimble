@@ -371,7 +371,10 @@ public:
 
     KisToolTransformFactory()
             : KisToolPaintFactoryBase("KisToolTransform") {
-        setToolTip(i18n("Free Transform Tool"));
+        // setToolTip(i18n("Free Transform Tool"));
+        // Krimble 2026-11-08: George: "Why are we still calling it the free transform tool? How about just Transform and change the name based on selected function."
+        // The name at the top of Tool Options follows the mode (Scale, Rotate, Position, Shear, Warp ...): see KisToolTransformConfigWidget::updateConfig().
+        setToolTip(i18n("Transform"));
         setSection(ToolBoxSection::Transform);
         setIconName(koIconNameCStr("krita_tool_transform"));
         setShortcut(QKeySequence(Qt::CTRL | Qt::Key_T));

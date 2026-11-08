@@ -12,6 +12,7 @@
 #include <QAction>
 #include <QPalette>
 #include <QPainter>   // Krimble 2026-11-07
+#include <QRegularExpression>   // Krimble 2026-11-08
 #include <QtMath>
 #include <functional>
 #include <QConicalGradient>
@@ -100,7 +101,13 @@ void KoToolBoxButton::setDataFromToolAction(QAction *action)
         setToolTip(m_toolAction->toolTip());
         return;
     }
-    setToolTip(action->toolTip());
+    // setToolTip(action->toolTip());
+    // Krimble 2026-11-08: George: "Does it have to say \"Tool\" after every tool?" The word is left off the tool tip ("Freehand Brush Tool" is "Freehand Brush").
+    {
+        QString tip = action->toolTip();
+        tip.replace(QRegularExpression(QStringLiteral("\\sTool(\\s*\\(|\\s*$)")), QStringLiteral("\\1"));
+        setToolTip(tip);
+    }
 }
 
 void KoToolBoxButton::slotUpdateActionData()

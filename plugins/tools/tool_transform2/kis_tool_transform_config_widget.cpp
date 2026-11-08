@@ -4,6 +4,7 @@
  *  SPDX-License-Identifier: GPL-2.0-or-later
  */
 
+#include <QLabel>   // Krimble 2026-11-08: the name at the top of Tool Options
 #include <QVector3D>
 #include "kis_tool_transform_config_widget.h"
 #include <QToolButton>   // Krimble 2026-10-19: the mode buttons (see the constructor)
@@ -568,9 +569,39 @@ void KisToolTransformConfigWidget::liquifyReverseDirectionChanged(bool value)
     notifyConfigChanged(false);
 }
 
+// Krimble 2026-11-08: George: "Why are we still calling it the free transform tool? How about just Transform and change the name based on selected function. You could just call it
+// Scale, Rotate, whatever based on mode. Does that work?" The name at the top of Tool Options (the label \"krimbleToolOptionsName\" of KoToolDocker) shows the mode of the Transform tool:
+// Scale, Position, Rotate or Shear for the free transform (the radio buttons), and Perspective, Warp, Cage, Liquify or Mesh. Only while the Transform tool itself is the active tool (the
+// Rotate tool shares this widget and has its own name).
+static void krimbleShowTransformTitle(QWidget *from, const ToolTransformArgs &config)
+{
+    if (!from || KoToolManager::instance()->activeToolId() != QLatin1String("KisToolTransform")) return;
+    QString title;
+    switch (config.mode()) {
+    case ToolTransformArgs::FREE_TRANSFORM:
+        switch (config.freeGesture()) {
+        case ToolTransformArgs::GestureMove: title = QObject::tr("Position"); break;
+        case ToolTransformArgs::GestureRotate: title = QObject::tr("Rotate"); break;
+        case ToolTransformArgs::GestureShear: title = QObject::tr("Shear"); break;
+        default: title = QObject::tr("Scale"); break;
+        }
+        break;
+    case ToolTransformArgs::WARP: title = QObject::tr("Warp"); break;
+    case ToolTransformArgs::CAGE: title = QObject::tr("Cage"); break;
+    case ToolTransformArgs::LIQUIFY: title = QObject::tr("Liquify"); break;
+    case ToolTransformArgs::PERSPECTIVE_4POINT: title = QObject::tr("Perspective"); break;
+    case ToolTransformArgs::MESH: title = QObject::tr("Mesh"); break;
+    default: return;
+    }
+    if (QWidget *window = from->window()) {
+        if (QLabel *label = window->findChild<QLabel *>(QStringLiteral("krimbleToolOptionsName"))) label->setText(title);
+    }
+}
+
 void KisToolTransformConfigWidget::updateConfig(const ToolTransformArgs &config)
 {
     blockUiSlots();
+    krimbleShowTransformTitle(this, config);   // Krimble 2026-11-08
  
     if (config.mode() == ToolTransformArgs::FREE_TRANSFORM ||
         config.mode() == ToolTransformArgs::PERSPECTIVE_4POINT) {
@@ -1215,6 +1246,7 @@ void KisToolTransformConfigWidget::slotTransformAreaVisible(bool value)
     }
     if (m_transaction && m_transaction->currentConfig()) {
         m_transaction->currentConfig()->setFreeGesture(gesture);
+        krimbleShowTransformTitle(this, *m_transaction->currentConfig());   // Krimble 2026-11-08: the name at the top of Tool Options follows the mode
     }
 
 }

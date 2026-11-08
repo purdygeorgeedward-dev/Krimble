@@ -15,7 +15,7 @@ import subprocess
 import sys
 import xml.dom.minidom as minidom
 
-EXTENSIONS = (".xmlgui", ".ui", ".qrc")
+EXTENSIONS = (".xmlgui", ".ui", ".qrc", ".action")   # 2026-11-08: the .action files (tool and menu action texts) too
 SKIP_DIRS = {".git", "node_modules", "_build", "_install", "build"}
 
 def candidates(root):

@@ -55,6 +55,8 @@ public:
                 name = factory->toolTip();
             }
         }
+        // Krimble 2026-11-08: George: "Does it have to say \"Tool\" after every tool?" No: the word is left off the name shown here (Select Shapes, Freehand Brush ...).
+        if (name.endsWith(QLatin1String(" Tool"))) name.chop(5);
         toolNameLabel->setText(name);
         toolNameLabel->setVisible(!name.isEmpty());
     }
