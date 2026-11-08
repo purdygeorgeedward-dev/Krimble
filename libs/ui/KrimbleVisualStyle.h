@@ -182,6 +182,8 @@ QAbstractItemView::item:selected {
     border: 2px solid #35d8f8;
     border-radius: 9px;
 }
+/* Krimble 2026-11-08: a left-to-right version of the slider rules was tried (blue to cyan with a glossy ball) and taken out again: George asked about title bars and progress bars, not
+   sliders. The slider rules are as they were. */
 QSlider::groove:horizontal {
     height: 3px;
     border: none;
@@ -223,16 +225,27 @@ QCheckBox::indicator:checked {
     border: 2px solid #3be0f6;
     background: #14233f;
 }
+/* Krimble 2026-11-08: George: "The menu bar looks like shit currently. FIX IT." The bar's background is painted in code (KrimbleMenuBarFilter, KisMainWindow.cpp): dark at both ends and
+   lighter in the middle, like the mockups' title bars; here it is transparent. The selected name is a pill with the bright cyan outline of every selected item. Before:
+QMenuBar { color: #eef1fa; background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #374676, stop:0.5 #2d385c, stop:1 #242d4c); }
+QMenuBar::item:selected { border-radius: 4px; background: a flat blue gradient #0b87dd to #05429d; }
+*/
 QMenuBar {
-    color: #eef1fa;
-    background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
-                                stop:0 #374676, stop:0.5 #2d385c, stop:1 #242d4c);
+    color: #f1f4fc;
+    background: transparent;
+}
+QMenuBar::item {
+    padding: 1px 9px;
+    margin: 1px 1px;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 7px;
 }
 QMenuBar::item:selected {
-    border-radius: 4px;
+    border: 1px solid #35d8f8;
+    border-radius: 7px;
     background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
-                                stop:0 #0b87dd, stop:0.4 #0867b8, stop:0.75 #0652ad,
-                                stop:1 #05429d);
+                                stop:0 #1196d8, stop:0.12 #0a78bb, stop:0.55 #073d6b, stop:1 #074a85);
 }
 QMenu {
     color: #eef1fa;
@@ -294,10 +307,11 @@ QProgressBar {
     border-radius: 4px;
     background: #0d1221;
 }
+/* Krimble 2026-11-08: left to right, like the slider bars (it was top to bottom: x2:0,y2:1). */
 QProgressBar::chunk {
     border-radius: 3px;
-    background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
-                                stop:0 #3fd1f6, stop:0.4 #0da0ff, stop:1 #008cec);
+    background: qlineargradient(x1:0,y1:0,x2:1,y2:0,
+                                stop:0 #0a84f2, stop:0.55 #25bff6, stop:1 #58dcfc);
 }
 QToolTip {
     color: #eef1fa;

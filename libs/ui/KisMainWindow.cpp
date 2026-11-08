@@ -1304,6 +1304,31 @@ protected:
             const QList<QAction *> all = bar->actions();
             if (spacer && (all.isEmpty() || all.first() != spacer))
                 QTimer::singleShot(0, bar, [bar]() { KrimbleMenuBarFilter::ensureSpacer(bar); });   // the menu bar was rebuilt: put the spacer back in front
+        } else if (event->type() == QEvent::Paint && qobject_cast<QMenuBar *>(watched)) {
+            // Krimble 2026-11-08: George: "The menu bar looks like shit currently. FIX IT." (and, of the mockups: "the top bar that darkens near each end. Those are much better."). The
+            // bar's background is painted here, under the menu names (the style sheet makes the bar's own background transparent): a horizontal gradient that is dark at both ends and lighter
+            // in the middle (#1C2346, #394585, #1C2346: from the mockups' title bars), a little lighter at the top and darker toward the bottom, a light line along the top, and a dark edge
+            // along the bottom with a lighter line above it. Tried in real Qt next to the mockups (menubar_compare.png). Before: a plain top-to-bottom gradient #374676 to #242D4C.
+            QWidget *bar = static_cast<QWidget *>(watched);
+            QPainter painter(bar);
+            const QRectF r(bar->rect());
+            QLinearGradient across(r.left(), 0, r.right(), 0);
+            across.setColorAt(0.0, QColor("#1c2346"));
+            across.setColorAt(0.5, QColor("#394585"));
+            across.setColorAt(1.0, QColor("#1c2346"));
+            painter.fillRect(r, across);
+            QLinearGradient down(0, r.top(), 0, r.bottom());
+            down.setColorAt(0.0, QColor(255, 255, 255, 34));
+            down.setColorAt(0.5, QColor(255, 255, 255, 0));
+            down.setColorAt(1.0, QColor(5, 8, 30, 120));
+            painter.fillRect(r, down);
+            painter.setPen(QColor(150, 165, 225, 120));
+            painter.drawLine(0, 0, bar->width(), 0);
+            painter.setPen(QColor(62, 74, 128, 200));
+            painter.drawLine(0, bar->height() - 2, bar->width(), bar->height() - 2);
+            painter.setPen(QColor(8, 11, 28, 255));
+            painter.drawLine(0, bar->height() - 1, bar->width(), bar->height() - 1);
+            return false;   // the bar then draws its menu names on top as usual
         } else if (event->type() == QEvent::Paint) {
             QWidget *label = qobject_cast<QWidget *>(watched);
             if (label && QByteArray(label->metaObject()->className()).endsWith("ControlLabel")) {
