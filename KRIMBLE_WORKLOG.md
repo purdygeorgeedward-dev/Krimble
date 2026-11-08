@@ -176,6 +176,8 @@ Times are Mountain Time from the clock of the sandbox that pushed (`date`), chec
 | Nov 7  9:36 PM | `cb75239` | George Purdy | Style sheet: more contrast (424th). **This is v1.0.45-beta.** Build 42447492701 succeeded (APK 172 MB) |
 | Nov 7  10:35 PM | `2e7369a` | George Purdy | Dev journal for 2026-11-07 and RELEASE_NOTES_1.0.45-beta.md; tag `v1.0.45-beta` on `cb75239` and a draft release (the first version of this row said 10:37 PM; the push was at 10:35 PM) |
 | Nov 7  10:35 to 10:40 PM | `45edcf8` and the push after it | George Purdy | Only the times in the two rows above corrected (both pushes of the first correction were in the 10:35 PM minute; this log is for real times) |
+| Nov 7  11:14 PM | `011ea89` | George Edward Purdy | (George's own edit on GitHub) Update krita5.xmlgui: removes the extra Layer menu, but only the end of it; the file was not valid XML again |
+| Nov 7  11:2x PM | (this push) | George Purdy | krita5.xmlgui: the unfinished first Layer block removed whole, file valid, one Layer menu; 9 actions lost in the reformat reported, not restored (425th) |
 
 ## Notes of Saturday 2026-11-07 (written 10:3x PM MT)
 
