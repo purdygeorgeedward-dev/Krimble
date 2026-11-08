@@ -20,6 +20,7 @@
 #include <QVBoxLayout>
 #include <QMainWindow>
 #include <QDebug>   // Krimble 2026-11-07: the KRIMBLE-TOOLBOX log lines
+#include <KisUsageLogger.h>   // Krimble 2026-11-08: the lines are written to krita.log with it
 #include <QTimer>
 #include <QApplication>
 #include <QMoveEvent>
@@ -790,14 +791,18 @@ void KoToolBoxDocker::fitHeightToContents(bool setWidthToo)
 // saved column count), so every step of it writes one line to krita.log (Help > Show Krimble Log). Lines start with KRIMBLE-TOOLBOX. It changes nothing else.
 void KoToolBoxDocker::krimbleLogState(const char *where) const
 {
-    qWarning().noquote() << "KRIMBLE-TOOLBOX" << where
-        << "| floating" << isFloating()
-        << "| dockArea" << int(m_dockArea)
-        << "| orientation setting" << int(m_orientation) << "layout" << (m_scrollArea ? (m_scrollArea->orientation() == Qt::Horizontal ? "horizontal" : "vertical") : "none")
-        << "| columns" << m_columns
-        << "| size" << width() << "x" << height()
-        << "| iconWidth" << iconWidth() << "chromeWidth" << chromeWidth()
-        << "| justDocked" << m_justDocked << "applying" << m_applying << "userDragged" << m_userDragged;
+    // qWarning().noquote() << "KRIMBLE-TOOLBOX" << where ... (the lines went to Android's logcat only: the program's Android log handler does not write qWarning into krita.log, so George's log of
+    // 2026-11-07 22:58 had no KRIMBLE-TOOLBOX line at all, not even the start-up ones; 2026-11-08: the lines are written with KisUsageLogger, as every other line of krita.log)
+    KisUsageLogger::log(QStringLiteral("KRIMBLE-TOOLBOX %1 | floating %2 | dockArea %3 | orientation setting %4 layout %5 | columns %6 | size %7 x %8 | iconWidth %9 chromeWidth %10 | justDocked %11 applying %12 userDragged %13")
+        .arg(QString::fromLatin1(where))
+        .arg(isFloating())
+        .arg(int(m_dockArea))
+        .arg(int(m_orientation))
+        .arg(m_scrollArea ? (m_scrollArea->orientation() == Qt::Horizontal ? QStringLiteral("horizontal") : QStringLiteral("vertical")) : QStringLiteral("none"))
+        .arg(m_columns)
+        .arg(width()).arg(height())
+        .arg(iconWidth()).arg(chromeWidth())
+        .arg(m_justDocked).arg(m_applying).arg(m_userDragged));
 }
 
 void KoToolBoxDocker::applyColumns()
