@@ -6,6 +6,7 @@
 // + Palette adds the foreground color to the Color panel's saved swatches.
 #pragma once
 
+#include "krimble_color_palettes.h"   // Krimble 2026-11-08
 #include <QDockWidget>
 #include <QPointer>
 #include <QScrollArea>   // Krimble 2026-11-05: the Mixer panel scrolls instead of overlapping when it is small
@@ -149,12 +150,13 @@ public:
             if (!m_canvas) return;
             const QColor current = m_canvas->resourceManager()->foregroundColor().toQColor();
             if (!current.isValid()) return;
-            QSettings settings;
-            QStringList items = settings.value(QStringLiteral("Krimble/ColorStudioSwatches")).toStringList();
-            const QString name = current.name(QColor::HexRgb);
-            if (!items.contains(name)) items << name;
-            while (items.size() > 24) items.removeFirst();
-            settings.setValue(QStringLiteral("Krimble/ColorStudioSwatches"), items);
+            // QSettings settings;
+            // QStringList items = settings.value(QStringLiteral("Krimble/ColorStudioSwatches")).toStringList();
+            // const QString name = current.name(QColor::HexRgb);
+            // if (!items.contains(name)) items << name;
+            // while (items.size() > 24) items.removeFirst();
+            // settings.setValue(QStringLiteral("Krimble/ColorStudioSwatches"), items);
+            KrimblePaletteStore::addColor(current);   // Krimble 2026-11-08: the color joins the ACTIVE palette (a GPL file); the Color panel shows it within a moment
         });
         // Sample: the sampled color becomes the foreground color
         m_pad->onSample = [this](QColor c) {

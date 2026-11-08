@@ -41,6 +41,7 @@
 #include <QApplication>
 #include <KoToolManager.h>   // the eyedropper button switches to the color sampler tool
 #include "krimble_color_canvas.h"   // Krimble 2026-11-08: the Picker page, built from the measurements of the mockup
+#include "krimble_color_palettes.h"   // the named palettes (GPL files)
 
 #include <algorithm>
 #include "kis_canvas2.h"
@@ -866,10 +867,8 @@ public:
             if (!m_canvas || !isVisible()) return;
             // Krimble 2026-10-30: a swatch added from the Mixer panel (it writes the same saved list) shows here too
             {
-                const QStringList stored = QSettings().value(QStringLiteral("Krimble/ColorStudioSwatches")).toStringList();
-                QStringList mine;
-                for (const QColor &c : m_colors) mine << c.name(QColor::HexRgb);
-                if (stored != mine) { m_colors.clear(); loadPalette(); }
+                // Krimble 2026-11-08: the active palette is a file: when it changed (the Mixer added a color, another page edited it) the cells are rebuilt
+                if (KrimblePaletteStore::signature() != m_paletteSignature) { m_colors.clear(); loadPalette(); }
             }
             const QColor foreground=m_canvas->resourceManager()->foregroundColor().toQColor();
             if (foreground.isValid()) {
@@ -965,6 +964,7 @@ private:
             // m_background->setStyleSheet(QStringLiteral("background:%1;border:1px solid #e6ecfa;border-radius:5px;").arg(c.name()));
             m_ui->setBackground(c);   // Krimble 2026-11-08   // Krimble 2026-11-08: a thin light outline (mockup)
     }
+#if 0   // Krimble 2026-11-08: the one saved list of swatches (QSettings "Krimble/ColorStudioSwatches"); the palettes are GPL files now (krimble_color_palettes.h)
     void loadPalette() {
         QSettings settings;
         QStringList items=settings.value(QStringLiteral("Krimble/ColorStudioSwatches")).toStringList();
@@ -990,6 +990,29 @@ private:
         QStringList items;
         for(const QColor &c:m_colors) items<<c.name(QColor::HexRgb);
         QSettings settings; settings.setValue(QStringLiteral("Krimble/ColorStudioSwatches"),items);
+    }
+#endif
+    void loadPalette() {
+        KrimblePaletteStore::ensureDefaults();
+        KrimblePalette pal;
+        m_colors.clear();
+        if (KrimblePaletteStore::load(KrimblePaletteStore::active(), pal)) {
+            m_colors = pal.colors;
+            m_paletteName = pal.name;
+            m_paletteColumns = pal.columns;
+        }
+        if (m_ui) m_ui->paletteName = m_paletteName;
+        m_paletteSignature = KrimblePaletteStore::signature();
+        if (m_selectedSwatch >= m_colors.size()) m_selectedSwatch = -1;
+        rebuildSwatches();
+    }
+    void savePalette() {
+        KrimblePalette pal;
+        pal.name = m_paletteName;
+        pal.columns = m_paletteColumns;
+        pal.colors = m_colors;
+        KrimblePaletteStore::save(pal);
+        m_paletteSignature = KrimblePaletteStore::signature();
     }
 #if 0   // Krimble 2026-11-08: the recent colors and the palette cells in box layouts (up to 20 px wide, 14 across); replaced by cells the measured canvas places
     void rebuildRecent() {
@@ -1145,6 +1168,9 @@ private:
     QVector<QWidget *> m_recentCells;
     QVector<QWidget *> m_swatchCells;
     int m_selectedSwatch=-1;
+    QString m_paletteName = QStringLiteral("My Palette");
+    int m_paletteColumns = 19;
+    QString m_paletteSignature;
     bool m_hslMode=false;
     QGridLayout *m_recentLayout=nullptr;
     QVector<QColor> m_recent;
