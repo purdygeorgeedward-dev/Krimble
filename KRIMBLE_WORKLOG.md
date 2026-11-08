@@ -151,3 +151,39 @@ Times are Mountain Time from the clock of the sandbox that pushed (`date`), chec
 | Nov 6-7  1:34 AM | `6a65b3f` | purdygeorgeedward-dev | Color Studio and Mixer: touching cells, smaller, sharp, soft brush (399th) |
 | Nov 6-7  1:34 AM | `63a5df7` | purdygeorgeedward-dev | Toolbox selected tool, Tool Options tool name, Scale moves the selection, toolbox log lines (400th, 403rd) |
 | Nov 6-7  1:34 AM | `c44a484` | purdygeorgeedward-dev | Android splash dialog: version text at the bottom left (402nd) |
+| Nov 7  1:38 AM | `bff632e` | George Purdy | Android splash dialog: version text at the bottom right (402nd updated) |
+| Nov 7  4:52 AM | `28b40c7` | George Purdy | Window > Stack Panels includes open floating panels (404th) |
+| Nov 7  4:52 AM | `7380b87` | George Purdy | Transform: uniform scaling is the default for every new transform (405th) |
+| Nov 7  4:52 AM | `21834be` | George Purdy | New dialog: OK and Cancel taken out of the scrolling page, always visible; shorter description box (406th) |
+| Nov 7  4:53 AM | `4345149` | George Purdy | Build workflow: compiler errors fail the native step, shown as annotations; native build log kept as an artifact (407th). Build 42356342646 (bff632e) had failed in 4 min without saying why |
+| Nov 7  5:00 AM | `add724c` | George Purdy | KoToolDocker: include KoCanvasController.h, the compile error found by the annotations (408th). Build 42370554831 succeeded (APK 172 MB) |
+| Nov 7  12:27 PM | `4ab027e` | George Edward Purdy | (George's own edit on GitHub) Refactor menu structure in krita5.xmlgui. The file was NOT valid XML (a line cut off); repaired in `ae22039` |
+| Nov 7  2:22 PM | `2649594` | George Purdy | The Settings menu bar entry is hidden (409th) |
+| Nov 7  2:22 PM | `9cd8402` | George Purdy | Transform: Position/Rotate/Scale/Shear radio buttons are the drag mode; no Rotate button in the toolbox (410th) |
+| Nov 7  2:22 PM | `1b11e63` | George Purdy | Floating messages at the bottom left of the canvas (411th) |
+| Nov 7  2:22 PM | `8a2f6fd` | George Purdy | Toolbox: UNDO button under the color wells, long press for Redo (412th) |
+| Nov 7  2:22 PM | `8de18a1`, `01ebaa5` | George Purdy | DPaint toolbar (extra toolbar, hidden at the start); renamed DPaint because the longer name may be a trademark (413th) |
+| Nov 7  2:22 PM | `bf99fd9` | George Purdy | Pixel-art icons for DPaint brush buttons, not used yet (414th) |
+| Nov 7  2:22 PM | `d21966b` | George Purdy | Type tool: every new text on its own vector layer, only the new text selected (415th) |
+| Nov 7  2:22 PM | `ae22039` | George Purdy | krita5.xmlgui: the truncated line of the 12:27 edit repaired; the menu bar still has TWO Layer menus (416th) |
+| Nov 7  2:47 PM | `fd62f88` | George Purdy | DPaint panel, first version: tools, UNDO/CLR, color indicator, 256 color palette with Range and Edit (417th). Build 42417539040 succeeded |
+| Nov 7  9:36 PM | `32cbd91` | George Purdy | Menu bar K drawn 18 px; Preferences keyboard icon shows the whole keyboard (418th) |
+| Nov 7  9:36 PM | `8524008` | George Purdy | Style sheet: gradient on the main window, panels and status bar (419th) |
+| Nov 7  9:36 PM | `911a752` | George Purdy | Layers panel: 24 px before the Layer Type drop-down, 20 px strip above (420th) |
+| Nov 7  9:36 PM | `b1f9055` | George Purdy | Toolbox selected tool drawn like the mockup, measured edge glow (421st) |
+| Nov 7  9:36 PM | `f77d7d5` | George Purdy | Check boxes: a check mark in a checked box (422nd) |
+| Nov 7  9:36 PM | `0babdac` | George Purdy | Style sheet: the Prefs mockup's selected look, cyan check boxes (423rd) |
+| Nov 7  9:36 PM | `cb75239` | George Purdy | Style sheet: more contrast (424th). **This is v1.0.45-beta.** Build 42447492701 succeeded (APK 172 MB) |
+| Nov 7  10:37 PM | (this push) | George Purdy | Dev journal for 2026-11-07 and RELEASE_NOTES_1.0.45-beta.md; tag `v1.0.45-beta` on `cb75239` and a draft release |
+
+## Notes of Saturday 2026-11-07 (written 10:3x PM MT)
+
+**What happened.** A long day on the UI after the first build with George's mockups. The build of `bff632e` failed in 4 minutes while GitHub said "success": `run-ci-build.py` exits 0 on a compile error and the job log cannot be read from outside GitHub (it redirects to a blob host the sandbox cannot reach). The workflow now writes compiler errors as annotations (readable through the API) and keeps the log as an artifact; that found the missing include in `KoToolDocker.cpp`. Three builds succeeded: 42370554831 (`add724c`), 42417539040 (`fd62f88`, the DPaint panel) and 42447492701 (`cb75239`, **v1.0.45-beta**). Each APK is the artifact `krimble-apk` of its run (172 MB, kept 90 days).
+
+**Incident.** At 12:27 PM George edited `krita5.xmlgui` on GitHub (commit `4ab027e`, "Refactor menu structure"). The file was not valid XML: the `<text>` of `layercolorspaceconversion` was cut to `<text>` and `t>`, so the program would have had no menus. Repaired with the smallest change (`ae22039`, 416th). **Left for George:** the menu bar now has two `Layer` menus (line 275 and line 473 of the file); before his edit there was one. Lesson: after a web edit of an `.xmlgui` or `.ui` file, parse it as XML before building.
+
+**How the UI was matched to the mockups (a method that worked).** Do not guess: cut the mockup's element out, render the same element in real Qt (PyQt5 5.15 is in the sandbox), put them side by side, and measure real pixel colors in both (edges, corners, middle). The selected tool took seven renders; "irregular glow" was measured around the whole edge (72 values, every 5 degrees) and drawn with conical gradients. The two mockups disagree on the base color (Picker and Mixer pages #212638 to #1A2034, Prefs page #303454 with a #1F223B recessed list); George chose "more contrast", so the app now uses the Prefs palette pushed a step further (424th).
+
+**Decisions (George, 2026-11-07).** Rotate is not a toolbox tool: it is a mode of Transform's Tool Options (the Rotate tool stays registered; Edit > Transform > Rotate still starts it). Scale is uniform by default every time. New texts start on their own layer. Messages at the bottom left. Settings menu removed (Preferences in Edit). DPaint, not the longer name (possible trademark): a gray bevelled look with black pixel icons, a 256-color palette in 4 x 8 pages with Range (tap Range, the first well, the last well), a full-screen palette editor with RGB and HSV sliders planned. "Selections are better looking in the mockups": bright cyan outline and glow on selected items; checked boxes have a real check.
+
+**Open.** (1) Two Layer menus in the menu bar (George's menu edit). (2) The toolbox tear-off goes to one column and then horizontal: log lines are in the build (`KRIMBLE-TOOLBOX`, Help > Show Krimble Log); George needs to tear off once, pick "2 columns" once and send the lines. (3) Color panel wider than a small screen; number boxes show one digit. (4) The glow on tabs, list entries and the OK button needs painting in code (a style sheet cannot do it); the toolbox's selected tool is the model (421st). (5) The DPaint panel's full-screen palette editor, brush preset buttons (pixel, spray, dither; the presets exist in the default bundles), diagonal-split outline/filled shape buttons, hue blend for Range. (6) Color Picker and Mixer page pieces from the mockups (HSV drop-down, eyedropper, palette bar, Brush Test Settings). (7) The v1.0.45-beta release is a draft: the APK must be attached (artifact download is blocked from the sandbox). (8) Older: Play Store `.aab`, 16 KB alignment check of every `.so`, Channels docker features, mascot orange-K headphone check, forum.krimble.org, BUILD_ANDROID.md notes.
