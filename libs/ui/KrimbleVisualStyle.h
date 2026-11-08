@@ -14,6 +14,11 @@
 inline QString krimbleVisualStyleSheet()
 {
     return QStringLiteral(R"KRIMBLE(
+/* Krimble 2026-11-08: George: "UI looks a lot better ... Gradient in UI could be more. Try to match hue between the bar and other UI components." Every color of the window, the panels,
+   the group boxes, the buttons, the unselected tabs, the fields, the lists, the status bar, the menu bar and the tool bars is now one hue (226 degrees), at stronger steps of lightness
+   from the top to the bottom (the window #374267 to #181f34 was #373C62 to #2C3152; the menu bar was a bluer #35426B to #2A334E, which is why the bar did not match the panels).
+   The old values are in the comments above the changes of 2026-11-06, 07 (3rd) and 08. */
+
 QDialog, QMessageBox, QInputDialog, QColorDialog, QFileDialog {
     /* Krimble 2026-11-06 (3rd): George: "When I say gradients I'm talking about long smooth subtle gradients, not shaping every item with shading." The window is one long
        smooth gradient from top to bottom, #212638 to #1A2034 (the mockup's panel background, sampled at the top and at the bottom of the picture). Before: flat #1b2135.
@@ -23,7 +28,7 @@ QDialog, QMessageBox, QInputDialog, QColorDialog, QFileDialog {
     background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #212638, stop:1 #1a2034);
     color: #eef1fa;
 */
-    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #373c62, stop:1 #2c3152);
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #374267, stop:1 #181f34);
     color: #ffffff;
 }
 QDialog QLabel, QDialog QGroupBox, QDialog QCheckBox,
@@ -40,13 +45,13 @@ QGroupBox {
     background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
                                 stop:0 #232a40, stop:1 #1a2034);
 */
-    border: 1px solid #4a5178;
-    border-top: 1px solid #8d96c2;
+    border: 1px solid #506095;
+    border-top: 1px solid #8292c4;
     border-radius: 8px;
     margin-top: 12px;
     padding: 12px 6px 6px 6px;
     background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
-                                stop:0 #444a70, stop:1 #343959);
+                                stop:0 #445079, stop:1 #2e3856);
 }
 QGroupBox::title { subcontrol-origin: margin; left: 12px; padding: 0 5px; }
 QPushButton, QDialog QToolButton {
@@ -63,10 +68,10 @@ QPushButton, QDialog QToolButton {
     padding: 5px 9px;
     background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #2d354e, stop:1 #283048);
 */
-    border: 1px solid #6a719b;
+    border: 1px solid #6071a9;
     border-radius: 7px;
     padding: 5px 9px;
-    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #4d5479, stop:1 #2b3050);
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #434f75, stop:1 #262e4b);
 }
 QPushButton:hover, QDialog QToolButton:hover {
     border-color: #3bbcf5;
@@ -101,7 +106,7 @@ QTabBar::tab {
     border: 1px solid #3d4668;
     border-bottom: 1px solid #2a334a;
 */
-    border: 1px solid #555d86;
+    border: 1px solid #495783;
     border-bottom: 1px solid #2a334a;
     border-top-left-radius: 6px;
     border-top-right-radius: 6px;
@@ -112,7 +117,7 @@ QTabBar::tab {
 /* Krimble 2026-11-07 (3rd): George: "more contrast" (after the Prefs mockup: "The color and contrast in the mockup are ideal."). Before:
     background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #2b324a, stop:1 #252b42);
 */
-    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #2a3050, stop:1 #171b34);
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #27304f, stop:1 #141a2e);
 }
 QTabBar::tab:selected {
     /* Krimble 2026-11-07: George: "Look at the selected items in the Prefs mockup." The mockup's selected tab, list entry and OK button (colors sampled from the picture): a teal blue that is
@@ -141,10 +146,10 @@ QLineEdit, QSpinBox, QDoubleSpinBox {
     padding: 3px 5px;
     background: #0d1221;
 */
-    border: 1px solid #5a6490;
+    border: 1px solid #506095;
     border-radius: 5px;
     padding: 3px 5px;
-    background: #0c1024;
+    background: #0b101e;
 }
 QComboBox {
     /* Krimble 2026-11-06 (2nd): George: "Do not add sculpted shading to fields." The drop-down box is flat like the text and number boxes (it had the button's gradient and top
@@ -205,9 +210,10 @@ QSlider::handle:horizontal {
    box is 18 px, checked or not (a picture would otherwise make the checked box bigger than the others). Tested in real Qt (PyQt5 5.15): the check scales to the box. */
 /* Krimble 2026-11-07 (2nd): George: "Look at the selected items in the Prefs mockup." The mockup's check box (sampled): a dark box (#16192A), a bright cyan outline (#74ECFD, #28BFE5) when
    checked and a bright cyan-white check (#EAFFFF). The box is 20 px. Before (earlier today): an 18 px box, a blue gradient and a #3BBCF5 outline with a white check. */
+/* Krimble 2026-11-08: George: "Check boxes could be smaller." 16 px (were 20 px, 18 px before that). */
 QCheckBox::indicator {
-    width: 20px;
-    height: 20px;
+    width: 16px;
+    height: 16px;
     border: 1px solid #5a6a8c;
     border-radius: 4px;
     background: #14182b;
@@ -220,7 +226,7 @@ QCheckBox::indicator:checked {
 QMenuBar {
     color: #eef1fa;
     background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
-                                stop:0 #35426b, stop:0.5 #2f3a57, stop:1 #2a334e);
+                                stop:0 #374676, stop:0.5 #2d385c, stop:1 #242d4c);
 }
 QMenuBar::item:selected {
     border-radius: 4px;
@@ -231,7 +237,7 @@ QMenuBar::item:selected {
 QMenu {
     color: #eef1fa;
     border: 1px solid #3d4967;
-    background: #212639;   /* Krimble 2026-11-06 (3rd): flat (was a #2e354e to #212639 gradient) */
+    background: #192138;   /* Krimble 2026-11-06 (3rd): flat (was a #2e354e to #212639 gradient) */
 }
 QMenu::item:selected {
     background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
@@ -241,7 +247,7 @@ QMenu::item:selected {
 QToolBar {
     border: none;
     background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
-                                stop:0 #2e354e, stop:1 #212639);
+                                stop:0 #2f3a60, stop:1 #192138);
 }
 /* Krimble 2026-11-07: George (screenshots of the build of fd62f88): "The bland gray sucks for large areas. I'd like to see a smooth gradient as discussed." and, asked whether it is the
    flat blue-gray of the toolbox, the panels and the status bar: "Yeah, the gray blue is bland." and "Would like all colors to match." The main window, the panels (docks, docked or
@@ -254,12 +260,12 @@ QMainWindow, QDockWidget {
 }
 */
 QMainWindow, QDockWidget {
-    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #373c62, stop:1 #2c3152);
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #374267, stop:1 #181f34);
 }
 QAbstractItemView {
     /* recessed areas (lists, trees) are darker than the panels around them */
-    background: #15182d;
-    alternate-background-color: #1a1e36;
+    background: #111624;
+    alternate-background-color: #161c2f;
     color: #ffffff;
 }
 QDockWidget > QWidget, QScrollArea, QScrollArea > QWidget > QWidget {
@@ -273,7 +279,7 @@ QStatusBar {
 */
 QStatusBar {
     color: #ffffff;
-    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #3d4368, stop:1 #30365a);
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #364063, stop:1 #212945);
 }
 QHeaderView::section {
     color: #e9edf8;
@@ -296,7 +302,7 @@ QProgressBar::chunk {
 QToolTip {
     color: #eef1fa;
     border: 1px solid #3bbcf5;
-    background: #212639;
+    background: #192138;
 }
 )KRIMBLE");
 }
