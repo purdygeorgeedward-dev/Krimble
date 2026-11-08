@@ -422,52 +422,7 @@
                 <text>&amp;Rotate</text>
                 <Action name="rotateAllLayers">
                     <text>Angle...</text>
-                </Action>
-                <Separator/>
-                <Action name="rotateAllLayersCW90">
-                    <text>90° Right</text>
-                </Action>
-                <Action name="rotateAllLayersCCW90">
-                    <text>90° Left</text>
-                </Action>
-                <Action name="rotateAllLayers180">
-                    <text>180°</text>
-                </Action>
-            </Menu>
-            <Action name="shearAllLayers">
-                <text>Shear...</text>
-            </Action>
-        </Menu>
-        <Separator/>
-        <Menu name="LayerConvert">
-            <text>&amp;Convert</text>
-            <Action name="convert_to_paint_layer">
-                <text>Rasterize</text>
-            </Action>
-            <Action name="convert_to_transparency_mask">
-                <text>To Transparency Mask</text>
-            </Action>
-            <Action name="convert_to_filter_mask">
-                <text>To Filter Mask</text>
-            </Action>
-            <Action name="convert_to_selection_mask">
-                <text>To Selection Mask</text>
-            </Action>
-            <Action name="convert_to_file_layer">
-                <text>To File Layer</text>
-            </Action>
-            <Action name="convert_group_to_animated">
-                <text>To Animated Layer</text>
-            </Action>
-            <Action name="layercolorspaceconversion">
-                <text>Color Profile...</text>
-            </Action>
-        </Menu>
 
-    <Action name="separate">
-        <text>Separate</text>
-    </Action>
-</Menu>
 
 
 <Menu name="Layer">
