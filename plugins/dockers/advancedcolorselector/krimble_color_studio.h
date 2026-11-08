@@ -147,6 +147,11 @@ protected:
         // Krimble 2026-10-30: George: "That color box should be a gradient filled vector image, right?" Two layered gradients painted at draw time, so no
         // per-pixel loop and no cached bitmap: white to the pure hue from left to right (saturation), then transparent to black from top to bottom (value).
         {
+            // Krimble 2026-11-08: the mockup's color square has rounded corners and a thin dark outline: the field is clipped to a rounded rectangle (9 px)
+            QPainterPath roundedField;
+            roundedField.addRoundedRect(QRectF(0.5, 0.5, width() - 1, height() - 1), 9, 9);
+            p.setRenderHint(QPainter::Antialiasing, true);
+            p.setClipPath(roundedField);
             const QRect field(0, 0, width(), height());
             QLinearGradient saturation(0, 0, width()-1, 0);
             saturation.setColorAt(0.0, Qt::white);
@@ -156,6 +161,10 @@ protected:
             value.setColorAt(0.0, QColor(0, 0, 0, 0));
             value.setColorAt(1.0, QColor(0, 0, 0, 255));
             p.fillRect(field, value);
+            p.setClipping(false);
+            p.setPen(QPen(QColor(8, 10, 24, 220), 1.5));
+            p.setBrush(Qt::NoBrush);
+            p.drawPath(roundedField);
         }
         p.setRenderHint(QPainter::Antialiasing);
         QPointF pt(m_sat*w/255.0, (255-m_val)*h/255.0);
@@ -503,8 +512,13 @@ public:
         // auto *picker = new QWidget(tabs);
         // auto *mixer = new QWidget(tabs);
         auto *picker = new QWidget(this);
+        // Krimble 2026-11-08: George: "color panel is underwhelming" and, of the Color mockup: "look at the beautiful gradients and the great designs, layouts". The picker is in a rounded
+        // frame with a smooth gradient (the mockup's inner panel): #krimbleStudioCard in KrimbleVisualStyle.h (a plain widget needs WA_StyledBackground to show it).
+        picker->setObjectName(QStringLiteral("krimbleStudioCard"));
+        picker->setAttribute(Qt::WA_StyledBackground, true);
         auto *pickerLayout = new QVBoxLayout(picker);
-        pickerLayout->setContentsMargins(0,4,0,0);
+        // pickerLayout->setContentsMargins(0,4,0,0);
+        pickerLayout->setContentsMargins(6,8,6,6);
         // pickerLayout->setSpacing(5);
         pickerLayout->setSpacing(2);   // Krimble 2026-11-06 (3rd): was 5
         // tabs->addTab(picker,tr("Picker"));
@@ -634,23 +648,28 @@ public:
             m_hsv[i] = new QSpinBox(this);
             m_hsv[i]->setRange(0, i==0 ? 359 : 100);
             m_hsv[i]->setSuffix(i==0 ? QStringLiteral("°") : QStringLiteral("%"));
-            m_hsv[i]->setFixedWidth(46);   // Krimble 2026-11-06 (4th): George: "narrower areas for the values at the top" 46 (was 62, 76 first)
+            // m_hsv[i]->setFixedWidth(46);   // Krimble 2026-11-06 (4th): George: "narrower areas for the values at the top" 46 (was 62, 76 first)
+            m_hsv[i]->setFixedWidth(66);   // Krimble 2026-11-08: George (screenshot): the boxes showed ONE digit (H 2, S 7, V 9, R 7, G 1, B 2): the fields of the style sheet have padding and a frame now, so 46 px was too narrow; 66 px shows "316°"
             values->addWidget(m_hsv[i],i,1);
         }
         for (int i=0;i<3;++i) {
             values->addWidget(new QLabel(QString::fromLatin1(names[i]),this),i+3,0);
             m_rgb[i]=new QSpinBox(this); m_rgb[i]->setRange(0,255);
-            m_rgb[i]->setFixedWidth(46);   // Krimble 2026-11-06 (4th): 46 (was 62, 76 first)
+            // m_rgb[i]->setFixedWidth(46);   // Krimble 2026-11-06 (4th): 46 (was 62, 76 first)
+            m_rgb[i]->setFixedWidth(66);   // Krimble 2026-11-08: see above (the three digits of "240")
             values->addWidget(m_rgb[i],i+3,1);
         }
         values->addWidget(new QLabel(tr("HEX"),this),6,0);
         m_hex=new QLineEdit(this); m_hex->setMaxLength(7);
         m_hex->setPlaceholderText(QStringLiteral("#RRGGBB"));
-        m_hex->setFixedWidth(58);   // Krimble 2026-11-06 (4th): 58 (was 76); the text is 25% smaller now
+        // m_hex->setFixedWidth(58);   // Krimble 2026-11-06 (4th): 58 (was 76); the text is 25% smaller now
+        m_hex->setFixedWidth(78);   // Krimble 2026-11-08: "#4BBCFD" was cut off (78 px shows "#F035BE" whole; 66 cut its first letters: tested in real Qt)
         values->addWidget(m_hex,6,1);
         // Krimble 2026-11-06 (3rd): the number boxes are 20 px tall (they were about 24), so the column of six and the HEX box take less height
-        for (QSpinBox *box : {m_hsv[0], m_hsv[1], m_hsv[2], m_rgb[0], m_rgb[1], m_rgb[2]}) box->setFixedHeight(20);
-        m_hex->setFixedHeight(20);
+        // for (QSpinBox *box : {m_hsv[0], m_hsv[1], m_hsv[2], m_rgb[0], m_rgb[1], m_rgb[2]}) box->setFixedHeight(20);
+        // m_hex->setFixedHeight(20);
+        for (QSpinBox *box : {m_hsv[0], m_hsv[1], m_hsv[2], m_rgb[0], m_rgb[1], m_rgb[2]}) box->setFixedHeight(24);   // Krimble 2026-11-08: 24 px (was 20; the framed fields need it)
+        m_hex->setFixedHeight(24);
         auto *valuesBox = new QWidget(this);
         valuesBox->setLayout(values);
         topRow->addWidget(valuesBox, 0, Qt::AlignTop);
@@ -659,8 +678,10 @@ public:
         colorRow->setSpacing(3);   // Krimble 2026-11-06 (3rd): was 5
         // m_preview=new QLabel(this); m_preview->setFixedSize(32,32);          // the foreground color (32 px, was 38, so the panel can be narrower)
         // m_background=new QLabel(this); m_background->setFixedSize(32,32);    // the background color
-        m_preview=new QLabel(this); m_preview->setFixedSize(18,18);            // the foreground color: a square, 24 px (was 32; George 2026-11-06: smaller and square)
-        m_background=new QLabel(this); m_background->setFixedSize(18,18);      // the background color: a square, 24 px
+        // m_preview=new QLabel(this); m_preview->setFixedSize(18,18);            // the foreground color: a square, 24 px (was 32; George 2026-11-06: smaller and square)
+        // m_background=new QLabel(this); m_background->setFixedSize(18,18);      // the background color: a square, 24 px
+        m_preview=new QLabel(this); m_preview->setFixedSize(28,28);              // Krimble 2026-11-08: 28 px (the mockup's are large, with a bright outline on the foreground)
+        m_background=new QLabel(this); m_background->setFixedSize(28,28);
         auto *swap = new QToolButton(this);
         swap->setText(QStringLiteral("\u21C4"));
         swap->setToolTip(tr("Swap foreground and background colors"));
@@ -771,14 +792,16 @@ private:
             m_rgb[i]->setValue(i==0?c.red():(i==1?c.green():c.blue()));
         }
         { QSignalBlocker b(m_hex); m_hex->setText(c.name(QColor::HexRgb).toUpper()); }
-        m_preview->setStyleSheet(QStringLiteral("background:%1;border:1px solid #8498bd;border-radius:4px;").arg(c.name()));
+        // m_preview->setStyleSheet(QStringLiteral("background:%1;border:1px solid #8498bd;border-radius:4px;").arg(c.name()));
+        m_preview->setStyleSheet(QStringLiteral("background:%1;border:2px solid #35d8f8;border-radius:5px;").arg(c.name()));   // Krimble 2026-11-08: the foreground has the bright cyan outline of a selected item (mockup)
         if(commit && m_canvas)
             m_canvas->resourceManager()->setForegroundColor(KoColor(c,KoColorSpaceRegistry::instance()->rgb8()));
     }
     // Krimble 2026-11-05: the background color box next to the foreground one
     void showBackground(const QColor &c) {
         if (m_background && c.isValid())
-            m_background->setStyleSheet(QStringLiteral("background:%1;border:1px solid #8498bd;border-radius:4px;").arg(c.name()));
+            // m_background->setStyleSheet(QStringLiteral("background:%1;border:1px solid #8498bd;border-radius:4px;").arg(c.name()));
+            m_background->setStyleSheet(QStringLiteral("background:%1;border:1px solid #e6ecfa;border-radius:5px;").arg(c.name()));   // Krimble 2026-11-08: a thin light outline (mockup)
     }
     void loadPalette() {
         QSettings settings;

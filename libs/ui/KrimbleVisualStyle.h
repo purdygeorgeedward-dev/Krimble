@@ -304,5 +304,12 @@ QToolTip {
     border: 1px solid #3bbcf5;
     background: #192138;
 }
+/* Krimble 2026-11-08: the Color panel's picker card (Color Studio, krimble_color_studio.h): a rounded frame with a smooth gradient, as the inner panel of the Color mockup. */
+QWidget#krimbleStudioCard {
+    border: 1px solid #506095;
+    border-top: 1px solid #8292c4;
+    border-radius: 10px;
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #445079, stop:1 #2e3856);
+}
 )KRIMBLE");
 }

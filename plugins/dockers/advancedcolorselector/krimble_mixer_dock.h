@@ -89,8 +89,10 @@ public:
             line->addWidget(slider, 1);
             auto *number = new QSpinBox(panel);
             number->setRange(1, 100);
-            number->setFixedWidth(62);   // the same width in both rows, so the sliders end at the same place
-            number->setFixedHeight(20);
+            // number->setFixedWidth(62);   // the same width in both rows, so the sliders end at the same place
+            // number->setFixedHeight(20);
+            number->setFixedWidth(76);   // Krimble 2026-11-08: the fields of the style sheet have padding and a frame now (the Color panel's boxes showed one digit at 46 px): "100%" needs about 76 px; the same in both rows
+            number->setFixedHeight(24);
             if (row == 1) number->setSuffix(QStringLiteral("%"));
             line->addWidget(number);
             number->setValue(row == 0 ? 18 : 85);
