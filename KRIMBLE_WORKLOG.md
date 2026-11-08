@@ -174,7 +174,8 @@ Times are Mountain Time from the clock of the sandbox that pushed (`date`), chec
 | Nov 7  9:36 PM | `f77d7d5` | George Purdy | Check boxes: a check mark in a checked box (422nd) |
 | Nov 7  9:36 PM | `0babdac` | George Purdy | Style sheet: the Prefs mockup's selected look, cyan check boxes (423rd) |
 | Nov 7  9:36 PM | `cb75239` | George Purdy | Style sheet: more contrast (424th). **This is v1.0.45-beta.** Build 42447492701 succeeded (APK 172 MB) |
-| Nov 7  10:37 PM | (this push) | George Purdy | Dev journal for 2026-11-07 and RELEASE_NOTES_1.0.45-beta.md; tag `v1.0.45-beta` on `cb75239` and a draft release |
+| Nov 7  10:35 PM | `2e7369a` | George Purdy | Dev journal for 2026-11-07 and RELEASE_NOTES_1.0.45-beta.md; tag `v1.0.45-beta` on `cb75239` and a draft release (the first version of this row said 10:37 PM; the push was at 10:35 PM) |
+| Nov 7  10:4x PM | (this push) | George Purdy | Only the time in the row above corrected (real push times are what this log is for) |
 
 ## Notes of Saturday 2026-11-07 (written 10:3x PM MT)
 
