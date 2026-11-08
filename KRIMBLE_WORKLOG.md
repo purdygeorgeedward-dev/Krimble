@@ -179,6 +179,12 @@ Times are Mountain Time from the clock of the sandbox that pushed (`date`), chec
 | Nov 7  11:14 PM | `011ea89` | George Edward Purdy | (George's own edit on GitHub) Update krita5.xmlgui: removes the extra Layer menu, but only the end of it; the file was not valid XML again |
 | Nov 7  11:17 PM | `f31a0ca` (and the push right after it, which only corrected this row's time) | George Purdy | krita5.xmlgui: the unfinished first Layer block removed whole, file valid, one Layer menu; 9 actions lost in the reformat reported, not restored (425th) |
 | Nov 8  3:30 AM | `ada6eca` (and the push right after it, which only corrected this row's date: it said Nov 7) | George Purdy | krita5.xmlgui restored to the file of `add724c` (before the Gemini reformat) plus the DPaint toolbar block only; valid XML, one Layer menu, nothing missing (426th) |
+\n| Nov 8  3:40 AM | `4bd6c06` | George Purdy | Menu bar: the K is no longer drawn (427th) |
+| Nov 8  3:40 AM | `06fceec` | George Purdy | XML check before every build: tools/ci/check_xml.py, first step of the workflow (428th) |
+| Nov 8  3:40 AM | `71844fd` | George Purdy | Gradient tool icon: square corners, no outline, both icon styles (429th) |
+| Nov 8  3:40 AM | `ec45565` | George Purdy | Style sheet: one hue for the whole UI, stronger gradient, 16 px check boxes (430th) |
+| Nov 8  3:40 AM | `4b446d5` | George Purdy | Preferences: rows never pressed together (krimbleNoSqueeze), wider page list, larger keyboard icon (431st) |
+| Nov 8  3:40 AM | `7ba23a8` | George Purdy | Color panel: number boxes show their numbers (66 px), framed picker, rounded square, larger swatches; Mixer boxes 76 px (432nd) |
 
 ## Notes of Saturday 2026-11-07 (written 10:3x PM MT)
 
