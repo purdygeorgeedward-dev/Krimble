@@ -20,6 +20,9 @@ public:
     void setHighlightColor();
     void krimbleRefreshIcon();   // Krimble 2026-10-30: the icon again after the icon style was changed
 
+protected:
+    void paintEvent(QPaintEvent *event) override;   // Krimble 2026-11-07: the selected tool drawn like the mockup (deep blue, bright cyan outline, soft glow)
+
 private:
     void setDataFromToolAction(QAction *action); // Generates tooltips.
 private Q_SLOTS:
