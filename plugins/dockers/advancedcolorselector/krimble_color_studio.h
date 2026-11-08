@@ -37,6 +37,10 @@
 #include <QResizeEvent>
 #include <QPainterPath>
 #include <QImage>
+#include <QClipboard>   // Krimble 2026-11-08: the HEX copy button
+#include <QApplication>
+#include <KoToolManager.h>   // the eyedropper button switches to the color sampler tool
+#include "krimble_color_canvas.h"   // Krimble 2026-11-08: the Picker page, built from the measurements of the mockup
 
 #include <algorithm>
 #include "kis_canvas2.h"
@@ -149,7 +153,8 @@ protected:
         {
             // Krimble 2026-11-08: the mockup's color square has rounded corners and a thin dark outline: the field is clipped to a rounded rectangle (9 px)
             QPainterPath roundedField;
-            roundedField.addRoundedRect(QRectF(0.5, 0.5, width() - 1, height() - 1), 9, 9);
+            // roundedField.addRoundedRect(QRectF(0.5, 0.5, width() - 1, height() - 1), 9, 9);
+            roundedField.addRoundedRect(QRectF(0.5, 0.5, width() - 1, height() - 1), qMax<qreal>(6.0, width() * 0.0227), qMax<qreal>(6.0, width() * 0.0227));   // Krimble 2026-11-08: 14 of the mockup's 617 units
             p.setRenderHint(QPainter::Antialiasing, true);
             p.setClipPath(roundedField);
             const QRect field(0, 0, width(), height());
@@ -168,9 +173,17 @@ protected:
         }
         p.setRenderHint(QPainter::Antialiasing);
         QPointF pt(m_sat*w/255.0, (255-m_val)*h/255.0);
-        p.setPen(QPen(Qt::black, 3)); p.setBrush(Qt::NoBrush);
-        p.drawEllipse(pt, 7, 7);
-        p.setPen(QPen(Qt::white, 2)); p.drawEllipse(pt, 6, 6);
+        // p.setPen(QPen(Qt::black, 3)); p.setBrush(Qt::NoBrush);
+        // p.drawEllipse(pt, 7, 7);
+        // p.setPen(QPen(Qt::white, 2)); p.drawEllipse(pt, 6, 6);
+        // Krimble 2026-11-08: the mockup's ring: outer radius 3.1% of the square's width, a white line 0.95% thick (measured: about 19 and 6 of 617 units)
+        {
+            const qreal ringRadius = qMax<qreal>(6.0, width() * 0.027);
+            const qreal ringWidth = qMax<qreal>(2.0, width() * 0.0095);
+            p.setBrush(Qt::NoBrush);
+            p.setPen(QPen(QColor(0, 0, 0, 150), ringWidth + 1.6)); p.drawEllipse(pt, ringRadius, ringRadius);
+            p.setPen(QPen(Qt::white, ringWidth)); p.drawEllipse(pt, ringRadius, ringRadius);
+        }
     }
     void mousePressEvent(QMouseEvent *e) override { pick(e->pos()); }
     void mouseMoveEvent(QMouseEvent *e) override {
@@ -395,8 +408,9 @@ public:
         setOrientation(Qt::Vertical);
         setRange(0, 359);
         // setFixedWidth(24);
-        setFixedWidth(16);   // Krimble 2026-11-06: George: "Thinner hue rainbow." The rainbow is 10 px wide (was 18; the strip is 16 px wide with 3 px each side, was 24)
-        setMinimumHeight(95);
+        // setFixedWidth(16);   // Krimble 2026-11-06: George: "Thinner hue rainbow." The rainbow is 10 px wide (was 18; the strip is 16 px wide with 3 px each side, was 24)
+        // Krimble 2026-11-08: the width is set by the measured layout (KrimbleColorCanvas): the strip is 82 of the card's 1178 units wide
+        setMinimumHeight(60);
         setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
     }
 protected:
@@ -404,24 +418,44 @@ protected:
     {
         QPainter p(this);
         p.setRenderHint(QPainter::Antialiasing);
-        const QRectF strip = QRectF(rect()).adjusted(3, 1, -3, -1);
+        // Krimble 2026-11-08: the widget is 90 units wide and the strip 82: the strip has a margin of 4 units (4/90 of the width) on every side, so the white handle can reach beyond it
+        const qreal margin = width() * 4.0 / 90.0;
+        // const QRectF strip = QRectF(rect()).adjusted(3, 1, -3, -1);
+        const QRectF strip = QRectF(rect()).adjusted(margin, margin, -margin, -margin);
         QLinearGradient hues(0, strip.top(), 0, strip.bottom());
         const int stops[7] = {0, 60, 120, 180, 240, 300, 359};
         for (int i = 0; i < 7; ++i) hues.setColorAt(i / 6.0, QColor::fromHsv(stops[i], 255, 255));
         p.setBrush(hues);
-        p.setPen(QPen(QColor("#8498bd"), 1));
-        p.drawRoundedRect(strip, 5, 5);
+        // p.setPen(QPen(QColor("#8498bd"), 1));
+        // p.drawRoundedRect(strip, 5, 5);
+        p.setPen(QPen(QColor(8, 10, 28, 230), 1.4));
+        p.drawRoundedRect(strip, strip.width() / 2, strip.width() / 2);   // a pill: fully rounded ends (the mockup's)
         const qreal y = strip.top() + strip.height() * value() / 359.0;
-        p.setBrush(Qt::NoBrush);
-        p.setPen(QPen(Qt::black, 3));
-        p.drawRoundedRect(QRectF(1, y - 4, width() - 2, 8), 4, 4);
-        p.setPen(QPen(Qt::white, 2));
-        p.drawRoundedRect(QRectF(1, y - 4, width() - 2, 8), 4, 4);
+        // p.setBrush(Qt::NoBrush);
+        // p.setPen(QPen(Qt::black, 3));
+        // p.drawRoundedRect(QRectF(1, y - 4, width() - 2, 8), 4, 4);
+        // p.setPen(QPen(Qt::white, 2));
+        // p.drawRoundedRect(QRectF(1, y - 4, width() - 2, 8), 4, 4);
+        // the handle of the mockup: a white pill outline, 28% as tall as the strip is wide, reaching 4 units beyond the strip at each side
+        {
+            const qreal handleHeight = strip.width() * 0.28;
+            const qreal line = qMax<qreal>(2.0, strip.width() * 0.06);
+            const QRectF handle(line / 2, y - handleHeight / 2, width() - line, handleHeight);
+            p.setBrush(Qt::NoBrush);
+            p.setPen(QPen(QColor(0, 0, 0, 150), line + 1.6));
+            p.drawRoundedRect(handle, handleHeight / 2, handleHeight / 2);
+            p.setPen(QPen(Qt::white, line));
+            p.drawRoundedRect(handle, handleHeight / 2, handleHeight / 2);
+        }
     }
     void mousePressEvent(QMouseEvent *e) override { setFromY(e->pos().y()); }
     void mouseMoveEvent(QMouseEvent *e) override { if (e->buttons() & Qt::LeftButton) setFromY(e->pos().y()); }
 private:
-    void setFromY(int y) { setValue(qBound(0, int(359.0 * (y - 1) / qMax(1, height() - 2)), 359)); }
+    // void setFromY(int y) { setValue(qBound(0, int(359.0 * (y - 1) / qMax(1, height() - 2)), 359)); }
+    void setFromY(int y) {
+        const qreal margin = width() * 4.0 / 90.0;   // Krimble 2026-11-08: the strip is inside the widget by this margin (see paintEvent)
+        setValue(qBound(0, int(359.0 * (y - margin) / qMax<qreal>(1.0, height() - 2 * margin)), 359));
+    }
 };
 
 // Krimble 2026-11-05: a picture that fills the width it is given and keeps its shape (George's ColorStudio logo, white on a transparent background),
@@ -503,14 +537,17 @@ public:
             layout->addLayout(logoRow);
         }
 #endif
+#if 0   // Krimble 2026-11-08: the plus button of the measured layout (KrimbleColorCanvas::add) replaces the "+ Swatch" button
         auto *add = new QPushButton(tr("+ Swatch"), this);
         add->setToolTip(tr("Add foreground color to palette"));
+#endif
         // Krimble 2026-10-30: George: "Color docker designed by ChatGPT was too ambitious and doesn't need tabs. Should be all in one design." and, of the mixing
         // pad: "It should be a panel." One page: the picker, values, recent colors and palette. The mixing pad is its own panel, "Mixer"
         // (krimble_mixer_dock.h); the code that built the Mixer tab is kept below inside #if 0.
         // auto *tabs = new QTabWidget(this);
         // auto *picker = new QWidget(tabs);
         // auto *mixer = new QWidget(tabs);
+#if 0   // Krimble 2026-11-08: the old picker widget with its box layout (a styled frame and margins), replaced by the measured canvas below
         auto *picker = new QWidget(this);
         // Krimble 2026-11-08: George: "color panel is underwhelming" and, of the Color mockup: "look at the beautiful gradients and the great designs, layouts". The picker is in a rounded
         // frame with a smooth gradient (the mockup's inner panel): #krimbleStudioCard in KrimbleVisualStyle.h (a plain widget needs WA_StyledBackground to show it).
@@ -525,6 +562,12 @@ public:
         // tabs->addTab(mixer,tr("Mixer"));
         // layout->addWidget(tabs);
         layout->addWidget(picker, 1);
+#endif
+        // Krimble 2026-11-08: George: "Measure everything for proportions. Don't wing it." and "Remember this app asks the user to scale it as a percentage. Issues of scale are not a
+        // problem." The Picker page is the mockup's card, measured (color_panel_measurements.md), placed by KrimbleColorCanvas at the mockup's proportions at any width.
+        m_ui = new KrimbleColorCanvas(this);
+        layout->addWidget(m_ui);
+        layout->addStretch(1);
 #if 0   // Krimble 2026-10-30: the Mixer tab, now the Mixer panel (krimble_mixer_dock.h)
         auto *mixer = new QWidget(this);
         auto *mixLayout = new QVBoxLayout(mixer);
@@ -633,6 +676,7 @@ public:
         // Krimble 2026-11-05: George: "Do your best to make panels that match the mockups." The Picker page of the Color mockup, all in one (no tabs: George,
         // 2026-10-30, "should be all in one design"): the color square, the vertical hue strip and a column of H S V / R G B / HEX boxes; under them the
         // foreground and background colors with a swap button and the recent colors in one row; then the palette with "+ Swatch" in its heading.
+#if 0   // Krimble 2026-11-08: the box layout of the picker (square and hue strip, value column, color row, recent colors, palette heading and cells), replaced by the measured canvas
         m_square = new KrimbleSvSquare(this);
         m_hue = new KrimbleHueStrip(this);
         auto *topRow = new QHBoxLayout;
@@ -705,6 +749,58 @@ public:
         // m_swatches=new QGridLayout; m_swatches->setSpacing(3);
         m_swatches=new QGridLayout; m_swatches->setSpacing(0);   // Krimble 2026-11-06 (3rd): no gap between the cells
         pickerLayout->addLayout(m_swatches);
+#endif
+        m_square = new KrimbleSvSquare(m_ui);
+        m_hue = new KrimbleHueStrip(m_ui);
+        for (int i=0;i<3;++i) {
+            m_hsv[i] = new QSpinBox(m_ui);
+            m_hsv[i]->setRange(0, i==0 ? 359 : 100);
+            m_rgb[i] = new QSpinBox(m_ui);
+            m_rgb[i]->setRange(0, 255);
+        }
+        m_hex = new QLineEdit(m_ui);
+        m_hex->setMaxLength(7);
+        m_hex->setPlaceholderText(QStringLiteral("#RRGGBB"));
+        m_preview = new QLabel(m_ui);
+        m_background = new QLabel(m_ui);
+        m_ui->square = m_square;
+        m_ui->hue = m_hue;
+        for (int i=0;i<3;++i) { m_ui->hsv[i] = m_hsv[i]; m_ui->rgb[i] = m_rgb[i]; }
+        m_ui->hex = m_hex;
+        m_ui->fg = m_preview;
+        m_ui->bg = m_background;
+        m_ui->recentCells = &m_recentCells;
+        m_ui->paletteCells = &m_swatchCells;
+        m_ui->createSteppers();
+        auto *swap = m_ui->swap;
+        swap->setToolTip(tr("Swap foreground and background colors"));
+        m_ui->eyedropper->setToolTip(tr("Pick a color from the image"));
+        m_ui->copy->setToolTip(tr("Copy the HEX code"));
+        m_ui->mode->setToolTip(tr("Color model of the first three boxes"));
+        m_ui->add->setToolTip(tr("Add foreground color to palette"));
+        m_ui->trash->setToolTip(tr("Remove the selected swatch"));
+        connect(m_ui->copy,&QToolButton::clicked,this,[this]() { QApplication::clipboard()->setText(m_hex->text()); });
+        connect(m_ui->eyedropper,&QToolButton::clicked,this,[]() {
+            KoToolManager::instance()->switchToolRequested(QStringLiteral("KritaSelected/KisToolColorSampler"));
+        });
+        connect(m_ui->mode,&QToolButton::clicked,this,[this]() {
+            QMenu menu(m_ui->mode);
+            menu.addAction(QStringLiteral("HSV"));
+            QAction *hslAction = menu.addAction(QStringLiteral("HSL"));
+            QAction *chosen = menu.exec(m_ui->mode->mapToGlobal(QPoint(0, m_ui->mode->height())));
+            if (!chosen) return;
+            m_hslMode = (chosen == hslAction);
+            m_ui->modeText = m_hslMode ? QStringLiteral("HSL") : QStringLiteral("HSV");
+            m_ui->update();
+            select(m_current, false);
+        });
+        connect(m_ui->trash,&QToolButton::clicked,this,[this]() {
+            if (m_selectedSwatch < 0 || m_selectedSwatch >= m_colors.size()) return;
+            m_colors.removeAt(m_selectedSwatch);
+            m_selectedSwatch = -1;
+            savePalette();
+            rebuildSwatches();
+        });
         connect(swap,&QToolButton::clicked,this,[this]() {
             if (!m_canvas) return;
             auto *resources = m_canvas->resourceManager();
@@ -725,6 +821,12 @@ public:
             });
         for (int i=0;i<3;++i)
             connect(m_hsv[i],qOverload<int>(&QSpinBox::valueChanged),this,[this](int) {
+                // Krimble 2026-11-08: the first three boxes are HSV or HSL (the drop-down of the mockup)
+                if (m_hslMode)
+                    select(QColor::fromHsl(m_hsv[0]->value(),
+                                           qRound(m_hsv[1]->value()*255.0/100.0),
+                                           qRound(m_hsv[2]->value()*255.0/100.0)));
+                else
                 select(QColor::fromHsv(m_hsv[0]->value(),
                                       qRound(m_hsv[1]->value()*255.0/100.0),
                                       qRound(m_hsv[2]->value()*255.0/100.0)));
@@ -732,9 +834,11 @@ public:
         connect(m_hex,&QLineEdit::editingFinished,this,[this]() {
             QColor c(m_hex->text()); if(c.isValid()) select(c);
         });
-        connect(add,&QPushButton::clicked,this,[this]() {
+        // connect(add,&QPushButton::clicked,this,[this]() {
+        connect(m_ui->add,&QToolButton::clicked,this,[this]() {
             if (!m_colors.contains(m_current)) m_colors.append(m_current);
-            while(m_colors.size()>24) m_colors.remove(0);
+            // while(m_colors.size()>24) m_colors.remove(0);
+            while(m_colors.size()>76) m_colors.remove(0);   // Krimble 2026-11-08: the palette grid of the mockup holds 19 x 4 = 76 swatches (was 24)
             savePalette(); rebuildSwatches();
         });
         showBackground(QColor("#1b1c30"));   // Krimble 2026-11-05: the background color box has a color until the canvas gives the real one
@@ -783,6 +887,12 @@ private:
         m_square->setColor(c);
         for (int i=0;i<3;++i) {
             QSignalBlocker b(m_hsv[i]);
+            // m_hsv[i]->setValue(i==0 ? qMax(0,c.hsvHue()) :
+            //                    qRound((i==1 ? c.hsvSaturation() : c.value())*100.0/255.0));
+            if (m_hslMode)
+                m_hsv[i]->setValue(i==0 ? qMax(0,c.hslHue()) :
+                                   qRound((i==1 ? c.hslSaturation() : c.lightness())*100.0/255.0));
+            else
             m_hsv[i]->setValue(i==0 ? qMax(0,c.hsvHue()) :
                                qRound((i==1 ? c.hsvSaturation() : c.value())*100.0/255.0));
         }
@@ -793,7 +903,8 @@ private:
         }
         { QSignalBlocker b(m_hex); m_hex->setText(c.name(QColor::HexRgb).toUpper()); }
         // m_preview->setStyleSheet(QStringLiteral("background:%1;border:1px solid #8498bd;border-radius:4px;").arg(c.name()));
-        m_preview->setStyleSheet(QStringLiteral("background:%1;border:2px solid #35d8f8;border-radius:5px;").arg(c.name()));   // Krimble 2026-11-08: the foreground has the bright cyan outline of a selected item (mockup)
+        // m_preview->setStyleSheet(QStringLiteral("background:%1;border:2px solid #35d8f8;border-radius:5px;").arg(c.name()));
+        m_ui->setForeground(c);   // Krimble 2026-11-08: the frame's size follows the panel's scale   // Krimble 2026-11-08: the foreground has the bright cyan outline of a selected item (mockup)
         if(commit && m_canvas)
             m_canvas->resourceManager()->setForegroundColor(KoColor(c,KoColorSpaceRegistry::instance()->rgb8()));
     }
@@ -801,7 +912,8 @@ private:
     void showBackground(const QColor &c) {
         if (m_background && c.isValid())
             // m_background->setStyleSheet(QStringLiteral("background:%1;border:1px solid #8498bd;border-radius:4px;").arg(c.name()));
-            m_background->setStyleSheet(QStringLiteral("background:%1;border:1px solid #e6ecfa;border-radius:5px;").arg(c.name()));   // Krimble 2026-11-08: a thin light outline (mockup)
+            // m_background->setStyleSheet(QStringLiteral("background:%1;border:1px solid #e6ecfa;border-radius:5px;").arg(c.name()));
+            m_ui->setBackground(c);   // Krimble 2026-11-08   // Krimble 2026-11-08: a thin light outline (mockup)
     }
     void loadPalette() {
         QSettings settings;
@@ -829,6 +941,7 @@ private:
         for(const QColor &c:m_colors) items<<c.name(QColor::HexRgb);
         QSettings settings; settings.setValue(QStringLiteral("Krimble/ColorStudioSwatches"),items);
     }
+#if 0   // Krimble 2026-11-08: the recent colors and the palette cells in box layouts (up to 20 px wide, 14 across); replaced by cells the measured canvas places
     void rebuildRecent() {
         while (QLayoutItem *item=m_recentLayout->takeAt(0)) {
             delete item->widget(); delete item;
@@ -903,6 +1016,63 @@ private:
             m_swatches->addWidget(button,i/14,i%14);   // Krimble 2026-11-06 (4th): George: "smaller color wells": 14 across, so each cell is about 17 px (was 10 across, 23 px)
         }
     }
+#endif
+    void rebuildRecent() {
+        for (QWidget *cell : m_recentCells) { cell->hide(); cell->deleteLater(); }
+        m_recentCells.clear();
+        for (int i=0;i<m_recent.size();++i) {
+            QColor color=m_recent[i];
+            auto *button=new QPushButton(m_ui);
+            button->setFocusPolicy(Qt::NoFocus);
+            button->setToolTip(color.name());
+            button->setStyleSheet(QStringLiteral("background:%1;border:1px solid #05060f;border-radius:5px;").arg(color.name()));
+            connect(button,&QPushButton::clicked,this,[this,color](){select(color);});
+            m_recentCells.append(button);
+        }
+        if (m_ui) m_ui->relayout();
+    }
+    void rebuildSwatches() {
+        for (QWidget *cell : m_swatchCells) { cell->hide(); cell->deleteLater(); }
+        m_swatchCells.clear();
+        for(int i=0;i<m_colors.size();++i) {
+            QColor color=m_colors[i];
+            auto *button=new KrimbleSwatchButton(m_ui);
+            button->setToolTip(color.name());
+            // the selected swatch has the bright outline of a selected item; it is the one the trash button removes
+            button->setStyleSheet(i==m_selectedSwatch
+                ? QStringLiteral("background:%1;border:2px solid #35d8f8;border-radius:3px;").arg(color.name())
+                : QStringLiteral("background:%1;border:none;border-radius:3px;").arg(color.name()));
+            connect(button,&QPushButton::clicked,this,[this,color,i](){
+                m_selectedSwatch=i;
+                select(color);
+                rebuildSwatches();
+            });
+            button->setContextMenuPolicy(Qt::CustomContextMenu);
+            auto editSwatch=[this,button,i](const QPoint &globalPos) {
+                QMenu menu(button);
+                QAction *replace=menu.addAction(tr("Replace with current color"));
+                QAction *remove=menu.addAction(tr("Remove swatch"));
+                QAction *moveLeft=menu.addAction(tr("Move left"));
+                QAction *moveRight=menu.addAction(tr("Move right"));
+                moveLeft->setEnabled(i>0);
+                moveRight->setEnabled(i+1<m_colors.size());
+                QAction *chosen=menu.exec(globalPos);
+                if(chosen==replace) m_colors[i]=m_current;
+                else if(chosen==remove) m_colors.removeAt(i);
+                else if(chosen==moveLeft && i>0) m_colors.swapItemsAt(i,i-1);
+                else if(chosen==moveRight && i+1<m_colors.size()) m_colors.swapItemsAt(i,i+1);
+                else return;
+                m_selectedSwatch=-1;
+                savePalette(); rebuildSwatches();
+            };
+            button->onLongPress=editSwatch;
+            connect(button,&QWidget::customContextMenuRequested,this,[button,editSwatch](const QPoint &pos) {
+                editSwatch(button->mapToGlobal(pos));
+            });
+            m_swatchCells.append(button);
+        }
+        if (m_ui) m_ui->relayout();
+    }
     QPointer<KisCanvas2> m_canvas;
     QTimer m_syncTimer;
     QColor m_current;
@@ -916,6 +1086,11 @@ private:
     QLineEdit *m_hex=nullptr;
     QLabel *m_preview=nullptr;
     QGridLayout *m_swatches=nullptr;
+    KrimbleColorCanvas *m_ui=nullptr;   // Krimble 2026-11-08: the measured Picker page
+    QVector<QWidget *> m_recentCells;
+    QVector<QWidget *> m_swatchCells;
+    int m_selectedSwatch=-1;
+    bool m_hslMode=false;
     QGridLayout *m_recentLayout=nullptr;
     QVector<QColor> m_recent;
     QVector<QColor> m_colors;
