@@ -50,6 +50,20 @@ public:
 };
 
 
+// Krimble 2026-11-08: George: "bring back advance color panel as \"color ring + triangle\"." The classic selector (ring, triangle, shade selectors, color patches) as its own panel,
+// opened from the Window menu like the others.
+class KrimbleRingDockFactory : public KoDockFactoryBase
+{
+public:
+    QString id() const override { return QString("KrimbleColorRingTriangle"); }
+    QDockWidget* createDockWidget() override {
+        KisColorSelectorNgDock *dockWidget = new KisColorSelectorNgDock(true);
+        dockWidget->setObjectName(id());
+        return dockWidget;
+    }
+    DockPosition defaultDockPosition() const override { return DockMinimized; }
+};
+
 // Krimble 2026-10-30: the Mixer panel (the mixing pad that was a tab of Color Studio)
 class KrimbleMixerDockFactory : public KoDockFactoryBase
 {
@@ -80,6 +94,7 @@ ColorSelectorNgPlugin::ColorSelectorNgPlugin(QObject *parent, const QVariantList
         : QObject(parent)
 {
     KoDockRegistry::instance()->add(new ColorSelectorNgDockFactory());
+    KoDockRegistry::instance()->add(new KrimbleRingDockFactory());   // Krimble 2026-11-08: "Color Ring + Triangle"
     KoDockRegistry::instance()->add(new KrimbleMixerDockFactory());   // Krimble 2026-10-30
     KoDockRegistry::instance()->add(new KrimbleDPaintDockFactory());   // Krimble 2026-11-07
 

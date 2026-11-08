@@ -40,7 +40,8 @@
 
 #include "kis_action_registry.h"
 
-KisColorSelectorNgDockerWidget::KisColorSelectorNgDockerWidget(QWidget *parent) :
+// KisColorSelectorNgDockerWidget::KisColorSelectorNgDockerWidget(QWidget *parent) :
+KisColorSelectorNgDockerWidget::KisColorSelectorNgDockerWidget(QWidget *parent, bool classic) :
     QWidget(parent),
     m_colorHistoryAction(0),
     m_commonColorsAction(0),
@@ -54,6 +55,7 @@ KisColorSelectorNgDockerWidget::KisColorSelectorNgDockerWidget(QWidget *parent) 
     m_canvas(0)
 {
     setAutoFillBackground(true);
+    m_classic = classic;   // Krimble 2026-11-08
 
     m_colorSelectorContainer = new KisColorSelectorContainer(this);
     m_colorHistoryWidget = new KisColorHistory(this);
@@ -112,6 +114,12 @@ KisColorSelectorNgDockerWidget::KisColorSelectorNgDockerWidget(QWidget *parent) 
     // Krimble 2026-10-30: George: "I don't like the classic Krita color docker. It's useless. Comment it out."
     // The classic selector is no longer shown and the outer tab bar is gone. The classic objects are still
     // constructed (hidden inside classicPanel) so the history/common-colors popups and the settings code keep valid pointers.
+    // Krimble 2026-11-08: George: "bring back advance color panel as \"color ring + triangle\"." The classic selector is the whole content of the second panel, "Color Ring + Triangle";
+    // the Color panel keeps the Color Studio only (as on 2026-10-30).
+    if (m_classic) {
+        classicPanel->show();
+        m_widgetLayout->addWidget(classicPanel);
+    } else {
     classicPanel->hide();
     // QTabWidget *colorTabs = new QTabWidget(this);
     // m_krimbleStudio = new KrimbleColorStudio(colorTabs);
@@ -125,6 +133,7 @@ KisColorSelectorNgDockerWidget::KisColorSelectorNgDockerWidget(QWidget *parent) 
     // colorTabs->addTab(classicPanel, tr("Classic"));
     // m_widgetLayout->addWidget(colorTabs);
     m_widgetLayout->addWidget(studioScroll);
+    }
 
     updateLayout();
 
@@ -160,16 +169,18 @@ void KisColorSelectorNgDockerWidget::unsetCanvas()
     m_commonColorsWidget->unsetCanvas();
     m_colorHistoryWidget->unsetCanvas();
     m_colorSelectorContainer->unsetCanvas();
-    m_krimbleStudio->setCanvas(nullptr);
+    if (m_krimbleStudio) m_krimbleStudio->setCanvas(nullptr);   // Krimble 2026-11-08: none in the "Color Ring + Triangle" panel
 }
 
 void KisColorSelectorNgDockerWidget::setCanvas(KisCanvas2 *canvas)
 {
     if (m_canvas) {
         m_canvas->disconnect(this);
+        if (!m_classic) {   // Krimble 2026-11-08: the two panels must not both own these actions; the Color panel does
         KisKActionCollection *ac = m_canvas->viewManager()->actionCollection();
         ac->takeAction(ac->action("show_color_history"));
         ac->takeAction(ac->action("show_common_colors"));
+        }
     }
 
     m_canvas = canvas;
@@ -177,9 +188,9 @@ void KisColorSelectorNgDockerWidget::setCanvas(KisCanvas2 *canvas)
     m_commonColorsWidget->setCanvas(canvas);
     m_colorHistoryWidget->setCanvas(canvas);
     m_colorSelectorContainer->setCanvas(canvas);
-    m_krimbleStudio->setCanvas(canvas);
+    if (m_krimbleStudio) m_krimbleStudio->setCanvas(canvas);   // Krimble 2026-11-08
 
-    if (m_canvas && m_canvas->viewManager()) {
+    if (m_canvas && m_canvas->viewManager() && !m_classic) {
         KisKActionCollection* actionCollection = canvas->viewManager()->actionCollection();
 
         actionCollection->addAction("show_color_history", m_colorHistoryAction);

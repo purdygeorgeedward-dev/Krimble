@@ -16,10 +16,12 @@
 #include <QScreen>
 
 
-KisColorSelectorNgDock::KisColorSelectorNgDock()
+// KisColorSelectorNgDock::KisColorSelectorNgDock()
+KisColorSelectorNgDock::KisColorSelectorNgDock(bool classic)
     : QDockWidget()
 {
-    m_colorSelectorNgWidget = new KisColorSelectorNgDockerWidget(this);
+    // m_colorSelectorNgWidget = new KisColorSelectorNgDockerWidget(this);
+    m_colorSelectorNgWidget = new KisColorSelectorNgDockerWidget(this, classic);   // Krimble 2026-11-08
 
     setWidget(m_colorSelectorNgWidget);
     m_colorSelectorNgWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -59,7 +61,8 @@ KisColorSelectorNgDock::KisColorSelectorNgDock()
     // setWindowTitle(i18n("Advanced Color Selector"));
     // KRIMBLE 2026-10-02: panel renamed again, "Color Selector" -> "Color".
     // setWindowTitle(i18n("Color Selector"));
-    setWindowTitle(i18n("Color"));
+    // setWindowTitle(i18n("Color"));
+    setWindowTitle(classic ? i18n("Color Ring + Triangle") : i18n("Color"));   // Krimble 2026-11-08: George: "bring back advance color panel as \"color ring + triangle\"."
 }
 
 void KisColorSelectorNgDock::setCanvas(KoCanvasBase * canvas)
