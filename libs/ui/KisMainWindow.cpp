@@ -633,8 +633,15 @@ static void krimbleRemoveMinimumWidths(QMainWindow *win)
             };
             rowLayout = findRow(content->layout());
             if (rowLayout && (rowLayout->direction() == QBoxLayout::LeftToRight)) {
-                rowLayout->insertSpacing(0, 16);
+                // rowLayout->insertSpacing(0, 16);
+                // Krimble 2026-11-07: George (screenshot of the Color panel over the Layers panel): "Still having a hard time selecting the top of the layers menu instead of changing the
+                // layer type." (the Layer Type drop-down is the first thing at the top of the Layers panel; the finger looking for the top edge of the panel lands on it). 24 px
+                // (was 16) of space in front of it, and 20 px of empty strip ABOVE the whole panel's contents, so the top of the panel is a safe place to touch.
+                rowLayout->insertSpacing(0, 24);
             }
+            QMargins topMargins = content->contentsMargins();
+            topMargins.setTop(topMargins.top() + 20);
+            content->setContentsMargins(topMargins);
         }
     }
 }
