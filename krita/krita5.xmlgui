@@ -1,278 +1,397 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <kpartgui xmlns="http://www.kde.org/standards/kxmlgui/1.0"
-          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-          name="Krita"
-          version="543"
-          xsi:schemaLocation="http://www.kde.org/standards/kxmlgui/1.0 http://www.kde.org/standards/kxmlgui/1.0/kxmlgui.xsd">
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+name="Krita"
+version="543"
+xsi:schemaLocation="http://www.kde.org/standards/kxmlgui/1.0  http://www.kde.org/standards/kxmlgui/1.0/kxmlgui.xsd">
 
 <!-- Do not add the word "Krimble" to this menu. It serves no purpose. -->
 
 <MenuBar>
     <Menu name="file">
-        <text>&amp;File</text>
-        <Action name="file_new"/>
-        <Action name="file_open"/>
-        <Action name="file_open_recent"/>
-        <Separator/>
-        <Action name="file_save"/>
-        <Action name="file_save_as"/>
-        <Action name="file_reload_file"/>
-        <Separator/>
-        <Action name="file_import_file">
-            <text>Open as Untitled...</text>
+    	
+      <text>&amp;File</text>
+      <Action name="file_new"/>
+      <Action name="file_open"/>
+      <Action name="file_open_recent"/>
+      
+                    <Separator/>
+                    
+      <Action name="file_save"/>
+      <Action name="file_save_as"/>
+      <Action name="file_reload_file"/>
+
+                 <Separator/>
+                 
+<!--      <Action name="file_sessions"/>
+      
+                 <Separator/>
+                 -->
+      <Action name="file_import_file">
+         <text>Open as Untitled...</text>
+      </Action>
+      <Action name="file_export_file"/>
+      <Action name="file_export_advanced">
+         <text>Export Options...</text>
         </Action>
-        <Action name="file_export_file"/>
-        <Action name="file_export_advanced">
-            <text>Export Options...</text>
+        
+                  <Separator/>
+      
+      <Action name="file_export_pdf"/>
+      
+                       <Separator/>
+                  
+ <!-- <Action name="file_import_animation"/>
+      <Action name="file_import_video_animation"/>
+      <Action name="render_animation"/>
+      
+                       <Separator/>
+      
+      <Action name="save_incremental_version"/>
+      <Action name="save_incremental_backup"/>
+      
+                      <Separator/>
+                      
+      <Action name="create_template"/>
+      <Action name="create_copy"/>
+      -->
+                      <Separator/>
+                      
+      <Action name="file_print"/>
+      <Action name="file_print_preview"/>
+      <Action name="file_documentinfo">
+         <text>File info...</text>
+       </Action>
+        
+                   <Separator/>
+      
+      <Action name="file_close"/>
+      <Action name="file_close_all"/>
+      <Action name="file_quit">
+         <text>Exit</text>
+       </Action>
+         
+      </Menu>
+
+<Menu name="edit">
+    <text>&amp;Edit</text>
+
+    <Action name="edit_undo">
+        <text>Undo</text>
+    </Action>
+    
+    <Action name="edit_redo">
+        <text>Redo</text>
+    </Action>
+
+                   <Separator/>
+
+    <Action name="edit_cut">
+        <text>Cut</text>
+    </Action>
+    
+    <Action name="edit_copy">
+        <text>Copy</text>
+    </Action>
+    
+    <Action name="copy_merged">
+        <text>Copy Merged</text>
+    </Action>
+    
+    <Action name="edit_paste">
+        <text>Paste</text>
+    </Action>
+    
+    <Action name="paste_into">
+        <text>Paste Into</text>
+    </Action>
+    
+    <Action name="paste_new">
+        <text>Paste as New Image</text>
+    </Action>
+
+                <Separator/>
+
+    <Action name="clear">
+        <text>Clear</text>
+    </Action>
+
+                <Separator/>
+
+    <Menu name="fill">
+        <text>Fill</text>
+
+        <Action name="fill_selection_foreground_color">
+            <text>Foreground Color</text>
         </Action>
-        <Separator/>
-        <Action name="file_export_pdf"/>
-        <Separator/>
-        <Separator/>
-        <Action name="file_print"/>
-        <Action name="file_print_preview"/>
-        <Action name="file_documentinfo">
-            <text>File info...</text>
+        
+        <Action name="fill_selection_background_color">
+            <text>Background Color</text>
         </Action>
-        <Separator/>
-        <Action name="file_close"/>
-        <Action name="file_close_all"/>
-        <Action name="file_quit">
-            <text>Exit</text>
+        
+        <Action name="fill_selection_pattern">
+            <text>Pattern</text>
+        </Action>
+        
+        <Action name="content_aware_fill">
+            <text>Content-Aware...</text>
+        </Action>
+        
+    </Menu>
+
+    <Action name="stroke_selection">
+        <text>Stroke...</text>
+    </Action>
+
+                     <Separator/>
+
+    <Action name="KisToolTransformCage">
+        <text>Puppet Warp</text>
+    </Action>
+    <Action name="KisToolTransformFree">
+        <text>Free Transform</text>
+    </Action>
+
+    <Menu name="EditTransform">
+        <text>Transform</text>
+
+        <Action name="layersize">
+            <text>Scale</text>
+        </Action>
+        <Action name="rotatelayer">
+            <text>Rotate</text>
+        </Action>
+        <Action name="shearlayer">
+            <text>Skew</text>
+        </Action>
+        <Action name="KisToolTransformPerspective">
+            <text>Perspective</text>
+        </Action>
+        <Action name="KisToolTransformWarp">
+            <text>Warp</text>
+        </Action>
+
+                      <Separator/>
+
+        <Action name="rotateLayer180">
+            <text>Rotate 180°</text>
+        </Action>
+        <Action name="rotateLayerCW90">
+            <text>Rotate 90° Clockwise</text>
+        </Action>
+        <Action name="rotateLayerCCW90">
+            <text>Rotate 90° Counter Clockwise</text>
+        </Action>
+
+                    <Separator/>
+
+        <Action name="mirrorNodeX">
+            <text>Flip Horizontal</text>
+        </Action>
+        <Action name="mirrorNodeY">
+            <text>Flip Vertical</text>
         </Action>
     </Menu>
 
-    <Menu name="edit">
-        <text>&amp;Edit</text>
-        <Action name="edit_undo">
-            <text>Undo</text>
+                    <Separator/>
+
+    <Action name="copy_layer_style">
+        <text>Copy Layer Style</text>
+    </Action>
+    <Action name="paste_layer_style">
+        <text>Paste Layer Style</text>
+    </Action>
+
+                   <Separator/>
+
+    <Action name="sample_screen_color">
+        <text>Sample Color</text>
+    </Action>
+
+                   <Separator/>
+
+    <Action name="imagecolorspaceconversion">
+        <text>Convert to Profile...</text>
+    </Action>
+
+    <Action name="options_configure_keybinding">
+        <text>Configure Shortcuts...</text>
+    </Action>
+    <!-- Krimble 2026-10-24: Customize Toolbar... moved to the Window menu, with the other toolbar items (KisMainWindow::updateWindowMenu)
+    <Action name="options_configure_toolbars">
+        <text>Customize Toolbar...</text>
+    </Action>
+    -->
+
+                   <Separator/>
+
+    <Action name="options_configure">
+        <text>&amp;Preferences...</text>
+        <toolTip>Preferences</toolTip>
+        <iconText>Preferences</iconText>
+    </Action>
+</Menu>
+
+
+<Menu name="Image">
+    <text>&amp;Image</text>
+    <Menu name="Mode">
+        <text>&amp;Mode</text>
+        <Action name="image_color">
+            <text>Color Mode</text>
         </Action>
-        <Action name="edit_redo">
-            <text>Redo</text>
-        </Action>
-        <Separator/>
-        <Action name="edit_cut">
-            <text>Cut</text>
-        </Action>
-        <Action name="edit_copy">
-            <text>Copy</text>
-        </Action>
-        <Action name="copy_merged">
-            <text>Copy Merged</text>
-        </Action>
-        <Action name="edit_paste">
-            <text>Paste</text>
-        </Action>
-        <Action name="paste_into">
-            <text>Paste Into</text>
-        </Action>
-        <Action name="paste_new">
-            <text>Paste as New Image</text>
-        </Action>
-        <Separator/>
-        <Action name="clear">
-            <text>Clear</text>
-        </Action>
-        <Separator/>
-        <Menu name="fill">
-            <text>Fill</text>
-            <Action name="fill_selection_foreground_color">
-                <text>Foreground Color</text>
-            </Action>
-            <Action name="fill_selection_background_color">
-                <text>Background Color</text>
-            </Action>
-            <Action name="fill_selection_pattern">
-                <text>Pattern</text>
-            </Action>
-            <Action name="content_aware_fill">
-                <text>Content-Aware...</text>
-            </Action>
-        </Menu>
-        <Action name="stroke_selection">
-            <text>Stroke...</text>
-        </Action>
-        <Separator/>
-        <Action name="KisToolTransformCage">
-            <text>Puppet Warp</text>
-        </Action>
-        <Action name="KisToolTransformFree">
-            <text>Free Transform</text>
-        </Action>
-        <Menu name="EditTransform">
-            <text>Transform</text>
-            <Action name="layersize">
-                <text>Scale</text>
-            </Action>
-            <Action name="rotatelayer">
-                <text>Rotate</text>
-            </Action>
-            <Action name="shearlayer">
-                <text>Skew</text>
-            </Action>
-            <Action name="KisToolTransformPerspective">
-                <text>Perspective</text>
-            </Action>
-            <Action name="KisToolTransformWarp">
-                <text>Warp</text>
-            </Action>
-            <Separator/>
-            <Action name="rotateLayer180">
-                <text>Rotate 180°</text>
-            </Action>
-            <Action name="rotateLayerCW90">
-                <text>Rotate 90° Clockwise</text>
-            </Action>
-            <Action name="rotateLayerCCW90">
-                <text>Rotate 90° Counter Clockwise</text>
-            </Action>
-            <Separator/>
-            <Action name="mirrorNodeX">
-                <text>Flip Horizontal</text>
-            </Action>
-            <Action name="mirrorNodeY">
-                <text>Flip Vertical</text>
-            </Action>
-        </Menu>
-        <Separator/>
-        <Action name="copy_layer_style">
-            <text>Copy Layer Style</text>
-        </Action>
-        <Action name="paste_layer_style">
-            <text>Paste Layer Style</text>
-        </Action>
-        <Separator/>
-        <Action name="sample_screen_color">
-            <text>Sample Color</text>
-        </Action>
-        <Separator/>
-        <Action name="imagecolorspaceconversion">
-            <text>Convert to Profile...</text>
-        </Action>
-        <Action name="options_configure_keybinding">
-            <text>Configure Shortcuts...</text>
-        </Action>
-        <Separator/>
-        <Action name="options_configure">
-            <text>&amp;Preferences...</text>
-            <toolTip>Preferences</toolTip>
-            <iconText>Preferences</iconText>
+        <Action name="krita_filter_palettize">
+            <text>Indexed Color...</text>
         </Action>
     </Menu>
-
-    <Menu name="Image">
-        <text>&amp;Image</text>
-        <Menu name="Mode">
-            <text>&amp;Mode</text>
-            <Action name="image_color">
-                <text>Color Mode</text>
-            </Action>
-            <Action name="krita_filter_palettize">
-                <text>Indexed Color...</text>
-            </Action>
-        </Menu>
-        <Menu name="adjustments">
-            <text>Adjustments</text>
-            <Action name="krita_filter_brightnesscontrast"/>
-            <Action name="krita_filter_levels"/>
-            <Action name="krita_filter_perchannel">
-                <text>Curves...</text>
-            </Action>
-            <Separator/>
-            <Action name="krita_filter_vibrance"/>
-            <Action name="krita_filter_hsvadjustment"/>
-            <Action name="krita_filter_colorbalance"/>
-            <Action name="krita_filter_photofilter"/>
-            <Separator/>
-            <Action name="krita_filter_invert"/>
-            <Action name="krita_filter_posterize"/>
-            <Action name="krita_filter_threshold"/>
-            <Action name="krita_filter_gradientmap"/>
-            <Separator/>
-            <Action name="krita_filter_desaturate"/>
-            <Action name="krita_filter_colortransfer"/>
-        </Menu>
-        <Separator/>
-        <Action name="krita_filter_autotone"/>
-        <Action name="krita_filter_autocontrast"/>
-        <Action name="krita_filter_autocolor"/>
-        <Separator/>
-        <Action name="imagesize">
-            <text>Image Size...</text>
+    <Menu name="adjustments">
+        <text>Adjustments</text>
+        <Action name="krita_filter_brightnesscontrast"/>
+        <Action name="krita_filter_levels"/>
+        <Action name="krita_filter_perchannel">
+            <text>Curves...</text>
+        <!-- Exposure? -->
         </Action>
-        <Action name="imageresolution">
-            <text>Resolution...</text>
-        </Action>
-        <Action name="canvassize">
-            <text>Canvas Size...</text>
-        </Action>
-        <Separator/>
-        <Menu name="ImageRotation">
-            <text>Image &amp;Rotation</text>
-            <Action name="rotateimage">
-                <text>Arbitrary...</text>
-            </Action>
-            <Separator/>
-            <Action name="rotateImageCW90">
-                <text>90° CW</text>
-            </Action>
-            <Action name="rotateImageCCW90">
-                <text>90° CCW</text>
-            </Action>
-            <Action name="rotateImage180">
-                <text>180°</text>
-            </Action>
-            <Separator/>
-            <Action name="mirrorImageHorizontal">
-                <text>Flip Horizontal</text>
-            </Action>
-            <Action name="mirrorImageVertical">
-                <text>Flip Vertical</text>
-            </Action>
-        </Menu>
-        <Separator/>
-        <Action name="apply_crop">
-            <text>Crop</text>
-        </Action>
-        <Action name="trim_to_image">
-            <text>Crop to Image Size</text>
-        </Action>
-        <Action name="resizeimagetolayer">
-            <text>Crop to Layer</text>
-        </Action>
-        <Action name="resizeimagetoselection">
-            <text>Crop to Selection</text>
-        </Action>
-        <Action name="duplicate_image">
-            <text>Duplicate...</text>
-        </Action>
-        <Separator/>
-        <Action name="shearimage">
-            <text>Shear...</text>
-        </Action>
-        <Action name="offsetimage">
-            <text>Offset...</text>
-        </Action>
-        <Separator/>
-        <Action name="image_properties">
-            <text>Properties...</text>
-        </Action>
-        <Action name="purge_unused_image_data">
-            <text>Purge Unused Data</text>
-        </Action>
-        <Separator/>
-        <Action name="imagesplit">
-            <text>Split Image...</text>
-        </Action>
-        <Action name="waveletdecompose">
-            <text>Wavelet Decompose...</text>
-        </Action>
-        <Action name="separate">
-            <text>Separate</text>
-        </Action>
+        
+                     <Separator/>
+                     
+        <Action name="krita_filter_vibrance"/>
+        <Action name="krita_filter_hsvadjustment"/>
+        <Action name="krita_filter_colorbalance"/>
+        <!-- Black and White? -->
+        <Action name="krita_filter_photofilter"/>
+        <!-- Channel Mixer... -->
+        <!-- Color Lookup... -->
+        	
+                     <Separator/>
+                     
+        <Action name="krita_filter_invert"/>
+        <Action name="krita_filter_posterize"/>
+        <Action name="krita_filter_threshold"/>
+        <Action name="krita_filter_gradientmap"/>
+        <!-- Selective Color -->
+        	
+                     <Separator/>
+                     
+        <Action name="krita_filter_desaturate"/>
+        <Action name="krita_filter_colortransfer"/>
+        <!-- Replace Color -->
+        <!-- Equalize -->
     </Menu>
+    
+                     <Separator/>
+                     
+    <Action name="krita_filter_autotone"/>
+    <Action name="krita_filter_autocontrast"/>
+    <Action name="krita_filter_autocolor"/>
+    
+                     <Separator/>
+                     
+    <Action name="imagesize">
+        <text>Image Size...</text>
+    </Action>
+    
+    <Action name="imageresolution">
+        <text>Resolution...</text>
+    </Action>
+    
+    <Action name="canvassize">
+        <text>Canvas Size...</text>
+    </Action>
+    
+                     <Separator/>
+                     
+    <Menu name="ImageRotation">
+        <text>Image &amp;Rotation</text>
+        
+        <Action name="rotateimage">
+            <text>Arbitrary...</text>
+        </Action>
+        
+                     <Separator/>
+                     
+        <Action name="rotateImageCW90">
+            <text>90° CW</text>
+        </Action>
+        
+        <Action name="rotateImageCCW90">
+            <text>90° CCW</text>
+        </Action>
+        
+        <Action name="rotateImage180">
+            <text>180°</text>
+        </Action>
+        
+                     <Separator/>
+                     
+        <Action name="mirrorImageHorizontal">
+            <text>Flip Horizontal</text>
+        </Action>
+        
+        <Action name="mirrorImageVertical">
+            <text>Flip Vertical</text>
+        </Action>
+        
+    </Menu>
+    
+                     <Separator/>
+                     
+    <Action name="apply_crop">
+        <text>Crop</text>
+    </Action>
 
-<!-- Krimble 2026-11-07: the first, unfinished copy of the Layer menu (it began here, 153 lines, left over from the reformat of the file) is removed: the Layer menu below is the complete one and is identical to the file before the reformat (checked: 91 actions, same texts). The removed lines are in the git history (011ea89). -->
+    <Action name="trim_to_image">
+        <text>Crop to Image Size</text>
+    </Action>
+
+    <Action name="resizeimagetolayer">
+        <text>Crop to Layer</text>
+    </Action>
+
+    <Action name="resizeimagetoselection">
+        <text>Crop to Selection</text>
+    </Action>
+
+    <Action name="duplicate_image">
+        <text>Duplicate...</text>
+    </Action>
+    
+                     <Separator/>
+                     
+    <Action name="shearimage">
+        <text>Shear...</text>
+    </Action>
+
+    <Action name="offsetimage">
+        <text>Offset...</text>
+    </Action>
+    
+                     <Separator/>
+                     
+    <Action name="image_properties">
+        <text>Properties...</text>
+    </Action>
+
+    <Action name="purge_unused_image_data">
+        <text>Purge Unused Data</text>
+    </Action>
+    
+                     <Separator/>
+                     
+    <Action name="imagesplit">
+        <text>Split Image...</text>
+    </Action>
+
+    <Action name="waveletdecompose">
+        <text>Wavelet Decompose...</text>
+    </Action>
+
+    <Action name="separate">
+        <text>Separate</text>
+    </Action>
+</Menu>
+
+
 <Menu name="Layer">
     <text>&amp;Layer</text>
 
