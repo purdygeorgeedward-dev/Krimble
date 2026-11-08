@@ -186,6 +186,9 @@ Times are Mountain Time from the clock of the sandbox that pushed (`date`), chec
 | Nov 8  3:40 AM | `4b446d5` | George Purdy | Preferences: rows never pressed together (krimbleNoSqueeze), wider page list, larger keyboard icon (431st) |
 | Nov 8  3:40 AM | `7ba23a8` | George Purdy | Color panel: number boxes show their numbers (66 px), framed picker, rounded square, larger swatches; Mixer boxes 76 px (432nd) |
 | Nov 8  3:51 AM | (this push, docs only) | George Purdy | Dev journal rows fixed (a stray backslash-n). Build 42472436825 on `8c38709` succeeded (APK 172 MB); its first step, the XML check, passed |
+| Nov 8  4:15 AM | `400ab12` | George Purdy | Transform and Pan names; the name in Tool Options follows the Transform mode; no "Tool" after tool names (433rd) |
+| Nov 8  4:15 AM | `d1be4c6` | George Purdy | Toolbox tear-off log lines written to krita.log with KisUsageLogger (434th) |
+| Nov 8  4:15 AM | (this push) | George Purdy | Strict renumbering: build number 55, KRIMBLE_BUILD_LOG.md (builds 45 to 54), tools/ci/check_build_number.py, BUILD_ANDROID.md; the draft release v1.0.45-beta and its tag deleted (435th) |
 
 ## Notes of Saturday 2026-11-07 (written 10:3x PM MT)
 

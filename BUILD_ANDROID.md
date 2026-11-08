@@ -525,3 +525,12 @@ The next build, when George asks, carries everything since `c814ef1`: entries 84
 - **Help > Show Krimble Log...** (added in entry 300) shows the last 12 sessions, those "Last exit" lines, the end of the log, and "What Android told Krimble": whether the window was destroyed with `isFinishing` or because of a configuration change, with the configuration then and at the start (the difference names what changed); if `onDestroy` did not run it says the process was killed or crashed.
 - Reading it: `reason 3 (LOW_MEMORY)` = Android needed the memory; `CRASH_NATIVE` / `CRASH` = a crash; `SIGNALED` with signal 9 = the process was killed (also what Krimble's own `KILL_PROCESS` does, so read it together with the "What Android told Krimble" line); `isChangingConfigurations=true` = a configuration change the manifest does not list.
 
+
+## Build numbers: strict renumbering (George, 2026-11-08)
+
+Every build that makes an APK gets its own number, higher than the last. We do not always release a build, but we always change the number.
+
+1. **Before a build:** set `def krimbleBuildNumber = N` in `packaging/android/apk/build.gradle` (one line; the old ones stay in comments) and the default of the `beta` input in `.github/workflows/android-build.yml` to `1.0.N-beta`. The version name is `1.0.N-beta` and the Android version code is `5050400 + N`; Google Play needs a higher one for every upload.
+2. **The build checks it:** the workflow's first steps run `tools/ci/check_xml.py` (every `.xmlgui`, `.ui`, `.qrc` and `.action` file must be valid XML) and `tools/ci/check_build_number.py` (N must be higher than every number in `KRIMBLE_BUILD_LOG.md`, and the label must be `1.0.N-beta`). A failing check stops the build in seconds.
+3. **After a successful build:** add its row to `KRIMBLE_BUILD_LOG.md` (number, time, run, commit, released or not, notes). Failed and cancelled builds make no APK and do not use a number.
+4. **Release:** when a build is released, its tag is `v1.0.N-beta` on that build's commit, and its notes are `RELEASE_NOTES_1.0.N-beta.md` (the GitHub release body).

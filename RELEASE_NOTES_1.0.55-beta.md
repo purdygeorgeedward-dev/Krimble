@@ -5,7 +5,7 @@ Krimble is a mobile-first graphics editing app for Android, a fork of Krita, wit
 
 Krimble is free open source software made with the assistance of Claude and ChatGPT.
 
-**NEW IN 1.0.45 BETA**
+**NEW IN 1.0.55 BETA**
 
 **A new look**
 
@@ -42,7 +42,6 @@ Krimble is free open source software made with the assistance of Claude and Chat
 
 **Known issues in this beta**
 
-- The menu bar shows two Layer menus (a menu edit is unfinished).
 - Tearing off the toolbox can change it to one column and then to a horizontal bar.
 - The Color panel can be wider than a small screen.
 - Quick Adjust and some panels have not been tested on every screen size.
