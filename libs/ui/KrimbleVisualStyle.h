@@ -19,14 +19,19 @@ QDialog, QMessageBox, QInputDialog, QColorDialog, QFileDialog {
        smooth gradient from top to bottom, #212638 to #1A2034 (the mockup's panel background, sampled at the top and at the bottom of the picture). Before: flat #1b2135.
     background-color: #1b2135;
     */
+/* Krimble 2026-11-07 (3rd): George: "more contrast" (after the Prefs mockup: "The color and contrast in the mockup are ideal."). Before:
     background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #212638, stop:1 #1a2034);
     color: #eef1fa;
+*/
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #373c62, stop:1 #2c3152);
+    color: #ffffff;
 }
 QDialog QLabel, QDialog QGroupBox, QDialog QCheckBox,
 QDialog QRadioButton, QDialog QTabWidget {
     color: #e9edf8;
 }
 QGroupBox {
+/* Krimble 2026-11-07 (3rd): George: "more contrast" (after the Prefs mockup: "The color and contrast in the mockup are ideal."). Before:
     border: 1px solid #343c57;
     border-top: 1px solid #7382ab;
     border-radius: 6px;
@@ -34,6 +39,14 @@ QGroupBox {
     padding: 12px 6px 6px 6px;
     background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
                                 stop:0 #232a40, stop:1 #1a2034);
+*/
+    border: 1px solid #4a5178;
+    border-top: 1px solid #8d96c2;
+    border-radius: 8px;
+    margin-top: 12px;
+    padding: 12px 6px 6px 6px;
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
+                                stop:0 #444a70, stop:1 #343959);
 }
 QGroupBox::title { subcontrol-origin: margin; left: 12px; padding: 0 5px; }
 QPushButton, QDialog QToolButton {
@@ -44,10 +57,16 @@ QPushButton, QDialog QToolButton {
     background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
                                 stop:0 #313a56, stop:0.5 #272f46, stop:1 #21293e);
     */
+/* Krimble 2026-11-07 (3rd): George: "more contrast" (after the Prefs mockup: "The color and contrast in the mockup are ideal."). Before:
     border: 1px solid #3d4967;
     border-radius: 5px;
     padding: 5px 9px;
     background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #2d354e, stop:1 #283048);
+*/
+    border: 1px solid #6a719b;
+    border-radius: 7px;
+    padding: 5px 9px;
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #4d5479, stop:1 #2b3050);
 }
 QPushButton:hover, QDialog QToolButton:hover {
     border-color: #3bbcf5;
@@ -78,7 +97,11 @@ QPushButton:disabled, QDialog QToolButton:disabled {
 QTabBar::tab {
     color: #e3e8f6;
     padding: 7px 13px;
+/* Krimble 2026-11-07 (3rd): George: "more contrast" (after the Prefs mockup: "The color and contrast in the mockup are ideal."). Before:
     border: 1px solid #3d4668;
+    border-bottom: 1px solid #2a334a;
+*/
+    border: 1px solid #555d86;
     border-bottom: 1px solid #2a334a;
     border-top-left-radius: 6px;
     border-top-right-radius: 6px;
@@ -86,7 +109,10 @@ QTabBar::tab {
     background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
                                 stop:0 #2e354e, stop:1 #212639);
     */
+/* Krimble 2026-11-07 (3rd): George: "more contrast" (after the Prefs mockup: "The color and contrast in the mockup are ideal."). Before:
     background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #2b324a, stop:1 #252b42);
+*/
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #2a3050, stop:1 #171b34);
 }
 QTabBar::tab:selected {
     /* Krimble 2026-11-07: George: "Look at the selected items in the Prefs mockup." The mockup's selected tab, list entry and OK button (colors sampled from the picture): a teal blue that is
@@ -109,10 +135,16 @@ QTabBar::tab:selected {
 QLineEdit, QSpinBox, QDoubleSpinBox {
     color: #f0f3ff;
     selection-background-color: #016cac;
+/* Krimble 2026-11-07 (3rd): George: "more contrast" (after the Prefs mockup: "The color and contrast in the mockup are ideal."). Before:
     border: 1px solid #3d4967;
     border-radius: 4px;
     padding: 3px 5px;
     background: #0d1221;
+*/
+    border: 1px solid #5a6490;
+    border-radius: 5px;
+    padding: 3px 5px;
+    background: #0c1024;
 }
 QComboBox {
     /* Krimble 2026-11-06 (2nd): George: "Do not add sculpted shading to fields." The drop-down box is flat like the text and number boxes (it had the button's gradient and top
@@ -216,15 +248,32 @@ QToolBar {
    floating) and the status bar get the same long smooth gradients as the dialogs and the menu bar: #212638 to #1A2034 (the mockup's panel background) and #2E354E to #212639 for the
    status bar (the tool bar's pair). The contents of a panel and its scroll areas are transparent so the gradient shows through; fields, buttons and sliders keep their own rules.
    Tested in real Qt (PyQt5 5.15) with a main window with a toolbox, tabbed panels with a scroll area of ordinary controls, a status bar and a floating panel. Before: the theme's flat #373952. */
+/* Krimble 2026-11-07 (3rd): George: "more contrast" (after the Prefs mockup: "The color and contrast in the mockup are ideal."). Before:
 QMainWindow, QDockWidget {
     background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #212638, stop:1 #1a2034);
+}
+*/
+QMainWindow, QDockWidget {
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #373c62, stop:1 #2c3152);
+}
+QAbstractItemView {
+    /* recessed areas (lists, trees) are darker than the panels around them */
+    background: #15182d;
+    alternate-background-color: #1a1e36;
+    color: #ffffff;
 }
 QDockWidget > QWidget, QScrollArea, QScrollArea > QWidget > QWidget {
     background: transparent;
 }
+/* Krimble 2026-11-07 (3rd): George: "more contrast" (after the Prefs mockup: "The color and contrast in the mockup are ideal."). Before:
 QStatusBar {
     color: #eef1fa;
     background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #2e354e, stop:1 #212639);
+}
+*/
+QStatusBar {
+    color: #ffffff;
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #3d4368, stop:1 #30365a);
 }
 QHeaderView::section {
     color: #e9edf8;
