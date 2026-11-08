@@ -31,6 +31,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Krimble 2026-11-08: George: "Yes, do an XML check each time." Every menu layout (.xmlgui), form (.ui) and resource list (.qrc) file is parsed as XML first; an invalid one
+      # stops the build in a few seconds, with the file and the line in the annotations (on 2026-11-07 a menu file that was not valid XML would have started the program with no menus).
+      - name: Check the XML files
+        run: python3 tools/ci/check_xml.py
+
       - name: Free disk space
         run: |
           sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/share/boost /opt/hostedtoolcache/CodeQL
