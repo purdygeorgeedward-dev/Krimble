@@ -1,0 +1,5 @@
+<!-- Krimble 2026-11-07: George: "checked should have an actual check in the box if possible." The check mark drawn in a checked check box (KrimbleVisualStyle.h, QCheckBox::indicator:checked): white, round ends, a thin dark edge so it also shows on a light box. -->
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+  <path d="M5.2 12.6 L10 17.4 L19 6.8" fill="none" stroke="#0a2a66" stroke-opacity="0.55" stroke-width="4.6" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M5.2 12.6 L10 17.4 L19 6.8" fill="none" stroke="#ffffff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

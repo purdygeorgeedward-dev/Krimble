@@ -14,6 +14,7 @@
         <file>dark_krimble-new-document.png</file>
         <file>dark_krimble-quickadjust-logo.png</file>
         <file>dark_krimble-quickadjust-banner.png</file>
+        <file>krimble-checkmark.svg</file>   <!-- Krimble 2026-11-07: the check mark in a checked check box (KrimbleVisualStyle.h) -->
         <file>dark_krimble-quickadjust-sliders.png</file>
         <file>dark_krimble-colorstudio-logo.png</file>
         <file>light_krimble-new-document.png</file>

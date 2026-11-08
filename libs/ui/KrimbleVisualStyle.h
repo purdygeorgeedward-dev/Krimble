@@ -143,7 +143,14 @@ QSlider::handle:horizontal {
                                 stop:0 #f9fdff, stop:0.2 #cfd1e6, stop:0.4 #aeb2cd,
                                 stop:0.7 #8f93b0, stop:1 #8a8eab);
 }
+/* Krimble 2026-11-07: George: "checked should have an actual check in the box if possible." A checked box shows a white check mark (krimble-checkmark.svg, in svg-icons.qrc), and the
+   box is 18 px, checked or not (a picture would otherwise make the checked box bigger than the others). Tested in real Qt (PyQt5 5.15): the check scales to the box. */
+QCheckBox::indicator {
+    width: 18px;
+    height: 18px;
+}
 QCheckBox::indicator:checked {
+    image: url(:/krimble-checkmark.svg);
     border: 1px solid #3bbcf5;
     background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
                                 stop:0 #0b87dd, stop:0.4 #0867b8, stop:0.75 #0652ad,
