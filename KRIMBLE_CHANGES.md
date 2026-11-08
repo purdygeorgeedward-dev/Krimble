@@ -6372,3 +6372,10 @@ George: "palettes have names. You can save them." The Color panel's one saved li
 **Files:** `plugins/dockers/advancedcolorselector/krimble_color_history.h` (new, not yet included by the panel), `.../krimble_color_icons.h`
 
 The History page of the mockup as a class (`KrimbleHistoryPage`, with `KrimbleHistoryStore`: the history of colors with the tool and time, pinned colors, the options, the limit; Save History as Palette, Clear History, the filter, list and grid views, pins, scrolling) and the pictures it and the Palette page need (pins, tool icons, filter, list, the palette actions, the swatch tools: cut out of the mockups). The page compiles and draws at the mockup's scale, but **its text is too large** (the left column and the list rows overlap) and it is **not shown in the panel yet**: the History and Palette tabs are still blank. **Not verified:** a build or a device.
+
+## 2026-11-08 (443rd) — The Color panel is called "Color Lab"
+
+**Files:** `plugins/dockers/advancedcolorselector/kis_color_selector_ng_dock.cpp`
+
+George: "Change Color to \"Color Lab\" and I will make a logo." The title of the Color panel (its title bar and its entry in the Window menu) is **Color Lab** (it was "Color"; the old line is in a comment). The classic panel keeps "HSV Triangle Color Picker". The internal id `ColorSelectorNg` is not shown anywhere and stays. **Not verified:** a build or a device.
+

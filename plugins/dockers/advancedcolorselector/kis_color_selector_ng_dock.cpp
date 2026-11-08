@@ -63,7 +63,8 @@ KisColorSelectorNgDock::KisColorSelectorNgDock(bool classic)
     // setWindowTitle(i18n("Color Selector"));
     // setWindowTitle(i18n("Color"));
     // setWindowTitle(classic ? i18n("Color Ring + Triangle") : i18n("Color"));   // Krimble 2026-11-08: George: "bring back advance color panel as \"color ring + triangle\"."
-    setWindowTitle(classic ? i18n("HSV Triangle Color Picker") : i18n("Color"));   // Krimble 2026-11-08: George: "Sorry. Call the ring and triangle \"HSV Triangle Color Picker.\""
+    // setWindowTitle(classic ? i18n("HSV Triangle Color Picker") : i18n("Color"));   // Krimble 2026-11-08: George: "Sorry. Call the ring and triangle \"HSV Triangle Color Picker.\""
+    setWindowTitle(classic ? i18n("HSV Triangle Color Picker") : i18n("Color Lab"));   // Krimble 2026-11-08: George: "Change Color to \"Color Lab\" and I will make a logo."
 }
 
 void KisColorSelectorNgDock::setCanvas(KoCanvasBase * canvas)
