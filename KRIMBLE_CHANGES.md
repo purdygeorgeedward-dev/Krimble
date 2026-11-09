@@ -6413,3 +6413,5 @@ George: "The toolbox has a gap since taking out one of the tools. I wanted to pu
 
 **2026-11-08, added to the 447th entry:** George: "No. Don't make it gray out. I never asked fur that." The UNDO button no longer follows the Undo action's enabled state: it is always enabled and never grays out (the two lines that did it are removed). A tap still runs Undo and a long press still offers Redo; the 447th entry's words about following the action's enabled state are no longer true. **Not verified:** a compile or a build.
 
+**2026-11-08, added to the 441st entry:** George: "palette should default to 256 colors." The palette that is active on the first run is **Krimble 256** (256 colors, 16 x 16: grays, then hues from tints to shades), not "My Palette" (the user's own swatches: the old saved list or a starting set of 40, still made on the first run and one tap away in the palette menu). The default of the saved choice is "Krimble 256" too (the old lines are in comments). **Note:** the palette area of the Picker, Sliders and Values pages shows only the first 76 swatches (19 x 4) and does not scroll yet; the Palette tab shows all 256.
+

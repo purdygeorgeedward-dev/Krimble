@@ -140,7 +140,7 @@ public:
     }
     static QString active()
     {
-        const QString stored = QSettings().value(QStringLiteral("Krimble/ColorStudioActivePalette"), QStringLiteral("My Palette")).toString();
+        const QString stored = QSettings().value(QStringLiteral("Krimble/ColorStudioActivePalette"), QStringLiteral("Krimble 256")).toString();   // 2026-11-08: was "My Palette"
         return exists(stored) ? stored : (names().isEmpty() ? stored : names().first());
     }
     static void setActive(const QString &name) { QSettings().setValue(QStringLiteral("Krimble/ColorStudioActivePalette"), name); }
@@ -194,6 +194,7 @@ public:
             }
         }
         save(big);
-        setActive(mine.name);
+        // setActive(mine.name);
+        setActive(big.name);   // 2026-11-08: George: "palette should default to 256 colors." The active palette on the first run is the 256 color one.
     }
 };
