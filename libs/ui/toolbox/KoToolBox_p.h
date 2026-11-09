@@ -13,6 +13,7 @@
 #include <KoCanvasObserverBase.h>
 
 #include <QWidget>
+#include <QToolButton>   // 2026-11-08: the build failed with "unknown type name QToolButton" at addActionButton (the 447th entry)
 #include <QList>
 
 #include <KoToolManager.h>
