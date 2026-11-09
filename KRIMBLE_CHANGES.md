@@ -6393,3 +6393,5 @@ George: "Change Color to \"Color Lab\" and I will make a logo." and, with two fi
 
 **2026-11-08, added to the 445th entry:** George: "Do not center title logos. THIS IS A RULE. LEFT ALIGN." The logo in the Color Lab header is **left aligned**, not centered: the left edge of the C is on the same line as the left edge of the first tab (the centered drawing is in a comment). The rule is written in the new `KRIMBLE_DESIGN_RULES.md` for every future title logo. **Not verified:** a build or a phone.
 
+**2026-11-08, rule added (no code or image changed):** George: "DO NOT TOUCH MY SPLASH IMAGE!!!!!!" The splash images and the splash screen code were not changed at any time (checked: no difference in `krita/data/splash` or `libs/ui/kis_splash_screen.*`). The rule is in `KRIMBLE_DESIGN_RULES.md`: never touch the splash images or code unless George asks for it in so many words.
+
