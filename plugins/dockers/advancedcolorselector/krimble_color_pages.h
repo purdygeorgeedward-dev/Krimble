@@ -788,6 +788,9 @@ protected:
         const qreal h = height() * 1.2;
         const qreal w = h * logo.width() / logo.height();
         p.setClipPath(band);
-        p.drawPixmap(QRectF((width() - w) / 2, (height() - h) / 2, w, h), logo, QRectF(logo.rect()));
+        // p.drawPixmap(QRectF((width() - w) / 2, (height() - h) / 2, w, h), logo, QRectF(logo.rect()));   // centered: against George's rule (2026-11-08)
+        // George's rule, 2026-11-08: "Do not center title logos. THIS IS A RULE. LEFT ALIGN." The left edge of the C is on the same line as the left edge of the first tab (23.5 units); the
+        // picture has about 5.1% of black space at its left, which is taken off.
+        p.drawPixmap(QRectF(24 * s - 0.0514 * w, (height() - h) / 2, w, h), logo, QRectF(logo.rect()));
     }
 };
