@@ -28,3 +28,10 @@ Goal: build original, from-scratch implementations of standard, well-documented 
 ## Licensing/attribution note
 
 Reference implementations like KritaVFX (SockHungryClutz, open source) can inform *structure* (parameter sets, categories) but should not be copied wholesale without checking its license terms first.
+
+## Decisions (George, 2026-11-08)
+
+- **Every effect defaults to a new layer** (George: "should default to new layer.", "good idea." to making it the default for every effect in the pack). The picture is not touched, and the effect can be moved, faded or deleted afterward. Applying to the layer itself stays a choice in the dialog.
+- **Lens Flare is real time, like a game's:** the flare is a set of pre-made soft sprites (core, halo ring, aperture shaped ghosts along the line through the center of the picture, streaks) added over the picture. **Dragging the hotspot** only moves the sprites, so it stays smooth; the picture's pixels are changed once, when the effect is applied (George: "Can we do it in realtime like a racing game engine would? Maybe have 3 or 4 types, then let them drag it around like the shading?"). **Four types:** Classic (core, halo and aperture ghosts), Anamorphic (long horizontal blue tinted streak), Starburst (core with diffraction spikes), Rainbow halo (soft ring with color fringes and bloom). Controls: position (drag), size, brightness, color tint, a seed for the ghosts. Optional: the flare dims when the hotspot sits on a dark part of the picture, as if something blocked the light.
+- **Light direction control for lit effects** (bevel, chrome, glass, gel): a small sphere with a highlight you drag, plus brightness, shininess, light color and ambient sliders, and an optional second light, with a live preview of the shape being lit (George: "when you add 3d shading you can move around the light source").
+
