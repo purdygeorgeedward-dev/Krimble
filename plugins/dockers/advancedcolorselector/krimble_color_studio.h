@@ -878,7 +878,8 @@ public:
         m_ui->more->setToolTip(tr("New, Open, Import, Export, Delete"));
         connect(m_ui->trash,&QToolButton::clicked,this,[this]() {
             if (m_selectedSwatch < 0 || m_selectedSwatch >= m_colors.size()) return;
-            m_colors.removeAt(m_selectedSwatch);
+            // m_colors.removeAt(m_selectedSwatch);
+            { KrimblePalette pal = currentPalette(); pal.removeAt(m_selectedSwatch); takePalette(pal); }
             m_selectedSwatch = -1;
             savePalette();
             rebuildSwatches();
@@ -918,7 +919,12 @@ public:
         });
         // connect(add,&QPushButton::clicked,this,[this]() {
         connect(m_ui->add,&QToolButton::clicked,this,[this]() {
-            if (!m_colors.contains(m_current)) m_colors.append(m_current);
+            // 2026-11-08: through the palette, so a CMYK palette gets the plates of the color: if (!m_colors.contains(m_current)) m_colors.append(m_current);
+            {
+                KrimblePalette pal = currentPalette();
+                const QColor shown = pal.isCmyk() ? krimbleColorOfCmyk(krimbleCmykOf(m_current)) : m_current;
+                if (!pal.colors.contains(shown)) { pal.append(m_current); takePalette(pal); }
+            }
             // while(m_colors.size()>24) m_colors.remove(0);
             // while(m_colors.size()>76) m_colors.remove(0);   // Krimble 2026-11-08: the palette grid of the mockup holds 19 x 4 = 76 swatches (was 24)
             // 2026-11-08: no cap of 76 any more: the palette area scrolls (George: "you better be able to scroll through 256 swatches")
@@ -1070,6 +1076,8 @@ private:
         m_colors.clear();
         if (KrimblePaletteStore::load(KrimblePaletteStore::active(), pal)) {
             m_colors = pal.colors;
+            m_cmyk = pal.cmyk;
+            m_paletteModel = pal.model;
             m_paletteName = pal.name;
             m_paletteColumns = pal.columns;
         }
@@ -1083,7 +1091,9 @@ private:
         KrimblePalette pal;
         pal.name = m_paletteName;
         pal.columns = m_paletteColumns;
+        pal.model = m_paletteModel;
         pal.colors = m_colors;
+        pal.cmyk = m_cmyk;
         KrimblePaletteStore::save(pal);
         m_paletteSignature = KrimblePaletteStore::signature();
     }
@@ -1203,11 +1213,14 @@ private:
                 moveLeft->setEnabled(i>0);
                 moveRight->setEnabled(i+1<m_colors.size());
                 QAction *chosen=menu.exec(globalPos);
-                if(chosen==replace) m_colors[i]=m_current;
-                else if(chosen==remove) m_colors.removeAt(i);
-                else if(chosen==moveLeft && i>0) m_colors.swapItemsAt(i,i-1);
-                else if(chosen==moveRight && i+1<m_colors.size()) m_colors.swapItemsAt(i,i+1);
+                // 2026-11-08: through the palette, so the plates of a CMYK palette stay with their swatches
+                KrimblePalette pal = currentPalette();
+                if(chosen==replace) pal.replace(i,m_current);
+                else if(chosen==remove) pal.removeAt(i);
+                else if(chosen==moveLeft && i>0) pal.swap(i,i-1);
+                else if(chosen==moveRight && i+1<m_colors.size()) pal.swap(i,i+1);
                 else return;
+                takePalette(pal);
                 m_selectedSwatch=-1;
                 savePalette(); rebuildSwatches();
             };
@@ -1247,6 +1260,10 @@ private:
     int m_selectedSwatch=-1;
     QString m_paletteName = QStringLiteral("My Palette");
     int m_paletteColumns = 19;
+    QString m_paletteModel = QStringLiteral("RGB");   // 2026-11-08: RGB or CMYK (the plates of each swatch are m_cmyk)
+    QVector<KrimbleCmyk> m_cmyk;
+    KrimblePalette currentPalette() const { KrimblePalette pal; pal.name = m_paletteName; pal.columns = m_paletteColumns; pal.model = m_paletteModel; pal.colors = m_colors; pal.cmyk = m_cmyk; return pal; }
+    void takePalette(const KrimblePalette &pal) { m_colors = pal.colors; m_cmyk = pal.cmyk; }
     QString m_paletteSignature;
     bool m_hslMode=false;
     QGridLayout *m_recentLayout=nullptr;

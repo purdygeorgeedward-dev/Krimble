@@ -19,9 +19,15 @@ struct KrimblePaletteActions
     {
         const QString name = ask(parent, QObject::tr("New Palette"), QObject::tr("Palette name:"), QObject::tr("New palette"));
         if (name.isEmpty()) return false;
+        // 2026-11-08: George: "palettes stored as CMYK color values (4 channels, commonly called plates in printing)": a new palette is an RGB palette or a CMYK palette
+        bool modelOk = false;
+        const QString model = QInputDialog::getItem(parent, QObject::tr("New Palette"), QObject::tr("Color model (a CMYK palette stores the four plates C, M, Y and K of each swatch):"),
+                                                    QStringList() << QStringLiteral("RGB") << QStringLiteral("CMYK"), 0, false, &modelOk);
+        if (!modelOk) return false;
         KrimblePalette pal;
         pal.name = KrimblePaletteStore::uniqueName(name);
         pal.columns = 16;
+        pal.model = model == QLatin1String("CMYK") ? QStringLiteral("CMYK") : QStringLiteral("RGB");
         if (!KrimblePaletteStore::save(pal)) return false;
         KrimblePaletteStore::setActive(pal.name);
         return true;

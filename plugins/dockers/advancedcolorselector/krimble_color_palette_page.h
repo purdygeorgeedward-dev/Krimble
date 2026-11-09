@@ -24,6 +24,7 @@ public:
     QToolButton *copy = nullptr;
     QSpinBox *indexBox = nullptr;
     QSpinBox *rgbBox[3] = {nullptr, nullptr, nullptr};
+    QSpinBox *cmykBox[4] = {nullptr, nullptr, nullptr, nullptr};   // 2026-11-08: the four plates of a CMYK palette's selected swatch
 
     double designHeight() const override { return 1098.0; }
 
@@ -51,10 +52,19 @@ public:
             m_rgbUp[i] = makeButton();
             m_rgbDown[i] = makeButton();
         }
-        QSpinBox *boxes[4] = {indexBox, rgbBox[0], rgbBox[1], rgbBox[2]};
-        QToolButton *ups[4] = {m_indexUp, m_rgbUp[0], m_rgbUp[1], m_rgbUp[2]};
-        QToolButton *downs[4] = {m_indexDown, m_rgbDown[0], m_rgbDown[1], m_rgbDown[2]};
         for (int i = 0; i < 4; ++i) {
+            cmykBox[i] = new QSpinBox(this);
+            cmykBox[i]->setRange(0, 100);
+            QObject::connect(cmykBox[i], qOverload<int>(&QSpinBox::valueChanged), this, [this](int) {
+                if (!m_syncing) editSelectedCmyk({cmykBox[0]->value(), cmykBox[1]->value(), cmykBox[2]->value(), cmykBox[3]->value()});
+            });
+            m_cmykUp[i] = makeButton();
+            m_cmykDown[i] = makeButton();
+        }
+        QSpinBox *boxes[8] = {indexBox, rgbBox[0], rgbBox[1], rgbBox[2], cmykBox[0], cmykBox[1], cmykBox[2], cmykBox[3]};
+        QToolButton *ups[8] = {m_indexUp, m_rgbUp[0], m_rgbUp[1], m_rgbUp[2], m_cmykUp[0], m_cmykUp[1], m_cmykUp[2], m_cmykUp[3]};
+        QToolButton *downs[8] = {m_indexDown, m_rgbDown[0], m_rgbDown[1], m_rgbDown[2], m_cmykDown[0], m_cmykDown[1], m_cmykDown[2], m_cmykDown[3]};
+        for (int i = 0; i < 8; ++i) {
             ups[i]->setAutoRepeat(true);
             downs[i]->setAutoRepeat(true);
             QSpinBox *box = boxes[i];
@@ -97,14 +107,14 @@ public:
         const qreal s = scale();
         QFont f = font();
         f.setPixelSize(qMax(8, qRound(30 * s)));
-        auto place = [&](QSpinBox *box, QToolButton *up, QToolButton *down, const QRectF &whole, double arrowUnits) {
+        auto place = [&](QSpinBox *box, QToolButton *up, QToolButton *down, const QRectF &whole, double arrowUnits, double padUnits = 10.0) {
             const int arrowW = qRound(arrowUnits * s);
             const QRect w = whole.toAlignedRect();
             box->setGeometry(w.left(), w.top(), w.width() - arrowW, w.height());
             box->setFont(f);
             box->setStyleSheet(QStringLiteral("QSpinBox { background: transparent; border: none; padding: 0px 0px 0px %1px; color: #f4f6fc; selection-background-color: #1196d8; }"
                                               "QSpinBox QLineEdit { background: transparent; border: none; padding: 0px; }"
-                                              "QSpinBox::up-button, QSpinBox::down-button { width: 0px; height: 0px; border: none; }").arg(qRound(10 * s)));
+                                              "QSpinBox::up-button, QSpinBox::down-button { width: 0px; height: 0px; border: none; }").arg(qRound(padUnits * s)));
             up->setGeometry(w.right() - arrowW + 1, w.top(), arrowW, w.height() / 2);
             down->setGeometry(w.right() - arrowW + 1, w.top() + w.height() / 2, arrowW, w.height() - w.height() / 2);
         };
@@ -112,6 +122,7 @@ public:
         place(rgbBox[0], m_rgbUp[0], m_rgbDown[0], r(50.6, 839, 76, 34), 24);
         place(rgbBox[1], m_rgbUp[1], m_rgbDown[1], r(166, 839, 78, 34), 24);
         place(rgbBox[2], m_rgbUp[2], m_rgbDown[2], r(282.6, 839, 81, 34), 24);
+        for (int i = 0; i < 4; ++i) place(cmykBox[i], m_cmykUp[i], m_cmykDown[i], r(45 + 80 * i, 839, 60, 34), 16, 4);
         hex->setGeometry(r(165, 751, 148, 39).toAlignedRect());
         hex->setFont(f);
         hex->setStyleSheet(QStringLiteral("QLineEdit { background: transparent; border: none; padding: 0px 0px 0px %1px; color: #f4f6fc; selection-background-color: #1196d8; }").arg(qRound(12 * s)));
@@ -186,7 +197,7 @@ protected:
         const int count = m_pal.colors.size();
         const int cols = qMax(1, m_pal.columns);
         const QString infoLabels[3] = {tr("Name:"), tr("Colors:"), tr("Format:")};
-        const QString infoValues[3] = {m_pal.name, tr("%1 (%2 \u00D7 %3)").arg(count).arg(cols).arg((count + cols - 1) / cols), QStringLiteral("GPL")};
+        const QString infoValues[3] = {m_pal.name, tr("%1 (%2 \u00D7 %3)").arg(count).arg(cols).arg((count + cols - 1) / cols), m_pal.isCmyk() ? QStringLiteral("GPL (CMYK)") : QStringLiteral("GPL")};
         for (int i = 0; i < 3; ++i) {
             const double cy = 536.8 + 31.5 * i;
             p.setPen(label);
@@ -208,7 +219,15 @@ protected:
         paintButton(p, r(313, 751, 41, 39), 9 * s);
         drawSymbol(p, QStringLiteral("copy"), r(313, 751, 41, 39).center(), 0.75);
         p.setPen(label);
-        p.drawText(r(36, 800, 80, 30), Qt::AlignLeft | Qt::AlignVCenter, tr("RGB:"));
+        p.drawText(r(36, 800, 200, 30), Qt::AlignLeft | Qt::AlignVCenter, m_pal.isCmyk() ? tr("CMYK (percent):") : tr("RGB:"));
+        if (m_pal.isCmyk()) {
+            static const char *cmykNames[4] = {"C", "M", "Y", "K"};
+            for (int i = 0; i < 4; ++i) {
+                p.setPen(label);
+                p.drawText(r(29 + 80 * i, 839, 16, 34), Qt::AlignLeft | Qt::AlignVCenter, QString::fromLatin1(cmykNames[i]));
+                paintSpinFrame(p, r(45 + 80 * i, 839, 60, 34), 16);
+            }
+        } else {
         static const double labelX[3] = {26, 140, 257};
         static const char *rgbNames[3] = {"R:", "G:", "B:"};
         static const double boxX[3] = {50.6, 166, 282.6};
@@ -217,6 +236,7 @@ protected:
             p.setPen(label);
             p.drawText(r(labelX[i], 839, 24, 34), Qt::AlignLeft | Qt::AlignVCenter, QString::fromLatin1(rgbNames[i]));
             paintSpinFrame(p, r(boxX[i], 839, boxW[i], 34), 24);
+        }
         }
         paintBrightLine(p, 29, 895, 354, s);
         p.setPen(label);
@@ -354,6 +374,15 @@ private:
         rgbBox[1]->setValue(c.green());
         rgbBox[2]->setValue(c.blue());
         hex->setText(c.name(QColor::HexRgb).toUpper());
+        // a CMYK palette's swatch is edited with its four plates, an RGB palette's with R, G, B
+        const bool cmyk = m_pal.isCmyk();
+        for (int i = 0; i < 3; ++i) { rgbBox[i]->setVisible(!cmyk); m_rgbUp[i]->setVisible(!cmyk); m_rgbDown[i]->setVisible(!cmyk); }
+        for (int i = 0; i < 4; ++i) {
+            cmykBox[i]->setVisible(cmyk);
+            m_cmykUp[i]->setVisible(cmyk);
+            m_cmykDown[i]->setVisible(cmyk);
+            cmykBox[i]->setValue((cmyk && m_selected >= 0 && m_selected < m_pal.cmyk.size()) ? m_pal.cmyk[m_selected][i] : 0);
+        }
         m_syncing = false;
     }
     // change the selected swatch's color and save the palette
@@ -362,13 +391,28 @@ private:
         if (m_selected < 0 || m_selected >= m_pal.colors.size()) return;
         QColor opaque = c;
         opaque.setAlpha(255);
-        m_pal.colors[m_selected] = opaque;
+        // m_pal.colors[m_selected] = opaque;
+        m_pal.replace(m_selected, opaque);   // 2026-11-08: through the palette: a CMYK palette keeps the plates (made from this color)
         KrimblePaletteStore::save(m_pal);
         m_signature = KrimblePaletteStore::signature();
         syncBoxes();
         update();
         if (onPaletteChanged) onPaletteChanged();
         if (onColor) onColor(opaque);
+    }
+    // 2026-11-08: the four plates (percent) of the selected swatch of a CMYK palette
+    void editSelectedCmyk(const KrimbleCmyk &v)
+    {
+        if (m_selected < 0 || m_selected >= m_pal.colors.size() || !m_pal.isCmyk()) return;
+        m_pal.replaceCmyk(m_selected, v);
+        KrimblePaletteStore::save(m_pal);
+        m_signature = KrimblePaletteStore::signature();
+        m_syncing = true;
+        hex->setText(m_pal.colors[m_selected].name(QColor::HexRgb).toUpper());
+        m_syncing = false;
+        update();
+        if (onPaletteChanged) onPaletteChanged();
+        if (onColor) onColor(m_pal.colors[m_selected]);
     }
     void changed()
     {
@@ -458,4 +502,6 @@ private:
     QToolButton *m_indexDown = nullptr;
     QToolButton *m_rgbUp[3] = {nullptr, nullptr, nullptr};
     QToolButton *m_rgbDown[3] = {nullptr, nullptr, nullptr};
+    QToolButton *m_cmykUp[4] = {nullptr, nullptr, nullptr, nullptr};
+    QToolButton *m_cmykDown[4] = {nullptr, nullptr, nullptr, nullptr};
 };

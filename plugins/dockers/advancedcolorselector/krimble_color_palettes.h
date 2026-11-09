@@ -4,6 +4,7 @@
 // Values pages use them: the drop-down lists the names, the plus adds the foreground color to the active palette, and New, Open, Import, Export, Duplicate, Rename and Delete work on
 // the files. The Mixer panel's "add to palette" adds to the active palette too.
 #pragma once
+#include <array>
 #include <QColor>
 #include <QDir>
 #include <QFile>
@@ -15,11 +16,70 @@
 #include <QTextStream>
 #include <QVector>
 
+// the four plates of a CMYK color, in percent (0 to 100)
+typedef std::array<int, 4> KrimbleCmyk;
+inline KrimbleCmyk krimbleCmykOf(const QColor &color)
+{
+    const QColor c = color.toCmyk();
+    return {qRound(c.cyanF() * 100.0), qRound(c.magentaF() * 100.0), qRound(c.yellowF() * 100.0), qRound(c.blackF() * 100.0)};
+}
+inline QColor krimbleColorOfCmyk(const KrimbleCmyk &v)
+{
+    return QColor::fromCmykF(qBound(0, v[0], 100) / 100.0, qBound(0, v[1], 100) / 100.0, qBound(0, v[2], 100) / 100.0, qBound(0, v[3], 100) / 100.0).toRgb();
+}
+
 struct KrimblePalette
 {
     QString name;
-    QVector<QColor> colors;
+    QVector<QColor> colors;                // always filled: the RGB value of each swatch (for a CMYK palette: made from its plates)
     int columns = 16;
+    // 2026-11-08: George: "I want to be able to edit RGB and CMYK palettes too." and "palettes stored as CMYK color values (4 channels, commonly called plates in printing)". A palette is
+    // an RGB palette (each swatch is R, G, B) or a CMYK palette (each swatch is its four plates C, M, Y, K in percent, which is what is stored and edited; the RGB value is made from them).
+    QString model = QStringLiteral("RGB");
+    QVector<KrimbleCmyk> cmyk;             // for a CMYK palette: the plates of each swatch (the same size as colors)
+    bool isCmyk() const { return model == QLatin1String("CMYK"); }
+    void append(const QColor &c)
+    {
+        QColor rgb = c.toRgb();
+        rgb.setAlpha(255);
+        if (isCmyk()) { const KrimbleCmyk v = krimbleCmykOf(rgb); cmyk.append(v); colors.append(krimbleColorOfCmyk(v)); }
+        else colors.append(rgb);
+    }
+    void appendCmyk(const KrimbleCmyk &v) { cmyk.append(v); colors.append(krimbleColorOfCmyk(v)); }
+    void removeAt(int i)
+    {
+        if (i < 0 || i >= colors.size()) return;
+        colors.removeAt(i);
+        if (isCmyk() && i < cmyk.size()) cmyk.removeAt(i);
+    }
+    void replace(int i, const QColor &c)
+    {
+        if (i < 0 || i >= colors.size()) return;
+        QColor rgb = c.toRgb();
+        rgb.setAlpha(255);
+        if (isCmyk()) { const KrimbleCmyk v = krimbleCmykOf(rgb); if (i < cmyk.size()) cmyk[i] = v; colors[i] = krimbleColorOfCmyk(v); }
+        else colors[i] = rgb;
+    }
+    void replaceCmyk(int i, const KrimbleCmyk &v)
+    {
+        if (i < 0 || i >= colors.size()) return;
+        if (i < cmyk.size()) cmyk[i] = v;
+        colors[i] = krimbleColorOfCmyk(v);
+    }
+    void swap(int i, int j)
+    {
+        if (i < 0 || j < 0 || i >= colors.size() || j >= colors.size()) return;
+        colors.swapItemsAt(i, j);
+        if (isCmyk() && i < cmyk.size() && j < cmyk.size()) cmyk.swapItemsAt(i, j);
+    }
+    // a CMYK palette has its plates for every swatch (made from the RGB value where a file lacked them), and its RGB values come from the plates
+    void normalize()
+    {
+        if (!isCmyk()) { cmyk.clear(); return; }
+        while (cmyk.size() < colors.size()) cmyk.append(krimbleCmykOf(colors[cmyk.size()]));
+        while (cmyk.size() > colors.size()) cmyk.removeLast();
+        for (int i = 0; i < colors.size(); ++i) colors[i] = krimbleColorOfCmyk(cmyk[i]);
+    }
 };
 
 class KrimblePaletteStore
@@ -60,6 +120,15 @@ public:
         out.name = QFileInfo(path).completeBaseName();
         while (!in.atEnd()) {
             const QString line = in.readLine().trimmed();
+            if (line.startsWith(QLatin1String("#KrimbleModel:"))) { out.model = line.mid(14).trimmed().toUpper() == QLatin1String("CMYK") ? QStringLiteral("CMYK") : QStringLiteral("RGB"); continue; }
+            if (line.startsWith(QLatin1String("#KCMYK"))) {
+                const QStringList v = line.mid(6).split(QLatin1Char(' '), Qt::SkipEmptyParts);
+                if (v.size() >= 4 && !out.colors.isEmpty()) {
+                    while (out.cmyk.size() < out.colors.size() - 1) out.cmyk.append(krimbleCmykOf(out.colors[out.cmyk.size()]));
+                    out.cmyk.append({v[0].toInt(), v[1].toInt(), v[2].toInt(), v[3].toInt()});
+                }
+                continue;
+            }
             if (line.isEmpty() || line.startsWith(QLatin1Char('#'))) continue;
             if (line.startsWith(QLatin1String("Name:"))) { out.name = line.mid(5).trimmed(); continue; }
             if (line.startsWith(QLatin1String("Columns:"))) { out.columns = qBound(1, line.mid(8).trimmed().toInt(), 64); continue; }
@@ -70,6 +139,7 @@ public:
                 if (a && b && c) out.colors.append(QColor(qBound(0, r, 255), qBound(0, g, 255), qBound(0, bl, 255)));
             }
         }
+        out.normalize();
         return true;
     }
     static bool load(const QString &name, KrimblePalette &out)
@@ -89,8 +159,14 @@ public:
         if (!file.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate)) return false;
         QTextStream out(&file);
         out << "GIMP Palette\nName: " << palette.name << "\nColumns: " << palette.columns << "\n#\n";
-        for (const QColor &c : palette.colors)
+        // a CMYK palette is a GIMP palette too: every swatch has its RGB value (the line other programs read) and, as a comment, its four plates (which this program reads and edits)
+        if (palette.isCmyk()) out << "#KrimbleModel: CMYK\n";
+        for (int i = 0; i < palette.colors.size(); ++i) {
+            const QColor &c = palette.colors[i];
             out << c.red() << ' ' << c.green() << ' ' << c.blue() << ' ' << c.name(QColor::HexRgb).toUpper() << '\n';
+            if (palette.isCmyk() && i < palette.cmyk.size())
+                out << "#KCMYK " << palette.cmyk[i][0] << ' ' << palette.cmyk[i][1] << ' ' << palette.cmyk[i][2] << ' ' << palette.cmyk[i][3] << '\n';
+        }
         return true;
     }
     static bool save(const KrimblePalette &palette) { return !palette.name.isEmpty() && writeFile(palette, fileFor(palette.name)); }
@@ -150,9 +226,10 @@ public:
         ensureDefaults();
         KrimblePalette pal;
         if (!load(active(), pal) || !c.isValid()) return false;
-        QColor opaque = c;
+        QColor opaque = c.toRgb();
         opaque.setAlpha(255);
-        if (!pal.colors.contains(opaque)) pal.colors.append(opaque);
+        QColor shown = pal.isCmyk() ? krimbleColorOfCmyk(krimbleCmykOf(opaque)) : opaque;
+        if (!pal.colors.contains(shown)) pal.append(opaque);
         return save(pal);
     }
     // a text that changes when the active palette's name or colors change (the panel reloads when it does)
@@ -160,8 +237,9 @@ public:
     {
         KrimblePalette pal;
         if (!load(active(), pal)) return QString();
-        QString text = pal.name + QLatin1Char('|') + QString::number(pal.columns);
+        QString text = pal.name + QLatin1Char('|') + QString::number(pal.columns) + QLatin1Char('|') + pal.model;
         for (const QColor &c : pal.colors) text += QLatin1Char(',') + c.name(QColor::HexRgb);
+        for (const KrimbleCmyk &v : pal.cmyk) text += QStringLiteral(";%1,%2,%3,%4").arg(v[0]).arg(v[1]).arg(v[2]).arg(v[3]);
         return text;
     }
     // the first run: "My Palette" (the user's own swatches: the saved list of earlier versions, or a starting set) and "Krimble 256" (16 x 16: grays, then hues from tints to shades)
