@@ -1,12 +1,15 @@
 # Krimble Android build on GitHub Actions (replaces the Oracle server).
 # Mirrors build-tools/ci-scripts/android.yml and BUILD_ANDROID.md steps 1-3.
-# Runs only when started by hand (Actions tab > Run workflow).
+# Runs manually or when this workflow file is updated.
 # A full build exceeds the 6-hour job limit, so the native build is stopped
 # at 5h, ccache is saved, and the run is marked failed. Run it again and it
 # resumes from the ccache until the build finishes.
 name: Krimble Android build
 
 on:
+  push:
+    branches: [master]
+    paths: ['.github/workflows/android-build.yml']
   workflow_dispatch:
     inputs:
       beta:
@@ -40,7 +43,7 @@ jobs:
       # Krimble 2026-11-08: George: "From now on follow strict renumbering. We don't always have to release a new build, but we should always change the number." The build number must be
       # new (higher than every number in KRIMBLE_BUILD_LOG.md) and the label must match it.
       - name: Check the build number
-        run: python3 tools/ci/check_build_number.py "${{ inputs.beta }}"
+        run: python3 tools/ci/check_build_number.py "${{ inputs.beta || '1.0.55-beta' }}"
 
       - name: Free disk space
         run: |
@@ -162,7 +165,7 @@ jobs:
         run: |
           APK=$(ls "$HOME"/kwd/krita/_packaging/*.apk | head -n 1)
           "$ANDROID_HOME"/build-tools/*/apksigner verify --verbose "$APK" | head -n 8
-          NAME="Krimble-${{ inputs.beta }}-$(TZ=America/Denver date +%b%d-%H%M).apk"
+          NAME="Krimble-${{ inputs.beta || '1.0.55-beta' }}-$(TZ=America/Denver date +%b%d-%H%M).apk"
           mkdir -p out && cp "$APK" "out/$NAME"
           ls -l out
 
