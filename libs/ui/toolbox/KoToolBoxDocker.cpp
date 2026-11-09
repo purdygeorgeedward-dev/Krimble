@@ -339,38 +339,6 @@ void KoToolBoxDocker::setViewManager(KisViewManager *viewManager)
         trailingLayout->addWidget(m_dualColorButton, 0, Qt::AlignHCenter);
         m_toolBox->toolBoxLayout()->setTrailingWidget(trailingBox);
 
-#if 0   // Krimble 2026-11-08: the first UNDO button, a text button under the color wells (replaced by the icon button in the grid of tools below)
-        // Krimble 2026-11-07: George: "Let's make an UNDO button! It will be retro! I like it!" (after "What do you think about putting an UNDO button in the toolbox like Deluxe
-        // Paint?"). A blocky text button, UNDO, under the color wells, away from the tools so it is not hit by accident. A tap is Undo (the program's own Edit > Undo action: it
-        // follows that action's enabled state and its shortcut); a long press (the program's long press opens a context menu) offers Redo.
-        {
-            QAction *undoAction = viewManager->actionCollection()->action("edit_undo");
-            QAction *redoAction = viewManager->actionCollection()->action("edit_redo");
-            if (undoAction) {
-                QToolButton *undoButton = new QToolButton(trailingBox);
-                undoButton->setObjectName(QStringLiteral("krimbleUndoButton"));
-                undoButton->setText(i18nc("@action:button", "UNDO"));
-                undoButton->setToolButtonStyle(Qt::ToolButtonTextOnly);
-                undoButton->setToolTip(i18n("Undo (long press for Redo)"));
-                undoButton->setMinimumHeight(26);
-                undoButton->setMinimumWidth(1);
-                undoButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-                undoButton->setStyleSheet(QStringLiteral(
-                    "QToolButton { color: #f1f4fc; font-weight: bold; border: 2px solid #5c678f; border-radius: 0px; background: #2a3148; padding: 1px; }"
-                    "QToolButton:pressed { color: white; border-color: #3bbcf5; background: #0867b8; }"
-                    "QToolButton:disabled { color: #6a7190; border-color: #3a4260; background: #232a40; }"));
-                undoButton->setEnabled(undoAction->isEnabled());
-                connect(undoButton, &QToolButton::clicked, undoAction, &QAction::trigger);
-                connect(undoAction, &QAction::changed, undoButton, [undoButton, undoAction]() { undoButton->setEnabled(undoAction->isEnabled()); });
-                if (redoAction) {
-                    undoButton->setContextMenuPolicy(Qt::ActionsContextMenu);
-                    undoButton->addAction(redoAction);
-                }
-                trailingLayout->addWidget(undoButton);
-            }
-        }
-
-#endif
         // Krimble 2026-11-08: George: "I wanted to put the UNDO button in as a tool button in the toolbox to fill that last space." and "Put UNDO in as a standard toolbox icon." The UNDO button is
         // an icon button (the silhouette icon krita_tool_undo, from George's picture) in the grid of tools, after the last tool, in the space the Rotate tool left. A tap is Undo (the program's
         // own Edit > Undo action: it follows that action's enabled state and its shortcut); a long press (the program's long press opens a context menu) offers Redo.
