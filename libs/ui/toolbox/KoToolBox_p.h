@@ -83,6 +83,8 @@ private:
      * @see setup()
      */
     void addButton(KoToolAction *toolAction);
+    // Krimble 2026-11-08: a button that is not a tool (the UNDO button) in the one block of tools, at the place the priority gives (a high priority is the end)
+    void addActionButton(QToolButton *button, int priority);
 
 private Q_SLOTS:
     void setCurrentLayer(const KoCanvasController *canvas, const KoShapeLayer* newLayer);

@@ -255,6 +255,21 @@ void KoToolBox::addButton(KoToolAction *toolAction)
     d->visibilityCodes.insert(button, toolAction->visibilityCode());
 }
 
+// Krimble 2026-11-08: George: "I wanted to put the UNDO button in as a tool button in the toolbox to fill that last space." and "Put UNDO in as a standard toolbox icon." A button that is
+// not a tool goes into the same block as the tools, after them (their priorities are below 13 million), with the size and icon size of a tool button.
+void KoToolBox::addActionButton(QToolButton *button, int priority)
+{
+    d->buttons << button;
+    Section *sectionWidget = d->sections.value(QStringLiteral("main"));
+    if (sectionWidget == 0) {
+        sectionWidget = new Section(this);
+        d->addSection(sectionWidget, QStringLiteral("main"));
+    }
+    sectionWidget->addButton(button, priority);
+    button->setIconSize(QSize(d->iconSize, d->iconSize));
+    sectionWidget->setButtonSize(QSize(d->iconSize + BUTTON_MARGIN, d->iconSize + BUTTON_MARGIN));
+}
+
 void KoToolBox::setActiveTool(KoCanvasController *canvas)
 {
     Q_UNUSED(canvas);

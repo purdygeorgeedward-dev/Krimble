@@ -28,6 +28,7 @@
         <file>dark_krita_tool_polygon.svg</file>
         <file>dark_krita_tool_rectangle.svg</file>
         <file>dark_krita_tool_transform.svg</file>
+        <file>dark_krita_tool_undo.svg</file>
         <file>dark_pattern.svg</file>
         <file>dark_polyline.svg</file>
         <file>dark_select.svg</file>
@@ -71,6 +72,7 @@
         <file>light_krita_tool_polygon.svg</file>
         <file>light_krita_tool_rectangle.svg</file>
         <file>light_krita_tool_transform.svg</file>
+        <file>light_krita_tool_undo.svg</file>
         <file>light_pattern.svg</file>
         <file>light_polyline.svg</file>
         <file>light_select.svg</file>
