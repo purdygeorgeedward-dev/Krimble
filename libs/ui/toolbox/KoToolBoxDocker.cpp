@@ -770,8 +770,15 @@ void KoToolBoxDocker::fitHeightToContents(bool setWidthToo)
     //     resize(width(), target);
     //     QTimer::singleShot(400, this, [this]() { m_applying = false; });
     // }
-    const int wantedWidth = setWidthToo ? columnsWidth + chromeWidth() : width();   // Krimble 2026-10-23
-    if (target > 0 && (qAbs(height() - target) > 2 || qAbs(width() - wantedWidth) > 2)) {
+    // const int wantedWidth = setWidthToo ? columnsWidth + chromeWidth() : width();   // Krimble 2026-10-23
+    // if (target > 0 && (qAbs(height() - target) > 2 || qAbs(width() - wantedWidth) > 2)) {
+    // Krimble 2026-11-09: George (1.0.55-beta, krita.log): after a tear-off the toolbox showed 1 column, and picking "2 columns" in the menu snapped it to 2. The log: size 54, chromeWidth 4, iconWidth 26,
+    // columns 2: the wanted width was 2 * 26 + 4 = 56, and a window 2 px too narrow was left alone (the "more than 2 px" test), but the tools need 52 px in the viewport and the viewport was 50, so the
+    // layout wrapped to 1 column. A window whose viewport is narrower than the columns need is now always widened by the shortfall.
+    int wantedWidth = setWidthToo ? columnsWidth + chromeWidth() : width();
+    const int shortfall = setWidthToo ? columnsWidth - m_scrollArea->viewport()->width() : 0;
+    if (shortfall > 0) wantedWidth = qMax(wantedWidth, width() + shortfall);
+    if (target > 0 && (qAbs(height() - target) > 2 || shortfall > 0 || qAbs(width() - wantedWidth) > 2)) {
         m_applying = true;
         resize(wantedWidth, target);
         QTimer::singleShot(400, this, [this]() { m_applying = false; });
@@ -785,7 +792,7 @@ void KoToolBoxDocker::krimbleLogState(const char *where) const
 {
     // qWarning().noquote() << "KRIMBLE-TOOLBOX" << where ... (the lines went to Android's logcat only: the program's Android log handler does not write qWarning into krita.log, so George's log of
     // 2026-11-07 22:58 had no KRIMBLE-TOOLBOX line at all, not even the start-up ones; 2026-11-08: the lines are written with KisUsageLogger, as every other line of krita.log)
-    KisUsageLogger::log(QStringLiteral("KRIMBLE-TOOLBOX %1 | floating %2 | dockArea %3 | orientation setting %4 layout %5 | columns %6 | size %7 x %8 | iconWidth %9 chromeWidth %10 | justDocked %11 applying %12 userDragged %13")
+    KisUsageLogger::log(QStringLiteral("KRIMBLE-TOOLBOX %1 | floating %2 | dockArea %3 | orientation setting %4 layout %5 | columns %6 | size %7 x %8 | iconWidth %9 chromeWidth %10 | justDocked %11 applying %12 userDragged %13 | viewport %14 columnsNeed %15")
         .arg(QString::fromLatin1(where))
         .arg(isFloating())
         .arg(int(m_dockArea))
@@ -794,7 +801,7 @@ void KoToolBoxDocker::krimbleLogState(const char *where) const
         .arg(m_columns)
         .arg(width()).arg(height())
         .arg(iconWidth()).arg(chromeWidth())
-        .arg(m_justDocked).arg(m_applying).arg(m_userDragged));
+        .arg(m_justDocked).arg(m_applying).arg(m_userDragged).arg(m_scrollArea ? m_scrollArea->viewport()->width() : -1).arg(qMax(1, m_columns) * iconWidth()));
 }
 
 void KoToolBoxDocker::applyColumns()
