@@ -192,6 +192,12 @@ Times are Mountain Time from the clock of the sandbox that pushed (`date`), chec
 | Nov 8  4:10 PM | `33bcca0` | George Purdy | Color panel: tab strip, Sliders and Values pages, alpha channel (440th) |
 | Nov 8  4:10 PM | `17b0552` | George Purdy | Named palettes (GPL files) (441st); History page first version and icons, not yet in the panel (442nd). The Palette and History tabs are blank in this state |
 | Nov 8  4:10 PM | (this push, docs only) | George Purdy | Dev journal rows for the pushes above |
+| Nov 8  8:21 PM | `74a6576` | George Purdy | The Color panel is called Color Lab (443rd) |
+| Nov 8  8:21 PM | `69134de` | George Purdy | Color Lab: Palette and History tabs, palette commands, history recording, the palette row's buttons (444th) |
+| Nov 8  8:21 PM | `835329f`, `530a42a` | George Purdy | Color Lab logo as the panel's header, left aligned (445th); KRIMBLE_DESIGN_RULES.md |
+| Nov 8  8:21 PM | `d8e164c`, `ac61d9f` | George Purdy | Design rules: never touch the splash images; do nothing without an explicit request |
+| Nov 8  8:21 PM | `12c4514` | George Purdy | Color Lab: the tabs fill the width (446th) |
+| Nov 8  8:21 PM | (this push, docs only) | George Purdy | Dev journal rows for the pushes above; build 1.0.55-beta started right after |
 | Nov 8  4:15 AM | `400ab12` | George Purdy | Transform and Pan names; the name in Tool Options follows the Transform mode; no "Tool" after tool names (433rd) |
 | Nov 8  4:15 AM | `d1be4c6` | George Purdy | Toolbox tear-off log lines written to krita.log with KisUsageLogger (434th) |
 | Nov 8  4:15 AM | (this push) | George Purdy | Strict renumbering: build number 55, KRIMBLE_BUILD_LOG.md (builds 45 to 54), tools/ci/check_build_number.py, BUILD_ANDROID.md; the draft release v1.0.45-beta and its tag deleted (435th) |
