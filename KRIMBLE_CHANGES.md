@@ -6397,3 +6397,9 @@ George: "Change Color to \"Color Lab\" and I will make a logo." and, with two fi
 
 **2026-11-08, rule added (no code or image changed):** George: "DONT DO ANYTHING WITHOUT AN EXPLICIT REQUEST. DONT \"INTERPRET\"." and "Add it to your list of rules." It is in `KRIMBLE_DESIGN_RULES.md`.
 
+## 2026-11-08 (446th) — The tabs fill the width
+
+**Files:** `plugins/dockers/advancedcolorselector/krimble_color_pages.h`
+
+George: "The tabs should fill the horizontal space." The five tabs are equal and fill the panel's width: from a margin of 24 units at the left (the line the logo's first letter is on) to a margin of 24 units at the right, 8 units apart; the selected tab is 5 units wider at each side. They were 220 units wide, 231 apart, starting 31 from the left, so they stopped short of the right side (the old function is in a comment). Tried in real Qt (`color_lab_tabs_filled.png`). **Not verified:** a build or a phone.
+

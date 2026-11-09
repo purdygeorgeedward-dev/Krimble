@@ -757,10 +757,19 @@ protected:
             }
     }
 private:
+    // QRectF tabRect(int i, bool selected) const
+    // {
+    //     const double x = 31.0 + 231.0 * i;
+    //     return selected ? r(x - 7.5, 0, 235, 82) : r(x, 3, 220, 75);
+    // }
+    // 2026-11-08: George: "The tabs should fill the horizontal space." Five equal tabs from the left margin to the right margin (24 units each side, the line the logo's left edge is on),
+    // 8 units apart; the selected one is 5 units wider at each side.
     QRectF tabRect(int i, bool selected) const
     {
-        const double x = 31.0 + 231.0 * i;
-        return selected ? r(x - 7.5, 0, 235, 82) : r(x, 3, 220, 75);
+        const double margin = 24.0, gap = 8.0;
+        const double w = (DW - 2 * margin - 4 * gap) / 5.0;
+        const double x = margin + i * (w + gap);
+        return selected ? r(x - 5, 0, w + 10, 82) : r(x, 3, w, 75);
     }
 };
 
