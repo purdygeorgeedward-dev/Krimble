@@ -207,6 +207,7 @@ Times are Mountain Time from the clock of the sandbox that pushed (`date`), chec
 | Nov 8  4:15 AM | `400ab12` | George Purdy | Transform and Pan names; the name in Tool Options follows the Transform mode; no "Tool" after tool names (433rd) |
 | Nov 8  4:15 AM | `d1be4c6` | George Purdy | Toolbox tear-off log lines written to krita.log with KisUsageLogger (434th) |
 | Nov 8  4:15 AM | (this push) | George Purdy | Strict renumbering: build number 55, KRIMBLE_BUILD_LOG.md (builds 45 to 54), tools/ci/check_build_number.py, BUILD_ANDROID.md; the draft release v1.0.45-beta and its tag deleted (435th) |
+| Nov 9  3:10 AM | `2636234`, `d872078`, `311e0cc`, (this push) | George Purdy | Toolbox columns after a tear-off (452nd); square color wells and swatches (453rd); flat list selection and menu titles, the Preferences keyboard turned (454th); build 1.0.55-beta started again, same number |
 | Nov 9  12:48 AM | `65fcae2`, (this push) | George Purdy | Effects plan notes; the toolbox header fix for the failed 1.0.55-beta build (QToolButton include); build 1.0.55-beta started again, same number |
 
 ## Notes of Saturday 2026-11-07 (written 10:3x PM MT)
