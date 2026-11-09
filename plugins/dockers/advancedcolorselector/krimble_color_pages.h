@@ -11,6 +11,7 @@
 #include <QSignalBlocker>
 #include <QSpinBox>
 #include "krimble_color_paint.h"
+#include "krimble_color_logo.h"
 
 // the color the panel is working on: opaque RGB, the alpha channel apart, and the hue to keep when a color is gray (a gray has no hue)
 struct KrimbleColorState
@@ -760,5 +761,33 @@ private:
     {
         const double x = 31.0 + 231.0 * i;
         return selected ? r(x - 7.5, 0, 235, 82) : r(x, 3, 220, 75);
+    }
+};
+
+// the Color Lab header: a black band the width of the panel with the logo centered (the logo's own background is black, so the picture and the band are one)
+class KrimbleColorHeader : public KrimbleColorBase
+{
+public:
+    double designHeight() const override { return 100.0; }
+    explicit KrimbleColorHeader(QWidget *parent = nullptr) : KrimbleColorBase(parent) {}
+protected:
+    void paintEvent(QPaintEvent *) override
+    {
+        QPainter p(this);
+        p.setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform);
+        const qreal s = scale();
+        QPainterPath band;
+        band.addRoundedRect(QRectF(0.5, 0.5, width() - 1.0, height() - 1.0), 16 * s, 16 * s);
+        p.fillPath(band, QColor(0, 0, 0));
+        p.setPen(QPen(QColor("#2a3354"), 1.4));
+        p.setBrush(Qt::NoBrush);
+        p.drawPath(band);
+        const QPixmap logo = krimbleColorLabLogo();
+        if (logo.isNull()) return;
+        // the picture has black space around the letters (they are about half its height): it is drawn larger than the band and clipped to it, so the letters fill the band
+        const qreal h = height() * 1.2;
+        const qreal w = h * logo.width() / logo.height();
+        p.setClipPath(band);
+        p.drawPixmap(QRectF((width() - w) / 2, (height() - h) / 2, w, h), logo, QRectF(logo.rect()));
     }
 };

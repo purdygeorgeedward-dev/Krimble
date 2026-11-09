@@ -570,6 +570,10 @@ public:
         // problem." The Picker page is the mockup's card, measured (color_panel_measurements.md), placed by KrimbleColorCanvas at the mockup's proportions at any width.
         // Krimble 2026-11-08: George: "make the new tabs work just like the mockups." A tab strip above the card (Picker, Sliders, Values, Palette, History); the first three share
         // the card (its top part changes), Palette and History are cards of their own.
+        // Krimble 2026-11-08: George: "Change Color to \"Color Lab\" and I will make a logo." and "Scale whichever of these is the right format to fit the color lab panel." The logo is the
+        // header of the panel: a black band the width of the panel with the logo centered.
+        auto *header = new KrimbleColorHeader(this);
+        layout->addWidget(header);
         m_tabs = new KrimbleColorTabBar(this);
         layout->addWidget(m_tabs);
         m_ui = new KrimbleColorCanvas(this);
