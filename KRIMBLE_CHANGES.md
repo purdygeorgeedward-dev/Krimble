@@ -6395,3 +6395,5 @@ George: "Change Color to \"Color Lab\" and I will make a logo." and, with two fi
 
 **2026-11-08, rule added (no code or image changed):** George: "DO NOT TOUCH MY SPLASH IMAGE!!!!!!" The splash images and the splash screen code were not changed at any time (checked: no difference in `krita/data/splash` or `libs/ui/kis_splash_screen.*`). The rule is in `KRIMBLE_DESIGN_RULES.md`: never touch the splash images or code unless George asks for it in so many words.
 
+**2026-11-08, rule added (no code or image changed):** George: "DONT DO ANYTHING WITHOUT AN EXPLICIT REQUEST. DONT \"INTERPRET\"." and "Add it to your list of rules." It is in `KRIMBLE_DESIGN_RULES.md`.
+
