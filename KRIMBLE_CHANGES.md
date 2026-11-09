@@ -6411,3 +6411,5 @@ George: "The toolbox has a gap since taking out one of the tools. I wanted to pu
 
 **2026-11-08, added to the 447th entry:** George: "Delete that text button. Don't comment it out." The old UNDO text button (under the color wells) is **deleted** from `KoToolBoxDocker.cpp`, not commented out (George's instruction for this one; it overrides the usual rule). The entry above that says it is kept in a compiled-out block is no longer true. **Not verified:** a compile or a build.
 
+**2026-11-08, added to the 447th entry:** George: "No. Don't make it gray out. I never asked fur that." The UNDO button no longer follows the Undo action's enabled state: it is always enabled and never grays out (the two lines that did it are removed). A tap still runs Undo and a long press still offers Redo; the 447th entry's words about following the action's enabled state are no longer true. **Not verified:** a compile or a build.
+

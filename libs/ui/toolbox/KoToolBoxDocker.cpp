@@ -341,7 +341,7 @@ void KoToolBoxDocker::setViewManager(KisViewManager *viewManager)
 
         // Krimble 2026-11-08: George: "I wanted to put the UNDO button in as a tool button in the toolbox to fill that last space." and "Put UNDO in as a standard toolbox icon." The UNDO button is
         // an icon button (the silhouette icon krita_tool_undo, from George's picture) in the grid of tools, after the last tool, in the space the Rotate tool left. A tap is Undo (the program's
-        // own Edit > Undo action: it follows that action's enabled state and its shortcut); a long press (the program's long press opens a context menu) offers Redo.
+        // own Edit > Undo action); a long press (the program's long press opens a context menu) offers Redo. The button never grays out (George: "Don't make it gray out.").
         {
             QAction *undoAction = viewManager->actionCollection()->action("edit_undo");
             QAction *redoAction = viewManager->actionCollection()->action("edit_redo");
@@ -352,9 +352,7 @@ void KoToolBoxDocker::setViewManager(KisViewManager *viewManager)
                 undoButton->setToolButtonStyle(Qt::ToolButtonIconOnly);
                 undoButton->setIcon(KisIconUtils::loadIcon("krita_tool_undo"));
                 undoButton->setToolTip(i18n("Undo (long press for Redo)"));
-                undoButton->setEnabled(undoAction->isEnabled());
                 connect(undoButton, &QToolButton::clicked, undoAction, &QAction::trigger);
-                connect(undoAction, &QAction::changed, undoButton, [undoButton, undoAction]() { undoButton->setEnabled(undoAction->isEnabled()); });
                 if (redoAction) {
                     undoButton->setContextMenuPolicy(Qt::ActionsContextMenu);
                     undoButton->addAction(redoAction);
