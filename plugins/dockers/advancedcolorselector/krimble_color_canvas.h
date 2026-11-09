@@ -11,6 +11,8 @@
 #include <QLinearGradient>
 #include <QPixmap>
 #include <QToolButton>
+#include <QMouseEvent>
+#include <QWheelEvent>
 #include <QSpinBox>
 #include <QLineEdit>
 #include <QLabel>
@@ -50,6 +52,18 @@ public:
     QToolButton *pencil = nullptr;        // rename the palette
     QToolButton *duplicate = nullptr;     // duplicate the palette
     QToolButton *more = nullptr;          // New, Open, Import, Export, Delete
+    QToolButton *paletteUp = nullptr;     // 2026-11-08: George: "you better be able to scroll through 256 swatches." The palette area shows 4 rows of 19; the scroll bar, the wheel
+    QToolButton *paletteDown = nullptr;   // and the arrows move it by rows
+    int paletteScroll = 0;                // the first visible row
+    void setPaletteScroll(int row)
+    {
+        const int maxRow = qMax(0, paletteRowCount() - 4);
+        row = qBound(0, row, maxRow);
+        if (row == paletteScroll) return;
+        paletteScroll = row;
+        relayout();
+    }
+    int paletteRowCount() const { return paletteCells ? (paletteCells->size() + 18) / 19 : 0; }
     // Krimble 2026-11-08: the top part of the card is the Picker (painted here), the Sliders page or the Values page; the bottom part (colors, recent, palette) is shared
     int topPage = 0;
     KrimbleSlidersTop *sliders = nullptr;
@@ -78,6 +92,12 @@ public:
         pencil = makeButton();
         duplicate = makeButton();
         more = makeButton();
+        paletteUp = makeButton();
+        paletteDown = makeButton();
+        paletteUp->setAutoRepeat(true);
+        paletteDown->setAutoRepeat(true);
+        QObject::connect(paletteUp, &QToolButton::clicked, this, [this]() { setPaletteScroll(paletteScroll - 1); });
+        QObject::connect(paletteDown, &QToolButton::clicked, this, [this]() { setPaletteScroll(paletteScroll + 1); });
     }
     QSize sizeHint() const override { return QSize(330, heightForWidth(330)); }
     QSize minimumSizeHint() const override { return QSize(240, heightForWidth(240)); }
@@ -168,9 +188,13 @@ public:
         pencil->setGeometry(r(866, 764, 50, 56).toAlignedRect());
         duplicate->setGeometry(r(944, 764, 50, 56).toAlignedRect());
         more->setGeometry(r(1097, 761, 59, 64).toAlignedRect());
+        paletteUp->setGeometry(r(1116, 846, 39, 37).toAlignedRect());
+        paletteDown->setGeometry(r(1116, 1026, 39, 37).toAlignedRect());
+        paletteScroll = qBound(0, paletteScroll, qMax(0, paletteRowCount() - 4));
         trash->setGeometry(r(1018, 764, 56, 56).toAlignedRect());
         if (recentCells) layoutCells(*recentCells, 10, 1, QRectF(428, 663, 658, 55), 7.0, 0.0);
-        if (paletteCells) layoutCells(*paletteCells, 19, 4, QRectF(29, 850, 1070, 206), 3.5, 4.2);
+        // if (paletteCells) layoutCells(*paletteCells, 19, 4, QRectF(29, 850, 1070, 206), 3.5, 4.2);
+        if (paletteCells) layoutCells(*paletteCells, 19, 4, QRectF(29, 850, 1070, 206), 3.5, 4.2, paletteScroll);
         update();
     }
 
@@ -321,11 +345,76 @@ protected:
         paintButton(p, r(1097, 761, 59, 64), 11 * s);
         drawSymbol(p, QStringLiteral("more"), r(1097, 761, 59, 64).center(), 1.0);
         paintWell(p, r(24, 843, 1081, 220), 10 * s);
-        paintEmptyCells(p, paletteCells, 19, 4, QRectF(29, 850, 1070, 206), 3.5, 4.2, QColor("#0f1325"), 3 * s);
+        paintEmptyCells(p, paletteCells, 19, 4, QRectF(29, 850, 1070, 206), 3.5, 4.2, QColor("#0f1325"), 3 * s, paletteScroll);
+        // the scroll bar of the palette (the mockup's: up and down arrows and a thumb), measured: 39 units wide beside the well
+        {
+            paintWell(p, r(1116, 846, 39, 217), 8 * s);
+            paintButton(p, r(1116, 846, 39, 37), 8 * s);
+            paintButton(p, r(1116, 1026, 39, 37), 8 * s);
+            drawSymbol(p, QStringLiteral("scroll_up"), r(1116, 846, 39, 37).center(), 0.9);
+            drawSymbol(p, QStringLiteral("scroll_down"), r(1116, 1026, 39, 37).center(), 0.9);
+            const QRectF thumb = paletteThumb();
+            QLinearGradient tg(0, thumb.top(), 0, thumb.bottom());
+            tg.setColorAt(0.0, QColor("#59679a"));
+            tg.setColorAt(1.0, QColor("#38446c"));
+            p.setPen(QPen(QColor("#0b0f20"), 1.2));
+            p.setBrush(tg);
+            p.drawRoundedRect(thumb, 6 * s, 6 * s);
+        }
+    }
+
+    // the scroll bar: the thumb's place (its length is the part of the palette that shows)
+    QRectF paletteThumb() const
+    {
+        const int rows = paletteRowCount();
+        const double trackTop = 886, trackH = 137;
+        const double ratio = rows > 4 ? 4.0 / rows : 1.0;
+        const double thumbH = qMax(30.0, trackH * ratio);
+        const int maxRow = qMax(0, rows - 4);
+        const double y = trackTop + (trackH - thumbH) * (maxRow > 0 ? double(paletteScroll) / maxRow : 0.0);
+        return r(1119, y, 33, thumbH);
+    }
+    void wheelEvent(QWheelEvent *e) override
+    {
+        if (topPage > 2) { QWidget::wheelEvent(e); return; }
+        if (r(24, 843, 1135, 220).contains(QPointF(e->pos()))) {
+            setPaletteScroll(paletteScroll - (e->angleDelta().y() > 0 ? 1 : -1));
+            e->accept();
+            return;
+        }
+        QWidget::wheelEvent(e);
+    }
+    void mousePressEvent(QMouseEvent *e) override
+    {
+        const QRectF track = r(1116, 883, 39, 143);
+        if (track.contains(QPointF(e->pos()))) {
+            const QRectF thumb = paletteThumb();
+            if (thumb.contains(QPointF(e->pos()))) { m_thumbDrag = true; m_thumbGrab = e->pos().y() - thumb.top(); }
+            else setPaletteScroll(paletteScroll + (e->pos().y() < thumb.top() ? -4 : 4));
+            return;
+        }
+        QWidget::mousePressEvent(e);
+    }
+    void mouseMoveEvent(QMouseEvent *e) override
+    {
+        if (!m_thumbDrag) { QWidget::mouseMoveEvent(e); return; }
+        const int rows = paletteRowCount();
+        const int maxRow = qMax(0, rows - 4);
+        const double trackTop = 886 * scale(), trackH = 137 * scale();
+        const double thumbH = qMax(30.0 * scale(), trackH * (rows > 4 ? 4.0 / rows : 1.0));
+        const double span = qMax(1.0, trackH - thumbH);
+        setPaletteScroll(qRound(maxRow * qBound(0.0, (e->pos().y() - m_thumbGrab - trackTop) / span, 1.0)));
+    }
+    void mouseReleaseEvent(QMouseEvent *e) override
+    {
+        m_thumbDrag = false;
+        QWidget::mouseReleaseEvent(e);
     }
 
 private:
-    void layoutCells(const QVector<QWidget *> &cells, int cols, int rows, const QRectF &host, double gapX, double gapY)
+    bool m_thumbDrag = false;
+    double m_thumbGrab = 0;
+    void layoutCells(const QVector<QWidget *> &cells, int cols, int rows, const QRectF &host, double gapX, double gapY, int firstRow = 0)
     {
         const qreal s = scale();
         const double cellW = (host.width() - (cols - 1) * gapX) / cols;
@@ -333,13 +422,13 @@ private:
         for (int i = 0; i < cells.size(); ++i) {
             QWidget *cell = cells[i];
             const int col = i % cols;
-            const int row = i / cols;
-            if (row >= rows) { cell->hide(); continue; }
+            const int row = i / cols - firstRow;
+            if (row < 0 || row >= rows) { cell->hide(); continue; }
             cell->setGeometry(QRectF((host.left() + col * (cellW + gapX)) * s, (host.top() + row * (cellH + gapY)) * s, cellW * s, cellH * s).toAlignedRect());
             cell->show();
         }
     }
-    void paintEmptyCells(QPainter &p, const QVector<QWidget *> *cells, int cols, int rows, const QRectF &host, double gapX, double gapY, const QColor &color, qreal radius)
+    void paintEmptyCells(QPainter &p, const QVector<QWidget *> *cells, int cols, int rows, const QRectF &host, double gapX, double gapY, const QColor &color, qreal radius, int firstRow = 0)
     {
         const qreal s = scale();
         const int used = cells ? cells->size() : 0;
@@ -347,9 +436,9 @@ private:
         const double cellH = (host.height() - (rows - 1) * gapY) / rows;
         p.setPen(Qt::NoPen);
         p.setBrush(color);
-        for (int i = used; i < cols * rows; ++i) {
+        for (int i = qMax(used, firstRow * cols); i < (firstRow + rows) * cols; ++i) {
             const int col = i % cols;
-            const int row = i / cols;
+            const int row = i / cols - firstRow;
             p.drawRoundedRect(QRectF((host.left() + col * (cellW + gapX)) * s, (host.top() + row * (cellH + gapY)) * s, cellW * s, cellH * s), radius, radius);
         }
     }

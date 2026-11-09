@@ -6415,3 +6415,9 @@ George: "The toolbox has a gap since taking out one of the tools. I wanted to pu
 
 **2026-11-08, added to the 441st entry:** George: "palette should default to 256 colors." The palette that is active on the first run is **Krimble 256** (256 colors, 16 x 16: grays, then hues from tints to shades), not "My Palette" (the user's own swatches: the old saved list or a starting set of 40, still made on the first run and one tap away in the palette menu). The default of the saved choice is "Krimble 256" too (the old lines are in comments). **Note:** the palette area of the Picker, Sliders and Values pages shows only the first 76 swatches (19 x 4) and does not scroll yet; the Palette tab shows all 256.
 
+## 2026-11-08 (448th) — The palette area scrolls
+
+**Files:** `plugins/dockers/advancedcolorselector/krimble_color_canvas.h`, `.../krimble_color_symbols.h`, `.../krimble_color_studio.h`
+
+George: "Why no scrolling through a palette when it exceeds the area there?", "palette should default to 256 colors." and "Meaning you better be able to scroll through 256 swatches." The palette area of the Picker, Sliders and Values pages shows 4 rows of 19 swatches and now **scrolls by rows** through any number of swatches (the default palette has 256 = 14 rows): the **scroll bar** at the right of the palette (the mockup's: an up and a down arrow, 39 units wide, and a thumb whose length is the part that shows; drag the thumb, tap the track above or below it to move 4 rows, hold an arrow to repeat), and the **mouse wheel** over the palette. The cap of 76 swatches is gone (the plus adds without limit). Tested with the real code: 256 swatches in 14 rows, 76 visible at first; the down and up arrows move one row; the wheel; dragging the thumb to the end shows rows 10 to 13 (swatches 190 to 255); a swatch tapped in the scrolled view becomes the foreground color; more than 258 colors after adding.
+

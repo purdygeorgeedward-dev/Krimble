@@ -920,7 +920,8 @@ public:
         connect(m_ui->add,&QToolButton::clicked,this,[this]() {
             if (!m_colors.contains(m_current)) m_colors.append(m_current);
             // while(m_colors.size()>24) m_colors.remove(0);
-            while(m_colors.size()>76) m_colors.remove(0);   // Krimble 2026-11-08: the palette grid of the mockup holds 19 x 4 = 76 swatches (was 24)
+            // while(m_colors.size()>76) m_colors.remove(0);   // Krimble 2026-11-08: the palette grid of the mockup holds 19 x 4 = 76 swatches (was 24)
+            // 2026-11-08: no cap of 76 any more: the palette area scrolls (George: "you better be able to scroll through 256 swatches")
             savePalette(); rebuildSwatches();
         });
         showBackground(QColor("#1b1c30"));   // Krimble 2026-11-05: the background color box has a color until the canvas gives the real one
