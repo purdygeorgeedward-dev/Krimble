@@ -177,10 +177,17 @@ QAbstractItemView::item:selected {
                                 stop:1 #05429d);
     border: 1px solid #3bbcf5;
     */
+    /* Krimble 2026-11-09: George: "Weird curved selection of layer has to go. It's horrible. Not everything selected is a button. You're rounding everything and it sucks. Not every UI element
+       needs to glow. Some can just darken." A selected row of a list (the Layers panel, the Preferences page list) is a flat, darker fill: no outline, no rounding, no glow, no gradient.
     color: white;
     background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #1196d8, stop:0.10 #0a78bb, stop:0.5 #073d6b, stop:1 #074a85);
     border: 2px solid #35d8f8;
     border-radius: 9px;
+    */
+    color: white;
+    background: #1c3963;
+    border: none;
+    border-radius: 0px;
 }
 /* Krimble 2026-11-08: a left-to-right version of the slider rules was tried (blue to cyan with a glossy ball) and taken out again: George asked about title bars and progress bars, not
    sliders. The slider rules are as they were. */
@@ -239,13 +246,20 @@ QMenuBar::item {
     margin: 1px 1px;
     background: transparent;
     border: 1px solid transparent;
-    border-radius: 7px;
+    border-radius: 0px;   /* Krimble 2026-11-09: was 7px */
 }
+/* Krimble 2026-11-09: George: "Menu selection can darken the menu title to match the menu. The glow is weird." The selected title (the open menu's) is the color of the menu below it: flat, no outline, no rounding.
 QMenuBar::item:selected {
     border: 1px solid #35d8f8;
     border-radius: 7px;
     background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
                                 stop:0 #1196d8, stop:0.12 #0a78bb, stop:0.55 #073d6b, stop:1 #074a85);
+}
+*/
+QMenuBar::item:selected {
+    border: 1px solid transparent;
+    border-radius: 0px;
+    background: #192138;
 }
 QMenu {
     color: #eef1fa;
