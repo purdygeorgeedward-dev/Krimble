@@ -200,6 +200,8 @@ Times are Mountain Time from the clock of the sandbox that pushed (`date`), chec
 | Nov 8  8:21 PM | (this push, docs only) | George Purdy | Dev journal rows for the pushes above; build 1.0.55-beta started right after |
 | Nov 8  8:43 PM | `aff6920`, `0bb70bf` | George Purdy | UNDO is a silhouette icon button in the grid of tools, after the last tool; the old text button deleted (447th) |
 | Nov 8  8:43 PM | (this push, docs only) | George Purdy | Dev journal rows for the pushes above |
+| Nov 8  8:45 PM | `d57c2ff` | George Purdy | The UNDO button never grays out (447th) |
+| Nov 8  8:45 PM | (this push, docs only) | George Purdy | Dev journal row for the push above |
 | Nov 8  4:15 AM | `400ab12` | George Purdy | Transform and Pan names; the name in Tool Options follows the Transform mode; no "Tool" after tool names (433rd) |
 | Nov 8  4:15 AM | `d1be4c6` | George Purdy | Toolbox tear-off log lines written to krita.log with KisUsageLogger (434th) |
 | Nov 8  4:15 AM | (this push) | George Purdy | Strict renumbering: build number 55, KRIMBLE_BUILD_LOG.md (builds 45 to 54), tools/ci/check_build_number.py, BUILD_ANDROID.md; the draft release v1.0.45-beta and its tag deleted (435th) |
