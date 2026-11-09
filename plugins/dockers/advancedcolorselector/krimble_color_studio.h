@@ -42,6 +42,8 @@
 #include <KoToolManager.h>   // the eyedropper button switches to the color sampler tool
 #include "krimble_color_canvas.h"   // Krimble 2026-11-08: the Picker page, built from the measurements of the mockup
 #include "krimble_color_palettes.h"   // the named palettes (GPL files)
+#include "krimble_color_palette_page.h"   // the Palette tab
+#include "krimble_color_history.h"   // the History tab
 
 #include <algorithm>
 #include "kis_canvas2.h"
@@ -572,6 +574,12 @@ public:
         layout->addWidget(m_tabs);
         m_ui = new KrimbleColorCanvas(this);
         layout->addWidget(m_ui);
+        m_palettePage = new KrimblePalettePage(this);
+        m_historyPage = new KrimbleHistoryPage(this);
+        layout->addWidget(m_palettePage);
+        layout->addWidget(m_historyPage);
+        m_palettePage->hide();
+        m_historyPage->hide();
         layout->addStretch(1);
         m_sliders = new KrimbleSlidersTop(m_ui);
         m_values = new KrimbleValuesTop(m_ui);
@@ -584,6 +592,22 @@ public:
         m_sliders->onAlpha = [this](int a) { setAlpha(a); };
         m_values->onAlpha = [this](int a) { setAlpha(a); };
         m_tabs->onTab = [this](int i) { showTab(i); };
+        // the Palette tab and the History tab
+        m_palettePage->state = &m_state;
+        m_palettePage->recent = &m_recent;
+        m_palettePage->onColor = [this](const QColor &c) { select(c); };
+        m_palettePage->onPaletteChanged = [this]() { m_colors.clear(); loadPalette(); };
+        m_palettePage->onPickFromImage = []() { KoToolManager::instance()->switchToolRequested(QStringLiteral("KritaSelected/KisToolColorSampler")); };
+        m_historyPage->state = &m_state;
+        m_historyPage->onColor = [this](const QColor &c) { select(c); };
+        m_historyPage->onPaletteChanged = [this]() { m_colors.clear(); loadPalette(); if (m_palettePage) m_palettePage->refresh(); };
+        // every color that becomes the foreground color is recorded in the history, with the tool and the time, when it has stayed for a moment (not while a slider is dragged)
+        m_historyTimer.setSingleShot(true);
+        m_historyTimer.setInterval(900);
+        connect(&m_historyTimer, &QTimer::timeout, this, [this]() {
+            KrimbleHistoryStore::add(m_state.color, m_state.alpha, krimbleToolName(KoToolManager::instance()->activeToolId()));
+            if (m_tab == 4 && m_historyPage) m_historyPage->refresh();
+        });
 #if 0   // Krimble 2026-10-30: the Mixer tab, now the Mixer panel (krimble_mixer_dock.h)
         auto *mixer = new QWidget(this);
         auto *mixLayout = new QVBoxLayout(mixer);
@@ -810,6 +834,44 @@ public:
             m_ui->update();
             select(m_current, false);
         });
+        connect(m_ui->paletteMenu,&QToolButton::clicked,this,[this]() {
+            QMenu menu(m_ui->paletteMenu);
+            for (const QString &name : KrimblePaletteStore::names()) {
+                QAction *a = menu.addAction(name);
+                a->setCheckable(true);
+                a->setChecked(name == m_paletteName);
+            }
+            QAction *chosen = menu.exec(m_ui->paletteMenu->mapToGlobal(QPoint(0, m_ui->paletteMenu->height())));
+            if (chosen) { KrimblePaletteStore::setActive(chosen->text()); m_colors.clear(); loadPalette(); }
+        });
+        connect(m_ui->pencil,&QToolButton::clicked,this,[this]() {
+            if (KrimblePaletteActions::renamePalette(this)) { m_colors.clear(); loadPalette(); }
+        });
+        connect(m_ui->duplicate,&QToolButton::clicked,this,[this]() {
+            if (KrimblePaletteActions::duplicatePalette(this)) { m_colors.clear(); loadPalette(); }
+        });
+        connect(m_ui->more,&QToolButton::clicked,this,[this]() {
+            QMenu menu(m_ui->more);
+            QAction *newAction = menu.addAction(tr("New Palette..."));
+            QAction *openAction = menu.addAction(tr("Open Palette..."));
+            QAction *importAction = menu.addAction(tr("Import..."));
+            QAction *exportAction = menu.addAction(tr("Export..."));
+            menu.addSeparator();
+            QAction *deleteAction = menu.addAction(tr("Delete Palette..."));
+            QAction *chosen = menu.exec(m_ui->more->mapToGlobal(QPoint(0, m_ui->more->height())));
+            if (!chosen) return;
+            bool changed = false;
+            if (chosen == newAction) changed = KrimblePaletteActions::newPalette(this);
+            else if (chosen == openAction) changed = KrimblePaletteActions::openPalette(this);
+            else if (chosen == importAction) changed = KrimblePaletteActions::importPalette(this);
+            else if (chosen == exportAction) KrimblePaletteActions::exportPalette(this);
+            else if (chosen == deleteAction) changed = KrimblePaletteActions::deletePalette(this);
+            if (changed) { m_colors.clear(); loadPalette(); }
+        });
+        m_ui->paletteMenu->setToolTip(tr("Choose a palette"));
+        m_ui->pencil->setToolTip(tr("Rename the palette"));
+        m_ui->duplicate->setToolTip(tr("Duplicate the palette"));
+        m_ui->more->setToolTip(tr("New, Open, Import, Export, Delete"));
         connect(m_ui->trash,&QToolButton::clicked,this,[this]() {
             if (m_selectedSwatch < 0 || m_selectedSwatch >= m_colors.size()) return;
             m_colors.removeAt(m_selectedSwatch);
@@ -882,6 +944,8 @@ public:
             showBackground(m_canvas->resourceManager()->backgroundColor().toQColor());   // Krimble 2026-11-05
         });
         m_syncTimer.start();
+        m_ready = true;   // from here a color that changes is recorded in the history
+        showTab(qBound(0, QSettings().value(QStringLiteral("Krimble/ColorStudioTab"), 0).toInt(), 4));
     }
     void setCanvas(KisCanvas2 *canvas) {
         m_canvas=canvas;
@@ -929,6 +993,7 @@ private:
         // m_preview->setStyleSheet(QStringLiteral("background:%1;border:2px solid #35d8f8;border-radius:5px;").arg(c.name()));
         m_ui->setForeground(c);   // Krimble 2026-11-08: the frame's size follows the panel's scale   // Krimble 2026-11-08: the foreground has the bright cyan outline of a selected item (mockup)
         refreshPages();
+        if (changed && m_ready) m_historyTimer.start();
         if(commit && m_canvas) {
             QColor withAlpha = c;
             withAlpha.setAlpha(m_state.alpha);
@@ -954,6 +1019,8 @@ private:
         m_tab = qBound(0, i, 4);
         if (m_tabs) m_tabs->setCurrent(m_tab);
         if (m_ui) { m_ui->setVisible(m_tab <= 2); if (m_tab <= 2) m_ui->setTopPage(m_tab); }
+        if (m_palettePage) { m_palettePage->setVisible(m_tab == 3); if (m_tab == 3) m_palettePage->refresh(); }
+        if (m_historyPage) { m_historyPage->setVisible(m_tab == 4); if (m_tab == 4) m_historyPage->refresh(); }
         refreshPages();
         QSettings().setValue(QStringLiteral("Krimble/ColorStudioTab"), m_tab);
     }
@@ -1005,6 +1072,7 @@ private:
         m_paletteSignature = KrimblePaletteStore::signature();
         if (m_selectedSwatch >= m_colors.size()) m_selectedSwatch = -1;
         rebuildSwatches();
+        if (m_palettePage && m_palettePage->isVisible()) m_palettePage->refresh();
     }
     void savePalette() {
         KrimblePalette pal;
@@ -1161,6 +1229,10 @@ private:
     QGridLayout *m_swatches=nullptr;
     KrimbleColorCanvas *m_ui=nullptr;   // Krimble 2026-11-08: the measured Picker page
     KrimbleColorTabBar *m_tabs=nullptr;
+    KrimblePalettePage *m_palettePage=nullptr;
+    KrimbleHistoryPage *m_historyPage=nullptr;
+    QTimer m_historyTimer;
+    bool m_ready=false;
     KrimbleSlidersTop *m_sliders=nullptr;
     KrimbleValuesTop *m_values=nullptr;
     KrimbleColorState m_state;

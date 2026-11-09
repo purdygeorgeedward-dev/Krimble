@@ -148,11 +148,11 @@ public:
         p.drawRoundedRect(b.adjusted(1.5, 1.5, -1.5, -1.5), qMax<qreal>(1.0, radius - 1.5), qMax<qreal>(1.0, radius - 1.5));
     }
     // a number box with its arrow section (the right 38 units): the field, a lighter section with a divider, and the up and down arrows
-    void paintSpinFrame(QPainter &p, const QRectF &box)
+    void paintSpinFrame(QPainter &p, const QRectF &box, double arrowUnits = 38.0)
     {
         const qreal s = scale();
         paintField(p, box, 9 * s);
-        const QRectF arrows(box.right() - 38 * s, box.top(), 38 * s, box.height());
+        const QRectF arrows(box.right() - arrowUnits * s, box.top(), arrowUnits * s, box.height());
         QLinearGradient ag(0, arrows.top(), 0, arrows.bottom());
         ag.setColorAt(0.0, QColor("#343d5e"));
         ag.setColorAt(1.0, QColor("#232b47"));

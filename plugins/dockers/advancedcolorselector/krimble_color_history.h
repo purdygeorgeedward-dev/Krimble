@@ -150,6 +150,7 @@ public:
         const qreal s = scale();
         QFont f = font();
         f.setPixelSize(qMax(8, qRound(33 * s)));
+        f = fittedFont(f, QStringLiteral("Group consecutive duplicates"), 286 * s);
         hex->setGeometry(r(195, 87, 133, 38).toAlignedRect());
         hex->setFont(f);
         hex->setStyleSheet(QStringLiteral("QLineEdit { background: transparent; border: none; padding: 0px 0px 0px %1px; color: #f4f6fc; selection-background-color: #1196d8; }").arg(qRound(14 * s)));
@@ -199,19 +200,22 @@ protected:
         }
         QFont f = font();
         f.setPixelSize(qMax(8, qRound(33 * s)));
+        f = fittedFont(f, QStringLiteral("Group consecutive duplicates"), 286 * s);   // 2026-11-08: the left column's text is one size (measured: that text is 286 units wide)
         p.setFont(f);
         const QColor label("#d9deee");
         const QColor shown = state ? state->color : QColor("#459ad3");
         const int alpha = state ? state->alpha : 255;
+        QFont large = font();
+        large.setPixelSize(qMax(8, qRound(60 * s)));   // the start of every fit below: the fit makes it smaller, to the width measured in the mockup
         // ---- the left group
         paintGroup(p, r(9, 13, 372, 1031), 14 * s);
         p.setPen(label);
-        p.setFont(fittedFont(f, tr("Current Color"), 140 * s));
+        p.setFont(fittedFont(large, tr("Current Color"), 179 * s));
         p.drawText(r(25, 13, 300, 66), Qt::AlignLeft | Qt::AlignVCenter, tr("Current Color"));
         p.setFont(f);
         paintColorBox(p, r(23, 93, 95, 91), shown, 16 * s, s, true);
         p.setPen(label);
-        p.drawText(r(120, 87, 74, 38), Qt::AlignRight | Qt::AlignVCenter, tr("HEX:"));
+        p.drawText(r(134, 87, 60, 38), Qt::AlignLeft | Qt::AlignVCenter, tr("HEX:"));
         paintField(p, r(195, 87, 171, 38), 8 * s);
         paintButton(p, r(328, 87, 38, 38), 9 * s);
         drawSymbol(p, QStringLiteral("copy"), r(328, 87, 38, 38).center(), 0.8);
@@ -224,14 +228,14 @@ protected:
         for (int i = 0; i < 3; ++i) {
             const double cy = 154.6 + 44.8 * i;
             p.setPen(label);
-            p.drawText(r(120, cy - 20, 74, 40), Qt::AlignRight | Qt::AlignVCenter, tr(labels[i]));
+            p.drawText(r(134, cy - 20, 60, 40), Qt::AlignLeft | Qt::AlignVCenter, tr(labels[i]));
             p.setPen(QColor("#f1f4fc"));
             p.drawText(r(195, cy - 20, 180, 40), Qt::AlignLeft | Qt::AlignVCenter, texts[i]);
         }
         paintBrightLine(p, 25, 286, 366, s);
         drawIcon(p, QStringLiteral("pin_title"), r(41, 319, 0, 0).topLeft(), 1.0);
         p.setPen(label);
-        p.setFont(fittedFont(f, tr("Pinned Colors"), 150 * s));
+        p.setFont(fittedFont(large, tr("Pinned Colors"), 150 * s));
         p.drawText(r(68, 297, 300, 44), Qt::AlignLeft | Qt::AlignVCenter, tr("Pinned Colors"));
         p.setFont(f);
         paintBrightLine(p, 25, 342.5, 366, s);
@@ -246,7 +250,7 @@ protected:
         }
         paintBrightLine(p, 25, 550.6, 366, s);
         p.setPen(label);
-        p.setFont(fittedFont(f, tr("History Options"), 190 * s));
+        p.setFont(fittedFont(large, tr("History Options"), 190 * s));
         p.drawText(r(25, 560, 330, 46), Qt::AlignLeft | Qt::AlignVCenter, tr("History Options"));
         p.setFont(f);
         static const char *optionTexts[3] = {"Group consecutive duplicates", "Show source (tool)", "Show timestamp"};
@@ -254,9 +258,7 @@ protected:
         for (int i = 0; i < 3; ++i) {
             paintCheck(p, checkRect(i), KrimbleHistoryStore::option(optionKeys[i], true), s);
             p.setPen(label);
-            p.setFont(fittedFont(f, tr(optionTexts[i]), 285 * s));
             p.drawText(r(74, checkRect(i).top() / s - 4, 300, 42), Qt::AlignLeft | Qt::AlignVCenter, tr(optionTexts[i]));
-            p.setFont(f);
         }
         paintCheck(p, checkRect(3), KrimbleHistoryStore::option("limitOn", false), s);
         p.setPen(label);
@@ -270,20 +272,18 @@ protected:
             if (buttonIcons[i]) drawIcon(p, QString::fromLatin1(buttonIcons[i]), QPointF(b.left() + 36 * s, b.center().y()), 0.9);
             else drawSymbol(p, QStringLiteral("trash"), QPointF(b.left() + 36 * s, b.center().y()), 0.8);
             p.setPen(QColor("#f1f4fc"));
-            p.setFont(fittedFont(f, tr(buttonTexts[i]), 255 * s));
             p.drawText(QRectF(b.left() + 72 * s, b.top(), b.width() - 76 * s, b.height()), Qt::AlignLeft | Qt::AlignVCenter, tr(buttonTexts[i]));
-            p.setFont(f);
         }
         // ---- the right group: the title, the filter, the list or grid
         paintGroup(p, r(392, 13, 786, 1031), 14 * s);
         p.setPen(label);
-        p.setFont(fittedFont(f, tr("Color History (42)"), 250 * s));
+        p.setFont(fittedFont(large, tr("Color History (42)"), 226 * s));
         p.drawText(r(405, 13, 400, 66), Qt::AlignLeft | Qt::AlignVCenter, tr("Color History (%1)").arg(m_entries.size()));
         p.setFont(f);
         paintButton(p, r(820, 23, 186, 48), 11 * s);
         drawIcon(p, QStringLiteral("filter"), r(846, 47, 0, 0).topLeft(), 0.8);
         p.setPen(QColor("#f1f4fc"));
-        p.setFont(fittedFont(f, QStringLiteral("All Tools"), 90 * s));
+        p.setFont(fittedFont(large, QStringLiteral("All Tools"), 90 * s));
         p.drawText(r(872, 23, 100, 48), Qt::AlignLeft | Qt::AlignVCenter, m_filter.isEmpty() ? tr("All Tools") : m_filter);
         p.setFont(f);
         drawSymbol(p, QStringLiteral("chev_drop"), r(985, 47, 0, 0).topLeft(), 0.8);
@@ -306,12 +306,10 @@ protected:
                 else paintGroup(p, row, 12 * s);
                 paintColorBox(p, QRectF(row.left() + 9 * s, row.top() + 8 * s, 59 * s, row.height() - 16 * s), e.color, 10 * s, s, false);
                 p.setPen(QColor("#f4f6fc"));
-                QFont big = f;
-                big.setPixelSize(qMax(8, qRound(37 * s)));
+                QFont big = fittedFont(large, QStringLiteral("#F035BE"), 99 * s);   // measured: 99 units wide
                 p.setFont(big);
                 p.drawText(QRectF(row.left() + 90 * s, row.top(), 140 * s, row.height()), Qt::AlignLeft | Qt::AlignVCenter, e.color.name(QColor::HexRgb).toUpper());
-                QFont small = f;
-                small.setPixelSize(qMax(7, qRound(27 * s)));
+                QFont small = fittedFont(large, QStringLiteral("HSL: 316\u00B0, 86%, 57%"), 186 * s);   // measured: 186 units wide
                 p.setFont(small);
                 p.setPen(QColor("#d9deee"));
                 p.drawText(QRectF(row.left() + 228 * s, row.top() + 6 * s, 220 * s, row.height() / 2 - 6 * s), Qt::AlignLeft | Qt::AlignVCenter,
@@ -324,10 +322,12 @@ protected:
                                           : (e.tool == QLatin1String("Picker") ? QStringLiteral("tool_picker") : QStringLiteral("tool_brush")));
                     drawIcon(p, icon, QPointF(row.left() + 463 * s, row.center().y()), 1.0);
                     p.setPen(QColor("#e8ebf6"));
+                    p.setFont(fittedFont(large, QStringLiteral("Gradient"), 76 * s));
                     p.drawText(QRectF(row.left() + 486 * s, row.top(), 140 * s, row.height()), Qt::AlignLeft | Qt::AlignVCenter, e.tool);
                 }
                 if (KrimbleHistoryStore::option("time", true)) {
                     p.setPen(QColor("#e8ebf6"));
+                    p.setFont(fittedFont(large, QStringLiteral("11:42 AM"), 79 * s));
                     p.drawText(QRectF(row.left() + 560 * s, row.top(), 105 * s, row.height()), Qt::AlignRight | Qt::AlignVCenter, e.time.toString(QStringLiteral("h:mm AP")));
                 }
                 drawIcon(p, isPinned(e.color) ? QStringLiteral("pin_on") : QStringLiteral("pin_off"), QPointF(row.left() + 711 * s, row.center().y()), 1.0);

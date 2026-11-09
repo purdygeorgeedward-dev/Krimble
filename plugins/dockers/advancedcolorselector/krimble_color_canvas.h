@@ -46,6 +46,10 @@ public:
     QToolButton *add = nullptr;
     QToolButton *trash = nullptr;
     QToolButton *mode = nullptr;
+    QToolButton *paletteMenu = nullptr;   // 2026-11-08: the palette name box (opens the list of palettes)
+    QToolButton *pencil = nullptr;        // rename the palette
+    QToolButton *duplicate = nullptr;     // duplicate the palette
+    QToolButton *more = nullptr;          // New, Open, Import, Export, Delete
     // Krimble 2026-11-08: the top part of the card is the Picker (painted here), the Sliders page or the Values page; the bottom part (colors, recent, palette) is shared
     int topPage = 0;
     KrimbleSlidersTop *sliders = nullptr;
@@ -70,6 +74,10 @@ public:
         add = makeButton();
         trash = makeButton();
         mode = makeButton();
+        paletteMenu = makeButton();
+        pencil = makeButton();
+        duplicate = makeButton();
+        more = makeButton();
     }
     QSize sizeHint() const override { return QSize(330, heightForWidth(330)); }
     QSize minimumSizeHint() const override { return QSize(240, heightForWidth(240)); }
@@ -156,6 +164,10 @@ public:
         if (bg && bgColor.isValid()) bg->setStyleSheet(backgroundStyle(bgColor));
         swap->setGeometry(r(176, 646, 54, 52).toAlignedRect());
         add->setGeometry(r(788, 764, 54, 56).toAlignedRect());
+        paletteMenu->setGeometry(r(215, 761, 536, 64).toAlignedRect());
+        pencil->setGeometry(r(866, 764, 50, 56).toAlignedRect());
+        duplicate->setGeometry(r(944, 764, 50, 56).toAlignedRect());
+        more->setGeometry(r(1097, 761, 59, 64).toAlignedRect());
         trash->setGeometry(r(1018, 764, 56, 56).toAlignedRect());
         if (recentCells) layoutCells(*recentCells, 10, 1, QRectF(428, 663, 658, 55), 7.0, 0.0);
         if (paletteCells) layoutCells(*paletteCells, 19, 4, QRectF(29, 850, 1070, 206), 3.5, 4.2);
@@ -298,6 +310,16 @@ protected:
         p.drawText(QRectF(236 * s, 761 * s, 480 * s, 64 * s), Qt::AlignLeft | Qt::AlignVCenter, paletteName);
         drawSymbol(p, QStringLiteral("plus"), r(788, 764, 54, 56).center(), 1.0);
         drawSymbol(p, QStringLiteral("trash"), r(1018, 764, 56, 56).center(), 1.0);
+        // 2026-11-08: the rest of the mockup's palette row: the chevron of the name box, a divider, the pencil, duplicate and "..." buttons
+        drawSymbol(p, QStringLiteral("chev_palette"), r(715, 793, 0, 0).topLeft(), 1.0);
+        p.setPen(QPen(QColor(8, 11, 26, 200), 1.2));
+        p.drawLine(QPointF(775 * s, 770 * s), QPointF(775 * s, 816 * s));
+        p.setPen(QPen(QColor(110, 125, 175, 95), 1.0));
+        p.drawLine(QPointF(775 * s + 1.6, 770 * s), QPointF(775 * s + 1.6, 816 * s));
+        drawSymbol(p, QStringLiteral("pencil"), r(866, 764, 50, 56).center(), 1.0);
+        drawSymbol(p, QStringLiteral("duplicate"), r(944, 764, 50, 56).center(), 1.0);
+        paintButton(p, r(1097, 761, 59, 64), 11 * s);
+        drawSymbol(p, QStringLiteral("more"), r(1097, 761, 59, 64).center(), 1.0);
         paintWell(p, r(24, 843, 1081, 220), 10 * s);
         paintEmptyCells(p, paletteCells, 19, 4, QRectF(29, 850, 1070, 206), 3.5, 4.2, QColor("#0f1325"), 3 * s);
     }
