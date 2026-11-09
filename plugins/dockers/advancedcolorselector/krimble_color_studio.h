@@ -1181,7 +1181,8 @@ private:
             auto *button=new QPushButton(m_ui);
             button->setFocusPolicy(Qt::NoFocus);
             button->setToolTip(color.name());
-            button->setStyleSheet(QStringLiteral("background:%1;border:1px solid #05060f;border-radius:5px;").arg(color.name()));
+            // button->setStyleSheet(QStringLiteral("background:%1;border:1px solid #05060f;border-radius:5px;").arg(color.name()));
+            button->setStyleSheet(QStringLiteral("background:%1;border:1px solid #05060f;border-radius:0px;").arg(color.name()));   // 2026-11-09: square corners
             connect(button,&QPushButton::clicked,this,[this,color](){select(color);});
             m_recentCells.append(button);
         }
@@ -1196,8 +1197,10 @@ private:
             button->setToolTip(color.name());
             // the selected swatch has the bright outline of a selected item; it is the one the trash button removes
             button->setStyleSheet(i==m_selectedSwatch
-                ? QStringLiteral("background:%1;border:2px solid #35d8f8;border-radius:3px;").arg(color.name())
-                : QStringLiteral("background:%1;border:none;border-radius:3px;").arg(color.name()));
+                // ? QStringLiteral("background:%1;border:2px solid #35d8f8;border-radius:3px;").arg(color.name())
+                // : QStringLiteral("background:%1;border:none;border-radius:3px;").arg(color.name()));
+                ? QStringLiteral("background:%1;border:2px solid #35d8f8;border-radius:0px;").arg(color.name())   // 2026-11-09: square corners
+                : QStringLiteral("background:%1;border:none;border-radius:0px;").arg(color.name()));
             connect(button,&QPushButton::clicked,this,[this,color,i](){
                 m_selectedSwatch=i;
                 select(color);

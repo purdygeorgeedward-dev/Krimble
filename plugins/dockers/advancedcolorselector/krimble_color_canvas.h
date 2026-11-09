@@ -126,14 +126,17 @@ public:
     QString foregroundStyle(const QColor &c) const
     {
         const qreal s = scale();
-        return QStringLiteral("background:%1;border:%2px solid #4fd8fb;border-radius:%3px;")
-            .arg(c.name()).arg(qMax(2, qRound(3 * s))).arg(qMax(3, qRound(12 * s)));
+        // return QStringLiteral("background:%1;border:%2px solid #4fd8fb;border-radius:%3px;")
+        //     .arg(c.name()).arg(qMax(2, qRound(3 * s))).arg(qMax(3, qRound(12 * s)));
+        // 2026-11-09: George: "Why are the color wells rounded at the corners? You know I hate that." The wells have square corners.
+        return QStringLiteral("background:%1;border:%2px solid #4fd8fb;border-radius:0px;").arg(c.name()).arg(qMax(2, qRound(3 * s)));
     }
     QString backgroundStyle(const QColor &c) const
     {
         const qreal s = scale();
-        return QStringLiteral("background:%1;border:%2px solid #e6ecfa;border-radius:%3px;")
-            .arg(c.name()).arg(qMax(2, qRound(3 * s))).arg(qMax(3, qRound(14 * s)));
+        // return QStringLiteral("background:%1;border:%2px solid #e6ecfa;border-radius:%3px;")
+        //     .arg(c.name()).arg(qMax(2, qRound(3 * s))).arg(qMax(3, qRound(14 * s)));
+        return QStringLiteral("background:%1;border:%2px solid #e6ecfa;border-radius:0px;").arg(c.name()).arg(qMax(2, qRound(3 * s)));
     }
 
     void relayout()
@@ -302,7 +305,8 @@ protected:
             for (int i = 9; i >= 1; --i) {
                 p.setPen(QPen(QColor(40, 190, 255, 26 + (9 - i) * 8), 2.2));
                 p.setBrush(Qt::NoBrush);
-                p.drawRoundedRect(ring.adjusted(-i * 1.3 * s, -i * 1.3 * s, i * 1.3 * s, i * 1.3 * s), (12 + i) * s, (12 + i) * s);
+                // p.drawRoundedRect(ring.adjusted(-i * 1.3 * s, -i * 1.3 * s, i * 1.3 * s, i * 1.3 * s), (12 + i) * s, (12 + i) * s);
+                p.drawRect(ring.adjusted(-i * 1.3 * s, -i * 1.3 * s, i * 1.3 * s, i * 1.3 * s));   // 2026-11-09: square corners
             }
         }
         drawSymbol(p, QStringLiteral("swap"), r(176, 646, 54, 52).center(), 1.0);
@@ -318,7 +322,8 @@ protected:
             p.setFont(f);
         }
         paintWell(p, r(422, 657, 669, 64), 10 * s);
-        paintEmptyCells(p, recentCells, 10, 1, QRectF(428, 663, 658, 55), 7.0, 0.0, QColor("#1a1f33"), 5 * s);
+        // paintEmptyCells(p, recentCells, 10, 1, QRectF(428, 663, 658, 55), 7.0, 0.0, QColor("#1a1f33"), 5 * s);
+        paintEmptyCells(p, recentCells, 10, 1, QRectF(428, 663, 658, 55), 7.0, 0.0, QColor("#1a1f33"), 0);   // 2026-11-09: square corners
 
         // the palette row: grid symbol, the name, the add and remove buttons; then the palette well
         // the mockup's palette row: a raised frame with the grid symbol and "Palette:", joined to the raised name box
@@ -345,7 +350,8 @@ protected:
         paintButton(p, r(1097, 761, 59, 64), 11 * s);
         drawSymbol(p, QStringLiteral("more"), r(1097, 761, 59, 64).center(), 1.0);
         paintWell(p, r(24, 843, 1081, 220), 10 * s);
-        paintEmptyCells(p, paletteCells, 19, 4, QRectF(29, 850, 1070, 206), 3.5, 4.2, QColor("#0f1325"), 3 * s, paletteScroll);
+        // paintEmptyCells(p, paletteCells, 19, 4, QRectF(29, 850, 1070, 206), 3.5, 4.2, QColor("#0f1325"), 3 * s, paletteScroll);
+        paintEmptyCells(p, paletteCells, 19, 4, QRectF(29, 850, 1070, 206), 3.5, 4.2, QColor("#0f1325"), 0, paletteScroll);   // 2026-11-09: square corners
         // the scroll bar of the palette (the mockup's: up and down arrows and a thumb), measured: 39 units wide beside the well
         {
             paintWell(p, r(1116, 846, 39, 217), 8 * s);
