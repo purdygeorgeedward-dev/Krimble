@@ -438,7 +438,17 @@ private:
             const int col = i % cols;
             const int row = i / cols - firstRow;
             if (row < 0 || row >= rows) { cell->hide(); continue; }
-            cell->setGeometry(QRectF((host.left() + col * (cellW + gapX)) * s, (host.top() + row * (cellH + gapY)) * s, cellW * s, cellH * s).toAlignedRect());
+            // cell->setGeometry(QRectF((host.left() + col * (cellW + gapX)) * s, (host.top() + row * (cellH + gapY)) * s, cellW * s, cellH * s).toAlignedRect());
+            // Krimble 2026-11-11: George: "It looks like ColorLab scaled down so far that some of the black lines dividing the color wells disappeared. Not good." The cells were placed with
+            // toAlignedRect(), which rounds each cell OUTWARD to whole pixels, so at a scale where a cell is not a whole number of pixels neighbors overlapped by a pixel and the next cell's color
+            // covered the black line (the 1 px dark border on the right and bottom of each cell) of the one before it. Now every cell edge is rounded to the nearest whole pixel by ONE formula, so
+            // the right edge of a cell is exactly the left edge of the next: no overlap, no gap, and each cell keeps its own 1 px line.
+            const double pitchX = cellW + gapX, pitchY = cellH + gapY;
+            const int x0 = qRound((host.left() + col * pitchX) * s);
+            const int x1 = qRound((host.left() + (col + 1) * pitchX - gapX) * s);
+            const int y0 = qRound((host.top() + row * pitchY) * s);
+            const int y1 = qRound((host.top() + (row + 1) * pitchY - gapY) * s);
+            cell->setGeometry(x0, y0, qMax(1, x1 - x0), qMax(1, y1 - y0));
             cell->show();
         }
     }
