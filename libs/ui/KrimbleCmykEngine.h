@@ -506,7 +506,146 @@ public:
     // the wanted color (XYZ on the paper) to plates: black from the gray component, C, M, Y to match, then the ink limits.
     // Black never takes so much that the color can no longer be matched (the biggest K with the same match as K = 0 is used), and the total ink guard raises black (and matches C, M, Y again) before
     // it reduces anything.
+    // Krimble 2026-11-11: George: "It should be a smooth calculation between the nodes in the gamut." The separation is now a smooth function: the black is a smooth function of the gray component,
+    // C, M, Y are solved for that black, and the total ink guard finds the smallest black that keeps the total under the limit by bisection (a continuous search). The earlier version
+    // (separateLegacy, below, kept) chose the black with a tolerance search and a 24 step scan, which made the plates jump (the gray ramp dipped and rose again).
     KrimblePlates separate(const KrimbleVec3 &target) const
+    {
+        double cmy0[3];
+        guess(target, cmy0);
+        double err0 = 0.0;
+        solveCmy(target, 0.0, cmy0, &err0);               // the K = 0 separation
+        const double g = std::min({cmy0[0], cmy0[1], cmy0[2]});
+        const double hi0 = std::max({cmy0[0], cmy0[1], cmy0[2]});
+        const double neutrality = std::clamp(1.0 - (hi0 - g) / 0.35, 0.0, 1.0);
+        const double klim = std::min(m_p.blackLimit, m_p.totalLimit) / 100.0;
+        const double limit = m_p.totalLimit / 100.0;
+
+        // how well can this color be matched at all (with the best black)? a scan of K from 0 to the black limit; the black may not make the match worse than that
+        const int scan = 8;
+        double scanErr[scan + 1], scanCmy[scan + 1][3];
+        double errBest = 1e9;
+        for (int j2 = 0; j2 <= scan; ++j2) {
+            double c[3];
+            if (j2 == 0) { for (int a = 0; a < 3; ++a) c[a] = cmy0[a]; scanErr[0] = err0; }
+            else { guess(target, c); solveCmy(target, klim * j2 / scan, c, &scanErr[j2]); }
+            for (int a = 0; a < 3; ++a) scanCmy[j2][a] = c[a];
+            errBest = std::min(errBest, scanErr[j2]);
+        }
+        const double tol = std::max(0.8, errBest * 1.3);   // delta E squared: a black generation may be at most about one delta E worse than the best match
+        int jmin = 0;
+        while (jmin < scan && scanErr[jmin] > tol) ++jmin;
+        // the least black that matches (colors darker than C, M, Y can print need some black): found between the scan steps by bisection, so that it changes smoothly with the color
+        // (before it was a multiple of one eighth of the black limit, which made the plates jump)
+        double kmin = 0.0;
+        double cmyMin[3] = {scanCmy[jmin][0], scanCmy[jmin][1], scanCmy[jmin][2]};
+        if (jmin > 0) {
+            double lo = klim * (jmin - 1) / scan, up = klim * jmin / scan;
+            double ok[3] = {cmyMin[0], cmyMin[1], cmyMin[2]};
+            for (int it = 0; it < 14; ++it) {
+                const double mid = (lo + up) / 2.0;
+                double t[3] = {ok[0], ok[1], ok[2]}, e = 0.0;
+                solveCmy(target, mid, t, &e);
+                if (e <= tol) { up = mid; for (int a = 0; a < 3; ++a) ok[a] = t[a]; } else lo = mid;
+            }
+            kmin = up;
+            for (int a = 0; a < 3; ++a) cmyMin[a] = ok[a];
+        }
+
+        // The wanted black: from the DARKNESS of the color (its lightness L* from the paper's to the darkest the inks print), a smooth curve from no black at the light end to the black limit at the
+        // darkest; the black generation presets set where the black starts and how fast it rises. The gray component (the smallest of C, M, Y of the K = 0 separation, over the largest) says how much
+        // of it a chromatic color gets, so vivid colors keep their C, M, Y. (Before, the black came from the gray component's plate level, which stops changing for colors darker than C, M, Y all solid.)
+        const double bdY = m_p.blackPointCompensation ? m_black.y : 0.0;
+        const double tl = std::clamp((target.y - bdY) / std::max(1e-9, m_paper.y - bdY), 0.0, 1.0);
+        const double fl = tl > 216.0 / 24389.0 ? std::cbrt(tl) : ((24389.0 / 27.0) * tl + 16.0) / 116.0;
+        const double darkness = std::clamp(1.0 - (116.0 * fl - 16.0) / 100.0, 0.0, 1.0);
+        double x0 = 0.25, pw = 1.8;
+        double share = hi0 > 1e-6 ? std::clamp(g / hi0, 0.0, 1.0) : 1.0;
+        if (m_p.gcr) {
+            if (m_p.blackGeneration == QLatin1String("None")) { x0 = 1.0; }
+            else if (m_p.blackGeneration == QLatin1String("Light")) { x0 = 0.40; pw = 2.2; }
+            else if (m_p.blackGeneration == QLatin1String("Heavy")) { x0 = 0.10; pw = 1.4; }
+            else if (m_p.blackGeneration == QLatin1String("Maximum")) { x0 = 0.0; pw = 1.0; }
+        } else {
+            x0 = 0.55; pw = 1.5;   // UCR: only dark, neutral colors get black
+            share = neutrality;
+        }
+        const double kWanted = x0 >= 1.0 ? 0.0 : klim * std::pow(std::clamp((darkness - x0) / (1.0 - x0), 0.0, 1.0), pw) * share;
+
+        double k = std::clamp(kWanted, kmin, klim);
+        double cmy[3] = {cmyMin[0], cmyMin[1], cmyMin[2]};
+        if (k > kmin + 1e-9) {
+            double t[3] = {cmy[0], cmy[1], cmy[2]}, e = 0.0;
+            solveCmy(target, k, t, &e);
+            if (e <= tol) { for (int a = 0; a < 3; ++a) cmy[a] = t[a]; }
+            else {   // too much black for this color: the biggest K between the least black and the wanted that still matches
+                double lo = kmin, up = k;
+                double ok[3] = {cmy[0], cmy[1], cmy[2]};
+                for (int it = 0; it < 14; ++it) {
+                    const double mid = (lo + up) / 2.0;
+                    double t2[3] = {ok[0], ok[1], ok[2]}, e2 = 0.0;
+                    solveCmy(target, mid, t2, &e2);
+                    if (e2 <= tol) { lo = mid; for (int a = 0; a < 3; ++a) ok[a] = t2[a]; } else up = mid;
+                }
+                k = lo;
+                for (int a = 0; a < 3; ++a) cmy[a] = ok[a];
+            }
+        } else {
+            k = kmin;
+        }
+        // the total ink guard: the smallest black (not below the one above) at which the total is within the limit and the color still matches. A scan in 24 steps finds the interval, then a bisection
+        // inside it finds the black (a continuous result; before it was the scan step itself, which made the plates jump). If no black matches, the best match within the limit is used.
+        if (cmy[0] + cmy[1] + cmy[2] + k > limit + 1e-9) {
+            const int steps = 24;
+            double t[3] = {cmy[0], cmy[1], cmy[2]};
+            double lowK = k, lastK = k, lastCmy[3] = {cmy[0], cmy[1], cmy[2]};
+            double bestK = k, bestCmy[3] = {cmy[0], cmy[1], cmy[2]}, bestErr = 1e9;
+            bool found = false, haveBest = false;
+            double foundK = k, foundCmy[3] = {cmy[0], cmy[1], cmy[2]};
+            for (int j2 = 1; j2 <= steps; ++j2) {
+                const double kk = k + (klim - k) * double(j2) / steps;
+                double e = 0.0;
+                solveCmy(target, kk, t, &e);
+                lastK = kk; for (int a = 0; a < 3; ++a) lastCmy[a] = t[a];
+                if (t[0] + t[1] + t[2] + kk <= limit + 1e-9) {
+                    if (e <= tol) { found = true; foundK = kk; for (int a = 0; a < 3; ++a) foundCmy[a] = t[a]; break; }
+                    if (e < bestErr) { haveBest = true; bestErr = e; bestK = kk; for (int a = 0; a < 3; ++a) bestCmy[a] = t[a]; }
+                }
+                lowK = kk;
+            }
+            if (found) {
+                double lo = lowK, up = foundK;
+                double ok[3] = {foundCmy[0], foundCmy[1], foundCmy[2]};
+                for (int it = 0; it < 14; ++it) {
+                    const double mid = (lo + up) / 2.0;
+                    double t2[3] = {ok[0], ok[1], ok[2]}, e2 = 0.0;
+                    solveCmy(target, mid, t2, &e2);
+                    if (t2[0] + t2[1] + t2[2] + mid <= limit + 1e-9 && e2 <= tol) { up = mid; for (int a = 0; a < 3; ++a) ok[a] = t2[a]; } else lo = mid;
+                }
+                k = up;
+                for (int a = 0; a < 3; ++a) cmy[a] = ok[a];
+            } else if (haveBest) {
+                k = bestK;
+                for (int a = 0; a < 3; ++a) cmy[a] = bestCmy[a];
+            } else {   // black is at its limit and the inks are still over: C, M, Y are reduced equally
+                k = lastK;
+                const double sum = lastCmy[0] + lastCmy[1] + lastCmy[2], room = std::max(0.0, limit - k);
+                const double sc = sum > 0.0 ? std::min(1.0, room / sum) : 1.0;
+                for (int a = 0; a < 3; ++a) cmy[a] = lastCmy[a] * sc;
+            }
+        }
+        // undercolor addition (GCR only): some C, M, Y put back under the black of neutral shadows
+        if (m_p.gcr && m_p.uca > 0.0 && k > 0.0) {
+            const double add = m_p.uca / 100.0 * (k / std::max(0.01, m_p.blackLimit / 100.0)) * neutrality;
+            for (int a = 0; a < 3; ++a) cmy[a] = std::min(1.0, cmy[a] + add);
+            const double sum = cmy[0] + cmy[1] + cmy[2];
+            if (sum + k > limit) { const double sc = std::max(0.0, (limit - k) / sum); for (int a = 0; a < 3; ++a) cmy[a] *= std::min(1.0, sc); }
+        }
+        return {cmy[0], cmy[1], cmy[2], k};
+    }
+
+    // the version before 2026-11-11 (kept, not used)
+    KrimblePlates separateLegacy(const KrimbleVec3 &target) const
     {
         double cmy0[3];
         guess(target, cmy0);
