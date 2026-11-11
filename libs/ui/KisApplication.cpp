@@ -51,6 +51,7 @@
 #include "kis_slider_spin_box.h"
 #endif
 #include <QGuiApplication>
+#include <QInputMethod>   // Krimble 2026-11-11: hide the keyboard after a drag
 #include <QPointer>
 #include <QTimer>
 #endif
@@ -1057,11 +1058,18 @@ protected:
             if (m_state == Pending && (qAbs(d.x()) > TapSlop || qAbs(d.y()) > TapSlop)) {
                 // moved before the long press: not a tap and not a drag, so nothing happens
                 m_timer.stop();
-                m_state = Cancelled;
+                // m_state = Cancelled;
+                // Krimble 2026-11-11: George: "Give me the finger drag." / "percentage selectors should be able to drag left and right with touch. Like opacity in layers panel." A plain number
+                // field (QSpinBox, QDoubleSpinBox) that is moved mostly sideways before the long press is dragged: its value follows the finger. Anything else is cancelled, as before.
+                m_state = sidewaysDrag(d) ? Dragging : Cancelled;
             } else if (m_state == Scrubbing) {
                 const int steps = qRound(double(-d.y()) / MovePixels);
                 const double step = stepOf(m_spin);
                 setSpinValue(m_spin, qBound(minOf(m_spin), m_startValue + steps * step * multiplierOf(m_spin), maxOf(m_spin)));
+                tip(mouse->globalPos());
+            }
+            if (m_state == Dragging) {
+                dragValue(d.x());
                 tip(mouse->globalPos());
             }
             return true;
@@ -1076,6 +1084,7 @@ protected:
             m_state = Idle;
             m_spin = nullptr;
             QToolTip::hideText();
+            if (state == Dragging) QGuiApplication::inputMethod()->hide();   // Krimble 2026-11-11: no on-screen keyboard after a drag
             if (state == Pending && spin2 && pressWidget) {
                 // KRIMBLE 2026-10-07: a short tap no longer opens Krimble's number pad (George: "GIGANTIC NUMERIC
                 // KEYPAD APPEARS!! DO NOT WANT!!"). The tap is handed back to the field, as if it had not been
@@ -1106,7 +1115,8 @@ protected:
     }
 
 private:
-    enum State { Idle, Pending, Scrubbing, Cancelled };
+    // enum State { Idle, Pending, Scrubbing, Cancelled };
+    enum State { Idle, Pending, Scrubbing, Cancelled, Dragging };   // Krimble 2026-11-11: Dragging = a finger dragged sideways on a plain number field
 
     static QAbstractSpinBox *spinFor(QObject *o)
     {
@@ -1150,6 +1160,22 @@ private:
         if (steps > 2000.0) return 20.0;
         if (steps > 500.0) return 5.0;
         return 1.0;
+    }
+    // Krimble 2026-11-11: the drag of a plain number field: only QSpinBox and QDoubleSpinBox (the bars have their own dragging), only when the finger moved mostly sideways
+    bool sidewaysDrag(const QPoint &d) const
+    {
+        if (!m_spin || !(qobject_cast<QSpinBox*>(m_spin) || qobject_cast<QDoubleSpinBox*>(m_spin))) return false;
+        return qAbs(d.x()) > TapSlop && qAbs(d.x()) > 2 * qAbs(d.y());
+    }
+    // dragging the width of the field changes the value by up to 100 (a percentage box moves over its whole 0 to 100; a bigger range moves 100 units; a small range such as 0 to 1 moves its whole range)
+    void dragValue(int dx)
+    {
+        if (!m_spin) return;
+        const double range = maxOf(m_spin) - minOf(m_spin);
+        const double unit = qMin(range, 100.0);
+        double v = m_startValue + double(dx) / qMax(1, m_spin->width()) * unit;
+        v = qBound(minOf(m_spin), v, maxOf(m_spin));
+        setSpinValue(m_spin, v);
     }
     void tip(const QPoint &where = QPoint())
     {
