@@ -210,7 +210,11 @@ void ThemeManager::slotChangePalette()
     // applied; widgets styled before the palette changed can keep the old (gray) colors until something makes Qt
     // repolish them. Setting the same style sheet again here, right after the palette, makes Qt repolish every widget
     // with the theme's colors. This also runs when the theme is changed from the menu.
-    qApp->setStyleSheet(krimbleVisualStyleSheet());
+    // Krimble 2026-11-11: George: "The painted in theme has to go. It conflicts with all other themes." and "The other themes stopped working with the new gradient theme."
+    // The sheet used to be applied for every theme, so it painted over the other themes' colors. It is now applied only while the "Krimble dark" theme is chosen;
+    // for any other theme the application style sheet is cleared, so that theme's own palette shows.
+    // qApp->setStyleSheet(krimbleVisualStyleSheet());
+    qApp->setStyleSheet(theme == QStringLiteral("Krimble dark") ? krimbleVisualStyleSheet() : QString());
 #endif
     KisConfigNotifier::instance()->notifyColorThemeChanged(filename);
 

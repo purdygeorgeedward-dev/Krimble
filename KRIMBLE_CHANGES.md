@@ -6465,3 +6465,16 @@ George (screenshots of the Layers panel and Preferences): "Rotate the keyboard."
 **Files:** `libs/ui/toolbox/KoToolBoxDocker.cpp`
 
 George: "What happened to the undo button?" The undo button (added 2026-11-08) never showed in the toolbox. Cause: `KisMainWindow` calls `setViewManager()` on the toolbox (KisMainWindow.cpp line 5099) before `createActions()` (line 5121) creates the `edit_undo` and `edit_redo` actions. The lookup returned nothing, and the button was skipped with no message. Fix: the block that builds the button now runs through `QTimer::singleShot(0, ...)`, one event-loop turn later, after both actions exist. The old braces are kept as comments. Not yet compiled or tested on a device.
+
+## 2026-11-11 (456th) — Flat theme, other themes unpainted, black swatch lines back, Color Lab opens from the color wells, gradient default, gradient chooser in the tool options
+
+**Files:** `libs/ui/KrimbleVisualStyle.h`, `libs/ui/KrimbleVisualStyle_before_flat_2026-11-11.h.txt` (new: the whole previous sheet), `libs/ui/thememanager.cpp`, `libs/ui/kis_control_frame.cpp`, `libs/ui/widgets/KoDualColorButton.cpp`, `plugins/dockers/advancedcolorselector/krimble_color_studio.h`, `plugins/tools/basictools/kis_tool_gradient.cc`
+
+George: "The painted in theme has to go. It conflicts with all other themes.", "Get them all to the same hue and saturation but different brightness.", "PUT THEM BACK NOW.", "WE BUILT COLOR LAB TO USE IT.", "Also need a gradient builder in the tool options."
+
+- **Flat theme.** The 17 gradients of the application style sheet are gone. Every background is flat, hue 227, saturation 48, only the brightness differs: top bar / menu bar / tool bars / status bar / buttons #3e4b78, window and panels #2c3554, lists / menus / group boxes #20263d, inactive tabs #1b2033, input fields #111521. Selected and pressed items are flat #1d7cb2 with a #3bd5f7 edge. Slider handles are steel ball bearings (a radial gradient). The old sheet is kept in the .h.txt file.
+- **Other themes.** `thememanager.cpp` applied the sheet for every theme. It now applies it only for "Krimble dark" and clears it for any other theme.
+- **Swatch lines.** The palette swatches had `border:none`, so there was no line between them (the 2026-11-09 square-corner change dropped it). Palette, recent and history cells now have a 1 px pure black line on the right and bottom, square corners.
+- **Color wells.** A tap on the toolbox foreground or background well no longer opens Krita's "Select a Color" dialog. `KoDualColorButton.cpp` finds the Color Lab panel and tells it which well was tapped; the panel raises itself and edits that well (a new edit-target setting in `krimble_color_studio.h`; the second box shows the other well). If the Color Lab panel does not exist, the Krita dialog still opens.
+- **Gradient default.** The startup gradient was Foreground to Transparent (Krita's stock default), so every gradient faded to transparent. It is now Foreground to Background.
+- **Gradient chooser.** The Gradient tool's options now hold the gradient chooser with its edit buttons (the multi-stop editor and saving an edited gradient), wired to the active gradient like the toolbar's chooser.

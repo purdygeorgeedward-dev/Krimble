@@ -41,6 +41,7 @@
 #include <canvas/kis_canvas2.h>
 #include <KisViewManager.h>
 #include <widgets/kis_cmb_composite.h>
+#include <widgets/gradient/KisGradientChooser.h>   // Krimble 2026-11-11: the gradient builder in the tool options
 #include <kis_slider_spin_box.h>
 #include <kis_cursor.h>
 #include <kis_config.h>
@@ -280,6 +281,21 @@ QWidget* KisToolGradient::createOptionWidget()
     m_ckDither->setObjectName("dither_check");
     connect(m_ckDither, SIGNAL(toggled(bool)), this, SLOT(slotSetDither(bool)));
     addOptionWidgetOption(m_ckDither);
+
+    // Krimble 2026-11-11: George: "Also need a gradient builder in the tool options. Save your favorite gradients." Krita keeps the gradient chooser (with its multi-stop gradient editor
+    // and the buttons that save an edited gradient as a resource) only in a popup of the toolbar. It is now also in the Gradient tool's options. Choosing a gradient here activates it
+    // exactly as the toolbar's chooser does (slotGradientActivated).
+    {
+        KisCanvas2 *krimbleCanvas = dynamic_cast<KisCanvas2 *>(canvas());
+        if (krimbleCanvas && krimbleCanvas->viewManager()) {
+            KisCanvasResourceProvider *krimbleProvider = krimbleCanvas->viewManager()->canvasResourceProvider();
+            KisGradientChooser *krimbleChooser = new KisGradientChooser(widget);
+            krimbleChooser->setCanvasResourcesInterface(krimbleProvider->resourceManager()->canvasResourcesInterface());
+            krimbleChooser->setEditOptionsVisible(true);
+            connect(krimbleChooser, SIGNAL(resourceSelected(KoResourceSP)), krimbleProvider, SLOT(slotGradientActivated(KoResourceSP)));
+            addOptionWidgetOption(krimbleChooser);
+        }
+    }
 
     widget->setFixedHeight(widget->sizeHint().height());
 

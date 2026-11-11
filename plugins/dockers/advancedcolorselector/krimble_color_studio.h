@@ -39,6 +39,8 @@
 #include <QImage>
 #include <QClipboard>   // Krimble 2026-11-08: the HEX copy button
 #include <QApplication>
+#include <QDockWidget>   // Krimble 2026-11-11: a tap on a toolbox color well raises this panel
+#include <QEvent>
 #include <KoToolManager.h>   // the eyedropper button switches to the color sampler tool
 #include "krimble_color_canvas.h"   // Krimble 2026-11-08: the Picker page, built from the measurements of the mockup
 #include "krimble_color_palettes.h"   // the named palettes (GPL files)
@@ -507,6 +509,7 @@ class KrimbleColorStudio : public QWidget
 {
 public:
     explicit KrimbleColorStudio(QWidget *parent=nullptr) : QWidget(parent) {
+        setObjectName(QStringLiteral("KrimbleColorStudio"));   // Krimble 2026-11-11: KoDualColorButton finds the panel by this name
         // Krimble 2026-11-06: George: "Smaller font for color panel." The text of this panel is 15% smaller than the program's (labels, number boxes, HEX).
         // Krimble 2026-11-06 (4th): George: "use smaller fonts": 25% smaller (was 15%).
         {
@@ -943,7 +946,9 @@ public:
                 // Krimble 2026-11-08: the active palette is a file: when it changed (the Mixer added a color, another page edited it) the cells are rebuilt
                 if (KrimblePaletteStore::signature() != m_paletteSignature) { m_colors.clear(); loadPalette(); }
             }
-            const QColor foreground=m_canvas->resourceManager()->foregroundColor().toQColor();
+            // const QColor foreground=m_canvas->resourceManager()->foregroundColor().toQColor();
+            // Krimble 2026-11-11: the color being edited is the foreground or, after a tap on the background well, the background
+            const QColor foreground=(m_editBackground ? m_canvas->resourceManager()->backgroundColor() : m_canvas->resourceManager()->foregroundColor()).toQColor();
             if (foreground.isValid()) {
                 QColor opaque = foreground;
                 opaque.setAlpha(255);
@@ -952,17 +957,45 @@ public:
                     select(opaque, false);
                 }
             }
-            showBackground(m_canvas->resourceManager()->backgroundColor().toQColor());   // Krimble 2026-11-05
+            // showBackground(m_canvas->resourceManager()->backgroundColor().toQColor());   // Krimble 2026-11-05
+            showBackground((m_editBackground ? m_canvas->resourceManager()->foregroundColor() : m_canvas->resourceManager()->backgroundColor()).toQColor());   // Krimble 2026-11-11: the second box shows the well that is not being edited
         });
         m_syncTimer.start();
         m_ready = true;   // from here a color that changes is recorded in the history
         showTab(qBound(0, QSettings().value(QStringLiteral("Krimble/ColorStudioTab"), 0).toInt(), 4));
     }
+    // Krimble 2026-11-11: a tap on a toolbox color well sets the dynamic property "krimbleEditTarget" (KoDualColorButton.cpp); the panel then edits that well and comes to the front.
+    bool event(QEvent *e) override {
+        if (e->type() == QEvent::DynamicPropertyChange) {
+            auto *pe = static_cast<QDynamicPropertyChangeEvent *>(e);
+            if (pe->propertyName() == "krimbleEditTarget") {
+                editWell((property("krimbleEditTarget").toInt() & 1) != 0);
+            }
+        }
+        return QWidget::event(e);
+    }
+    void editWell(bool background) {
+        m_editBackground = background;
+        QWidget *w = this;
+        while (w && !qobject_cast<QDockWidget *>(w)) w = w->parentWidget();
+        if (auto *dock = qobject_cast<QDockWidget *>(w)) { dock->show(); dock->raise(); }
+        if (m_canvas) {
+            const QColor edited = (m_editBackground ? m_canvas->resourceManager()->backgroundColor() : m_canvas->resourceManager()->foregroundColor()).toQColor();
+            if (edited.isValid()) {
+                QColor opaque = edited;
+                opaque.setAlpha(255);
+                m_state.alpha = edited.alpha();
+                select(opaque, false);
+            }
+            showBackground((m_editBackground ? m_canvas->resourceManager()->foregroundColor() : m_canvas->resourceManager()->backgroundColor()).toQColor());
+        }
+    }
     void setCanvas(KisCanvas2 *canvas) {
         m_canvas=canvas;
         if (m_canvas) {
             // Read the existing document foreground color on canvas switch.
-            KoColor color=m_canvas->resourceManager()->foregroundColor();
+            // KoColor color=m_canvas->resourceManager()->foregroundColor();
+            KoColor color=m_editBackground ? m_canvas->resourceManager()->backgroundColor() : m_canvas->resourceManager()->foregroundColor();   // Krimble 2026-11-11
             select(color.toQColor(), false);
         }
     }
@@ -1008,8 +1041,15 @@ private:
         if(commit && m_canvas) {
             QColor withAlpha = c;
             withAlpha.setAlpha(m_state.alpha);
-            m_canvas->resourceManager()->setForegroundColor(KoColor(withAlpha,KoColorSpaceRegistry::instance()->rgb8()));
+            // m_canvas->resourceManager()->setForegroundColor(KoColor(withAlpha,KoColorSpaceRegistry::instance()->rgb8()));
+            writeEditedColor(KoColor(withAlpha,KoColorSpaceRegistry::instance()->rgb8()));   // Krimble 2026-11-11: foreground or background
         }
+    }
+    // Krimble 2026-11-11: writes the color to the well that is being edited
+    void writeEditedColor(const KoColor &c) {
+        if (!m_canvas) return;
+        if (m_editBackground) m_canvas->resourceManager()->setBackgroundColor(c);
+        else m_canvas->resourceManager()->setForegroundColor(c);
     }
     // Krimble 2026-11-08: the alpha channel of the foreground color (0 to 255): the A slider and the Alpha boxes
     void setAlpha(int a) {
@@ -1017,7 +1057,8 @@ private:
         if (m_canvas) {
             QColor withAlpha = m_current;
             withAlpha.setAlpha(m_state.alpha);
-            m_canvas->resourceManager()->setForegroundColor(KoColor(withAlpha,KoColorSpaceRegistry::instance()->rgb8()));
+            // m_canvas->resourceManager()->setForegroundColor(KoColor(withAlpha,KoColorSpaceRegistry::instance()->rgb8()));
+            writeEditedColor(KoColor(withAlpha,KoColorSpaceRegistry::instance()->rgb8()));   // Krimble 2026-11-11: foreground or background
         }
         refreshPages();
     }
@@ -1118,7 +1159,8 @@ private:
             // button->setStyleSheet(QStringLiteral(
             //     "background:%1;border:1px solid #7381a8;border-radius:4px;").arg(color.name()));
             button->setStyleSheet(QStringLiteral(
-                "background:%1;border:none;border-right:1px solid #0b0c18;border-bottom:1px solid #0b0c18;border-radius:0;").arg(color.name()));
+            // "background:%1;border:none;border-right:1px solid #0b0c18;border-bottom:1px solid #0b0c18;border-radius:0;").arg(color.name()));   // Krimble 2026-11-11: the line between the cells is now pure black (was #0b0c18)
+                "background:%1;border:none;border-right:1px solid #000000;border-bottom:1px solid #000000;border-radius:0;").arg(color.name()));
             connect(button,&QPushButton::clicked,this,[this,color](){select(color);});
             // m_recentLayout->addWidget(button,i/6,i%6);
             // m_recentLayout->addWidget(button,0,i);   // Krimble 2026-11-05: one row, like the mockup (the list keeps the last 10)
@@ -1142,7 +1184,8 @@ private:
             button->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
             button->setToolTip(color.name());
             // button->setStyleSheet(QStringLiteral("background:%1;border:1px solid #7381a8;border-radius:4px;").arg(color.name()));
-            button->setStyleSheet(QStringLiteral("background:%1;border:none;border-right:1px solid #0b0c18;border-bottom:1px solid #0b0c18;border-radius:0;").arg(color.name()));
+            // button->setStyleSheet(QStringLiteral("background:%1;border:none;border-right:1px solid #0b0c18;border-bottom:1px solid #0b0c18;border-radius:0;").arg(color.name()));   // Krimble 2026-11-11: the line between the cells is now pure black (was #0b0c18)
+            button->setStyleSheet(QStringLiteral("background:%1;border:none;border-right:1px solid #000000;border-bottom:1px solid #000000;border-radius:0;").arg(color.name()));
             connect(button,&QPushButton::clicked,this,[this,color](){select(color);});
             button->setContextMenuPolicy(Qt::CustomContextMenu);
             auto editSwatch=[this,button,i](const QPoint &globalPos) {
@@ -1200,7 +1243,9 @@ private:
                 // ? QStringLiteral("background:%1;border:2px solid #35d8f8;border-radius:3px;").arg(color.name())
                 // : QStringLiteral("background:%1;border:none;border-radius:3px;").arg(color.name()));
                 ? QStringLiteral("background:%1;border:2px solid #35d8f8;border-radius:0px;").arg(color.name())   // 2026-11-09: square corners
-                : QStringLiteral("background:%1;border:none;border-radius:0px;").arg(color.name()));
+                // : QStringLiteral("background:%1;border:none;border-radius:0px;").arg(color.name()));
+                // Krimble 2026-11-11: George: "When I asked you to take out the rounded corners you took out the grid lines. PUT THEM BACK." Square corners AND the black line between the cells.
+                : QStringLiteral("background:%1;border:none;border-right:1px solid #000000;border-bottom:1px solid #000000;border-radius:0px;").arg(color.name()));
             connect(button,&QPushButton::clicked,this,[this,color,i](){
                 m_selectedSwatch=i;
                 select(color);
@@ -1254,6 +1299,7 @@ private:
     KrimbleHistoryPage *m_historyPage=nullptr;
     QTimer m_historyTimer;
     bool m_ready=false;
+    bool m_editBackground=false;   // Krimble 2026-11-11: true after a tap on the toolbox background well
     KrimbleSlidersTop *m_sliders=nullptr;
     KrimbleValuesTop *m_values=nullptr;
     KrimbleColorState m_state;
