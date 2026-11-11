@@ -1240,10 +1240,13 @@ public:
         // label->setFixedSize(28, 28);
         // Krimble 2026-11-07: George: "make the K and the menubar smaller." 22 px (was 28; Qt's own size was 16) and a 26 px bar (was 32; Qt's own was 22).
         // label->setFixedSize(22, 22);
-        label->setFixedSize(22, 26);   // Krimble 2026-11-11: as tall as the bar's minimum height (26), so the K can be centered on the bar's middle line inside the button
+        // label->setFixedSize(22, 26);   // Krimble 2026-11-11 (earlier the same day): as tall as the bar's minimum height (26)
+        label->setFixedSize(22, 22);   // Krimble 2026-11-11: back to 22 x 22 together with the menu bar's own height (see below)
         if (bar) {
             // bar->setMinimumHeight(32);
-            bar->setMinimumHeight(26);
+            // bar->setMinimumHeight(26);
+            // Krimble 2026-11-11: George: "the menu bar is too tall in the build I'm using. Please put it back." The 26 px minimum height (2026-11-07; 32 px on 2026-11-06) is gone: the bar is as tall
+            // as Qt makes it from the menu names and the 22 px button, as it was before the K was enlarged.
             bar->updateGeometry();
             // ensureSpacer(bar);
             // Krimble 2026-11-07: not needed at 22 px: Qt reserves 16 px + 6 px for the button, so a 22 px K ends where the first menu starts (tested in real Qt; a spacer item is
