@@ -1,3 +1,4 @@
+// Krimble 2026-11-11: moved from plugins/dockers/advancedcolorselector/krimble_cmyk_engine.h to libs/ui/KrimbleCmykEngine.h so that the program (the Custom CMYK dialog, KrimbleCustomCmykDialog.h) and the Color Lab plugin can both include it.
 // Krimble 2026-11-08: George: "Please build this and include any available open source formulas for professional conversion. We should have some equivalent tools to [the industry standard] in the long run."
 // (the industry standard Custom CMYK, Ink Colors, Dot Gain Curves and Convert to Profile dialogs are the model).
 //

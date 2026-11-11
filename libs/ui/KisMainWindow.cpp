@@ -11,6 +11,7 @@
 #include "KrimbleBatchDialog.h"   // Krimble 2026-10-25: Batch Process with recipes and WebP
 #include "KrimbleHelpDialog.h"    // Krimble 2026-10-25: Help > Krimble Help
 #include "KrimbleLogDialog.h"     // Krimble 2026-10-25: Help > Show Krimble Log...
+#include "KrimbleCustomCmykDialog.h"   // Krimble 2026-11-11: Edit > Custom CMYK... (the CMYK conversion profile)
 
 #include <KoConfig.h>
 
@@ -3219,6 +3220,41 @@ static void krimbleApplyLayerStyle(KisMainWindow *win, int preset)
     image->waitForDone();
 }
 
+// Krimble 2026-11-11: George: "I really want [industry standard] style interfaces for RGB to CMYK." Adds "Custom CMYK..." to the Edit menu, just above Preferences (once, when the menu first opens).
+// It is added here, in code, because krita5.xmlgui is George's own file. It will become Edit > Color Settings... (with the working spaces, as in the industry standard dialog) when that dialog is built.
+static void krimbleInstallColorSettings(KisMainWindow *win)
+{
+    QMenu *editMenu = nullptr;
+    Q_FOREACH (QAction *top, win->menuBar()->actions()) {
+        QString title = top->text();
+        title.remove(QLatin1Char('&'));
+        if (top->menu() && title == QLatin1String("Edit")) editMenu = top->menu();
+    }
+    if (!editMenu || editMenu->property("krimbleColorSettings").toBool()) return;
+    editMenu->setProperty("krimbleColorSettings", true);
+    QObject::connect(editMenu, &QMenu::aboutToShow, win, [win, editMenu]() {
+        if (editMenu->findChild<QAction*>(QStringLiteral("krimbleCustomCmyk"))) return;
+        QAction *cmyk = new QAction(i18n("Custom CMYK..."), editMenu);
+        cmyk->setObjectName(QStringLiteral("krimbleCustomCmyk"));
+        QObject::connect(cmyk, &QAction::triggered, win, [win]() { krimbleShowCustomCmykDialog(win); });
+        QAction *before = nullptr;
+        Q_FOREACH (QAction *action, editMenu->actions()) {
+            QString text = action->text();
+            text.remove(QLatin1Char('&'));
+            if (!before && text.startsWith(QLatin1String("Preferences"))) before = action;
+        }
+        if (before) {
+            QAction *divider = new QAction(editMenu);
+            divider->setSeparator(true);
+            editMenu->insertAction(before, cmyk);
+            editMenu->insertAction(before, divider);
+        } else {
+            editMenu->addSeparator();
+            editMenu->addAction(cmyk);
+        }
+    });
+}
+
 // Adds "Batch Process..." at the end of the Image menu, after a divider (once, when the menu first opens). It was at the end of the
 // File menu, below Exit (George: "I think it should be in the image menu, not below exit.").
 static void krimbleInstallImageExtras(KisMainWindow *win)
@@ -5041,6 +5077,7 @@ KisMainWindow::KisMainWindow(QUuid uuid)
             krimbleInstallLayerExtras(this);      // Krimble 2026-10-13 (11th): George: "Re-enable 3, 4, 5 for testing." (Layer > Style Presets)
             krimbleInstallViewExtras(this);
             // krimbleInstallImageExtras(this);   // Krimble 2026-10-13 (9th): George: "3. Comment out. 4. Comment out." (Image > Upscale... and Batch Process...)
+            krimbleInstallColorSettings(this);    // Krimble 2026-11-11: Edit > Custom CMYK...
             krimbleInstallImageExtras(this);      // Krimble 2026-10-13 (11th): George: "Re-enable 3, 4, 5 for testing." (Image > Upscale... and Batch Process..., and Quick Adjust... in Image > Adjustments)
         }
     });
