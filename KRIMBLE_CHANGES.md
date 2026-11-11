@@ -6586,3 +6586,9 @@ George: "It should be a smooth calculation between the nodes in the gamut." and 
 George: "Now build 56." Build 55 (run 42676143585, commit `69c3a1c`) had no row in the build log, so the gate (`tools/ci/check_build_number.py`) would have accepted 55 again. Row 55 added. `krimbleBuildNumber` 55 -> 56 (old line commented out). The check script passes for 1.0.56-beta. The workflow file was NOT changed: the PAT has no `workflow` scope, so the label default in `.github/workflows/android-build.yml` still says 1.0.55-beta; the build is started by hand (workflow_dispatch) with the label 1.0.56-beta typed in. Tag `v1.0.55-beta` was moved from `cea9e6c` to `69c3a1c` on 2026-11-11, 11:00 AM MST; the draft release is unchanged.
 
 **Update, 2026-11-11 (new PAT):** the label default and both fallbacks in `.github/workflows/android-build.yml` now say 1.0.56-beta (old lines commented out); pushing that file starts build 56.
+
+## 2026-11-11 (474th) — Native build error scan no longer flags the "Internal error: 0" counter line
+
+**Files:** `.github/workflows/android-build.yml`
+
+George: successful builds were still shown as failed. The scan for " error: " in the native build log matched the line "Internal error: 0" (lines 106 and 9323, also seen on builds 54 and 55) and wrote two red "compile error" annotations on every run. Lines containing "Internal error:" are now filtered out with `grep -v` in both the check and the annotation printing; real compiler errors still fail the step. Old lines commented out. Build 56 is run again with this change.

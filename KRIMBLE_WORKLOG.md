@@ -273,3 +273,6 @@ George saw the gray ramp of the Custom CMYK dialog, said the calculation "should
 
 ## 2026-11-11, 11:30 MST (18:30 UTC): build 56 started
 Row 55 added to KRIMBLE_BUILD_LOG.md (run 42676143585, 69c3a1c, Nov 9 11:40 AM MST). Build number 56 set in build.gradle. android-build.yml not changed (the PAT has no workflow scope), so the build is started with workflow_dispatch and the label 1.0.56-beta. Changelog 473rd.
+
+## 2026-11-11, 02:04 PM MST (21:04 UTC): error-scan fix, build 56 rerun
+android-build.yml: "Internal error:" lines ignored by the native build error scan (changelog 474th). Pushing the workflow file starts build 56 again (row 56 not in the build log yet).

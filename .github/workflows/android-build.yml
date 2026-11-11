@@ -116,9 +116,13 @@ jobs:
           # KRIMBLE 2026-11-07: build 42356342646 (commit bff632e) failed to compile but this step still reported success, and the job log cannot be read from outside GitHub.
           # Any compiler error line (" error: ") or make failure now fails this step, and the first 12 error lines are written as annotations, which can be read through the
           # API; the whole log is also uploaded as the artifact krimble-native-build-log (next steps).
-          if grep -qE ' error: |\*\*\* \[.*\] Error [0-9]+|ninja: build stopped' "$HOME/build-krita.log"; then
+          # KRIMBLE 2026-11-11: the scan below matched the ccache counter line "Internal error: 0" and marked good builds with red compile-error annotations (builds 54, 55, 56).
+          # Lines containing "Internal error:" are now ignored; real compiler errors still fail the step. Old lines kept commented out.
+          # if grep -qE ' error: |\*\*\* \[.*\] Error [0-9]+|ninja: build stopped' "$HOME/build-krita.log"; then
+          if grep -E ' error: |\*\*\* \[.*\] Error [0-9]+|ninja: build stopped' "$HOME/build-krita.log" | grep -v 'Internal error:' | grep -q .; then
             rc=1
-            grep -nE ' error: |\*\*\* \[.*\] Error [0-9]+|ninja: build stopped' "$HOME/build-krita.log" | head -12 | while IFS= read -r errline; do
+            # grep -nE ' error: |\*\*\* \[.*\] Error [0-9]+|ninja: build stopped' "$HOME/build-krita.log" | head -12 | while IFS= read -r errline; do
+            grep -nE ' error: |\*\*\* \[.*\] Error [0-9]+|ninja: build stopped' "$HOME/build-krita.log" | grep -v 'Internal error:' | head -12 | while IFS= read -r errline; do
               echo "::error title=compile error::${errline:0:900}"
             done
           fi
