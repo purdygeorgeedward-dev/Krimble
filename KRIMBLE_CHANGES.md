@@ -6488,3 +6488,9 @@ George: "Make sure the square color selection area (the big gradient color area)
 - The color area was clipped to a rounded rectangle and was 617 x 557 units, so it was not square. It is now 557 x 557 units (both sides scale by the same factor with the panel) and clipped to a plain rectangle: square corners, also on the thin dark outline.
 - The hue strip's widget is 58 units wide (was 90), so the rainbow is about 53 units wide (was 82). The square and the strip are centered in the same span as before.
 - The foreground and background wells under the area are rounded again (radius 12 and 14 units, scaled), as before the 2026-11-09 change. The palette, recent and history cells stay square.
+
+## 2026-11-11 (458th) — Thank-you to Oracle Cloud taken out
+
+**Files:** `README.md`, `libs/ui/dialogs/kis_about_application.cpp`
+
+George: "Oracle server is dead. We should remove the thank you to Oracle since they pulled the rug out from under us." The Oracle Cloud line is commented out of the README's thank-you list and of the About dialog's Thanks To page. The logo file `krita/data/aboutdata/thanks-oracle.png` and its resource entry stay in place, unused.

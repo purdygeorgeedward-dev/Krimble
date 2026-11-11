@@ -269,7 +269,9 @@ Krimble exists because of these. They are not connected to Krimble and have not 
 
 - <img src="thanks-icons/claude.svg" width="24" height="24" align="absmiddle"> **Claude** (Anthropic): helped design and write much of Krimble's code and documentation.
 - <img src="thanks-icons/openai.svg" width="24" height="24" align="absmiddle"> **ChatGPT** (OpenAI): ideas, art direction and troubleshooting along the way.
+<!-- 2026-11-11: the thank-you to Oracle Cloud is taken out (its free server was removed and the releases are built on GitHub now). The line was:
 - <img src="thanks-icons/oracle.svg" width="24" height="24" align="absmiddle"> **Oracle Cloud**: its free tier hosts the build server that compiles every release.
+-->
 - <img src="thanks-icons/termux.svg" width="24" height="24" align="absmiddle"> **Termux**: the Android terminal that runs the whole build from a phone.
 - <img src="thanks-icons/github.svg" width="24" height="24" align="absmiddle"> **GitHub**: hosts the code, the releases and the issue tracker. What would we do without it?
 
