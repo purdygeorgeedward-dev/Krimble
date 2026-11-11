@@ -919,9 +919,27 @@ public:
                                       qRound(m_hsv[1]->value()*255.0/100.0),
                                       qRound(m_hsv[2]->value()*255.0/100.0)));
             });
-        connect(m_hex,&QLineEdit::editingFinished,this,[this]() {
-            QColor c(m_hex->text()); if(c.isValid()) select(c);
-        });
+        // connect(m_hex,&QLineEdit::editingFinished,this,[this]() {
+        //     QColor c(m_hex->text()); if(c.isValid()) select(c);
+        // });
+        // Krimble 2026-11-11: George: "Color Lab hex fix?" (typing a color did not work). The old handler ran only when editing finished (Enter, or the field losing focus) and QColor
+        // refused a hex value typed WITHOUT the leading #, so "FF1C1C" did nothing. Now: the # is optional; a color of 6 digits is applied as soon as the sixth digit is typed
+        // (no Enter needed); a color of 3 digits ("F80" is "FF8800") is applied when editing finishes (Enter, Done on the keyboard, or leaving the field); anything else is left alone.
+        {
+            auto applyHex=[this](bool finished) {
+                QString t=m_hex->text().trimmed();
+                if(t.startsWith(QLatin1Char('#'))) t.remove(0,1);
+                if(t.size()==3 && finished) t=QString(t[0])+t[0]+t[1]+t[1]+t[2]+t[2];
+                if(t.size()!=6) return;
+                bool ok=false;
+                t.toUInt(&ok,16);
+                if(!ok) return;
+                const QColor c(QStringLiteral("#")+t);
+                if(c.isValid()) select(c);
+            };
+            connect(m_hex,&QLineEdit::textEdited,this,[applyHex](const QString &) { applyHex(false); });
+            connect(m_hex,&QLineEdit::editingFinished,this,[applyHex]() { applyHex(true); });
+        }
         // connect(add,&QPushButton::clicked,this,[this]() {
         connect(m_ui->add,&QToolButton::clicked,this,[this]() {
             // 2026-11-08: through the palette, so a CMYK palette gets the plates of the color: if (!m_colors.contains(m_current)) m_colors.append(m_current);

@@ -6506,3 +6506,9 @@ George (asked whether the orange K in the corner is back): "The problem was that
 **Files:** `libs/ui/KisMainWindow.cpp` (`KrimbleMenuBarFilter::adopt`)
 
 George: "Also the menu bar is too tall in the build I'm using. Please put it back." The menu bar was given a minimum height of 32 px on 2026-11-06 and 26 px on 2026-11-07 (Qt's own is about 22 px) when the K was enlarged. The minimum height is no longer set (the line is commented out), so the bar is as tall as Qt makes it from the menu names and the 22 x 22 px corner button. The corner button is 22 x 22 px as before.
+
+## 2026-11-11 (461st) — Color Lab hex box: type a color without Enter, with or without #
+
+**Files:** `plugins/dockers/advancedcolorselector/krimble_color_studio.h`
+
+George: "Color Lab hex fix?" The hex box applied a typed color only when editing finished (Enter, or leaving the field), and `QColor` refused a value typed without the leading `#`, so "FF1C1C" did nothing. Now the `#` is optional; a 6 digit color is applied as soon as the sixth digit is typed (no Enter); a 3 digit color ("F80" is "FF8800") is applied when editing finishes (Enter, Done on the phone keyboard, or leaving the field); text that is not hex digits is left alone. The old handler is kept in a comment. The hex box inside Krita's own "Select a Color" dialog (`kis_color_input.cpp`) is separate and not changed: tapping a color well opens Color Lab now.
