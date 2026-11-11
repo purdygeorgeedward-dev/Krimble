@@ -1314,6 +1314,9 @@ protected:
             // bar's background is painted here, under the menu names (the style sheet makes the bar's own background transparent): a horizontal gradient that is dark at both ends and lighter
             // in the middle (#1C2346, #394585, #1C2346: from the mockups' title bars), a little lighter at the top and darker toward the bottom, a light line along the top, and a dark edge
             // along the bottom with a lighter line above it. Tried in real Qt next to the mockups (menubar_compare.png). Before: a plain top-to-bottom gradient #374676 to #242D4C.
+            // Krimble 2026-11-11: this painting belongs to the "Krimble Painted" theme only (thememanager.cpp sets the property). For the flat theme "Krimble dark" and for every other theme
+            // the bar is left to the style sheet and the palette (before, it was painted over for every theme, so the flat top bar color never showed).
+            if (!qApp->property("krimblePaintedTheme").toBool()) return false;
             QWidget *bar = static_cast<QWidget *>(watched);
             QPainter painter(bar);
             const QRectF r(bar->rect());
@@ -1322,11 +1325,13 @@ protected:
             across.setColorAt(0.5, QColor("#394585"));
             across.setColorAt(1.0, QColor("#1c2346"));
             painter.fillRect(r, across);
-            QLinearGradient down(0, r.top(), 0, r.bottom());
-            down.setColorAt(0.0, QColor(255, 255, 255, 34));
-            down.setColorAt(0.5, QColor(255, 255, 255, 0));
-            down.setColorAt(1.0, QColor(5, 8, 30, 120));
-            painter.fillRect(r, down);
+            // QLinearGradient down(0, r.top(), 0, r.bottom());
+            // down.setColorAt(0.0, QColor(255, 255, 255, 34));
+            // down.setColorAt(0.5, QColor(255, 255, 255, 0));
+            // down.setColorAt(1.0, QColor(5, 8, 30, 120));
+            // painter.fillRect(r, down);
+            // Krimble 2026-11-11: George (Nov 9): "The menu bar, ANY bar, is NOT SUPPOSED TO BE SHADED ON THE BOTTOM!!!!!!! IT LOOKS PUFFY. IT WAS SUPPOSED TO BE DARKENED TO THE CORNERS." The top-to-bottom
+            // shading (light at the top, dark at the bottom) is gone: the bar shades across only, dark at both ends (this fix was made in an earlier chat and lost; see the changelog).
             painter.setPen(QColor(150, 165, 225, 120));
             painter.drawLine(0, 0, bar->width(), 0);
             painter.setPen(QColor(62, 74, 128, 200));

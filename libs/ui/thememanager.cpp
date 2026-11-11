@@ -218,6 +218,7 @@ void ThemeManager::slotChangePalette()
     // qApp->setStyleSheet(theme == QStringLiteral("Krimble dark") ? krimbleVisualStyleSheet() : QString());
     // Krimble 2026-11-11: George: "Can we put in the Krimble gradient theme as an option?" Three cases, by the theme's name: "Krimble dark" gets the flat sheet, "Krimble Painted" gets the
     // painted (gradient) sheet (KrimbleVisualStylePainted.h), and every other theme gets no sheet at all.
+    qApp->setProperty("krimblePaintedTheme", theme == QStringLiteral("Krimble Painted"));   // Krimble 2026-11-11: the menu bar filter (KisMainWindow.cpp) paints its gradient only for this theme
     if (theme == QStringLiteral("Krimble dark")) {
         qApp->setStyleSheet(krimbleVisualStyleSheet());
     } else if (theme == QStringLiteral("Krimble Painted")) {
