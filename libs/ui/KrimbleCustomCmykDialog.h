@@ -15,6 +15,8 @@
 #include <QDialogButtonBox>
 #include <QDoubleSpinBox>
 #include <QFrame>
+#include <QGuiApplication>
+#include <QScreen>
 #include <QGridLayout>
 #include <QGroupBox>
 #include <QHBoxLayout>
@@ -39,7 +41,7 @@
 class KrimbleGrayRampGraph : public QWidget
 {
 public:
-    explicit KrimbleGrayRampGraph(QWidget *parent = nullptr) : QWidget(parent) { setMinimumSize(170, 150); }
+    explicit KrimbleGrayRampGraph(QWidget *parent = nullptr) : QWidget(parent) { setMinimumSize(100, 150); }   // Krimble 2026-11-11: 100 wide (was 170), for a phone
     QSize sizeHint() const override { return QSize(230, 190); }
     void setProfile(const KrimbleCmykProfile &profile)
     {
@@ -202,34 +204,50 @@ inline void krimbleShowCustomCmykDialog(QWidget *parent)
     KrimbleCmykProfile profile = KrimbleCmykProfiles::current();
     QDialog dialog(parent);
     dialog.setWindowTitle(QStringLiteral("Custom CMYK"));
-    dialog.resize(520, 700);
+    // dialog.resize(520, 700);
+    // Krimble 2026-11-11: George's screenshot (build 56) showed the dialog wider than his phone: the ink colors box, the dot gain percent and the Gray Ramp were cut off at the right edge, with a horizontal
+    // scroll bar. The dialog is now no wider than the screen (and no taller), and has no horizontal scroll bar.
+    {
+        QSize room(520, 700);
+        if (QScreen *screen = QGuiApplication::primaryScreen()) room = QSize(qMin(520, screen->availableGeometry().width() - 8), qMin(700, screen->availableGeometry().height() - 60));
+        dialog.resize(room);
+    }
     QVBoxLayout *outer = new QVBoxLayout(&dialog);
+    outer->setContentsMargins(4, 4, 4, 4);   // Krimble 2026-11-11: thinner margins, for a phone
     QScrollArea *scroll = new QScrollArea(&dialog);
     scroll->setWidgetResizable(true);
     scroll->setFrameShape(QFrame::NoFrame);
+    scroll->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);   // Krimble 2026-11-11: the content is made to fit the width
     QWidget *content = new QWidget;
     scroll->setWidget(content);
     outer->addWidget(scroll, 1);
     QVBoxLayout *lay = new QVBoxLayout(content);
+    lay->setContentsMargins(2, 2, 2, 2);
 
     QHBoxLayout *nameRow = new QHBoxLayout;
     nameRow->addWidget(new QLabel(QStringLiteral("Name:"), content));
     QLineEdit *nameEdit = new QLineEdit(content);
+    nameEdit->setMinimumWidth(40);   // Krimble 2026-11-11: no minimum that is wider than a phone
     nameRow->addWidget(nameEdit, 1);
     lay->addLayout(nameRow);
 
     // ink options
     QGroupBox *inkBox = new QGroupBox(QStringLiteral("Ink Options"), content);
     QGridLayout *inkGrid = new QGridLayout(inkBox);
+    inkGrid->setContentsMargins(6, 6, 6, 6);
     inkGrid->addWidget(new QLabel(QStringLiteral("Ink Colors:"), inkBox), 0, 0);
     QComboBox *inkCombo = new QComboBox(inkBox);
     inkCombo->addItems(KrimbleInkSet::presetNames());
+    inkCombo->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLengthWithIcon);   // Krimble 2026-11-11: as wide as the room allows, not as wide as the longest name
+    inkCombo->setMinimumContentsLength(8);
     if (profile.inkPreset == QLatin1String("Custom")) inkCombo->addItem(QStringLiteral("Custom"));
     inkGrid->addWidget(inkCombo, 0, 1, 1, 2);
     inkGrid->addWidget(new QLabel(QStringLiteral("Dot Gain:"), inkBox), 1, 0);
     QComboBox *gainCombo = new QComboBox(inkBox);
     gainCombo->addItem(QStringLiteral("Standard"));
     gainCombo->addItem(QStringLiteral("Curves..."));
+    gainCombo->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLengthWithIcon);
+    gainCombo->setMinimumContentsLength(6);
     inkGrid->addWidget(gainCombo, 1, 1);
     QDoubleSpinBox *gainPercent = new QDoubleSpinBox(inkBox);
     gainPercent->setRange(0.0, 50.0);
@@ -241,6 +259,7 @@ inline void krimbleShowCustomCmykDialog(QWidget *parent)
     // separation options
     QGroupBox *sepBox = new QGroupBox(QStringLiteral("Separation Options"), content);
     QGridLayout *sepGrid = new QGridLayout(sepBox);
+    sepGrid->setContentsMargins(6, 6, 6, 6);
     sepGrid->addWidget(new QLabel(QStringLiteral("Separation Type:"), sepBox), 0, 0);
     QRadioButton *gcrRadio = new QRadioButton(QStringLiteral("GCR"), sepBox);
     QRadioButton *ucrRadio = new QRadioButton(QStringLiteral("UCR"), sepBox);
@@ -251,6 +270,8 @@ inline void krimbleShowCustomCmykDialog(QWidget *parent)
     sepGrid->addWidget(new QLabel(QStringLiteral("Black Generation:"), sepBox), 1, 0);
     QComboBox *blackGen = new QComboBox(sepBox);
     blackGen->addItems(QStringList() << QStringLiteral("None") << QStringLiteral("Light") << QStringLiteral("Medium") << QStringLiteral("Heavy") << QStringLiteral("Maximum"));
+    blackGen->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLengthWithIcon);
+    blackGen->setMinimumContentsLength(6);
     sepGrid->addWidget(blackGen, 1, 1);
     sepGrid->addWidget(new QLabel(QStringLiteral("Black Ink Limit:"), sepBox), 2, 0);
     QSpinBox *blackLimit = new QSpinBox(sepBox);
@@ -267,12 +288,20 @@ inline void krimbleShowCustomCmykDialog(QWidget *parent)
     ucaAmount->setRange(0, 100);
     ucaAmount->setSuffix(QStringLiteral(" %"));
     sepGrid->addWidget(ucaAmount, 4, 1);
-    sepGrid->addWidget(new QLabel(QStringLiteral("Gray Ramp:"), sepBox), 0, 2, Qt::AlignHCenter);
+    // sepGrid->addWidget(new QLabel(QStringLiteral("Gray Ramp:"), sepBox), 0, 2, Qt::AlignHCenter);
+    // KrimbleGrayRampGraph *ramp = new KrimbleGrayRampGraph(sepBox);
+    // sepGrid->addWidget(ramp, 1, 2, 4, 1);
+    // Krimble 2026-11-11: the Gray Ramp is under the settings, across the width (it was a third column at the right, which was too wide for a phone).
+    sepGrid->addWidget(new QLabel(QStringLiteral("Gray Ramp:"), sepBox), 5, 0, 1, 2);
     KrimbleGrayRampGraph *ramp = new KrimbleGrayRampGraph(sepBox);
-    sepGrid->addWidget(ramp, 1, 2, 4, 1);
+    ramp->setMinimumHeight(170);
+    sepGrid->addWidget(ramp, 6, 0, 1, 2);
     lay->addWidget(sepBox);
 
-    QCheckBox *bpc = new QCheckBox(QStringLiteral("Use Black Point Compensation"), content);
+    // QCheckBox *bpc = new QCheckBox(QStringLiteral("Use Black Point Compensation"), content);
+    QCheckBox *bpc = new QCheckBox(QStringLiteral("Black Point Compensation"), content);   // Krimble 2026-11-11: shorter, for a phone
+    // the labels may wrap onto two lines, so that no label forces the dialog wider than the screen
+    Q_FOREACH (QLabel *label, content->findChildren<QLabel *>()) label->setWordWrap(true);
     lay->addWidget(bpc);
     lay->addStretch(1);
 
@@ -284,8 +313,14 @@ inline void krimbleShowCustomCmykDialog(QWidget *parent)
     buttonRow->addWidget(saveButton);
     buttonRow->addStretch(1);
     QDialogButtonBox *buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, &dialog);
-    buttonRow->addWidget(buttons);
+    // buttonRow->addWidget(buttons);
+    // outer->addLayout(buttonRow);
+    // Krimble 2026-11-11: four buttons in one row were wider than a phone. Load and Save are one row, Cancel and OK the one under it.
+    QHBoxLayout *okRow = new QHBoxLayout;
+    okRow->addStretch(1);
+    okRow->addWidget(buttons);
     outer->addLayout(buttonRow);
+    outer->addLayout(okRow);
     QObject::connect(buttons, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
     QObject::connect(buttons, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
 
