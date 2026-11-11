@@ -1067,13 +1067,16 @@ public:
         setCheckable(true);
         setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     }
-    QSize sizeHint() const override { return QSize(84, 40); }
+    // QSize sizeHint() const override { return QSize(84, 40); }
+    // Krimble 2026-11-11: George: "The rounded preview toggle is too big in QuickAdjust." 64 x 30 (was 84 x 40), with a thinner margin around the switch and a smaller knob.
+    QSize sizeHint() const override { return QSize(64, 30); }
 protected:
     void paintEvent(QPaintEvent *) override
     {
         QPainter p(this);
         p.setRenderHint(QPainter::Antialiasing);
-        const QRectF r = QRectF(rect()).adjusted(5, 5, -5, -5);
+        // const QRectF r = QRectF(rect()).adjusted(5, 5, -5, -5);
+        const QRectF r = QRectF(rect()).adjusted(3, 3, -3, -3);   // Krimble 2026-11-11: smaller switch
         const qreal radius = r.height() / 2.0;
         if (isChecked()) {
             p.setBrush(Qt::NoBrush);
@@ -1090,13 +1093,16 @@ protected:
         p.setPen(QPen(isChecked() ? QColor(0x54, 0xe5, 0xff) : QColor(0x6b, 0x74, 0x98), 1.5));
         p.setBrush(bg);
         p.drawRoundedRect(r, radius, radius);
-        const qreal knob = r.height() - 8;
-        const qreal x = isChecked() ? r.right() - knob - 4 : r.left() + 4;
+        // const qreal knob = r.height() - 8;
+        // const qreal x = isChecked() ? r.right() - knob - 4 : r.left() + 4;
+        const qreal knob = r.height() - 6;   // Krimble 2026-11-11: smaller switch
+        const qreal x = isChecked() ? r.right() - knob - 3 : r.left() + 3;
         p.setPen(Qt::NoPen);
         p.setBrush(QColor(0xea, 0xed, 0xf6));
-        p.drawEllipse(QRectF(x, r.top() + 4, knob, knob));
+        // p.drawEllipse(QRectF(x, r.top() + 4, knob, knob));
+        p.drawEllipse(QRectF(x, r.top() + 3, knob, knob));   // Krimble 2026-11-11
         p.setPen(QColor(0xf4, 0xf6, 0xff));
-        QFont f = font(); f.setBold(true); p.setFont(f);
+        QFont f = font(); f.setBold(true); f.setPointSizeF(qMax<qreal>(7.0, f.pointSizeF() * 0.8)); p.setFont(f);   // Krimble 2026-11-11: a smaller ON/OFF
         const QRectF textRect = isChecked() ? QRectF(r.left() + 6, r.top(), r.width() - knob - 14, r.height())
                                             : QRectF(r.left() + knob + 10, r.top(), r.width() - knob - 14, r.height());
         p.drawText(textRect, Qt::AlignCenter, isChecked() ? QStringLiteral("ON") : QStringLiteral("OFF"));
@@ -1472,7 +1478,8 @@ public:
             m_sliders[i]->setMinimumWidth(1);
             // m_sliders[i]->setMinimumHeight(38);
             // m_sliders[i]->setMinimumHeight(22);
-            m_sliders[i]->setMinimumHeight(16);   // Krimble 2026-11-06: was 22 (the ball is 12 px + 2 px rim)
+            // m_sliders[i]->setMinimumHeight(16);   // Krimble 2026-11-06: was 22 (the ball is 12 px + 2 px rim)
+            m_sliders[i]->setMinimumHeight(22);   // Krimble 2026-11-11: the ball bearing handle is 16 px + 2 px rim, so the row is a little taller
             m_sliders[i]->setObjectName(QStringLiteral("krimbleQuickAdjustSlider"));
             // Krimble 2026-11-05: thin groove (4 px) and a small round handle (14 px; a border radius of exactly half the handle size draws a square in Qt,
             // so it is 8 px, not 9) for the QuickAdjust sliders; the filled part is the selection blue.
@@ -1487,9 +1494,15 @@ public:
             // Krimble 2026-11-06 (3rd): George: "match the sliders perfectly in color and scale." Measured on the mockup picture (999 px wide; the window here is about 300 px, so 0.3 px
             // per mockup pixel): the ball is 44 px across = 13 px, light at the top (#F9FDFF, #CFD1E6, #AEB2CD, #8F93B0) down to #8A8EAB, with a #9DA0C9 rim; the line is about
             // 11 px = 3 px thick; its filled part is cyan at the top (#3FD1F6) through #0DA0FF to #008CEC at the bottom, and the rest is #72749D, #5C5F88, #7378A0.
+            // const QString thinHandle = QStringLiteral(
+            //     "QSlider::handle:horizontal { width: 13px; height: 13px; margin: -5px 0; border: 1px solid #9da0c9; border-radius: 6px;"
+            //     " background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #f9fdff, stop:0.2 #cfd1e6, stop:0.4 #aeb2cd, stop:0.7 #8f93b0, stop:1 #8a8eab); }");
+            // Krimble 2026-11-11: George: "make the handles round balls ... A metal ball bearing would look better." (then, of a first picture: "Too big. Too flat. Do you know what a ball
+            // bearing looks like?", and "better" for the second). A steel ball 18 px across: the top of the ball reflects the bright sky (#F4F7FC to #C9D0DE), then a dark horizon band across the
+            // middle (#4A5164, #262B38), then the lighter bounce from below (#7F889C to #C3CAD8), with a dark rim (#141822). A border radius of 8 on a handle 18 px wide with a 1 px border is a circle.
             const QString thinHandle = QStringLiteral(
-                "QSlider::handle:horizontal { width: 13px; height: 13px; margin: -5px 0; border: 1px solid #9da0c9; border-radius: 6px;"
-                " background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #f9fdff, stop:0.2 #cfd1e6, stop:0.4 #aeb2cd, stop:0.7 #8f93b0, stop:1 #8a8eab); }");
+                "QSlider::handle:horizontal { width: 16px; height: 16px; margin: -7px 0; border: 1px solid #141822; border-radius: 8px;"
+                " background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #f4f7fc, stop:0.30 #c9d0de, stop:0.46 #4a5164, stop:0.56 #262b38, stop:0.78 #7f889c, stop:1 #c3cad8); }");
             if (i != Hue) {
                 // m_sliders[i]->setStyleSheet(QStringLiteral(
                 //     "QSlider::groove:horizontal { height: 4px; border: 1px solid #535c80; border-radius: 3px; background: #20263f; }"
@@ -1506,7 +1519,7 @@ public:
                     " background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #3fd1f6, stop:0.4 #0da0ff, stop:1 #008cec); }")
                     + thinHandle);
             }
-            if (i == Lightness) {
+            if (false && i == Lightness) {   // Krimble 2026-11-11: switched off. George: "saturation slider can be blue. All of them except hue can be that same blue." (the code is kept)
                 // Krimble 2026-11-06: George: "lightness could go from max saturated color to white. If we can't use the selected foreground color, just use red." The Lightness
                 // line goes from the foreground color's hue at maximum saturation and brightness (left end) to white (right end), and follows the foreground color while the
                 // window is open. A gray foreground color has no hue, so it is red then. No blue fill.
@@ -1530,7 +1543,7 @@ public:
                         connect(view->canvasResourceProvider(), &KisCanvasResourceProvider::sigFGColorChanged, this, [updateLightnessLine](const KoColor &) { updateLightnessLine(); });
                 }
             }
-            if (i == Saturation) {
+            if (false && i == Saturation) {   // Krimble 2026-11-11: switched off, the same blue as the others (the code is kept)
                 // Krimble 2026-11-06: George: "could saturation hold a gradient from black to the max intensity of the current selected color?" The Saturation line goes
                 // from black at the left end to the foreground color at its maximum intensity (its hue and saturation, brightest value) at the right end, and follows
                 // the foreground color while the window is open. A gray foreground color (no hue) gives black to white. No blue fill.
@@ -1554,7 +1567,7 @@ public:
                         connect(view->canvasResourceProvider(), &KisCanvasResourceProvider::sigFGColorChanged, this, [updateSaturationLine](const KoColor &) { updateSaturationLine(); });
                 }
             }
-            if (i == Brightness) {
+            if (false && i == Brightness) {   // Krimble 2026-11-11: switched off, the same blue as the others (the code is kept)
                 // Krimble 2026-11-06: George: "shouldn't the brightness line have a gradient from black to white in the line?" The Brightness line (Lightness has its own, below) shows
                 // what the slider does, black at the left end to white at the right end (like the Hue line shows its colors), with a thin outline so the black end
                 // can be seen on the dark window, and no blue fill.
@@ -1565,8 +1578,37 @@ public:
                     + thinHandle);
             }
             if (i == Hue) {
+                // Krimble 2026-11-11: George: "Hue should actually land on the hue it's selecting. It shouldn't be arbitrary." The rainbow is now centered on the foreground color's hue (red if it is
+                // gray): at the middle (0) the line is the color's own hue, and at every other position the line's color IS the hue that the slider's value turns it into (value + hue). It follows the
+                // foreground color while the window is open, like the Lightness and Saturation lines did.
+                const QString hueHandle = thinHandle;
+                auto updateHueLine = [this, hueHandle]() {
+                    QColor foreground(Qt::red);
+                    if (KisViewManager *view = m_win->viewManager()) {
+                        if (view->canvasResourceProvider()) foreground = view->canvasResourceProvider()->fgColor().toQColor();
+                    }
+                    int hue = 0, saturation = 0, value = 0;
+                    foreground.getHsv(&hue, &saturation, &value);
+                    const int base = (hue < 0 || saturation == 0) ? 0 : hue;
+                    QString stops;
+                    for (int step = 0; step <= 6; ++step) {
+                        const int h = (((base - 180 + step * 60) % 360) + 360) % 360;
+                        stops += QStringLiteral(" stop:%1 %2,").arg(step / 6.0, 0, 'f', 4).arg(QColor::fromHsv(h, 255, 255).name());
+                    }
+                    stops.chop(1);
+                    m_sliders[Hue]->setStyleSheet(QStringLiteral(
+                        "QSlider::groove:horizontal { height: 3px; border: none; border-radius: 1px;"
+                        " background: qlineargradient(x1:0,y1:0,x2:1,y2:0,%1); }"
+                        "QSlider::sub-page:horizontal { background: transparent; border: none; }").arg(stops) + hueHandle);
+                };
+                updateHueLine();
+                if (KisViewManager *view = m_win->viewManager()) {
+                    if (view->canvasResourceProvider())
+                        connect(view->canvasResourceProvider(), &KisCanvasResourceProvider::sigFGColorChanged, this, [updateHueLine](const KoColor &) { updateHueLine(); });
+                }
                 // Krimble 2026-10-30: the drawing's rainbow Hue slider: the groove shows the colors the slider goes through (and has no orange fill)
-                m_sliders[i]->setStyleSheet(QStringLiteral(
+                // (the fixed rainbow below is the one before 2026-11-11, from magenta to red whatever the color; it is switched off by the "if (false)" and kept)
+                if (false) m_sliders[i]->setStyleSheet(QStringLiteral(
                     // "QSlider::groove:horizontal { height: 9px; border: 1px solid #535c80; border-radius: 4px;"
                     // "QSlider::groove:horizontal { height: 5px; border: 1px solid #535c80; border-radius: 4px;"
                     "QSlider::groove:horizontal { height: 3px; border: none; border-radius: 1px;"
