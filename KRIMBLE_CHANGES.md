@@ -6493,4 +6493,4 @@ George: "Make sure the square color selection area (the big gradient color area)
 
 **Files:** `README.md`, `libs/ui/dialogs/kis_about_application.cpp`
 
-George: "Oracle server is dead. We should remove the thank you to Oracle since they pulled the rug out from under us." The Oracle Cloud line is commented out of the README's thank-you list and of the About dialog's Thanks To page. The logo file `krita/data/aboutdata/thanks-oracle.png` and its resource entry stay in place, unused.
+George: "Oracle server is dead. We should remove the thank you to Oracle since they pulled the rug out from under us." The Oracle Cloud line is deleted from the README's thank-you list and from the About dialog's Thanks To page (not commented out: it is text, not active code). The logo file `krita/data/aboutdata/thanks-oracle.png`, `thanks-icons/oracle.svg` and the resource entry stay in place, unused.

@@ -235,8 +235,6 @@ KisAboutApplication::KisAboutApplication(QWidget *parent)
                           "<p>Krimble exists because of these. They are not connected to Krimble and have not endorsed it; we are simply grateful.</p>"
                           "<p><img src=\":/thanks-claude.png\" width=\"24\" height=\"24\"> <b>Claude</b> (Anthropic): helped design and write much of Krimble's code and documentation.</p>"
                           "<p><img src=\":/thanks-openai.png\" width=\"24\" height=\"24\"> <b>ChatGPT</b> (OpenAI): ideas, art direction and troubleshooting along the way.</p>"
-                          // Krimble 2026-11-11: George: "Oracle server is dead. We should remove the thank you to Oracle since they pulled the rug out from under us." The line is commented out; the releases are built on GitHub now.
-                          // "<p><img src=\":/thanks-oracle.png\" width=\"24\" height=\"24\"> <b>Oracle Cloud</b>: its free tier hosts the build server that compiles every release.</p>"
                           "<p><img src=\":/thanks-termux.png\" width=\"24\" height=\"24\"> <b>Termux</b>: the Android terminal that runs the whole build from a phone.</p>"
                           "<p><img src=\":/thanks-github.png\" width=\"24\" height=\"24\"> <b>GitHub</b>: hosts the code, the releases and the issue tracker. What would we do without it?</p>"
                           "<p><i>The logos belong to their owners and are shown only to say thank you.</i></p>"
