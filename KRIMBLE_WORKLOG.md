@@ -276,3 +276,6 @@ Row 55 added to KRIMBLE_BUILD_LOG.md (run 42676143585, 69c3a1c, Nov 9 11:40 AM M
 
 ## 2026-11-11, 02:04 PM MST (21:04 UTC): error-scan fix, build 56 rerun
 android-build.yml: "Internal error:" lines ignored by the native build error scan (changelog 474th). Pushing the workflow file starts build 56 again (row 56 not in the build log yet).
+## 2026-11-11, 10:15 to 10:25 (MST): the Preferences keyboard icon, finally
+
+George sent the angled keyboard picture with red arrows along its tilted edges: "This was the new keyboard icon for Preferences. Remember???" The history, so it is not lost again: the icon had been the old keyboard picture (first only its left half, then the whole picture wide, 2026-11-05 and 07); on 2026-11-09 he asked "Rotate the keyboard." and it was turned 90 degrees clockwise (upright), which he called wrong, and he provided a new picture, a keyboard seen at an angle (the picture he uploaded on 2026-11-10). That new picture was never put into the icon, and it was in the to-do list ever since. Now it is (changelog 473): cropped to the keyboard, 720 px wide, in a 480 x 317 SVG for both themes; the source is in `krimble-artwork/3d/keyboard-george-2026-11-10.png`.
