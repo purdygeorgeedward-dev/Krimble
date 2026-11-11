@@ -19,3 +19,4 @@ Numbers 45 to 54 were given afterwards, on 2026-11-08, to the ten builds that ha
 | 52 | Nov 7, 2:47 PM | 42417539040 | `fd62f88` | no | DPaint panel; TWO Layer menus in the menu bar (the Gemini reformat of the menu file) |
 | 53 | Nov 7, 9:36 PM | 42447492701 | `cb75239` | no | TWO Layer menus; the draft release v1.0.45-beta and its tag pointed here and were deleted on 2026-11-08 |
 | 54 | Nov 8, 3:40 AM | 42472436825 | `8c38709` | no | the menu file restored (one Layer menu); XML check ran first |
+| 55 | Nov 9, 11:40 AM | 42676143585 | `69c3a1c` | no | Color Lab, new look; built from the workflow-trigger commit; tag `v1.0.55-beta` moved to this commit on 2026-11-11; draft release, APK to be attached by George |
