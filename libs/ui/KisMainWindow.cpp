@@ -90,6 +90,7 @@
 #include <QMouseEvent>
 // #include <QSizeGrip>  // no longer used, see KisFloatingDockSizeGrip
 #include <QPainter>
+#include <QFontMetrics>   // Krimble 2026-11-11: the orange K in the menu bar corner is as tall as the menu names
 #include <QAbstractButton>   // Krimble 2026-10-30: the Quick Adjust Preview switch
 #include <cmath>              // Krimble 2026-10-30: the Quick Adjust row pictures
 #include <QPolygonF>
@@ -1238,7 +1239,8 @@ public:
         label->setAttribute(Qt::WA_TransparentForMouseEvents, true);
         // label->setFixedSize(28, 28);
         // Krimble 2026-11-07: George: "make the K and the menubar smaller." 22 px (was 28; Qt's own size was 16) and a 26 px bar (was 32; Qt's own was 22).
-        label->setFixedSize(22, 22);
+        // label->setFixedSize(22, 22);
+        label->setFixedSize(22, 26);   // Krimble 2026-11-11: as tall as the bar's minimum height (26), so the K can be centered on the bar's middle line inside the button
         if (bar) {
             // bar->setMinimumHeight(32);
             bar->setMinimumHeight(26);
@@ -1339,6 +1341,19 @@ protected:
                 // painter.setRenderHint(QPainter::SmoothPixmapTransform, true);
                 // const int kSize = 18;
                 // qApp->windowIcon().paint(&painter, QRect(2, qMax(0, (label->height() - kSize) / 2), kSize, kSize));
+                // Krimble 2026-11-11: George: "The problem was that it wasn't rendering correctly. It was either too big or out of position and needed to be moved." The orange K is drawn
+                // again at the left end of the menu bar (the top left of the image window), and the two faults are fixed: SIZE: as tall as the menu names (the menu bar's font height,
+                // never more than the button), so it follows the font and the UI scale and cannot be too big; POSITION: centered on the menu bar's middle line (not on the button, which Qt
+                // can place at the top edge) and centered across the button's width. Qt's own icon is still swallowed (return true).
+                {
+                    QWidget *krimbleBar = label->parentWidget();
+                    const QFontMetrics krimbleMetrics(krimbleBar ? krimbleBar->font() : label->font());
+                    const int kSize = qMin(qMin(label->width(), label->height()) - 2, qMax(14, krimbleMetrics.height()));
+                    const int middle = krimbleBar ? label->mapFromParent(QPoint(0, krimbleBar->height() / 2)).y() : label->height() / 2;
+                    QPainter krimblePainter(label);
+                    krimblePainter.setRenderHint(QPainter::SmoothPixmapTransform, true);
+                    qApp->windowIcon().paint(&krimblePainter, QRect((label->width() - kSize) / 2, middle - kSize / 2, kSize, kSize));
+                }
                 return true;
             }
         }
