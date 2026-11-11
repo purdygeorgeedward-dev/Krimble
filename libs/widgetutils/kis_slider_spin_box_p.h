@@ -15,6 +15,7 @@
 #include <QLineEdit>
 #include <QStyleOptionSpinBox>
 #include <QPainter>
+#include <QLinearGradient>   // Krimble 2026-11-11: the shaded, glowing percentage fill
 #include <QEvent>
 #include <QInputMethodQueryEvent>
 #include <QApplication>
@@ -605,6 +606,31 @@ public:
         painter.restore();
     }
 
+    // Krimble 2026-11-11: the percentage fill: shaded left to right (#0B4D94, #1D8FD6 at 60%, #46D6FF at the end) with a 16 px glow that fades out past the end of the fill (cyan,
+    // 130 of 255 opacity down to none) and a 2 px bright line (#B4F0FF) at the end. Nothing is drawn past the end when the bar is empty or full.
+    void paintGlowFill(QPainter &painter, const QRectF &fill)
+    {
+        painter.save();
+        QLinearGradient across(fill.left(), 0, fill.right(), 0);
+        across.setColorAt(0.0, QColor(0x0b, 0x4d, 0x94));
+        across.setColorAt(0.6, QColor(0x1d, 0x8f, 0xd6));
+        across.setColorAt(1.0, QColor(0x46, 0xd6, 0xff));
+        paintSliderRect(painter, fill, QBrush(across));
+        const QRectF whole = m_lineEdit->rect();
+        if (fill.width() > 1.0 && fill.width() < whole.width() - 1.0) {
+            const double glowWidth = qMin(16.0, whole.width() - fill.width());
+            QLinearGradient glow(fill.right(), 0, fill.right() + glowWidth, 0);
+            glow.setColorAt(0.0, QColor(0x46, 0xd6, 0xff, 130));
+            glow.setColorAt(1.0, QColor(0x46, 0xd6, 0xff, 0));
+            painter.setPen(Qt::NoPen);
+            painter.setBrush(glow);
+            painter.drawRect(QRectF(fill.right(), fill.top(), glowWidth, fill.height()));
+            painter.setBrush(QColor(0xb4, 0xf0, 0xff, 190));
+            painter.drawRect(QRectF(fill.right() - 2.0, fill.top(), 2.0, fill.height()));
+        }
+        painter.restore();
+    }
+
     void paintSliderText(QPainter &painter, const QString &text, const QRectF &rect, const QRectF &clipRect, const QColor &color, const QTextOption &textOption)
     {
         painter.setBrush(Qt::NoBrush);
@@ -637,7 +663,10 @@ public:
         const QColor highlightColor(0x1D, 0x7C, 0xB2);
         if (slider02Width < 0.0) {
             const QRectF sliderRect = rect.adjusted(0, 0, -(rect.width() - slider01Width), 0);
-            paintSliderRect(painter, sliderRect, highlightColor);
+            // paintSliderRect(painter, sliderRect, highlightColor);
+            // Krimble 2026-11-11: George: "percentage bars were supposed to be shaded left to right. They are flat. not glowing." (and, of the picture of them: "Gotta have that.") The
+            // fill is shaded across, dark blue at the left to bright cyan at its end, with a soft glow and a thin bright line just past its end (see paintGlowFill).
+            paintGlowFill(painter, sliderRect);
             if (!text.isNull()) {
                 paintGenericSliderText(painter, text, rect, sliderRect);
             }
