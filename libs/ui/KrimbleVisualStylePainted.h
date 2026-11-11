@@ -1,5 +1,8 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 // Krimble Android visual refresh. Kept separate from layout and touch handling.
+// Krimble 2026-11-11: THIS IS THE PAINTED (GRADIENT) SHEET, the one the app used before the flat theme (KrimbleVisualStyle.h). George: "Can we put in the Krimble gradient theme as an option?"
+// It is now applied only while the theme "Krimble Painted" (krita/data/themes/KritaPainted.colors) is chosen (thememanager.cpp); the function was krimbleVisualStyleSheet(), now
+// krimblePaintedStyleSheet(). The rest of this file is the sheet exactly as it was on 2026-11-10.
 // Krimble 2026-11-06: George: "Do the gradient effects on the whole app." The ChatGPT sheet (kept as KrimbleVisualStyle_chatgpt_74828b7.h.txt) with every color and every
 // gradient replaced by values SAMPLED from George's mockup pictures (the Picker, Mixer and QuickAdjust mockups), and the same effects added to the main window's menu bar,
 // menus, tool bars, headers, progress bars and tool tips (the ChatGPT sheet only styled dialogs). The Claude sheet from before the revert is kept as
@@ -11,7 +14,7 @@
 
 #include <QString>
 
-inline QString krimbleVisualStyleSheet()
+inline QString krimblePaintedStyleSheet()
 {
     return QStringLiteral(R"KRIMBLE(
 /* Krimble 2026-11-08: George: "UI looks a lot better ... Gradient in UI could be more. Try to match hue between the bar and other UI components." Every color of the window, the panels,

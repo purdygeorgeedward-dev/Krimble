@@ -6512,3 +6512,9 @@ George: "Also the menu bar is too tall in the build I'm using. Please put it bac
 **Files:** `plugins/dockers/advancedcolorselector/krimble_color_studio.h`
 
 George: "Color Lab hex fix?" The hex box applied a typed color only when editing finished (Enter, or leaving the field), and `QColor` refused a value typed without the leading `#`, so "FF1C1C" did nothing. Now the `#` is optional; a 6 digit color is applied as soon as the sixth digit is typed (no Enter); a 3 digit color ("F80" is "FF8800") is applied when editing finishes (Enter, Done on the phone keyboard, or leaving the field); text that is not hex digits is left alone. The old handler is kept in a comment. The hex box inside Krita's own "Select a Color" dialog (`kis_color_input.cpp`) is separate and not changed: tapping a color well opens Color Lab now.
+
+## 2026-11-11 (462nd) — "Krimble Painted": the gradient theme is back as its own theme
+
+**Files:** `krita/data/themes/KritaPainted.colors` (new), `krita/data/themes/CMakeLists.txt`, `libs/ui/KrimbleVisualStylePainted.h` (the old sheet, moved from `KrimbleVisualStyle_before_flat_2026-11-11.h.txt` with `git mv`; its function is now `krimblePaintedStyleSheet()`), `libs/ui/thememanager.cpp`
+
+George: "If we can isolate the painted theme instead of wiping out the other themes we will revisit it." and "Can we put in the Krimble gradient theme as an option?" The painted (gradient) look is a theme of its own, **Krimble Painted**, in the theme menu. Its colors file is a copy of the Krimble dark colors file with the name changed (and is installed by the themes `CMakeLists.txt`). `thememanager.cpp` now picks the application style sheet by the theme's name: **Krimble dark** gets the flat sheet (`KrimbleVisualStyle.h`), **Krimble Painted** gets the painted sheet (`KrimbleVisualStylePainted.h`, exactly as it was on 2026-11-10), and **every other theme gets no sheet**, so nothing is painted over them. The flat theme stays the default.

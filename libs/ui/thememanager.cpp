@@ -47,7 +47,8 @@
 // Calligra
 #include <kis_icon.h>
 #include <kis_config_notifier.h>
-#include "KrimbleVisualStyle.h"   // Krimble 2026-11-04: krimbleVisualStyleSheet(), re-applied after the theme palette
+#include "KrimbleVisualStyle.h"
+#include "KrimbleVisualStylePainted.h"   // Krimble 2026-11-11: the painted sheet, for the theme "Krimble Painted"   // Krimble 2026-11-04: krimbleVisualStyleSheet(), re-applied after the theme palette
 
 #ifdef __APPLE__
 #include <QStyle>
@@ -214,7 +215,16 @@ void ThemeManager::slotChangePalette()
     // The sheet used to be applied for every theme, so it painted over the other themes' colors. It is now applied only while the "Krimble dark" theme is chosen;
     // for any other theme the application style sheet is cleared, so that theme's own palette shows.
     // qApp->setStyleSheet(krimbleVisualStyleSheet());
-    qApp->setStyleSheet(theme == QStringLiteral("Krimble dark") ? krimbleVisualStyleSheet() : QString());
+    // qApp->setStyleSheet(theme == QStringLiteral("Krimble dark") ? krimbleVisualStyleSheet() : QString());
+    // Krimble 2026-11-11: George: "Can we put in the Krimble gradient theme as an option?" Three cases, by the theme's name: "Krimble dark" gets the flat sheet, "Krimble Painted" gets the
+    // painted (gradient) sheet (KrimbleVisualStylePainted.h), and every other theme gets no sheet at all.
+    if (theme == QStringLiteral("Krimble dark")) {
+        qApp->setStyleSheet(krimbleVisualStyleSheet());
+    } else if (theme == QStringLiteral("Krimble Painted")) {
+        qApp->setStyleSheet(krimblePaintedStyleSheet());
+    } else {
+        qApp->setStyleSheet(QString());
+    }
 #endif
     KisConfigNotifier::instance()->notifyColorThemeChanged(filename);
 
