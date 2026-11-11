@@ -6536,3 +6536,9 @@ George: "percentage selectors should be able to drag left and right with touch. 
 **Files:** `libs/ui/KisMainWindow.cpp` (`KrimbleMenuBarFilter`), `libs/ui/thememanager.cpp`, `libs/ui/KrimbleVisualStylePainted.h`
 
 George (Nov 9, earlier chat): "The menu bar, ANY bar, is NOT SUPPOSED TO BE SHADED ON THE BOTTOM!!!!!!! IT LOOKS PUFFY. IT WAS SUPPOSED TO BE DARKENED TO THE CORNERS." That fix was made in that chat but never pushed, so it was lost (like the percentage bars and the finger drag, entries 463 and 464). Redone: the menu bar painter no longer adds the top-to-bottom shading (`down`, commented out); it shades across only, dark at both ends. In the painted sheet the tool bar, status bar and table header shade across only too (the old top-to-bottom stops are in comments). **Also found:** the menu bar painter ran for every theme and painted over the style sheet, so the flat theme's top bar color (`#3e4b78`) never showed and other themes were painted over. It now paints only while "Krimble Painted" is the theme (`thememanager.cpp` sets the application property `krimblePaintedTheme`); every other theme, including the flat "Krimble dark", gets the style sheet's or the palette's menu bar.
+
+## 2026-11-11 (466th) — Work log: the night of the flat theme
+
+**Files:** `KRIMBLE_WORKLOG.md`
+
+George: "Always document everything!! ... Keep it in the developer log!!! Everything you try or build or discuss!!" A journal-style section for 2026-11-10 evening to 2026-11-11 early morning is added: the brief, the color scheme decisions, what went wrong (including the work lost from an earlier chat's sandbox), every push with its time, and the open list. Documentation only; no code changed.
