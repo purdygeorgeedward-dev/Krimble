@@ -152,8 +152,11 @@ void KoToolBoxButton::paintEvent(QPaintEvent *event)
         const int glowSteps = 18;
         for (int i = glowSteps; i >= 1; --i) {
             const qreal t = qreal(i) / glowSteps;
-            const qreal w = bw * 0.10 * t;
-            const qreal alpha = 255 * qExp(-2.9 * t);
+            // const qreal w = bw * 0.10 * t;
+            // const qreal alpha = 255 * qExp(-2.9 * t);
+            // Krimble 2026-11-11: George (of the zoomed Pan tool): "The hand (Pan tool) example shows too much glow." The outer glow reaches half as far (5 percent of the width, was 10) and is weaker.
+            const qreal w = bw * 0.05 * t;
+            const qreal alpha = 255 * 0.6 * qExp(-3.4 * t);
             painter.setPen(QPen(QBrush(krimbleSelConical(centre, krimbleSelGlow, [alpha](qreal v) { return QColor(28, 128, 235, qMin(255, int(alpha * (0.25 + 0.9 * v)))); })), qMax<qreal>(1.0, bw * 0.012)));
             painter.setBrush(Qt::NoBrush);
             painter.drawRoundedRect(base.adjusted(-w, -w, w, w), r + w, r + w);
@@ -178,14 +181,19 @@ void KoToolBoxButton::paintEvent(QPaintEvent *event)
         const int innerSteps = 24;
         for (int k = 1; k <= innerSteps; ++k) {
             const qreal t = qreal(k) / innerSteps;
-            const qreal d = bw * 0.115 * t;
-            const qreal alpha = 255 * qExp(-3.4 * t);
+            // const qreal d = bw * 0.115 * t;
+            // const qreal alpha = 255 * qExp(-3.4 * t);
+            // Krimble 2026-11-11: the vivid blue band inside the edge is about half as wide (6 percent of the width, was 11.5) and fades faster.
+            const qreal d = bw * 0.06 * t;
+            const qreal alpha = 255 * qExp(-4.5 * t);
             painter.setPen(QPen(QBrush(krimbleSelConical(centre, krimbleSelOutline, [alpha](qreal v) { return QColor(36, 150, 248, qMax(0, qMin(255, int(alpha * (0.8 + 0.9 * (v - 0.55)))))); })), qMax<qreal>(1.0, bw * 0.011)));
             painter.setBrush(Qt::NoBrush);
             painter.drawRoundedRect(base.adjusted(d, d, -d, -d), qMax<qreal>(1, r - d), qMax<qreal>(1, r - d));
         }
         // the outline: a soft halo under a thin bright core, light cyan where it is bright
-        painter.setPen(QPen(QBrush(krimbleSelConical(centre, krimbleSelOutline, [](qreal v) { return QColor(80, 200, 255, qMin(255, int(255 * v))); })), qMax<qreal>(4.0, bw * 0.034)));
+        // painter.setPen(QPen(QBrush(krimbleSelConical(centre, krimbleSelOutline, [](qreal v) { return QColor(80, 200, 255, qMin(255, int(255 * v))); })), qMax<qreal>(4.0, bw * 0.034)));
+        // Krimble 2026-11-11: the soft halo under the bright core is thinner (2.2 percent of the width, at least 3 px; was 3.4 percent, at least 4 px).
+        painter.setPen(QPen(QBrush(krimbleSelConical(centre, krimbleSelOutline, [](qreal v) { return QColor(80, 200, 255, qMin(255, int(255 * v))); })), qMax<qreal>(3.0, bw * 0.022)));
         painter.setBrush(Qt::NoBrush);
         painter.drawRoundedRect(base, r, r);
         painter.setPen(QPen(QBrush(krimbleSelConical(centre, krimbleSelOutline, [](qreal v) {

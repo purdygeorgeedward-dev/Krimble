@@ -6542,3 +6542,9 @@ George (Nov 9, earlier chat): "The menu bar, ANY bar, is NOT SUPPOSED TO BE SHAD
 **Files:** `KRIMBLE_WORKLOG.md`
 
 George: "Always document everything!! ... Keep it in the developer log!!! Everything you try or build or discuss!!" A journal-style section for 2026-11-10 evening to 2026-11-11 early morning is added: the brief, the color scheme decisions, what went wrong (including the work lost from an earlier chat's sandbox), every push with its time, and the open list. Documentation only; no code changed.
+
+## 2026-11-11 (467th) — The selected tool glows less
+
+**Files:** `libs/ui/toolbox/KoToolBoxButton.cpp`
+
+George (a zoomed picture of the Pan tool): "The hand (Pan tool) example shows too much glow." (and earlier, "some of them have edges that are too thick"). The selected tool button (`KoToolBoxButton::paintEvent`) had four layers of glow. Each is reduced, the old values are in comments: the outer glow reaches 5 percent of the button's width (was 10) at 60 percent of the old strength and fades faster (`exp(-3.4 t)` instead of `exp(-2.9 t)`); the vivid blue band inside the edge is 6 percent of the width (was 11.5) and fades faster (`exp(-4.5 t)` instead of `exp(-3.4 t)`); the soft halo under the bright outline is 2.2 percent of the width, at least 3 px (was 3.4 percent, at least 4 px). The thin bright core line, the fill and the dark shadow behind the icon are unchanged.
