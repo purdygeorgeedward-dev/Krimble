@@ -342,7 +342,11 @@ void KoToolBoxDocker::setViewManager(KisViewManager *viewManager)
         // Krimble 2026-11-08: George: "I wanted to put the UNDO button in as a tool button in the toolbox to fill that last space." and "Put UNDO in as a standard toolbox icon." The UNDO button is
         // an icon button (the silhouette icon krita_tool_undo, from George's picture) in the grid of tools, after the last tool, in the space the Rotate tool left. A tap is Undo (the program's
         // own Edit > Undo action); a long press (the program's long press opens a context menu) offers Redo. The button never grays out (George: "Don't make it gray out.").
-        {
+        // Krimble 2026-11-10: George: "What happened to the undo button?" The button never appeared. KisMainWindow calls setViewManager() on the toolbox (KisMainWindow.cpp line 5099)
+        // BEFORE createActions() (line 5121) makes "edit_undo" and "edit_redo", so the lookup below found nothing and the button was skipped with no message. The block now runs one
+        // turn of the event loop later (QTimer::singleShot 0), when the main window's constructor has finished and both actions exist.
+        // {
+        QTimer::singleShot(0, this, [this, viewManager]() {
             QAction *undoAction = viewManager->actionCollection()->action("edit_undo");
             QAction *redoAction = viewManager->actionCollection()->action("edit_redo");
             if (undoAction) {
@@ -359,7 +363,8 @@ void KoToolBoxDocker::setViewManager(KisViewManager *viewManager)
                 }
                 m_toolBox->addActionButton(undoButton, 99 * 1000000);
             }
-        }
+        // }
+        });
 
         connect(m_dualColorButton, SIGNAL(foregroundColorChanged(KoColor)), viewManager->canvasResourceProvider(), SLOT(slotSetFGColor(KoColor)));
         connect(m_dualColorButton, SIGNAL(backgroundColorChanged(KoColor)), viewManager->canvasResourceProvider(), SLOT(slotSetBGColor(KoColor)));
