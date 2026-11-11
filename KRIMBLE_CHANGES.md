@@ -6548,3 +6548,9 @@ George: "Always document everything!! ... Keep it in the developer log!!! Everyt
 **Files:** `libs/ui/toolbox/KoToolBoxButton.cpp`
 
 George (a zoomed picture of the Pan tool): "The hand (Pan tool) example shows too much glow." (and earlier, "some of them have edges that are too thick"). The selected tool button (`KoToolBoxButton::paintEvent`) had four layers of glow. Each is reduced, the old values are in comments: the outer glow reaches 5 percent of the button's width (was 10) at 60 percent of the old strength and fades faster (`exp(-3.4 t)` instead of `exp(-2.9 t)`); the vivid blue band inside the edge is 6 percent of the width (was 11.5) and fades faster (`exp(-4.5 t)` instead of `exp(-3.4 t)`); the soft halo under the bright outline is 2.2 percent of the width, at least 3 px (was 3.4 percent, at least 4 px). The thin bright core line, the fill and the dark shadow behind the icon are unchanged.
+
+## 2026-11-11 (468th) — Work log: the CMYK brief and the glow change
+
+**Files:** `KRIMBLE_WORKLOG.md`
+
+George asked for: control over how CMYK shows on screen in RGB (edge points and midpoints, a profile made from a phone camera snapshot of a printed page, user tweaks), conversion to CMYK through output-device profiles from SWOP Coated to consumer printers with customizable UCR and GCR, and a simple set of color wells for the control points. Recorded in the work log with what already exists (the conversion engine of the 450th entry) and what is new. Documentation only; no code changed.
