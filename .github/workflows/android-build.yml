@@ -19,7 +19,8 @@ on:
         # Change this by hand when the build number changes.
         # default: "Beta2"
         # default: "1.0.45-beta"
-        default: "1.0.55-beta"   # KRIMBLE 2026-11-08: strict renumbering: this label is always 1.0.<krimbleBuildNumber>-beta (build.gradle); the build stops if they differ
+        # KRIMBLE 2026-11-11 (build 56): was 1.0.55-beta: default: "1.0.55-beta"   # KRIMBLE 2026-11-08: strict renumbering: this label is always 1.0.<krimbleBuildNumbe
+        default: "1.0.56-beta"   # KRIMBLE 2026-11-08: strict renumbering: this label is always 1.0.<krimbleBuildNumber>-beta (build.gradle); the build stops if they differ
 
 concurrency:
   group: krimble-android
@@ -43,7 +44,8 @@ jobs:
       # Krimble 2026-11-08: George: "From now on follow strict renumbering. We don't always have to release a new build, but we should always change the number." The build number must be
       # new (higher than every number in KRIMBLE_BUILD_LOG.md) and the label must match it.
       - name: Check the build number
-        run: python3 tools/ci/check_build_number.py "${{ inputs.beta || '1.0.55-beta' }}"
+        # KRIMBLE 2026-11-11 (build 56): was 1.0.55-beta: run: python3 tools/ci/check_build_number.py "${{ inputs.beta || '1.0.55-beta' }}"
+        run: python3 tools/ci/check_build_number.py "${{ inputs.beta || '1.0.56-beta' }}"
 
       - name: Free disk space
         run: |
@@ -165,7 +167,8 @@ jobs:
         run: |
           APK=$(ls "$HOME"/kwd/krita/_packaging/*.apk | head -n 1)
           "$ANDROID_HOME"/build-tools/*/apksigner verify --verbose "$APK" | head -n 8
-          NAME="Krimble-${{ inputs.beta || '1.0.55-beta' }}-$(TZ=America/Denver date +%b%d-%H%M).apk"
+          # KRIMBLE 2026-11-11 (build 56): was 1.0.55-beta: NAME="Krimble-${{ inputs.beta || '1.0.55-beta' }}-$(TZ=America/Denver date +%b%d-%H%M).apk"
+          NAME="Krimble-${{ inputs.beta || '1.0.56-beta' }}-$(TZ=America/Denver date +%b%d-%H%M).apk"
           mkdir -p out && cp "$APK" "out/$NAME"
           ls -l out
 
