@@ -6554,3 +6554,9 @@ George (a zoomed picture of the Pan tool): "The hand (Pan tool) example shows to
 **Files:** `KRIMBLE_WORKLOG.md`
 
 George asked for: control over how CMYK shows on screen in RGB (edge points and midpoints, a profile made from a phone camera snapshot of a printed page, user tweaks), conversion to CMYK through output-device profiles from SWOP Coated to consumer printers with customizable UCR and GCR, and a simple set of color wells for the control points. Recorded in the work log with what already exists (the conversion engine of the 450th entry) and what is new. Documentation only; no code changed.
+
+## 2026-11-11 (469th) — The selected tool is a square with sharp corners, and still glows
+
+**Files:** `libs/ui/toolbox/KoToolBoxButton.cpp`
+
+George: "Can't a square without rounded corners still glow? Try square selection with corners in toolbox." The selected tool button (`KoToolBoxButton::paintEvent`) had a corner radius of 11.5 percent of its width. The radius is now 0 for everything it draws (the outer glow, the fill, the vivid inner band and the outline), so the selected tool is a sharp-cornered square that glows as before (with the reduced glow of the 467th entry). The old radius line and the old rounded calls are in comments. A square without rounded corners can glow: the glow is built from stacked outlines, and an outline with a radius of 0 is a square.

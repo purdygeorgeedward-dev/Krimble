@@ -146,7 +146,10 @@ void KoToolBoxButton::paintEvent(QPaintEvent *event)
         const qreal s = qMin(width(), height());
         const QRectF base = QRectF(rect()).adjusted(s * 0.12, s * 0.12, -s * 0.12, -s * 0.12);
         const qreal bw = base.width();
-        const qreal r = bw * 0.115;
+        // const qreal r = bw * 0.115;
+        // Krimble 2026-11-11: George: "Can't a square without rounded corners still glow? Try square selection with corners in toolbox." The selected tool is a square with sharp corners (radius 0) and
+        // still glows: the glow, the fill, the inner blue band and the outline are all drawn with square corners.
+        const qreal r = 0.0;
         const QPointF centre = base.center();
         // the glow outside the outline: tight and weak, fading out within 6 percent of the width, stronger where the mockup's is
         const int glowSteps = 18;
@@ -159,7 +162,8 @@ void KoToolBoxButton::paintEvent(QPaintEvent *event)
             const qreal alpha = 255 * 0.6 * qExp(-3.4 * t);
             painter.setPen(QPen(QBrush(krimbleSelConical(centre, krimbleSelGlow, [alpha](qreal v) { return QColor(28, 128, 235, qMin(255, int(alpha * (0.25 + 0.9 * v)))); })), qMax<qreal>(1.0, bw * 0.012)));
             painter.setBrush(Qt::NoBrush);
-            painter.drawRoundedRect(base.adjusted(-w, -w, w, w), r + w, r + w);
+            // painter.drawRoundedRect(base.adjusted(-w, -w, w, w), r + w, r + w);
+            painter.drawRoundedRect(base.adjusted(-w, -w, w, w), r, r);   // Krimble 2026-11-11: sharp corners on the glow too
         }
         // the fill, darker in the middle
         QLinearGradient fill(base.topLeft(), base.bottomLeft());
@@ -188,7 +192,8 @@ void KoToolBoxButton::paintEvent(QPaintEvent *event)
             const qreal alpha = 255 * qExp(-4.5 * t);
             painter.setPen(QPen(QBrush(krimbleSelConical(centre, krimbleSelOutline, [alpha](qreal v) { return QColor(36, 150, 248, qMax(0, qMin(255, int(alpha * (0.8 + 0.9 * (v - 0.55)))))); })), qMax<qreal>(1.0, bw * 0.011)));
             painter.setBrush(Qt::NoBrush);
-            painter.drawRoundedRect(base.adjusted(d, d, -d, -d), qMax<qreal>(1, r - d), qMax<qreal>(1, r - d));
+            // painter.drawRoundedRect(base.adjusted(d, d, -d, -d), qMax<qreal>(1, r - d), qMax<qreal>(1, r - d));
+            painter.drawRoundedRect(base.adjusted(d, d, -d, -d), r, r);   // Krimble 2026-11-11: sharp corners
         }
         // the outline: a soft halo under a thin bright core, light cyan where it is bright
         // painter.setPen(QPen(QBrush(krimbleSelConical(centre, krimbleSelOutline, [](qreal v) { return QColor(80, 200, 255, qMin(255, int(255 * v))); })), qMax<qreal>(4.0, bw * 0.034)));
