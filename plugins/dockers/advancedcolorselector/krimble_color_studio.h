@@ -159,7 +159,9 @@ protected:
             // Krimble 2026-11-08: the mockup's color square has rounded corners and a thin dark outline: the field is clipped to a rounded rectangle (9 px)
             QPainterPath roundedField;
             // roundedField.addRoundedRect(QRectF(0.5, 0.5, width() - 1, height() - 1), 9, 9);
-            roundedField.addRoundedRect(QRectF(0.5, 0.5, width() - 1, height() - 1), qMax<qreal>(6.0, width() * 0.0227), qMax<qreal>(6.0, width() * 0.0227));   // Krimble 2026-11-08: 14 of the mockup's 617 units
+            // roundedField.addRoundedRect(QRectF(0.5, 0.5, width() - 1, height() - 1), qMax<qreal>(6.0, width() * 0.0227), qMax<qreal>(6.0, width() * 0.0227));   // Krimble 2026-11-08: 14 of the mockup's 617 units
+            // Krimble 2026-11-11: George: "Make sure the square color selection area (the big gradient color area) has no rounded corners. It should be a strict square area."
+            roundedField.addRect(QRectF(0.5, 0.5, width() - 1, height() - 1));
             p.setRenderHint(QPainter::Antialiasing, true);
             p.setClipPath(roundedField);
             const QRect field(0, 0, width(), height());

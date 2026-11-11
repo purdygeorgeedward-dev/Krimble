@@ -6478,3 +6478,13 @@ George: "The painted in theme has to go. It conflicts with all other themes.", "
 - **Color wells.** A tap on the toolbox foreground or background well no longer opens Krita's "Select a Color" dialog. `KoDualColorButton.cpp` finds the Color Lab panel and tells it which well was tapped; the panel raises itself and edits that well (a new edit-target setting in `krimble_color_studio.h`; the second box shows the other well). If the Color Lab panel does not exist, the Krita dialog still opens.
 - **Gradient default.** The startup gradient was Foreground to Transparent (Krita's stock default), so every gradient faded to transparent. It is now Foreground to Background.
 - **Gradient chooser.** The Gradient tool's options now hold the gradient chooser with its edit buttons (the multi-stop editor and saving an edited gradient), wired to the active gradient like the toolbar's chooser.
+
+## 2026-11-11 (457th) — Color Lab Picker: strict square color area, thinner hue strip, rounded foreground/background wells
+
+**Files:** `plugins/dockers/advancedcolorselector/krimble_color_studio.h`, `plugins/dockers/advancedcolorselector/krimble_color_canvas.h`
+
+George: "Make sure the square color selection area (the big gradient color area) has no rounded corners. It should be a strict square area. That square can expand in size with the panel scale, but should stay square and have corners, no rounding.", "The rainbow hue line can be thinner.", "The two color wells under the big gradient area should have rounded corners."
+
+- The color area was clipped to a rounded rectangle and was 617 x 557 units, so it was not square. It is now 557 x 557 units (both sides scale by the same factor with the panel) and clipped to a plain rectangle: square corners, also on the thin dark outline.
+- The hue strip's widget is 58 units wide (was 90), so the rainbow is about 53 units wide (was 82). The square and the strip are centered in the same span as before.
+- The foreground and background wells under the area are rounded again (radius 12 and 14 units, scaled), as before the 2026-11-09 change. The palette, recent and history cells stay square.

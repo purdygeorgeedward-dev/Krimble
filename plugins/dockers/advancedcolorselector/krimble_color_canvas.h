@@ -129,14 +129,17 @@ public:
         // return QStringLiteral("background:%1;border:%2px solid #4fd8fb;border-radius:%3px;")
         //     .arg(c.name()).arg(qMax(2, qRound(3 * s))).arg(qMax(3, qRound(12 * s)));
         // 2026-11-09: George: "Why are the color wells rounded at the corners? You know I hate that." The wells have square corners.
-        return QStringLiteral("background:%1;border:%2px solid #4fd8fb;border-radius:0px;").arg(c.name()).arg(qMax(2, qRound(3 * s)));
+        // return QStringLiteral("background:%1;border:%2px solid #4fd8fb;border-radius:0px;").arg(c.name()).arg(qMax(2, qRound(3 * s)));
+        // Krimble 2026-11-11: George: "The two color wells under the big gradient area should have rounded corners."
+        return QStringLiteral("background:%1;border:%2px solid #4fd8fb;border-radius:%3px;").arg(c.name()).arg(qMax(2, qRound(3 * s))).arg(qMax(3, qRound(12 * s)));
     }
     QString backgroundStyle(const QColor &c) const
     {
         const qreal s = scale();
         // return QStringLiteral("background:%1;border:%2px solid #e6ecfa;border-radius:%3px;")
         //     .arg(c.name()).arg(qMax(2, qRound(3 * s))).arg(qMax(3, qRound(14 * s)));
-        return QStringLiteral("background:%1;border:%2px solid #e6ecfa;border-radius:0px;").arg(c.name()).arg(qMax(2, qRound(3 * s)));
+        // return QStringLiteral("background:%1;border:%2px solid #e6ecfa;border-radius:0px;").arg(c.name()).arg(qMax(2, qRound(3 * s)));
+        return QStringLiteral("background:%1;border:%2px solid #e6ecfa;border-radius:%3px;").arg(c.name()).arg(qMax(2, qRound(3 * s))).arg(qMax(3, qRound(14 * s)));   // Krimble 2026-11-11: rounded again
     }
 
     void relayout()
@@ -153,9 +156,14 @@ public:
         }
         QFont f = font();
         f.setPixelSize(qMax(8, qRound(38 * s)));
-        if (square) square->setGeometry(r(29, 27, 617, 557).toAlignedRect());
+        // if (square) square->setGeometry(r(29, 27, 617, 557).toAlignedRect());
+        // Krimble 2026-11-11: George: "It should be a strict square area. That square can expand in size with the panel scale, but should stay square." The area was 617 x 557 units; it is now
+        // 557 x 557 (r() scales both sides by the same factor), and the square and the hue strip are centered in the same span as before (29 to 761).
+        if (square) square->setGeometry(r(75, 27, 557, 557).toAlignedRect());
         // the hue strip is 82 units wide; its widget is 4 units wider at each side and each end, so the white handle can reach beyond the strip like the mockup's
-        if (hue) hue->setGeometry(r(671, 21, 90, 570).toAlignedRect());
+        // if (hue) hue->setGeometry(r(671, 21, 90, 570).toAlignedRect());
+        // Krimble 2026-11-11: George: "The rainbow hue line can be thinner." The widget is 58 units wide (was 90), so the rainbow is about 53 units (was 82).
+        if (hue) hue->setGeometry(r(657, 21, 58, 570).toAlignedRect());
         mode->setGeometry(r(804, 26, 237, 62).toAlignedRect());
         eyedropper->setGeometry(r(1073, 26, 78, 62).toAlignedRect());
         static const double spinY[6] = {111, 168, 225, 310, 366, 423};
