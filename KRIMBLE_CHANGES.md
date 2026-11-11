@@ -6491,6 +6491,6 @@ George: "Make sure the square color selection area (the big gradient color area)
 
 ## 2026-11-11 (458th) — Thank-you to Oracle Cloud taken out
 
-**Files:** `README.md`, `libs/ui/dialogs/kis_about_application.cpp`
+**Files:** `README.md`, `libs/ui/dialogs/kis_about_application.cpp`, `krita/data/aboutdata/aboutdata.qrc`, `krita/data/aboutdata/thanks-oracle.png` (deleted), `thanks-icons/oracle.svg` (deleted)
 
-George: "Oracle server is dead. We should remove the thank you to Oracle since they pulled the rug out from under us." The Oracle Cloud line is deleted from the README's thank-you list and from the About dialog's Thanks To page (not commented out: it is text, not active code). The logo file `krita/data/aboutdata/thanks-oracle.png`, `thanks-icons/oracle.svg` and the resource entry stay in place, unused.
+George: "Oracle server is dead. We should remove the thank you to Oracle since they pulled the rug out from under us." The Oracle Cloud line is deleted from the README's thank-you list and from the About dialog's Thanks To page (not commented out: it is text, not active code). The two Oracle logo files, `krita/data/aboutdata/thanks-oracle.png` and `thanks-icons/oracle.svg`, are deleted from the repo, and so is the `thanks-oracle.png` line in `krita/data/aboutdata/aboutdata.qrc` (a file entry must go with its file: a missing file listed in a `.qrc` stops the build).
