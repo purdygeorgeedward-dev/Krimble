@@ -16,8 +16,8 @@ inline QString krimbleVisualStyleSheet()
     return QStringLiteral(R"KRIMBLE(
 /* Krimble 2026-11-11: George: "The painted in theme has to go. It conflicts with all other themes." and "Get them all to the same hue and saturation but different brightness."
    The gradients are gone: every background is flat, all at hue 227, saturation 48 (Color Lab's HSV), and only the brightness (V) differs:
-     top bar / menu bar / tool bars / status bar / headers / buttons #3e4b78 (V47), window / panels #2c3554 (V33), lists / menus / group boxes #20263d (V24),
-     inactive tabs #1b2033 (V20), input fields #111521 (V13). The accent #1d7cb2 with a 2 px #3bd5f7 edge marks everything selected or pressed.
+     top bar / menu bar / tool bars / status bar / headers / buttons #3e4b78 (V47), window / panels #2c3554 (V33), lists / menus / group boxes #28304c (V24),
+     inactive tabs #232a42 (V20), input fields #191f30 (V13). The accent #1d7cb2 with a 2 px #3bd5f7 edge marks everything selected or pressed.
    The whole previous sheet (gradients and all) is kept as KrimbleVisualStyle_before_flat_2026-11-11.h.txt. This sheet is now applied only while the "Krimble dark" theme is chosen
    (thememanager.cpp), so the other themes are not painted over. */
 
@@ -25,6 +25,10 @@ inline QString krimbleVisualStyleSheet()
 /* Krimble 2026-11-11: George: "The blue glow in the selections doesn't look as cool without the dark areas inside, but it is cleaner." and, asked where: "Tabs, anything really." Everything that glows
    when selected (the selected tab, a pressed, checked or default button, the selected menu and menu bar item, a checked box) is dark navy inside (#072349 at the top to #0E3F78 at the bottom) with the
    bright cyan edge, as the selected tool is; the flat #1D7CB2 fill stays for list rows, the filled part of sliders and progress bars. */
+
+/* Krimble 2026-11-12 (task 20): George (a screenshot of the JPEG options, Metadata tab): "These dark areas are too dark. black disappears against it. please lighten in theme." The three dark
+   levels are 6 points brighter (hue 227, saturation 48 as before; brightness in the HSV of Color Lab): lists, menus and group boxes 24 to 30 (#20263d to #28304c), inactive tabs 20 to 26
+   (#1b2033 to #232a42), input fields 13 to 19 (#111521 to #191f30); two odd darks follow (#141822 to #1c2230, #1c2130 to #252c40). The panel (33) and the bars (47) are as before. */
 QDialog, QMessageBox, QInputDialog, QColorDialog, QFileDialog {
     background: #2c3554;
     color: #ffffff;
@@ -38,7 +42,7 @@ QGroupBox {
     border-radius: 0px;
     margin-top: 12px;
     padding: 12px 6px 6px 6px;
-    background: #20263d;
+    background: #28304c;
 }
 QGroupBox::title { subcontrol-origin: margin; left: 12px; padding: 0 5px; }
 QPushButton, QDialog QToolButton {
@@ -67,7 +71,7 @@ QPushButton:default {
 QPushButton:disabled, QDialog QToolButton:disabled {
     color: #7a8199;
     border-color: #000000;
-    background: #20263d;
+    background: #28304c;
 }
 QTabBar::tab {
     color: #e3e8f6;
@@ -76,7 +80,7 @@ QTabBar::tab {
     border-bottom: 1px solid #000000;
     border-top-left-radius: 6px;
     border-top-right-radius: 6px;
-    background: #1b2033;
+    background: #232a42;
 }
 QTabBar::tab:selected {
     color: white;
@@ -93,7 +97,7 @@ QLineEdit, QSpinBox, QDoubleSpinBox {
     border: 1px solid #000000;
     border-radius: 5px;
     padding: 3px 5px;
-    background: #111521;
+    background: #191f30;
 }
 QComboBox {
     color: #f0f3ff;
@@ -101,7 +105,7 @@ QComboBox {
     border: 1px solid #000000;
     border-radius: 4px;
     padding: 3px 5px;
-    background: #111521;
+    background: #191f30;
 }
 QLineEdit:focus, QSpinBox:focus, QDoubleSpinBox:focus, QComboBox:focus {
     border: 1px solid #3bd5f7;
@@ -116,7 +120,7 @@ QSlider::groove:horizontal {
     height: 5px;
     border: 1px solid #000000;
     border-radius: 2px;
-    background: #111521;
+    background: #191f30;
 }
 QSlider::sub-page:horizontal {
     height: 5px;
@@ -130,17 +134,17 @@ QSlider::handle:horizontal {
     width: 18px;
     height: 18px;
     margin: -7px 0;
-    border: 1px solid #141822;
+    border: 1px solid #1c2230;
     border-radius: 10px;
     background: qradialgradient(cx:0.5, cy:0.5, radius:0.55, fx:0.34, fy:0.26,
-                                stop:0 #ffffff, stop:0.18 #dfe4ee, stop:0.5 #7f889c, stop:0.85 #3a4152, stop:1 #1c2130);
+                                stop:0 #ffffff, stop:0.18 #dfe4ee, stop:0.5 #7f889c, stop:0.85 #3a4152, stop:1 #252c40);
 }
 QCheckBox::indicator {
     width: 16px;
     height: 16px;
     border: 1px solid #000000;
     border-radius: 4px;
-    background: #111521;
+    background: #191f30;
 }
 QCheckBox::indicator:checked {
     image: url(:/krimble-checkmark.svg);
@@ -168,7 +172,7 @@ QMenuBar::item:selected {
 QMenu {
     color: #eef1fa;
     border: 1px solid #000000;
-    background: #20263d;
+    background: #28304c;
 }
 QMenu::item:selected {
     border: 1px solid #3bd5f7;
@@ -183,8 +187,8 @@ QMainWindow, QDockWidget {
     background: #2c3554;
 }
 QAbstractItemView {
-    background: #20263d;
-    alternate-background-color: #1b2033;
+    background: #28304c;
+    alternate-background-color: #232a42;
     color: #ffffff;
 }
 QDockWidget > QWidget, QScrollArea, QScrollArea > QWidget > QWidget {
@@ -196,7 +200,7 @@ QDockWidget > QWidget, QScrollArea, QScrollArea > QWidget > QWidget {
 QDockWidget > QMenu {
     color: #eef1fa;
     border: 1px solid #000000;
-    background: #20263d;
+    background: #28304c;
 }
 QStatusBar {
     color: #ffffff;
@@ -212,7 +216,7 @@ QProgressBar {
     color: white;
     border: 1px solid #000000;
     border-radius: 0px;
-    background: #111521;
+    background: #191f30;
 }
 QProgressBar::chunk {
     border-radius: 0px;
@@ -221,7 +225,7 @@ QProgressBar::chunk {
 QToolTip {
     color: #eef1fa;
     border: 1px solid #3bd5f7;
-    background: #20263d;
+    background: #28304c;
 }
 QWidget#krimbleStudioCard {
     border: 1px solid #000000;

@@ -325,3 +325,5 @@ George sent three screenshots (Color Lab floating, Color Lab docked, and the Cus
 **2026-11-12, 11:25 (MST), task 1: scroll bars less gray.** George: "Can we make them less gray? Make the handles match better in saturation and brightness?" (then: "I was not focusing on the image size dialog. I should remember to number all the tasks."). Fusion draws scroll bars from the palette Button color x 0.75 saturation: Button now H227 S64 V30; real-Qt check: track #2f3859, handle #333d61 (S47), changelog 496.
 
 **2026-11-12, 11:30 (MST), task 4.** George: "Make the track a little darker." Button color brightness 30 to 27: track V35 to V32, handle V38 to V35 (changelog 497).
+
+**2026-11-12, 11:45 (MST), task 20.** George (JPEG options Metadata screenshot): "These dark areas are too dark. black disappears against it. please lighten in theme." Lists/groups V24 to V30, inactive tabs V20 to V26, fields V13 to V19 (+ two odd darks), scheme View colors follow (changelog 498). Before/after mock: dark_areas_before_after.png.

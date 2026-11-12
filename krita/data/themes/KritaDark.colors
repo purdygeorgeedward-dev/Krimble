@@ -90,9 +90,11 @@ ForegroundVisited=160,160,160
 
 [Colors:View]
 # Krimble 2026-11-12: was 34,36,61 (hue 236, saturation 44); now hue 227, saturation 48 (George: "All 227 please.")
-BackgroundAlternate=32,38,61
+# Krimble 2026-11-12 (task 20): was 32,38,61; lists are 6 points brighter (brightness 26)
+BackgroundAlternate=34,41,66
 # Krimble 2026-11-12: was 40,42,67 (hue 236, saturation 40); now hue 227, saturation 48 (George: "All 227 please.")
-BackgroundNormal=35,42,67
+# Krimble 2026-11-12 (task 20): was 35,42,67; lists are 6 points brighter (brightness 30)
+BackgroundNormal=40,48,76
 DecorationFocus=83,114,142
 DecorationHover=83,114,142
 ForegroundActive=230,230,230
