@@ -353,3 +353,5 @@ George sent three screenshots (Color Lab floating, Color Lab docked, and the Cus
 **2026-11-12, 13:08 (MST), task 31.** George: "The Nov 10 version is so much better. Revert to that and make it the default." KrimbleVisualStyleNov10.h (the exact pre-flat sheet + dock menu and divider rules) applied to the default theme Krimble Blue-Gray; Blue and Painted unchanged (509th entry). Committed locally, not pushed.
 
 **2026-11-12, 13:11 MST, push.** 6c84be5 (task 31, 509th entry: the Nov 10 sheet is the default theme) pushed to master.
+
+**2026-11-12, 13:15 (MST), task 32.** George: "Can we reapply the fixes?" Across-only shading for tool bars, status bar and headers in the Nov 10 default sheet (510th entry); picture bars_across_fix.png. Pushed with the PAT George pasted earlier in this chat (he had sent it more than once).

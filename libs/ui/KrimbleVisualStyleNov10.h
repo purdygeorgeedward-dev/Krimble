@@ -269,8 +269,11 @@ QMenu::item:selected {
 }
 QToolBar {
     border: none;
-    background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
-                                stop:0 #2f3a60, stop:1 #192138);
+    /* Krimble 2026-11-12 (task 32): George: "Can we reapply the fixes?" The fix of 2026-11-11 (bc57924, as in the painted sheet): George (Nov 9): "ANY bar is NOT SUPPOSED TO BE SHADED ON THE BOTTOM ... IT LOOKS PUFFY. IT WAS SUPPOSED TO BE DARKENED TO THE CORNERS." Across only, dark at both ends. The Nov 10 gradient is kept in the comment. */
+    /* background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
+                                stop:0 #2f3a60, stop:1 #192138); */
+    background: qlineargradient(x1:0,y1:0,x2:1,y2:0,
+                                stop:0 #1c2346, stop:0.5 #394585, stop:1 #1c2346);
 }
 /* Krimble 2026-11-07: George (screenshots of the build of fd62f88): "The bland gray sucks for large areas. I'd like to see a smooth gradient as discussed." and, asked whether it is the
    flat blue-gray of the toolbox, the panels and the status bar: "Yeah, the gray blue is bland." and "Would like all colors to match." The main window, the panels (docks, docked or
@@ -302,14 +305,16 @@ QStatusBar {
 */
 QStatusBar {
     color: #ffffff;
-    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #364063, stop:1 #212945);
+    /* task 32: across only (see the tool bar). Before: background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #364063, stop:1 #212945); */
+    background: qlineargradient(x1:0,y1:0,x2:1,y2:0, stop:0 #212945, stop:0.5 #364063, stop:1 #212945);
 }
 QHeaderView::section {
     color: #e9edf8;
     border: 1px solid #343c57;
     padding: 3px 6px;
-    background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
-                                stop:0 #434b68, stop:1 #383f57);
+    /* task 32: across only (see the tool bar). Before: background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #434b68, stop:1 #383f57); */
+    background: qlineargradient(x1:0,y1:0,x2:1,y2:0,
+                                stop:0 #383f57, stop:0.5 #434b68, stop:1 #383f57);
 }
 /* Krimble 2026-11-08: George: "Left to right looks good on progress bars. Please no curved ends. Just straight edges on progress bars." Square corners (the bar had 4 px, the fill 3 px). */
 QProgressBar {
