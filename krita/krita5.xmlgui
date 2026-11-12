@@ -1598,6 +1598,7 @@ xsi:schemaLocation="http://www.kde.org/standards/kxmlgui/1.0  http://www.kde.org
      Undo, Redo, Clear and Select All. Like the other extra toolbars it starts hidden: turn it on in Window > Toolbars. The things that need new work are not here: the dotted
      freehand and spray can (brush presets), the picked-up brush, color cycling and animation. The palette is the Color panel's color cells. -->
 <!-- Krimble 2026-11-07 (2nd): George: "[The longer name] may be a trademark of Electronic Arts. Call it DPaint instead." The toolbar is called DPaint (it was titled with the longer name, toolbar name DeluxePaintBar). -->
+<!-- Krimble 2026-11-12: removed (George: "Nobody uses DPaint any more."). The block is kept: delete this line and the closing arrow below to bring it back.
 <ToolBar name="DPaintBar" fullWidth="false" position="top" hidden="true">
     <Text>DPaint</Text>
     <Action name="KritaShape/KisToolBrush"/>
@@ -1615,5 +1616,6 @@ xsi:schemaLocation="http://www.kde.org/standards/kxmlgui/1.0  http://www.kde.org
     <Action name="clear"/>
     <Action name="select_all"/>
 </ToolBar>
+-->
 
 </kpartgui>
