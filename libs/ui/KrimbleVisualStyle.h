@@ -21,6 +21,10 @@ inline QString krimbleVisualStyleSheet()
    The whole previous sheet (gradients and all) is kept as KrimbleVisualStyle_before_flat_2026-11-11.h.txt. This sheet is now applied only while the "Krimble dark" theme is chosen
    (thememanager.cpp), so the other themes are not painted over. */
 
+
+/* Krimble 2026-11-11: George: "The blue glow in the selections doesn't look as cool without the dark areas inside, but it is cleaner." and, asked where: "Tabs, anything really." Everything that glows
+   when selected (the selected tab, a pressed, checked or default button, the selected menu and menu bar item, a checked box) is dark navy inside (#072349 at the top to #0E3F78 at the bottom) with the
+   bright cyan edge, as the selected tool is; the flat #1D7CB2 fill stays for list rows, the filled part of sliders and progress bars. */
 QDialog, QMessageBox, QInputDialog, QColorDialog, QFileDialog {
     background: #2c3554;
     color: #ffffff;
@@ -51,12 +55,14 @@ QPushButton:hover, QDialog QToolButton:hover {
 QPushButton:pressed, QDialog QToolButton:pressed,
 QPushButton:checked, QDialog QToolButton:checked {
     border: 2px solid #3bd5f7;
-    background: #1d7cb2;
+    /* background: #1d7cb2; */
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #072349, stop:1 #0e3f78);   /* Krimble 2026-11-11: dark inside the glow */
 }
 QPushButton:default {
     color: white;
     border: 2px solid #3bd5f7;
-    background: #1d7cb2;
+    /* background: #1d7cb2; */
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #072349, stop:1 #0e3f78);   /* Krimble 2026-11-11: dark inside the glow */
 }
 QPushButton:disabled, QDialog QToolButton:disabled {
     color: #7a8199;
@@ -78,7 +84,8 @@ QTabBar::tab:selected {
     border-bottom: 2px solid #3bd5f7;
     border-top-left-radius: 9px;
     border-top-right-radius: 9px;
-    background: #1d7cb2;
+    /* background: #1d7cb2; */
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #072349, stop:1 #0e3f78);   /* Krimble 2026-11-11: dark inside the glow */
 }
 QLineEdit, QSpinBox, QDoubleSpinBox {
     color: #f0f3ff;
@@ -138,7 +145,8 @@ QCheckBox::indicator {
 QCheckBox::indicator:checked {
     image: url(:/krimble-checkmark.svg);
     border: 2px solid #3bd5f7;
-    background: #1d7cb2;
+    /* background: #1d7cb2; */
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #072349, stop:1 #0e3f78);   /* Krimble 2026-11-11: dark inside the glow */
 }
 QMenuBar {
     color: #f1f4fc;
@@ -154,7 +162,8 @@ QMenuBar::item {
 QMenuBar::item:selected {
     border: 1px solid #3bd5f7;
     border-radius: 0px;
-    background: #1d7cb2;
+    /* background: #1d7cb2; */
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #072349, stop:1 #0e3f78);   /* Krimble 2026-11-11: dark inside the glow */
 }
 QMenu {
     color: #eef1fa;
@@ -163,7 +172,8 @@ QMenu {
 }
 QMenu::item:selected {
     border: 1px solid #3bd5f7;
-    background: #1d7cb2;
+    /* background: #1d7cb2; */
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #072349, stop:1 #0e3f78);   /* Krimble 2026-11-11: dark inside the glow */
 }
 QToolBar {
     border: none;
