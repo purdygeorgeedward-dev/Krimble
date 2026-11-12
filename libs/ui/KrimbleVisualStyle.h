@@ -209,6 +209,13 @@ QMenu::item:selected {
     /* background: #1d7cb2; */
     background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #072349, stop:1 #0e3f78);   /* Krimble 2026-11-11: dark inside the glow */
 }
+/* Krimble 2026-11-12 (task 30): George (a screenshot of the Image menu): "We had these lovely separators before and you wiped them out somehow." The dividers between menu items were a black line with a highlight line below it (KisWideDockSeparatorStyle, 2026-10-10); a menu that a style sheet paints is drawn by the sheet, not by that style, so they were a thin plain line. One pixel each, as before. */
+QMenu::separator {
+    height: 0px;
+    margin: 4px 6px;
+    border-top: 1px solid #000000;
+    border-bottom: 1px solid rgba(255, 255, 255, 110);
+}
 QToolBar {
     border: none;
     background: #3e4b78;
