@@ -1298,6 +1298,47 @@ public:
         const QList<QAction *> rest = bar->actions();
         if (rest.isEmpty()) bar->addAction(spacer); else bar->insertAction(rest.first(), spacer);
     }
+
+    // Krimble 2026-11-11: George (a screenshot of the File menu open): "K overlap onto file. Why not K always in the corner a little left?" Qt puts the button of the orange K a few pixels
+    // in from the left edge of the bar (about 11 px on the phone), and it starts the first menu name only about 21 px in from the edge, so the K (the button is 22 px wide) reached
+    // over the start of "File" and the box that marks the open menu. Now the button is always put in the corner (1 px from the left edge, centered up and down), and if the first menu
+    // name starts closer than 4 px to the right of it, the spacer item in front of the menus (ensureSpacer) is made wider by the missing amount (it only grows, and never past 60 px).
+    // It is done after every layout of the bar (and whenever Qt moves the button), and does nothing when everything is already in place.
+    static void placeK(QMenuBar *bar)
+    {
+        if (!bar) return;
+        QWidget *label = bar->cornerWidget(Qt::TopLeftCorner);
+        if (!label || !QByteArray(label->metaObject()->className()).endsWith("ControlLabel") || !label->isVisible()) return;
+        const QPoint target(1, qMax(0, (bar->height() - label->height()) / 2));
+        if (label->pos() != target) label->move(target);
+        QWidgetAction *spacer = bar->findChild<QWidgetAction *>(QStringLiteral("krimbleKSpacer"));
+        QAction *first = nullptr;
+        Q_FOREACH (QAction *entry, bar->actions()) {
+            if (entry == spacer || !entry->isVisible() || !entry->menu()) continue;
+            first = entry;
+            break;
+        }
+        if (!first) return;
+        const int deficit = (target.x() + label->width() + 4) - bar->actionGeometry(first).x();
+        if (deficit <= 0) return;
+        if (!spacer) {
+            ensureSpacer(bar);
+            spacer = bar->findChild<QWidgetAction *>(QStringLiteral("krimbleKSpacer"));
+        }
+        QWidget *gap = spacer ? spacer->defaultWidget() : nullptr;
+        if (!gap || gap->width() >= 60) return;
+        gap->setFixedSize(qMin(60, gap->width() + deficit), gap->height());
+    }
+
+    static void schedulePlaceK(QMenuBar *bar)
+    {
+        if (!bar || bar->property("krimbleKPlacePending").toBool()) return;
+        bar->setProperty("krimbleKPlacePending", true);
+        QTimer::singleShot(0, bar, [bar]() {
+            bar->setProperty("krimbleKPlacePending", false);
+            KrimbleMenuBarFilter::placeK(bar);
+        });
+    }
 protected:
     bool eventFilter(QObject *watched, QEvent *event) override
     {
@@ -1309,6 +1350,11 @@ protected:
                     child->installEventFilter(this);
                 }
             }
+        } else if ((event->type() == QEvent::LayoutRequest || event->type() == QEvent::Resize || event->type() == QEvent::Show) && qobject_cast<QMenuBar *>(watched)) {
+            schedulePlaceK(qobject_cast<QMenuBar *>(watched));   // 2026-11-11: the K in the corner, the menus clear of it
+        } else if ((event->type() == QEvent::Move || event->type() == QEvent::Show) && qobject_cast<QWidget *>(watched)
+                   && QByteArray(watched->metaObject()->className()).endsWith("ControlLabel")) {
+            schedulePlaceK(qobject_cast<QMenuBar *>(static_cast<QWidget *>(watched)->parentWidget()));   // Qt moved the button: put it back in the corner
         } else if ((event->type() == QEvent::ActionAdded || event->type() == QEvent::ActionRemoved) && qobject_cast<QMenuBar *>(watched)) {
             QMenuBar *bar = qobject_cast<QMenuBar *>(watched);
             QTimer::singleShot(0, bar, [bar]() { KrimbleMenuBarFilter::hideSettingsMenu(bar); });   // 2026-11-07: no Settings menu, also after the menu bar is rebuilt
