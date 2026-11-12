@@ -163,8 +163,13 @@ QMenuBar {
     background: #3e4b78;
 }
 QMenuBar::item {
+    /* Krimble 2026-11-12: George: "Please restore the old height." The bar item had no space above and below since the flat sheet (b0f146d, 2026-11-11); the
+       1 px padding and 1 px margin of the build 55 sheet are back (the left and right spacing, 9 px and 1 px, was never changed). Before this edit:
     padding: 0px 9px;
     margin: 0px 1px;
+    */
+    padding: 1px 9px;
+    margin: 1px 1px;
     background: transparent;
     border: 1px solid transparent;
     border-radius: 0px;

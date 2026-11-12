@@ -337,3 +337,5 @@ George sent three screenshots (Color Lab floating, Color Lab docked, and the Cus
 **2026-11-12, 12:45 (MST), task 27.** George sent a screenshot of the old plain gray look (every bar #373952, no flat sheet) and asked to keep today's theme as Blue and make the old one the default ("blue-gray"). Two schemes (KritaBlueGray.colors from ad64d9b, KritaBlue.colors), flat sheet gated on "Krimble Blue", default name "Krimble Blue-Gray", legacy "Krimble dark" read as the default (changelog 502).
 
 **2026-11-12, 12:55 (MST), task 27 (second part).** George: "Please keep all the glow stuff. It's all really good." The default theme Krimble Blue-Gray now = the flat sheet recolored to the old blue-gray (hue 236, saturation 33) at run time (krimbleRecolorSheet), changelog 503; real-Qt test and picture bluegray_with_glow.png. Also his answer about the weird menu bar: "size and spacing of menu items" (task 26, still to look at).
+
+**2026-11-12, 12:58 (MST), task 26.** George: "Please restore the old height." Menu bar items back to padding 1px 9px, margin 1px 1px in the flat sheet (504th entry). Portrait/landscape spacing not built.
