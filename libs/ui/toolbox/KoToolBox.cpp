@@ -11,6 +11,7 @@
 #include "KoToolBoxLayout_p.h"
 #include "KoToolBoxButton_p.h"
 #include "KrimbleToolboxIcons.h"   // Krimble 2026-10-30
+#include "KrimbleToolFlyout.h"   // Krimble 2026-11-12 (task 38): George: "I want long press to open a flyout of other buttons. Then a tap selects one or misses and cancels selection."
 #include "kis_assert.h"
 
 #include <QButtonGroup>
@@ -74,6 +75,43 @@ static int buttonSize(int screen)
 #endif
 }
 
+// Krimble 2026-11-12 (task 38): George: "I want long press to open a flyout of other buttons. Then a tap selects one or misses and cancels selection." The tool groups of the toolbox, each opened by a long press on its button (a flyout of the other tools). The first id is the one shown at the start; later the one used last is shown, in the group's place.
+// Step 1: the Marquee, Lasso and Wand groups. The other groups follow when these are tried on the phone.
+static const QList<QStringList> &krimbleToolGroupIds()
+{
+    static const QList<QStringList> groups = {
+        { QStringLiteral("KisToolSelectRectangular"), QStringLiteral("KisToolSelectElliptical") },                                          // Marquee
+        { QStringLiteral("KisToolSelectOutline"), QStringLiteral("KisToolSelectPolygonal"), QStringLiteral("KisToolSelectMagnetic") },   // Lasso
+        { QStringLiteral("KisToolSelectContiguous"), QStringLiteral("KisToolSelectSimilar") },                                              // Wand
+    };
+    return groups;
+}
+
+static int krimbleGroupIndexOf(const QString &toolId)
+{
+    const QList<QStringList> &groups = krimbleToolGroupIds();
+    for (int i = 0; i < groups.size(); ++i) {
+        if (groups.at(i).contains(toolId)) return i;
+    }
+    return -1;
+}
+
+// the same ordering number that addButton() gives a tool (the old group of its section, then its priority)
+static int krimbleRankedPriority(KoToolAction *toolAction)
+{
+    const QString section = toolAction->section();
+    QString sectionToBeAddedTo;
+    if (section.contains(qApp->applicationName())) sectionToBeAddedTo = "main";
+    else if (section.contains("main")) sectionToBeAddedTo = "main";
+    else if (section.contains("dynamic")) sectionToBeAddedTo = "dynamic";
+    else sectionToBeAddedTo = section;
+    int groupRank = 12;
+    if (sectionToBeAddedTo == QLatin1String("main")) groupRank = 0;
+    else if (sectionToBeAddedTo == QLatin1String("dynamic")) groupRank = 1;
+    else if (!sectionToBeAddedTo.isEmpty() && sectionToBeAddedTo.at(0).isDigit()) groupRank = 2 + sectionToBeAddedTo.at(0).digitValue();
+    return groupRank * 1000000 + toolAction->toolBoxPriority();
+}
+
 class KoToolBox::Private
 {
 public:
@@ -86,6 +124,12 @@ public:
     KoToolBoxLayout *layout {0};
     QButtonGroup *buttonGroup {0};
     QHash<QToolButton*, QString> visibilityCodes;
+    // Krimble 2026-11-12 (task 38): George: "I want long press to open a flyout of other buttons. Then a tap selects one or misses and cancels selection."
+    struct KrimbleGroup {
+        QList<KoToolBoxButton*> buttons;
+        KoToolBoxButton *shown {nullptr};   // the one button of the group that is visible
+    };
+    QList<KrimbleGroup> groups;
     bool floating {false};
     int iconSize {0};
     QMap<QAction*,int> contextIconSizes;
@@ -124,7 +168,7 @@ KoToolBox::KoToolBox()
     applyIconSize();
 
     // Update visibility of buttons
-    setButtonsVisible(QList<QString>());
+    setButtonsVisible(QList<QString>());   // (it ends with krimbleApplyGroups(): the tool groups)
 
     setCompact(cfg.readEntry<bool>("compact", false));
 
@@ -247,10 +291,26 @@ void KoToolBox::addButton(KoToolAction *toolAction)
         sectionWidget = new Section(this);
         d->addSection(sectionWidget, QStringLiteral("main"));
     }
-    sectionWidget->addButton(button, groupRank * 1000000 + toolAction->toolBoxPriority());
+    // sectionWidget->addButton(button, groupRank * 1000000 + toolAction->toolBoxPriority());
+    // Krimble 2026-11-12 (task 38): George: "I want long press to open a flyout of other buttons. Then a tap selects one or misses and cancels selection." The tools of a group all take the place of the group's first tool, so the shown one is always in that place.
+    int krimblePriority = groupRank * 1000000 + toolAction->toolBoxPriority();
+    const int krimbleGroup = krimbleGroupIndexOf(toolAction->id());
+    if (krimbleGroup >= 0) {
+        const QString leaderId = krimbleToolGroupIds().at(krimbleGroup).first();
+        Q_FOREACH (KoToolAction *other, KoToolManager::instance()->toolActionList()) {
+            if (other->id() == leaderId) { krimblePriority = krimbleRankedPriority(other); break; }
+        }
+    }
+    sectionWidget->addButton(button, krimblePriority);
 
     d->buttonGroup->addButton(button);
     d->buttonsByToolId.insert(toolAction->id(), button);
+    if (krimbleGroup >= 0) {
+        while (d->groups.size() <= krimbleGroup) d->groups.append(Private::KrimbleGroup());
+        d->groups[krimbleGroup].buttons << button;
+        button->krimbleSetLongPress(true);
+        connect(button, &KoToolBoxButton::krimbleLongPressed, this, [this, krimbleGroup]() { krimbleShowFlyout(krimbleGroup); });
+    }
 
     d->visibilityCodes.insert(button, toolAction->visibilityCode());
 }
@@ -277,6 +337,17 @@ void KoToolBox::setActiveTool(KoCanvasController *canvas)
     QString id = KoToolManager::instance()->activeToolId();
     KoToolBoxButton *button = d->buttonsByToolId.value(id);
     if (button) {
+        // Krimble 2026-11-12 (task 38): George: "I want long press to open a flyout of other buttons. Then a tap selects one or misses and cancels selection." A tool of a group that was picked (flyout, shortcut) takes the group's place: it is shown, the one shown before is hidden.
+        for (int g = 0; g < d->groups.size(); ++g) {
+            Private::KrimbleGroup &group = d->groups[g];
+            if (group.buttons.contains(button) && group.shown != button) {
+                group.shown = button;
+                button->setVisible(true);
+                krimbleApplyGroups();
+                layout()->invalidate();
+                update();
+            }
+        }
         button->setChecked(true);
         button->setHighlightColor();
         if (d->selectedButton) {
@@ -310,8 +381,46 @@ void KoToolBox::setButtonsVisible(const QList<QString> &codes)
             button->setVisible( codes.contains(code) );
         }
     }
+    // Krimble 2026-11-12 (task 38): George: "I want long press to open a flyout of other buttons. Then a tap selects one or misses and cancels selection."
+    krimbleApplyGroups();
     layout()->invalidate();
     update();
+}
+
+// Krimble 2026-11-12 (task 38): George: "I want long press to open a flyout of other buttons. Then a tap selects one or misses and cancels selection." Only the shown button of each group is visible; the others stay hidden (they still exist: the tool manager, the shortcuts and the flyout use them).
+void KoToolBox::krimbleApplyGroups()
+{
+    for (int g = 0; g < d->groups.size(); ++g) {
+        Private::KrimbleGroup &group = d->groups[g];
+        if (group.buttons.isEmpty()) continue;
+        if (!group.shown) {
+            const QString leaderId = krimbleToolGroupIds().at(g).first();
+            group.shown = group.buttons.first();
+            Q_FOREACH (KoToolBoxButton *b, group.buttons) {
+                if (b->krimbleToolAction()->id() == leaderId) { group.shown = b; break; }
+            }
+        }
+        Q_FOREACH (KoToolBoxButton *b, group.buttons) {
+            if (b != group.shown) b->setVisible(false);
+        }
+    }
+}
+
+// Krimble 2026-11-12 (task 38): George: "I want long press to open a flyout of other buttons. Then a tap selects one or misses and cancels selection."
+void KoToolBox::krimbleShowFlyout(int groupIndex)
+{
+    if (groupIndex < 0 || groupIndex >= d->groups.size()) return;
+    Private::KrimbleGroup &group = d->groups[groupIndex];
+    if (!group.shown) return;
+    // the tools in the order of the group list
+    QList<KoToolBoxButton*> ordered;
+    Q_FOREACH (const QString &id, krimbleToolGroupIds().at(groupIndex)) {
+        Q_FOREACH (KoToolBoxButton *b, group.buttons) {
+            if (b->krimbleToolAction()->id() == id) ordered << b;
+        }
+    }
+    KrimbleToolFlyout *flyout = new KrimbleToolFlyout(ordered, group.shown, this);
+    flyout->showBeside(group.shown);
 }
 
 void KoToolBox::setCurrentLayer(const KoCanvasController *canvas, const KoShapeLayer *layer)

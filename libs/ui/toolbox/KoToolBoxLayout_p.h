@@ -35,9 +35,10 @@ public:
     void addButton(QAbstractButton *button, int priority)
     {
         addChildWidget(button);
-        if (m_priorities.values().contains(priority)) {
-            qWarning() << "Button" << button << "has a conflicting priority";
-        }
+        // if (m_priorities.values().contains(priority)) {
+        //     qWarning() << "Button" << button << "has a conflicting priority";
+        // }
+        // Krimble 2026-11-12 (task 38): George: "I want long press to open a flyout of other buttons. Then a tap selects one or misses and cancels selection." The tools of a group (Marquee, Lasso, Wand) have the same priority on purpose: the one that is shown always sits in the group's place.
 
         m_priorities.insert(button, priority);
         int index = 1;

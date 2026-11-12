@@ -101,6 +101,8 @@ protected:
     void changeEvent(QEvent *event) override;
 
 private:
+    void krimbleApplyGroups();            // Krimble 2026-11-12 (task 38): George: "I want long press to open a flyout of other buttons. Then a tap selects one or misses and cancels selection."
+    void krimbleShowFlyout(int groupIndex);
     void setupIconSizeMenu(QMenu *menu);
     void setupIconStyleMenu(QMenu *menu);   // Krimble 2026-10-30: Full color / Clear
 

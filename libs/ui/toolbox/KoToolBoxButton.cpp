@@ -19,6 +19,8 @@
 #include <QLinearGradient>
 #include <QRadialGradient>
 #include <QPaintEvent>
+#include <QMouseEvent>   // Krimble 2026-11-12 (task 38): George: "I want long press to open a flyout of other buttons. Then a tap selects one or misses and cancels selection."
+#include <QContextMenuEvent>
 #include <QApplication>
 #include <klocalizedstring.h>
 #include <QKeySequence>
@@ -41,6 +43,56 @@ KoToolBoxButton::KoToolBoxButton(KoToolAction *toolAction, QWidget *parent)
     setToolTip(m_toolAction->toolTip());
 
     connect(this, SIGNAL(clicked(bool)), m_toolAction, SLOT(trigger()));
+
+    // Krimble 2026-11-12 (task 38): George: "I want long press to open a flyout of other buttons. Then a tap selects one or misses and cancels selection." The long press: a timer started by a press, stopped by a release or a move away; when it runs out (and the button is still held) the flyout is asked for.
+    m_krimbleTimer.setSingleShot(true);
+    m_krimbleTimer.setInterval(450);
+    connect(&m_krimbleTimer, &QTimer::timeout, this, [this]() {
+        if (!m_krimbleLongPress || !isDown()) return;
+        m_krimbleLongPressFired = true;
+        setDown(false);
+        Q_EMIT krimbleLongPressed();
+    });
+}
+
+// Krimble 2026-11-12 (task 38): George: "I want long press to open a flyout of other buttons. Then a tap selects one or misses and cancels selection."
+void KoToolBoxButton::mousePressEvent(QMouseEvent *event)
+{
+    m_krimbleLongPressFired = false;
+    if (m_krimbleLongPress && event->button() == Qt::LeftButton) {
+        m_krimblePressPos = event->pos();
+        m_krimbleTimer.start();
+    }
+    QToolButton::mousePressEvent(event);
+}
+
+void KoToolBoxButton::mouseMoveEvent(QMouseEvent *event)
+{
+    if (m_krimbleTimer.isActive() && (event->pos() - m_krimblePressPos).manhattanLength() > QApplication::startDragDistance() * 2) {
+        m_krimbleTimer.stop();
+    }
+    QToolButton::mouseMoveEvent(event);
+}
+
+void KoToolBoxButton::mouseReleaseEvent(QMouseEvent *event)
+{
+    m_krimbleTimer.stop();
+    if (m_krimbleLongPressFired) {   // the long press opened the flyout: this release is not a tap on the button
+        m_krimbleLongPressFired = false;
+        event->accept();
+        return;
+    }
+    QToolButton::mouseReleaseEvent(event);
+}
+
+// the system also turns a long press into a context menu event, which would open the toolbox's own menu on top of the flyout
+void KoToolBoxButton::contextMenuEvent(QContextMenuEvent *event)
+{
+    if (m_krimbleLongPress) {
+        event->accept();
+        return;
+    }
+    QToolButton::contextMenuEvent(event);
 }
 
 // Krimble 2026-10-30: the icon again, after the user changed the icon style in the toolbox's menu
@@ -236,4 +288,16 @@ void KoToolBoxButton::paintEvent(QPaintEvent *event)
         painter.drawEllipse(centre, s * 0.30, s * 0.30);
     }
     QToolButton::paintEvent(event);
+    // Krimble 2026-11-12 (task 38): George: "I want long press to open a flyout of other buttons. Then a tap selects one or misses and cancels selection." A small triangle in the bottom right corner marks a button that has a flyout (as in the industry-standard toolbox).
+    if (m_krimbleLongPress) {
+        QPainter mark(this);
+        mark.setRenderHint(QPainter::Antialiasing, true);
+        const qreal t = qMax<qreal>(5.0, qMin(width(), height()) * 0.16);
+        const qreal e = qMax<qreal>(2.0, qMin(width(), height()) * 0.06);
+        QPolygonF tri;
+        tri << QPointF(width() - e, height() - e) << QPointF(width() - e - t, height() - e) << QPointF(width() - e, height() - e - t);
+        mark.setPen(Qt::NoPen);
+        mark.setBrush(QColor(215, 228, 255, 210));
+        mark.drawPolygon(tri);
+    }
 }
