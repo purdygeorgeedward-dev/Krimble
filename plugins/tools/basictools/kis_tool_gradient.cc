@@ -292,6 +292,9 @@ QWidget* KisToolGradient::createOptionWidget()
             KisGradientChooser *krimbleChooser = new KisGradientChooser(widget);
             krimbleChooser->setCanvasResourcesInterface(krimbleProvider->resourceManager()->canvasResourcesInterface());
             krimbleChooser->setEditOptionsVisible(true);
+            // Krimble 2026-11-11: the chooser showed the stock selection ("1. Foreground to Transparent" highlighted) while the gradient in use was Foreground to Background (George's screenshot of the
+            // Gradient options: "it's amazing"). It now starts on the gradient that is in use.
+            if (krimbleProvider->currentGradient()) krimbleChooser->setCurrentResource(krimbleProvider->currentGradient());
             connect(krimbleChooser, SIGNAL(resourceSelected(KoResourceSP)), krimbleProvider, SLOT(slotGradientActivated(KoResourceSP)));
             addOptionWidgetOption(krimbleChooser);
         }
