@@ -6621,3 +6621,9 @@ George's screenshot of the dialog (build 56) showed it wider than his phone: the
 **Files:** `plugins/dockers/advancedcolorselector/krimble_dpaint_dock.h`
 
 George (two screenshots of the DPaint panel from build 56, with "Undo is in the toolbox now, but look at this..."): the panel's tool buttons were enormous. **Cause:** the panel filled the whole width of the docker; its buttons are square and stretch with the width (two columns), and so does the 4 column color palette, so on a docker 1000 px wide each button was about 190 px across and each of the 16 x 16 icon pixels a block of about 12 px. **Fix:** the panel (`panel->setMaximumWidth(104)`) is at most 104 px wide, at the left of the docker: two buttons of about 49 px, a pixel of an icon 3 px, and palette wells of about 25 px, like the classic toolbox. The rest of the docker is empty. If 104 is too small or too big it is one number.
+
+## 2026-11-11 (480th) — The DPaint ellipse icon is a rounder ellipse (it looked like a football)
+
+**Files:** `plugins/dockers/advancedcolorselector/krimble_dpaint_dock.h`
+
+George (looking at the DPaint panel screenshots): "Giant DPaint icons... and I'm not sure what the football icon is." The football is the **Ellipse tool's icon in the DPaint panel**: a 16 x 16 pixel icon that was only 14 wide and 8 tall with pointed ends, so it read as a rugby ball. It is now a rounder ellipse, 14 wide and 10 tall with rounded ends and a 2 pixel line (the old rows are in a comment). The giant size was fixed in the 479th entry. **Not changed:** in the main toolbox the *selected* Ellipse tool also looks like a dark football: its icon is a hollow ring, and the dark shadow that the selected button draws behind every icon (`KoToolBoxButton::paintEvent`, a dark disc behind the icon) shows through the ring, so the ring looks like a filled dark oval; icons that are solid (the Hand) look fine.
