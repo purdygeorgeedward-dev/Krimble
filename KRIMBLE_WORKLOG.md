@@ -329,3 +329,5 @@ George sent three screenshots (Color Lab floating, Color Lab docked, and the Cus
 **2026-11-12, 11:45 (MST), task 20.** George (JPEG options Metadata screenshot): "These dark areas are too dark. black disappears against it. please lighten in theme." Lists/groups V24 to V30, inactive tabs V20 to V26, fields V13 to V19 (+ two odd darks), scheme View colors follow (changelog 498). Before/after mock: dark_areas_before_after.png.
 
 **2026-11-12, 11:55 (MST), task 21.** George: "Try two points darker." Read as the dark areas of task 20: lists/groups 30 to 28, tabs 26 to 24, fields 19 to 17 (+ two odd darks, scheme View colors), changelog 499; three-level picture dark_areas_three.png. Caught a mistake while doing it: my first replacement also rewrote the color names inside the task 20 comment; fixed before the commit.
+
+**2026-11-12, 12:05 (MST), task 22.** George: "Try 26." Main dark level 28 to 26, tabs 22, fields 15, odd darks, scheme View colors 26/22; changelog 500; picture dark_areas_26.png.

@@ -32,6 +32,9 @@ inline QString krimbleVisualStyleSheet()
 
 /* Krimble 2026-11-12 (task 21): George: "Try two points darker." The three dark levels of the note above are 2 points darker than that change (6 points lighter than before it became 4 points
    lighter): lists, menus and group boxes 28 (#262d47), inactive tabs 24 (#20273d), fields 17 (#171c2b), the two odd darks #191f2b and #22283b. (The colors named in the note above are the ones of task 20.) */
+
+/* Krimble 2026-11-12 (task 22): George: "Try 26." The main dark level (lists, menus and group boxes) is brightness 26 (#232a42), the other levels keep their distance from it: inactive tabs 22 (#1d2438),
+   fields 15 (#141926), the odd darks #161c26 and #1f2436. (The colors named in the notes above are the ones of the earlier tasks.) */
 QDialog, QMessageBox, QInputDialog, QColorDialog, QFileDialog {
     background: #2c3554;
     color: #ffffff;
@@ -45,7 +48,7 @@ QGroupBox {
     border-radius: 0px;
     margin-top: 12px;
     padding: 12px 6px 6px 6px;
-    background: #262d47;
+    background: #232a42;
 }
 QGroupBox::title { subcontrol-origin: margin; left: 12px; padding: 0 5px; }
 QPushButton, QDialog QToolButton {
@@ -74,7 +77,7 @@ QPushButton:default {
 QPushButton:disabled, QDialog QToolButton:disabled {
     color: #7a8199;
     border-color: #000000;
-    background: #262d47;
+    background: #232a42;
 }
 QTabBar::tab {
     color: #e3e8f6;
@@ -83,7 +86,7 @@ QTabBar::tab {
     border-bottom: 1px solid #000000;
     border-top-left-radius: 6px;
     border-top-right-radius: 6px;
-    background: #20273d;
+    background: #1d2438;
 }
 QTabBar::tab:selected {
     color: white;
@@ -100,7 +103,7 @@ QLineEdit, QSpinBox, QDoubleSpinBox {
     border: 1px solid #000000;
     border-radius: 5px;
     padding: 3px 5px;
-    background: #171c2b;
+    background: #141926;
 }
 QComboBox {
     color: #f0f3ff;
@@ -108,7 +111,7 @@ QComboBox {
     border: 1px solid #000000;
     border-radius: 4px;
     padding: 3px 5px;
-    background: #171c2b;
+    background: #141926;
 }
 QLineEdit:focus, QSpinBox:focus, QDoubleSpinBox:focus, QComboBox:focus {
     border: 1px solid #3bd5f7;
@@ -123,7 +126,7 @@ QSlider::groove:horizontal {
     height: 5px;
     border: 1px solid #000000;
     border-radius: 2px;
-    background: #171c2b;
+    background: #141926;
 }
 QSlider::sub-page:horizontal {
     height: 5px;
@@ -137,17 +140,17 @@ QSlider::handle:horizontal {
     width: 18px;
     height: 18px;
     margin: -7px 0;
-    border: 1px solid #191f2b;
+    border: 1px solid #161c26;
     border-radius: 10px;
     background: qradialgradient(cx:0.5, cy:0.5, radius:0.55, fx:0.34, fy:0.26,
-                                stop:0 #ffffff, stop:0.18 #dfe4ee, stop:0.5 #7f889c, stop:0.85 #3a4152, stop:1 #22283b);
+                                stop:0 #ffffff, stop:0.18 #dfe4ee, stop:0.5 #7f889c, stop:0.85 #3a4152, stop:1 #1f2436);
 }
 QCheckBox::indicator {
     width: 16px;
     height: 16px;
     border: 1px solid #000000;
     border-radius: 4px;
-    background: #171c2b;
+    background: #141926;
 }
 QCheckBox::indicator:checked {
     image: url(:/krimble-checkmark.svg);
@@ -175,7 +178,7 @@ QMenuBar::item:selected {
 QMenu {
     color: #eef1fa;
     border: 1px solid #000000;
-    background: #262d47;
+    background: #232a42;
 }
 QMenu::item:selected {
     border: 1px solid #3bd5f7;
@@ -190,8 +193,8 @@ QMainWindow, QDockWidget {
     background: #2c3554;
 }
 QAbstractItemView {
-    background: #262d47;
-    alternate-background-color: #20273d;
+    background: #232a42;
+    alternate-background-color: #1d2438;
     color: #ffffff;
 }
 QDockWidget > QWidget, QScrollArea, QScrollArea > QWidget > QWidget {
@@ -203,7 +206,7 @@ QDockWidget > QWidget, QScrollArea, QScrollArea > QWidget > QWidget {
 QDockWidget > QMenu {
     color: #eef1fa;
     border: 1px solid #000000;
-    background: #262d47;
+    background: #232a42;
 }
 QStatusBar {
     color: #ffffff;
@@ -219,7 +222,7 @@ QProgressBar {
     color: white;
     border: 1px solid #000000;
     border-radius: 0px;
-    background: #171c2b;
+    background: #141926;
 }
 QProgressBar::chunk {
     border-radius: 0px;
@@ -228,7 +231,7 @@ QProgressBar::chunk {
 QToolTip {
     color: #eef1fa;
     border: 1px solid #3bd5f7;
-    background: #262d47;
+    background: #232a42;
 }
 QWidget#krimbleStudioCard {
     border: 1px solid #000000;
