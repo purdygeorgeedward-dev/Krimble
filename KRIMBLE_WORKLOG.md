@@ -347,3 +347,5 @@ George sent three screenshots (Color Lab floating, Color Lab docked, and the Cus
 **2026-11-12, 13:20 (MST), task 28.** George: "Please implement the hilight and shadow lines." Done in the flat sheet and as an overlay on the image windows (506th entry); picture bevels_before_after.png. Task 29 tab gesture code added but the real-Qt test did not float the panel (507th entry). Committed locally, not pushed.
 
 **2026-11-12, 13:35 (MST), task 30.** George: menu separators were lovely before. QMenu::separator rule (black line + highlight line) added to the flat and the painted sheet (508th entry); picture menu_separators_before_after.png. Committed locally, not pushed.
+
+**2026-11-12, 13:03 MST, push.** 9968e77, d43d743, 29a8d03, 7eee3e5 pushed to master (tasks 29, 28, 30; 505th to 508th entries).
