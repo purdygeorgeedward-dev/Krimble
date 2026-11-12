@@ -6663,3 +6663,9 @@ George (two screenshots of the stop gradient editor opened from the Gradient opt
 **Files:** `.github/workflows/android-build.yml`
 
 George: "Doing 56 again is just bugfixes." and "We didn't release 56, so it's fine." A comment in the workflow file (the file whose change starts the build) starts a new run; the label stays `1.0.56-beta` and `krimbleBuildNumber` stays 56, so the build number check passes. The build is made from all of master up to this commit: the keyboard icon (475th), QuickAdjust (476th), the swatch lines (477th), the Custom CMYK dialog on the phone (478th), the DPaint panel width and ellipse (479th, 480th) and its switch-off (481st), the Free Rotate handles (482nd), dark insides (483rd), the gradient chooser (484th) and the gradient editor stretch (485th).
+
+## 2026-11-11 (487th) — Release notes for 1.0.56-beta added to the repository
+
+**Files:** `release-notes/v1.0.56-beta.md` (new)
+
+George: "Prepare the tag and full comments for the release." then "add it and check." The full release notes for 1.0.56-beta (what is new since 1.0.55-beta, grouped by area; known issues; install) are kept in the repository as `release-notes/v1.0.56-beta.md`, to be pasted into the GitHub release for the tag `v1.0.56-beta`. The tag itself is not created yet (it goes on the commit the build runs on, `ad64d9b`, once the build succeeds). The file is public text: it does not use the name of the other editor and does not call Krimble a paint app.
