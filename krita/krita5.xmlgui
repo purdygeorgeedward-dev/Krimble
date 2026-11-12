@@ -937,10 +937,10 @@ xsi:schemaLocation="http://www.kde.org/standards/kxmlgui/1.0  http://www.kde.org
                      <Separator/>
                      
     <Menu name="selectopaquemenu">
-        <text>Select &amp;Opaque</text>
+        <text>Load Layer &amp;Transparency</text>
         
         <Action name="selectopaque">
-            <text>Select Opaque</text>
+            <text>Load Layer Transparency</text>
         </Action>
         
                      <Separator/>
