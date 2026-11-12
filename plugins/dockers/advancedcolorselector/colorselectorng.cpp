@@ -96,7 +96,9 @@ ColorSelectorNgPlugin::ColorSelectorNgPlugin(QObject *parent, const QVariantList
     KoDockRegistry::instance()->add(new ColorSelectorNgDockFactory());
     KoDockRegistry::instance()->add(new KrimbleRingDockFactory());   // Krimble 2026-11-08: "Color Ring + Triangle"
     KoDockRegistry::instance()->add(new KrimbleMixerDockFactory());   // Krimble 2026-10-30
-    KoDockRegistry::instance()->add(new KrimbleDPaintDockFactory());   // Krimble 2026-11-07
+    // KoDockRegistry::instance()->add(new KrimbleDPaintDockFactory());   // Krimble 2026-11-07
+    // Krimble 2026-11-11: George: "I thought I indicated that the DPaint toolbox was pointless and you commented it out." The DPaint panel (Window > DPaint) is not registered any more, so it is not in
+    // the Window menu and is not built into the panel list; the code (krimble_dpaint_dock.h, the factory above) is kept. To bring it back, remove the two slashes at the start of the line above.
 
     KisPreferenceSetRegistry *preferenceSetRegistry = KisPreferenceSetRegistry::instance();
 
