@@ -11,6 +11,13 @@
 #include "wdg_imagesize.h"
 
 #include <QLocale>
+#include <QAbstractItemView>
+#include <QComboBox>
+#include <QDoubleSpinBox>
+#include <QFontMetrics>
+#include <QGridLayout>
+#include <QLayout>
+#include <QSpacerItem>
 #include <kis_config.h>
 
 #include <KoUnit.h>
@@ -61,6 +68,56 @@ static const QString pixelsCentimeterStr()
 {
     static QString str = i18n("Pixels/Centimeter");
     return str;
+}
+
+// Krimble 2026-11-12: George (two screenshots of Image Size, one with four white boxes over the empty parts): "Yes, white areas represent wasted space. Please eliminate as much as you can."
+// What was empty (measured in the screenshot, in logical pixels of a 708 px wide window): about 34 px of margin left of the labels, about 33 px inside every number field (a spin box is as wide as the
+// widest number it could ever show, and the "size group" made all five the same), about 50 px inside every unit box (they were all made as wide as "Pixels/Inch"), and a blank band of about 135 px right
+// of the chain buttons (the window was wider than its contents). Now: a number field is as wide as eight characters and its arrows, a unit box as wide as its own text and its arrow, the filter box
+// is narrow, the spacers that pushed the columns apart are zero, the margins and the spacing between columns are small, and the window is made as wide as its contents need.
+template <class Page>
+static void krimbleCompactImageSizeWidgets(QWidget *root, Page *page)
+{
+    const QFontMetrics fm(root->font());
+    const QList<QDoubleSpinBox *> spins = { page->pixelWidthDouble, page->pixelHeightDouble, page->printWidth, page->printHeight, page->printResolution };
+    Q_FOREACH (QDoubleSpinBox *spin, spins) {
+        // what a spin box needs besides its text (frame, padding, arrows): its own width minus the width of the widest number it could ever show
+        const int extra = spin->sizeHint().width() - qMax(fm.horizontalAdvance(spin->textFromValue(spin->maximum())), fm.horizontalAdvance(spin->textFromValue(spin->minimum())));
+        spin->setMinimumWidth(0);
+        spin->setFixedWidth(fm.horizontalAdvance(QStringLiteral("00000.00")) + qMax(extra, 0));   // five digits and two decimals
+    }
+    const QList<QComboBox *> unitBoxes = { page->pixelSizeUnit, page->printWidthUnit, page->printResolutionUnit };
+    Q_FOREACH (QComboBox *box, unitBoxes) {
+        int widest = 0;
+        for (int i = 0; i < box->count(); ++i) widest = qMax(widest, fm.horizontalAdvance(box->itemText(i)));
+        const int extra = qMax(box->sizeHint().width() - widest, 0);   // arrow and padding
+        // the box that is shut is as wide as its usual text ("Pixels/Inch": "Pixels/Centimeter" is longer and was what made the box wide); the list that opens is as wide as its widest text
+        const int shown = qMax(fm.horizontalAdvance(QStringLiteral("0000")), (box == page->printResolutionUnit) ? qMin(widest, fm.horizontalAdvance(QStringLiteral("Pixels/Inch"))) : widest);
+        box->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+        box->setMinimumWidth(0);
+        box->setFixedWidth(shown + extra);
+        if (box->view()) box->view()->setMinimumWidth(widest + extra);
+    }
+    page->pixelFilterCmb->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLengthWithIcon);
+    page->pixelFilterCmb->setMinimumContentsLength(6);
+    page->pixelFilterCmb->setMinimumWidth(0);
+    Q_FOREACH (QLayout *layout, root->findChildren<QLayout *>()) {
+        for (int i = 0; i < layout->count(); ++i) {
+            if (QSpacerItem *spacer = layout->itemAt(i)->spacerItem()) {
+                if (spacer->sizeHint().width() > 0) spacer->changeSize(0, spacer->sizeHint().height(), QSizePolicy::Minimum, QSizePolicy::Minimum);
+            }
+        }
+        if (QGridLayout *grid = qobject_cast<QGridLayout *>(layout)) {
+            grid->setHorizontalSpacing(4);
+            grid->setContentsMargins(4, 6, 4, 4);
+        }
+    }
+    // the contents are no wider than they need (and a little more): a window that holds them opens at that width, and not wider as it did (the blank band at the right)
+    if (root->layout()) {
+        root->layout()->invalidate();
+        root->layout()->activate();
+        root->setMaximumWidth(root->layout()->totalMinimumSize().width() + 24);
+    }
 }
 
 WdgImageSize::WdgImageSize(QWidget *parent, int width, int height, double resolution)
@@ -176,17 +233,19 @@ WdgImageSize::WdgImageSize(QWidget *parent, int width, int height, double resolu
     labelsGroup->addWidget(m_page->lblPrintHeight);
     labelsGroup->addWidget(m_page->lblResolution);
 
-    KisSizeGroup *spinboxesGroup = new KisSizeGroup(this);
-    spinboxesGroup->addWidget(m_page->pixelWidthDouble);
-    spinboxesGroup->addWidget(m_page->pixelHeightDouble);
-    spinboxesGroup->addWidget(m_page->printWidth);
-    spinboxesGroup->addWidget(m_page->printHeight);
-    spinboxesGroup->addWidget(m_page->printResolution);
+    // Krimble 2026-11-12: the two size groups below made all five number fields as wide as the widest of them, and all three unit boxes as wide as the widest (the "wasted space" George marked in the
+    // Image Size screenshots); krimbleCompactImageSizeWidgets() sizes each field and box to what it needs, so they are not used (the code is kept):
+    // KisSizeGroup *spinboxesGroup = new KisSizeGroup(this);
+    // spinboxesGroup->addWidget(m_page->pixelWidthDouble);
+    // spinboxesGroup->addWidget(m_page->pixelHeightDouble);
+    // spinboxesGroup->addWidget(m_page->printWidth);
+    // spinboxesGroup->addWidget(m_page->printHeight);
+    // spinboxesGroup->addWidget(m_page->printResolution);
 
-    KisSizeGroup *comboboxesGroup = new KisSizeGroup(this);
-    comboboxesGroup->addWidget(m_page->pixelSizeUnit);
-    comboboxesGroup->addWidget(m_page->printWidthUnit);
-    comboboxesGroup->addWidget(m_page->printResolutionUnit);
+    // KisSizeGroup *comboboxesGroup = new KisSizeGroup(this);
+    // comboboxesGroup->addWidget(m_page->pixelSizeUnit);
+    // comboboxesGroup->addWidget(m_page->printWidthUnit);
+    // comboboxesGroup->addWidget(m_page->printResolutionUnit);
     connect(this, SIGNAL(okClicked()), this, SLOT(accept()));
 
     /**
@@ -291,6 +350,8 @@ WdgImageSize::WdgImageSize(QWidget *parent, int width, int height, double resolu
     QHBoxLayout *l = new QHBoxLayout();
     l->addWidget(m_page);
     this->setLayout(l);
+
+    krimbleCompactImageSizeWidgets(this, m_page);   // Krimble 2026-11-12: no wasted space (see the function above)
 
     m_page->pixelWidthDouble->setFocus();
 }
