@@ -3720,8 +3720,13 @@ protected:
         QPainter p(this);
         p.setRenderHint(QPainter::Antialiasing, false);
         const qreal one = 1.0 / qMax<qreal>(1.0, devicePixelRatioF());   // one device pixel
-        const QColor light(110, 114, 156);
-        const QColor dark(18, 19, 34);
+        // const QColor light(110, 114, 156);
+        // const QColor dark(18, 19, 34);
+        // Krimble 2026-11-12 (task 35): George: "Can we reverse bevel on menus so they look recessed?" A menu (popup) gets the lines the other way round: dark on the top and left,
+        // light on the bottom and right (sunken). Panels, tool bars and image windows are not changed (raised).
+        const bool recessed = qobject_cast<QMenu*>(m_target.data()) != nullptr;
+        const QColor light = recessed ? QColor(18, 19, 34) : QColor(110, 114, 156);
+        const QColor dark = recessed ? QColor(110, 114, 156) : QColor(18, 19, 34);
         const qreal w = width();
         const qreal h = height();
         QDockWidget *dock = qobject_cast<QDockWidget*>(m_target.data());
