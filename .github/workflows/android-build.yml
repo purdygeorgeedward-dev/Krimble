@@ -20,6 +20,8 @@ on:
         # default: "Beta2"
         # default: "1.0.45-beta"
         # KRIMBLE 2026-11-11 (build 56): was 1.0.55-beta: default: "1.0.55-beta"   # KRIMBLE 2026-11-08: strict renumbering: this label is always 1.0.<krimbleBuildNumbe
+        # KRIMBLE 2026-11-11 (evening): build 56 is run again (George: "Doing 56 again is just bugfixes." "We didn't release 56, so it's fine."): this line is the change that starts the run;
+        # the label stays 1.0.56-beta (build.gradle krimbleBuildNumber 56) and the build is made from everything on master up to this commit (d575cd9 and this one).
         default: "1.0.56-beta"   # KRIMBLE 2026-11-08: strict renumbering: this label is always 1.0.<krimbleBuildNumber>-beta (build.gradle); the build stops if they differ
 
 concurrency:
