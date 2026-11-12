@@ -6615,3 +6615,9 @@ George (screenshots of Color Lab docked and floating, build 56): "It looks like 
 **Files:** `libs/ui/KrimbleCustomCmykDialog.h`
 
 George's screenshot of the dialog (build 56) showed it wider than his phone: the Ink Colors box, the dot gain percent and the Gray Ramp were cut off at the right edge and a horizontal scroll bar had appeared. **Fix:** the dialog is no wider or taller than the screen (`QScreen` available geometry, at most 520 x 700), has no horizontal scroll bar, thinner margins; the labels wrap onto two lines where needed; the combo boxes are as wide as the room allows (not as wide as their longest name); the Gray Ramp is its own row under the settings, across the width (it was a third column at the right); the checkbox reads "Black Point Compensation"; Load and Save are one row and Cancel and OK the row under it (four buttons in one row were 340 px wide). Checked in real Qt: the dialog's minimum width was 360 px and is now 174 px; rendered at 310 px wide, everything is visible and nothing is cut off.
+
+## 2026-11-11 (479th) — The DPaint panel's buttons are no longer huge
+
+**Files:** `plugins/dockers/advancedcolorselector/krimble_dpaint_dock.h`
+
+George (two screenshots of the DPaint panel from build 56, with "Undo is in the toolbox now, but look at this..."): the panel's tool buttons were enormous. **Cause:** the panel filled the whole width of the docker; its buttons are square and stretch with the width (two columns), and so does the 4 column color palette, so on a docker 1000 px wide each button was about 190 px across and each of the 16 x 16 icon pixels a block of about 12 px. **Fix:** the panel (`panel->setMaximumWidth(104)`) is at most 104 px wide, at the left of the docker: two buttons of about 49 px, a pixel of an icon 3 px, and palette wells of about 25 px, like the classic toolbox. The rest of the docker is empty. If 104 is too small or too big it is one number.
