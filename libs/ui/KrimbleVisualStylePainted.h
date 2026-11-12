@@ -305,6 +305,13 @@ QAbstractItemView {
 QDockWidget > QWidget, QScrollArea, QScrollArea > QWidget > QWidget {
     background: transparent;
 }
+/* Krimble 2026-11-11: the same fix as in the flat sheet (George: "Transparent menu."): a menu made with a dock as its parent (the toolbox's long press menu) is a direct child of the dock and the
+   rule above made it transparent; this rule has the menu's own fill and edge and is as specific and later. */
+QDockWidget > QMenu {
+    color: #eef1fa;
+    border: 1px solid #3d4967;
+    background: #192138;
+}
 /* Krimble 2026-11-07 (3rd): George: "more contrast" (after the Prefs mockup: "The color and contrast in the mockup are ideal."). Before:
 QStatusBar {
     color: #eef1fa;
