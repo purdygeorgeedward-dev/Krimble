@@ -355,3 +355,5 @@ George sent three screenshots (Color Lab floating, Color Lab docked, and the Cus
 **2026-11-12, 13:11 MST, push.** 6c84be5 (task 31, 509th entry: the Nov 10 sheet is the default theme) pushed to master.
 
 **2026-11-12, 13:15 (MST), task 32.** George: "Can we reapply the fixes?" Across-only shading for tool bars, status bar and headers in the Nov 10 default sheet (510th entry); picture bars_across_fix.png. Pushed with the PAT George pasted earlier in this chat (he had sent it more than once).
+
+**2026-11-12, 13:19 (MST), task 33.** George: "Rough. No shadow or hilight lines?" Bevel edges added to the Nov 10 default sheet (511th entry); picture default_bevel_demo.png. Committed locally, waiting for his OK before the push. He asked if the percentage bar glow is still there: it is code (463rd), in every theme.
