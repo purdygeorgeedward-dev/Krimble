@@ -351,3 +351,5 @@ George sent three screenshots (Color Lab floating, Color Lab docked, and the Cus
 **2026-11-12, 13:03 MST, push.** 9968e77, d43d743, 29a8d03, 7eee3e5 pushed to master (tasks 29, 28, 30; 505th to 508th entries).
 
 **2026-11-12, 13:08 (MST), task 31.** George: "The Nov 10 version is so much better. Revert to that and make it the default." KrimbleVisualStyleNov10.h (the exact pre-flat sheet + dock menu and divider rules) applied to the default theme Krimble Blue-Gray; Blue and Painted unchanged (509th entry). Committed locally, not pushed.
+
+**2026-11-12, 13:11 MST, push.** 6c84be5 (task 31, 509th entry: the Nov 10 sheet is the default theme) pushed to master.
