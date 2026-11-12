@@ -38,6 +38,10 @@ inline QString krimbleVisualStyleSheet()
 QDialog, QMessageBox, QInputDialog, QColorDialog, QFileDialog {
     background: #2c3554;
     color: #ffffff;
+    /* task 28: the window's own bevel (light #516094 top and left, black bottom and right) */
+    border: 1px solid #000000;
+    border-top: 1px solid #516094;
+    border-left: 1px solid #516094;
 }
 QDialog QLabel, QDialog QGroupBox, QDialog QCheckBox,
 QDialog QRadioButton, QDialog QTabWidget {
@@ -46,6 +50,9 @@ QDialog QRadioButton, QDialog QTabWidget {
 QGroupBox {
     border: 1px solid #000000;
     border-radius: 0px;
+    /* task 28: raised edge (light #465380 top and left) */
+    border-top: 1px solid #465380;
+    border-left: 1px solid #465380;
     margin-top: 12px;
     padding: 12px 6px 6px 6px;
     background: #232a42;
@@ -55,6 +62,9 @@ QPushButton, QDialog QToolButton {
     color: #f1f4fc;
     border: 1px solid #000000;
     border-radius: 7px;
+    /* task 28: raised edge (light #687abd top and left) */
+    border-top: 1px solid #687abd;
+    border-left: 1px solid #687abd;
     padding: 5px 9px;
     background: #3e4b78;
 }
@@ -86,6 +96,9 @@ QTabBar::tab {
     border-bottom: 1px solid #000000;
     border-top-left-radius: 6px;
     border-top-right-radius: 6px;
+    /* task 28: raised edge (light #3b456b top and left) */
+    border-top: 1px solid #3b456b;
+    border-left: 1px solid #3b456b;
     background: #1d2438;
 }
 QTabBar::tab:selected {
@@ -102,6 +115,9 @@ QLineEdit, QSpinBox, QDoubleSpinBox {
     selection-background-color: #1d7cb2;
     border: 1px solid #000000;
     border-radius: 5px;
+    /* task 28: sunken edge (light #3b456b bottom and right) */
+    border-bottom: 1px solid #3b456b;
+    border-right: 1px solid #3b456b;
     padding: 3px 5px;
     background: #141926;
 }
@@ -110,6 +126,9 @@ QComboBox {
     selection-background-color: #1d7cb2;
     border: 1px solid #000000;
     border-radius: 4px;
+    /* task 28: sunken edge (light #3b456b bottom and right) */
+    border-bottom: 1px solid #3b456b;
+    border-right: 1px solid #3b456b;
     padding: 3px 5px;
     background: #141926;
 }

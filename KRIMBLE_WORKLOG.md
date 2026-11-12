@@ -343,3 +343,5 @@ George sent three screenshots (Color Lab floating, Color Lab docked, and the Cus
 **2026-11-12, 12:51 (MST), push.** 5334111 pushed to master (confirmed by git ls-remote): menu bar items old height back (504th entry).
 
 **2026-11-12, 13:05 (MST), task 29.** George: remove the little locks from the panel title bars. Lock button hidden in both title bars; saved locks ignored (505th entry). He also reports that dragging a dock tab does nothing; no touch-blocking code found by reading, so the next step is our own drag-out-of-the-tab gesture (not built).
+
+**2026-11-12, 13:20 (MST), task 28.** George: "Please implement the hilight and shadow lines." Done in the flat sheet and as an overlay on the image windows (506th entry); picture bevels_before_after.png. Task 29 tab gesture code added but the real-Qt test did not float the panel (507th entry). Committed locally, not pushed.

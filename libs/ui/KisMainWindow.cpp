@@ -3749,6 +3749,71 @@ static void krimbleRefreshTabTitles(QMainWindow *win)
     }
 }
 
+// Krimble 2026-11-12 (task 29): George: "I would like to get rid of the little locks at the top of the panels and use the tabs to detach them." and "Dragging the tab does
+// NOTHING right now. Nothing." Qt's own drag of a dock tab out of its tab row does not happen on his phone (no code of ours blocks it that I could find), so this is our own
+// gesture: press a panel's tab and drag it away from the tab row (further than the tab row is high, up or down) and that panel floats, its title bar under the finger.
+// Dragging along the row (to reorder tabs) is not touched. A panel that is already floating, and a tab that does not match a docked panel, are left alone.
+class KrimbleTabDetachFilter : public QObject
+{
+public:
+    KrimbleTabDetachFilter(QTabBar *bar, QMainWindow *win) : QObject(bar), m_bar(bar), m_win(win) { bar->installEventFilter(this); }
+    bool eventFilter(QObject *watched, QEvent *event) override
+    {
+        if (watched != m_bar) return false;
+        switch (event->type()) {
+        case QEvent::MouseButtonPress: {
+            QMouseEvent *me = static_cast<QMouseEvent*>(event);
+            m_tab = (me->button() == Qt::LeftButton) ? m_bar->tabAt(me->pos()) : -1;
+            m_taken = false;
+            break;
+        }
+        case QEvent::MouseMove: {
+            QMouseEvent *me = static_cast<QMouseEvent*>(event);
+            if (m_taken) return true;
+            if (m_tab < 0 || !(me->buttons() & Qt::LeftButton)) break;
+            const int limit = qMax(m_bar->height(), 24);
+            if (me->pos().y() >= -limit && me->pos().y() <= m_bar->height() + limit) break;   // still on the row (or near it)
+            QDockWidget *found = nullptr;
+            const QString title = m_bar->tabText(m_tab);
+            Q_FOREACH (QDockWidget *dock, m_win->findChildren<QDockWidget*>()) {
+                if (!dock->isFloating() && dock->windowTitle() == title) { found = dock; break; }
+            }
+            m_tab = -1;
+            if (!found) break;
+            m_taken = true;
+            found->setFloating(true);
+            const QPoint g = m_bar->mapToGlobal(me->pos());
+            const QRect w = m_win->geometry();
+            const int x = qBound(w.left(), g.x() - found->width() / 2, qMax(w.left(), w.right() - found->width()));
+            const int y = qBound(w.top(), g.y() - 12, qMax(w.top(), w.bottom() - 60));
+            found->move(x, y);
+            found->raise();
+            return true;
+        }
+        case QEvent::MouseButtonRelease:
+            if (m_taken) { m_taken = false; m_tab = -1; return true; }
+            m_tab = -1;
+            break;
+        default:
+            break;
+        }
+        return false;
+    }
+private:
+    QTabBar *m_bar;
+    QMainWindow *m_win;
+    int m_tab = -1;
+    bool m_taken = false;
+};
+
+static void krimbleInstallTabDetach(QMainWindow *win)
+{
+    // the tab bars of the panel groups are direct children of the main window (the image tabs live inside the MDI area)
+    Q_FOREACH (QTabBar *bar, win->findChildren<QTabBar*>(QString(), Qt::FindDirectChildrenOnly)) {
+        if (!bar->findChild<KrimbleTabDetachFilter*>(QString(), Qt::FindDirectChildrenOnly)) new KrimbleTabDetachFilter(bar, win);
+    }
+}
+
 static void krimbleInstallBevels(QMainWindow *win)
 {
     Q_FOREACH (QDockWidget *dock, win->findChildren<QDockWidget*>()) {
@@ -3762,6 +3827,10 @@ static void krimbleInstallBevels(QMainWindow *win)
     // menu and submenu (light on the top and left edges, dark on the bottom and right, one device pixel).
     Q_FOREACH (QMenu *menu, win->findChildren<QMenu*>()) {
         if (!menu->findChild<KrimbleBevelOverlay*>(QStringLiteral("krimbleBevelOverlay"), Qt::FindDirectChildrenOnly)) new KrimbleBevelOverlay(menu);
+    }
+    // Krimble 2026-11-12 (task 28): George: "all windows need bevels!" The floating image windows (QMdiSubWindow) get the same overlay (light top and left, dark bottom and right, one device pixel); they are drawn by the style, not by the style sheet, so the sheet's bevel lines do not reach them.
+    Q_FOREACH (QMdiSubWindow *sub, win->findChildren<QMdiSubWindow*>()) {
+        if (!sub->findChild<KrimbleBevelOverlay*>(QStringLiteral("krimbleBevelOverlay"), Qt::FindDirectChildrenOnly)) new KrimbleBevelOverlay(sub);
     }
     // Krimble 2026-10-18 (15th): the double titles of panels in tabs (see krimbleRefreshTabTitles); at once when a tab is chosen, and every 2 s with the lines above
     static bool s_tabTitlesHooked = false;
@@ -5032,6 +5101,7 @@ KisMainWindow::KisMainWindow(QUuid uuid)
             krimbleInstallMenuShortcutStripping(this);   // Krimble 2026-10-13 (4th): the real fix for the wide menus (see above)
             krimbleInstallCanvasOnlyExit(this);          // Krimble 2026-10-13 (5th): the X that leaves Canvas Only mode
             krimbleRemoveMinimumWidths(this);            // Krimble 2026-10-13 (6th): no minimum widths (see above)
+            krimbleInstallTabDetach(this);               // Krimble 2026-11-12 (task 29): drag a panel's tab away from its row to float the panel
             krimbleInstallBevels(this);                  // Krimble 2026-10-17: one-pixel bevel lines on panels and toolbars (see above)
             krimbleInstallHexMenus(this);                // Krimble 2026-10-18: View > Show > Hex and Layer > New > Hex Pattern... (see above)
             krimbleInstallSelectionGlow(this);           // Krimble 2026-10-30: the blue glow of a selected (checked) button
