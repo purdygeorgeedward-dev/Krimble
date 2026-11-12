@@ -19,8 +19,10 @@ IntensityAmount=0
 IntensityEffect=0
 
 [Colors:Button]
-BackgroundAlternate=50,51,75
-BackgroundNormal=38,40,65
+# Krimble 2026-11-12: was 50,51,75 (hue 238, saturation 33); now hue 227, saturation 48 (George: "All 227 please.")
+BackgroundAlternate=39,47,75
+# Krimble 2026-11-12: was 38,40,65 (hue 236, saturation 42); now hue 227, saturation 48 (George: "All 227 please.")
+BackgroundNormal=34,41,65
 DecorationFocus=83,114,142
 DecorationHover=83,114,142
 ForegroundActive=230,230,230
@@ -33,8 +35,10 @@ ForegroundPositive=151,202,64
 ForegroundVisited=160,160,160
 
 [Colors:Complementary]
-BackgroundAlternate=59,61,86
-BackgroundNormal=55,57,82
+# Krimble 2026-11-12: was 59,61,86 (hue 236, saturation 31); now hue 227, saturation 48 (George: "All 227 please.")
+BackgroundAlternate=45,54,86
+# Krimble 2026-11-12: was 55,57,82 (hue 236, saturation 33); now hue 227, saturation 48 (George: "All 227 please.")
+BackgroundNormal=43,51,82
 DecorationFocus=83,114,142
 DecorationHover=83,114,142
 ForegroundActive=230,230,230
@@ -66,8 +70,10 @@ ForegroundPositive=151,202,64
 ForegroundVisited=187,194,208
 
 [Colors:Tooltip]
-BackgroundAlternate=28,30,55
-BackgroundNormal=38,40,65
+# Krimble 2026-11-12: was 28,30,55 (hue 236, saturation 49); now hue 227, saturation 48 (George: "All 227 please.")
+BackgroundAlternate=29,34,55
+# Krimble 2026-11-12: was 38,40,65 (hue 236, saturation 42); now hue 227, saturation 48 (George: "All 227 please.")
+BackgroundNormal=34,41,65
 DecorationFocus=112,154,191
 DecorationHover=83,114,142
 ForegroundActive=230,230,230
@@ -80,8 +86,10 @@ ForegroundPositive=151,202,64
 ForegroundVisited=160,160,160
 
 [Colors:View]
-BackgroundAlternate=34,36,61
-BackgroundNormal=40,42,67
+# Krimble 2026-11-12: was 34,36,61 (hue 236, saturation 44); now hue 227, saturation 48 (George: "All 227 please.")
+BackgroundAlternate=32,38,61
+# Krimble 2026-11-12: was 40,42,67 (hue 236, saturation 40); now hue 227, saturation 48 (George: "All 227 please.")
+BackgroundNormal=35,42,67
 DecorationFocus=83,114,142
 DecorationHover=83,114,142
 ForegroundActive=230,230,230
@@ -94,8 +102,10 @@ ForegroundPositive=151,202,64
 ForegroundVisited=160,160,160
 
 [Colors:Window]
-BackgroundAlternate=59,61,86
-BackgroundNormal=55,57,82
+# Krimble 2026-11-12: was 59,61,86 (hue 236, saturation 31); now hue 227, saturation 48 (George: "All 227 please.")
+BackgroundAlternate=45,54,86
+# Krimble 2026-11-12: was 55,57,82 (hue 236, saturation 33); now hue 227, saturation 48 (George: "All 227 please.")
+BackgroundNormal=43,51,82
 DecorationFocus=83,114,142
 DecorationHover=83,114,142
 ForegroundActive=230,230,230
@@ -116,9 +126,11 @@ shadeSortColumn=true
 contrast=2
 
 [WM]
-activeBackground=64,66,91
+# Krimble 2026-11-12: was 64,66,91 (hue 236, saturation 30); now hue 227, saturation 48 (George: "All 227 please.")
+activeBackground=47,57,91
 activeBlend=255,255,255
 activeForeground=180,180,180
-inactiveBackground=48,49,73
+# Krimble 2026-11-12: was 48,49,73 (hue 238, saturation 34); now hue 227, saturation 48 (George: "All 227 please.")
+inactiveBackground=38,46,73
 inactiveBlend=75,71,67
 inactiveForeground=128,127,125
