@@ -42,6 +42,8 @@
 #include <ksharedconfig.h>
 #include <kconfiggroup.h>
 #include <ksqueezedtextlabel.h>
+#include <QScreen>
+#include <QGuiApplication>
 
 #include "KisGradientChooser.h"
 
@@ -88,6 +90,18 @@ KisCustomGradientDialog::KisCustomGradientDialog(KoAbstractGradientSP gradient,
 
     setCaption(m_page->windowTitle());
     setMainWidget(m_page);
+
+    // Krimble 2026-11-11: George (screenshots of the gradient editor opened with Edit...): "Edit has a scrollbar and won't let you expand it past a certain width. But it looks good. Maybe make it
+    // stretch?" The editor is wide (its rows of buttons, the color and opacity and the position add up to more than a phone in portrait) and sits in the dialog's scroll area. The editor may now grow
+    // without a limit (no maximum size on the dialog or the editor) and takes all the width the window gets, and the window opens as wide as the screen allows (the screen's width less a margin),
+    // so that in landscape nothing has to scroll.
+    setMaximumSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX);
+    m_page->setMaximumSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX);
+    m_page->setSizePolicy(QSizePolicy::Expanding, m_page->sizePolicy().verticalPolicy());
+    if (QScreen *screen = QGuiApplication::primaryScreen()) {
+        const int room = screen->availableGeometry().width() - 24;
+        if (room > 0) resize(qMax(sizeHint().width(), room), sizeHint().height());
+    }
 }
 
 class Q_DECL_HIDDEN KisGradientChooser::Private : public QObject
