@@ -7390,7 +7390,9 @@ QDockWidget* KisMainWindow::createDockWidget(KoDockFactoryBase* factory)
             dockWidget->hide();
         }
 
-        bool locked = group.readEntry("Locked", false);
+        // Krimble 2026-11-12: no lock buttons any more, so a lock saved in an old layout is ignored (it could not be undone): panels always start unlocked. Before:
+        // bool locked = group.readEntry("Locked", false);
+        bool locked = false;
         if (titleBar && locked) {
             titleBar->setLocked(true);
         }

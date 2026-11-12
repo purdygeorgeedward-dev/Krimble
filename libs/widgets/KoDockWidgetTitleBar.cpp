@@ -60,7 +60,9 @@ KoDockWidgetTitleBar::KoDockWidgetTitleBar(QDockWidget* dockWidget)
     d->lockButton->setCheckable(true);
     d->lockButton->setIcon(d->lockIcon);
     connect(d->lockButton, SIGNAL(toggled(bool)), SLOT(setLocked(bool)));
-    d->lockButton->setVisible(true);
+    // Krimble 2026-11-12: George: "I would like to get rid of the little locks at the top of the panels" and "I never got that, never used it for that. I see panels as very fluid." The lock button is kept as an object (the code below uses it) but is never shown and is not in the layout.
+    // d->lockButton->setVisible(true);
+    d->lockButton->setVisible(false);
     d->lockButton->setToolTip(i18nc("@info:tooltip", "Lock Docker"));
     d->lockButton->setStyleSheet("border: 0");
 
@@ -73,7 +75,7 @@ KoDockWidgetTitleBar::KoDockWidgetTitleBar(QDockWidget* dockWidget)
     QHBoxLayout *layout = new QHBoxLayout(this);
     layout->setContentsMargins(2, 0, 2, 0);
     layout->setSpacing(SPACING);
-    layout->addWidget(d->lockButton);
+    // layout->addWidget(d->lockButton);   // Krimble 2026-11-12: no lock button (see above)
     layout->addWidget(d->titleLabel, 1);
     layout->addWidget(d->floatButton);
     layout->addWidget(d->closeButton);
@@ -160,7 +162,8 @@ void KoDockWidgetTitleBar::resizeEvent(QResizeEvent*)
     if (q->isFloating() || (width() < (d->closeButton->width() + d->floatButton->width() + d->lockButton->width()) + 32)) {
         d->lockButton->setVisible(false);
     } else {
-        d->lockButton->setVisible(true);
+        // d->lockButton->setVisible(true);   // Krimble 2026-11-12: no lock button
+        d->lockButton->setVisible(false);
     }
 }
 

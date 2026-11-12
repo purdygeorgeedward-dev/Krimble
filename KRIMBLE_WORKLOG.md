@@ -341,3 +341,5 @@ George sent three screenshots (Color Lab floating, Color Lab docked, and the Cus
 **2026-11-12, 12:58 (MST), task 26.** George: "Please restore the old height." Menu bar items back to padding 1px 9px, margin 1px 1px in the flat sheet (504th entry). Portrait/landscape spacing not built.
 
 **2026-11-12, 12:51 (MST), push.** 5334111 pushed to master (confirmed by git ls-remote): menu bar items old height back (504th entry).
+
+**2026-11-12, 13:05 (MST), task 29.** George: remove the little locks from the panel title bars. Lock button hidden in both title bars; saved locks ignored (505th entry). He also reports that dragging a dock tab does nothing; no touch-blocking code found by reading, so the next step is our own drag-out-of-the-tab gesture (not built).
