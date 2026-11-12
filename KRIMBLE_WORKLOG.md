@@ -303,3 +303,5 @@ George sent three screenshots (Color Lab floating, Color Lab docked, and the Cus
 **19:58 (MST), build 56 started again.** George asked if we were ready for a follow-up build, then: "Doing 56 again is just bugfixes." and, when I asked whether to start it: "We didn't release 56, so it's fine." Started by a comment in `.github/workflows/android-build.yml` (the push trigger), label `1.0.56-beta` unchanged, changelog 486.
 
 **20:50 (MST), release notes.** George: "Prepare the tag and full comments for the release." / "add it and check." Notes written from changelog entries 455th to 486th and added as `release-notes/v1.0.56-beta.md` (changelog 487). Tag `v1.0.56-beta` still to be made on `ad64d9b` when George says.
+
+**21:00 (MST), the transparent menu.** George's screenshot of the toolbox long press menu: "Transparent menu." Reproduced in real Qt: `QDockWidget > QWidget { background: transparent; }` also matched the menu (the toolbox menu has the docker as parent); added `QDockWidget > QMenu` with the menu's fill (changelog 488). George also asked for the APK link (given: artifact krimble-apk of run 43144941653).

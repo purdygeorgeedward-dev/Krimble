@@ -190,6 +190,14 @@ QAbstractItemView {
 QDockWidget > QWidget, QScrollArea, QScrollArea > QWidget > QWidget {
     background: transparent;
 }
+/* Krimble 2026-11-11: George (a screenshot of the toolbox's long press menu): "Transparent menu." The rule above makes every direct child of a dock transparent, and a menu made with
+   the dock as its parent (the toolbox's Compact / Icon Size / Layout / Columns / Dock menu) is a direct child, and the rule's two names beat the single name of the QMenu rule, so the
+   menu had its black edge and no fill. This rule is as specific and comes after it. */
+QDockWidget > QMenu {
+    color: #eef1fa;
+    border: 1px solid #000000;
+    background: #20263d;
+}
 QStatusBar {
     color: #ffffff;
     background: #3e4b78;
