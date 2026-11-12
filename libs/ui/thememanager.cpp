@@ -49,6 +49,7 @@
 #include <kis_icon.h>
 #include <kis_config_notifier.h>
 #include "KrimbleVisualStyle.h"
+#include "KrimbleVisualStyleNov10.h"   // Krimble 2026-11-12 (task 31): the Nov 10 sheet (the default theme)
 #include "KrimbleVisualStylePainted.h"   // Krimble 2026-11-11: the painted sheet, for the theme "Krimble Painted"   // Krimble 2026-11-04: krimbleVisualStyleSheet(), re-applied after the theme palette
 
 #ifdef __APPLE__
@@ -128,7 +129,8 @@ QString ThemeManager::currentThemeName() const
 // is the flat sheet (the glow edges, the dark insides of selections, the black lines, the bars) in the old blue-gray: every color of the sheet that is one of the theme's backgrounds (hue 221 to 233,
 // saturation 40 to 60 percent: the hue 227, saturation 48 family) is given hue 236 and saturation 33, as the old palette (#373952) has, and keeps its brightness; the accent blues, the cyan
 // edge, the dark navy inside the glow, the text and the black are not backgrounds and stay as they are. So there is one sheet, in KrimbleVisualStyle.h, and two color families.
-static QString krimbleRecolorSheet(const QString &sheet, int hue, int saturationPercent)
+// Krimble 2026-11-12 (task 31): not used now (the default theme has the Nov 10 sheet); kept
+Q_DECL_UNUSED static QString krimbleRecolorSheet(const QString &sheet, int hue, int saturationPercent)
 {
     static const QRegularExpression colorRx(QStringLiteral("#[0-9a-fA-F]{6}\\b"));
     QString out;
@@ -253,12 +255,15 @@ void ThemeManager::slotChangePalette()
     // qApp->setStyleSheet(theme == QStringLiteral("Krimble dark") ? krimbleVisualStyleSheet() : QString());
     // Krimble 2026-11-11: George: "Can we put in the Krimble gradient theme as an option?" Three cases, by the theme's name: "Krimble dark" gets the flat sheet, "Krimble Painted" gets the
     // painted (gradient) sheet (KrimbleVisualStylePainted.h), and every other theme gets no sheet at all.
-    qApp->setProperty("krimblePaintedTheme", theme == QStringLiteral("Krimble Painted"));   // Krimble 2026-11-11: the menu bar filter (KisMainWindow.cpp) paints its gradient only for this theme
+    // qApp->setProperty("krimblePaintedTheme", theme == QStringLiteral("Krimble Painted"));
+    // Krimble 2026-11-12 (task 31): the Nov 10 look painted the menu bar across (dark at both ends) too: the default theme "Krimble Blue-Gray" has it again.
+    qApp->setProperty("krimblePaintedTheme", theme == QStringLiteral("Krimble Painted") || theme == QStringLiteral("Krimble Blue-Gray"));   // Krimble 2026-11-11: the menu bar filter (KisMainWindow.cpp) paints its gradient only for this theme
     // if (theme == QStringLiteral("Krimble dark")) {
     if (theme == QStringLiteral("Krimble Blue")) {   // Krimble 2026-11-12 (task 27): the flat sheet belongs to the theme "Krimble Blue" now; "Krimble Blue-Gray" (the default) has none
         qApp->setStyleSheet(krimbleVisualStyleSheet());
     } else if (theme == QStringLiteral("Krimble Blue-Gray")) {   // Krimble 2026-11-12 (task 27): the default theme: the same sheet in the old blue-gray colors
-        qApp->setStyleSheet(krimbleRecolorSheet(krimbleVisualStyleSheet(), 236, 33));
+        // qApp->setStyleSheet(krimbleRecolorSheet(krimbleVisualStyleSheet(), 236, 33));   // task 27 (second part): the flat sheet recolored
+        qApp->setStyleSheet(krimbleNov10StyleSheet());   // Krimble 2026-11-12 (task 31): George: "The Nov 10 version is so much better. Revert to that and make it the default."
     } else if (theme == QStringLiteral("Krimble Painted")) {
         qApp->setStyleSheet(krimblePaintedStyleSheet());
     } else {
