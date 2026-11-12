@@ -190,7 +190,9 @@ void ThemeManager::setCurrentTheme(const QString& name)
     // d->currentThemeName = name;
     // Krimble 2026-11-12 (task 27): the theme "Krimble dark" is gone: its colors and the flat style sheet are now the theme "Krimble Blue", and the default theme is "Krimble Blue-Gray" (the
     // old plain palette). A settings file that still says "Krimble dark" is read as the default, so it does not find no theme file and leave the app with the bare default palette.
-    d->currentThemeName = (name == QStringLiteral("Krimble dark")) ? QStringLiteral("Krimble Blue-Gray") : name;
+    // d->currentThemeName = (name == QStringLiteral("Krimble dark")) ? QStringLiteral("Krimble Blue-Gray") : name;
+    // Krimble 2026-11-12 (task 36): George: "Delete Krimble Blue. It looks bad." The theme is not installed any more; a settings file that says "Krimble Blue" (or "Krimble dark") is read as the default, Krimble Blue-Gray.
+    d->currentThemeName = (name == QStringLiteral("Krimble dark") || name == QStringLiteral("Krimble Blue")) ? QStringLiteral("Krimble Blue-Gray") : name;
 
     if (d->themeMenuAction  && d->themeMenuActionGroup) {
         QList<QAction*> list = d->themeMenuActionGroup->actions();

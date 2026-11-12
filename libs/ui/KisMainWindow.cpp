@@ -1443,8 +1443,10 @@ public:
         // Krimble 2026-11-06: George: "way too big still. Shorten it. Eliminate space between the adjusters. Eliminate negative space." Tighter: the rows are 2 px
         // apart (were 6), margins 4 (were 8), a row has 1 px above and below (was 3), the number boxes are 20 px tall and the sliders 16 (were about 24 and 22), and
         // there is no stretch before the buttons.
+        // layout->setContentsMargins(4, 4, 4, 4);
+        // layout->setSpacing(2);
         layout->setContentsMargins(4, 4, 4, 4);
-        layout->setSpacing(2);
+        layout->setSpacing(5);   // Krimble 2026-11-12 (task 5): George (his picture of QuickAdjust): "match this version of QuickAdjust." (the picture: rows 4 px apart)
         QHBoxLayout *options = new QHBoxLayout;
         // QLabel *title = new QLabel(i18n("Adjustments"), content);
         // QFont font = title->font(); font.setBold(true); title->setFont(font);
@@ -1454,7 +1456,9 @@ public:
         options->addStretch();
         // m_preview = new QCheckBox(i18n("Preview"), content);
         // Krimble 2026-10-30: the Preview switch of the drawing (a pill that says ON or OFF), with its label
-        options->addWidget(new QLabel(i18n("Preview"), content));
+        // options->addWidget(new QLabel(i18n("Preview"), content));
+        m_previewLabel = new QLabel(i18n("Preview"), content);   // Krimble 2026-11-12 (task 5): George (his picture of QuickAdjust): "match this version of QuickAdjust." The Preview label and switch move to the button row at the bottom (see krimbleShowQuickAdjustDialog).
+        options->addWidget(m_previewLabel);
         m_preview = new KrimbleToggleSwitch(content);
         m_preview->setChecked(true);
         options->addWidget(m_preview);
@@ -1468,14 +1472,15 @@ public:
                                                    "QFrame#krimbleQuickTop QLabel { background: transparent; border: none; }"));
             options->setContentsMargins(4, 1, 4, 1);
             topPanel->setLayout(options);
-            layout->addWidget(topPanel);
+            // layout->addWidget(topPanel);
+            topPanel->hide();   // Krimble 2026-11-12 (task 5): George (his picture of QuickAdjust): "match this version of QuickAdjust." The top panel (sliders picture, Preview) is not in the picture; Preview is in the bottom row.
         }
         // Krimble 2026-10-30: George: "I didn't expect operations as layers. Offer it as a toggle." The adjustments are applied to the layer when OK is
         // pressed (merged down into the paint layer below), unless this is checked: then they stay as adjustment layers (the old behaviour).
         m_keepLayers = new QCheckBox(i18n("Keep as layers"), content);
         m_keepLayers->setChecked(g_krimbleQuickKeepLayers);
         connect(m_keepLayers, &QCheckBox::toggled, this, [](bool on) { g_krimbleQuickKeepLayers = on; });
-        layout->addWidget(m_keepLayers);
+        // layout->addWidget(m_keepLayers);   // Krimble 2026-11-12 (task 5): George (his picture of QuickAdjust): "match this version of QuickAdjust." Not in the picture: it is put under the rows (below).
         // Krimble 2026-11-05: every name has the width of the longest one, so the number boxes and sliders line up in columns
         int nameWidth = 0;
         for (int i = 0; i < SliderCount; ++i) nameWidth = qMax(nameWidth, content->fontMetrics().horizontalAdvance(i18n(def(i).name)));
@@ -1487,11 +1492,17 @@ public:
             // frame->setStyleSheet(QStringLiteral("QFrame#krimbleQuickRow { background: #3b3e5c; border: 1px solid #4c5275; border-radius: 8px; }"));
             // Krimble 2026-11-06 (2nd): the mockup's row: a fill from #282A41 (top) to #1F2235 (bottom) and a #404565 outline (sampled from the mockup picture)
             frame->setStyleSheet(QStringLiteral("QFrame#krimbleQuickRow { background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #282a41, stop:1 #1f2235); border: 1px solid #404565; border-radius: 6px; }"));
-            QHBoxLayout *row = new QHBoxLayout(frame);
+            // Krimble 2026-11-12 (task 5): George (his picture of QuickAdjust): "match this version of QuickAdjust." The picture's row: a fill from #202141 to #13142b, a purple #6058aa outline, rounded 10 px, a big icon at the left, the name over the number box, the slider on the right.
+            frame->setStyleSheet(QStringLiteral("QFrame#krimbleQuickRow { background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #202141, stop:1 #13142b); border: 1px solid #6058aa; border-radius: 10px; }"));
+            // QHBoxLayout *row = new QHBoxLayout(frame);
+            QGridLayout *row = new QGridLayout(frame);
             // row->setContentsMargins(6, 3, 6, 3);
             // row->setSpacing(6);
-            row->setContentsMargins(6, 1, 6, 1);
-            row->setSpacing(4);
+            // row->setContentsMargins(6, 1, 6, 1);
+            // row->setSpacing(4);
+            row->setContentsMargins(8, 5, 10, 5);
+            row->setHorizontalSpacing(10);
+            row->setVerticalSpacing(2);
             // Krimble 2026-10-30: the small picture at the start of the row (the drawing's sun, half circle, drops, color ring, half square, sparkle)
             QLabel *rowIcon = new QLabel(content);
             // rowIcon->setPixmap(krimbleQuickAdjustIcon(i, 34));
@@ -1499,24 +1510,47 @@ public:
             // rowIcon->setPixmap(krimbleQuickAdjustIcon(i, 16));
             // Krimble 2026-11-06: George: "Can we get things to render in native resolution so they're sharp?" The picture was 16 x 16 pixels, stretched 3.4 times to the
             // screen; it is drawn at the screen's own resolution now (devicePixelRatio set), still 16 logical px wide.
-            {
+            if (false) {   // Krimble 2026-11-12 (task 5): George (his picture of QuickAdjust): "match this version of QuickAdjust." The code-drawn 16 px pictures are not used now (kept).
                 const qreal ratio = content->devicePixelRatioF();
                 QPixmap sharp = krimbleQuickAdjustIcon(i, qRound(16 * ratio));
                 sharp.setDevicePixelRatio(ratio);
                 rowIcon->setPixmap(sharp);
             }
-            rowIcon->setFixedSize(16, 16);
-            row->addWidget(rowIcon);
+            {
+                // the six pictures cut out of George's picture (krita/pics/svg/dark_krimble-quickadjust-icon-N.png), 38 logical px, sharp at the screen's resolution
+                const qreal ratio = content->devicePixelRatioF();
+                QPixmap big(QStringLiteral(":/dark_krimble-quickadjust-icon-%1.png").arg(i));
+                QPixmap sharp = big.scaled(qRound(44 * ratio), qRound(44 * ratio), Qt::KeepAspectRatio, Qt::SmoothTransformation);
+                sharp.setDevicePixelRatio(ratio);
+                rowIcon->setPixmap(sharp);
+                rowIcon->setStyleSheet(QStringLiteral("background: transparent; border: none;"));
+            }
+            rowIcon->setFixedSize(46, 46);
+            // row->addWidget(rowIcon);
+            row->addWidget(rowIcon, 0, 0, 2, 1, Qt::AlignCenter);
             m_labels[i] = new QLabel(i18n(def(i).name), content);
             // m_labels[i]->setMinimumWidth(90);
-            m_labels[i]->setFixedWidth(nameWidth + 4);
-            row->addWidget(m_labels[i]);
+            // m_labels[i]->setFixedWidth(nameWidth + 4);
+            // row->addWidget(m_labels[i]);
+            m_labels[i]->setStyleSheet(QStringLiteral("font-size: 15px; font-weight: bold; color: #ffffff; background: transparent; border: none;"));   // Krimble 2026-11-12 (task 5): George (his picture of QuickAdjust): "match this version of QuickAdjust."
+            row->addWidget(m_labels[i], 0, 1, Qt::AlignLeft | Qt::AlignBottom);
             m_numbers[i] = new QSpinBox(content);
             m_numbers[i]->setRange(def(i).min, def(i).max);
             // m_numbers[i]->setMinimumWidth(72);
-            m_numbers[i]->setFixedWidth(50);
-            m_numbers[i]->setFixedHeight(20);   // Krimble 2026-11-06: was the style sheet's height (about 24)
-            row->addWidget(m_numbers[i]);
+            // m_numbers[i]->setFixedWidth(50);
+            // m_numbers[i]->setFixedHeight(20);   // Krimble 2026-11-06: was the style sheet's height (about 24)
+            // row->addWidget(m_numbers[i]);
+            m_numbers[i]->setFixedSize(80, 28);   // Krimble 2026-11-12 (task 5): George (his picture of QuickAdjust): "match this version of QuickAdjust." (the picture: 74 x 25 logical px)
+            m_numbers[i]->setAlignment(Qt::AlignCenter);
+            // m_numbers[i]->setStyleSheet(QStringLiteral("QSpinBox { font-size: 15px; font-weight: bold; color: #ffffff; }"));
+            // Krimble 2026-11-12 (task 5): the picture's number box has a small up and down arrow at the right, with a thin line before them (arrow pictures: dark_krimble-quickadjust-arrow-up.png and -down.png)
+            m_numbers[i]->setStyleSheet(QStringLiteral(
+                "QSpinBox { font-size: 15px; font-weight: bold; color: #ffffff; padding-right: 22px; }"
+                "QSpinBox::up-button { subcontrol-origin: border; subcontrol-position: top right; width: 22px; height: 13px; border: none; border-left: 1px solid #323252; background: transparent; }"
+                "QSpinBox::down-button { subcontrol-origin: border; subcontrol-position: bottom right; width: 22px; height: 13px; border: none; border-left: 1px solid #323252; background: transparent; }"
+                "QSpinBox::up-arrow { image: url(:/dark_krimble-quickadjust-arrow-up.png); width: 9px; height: 7px; }"
+                "QSpinBox::down-arrow { image: url(:/dark_krimble-quickadjust-arrow-down.png); width: 9px; height: 7px; }"));
+            row->addWidget(m_numbers[i], 1, 1, Qt::AlignLeft | Qt::AlignTop);
             // layout->addLayout(row);
             layout->addWidget(frame);
             m_sliders[i] = new QSlider(Qt::Horizontal, content);
@@ -1560,9 +1594,13 @@ public:
                 //     + thinHandle);
                 m_sliders[i]->setStyleSheet(QStringLiteral(
                     "QSlider::groove:horizontal { height: 3px; border: none; border-radius: 1px;"
-                    " background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #72749d, stop:0.4 #5c5f88, stop:1 #7378a0); }"
+                    // " background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #72749d, stop:0.4 #5c5f88, stop:1 #7378a0); }"
+                    // "QSlider::sub-page:horizontal { height: 3px; border: none; border-radius: 1px;"
+                    // " background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #3fd1f6, stop:0.4 #0da0ff, stop:1 #008cec); }")
+                    // Krimble 2026-11-12 (task 5): George (his picture of QuickAdjust): "match this version of QuickAdjust." The picture's line: cyan up to the handle, white after it.
+                    " background: #f4f5fb; }"
                     "QSlider::sub-page:horizontal { height: 3px; border: none; border-radius: 1px;"
-                    " background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #3fd1f6, stop:0.4 #0da0ff, stop:1 #008cec); }")
+                    " background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #00f4ff, stop:1 #00c6f3); }")
                     + thinHandle);
             }
             if (false && i == Lightness) {   // Krimble 2026-11-11: switched off. George: "saturation slider can be blue. All of them except hue can be that same blue." (the code is kept)
@@ -1663,7 +1701,9 @@ public:
                     "QSlider::sub-page:horizontal { background: transparent; border: none; }") + thinHandle);
             }
             // layout->addWidget(m_sliders[i]);
-            row->addWidget(m_sliders[i], 1);   // Krimble 2026-11-05: on the same line as the picture, name and number
+            // row->addWidget(m_sliders[i], 1);   // Krimble 2026-11-05: on the same line as the picture, name and number
+            row->addWidget(m_sliders[i], 0, 2, 2, 1);   // Krimble 2026-11-12 (task 5): George (his picture of QuickAdjust): "match this version of QuickAdjust." the slider on the right, as high as name and number together
+            row->setColumnStretch(2, 1);
             connect(m_sliders[i], &QSlider::valueChanged, this, [this, i](int value) {
                 m_values[i] = value;
                 QSignalBlocker blocker(m_numbers[i]);
@@ -1674,6 +1714,7 @@ public:
                 m_sliders[i]->setValue(value);
             });
         }
+        layout->addWidget(m_keepLayers);   // Krimble 2026-11-12 (task 5): George (his picture of QuickAdjust): "match this version of QuickAdjust."
         // QPushButton *reset = new QPushButton(i18n("Reset"), content);
         // layout->addWidget(reset);
         // Krimble 2026-11-05: Reset is in the button row now, at the left of Cancel and OK, like the mockup (see resetAll() and krimbleShowQuickAdjustDialog)
@@ -1686,6 +1727,10 @@ public:
             flush();
         });
     }
+
+    // Krimble 2026-11-12 (task 5): George (his picture of QuickAdjust): "match this version of QuickAdjust." the Preview label and switch, put in the dialog's button row
+    QWidget *previewLabel() const { return m_previewLabel; }
+    QAbstractButton *previewSwitch() const { return m_preview; }
 
     // Krimble 2026-11-05: Reset (every slider back to 0), called from the Reset button in the dialog's button row
     void resetAll()
@@ -1823,6 +1868,7 @@ private:
     QSpinBox *m_numbers[SliderCount];
     // QCheckBox *m_preview = nullptr;
     QAbstractButton *m_preview = nullptr;   // Krimble 2026-10-30: the Preview switch
+    QLabel *m_previewLabel = nullptr;       // Krimble 2026-11-12 (task 5): George (his picture of QuickAdjust): "match this version of QuickAdjust."
     QCheckBox *m_keepLayers = nullptr;     // Krimble 2026-10-30
     KisNodeWSP m_activeBefore;             // Krimble 2026-10-30: the layer that was active when the first adjustment layer was made
     bool m_previewEnabled = true;
@@ -1858,13 +1904,19 @@ static void krimbleShowQuickAdjustDialog(KisMainWindow *win)
     }
     dialog->setStyleSheet(QStringLiteral(
         "QLabel, QCheckBox { color: #ffffff; }"
-        "QDialog { background-color: #181b2e; }"
-        "QSpinBox { background-color: #121420; border: 1px solid #5a5d80; border-radius: 4px; }"
+        // "QDialog { background-color: #181b2e; }"
+        // "QSpinBox { background-color: #121420; border: 1px solid #5a5d80; border-radius: 4px; }"
+        // Krimble 2026-11-12 (task 5): George (his picture of QuickAdjust): "match this version of QuickAdjust." The picture: window #0e0e21, number boxes #0c0c1e with a #51577b outline.
+        "QDialog { background-color: #0e0e21; }"
+        "QSpinBox { background-color: #0c0c1e; border: 1px solid #51577b; border-radius: 6px; }"
         // "QPushButton { color: #f1f4fc; border: 1px solid #6b6c8c; border-radius: 6px;"
         // " background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #4a4b6a, stop:1 #26283d); }"));
         // Krimble 2026-11-06 (3rd): George: "long smooth subtle gradients, not shaping every item with shading": the buttons have only a hair of shading
-        "QPushButton { color: #f1f4fc; border: 1px solid #4d4f72; border-radius: 6px;"
-        " background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #3b3d5a, stop:1 #323450); }"));
+        // "QPushButton { color: #f1f4fc; border: 1px solid #4d4f72; border-radius: 6px;"
+        // " background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #3b3d5a, stop:1 #323450); }"));
+        // Krimble 2026-11-12 (task 5): George (his picture of QuickAdjust): "match this version of QuickAdjust." The picture's buttons: a #3c3971 to #323062 fill, a #635ab0 outline, bold, rounded 10 px.
+        "QPushButton { color: #f1f4fc; font-size: 16px; font-weight: bold; border: 1px solid #635ab0; border-radius: 10px; padding: 6px 12px;"
+        " background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #3c3971, stop:1 #323062); }"));
     dialog->setAttribute(Qt::WA_DeleteOnClose);
     dialog->setWindowTitle(i18n("Quick Adjust"));
     dialog->setModal(false);
@@ -1900,7 +1952,9 @@ static void krimbleShowQuickAdjustDialog(KisMainWindow *win)
         // Krimble 2026-11-06 (2nd): George: "I am thinking the Quick Adjust can use the graphics from the mock up as the title and purple graphics at the top". The header of the
         // mockup (the Krimble wordmark with the orange K and paw, "QuickAdjust", the purple light streak) is cut out of the mockup picture (969 x 106 px, about one to one on the
         // phone) and fills the width of the window.
-        logoRow->addWidget(new KrimbleLogoLabel(QStringLiteral(":/dark_krimble-quickadjust-banner.png"), QStringLiteral("Krimble QuickAdjust"), dialog, 100000), 1);
+        // logoRow->addWidget(new KrimbleLogoLabel(QStringLiteral(":/dark_krimble-quickadjust-banner.png"), QStringLiteral("Krimble QuickAdjust"), dialog, 100000), 1);
+        // Krimble 2026-11-12 (task 5): George (his picture of QuickAdjust): "match this version of QuickAdjust." The header of the new picture (the wordmark, a divider, QuickAdjust, the purple streak).
+        logoRow->addWidget(new KrimbleLogoLabel(QStringLiteral(":/dark_krimble-quickadjust-banner2.png"), QStringLiteral("Krimble QuickAdjust"), dialog, 100000), 1);
         layout->addLayout(logoRow);
     }
     // layout->addWidget(new KrimbleQuickAdjustLogo(dialog));
@@ -1914,7 +1968,37 @@ static void krimbleShowQuickAdjustDialog(KisMainWindow *win)
             // Krimble 2026-11-06 (2nd): the mockup's OK button: #2986F0 at the top to #05429D at the bottom, a #3DA7FF outline (sampled from the mockup picture)
             "QPushButton { background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #2986f0, stop:1 #05429d); border: 1px solid #3da7ff; border-radius: 6px; }"));
     }
-    layout->addWidget(buttons);
+    // layout->addWidget(buttons);
+    // Krimble 2026-11-12 (task 5): George (his picture of QuickAdjust): "match this version of QuickAdjust." The bottom row of the picture: Reset at the left, then Preview with its ON switch, a thin divider, Cancel and OK (blue). The button box stays (hidden): its
+    // accepted and rejected signals below are driven by the Cancel and OK buttons of this row.
+    buttons->hide();
+    {
+        QHBoxLayout *bottom = new QHBoxLayout;
+        bottom->setContentsMargins(0, 6, 0, 2);
+        bottom->setSpacing(8);
+        QPushButton *resetRow = new QPushButton(i18n("Reset"), dialog);
+        QObject::connect(resetRow, &QPushButton::clicked, adjust, [adjust]() { adjust->resetAll(); });
+        bottom->addWidget(resetRow);
+        bottom->addStretch(1);
+        if (QWidget *label = adjust->previewLabel()) { label->setParent(dialog); label->setStyleSheet(QStringLiteral("font-size: 13px; color: #ffffff; background: transparent; border: none;")); label->show(); bottom->addWidget(label); }
+        if (QAbstractButton *sw = adjust->previewSwitch()) { sw->setParent(dialog); sw->show(); bottom->addWidget(sw); }
+        bottom->addSpacing(4);
+        QFrame *divider = new QFrame(dialog);
+        divider->setFixedSize(1, 36);
+        divider->setStyleSheet(QStringLiteral("background: #f0f1fa; border: none;"));
+        bottom->addWidget(divider);
+        bottom->addSpacing(4);
+        QPushButton *cancelRow = new QPushButton(i18n("Cancel"), dialog);
+        QObject::connect(cancelRow, &QPushButton::clicked, buttons, &QDialogButtonBox::rejected);
+        bottom->addWidget(cancelRow);
+        QPushButton *okRow = new QPushButton(i18n("OK"), dialog);
+        okRow->setDefault(true);
+        okRow->setStyleSheet(QStringLiteral("QPushButton { color: #ffffff; font-size: 16px; font-weight: bold; padding: 6px 14px; border: 1px solid #29c4ff; border-radius: 10px;"
+                                            " background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #006bfd, stop:1 #0033c5); }"));
+        QObject::connect(okRow, &QPushButton::clicked, buttons, &QDialogButtonBox::accepted);
+        bottom->addWidget(okRow);
+        layout->addLayout(bottom);
+    }
     QObject::connect(buttons, &QDialogButtonBox::accepted, dialog, [adjust, dialog]() {
         adjust->commitVisible();
         adjust->finish();     // Krimble 2026-10-30: merge down unless "Keep as layers"; the earlier layer is active again

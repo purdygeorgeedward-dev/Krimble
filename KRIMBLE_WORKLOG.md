@@ -361,3 +361,5 @@ George sent three screenshots (Color Lab floating, Color Lab docked, and the Cus
 **2026-11-12, 13:22 (MST), tasks 33 and 34.** George: "And all the same hue in the theme?" and "Definitely need bevels in the themes, all of them." Same-hue normalizer for the default theme (hue 227, sat 48); bevel edges in Krimble Painted (512th entry); the default sheet bevels of 7ba7266 go up with it. Pushed with the PAT George pasted earlier in this chat.
 
 **2026-11-12, 13:25 (MST), task 35.** George: "Can we reverse bevel on menus so they look recessed?" Menu overlay lines swapped (513rd entry). He also asked for the glow on all themes (proposal pictures themes_now.png and themes_with_glow_everywhere.png; not built) and how many themes: 11. Pushed with the PAT George pasted earlier in this chat.
+
+**2026-11-12, 13:43 (MST), tasks 4 and 5.** George: "4. Delete Krimble Blue. It looks bad." (514th entry: not installed, saved Krimble Blue reads as the default) and "5. match this version of QuickAdjust." (515th entry; picture quickadjust_compare.png). Pushed with the PAT George pasted earlier in this chat.
