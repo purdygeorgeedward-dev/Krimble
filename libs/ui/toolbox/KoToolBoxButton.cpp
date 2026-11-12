@@ -166,9 +166,11 @@ void KoToolBoxButton::paintEvent(QPaintEvent *event)
             // const qreal w = bw * 0.10 * t;
             // const qreal alpha = 255 * qExp(-2.9 * t);
             // Krimble 2026-11-11: George (of the zoomed Pan tool): "The hand (Pan tool) example shows too much glow." The outer glow reaches half as far (5 percent of the width, was 10) and is weaker.
+            // Krimble 2026-11-12 (task 37, second part): George: "That before image was fine. The one I didn't like was much bigger, had way thicker sides." The 2026-11-11 thickness is back; only the sharp corners (miter join) of this task stay.
             // const qreal w = bw * 0.05 * t;
             // Krimble 2026-11-12 (task 37): George: "I previously asked for thinner glow edges (especially in toolbox) and no rounded corners in the toolbox glow." The outer glow reaches 3 percent of the width (was 5).
-            const qreal w = bw * 0.03 * t;
+            // const qreal w = bw * 0.03 * t;   // the thinner try of task 37 (not wanted)
+            const qreal w = bw * 0.05 * t;
             const qreal alpha = 255 * 0.6 * qExp(-3.4 * t);
             painter.setPen(QPen(QBrush(krimbleSelConical(centre, krimbleSelGlow, [alpha](qreal v) { return QColor(28, 128, 235, qMin(255, int(alpha * (0.25 + 0.9 * v)))); })), qMax<qreal>(1.0, bw * 0.012)));
             krimbleMiterPen(painter);   // task 37: a pen's corners are cut off (bevel join) unless it says miter; that is what looked rounded
@@ -201,7 +203,8 @@ void KoToolBoxButton::paintEvent(QPaintEvent *event)
             // Krimble 2026-11-11: the vivid blue band inside the edge is about half as wide (6 percent of the width, was 11.5) and fades faster.
             // const qreal d = bw * 0.06 * t;
             // task 37: the vivid blue band inside the edge is 3.5 percent of the width (was 6).
-            const qreal d = bw * 0.035 * t;
+            // const qreal d = bw * 0.035 * t;   // the thinner try of task 37 (not wanted)
+            const qreal d = bw * 0.06 * t;
             const qreal alpha = 255 * qExp(-4.5 * t);
             painter.setPen(QPen(QBrush(krimbleSelConical(centre, krimbleSelOutline, [alpha](qreal v) { return QColor(36, 150, 248, qMax(0, qMin(255, int(alpha * (0.8 + 0.9 * (v - 0.55)))))); })), qMax<qreal>(1.0, bw * 0.011)));
             krimbleMiterPen(painter);   // task 37
@@ -212,16 +215,16 @@ void KoToolBoxButton::paintEvent(QPaintEvent *event)
         // the outline: a soft halo under a thin bright core, light cyan where it is bright
         // painter.setPen(QPen(QBrush(krimbleSelConical(centre, krimbleSelOutline, [](qreal v) { return QColor(80, 200, 255, qMin(255, int(255 * v))); })), qMax<qreal>(4.0, bw * 0.034)));
         // Krimble 2026-11-11: the soft halo under the bright core is thinner (2.2 percent of the width, at least 3 px; was 3.4 percent, at least 4 px).
-        painter.setPen(QPen(QBrush(krimbleSelConical(centre, krimbleSelOutline, [](qreal v) { return QColor(80, 200, 255, qMin(255, int(255 * v))); })), // qMax<qreal>(3.0, bw * 0.022)));
-        qMax<qreal>(2.0, bw * 0.014)));   // task 37: the halo is 1.4 percent of the width, at least 2 px (was 2.2 percent, at least 3 px)
+        painter.setPen(QPen(QBrush(krimbleSelConical(centre, krimbleSelOutline, [](qreal v) { return QColor(80, 200, 255, qMin(255, int(255 * v))); })), qMax<qreal>(3.0, bw * 0.022)));
+        // qMax<qreal>(2.0, bw * 0.014)));   // the thinner try of task 37 (not wanted)
         krimbleMiterPen(painter);   // task 37
         painter.setBrush(Qt::NoBrush);
         painter.drawRoundedRect(base, r, r);
         painter.setPen(QPen(QBrush(krimbleSelConical(centre, krimbleSelOutline, [](qreal v) {
             const qreal t = qBound<qreal>(0.0, (v - 0.62) / 0.38, 1.0);
             return QColor(int(105 + (205 - 105) * t), int(220 + (255 - 220) * t), 255);
-        })), // qMax<qreal>(2.2, bw * 0.018)));
-        qMax<qreal>(1.5, bw * 0.011)));   // task 37: the bright core line is 1.1 percent of the width, at least 1.5 px (was 1.8 percent, at least 2.2 px)
+        })), qMax<qreal>(2.2, bw * 0.018)));
+        // qMax<qreal>(1.5, bw * 0.011)));   // the thinner try of task 37 (not wanted)
         krimbleMiterPen(painter);   // task 37
         painter.drawRoundedRect(base, r, r);
         // the dark shadow behind the icon (the mockup's icon casts one): the icon is drawn over it below
