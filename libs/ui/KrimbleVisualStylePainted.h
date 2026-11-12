@@ -33,6 +33,10 @@ QDialog, QMessageBox, QInputDialog, QColorDialog, QFileDialog {
 */
     background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #374267, stop:1 #181f34);
     color: #ffffff;
+    /* Krimble 2026-11-12 (task 33): George: "Definitely need bevels in the themes, all of them." One-pixel bevel edges (raised: light top and left, black bottom and right; sunken fields the other way round; no shading), as in the Nov 10 default sheet. */
+    border: 1px solid #000000;
+    border-top: 1px solid #8292c4;
+    border-left: 1px solid #8292c4;
 }
 QDialog QLabel, QDialog QGroupBox, QDialog QCheckBox,
 QDialog QRadioButton, QDialog QTabWidget {
@@ -50,6 +54,9 @@ QGroupBox {
 */
     border: 1px solid #506095;
     border-top: 1px solid #8292c4;
+    border-left: 1px solid #8292c4;   /* task 33: bevel */
+    border-bottom: 1px solid #000000;
+    border-right: 1px solid #000000;
     border-radius: 8px;
     margin-top: 12px;
     padding: 12px 6px 6px 6px;
@@ -72,6 +79,10 @@ QPushButton, QDialog QToolButton {
     background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #2d354e, stop:1 #283048);
 */
     border: 1px solid #6071a9;
+    border-top: 1px solid #8292c4;   /* task 33: bevel */
+    border-left: 1px solid #8292c4;
+    border-bottom: 1px solid #000000;
+    border-right: 1px solid #000000;
     border-radius: 7px;
     padding: 5px 9px;
     background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #434f75, stop:1 #262e4b);
@@ -110,6 +121,9 @@ QTabBar::tab {
     border-bottom: 1px solid #2a334a;
 */
     border: 1px solid #495783;
+    border-top: 1px solid #7080b6;   /* task 33: bevel */
+    border-left: 1px solid #7080b6;
+    border-right: 1px solid #000000;
     border-bottom: 1px solid #2a334a;
     border-top-left-radius: 6px;
     border-top-right-radius: 6px;
@@ -150,6 +164,10 @@ QLineEdit, QSpinBox, QDoubleSpinBox {
     background: #0d1221;
 */
     border: 1px solid #506095;
+    border-top: 1px solid #000000;   /* task 33: sunken bevel */
+    border-left: 1px solid #000000;
+    border-bottom: 1px solid #6071a9;
+    border-right: 1px solid #6071a9;
     border-radius: 5px;
     padding: 3px 5px;
     background: #0b101e;
@@ -165,6 +183,10 @@ QComboBox {
     color: #f0f3ff;
     selection-background-color: #016cac;
     border: 1px solid #3d4967;
+    border-top: 1px solid #000000;   /* task 33: sunken bevel */
+    border-left: 1px solid #000000;
+    border-bottom: 1px solid #6071a9;
+    border-right: 1px solid #6071a9;
     border-radius: 4px;
     padding: 3px 5px;
     background: #272f46;

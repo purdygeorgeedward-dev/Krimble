@@ -155,6 +155,35 @@ Q_DECL_UNUSED static QString krimbleRecolorSheet(const QString &sheet, int hue, 
     return out;
 }
 
+// Krimble 2026-11-12 (task 34): George, about the default theme (the Nov 10 gradients): "And all the same hue in the theme?" The sheet's blue-gray colors drifted (hue 223 to 231, saturation 34 to 63: the
+// "hue drift" of the Nov 10 brief). Every color of the sheet that is a blue-gray background, line or highlight (hue 219 to 237, saturation 25 to 65 percent) gets the SAME hue and saturation, and keeps
+// its own brightness (V): George's rule of Nov 11, "the same hue and saturation but different brightness" (227 and 48, Color Lab's HSV). The accent blues (hue 199 to 216, saturation over 65), the cyan
+// glow, the navy insides, the text (saturation under 25) and black and white are not in that range and stay. The gradients keep their shape: only each stop's hue and saturation change.
+static QString krimbleSameHueSheet(const QString &sheet, int hue, int saturationPercent)
+{
+    static const QRegularExpression colorRx(QStringLiteral("#[0-9a-fA-F]{6}\\b"));
+    QString out;
+    out.reserve(sheet.size());
+    int last = 0;
+    QRegularExpressionMatchIterator it = colorRx.globalMatch(sheet);
+    while (it.hasNext()) {
+        const QRegularExpressionMatch m = it.next();
+        out += sheet.mid(last, m.capturedStart() - last);
+        QColor c(m.captured());
+        int h = 0, sat = 0, v = 0;
+        c.getHsv(&h, &sat, &v);
+        if (h >= 219 && h <= 237 && sat >= 64 && sat <= 166) {
+            c.setHsv(hue, saturationPercent * 255 / 100, v);
+            out += c.name();
+        } else {
+            out += m.captured();
+        }
+        last = m.capturedEnd();
+    }
+    out += sheet.mid(last);
+    return out;
+}
+
 void ThemeManager::setCurrentTheme(const QString& name)
 {
     //qDebug() << "setCurrentTheme();" << d->currentThemeName << "to" << name;
@@ -263,7 +292,8 @@ void ThemeManager::slotChangePalette()
         qApp->setStyleSheet(krimbleVisualStyleSheet());
     } else if (theme == QStringLiteral("Krimble Blue-Gray")) {   // Krimble 2026-11-12 (task 27): the default theme: the same sheet in the old blue-gray colors
         // qApp->setStyleSheet(krimbleRecolorSheet(krimbleVisualStyleSheet(), 236, 33));   // task 27 (second part): the flat sheet recolored
-        qApp->setStyleSheet(krimbleNov10StyleSheet());   // Krimble 2026-11-12 (task 31): George: "The Nov 10 version is so much better. Revert to that and make it the default."
+        // qApp->setStyleSheet(krimbleNov10StyleSheet());   // task 31 (before task 34)
+        qApp->setStyleSheet(krimbleSameHueSheet(krimbleNov10StyleSheet(), 227, 48));   // Krimble 2026-11-12 (task 34): all the same hue and saturation. Krimble 2026-11-12 (task 31): George: "The Nov 10 version is so much better. Revert to that and make it the default."
     } else if (theme == QStringLiteral("Krimble Painted")) {
         qApp->setStyleSheet(krimblePaintedStyleSheet());
     } else {

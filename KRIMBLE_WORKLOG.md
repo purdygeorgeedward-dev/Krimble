@@ -357,3 +357,5 @@ George sent three screenshots (Color Lab floating, Color Lab docked, and the Cus
 **2026-11-12, 13:15 (MST), task 32.** George: "Can we reapply the fixes?" Across-only shading for tool bars, status bar and headers in the Nov 10 default sheet (510th entry); picture bars_across_fix.png. Pushed with the PAT George pasted earlier in this chat (he had sent it more than once).
 
 **2026-11-12, 13:19 (MST), task 33.** George: "Rough. No shadow or hilight lines?" Bevel edges added to the Nov 10 default sheet (511th entry); picture default_bevel_demo.png. Committed locally, waiting for his OK before the push. He asked if the percentage bar glow is still there: it is code (463rd), in every theme.
+
+**2026-11-12, 13:22 (MST), tasks 33 and 34.** George: "And all the same hue in the theme?" and "Definitely need bevels in the themes, all of them." Same-hue normalizer for the default theme (hue 227, sat 48); bevel edges in Krimble Painted (512th entry); the default sheet bevels of 7ba7266 go up with it. Pushed with the PAT George pasted earlier in this chat.
