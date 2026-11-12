@@ -363,3 +363,5 @@ George sent three screenshots (Color Lab floating, Color Lab docked, and the Cus
 **2026-11-12, 13:25 (MST), task 35.** George: "Can we reverse bevel on menus so they look recessed?" Menu overlay lines swapped (513rd entry). He also asked for the glow on all themes (proposal pictures themes_now.png and themes_with_glow_everywhere.png; not built) and how many themes: 11. Pushed with the PAT George pasted earlier in this chat.
 
 **2026-11-12, 13:43 (MST), tasks 4 and 5.** George: "4. Delete Krimble Blue. It looks bad." (514th entry: not installed, saved Krimble Blue reads as the default) and "5. match this version of QuickAdjust." (515th entry; picture quickadjust_compare.png). Pushed with the PAT George pasted earlier in this chat.
+
+**2026-11-12, 13:51 (MST), push and build 57.** George: "perfect. Push all changes and start a build." Build number 57, label 1.0.57-beta; the PAT has no workflow scope, so the workflow file is unchanged and the run is started by hand with the label typed in (516th entry). Pushed with the PAT George pasted earlier in this chat.
