@@ -16,6 +16,7 @@
 // Qt includes
 
 #include <QStringList>
+#include <QRegularExpression>
 #include <QFileInfo>
 #include <QFile>
 #include <QApplication>
@@ -122,6 +123,36 @@ QString ThemeManager::currentThemeName() const
     return themeName;
 }
 
+
+// Krimble 2026-11-12 (task 27, second part): George: "Please keep all the glow stuff. It's all really good." (after the default theme became the plain blue-gray look). The theme "Krimble Blue-Gray"
+// is the flat sheet (the glow edges, the dark insides of selections, the black lines, the bars) in the old blue-gray: every color of the sheet that is one of the theme's backgrounds (hue 221 to 233,
+// saturation 40 to 60 percent: the hue 227, saturation 48 family) is given hue 236 and saturation 33, as the old palette (#373952) has, and keeps its brightness; the accent blues, the cyan
+// edge, the dark navy inside the glow, the text and the black are not backgrounds and stay as they are. So there is one sheet, in KrimbleVisualStyle.h, and two color families.
+static QString krimbleRecolorSheet(const QString &sheet, int hue, int saturationPercent)
+{
+    static const QRegularExpression colorRx(QStringLiteral("#[0-9a-fA-F]{6}\\b"));
+    QString out;
+    out.reserve(sheet.size());
+    int last = 0;
+    QRegularExpressionMatchIterator it = colorRx.globalMatch(sheet);
+    while (it.hasNext()) {
+        const QRegularExpressionMatch m = it.next();
+        out += sheet.mid(last, m.capturedStart() - last);
+        QColor c(m.captured());
+        int h = 0, sat = 0, v = 0;
+        c.getHsv(&h, &sat, &v);
+        if (h >= 221 && h <= 233 && sat >= 102 && sat <= 153) {
+            c.setHsv(hue, saturationPercent * 255 / 100, v);
+            out += c.name();
+        } else {
+            out += m.captured();
+        }
+        last = m.capturedEnd();
+    }
+    out += sheet.mid(last);
+    return out;
+}
+
 void ThemeManager::setCurrentTheme(const QString& name)
 {
     //qDebug() << "setCurrentTheme();" << d->currentThemeName << "to" << name;
@@ -226,6 +257,8 @@ void ThemeManager::slotChangePalette()
     // if (theme == QStringLiteral("Krimble dark")) {
     if (theme == QStringLiteral("Krimble Blue")) {   // Krimble 2026-11-12 (task 27): the flat sheet belongs to the theme "Krimble Blue" now; "Krimble Blue-Gray" (the default) has none
         qApp->setStyleSheet(krimbleVisualStyleSheet());
+    } else if (theme == QStringLiteral("Krimble Blue-Gray")) {   // Krimble 2026-11-12 (task 27): the default theme: the same sheet in the old blue-gray colors
+        qApp->setStyleSheet(krimbleRecolorSheet(krimbleVisualStyleSheet(), 236, 33));
     } else if (theme == QStringLiteral("Krimble Painted")) {
         qApp->setStyleSheet(krimblePaintedStyleSheet());
     } else {
