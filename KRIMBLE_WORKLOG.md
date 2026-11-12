@@ -323,3 +323,5 @@ George sent three screenshots (Color Lab floating, Color Lab docked, and the Cus
 **2026-11-12, 12:00 (MST), Image Size.** George: "Yes, white areas represent wasted space. Please eliminate as much as you can." Found the causes (size groups, widest-possible spin box width, long resolution unit text, spacers, window wider than its contents); wrote krimbleCompactImageSizeWidgets and tested it in real Qt with the uic form (window 618 to 444 px, least width 545 to 444). Changelog 495. Not run on the phone.
 
 **2026-11-12, 11:25 (MST), task 1: scroll bars less gray.** George: "Can we make them less gray? Make the handles match better in saturation and brightness?" (then: "I was not focusing on the image size dialog. I should remember to number all the tasks."). Fusion draws scroll bars from the palette Button color x 0.75 saturation: Button now H227 S64 V30; real-Qt check: track #2f3859, handle #333d61 (S47), changelog 496.
+
+**2026-11-12, 11:30 (MST), task 4.** George: "Make the track a little darker." Button color brightness 30 to 27: track V35 to V32, handle V38 to V35 (changelog 497).
