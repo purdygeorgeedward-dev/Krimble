@@ -4760,7 +4760,8 @@ KisMainWindow::KisMainWindow(QUuid uuid)
     d->viewManager = new KisViewManager(this, actionCollection());
     KConfigGroup group( KSharedConfig::openConfig(), "theme");
 #ifndef Q_OS_HAIKU
-    d->themeManager = new Digikam::ThemeManager(group.readEntry("Theme", "Krimble dark"), this);
+    // d->themeManager = new Digikam::ThemeManager(group.readEntry("Theme", "Krimble dark"), this);
+    d->themeManager = new Digikam::ThemeManager(group.readEntry("Theme", "Krimble Blue-Gray"), this);   // Krimble 2026-11-12 (task 27): the default theme
 #endif
     d->windowStateConfig = KSharedConfig::openConfig()->group("MainWindow");
 
@@ -8283,7 +8284,8 @@ void KisMainWindow::configChanged()
 
     KConfigGroup group( KSharedConfig::openConfig(), "theme");
 #ifndef Q_OS_HAIKU
-    d->themeManager->setCurrentTheme(group.readEntry("Theme", "Krimble dark"));
+    // d->themeManager->setCurrentTheme(group.readEntry("Theme", "Krimble dark"));
+    d->themeManager->setCurrentTheme(group.readEntry("Theme", "Krimble Blue-Gray"));   // Krimble 2026-11-12 (task 27): the default theme
 #endif
     d->actionManager()->updateGUI();
 

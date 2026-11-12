@@ -333,3 +333,5 @@ George sent three screenshots (Color Lab floating, Color Lab docked, and the Cus
 **2026-11-12, 12:05 (MST), task 22.** George: "Try 26." Main dark level 28 to 26, tabs 22, fields 15, odd darks, scheme View colors 26/22; changelog 500; picture dark_areas_26.png.
 
 **2026-11-12, 12:15 (MST), task 23.** George asked where "Load Layer Transparency as Selection" is in Photoshop (answer: a Ctrl-click on the layer thumbnail; menu: Select > Load Selection with the layer's transparency channel), then "Shouldnt we rename it to match Ps?"; I proposed "Load Layer Transparency" and the two exact lines of krita5.xmlgui; "yes. push." Done, changelog 501.
+
+**2026-11-12, 12:45 (MST), task 27.** George sent a screenshot of the old plain gray look (every bar #373952, no flat sheet) and asked to keep today's theme as Blue and make the old one the default ("blue-gray"). Two schemes (KritaBlueGray.colors from ad64d9b, KritaBlue.colors), flat sheet gated on "Krimble Blue", default name "Krimble Blue-Gray", legacy "Krimble dark" read as the default (changelog 502).

@@ -115,7 +115,8 @@ QString ThemeManager::currentThemeName() const
         // "Krimble dark"; falling back to the old name "Krita dark" found no
         // theme file and left the app with the plain gray default palette.
         // themeName = "Krita dark";
-        themeName = "Krimble dark";
+        // themeName = "Krimble dark";
+        themeName = "Krimble Blue-Gray";   // Krimble 2026-11-12 (task 27): the default theme
     }
     //qDebug() << "\tresult" << themeName;
     return themeName;
@@ -124,7 +125,10 @@ QString ThemeManager::currentThemeName() const
 void ThemeManager::setCurrentTheme(const QString& name)
 {
     //qDebug() << "setCurrentTheme();" << d->currentThemeName << "to" << name;
-    d->currentThemeName = name;
+    // d->currentThemeName = name;
+    // Krimble 2026-11-12 (task 27): the theme "Krimble dark" is gone: its colors and the flat style sheet are now the theme "Krimble Blue", and the default theme is "Krimble Blue-Gray" (the
+    // old plain palette). A settings file that still says "Krimble dark" is read as the default, so it does not find no theme file and leave the app with the bare default palette.
+    d->currentThemeName = (name == QStringLiteral("Krimble dark")) ? QStringLiteral("Krimble Blue-Gray") : name;
 
     if (d->themeMenuAction  && d->themeMenuActionGroup) {
         QList<QAction*> list = d->themeMenuActionGroup->actions();
@@ -219,7 +223,8 @@ void ThemeManager::slotChangePalette()
     // Krimble 2026-11-11: George: "Can we put in the Krimble gradient theme as an option?" Three cases, by the theme's name: "Krimble dark" gets the flat sheet, "Krimble Painted" gets the
     // painted (gradient) sheet (KrimbleVisualStylePainted.h), and every other theme gets no sheet at all.
     qApp->setProperty("krimblePaintedTheme", theme == QStringLiteral("Krimble Painted"));   // Krimble 2026-11-11: the menu bar filter (KisMainWindow.cpp) paints its gradient only for this theme
-    if (theme == QStringLiteral("Krimble dark")) {
+    // if (theme == QStringLiteral("Krimble dark")) {
+    if (theme == QStringLiteral("Krimble Blue")) {   // Krimble 2026-11-12 (task 27): the flat sheet belongs to the theme "Krimble Blue" now; "Krimble Blue-Gray" (the default) has none
         qApp->setStyleSheet(krimbleVisualStyleSheet());
     } else if (theme == QStringLiteral("Krimble Painted")) {
         qApp->setStyleSheet(krimblePaintedStyleSheet());
@@ -289,7 +294,9 @@ void ThemeManager::populateThemeMenu()
     // group was just created and has nothing checked yet, so it returns the
     // fallback name and no menu entry got checked. Compare against the theme
     // name that was requested instead.
-    const QString requestedThemeName = d->currentThemeName.isEmpty() ? QStringLiteral("Krimble dark")
+    // const QString requestedThemeName = d->currentThemeName.isEmpty() ? QStringLiteral("Krimble dark")
+    //                                                                  : d->currentThemeName;
+    const QString requestedThemeName = d->currentThemeName.isEmpty() ? QStringLiteral("Krimble Blue-Gray")   // Krimble 2026-11-12 (task 27): the default theme
                                                                      : d->currentThemeName;
     Q_FOREACH (const QString& name, actionMapKeys) {
         // if ( name ==  currentThemeName()) {

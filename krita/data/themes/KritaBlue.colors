@@ -1,3 +1,4 @@
+# Krimble 2026-11-12 (task 27): the scheme "Krimble Blue" (was named "Krimble dark"): the hue 227 colors of today with the flat style sheet. George: "split off the current theme and save as Blue".
 [ColorEffects:Disabled]
 Color=20,20,20
 ColorAmount=-0.5
@@ -127,8 +128,8 @@ ForegroundPositive=151,202,64
 ForegroundVisited=160,160,160
 
 [General]
-ColorScheme=Krimble dark
-Name=Krimble dark
+ColorScheme=Krimble Blue
+Name=Krimble Blue
 shadeSortColumn=true
 
 [KDE]

@@ -13,7 +13,9 @@ install(FILES
 KritaNeutral.colors
 KritaBlender.colors
 KritaBright.colors
-KritaDark.colors
+# KritaDark.colors   # Krimble 2026-11-12: renamed KritaBlue.colors (the scheme "Krimble Blue"); the old palette is the new KritaBlueGray.colors (the scheme "Krimble Blue-Gray")
+KritaBlue.colors
+KritaBlueGray.colors
 KritaDarkOrange.colors
 KritaDarker.colors
 KritaPainted.colors

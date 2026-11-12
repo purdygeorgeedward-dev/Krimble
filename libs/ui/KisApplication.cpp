@@ -1615,7 +1615,8 @@ bool KisApplication::start(const KisApplicationArguments &args)
     KConfigGroup group(KSharedConfig::openConfig(), "theme");
 #ifndef Q_OS_HAIKU
     Digikam::ThemeManager themeManager;
-    themeManager.setCurrentTheme(group.readEntry("Theme", "Krimble dark"));
+    // themeManager.setCurrentTheme(group.readEntry("Theme", "Krimble dark"));
+    themeManager.setCurrentTheme(group.readEntry("Theme", "Krimble Blue-Gray"));   // Krimble 2026-11-12 (task 27): the default theme
 #endif
 
     ResetStarting resetStarting(d->splashScreen, args.filenames().count()); // remove the splash when done
