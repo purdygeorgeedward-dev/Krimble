@@ -22,7 +22,9 @@ IntensityEffect=0
 # Krimble 2026-11-12: was 50,51,75 (hue 238, saturation 33); now hue 227, saturation 48 (George: "All 227 please.")
 BackgroundAlternate=39,47,75
 # Krimble 2026-11-12: was 38,40,65 (hue 236, saturation 42); now hue 227, saturation 48 (George: "All 227 please.")
-BackgroundNormal=34,41,65
+# Krimble 2026-11-12 (2nd): George: "Can we make them less gray? Make the handles match better in saturation and brightness?" The style (Fusion) draws the scroll bars from this color and
+# multiplies its saturation by 0.75, so the bars came out at saturation 36; saturation 64 here gives 48 on the scroll bar (same as the other bars), brightness 30 here gives 35 (track) and 38 (handle).
+BackgroundNormal=28,38,76
 DecorationFocus=83,114,142
 DecorationHover=83,114,142
 ForegroundActive=230,230,230
