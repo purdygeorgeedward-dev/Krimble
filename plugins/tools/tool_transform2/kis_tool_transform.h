@@ -194,6 +194,10 @@ public Q_SLOTS:
 
     void requestImageRecalculation();
 
+    // Krimble 2026-11-11: redraws the handles and the outline after the transform arguments were changed from the outside, WHILE a finger is down (slotUiChangedConfig does nothing in
+    // paint mode, which is what a drag is). Used by the Free Rotate dial (KisToolFreeRotate::rotateByDegrees).
+    void krimbleRefreshHandles();
+
     void setTransformMode( KisToolTransform::TransformToolMode newMode );
 
     void setTranslateX(double translateX);

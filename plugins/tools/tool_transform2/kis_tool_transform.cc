@@ -1275,6 +1275,18 @@ void KisToolTransform::slotUiChangedConfig(bool needsPreviewRecalculation)
     updateApplyResetAvailability();
 }
 
+void KisToolTransform::krimbleRefreshHandles()
+{
+    // Krimble 2026-11-11: slotUiChangedConfig(true) without its paint mode check (see KisToolFreeRotate::rotateByDegrees)
+    if (!m_strokeId) return;
+    currentStrategy()->externalConfigChanged();
+    if (m_currentArgs.mode() == ToolTransformArgs::LIQUIFY) {
+        m_currentArgs.saveLiquifyTransformMode();
+    }
+    outlineChanged();
+    updateApplyResetAvailability();
+}
+
 void KisToolTransform::slotApplyTransform()
 {
     KisCursorOverrideLock cursorLock(KisCursor::waitCursor());
@@ -1669,7 +1681,11 @@ void KisToolFreeRotate::rotateByDegrees(double degrees)
     // slot, called by name) redraws the preview. The angle is shown on the canvas (a floating message), which also shows that two fingers are seen.
     m_rotationRadians += kisDegreesToRadians(degrees);
     setRotateZ(m_rotationRadians);
-    QMetaObject::invokeMethod(this, "slotUiChangedConfig", Qt::DirectConnection, Q_ARG(bool, true));
+    // QMetaObject::invokeMethod(this, "slotUiChangedConfig", Qt::DirectConnection, Q_ARG(bool, true));
+    // Krimble 2026-11-11: George: "The transform tool with the rotate selected in the Tool Options rotates the graphic without the gadgets." slotUiChangedConfig starts with
+    // "if (mode() == KisTool::PAINT_MODE) return;", and the dial of this tool turns the picture while a finger is down, which IS paint mode, so the handles and the outline were never
+    // told about the new angle (the picture turned through requestImageRecalculation() below, which does not look at the mode). krimbleRefreshHandles() does the same work without that check.
+    krimbleRefreshHandles();
     // Krimble 2026-10-19: George (1.0.39): "Rotate doesn't show rotation in realtime. It shows numbers." slotUiChangedConfig only redraws the
     // box and outline; the turned PICTURE (the preview inside the layer stack, the default preview style) is made by a job sent to the stroke,
     // which the Transform tool's own drags ask for through requestImageRecalculation() (a public slot; it does nothing in the overlay preview
