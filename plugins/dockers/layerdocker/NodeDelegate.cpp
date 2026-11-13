@@ -8,6 +8,7 @@
 #include "kis_config.h"
 #include "NodeDelegate.h"
 #include "kis_node_model.h"
+#include "kis_node_filter_proxy_model.h"   // Krimble 2026-11-13 (task 70)
 #include "NodeToolTip.h"
 #include "NodeView.h"
 #include "KisPart.h"
@@ -279,6 +280,83 @@ QRect NodeDelegate::thumbnailClickRect(const QStyleOptionViewItem &option, const
     return rc;
 }
 
+
+// Krimble 2026-11-13 (task 70): George: "Your proposed changes for layers are good. Let's do that." (the type badge on the thumbnail, the fx mark, the linked mask thumbnail, the lock mark; this is the first part: the type badge)
+// The kind of a layer for the small badge on its thumbnail, by the name of its class: nothing for an ordinary paint layer.
+static const char *krimbleBadgeKind(const KisNodeSP &node)
+{
+    if (!node) return nullptr;
+    if (node->inherits("KisGroupLayer")) return "group";
+    if (node->inherits("KisShapeLayer")) return "shape";          // vector layers and text (a text layer is a vector layer)
+    if (node->inherits("KisAdjustmentLayer")) return "adjust";    // filter layers
+    if (node->inherits("KisCloneLayer")) return "clone";
+    if (node->inherits("KisFileLayer")) return "file";
+    if (node->inherits("KisGeneratorLayer")) return "generator";
+    if (node->inherits("KisTransparencyMask") || node->inherits("KisFilterMask") || node->inherits("KisTransformMask")
+        || node->inherits("KisSelectionMask") || node->inherits("KisColorizeMask")) return "mask";
+    return nullptr;   // KisPaintLayer and anything else: no badge
+}
+
+// A rounded blue square in the lower right corner of the thumbnail with a white symbol: a folder (group), a square (vector), a half filled circle (filter), two squares (clone),
+// a page (file), a G (generator), a circle in a square (mask).
+static void krimbleDrawBadge(QPainter *p, const QRect &thumb, const char *kind)
+{
+    if (!kind) return;
+    const int size = qMax(12, qRound(thumb.height() * 0.42));
+    const QRect box(thumb.right() - size + 3, thumb.bottom() - size + 3, size, size);
+    p->save();
+    p->setRenderHint(QPainter::Antialiasing, true);
+    p->setPen(Qt::NoPen);
+    p->setBrush(QColor(11, 135, 221));
+    p->drawRoundedRect(box, size * 0.25, size * 0.25);
+    const QRectF g = QRectF(box).adjusted(size * 0.22, size * 0.22, -size * 0.22, -size * 0.22);
+    QPen pen(Qt::white, qMax<qreal>(1.2, size * 0.09));
+    pen.setJoinStyle(Qt::MiterJoin);
+    p->setPen(pen);
+    p->setBrush(Qt::NoBrush);
+    const QString k = QString::fromLatin1(kind);
+    if (k == QLatin1String("group")) {
+        QPainterPath path;
+        path.moveTo(g.left(), g.top() + g.height() * 0.2);
+        path.lineTo(g.left() + g.width() * 0.4, g.top() + g.height() * 0.2);
+        path.lineTo(g.left() + g.width() * 0.55, g.top() + g.height() * 0.4);
+        path.lineTo(g.right(), g.top() + g.height() * 0.4);
+        path.lineTo(g.right(), g.bottom());
+        path.lineTo(g.left(), g.bottom());
+        path.closeSubpath();
+        p->drawPath(path);
+    } else if (k == QLatin1String("shape")) {
+        p->drawRect(g);
+    } else if (k == QLatin1String("adjust")) {
+        p->drawEllipse(g);
+        p->setBrush(Qt::white);
+        p->drawPie(g, 90 * 16, 180 * 16);
+    } else if (k == QLatin1String("clone")) {
+        p->drawRect(QRectF(g.left(), g.top() + g.height() * 0.25, g.width() * 0.7, g.height() * 0.7));
+        p->drawRect(QRectF(g.left() + g.width() * 0.3, g.top(), g.width() * 0.7, g.height() * 0.7));
+    } else if (k == QLatin1String("file")) {
+        QPainterPath path;
+        path.moveTo(g.left() + g.width() * 0.1, g.top());
+        path.lineTo(g.right() - g.width() * 0.35, g.top());
+        path.lineTo(g.right() - g.width() * 0.05, g.top() + g.height() * 0.3);
+        path.lineTo(g.right() - g.width() * 0.05, g.bottom());
+        path.lineTo(g.left() + g.width() * 0.1, g.bottom());
+        path.closeSubpath();
+        p->drawPath(path);
+    } else if (k == QLatin1String("generator")) {
+        QFont f = p->font();
+        f.setPixelSize(qMax(8, int(size * 0.7)));
+        f.setBold(true);
+        p->setFont(f);
+        p->setPen(Qt::white);
+        p->drawText(box, Qt::AlignCenter, QStringLiteral("G"));
+    } else if (k == QLatin1String("mask")) {
+        p->drawRect(g);
+        p->drawEllipse(g.center(), g.width() * 0.22, g.width() * 0.22);
+    }
+    p->restore();
+}
+
 void NodeDelegate::drawThumbnail(QPainter *p, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
     KisNodeViewColorScheme scm;
@@ -313,6 +391,17 @@ void NodeDelegate::drawThumbnail(QPainter *p, const QStyleOptionViewItem &option
 
     QRect borderRect = kisGrowRect(imageRectLowRes, 1).translated(offset);
     KritaUtils::renderExactRect(p, borderRect, scm.gridColor(option, d->view));
+
+    // Krimble 2026-11-13 (task 70): George: "Your proposed changes for layers are good. Let's do that." (the type badge on the thumbnail, the fx mark, the linked mask thumbnail, the lock mark; this is the first part: the type badge)
+    {
+        KisNodeSP badgeNode;
+        if (KisNodeFilterProxyModel *proxy = qobject_cast<KisNodeFilterProxyModel *>(d->view->model())) {
+            badgeNode = proxy->nodeFromIndex(index);
+        } else if (KisNodeModel *nodeModel = qobject_cast<KisNodeModel *>(d->view->model())) {
+            badgeNode = nodeModel->nodeFromIndex(index);
+        }
+        krimbleDrawBadge(p, borderRect, krimbleBadgeKind(badgeNode));
+    }
 }
 
 QRect NodeDelegate::iconsRect(const QStyleOptionViewItem &option, const QModelIndex &index) const

@@ -463,3 +463,5 @@ George sent three screenshots (Color Lab floating, Color Lab docked, and the Cus
 **2026-11-13, 05:22 (MST), task 68.** George: the blending mode box is too easy to open by accident; at the very least a long press. KrimbleLongPressOpen, 500 ms, wheel ignored (557th entry). Moving or removing the box is not done, not decided. Pushed with the PAT George pasted in this chat.
 
 **2026-11-13, 05:25 (MST), task 69.** George: blend box far right; selected tab should not glow, just be lighter. Blend box 110 px at the far right of the top row; selected tab solid and lighter in all three sheets (558th entry). Tear-off from the tab itself: asked, not changed. Pushed with the PAT George pasted in this chat.
+
+**2026-11-13, 05:33 (MST), task 70.** George: the layer row changes are good, do them. First part pushed: the type badge on thumbnails (NodeDelegate.cpp, 559th entry). Mask thumbnail and fx check still to do. Pushed with the PAT George pasted in this chat.
