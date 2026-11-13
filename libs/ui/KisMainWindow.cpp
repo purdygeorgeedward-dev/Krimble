@@ -5398,7 +5398,11 @@ KisMainWindow::KisMainWindow(QUuid uuid)
         // toolbox does not have to fit next to the canvas and the panels, which has no room in portrait.
         {
             KisConfig floatCfg(false);
-            if (!floatCfg.readEntry<int>("krimble_toolbox_floated_once", 0)) {
+            // Krimble 2026-11-13 (task 48): George (build 57): "I didn't float the toolbox. It started out that way and was displaying the tools crookedly or only one column." The first-run float
+            // of 2026-10-12 (above) is switched off: on the first run the log shows the floating window 211 px wide with its tool area 27 px wide (columnsNeed 52), so one column or a crooked
+            // layout, until the toolbox was docked and floated again. The toolbox starts docked on the left, where it lays out correctly (the screenshots). The old condition is below, kept.
+            // if (!floatCfg.readEntry<int>("krimble_toolbox_floated_once", 0)) {
+            if (false) {
                 floatCfg.writeEntry<int>("krimble_toolbox_floated_once", 1);
                 if (QDockWidget *toolBoxDock = findChild<QDockWidget*>(QStringLiteral("ToolBox"))) {
                     if (!toolBoxDock->isFloating()) {

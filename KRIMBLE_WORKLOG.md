@@ -399,3 +399,5 @@ George sent three screenshots (Color Lab floating, Color Lab docked, and the Cus
 **2026-11-13, 00:05 (MST), task 45.** George: Preferences keyboard too small in a too wide column; selection darkens the icon; where is the bright blue selection. Keyboard fills the item width, column 24 percent, icon painted Normal, list selection #1d7cb2 again in the Nov 10 and Painted sheets (531st entry). Pushed with the PAT George pasted in this chat.
 
 **2026-11-13, 00:11 (MST), tasks 46 and 47.** George (build 57 screenshots): flyout size; menu bar paint job removed for the default theme; K drawn by the bar at the left corner; palette backgrounds to hue 227 sat 48 (532nd entry). Still to do from his list: the New dialog size, Color Lab scaling like a picture, toolbox starting floating and crooked. Pushed with the PAT George pasted in this chat.
+
+**2026-11-13, 00:13 (MST), task 48.** New dialog: column 14 to 18 percent (landscape), 26 percent (portrait), icons 44 px. First-run toolbox float switched off (533rd entry). Color Lab scaling like a picture: not changed, needs a redesign with real layouts; waiting for his go. Pushed with the PAT George pasted in this chat.

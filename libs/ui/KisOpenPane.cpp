@@ -171,14 +171,18 @@ KisOpenPane::KisOpenPane(QWidget *parent, const QStringList& mimeFilter, const Q
             // d->m_sectionList->setFixedWidth(int(screenWidth * 0.42));      // Krimble 2026-10-18: 42%, so that the 96 px icons and their names fit
             // d->m_sectionList->setFixedWidth(int(screenWidth * 0.46));      // Krimble 2026-10-18 (2nd): 46%, for the 112 px icons
             // d->m_sectionList->setFixedWidth(int(screenWidth * 0.36));         // Krimble 2026-10-19: 36%, for the 80 px icons (George, 1.0.39: column too wide)
-            d->m_sectionList->setFixedWidth(int(screenWidth * 0.30));         // Krimble 2026-10-30: 30%, for the 64 px icons (George: the icons are too big for tiny screens)
+            // d->m_sectionList->setFixedWidth(int(screenWidth * 0.30));         // Krimble 2026-10-30: 30%, for the 64 px icons (George: the icons are too big for tiny screens)
+            d->m_sectionList->setFixedWidth(int(screenWidth * 0.26));         // Krimble 2026-11-13 (task 48): George (build 57): "The New dialog is huge and has conflicting hues like dissonant notes." 26% for the 44 px icons
         } else {
             // d->m_sectionList->setMaximumWidth(int(screenWidth * 0.20));
             // Krimble 2026-10-14: George (1.0.36): "The new icons are way too small on the new file ... dialogs. Column area for them is too narrow
             // on one dialog." and "Need big icons. Small screen." The list is 34% of the screen wide, so the icons and their names are not cut.
             // d->m_sectionList->setMaximumWidth(int(screenWidth * 0.34));
-            d->m_sectionList->setMaximumWidth(int(screenWidth * 0.28));   // Krimble 2026-10-19: George (1.0.39): "The column housing them is too wide."
-            d->m_sectionList->setMinimumWidth(int(screenWidth * 0.20));   // Krimble 2026-10-18: wide enough for the 96 px icons
+            // d->m_sectionList->setMaximumWidth(int(screenWidth * 0.28));   // Krimble 2026-10-19: George (1.0.39): "The column housing them is too wide."
+            // d->m_sectionList->setMinimumWidth(int(screenWidth * 0.20));   // Krimble 2026-10-18: wide enough for the 96 px icons
+            // Krimble 2026-11-13 (task 48): George (build 57): "The New dialog is huge and has conflicting hues like dissonant notes." On a wide screen (landscape: 733 logical px on this phone) the column was 28% = 205 px with 64 px icons; 18% at most, 14% at least, for the 44 px icons.
+            d->m_sectionList->setMaximumWidth(int(screenWidth * 0.18));
+            d->m_sectionList->setMinimumWidth(int(screenWidth * 0.14));
         }
     }
     // Krimble 2026-10-12: George: the New Document window wastes a lot of space. Small margins and spacing around and between
@@ -209,7 +213,9 @@ KisOpenPane::KisOpenPane(QWidget *parent, const QStringList& mimeFilter, const Q
     // Krimble 2026-10-30: George: "The icons in the New file and Preferences menus are too big for tiny screens. I should have designed something small and simple
     // to go there." The list's icon size is 64 now (the Preferences icons were made 44 on this branch). A picture smaller than 64 is still drawn at its own
     // size, a larger one (the 80 and 96 px pictures) is drawn at 64. The size is George's to say: it went 112, 80, 96 before, on his feedback.
-    d->m_sectionList->setIconSize(QSize(64, 64));
+    // d->m_sectionList->setIconSize(QSize(64, 64));
+    // Krimble 2026-11-13 (task 48): George (build 57): "The New dialog is huge and has conflicting hues like dissonant notes." 44 px, the size of the Preferences list's icons (a picture smaller than that is drawn at its own size).
+    d->m_sectionList->setIconSize(QSize(44, 44));
 #endif
     QScroller *scroller = KisKineticScroller::createPreconfiguredScroller(d->m_sectionList);
     if (scroller) {
