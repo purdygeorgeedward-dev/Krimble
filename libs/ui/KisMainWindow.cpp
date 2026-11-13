@@ -4086,9 +4086,11 @@ private:
         p.fillRect(bar->rect(), strip);
         const int current = bar->currentIndex();
         // the line under the row first (the top of the panel below); the selected tab's body is drawn over it with a gap
-        p.setPen(QPen(edge, 1));
-        p.drawLine(QPointF(0, baseY), QPointF(bar->width(), baseY));
         for (int pass = 0; pass < 2; ++pass) {   // the other tabs first, the selected tab last
+            if (pass == 1) {   // the line under all the tabs (drawn after the darker tab bodies, which would hide it); the selected tab then covers its part
+                p.setPen(QPen(edge, 1));
+                p.drawLine(QPointF(0, baseY), QPointF(bar->width(), baseY));
+            }
             for (int i = 0; i < bar->count(); ++i) {
                 const bool selected = (i == current);
                 if (selected != (pass == 1)) continue;
