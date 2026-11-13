@@ -5048,6 +5048,16 @@ KisMainWindow::KisMainWindow(QUuid uuid)
 {
     KAcceleratorManager::setNoAccel(this);
 
+    // Krimble 2026-11-13 (task 50): George: "Don't start with toolbox floating. Especially when it's an unstable mess. Dock left with 2 columns on start." Once (the first start of this version): the toolbox starts with TWO columns (the saved number is reset here, before the toolbox panel is made and reads it) and, further down
+    // (after the saved layout is restored), docked at the left. After that the saved layout and the user's own choices decide again.
+    {
+        KConfigGroup columnsGroup(KSharedConfig::openConfig(), "krimble");
+        if (!columnsGroup.readEntry("ToolBoxDockedLeftReset", false)) {
+            columnsGroup.writeEntry("ToolBoxColumns", 2);
+            columnsGroup.sync();
+        }
+    }
+
     d->workspacemodel = new KisResourceModel(ResourceType::Workspaces, this);
     connect(d->workspacemodel, SIGNAL(modelReset()), this, SLOT(updateWindowMenu()));
     connect(d->workspacemodel, SIGNAL(rowsInserted(QModelIndex,int,int)), this, SLOT(updateWindowMenu()));
@@ -5419,6 +5429,19 @@ KisMainWindow::KisMainWindow(QUuid uuid)
                     if (QDockWidget *toolBoxDock = findChild<QDockWidget*>(QStringLiteral("ToolBox"))) {
                         if (toolBoxDock->isFloating()) toolBoxDock->setFloating(false);
                         addDockWidget(Qt::LeftDockWidgetArea, toolBoxDock);
+                    }
+                }
+            }
+            // Krimble 2026-11-13 (task 50): George: "Don't start with toolbox floating. Especially when it's an unstable mess. Dock left with 2 columns on start." The one-time reset of this version: if the saved layout has the toolbox floating (or anywhere else), it is docked at the left, with the two columns set at the top of the constructor.
+            {
+                KConfigGroup resetGroup(KSharedConfig::openConfig(), "krimble");
+                if (!resetGroup.readEntry("ToolBoxDockedLeftReset", false)) {
+                    resetGroup.writeEntry("ToolBoxDockedLeftReset", true);
+                    resetGroup.sync();
+                    if (QDockWidget *toolBoxDock = findChild<QDockWidget*>(QStringLiteral("ToolBox"))) {
+                        if (toolBoxDock->isFloating()) toolBoxDock->setFloating(false);
+                        addDockWidget(Qt::LeftDockWidgetArea, toolBoxDock);
+                        toolBoxDock->show();
                     }
                 }
             }

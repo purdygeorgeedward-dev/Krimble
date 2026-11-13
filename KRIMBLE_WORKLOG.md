@@ -405,3 +405,5 @@ George sent three screenshots (Color Lab floating, Color Lab docked, and the Cus
 **2026-11-13, 00:17 (MST), task 49.** George: SmartCompression logo too big, too much explanation, not like XAT, JPEG dialog enormous. Compact XAT-style tab (quality, mart, Extra Color, Grayscale, Progressive, protect, sensitivity), logo 30 px, dialog capped to 94 percent of the screen (534th entry). Pushed with the PAT George pasted in this chat.
 
 **2026-11-13, 00:18 (MST), task 50.** George: do not start with the toolbox floating; dock left with 2 columns on start. One-time reset on the next build: columns 2 before the toolbox is made, docked left 2.5 s after start (535th entry). Pushed with the PAT George pasted in this chat.
+
+**2026-11-13, 00:19 (MST), tasks 50 and 51.** George: toolbox must dock left with 2 columns on start; SmartCompression logo now too small. One-time reset of the columns to 2 and docking at the left (setting ToolBoxDockedLeftReset); logo 54 px (535th entry). Pushed with the PAT George pasted in this chat.
