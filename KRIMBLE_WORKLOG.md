@@ -435,3 +435,5 @@ George sent three screenshots (Color Lab floating, Color Lab docked, and the Cus
 **2026-11-13, 03:40 (MST), tasks 56 and 57.** George: tabs never tear off; Raised buttons darker, highlight not white; start screen menu bar not distinct. New app-level tab tear-off filter with touch and a KRIMBLE-TABS log (tested in real Qt), Raised look lighter with a near-white highlight, flat lighter menu bar, K repaint at start (544th entry). Pushed with the PAT George pasted in this chat.
 
 **2026-11-13, 03:42 (MST), task 58.** George: Layers panel is a mess, no design or spacing. Header regrouped as one aligned grid (blend box and opacity bar share edges, 34 px rows, 6 px spacing, dividers) (545th entry). Not rendered. Pushed with the PAT George pasted in this chat.
+
+**2026-11-13, 04:09 (MST), task 59.** George: the right panel forces the picture to zoom out. Zoom frozen (fit mode becomes constant, picture kept in place) when the canvas area changes without the main window changing (546th entry). Pushed with the PAT George pasted in this chat.

@@ -55,6 +55,7 @@ struct KisCanvasController::Private {
     qreal physicalDpiX {72.0};
     qreal physicalDpiY {72.0};
     qreal devicePixelRatio {1.0};
+    QSize krimbleLastWindowSize;   // Krimble 2026-11-13 (task 59): George: "Another problem. Instead of laying on top of the image, the right side panel forces the image in the main canvas area to zoom waaaay out. It's super stupid." the size of the main window at the last canvas resize
 
     void emitPointerPositionChangedSignals(QPoint pointerPos);
     void showRotationValueOnCanvas();
@@ -519,6 +520,28 @@ void KisCanvasController::updateCanvasOffsetInternal(const QPointF &newOffset)
 void KisCanvasController::updateCanvasWidgetSizeInternal(const QSize &newSize, qreal devicePixelRatio)
 {
     m_d->coordinatesConverter->setDevicePixelRatio(devicePixelRatio);
+    // Krimble 2026-11-13 (task 59): George: "Another problem. Instead of laying on top of the image, the right side panel forces the image in the main canvas area to zoom waaaay out. It's super stupid."
+    // When the canvas area gets smaller or larger while the picture is shown with a "fit" zoom (Fit to Page, Width or Height; the picture opens that way), the converter zooms the picture
+    // again to fit the new size: a panel that opens at the right and takes most of a phone's width made the picture zoom far out. The canvas area changes size without the main window
+    // changing size only when a panel is opened, closed, resized or moved (a turn of the phone changes the window too, and then fitting again is right). In that case the zoom is frozen first:
+    // the fit mode becomes a constant zoom at the zoom it has, the picture is kept where it is on the screen, and the area that is left shows the picture as before (the panel covers the
+    // right part of it, as the user expects; the user can still choose Fit to Page again). The mode is changed here, before the size is applied (the converter's own note says the
+    // constant mode reads the state before the change to place the still point).
+    {
+        QWidget *topLevel = window();
+        const QSize windowSize = topLevel ? topLevel->size() : QSize();
+        const QSizeF oldSize = m_d->coordinatesConverter->getCanvasWidgetSize();
+        if (!oldSize.isEmpty() && oldSize != QSizeF(newSize) && windowSize.isValid() && windowSize == m_d->krimbleLastWindowSize
+            && m_d->coordinatesConverter->zoomMode() != KoZoomMode::ZOOM_CONSTANT) {
+            m_d->coordinatesConverter->setZoom(KoZoomMode::ZOOM_CONSTANT,
+                                               m_d->coordinatesConverter->zoom(),
+                                               effectiveCanvasResolutionX(),   // (the same two the file passes to setZoom elsewhere)
+                                               effectiveCanvasResolutionY(),
+                                               m_d->coordinatesConverter->makeWidgetStillPoint(
+                                                   m_d->coordinatesConverter->imageCenterInWidgetPixel()));
+        }
+        m_d->krimbleLastWindowSize = windowSize;
+    }
     m_d->coordinatesConverter->setCanvasWidgetSizeKeepZoom(newSize);
 }
 
