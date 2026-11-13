@@ -269,7 +269,8 @@ android {
     // def krimbleBuildNumber = 55   // 2026-11-08 to 2026-11-09 (run 42676143585, commit 69c3a1c)
     // def krimbleBuildNumber = 56   // 2026-11-11 (run 43144941653, commit ad64d9b; published as v1.0.56-beta on 2026-11-12)
     // def krimbleBuildNumber = 57   // 2026-11-12 (run 43359369032, commit cdca33d; George installed it)
-    def krimbleBuildNumber = 58   // 2026-11-13 (George: "continue")
+    // def krimbleBuildNumber = 58   // 2026-11-13 (run 43404551956, commit 1c86669)
+    def krimbleBuildNumber = 59   // 2026-11-13 (the push of the workflow with the decisions check starts this run)
     // (counter-file reading, replaced by the hand-set number above)
     // def krimbleBuildNumber = 0
     // try {

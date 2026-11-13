@@ -47,7 +47,10 @@ jobs:
       # new (higher than every number in KRIMBLE_BUILD_LOG.md) and the label must match it.
       - name: Check the build number
         # KRIMBLE 2026-11-11 (build 56): was 1.0.55-beta: run: python3 tools/ci/check_build_number.py "${{ inputs.beta || '1.0.55-beta' }}"
-        run: python3 tools/ci/check_build_number.py "${{ inputs.beta || '1.0.56-beta' }}"
+        # KRIMBLE 2026-11-13 (build 59): was 1.0.56-beta, which made the run that a push of this file starts fail at this step (the number is 58 or more): this line is the change that starts the run
+        # (the push of the decisions check, 3449fd4, started run 43406947650 with the old label and it stopped here, as it should).
+        # run: python3 tools/ci/check_build_number.py "${{ inputs.beta || '1.0.56-beta' }}"
+        run: python3 tools/ci/check_build_number.py "${{ inputs.beta || '1.0.59-beta' }}"
 
       # Krimble 2026-11-13: George: "I'm concerned about his decisions get made and then later ignored." The decisions in KRIMBLE_DECISIONS.md that a program can check (the names of the releases,
       # the words and paths the rules forbid) are checked on every run. A warning only: the step is shown as failed and its lines are in the run's summary, but the build goes on.
