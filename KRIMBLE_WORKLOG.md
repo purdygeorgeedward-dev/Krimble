@@ -407,3 +407,5 @@ George sent three screenshots (Color Lab floating, Color Lab docked, and the Cus
 **2026-11-13, 00:18 (MST), task 50.** George: do not start with the toolbox floating; dock left with 2 columns on start. One-time reset on the next build: columns 2 before the toolbox is made, docked left 2.5 s after start (535th entry). Pushed with the PAT George pasted in this chat.
 
 **2026-11-13, 00:19 (MST), tasks 50 and 51.** George: toolbox must dock left with 2 columns on start; SmartCompression logo now too small. One-time reset of the columns to 2 and docking at the left (setting ToolBoxDockedLeftReset); logo 54 px (535th entry). Pushed with the PAT George pasted in this chat.
+
+**2026-11-13, 00:19 (MST), correction.** The first push of tasks 50 and 51 (3b8f95f) had the toolbox reset code but NOT the logo change (my edit script stopped at the logo line); the 535th entry said both. The logo is 54 px in the next commit.

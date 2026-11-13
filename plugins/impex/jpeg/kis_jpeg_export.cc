@@ -235,7 +235,8 @@ KisWdgOptionsJPEG::KisWdgOptionsJPEG(QWidget *parent)
         QPixmap logo(QStringLiteral(":/dark_krimble-smartcompression-logo.png"));
         if (!logo.isNull()) {
             // logo = logo.scaledToHeight(qRound(100 * ratio), Qt::SmoothTransformation);
-            logo = logo.scaledToHeight(qRound(30 * ratio), Qt::SmoothTransformation);   // Krimble 2026-11-13 (task 49): George (build 57): "SmartCompression logo is too big. Too much explanation in the panel. Doesn't look like XAT. Jpeg save dialog is enormous." 30 logical px high (it was 100)
+            // logo = logo.scaledToHeight(qRound(30 * ratio), Qt::SmoothTransformation);   // Krimble 2026-11-13 (task 49): George (build 57): "SmartCompression logo is too big. Too much explanation in the panel. Doesn't look like XAT. Jpeg save dialog is enormous." 30 logical px high (it was 100)
+            logo = logo.scaledToHeight(qRound(54 * ratio), Qt::SmoothTransformation);   // Krimble 2026-11-13 (task 51): George: "Smart Compression logo is now too small." 54 logical px (100 was too big, 30 too small)
             logo.setDevicePixelRatio(ratio);
             smartLogo->setPixmap(logo);
         }
