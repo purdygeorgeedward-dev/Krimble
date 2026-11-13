@@ -385,3 +385,5 @@ George sent three screenshots (Color Lab floating, Color Lab docked, and the Cus
 **2026-11-12, 18:26 (MST), task 24.** SmartCompression step 1: the tab with the logo and the gray-as-one-channel option (525th entry). Correction: my estimate of a third to half was wrong, a test gave 3 to 8 percent. George added: a level control and a protected area shown as a red film (Quick Mask style); next. Pushed with the PAT George pasted earlier in this chat.
 
 **2026-11-12, 18:30 (MST), task 24a.** SmartCompression step 2: the level (Light/Medium/Strong/Maximum), the Smart Selection and the protected area in the JPEG save dialog; engine tested standalone (526th entry). Red film editing not built yet. Pushed with the PAT George pasted earlier in this chat.
+
+**2026-11-12, 18:48 (MST), task 41.** George: hex overlay lines too thin, no thickness or color control. View > Show > Hex Lines... (thickness, color, opacity; default 2 px) (527th entry). Pushed with the PAT George pasted earlier in this chat.

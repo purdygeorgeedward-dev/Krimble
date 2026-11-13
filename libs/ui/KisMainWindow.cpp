@@ -3985,6 +3985,8 @@ public:
     }
     qreal size = 100.0;      // center to corner, in image pixels
     bool flatTop = false;
+    qreal lineWidth = 2.0;                       // Krimble 2026-11-12 (task 41): George: "I turned on the hex overlay in view and the lines are too thin to see. There is no control for line thickness or color." in screen pixels (it was 1)
+    QColor lineColor = QColor(30, 30, 30, 210);  // the color with its opacity (the alpha)
     bool adjusting = false;  // George: "Hex overlay should be pinch zoom then drop with a tap." While true, a pinch scales the hexes and a tap drops them.
 
 protected:
@@ -3997,7 +3999,8 @@ protected:
         const QRectF imageArea = toWidget.inverted().mapRect(updateArea);
         gc.save();
         gc.setRenderHint(QPainter::Antialiasing, true);
-        QPen pen(QColor(30, 30, 30, 210), 1.0);
+        // QPen pen(QColor(30, 30, 30, 210), 1.0);   // before task 41: always 1 pixel, always this color
+        QPen pen(lineColor, lineWidth);
         pen.setCosmetic(true);
         gc.setPen(pen);
         gc.setBrush(Qt::NoBrush);
@@ -4085,6 +4088,63 @@ static bool krimbleAskHex(QMainWindow *win, bool forLayer, qreal *size, bool *fl
     return true;
 }
 
+// Krimble 2026-11-12 (task 41): George: "I turned on the hex overlay in view and the lines are too thin to see. There is no control for line thickness or color." The window of View > Show > Hex Lines...: the thickness of the overlay's lines (screen pixels) and their color with its opacity. Every change shows at once
+// (onChange is called after each one); Cancel puts the old values back.
+static bool krimbleAskHexLines(QMainWindow *win, qreal *width, QColor *color, const std::function<void()> &onChange)
+{
+    const qreal oldWidth = *width;
+    const QColor oldColor = *color;
+    QDialog dialog(win);
+    dialog.setWindowTitle(i18n("Hex Lines"));
+    QVBoxLayout *layout = new QVBoxLayout(&dialog);
+    QLabel *widthLabel = new QLabel(i18n("Line thickness (pixels on the screen):"), &dialog);
+    QDoubleSpinBox *widthBox = new QDoubleSpinBox(&dialog);
+    widthBox->setRange(0.5, 30.0);
+    widthBox->setDecimals(1);
+    widthBox->setSingleStep(0.5);
+    widthBox->setValue(*width);
+    QPushButton *colorButton = new QPushButton(i18n("Line color..."), &dialog);
+    auto paintColorButton = [colorButton, color]() {
+        colorButton->setStyleSheet(QStringLiteral("QPushButton { border-left: 24px solid %1; }").arg(color->name()));
+    };
+    paintColorButton();
+    QLabel *opacityLabel = new QLabel(i18n("Line opacity (percent):"), &dialog);
+    QSlider *opacitySlider = new QSlider(Qt::Horizontal, &dialog);
+    opacitySlider->setRange(10, 100);
+    opacitySlider->setValue(qRound(color->alphaF() * 100.0));
+    layout->addWidget(widthLabel);
+    layout->addWidget(widthBox);
+    layout->addWidget(colorButton);
+    layout->addWidget(opacityLabel);
+    layout->addWidget(opacitySlider);
+    QObject::connect(widthBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), &dialog, [width, onChange](double v) { *width = v; onChange(); });
+    QObject::connect(opacitySlider, &QSlider::valueChanged, &dialog, [color, onChange](int v) { color->setAlphaF(v / 100.0); onChange(); });
+    QObject::connect(colorButton, &QPushButton::clicked, &dialog, [&]() {
+        const QColor picked = QColorDialog::getColor(*color, &dialog, i18n("Line color"));
+        if (picked.isValid()) {
+            const qreal alpha = color->alphaF();
+            *color = picked;
+            color->setAlphaF(alpha);
+            paintColorButton();
+            onChange();
+        }
+    });
+    QDialogButtonBox *buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, &dialog);
+    QObject::connect(buttons, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
+    QObject::connect(buttons, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
+    layout->addWidget(buttons);
+    if (QScreen *scr = QGuiApplication::primaryScreen()) {
+        dialog.resize(int(scr->availableGeometry().width() * 0.9), dialog.sizeHint().height());
+    }
+    if (dialog.exec() != QDialog::Accepted) {
+        *width = oldWidth;
+        *color = oldColor;
+        onChange();
+        return false;
+    }
+    return true;
+}
+
 static qreal g_krimbleHexSize = 100.0;
 static bool g_krimbleHexFlat = false;
 static qreal g_krimbleHexThickness = 2.0;
@@ -4092,12 +4152,16 @@ static qreal g_krimbleHexThickness = 2.0;
 // kept by the picture window (KisView) it was switched on in, so another picture started without it, and an app that was closed by Android started without it too. Whether the hexes are
 // on, and their size and orientation, are now kept for the whole program (these three) and saved in the settings; the overlay follows the picture that is open.
 static bool g_krimbleHexOn = false;
+static qreal g_krimbleHexLineWidth = 2.0;                     // Krimble 2026-11-12 (task 41): George: "I turned on the hex overlay in view and the lines are too thin to see. There is no control for line thickness or color."
+static QColor g_krimbleHexLineColor = QColor(30, 30, 30, 210);
 static void krimbleHexSaveState()
 {
     KConfigGroup g = KSharedConfig::openConfig()->group("KrimbleHex");
     g.writeEntry("on", g_krimbleHexOn);
     g.writeEntry("size", double(g_krimbleHexSize));
     g.writeEntry("flat", g_krimbleHexFlat);
+    g.writeEntry("lineWidth", double(g_krimbleHexLineWidth));   // task 41
+    g.writeEntry("lineColor", g_krimbleHexLineColor);
     g.sync();
 }
 static void krimbleHexLoadState()
@@ -4106,6 +4170,8 @@ static void krimbleHexLoadState()
     g_krimbleHexOn = g.readEntry("on", false);
     g_krimbleHexSize = g.readEntry("size", double(g_krimbleHexSize));
     g_krimbleHexFlat = g.readEntry("flat", g_krimbleHexFlat);
+    g_krimbleHexLineWidth = g.readEntry("lineWidth", double(g_krimbleHexLineWidth));   // task 41
+    g_krimbleHexLineColor = g.readEntry("lineColor", g_krimbleHexLineColor);
 }
 static QColor g_krimbleHexColor = QColor(Qt::black);
 
@@ -4208,6 +4274,8 @@ static void krimbleHexFollowView(KisMainWindow *win)
     if (!deco) return;
     deco->size = g_krimbleHexSize;
     deco->flatTop = g_krimbleHexFlat;
+    deco->lineWidth = g_krimbleHexLineWidth;   // Krimble 2026-11-12 (task 41): George: "I turned on the hex overlay in view and the lines are too thin to see. There is no control for line thickness or color."
+    deco->lineColor = g_krimbleHexLineColor;
     deco->adjusting = false;
     deco->setVisible(true);
     if (win->activeView() && win->activeView()->canvasBase()) win->activeView()->canvasBase()->updateCanvas();
@@ -4439,6 +4507,8 @@ static void krimbleInstallHexMenus(KisMainWindow *win)
                         if (!deco) return;
                         deco->size = g_krimbleHexSize;
                         deco->flatTop = g_krimbleHexFlat;
+                        deco->lineWidth = g_krimbleHexLineWidth;   // task 41
+                        deco->lineColor = g_krimbleHexLineColor;
                         deco->setVisible(on);
                         KisViewManager *manager = win->viewManager();
                         KisCanvas2 *hexCanvas = (manager && win->activeView()) ? win->activeView()->canvasBase() : nullptr;
@@ -4473,8 +4543,25 @@ static void krimbleInstallHexMenus(KisMainWindow *win)
                             if (manager && win->activeView() && win->activeView()->canvasBase()) win->activeView()->canvasBase()->updateCanvas();
                         }
                     });
+                    // Krimble 2026-11-12 (task 41): George: "I turned on the hex overlay in view and the lines are too thin to see. There is no control for line thickness or color." View > Show > Hex Lines...: thickness, color and opacity of the lines.
+                    QAction *linesAction = new QAction(i18n("Hex Lines..."), sub);
+                    linesAction->setObjectName(QStringLiteral("krimbleHexLines"));
+                    QObject::connect(linesAction, &QAction::triggered, win, [win]() {
+                        auto apply = [win]() {
+                            KrimbleHexDecoration *deco = krimbleHexDecorationOf(win, false);
+                            if (deco) {
+                                deco->lineWidth = g_krimbleHexLineWidth;
+                                deco->lineColor = g_krimbleHexLineColor;
+                                if (win->activeView() && win->activeView()->canvasBase()) win->activeView()->canvasBase()->updateCanvas();
+                            }
+                        };
+                        if (krimbleAskHexLines(win, &g_krimbleHexLineWidth, &g_krimbleHexLineColor, apply)) {
+                            krimbleHexSaveState();
+                        }
+                    });
                     sub->addAction(hexAction);
                     sub->addAction(sizeAction);
+                    sub->addAction(linesAction);
                 } else if (isLayer && text == QLatin1String("New")) {
                     // Krimble 2026-10-30: Layer > New > Star... (see krimbleMakeStarLayer), above Hex Pattern...
                     if (!sub->findChild<QAction*>(QStringLiteral("krimbleStarLayer"))) {
