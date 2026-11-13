@@ -84,6 +84,7 @@ static const QList<QStringList> &krimbleToolGroupIds()
                                                  // Marquee
         { QStringLiteral("KisToolSelectOutline"), QStringLiteral("KisToolSelectPolygonal"), QStringLiteral("KisToolSelectMagnetic") },   // Lasso
         { QStringLiteral("KisToolSelectContiguous"), QStringLiteral("KisToolSelectSimilar") },                                              // Wand
+        { QStringLiteral("KritaShape/KisToolRectangle"), QStringLiteral("KritaShape/KisToolEllipse"), QStringLiteral("KritaShape/KisToolPolygonStar") },   // Krimble 2026-11-13 (task 74): Shapes: the Polygon and Star tool joins Rectangle and Ellipse in one flyout (no new button in the toolbox)
     };
     return groups;
 }

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ActionCollection version="2" name="Tools">
+    <Actions category="Polygon and Star Tool">
+        <text>Tool Shortcuts</text>
+    <Action name="KritaShape/KisToolPolygonStar">
+      <icon>krita_tool_shape_star</icon>
+      <text>Polygon and Star Tool</text>
+      <whatsThis></whatsThis>
+      <toolTip>Polygon and Star Tool</toolTip>
+      <iconText>Polygon and Star Tool</iconText>
+      <shortcut></shortcut>
+      <isCheckable>false</isCheckable>
+      <statusTip></statusTip>
+    </Action>
+  </Actions>
+</ActionCollection>

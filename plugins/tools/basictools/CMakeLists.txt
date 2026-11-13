@@ -13,6 +13,7 @@ set(kritadefaulttools_static_SRCS
     kis_tool_fill.cc
     kis_tool_rectangle.cc
     kis_tool_ellipse.cc
+    kis_tool_polygon_star.cc
     kis_tool_gradient.cc
     kis_tool_measure.cc
     kis_tool_path.cc
@@ -57,4 +58,5 @@ install(TARGETS kritadefaulttools  DESTINATION ${KRITA_PLUGIN_INSTALL_DIR})
 install( FILES
     KisToolPath.action
     KisToolPencil.action
+    KisToolPolygonStar.action
 DESTINATION  ${KDE_INSTALL_DATADIR}/krita/actions)

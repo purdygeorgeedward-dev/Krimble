@@ -29,6 +29,7 @@
 #include "kis_tool_colorsampler.h"
 #include "kis_tool_line.h"
 #include "kis_tool_ellipse.h"
+#include "kis_tool_polygon_star.h"   // Krimble 2026-11-13 (task 74)
 #include "kis_tool_measure.h"
 #include "kis_tool_path.h"
 #include "kis_tool_move.h"
@@ -56,6 +57,7 @@ DefaultTools::DefaultTools(QObject *parent, const QVariantList &)
     KoToolRegistry::instance()->add(new KisToolLineFactory());
     KoToolRegistry::instance()->add(new KisToolEllipseFactory());
     KoToolRegistry::instance()->add(new KisToolRectangleFactory());
+    KoToolRegistry::instance()->add(new KisToolPolygonStarFactory());   // Krimble 2026-11-13 (task 74)
     // Krimble 2026-10-30: the Ruler/Measure tool stays in the toolbox. George, 2026-10-30: "keep ruler and reference images." (ChatGPT's notes of 2026-10-28 had it
     // as excluded, "Krimble 1.0.45-beta: Ruler/Measure excluded from toolbox."; that was not George's decision.)
     KoToolRegistry::instance()->add(new KisToolMeasureFactory());

@@ -195,7 +195,7 @@ the feature itself needs to be built:
 Left commented out in `krita5.xmlgui` at their original menu locations so
 the intended placement isn't lost, pending a full menu-by-menu industry-standard
 parity audit (comparing every menu against
-`PHOTOSHOP_27_MENUS.TXT`/`Adobephotoshopshortcutkeyspdf.pdf` in the
+the two industry-standard menu and shortcut-key list files in the
 project files) to catalog anything else in the same situation.
 
 
@@ -690,7 +690,7 @@ uncomment that line once the actual root cause is found and fixed.
 - `plugins/tools/basictools/CMakeLists.txt`
 
 Krita's colorsmudge paintop engine (plugins/paintops/colorsmudge/)
-already existed and is more capable than Photoshop's Smudge tool, but
+already existed and is more capable than the industry standard's Smudge tool, but
 was only reachable by manually finding a smudge preset in the brush
 picker while using the generic Freehand tool -- no dedicated toolbox
 entry.
@@ -709,7 +709,7 @@ at 20), own shortcut (R, previously unused).
 **Files:** `libs/ui/toolbox/KoToolBoxDocker_p.h`,
 `libs/ui/toolbox/KoToolBoxDocker.cpp`
 
-Photoshop's toolbox has the foreground/background color swatches (with
+the industry standard's toolbox has the foreground/background color swatches (with
 swap and reset-to-black/white controls) built into the bottom of the
 tool column itself. Krimble already has this widget (KoDualColorButton,
 swap/reset built in) but only in the classic toolbar
@@ -717,7 +717,7 @@ swap/reset built in) but only in the classic toolbar
 
 Wrapped the toolbox's existing tool-button scroll area in a container
 widget (QVBoxLayout) so a second KoDualColorButton instance could be
-appended below it, matching Photoshop's layout. Construction/wiring
+appended below it, matching the industry standard's layout. Construction/wiring
 deferred to setViewManager() since that's the first point a real
 KisViewManager (and canvasResourceProvider) is available -- mirrors
 the classic toolbar's connection pattern exactly (FG/BG signals both
@@ -751,7 +751,7 @@ untouched) -- this only covers Android, Krimble's actual target.
 
 **File:** `libs/ui/toolbox/KoToolBoxDocker.cpp`
 
-Third of Photoshop's three bottom-of-toolbox items (FG/BG swatches,
+Third of the industry standard's three bottom-of-toolbox items (FG/BG swatches,
 Quick Mask, Screen Mode) -- this one didn't need a new feature, just a
 toolbox entry point. Reused the existing `view_show_canvas_only` action
 (already checkable, already bound to Tab) via a QToolButton with
@@ -780,14 +780,14 @@ Smudge: Krita's filterop paintop engine (plugins/paintops/filterop/)
 already lets you paint with any filter applied per-stroke, and already
 ships a Gaussian-Blur-configured preset (plugins/paintops/defaultpresets/filter.kpp,
 internal resource name "DFP") -- but with no dedicated toolbox entry,
-matching Photoshop's Blur tool.
+matching the industry standard's Blur tool.
 
 Added KisToolSoften (subclasses KisToolBrush) and KisToolSoftenFactory,
 registered in default_tools.cc directly after Smudge. On activate(),
 looks up the "DFP" preset via KisResourceModel(ResourceType::PaintOpPresets)
 and applies it through KisCanvasResourceProvider -- identical mechanism
 to KisToolSmudge, just a different preset name. Own icon (water-droplet
-shape, Photoshop's Blur tool convention), toolbox priority 22 (directly
+shape, the industry standard's Blur tool convention), toolbox priority 22 (directly
 after Smudge at 21), shortcut U (previously unused).
 
 ## 2026-09-07 — Added touch-friendly edge/corner resize to all KoDialog dialogs
@@ -879,7 +879,7 @@ kactioncollection.h)
 
 **Files:** `libs/ui/toolbox/KoToolBoxDocker.cpp`
 
-The "Canvas Only" toolbox button added for the Photoshop-parity toolbox
+The "Canvas Only" toolbox button added for the the industry standard-parity toolbox
 layout calls `viewManager->actionCollection()->action(...)`, but
 `KisKActionCollection` is only forward-declared by the headers this
 file already includes (e.g. `KoToolManager.h`) -- never given a full
@@ -1324,7 +1324,7 @@ so existing installs keep their saved size until it is reset to
 "Default" from the toolbox context menu. Fresh installs get 16.
 Not yet built or verified.
 
-## 2026-10-02 — Photoshop-style Image > Adjustments menu; Auto Tone, Auto Color, Photo Filter
+## 2026-10-02 — industry-standard-style Image > Adjustments menu; Auto Tone, Auto Color, Photo Filter
 
 Per project direction (reversal of the earlier "move the whole Adjust
 submenu" approach): the auto-generated Adjust submenu is back in the
@@ -2428,7 +2428,7 @@ from my most recent edits. It says Quit instead of Exit."
 
 **1. Menu labels.** The `<text>` that krita5.xmlgui gives to an `<Action>` was never used: an action's label comes from its own
 definition (the `.action` files or the code), so edits like Quit -> Exit did not show. A comparison found 157 actions whose
-label in krita5.xmlgui differs from their definition (most of George's Photoshop-style names, e.g. "Layer via Copy",
+label in krita5.xmlgui differs from their definition (most of George's industry-standard-style names, e.g. "Layer via Copy",
 "Crop to Selection", "Exit"). New code (`krimbleApplyXmlGuiLabels`) reads the loaded menu file and sets each action's label
 to the `<text>` given for it. It runs once the window is built, whenever the active view changes, and when a tool is chosen
 (tool actions appear later). From now on a label typed in krita5.xmlgui is the label in the app. Excluded: "Hide/Show Right
@@ -3399,7 +3399,7 @@ QA of 1.0.32: on a white canvas Dodge made only a faint line and Burn an instant
 - Opacity 100% and flow 4% per dab to start with; both can be changed in the tool options.
 - While Dodge or Burn is the active tool, the foreground color is white or black. `deactivate()` gives the user's foreground color back. The wells will change when you pick the tool, and change back when you leave it.
 - The old lines are kept in comments.
-- Not done: Photoshop's range choice (shadows, midtones, highlights).
+- Not done: the industry standard's range choice (shadows, midtones, highlights).
 **Not verified:** a build or a device. The 4% flow is a starting guess.
 
 ## 2026-10-11 (45th) — Type tool: keyboard comes back on re-edit; Type Setting mode starts off
@@ -3975,7 +3975,7 @@ George made the pictures (12 for Preferences, 8 for New Document; 512 px, transp
 
 **Files:** `libs/ui/tool/kis_tool_polyline_base.cpp`, `libs/ui/tool/kis_tool_polyline_base.h`
 
-George, on the polygonal selection tool ("It sucks. I imagine it already sucked in Krita ... In Photoshop it creates anchor points and you drag out selection lines with marquee selection ants"): "How about the first touch lays the first point. Then you drag the next point with a visible marching ants effect on the line. That drag could start immediately or with a subsequent tap. When you release it sets that next point. Then you drag the next one and it again draws the next line of the marching ants in realtime. The process repeats until a point is dropped within a few pixels of the first point, and then it ends and closes the selection area."
+George, on the polygonal selection tool ("It sucks. I imagine it already sucked in Krita ... In the industry standard it creates anchor points and you drag out selection lines with marquee selection ants"): "How about the first touch lays the first point. Then you drag the next point with a visible marching ants effect on the line. That drag could start immediately or with a subsequent tap. When you release it sets that next point. Then you drag the next one and it again draws the next line of the marching ants in realtime. The process repeats until a point is dropped within a few pixels of the first point, and then it ends and closes the selection area."
 Built as described, on Android (the mouse and the keyboard keys work as before). It is the base of the polygon selection and of the polygon and polyline drawing tools:
 - **First touch:** puts down the first point at once. If the finger keeps moving (more than 12 px), it is dragging the second point from the start; if it lifts without moving, only the first point exists.
 - **Every later press** (a drag, or a tap after lifting): a line from the last point follows the finger, drawn with **marching ants** (a black and a white dashed line that slide along it; a timer moves them 11 times a second while a polygon is being built), together with the lines already placed. A fainter dotted line shows the way back to the first point, so the shape that would be selected can be seen.
@@ -4848,22 +4848,22 @@ George, after the fill methods were described: "Make the different types options
 The fill code (`krimbleContentAwareFill`) moved to `krimble_fill.cpp` (`KrimbleFill::fill`) so both use it; the old copy in the plugin is kept under `#if 0`. `krimble_inpaint.cpp` and `krimble_fill.cpp` are now built into both modules.
 **Not verified:** a build or a device.
 
-## 2026-10-19 (208th) — Content-Aware Fill, Photoshop's way: turned, resized and mirrored patches, and colour adaptation
+## 2026-10-19 (208th) — Content-Aware Fill, the industry standard's way: turned, resized and mirrored patches, and colour adaptation
 
 **Files:** `plugins/tools/tool_smart_patch/krimble_inpaint.cpp`, `plugins/tools/tool_smart_patch/krimble_fill.cpp`
 
-George, after the two ways forward were laid out (Photoshop's additions to PatchMatch now; an AI fill later): "We will make the AI version as an addon later. For now try to do Photoshop's way. Develop an algorithm." The engine of the **Sharp** method (`inpaint()`) is now the 206th entry's engine (kept as `inpaintPatchMatchV1()`) with what Photoshop's Content-Aware Fill adds to PatchMatch (generalized PatchMatch, Barnes et al. 2010; image melding, Darabi et al. 2012):
+George, after the two ways forward were laid out (the industry standard's additions to PatchMatch now; an AI fill later): "We will make the AI version as an addon later. For now try to do the industry standard's way. Develop an algorithm." The engine of the **Sharp** method (`inpaint()`) is now the 206th entry's engine (kept as `inpaintPatchMatchV1()`) with what the industry standard's Content-Aware Fill adds to PatchMatch (generalized PatchMatch, Barnes et al. 2010; image melding, Darabi et al. 2012):
 - **Rotation and scale:** a source patch may be copied turned (-30, -15, +15, +30 degrees) and resized (0.8, 0.9, 1.12, 1.25 times), sampled with bilinear filtering; **mirroring:** flipped left-right. 50 transforms in all; each costs a little more than a plain copy (10% a rotation step, 8% a scale step, 12% a flip), so a plain copy wins when it is as good. A transformed source must lie wholly in the known picture (a distance map to the hole and the edge).
 - **Colour adaptation:** every copied patch gets a colour shift (per channel, at most 28 of 255): the difference of the two patches' mean colours (window sums). Patches are compared after the shift, and a shift costs a little, so a darker or warmer copy of a texture can be used, shifted to fit.
 - Propagation carries a neighbour's transform with its match; the random search keeps the transform and also tries another transform at the same spot, and the plain copy.
 **Tried here** (tools/inpaint-bench, one core, compared with the 206th entry's engine): a hole in a cheek now fills with skin tones instead of grey (colour adaptation); the coffee cup's rim continues further around the curve; the circus stage and grass are as sharp as before; brick rows may bend slightly. About twice as slow (the circus test: 4.9 s against 2.4 s on one core; the phone has 4). The area budget of `krimble_fill.cpp` is now **3 MP** (was 4): this engine keeps about 75 bytes a pixel.
-**Not yet:** Photoshop's **sampling area** (painting where the fill may copy from), which needs its own control. **Not verified:** a build or a device.
+**Not yet:** the industry standard's **sampling area** (painting where the fill may copy from), which needs its own control. **Not verified:** a build or a device.
 
-## 2026-10-20 (209th) — Select > Similar (Photoshop)
+## 2026-10-20 (209th) — Select > Similar (the industry standard)
 
 **Files:** `plugins/extensions/colorrange/colorrange.cc`, `plugins/extensions/colorrange/colorrange.h`, `krita/kritamenu.action`
 
-George: asked where "Select Similar" is, then "Well, I want that." The Select menu (`krita5.xmlgui`) already listed an action `similar` (text "Similar"), but no such action was ever defined or created, so the menu item never appeared. **Change:** the Color Range plugin now creates the `similar` action (defined in `kritamenu.action`, enabled only while there is a selection). **Select > Similar** adds to the current selection every pixel of the active layer whose colour is within the **Magic Wand's threshold** (the contiguous selection tool's saved `threshold`, as Photoshop uses the Magic Wand tolerance) of a colour inside the selection. Colours are gathered from the selected pixels into a 64 x 64 x 64 grid, grown by the threshold per channel, then every pixel of the picture is looked up (fast, one pass). Transparent pixels are included only if the selection contained transparent pixels. One undo step, "Select Similar".
+George: asked where "Select Similar" is, then "Well, I want that." The Select menu (`krita5.xmlgui`) already listed an action `similar` (text "Similar"), but no such action was ever defined or created, so the menu item never appeared. **Change:** the Color Range plugin now creates the `similar` action (defined in `kritamenu.action`, enabled only while there is a selection). **Select > Similar** adds to the current selection every pixel of the active layer whose colour is within the **Magic Wand's threshold** (the contiguous selection tool's saved `threshold`, as the industry standard uses the Magic Wand tolerance) of a colour inside the selection. Colours are gathered from the selected pixels into a 64 x 64 x 64 grid, grown by the threshold per channel, then every pixel of the picture is looked up (fast, one pass). Transparent pixels are included only if the selection contained transparent pixels. One undo step, "Select Similar".
 **Not verified:** a build or a device.
 
 ## 2026-10-19 (210th) — Content-Aware Fill: the final copy of a turned or resized patch takes the nearest pixel, not a blend
@@ -4986,7 +4986,7 @@ George: "Use as many threads as it takes. That's what multi-core is for." The th
 
 **Files:** `plugins/tools/tool_smart_patch/krimble_inpaint.cpp`, `plugins/tools/tool_smart_patch/krimble_fill.cpp`
 
-George asked whether the fill could use compression; compressed data would have to be unpacked for every look, so instead the engine keeps its data in smaller kinds of numbers. He said "Yes." The engine used now (`inpaint()`, at the end of `krimble_inpaint.cpp`; the 208th to 225th entries' engine is kept as `inpaintPhotoshopV2()`) does the same steps with: the picture in **bytes** (not floats; the rebuilt hole is rounded to whole levels, as it is saved anyway); match positions as **16-bit** numbers; colour shifts as **signed bytes** (they are at most 28); the distance map as 16-bit numbers; **no** per-pixel weight array (one weight for the hole per level) and **no** list of all valid sources (a random source is found by trying random spots); the rebuild keeps aside only the hole's pixels, not a copy of the picture; the seam correction works **only inside the hole's box**; a smaller size's arrays are freed as soon as the next size has its matches. **Tested** (tools/inpaint-bench, called as the app calls it): a 1700 x 1700 area with a 500 x 700 hole: peak **172 MB** (was 425 MB), same time, the result differs by 0.7 of 255 on average (rounding); the circus, a cheek and cat fur: the same within 0.3. The working area in `krimble_fill.cpp` goes back to **3 MP** (it was cut to 1.5 MP in the 224th entry). Pictures wider or taller than 32 767 px use the kept engine.
+George asked whether the fill could use compression; compressed data would have to be unpacked for every look, so instead the engine keeps its data in smaller kinds of numbers. He said "Yes." The engine used now (`inpaint()`, at the end of `krimble_inpaint.cpp`; the 208th to 225th entries' engine is kept as the V2 engine function in `krimble_inpaint.cpp`) does the same steps with: the picture in **bytes** (not floats; the rebuilt hole is rounded to whole levels, as it is saved anyway); match positions as **16-bit** numbers; colour shifts as **signed bytes** (they are at most 28); the distance map as 16-bit numbers; **no** per-pixel weight array (one weight for the hole per level) and **no** list of all valid sources (a random source is found by trying random spots); the rebuild keeps aside only the hole's pixels, not a copy of the picture; the seam correction works **only inside the hole's box**; a smaller size's arrays are freed as soon as the next size has its matches. **Tested** (tools/inpaint-bench, called as the app calls it): a 1700 x 1700 area with a 500 x 700 hole: peak **172 MB** (was 425 MB), same time, the result differs by 0.7 of 255 on average (rounding); the circus, a cheek and cat fur: the same within 0.3. The working area in `krimble_fill.cpp` goes back to **3 MP** (it was cut to 1.5 MP in the 224th entry). Pictures wider or taller than 32 767 px use the kept engine.
 **Not verified:** a build or a device.
 
 ## 2026-10-20 (227th) — Version 41
@@ -5235,13 +5235,13 @@ George (1.0.42, test list item 37: "Toolbox got caught in horizontal mode for a 
 
 **Files:** `KRIMBLE_RESEARCH_storytold.md` (a document only; no code)
 
-George: "https://github.com/storytold Scour the code and notes. Learn anything useful." The notes file records what ArtCraft / PhotoCraft is (a pure-Rust, clean-room Photoshop; MIT or Apache-2.0; early alpha) and what in it bears on Krimble's open items: the **Content-Aware Fill** design (sampling window rule, seams, colour adaptation, and the finding that the coarsest level should be filled ring by ring from the best patches, not from an average, which is how Krimble's engine starts and the likely cause of its blur), **Auto Color** (Photoshop's is levels plus midtone neutralising, not a saturation boost), **Indexed Color palettes and dithering** (George's 256-colour wish), dialog conventions, Reset All Tools, the Photoshop parity lists, type (kerning, area type), layer styles for the effects pack, and file formats.
+George: "https://github.com/storytold Scour the code and notes. Learn anything useful." The notes file records what ArtCraft / PhotoCraft is (a pure-Rust, clean-room the industry standard; MIT or Apache-2.0; early alpha) and what in it bears on Krimble's open items: the **Content-Aware Fill** design (sampling window rule, seams, colour adaptation, and the finding that the coarsest level should be filled ring by ring from the best patches, not from an average, which is how Krimble's engine starts and the likely cause of its blur), **Auto Color** (the industry standard's is levels plus midtone neutralising, not a saturation boost), **Indexed Color palettes and dithering** (George's 256-colour wish), dialog conventions, Reset All Tools, the the industry standard parity lists, type (kerning, area type), layer styles for the effects pack, and file formats.
 
 ## 2026-10-23 (263rd) — Content-Aware Fill: the coarsest level is filled ring by ring from the best patches (less blur); thin holes
 
 **Files:** `plugins/tools/tool_smart_patch/krimble_inpaint.cpp`, `tools/inpaint-bench/evalfill.py`, `KRIMBLE_TEST_LIST_2026-10-23.md`
 
-George (1.0.41, item 6: "Content Aware Fill is faster, but just a blur"; 1.0.42: "works okay"), after the notes of github.com/storytold/photocraft (262nd entry) pointed at the cause. The lean engine (226th) filled the **coarsest** level of its image pyramid from an **average** of the surroundings (`rPeel`), and every finer level only refines what it starts from, so the smoothness stayed. **Change 1:** `rRingFill()`: at the coarsest level the hole is filled from its edge inwards, ring by ring (layers of hole pixels that touch known pixels; each layer in parallel); each pixel is copied from the **middle of the patch that best matches the known pixels around it** (a 7 x 7 patch, only the known pixels count), searched among the matches of its filled neighbours (shifted), 2,500 random sources and a small local search around the best. Those matches also start the matching field of the finer levels. The average (`rPeel`) is kept as the first guess for a pixel that finds no match. **Change 2:** a **thin hole** (a selected wire or hair) is measured by its **thickness** (twice the largest distance from a hole pixel to a known one), and no pyramid level is added that would make it thinner than two patches, so it does not vanish into its surroundings. **Tried and dropped:** taking half of the random candidates from near the hole (Photoshop's sampling window): it made the fill hazier on the cup and spoon pictures. **Evidence (bench, `tools/inpaint-bench/evalfill.py` with the old and the new binary; compare sheets by eye):** the cup, saucer and spoon pictures keep their edges and texture instead of a smeared haze; the tripod picture copies real content (a dark jacket, with an ear from elsewhere in the picture) instead of grey smears; a drawn 5 px wire across grass leaves a broken texture instead of a smooth band; fine-texture pictures (cat fur, grass) look about as before; time about the same (the 275,000 px hole: 12 s both). Not a miracle: busy backgrounds with big objects still need the AI add-on.
+George (1.0.41, item 6: "Content Aware Fill is faster, but just a blur"; 1.0.42: "works okay"), after the notes of github.com/storytold/photocraft (262nd entry) pointed at the cause. The lean engine (226th) filled the **coarsest** level of its image pyramid from an **average** of the surroundings (`rPeel`), and every finer level only refines what it starts from, so the smoothness stayed. **Change 1:** `rRingFill()`: at the coarsest level the hole is filled from its edge inwards, ring by ring (layers of hole pixels that touch known pixels; each layer in parallel); each pixel is copied from the **middle of the patch that best matches the known pixels around it** (a 7 x 7 patch, only the known pixels count), searched among the matches of its filled neighbours (shifted), 2,500 random sources and a small local search around the best. Those matches also start the matching field of the finer levels. The average (`rPeel`) is kept as the first guess for a pixel that finds no match. **Change 2:** a **thin hole** (a selected wire or hair) is measured by its **thickness** (twice the largest distance from a hole pixel to a known one), and no pyramid level is added that would make it thinner than two patches, so it does not vanish into its surroundings. **Tried and dropped:** taking half of the random candidates from near the hole (the industry standard's sampling window): it made the fill hazier on the cup and spoon pictures. **Evidence (bench, `tools/inpaint-bench/evalfill.py` with the old and the new binary; compare sheets by eye):** the cup, saucer and spoon pictures keep their edges and texture instead of a smeared haze; the tripod picture copies real content (a dark jacket, with an ear from elsewhere in the picture) instead of grey smears; a drawn 5 px wire across grass leaves a broken texture instead of a smooth band; fine-texture pictures (cat fur, grass) look about as before; time about the same (the 275,000 px hole: 12 s both). Not a miracle: busy backgrounds with big objects still need the AI add-on.
 **Not verified:** on a phone (only the engine on its own, compiled with g++ and run on the bench pictures).
 
 ## 2026-10-24 (264th) — Version 43
@@ -5347,7 +5347,7 @@ George: "We were trying to add screenshots to the readme so people get what the 
 
 **Files:** `README.md`, `screenshots/krimble-several-images-panels.jpg` (new)
 
-George (the 15 screenshots, "I wanted to show the flexibility of the interface and use the way people actually work in Photoshop. Take your pick."). Only 7 of the 15 files reached me again; of those the README now has **three image windows open with the full toolbox and the Tool Options, Color and Layers panels** (new) and the **ALARM** shot (from the 278th entry), under a line saying that Krimble works the way people work in Photoshop: several images, each in its own window, toolbox and panels where you want them, sideways or upright. The best shots (the queen, the elf with the toolbox floating in the middle, the upright one with the two-column toolbox, the Image > Adjustments menu) were among the files that did not arrive; they can be added when they are sent again.
+George (the 15 screenshots, "I wanted to show the flexibility of the interface and use the way people actually work in the industry standard. Take your pick."). Only 7 of the 15 files reached me again; of those the README now has **three image windows open with the full toolbox and the Tool Options, Color and Layers panels** (new) and the **ALARM** shot (from the 278th entry), under a line saying that Krimble works the way people work in the industry standard: several images, each in its own window, toolbox and panels where you want them, sideways or upright. The best shots (the queen, the elf with the toolbox floating in the middle, the upright one with the two-column toolbox, the Image > Adjustments menu) were among the files that did not arrive; they can be added when they are sent again.
 
 ## 2026-10-24 (280th) — About dialog: no longer enormous
 
@@ -5374,7 +5374,7 @@ George: "I think that message on the poly select tool has to go. It just gets in
 
 **Files:** `README.md`, `screenshots/` (4 new: `krimble-queen-sideways.jpg`, `krimble-floating-toolbox.jpg`, `krimble-upright-windows.jpg`, `krimble-adjustments-menu.jpg`)
 
-George re-sent the screenshots I had asked for ("Take your pick"; the aim: show the flexibility of the interface and the way people actually work in Photoshop). The "SEE IT IN ACTION" section now has **six**: the whole editor on one screen (the queen), the **toolbox pulled off its edge and floating** over the work area (the elf), three images open in their own windows with the full toolbox and panels, the slimmer toolbox with two images (ALARM), and two upright ones side by side (a two-column toolbox with images stacked; the **Image > Adjustments** menu: Levels, Curves, Vibrance, Gradient Map, Match Color). Each is cropped of the black strip of the phone's cutout and shrunk (landscape to 1600 px wide, upright to 700 px; about 150 to 210 KB each, 1.1 MB in all). **A mistake of mine, corrected:** in the 278th and 279th entries I wrote that only 7 of the uploaded files had reached me; they all had. My search for them (`10003962*.jpg`) only matched the newest seven names. The files from `1000396185` to `1000396199` were there all along.
+George re-sent the screenshots I had asked for ("Take your pick"; the aim: show the flexibility of the interface and the way people actually work in the industry standard). The "SEE IT IN ACTION" section now has **six**: the whole editor on one screen (the queen), the **toolbox pulled off its edge and floating** over the work area (the elf), three images open in their own windows with the full toolbox and panels, the slimmer toolbox with two images (ALARM), and two upright ones side by side (a two-column toolbox with images stacked; the **Image > Adjustments** menu: Levels, Curves, Vibrance, Gradient Map, Match Color). Each is cropped of the black strip of the phone's cutout and shrunk (landscape to 1600 px wide, upright to 700 px; about 150 to 210 KB each, 1.1 MB in all). **A mistake of mine, corrected:** in the 278th and 279th entries I wrote that only 7 of the uploaded files had reached me; they all had. My search for them (`10003962*.jpg`) only matched the newest seven names. The files from `1000396185` to `1000396199` were there all along.
 
 ## 2026-10-25 (284th) — Batch Process: recipes, and WebP with transparency
 
@@ -5602,7 +5602,7 @@ George (1.0.44): "It still restarts if it sits in the background too long." and 
 
 **Files:** `plugins/tools/selectiontools/KisToolSelectMagnetic.h`, `KisToolSelectMagnetic.cc`, `KRIMBLE_ROADMAP.md`, `KRIMBLE_TEST_LIST_2026-10-23.md`
 
-George, answering the "wish we could do it" list: "1. I think a separate upscaler is a must. 2. Selective compression would be awesome. 6. I'm not sure how it works now, but in Photoshop it's very useful [Quick Mask]. 7. Future must [fonts]. 8. There are ways to edit images with curves. I would assume these [the message ends there]. 12. Do all the small things. Also, we have the 8a builds for Android, but no 7a? Next we should build for Linux. It's already part of the process." **Roadmap:** the new section "George's priorities (2026-10-26)" records all of it (the upscaler as a separate app is a must; selective compression and Quick Mask wanted; fonts a future must; item 8 waiting for the rest of the sentence; the small things; Linux next; the 7a question). **Done (the first small thing): Magnetic Selection bar.** The Magnetic tool had Complete selection and Discard selection in Tool Options only (a tab behind Color on a portrait screen) and no way to take back an anchor with a finger. A bar like the one of the Polygonal Selection (298th entry) is a child of the view (`showStrokeBar()`), at the bottom in the middle above the scroll bar, with **Undo point** (`undoPoints()`, then the canvas is redrawn), **END** (bold; `requestStrokeEnd()`: the same as Complete selection) and **Cancel** (`requestStrokeCancellation()`). It is shown from the first anchor (where `setButtonsEnabled(true)` is emitted in `beginPrimaryAction`) and hidden in `resetVariables()`, which runs when the selection is finished (`finishSelectionAction`), cancelled, when all anchors are deleted and when the tool is deactivated. Tool Options unchanged. **Checked here:** the .cc passes `tools/syntax-check` (the first try put the new member into the factory class at the end of the header; found by the check and moved into the tool class). **Not compiled for Android; not in the 1.0.44 APK.**
+George, answering the "wish we could do it" list: "1. I think a separate upscaler is a must. 2. Selective compression would be awesome. 6. I'm not sure how it works now, but in the industry standard it's very useful [Quick Mask]. 7. Future must [fonts]. 8. There are ways to edit images with curves. I would assume these [the message ends there]. 12. Do all the small things. Also, we have the 8a builds for Android, but no 7a? Next we should build for Linux. It's already part of the process." **Roadmap:** the new section "George's priorities (2026-10-26)" records all of it (the upscaler as a separate app is a must; selective compression and Quick Mask wanted; fonts a future must; item 8 waiting for the rest of the sentence; the small things; Linux next; the 7a question). **Done (the first small thing): Magnetic Selection bar.** The Magnetic tool had Complete selection and Discard selection in Tool Options only (a tab behind Color on a portrait screen) and no way to take back an anchor with a finger. A bar like the one of the Polygonal Selection (298th entry) is a child of the view (`showStrokeBar()`), at the bottom in the middle above the scroll bar, with **Undo point** (`undoPoints()`, then the canvas is redrawn), **END** (bold; `requestStrokeEnd()`: the same as Complete selection) and **Cancel** (`requestStrokeCancellation()`). It is shown from the first anchor (where `setButtonsEnabled(true)` is emitted in `beginPrimaryAction`) and hidden in `resetVariables()`, which runs when the selection is finished (`finishSelectionAction`), cancelled, when all anchors are deleted and when the tool is deactivated. Tool Options unchanged. **Checked here:** the .cc passes `tools/syntax-check` (the first try put the new member into the factory class at the end of the header; found by the check and moved into the tool class). **Not compiled for Android; not in the 1.0.44 APK.**
 
 ## 2026-10-26 (321st) — Decision: no 32-bit (armeabi-v7a) Android build
 
@@ -6752,7 +6752,7 @@ George: "Try 26." (read as the brightness of the main dark level, the lists, men
 
 **Files:** `krita/krita5.xmlgui` (George's permission for these two lines: "yes. push.")
 
-George (after the answer about Photoshop's "Load layer transparency as a selection", the Ctrl-click on a layer thumbnail, whose menu route is Select > Load Selection with the layer's transparency): "Shouldnt we rename it to match Ps?" The submenu **Select > Select Opaque** is now **Select > Load Layer Transparency** (title line 940: `Select &Opaque` to `Load Layer &Transparency`; the item inside, line 943: `Select Opaque` to `Load Layer Transparency`); its Union, Difference and Intersection items are not changed. Nothing else in the file changed (2 lines). Not changed: the other labels of the same actions in `kritamenu.action` (the tool tips and the "Select Opaque (Add)" family), which are not shown in this menu, unless George asks. Checked: the file still parses as XML. The accelerator letter of the submenu is now T (was O). Not run on the phone.
+George (after the answer about the industry standard's "Load layer transparency as a selection", the Ctrl-click on a layer thumbnail, whose menu route is Select > Load Selection with the layer's transparency): "Shouldnt we rename it to match Ps?" The submenu **Select > Select Opaque** is now **Select > Load Layer Transparency** (title line 940: `Select &Opaque` to `Load Layer &Transparency`; the item inside, line 943: `Select Opaque` to `Load Layer Transparency`); its Union, Difference and Intersection items are not changed. Nothing else in the file changed (2 lines). Not changed: the other labels of the same actions in `kritamenu.action` (the tool tips and the "Select Opaque (Add)" family), which are not shown in this menu, unless George asks. Checked: the file still parses as XML. The accelerator letter of the submenu is now T (was O). Not run on the phone.
 
 ## 2026-11-12 (502nd) — Task 27: the themes "Krimble Blue-Gray" (the new default, the old plain look) and "Krimble Blue" (today's flat theme)
 
@@ -7029,7 +7029,7 @@ George (shown Chatty's Layers panel after the reference pictures): "You know wha
 
 **Files:** `plugins/dockers/layerdocker/LayerBox.cpp`
 
-George: "I would rather have symbols without buttons or boxes on the bottom of the layers panel, and I routinely use the ones that are there now to move layers up and down or to add or delete layers." The six buttons stay (add, duplicate, lower, raise, properties, delete), with the same functions, and are drawn as **symbols only**: no box, no border, no fill (the theme's button look is overridden for these six); a finger on one shows a soft blue field behind the symbol (pressed `rgba(80, 150, 255, 90)`, hover lighter), a disabled one is dimmed, the add button keeps its small menu arrow; the symbols are **24 px** (18 on Android before) and the buttons 38 px high. The mockup with the seven Photoshop-style buttons is not used for this row. Rendered the row in real Qt in the theme (with stand-in symbols): `layers_bottom_symbols_only.png`.
+George: "I would rather have symbols without buttons or boxes on the bottom of the layers panel, and I routinely use the ones that are there now to move layers up and down or to add or delete layers." The six buttons stay (add, duplicate, lower, raise, properties, delete), with the same functions, and are drawn as **symbols only**: no box, no border, no fill (the theme's button look is overridden for these six); a finger on one shows a soft blue field behind the symbol (pressed `rgba(80, 150, 255, 90)`, hover lighter), a disabled one is dimmed, the add button keeps its small menu arrow; the symbols are **24 px** (18 on Android before) and the buttons 38 px high. The mockup with the seven industry-standard-style buttons is not used for this row. Rendered the row in real Qt in the theme (with stand-in symbols): `layers_bottom_symbols_only.png`.
 
 ## 2026-11-13 (551st) — Task 62, correction: the layer symbols keep their size
 
@@ -7101,7 +7101,7 @@ George: "The ColorLab when moved to the right in the dock should hide behind the
 
 **Files:** `plugins/dockers/layerdocker/LayerBox.cpp`
 
-George: "Try to implement any easy Photoshop layers feature. Estimate workload or difficulty for any proposed change." The easiest one: a **Search layers** box (with a clear button) in the free space at the left of the blending mode box in the top row; typing filters the layer list by name through `KisNodeFilterProxyModel::setTextFilter` (the model already had it; the filter menu's own text field is not changed). Not run: not compiled with the Krita headers. The other proposals and their estimates were given in the reply.
+George: "Try to implement any easy the industry standard layers feature. Estimate workload or difficulty for any proposed change." The easiest one: a **Search layers** box (with a clear button) in the free space at the left of the blending mode box in the top row; typing filters the layer list by name through `KisNodeFilterProxyModel::setTextFilter` (the model already had it; the filter menu's own text field is not changed). Not run: not compiled with the Krita headers. The other proposals and their estimates were given in the reply.
 
 ## 2026-11-13 (562nd) — The status bar: plain items, at most 22 px high
 
@@ -7126,4 +7126,10 @@ George asked for an auto crop in the Image menu. New action `auto_crop_image` ("
 
 **Files:** `plugins/dockers/layerdocker/LayerBox.cpp`
 
-George asked for the Photoshop bottom-bar buttons, then chose the empty space at the top next to the layer type selector, leaving the six buttons under the layer list alone. Three 34 px box-less symbol buttons now sit in the top row between the search box and the blending mode box: **Add layer mask** (`add_new_transparency_mask`), **New adjustment layer** (`add_new_adjustment_layer`), **Layer styles** (`layer_style`, shown as "fx" since that action has no icon). They run the existing actions and are enabled and disabled with them; the icons follow the theme. The search box gets 102 px narrower. The six bottom buttons are unchanged.
+George asked for the the industry standard bottom-bar buttons, then chose the empty space at the top next to the layer type selector, leaving the six buttons under the layer list alone. Three 34 px box-less symbol buttons now sit in the top row between the search box and the blending mode box: **Add layer mask** (`add_new_transparency_mask`), **New adjustment layer** (`add_new_adjustment_layer`), **Layer styles** (`layer_style`, shown as "fx" since that action has no icon). They run the existing actions and are enabled and disabled with them; the icons follow the theme. The search box gets 102 px narrower. The six bottom buttons are unchanged.
+
+## 2026-11-13 (566th) — Polygon and Star drawing tool; the changelog says "industry standard" again
+
+**Files:** `plugins/tools/basictools/kis_tool_polygon_star.h`, `kis_tool_polygon_star.cc`, `KisToolPolygonStar.action`, `CMakeLists.txt`, `default_tools.cc`, `libs/ui/toolbox/KoToolBox.cpp`, `KRIMBLE_CHANGES.md`
+
+George: "hexagon and star tools - BUILD IMMEDIATELY." The **Polygon and Star tool** (`KritaShape/KisToolPolygonStar`) draws a regular polygon (3 to 24 sides, a hexagon by default) or a star (3 to 24 points, inner size 10 to 95 %), pointed top or flat top, in the dragged box. Line thickness, color and fill are the shape tools' own options; it draws on paint layers and adds a path shape on vector layers (`addPathShape`). **Snap to the hex grid** and the shared **Lock** use the same settings as the Hexagon Selection tool (View > Show > Hex, Hex Size..., Lock Hex Settings): snapping or locking puts one grid-cell-sized shape on the nearest cell, with no rotation; the Lock also disables the sides, star, orientation and snap options. It is not a new toolbox button: it joins **Rectangle and Ellipse in one Shapes flyout** (long press). The geometry was checked to give the same hexagon as the Hexagon Selection tool's. Also: the 33 mentions of the product name in this file now say "industry standard" (the decisions check passes).
