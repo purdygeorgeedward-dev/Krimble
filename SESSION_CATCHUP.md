@@ -1,5 +1,7 @@
 # Krimble — Session Catch-Up
 
+> **READ `KRIMBLE_DECISIONS.md` FIRST (2026-11-13).** One line per decision, with the date and how it is checked. George: "I'm concerned about his decisions get made and then later ignored." A new decision goes into that file in the same push as the change it causes.
+
 > **RULE ZERO (George, 2026-10-30, 7:40 PM MT): "NEVER ANSWER ANY QUESTION WITHOUT CHECKING THE NOTES."** Before any answer about Krimble (how it behaves, what was decided, what exists, what is next), read the notes first: `SESSION_CATCHUP.md`, `KRIMBLE_STATUS.md`, `KRIMBLE_CHANGES.md` (search it), `KRIMBLE_ROADMAP.md`, `KRIMBLE_TEST_LIST_*.md`, `packaging/android/TOOLBOX-ICON-COVERAGE.md`, and the code when the question is about behaviour. Say what was checked. If the notes do not answer it, say so; do not fill the gap from memory or from upstream Krita.
 
 
@@ -29,7 +31,7 @@ I'm **George** (George Edward Purdy), building **Krimble**, a professional Andro
 - **Another chat may be working the same list** (its commits are authored `purdygeorgeedward-dev`). Before an item, check the test list file for CLAIMED marks; claim by editing it.
 
 ## Process rules (mine)
-1. **The current build must be published on GitHub (tag, notes, known issues, APK attached) before the version number is changed or a new build is started.** `BUILD_ANDROID.md` section 7, step 0. Check the Releases list first. Packaging replaces the APK in `_packaging`, so release before packaging.
+1. *(Older rule, 2026-10-24; see KRIMBLE_DECISIONS.md, "Needs George's answer" no. 2: on 2026-11-08 he said "We don't always have to release a new build, but we should always change the number.")* **The current build must be published on GitHub (tag, notes, known issues, APK attached) before the version number is changed or a new build is started.** `BUILD_ANDROID.md` section 7, step 0. Check the Releases list first. Packaging replaces the APK in `_packaging`, so release before packaging.
 2. **Names (one rule, 2026-11-13): tag `v1.0.N-beta`, release title `Krimble v1.0.N-beta`, notes heading `# Krimble v1.0.N-beta`** (the APK file name is made by the workflow and has no v). `tools/ci/check_release_names.py` checks them. Pre-release, notes with "NEW IN" and "KNOWN ISSUES". The tag must sit on the commit the APK was built from.
 3. A release for a build is made as a draft through the API (send `tag_name` **and** `target_commitish` together), then published on the server with `~/kb-apk.sh` and `~/kb-release.sh --publish`.
 4. **Two Claude sessions push to this repo** (one outside the Krimble project, one inside). Before staging: `git fetch` and `git read-tree origin/master` **right then**; after staging check `git diff --cached --name-status origin/master` shows only your files and **the right number of D lines** (none unless you mean it). Never prefix-match when renumbering a list. Entry numbers: look at the last entry in `KRIMBLE_CHANGES.md` right before writing yours (on 2026-10-25 both sessions wrote a "299th").
