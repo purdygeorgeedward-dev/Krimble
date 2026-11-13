@@ -7055,3 +7055,9 @@ George: "Go back to the flat color based theme, the blue gray." and, when I aske
 
 George: "The aqua has to go. It's hideous." and "kill the aqua everywhere first." The aqua `#1d7cb2` (29,124,178) is replaced by the menu blue `#0b87dd` (11,135,221): the 7 active uses in the three style sheets (list row selection, the filled part of sliders and progress bars, the highlight behind selected text in text, number and combo boxes), the Selection `BackgroundAlternate` of the three installed palettes, and the soft field behind the chosen Protection row of the SmartCompression panel (with its outline). What remains of `#1d7cb2` in the files is in comments. The cyan outlines of selected tools and menu items (`#3bd5f7`) are not changed. Not done: the plain theme's menu rows (still a dark gradient with the cyan outline), the bevels (nothing of the overlay work was kept; the unapproved edit was discarded).
 
+## 2026-11-13 (554th) — The plain theme's menu rows are solid blue
+
+**Files:** `libs/ui/KrimbleVisualStyle.h`
+
+George: "Then remove the gradient rows." (after being told that the plain theme's menu rows were a dark navy gradient with a cyan outline). `QMenu::item:selected` in the flat sheet (the plain Blue-Gray theme) has the solid `#0b87dd` instead of the gradient (the gradient is in a comment), as the Bevel and Painted themes' menu rows have; its cyan outline (`#3bd5f7`, the glow) is not changed. Not changed: the names on the menu bar itself (`QMenuBar::item:selected`) still have the dark gradient in this sheet.
+
