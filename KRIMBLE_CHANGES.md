@@ -6863,3 +6863,9 @@ George: "The user should have the choice between flat looking buttons like in yo
 
 George: "color replacement looks like a Boolean again." The icon of the 521st entry (an outline square and a solid square overlapping) reads as a Boolean operation, like the selection mode buttons. Now: the Freehand Brush's own shape (78 percent size, top right) dipping towards a solid color swatch (a sharp square, bottom left, with a gap of about 1.4 units between them), as in the industry-standard Color Replacement icon. Preview at 96, 32 and 16 px next to the Brush, Healing and Eraser icons: `color_replacement_icon.png`. The icon is not used by any tool yet. Not run on the phone.
 
+## 2026-11-12 (524th) — Task 25: the SmartCompression logo is in the repository
+
+**Files:** `krita/pics/svg/dark_krimble-smartcompression-logo.png` (new), `krita/pics/svg/svg-icons.qrc`
+
+George sent `SmartCompression.png` (2048 x 751, RGBA). It is a white wordmark on a transparent background ("Smart" bold, "Compression" light, a large outlined C at the left), with the artwork covering only x 486 to 1565 and y 120 to 544; the rest is empty. The transparent margins were trimmed (12 px kept), giving **1105 x 449**, stored as `dark_krimble-smartcompression-logo.png` (the name from the 2026-11-10 spec) and registered in the resource file (`:/dark_krimble-smartcompression-logo.png`). Nothing uses it yet: the SmartCompression tab of the JPEG save dialog (task 24) is not built. The logo is white, so it shows only on dark windows. Not run on the phone.
+

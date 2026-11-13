@@ -379,3 +379,5 @@ George sent three screenshots (Color Lab floating, Color Lab docked, and the Cus
 **2026-11-12, 18:15 (MST), task 40.** George: choice between flat buttons and raised buttons with thicker DPaint-style bevels for the toolbox. Toolbox menu > Button Style > Flat / Raised, saved (522nd entry); picture toolbox_button_style.png. Pushed with the PAT George pasted earlier in this chat.
 
 **2026-11-12, 18:20 (MST), task 39 second correction.** George: "color replacement looks like a Boolean again." Icon redrawn as brush plus a color swatch (523rd entry); preview color_replacement_icon.png. Pushed with the PAT George pasted earlier in this chat.
+
+**2026-11-12, 18:21 (MST), task 25.** George sent SmartCompression.png (the logo). Trimmed to 1105 x 449, stored as krita/pics/svg/dark_krimble-smartcompression-logo.png and registered in svg-icons.qrc (524th entry); not used yet (the SmartCompression tab is not built). Pushed with the PAT George pasted earlier in this chat.
