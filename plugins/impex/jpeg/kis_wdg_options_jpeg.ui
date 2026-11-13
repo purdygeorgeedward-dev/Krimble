@@ -371,6 +371,54 @@
        </item>
       </layout>
      </widget>
+     <!-- Krimble 2026-11-12 (task 24c): the SmartCompression tab. Part c: a picture that is all gray is written as a gray JPEG with one channel. The red tweak and the area-selective compression come later. -->
+     <widget class="QWidget" name="tab_4">
+      <attribute name="title">
+       <string>SmartCompression</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayoutSmart">
+       <item>
+        <widget class="QLabel" name="smartLogo">
+         <property name="alignment">
+          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="chkSmartGrayscale">
+         <property name="text">
+          <string>Save gray pictures as one channel (smaller file)</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="lblSmartGrayscaleNote">
+         <property name="text">
+          <string>A picture whose pixels are all gray is written as a gray JPEG with one channel instead of three. The look does not change; the file is a few percent smaller. The color profile is not saved for these files.</string>
+         </property>
+         <property name="wordWrap">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacerSmart">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
     </widget>
    </item>
   </layout>

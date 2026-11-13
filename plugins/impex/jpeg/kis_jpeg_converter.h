@@ -41,6 +41,7 @@ struct KisJPEGOptions {
     bool saveProfile;
     bool storeDocumentMetaData; //this is for getting the metadata from the document info.
     bool storeAuthor; //this is for storing author data from the document info.
+    bool smartGrayscale = false;   // Krimble 2026-11-12 (task 24c): George: "Do SmartCompression now" (SmartCompression: a new tab in the JPEG save dialog; part c first: a picture that is all gray is saved as a one-channel gray JPEG).
 };
 
 namespace KisMetaData

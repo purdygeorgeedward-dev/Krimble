@@ -84,6 +84,7 @@ KisImportExportErrorCode KisJPEGExport::convert(KisDocument *document, QIODevice
     m.setEnabledFilters(configuration->getString("filters").split(","));
     options.filters = m.enabledFilters();
     options.storeAuthor = configuration->getBool("storeAuthor", false);
+    options.smartGrayscale = configuration->getBool("smartGrayscale", true);   // Krimble 2026-11-12 (task 24c): George: "Do SmartCompression now" (SmartCompression: a new tab in the JPEG save dialog; part c first: a picture that is all gray is saved as a one-channel gray JPEG).
     options.storeDocumentMetaData = configuration->getBool("storeMetaData", false);
 
     KisPaintDeviceSP pd = new KisPaintDevice(*image->projection());
@@ -174,6 +175,7 @@ KisPropertiesConfigurationSP KisJPEGExport::defaultConfiguration(const QByteArra
     cfg->setProperty("iptc", true);
     cfg->setProperty("xmp", true);
     cfg->setProperty("storeAuthor", false);
+    cfg->setProperty("smartGrayscale", true);   // Krimble 2026-11-12 (task 24c): George: "Do SmartCompression now" (SmartCompression: a new tab in the JPEG save dialog; part c first: a picture that is all gray is saved as a one-channel gray JPEG).
     cfg->setProperty("storeMetaData", false);
 
     KoColor fill_color(KoColorSpaceRegistry::instance()->rgb8());
@@ -211,6 +213,17 @@ KisWdgOptionsJPEG::KisWdgOptionsJPEG(QWidget *parent)
     : KisConfigWidget(parent)
 {
     setupUi(this);
+
+    // Krimble 2026-11-12 (task 24c): George: "Do SmartCompression now" (SmartCompression: a new tab in the JPEG save dialog; part c first: a picture that is all gray is saved as a one-channel gray JPEG). The logo on the SmartCompression tab, sharp at the screen's resolution (100 logical px high).
+    {
+        const qreal ratio = devicePixelRatioF();
+        QPixmap logo(QStringLiteral(":/dark_krimble-smartcompression-logo.png"));
+        if (!logo.isNull()) {
+            logo = logo.scaledToHeight(qRound(100 * ratio), Qt::SmoothTransformation);
+            logo.setDevicePixelRatio(ratio);
+            smartLogo->setPixmap(logo);
+        }
+    }
 
     metaDataFilters->setModel(&m_filterRegistryModel);
     qualityLevel->setRange(0, 100, 0);
@@ -270,6 +283,7 @@ void KisWdgOptionsJPEG::setConfiguration(const KisPropertiesConfigurationSP cfg)
     bnTransparencyFillColor->setDefaultColor(background);
     bnTransparencyFillColor->setColor(cfg->getColor("transparencyFillcolor", background));
     chkAuthor->setChecked(cfg->getBool("storeAuthor", false));
+    chkSmartGrayscale->setChecked(cfg->getBool("smartGrayscale", true));   // Krimble 2026-11-12 (task 24c): George: "Do SmartCompression now" (SmartCompression: a new tab in the JPEG save dialog; part c first: a picture that is all gray is saved as a one-channel gray JPEG).
     chkMetaData->setChecked(cfg->getBool("storeMetaData", false));
 
     m_filterRegistryModel.setEnabledFilters(cfg->getString("filters").split(','));
@@ -296,6 +310,7 @@ KisPropertiesConfigurationSP KisWdgOptionsJPEG::configuration() const
     cfg->setProperty("xmp", xmp->isChecked());
     cfg->setProperty("transparencyFillcolor", transparencyFillcolor);
     cfg->setProperty("storeAuthor", chkAuthor->isChecked());
+    cfg->setProperty("smartGrayscale", chkSmartGrayscale->isChecked());   // Krimble 2026-11-12 (task 24c): George: "Do SmartCompression now" (SmartCompression: a new tab in the JPEG save dialog; part c first: a picture that is all gray is saved as a one-channel gray JPEG).
     cfg->setProperty("storeMetaData", chkMetaData->isChecked());
 
     QString enabledFilters;
