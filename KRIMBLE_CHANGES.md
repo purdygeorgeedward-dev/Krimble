@@ -7250,3 +7250,15 @@ George: "The painted one should have the same menu bar color as the bevel. It lo
 **Files:** `libs/ui/KisMainWindow.cpp`
 
 George: "I didnt see the gradient in the demo image. Put it back." The Painted theme's menu bar is the gradient again (`#1c2346` at both ends, `#394585` in the middle); the flat `#49588c` change was taken back. The demo images never show this gradient: the bar is painted by an event filter on the real window, which the demo does not have.
+
+## 2026-11-13 (585th) — Panels lie over the canvas (the canvas keeps the full width)
+
+**Files:** `libs/ui/KisMainWindow.cpp`
+
+George: "6. BUILD NOW." (panels over the canvas, not zooming it out). The 546th entry only froze the zoom: the canvas area was still smaller by the panel's width. New class `KrimbleCanvasOverlay` (installed at the end of the main window's constructor): after the main window's layout shrinks the central widget (the canvas area) for the docked panels, it is set back to the window's full width (same top and height) and lowered behind the panels, which then lie on top of the canvas. Floating panels are untouched. Setting `krimble/PanelsOverlayCanvas=false` turns it off. Side effect: the canvas' right scroll bar is under a right-hand panel. With the area no longer changing size, the 546th entry's zoom freeze has nothing to do (it stays for other cases).
+
+## 2026-11-13 (586th) — Color Lab: a color goes into the recent colors only after it is committed to the foreground
+
+**Files:** `plugins/dockers/advancedcolorselector/krimble_color_studio.h`
+
+George: "Commits to foreground before adding to recent." The recent colors list no longer gets a color the moment the picker shows it (a drag across the picker made a stream of colors). Each color change restarts a 700 ms timer (`m_recentTimer`); when it runs out, the color is added only if the canvas's edited color (foreground, or background when that is being edited) is that same color. Before: `select()` prepended it at once (commented out in the code).

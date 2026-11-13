@@ -33,6 +33,7 @@
 #include <QMutex>
 #include <QMutexLocker>
 #include <QPointer>
+#include <QSettings>
 #include <KisSignalMapper.h>
 #include <QTabBar>
 #include <QMoveEvent>
@@ -4156,6 +4157,64 @@ static void krimbleInstallTabDetach(QMainWindow *win)
         if (!bar->findChild<KrimbleTabDetachFilter*>(QString(), Qt::FindDirectChildrenOnly)) new KrimbleTabDetachFilter(bar, win);
     }
 }
+
+// Krimble 2026-11-13: George: "6. BUILD NOW." (panels lay over the canvas instead of shrinking it: "Instead of laying on top of the image, the right side panel forces the image in the main canvas
+// area to zoom waaaay out."). The 546th entry only froze the zoom; the canvas area was still smaller by the panel's width. Here the central widget (the canvas area) keeps the whole width of the
+// window: after the main window's layout has put the panels at the sides and shrunk the central widget, it is stretched back sideways to the window's full width and put behind the panels, which
+// then lie on top of the canvas. The height is left as the layout made it (toolbars and the menu bar above, the status bar below). A panel that floats is not touched. In the settings,
+// krimble/PanelsOverlayCanvas = false turns it off.
+class KrimbleCanvasOverlay : public QObject
+{
+public:
+    explicit KrimbleCanvasOverlay(QMainWindow *win) : QObject(win), m_win(win)
+    {
+        win->installEventFilter(this);
+        track();
+    }
+    bool eventFilter(QObject *watched, QEvent *event) override
+    {
+        if (watched == m_win.data()) {
+            if (event->type() == QEvent::Resize || event->type() == QEvent::LayoutRequest || event->type() == QEvent::Show || event->type() == QEvent::ChildAdded) schedule();
+        } else if (watched == m_central.data()) {
+            if (event->type() == QEvent::Resize || event->type() == QEvent::Move) schedule();
+        }
+        return false;
+    }
+
+private:
+    void track()
+    {
+        QWidget *central = m_win ? m_win->centralWidget() : nullptr;
+        if (central == m_central.data()) return;
+        if (m_central) m_central->removeEventFilter(this);
+        m_central = central;
+        if (m_central) m_central->installEventFilter(this);
+    }
+    void schedule()
+    {
+        if (m_pending || m_busy) return;
+        m_pending = true;
+        QTimer::singleShot(0, this, [this]() { m_pending = false; apply(); });
+    }
+    void apply()
+    {
+        if (!m_win) return;
+        track();
+        if (!m_central || !m_win->isVisible()) return;
+        if (!QSettings().value(QStringLiteral("krimble/PanelsOverlayCanvas"), true).toBool()) return;
+        const QRect now = m_central->geometry();
+        const QRect wanted(0, now.top(), m_win->width(), now.height());
+        if (now == wanted) return;
+        m_busy = true;
+        m_central->setGeometry(wanted);
+        m_central->lower();   // the panels and toolbars are drawn above it
+        m_busy = false;
+    }
+    QPointer<QMainWindow> m_win;
+    QPointer<QWidget> m_central;
+    bool m_pending = false;
+    bool m_busy = false;
+};
 
 static void krimbleInstallBevels(QMainWindow *win)
 {
@@ -8882,6 +8941,7 @@ void KisMainWindow::configChanged()
     // d->themeManager->setCurrentTheme(group.readEntry("Theme", "Krimble dark"));
     d->themeManager->setCurrentTheme(group.readEntry("Theme", "Krimble Blue-Gray"));   // Krimble 2026-11-12 (task 27): the default theme
 #endif
+    new KrimbleCanvasOverlay(this);   // Krimble 2026-11-13: the panels lie over the canvas
     krimbleInstallBevels(this);   // Krimble 2026-11-12 (task 43): George (the new build, a screenshot of the start screen): "on start the menu bar has nothing to separate it from the rest of the screen. No border. No hilight or shadow. Then it becomes the painted version." the lines of the menu bar, panels and tool bars at once, not 2.5 seconds later
     d->actionManager()->updateGUI();
 

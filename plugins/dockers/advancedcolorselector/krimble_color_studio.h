@@ -611,6 +611,20 @@ public:
         m_historyPage->onColor = [this](const QColor &c) { select(c); };
         m_historyPage->onPaletteChanged = [this]() { m_colors.clear(); loadPalette(); if (m_palettePage) m_palettePage->refresh(); };
         // every color that becomes the foreground color is recorded in the history, with the tool and the time, when it has stayed for a moment (not while a slider is dragged)
+        m_recentTimer.setSingleShot(true);   // Krimble 2026-11-13: the color is added to the recent colors when it has stayed as the foreground for this long
+        m_recentTimer.setInterval(700);
+        connect(&m_recentTimer, &QTimer::timeout, this, [this]() {
+            const QColor c = m_current;
+            if (!c.isValid()) return;
+            if (m_canvas) {   // it must be what the canvas has as the edited color (committed), not just what the picker shows
+                const KoColor edited = m_editBackground ? m_canvas->resourceManager()->backgroundColor() : m_canvas->resourceManager()->foregroundColor();
+                if (edited.toQColor().rgb() != c.rgb()) return;
+            }
+            m_recent.removeAll(c);
+            m_recent.prepend(c);
+            while (m_recent.size()>10) m_recent.removeLast();   // Krimble 2026-11-05: 10 across, one row
+            rebuildRecent();
+        });
         m_historyTimer.setSingleShot(true);
         m_historyTimer.setInterval(900);
         connect(&m_historyTimer, &QTimer::timeout, this, [this]() {
@@ -1028,13 +1042,17 @@ private:
         m_state.color = c;
         if (c.hsvHue() >= 0) m_state.hue = c.hsvHue();
         if (m_mixingPad) m_mixingPad->setColor(c);
-        if (commit && changed) {
-            m_recent.removeAll(c);
-            m_recent.prepend(c);
-            // while (m_recent.size()>12) m_recent.removeLast();
-            while (m_recent.size()>10) m_recent.removeLast();   // Krimble 2026-11-05: 10 across, one row
-            rebuildRecent();
-        }
+        // Krimble 2026-11-13: George: "Commits to foreground before adding to recent." (a color dragged across the picker went into the recent colors at once, a stream of colors). A color is
+        // added to the recent colors only after it has been committed to the foreground (written to the canvas' resources) and has stayed there for a moment: every new color restarts the timer.
+        // Before: the color was prepended to m_recent here, at once, and the list rebuilt.
+        // if (commit && changed) {
+        //     m_recent.removeAll(c);
+        //     m_recent.prepend(c);
+        //     // while (m_recent.size()>12) m_recent.removeLast();
+        //     while (m_recent.size()>10) m_recent.removeLast();   // Krimble 2026-11-05: 10 across, one row
+        //     rebuildRecent();
+        // }
+        if (commit && changed) m_recentTimer.start();
         m_square->setColor(c);
         for (int i=0;i<3;++i) {
             QSignalBlocker b(m_hsv[i]);
@@ -1318,6 +1336,7 @@ private:
     KrimblePalettePage *m_palettePage=nullptr;
     KrimbleHistoryPage *m_historyPage=nullptr;
     QTimer m_historyTimer;
+    QTimer m_recentTimer;   // Krimble 2026-11-13: adds the settled foreground color to the recent colors
     bool m_ready=false;
     bool m_editBackground=false;   // Krimble 2026-11-11: true after a tap on the toolbox background well
     KrimbleSlidersTop *m_sliders=nullptr;
