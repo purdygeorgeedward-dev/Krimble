@@ -3905,6 +3905,10 @@ static void krimbleInstallTabDetach(QMainWindow *win)
 
 static void krimbleInstallBevels(QMainWindow *win)
 {
+    // Krimble 2026-11-12 (task 43): George (the new build, a screenshot of the start screen): "on start the menu bar has nothing to separate it from the rest of the screen. No border. No hilight or shadow. Then it becomes the painted version." The menu bar itself never had the one-pixel lines (only panels, tool bars, menus and image windows had): it gets them now (raised: light top and left, dark bottom and right).
+    Q_FOREACH (QMenuBar *menuBar, win->findChildren<QMenuBar*>(QString(), Qt::FindDirectChildrenOnly)) {
+        if (!menuBar->findChild<KrimbleBevelOverlay*>(QStringLiteral("krimbleBevelOverlay"), Qt::FindDirectChildrenOnly)) new KrimbleBevelOverlay(menuBar);
+    }
     Q_FOREACH (QDockWidget *dock, win->findChildren<QDockWidget*>()) {
         if (!dock->findChild<KrimbleBevelOverlay*>(QStringLiteral("krimbleBevelOverlay"), Qt::FindDirectChildrenOnly)) new KrimbleBevelOverlay(dock);
     }
@@ -5038,6 +5042,11 @@ KisMainWindow::KisMainWindow(QUuid uuid)
 #ifndef Q_OS_HAIKU
     // d->themeManager = new Digikam::ThemeManager(group.readEntry("Theme", "Krimble dark"), this);
     d->themeManager = new Digikam::ThemeManager(group.readEntry("Theme", "Krimble Blue-Gray"), this);   // Krimble 2026-11-12 (task 27): the default theme
+    // Krimble 2026-11-12 (task 43): George (the new build, a screenshot of the start screen): "on start the menu bar has nothing to separate it from the rest of the screen. No border. No hilight or shadow. Then it becomes the painted version." The theme (the style sheet and the menu bar painting) used to be applied only at the very end of the window's setup, so the first picture the user saw was the bare menu bar and
+    // it turned into the themed one later. It is applied here, as soon as the manager exists, so the window is themed when it first appears (the later call stays: it finds the same theme).
+#ifndef Q_OS_HAIKU
+    d->themeManager->setCurrentTheme(group.readEntry("Theme", "Krimble Blue-Gray"));
+#endif
 #endif
     d->windowStateConfig = KSharedConfig::openConfig()->group("MainWindow");
 
@@ -8566,6 +8575,7 @@ void KisMainWindow::configChanged()
     // d->themeManager->setCurrentTheme(group.readEntry("Theme", "Krimble dark"));
     d->themeManager->setCurrentTheme(group.readEntry("Theme", "Krimble Blue-Gray"));   // Krimble 2026-11-12 (task 27): the default theme
 #endif
+    krimbleInstallBevels(this);   // Krimble 2026-11-12 (task 43): George (the new build, a screenshot of the start screen): "on start the menu bar has nothing to separate it from the rest of the screen. No border. No hilight or shadow. Then it becomes the painted version." the lines of the menu bar, panels and tool bars at once, not 2.5 seconds later
     d->actionManager()->updateGUI();
 
     QString s = cfg.getMDIBackgroundColor();

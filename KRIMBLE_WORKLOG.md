@@ -391,3 +391,5 @@ George sent three screenshots (Color Lab floating, Color Lab docked, and the Cus
 **2026-11-12, 19:30 (MST), task 42.** George: hexagon selection that snaps to the hex grid, with a lock (no rotating, scaling, line thickness or grid change until unlocked). Hexagon Selection tool in the Marquee flyout, snap tested against the overlay lattice, shared hex lock in View > Show (528th entry). Not compiled with the Krita headers. Pushed with the PAT George pasted earlier in this chat.
 
 **2026-11-12, 20:30 (MST), build 57 started.** George pasted a new PAT (it can start runs). workflow_dispatch of "Krimble Android build" on master, label 1.0.57-beta: run 43359369032 on commit cdca33d (HTTP 204, in_progress at 03:30Z Nov 13). Contains everything pushed up to the Hexagon Selection tool (528th entry). Row 57 goes into KRIMBLE_BUILD_LOG.md when it succeeds.
+
+**2026-11-12, 00:00 (MST), task 43.** George (new build): menu bar has no border, highlight or shadow at start, then becomes the painted version. Overlay now also on the menu bar, theme applied early, bevels installed at once (529th entry). Not in build 57. Pushed with the PAT George pasted in this chat.
