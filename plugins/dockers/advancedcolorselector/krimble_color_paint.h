@@ -18,11 +18,15 @@ class KrimbleColorBase : public QWidget
 {
 public:
     static constexpr double DW = 1178.0;   // the card's width in design units
+    static constexpr double MinWidth = 330.0;   // Krimble 2026-11-13 (task 71): George: "The ColorLab when moved to the right in the dock should hide behind the edge instead of shrinking, just as the image on the canvas should not zoom out when the docked panels move." below this width the card is not drawn smaller: it keeps its size and is cut off at the panel's edge
     explicit KrimbleColorBase(QWidget *parent = nullptr) : QWidget(parent) {}
     virtual double designHeight() const = 0;
     bool hasHeightForWidth() const override { return true; }
-    int heightForWidth(int w) const override { return qRound(w * designHeight() / DW); }
-    qreal scale() const { return width() / DW; }
+    // int heightForWidth(int w) const override { return qRound(w * designHeight() / DW); }
+    // qreal scale() const { return width() / DW; }
+    // Krimble 2026-11-13 (task 71): George: "The ColorLab when moved to the right in the dock should hide behind the edge instead of shrinking, just as the image on the canvas should not zoom out when the docked panels move."
+    int heightForWidth(int w) const override { return qRound(qMax<double>(w, MinWidth) * designHeight() / DW); }
+    qreal scale() const { return qMax<qreal>(width(), MinWidth) / DW; }
     QSize sizeHint() const override { return QSize(330, heightForWidth(330)); }
     QSize minimumSizeHint() const override { return QSize(240, heightForWidth(240)); }
 

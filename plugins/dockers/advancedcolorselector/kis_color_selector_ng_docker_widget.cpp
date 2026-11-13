@@ -128,6 +128,10 @@ KisColorSelectorNgDockerWidget::KisColorSelectorNgDockerWidget(QWidget *parent, 
     QScrollArea *studioScroll = new QScrollArea(this);
     studioScroll->setWidgetResizable(true);
     studioScroll->setFrameShape(QFrame::NoFrame);
+    // Krimble 2026-11-13 (task 71): George: "The ColorLab when moved to the right in the dock should hide behind the edge instead of shrinking, just as the image on the canvas should not zoom out when the docked panels move." The panel can be made narrower than the Color Lab's card (the dock may be moved toward the right edge): the card keeps its size (330 px at least) and the part that does not fit is
+    // hidden behind the edge, with no scroll bar, instead of the whole card shrinking.
+    studioScroll->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    m_krimbleStudio->setMinimumWidth(330);
     studioScroll->setWidget(m_krimbleStudio);
     // colorTabs->addTab(studioScroll, tr("Picker"));
     // colorTabs->addTab(classicPanel, tr("Classic"));
