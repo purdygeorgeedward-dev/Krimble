@@ -433,3 +433,5 @@ George sent three screenshots (Color Lab floating, Color Lab docked, and the Cus
 **2026-11-13, 03:12 (MST), annotations.** The decisions check step shows green on GitHub even when it fails (continue-on-error); both scripts now also print ::warning:: annotations (543rd entry). Pushed with the PAT George pasted in this chat.
 
 **2026-11-13, 03:40 (MST), tasks 56 and 57.** George: tabs never tear off; Raised buttons darker, highlight not white; start screen menu bar not distinct. New app-level tab tear-off filter with touch and a KRIMBLE-TABS log (tested in real Qt), Raised look lighter with a near-white highlight, flat lighter menu bar, K repaint at start (544th entry). Pushed with the PAT George pasted in this chat.
+
+**2026-11-13, 03:42 (MST), task 58.** George: Layers panel is a mess, no design or spacing. Header regrouped as one aligned grid (blend box and opacity bar share edges, 34 px rows, 6 px spacing, dividers) (545th entry). Not rendered. Pushed with the PAT George pasted in this chat.

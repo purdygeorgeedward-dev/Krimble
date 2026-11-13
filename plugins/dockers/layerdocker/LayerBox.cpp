@@ -26,6 +26,7 @@
 #include <QToolTip>
 #include <QWidget>
 #include <QComboBox>
+#include <QFrame>   // Krimble 2026-11-13 (task 58)
 #include <QCheckBox>
 #include <QVBoxLayout>
 #include <QPixmap>
@@ -302,14 +303,68 @@ LayerBox::LayerBox()
     m_wdgLayerBox->bnLower->setEnabled(false);
     m_wdgLayerBox->bnRaise->setEnabled(false);
 
+    // Krimble 2026-11-13 (task 58): George (build 57 screenshots): "Layers panel is a mess. No sense of design or spacing at all."
+    // What the screenshot showed: the blending mode box and the opacity bar did not start or end at the same place (the box was 78 px narrower on the left), the rows had the form's own
+    // 0 and 9 px margins and 1 px spacing, the header was not separated from the list, and the buttons at the bottom floated with no line above them. The header is now one grid:
+    // column 0 stretches and holds the blending mode box (row 0) and the opacity bar (row 1), column 1 holds the filter button and the menu button, both 34 px high, 6 px
+    // between everything, 6 px around the panel, a thin divider under the header and one above the buttons. The old rows (hbox2 and opacityLayout of the form) are emptied and removed.
+    {
+        QVBoxLayout *panel = m_wdgLayerBox->verticalLayout;
+        QComboBox *blend = m_wdgLayerBox->cmbComposite;
+        QWidget *opacityBar = m_wdgLayerBox->doubleOpacity;
+        panel->removeItem(m_wdgLayerBox->hbox2);
+        panel->removeItem(m_wdgLayerBox->opacityLayout);
+        m_wdgLayerBox->hbox2->removeWidget(blend);
+        m_wdgLayerBox->hbox2->removeWidget(m_wdgLayerBox->bnLayerFilters);
+        m_wdgLayerBox->opacityLayout->removeWidget(m_wdgLayerBox->opacityLabel);
+        m_wdgLayerBox->opacityLayout->removeWidget(opacityBar);
+        m_wdgLayerBox->opacityLayout->removeWidget(m_wdgLayerBox->configureLayerDockerToolbar);
+        delete m_wdgLayerBox->hbox2;
+        m_wdgLayerBox->hbox2 = nullptr;
+        delete m_wdgLayerBox->opacityLayout;
+        m_wdgLayerBox->opacityLayout = nullptr;
+        m_wdgLayerBox->opacityLabel->hide();   // the bar says "Opacity: n%" itself
+        QGridLayout *header = new QGridLayout;
+        header->setContentsMargins(0, 0, 0, 0);
+        header->setHorizontalSpacing(6);
+        header->setVerticalSpacing(6);
+        blend->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+        blend->setMinimumHeight(34);
+        blend->setMaximumWidth(QWIDGETSIZE_MAX);
+        opacityBar->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+        opacityBar->setMinimumHeight(34);
+        header->addWidget(blend, 0, 0);
+        header->addWidget(m_wdgLayerBox->bnLayerFilters, 0, 1);
+        header->addWidget(opacityBar, 1, 0);
+        header->addWidget(m_wdgLayerBox->configureLayerDockerToolbar, 1, 1);
+        header->setColumnStretch(0, 1);
+        m_wdgLayerBox->bnLayerFilters->setFixedSize(34, 34);
+        m_wdgLayerBox->configureLayerDockerToolbar->setFixedSize(34, 34);
+        panel->insertLayout(0, header);
+        QFrame *underHeader = new QFrame(mainWidget);
+        underHeader->setFrameShape(QFrame::HLine);
+        underHeader->setStyleSheet(QStringLiteral("color: #3a4468;"));
+        panel->insertWidget(1, underHeader);
+        QFrame *aboveButtons = new QFrame(mainWidget);
+        aboveButtons->setFrameShape(QFrame::HLine);
+        aboveButtons->setStyleSheet(QStringLiteral("color: #3a4468;"));
+        panel->insertWidget(panel->indexOf(m_wdgLayerBox->hbox1), aboveButtons);
+        panel->setContentsMargins(6, 6, 6, 6);
+        panel->setSpacing(6);
+        m_wdgLayerBox->hbox1->setSpacing(6);
+    }
+
     m_wdgLayerBox->doubleOpacity->setRange(0, 100, 0);
     if (cfg.sliderLabels()) {
         m_wdgLayerBox->opacityLabel->hide();
         KisSpinBoxI18nHelper::setText(m_wdgLayerBox->doubleOpacity,
                                       i18nc("{n} is the number value, % is the percent sign", "Opacity: {n}%"));
     } else {
+        // KisSpinBoxI18nHelper::setText(m_wdgLayerBox->doubleOpacity,
+        //                               i18nc("{n} is the number value, % is the percent sign", "{n}%"));
+        // Krimble 2026-11-13 (task 58): George (build 57 screenshots): "Layers panel is a mess. No sense of design or spacing at all." The label is not shown any more (the header is a grid), so the bar always says what it is.
         KisSpinBoxI18nHelper::setText(m_wdgLayerBox->doubleOpacity,
-                                      i18nc("{n} is the number value, % is the percent sign", "{n}%"));
+                                      i18nc("{n} is the number value, % is the percent sign", "Opacity: {n}%"));
     }
 
     connect(m_wdgLayerBox->doubleOpacity, SIGNAL(valueChanged(qreal)), SLOT(slotOpacitySliderMoved(qreal)));
