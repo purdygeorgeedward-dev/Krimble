@@ -7025,3 +7025,9 @@ George: "STOP TELLING ME WHICH BUILD I AM RUNNING OR THAT WE HAVENT RUN ANOTHER 
 
 George (shown Chatty's Layers panel after the reference pictures): "You know what would be useful? Thumbnails." The Layers panel already draws a thumbnail for every layer, but `KisConfig::layerThumbnailSize` defaulted to **20** px, the minimum of the Thumbnail Size slider in the Layers panel's menu (20 to 80), so a thumbnail was a tiny strip (a 2048 x 751 picture: about 7 px high). The default is **48** px (the old line is a comment); the slider still changes it and a size that was saved by the slider is kept. The rows are taller by the difference.
 
+## 2026-11-13 (550th) — Task 62: the six buttons under the layer list are symbols only
+
+**Files:** `plugins/dockers/layerdocker/LayerBox.cpp`
+
+George: "I would rather have symbols without buttons or boxes on the bottom of the layers panel, and I routinely use the ones that are there now to move layers up and down or to add or delete layers." The six buttons stay (add, duplicate, lower, raise, properties, delete), with the same functions, and are drawn as **symbols only**: no box, no border, no fill (the theme's button look is overridden for these six); a finger on one shows a soft blue field behind the symbol (pressed `rgba(80, 150, 255, 90)`, hover lighter), a disabled one is dimmed, the add button keeps its small menu arrow; the symbols are **24 px** (18 on Android before) and the buttons 38 px high. The mockup with the seven Photoshop-style buttons is not used for this row. Rendered the row in real Qt in the theme (with stand-in symbols): `layers_bottom_symbols_only.png`.
+

@@ -354,6 +354,30 @@ LayerBox::LayerBox()
         m_wdgLayerBox->hbox1->setSpacing(6);
     }
 
+    // Krimble 2026-11-13 (task 62): George: "I would rather have symbols without buttons or boxes on the bottom of the layers panel, and I routinely use the ones that are there now to move layers up and down or to add or delete layers."
+    // The six buttons under the layer list stay (add, duplicate, lower, raise, properties, delete: the ones he uses), but as symbols only: no box, no border, no fill (the theme's
+    // button look is overridden for these six); a finger down on one shows a soft blue field behind the symbol, a disabled one is dimmed. The symbols are 24 px (they were 18 on
+    // Android) and each button is 38 px high, so the touch targets stay large.
+    {
+        QToolButton *symbolButtons[] = {
+            m_wdgLayerBox->bnAdd, m_wdgLayerBox->bnDuplicate, m_wdgLayerBox->bnLower,
+            m_wdgLayerBox->bnRaise, m_wdgLayerBox->bnProperties, m_wdgLayerBox->bnDelete
+        };
+        const QString symbolStyle = QStringLiteral(
+            "QToolButton { border: none; background: transparent; padding: 2px; }"
+            "QToolButton:hover { background: rgba(120, 160, 255, 35); border-radius: 6px; }"
+            "QToolButton:pressed { background: rgba(80, 150, 255, 90); border-radius: 6px; }"
+            "QToolButton:disabled { background: transparent; }"
+            "QToolButton::menu-indicator { subcontrol-position: right bottom; }");
+        for (QToolButton *button : symbolButtons) {
+            button->setAutoRaise(true);
+            button->setFocusPolicy(Qt::NoFocus);
+            button->setIconSize(QSize(24, 24));
+            button->setMinimumHeight(38);
+            button->setStyleSheet(symbolStyle);
+        }
+    }
+
     m_wdgLayerBox->doubleOpacity->setRange(0, 100, 0);
     if (cfg.sliderLabels()) {
         m_wdgLayerBox->opacityLabel->hide();
