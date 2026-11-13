@@ -403,3 +403,5 @@ George sent three screenshots (Color Lab floating, Color Lab docked, and the Cus
 **2026-11-13, 00:13 (MST), task 48.** New dialog: column 14 to 18 percent (landscape), 26 percent (portrait), icons 44 px. First-run toolbox float switched off (533rd entry). Color Lab scaling like a picture: not changed, needs a redesign with real layouts; waiting for his go. Pushed with the PAT George pasted in this chat.
 
 **2026-11-13, 00:17 (MST), task 49.** George: SmartCompression logo too big, too much explanation, not like XAT, JPEG dialog enormous. Compact XAT-style tab (quality, mart, Extra Color, Grayscale, Progressive, protect, sensitivity), logo 30 px, dialog capped to 94 percent of the screen (534th entry). Pushed with the PAT George pasted in this chat.
+
+**2026-11-13, 00:18 (MST), task 50.** George: do not start with the toolbox floating; dock left with 2 columns on start. One-time reset on the next build: columns 2 before the toolbox is made, docked left 2.5 s after start (535th entry). Pushed with the PAT George pasted in this chat.

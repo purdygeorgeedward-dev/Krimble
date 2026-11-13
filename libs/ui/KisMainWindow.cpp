@@ -5054,6 +5054,15 @@ KisMainWindow::KisMainWindow(QUuid uuid)
     connect(d->workspacemodel, SIGNAL(rowsRemoved(QModelIndex,int,int)), this, SLOT(updateWindowMenu()));
 
     d->viewManager = new KisViewManager(this, actionCollection());
+    // Krimble 2026-11-13 (task 50): George: "jeez, no. Don't start with toolbox floating. Especially when it's an unstable mess. Dock left with 2 columns on start." Once (the setting krimble/ToolboxStartV58 is not set yet): the saved number of columns of the toolbox is put back to 2 before the toolbox is made (a phone that ran
+    // the older builds had 1 or 3, from the first-run float and from the tear-offs); the toolbox itself is docked at the left further down, 2.5 seconds after the start.
+    {
+        KConfigGroup toolboxStart(KSharedConfig::openConfig(), "krimble");
+        if (!toolboxStart.readEntry("ToolboxStartV58", false)) {
+            toolboxStart.writeEntry("ToolBoxColumns", 2);
+            toolboxStart.sync();
+        }
+    }
     KConfigGroup group( KSharedConfig::openConfig(), "theme");
 #ifndef Q_OS_HAIKU
     // d->themeManager = new Digikam::ThemeManager(group.readEntry("Theme", "Krimble dark"), this);
@@ -5401,6 +5410,18 @@ KisMainWindow::KisMainWindow(QUuid uuid)
             // Krimble 2026-11-13 (task 48): George (build 57): "I didn't float the toolbox. It started out that way and was displaying the tools crookedly or only one column." The first-run float
             // of 2026-10-12 (above) is switched off: on the first run the log shows the floating window 211 px wide with its tool area 27 px wide (columnsNeed 52), so one column or a crooked
             // layout, until the toolbox was docked and floated again. The toolbox starts docked on the left, where it lays out correctly (the screenshots). The old condition is below, kept.
+            // Krimble 2026-11-13 (task 50): George: "jeez, no. Don't start with toolbox floating. Especially when it's an unstable mess. Dock left with 2 columns on start." Once (krimble/ToolboxStartV58): the toolbox is docked at the left, whatever the saved layout says (it was floating in the layouts of the older builds).
+            {
+                KConfigGroup toolboxStart(KSharedConfig::openConfig(), "krimble");
+                if (!toolboxStart.readEntry("ToolboxStartV58", false)) {
+                    toolboxStart.writeEntry("ToolboxStartV58", true);
+                    toolboxStart.sync();
+                    if (QDockWidget *toolBoxDock = findChild<QDockWidget*>(QStringLiteral("ToolBox"))) {
+                        if (toolBoxDock->isFloating()) toolBoxDock->setFloating(false);
+                        addDockWidget(Qt::LeftDockWidgetArea, toolBoxDock);
+                    }
+                }
+            }
             // if (!floatCfg.readEntry<int>("krimble_toolbox_floated_once", 0)) {
             if (false) {
                 floatCfg.writeEntry<int>("krimble_toolbox_floated_once", 1);
