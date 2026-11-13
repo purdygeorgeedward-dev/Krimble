@@ -357,7 +357,7 @@ LayerBox::LayerBox()
     // Krimble 2026-11-13 (task 62): George: "I would rather have symbols without buttons or boxes on the bottom of the layers panel, and I routinely use the ones that are there now to move layers up and down or to add or delete layers."
     // The six buttons under the layer list stay (add, duplicate, lower, raise, properties, delete: the ones he uses), but as symbols only: no box, no border, no fill (the theme's
     // button look is overridden for these six); a finger down on one shows a soft blue field behind the symbol, a disabled one is dimmed. The symbols are 24 px (they were 18 on
-    // Android) and each button is 38 px high, so the touch targets stay large.
+    // Android) and each button is 38 px high, so the touch targets stay large. (Task 62, 2nd: the sizes are NOT changed, see below.)
     {
         QToolButton *symbolButtons[] = {
             m_wdgLayerBox->bnAdd, m_wdgLayerBox->bnDuplicate, m_wdgLayerBox->bnLower,
@@ -372,8 +372,9 @@ LayerBox::LayerBox()
         for (QToolButton *button : symbolButtons) {
             button->setAutoRaise(true);
             button->setFocusPolicy(Qt::NoFocus);
-            button->setIconSize(QSize(24, 24));
-            button->setMinimumHeight(38);
+            // button->setIconSize(QSize(24, 24));
+            // button->setMinimumHeight(38);
+            // Krimble 2026-11-13 (task 62, 2nd): George: "NO!!!!! DONT CHANGE MY LAYERS SYMBOLS!!!!!!" Only the boxes go: the symbols are the program's own, at the size they had (18 px on Android); their size is not changed.
             button->setStyleSheet(symbolStyle);
         }
     }

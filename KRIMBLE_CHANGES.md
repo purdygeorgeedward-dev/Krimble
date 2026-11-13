@@ -7031,3 +7031,9 @@ George (shown Chatty's Layers panel after the reference pictures): "You know wha
 
 George: "I would rather have symbols without buttons or boxes on the bottom of the layers panel, and I routinely use the ones that are there now to move layers up and down or to add or delete layers." The six buttons stay (add, duplicate, lower, raise, properties, delete), with the same functions, and are drawn as **symbols only**: no box, no border, no fill (the theme's button look is overridden for these six); a finger on one shows a soft blue field behind the symbol (pressed `rgba(80, 150, 255, 90)`, hover lighter), a disabled one is dimmed, the add button keeps its small menu arrow; the symbols are **24 px** (18 on Android before) and the buttons 38 px high. The mockup with the seven Photoshop-style buttons is not used for this row. Rendered the row in real Qt in the theme (with stand-in symbols): `layers_bottom_symbols_only.png`.
 
+## 2026-11-13 (551st) — Task 62, correction: the layer symbols keep their size
+
+**Files:** `plugins/dockers/layerdocker/LayerBox.cpp`
+
+George: "NO!!!!! DONT CHANGE MY LAYERS SYMBOLS!!!!!!" The pictures on the six buttons were never changed (the render I showed used stand-in symbols of my own, which looked like a change; that was my mistake). The 550th entry did make them larger (24 px) and the buttons taller (38 px): both lines are comments now. **Only the boxes are gone** (no border, no fill); the symbols and their size are the program's own, as before.
+
