@@ -7103,3 +7103,9 @@ George: "The ColorLab when moved to the right in the dock should hide behind the
 
 George: "Try to implement any easy Photoshop layers feature. Estimate workload or difficulty for any proposed change." The easiest one: a **Search layers** box (with a clear button) in the free space at the left of the blending mode box in the top row; typing filters the layer list by name through `KisNodeFilterProxyModel::setTextFilter` (the model already had it; the filter menu's own text field is not changed). Not run: not compiled with the Krita headers. The other proposals and their estimates were given in the reply.
 
+## 2026-11-13 (562nd) — The status bar: plain items, at most 22 px high
+
+**Files:** `libs/ui/KrimbleVisualStyle.h`, `KrimbleVisualStyleNov10.h`, `KrimbleVisualStylePainted.h`
+
+George (a screenshot of the status bar: the selection indicator at the left, the color profile text, and the size and memory readout at the right): "no buttons or bevels or whatever. This was good before. but still too tall." In the three sheets the buttons in the status bar (`QStatusBar QPushButton`, `QStatusBar QToolButton`) have no border, no fill, no margin and 6 px of padding at the sides (`min-height: 0`), and `QStatusBar` has `max-height: 22px` (the bar was about 31 logical px high in the screenshots). Nothing was added to the status bar by Krimble (only the rotation gadget and the zoom gadget were hidden, in October). Not run.
+

@@ -337,7 +337,18 @@ QDockWidget > QWidget, QScrollArea, QScrollArea > QWidget > QWidget {
 QStatusBar {
     color: #eef1fa;
     background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #2e354e, stop:1 #212639);
+    max-height: 22px;   /* task 73 */
 }
+/* Krimble 2026-11-13 (task 73): George (a screenshot of the status bar): "no buttons or bevels or whatever. This was good before. but still too tall." The status bar: its items (the size and memory readout, the selection indicator) are plain: no button border, no bevel, no fill, no extra padding, so the bar is only as tall as its
+   contents, and at most 22 px. */
+QStatusBar QPushButton, QStatusBar QToolButton {
+    border: none;
+    background: transparent;
+    padding: 0px 6px;
+    margin: 0px;
+    min-height: 0px;
+}
+
 */
 QStatusBar {
     color: #ffffff;

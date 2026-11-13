@@ -469,3 +469,5 @@ George sent three screenshots (Color Lab floating, Color Lab docked, and the Cus
 **2026-11-13, 05:34 (MST), task 71.** George: Color Lab should hide behind the edge, not shrink, when the dock narrows. Scale and height use a 330 minimum width, studio minimum width 330, no horizontal scroll bar (560th entry). Pushed with the PAT George pasted in this chat.
 
 **2026-11-13, 05:35 (MST), task 72.** George: implement any easy Photoshop layers feature, estimate the rest. Search box for layer names in the free top-row space (561st entry). Pushed with the PAT George pasted in this chat.
+
+**2026-11-13, 05:47 (MST), task 73.** George: status bar items plain, no buttons or bevels, and not so tall. Flat items and max height 22 px in the three sheets (562nd entry). Pushed with the PAT George pasted in this chat.
