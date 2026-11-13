@@ -19,6 +19,7 @@ Krimble 2026-11-13. George: "I'm concerned about his decisions get made and then
 | Toolbox flyouts: the toolbox's own icon size, next to the tool that was held | 2026-11-13 | not automatic |
 | Default theme Krimble Blue-Gray: one hue family (hue 227, saturation 48, palette and style sheet), one-pixel light and dark lines, the menu bar is NOT painted (only Krimble Painted paints it), list selection is the flat bright blue `#1d7cb2` | 2026-11-13 | not automatic |
 | Color wells (Color Lab and its pages): no outline, no glow | 2026-11-13 | not automatic |
+| Never tell George which build he is running, that a change is not in a build yet, or that something is unverified or untested on the phone; he knows. Say it only when he asks (the facts stay in KRIMBLE_CHANGES.md) | 2026-11-09 and 2026-11-13 ("STOP TELLING ME WHICH BUILD I AM RUNNING") | not automatic |
 | Color Lab must be a real panel that reflows, not a picture that zooms (the rebuild is not started) | 2026-11-13 | not automatic |
 | SmartCompression: the selection is the area to compress; the film covers the protected area; editing starts from the Smart Selection; the label is "SmartCompression" (no %); logo 54 px; no explanations in the JPEG tab | 2026-11-13 | not automatic |
 

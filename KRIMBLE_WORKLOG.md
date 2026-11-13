@@ -439,3 +439,5 @@ George sent three screenshots (Color Lab floating, Color Lab docked, and the Cus
 **2026-11-13, 04:09 (MST), task 59.** George: the right panel forces the picture to zoom out. Zoom frozen (fit mode becomes constant, picture kept in place) when the canvas area changes without the main window changing (546th entry). Pushed with the PAT George pasted in this chat.
 
 **2026-11-13, 04:24 (MST), task 60.** George: selected menu item solid light blue, no gradient. QMenu::item:selected is flat #0b87dd in the default and Painted sheets (547th entry). Pushed with the PAT George pasted in this chat.
+
+**2026-11-13, 04:26 (MST), decision.** George: stop telling me which build I run / that a change is not in a build yet. Written as a line in KRIMBLE_DECISIONS.md (548th entry). Pushed with the PAT George pasted in this chat.

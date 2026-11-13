@@ -7013,3 +7013,9 @@ George: "Another problem. Instead of laying on top of the image, the right side 
 
 George: "The selected item in the menu should not have a gradient. It should just be solid light blue, the brightest out of the range it currently uses." `QMenu::item:selected` (the rows of the menus and submenus) was a four-stop gradient (`#0b87dd`, `#0867b8`, `#0652ad`, `#05429d`); it is now the flat **`#0b87dd`**, the lightest of them, in the default theme (Krimble Blue-Gray) and in Krimble Painted (the old gradient is in a comment). The selected name on the menu bar itself is not changed (its last rule is a flat dark `#192138`). Checked: both sheets compile and contain the new rule. Not verified: a build or the phone.
 
+## 2026-11-13 (548th) — A decision written down: no build notices in replies
+
+**Files:** `KRIMBLE_DECISIONS.md`
+
+George: "STOP TELLING ME WHICH BUILD I AM RUNNING OR THAT WE HAVENT RUN ANOTHER BUILD YET!!!!!!!!! YOU ARE WASTING MY TIME AND MY POINTS TELLING ME STUPID OBVIOUS SHIT I ALREADY KNOW OVER AND OVER!!!!! STOP IT!!!!" He had said the same on 2026-11-09 (the "Krimble drift" chat). The rule is a line in the decisions file: no replies about which build he runs, that a change is not in a build yet, or that something is untested; the facts stay in the notes and are given only when he asks.
+
