@@ -3852,7 +3852,9 @@ protected:
     {
         QPainter p(this);
         p.setRenderHint(QPainter::Antialiasing, false);
-        const qreal one = 1.0 / qMax<qreal>(1.0, devicePixelRatioF());   // one device pixel
+        // Krimble 2026-11-13: George: "They all need bevels." / "I mean the menu bar." The menu bar's lines are 4 device pixels thick (the thickness he chose for bevels); everything else stays one device pixel.
+        const bool menuBarTarget = qobject_cast<QMenuBar*>(m_target.data()) != nullptr;
+        const qreal one = (menuBarTarget ? 4.0 : 1.0) / qMax<qreal>(1.0, devicePixelRatioF());
         // const QColor light(110, 114, 156);
         // const QColor dark(18, 19, 34);
         // Krimble 2026-11-12 (task 35): George: "Can we reverse bevel on menus so they look recessed?" A menu (popup) gets the lines the other way round: dark on the top and left,

@@ -7220,3 +7220,9 @@ George: "I think the tabs are too tall." The tab padding in `QTabBar::tab` is 4p
 **Files:** `libs/ui/KrimbleVisualStyle.h`
 
 George: "make the open area in 1 darker." The lists and trees (`QAbstractItemView`) in the flat sheet (Krimble Blue-Gray): background `#232a42` → `#151a2b`, alternate rows `#1d2438` → `#1a2033`. Brightness is kept by the Blue-Gray recolor, so the on-screen hue is the 236 family.
+
+## 2026-11-13 (581st) — Menu bar bevel: 4 device pixels
+
+**Files:** `libs/ui/KisMainWindow.cpp`
+
+George: "They all need bevels." / "I mean the menu bar." The menu bar already had the overlay's one-pixel lines in every theme, which are too thin to see on his phone. In `KrimbleBevelOverlay::paintEvent` the menu bar's lines are now 4 device pixels thick (light top and left, dark bottom and right); panels, tool bars, menus and image windows stay at one device pixel.
