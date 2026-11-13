@@ -23,6 +23,13 @@
 
 #include <KisImportExportManager.h>
 #include <kis_slider_spin_box.h>
+#include <QScreen>              // Krimble 2026-11-13 (task 49)
+#include <QGuiApplication>
+#include <QSignalBlocker>
+#include <QTabBar>
+#include <QTabWidget>
+#include <QSpinBox>
+#include <QSlider>
 #include <KisDocument.h>
 #include <KoDocumentInfo.h>
 #include <kis_image.h>
@@ -88,6 +95,7 @@ KisImportExportErrorCode KisJPEGExport::convert(KisDocument *document, QIODevice
     options.smartProtect = configuration->getInt("smartProtect", 0);
     options.smartSensitivity = configuration->getInt("smartSensitivity", 35);
     options.smartGrayscale = configuration->getBool("smartGrayscale", true);   // Krimble 2026-11-12 (task 24c): George: "Do SmartCompression now" (SmartCompression: a new tab in the JPEG save dialog; part c first: a picture that is all gray is saved as a one-channel gray JPEG).
+    options.smartForceGray = configuration->getBool("smartForceGray", false);   // Krimble 2026-11-13 (task 49): George (build 57): "SmartCompression logo is too big. Too much explanation in the panel. Doesn't look like XAT. Jpeg save dialog is enormous." the Grayscale check box
     options.storeDocumentMetaData = configuration->getBool("storeMetaData", false);
 
     KisPaintDeviceSP pd = new KisPaintDevice(*image->projection());
@@ -182,6 +190,7 @@ KisPropertiesConfigurationSP KisJPEGExport::defaultConfiguration(const QByteArra
     cfg->setProperty("smartProtect", 0);
     cfg->setProperty("smartSensitivity", 35);
     cfg->setProperty("smartGrayscale", true);   // Krimble 2026-11-12 (task 24c): George: "Do SmartCompression now" (SmartCompression: a new tab in the JPEG save dialog; part c first: a picture that is all gray is saved as a one-channel gray JPEG).
+    cfg->setProperty("smartForceGray", false);   // task 49
     cfg->setProperty("storeMetaData", false);
 
     KoColor fill_color(KoColorSpaceRegistry::instance()->rgb8());
@@ -225,13 +234,15 @@ KisWdgOptionsJPEG::KisWdgOptionsJPEG(QWidget *parent)
         const qreal ratio = devicePixelRatioF();
         QPixmap logo(QStringLiteral(":/dark_krimble-smartcompression-logo.png"));
         if (!logo.isNull()) {
-            logo = logo.scaledToHeight(qRound(100 * ratio), Qt::SmoothTransformation);
+            // logo = logo.scaledToHeight(qRound(100 * ratio), Qt::SmoothTransformation);
+            logo = logo.scaledToHeight(qRound(30 * ratio), Qt::SmoothTransformation);   // Krimble 2026-11-13 (task 49): George (build 57): "SmartCompression logo is too big. Too much explanation in the panel. Doesn't look like XAT. Jpeg save dialog is enormous." 30 logical px high (it was 100)
             logo.setDevicePixelRatio(ratio);
             smartLogo->setPixmap(logo);
         }
     }
 
     // Krimble 2026-11-12 (task 24a): George: "User should be able to select the level of SmartCompression. Also should have a way to select areas to mask so they won't be compressed, or total unmask to apply compression." and "But you start with the smart selection as the mask." The SmartCompression controls: the level, its four quick buttons, the sensitivity of the Smart Selection.
+#if 0   // Krimble 2026-11-13 (task 49): George (build 57): "SmartCompression logo is too big. Too much explanation in the panel. Doesn't look like XAT. Jpeg save dialog is enormous." The old level label, the four preset buttons and the sensitivity text (the tab is laid out like XAT's compress window now; the old code is kept here)
     {
         auto levelText = [](int v) {
             return v == 0 ? i18n("Level: Off") : i18n("Level: %1", v);
@@ -246,8 +257,43 @@ KisWdgOptionsJPEG::KisWdgOptionsJPEG(QWidget *parent)
         connect(sliderSmartSensitivity, &QSlider::valueChanged, this, [this](int v) { lblSmartSensitivity->setText(i18n("Sensitivity: %1", v)); });
     }
 
+#endif
+    // the tab's own size: the dialog may not be larger than the screen (Krimble 2026-11-13 (task 49): George (build 57): "SmartCompression logo is too big. Too much explanation in the panel. Doesn't look like XAT. Jpeg save dialog is enormous.")
+    if (QScreen *screen = QGuiApplication::primaryScreen()) {
+        const QSize avail = screen->availableGeometry().size();
+        setMaximumSize(int(avail.width() * 0.94), int(avail.height() * 0.94));
+    }
+    tabWidget->setElideMode(Qt::ElideRight);
+    tabWidget->tabBar()->setUsesScrollButtons(true);
+    tabWidget->tabBar()->setExpanding(false);
+
     metaDataFilters->setModel(&m_filterRegistryModel);
     qualityLevel->setRange(0, 100, 0);
+    // Krimble 2026-11-13 (task 49): George (build 57): "SmartCompression logo is too big. Too much explanation in the panel. Doesn't look like XAT. Jpeg save dialog is enormous." The SmartCompression tab (like XAT's compress window): its JPEG Quality, % SmartCompression and Sensitivity are slider and number box pairs; its JPEG Quality, Extra Color
+    // (the 1x1 subsampling) and Progressive are the same settings as the Basic and Advanced tabs' (changing one changes the other); Grayscale and the level are its own.
+    connect(sliderSmartLevel, &QSlider::valueChanged, spinSmartLevel, &QSpinBox::setValue);
+    connect(spinSmartLevel, QOverload<int>::of(&QSpinBox::valueChanged), sliderSmartLevel, &QSlider::setValue);
+    connect(sliderSmartSensitivity, &QSlider::valueChanged, spinSmartSensitivity, &QSpinBox::setValue);
+    connect(spinSmartSensitivity, QOverload<int>::of(&QSpinBox::valueChanged), sliderSmartSensitivity, &QSlider::setValue);
+    connect(sliderSmartQuality, &QSlider::valueChanged, spinSmartQuality, &QSpinBox::setValue);
+    connect(spinSmartQuality, QOverload<int>::of(&QSpinBox::valueChanged), sliderSmartQuality, &QSlider::setValue);
+    connect(sliderSmartQuality, &QSlider::valueChanged, this, [this](int v) {
+        QSignalBlocker blocker(qualityLevel);
+        qualityLevel->setValue(v);
+    });
+    connect(qualityLevel, &KisDoubleSliderSpinBox::valueChanged, this, [this](qreal v) {
+        QSignalBlocker b1(sliderSmartQuality);
+        QSignalBlocker b2(spinSmartQuality);
+        sliderSmartQuality->setValue(qRound(v));
+        spinSmartQuality->setValue(qRound(v));
+    });
+    connect(chkSmartProgressive, &QCheckBox::toggled, progressive, &QCheckBox::setChecked);
+    connect(progressive, &QCheckBox::toggled, chkSmartProgressive, &QCheckBox::setChecked);
+    connect(chkSmartExtraColor, &QCheckBox::toggled, this, [this](bool on) { subsampling->setCurrentIndex(on ? 3 : 0); });
+    connect(subsampling, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [this](int index) {
+        QSignalBlocker blocker(chkSmartExtraColor);
+        chkSmartExtraColor->setChecked(index == 3);
+    });
     KisSpinBoxI18nHelper::setText(qualityLevel, i18nc("{n} is the number value, % is the percent sign", "{n}%"));
     smoothLevel->setRange(0, 100, 0);
     KisSpinBoxI18nHelper::setText(smoothLevel, i18nc("{n} is the number value, % is the percent sign", "{n}%"));
@@ -304,6 +350,7 @@ void KisWdgOptionsJPEG::setConfiguration(const KisPropertiesConfigurationSP cfg)
     bnTransparencyFillColor->setDefaultColor(background);
     bnTransparencyFillColor->setColor(cfg->getColor("transparencyFillcolor", background));
     chkAuthor->setChecked(cfg->getBool("storeAuthor", false));
+#if 0   // task 49: the old lines (the check box "Save gray pictures as one channel" is gone; a gray picture is always saved as one channel now)
     sliderSmartLevel->setValue(cfg->getInt("smartLevel", 0));   // Krimble 2026-11-12 (task 24a): George: "User should be able to select the level of SmartCompression. Also should have a way to select areas to mask so they won't be compressed, or total unmask to apply compression." and "But you start with the smart selection as the mask."
     sliderSmartSensitivity->setValue(cfg->getInt("smartSensitivity", 35));
     const int smartProtect = cfg->getInt("smartProtect", 0);
@@ -311,6 +358,17 @@ void KisWdgOptionsJPEG::setConfiguration(const KisPropertiesConfigurationSP cfg)
     radSmartMine->setChecked(smartProtect == 1);
     radSmartNone->setChecked(smartProtect == 2);
     chkSmartGrayscale->setChecked(cfg->getBool("smartGrayscale", true));   // Krimble 2026-11-12 (task 24c): George: "Do SmartCompression now" (SmartCompression: a new tab in the JPEG save dialog; part c first: a picture that is all gray is saved as a one-channel gray JPEG).
+#endif
+    sliderSmartLevel->setValue(cfg->getInt("smartLevel", 0));   // Krimble 2026-11-13 (task 49): George (build 57): "SmartCompression logo is too big. Too much explanation in the panel. Doesn't look like XAT. Jpeg save dialog is enormous."
+    sliderSmartSensitivity->setValue(cfg->getInt("smartSensitivity", 35));
+    const int smartProtect = cfg->getInt("smartProtect", 0);
+    radSmartAuto->setChecked(smartProtect == 0);
+    radSmartMine->setChecked(smartProtect == 1);
+    radSmartNone->setChecked(smartProtect == 2);
+    chkSmartForceGray->setChecked(cfg->getBool("smartForceGray", false));
+    sliderSmartQuality->setValue(qRound(qualityLevel->value()));
+    chkSmartProgressive->setChecked(progressive->isChecked());
+    chkSmartExtraColor->setChecked(subsampling->currentIndex() == 3);
     chkMetaData->setChecked(cfg->getBool("storeMetaData", false));
 
     m_filterRegistryModel.setEnabledFilters(cfg->getString("filters").split(','));
@@ -337,10 +395,17 @@ KisPropertiesConfigurationSP KisWdgOptionsJPEG::configuration() const
     cfg->setProperty("xmp", xmp->isChecked());
     cfg->setProperty("transparencyFillcolor", transparencyFillcolor);
     cfg->setProperty("storeAuthor", chkAuthor->isChecked());
+#if 0   // task 49: the old lines
     cfg->setProperty("smartLevel", sliderSmartLevel->value());   // Krimble 2026-11-12 (task 24a): George: "User should be able to select the level of SmartCompression. Also should have a way to select areas to mask so they won't be compressed, or total unmask to apply compression." and "But you start with the smart selection as the mask."
     cfg->setProperty("smartSensitivity", sliderSmartSensitivity->value());
     cfg->setProperty("smartProtect", radSmartMine->isChecked() ? 1 : (radSmartNone->isChecked() ? 2 : 0));
     cfg->setProperty("smartGrayscale", chkSmartGrayscale->isChecked());   // Krimble 2026-11-12 (task 24c): George: "Do SmartCompression now" (SmartCompression: a new tab in the JPEG save dialog; part c first: a picture that is all gray is saved as a one-channel gray JPEG).
+#endif
+    cfg->setProperty("smartLevel", sliderSmartLevel->value());   // Krimble 2026-11-13 (task 49): George (build 57): "SmartCompression logo is too big. Too much explanation in the panel. Doesn't look like XAT. Jpeg save dialog is enormous."
+    cfg->setProperty("smartSensitivity", sliderSmartSensitivity->value());
+    cfg->setProperty("smartProtect", radSmartMine->isChecked() ? 1 : (radSmartNone->isChecked() ? 2 : 0));
+    cfg->setProperty("smartForceGray", chkSmartForceGray->isChecked());
+    cfg->setProperty("smartGrayscale", true);   // a gray picture is always saved as one channel
     cfg->setProperty("storeMetaData", chkMetaData->isChecked());
 
     QString enabledFilters;

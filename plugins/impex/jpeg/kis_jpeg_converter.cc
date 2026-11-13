@@ -543,7 +543,12 @@ KisImportExportErrorCode KisJPEGConverter::buildFile(QIODevice *io, KisPaintLaye
         fillPainter.end();
     }
     bool krimbleGray = false;   // SmartCompression: written as a one-channel gray JPEG
-    if (options.smartGrayscale && color_type == JCS_RGB && krimbleDeviceIsGray(dev, width, height)) {
+    bool krimbleLuma = false;   // Krimble 2026-11-13 (task 49): George (build 57): "SmartCompression logo is too big. Too much explanation in the panel. Doesn't look like XAT. Jpeg save dialog is enormous." the gray value is the brightness (299 R + 587 G + 114 B) / 1000 of a color picture
+    if (options.smartForceGray && color_type == JCS_RGB) {
+        krimbleGray = true;
+        krimbleLuma = true;
+        color_type = JCS_GRAYSCALE;
+    } else if (options.smartGrayscale && color_type == JCS_RGB && krimbleDeviceIsGray(dev, width, height)) {
         krimbleGray = true;
         color_type = JCS_GRAYSCALE;
     }
@@ -738,7 +743,8 @@ KisImportExportErrorCode KisJPEGConverter::buildFile(QIODevice *io, KisPaintLaye
                 } else {
                     do {
                         const quint8 *d = it->oldRawData();
-                        *(dst++) = d[0];
+                        // *(dst++) = d[0];
+                        *(dst++) = krimbleLuma ? quint8((299 * d[2] + 587 * d[1] + 114 * d[0]) / 1000) : d[0];   // Krimble 2026-11-13 (task 49): George (build 57): "SmartCompression logo is too big. Too much explanation in the panel. Doesn't look like XAT. Jpeg save dialog is enormous."
 
                     } while (it->nextPixel());
                 }
