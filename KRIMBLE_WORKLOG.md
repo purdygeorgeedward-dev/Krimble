@@ -449,3 +449,5 @@ George sent three screenshots (Color Lab floating, Color Lab docked, and the Cus
 **2026-11-13, 04:36 (MST), task 62 correction.** George: do not change the layer symbols. Sizes (24 px symbols, 38 px buttons) reverted to comments; only the box styling remains (551st entry). Pushed with the PAT George pasted in this chat.
 
 **2026-11-13, 04:38 (MST), decision.** George: "record it." The ask-first rule is a line of KRIMBLE_DECISIONS.md and out of the open questions (552nd entry). Pushed with the PAT George pasted in this chat.
+
+**2026-11-13, 04:43 (MST), task 63.** George: switch to the flat Blue-Gray; separate themes. Blue-Gray = flat default with original palette; new theme Krimble Bevel = the Nov 10 look with the hue 227 palette; Painted keeps its sheet with its original palette (553rd entry). Decision line added. Pushed with the PAT George pasted in this chat.

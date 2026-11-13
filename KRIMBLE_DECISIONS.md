@@ -15,6 +15,7 @@ Krimble 2026-11-13. George: "I'm concerned about his decisions get made and then
 | **Ask first.** No change to code, assets, settings, documents or files without asking George and waiting for his yes (each change, no batching; a yes covers what was asked and its notes entries). Reading, looking things up and rendering pictures to show him need no asking | Bible (Sept 28), confirmed 2026-11-13 ("Don't make changes without Asking first.") | not automatic |
 | Dodge, Burn, Sponge, Clone Stamp and Pattern Stamp are dropped | 2026-10-20 | not automatic |
 | New tools: only the Hexagon selection and the Regular Polygon and Star | 2026-11-12 | not automatic |
+| **Separate themes, never merged:** Krimble Blue-Gray (the default) is the flat, color-based theme (1.0.56 look, original palette, Window 55,57,82); Krimble Bevel is the Nov 10 look (painted sheet with the one-pixel lines, hue 227 palette); Krimble Painted is the gradient theme. A look is added as a new theme, not put on an existing one. Theme colors do not change unless George says so (they drifted darker and more colorful with every mockup copied) | 2026-11-13 ("I TOLD YOU TO SPLIT THEM OFF") | not automatic |
 | Hexagon tools: one shared lock (grid, size, orientation, line thickness) until unlocked; snapping follows the hex grid of View > Show > Hex | 2026-11-12 | not automatic |
 | Toolbox: starts docked at the left with two columns; it does not start floating | 2026-11-13 | not automatic |
 | Toolbox flyouts: the toolbox's own icon size, next to the tool that was held | 2026-11-13 | not automatic |

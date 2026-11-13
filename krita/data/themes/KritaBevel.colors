@@ -1,0 +1,136 @@
+# Krimble 2026-11-13 (task 63): George: "I TOLD YOU TO SPLIT THEM OFF!!!!!! TO USE SEPARATE THEMES!!!!!!!" The palette of the theme "Krimble Bevel" (the Nov 10 look: one-pixel light and dark lines, painted sheet): the Blue-Gray palette with the hue 227, saturation 48 backgrounds (a copy of KritaBlueGray.colors as it was on 2026-11-13 before the original Blue-Gray values came back).
+# Krimble 2026-11-12 (task 27): the scheme "Krimble Blue-Gray": the palette of the 1.0.56-beta build before the hue 227 changes (Window 55,57,82), George: "Can we save the old one (screenshot) as blue-gray and make it default?" No style sheet is applied for it.
+[ColorEffects:Disabled]
+Color=20,20,20
+ColorAmount=-0.5
+ColorEffect=0
+ContrastAmount=0.45
+ContrastEffect=1
+IntensityAmount=0.2
+IntensityEffect=2
+
+[ColorEffects:Inactive]
+ChangeSelectionColor=false
+Color=0,0,0
+ColorAmount=0.025
+ColorEffect=2
+ContrastAmount=0.4
+ContrastEffect=2
+Enable=false
+IntensityAmount=0
+IntensityEffect=0
+
+[Colors:Button]
+# Krimble 2026-11-13 (task 47): was BackgroundAlternate=50,51,75 (hue 238, saturation 33%); now hue 227, saturation 48%, the same brightness
+BackgroundAlternate=39,47,75
+# Krimble 2026-11-13 (task 47): was BackgroundNormal=38,40,65 (hue 236, saturation 42%); now hue 227, saturation 48%, the same brightness
+BackgroundNormal=34,41,65
+DecorationFocus=83,114,142
+DecorationHover=83,114,142
+ForegroundActive=230,230,230
+ForegroundInactive=156,162,174
+ForegroundLink=216,216,216
+ForegroundNegative=238,83,52
+ForegroundNeutral=247,198,76
+ForegroundNormal=200,200,200
+ForegroundPositive=151,202,64
+ForegroundVisited=160,160,160
+
+[Colors:Complementary]
+# Krimble 2026-11-13 (task 47): was BackgroundAlternate=59,61,86 (hue 236, saturation 31%); now hue 227, saturation 48%, the same brightness
+BackgroundAlternate=45,54,86
+# Krimble 2026-11-13 (task 47): was BackgroundNormal=55,57,82 (hue 236, saturation 33%); now hue 227, saturation 48%, the same brightness
+BackgroundNormal=43,51,82
+DecorationFocus=83,114,142
+DecorationHover=83,114,142
+ForegroundActive=230,230,230
+ForegroundInactive=156,162,174
+ForegroundLink=216,216,216
+ForegroundNegative=238,83,52
+ForegroundNeutral=247,198,76
+ForegroundNormal=200,200,200
+ForegroundPositive=151,202,64
+ForegroundVisited=160,160,160
+
+[Colors:Selection]
+# Krimble 2026-11-04: selection blue matches the stylesheet's selected rows and buttons (old values below)
+# BackgroundAlternate=96,126,163
+# BackgroundNormal=83,114,142
+# DecorationFocus=138,190,236
+# DecorationHover=138,190,236
+BackgroundAlternate=29,124,178
+BackgroundNormal=19,96,146
+DecorationFocus=67,201,255
+DecorationHover=67,201,255
+ForegroundActive=235,235,235
+ForegroundInactive=187,194,208
+ForegroundLink=216,216,216
+ForegroundNegative=255,156,106
+ForegroundNeutral=247,198,76
+ForegroundNormal=235,235,235
+ForegroundPositive=151,202,64
+ForegroundVisited=187,194,208
+
+[Colors:Tooltip]
+# Krimble 2026-11-13 (task 47): was BackgroundAlternate=28,30,55 (hue 236, saturation 49%); now hue 227, saturation 48%, the same brightness
+BackgroundAlternate=29,34,55
+# Krimble 2026-11-13 (task 47): was BackgroundNormal=38,40,65 (hue 236, saturation 42%); now hue 227, saturation 48%, the same brightness
+BackgroundNormal=34,41,65
+DecorationFocus=112,154,191
+DecorationHover=83,114,142
+ForegroundActive=230,230,230
+ForegroundInactive=156,162,174
+ForegroundLink=216,216,216
+ForegroundNegative=238,83,52
+ForegroundNeutral=247,198,76
+ForegroundNormal=156,162,174
+ForegroundPositive=151,202,64
+ForegroundVisited=160,160,160
+
+[Colors:View]
+# Krimble 2026-11-13 (task 47): was BackgroundAlternate=34,36,61 (hue 236, saturation 44%); now hue 227, saturation 48%, the same brightness
+BackgroundAlternate=32,38,61
+# Krimble 2026-11-13 (task 47): was BackgroundNormal=40,42,67 (hue 236, saturation 40%); now hue 227, saturation 48%, the same brightness
+BackgroundNormal=35,42,67
+DecorationFocus=83,114,142
+DecorationHover=83,114,142
+ForegroundActive=230,230,230
+ForegroundInactive=156,162,174
+ForegroundLink=216,216,216
+ForegroundNegative=238,83,52
+ForegroundNeutral=247,198,76
+ForegroundNormal=200,200,200
+ForegroundPositive=151,202,64
+ForegroundVisited=160,160,160
+
+[Colors:Window]
+# Krimble 2026-11-13 (task 47): was BackgroundAlternate=59,61,86 (hue 236, saturation 31%); now hue 227, saturation 48%, the same brightness
+BackgroundAlternate=45,54,86
+# Krimble 2026-11-13 (task 47): was BackgroundNormal=55,57,82 (hue 236, saturation 33%); now hue 227, saturation 48%, the same brightness
+BackgroundNormal=43,51,82
+DecorationFocus=83,114,142
+DecorationHover=83,114,142
+ForegroundActive=230,230,230
+ForegroundInactive=156,162,174
+ForegroundLink=216,216,216
+ForegroundNegative=238,83,52
+ForegroundNeutral=247,198,76
+ForegroundNormal=200,200,200
+ForegroundPositive=151,202,64
+ForegroundVisited=160,160,160
+
+[General]
+ColorScheme=Krimble Bevel
+Name=Krimble Bevel
+shadeSortColumn=true
+
+[KDE]
+contrast=2
+
+[WM]
+activeBackground=64,66,91
+activeBlend=255,255,255
+activeForeground=180,180,180
+inactiveBackground=48,49,73
+inactiveBlend=75,71,67
+inactiveForeground=128,127,125

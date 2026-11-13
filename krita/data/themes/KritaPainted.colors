@@ -19,10 +19,10 @@ IntensityAmount=0
 IntensityEffect=0
 
 [Colors:Button]
-# Krimble 2026-11-13 (task 47): was BackgroundAlternate=50,51,75 (hue 238, saturation 33%); now hue 227, saturation 48%, the same brightness
-BackgroundAlternate=39,47,75
-# Krimble 2026-11-13 (task 47): was BackgroundNormal=38,40,65 (hue 236, saturation 42%); now hue 227, saturation 48%, the same brightness
-BackgroundNormal=34,41,65
+# Krimble 2026-11-13 (task 63): the original value is back (task 47 had made it hue 227, saturation 48: BackgroundAlternate=39,47,75)
+BackgroundAlternate=50,51,75
+# Krimble 2026-11-13 (task 63): the original value is back (task 47 had made it hue 227, saturation 48: BackgroundNormal=34,41,65)
+BackgroundNormal=38,40,65
 DecorationFocus=83,114,142
 DecorationHover=83,114,142
 ForegroundActive=230,230,230
@@ -35,10 +35,10 @@ ForegroundPositive=151,202,64
 ForegroundVisited=160,160,160
 
 [Colors:Complementary]
-# Krimble 2026-11-13 (task 47): was BackgroundAlternate=59,61,86 (hue 236, saturation 31%); now hue 227, saturation 48%, the same brightness
-BackgroundAlternate=45,54,86
-# Krimble 2026-11-13 (task 47): was BackgroundNormal=55,57,82 (hue 236, saturation 33%); now hue 227, saturation 48%, the same brightness
-BackgroundNormal=43,51,82
+# Krimble 2026-11-13 (task 63): the original value is back (task 47 had made it hue 227, saturation 48: BackgroundAlternate=45,54,86)
+BackgroundAlternate=59,61,86
+# Krimble 2026-11-13 (task 63): the original value is back (task 47 had made it hue 227, saturation 48: BackgroundNormal=43,51,82)
+BackgroundNormal=55,57,82
 DecorationFocus=83,114,142
 DecorationHover=83,114,142
 ForegroundActive=230,230,230
@@ -70,10 +70,10 @@ ForegroundPositive=151,202,64
 ForegroundVisited=187,194,208
 
 [Colors:Tooltip]
-# Krimble 2026-11-13 (task 47): was BackgroundAlternate=28,30,55 (hue 236, saturation 49%); now hue 227, saturation 48%, the same brightness
-BackgroundAlternate=29,34,55
-# Krimble 2026-11-13 (task 47): was BackgroundNormal=38,40,65 (hue 236, saturation 42%); now hue 227, saturation 48%, the same brightness
-BackgroundNormal=34,41,65
+# Krimble 2026-11-13 (task 63): the original value is back (task 47 had made it hue 227, saturation 48: BackgroundAlternate=29,34,55)
+BackgroundAlternate=28,30,55
+# Krimble 2026-11-13 (task 63): the original value is back (task 47 had made it hue 227, saturation 48: BackgroundNormal=34,41,65)
+BackgroundNormal=38,40,65
 DecorationFocus=112,154,191
 DecorationHover=83,114,142
 ForegroundActive=230,230,230
@@ -86,10 +86,10 @@ ForegroundPositive=151,202,64
 ForegroundVisited=160,160,160
 
 [Colors:View]
-# Krimble 2026-11-13 (task 47): was BackgroundAlternate=34,36,61 (hue 236, saturation 44%); now hue 227, saturation 48%, the same brightness
-BackgroundAlternate=32,38,61
-# Krimble 2026-11-13 (task 47): was BackgroundNormal=40,42,67 (hue 236, saturation 40%); now hue 227, saturation 48%, the same brightness
-BackgroundNormal=35,42,67
+# Krimble 2026-11-13 (task 63): the original value is back (task 47 had made it hue 227, saturation 48: BackgroundAlternate=32,38,61)
+BackgroundAlternate=34,36,61
+# Krimble 2026-11-13 (task 63): the original value is back (task 47 had made it hue 227, saturation 48: BackgroundNormal=35,42,67)
+BackgroundNormal=40,42,67
 DecorationFocus=83,114,142
 DecorationHover=83,114,142
 ForegroundActive=230,230,230
@@ -102,10 +102,10 @@ ForegroundPositive=151,202,64
 ForegroundVisited=160,160,160
 
 [Colors:Window]
-# Krimble 2026-11-13 (task 47): was BackgroundAlternate=59,61,86 (hue 236, saturation 31%); now hue 227, saturation 48%, the same brightness
-BackgroundAlternate=45,54,86
-# Krimble 2026-11-13 (task 47): was BackgroundNormal=55,57,82 (hue 236, saturation 33%); now hue 227, saturation 48%, the same brightness
-BackgroundNormal=43,51,82
+# Krimble 2026-11-13 (task 63): the original value is back (task 47 had made it hue 227, saturation 48: BackgroundAlternate=45,54,86)
+BackgroundAlternate=59,61,86
+# Krimble 2026-11-13 (task 63): the original value is back (task 47 had made it hue 227, saturation 48: BackgroundNormal=43,51,82)
+BackgroundNormal=55,57,82
 DecorationFocus=83,114,142
 DecorationHover=83,114,142
 ForegroundActive=230,230,230

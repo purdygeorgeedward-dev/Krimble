@@ -295,6 +295,10 @@ void ThemeManager::slotChangePalette()
     if (theme == QStringLiteral("Krimble Blue")) {   // Krimble 2026-11-12 (task 27): the flat sheet belongs to the theme "Krimble Blue" now; "Krimble Blue-Gray" (the default) has none
         qApp->setStyleSheet(krimbleVisualStyleSheet());
     } else if (theme == QStringLiteral("Krimble Blue-Gray")) {   // Krimble 2026-11-12 (task 27): the default theme: the same sheet in the old blue-gray colors
+        // Krimble 2026-11-13 (task 63): George: "I TOLD YOU TO SPLIT THEM OFF!!!!!! TO USE SEPARATE THEMES!!!!!!!" The default theme is the flat one again, as in 1.0.56-beta: the flat sheet recolored to the old blue-gray (hue 236, saturation 33) with the original palette. The Nov 10 look
+        // is its own theme below. The lines that were here (the Nov 10 sheet on the default theme) are in the branch of "Krimble Bevel".
+        qApp->setStyleSheet(krimbleRecolorSheet(krimbleVisualStyleSheet(), 236, 33));
+    } else if (theme == QStringLiteral("Krimble Bevel")) {   // Krimble 2026-11-13 (task 63): George: "I TOLD YOU TO SPLIT THEM OFF!!!!!! TO USE SEPARATE THEMES!!!!!!!" the Nov 10 look as its own theme
         // qApp->setStyleSheet(krimbleRecolorSheet(krimbleVisualStyleSheet(), 236, 33));   // task 27 (second part): the flat sheet recolored
         // qApp->setStyleSheet(krimbleNov10StyleSheet());   // task 31 (before task 34)
         qApp->setStyleSheet(krimbleSameHueSheet(krimbleNov10StyleSheet(), 227, 48));   // Krimble 2026-11-12 (task 34): all the same hue and saturation. Krimble 2026-11-12 (task 31): George: "The Nov 10 version is so much better. Revert to that and make it the default."
