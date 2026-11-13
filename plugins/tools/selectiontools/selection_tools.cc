@@ -25,6 +25,7 @@
 #include "kis_tool_select_path.h"
 #include "kis_tool_select_similar.h"
 #include "KisToolSelectMagnetic.h"
+#include "kis_tool_select_hexagon.h"   // Krimble 2026-11-12 (task 42)
 
 K_PLUGIN_FACTORY_WITH_JSON(SelectionToolsFactory, "kritaselectiontools.json", registerPlugin<SelectionTools>();)
 
@@ -36,6 +37,7 @@ SelectionTools::SelectionTools(QObject *parent, const QVariantList &)
     KoToolRegistry::instance()->add(new KisToolSelectPolygonalFactory());
     KoToolRegistry::instance()->add(new KisToolSelectRectangularFactory());
     KoToolRegistry::instance()->add(new KisToolSelectEllipticalFactory());
+    KoToolRegistry::instance()->add(new KisToolSelectHexagonFactory());   // Krimble 2026-11-12 (task 42): hexagon selection
     KoToolRegistry::instance()->add(new KisToolSelectContiguousFactory());
     // Krimble 2026-10-30: the Path-Based Selection tool is registered and stays in the toolbox; George has not said otherwise. (ChatGPT's notes of 2026-10-28 said to retain it;
     // the comment that stood here, "Krimble 1.0.45-beta: Path-Based Selection excluded from toolbox.", was an earlier plan.)

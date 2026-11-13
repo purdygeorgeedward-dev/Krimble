@@ -1,6 +1,7 @@
 set(kritaselectiontools_SOURCES
     selection_tools.cc
     kis_tool_select_rectangular.cc
+    kis_tool_select_hexagon.cc   # Krimble 2026-11-12 (task 42)
     kis_tool_select_polygonal.cc
     kis_tool_select_elliptical.cc
     kis_tool_select_contiguous.cc
@@ -28,6 +29,7 @@ install( FILES
         KisToolSelectSimilar.action
         KisToolSelectContiguous.action
         KisToolSelectRectangular.action
+        KisToolSelectHexagon.action   # Krimble 2026-11-12 (task 42)
         KisToolSelectOutline.action
         KisToolSelectPath.action
         KisToolSelectMagnetic.action

@@ -387,3 +387,5 @@ George sent three screenshots (Color Lab floating, Color Lab docked, and the Cus
 **2026-11-12, 18:30 (MST), task 24a.** SmartCompression step 2: the level (Light/Medium/Strong/Maximum), the Smart Selection and the protected area in the JPEG save dialog; engine tested standalone (526th entry). Red film editing not built yet. Pushed with the PAT George pasted earlier in this chat.
 
 **2026-11-12, 18:48 (MST), task 41.** George: hex overlay lines too thin, no thickness or color control. View > Show > Hex Lines... (thickness, color, opacity; default 2 px) (527th entry). Pushed with the PAT George pasted earlier in this chat.
+
+**2026-11-12, 19:30 (MST), task 42.** George: hexagon selection that snaps to the hex grid, with a lock (no rotating, scaling, line thickness or grid change until unlocked). Hexagon Selection tool in the Marquee flyout, snap tested against the overlay lattice, shared hex lock in View > Show (528th entry). Not compiled with the Krita headers. Pushed with the PAT George pasted earlier in this chat.

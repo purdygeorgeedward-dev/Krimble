@@ -4174,6 +4174,24 @@ static void krimbleHexLoadState()
     g_krimbleHexLineColor = g.readEntry("lineColor", g_krimbleHexLineColor);
 }
 static QColor g_krimbleHexColor = QColor(Qt::black);
+// Krimble 2026-11-12 (task 42): George: "you should be able to lock the settings so it doesn't rotate or scale or change line thickness or the hex grid until you unlock it." One lock for everything hex
+// (the grid, the overlay's lines, the Hexagon tools), kept in the settings (KrimbleHex/locked) so the tools can read it too. While locked: Hex Size..., Hex Lines... and the pinch do nothing.
+static bool krimbleHexLocked()
+{
+    return KSharedConfig::openConfig()->group("KrimbleHex").readEntry("locked", false);
+}
+static void krimbleHexSetLocked(bool on)
+{
+    KConfigGroup g = KSharedConfig::openConfig()->group("KrimbleHex");
+    g.writeEntry("locked", on);
+    g.sync();
+}
+static bool krimbleHexRefuseWhenLocked(QWidget *parent, const QString &title)
+{
+    if (!krimbleHexLocked()) return false;
+    QMessageBox::information(parent, title, i18n("The hex settings are locked. Unlock them in View > Show > Lock Hex Settings, or in the options of a hexagon tool."));
+    return true;
+}
 
 // George: "Hex overlay should be pinch zoom then drop with a tap." While the overlay is being adjusted, two fingers scale the hexes (the distance between
 // them against its last value), a short single tap that does not move drops them (the size is kept; the pattern then follows the canvas as usual), and
@@ -4495,6 +4513,10 @@ static void krimbleInstallHexMenus(KisMainWindow *win)
                         KrimbleHexDecoration *deco = krimbleHexDecorationOf(win, false);
                         QSignalBlocker blocker(hexAction);
                         hexAction->setChecked(deco && deco->visible());
+                        if (QAction *lockAct = sub->findChild<QAction*>(QStringLiteral("krimbleHexLock"))) {   // Krimble 2026-11-12 (task 42)
+                            QSignalBlocker lockBlocker(lockAct);
+                            lockAct->setChecked(krimbleHexLocked());
+                        }
                         continue;
                     }
                     QAction *hexAction = new QAction(i18n("Hex"), sub);
@@ -4512,7 +4534,7 @@ static void krimbleInstallHexMenus(KisMainWindow *win)
                         deco->setVisible(on);
                         KisViewManager *manager = win->viewManager();
                         KisCanvas2 *hexCanvas = (manager && win->activeView()) ? win->activeView()->canvasBase() : nullptr;
-                        if (on && hexCanvas && hexCanvas->canvasWidget()) {
+                        if (on && hexCanvas && hexCanvas->canvasWidget() && !krimbleHexLocked()) {   // Krimble 2026-11-12 (task 42): no pinching while locked
                             // George: "Hex overlay should be pinch zoom then drop with a tap."
                             deco->adjusting = true;
                             KrimbleHexAdjustFilter *adjustFilter = new KrimbleHexAdjustFilter(hexCanvas->canvasWidget(), deco, hexCanvas);
@@ -4531,6 +4553,7 @@ static void krimbleInstallHexMenus(KisMainWindow *win)
                     QAction *sizeAction = new QAction(i18n("Hex Size..."), sub);
                     sizeAction->setObjectName(QStringLiteral("krimbleHexSize"));
                     QObject::connect(sizeAction, &QAction::triggered, win, [win]() {
+                        if (krimbleHexRefuseWhenLocked(win, i18n("Hex Size"))) return;   // Krimble 2026-11-12 (task 42)
                         qreal thickness = g_krimbleHexThickness;
                         QColor color = g_krimbleHexColor;
                         if (!krimbleAskHex(win, false, &g_krimbleHexSize, &g_krimbleHexFlat, &thickness, &color)) return;
@@ -4547,6 +4570,7 @@ static void krimbleInstallHexMenus(KisMainWindow *win)
                     QAction *linesAction = new QAction(i18n("Hex Lines..."), sub);
                     linesAction->setObjectName(QStringLiteral("krimbleHexLines"));
                     QObject::connect(linesAction, &QAction::triggered, win, [win]() {
+                        if (krimbleHexRefuseWhenLocked(win, i18n("Hex Lines"))) return;   // Krimble 2026-11-12 (task 42)
                         auto apply = [win]() {
                             KrimbleHexDecoration *deco = krimbleHexDecorationOf(win, false);
                             if (deco) {
@@ -4559,9 +4583,16 @@ static void krimbleInstallHexMenus(KisMainWindow *win)
                             krimbleHexSaveState();
                         }
                     });
+                    // Krimble 2026-11-12 (task 42): View > Show > Lock Hex Settings (a check mark).
+                    QAction *lockAction = new QAction(i18n("Lock Hex Settings"), sub);
+                    lockAction->setObjectName(QStringLiteral("krimbleHexLock"));
+                    lockAction->setCheckable(true);
+                    lockAction->setChecked(krimbleHexLocked());
+                    QObject::connect(lockAction, &QAction::toggled, win, [](bool on) { krimbleHexSetLocked(on); });
                     sub->addAction(hexAction);
                     sub->addAction(sizeAction);
                     sub->addAction(linesAction);
+                    sub->addAction(lockAction);
                 } else if (isLayer && text == QLatin1String("New")) {
                     // Krimble 2026-10-30: Layer > New > Star... (see krimbleMakeStarLayer), above Hex Pattern...
                     if (!sub->findChild<QAction*>(QStringLiteral("krimbleStarLayer"))) {

@@ -80,7 +80,8 @@ static int buttonSize(int screen)
 static const QList<QStringList> &krimbleToolGroupIds()
 {
     static const QList<QStringList> groups = {
-        { QStringLiteral("KisToolSelectRectangular"), QStringLiteral("KisToolSelectElliptical") },                                          // Marquee
+        { QStringLiteral("KisToolSelectRectangular"), QStringLiteral("KisToolSelectElliptical"), QStringLiteral("KisToolSelectHexagon") },   // Krimble 2026-11-12 (task 42): Hexagon Selection joins the Marquee flyout
+                                                 // Marquee
         { QStringLiteral("KisToolSelectOutline"), QStringLiteral("KisToolSelectPolygonal"), QStringLiteral("KisToolSelectMagnetic") },   // Lasso
         { QStringLiteral("KisToolSelectContiguous"), QStringLiteral("KisToolSelectSimilar") },                                              // Wand
     };

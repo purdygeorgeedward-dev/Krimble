@@ -42,6 +42,7 @@
         <file>dark_tool_perspectivegrid.svg</file>
         <file>dark_tool_polygonal_selection.svg</file>
         <file>dark_tool_rect_selection.svg</file>
+        <file>dark_tool_hexagon_selection.svg</file>
         <file>dark_tool_similar_selection.svg</file>
         <file>dark_tool_zoom.svg</file>
         <file>dark_tool_comic_panel.svg</file>
@@ -86,6 +87,7 @@
         <file>light_tool_perspectivegrid.svg</file>
         <file>light_tool_polygonal_selection.svg</file>
         <file>light_tool_rect_selection.svg</file>
+        <file>light_tool_hexagon_selection.svg</file>
         <file>light_tool_similar_selection.svg</file>
         <file>light_tool_zoom.svg</file>
         <file>light_tool_comic_panel.svg</file>
