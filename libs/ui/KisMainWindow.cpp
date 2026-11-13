@@ -4081,7 +4081,7 @@ private:
         const QColor edge(0, 0, 0);
         const QColor textOn = pal.color(QPalette::WindowText).lighter(115);
         const QColor textOff = QColor(int(textOn.red() * 0.7), int(textOn.green() * 0.7), int(textOn.blue() * 0.75));
-        const qreal r = 11.0, k = 6.0;   // r: top corner radius (larger = rounder)
+        const qreal r = 16.0, k = 10.0;   // r: top corner radius (larger = rounder)
         const qreal baseY = bar->height() - 0.5;
         p.fillRect(bar->rect(), strip);
         const int current = bar->currentIndex();

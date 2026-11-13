@@ -7202,3 +7202,9 @@ George: "The darker tabs are too dark." Unselected tab color in `paintTabRow` `p
 **Files:** `libs/ui/KisMainWindow.cpp`
 
 George: "ok a little darker". Unselected tab color `panel.darker(120)` → `panel.darker(130)`. Tab colors now: selected = panel, unselected = `darker(130)`, gaps = `darker(300)`.
+
+## 2026-11-13 (578th) — Tab C: bigger curves
+
+**Files:** `libs/ui/KisMainWindow.cpp`
+
+George: "The curves aren't enough." In `paintTabRow` the top corner radius `r` 11 → 16 and the bottom flare size `k` 6 → 10 (the space between tabs grows with `k`).
