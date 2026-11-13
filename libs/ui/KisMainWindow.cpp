@@ -1369,7 +1369,21 @@ protected:
             // along the bottom with a lighter line above it. Tried in real Qt next to the mockups (menubar_compare.png). Before: a plain top-to-bottom gradient #374676 to #242D4C.
             // Krimble 2026-11-11: this painting belongs to the "Krimble Painted" theme only (thememanager.cpp sets the property). For the flat theme "Krimble dark" and for every other theme
             // the bar is left to the style sheet and the palette (before, it was painted over for every theme, so the flat top bar color never showed).
-            if (!qApp->property("krimblePaintedTheme").toBool()) return false;
+            // Krimble 2026-11-13 (task 46): George: "The orange K is still too far to the right." Qt puts the K's button about 11 px in from the left edge of the bar and may move it again whenever the bar is laid out, so
+            // the K drawn inside that button could be anywhere from 1 to 13 px in (about 42 screen pixels on the phone). The K is drawn HERE, by the bar itself, 2 px from the bar's left edge and
+            // centered up and down, whatever the button does (the button paints nothing now; the first menu name still starts after the button, so they cannot overlap).
+            auto drawK = [watched]() {   // after the painting of the bar when the bar is painted (the Painted theme), or at once
+                QWidget *kBar = static_cast<QWidget *>(watched);
+                const QFontMetrics kMetrics(kBar->font());
+                const int kSize = qMin(kBar->height() - 4, qMax(14, kMetrics.height()));
+                QPainter kPainter(kBar);
+                kPainter.setRenderHint(QPainter::SmoothPixmapTransform, true);
+                qApp->windowIcon().paint(&kPainter, QRect(2, (kBar->height() - kSize) / 2, kSize, kSize));
+            };
+            if (!qApp->property("krimblePaintedTheme").toBool()) {
+                drawK();
+                return false;
+            }
             QWidget *bar = static_cast<QWidget *>(watched);
             QPainter painter(bar);
             const QRectF r(bar->rect());
@@ -1391,6 +1405,8 @@ protected:
             painter.drawLine(0, bar->height() - 2, bar->width(), bar->height() - 2);
             painter.setPen(QColor(8, 11, 28, 255));
             painter.drawLine(0, bar->height() - 1, bar->width(), bar->height() - 1);
+            painter.end();
+            drawK();   // Krimble 2026-11-13 (task 46)
             return false;   // the bar then draws its menu names on top as usual
         } else if (event->type() == QEvent::Paint) {
             QWidget *label = qobject_cast<QWidget *>(watched);
@@ -1406,7 +1422,7 @@ protected:
                 // again at the left end of the menu bar (the top left of the image window), and the two faults are fixed: SIZE: as tall as the menu names (the menu bar's font height,
                 // never more than the button), so it follows the font and the UI scale and cannot be too big; POSITION: centered on the menu bar's middle line (not on the button, which Qt
                 // can place at the top edge) and centered across the button's width. Qt's own icon is still swallowed (return true).
-                {
+                if (false) {   // Krimble 2026-11-13 (task 46): the K is drawn by the menu bar itself now (see the paint of the bar above)
                     QWidget *krimbleBar = label->parentWidget();
                     const QFontMetrics krimbleMetrics(krimbleBar ? krimbleBar->font() : label->font());
                     const int kSize = qMin(qMin(label->width(), label->height()) - 2, qMax(14, krimbleMetrics.height()));

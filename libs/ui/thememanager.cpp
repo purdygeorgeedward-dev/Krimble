@@ -288,7 +288,9 @@ void ThemeManager::slotChangePalette()
     // painted (gradient) sheet (KrimbleVisualStylePainted.h), and every other theme gets no sheet at all.
     // qApp->setProperty("krimblePaintedTheme", theme == QStringLiteral("Krimble Painted"));
     // Krimble 2026-11-12 (task 31): the Nov 10 look painted the menu bar across (dark at both ends) too: the default theme "Krimble Blue-Gray" has it again.
-    qApp->setProperty("krimblePaintedTheme", theme == QStringLiteral("Krimble Painted") || theme == QStringLiteral("Krimble Blue-Gray"));   // Krimble 2026-11-11: the menu bar filter (KisMainWindow.cpp) paints its gradient only for this theme
+    // qApp->setProperty("krimblePaintedTheme", theme == QStringLiteral("Krimble Painted") || theme == QStringLiteral("Krimble Blue-Gray"));
+    // Krimble 2026-11-13 (task 46): George: "The main menu bar is ugly. Remove the paint job on it." The menu bar painting (the gradient dark at both ends, with its lines) is back to the Krimble Painted theme only; the default theme leaves the bar to the style sheet (transparent over the window) and the one-pixel lines.
+    qApp->setProperty("krimblePaintedTheme", theme == QStringLiteral("Krimble Painted"));   // Krimble 2026-11-11: the menu bar filter (KisMainWindow.cpp) paints its gradient only for this theme
     // if (theme == QStringLiteral("Krimble dark")) {
     if (theme == QStringLiteral("Krimble Blue")) {   // Krimble 2026-11-12 (task 27): the flat sheet belongs to the theme "Krimble Blue" now; "Krimble Blue-Gray" (the default) has none
         qApp->setStyleSheet(krimbleVisualStyleSheet());

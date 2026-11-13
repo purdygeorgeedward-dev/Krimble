@@ -27,7 +27,8 @@ public:
         setObjectName(QStringLiteral("krimbleToolFlyout"));
         setStyleSheet(QStringLiteral(
             "QFrame#krimbleToolFlyout { background: #181b2e; border: 1px solid #6058aa; }"
-            "QToolButton { color: #ffffff; font-size: 15px; padding: 4px 14px 4px 8px; border: none; background: transparent; text-align: left; }"
+            // "QToolButton { color: #ffffff; font-size: 15px; padding: 4px 14px 4px 8px; border: none; background: transparent; text-align: left; }"
+            "QToolButton { color: #ffffff; font-size: 12px; padding: 1px 10px 1px 2px; border: none; background: transparent; text-align: left; }"   // Krimble 2026-11-13 (task 46)
             "QToolButton:pressed { background: #10498c; }"
             "QToolButton:checked { background: #0b2f66; }"));
         QVBoxLayout *layout = new QVBoxLayout(this);
@@ -39,11 +40,14 @@ public:
             QToolButton *row = new QToolButton(this);
             row->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
             row->setIcon(member->icon());
-            row->setIconSize(member->iconSize() * 3 / 2);
+            // row->setIconSize(member->iconSize() * 3 / 2);
+            // Krimble 2026-11-13 (task 46): George: "The flyouts do not match the size of the icons in the toolbar. This is bad. Should be next to the tool you long press and [the] same size." A row's picture is the toolbox's own icon size (it was 1.5 times larger) and its height is the toolbox button's height, the text is smaller.
+            row->setIconSize(member->iconSize());
             row->setText(name);
             row->setCheckable(true);
             row->setChecked(member == current);
-            row->setMinimumHeight(qMax(44, member->iconSize().height() * 3 / 2 + 14));
+            // row->setMinimumHeight(qMax(44, member->iconSize().height() * 3 / 2 + 14));
+            row->setMinimumHeight(qMax(member->height(), member->iconSize().height() + 6));
             row->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
             layout->addWidget(row);
             // a tap: close the flyout, then click the member's own button (it may be hidden: click() works on a hidden button)
