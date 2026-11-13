@@ -429,3 +429,5 @@ George sent three screenshots (Color Lab floating, Color Lab docked, and the Cus
 **2026-11-13, 03:09 (MST), decisions.** George: both (a decisions file and a workflow check). KRIMBLE_DECISIONS.md, tools/ci/check_decisions.py, workflow step "Check the decisions (a warning)", SESSION_CATCHUP pointer (541st entry). The check finds 30 mentions of Photoshop in KRIMBLE_CHANGES.md (not changed). Pushed with the PAT George pasted in this chat.
 
 **2026-11-13, 03:10 (MST), build 59 started by the push.** The push of the workflow with the decisions check started run 43406947650 with the old label; it stopped at the build number check (expected). Label and number moved to 59; this push starts build 59 (542nd entry). Pushed with the PAT George pasted in this chat.
+
+**2026-11-13, 03:12 (MST), annotations.** The decisions check step shows green on GitHub even when it fails (continue-on-error); both scripts now also print ::warning:: annotations (543rd entry). Pushed with the PAT George pasted in this chat.

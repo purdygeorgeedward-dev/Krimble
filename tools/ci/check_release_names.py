@@ -52,6 +52,8 @@ def main(argv):
         for release in releases:
             for line in problems(release["tag_name"], release["name"] or ""):
                 print("%s: %s" % (release["tag_name"], line))
+                if os.environ.get("GITHUB_ACTIONS"):   # Krimble 2026-11-13: a warning annotation on the run's page (an allowed-to-fail step shows as green)
+                    print("::warning title=Krimble release name::%s: %s" % (release["tag_name"], line))
                 bad += 1
         page += 1
     print("all release names follow the rule" if not bad else "%d problem(s)" % bad)

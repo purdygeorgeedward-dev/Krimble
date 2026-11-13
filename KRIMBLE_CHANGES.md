@@ -6983,3 +6983,9 @@ George: "GitHub gives me notices about the lack of the v every time we post. I'm
 
 Pushing the workflow file (the decisions check, 3449fd4) started run 43406947650 on its own (the workflow runs on a push that changes it) with the old fallback label 1.0.56-beta; it stopped at **Check the build number**, as it should (the number was already 58). The fallback label is **1.0.59-beta** and `krimbleBuildNumber` is **59**, so the run that this push starts is build 59 (the old lines are comments). It is also the first run with the **Check the decisions (a warning)** step.
 
+## 2026-11-13 (543rd) — The decisions check writes warning annotations
+
+**Files:** `tools/ci/check_decisions.py`, `tools/ci/check_release_names.py`
+
+Build 59's first lines showed **Check the decisions (a warning)** as "success": a step with `continue-on-error` is reported as a success by GitHub even when it exits with 1, so a broken decision would not have been seen. On GitHub Actions each problem is now also printed as a **`::warning::` annotation**, which appears on the run's page. Tested here with `GITHUB_ACTIONS=true` (the Photoshop line is printed as a warning); the release names check prints none (all 19 follow the rule). Not verified: the annotation on a real run (the next run shows it).
+

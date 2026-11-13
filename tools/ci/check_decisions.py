@@ -44,7 +44,10 @@ for top in ("packaging", "libs", "krita", "plugins"):
 for path in bad_files[:10]:
     problems.append("%s still has the old JNI path %s (the rule: org/krimble/android)" % (path, old_path))
 
+# Krimble 2026-11-13: on GitHub Actions a step that is allowed to fail shows as green, so every problem is also written as a warning annotation (it appears on the run's page)
 for line in problems:
     print("DECISION BROKEN:", line)
+    if os.environ.get("GITHUB_ACTIONS"):
+        print("::warning title=Krimble decision broken::%s" % line)
 print("all checkable decisions hold" if not problems else "%d problem(s)" % len(problems))
 sys.exit(1 if problems else 0)
