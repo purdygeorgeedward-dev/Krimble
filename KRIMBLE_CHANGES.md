@@ -7232,3 +7232,9 @@ George: "They all need bevels." / "I mean the menu bar." The menu bar already ha
 **Files:** `libs/ui/KisMainWindow.cpp`
 
 George: "It's too much." The menu bar's bevel lines (581st entry) are 2 device pixels thick instead of 4.
+
+## 2026-11-13 (583rd) — Menu bar bevel matches the rest of the UI
+
+**Files:** `libs/ui/KisMainWindow.cpp`
+
+George: "It should match the rest of the UI." The menu bar's bevel lines are one device pixel again, like panels, tool bars, menus and image windows (the 581st and 582nd entries are undone).
