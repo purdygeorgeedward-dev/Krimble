@@ -348,6 +348,10 @@ xsi:schemaLocation="http://www.kde.org/standards/kxmlgui/1.0  http://www.kde.org
         <text>Crop to Layer</text>
     </Action>
 
+    <Action name="auto_crop_image">
+        <text>Auto Crop...</text>
+    </Action>
+
     <Action name="resizeimagetoselection">
         <text>Crop to Selection</text>
     </Action>

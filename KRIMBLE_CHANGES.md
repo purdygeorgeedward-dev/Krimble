@@ -7115,3 +7115,9 @@ George (a screenshot of the status bar: the selection indicator at the left, the
 
 George asked "Show me the difference" (of the three themes). Rendering the themes' real style sheets in Qt showed that **Qt refused to parse the Bevel and Painted sheets** ("Could not parse application stylesheet"): **my 562nd entry (status bar, commit 32857c3) broke them.** I had added the status bar rule at the first `QStatusBar {` in each file, and that text is inside a comment (a "Before:" block); my new comment inside it ended the old one early and left stray text, so the whole sheet was invalid and those two themes would have had no style sheet at all. **Repair:** both files are back as they were at 7fcc53f and the status bar rule is added at the real, uncommented `QStatusBar` block (found by a scan that skips comments); a bisect test in real Qt: all three sheets parse, each has the new rule once. The plain theme's sheet was not affected. No other edit of the day was found to break a sheet.
 
+
+## 2026-11-13 (564th) — Image > Auto Crop
+
+**Files:** `libs/ui/kis_image_manager.cc`, `libs/ui/kis_image_manager.h`, `krita/kritamenu.action`, `krita/krita5.xmlgui`
+
+George asked for an auto crop in the Image menu. New action `auto_crop_image` ("Auto Crop...") after "Crop to Layer". It reads the flattened image; if all four corners are fully transparent, or all the same color within a tolerance, that is the background. Rows and columns that are all background are dropped and the image (all layers) is cropped to the bounding box of the rest with `KisImage::cropImage`, one undo step. A small dialog sets tolerance (default 8 of 255) and padding in pixels (default 0), both remembered. If the corners don't match, the image is all background, or nothing would change, a floating message says so and nothing is cropped. Not compiled or run yet (the real compile is the GitHub build).

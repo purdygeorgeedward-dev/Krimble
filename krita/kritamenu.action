@@ -1206,6 +1206,18 @@
       <isCheckable>false</isCheckable>
       <statusTip></statusTip>
     </Action>
+    <Action name="auto_crop_image">
+      <icon></icon>
+      <text>&amp;Auto Crop...</text>
+      <whatsThis>Crops the image to its content when the four corners are the same color or all transparent.</whatsThis>
+      <toolTip>Auto Crop</toolTip>
+      <iconText>Auto Crop</iconText>
+      <activationFlags>1</activationFlags>
+      <activationConditions>0</activationConditions>
+      <shortcut></shortcut>
+      <isCheckable>false</isCheckable>
+      <statusTip></statusTip>
+    </Action>
     <Action name="purge_unused_image_data">
       <icon></icon>
       <text>Purge Unused Image Data</text>

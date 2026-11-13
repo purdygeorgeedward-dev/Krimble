@@ -29,6 +29,14 @@
 #include "commands/kis_image_commands.h"
 #include "kis_action.h"
 #include "kis_action_manager.h"
+#include <QDialog>
+#include <QFormLayout>
+#include <QSpinBox>
+#include <QDialogButtonBox>
+#include <QImage>
+#include <QSettings>
+#include "KisViewManager.h"
+#include "widgets/kis_floating_message.h"
 #include "kis_layer_utils.h"
 #include "kis_canvas2.h"
 
@@ -68,6 +76,107 @@ void KisImageManager::setup(KisActionManager *actionManager)
 
     action = actionManager->createAction("image_color");
     connect(action, SIGNAL(triggered()), this, SLOT(slotImageColor()));
+
+    // Krimble: Image > Auto Crop
+    action = actionManager->createAction("auto_crop_image");
+    connect(action, SIGNAL(triggered()), this, SLOT(slotAutoCrop()));
+}
+
+// Krimble Auto Crop: finds the background from the four corners of the flattened image
+// (all fully transparent, or all the same color within a tolerance) and crops to the content.
+static bool krimbleAutoCropPixelIsBackground(QRgb p, QRgb bg, int tol)
+{
+    const int a = qAlpha(p), ba = qAlpha(bg);
+    if (ba == 0) return a <= tol;                       // transparent background
+    if (qAbs(a - ba) > tol) return false;
+    return qAbs(qRed(p) - qRed(bg)) <= tol
+        && qAbs(qGreen(p) - qGreen(bg)) <= tol
+        && qAbs(qBlue(p) - qBlue(bg)) <= tol;
+}
+
+void KisImageManager::slotAutoCrop()
+{
+    KisImageSP image = m_view->image();
+    if (!image) return;
+
+    QSettings cfg;
+    int tol = cfg.value("krimble/AutoCropTolerance", 8).toInt();
+    int pad = cfg.value("krimble/AutoCropPadding", 0).toInt();
+
+    QDialog dlg(m_view->mainWindowAsQWidget());
+    dlg.setWindowTitle(i18n("Auto Crop"));
+    QFormLayout *form = new QFormLayout(&dlg);
+    QSpinBox *tolBox = new QSpinBox(&dlg);
+    tolBox->setRange(0, 255);
+    tolBox->setValue(tol);
+    QSpinBox *padBox = new QSpinBox(&dlg);
+    padBox->setRange(0, 10000);
+    padBox->setSuffix(i18n(" px"));
+    padBox->setValue(pad);
+    form->addRow(i18n("Tolerance:"), tolBox);
+    form->addRow(i18n("Padding:"), padBox);
+    QDialogButtonBox *box = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, &dlg);
+    form->addRow(box);
+    connect(box, SIGNAL(accepted()), &dlg, SLOT(accept()));
+    connect(box, SIGNAL(rejected()), &dlg, SLOT(reject()));
+    if (dlg.exec() != QDialog::Accepted) return;
+
+    tol = tolBox->value();
+    pad = padBox->value();
+    cfg.setValue("krimble/AutoCropTolerance", tol);
+    cfg.setValue("krimble/AutoCropPadding", pad);
+
+    image->barrierLock();
+    image->unlock();
+
+    const QRect bounds = image->bounds();
+    QImage img = image->convertToQImage(bounds, 0).convertToFormat(QImage::Format_ARGB32);
+    if (img.isNull() || img.width() < 2 || img.height() < 2) return;
+
+    const int w = img.width(), h = img.height();
+    const QRgb c[4] = { img.pixel(0, 0), img.pixel(w - 1, 0), img.pixel(0, h - 1), img.pixel(w - 1, h - 1) };
+
+    bool cornersMatch = true;
+    for (int i = 1; i < 4; ++i) {
+        const bool bothClear = qAlpha(c[0]) <= tol && qAlpha(c[i]) <= tol;
+        if (!bothClear && !krimbleAutoCropPixelIsBackground(c[i], c[0], tol)) cornersMatch = false;
+    }
+    if (!cornersMatch) {
+        m_view->showFloatingMessage(i18n("Auto Crop: the four corners are not the same color or all transparent."),
+                                    QIcon(), 3000, KisFloatingMessage::Low);
+        return;
+    }
+    // Treat a transparent corner as the transparent background.
+    const QRgb bg = (qAlpha(c[0]) <= tol) ? qRgba(0, 0, 0, 0) : c[0];
+
+    int top = h, bottom = -1, left = w, right = -1;
+    for (int y = 0; y < h; ++y) {
+        const QRgb *line = reinterpret_cast<const QRgb*>(img.constScanLine(y));
+        for (int x = 0; x < w; ++x) {
+            if (!krimbleAutoCropPixelIsBackground(line[x], bg, tol)) {
+                if (y < top) top = y;
+                if (y > bottom) bottom = y;
+                if (x < left) left = x;
+                if (x > right) right = x;
+            }
+        }
+    }
+    if (bottom < 0) {
+        m_view->showFloatingMessage(i18n("Auto Crop: the image is all background."),
+                                    QIcon(), 3000, KisFloatingMessage::Low);
+        return;
+    }
+
+    QRect content(left, top, right - left + 1, bottom - top + 1);
+    content.adjust(-pad, -pad, pad, pad);
+    content = content.intersected(QRect(0, 0, w, h));
+    content.translate(bounds.topLeft());
+
+    if (content == bounds) {
+        m_view->showFloatingMessage(i18n("Auto Crop: nothing to crop."), QIcon(), 2000, KisFloatingMessage::Low);
+        return;
+    }
+    image->cropImage(content);
 }
 
 void KisImageManager::slotImportLayerFromFile()
