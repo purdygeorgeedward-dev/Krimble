@@ -240,7 +240,8 @@ public:
     // a pill that keeps the color and the glow of the item it shows (the preview boxes): a colored rounded square with the cyan outline and its glow
     static void paintColorBox(QPainter &p, const QRectF &rect, const QColor &c, qreal radius, qreal s, bool glow)
     {
-        if (glow) {
+        // Krimble 2026-11-13 (task 53): George: "In the ColorLab panel the left color well had a weird blue box around it. Remove that. No color crap around the color wells. no glow." The preview boxes (the wells of the pages) have no glow and no outline now; swatch cells (glow false) keep their outline.
+        if (false && glow) {
             for (int i = 9; i >= 1; --i) {
                 p.setPen(QPen(QColor(40, 190, 255, 26 + (9 - i) * 8), 2.2));
                 p.setBrush(Qt::NoBrush);
@@ -252,8 +253,12 @@ public:
         p.setBrush(c);
         p.drawRoundedRect(b, radius, radius);
         p.setBrush(Qt::NoBrush);
-        p.setPen(QPen(glow ? QColor("#6fe3ff") : QColor("#e6ecfa"), qMax<qreal>(2.0, 3.0 * s)));
-        p.drawRoundedRect(b, radius, radius);
+        if (!glow) {   // Krimble 2026-11-13 (task 53): George: "In the ColorLab panel the left color well had a weird blue box around it. Remove that. No color crap around the color wells. no glow."
+            p.setPen(QPen(QColor("#e6ecfa"), qMax<qreal>(2.0, 3.0 * s)));
+            p.drawRoundedRect(b, radius, radius);
+        }
+        // p.setPen(QPen(glow ? QColor("#6fe3ff") : QColor("#e6ecfa"), qMax<qreal>(2.0, 3.0 * s)));
+        // p.drawRoundedRect(b, radius, radius);
     }
     // the icon pictures (colored, from krimble_color_icons.h) are drawn at the mockup's own size times the scale
     void drawIcon(QPainter &p, const QString &name, const QPointF &center, qreal factor = 1.0) const

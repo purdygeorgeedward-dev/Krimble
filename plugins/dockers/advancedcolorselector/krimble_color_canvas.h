@@ -131,7 +131,9 @@ public:
         // 2026-11-09: George: "Why are the color wells rounded at the corners? You know I hate that." The wells have square corners.
         // return QStringLiteral("background:%1;border:%2px solid #4fd8fb;border-radius:0px;").arg(c.name()).arg(qMax(2, qRound(3 * s)));
         // Krimble 2026-11-11: George: "The two color wells under the big gradient area should have rounded corners."
-        return QStringLiteral("background:%1;border:%2px solid #4fd8fb;border-radius:%3px;").arg(c.name()).arg(qMax(2, qRound(3 * s))).arg(qMax(3, qRound(12 * s)));
+        // return QStringLiteral("background:%1;border:%2px solid #4fd8fb;border-radius:%3px;").arg(c.name()).arg(qMax(2, qRound(3 * s))).arg(qMax(3, qRound(12 * s)));
+        // Krimble 2026-11-13 (task 53): George: "In the ColorLab panel the left color well had a weird blue box around it. Remove that. No color crap around the color wells. no glow." The well is the color and nothing else: no cyan outline.
+        return QStringLiteral("background:%1;border:none;border-radius:%2px;").arg(c.name()).arg(qMax(3, qRound(12 * s)));
     }
     QString backgroundStyle(const QColor &c) const
     {
@@ -139,7 +141,8 @@ public:
         // return QStringLiteral("background:%1;border:%2px solid #e6ecfa;border-radius:%3px;")
         //     .arg(c.name()).arg(qMax(2, qRound(3 * s))).arg(qMax(3, qRound(14 * s)));
         // return QStringLiteral("background:%1;border:%2px solid #e6ecfa;border-radius:0px;").arg(c.name()).arg(qMax(2, qRound(3 * s)));
-        return QStringLiteral("background:%1;border:%2px solid #e6ecfa;border-radius:%3px;").arg(c.name()).arg(qMax(2, qRound(3 * s))).arg(qMax(3, qRound(14 * s)));   // Krimble 2026-11-11: rounded again
+        // return QStringLiteral("background:%1;border:%2px solid #e6ecfa;border-radius:%3px;").arg(c.name()).arg(qMax(2, qRound(3 * s))).arg(qMax(3, qRound(14 * s)));
+        return QStringLiteral("background:%1;border:none;border-radius:%2px;").arg(c.name()).arg(qMax(3, qRound(14 * s)));   // Krimble 2026-11-13 (task 53): George: "In the ColorLab panel the left color well had a weird blue box around it. Remove that. No color crap around the color wells. no glow."   // Krimble 2026-11-11: rounded again
     }
 
     void relayout()
@@ -308,7 +311,8 @@ protected:
 
         }   // the Picker page's own painting
         // the foreground color's glow, the swap arrows between the two colors
-        if (fg) {
+        // Krimble 2026-11-13 (task 53): George: "In the ColorLab panel the left color well had a weird blue box around it. Remove that. No color crap around the color wells. no glow." The glow around the foreground well is gone (the loop below is not run).
+        if (false && fg) {
             const QRectF ring = QRectF(fg->geometry());
             for (int i = 9; i >= 1; --i) {
                 p.setPen(QPen(QColor(40, 190, 255, 26 + (9 - i) * 8), 2.2));
