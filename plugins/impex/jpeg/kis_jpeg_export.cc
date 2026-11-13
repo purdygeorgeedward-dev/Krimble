@@ -84,6 +84,9 @@ KisImportExportErrorCode KisJPEGExport::convert(KisDocument *document, QIODevice
     m.setEnabledFilters(configuration->getString("filters").split(","));
     options.filters = m.enabledFilters();
     options.storeAuthor = configuration->getBool("storeAuthor", false);
+    options.smartLevel = configuration->getInt("smartLevel", 0);   // Krimble 2026-11-12 (task 24a): George: "User should be able to select the level of SmartCompression. Also should have a way to select areas to mask so they won't be compressed, or total unmask to apply compression." and "But you start with the smart selection as the mask."
+    options.smartProtect = configuration->getInt("smartProtect", 0);
+    options.smartSensitivity = configuration->getInt("smartSensitivity", 35);
     options.smartGrayscale = configuration->getBool("smartGrayscale", true);   // Krimble 2026-11-12 (task 24c): George: "Do SmartCompression now" (SmartCompression: a new tab in the JPEG save dialog; part c first: a picture that is all gray is saved as a one-channel gray JPEG).
     options.storeDocumentMetaData = configuration->getBool("storeMetaData", false);
 
@@ -175,6 +178,9 @@ KisPropertiesConfigurationSP KisJPEGExport::defaultConfiguration(const QByteArra
     cfg->setProperty("iptc", true);
     cfg->setProperty("xmp", true);
     cfg->setProperty("storeAuthor", false);
+    cfg->setProperty("smartLevel", 0);   // Krimble 2026-11-12 (task 24a): George: "User should be able to select the level of SmartCompression. Also should have a way to select areas to mask so they won't be compressed, or total unmask to apply compression." and "But you start with the smart selection as the mask."
+    cfg->setProperty("smartProtect", 0);
+    cfg->setProperty("smartSensitivity", 35);
     cfg->setProperty("smartGrayscale", true);   // Krimble 2026-11-12 (task 24c): George: "Do SmartCompression now" (SmartCompression: a new tab in the JPEG save dialog; part c first: a picture that is all gray is saved as a one-channel gray JPEG).
     cfg->setProperty("storeMetaData", false);
 
@@ -223,6 +229,21 @@ KisWdgOptionsJPEG::KisWdgOptionsJPEG(QWidget *parent)
             logo.setDevicePixelRatio(ratio);
             smartLogo->setPixmap(logo);
         }
+    }
+
+    // Krimble 2026-11-12 (task 24a): George: "User should be able to select the level of SmartCompression. Also should have a way to select areas to mask so they won't be compressed, or total unmask to apply compression." and "But you start with the smart selection as the mask." The SmartCompression controls: the level, its four quick buttons, the sensitivity of the Smart Selection.
+    {
+        auto levelText = [](int v) {
+            return v == 0 ? i18n("Level: Off") : i18n("Level: %1", v);
+        };
+        lblSmartLevel->setText(levelText(sliderSmartLevel->value()));
+        connect(sliderSmartLevel, &QSlider::valueChanged, this, [this, levelText](int v) { lblSmartLevel->setText(levelText(v)); });
+        connect(btnSmartLight, &QPushButton::clicked, this, [this]() { sliderSmartLevel->setValue(25); });
+        connect(btnSmartMedium, &QPushButton::clicked, this, [this]() { sliderSmartLevel->setValue(50); });
+        connect(btnSmartStrong, &QPushButton::clicked, this, [this]() { sliderSmartLevel->setValue(75); });
+        connect(btnSmartMaximum, &QPushButton::clicked, this, [this]() { sliderSmartLevel->setValue(100); });
+        lblSmartSensitivity->setText(i18n("Sensitivity: %1", sliderSmartSensitivity->value()));
+        connect(sliderSmartSensitivity, &QSlider::valueChanged, this, [this](int v) { lblSmartSensitivity->setText(i18n("Sensitivity: %1", v)); });
     }
 
     metaDataFilters->setModel(&m_filterRegistryModel);
@@ -283,6 +304,12 @@ void KisWdgOptionsJPEG::setConfiguration(const KisPropertiesConfigurationSP cfg)
     bnTransparencyFillColor->setDefaultColor(background);
     bnTransparencyFillColor->setColor(cfg->getColor("transparencyFillcolor", background));
     chkAuthor->setChecked(cfg->getBool("storeAuthor", false));
+    sliderSmartLevel->setValue(cfg->getInt("smartLevel", 0));   // Krimble 2026-11-12 (task 24a): George: "User should be able to select the level of SmartCompression. Also should have a way to select areas to mask so they won't be compressed, or total unmask to apply compression." and "But you start with the smart selection as the mask."
+    sliderSmartSensitivity->setValue(cfg->getInt("smartSensitivity", 35));
+    const int smartProtect = cfg->getInt("smartProtect", 0);
+    radSmartAuto->setChecked(smartProtect == 0);
+    radSmartMine->setChecked(smartProtect == 1);
+    radSmartNone->setChecked(smartProtect == 2);
     chkSmartGrayscale->setChecked(cfg->getBool("smartGrayscale", true));   // Krimble 2026-11-12 (task 24c): George: "Do SmartCompression now" (SmartCompression: a new tab in the JPEG save dialog; part c first: a picture that is all gray is saved as a one-channel gray JPEG).
     chkMetaData->setChecked(cfg->getBool("storeMetaData", false));
 
@@ -310,6 +337,9 @@ KisPropertiesConfigurationSP KisWdgOptionsJPEG::configuration() const
     cfg->setProperty("xmp", xmp->isChecked());
     cfg->setProperty("transparencyFillcolor", transparencyFillcolor);
     cfg->setProperty("storeAuthor", chkAuthor->isChecked());
+    cfg->setProperty("smartLevel", sliderSmartLevel->value());   // Krimble 2026-11-12 (task 24a): George: "User should be able to select the level of SmartCompression. Also should have a way to select areas to mask so they won't be compressed, or total unmask to apply compression." and "But you start with the smart selection as the mask."
+    cfg->setProperty("smartSensitivity", sliderSmartSensitivity->value());
+    cfg->setProperty("smartProtect", radSmartMine->isChecked() ? 1 : (radSmartNone->isChecked() ? 2 : 0));
     cfg->setProperty("smartGrayscale", chkSmartGrayscale->isChecked());   // Krimble 2026-11-12 (task 24c): George: "Do SmartCompression now" (SmartCompression: a new tab in the JPEG save dialog; part c first: a picture that is all gray is saved as a one-channel gray JPEG).
     cfg->setProperty("storeMetaData", chkMetaData->isChecked());
 

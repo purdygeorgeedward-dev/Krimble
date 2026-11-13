@@ -405,6 +405,118 @@
         </widget>
        </item>
        <item>
+        <widget class="QLabel" name="lblSmartLevel">
+         <property name="text">
+          <string>Level: Off</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QSlider" name="sliderSmartLevel">
+         <property name="maximum">
+          <number>100</number>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="layoutSmartPresets">
+         <item>
+          <widget class="QPushButton" name="btnSmartLight">
+           <property name="text">
+            <string>Light</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="btnSmartMedium">
+           <property name="text">
+            <string>Medium</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="btnSmartStrong">
+           <property name="text">
+            <string>Strong</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="btnSmartMaximum">
+           <property name="text">
+            <string>Maximum</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="grpSmartProtect">
+         <property name="title">
+          <string>Protected area (not compressed more)</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayoutSmartProtect">
+          <item>
+           <widget class="QRadioButton" name="radSmartAuto">
+            <property name="text">
+             <string>Smart Selection (automatic)</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="lblSmartSensitivity">
+            <property name="text">
+             <string>Sensitivity: 35</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QSlider" name="sliderSmartSensitivity">
+            <property name="maximum">
+             <number>100</number>
+            </property>
+            <property name="value">
+             <number>35</number>
+            </property>
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QRadioButton" name="radSmartMine">
+            <property name="text">
+             <string>My protected area (the selection)</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QRadioButton" name="radSmartNone">
+            <property name="text">
+             <string>Nothing protected</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="lblSmartProtectNote">
+            <property name="text">
+             <string>The Smart Selection protects the detail (edges, text, texture) and leaves flat areas to be compressed. The picture's own selection is your protected area; nothing protected compresses the whole picture.</string>
+            </property>
+            <property name="wordWrap">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
         <spacer name="verticalSpacerSmart">
          <property name="orientation">
           <enum>Qt::Vertical</enum>

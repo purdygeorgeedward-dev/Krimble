@@ -53,6 +53,11 @@ extern "C" {
 #include <kis_painter.h>
 #include <kis_transaction.h>
 #include <kis_transform_worker.h>
+#include <kis_selection.h>            // Krimble 2026-11-12 (task 24a): SmartCompression level and protected area.
+#include <kis_pixel_selection.h>
+#include <QBuffer>
+#include <vector>
+#include "KrimbleSmartCompression.h"
 
 #define ICC_MARKER  (JPEG_APP0 + 2) /* JPEG marker code for ICC */
 #define ICC_OVERHEAD_LEN  14    /* size of non-profile data in APP2 */
@@ -453,6 +458,35 @@ KisImageSP KisJPEGConverter::image()
 }
 
 
+// Krimble 2026-11-12 (task 24a): SmartCompression level and protected area. The protected area of a picture, one byte per pixel (255 = protected): the Smart Selection of the picture's own detail (mode 0), the picture's selection (mode 1), or nothing (mode 2).
+static std::vector<uint8_t> krimbleSmartMask(const KisJPEGOptions &options, KisImageSP image, KisPaintDeviceSP dev, J_COLOR_SPACE colorType, int w, int h)
+{
+    std::vector<uint8_t> mask(size_t(w) * h, 0);
+    if (options.smartProtect == 2) {
+        return mask;
+    }
+    if (options.smartProtect == 1) {
+        KisSelectionSP selection = image->globalSelection();
+        if (selection && selection->pixelSelection()) {
+            selection->pixelSelection()->readBytes(mask.data(), 0, 0, w, h);
+        }
+        return mask;
+    }
+    if (colorType == JCS_CMYK) {
+        return mask;   // no Smart Selection for CMYK pictures: nothing protected
+    }
+    std::vector<uint8_t> lum(size_t(w) * h);
+    for (int y = 0; y < h; ++y) {
+        KisHLineConstIteratorSP it = dev->createHLineConstIteratorNG(0, y, w);
+        uint8_t *row = lum.data() + size_t(y) * w;
+        do {
+            const quint8 *d = it->oldRawData();
+            *row++ = (colorType == JCS_GRAYSCALE) ? d[0] : uint8_t((299 * d[2] + 587 * d[1] + 114 * d[0]) / 1000);
+        } while (it->nextPixel());
+    }
+    return KrimbleSmart::detailMask(lum.data(), w, h, options.smartSensitivity);
+}
+
 // Krimble 2026-11-12 (task 24c): George: "Do SmartCompression now" (part c: a picture that is all gray is saved as a one-channel gray JPEG). True when every pixel of an 8-bit RGB device has the same value in all three color channels (the pixel is a gray: red = green = blue). The check
 // stops at the first pixel that is not gray, so a color picture costs almost nothing. The color channels are read in the device's own order (the three first bytes of a pixel).
 static bool krimbleDeviceIsGray(KisPaintDeviceSP dev, int width, int height)
@@ -514,6 +548,13 @@ KisImportExportErrorCode KisJPEGConverter::buildFile(QIODevice *io, KisPaintLaye
         color_type = JCS_GRAYSCALE;
     }
 
+    // Krimble 2026-11-12 (task 24a): SmartCompression level and protected area. With a level above 0 the JPEG is first written to a buffer, made coarser outside the protected area, and then written to the file.
+    const bool krimbleSmart = options.smartLevel > 0;
+    QBuffer smartBuffer;
+    if (krimbleSmart) {
+        smartBuffer.open(QIODevice::WriteOnly);
+    }
+
     // Initialize structure
     struct jpeg_compress_struct cinfo;
     // Initialize error output
@@ -526,7 +567,8 @@ KisImportExportErrorCode KisJPEGConverter::buildFile(QIODevice *io, KisPaintLaye
 
         jpeg_create_compress(&cinfo);
         // Initialize output stream
-        KisJPEGDestination::setDestination(&cinfo, io);
+        // KisJPEGDestination::setDestination(&cinfo, io);
+        KisJPEGDestination::setDestination(&cinfo, krimbleSmart ? static_cast<QIODevice *>(&smartBuffer) : io);   // Krimble 2026-11-12 (task 24a): SmartCompression level and protected area.
 
         cinfo.image_width = width;  // image width and height, in pixels
         cinfo.image_height = height;
@@ -754,6 +796,23 @@ KisImportExportErrorCode KisJPEGConverter::buildFile(QIODevice *io, KisPaintLaye
 
         // Writing is over
         jpeg_finish_compress(&cinfo);
+
+        // Krimble 2026-11-12 (task 24a): SmartCompression level and protected area. The coefficients of every 8 x 8 block outside the protected area are made coarser (KrimbleSmartCompression.h); the file is written from the result. If that fails, the
+        // JPEG as it was written is used.
+        if (krimbleSmart) {
+            const QByteArray encoded = smartBuffer.data();
+            const std::vector<uint8_t> mask = krimbleSmartMask(options, image, dev, color_type, width, height);
+            std::vector<uint8_t> coarser;
+            const bool ok = KrimbleSmart::requantize(reinterpret_cast<const uint8_t *>(encoded.constData()), size_t(encoded.size()), mask.data(), int(width), int(height),
+                                                     options.smartLevel, options.progressive, coarser);
+            const char *data = ok ? reinterpret_cast<const char *>(coarser.data()) : encoded.constData();
+            const qint64 size = ok ? qint64(coarser.size()) : qint64(encoded.size());
+            if (io->write(data, size) != size) {
+                delete [] row_pointer;
+                jpeg_destroy_compress(&cinfo);
+                return ImportExportCodes::ErrorWhileWriting;
+            }
+        }
 
         delete [] row_pointer;
         // Free memory
