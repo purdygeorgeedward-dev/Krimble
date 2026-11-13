@@ -235,8 +235,9 @@ QMainWindow, QDockWidget {
     background: #2c3554;
 }
 QAbstractItemView {
-    background: #232a42;
-    alternate-background-color: #1d2438;
+    /* Krimble 2026-11-13: George: "make the open area in 1 darker." Before: background #232a42, alternate #1d2438. */
+    background: #151a2b;
+    alternate-background-color: #1a2033;
     color: #ffffff;
 }
 QDockWidget > QWidget, QScrollArea, QScrollArea > QWidget > QWidget {

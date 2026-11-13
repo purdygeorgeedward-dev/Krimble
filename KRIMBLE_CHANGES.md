@@ -7214,3 +7214,9 @@ George: "The curves aren't enough." In `paintTabRow` the top corner radius `r` 1
 **Files:** `libs/ui/KrimbleVisualStyle.h`, `libs/ui/KrimbleVisualStyleNov10.h`, `libs/ui/KrimbleVisualStylePainted.h`
 
 George: "I think the tabs are too tall." The tab padding in `QTabBar::tab` is 4px 13px (was 7px 13px): each tab is 6 px shorter. The tab painter takes its size from this padding.
+
+## 2026-11-13 (580th) — Blue-Gray (flat) lists darker
+
+**Files:** `libs/ui/KrimbleVisualStyle.h`
+
+George: "make the open area in 1 darker." The lists and trees (`QAbstractItemView`) in the flat sheet (Krimble Blue-Gray): background `#232a42` → `#151a2b`, alternate rows `#1d2438` → `#1a2033`. Brightness is kept by the Blue-Gray recolor, so the on-screen hue is the 236 family.
