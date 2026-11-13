@@ -371,3 +371,5 @@ George sent three screenshots (Color Lab floating, Color Lab docked, and the Cus
 **2026-11-12, 15:08 (MST), task 37 correction.** George: "That before image was fine. The one I didn\x27t like was much bigger, had way thicker sides." Toolbox glow thickness back to the Nov 11 values, sharp corners kept (518th entry); picture toolbox_glow_restored.png. Pushed with the PAT George pasted earlier in this chat.
 
 **2026-11-12, 15:23 (MST), task 38.** George: "yes. I want long press to open a flyout of other buttons. Then a tap selects one or misses and cancels selection." Step 1: Marquee, Lasso, Wand groups (519th entry). Real-Qt test of the button and flyout passed; KoToolBox.cpp not compiled with the Krita headers. Pushed with the PAT George pasted earlier in this chat.
+
+**2026-11-12, 18:05 (MST), task 39.** George: "Make new icons for new tools." 19 Full Color icons drawn (520th entry), in krita/pics/krimble-toolbox-color/new-tools/ (not registered anywhere); sheet new_tool_icons_sheet1.png. Waiting for his look at the sheet. Pushed with the PAT George pasted earlier in this chat.
