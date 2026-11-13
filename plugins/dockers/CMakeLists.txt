@@ -9,6 +9,7 @@ add_subdirectory(advancedcolorselector)
 # (switched off 2026-10-03; the old "# add_subdirectory(presetdocker)" line is the comment above)
 add_subdirectory(presetdocker)
 add_subdirectory(historydocker)
+add_subdirectory(smartcompression)   # Krimble 2026-11-13 (task 52): the SmartCompression panel
 add_subdirectory(channeldocker)
 # add_subdirectory(artisticcolorselector)
 add_subdirectory(tasksetdocker)

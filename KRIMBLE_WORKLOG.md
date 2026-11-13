@@ -409,3 +409,5 @@ George sent three screenshots (Color Lab floating, Color Lab docked, and the Cus
 **2026-11-13, 00:19 (MST), tasks 50 and 51.** George: toolbox must dock left with 2 columns on start; SmartCompression logo now too small. One-time reset of the columns to 2 and docking at the left (setting ToolBoxDockedLeftReset); logo 54 px (535th entry). Pushed with the PAT George pasted in this chat.
 
 **2026-11-13, 00:19 (MST), correction.** The first push of tasks 50 and 51 (3b8f95f) had the toolbox reset code but NOT the logo change (my edit script stopped at the logo line); the 535th entry said both. The logo is 54 px in the next commit.
+
+**2026-11-13, 00:22 (MST), task 52.** George: edit the selection starting from the smart selection; label without the percent sign. SmartCompression panel (docker plugin) written, Smart/Clear/Whole/Regions/tools/Save, selection = area to compress, film covers the protected area; label "SmartCompression" (536th entry). Panel NOT compiled with the Krita headers. Pushed with the PAT George pasted in this chat.

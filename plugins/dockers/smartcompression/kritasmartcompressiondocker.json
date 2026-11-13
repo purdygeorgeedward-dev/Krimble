@@ -1,0 +1,9 @@
+{
+    "Id": "Krita SmartCompression Docker plugin",
+    "Type": "Service",
+    "X-KDE-Library": "kritasmartcompressiondocker",
+    "X-KDE-ServiceTypes": [
+        "Krita/Dock"
+    ],
+    "X-Krita-Version": "28"
+}

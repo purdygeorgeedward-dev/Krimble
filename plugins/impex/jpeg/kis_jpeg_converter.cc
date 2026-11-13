@@ -466,9 +466,14 @@ static std::vector<uint8_t> krimbleSmartMask(const KisJPEGOptions &options, KisI
         return mask;
     }
     if (options.smartProtect == 1) {
+        // Krimble 2026-11-13 (task 52): the picture's selection is the area to COMPRESS (the Smart Selection of the SmartCompression panel is that: the flat areas); what it does not cover
+        // (what the film covers) is protected. No selection: nothing is protected, the whole picture is compressed.
         KisSelectionSP selection = image->globalSelection();
         if (selection && selection->pixelSelection()) {
             selection->pixelSelection()->readBytes(mask.data(), 0, 0, w, h);
+            for (uint8_t &v : mask) {
+                v = uint8_t(255 - v);
+            }
         }
         return mask;
     }

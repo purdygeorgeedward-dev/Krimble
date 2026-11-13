@@ -396,7 +396,7 @@
            </property>
            <property name="minimumSize">
             <size>
-             <width>96</width>
+             <width>122</width>
              <height>0</height>
             </size>
            </property>
@@ -432,11 +432,11 @@
          <item>
           <widget class="QLabel" name="lblSmartLevel">
            <property name="text">
-            <string>% Smart</string>
+            <string>SmartCompression</string>
            </property>
            <property name="minimumSize">
             <size>
-             <width>96</width>
+             <width>122</width>
              <height>0</height>
             </size>
            </property>
@@ -536,7 +536,7 @@
            </property>
            <property name="minimumSize">
             <size>
-             <width>96</width>
+             <width>122</width>
              <height>0</height>
             </size>
            </property>
