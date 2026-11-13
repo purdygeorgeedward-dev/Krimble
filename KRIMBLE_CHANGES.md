@@ -7184,3 +7184,9 @@ George: "top corners should curve more. text should be lower." Top corner radius
 **Files:** `libs/ui/KisMainWindow.cpp`
 
 George: "If there's going to be a line drawn around these, it needs to also be on the top of the panel under the unselected tabs." The line under the row was drawn before the darker tab bodies and they covered it. It is now drawn after them; only the selected tab leaves a gap.
+
+## 2026-11-13 (575th) — Tab C: spaces between tabs clearly darker than the tabs
+
+**Files:** `libs/ui/KisMainWindow.cpp`
+
+George: the spaces between the tabs must contrast with them. The 572nd entry made them the same color as the unselected tabs (wrong reading); the row background is now `panel.darker(300)`, well below the unselected tab color (`darker(145)`).
