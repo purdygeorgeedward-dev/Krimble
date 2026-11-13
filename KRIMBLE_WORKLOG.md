@@ -415,3 +415,5 @@ George sent three screenshots (Color Lab floating, Color Lab docked, and the Cus
 **2026-11-13, 00:23 (MST), task 53.** George: Color Lab color wells: no blue box, no glow. Outlines and glow removed from the two wells and the page preview boxes (537th entry). Pushed with the PAT George pasted in this chat.
 
 **2026-11-13, 00:25 (MST), task 54.** George: the SmartCompression panel must not be ugly. Rendered it in real Qt next to the theme, reworked it (header band with logo, joined mode pair, wide buttons with pictures, 2x2 tools grid, wide Save button) (538th entry); picture smartcompression_panel_compare.png. Pushed with the PAT George pasted in this chat.
+
+**2026-11-13, 00:35 (MST), task 55.** George: Chatty's first mockup is pretty. SmartCompression panel rebuilt after it (look in Qt-only SmartCompressionPanel.h, rendered), live preview with sizes (libjpeg in memory, tested), Save JPEG hands the settings to the JPEG dialog (539th entry). The dock is NOT compiled with the Krita headers. Pushed with the PAT George pasted in this chat.

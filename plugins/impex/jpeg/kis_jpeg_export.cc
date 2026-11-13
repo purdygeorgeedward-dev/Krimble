@@ -24,6 +24,8 @@
 #include <KisImportExportManager.h>
 #include <kis_slider_spin_box.h>
 #include <QScreen>              // Krimble 2026-11-13 (task 49)
+#include <KConfigGroup>
+#include <KSharedConfig>
 #include <QGuiApplication>
 #include <QSignalBlocker>
 #include <QTabBar>
@@ -370,6 +372,24 @@ void KisWdgOptionsJPEG::setConfiguration(const KisPropertiesConfigurationSP cfg)
     sliderSmartQuality->setValue(qRound(qualityLevel->value()));
     chkSmartProgressive->setChecked(progressive->isChecked());
     chkSmartExtraColor->setChecked(subsampling->currentIndex() == 3);
+    // Krimble 2026-11-13 (task 55): the SmartCompression panel's Save JPEG... leaves its settings in the program's settings; the dialog takes them once (and clears the mark)
+    {
+        KConfigGroup panelGroup = KSharedConfig::openConfig()->group("KrimbleSmartCompression");
+        if (panelGroup.readEntry("pending", false)) {
+            sliderSmartQuality->setValue(panelGroup.readEntry("quality", 85));
+            sliderSmartLevel->setValue(panelGroup.readEntry("level", 35));
+            sliderSmartSensitivity->setValue(panelGroup.readEntry("sensitivity", 35));
+            const int protect = panelGroup.readEntry("protect", 0);
+            radSmartAuto->setChecked(protect == 0);
+            radSmartMine->setChecked(protect == 1);
+            radSmartNone->setChecked(protect == 2);
+            chkSmartExtraColor->setChecked(panelGroup.readEntry("extraColor", false));
+            chkSmartForceGray->setChecked(panelGroup.readEntry("grayscale", false));
+            chkSmartProgressive->setChecked(panelGroup.readEntry("progressive", true));
+            panelGroup.writeEntry("pending", false);
+            panelGroup.sync();
+        }
+    }
     chkMetaData->setChecked(cfg->getBool("storeMetaData", false));
 
     m_filterRegistryModel.setEnabledFilters(cfg->getString("filters").split(','));
