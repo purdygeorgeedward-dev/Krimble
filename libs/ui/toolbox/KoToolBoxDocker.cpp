@@ -1047,6 +1047,10 @@ void KoToolBoxDocker::contextMenuEvent(QContextMenuEvent *event)
         m_contextMenu->addSection(i18n("Icon Style"));
         m_toolBox->setupIconStyleMenu(m_contextMenu);
 
+        // Krimble 2026-11-12 (task 40): George: "The user should have the choice between flat looking buttons like in your mockup and raised buttons with thicker bevels like DPaint."
+        m_contextMenu->addSection(i18n("Button Style"));
+        m_toolBox->setupButtonStyleMenu(m_contextMenu);
+
         m_contextMenu->addSection(i18nc("Toolbox layout", "Layout"));
         QActionGroup *layoutActionGroup = new QActionGroup(m_contextMenu);
 

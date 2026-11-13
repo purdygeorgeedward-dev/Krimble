@@ -571,6 +571,30 @@ void KoToolBox::setupIconSizeMenu(QMenu *menu)
 
 // Krimble 2026-10-30: George: "I want the user to be able to switch between the full color themed toolbox icons and your clear icons." Two items in the toolbox's
 // menu (touch and hold): Full color (the picture icons) and Silhouette (the line icons made for Krimble). The choice is saved and applies at once.
+// Krimble 2026-11-12 (task 40): George: "The user should have the choice between flat looking buttons like in your mockup and raised buttons with thicker bevels like DPaint." Flat (no boxes: the default) or Raised (a box with a thick bevel for each tool).
+void KoToolBox::setupButtonStyleMenu(QMenu *menu)
+{
+    QActionGroup *styleGroup = new QActionGroup(menu);
+    QAction *flatAction = menu->addAction(i18n("Flat"));
+    QAction *raisedAction = menu->addAction(i18n("Raised"));
+    for (QAction *action : {flatAction, raisedAction}) {
+        action->setActionGroup(styleGroup);
+        action->setCheckable(true);
+    }
+    const int current = KrimbleToolboxIcons::buttonStyle();
+    flatAction->setChecked(current == 0);
+    raisedAction->setChecked(current == 1);
+    auto apply = [this](int style) {
+        KrimbleToolboxIcons::setButtonStyle(style);
+        Q_FOREACH (KoToolBoxButton *button, d->buttonsByToolId) {
+            button->update();
+        }
+        update();
+    };
+    connect(flatAction, &QAction::triggered, this, [apply]() { apply(0); });
+    connect(raisedAction, &QAction::triggered, this, [apply]() { apply(1); });
+}
+
 void KoToolBox::setupIconStyleMenu(QMenu *menu)
 {
     QActionGroup *styleGroup = new QActionGroup(menu);

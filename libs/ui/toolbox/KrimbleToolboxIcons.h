@@ -71,6 +71,28 @@ inline void setColorMode(bool on)
     group.config()->sync();
 }
 
+// Krimble 2026-11-12 (task 40): George: "The user should have the choice between flat looking buttons like in your mockup and raised buttons with thicker bevels like DPaint."
+// The button style of the toolbox: 0 = Flat (no boxes, the icons on the panel: the default), 1 = Raised (each tool in its own box with a thick DPaint-style bevel). Kept in
+// memory after the first read, because the buttons ask on every paint.
+inline int &buttonStyleCache()
+{
+    static int style = KSharedConfig::openConfig()->group("Krimble").readEntry("ToolboxButtonStyle", 0);
+    return style;
+}
+
+inline int buttonStyle()
+{
+    return buttonStyleCache();
+}
+
+inline void setButtonStyle(int style)
+{
+    buttonStyleCache() = style;
+    KConfigGroup group = KSharedConfig::openConfig()->group("Krimble");
+    group.writeEntry("ToolboxButtonStyle", style);
+    group.config()->sync();
+}
+
 // the icon for a tool: the picture icon in the Full color style (when the tool has one), the program's own icon otherwise
 inline QIcon icon(const QString &iconName)
 {

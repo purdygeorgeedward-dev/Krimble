@@ -200,6 +200,30 @@ static void krimbleMiterPen(QPainter &painter)
 
 void KoToolBoxButton::paintEvent(QPaintEvent *event)
 {
+    // Krimble 2026-11-12 (task 40): George: "The user should have the choice between flat looking buttons like in your mockup and raised buttons with thicker bevels like DPaint." The Raised style: a tool that is not selected sits in its own box with a thick bevel, as in DPaint: a black outline, a light top and left edge, a dark
+    // bottom and right edge (the corners are mitered), a flat face. A button held down (isDown) has the bevel the other way round. The selected tool keeps its glow below.
+    // The Flat style (the default) paints nothing here.
+    if (KrimbleToolboxIcons::buttonStyle() == 1 && !isChecked()) {
+        QPainter box(this);
+        const QRect r = rect().adjusted(1, 1, -1, -1);
+        const QColor face = qApp->palette().color(QPalette::Button).lighter(112);
+        const QColor light = face.lighter(210);
+        const QColor dark = face.darker(380);
+        const bool down = isDown();
+        const int t = qMax(2, qRound(qMin(r.width(), r.height()) * 0.075));
+        box.fillRect(r, QColor(8, 10, 22));                       // the outline
+        const QRect in = r.adjusted(1, 1, -1, -1);
+        box.fillRect(in, face);
+        QPolygon topLeft;
+        topLeft << in.topLeft() << in.topRight() << QPoint(in.right() - t, in.top() + t) << QPoint(in.left() + t, in.top() + t) << QPoint(in.left() + t, in.bottom() - t) << in.bottomLeft();
+        QPolygon bottomRight;
+        bottomRight << in.bottomRight() << in.bottomLeft() << QPoint(in.left() + t, in.bottom() - t) << QPoint(in.right() - t, in.bottom() - t) << QPoint(in.right() - t, in.top() + t) << in.topRight();
+        box.setPen(Qt::NoPen);
+        box.setBrush(down ? dark : light);
+        box.drawPolygon(topLeft);
+        box.setBrush(down ? light : dark);
+        box.drawPolygon(bottomRight);
+    }
     if (isChecked()) {
         QPainter painter(this);
         painter.setRenderHint(QPainter::Antialiasing, true);
