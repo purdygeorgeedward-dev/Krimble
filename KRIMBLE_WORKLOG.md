@@ -455,3 +455,5 @@ George sent three screenshots (Color Lab floating, Color Lab docked, and the Cus
 **2026-11-13, 05:02 (MST), aqua.** George: kill the aqua everywhere first. #1d7cb2 replaced by #0b87dd in the three sheets, the three palettes and the SmartCompression panel; decision line added (553rd entry). The unapproved overlay edit was discarded. Pushed with the PAT George pasted in this chat.
 
 **2026-11-13, 05:03 (MST), gradient rows.** George: remove the gradient rows. Flat sheet QMenu::item:selected is solid #0b87dd (554th entry); the menu bar names still have the gradient. Pushed with the PAT George pasted in this chat.
+
+**2026-11-13, 05:04 (MST), menu outline.** George: no outline on the menu selection. Removed from menu rows and bar names in the plain theme sheet (555th entry). Pushed with the PAT George pasted in this chat.

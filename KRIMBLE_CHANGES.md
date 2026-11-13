@@ -7061,3 +7061,9 @@ George: "The aqua has to go. It's hideous." and "kill the aqua everywhere first.
 
 George: "Then remove the gradient rows." (after being told that the plain theme's menu rows were a dark navy gradient with a cyan outline). `QMenu::item:selected` in the flat sheet (the plain Blue-Gray theme) has the solid `#0b87dd` instead of the gradient (the gradient is in a comment), as the Bevel and Painted themes' menu rows have; its cyan outline (`#3bd5f7`, the glow) is not changed. Not changed: the names on the menu bar itself (`QMenuBar::item:selected`) still have the dark gradient in this sheet.
 
+## 2026-11-13 (555th) — No outline on the menu selection
+
+**Files:** `libs/ui/KrimbleVisualStyle.h`
+
+George: "no outline on the menu selection." In the plain theme's sheet, `QMenu::item:selected` (the menu rows) and `QMenuBar::item:selected` (the names on the menu bar) have no cyan outline (`border: none`; the old line is a comment). The menu rows are solid `#0b87dd`; the fill of the bar names is not changed (still the dark gradient). The Bevel and Painted sheets' menu selections had no outline.
+

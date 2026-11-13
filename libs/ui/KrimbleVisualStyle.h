@@ -194,7 +194,8 @@ QMenuBar::item {
     border-radius: 0px;
 }
 QMenuBar::item:selected {
-    border: 1px solid #3bd5f7;
+    /* Krimble 2026-11-13 (task 66): George: "no outline on the menu selection." border: 1px solid #3bd5f7; */
+    border: none;
     border-radius: 0px;
     /* background: #1d7cb2; */
     background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #072349, stop:1 #0e3f78);   /* Krimble 2026-11-11: dark inside the glow */
@@ -205,7 +206,8 @@ QMenu {
     background: #232a42;
 }
 QMenu::item:selected {
-    border: 1px solid #3bd5f7;
+    /* Krimble 2026-11-13 (task 66): George: "no outline on the menu selection." border: 1px solid #3bd5f7; */
+    border: none;
     /* background: #1d7cb2; */
     /* background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #072349, stop:1 #0e3f78);   Krimble 2026-11-11: dark inside the glow */
     /* Krimble 2026-11-13 (task 65): George: "Then remove the gradient rows." Solid light blue, no gradient (the same as the other themes' menu rows). */
