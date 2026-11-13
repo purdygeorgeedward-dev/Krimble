@@ -4076,7 +4076,7 @@ private:
         p.setRenderHint(QPainter::Antialiasing, true);
         const QPalette pal = bar->palette();
         const QColor panel = pal.color(QPalette::Window);
-        const QColor dark = panel.darker(120);
+        const QColor dark = panel.darker(130);
         const QColor strip = panel.darker(300);   // the spaces between the tabs: clearly darker than the tabs
         const QColor edge(0, 0, 0);
         const QColor textOn = pal.color(QPalette::WindowText).lighter(115);

@@ -7196,3 +7196,9 @@ George: the spaces between the tabs must contrast with them. The 572nd entry mad
 **Files:** `libs/ui/KisMainWindow.cpp`
 
 George: "The darker tabs are too dark." Unselected tab color in `paintTabRow` `panel.darker(145)` → `panel.darker(120)`; the gaps stay at `darker(300)`.
+
+## 2026-11-13 (577th) — Tab C: unselected tabs a little darker
+
+**Files:** `libs/ui/KisMainWindow.cpp`
+
+George: "ok a little darker". Unselected tab color `panel.darker(120)` → `panel.darker(130)`. Tab colors now: selected = panel, unselected = `darker(130)`, gaps = `darker(300)`.
