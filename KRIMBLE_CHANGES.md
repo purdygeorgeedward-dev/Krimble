@@ -7226,3 +7226,9 @@ George: "make the open area in 1 darker." The lists and trees (`QAbstractItemVie
 **Files:** `libs/ui/KisMainWindow.cpp`
 
 George: "They all need bevels." / "I mean the menu bar." The menu bar already had the overlay's one-pixel lines in every theme, which are too thin to see on his phone. In `KrimbleBevelOverlay::paintEvent` the menu bar's lines are now 4 device pixels thick (light top and left, dark bottom and right); panels, tool bars, menus and image windows stay at one device pixel.
+
+## 2026-11-13 (582nd) — Menu bar bevel: 2 device pixels
+
+**Files:** `libs/ui/KisMainWindow.cpp`
+
+George: "It's too much." The menu bar's bevel lines (581st entry) are 2 device pixels thick instead of 4.
