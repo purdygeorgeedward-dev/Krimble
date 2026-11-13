@@ -7154,3 +7154,9 @@ George: "hexagon and star tools - BUILD IMMEDIATELY." The **Polygon and Star too
 **Files:** `libs/ui/KrimbleVisualStyle.h`, `libs/ui/KrimbleVisualStyleNov10.h`, `libs/ui/KrimbleVisualStylePainted.h`
 
 George: "yes do the same glow on them all." The flat sheet's pressed, checked and default buttons and its checked check box were a dark navy fill (`#072349` to `#0e3f78`); they now have the lit glow fill the Bevel and Painted sheets already had (`#1196d8` at the top into `#073d6b`/`#074a85`; the default button `#0a89cd` to `#044a9c`), so the three themes' glow buttons match. George (about the menu bar names): "yes, I think so. solid blue": the open menu's name in the menu bar is now solid `#0b87dd` in all three sheets (it was dark `#192138`; in the flat sheet a dark navy gradient). The old values are kept in comments. A comment-aware check: all three sheets still have balanced braces. Rendered with the real sheets in Qt (labeled image sent to George).
+
+## 2026-11-13 (570th) — Tab C: the other tabs reach the top too
+
+**Files:** `libs/ui/KisMainWindow.cpp`
+
+George: "The other tabs, although darker should touch the top too." In `KrimbleTabTearOff::paintTabRow` the tabs that are not selected started 3 px lower than the selected one; they now start at the same top edge (`adjusted(0.5, 0.5, -0.5, 0)`).

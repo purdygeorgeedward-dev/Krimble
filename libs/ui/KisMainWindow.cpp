@@ -4085,7 +4085,8 @@ private:
         // the other tabs first
         for (int i = 0; i < bar->count(); ++i) {
             if (i == current) continue;
-            const QRectF t = QRectF(bar->tabRect(i)).adjusted(0.5, 3.5, -0.5, 0.0);
+            // const QRectF t = QRectF(bar->tabRect(i)).adjusted(0.5, 3.5, -0.5, 0.0);
+            const QRectF t = QRectF(bar->tabRect(i)).adjusted(0.5, 0.5, -0.5, 0.0);   // Krimble 2026-11-13 (task 79): George: "The other tabs, although darker should touch the top too." (they were 3 px lower)
             QPainterPath path;
             path.moveTo(t.left(), baseY);
             path.lineTo(t.left(), t.top() + r);
