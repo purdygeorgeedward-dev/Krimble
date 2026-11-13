@@ -461,3 +461,5 @@ George sent three screenshots (Color Lab floating, Color Lab docked, and the Cus
 **2026-11-13, 05:14 (MST), task 67.** George: yes number 2 (menus start at the bottom of their name, left edges lined up). KrimbleMenuPlacer moves each menu of the menu bar when shown (556th entry). Tall menus (Window, 1075 of 1080 px) cannot go lower. Pushed with the PAT George pasted in this chat.
 
 **2026-11-13, 05:22 (MST), task 68.** George: the blending mode box is too easy to open by accident; at the very least a long press. KrimbleLongPressOpen, 500 ms, wheel ignored (557th entry). Moving or removing the box is not done, not decided. Pushed with the PAT George pasted in this chat.
+
+**2026-11-13, 05:25 (MST), task 69.** George: blend box far right; selected tab should not glow, just be lighter. Blend box 110 px at the far right of the top row; selected tab solid and lighter in all three sheets (558th entry). Tear-off from the tab itself: asked, not changed. Pushed with the PAT George pasted in this chat.

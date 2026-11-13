@@ -372,8 +372,21 @@ LayerBox::LayerBox()
         opacityBar->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
         opacityBar->setMinimumHeight(34);
         new KrimbleLongPressOpen(blend);   // Krimble 2026-11-13 (task 68): the blending mode list opens on a long press only
-        header->addWidget(blend, 0, 0);
-        header->addWidget(m_wdgLayerBox->bnLayerFilters, 0, 1);
+        // header->addWidget(blend, 0, 0);
+        // header->addWidget(m_wdgLayerBox->bnLayerFilters, 0, 1);
+        // Krimble 2026-11-13 (task 69): George: "push that thing way over to the right. it's in a bad spot." The blending mode box is a small box at the far right of the top row
+        // (110 px wide, next to the filter button), not a bar across the panel; the rest of the row is empty.
+        {
+            QHBoxLayout *topRow = new QHBoxLayout;
+            topRow->setContentsMargins(0, 0, 0, 0);
+            topRow->setSpacing(6);
+            topRow->addStretch(1);
+            blend->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+            blend->setFixedWidth(110);
+            topRow->addWidget(blend);
+            topRow->addWidget(m_wdgLayerBox->bnLayerFilters);
+            header->addLayout(topRow, 0, 0, 1, 2);
+        }
         header->addWidget(opacityBar, 1, 0);
         header->addWidget(m_wdgLayerBox->configureLayerDockerToolbar, 1, 1);
         header->setColumnStretch(0, 1);

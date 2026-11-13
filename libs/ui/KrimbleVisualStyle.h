@@ -102,13 +102,20 @@ QTabBar::tab {
     background: #1d2438;
 }
 QTabBar::tab:selected {
+    /* Krimble 2026-11-13 (task 69): George: "why is the selected tab glowing? It should just be lighter than the other tabs." No glow, no gradient: the selected tab is the same tab, lighter. Before:
     color: white;
     border: 2px solid #3bd5f7;
     border-bottom: 2px solid #3bd5f7;
     border-top-left-radius: 9px;
     border-top-right-radius: 9px;
-    /* background: #1d7cb2; */
-    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #072349, stop:1 #0e3f78);   /* Krimble 2026-11-11: dark inside the glow */
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #072349, stop:1 #0e3f78); */
+    color: white;
+    border: 1px solid #000000;
+    border-top: 1px solid #5d6a9c;
+    border-left: 1px solid #5d6a9c;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+    background: #3b456b;
 }
 QLineEdit, QSpinBox, QDoubleSpinBox {
     color: #f0f3ff;
