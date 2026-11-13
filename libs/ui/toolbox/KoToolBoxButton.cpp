@@ -206,12 +206,17 @@ void KoToolBoxButton::paintEvent(QPaintEvent *event)
     if (KrimbleToolboxIcons::buttonStyle() == 1 && !isChecked()) {
         QPainter box(this);
         const QRect r = rect().adjusted(1, 1, -1, -1);
-        const QColor face = qApp->palette().color(QPalette::Button).lighter(112);
-        const QColor light = face.lighter(210);
-        const QColor dark = face.darker(380);
+        // const QColor face = qApp->palette().color(QPalette::Button).lighter(112);
+        // const QColor light = face.lighter(210);
+        // const QColor dark = face.darker(380);
+        // Krimble 2026-11-13 (task 57): George (build 57 screenshots): "\"Raised\" buttons are DARKER? WHY? The hilight is also not white or very light. Huge mistake." and "At startup I saw this big blah. Nothing to differentiate it from the other UI elements but a line." A raised button is LIGHTER than the panel it sits on (the face came from the Button color, which is darker than the panel in the dark themes, so the buttons looked sunk), with a
+        // near-white highlight at the top and left and a near-black shadow at the bottom and right (rendered next to the old look in real Qt: the new one reads as raised at once).
+        const QColor face = qApp->palette().color(QPalette::Window).lighter(150);
+        const QColor light(238, 243, 255);
+        const QColor dark(8, 10, 24);
         const bool down = isDown();
         const int t = qMax(2, qRound(qMin(r.width(), r.height()) * 0.075));
-        box.fillRect(r, QColor(8, 10, 22));                       // the outline
+        box.fillRect(r, QColor(4, 5, 14));                        // the outline
         const QRect in = r.adjusted(1, 1, -1, -1);
         box.fillRect(in, face);
         QPolygon topLeft;

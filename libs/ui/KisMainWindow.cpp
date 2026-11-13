@@ -3911,6 +3911,128 @@ private:
     bool m_taken = false;
 };
 
+// Krimble 2026-11-13 (task 56): George: "Tabs still do not tear off a panel. At all. They never did." The filter of 2026-11-12 (task 29) sat on each tab bar and, in a test in real Qt with real
+// mouse events, it does tear a panel off; on the phone it never did, and nothing in krita.log said why. This one sits on the application (it sees every event on its way to any widget, as
+// the other Krimble filters that work on the phone do), reads the mouse events AND the touch events of a tab bar of a panel group, follows the finger with the floating panel, and writes what
+// it sees to krita.log (lines start with KRIMBLE-TABS) so that the next log shows where a drag stops if it still does not work.
+class KrimbleTabTearOff : public QObject
+{
+public:
+    explicit KrimbleTabTearOff(QObject *parent = nullptr) : QObject(parent) {}
+    bool eventFilter(QObject *watched, QEvent *event) override
+    {
+        QTabBar *bar = qobject_cast<QTabBar *>(watched);
+        if (!bar) return false;
+        QMainWindow *win = qobject_cast<QMainWindow *>(bar->parentWidget());
+        if (!win) return false;   // the tab bars of the panel groups are direct children of the main window (the image tabs are not)
+        QPoint pos;
+        bool isPress = false, isMove = false, isRelease = false, down = false;
+        switch (event->type()) {
+        case QEvent::MouseButtonPress:
+        case QEvent::MouseMove:
+        case QEvent::MouseButtonRelease: {
+            QMouseEvent *me = static_cast<QMouseEvent *>(event);
+            pos = me->pos();
+            isPress = event->type() == QEvent::MouseButtonPress && me->button() == Qt::LeftButton;
+            isMove = event->type() == QEvent::MouseMove;
+            isRelease = event->type() == QEvent::MouseButtonRelease;
+            down = (me->buttons() & Qt::LeftButton) || isPress;
+            break;
+        }
+        case QEvent::TouchBegin:
+        case QEvent::TouchUpdate:
+        case QEvent::TouchEnd: {
+            QTouchEvent *te = static_cast<QTouchEvent *>(event);
+            if (te->touchPoints().isEmpty()) return false;
+            if (!m_touchSeen) { m_touchSeen = true; log(QStringLiteral("a touch event reached a tab bar (type %1)").arg(int(event->type()))); }
+            pos = te->touchPoints().first().pos().toPoint();
+            isPress = event->type() == QEvent::TouchBegin;
+            isMove = event->type() == QEvent::TouchUpdate;
+            isRelease = event->type() == QEvent::TouchEnd;
+            down = !isRelease;
+            break;
+        }
+        default:
+            return false;
+        }
+        if (isPress) {
+            m_bar = bar;
+            m_tab = bar->tabAt(pos);
+            m_taken = false;
+            m_dock = nullptr;
+            m_maxOut = 0;
+            log(QStringLiteral("press on a tab bar with %1 tabs, tab %2, at %3,%4 (bar %5 x %6)").arg(bar->count()).arg(m_tab).arg(pos.x()).arg(pos.y()).arg(bar->width()).arg(bar->height()));
+            return false;
+        }
+        if (bar != m_bar) return false;
+        if (isMove && down) {
+            if (m_taken) {
+                if (m_dock) {   // the panel follows the finger
+                    const QPoint g = bar->mapToGlobal(pos);
+                    m_dock->move(g - m_grab);
+                }
+                return true;
+            }
+            if (m_tab < 0) return false;
+            const int outside = pos.y() < 0 ? -pos.y() : (pos.y() > bar->height() ? pos.y() - bar->height() : 0);
+            m_maxOut = qMax(m_maxOut, outside);
+            const int limit = qMax(bar->height() / 2, 16);   // half a tab row beyond the row, up or down
+            if (outside < limit) return false;
+            QDockWidget *found = nullptr;
+            const QString title = bar->tabText(m_tab);
+            Q_FOREACH (QDockWidget *dock, win->findChildren<QDockWidget *>()) {
+                if (!dock->isFloating() && dock->windowTitle() == title) { found = dock; break; }
+            }
+            if (!found) {
+                // the title may carry a mnemonic (&) or be shortened: try the dock whose title contains the tab's text without them
+                const QString plain = QString(title).remove(QLatin1Char('&'));
+                Q_FOREACH (QDockWidget *dock, win->findChildren<QDockWidget *>()) {
+                    if (!dock->isFloating() && QString(dock->windowTitle()).remove(QLatin1Char('&')) == plain) { found = dock; break; }
+                }
+            }
+            log(QStringLiteral("tear-off: tab '%1' went %2 px outside the row (limit %3), panel %4").arg(title).arg(outside).arg(limit).arg(found ? QStringLiteral("found") : QStringLiteral("NOT found")));
+            m_tab = -1;
+            if (!found) return false;
+            m_taken = true;
+            m_dock = found;
+            found->setFloating(true);
+            const QPoint g = bar->mapToGlobal(pos);
+            const QRect w = win->geometry();
+            const int x = qBound(w.left(), g.x() - found->width() / 2, qMax(w.left(), w.right() - found->width()));
+            const int y = qBound(w.top(), g.y() - 12, qMax(w.top(), w.bottom() - 60));
+            found->move(x, y);
+            found->raise();
+            m_grab = g - found->pos();
+            return true;
+        }
+        if (isRelease) {
+            const bool wasTaken = m_taken;
+            if (!wasTaken && m_tab >= 0) log(QStringLiteral("released without tearing off: the finger went at most %1 px outside the row").arg(m_maxOut));
+            m_taken = false;
+            m_tab = -1;
+            m_dock = nullptr;
+            m_bar = nullptr;
+            return wasTaken;
+        }
+        return false;
+    }
+
+private:
+    static void log(const QString &text);
+    QPointer<QTabBar> m_bar;
+    QPointer<QDockWidget> m_dock;
+    int m_tab = -1;
+    int m_maxOut = 0;
+    bool m_taken = false;
+    bool m_touchSeen = false;
+    QPoint m_grab;
+};
+
+void KrimbleTabTearOff::log(const QString &text)
+{
+    KisUsageLogger::log(QStringLiteral("KRIMBLE-TABS ") + text);
+}
+
 static void krimbleInstallTabDetach(QMainWindow *win)
 {
     // the tab bars of the panel groups are direct children of the main window (the image tabs live inside the MDI area)
@@ -5341,6 +5463,11 @@ KisMainWindow::KisMainWindow(QUuid uuid)
 #ifdef Q_OS_ANDROID
     // Krimble 2026-10-10: drag the strip to the screen edge to shut the right panels.
     qApp->installEventFilter(new KrimbleEdgeCollapseFilter(this));
+    qApp->installEventFilter(new KrimbleTabTearOff(this));   // Krimble 2026-11-13 (task 56): drag a panel's tab out of its row to float the panel
+    // Krimble 2026-11-13 (task 57): George (build 57 screenshots): "\"Raised\" buttons are DARKER? WHY? The hilight is also not white or very light. Huge mistake." and "At startup I saw this big blah. Nothing to differentiate it from the other UI elements but a line." The K (drawn by the menu bar from the program's window icon) was missing on the first screen: the bar painted before the icon was set and was not painted again until something
+    // changed. The bar is painted again at 0.3, 1 and 2 seconds after the start.
+    Q_FOREACH (int delay, QList<int>({300, 1000, 2000})) QTimer::singleShot(delay, this, [this]() { menuBar()->update(); });
+    KisUsageLogger::log(QStringLiteral("KRIMBLE-TABS the tab tear-off filter is installed (application level)"));
     // Krimble 2026-10-12: stack the top toolbars once the saved layout has been restored.
     QTimer::singleShot(2500, this, [this]() { krimbleStackToolBars(this); krimbleInstallHelpExtras(this); krimbleInstallFileExtras(this);
         // Krimble 2026-10-12: the invisible grab zones along the panel edges, kept up to date for panels that are added later
@@ -5352,7 +5479,7 @@ KisMainWindow::KisMainWindow(QUuid uuid)
             krimbleInstallMenuShortcutStripping(this);   // Krimble 2026-10-13 (4th): the real fix for the wide menus (see above)
             krimbleInstallCanvasOnlyExit(this);          // Krimble 2026-10-13 (5th): the X that leaves Canvas Only mode
             krimbleRemoveMinimumWidths(this);            // Krimble 2026-10-13 (6th): no minimum widths (see above)
-            krimbleInstallTabDetach(this);               // Krimble 2026-11-12 (task 29): drag a panel's tab away from its row to float the panel
+            // krimbleInstallTabDetach(this);               // Krimble 2026-11-12 (task 29): drag a panel's tab away from its row to float the panel (replaced by KrimbleTabTearOff on 2026-11-13, task 56)
             krimbleInstallBevels(this);                  // Krimble 2026-10-17: one-pixel bevel lines on panels and toolbars (see above)
             krimbleInstallHexMenus(this);                // Krimble 2026-10-18: View > Show > Hex and Layer > New > Hex Pattern... (see above)
             krimbleInstallSelectionGlow(this);           // Krimble 2026-10-30: the blue glow of a selected (checked) button

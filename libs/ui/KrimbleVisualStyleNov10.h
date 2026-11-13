@@ -258,7 +258,8 @@ QMenuBar::item:selected { border-radius: 4px; background: a flat blue gradient #
 */
 QMenuBar {
     color: #f1f4fc;
-    background: transparent;
+    /* Krimble 2026-11-13 (task 57): George (build 57 screenshots): "\"Raised\" buttons are DARKER? WHY? The hilight is also not white or very light. Huge mistake." and "At startup I saw this big blah. Nothing to differentiate it from the other UI elements but a line." The menu bar is a bar again: a flat, lighter band (hue 227, saturation 48, brightness 55 percent; the window behind it is darker at the top) with the one-pixel lines of the bevel overlay. No gradient painting. Before: background: transparent; */
+    background: #49588c;
 }
 QMenuBar::item {
     padding: 1px 9px;
