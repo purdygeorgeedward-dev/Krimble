@@ -64,7 +64,11 @@ public:
         int x = topRight.x();
         if (x + width() > avail.right()) x = topLeft.x() - width();
         x = qBound(avail.left(), x, qMax(avail.left(), avail.right() - width()));
-        int y = qBound(avail.top(), topLeft.y(), qMax(avail.top(), avail.bottom() - height()));
+        // int y = qBound(avail.top(), topLeft.y(), qMax(avail.top(), avail.bottom() - height()));
+        // Krimble 2026-11-12 (task 38): George: "Why isn't the flyout next to the tool?" (the mockup of a tall flyout was moved up and ended far from the button). A flyout that does not fit below the button's top now grows UPWARD from the button's bottom edge, so the button is still beside it; only if it does not fit there either is it moved onto the screen.
+        int y = topLeft.y();
+        if (y + height() > avail.bottom()) y = topLeft.y() + button->height() - height();
+        y = qBound(avail.top(), y, qMax(avail.top(), avail.bottom() - height()));
         move(x, y);
         show();
     }
