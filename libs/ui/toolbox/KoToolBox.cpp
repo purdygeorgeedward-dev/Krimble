@@ -86,10 +86,10 @@ static const QList<QStringList> &krimbleToolGroupIds()
         { QStringLiteral("KisToolSelectContiguous"), QStringLiteral("KisToolSelectSimilar") },                                              // Wand
         { QStringLiteral("KritaShape/KisToolRectangle"), QStringLiteral("KritaShape/KisToolEllipse"), QStringLiteral("KritaShape/KisToolPolygonStar"), QStringLiteral("KritaShape/KisToolLine") },   // Krimble 2026-11-13 (task 74): Shapes: the Polygon and Star tool joins Rectangle and Ellipse (and Line) in one flyout (no new button in the toolbox)
         // Krimble 2026-11-13 (task 76): George: "add all long press flyouts." The other groups, as proposed: Fill, Pen, Transform, Retouch, Sampler and Navigation. A tool that is not in the toolbox is simply not in its flyout.
-        { QStringLiteral("KritaFill/KisToolFill"), QStringLiteral("KritaFill/KisToolGradient"), QStringLiteral("KisToolEncloseAndFill") },                  // Fill
+        { QStringLiteral("KritaFill/KisToolGradient"), QStringLiteral("KritaFill/KisToolFill"), QStringLiteral("KisToolEncloseAndFill") },                  // Fill
         { QStringLiteral("KisToolPath"), QStringLiteral("KisToolPolyline"), QStringLiteral("KisToolPolygon"), QStringLiteral("KisToolPencil") },           // Pen
         { QStringLiteral("KisToolTransform"), QStringLiteral("KisToolFreeRotate") },                                                                         // Transform
-        { QStringLiteral("KritaShape/KisToolSmudge"), QStringLiteral("KritaShape/KisToolSoften") },                                                          // Retouch
+        { QStringLiteral("KritaShape/KisToolHeal"), QStringLiteral("KritaShape/KisToolSmartPatch"), QStringLiteral("KritaShape/KisToolSmudge"), QStringLiteral("KritaShape/KisToolSoften") },                                                          // Retouch
         { QStringLiteral("KritaSelected/KisToolColorSampler"), QStringLiteral("KritaShape/KisToolMeasure"), QStringLiteral("ToolReferenceImages") },         // Sampler
         { QStringLiteral("KrimbleTextTool"), QStringLiteral("SvgTextTool") },                                                                                // Type
         { QStringLiteral("PanTool"), QStringLiteral("ZoomTool") },                                                                                           // Navigation

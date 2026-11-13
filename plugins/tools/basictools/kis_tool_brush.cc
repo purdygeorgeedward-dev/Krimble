@@ -87,7 +87,7 @@ void KisToolBrush::activate(const QSet<KoShape*> &shapes)
     //     || objectName() == QLatin1String("tool_dodge") || objectName() == QLatin1String("tool_burn")) {
     // Krimble 2026-10-23: those names never existed (the tool manager names a tool after its action id: "KritaShape/KisToolSmudge" ...), so this block never ran; see KisToolPaint::activate.
     const QString krimbleToolName = objectName();
-    if (krimbleToolName.endsWith(QLatin1String("KisToolSmudge")) || krimbleToolName.endsWith(QLatin1String("KisToolSoften"))
+    if (krimbleToolName.endsWith(QLatin1String("KisToolSmudge")) || krimbleToolName.endsWith(QLatin1String("KisToolSoften")) || krimbleToolName.endsWith(QLatin1String("KisToolHeal"))   /* Krimble 2026-11-13 (task 77) */
         || krimbleToolName.endsWith(QLatin1String("KisToolDodge")) || krimbleToolName.endsWith(QLatin1String("KisToolBurn"))) {
         KisCanvas2 *retouchCanvas = dynamic_cast<KisCanvas2*>(canvas());
         if (retouchCanvas && retouchCanvas->viewManager()) {
