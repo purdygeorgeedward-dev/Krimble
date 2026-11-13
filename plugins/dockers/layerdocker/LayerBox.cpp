@@ -26,6 +26,7 @@
 #include <QToolTip>
 #include <QWidget>
 #include <QComboBox>
+#include <QLineEdit>   // Krimble 2026-11-13 (task 72)
 #include <QWheelEvent>   // Krimble 2026-11-13 (task 68)
 #include <QPointer>   // Krimble 2026-11-13 (task 68)
 #include <QTimer>   // Krimble 2026-11-13 (task 68)
@@ -346,6 +347,12 @@ LayerBox::LayerBox()
     // 0 and 9 px margins and 1 px spacing, the header was not separated from the list, and the buttons at the bottom floated with no line above them. The header is now one grid:
     // column 0 stretches and holds the blending mode box (row 0) and the opacity bar (row 1), column 1 holds the filter button and the menu button, both 34 px high, 6 px
     // between everything, 6 px around the panel, a thin divider under the header and one above the buttons. The old rows (hbox2 and opacityLayout of the form) are emptied and removed.
+    // Krimble 2026-11-13 (task 72): George: "Try to implement any easy Photoshop layers feature." The easiest: a search box for layer names in the free space of the top row (the filter model already has setTextFilter).
+    QLineEdit *krimbleSearch = new QLineEdit(mainWidget);
+    krimbleSearch->setPlaceholderText(i18n("Search layers"));
+    krimbleSearch->setClearButtonEnabled(true);
+    krimbleSearch->setMinimumHeight(34);
+    krimbleSearch->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     {
         QVBoxLayout *panel = m_wdgLayerBox->verticalLayout;
         QComboBox *blend = m_wdgLayerBox->cmbComposite;
@@ -380,7 +387,8 @@ LayerBox::LayerBox()
             QHBoxLayout *topRow = new QHBoxLayout;
             topRow->setContentsMargins(0, 0, 0, 0);
             topRow->setSpacing(6);
-            topRow->addStretch(1);
+            // topRow->addStretch(1);
+            topRow->addWidget(krimbleSearch, 1);   // Krimble 2026-11-13 (task 72): George: "Try to implement any easy Photoshop layers feature." The easiest: a search box for layer names in the free space of the top row (the filter model already has setTextFilter).
             blend->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
             blend->setFixedWidth(110);
             topRow->addWidget(blend);
@@ -460,6 +468,7 @@ LayerBox::LayerBox()
     m_nodeModel = new KisNodeModel(this, 2);
     m_filteringModel = new KisNodeFilterProxyModel(this);
     m_filteringModel->setNodeModel(m_nodeModel);
+    connect(krimbleSearch, &QLineEdit::textChanged, m_filteringModel.data(), &KisNodeFilterProxyModel::setTextFilter);   // Krimble 2026-11-13 (task 72): George: "Try to implement any easy Photoshop layers feature." The easiest: a search box for layer names in the free space of the top row (the filter model already has setTextFilter).
 
     /**
      * Connect model updateUI() to enable/disable controls.

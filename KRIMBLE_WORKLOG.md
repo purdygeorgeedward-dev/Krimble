@@ -467,3 +467,5 @@ George sent three screenshots (Color Lab floating, Color Lab docked, and the Cus
 **2026-11-13, 05:33 (MST), task 70.** George: the layer row changes are good, do them. First part pushed: the type badge on thumbnails (NodeDelegate.cpp, 559th entry). Mask thumbnail and fx check still to do. Pushed with the PAT George pasted in this chat.
 
 **2026-11-13, 05:34 (MST), task 71.** George: Color Lab should hide behind the edge, not shrink, when the dock narrows. Scale and height use a 330 minimum width, studio minimum width 330, no horizontal scroll bar (560th entry). Pushed with the PAT George pasted in this chat.
+
+**2026-11-13, 05:35 (MST), task 72.** George: implement any easy Photoshop layers feature, estimate the rest. Search box for layer names in the free top-row space (561st entry). Pushed with the PAT George pasted in this chat.

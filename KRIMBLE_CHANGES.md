@@ -7097,3 +7097,9 @@ George: "Your proposed changes for layers are good. Let's do that." (the demo `l
 
 George: "The ColorLab when moved to the right in the dock should hide behind the edge instead of shrinking, just as the image on the canvas should not zoom out when the docked panels move." Every Color Lab widget draws itself at `scale() = width() / DW`, so when the panel got narrower the whole card shrank. Now `scale()` and `heightForWidth()` use at least a width of **330** (`MinWidth`): a panel narrower than that does not make the card smaller; the studio widget has a minimum width of 330 and the scroll area around it has **no horizontal scroll bar**, so the part of the card that does not fit is cut off at the panel's edge. A wider panel still makes the card larger, as before. The canvas part of the sentence is the zoom freeze of the 546th entry. Not run: not compiled with the Krita headers.
 
+## 2026-11-13 (561st) — Layers panel: a search box for layer names
+
+**Files:** `plugins/dockers/layerdocker/LayerBox.cpp`
+
+George: "Try to implement any easy Photoshop layers feature. Estimate workload or difficulty for any proposed change." The easiest one: a **Search layers** box (with a clear button) in the free space at the left of the blending mode box in the top row; typing filters the layer list by name through `KisNodeFilterProxyModel::setTextFilter` (the model already had it; the filter menu's own text field is not changed). Not run: not compiled with the Krita headers. The other proposals and their estimates were given in the reply.
+
