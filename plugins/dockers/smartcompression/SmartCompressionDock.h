@@ -20,7 +20,7 @@ class KoCanvasBase;
 class KisCanvas2;
 class QSlider;
 class QLabel;
-class QToolButton;
+class QPushButton;
 class QWidget;
 
 class SmartCompressionDock : public QDockWidget, public KoCanvasObserverBase
@@ -44,8 +44,8 @@ private:
     void showFilm(bool on);
 
     QPointer<KisCanvas2> m_canvas;
-    QToolButton *m_wholeButton {nullptr};
-    QToolButton *m_regionsButton {nullptr};
+    QPushButton *m_wholeButton {nullptr};
+    QPushButton *m_regionsButton {nullptr};
     QWidget *m_regionTools {nullptr};
     QSlider *m_sensitivity {nullptr};
     QLabel *m_sensitivityLabel {nullptr};

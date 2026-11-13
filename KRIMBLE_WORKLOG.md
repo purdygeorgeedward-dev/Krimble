@@ -413,3 +413,5 @@ George sent three screenshots (Color Lab floating, Color Lab docked, and the Cus
 **2026-11-13, 00:22 (MST), task 52.** George: edit the selection starting from the smart selection; label without the percent sign. SmartCompression panel (docker plugin) written, Smart/Clear/Whole/Regions/tools/Save, selection = area to compress, film covers the protected area; label "SmartCompression" (536th entry). Panel NOT compiled with the Krita headers. Pushed with the PAT George pasted in this chat.
 
 **2026-11-13, 00:23 (MST), task 53.** George: Color Lab color wells: no blue box, no glow. Outlines and glow removed from the two wells and the page preview boxes (537th entry). Pushed with the PAT George pasted in this chat.
+
+**2026-11-13, 00:25 (MST), task 54.** George: the SmartCompression panel must not be ugly. Rendered it in real Qt next to the theme, reworked it (header band with logo, joined mode pair, wide buttons with pictures, 2x2 tools grid, wide Save button) (538th entry); picture smartcompression_panel_compare.png. Pushed with the PAT George pasted in this chat.
