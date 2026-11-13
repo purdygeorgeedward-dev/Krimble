@@ -521,12 +521,45 @@ static void krimbleStripShortcuts(QMenu *menu, KrimbleSavedShortcuts *saved, int
     }
 }
 
+// Krimble 2026-11-13 (task 67): George: "yes number 2" (the menu starts at the bottom of the selected name on the menu bar and its left edge lines up with the name; image 2 of
+// menu_now_vs_wanted.png). A menu with two or more columns is put at the very top of the screen by Qt itself (QMenu::popup: `if (ncols > 1) pos.setY(screen.top() + desktopFrame)`), over the
+// menu bar and wherever x ends up; the File and Window menus have several columns on a phone because they are as tall as the screen. This puts a menu of the menu bar where the user asked
+// when it is shown: x = the left edge of its name's box, y = the bottom of that box (the bar's bottom minus the item's 1 logical px margin), but never so low that its bottom is off the
+// screen and never off the left or right of the screen.
+class KrimbleMenuPlacer : public QObject
+{
+public:
+    KrimbleMenuPlacer(QMenu *menu, QMenuBar *bar, QAction *nameAction) : QObject(menu), m_menu(menu), m_bar(bar), m_action(nameAction) { menu->installEventFilter(this); }
+    bool eventFilter(QObject *watched, QEvent *event) override
+    {
+        if (watched == m_menu && event->type() == QEvent::Show && m_bar && m_menu->isWindow()) {
+            const qreal dpr = qMax<qreal>(1.0, m_menu->devicePixelRatioF());
+            const QRect nameRect = m_bar->actionGeometry(m_action);
+            QPoint wanted = m_bar->mapToGlobal(QPoint(nameRect.left(), m_bar->height() - qRound(dpr)));
+            QScreen *screen = QGuiApplication::screenAt(wanted);
+            if (!screen) screen = QGuiApplication::primaryScreen();
+            const QRect avail = screen->availableGeometry();
+            wanted.setY(qMin(wanted.y(), avail.bottom() + 1 - m_menu->height()));
+            wanted.setY(qMax(wanted.y(), avail.top()));
+            wanted.setX(qMin(wanted.x(), avail.right() + 1 - m_menu->width()));
+            wanted.setX(qMax(wanted.x(), avail.left()));
+            if (m_menu->pos() != wanted) m_menu->move(wanted);
+        }
+        return false;
+    }
+private:
+    QPointer<QMenu> m_menu;
+    QPointer<QMenuBar> m_bar;
+    QPointer<QAction> m_action;
+};
+
 static void krimbleInstallMenuShortcutStripping(QMainWindow *win)
 {
     Q_FOREACH (QAction *top, win->menuBar()->actions()) {
         QMenu *menu = top->menu();
         if (!menu || menu->property("krimbleShortcutsStripped").toBool()) continue;
         menu->setProperty("krimbleShortcutsStripped", true);
+        new KrimbleMenuPlacer(menu, win->menuBar(), top);   // Krimble 2026-11-13 (task 67): the menu opens at the bottom of its name, left edges lined up
         QSharedPointer<KrimbleSavedShortcuts> saved(new KrimbleSavedShortcuts());
         QObject::connect(menu, &QMenu::aboutToShow, menu, [menu, saved]() {
             krimbleStripShortcuts(menu, saved.data(), 0);
