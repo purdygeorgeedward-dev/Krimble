@@ -287,9 +287,11 @@ QMenu {
     background: #192138;   /* Krimble 2026-11-06 (3rd): flat (was a #2e354e to #212639 gradient) */
 }
 QMenu::item:selected {
+    /* Krimble 2026-11-13 (task 60): George: "The selected item in the menu should not have a gradient. It should just be solid light blue, the brightest out of the range it currently uses." Solid, the lightest stop of the gradient that was here (the other stops were #0867b8, #0652ad and #05429d):
     background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
                                 stop:0 #0b87dd, stop:0.4 #0867b8, stop:0.75 #0652ad,
-                                stop:1 #05429d);
+                                stop:1 #05429d); */
+    background: #0b87dd;
 }
 QToolBar {
     border: none;
