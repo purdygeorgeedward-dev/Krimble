@@ -393,3 +393,5 @@ George sent three screenshots (Color Lab floating, Color Lab docked, and the Cus
 **2026-11-12, 20:30 (MST), build 57 started.** George pasted a new PAT (it can start runs). workflow_dispatch of "Krimble Android build" on master, label 1.0.57-beta: run 43359369032 on commit cdca33d (HTTP 204, in_progress at 03:30Z Nov 13). Contains everything pushed up to the Hexagon Selection tool (528th entry). Row 57 goes into KRIMBLE_BUILD_LOG.md when it succeeds.
 
 **2026-11-12, 00:00 (MST), task 43.** George (new build): menu bar has no border, highlight or shadow at start, then becomes the painted version. Overlay now also on the menu bar, theme applied early, bevels installed at once (529th entry). Not in build 57. Pushed with the PAT George pasted in this chat.
+
+**2026-11-13, 00:02 (MST), task 44.** George sent krita.log of build 57 (cdca33d), "weird toolbox stuff". Cause found: a floating toolbox at the default 640 x 480 window turned HORIZONTAL (updateToolBoxOrientation fallback); fixed (530th entry). Both sessions ended by Samsung background kills (AL_Kill), not crashes. Pushed with the PAT George pasted in this chat.

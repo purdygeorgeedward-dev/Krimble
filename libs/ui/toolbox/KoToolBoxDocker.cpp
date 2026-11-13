@@ -918,7 +918,14 @@ void KoToolBoxDocker::updateToolBoxOrientation(Qt::DockWidgetArea area)
             setToolBoxOrientation(Qt::Horizontal);
         } else if (area == Qt::LeftDockWidgetArea || area == Qt::RightDockWidgetArea) {
             setToolBoxOrientation(Qt::Vertical);
-        } else {
+        } else if (!isFloating()) {
+            // else {
+            //     setToolBoxOrientation(width() > height() ? Qt::Horizontal : Qt::Vertical);
+            // }
+            // Krimble 2026-11-13 (task 44): George (krita.log of build 57, "weird toolbox stuff"): at 23:58:05 the toolbox was floated, its window had the default size 640 x 480, and this line made
+            // it HORIZONTAL because that is wider than tall; then it was a 2-row strip in a narrow window (68 x 567, later 114 x 68: only 3 buttons visible). A floating toolbox keeps the
+            // orientation it has (the 2026-10-23 rule in resizeEvent, which this path had missed: it comes from dockLocationChanged with no dock area); only a docked one without a side is
+            // decided by its shape.
             setToolBoxOrientation(width() > height() ? Qt::Horizontal : Qt::Vertical);
         }
     }
