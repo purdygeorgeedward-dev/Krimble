@@ -20,6 +20,7 @@ Krimble 2026-11-13. George: "I'm concerned about his decisions get made and then
 | Toolbox: starts docked at the left with two columns; it does not start floating | 2026-11-13 | not automatic |
 | Toolbox flyouts: the toolbox's own icon size, next to the tool that was held | 2026-11-13 | not automatic |
 | Default theme Krimble Blue-Gray: one hue family (hue 227, saturation 48, palette and style sheet), one-pixel light and dark lines, the menu bar is NOT painted (only Krimble Painted paints it), list selection is the flat bright blue `#1d7cb2` | 2026-11-13 | not automatic |
+| No aqua (`#1d7cb2`, 29,124,178) anywhere: selections and fills use the menu blue `#0b87dd` (11,135,221) | 2026-11-13 ("kill the aqua everywhere first") | not automatic |
 | Color wells (Color Lab and its pages): no outline, no glow | 2026-11-13 | not automatic |
 | Never tell George which build he is running, that a change is not in a build yet, or that something is unverified or untested on the phone; he knows. Say it only when he asks (the facts stay in KRIMBLE_CHANGES.md) | 2026-11-09 and 2026-11-13 ("STOP TELLING ME WHICH BUILD I AM RUNNING") | not automatic |
 | Color Lab must be a real panel that reflows, not a picture that zooms (the rebuild is not started) | 2026-11-13 | not automatic |

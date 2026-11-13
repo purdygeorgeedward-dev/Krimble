@@ -41,7 +41,7 @@ public:
         : QWidget(parent)
     {
         // the chosen Protection row is marked with a soft blue field (as in the mockup)
-        setStyleSheet(QStringLiteral("QRadioButton:checked { background: rgba(29, 124, 178, 70); border: 1px solid #2a8fd0; border-radius: 6px; }"));
+        setStyleSheet(QStringLiteral("QRadioButton:checked { background: rgba(11, 135, 221, 70); border: 1px solid #0b87dd; border-radius: 6px; }"));
         QVBoxLayout *root = new QVBoxLayout(this);
         root->setContentsMargins(0, 0, 0, 6);
         root->setSpacing(8);

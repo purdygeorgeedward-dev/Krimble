@@ -211,7 +211,7 @@ QAbstractItemView::item:selected {
     */
     color: white;
     /* Krimble 2026-11-13 (task 45): George: "Preferences keyboard is never big enough, but column is too wide and selection area is darkening the selected icon. Yuck. What happened to bright blue background for selection?" The flat dark navy #1c3963 darkened the selected rows (and their icons): the bright blue of the flat selection of build 56 is back, still flat and square. Before: background: #1c3963; */
-    background: #1d7cb2;
+    background: #0b87dd;
     border: none;
     border-radius: 0px;
 }

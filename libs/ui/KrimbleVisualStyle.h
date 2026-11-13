@@ -112,7 +112,7 @@ QTabBar::tab:selected {
 }
 QLineEdit, QSpinBox, QDoubleSpinBox {
     color: #f0f3ff;
-    selection-background-color: #1d7cb2;
+    selection-background-color: #0b87dd;
     border: 1px solid #000000;
     border-radius: 5px;
     /* task 28: sunken edge (light #3b456b bottom and right) */
@@ -123,7 +123,7 @@ QLineEdit, QSpinBox, QDoubleSpinBox {
 }
 QComboBox {
     color: #f0f3ff;
-    selection-background-color: #1d7cb2;
+    selection-background-color: #0b87dd;
     border: 1px solid #000000;
     border-radius: 4px;
     /* task 28: sunken edge (light #3b456b bottom and right) */
@@ -137,7 +137,7 @@ QLineEdit:focus, QSpinBox:focus, QDoubleSpinBox:focus, QComboBox:focus {
 }
 QAbstractItemView::item:selected {
     color: white;
-    background: #1d7cb2;
+    background: #0b87dd;
     border: none;
     border-radius: 0px;
 }
@@ -151,7 +151,7 @@ QSlider::sub-page:horizontal {
     height: 5px;
     border: none;
     border-radius: 2px;
-    background: #1d7cb2;
+    background: #0b87dd;
 }
 QSlider::handle:horizontal {
     /* Krimble 2026-11-11: George: "make the handles round balls ... A metal ball bearing would look better." A steel ball: a bright reflection at the top, a dark horizon band
@@ -257,7 +257,7 @@ QProgressBar {
 }
 QProgressBar::chunk {
     border-radius: 0px;
-    background: #1d7cb2;
+    background: #0b87dd;
 }
 QToolTip {
     color: #eef1fa;

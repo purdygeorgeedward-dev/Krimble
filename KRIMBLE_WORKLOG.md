@@ -451,3 +451,5 @@ George sent three screenshots (Color Lab floating, Color Lab docked, and the Cus
 **2026-11-13, 04:38 (MST), decision.** George: "record it." The ask-first rule is a line of KRIMBLE_DECISIONS.md and out of the open questions (552nd entry). Pushed with the PAT George pasted in this chat.
 
 **2026-11-13, 04:43 (MST), task 63.** George: switch to the flat Blue-Gray; separate themes. Blue-Gray = flat default with original palette; new theme Krimble Bevel = the Nov 10 look with the hue 227 palette; Painted keeps its sheet with its original palette (553rd entry). Decision line added. Pushed with the PAT George pasted in this chat.
+
+**2026-11-13, 05:02 (MST), aqua.** George: kill the aqua everywhere first. #1d7cb2 replaced by #0b87dd in the three sheets, the three palettes and the SmartCompression panel; decision line added (553rd entry). The unapproved overlay edit was discarded. Pushed with the PAT George pasted in this chat.
