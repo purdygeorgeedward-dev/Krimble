@@ -82,9 +82,17 @@ static const QList<QStringList> &krimbleToolGroupIds()
     static const QList<QStringList> groups = {
         { QStringLiteral("KisToolSelectRectangular"), QStringLiteral("KisToolSelectElliptical"), QStringLiteral("KisToolSelectHexagon") },   // Krimble 2026-11-12 (task 42): Hexagon Selection joins the Marquee flyout
                                                  // Marquee
-        { QStringLiteral("KisToolSelectOutline"), QStringLiteral("KisToolSelectPolygonal"), QStringLiteral("KisToolSelectMagnetic") },   // Lasso
+        { QStringLiteral("KisToolSelectOutline"), QStringLiteral("KisToolSelectPolygonal"), QStringLiteral("KisToolSelectMagnetic"), QStringLiteral("KisToolSelectPath") },   // Lasso
         { QStringLiteral("KisToolSelectContiguous"), QStringLiteral("KisToolSelectSimilar") },                                              // Wand
-        { QStringLiteral("KritaShape/KisToolRectangle"), QStringLiteral("KritaShape/KisToolEllipse"), QStringLiteral("KritaShape/KisToolPolygonStar") },   // Krimble 2026-11-13 (task 74): Shapes: the Polygon and Star tool joins Rectangle and Ellipse in one flyout (no new button in the toolbox)
+        { QStringLiteral("KritaShape/KisToolRectangle"), QStringLiteral("KritaShape/KisToolEllipse"), QStringLiteral("KritaShape/KisToolPolygonStar"), QStringLiteral("KritaShape/KisToolLine") },   // Krimble 2026-11-13 (task 74): Shapes: the Polygon and Star tool joins Rectangle and Ellipse (and Line) in one flyout (no new button in the toolbox)
+        // Krimble 2026-11-13 (task 76): George: "add all long press flyouts." The other groups, as proposed: Fill, Pen, Transform, Retouch, Sampler and Navigation. A tool that is not in the toolbox is simply not in its flyout.
+        { QStringLiteral("KritaFill/KisToolFill"), QStringLiteral("KritaFill/KisToolGradient"), QStringLiteral("KisToolEncloseAndFill") },                  // Fill
+        { QStringLiteral("KisToolPath"), QStringLiteral("KisToolPolyline"), QStringLiteral("KisToolPolygon"), QStringLiteral("KisToolPencil") },           // Pen
+        { QStringLiteral("KisToolTransform"), QStringLiteral("KisToolFreeRotate") },                                                                         // Transform
+        { QStringLiteral("KritaShape/KisToolSmudge"), QStringLiteral("KritaShape/KisToolSoften") },                                                          // Retouch
+        { QStringLiteral("KritaSelected/KisToolColorSampler"), QStringLiteral("KritaShape/KisToolMeasure"), QStringLiteral("ToolReferenceImages") },         // Sampler
+        { QStringLiteral("KrimbleTextTool"), QStringLiteral("SvgTextTool") },                                                                                // Type
+        { QStringLiteral("PanTool"), QStringLiteral("ZoomTool") },                                                                                           // Navigation
     };
     return groups;
 }
