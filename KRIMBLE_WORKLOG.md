@@ -459,3 +459,5 @@ George sent three screenshots (Color Lab floating, Color Lab docked, and the Cus
 **2026-11-13, 05:04 (MST), menu outline.** George: no outline on the menu selection. Removed from menu rows and bar names in the plain theme sheet (555th entry). Pushed with the PAT George pasted in this chat.
 
 **2026-11-13, 05:14 (MST), task 67.** George: yes number 2 (menus start at the bottom of their name, left edges lined up). KrimbleMenuPlacer moves each menu of the menu bar when shown (556th entry). Tall menus (Window, 1075 of 1080 px) cannot go lower. Pushed with the PAT George pasted in this chat.
+
+**2026-11-13, 05:22 (MST), task 68.** George: the blending mode box is too easy to open by accident; at the very least a long press. KrimbleLongPressOpen, 500 ms, wheel ignored (557th entry). Moving or removing the box is not done, not decided. Pushed with the PAT George pasted in this chat.

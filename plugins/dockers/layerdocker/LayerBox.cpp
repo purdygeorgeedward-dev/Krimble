@@ -26,6 +26,9 @@
 #include <QToolTip>
 #include <QWidget>
 #include <QComboBox>
+#include <QWheelEvent>   // Krimble 2026-11-13 (task 68)
+#include <QPointer>   // Krimble 2026-11-13 (task 68)
+#include <QTimer>   // Krimble 2026-11-13 (task 68)
 #include <QFrame>   // Krimble 2026-11-13 (task 58)
 #include <QCheckBox>
 #include <QVBoxLayout>
@@ -163,6 +166,41 @@ qint32 LayerBox::convertOpacityToInt(qreal opacity)
 // Krimble 2026-10-18 (4th): George (1.0.37, c666301): "Bottom buttons in Layers panel are stacking for some reason." and "Fix layers buttons stacking." The 12 Oct change put the six buttons
 // under the layer list in two rows of three, always, so that they all fit in a narrow panel. When the panel is wide enough for all six, they are in one row; when it is
 // narrower they are in two rows. Decided again at every resize, from the buttons' own widths.
+// Krimble 2026-11-13 (task 68): George: "NORMAL is just a layer type. tapping that thing opens a giant slippery list of layer types like DARKEN, LIGHTEN, MULTIPLY, etc. It's a mess!! For one
+// thing there is zero delay in opening it. At the very least it should be a long press to open it." A combo box opens its list on the first touch. This one opens it only when the finger has
+// stayed down for half a second; a tap does nothing, and the mouse wheel (a finger-scroll that lands on the box) does not change the blending mode.
+class KrimbleLongPressOpen : public QObject
+{
+public:
+    explicit KrimbleLongPressOpen(QComboBox *combo, int delayMs = 500) : QObject(combo), m_combo(combo)
+    {
+        combo->installEventFilter(this);
+        m_timer.setSingleShot(true);
+        m_timer.setInterval(delayMs);
+        QObject::connect(&m_timer, &QTimer::timeout, this, [this]() { if (m_combo && m_combo->isEnabled()) m_combo->showPopup(); });
+    }
+    bool eventFilter(QObject *watched, QEvent *event) override
+    {
+        if (watched != m_combo) return false;
+        switch (event->type()) {
+        case QEvent::MouseButtonPress:
+            if (static_cast<QMouseEvent *>(event)->button() == Qt::LeftButton) m_timer.start();
+            return true;
+        case QEvent::MouseButtonRelease:
+        case QEvent::MouseButtonDblClick:
+            m_timer.stop();
+            return true;
+        case QEvent::Wheel:
+            return true;
+        default:
+            return false;
+        }
+    }
+private:
+    QPointer<QComboBox> m_combo;
+    QTimer m_timer;
+};
+
 class KrimbleLayerButtonsFilter : public QObject
 {
 public:
@@ -333,6 +371,7 @@ LayerBox::LayerBox()
         blend->setMaximumWidth(QWIDGETSIZE_MAX);
         opacityBar->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
         opacityBar->setMinimumHeight(34);
+        new KrimbleLongPressOpen(blend);   // Krimble 2026-11-13 (task 68): the blending mode list opens on a long press only
         header->addWidget(blend, 0, 0);
         header->addWidget(m_wdgLayerBox->bnLayerFilters, 0, 1);
         header->addWidget(opacityBar, 1, 0);
