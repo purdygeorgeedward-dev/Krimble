@@ -4069,6 +4069,9 @@ private:
     // curves); the other tabs are darker and closed off by that line. The colors come from the theme's palette (the panel is the Window color).
     static void paintTabRow(QTabBar *bar)
     {
+        // Krimble 2026-11-13 (task 80): George: "The top of the panel below. And they should have more space between them and have the same curves." Every tab has the same shape: rounded
+        // top corners and the inverted curves at the bottom; the body of a tab is inset by the curve's width on each side, so the tabs have room between them and the curves of
+        // neighbors do not overlap. The tabs that are not selected are darker and sit on the line under the row (the top of the panel below); the selected tab leaves a gap in that line.
         QPainter p(bar);
         p.setRenderHint(QPainter::Antialiasing, true);
         const QPalette pal = bar->palette();
@@ -4077,74 +4080,52 @@ private:
         const QColor strip = panel.darker(185);
         const QColor edge(0, 0, 0);
         const QColor textOn = pal.color(QPalette::WindowText).lighter(115);
-        const QColor textOff = QColor::fromRgbF(0.5 * (textOn.redF() + dark.redF()) + 0.15, 0.5 * (textOn.greenF() + dark.greenF()) + 0.15, 0.5 * (textOn.blueF() + dark.blueF()) + 0.15).lighter(110);
+        const QColor textOff = QColor(int(textOn.red() * 0.7), int(textOn.green() * 0.7), int(textOn.blue() * 0.75));
         const qreal r = 6.0, k = 6.0;
         const qreal baseY = bar->height() - 0.5;
         p.fillRect(bar->rect(), strip);
         const int current = bar->currentIndex();
-        // the other tabs first
-        for (int i = 0; i < bar->count(); ++i) {
-            if (i == current) continue;
-            // const QRectF t = QRectF(bar->tabRect(i)).adjusted(0.5, 3.5, -0.5, 0.0);
-            const QRectF t = QRectF(bar->tabRect(i)).adjusted(0.5, 0.5, -0.5, 0.0);   // Krimble 2026-11-13 (task 79): George: "The other tabs, although darker should touch the top too." (they were 3 px lower)
-            QPainterPath path;
-            path.moveTo(t.left(), baseY);
-            path.lineTo(t.left(), t.top() + r);
-            path.quadTo(t.left(), t.top(), t.left() + r, t.top());
-            path.lineTo(t.right() - r, t.top());
-            path.quadTo(t.right(), t.top(), t.right(), t.top() + r);
-            path.lineTo(t.right(), baseY);
-            p.setPen(QPen(edge, 1));
-            p.setBrush(dark);
-            p.drawPath(path);
-            p.setPen(textOff);
-            p.drawText(t.adjusted(4, 0, -4, 0), Qt::AlignCenter, p.fontMetrics().elidedText(bar->tabText(i), Qt::ElideRight, int(t.width()) - 8));
-        }
-        // the line under the row, with a gap under the selected tab
-        qreal gapLeft = -1, gapRight = -1;
-        if (current >= 0) {
-            const QRectF t = QRectF(bar->tabRect(current)).adjusted(0.5, 0.5, -0.5, 0.0);
-            gapLeft = t.left() - k;
-            gapRight = t.right() + k;
-        }
+        // the line under the row first (the top of the panel below); the selected tab's body is drawn over it with a gap
         p.setPen(QPen(edge, 1));
-        p.setBrush(Qt::NoBrush);
-        if (current < 0) {
-            p.drawLine(QPointF(0, baseY), QPointF(bar->width(), baseY));
-        } else {
-            if (gapLeft > 0) p.drawLine(QPointF(0, baseY), QPointF(gapLeft, baseY));
-            if (gapRight < bar->width()) p.drawLine(QPointF(gapRight, baseY), QPointF(bar->width(), baseY));
-        }
-        // the selected tab, with the inverted curves at the bottom
-        if (current >= 0) {
-            const QRectF t = QRectF(bar->tabRect(current)).adjusted(0.5, 0.5, -0.5, 0.0);
-            QPainterPath body;
-            body.moveTo(t.left() - k, baseY + 1.0);
-            body.quadTo(t.left(), baseY + 1.0, t.left(), baseY - k);
-            body.lineTo(t.left(), t.top() + r);
-            body.quadTo(t.left(), t.top(), t.left() + r, t.top());
-            body.lineTo(t.right() - r, t.top());
-            body.quadTo(t.right(), t.top(), t.right(), t.top() + r);
-            body.lineTo(t.right(), baseY - k);
-            body.quadTo(t.right(), baseY + 1.0, t.right() + k, baseY + 1.0);
-            body.closeSubpath();
-            p.setPen(Qt::NoPen);
-            p.setBrush(panel);
-            p.drawPath(body);
-            QPainterPath line;
-            line.moveTo(t.left() - k, baseY);
-            line.quadTo(t.left(), baseY, t.left(), baseY - k);
-            line.lineTo(t.left(), t.top() + r);
-            line.quadTo(t.left(), t.top(), t.left() + r, t.top());
-            line.lineTo(t.right() - r, t.top());
-            line.quadTo(t.right(), t.top(), t.right(), t.top() + r);
-            line.lineTo(t.right(), baseY - k);
-            line.quadTo(t.right(), baseY, t.right() + k, baseY);
-            p.setPen(QPen(edge, 1));
-            p.setBrush(Qt::NoBrush);
-            p.drawPath(line);
-            p.setPen(textOn);
-            p.drawText(t.adjusted(4, 0, -4, 0), Qt::AlignCenter, p.fontMetrics().elidedText(bar->tabText(current), Qt::ElideRight, int(t.width()) - 8));
+        p.drawLine(QPointF(0, baseY), QPointF(bar->width(), baseY));
+        for (int pass = 0; pass < 2; ++pass) {   // the other tabs first, the selected tab last
+            for (int i = 0; i < bar->count(); ++i) {
+                const bool selected = (i == current);
+                if (selected != (pass == 1)) continue;
+                const QRectF rect = QRectF(bar->tabRect(i));
+                const QRectF t = rect.adjusted(k + 0.5, 0.5, -k - 0.5, 0.0);
+                QPainterPath body;
+                body.moveTo(t.left() - k, baseY + 1.0);
+                body.quadTo(t.left(), baseY + 1.0, t.left(), baseY - k);
+                body.lineTo(t.left(), t.top() + r);
+                body.quadTo(t.left(), t.top(), t.left() + r, t.top());
+                body.lineTo(t.right() - r, t.top());
+                body.quadTo(t.right(), t.top(), t.right(), t.top() + r);
+                body.lineTo(t.right(), baseY - k);
+                body.quadTo(t.right(), baseY + 1.0, t.right() + k, baseY + 1.0);
+                body.closeSubpath();
+                p.setPen(Qt::NoPen);
+                p.setBrush(selected ? panel : dark);
+                p.drawPath(body);
+                QPainterPath line;
+                line.moveTo(t.left() - k, baseY);
+                line.quadTo(t.left(), baseY, t.left(), baseY - k);
+                line.lineTo(t.left(), t.top() + r);
+                line.quadTo(t.left(), t.top(), t.left() + r, t.top());
+                line.lineTo(t.right() - r, t.top());
+                line.quadTo(t.right(), t.top(), t.right(), t.top() + r);
+                line.lineTo(t.right(), baseY - k);
+                line.quadTo(t.right(), baseY, t.right() + k, baseY);
+                p.setPen(QPen(edge, 1));
+                p.setBrush(Qt::NoBrush);
+                p.drawPath(line);
+                if (selected) {   // no line under the selected tab: cover it with the panel's color (the gap)
+                    p.setPen(QPen(panel, 1));
+                    p.drawLine(QPointF(t.left() - k + 1.0, baseY), QPointF(t.right() + k - 1.0, baseY));
+                }
+                p.setPen(selected ? textOn : textOff);
+                p.drawText(t.adjusted(2, 0, -2, 0), Qt::AlignCenter, p.fontMetrics().elidedText(bar->tabText(i), Qt::ElideRight, int(t.width()) - 4));
+            }
         }
     }
 

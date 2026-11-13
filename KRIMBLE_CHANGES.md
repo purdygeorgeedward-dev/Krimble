@@ -7160,3 +7160,9 @@ George: "yes do the same glow on them all." The flat sheet's pressed, checked an
 **Files:** `libs/ui/KisMainWindow.cpp`
 
 George: "The other tabs, although darker should touch the top too." In `KrimbleTabTearOff::paintTabRow` the tabs that are not selected started 3 px lower than the selected one; they now start at the same top edge (`adjusted(0.5, 0.5, -0.5, 0)`).
+
+## 2026-11-13 (571st) — Tab C: same curves on every tab, spacing, tabs sit on the panel's top line
+
+**Files:** `libs/ui/KisMainWindow.cpp`
+
+George: "The top of the panel below. And they should have more space between them and have the same curves." `KrimbleTabTearOff::paintTabRow` was rewritten: every tab now has the same shape (rounded top corners, inverted curves at the bottom), each tab body is inset by the curve width so there is room between tabs, the darker tabs sit on the line under the row (the top of the panel below), and the selected tab leaves a gap in that line. This supersedes the 570th entry.
