@@ -7121,3 +7121,9 @@ George asked "Show me the difference" (of the three themes). Rendering the theme
 **Files:** `libs/ui/kis_image_manager.cc`, `libs/ui/kis_image_manager.h`, `krita/kritamenu.action`, `krita/krita5.xmlgui`
 
 George asked for an auto crop in the Image menu. New action `auto_crop_image` ("Auto Crop...") after "Crop to Layer". It reads the flattened image; if all four corners are fully transparent, or all the same color within a tolerance, that is the background. Rows and columns that are all background are dropped and the image (all layers) is cropped to the bounding box of the rest with `KisImage::cropImage`, one undo step. A small dialog sets tolerance (default 8 of 255) and padding in pixels (default 0), both remembered. If the corners don't match, the image is all background, or nothing would change, a floating message says so and nothing is cropped. Not compiled or run yet (the real compile is the GitHub build).
+
+## 2026-11-13 (565th) — Layers panel: mask, adjustment layer and fx buttons in the top row
+
+**Files:** `plugins/dockers/layerdocker/LayerBox.cpp`
+
+George asked for the Photoshop bottom-bar buttons, then chose the empty space at the top next to the layer type selector, leaving the six buttons under the layer list alone. Three 34 px box-less symbol buttons now sit in the top row between the search box and the blending mode box: **Add layer mask** (`add_new_transparency_mask`), **New adjustment layer** (`add_new_adjustment_layer`), **Layer styles** (`layer_style`, shown as "fx" since that action has no icon). They run the existing actions and are enabled and disabled with them; the icons follow the theme. The search box gets 102 px narrower. The six bottom buttons are unchanged.

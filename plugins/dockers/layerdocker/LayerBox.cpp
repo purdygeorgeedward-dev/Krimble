@@ -389,6 +389,31 @@ LayerBox::LayerBox()
             topRow->setSpacing(6);
             // topRow->addStretch(1);
             topRow->addWidget(krimbleSearch, 1);   // Krimble 2026-11-13 (task 72): George: "Try to implement any easy Photoshop layers feature." The easiest: a search box for layer names in the free space of the top row (the filter model already has setTextFilter).
+            // Krimble 2026-11-13 (task 73): George: "put them in the empty space at the top ... next to the layer type selector." Three symbol buttons from the Photoshop layers panel
+            // (add layer mask, new adjustment layer, layer styles "fx") sit between the search box and the blending mode box. The six buttons under the layer list are not touched.
+            {
+                const QString topSymbolStyle = QStringLiteral(
+                    "QToolButton { border: none; background: transparent; padding: 2px; color: #e3e8f6; font-style: italic; font-weight: bold; }"
+                    "QToolButton:hover { background: rgba(120, 160, 255, 35); border-radius: 6px; }"
+                    "QToolButton:pressed { background: rgba(80, 150, 255, 90); border-radius: 6px; }"
+                    "QToolButton:disabled { background: transparent; color: #7a8199; }");
+                const char *ids[3] = { "krimbleMaskBn", "krimbleAdjustBn", "krimbleStyleBn" };
+                const QString tips[3] = { i18n("Add layer mask"), i18n("New adjustment layer"), i18n("Layer styles") };
+                for (int i = 0; i < 3; ++i) {
+                    QToolButton *b = new QToolButton(mainWidget);
+                    b->setObjectName(QLatin1String(ids[i]));
+                    b->setAutoRaise(true);
+                    b->setFocusPolicy(Qt::NoFocus);
+                    b->setFixedSize(34, 34);
+                    b->setIconSize(QSize(22, 22));
+                    b->setToolTip(tips[i]);
+                    b->setStyleSheet(topSymbolStyle);
+                    if (i == 0) b->setIcon(KisIconUtils::loadIcon("transparencyMask"));
+                    else if (i == 1) b->setIcon(KisIconUtils::loadIcon("filterLayer"));
+                    else b->setText(QStringLiteral("fx"));
+                    topRow->addWidget(b);
+                }
+            }
             blend->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
             blend->setFixedWidth(110);
             topRow->addWidget(blend);
@@ -736,6 +761,10 @@ void LayerBox::setViewManager(KisViewManager* kisview)
     connect(m_wdgLayerBox->bnAdd, SIGNAL(clicked()), this, SLOT(slotAddLayerBnClicked()));
 
     connectActionToButton(kisview, m_wdgLayerBox->bnDuplicate, "duplicatelayer");
+    // Krimble 2026-11-13 (task 73): the three top-row symbol buttons run the existing actions.
+    connectActionToButton(kisview, findChild<QToolButton*>("krimbleMaskBn"), "add_new_transparency_mask");
+    connectActionToButton(kisview, findChild<QToolButton*>("krimbleAdjustBn"), "add_new_adjustment_layer");
+    connectActionToButton(kisview, findChild<QToolButton*>("krimbleStyleBn"), "layer_style");
 
     KisActionManager *actionManager = kisview->actionManager();
 
@@ -1539,6 +1568,8 @@ void LayerBox::slotForgetAboutSavedNodeBeforeEditSelectionMode()
 
 void LayerBox::slotUpdateIcons() {
     m_wdgLayerBox->bnAdd->setIcon(KisIconUtils::loadIcon("addlayer"));
+    if (QToolButton *b = findChild<QToolButton*>("krimbleMaskBn")) b->setIcon(KisIconUtils::loadIcon("transparencyMask"));   // Krimble task 73
+    if (QToolButton *b = findChild<QToolButton*>("krimbleAdjustBn")) b->setIcon(KisIconUtils::loadIcon("filterLayer"));
     m_wdgLayerBox->bnRaise->setIcon(KisIconUtils::loadIcon("arrowup"));
     m_wdgLayerBox->bnDelete->setIcon(KisIconUtils::loadIcon("deletelayer"));
     m_wdgLayerBox->bnLower->setIcon(KisIconUtils::loadIcon("arrowdown"));
