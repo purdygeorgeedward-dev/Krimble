@@ -7166,3 +7166,9 @@ George: "The other tabs, although darker should touch the top too." In `KrimbleT
 **Files:** `libs/ui/KisMainWindow.cpp`
 
 George: "The top of the panel below. And they should have more space between them and have the same curves." `KrimbleTabTearOff::paintTabRow` was rewritten: every tab now has the same shape (rounded top corners, inverted curves at the bottom), each tab body is inset by the curve width so there is room between tabs, the darker tabs sit on the line under the row (the top of the panel below), and the selected tab leaves a gap in that line. This supersedes the 570th entry.
+
+## 2026-11-13 (572nd) — Tab C: spaces between tabs are the darker color
+
+**Files:** `libs/ui/KisMainWindow.cpp`
+
+George: "The spaces in between need to be the darker color." The tab row background in `paintTabRow` now uses the same darker color as the unselected tabs instead of a still darker strip color.

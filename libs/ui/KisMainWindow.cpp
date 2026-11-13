@@ -4077,7 +4077,7 @@ private:
         const QPalette pal = bar->palette();
         const QColor panel = pal.color(QPalette::Window);
         const QColor dark = panel.darker(145);
-        const QColor strip = panel.darker(185);
+        const QColor strip = dark;   // the spaces between the tabs are the darker color (George, 2026-11-13)
         const QColor edge(0, 0, 0);
         const QColor textOn = pal.color(QPalette::WindowText).lighter(115);
         const QColor textOff = QColor(int(textOn.red() * 0.7), int(textOn.green() * 0.7), int(textOn.blue() * 0.75));
