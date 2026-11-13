@@ -377,3 +377,5 @@ George sent three screenshots (Color Lab floating, Color Lab docked, and the Cus
 **2026-11-12, 18:13 (MST), task 39 correction.** George: "I didn\x27t want to go back to color icons." The 19 new tool icons redrawn in the Clear style (38 svg files, 521st entry); flyout of a tall list grows upward beside its button; mockup toolbox_two_columns_clear.png. Pushed with the PAT George pasted earlier in this chat.
 
 **2026-11-12, 18:15 (MST), task 40.** George: choice between flat buttons and raised buttons with thicker DPaint-style bevels for the toolbox. Toolbox menu > Button Style > Flat / Raised, saved (522nd entry); picture toolbox_button_style.png. Pushed with the PAT George pasted earlier in this chat.
+
+**2026-11-12, 18:20 (MST), task 39 second correction.** George: "color replacement looks like a Boolean again." Icon redrawn as brush plus a color swatch (523rd entry); preview color_replacement_icon.png. Pushed with the PAT George pasted earlier in this chat.
