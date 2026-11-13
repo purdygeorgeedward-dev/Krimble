@@ -7019,3 +7019,9 @@ George: "The selected item in the menu should not have a gradient. It should jus
 
 George: "STOP TELLING ME WHICH BUILD I AM RUNNING OR THAT WE HAVENT RUN ANOTHER BUILD YET!!!!!!!!! YOU ARE WASTING MY TIME AND MY POINTS TELLING ME STUPID OBVIOUS SHIT I ALREADY KNOW OVER AND OVER!!!!! STOP IT!!!!" He had said the same on 2026-11-09 (the "Krimble drift" chat). The rule is a line in the decisions file: no replies about which build he runs, that a change is not in a build yet, or that something is untested; the facts stay in the notes and are given only when he asks.
 
+## 2026-11-13 (549th) — Task 61: layer thumbnails are 48 px by default
+
+**Files:** `libs/ui/kis_config.cc`
+
+George (shown Chatty's Layers panel after the reference pictures): "You know what would be useful? Thumbnails." The Layers panel already draws a thumbnail for every layer, but `KisConfig::layerThumbnailSize` defaulted to **20** px, the minimum of the Thumbnail Size slider in the Layers panel's menu (20 to 80), so a thumbnail was a tiny strip (a 2048 x 751 picture: about 7 px high). The default is **48** px (the old line is a comment); the slider still changes it and a size that was saved by the slider is kept. The rows are taller by the difference.
+

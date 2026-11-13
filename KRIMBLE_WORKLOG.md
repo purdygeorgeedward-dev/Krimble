@@ -441,3 +441,5 @@ George sent three screenshots (Color Lab floating, Color Lab docked, and the Cus
 **2026-11-13, 04:24 (MST), task 60.** George: selected menu item solid light blue, no gradient. QMenu::item:selected is flat #0b87dd in the default and Painted sheets (547th entry). Pushed with the PAT George pasted in this chat.
 
 **2026-11-13, 04:26 (MST), decision.** George: stop telling me which build I run / that a change is not in a build yet. Written as a line in KRIMBLE_DECISIONS.md (548th entry). Pushed with the PAT George pasted in this chat.
+
+**2026-11-13, 04:33 (MST), task 61.** George: thumbnails would be useful. Layer thumbnail default 20 px to 48 px in KisConfig (549th entry). Pushed with the PAT George pasted in this chat.

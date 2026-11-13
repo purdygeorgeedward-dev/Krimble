@@ -2115,7 +2115,9 @@ void KisConfig::setToolbarSlider(int sliderNumber, const QString &slider)
 
 int KisConfig::layerThumbnailSize(bool defaultValue) const
 {
-    return (defaultValue ? 20 : m_cfg.readEntry("layerThumbnailSize", 20));
+    // return (defaultValue ? 20 : m_cfg.readEntry("layerThumbnailSize", 20));
+    // Krimble 2026-11-13 (task 61): George: "You know what would be useful? Thumbnails." The layer thumbnails were 20 px by default, the smallest the Thumbnail Size slider of the Layers menu can be (20 to 80): a wide picture was a strip 6 px high. 48 px now.
+    return (defaultValue ? 48 : m_cfg.readEntry("layerThumbnailSize", 48));
 }
 
 void KisConfig::setLayerThumbnailSize(int size)
