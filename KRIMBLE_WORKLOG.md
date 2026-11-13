@@ -471,3 +471,5 @@ George sent three screenshots (Color Lab floating, Color Lab docked, and the Cus
 **2026-11-13, 05:35 (MST), task 72.** George: implement any easy Photoshop layers feature, estimate the rest. Search box for layer names in the free top-row space (561st entry). Pushed with the PAT George pasted in this chat.
 
 **2026-11-13, 05:47 (MST), task 73.** George: status bar items plain, no buttons or bevels, and not so tall. Flat items and max height 22 px in the three sheets (562nd entry). Pushed with the PAT George pasted in this chat.
+
+**2026-11-13, 05:50 (MST), repair.** My status bar change (32857c3) broke the Bevel and Painted style sheets (the rule went inside a comment). Found while rendering the three themes for George; repaired and tested in Qt: all three sheets parse (563rd entry). Pushed with the PAT George pasted in this chat.

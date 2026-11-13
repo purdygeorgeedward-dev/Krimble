@@ -7109,3 +7109,9 @@ George: "Try to implement any easy Photoshop layers feature. Estimate workload o
 
 George (a screenshot of the status bar: the selection indicator at the left, the color profile text, and the size and memory readout at the right): "no buttons or bevels or whatever. This was good before. but still too tall." In the three sheets the buttons in the status bar (`QStatusBar QPushButton`, `QStatusBar QToolButton`) have no border, no fill, no margin and 6 px of padding at the sides (`min-height: 0`), and `QStatusBar` has `max-height: 22px` (the bar was about 31 logical px high in the screenshots). Nothing was added to the status bar by Krimble (only the rotation gadget and the zoom gadget were hidden, in October). Not run.
 
+## 2026-11-13 (563rd) — Repair: the Bevel and Painted style sheets parse again
+
+**Files:** `libs/ui/KrimbleVisualStyleNov10.h`, `libs/ui/KrimbleVisualStylePainted.h`
+
+George asked "Show me the difference" (of the three themes). Rendering the themes' real style sheets in Qt showed that **Qt refused to parse the Bevel and Painted sheets** ("Could not parse application stylesheet"): **my 562nd entry (status bar, commit 32857c3) broke them.** I had added the status bar rule at the first `QStatusBar {` in each file, and that text is inside a comment (a "Before:" block); my new comment inside it ended the old one early and left stray text, so the whole sheet was invalid and those two themes would have had no style sheet at all. **Repair:** both files are back as they were at 7fcc53f and the status bar rule is added at the real, uncommented `QStatusBar` block (found by a scan that skips comments); a bisect test in real Qt: all three sheets parse, each has the new rule once. The plain theme's sheet was not affected. No other edit of the day was found to break a sheet.
+
