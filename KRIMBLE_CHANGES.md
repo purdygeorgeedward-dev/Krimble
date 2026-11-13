@@ -7238,3 +7238,9 @@ George: "It's too much." The menu bar's bevel lines (581st entry) are 2 device p
 **Files:** `libs/ui/KisMainWindow.cpp`
 
 George: "It should match the rest of the UI." The menu bar's bevel lines are one device pixel again, like panels, tool bars, menus and image windows (the 581st and 582nd entries are undone).
+
+## 2026-11-13 (584th) — Painted theme: menu bar in the Bevel theme's color
+
+**Files:** `libs/ui/KisMainWindow.cpp`
+
+George: "The painted one should have the same menu bar color as the bevel. It looks weird being the same color as everything else." The Painted theme's menu bar (painted by the bar's event filter) is the Bevel menu bar's flat `#49588c` instead of the gradient that was dark at both ends (the gradient is commented out; the edge lines are unchanged).

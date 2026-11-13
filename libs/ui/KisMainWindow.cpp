@@ -1420,11 +1420,14 @@ protected:
             QWidget *bar = static_cast<QWidget *>(watched);
             QPainter painter(bar);
             const QRectF r(bar->rect());
-            QLinearGradient across(r.left(), 0, r.right(), 0);
-            across.setColorAt(0.0, QColor("#1c2346"));
-            across.setColorAt(0.5, QColor("#394585"));
-            across.setColorAt(1.0, QColor("#1c2346"));
-            painter.fillRect(r, across);
+            // Krimble 2026-11-13: George: "The painted one should have the same menu bar color as the bevel. It looks weird being the same color as everything else." The bar is the Bevel
+            // theme's menu bar color (#49588c), flat. Before: the gradient across, #1c2346 at both ends and #394585 in the middle.
+            // QLinearGradient across(r.left(), 0, r.right(), 0);
+            // across.setColorAt(0.0, QColor("#1c2346"));
+            // across.setColorAt(0.5, QColor("#394585"));
+            // across.setColorAt(1.0, QColor("#1c2346"));
+            // painter.fillRect(r, across);
+            painter.fillRect(r, QColor("#49588c"));
             // QLinearGradient down(0, r.top(), 0, r.bottom());
             // down.setColorAt(0.0, QColor(255, 255, 255, 34));
             // down.setColorAt(0.5, QColor(255, 255, 255, 0));
