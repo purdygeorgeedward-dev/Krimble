@@ -289,7 +289,8 @@ QMenuBar::item:selected {
 QMenuBar::item:selected {
     border: 1px solid transparent;
     border-radius: 0px;
-    background: #192138;
+    /* background: #192138;   Krimble 2026-11-13 (task 78): George: "Menu bar names... yes, I think so. solid blue." */
+    background: #0b87dd;
 }
 QMenu {
     color: #eef1fa;
