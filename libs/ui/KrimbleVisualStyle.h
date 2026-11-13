@@ -91,7 +91,7 @@ QPushButton:disabled, QDialog QToolButton:disabled {
 }
 QTabBar::tab {
     color: #e3e8f6;
-    padding: 7px 13px;
+    padding: 4px 13px;   /* Krimble 2026-11-13: tabs shorter (was 7px 13px) */
     border: 1px solid #000000;
     border-bottom: 1px solid #000000;
     border-top-left-radius: 6px;

@@ -7208,3 +7208,9 @@ George: "ok a little darker". Unselected tab color `panel.darker(120)` → `pane
 **Files:** `libs/ui/KisMainWindow.cpp`
 
 George: "The curves aren't enough." In `paintTabRow` the top corner radius `r` 11 → 16 and the bottom flare size `k` 6 → 10 (the space between tabs grows with `k`).
+
+## 2026-11-13 (579th) — Tabs shorter
+
+**Files:** `libs/ui/KrimbleVisualStyle.h`, `libs/ui/KrimbleVisualStyleNov10.h`, `libs/ui/KrimbleVisualStylePainted.h`
+
+George: "I think the tabs are too tall." The tab padding in `QTabBar::tab` is 4px 13px (was 7px 13px): each tab is 6 px shorter. The tab painter takes its size from this padding.
