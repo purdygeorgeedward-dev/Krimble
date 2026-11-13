@@ -7244,3 +7244,9 @@ George: "It should match the rest of the UI." The menu bar's bevel lines are one
 **Files:** `libs/ui/KisMainWindow.cpp`
 
 George: "The painted one should have the same menu bar color as the bevel. It looks weird being the same color as everything else." The Painted theme's menu bar (painted by the bar's event filter) is the Bevel menu bar's flat `#49588c` instead of the gradient that was dark at both ends (the gradient is commented out; the edge lines are unchanged).
+
+## 2026-11-13 (584th) — Painted theme: menu bar gradient kept
+
+**Files:** `libs/ui/KisMainWindow.cpp`
+
+George: "I didnt see the gradient in the demo image. Put it back." The Painted theme's menu bar is the gradient again (`#1c2346` at both ends, `#394585` in the middle); the flat `#49588c` change was taken back. The demo images never show this gradient: the bar is painted by an event filter on the real window, which the demo does not have.
