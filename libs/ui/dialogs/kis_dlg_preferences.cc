@@ -2756,11 +2756,27 @@ class KrimblePrefsListDelegate : public QStyledItemDelegate
 {
 public:
     KrimblePrefsListDelegate(int itemWidth, QObject *parent) : QStyledItemDelegate(parent), m_w(itemWidth) {}
+    // Krimble 2026-11-13 (task 45): George: "Preferences keyboard is never big enough, but column is too wide and selection area is darkening the selected icon. Yuck. What happened to bright blue background for selection?" The height of an item's picture: the decoration's height, but a WIDE picture (the whole keyboard is 1.5 times wider than tall) is as tall as its width allows, so it fills the
+    // item's width (3 px at each side) instead of being limited by the height of a square icon. The item grows with it.
+    int iconHeight(const QStyleOptionViewItem &option, const QModelIndex &index) const
+    {
+        const int base = option.decorationSize.height();
+        const QIcon icon = index.data(Qt::DecorationRole).value<QIcon>();
+        const QSize natural = icon.actualSize(QSize(4000, 4000));
+        if (natural.isValid() && natural.height() > 0) {
+            const qreal aspect = qreal(natural.width()) / natural.height();
+            if (aspect > 1.2) {
+                return qMax(base, qRound((m_w - 6) / aspect));
+            }
+        }
+        return base;
+    }
     QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const override
     {
         const int pad = 6;
         const QRect t = option.fontMetrics.boundingRect(QRect(0, 0, m_w - 2 * pad, 0), Qt::AlignHCenter | Qt::TextWordWrap, index.data(Qt::DisplayRole).toString());
-        return QSize(m_w, pad + option.decorationSize.height() + 2 + t.height() + pad);
+        // return QSize(m_w, pad + option.decorationSize.height() + 2 + t.height() + pad);
+        return QSize(m_w, pad + iconHeight(option, index) + 2 + t.height() + pad);
     }
     void paint(QPainter *p, const QStyleOptionViewItem &option, const QModelIndex &index) const override
     {
@@ -2773,12 +2789,15 @@ public:
         QStyle *style = opt.widget ? opt.widget->style() : QApplication::style();
         style->drawPrimitive(QStyle::PE_PanelItemViewItem, &opt, p, opt.widget);
         const bool selected = opt.state & QStyle::State_Selected;
-        const QSize isz = option.decorationSize;
+        // const QSize isz = option.decorationSize;
+        const QSize isz(option.decorationSize.width(), iconHeight(option, index));   // Krimble 2026-11-13 (task 45): George: "Preferences keyboard is never big enough, but column is too wide and selection area is darkening the selected icon. Yuck. What happened to bright blue background for selection?"
         // Krimble 2026-11-07: George: "The new keyboard icon in Prefs is chopped in half." The icon is drawn in the whole width of the list item (a wide picture, the whole keyboard, now fits, a square one is as large as before: QIcon::paint keeps the picture's shape inside the box).
         // index.data(Qt::DecorationRole).value<QIcon>().paint(p, QRect(opt.rect.x() + (opt.rect.width() - isz.width()) / 2, opt.rect.y() + pad, isz.width(), isz.height()), Qt::AlignCenter, selected ? QIcon::Selected : QIcon::Normal);
         // index.data(Qt::DecorationRole).value<QIcon>().paint(p, QRect(opt.rect.x() + pad, opt.rect.y() + pad, opt.rect.width() - 2 * pad, isz.height()), Qt::AlignCenter, selected ? QIcon::Selected : QIcon::Normal);
         // 2026-11-08: only 3 px at each side for the picture (a wide picture such as the keyboard uses the whole width; a square one is as before)
-        index.data(Qt::DecorationRole).value<QIcon>().paint(p, QRect(opt.rect.x() + 3, opt.rect.y() + pad, opt.rect.width() - 6, isz.height()), Qt::AlignCenter, selected ? QIcon::Selected : QIcon::Normal);
+        // index.data(Qt::DecorationRole).value<QIcon>().paint(p, QRect(opt.rect.x() + 3, opt.rect.y() + pad, opt.rect.width() - 6, isz.height()), Qt::AlignCenter, selected ? QIcon::Selected : QIcon::Normal);
+        // Krimble 2026-11-13 (task 45): George: "Preferences keyboard is never big enough, but column is too wide and selection area is darkening the selected icon. Yuck. What happened to bright blue background for selection?" The icon of a selected page is no longer drawn in the Selected mode (the style tints it with the selection color: it darkened the keyboard). The selection is a bright blue fill now, and the picture is drawn as it is.
+        index.data(Qt::DecorationRole).value<QIcon>().paint(p, QRect(opt.rect.x() + 3, opt.rect.y() + pad, opt.rect.width() - 6, isz.height()), Qt::AlignCenter, QIcon::Normal);
         const QRect tr(opt.rect.x() + pad, opt.rect.y() + pad + isz.height() + 2, opt.rect.width() - 2 * pad, opt.rect.height() - (pad + isz.height() + 2 + pad));
         p->save();
         p->setPen(opt.palette.color(selected ? QPalette::HighlightedText : QPalette::Text));
@@ -2983,7 +3002,9 @@ KisDlgPreferences::KisDlgPreferences(QWidget* parent, const char* name)
                 // navList->setItemDelegate(new KrimblePrefsListDelegate(int(shortSide * 0.20), navList));
                 // Krimble 2026-11-08: George: "Keyboard icon in Prefs is too small." A whole keyboard is 2.6 times wider than tall, so its height is what the list item's width allows: the
                 // items were 20% of the screen's short side wide (the keyboard 52 logical px wide and 20 px tall on this phone); 28% now (the keyboard about 1.6 times larger, whole).
-                navList->setItemDelegate(new KrimblePrefsListDelegate(int(shortSide * 0.28), navList));
+                // navList->setItemDelegate(new KrimblePrefsListDelegate(int(shortSide * 0.28), navList));
+                // Krimble 2026-11-13 (task 45): George: "Preferences keyboard is never big enough, but column is too wide and selection area is darkening the selected icon. Yuck. What happened to bright blue background for selection?" 24 percent now (it was 28): the keyboard fills the item's width, so the column can be narrower and the keyboard is still larger than before.
+                navList->setItemDelegate(new KrimblePrefsListDelegate(int(shortSide * 0.24), navList));
                 navList->setUniformItemSizes(false);
             }
         }

@@ -395,3 +395,5 @@ George sent three screenshots (Color Lab floating, Color Lab docked, and the Cus
 **2026-11-12, 00:00 (MST), task 43.** George (new build): menu bar has no border, highlight or shadow at start, then becomes the painted version. Overlay now also on the menu bar, theme applied early, bevels installed at once (529th entry). Not in build 57. Pushed with the PAT George pasted in this chat.
 
 **2026-11-13, 00:02 (MST), task 44.** George sent krita.log of build 57 (cdca33d), "weird toolbox stuff". Cause found: a floating toolbox at the default 640 x 480 window turned HORIZONTAL (updateToolBoxOrientation fallback); fixed (530th entry). Both sessions ended by Samsung background kills (AL_Kill), not crashes. Pushed with the PAT George pasted in this chat.
+
+**2026-11-13, 00:05 (MST), task 45.** George: Preferences keyboard too small in a too wide column; selection darkens the icon; where is the bright blue selection. Keyboard fills the item width, column 24 percent, icon painted Normal, list selection #1d7cb2 again in the Nov 10 and Painted sheets (531st entry). Pushed with the PAT George pasted in this chat.
