@@ -7037,3 +7037,9 @@ George: "I would rather have symbols without buttons or boxes on the bottom of t
 
 George: "NO!!!!! DONT CHANGE MY LAYERS SYMBOLS!!!!!!" The pictures on the six buttons were never changed (the render I showed used stand-in symbols of my own, which looked like a change; that was my mistake). The 550th entry did make them larger (24 px) and the buttons taller (38 px): both lines are comments now. **Only the boxes are gone** (no border, no fill); the symbols and their size are the program's own, as before.
 
+## 2026-11-13 (552nd) — Decision recorded: ask first
+
+**Files:** `KRIMBLE_DECISIONS.md`
+
+George: "This is what I was talking about. Don't make changes without Asking first." and, asked whether to record it: "record it." The rule of the Bible (Sept 28) is a line of the decisions table now (ask, wait for the yes, no batching; reading, looking up and rendering pictures need no asking) and is no longer in the list of questions for George; the other open question (publish the current build before the number changes) is still there.
+

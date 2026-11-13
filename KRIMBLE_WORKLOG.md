@@ -447,3 +447,5 @@ George sent three screenshots (Color Lab floating, Color Lab docked, and the Cus
 **2026-11-13, 04:35 (MST), task 62.** George: symbols without boxes at the bottom of the Layers panel; keeps the six he uses (add, duplicate, lower, raise, properties, delete). Flat symbol-only buttons, 24 px symbols (550th entry). Pushed with the PAT George pasted in this chat.
 
 **2026-11-13, 04:36 (MST), task 62 correction.** George: do not change the layer symbols. Sizes (24 px symbols, 38 px buttons) reverted to comments; only the box styling remains (551st entry). Pushed with the PAT George pasted in this chat.
+
+**2026-11-13, 04:38 (MST), decision.** George: "record it." The ask-first rule is a line of KRIMBLE_DECISIONS.md and out of the open questions (552nd entry). Pushed with the PAT George pasted in this chat.

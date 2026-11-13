@@ -12,6 +12,7 @@ Krimble 2026-11-13. George: "I'm concerned about his decisions get made and then
 | JNI class paths are `org/krimble/android` | 2026-09-19 | `tools/ci/check_decisions.py` (a warning) |
 | Code is commented out, never deleted; menu and action XML entries are commented out | Bible | not automatic |
 | Every change: an inline comment, a KRIMBLE_CHANGES.md entry, a KRIMBLE_WORKLOG.md entry, times in MST; a change is called done only when it is on the repository (`git ls-remote`), and the entry is written only after the edit is seen in the file | Bible, 2026-11-13 | not automatic |
+| **Ask first.** No change to code, assets, settings, documents or files without asking George and waiting for his yes (each change, no batching; a yes covers what was asked and its notes entries). Reading, looking things up and rendering pictures to show him need no asking | Bible (Sept 28), confirmed 2026-11-13 ("Don't make changes without Asking first.") | not automatic |
 | Dodge, Burn, Sponge, Clone Stamp and Pattern Stamp are dropped | 2026-10-20 | not automatic |
 | New tools: only the Hexagon selection and the Regular Polygon and Star | 2026-11-12 | not automatic |
 | Hexagon tools: one shared lock (grid, size, orientation, line thickness) until unlocked; snapping follows the hex grid of View > Show > Hex | 2026-11-12 | not automatic |
@@ -23,7 +24,6 @@ Krimble 2026-11-13. George: "I'm concerned about his decisions get made and then
 | Color Lab must be a real panel that reflows, not a picture that zooms (the rebuild is not started) | 2026-11-13 | not automatic |
 | SmartCompression: the selection is the area to compress; the film covers the protected area; editing starts from the Smart Selection; the label is "SmartCompression" (no %); logo 54 px; no explanations in the JPEG tab | 2026-11-13 | not automatic |
 
-## Needs George's answer (two older rules disagree with later practice)
+## Needs George's answer (an older rule disagrees with later practice)
 
-1. **Approval before every change** (the Bible, Sept 28: show the exact diff and wait for a yes, one file at a time). The work of Nov 12 and 13 has not followed it: changes were made and pushed on his request. Keep it, or retire it?
-2. **Publish the current build before the number changes** (SESSION_CATCHUP.md, Oct 24) against **"We don't always have to release a new build, but we should always change the number"** (Nov 8). The later one is in the table above; the older rule is marked as replaced in SESSION_CATCHUP.md unless he says otherwise.
+1. **Publish the current build before the number changes** (SESSION_CATCHUP.md, Oct 24) against **"We don't always have to release a new build, but we should always change the number"** (Nov 8). The later one is in the table above; the older rule is marked as replaced in SESSION_CATCHUP.md unless he says otherwise.
