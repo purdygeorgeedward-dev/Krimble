@@ -4081,7 +4081,7 @@ private:
         const QColor edge(0, 0, 0);
         const QColor textOn = pal.color(QPalette::WindowText).lighter(115);
         const QColor textOff = QColor(int(textOn.red() * 0.7), int(textOn.green() * 0.7), int(textOn.blue() * 0.75));
-        const qreal r = 6.0, k = 6.0;
+        const qreal r = 11.0, k = 6.0;   // r: top corner radius (larger = rounder)
         const qreal baseY = bar->height() - 0.5;
         p.fillRect(bar->rect(), strip);
         const int current = bar->currentIndex();
@@ -4124,7 +4124,7 @@ private:
                     p.drawLine(QPointF(t.left() - k + 1.0, baseY), QPointF(t.right() + k - 1.0, baseY));
                 }
                 p.setPen(selected ? textOn : textOff);
-                p.drawText(t.adjusted(2, 0, -2, 0), Qt::AlignCenter, p.fontMetrics().elidedText(bar->tabText(i), Qt::ElideRight, int(t.width()) - 4));
+                p.drawText(t.adjusted(2, 5, -2, 0), Qt::AlignCenter, p.fontMetrics().elidedText(bar->tabText(i), Qt::ElideRight, int(t.width()) - 4));
             }
         }
     }

@@ -7172,3 +7172,9 @@ George: "The top of the panel below. And they should have more space between the
 **Files:** `libs/ui/KisMainWindow.cpp`
 
 George: "The spaces in between need to be the darker color." The tab row background in `paintTabRow` now uses the same darker color as the unselected tabs instead of a still darker strip color.
+
+## 2026-11-13 (573rd) — Tab C: rounder top corners, lower text
+
+**Files:** `libs/ui/KisMainWindow.cpp`
+
+George: "top corners should curve more. text should be lower." Top corner radius in `paintTabRow` 6 → 11; tab text shifted down 5 px.
