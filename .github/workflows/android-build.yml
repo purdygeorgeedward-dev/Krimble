@@ -194,7 +194,8 @@ jobs:
           APK=$(ls "$HOME"/kwd/krita/_packaging/*.apk | head -n 1)
           "$ANDROID_HOME"/build-tools/*/apksigner verify --verbose "$APK" | head -n 8
           # KRIMBLE 2026-11-11 (build 56): was 1.0.55-beta: NAME="Krimble-${{ inputs.beta || '1.0.55-beta' }}-$(TZ=America/Denver date +%b%d-%H%M).apk"
-          NAME="Krimble-${{ inputs.beta || '1.0.56-beta' }}-$(TZ=America/Denver date +%b%d-%H%M).apk"
+          # KRIMBLE 2026-11-13: George: the 59 APK says .56 inside: the fallback label of the file name was still 1.0.56-beta (a run started by a push has no input): NAME="Krimble-${{ inputs.beta || '1.0.56-beta' }}-$(TZ=America/Denver date +%b%d-%H%M).apk"
+          NAME="Krimble-${{ inputs.beta || '1.0.59-beta' }}-$(TZ=America/Denver date +%b%d-%H%M).apk"
           mkdir -p out && cp "$APK" "out/$NAME"
           ls -l out
 
