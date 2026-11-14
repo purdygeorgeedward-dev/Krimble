@@ -19,7 +19,7 @@
 
 Krimble is a **mobile-first fork of Krita** designed to be a graphics workhorse for Android phones rather than a paint/animation app squeezed onto a small screen.
 
-The project focuses on the realities of touch input and limited screen space: removing unnecessary interface clutter, resizing and reorganizing controls, changing defaults that make more sense on a phone, improving touch targets, simplifying workflows, and adding graphics-editing tools that are useful for professional creative work.
+The project focuses on the realities of touchscreen input and limited screen space: removing unnecessary interface clutter, resizing and reorganizing controls, changing defaults that make more sense on a phone, improving touchscreen targets, simplifying workflows, and adding graphics-editing tools that are useful for professional creative work.
 
 Krimble is built on the extraordinary foundation of [Krita](https://invent.kde.org/graphics/krita), while taking a different direction for mobile use.
 
@@ -34,7 +34,7 @@ Krimble is designed around **phones and touch** on a smaller display.
 That means:
 
 - touch-sized controls and resize handles
-- menus and dialogs designed by screen space
+- menus and dialogs designed for small screen
 - mobile-friendly defaults
 - simplified tool and panel behavior
 - industry-standard terminology
