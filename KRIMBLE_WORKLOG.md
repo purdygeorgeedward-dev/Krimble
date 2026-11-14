@@ -504,3 +504,6 @@ George published v1.0.58-beta on GitHub (tag on commit 1c86669 through the branc
 
 ## 2026-11-13 11:19 PM MT: push
 Pushed master 59e5ac7..eb9ff6d (8 commits: build 60 taken back to 59, void of build 59 row, APK-is-George's-job note in BUILD_ANDROID.md, APK file name label fix, test results of 9:18 PM, 58 publication note). The head commit carries [skip ci] so the push starts no build. Next build: 59.
+
+## 2026-11-14 9:35 AM MT: George's README edits
+George edited README.md by hand and pushed bef71ab and 4bc5e65 (master was at b6e6972). Read the diff and merged it locally (fa15882). Rule written in KRIMBLE_DECISIONS.md: do not revert or reword his README text. Main changes: hero image is now krita/data/splash/logo_splash.jpg; icon block removed; headings in title case; "Content-Aware Fills", "Image Upscaling", "Advanced Color Matching and Separations", "Batch Processing"; the Krimble Help line ends at "search function"; roadmap wording simplified, the engineering log is "documented elsewhere"; Transform starts in Uniform Scale; "open source software"; closing line "Create. Edit. Enhance. Anywhere!".
