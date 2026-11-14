@@ -482,7 +482,7 @@ George sent three screenshots (Color Lab floating, Color Lab docked, and the Cus
 George: "59 is NOT BUILT." Run 43407141407 (commit 342e871) was started before 1.0.58-beta was released, so it does not count: row 59 removed from KRIMBLE_BUILD_LOG.md, number 59 is open again. Build 60 prep taken back. Next step: publish 1.0.58-beta (tag, release page, notes), then build 59.
 
 ## 2026-11-13 9:18 PM MT: George's test of the installed build ("This build is a bust")
-(item 1 missing from his list)
+1. opens with a wall of blue gray and no discernible bevels (added 9:19 PM)
 2. still forces zoom on the image by expanding the side panel
 3. still stretches ColorLab
 4. still a weird beveled button on the status bar
