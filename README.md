@@ -1,8 +1,8 @@
 <div align="center">
 
-<img src="https://krimble.org/assets/hero.jpg" alt="Krimble — Your Creative Companion" width="100%">
+<img src="krita/data/splash/logo_splash.jpg" alt="Krimble — Your Creative Companion" width="100%">
 
-**A mobile-first graphics editor built for Android phones.**
+**A graphics editor built for Android phones.**
 
 [![Website](https://img.shields.io/badge/Website-krimble.org-ff7a00?style=for-the-badge)](https://krimble.org)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-white?style=for-the-badge&logo=gnu&logoColor=black)](LICENSE)
@@ -15,15 +15,13 @@
 
 ---
 
-<p align="center"><img src="packaging/android/apk/ic_launcher-playstore.png" alt="Krimble icon" width="112"></p>
-
-## WHAT IS KRIMBLE?
+## What is Krimble?
 
 Krimble is a **mobile-first fork of Krita** designed to be a graphics workhorse for Android phones rather than a paint/animation app squeezed onto a small screen.
 
-The project focuses on the realities of touch input and limited screen space: removing unnecessary interface clutter, resizing and reorganizing controls, changing defaults that make more sense on a phone, improving touch targets, simplifying workflows, and adding graphics-editing tools that are useful for everyday creative work.
+The project focuses on the realities of touch input and limited screen space: removing unnecessary interface clutter, resizing and reorganizing controls, changing defaults that make more sense on a phone, improving touch targets, simplifying workflows, and adding graphics-editing tools that are useful for professional creative work.
 
-Krimble remains built on the extraordinary foundation of [Krita](https://invent.kde.org/graphics/krita), while deliberately taking a different direction for mobile use.
+Krimble is built on the extraordinary foundation of [Krita](https://invent.kde.org/graphics/krita), while taking a different direction for mobile use.
 
 <div align="center">
 <img src="https://krimble.org/assets/kimmy-phone.jpg" alt="Kimmy using Krimble on a phone" width="100%">
@@ -46,19 +44,19 @@ That means:
 
 ## SEE IT IN ACTION 📸
 
-Krimble works the way people actually work; **several images open at once, each in its own window**, with the toolbox and panels where you want them, on a phone held sideways or upright.
+Krimble works the way people actually work; **several images open at once, each in its own window**, with the toolbox and panels where you expect them, whether held sideways or upright.
 
 <div align="center">
 <img src="screenshots/krimble-queen-sideways.jpg" alt="Krimble on an Android phone held sideways: the toolbox on the left, an image in the middle, the Tool Options and Layers panels on the right" width="100%">
 </div>
 
-*The whole editor on one phone screen: toolbox, image, Tool Options and Layers.*
+*The editor on one phone screen: toolbox, image, Tool Options and Layers.*
 
 <div align="center">
 <img src="screenshots/krimble-floating-toolbox.jpg" alt="Krimble on an Android phone held sideways with the toolbox pulled off the edge and floating over the work area" width="100%">
 </div>
 
-*Pull the toolbox off its edge and put it where you want it.*
+*Pull the toolbox off its sticky edge and put it where you want it.*
 
 <div align="center">
 <img src="screenshots/krimble-several-images-panels.jpg" alt="Krimble on an Android phone held sideways: the full toolbox on the left, three image windows overlapping in the middle, the Tool Options, Color and Layers panels on the right" width="100%">
@@ -89,7 +87,7 @@ Krimble works the way people actually work; **several images open at once, each 
 
 ## WHY KRIMBLE? 🤔
 
-I am a lifelong graphics professional trained across traditional media and digital tools. Trying to paint with a phone is about as appealing as writing with a bar of soap. Instead of a paint app, Krimble is a graphics editor for simple tasks.
+I am a lifelong professional artist trained across traditional media and digital tools. Trying to paint with a phone is as appealing to me as writing with a bar of soap. Instead of a paint app, Krimble is a graphics tool for basic tasks. Compare to your favorite desktop graphics applications.
 
 **Same job, but smaller.**
 
@@ -101,7 +99,7 @@ I am a lifelong graphics professional trained across traditional media and digit
 
 ## WHAT KRIMBLE CHANGES 🪄
 
-Krimble already includes changes to make the application more practical and familiar on mobile:
+Krimble already includes many changes to make the app more usable and familiar on mobile:
 
 | Area | Krimble direction |
 |---|---|
@@ -130,16 +128,16 @@ Krimble is expanding beyond interface adaptation into new graphics-editing capab
 Recent and active work includes:
 
 - **Healing Brush** 🩹
-- **Content-Aware Fill** 🫗
+- **Content-Aware Fills** 🫗
 - **Vibrance color adjustment** 🌈
-- **Upscaling** 🆙
-- **advanced Color Match tool** 🦚
+- **Image Upscaling** 🆙
+- **Advanced Color Matching and Separations** 🦚
 - improved graphics editing workflows
 - replayable Actions with captured parameters
 - **Eraser tool** 🧽: a dedicated toolbox tool that paints transparency with the current brush
-- **Batch Process** 🧰 with saved **recipes**: resize, convert to JPG, PNG or **WebP with transparency**, rename, many pictures at once
-- **Krimble Help** 📖: a help file inside the app (Help > Krimble Help), with search and a list of its parts; it includes the Krimble Script reference
-- **Animated GIF and WebP in Batch Process** 🎞️: read animated GIF and WebP, write animated WebP (smaller than the GIF, with transparency), or save the frames as separate numbered pictures
+- **Batch Processing** 🧰 with saved **recipes**: resize, convert to JPG, PNG or **WebP with transparency**, rename, many pictures at once
+- **Krimble Help** 📖: a help file inside the app (Help > Krimble Help), with search function
+- **Animated GIF and WebP in Batch Processing** 🎞️: read animated GIF and WebP, write animated WebP (smaller than the GIF, with transparency), or save the frames as separate numbered pictures
 - **Krimble Script** 📜: a tiny scripting language (15 commands) for simple operations: resize, crop, rotate, flip, gray, brightness, contrast, flatten, format, name, folder, frames, fps, loop. See [KRIMBLE_SCRIPT.md](KRIMBLE_SCRIPT.md)
 - additional restoration and editing tools
 
@@ -153,15 +151,15 @@ Some of these are already implemented; others are still in development.
 <img src="https://krimble.org/assets/kimmy-robot-ai.jpg" alt="Kimmy and the Krimble robot — We love A.I." width="100%">
 </div>
 
-Unlike Krita, Krimble does **not** have a moratorium on artificial intelligence.
+Unlike Krita, Krimble does not have a moratorium on artificial intelligence.
 
-AI is way too useful to exclude, and honestly without Claude this project would be impossible. Claude does a lot of the heavy lifting with coding, as is rapidly becoming an industry standard, and ChatGPT handles most of the original graphics.
+AI is way too useful to exclude, and honestly without Claude this project would be impossible. Claude does the heavy lifting with coding, as is rapidly becoming an industry standard, and ChatGPT handles most of the original graphics.
 
 <div align="center">
 <img src="https://krimble.org/assets/friend-robot-2.jpg" alt="Robot — I am your friend!" width="80%">
 </div>
 
-Artificial Intelligence is like a brilliant child. Children sometimes make mistakes. That's what Daddy is there for.
+Artificial Intelligence is like a brilliant child. Children make mistakes. That's what Daddy is there for.
 
 ---
 
@@ -173,9 +171,9 @@ Artificial Intelligence is like a brilliant child. Children sometimes make mista
 
 ## DEVELOPMENT ROADMAP 🗺️
 
-Krimble has already completed a large restructuring pass. The detailed engineering log is preserved below, but collapsed so the README remains readable.
+Krimble has already completed a massive amount of work. The detailed engineering log is preserved, but documented elsewhere so the README remains readable.
 
-### Current Open Work 🚧
+### Current Work 🚧
 
 - Finish the text-selection **magnifier/loupe** for precise cursor placement.
 - Extend two-finger movement selectively to additional floating windows where useful.
@@ -191,35 +189,35 @@ Krimble has already completed a large restructuring pass. The detailed engineeri
 2. **Smaller splash image** for mobile screens. 
 3. **Selective two-finger movement** implemented for `KisDockerHud`, with touch-event handling designed not to interfere with ordinary single-finger controls.
 4. **Tools menu removed** to make Settings easier to reach.
-5. **Toolbox default order rebuilt** around a unified familiar graphics-tool sequence; stale factory shortcuts corrected.
-6. **Automatic recovery dialog on startup disabled** for the mobile workflow.
+5. **Toolbox default order rebuilt** around a unified familiar graphics-tool sequence; stale factory shortcuts corrected for keyboard users.
+6. **Automatic recovery dialog on startup limited** for faster mobile workflow.
 7. **Preferences moved under Edit** and renamed appropriately.
-8. **Menus reconfigured**, including Select/Layer terminology, Filter categories, and moving color-adjustment tools into Image > Adjustments.
-9. **Rotation removed from pinch-zoom defaults.**
+8. **Menus reconfigured**, putting items where professionals expect to find them.
+9. **Rotation removed from pinch-zoom defaults.** Because it was annoying to use.
 10. **Transform made safer for touch**, with shear-by-drag gated behind an explicit option; an uninitialized transform variable was also fixed.
-11. **Industry-standard terminology pass**, including History, Navigator, Swatches (Palette), Actions, and Healing Brush.
-12. **Snapping defaults to OFF.**
+11. **Industry-standard terminology pass**, so tools are called what pros expect.
+12. **Snapping defaults to OFF.** No default pushy actions on mobile displays.
 13. **200% zoom command added and tested.**
 14. **Custom default toolbar created.**
 15. **Brightness/Contrast dialog added and tested.**
-16. **Touch resizing improved:** crop handles enlarged to mobile-scale targets and dock/panel resize separators widened.
-17. **Text/Type workflow substantially rebuilt:** better menu, larger grab sensitivity, triple-tap paragraph selection, mobile selection handles, and floating Cut/Copy/Paste/Select All controls.
-18. **Krimble splash branding created.**
-19. **Oversized dialogs audited and reduced** for phone screens; one genuinely fixed-size blocker relaxed.
+16. **Touch resizing improved:** crop handles enlarged to mobile-scale targets. Sizing gadgets for panels adjusted.
+17. **Text/Type workflow substantially rebuilt:** better menu, larger grab sensitivity, new fonts.
+18. **Krimble splash images created.**
+19. **Oversized dialogs audited and reduced** for phone screens; JUMBO DIALOGS limited.
 20. **Krimble app icon created and implemented** across required variants.
-21. **Save-format list trimmed.**
+21. **Save-format list trimmed.** Dialog adjusted.
 22. **~200 hardcoded shortcuts aligned** where possible and the preferred shortcut scheme made default.
-23. **Tool-selection keys reassigned** to familiar keys where possible: V, M, L, W, C, I, B, G, P, T, Z, H and related variants.
-24. **User-facing “docker” terminology replaced with “panel.”**
+23. **Tool-selection keys reassigned** to familiar keys wherever possible.
+24. **User-facing “dockers” terminology replaced with “panels.”**
 25. **Version reset to Krimble `1.0.0-alpha1`.**
 26. **Full user-facing Krita → Krimble branding pass**, while deliberately preserving internal compatibility identifiers and historical references where changing them would be harmful.
 27. **Project links redirected** to Krimble resources, source, support, and placeholders for developing documentation/community pages.
-28. **Panels no longer dock themselves back into docking zones** after being dragged.
-29. **Crop defaults to subtractive-only**, preventing accidental canvas growth.
+28. **Panels no longer aggressively dock themselves back into docking zones** after being dragged.
+29. **Crop defaults to subtractive-only**, preventing unintentional canvas growth.
 30. **Default color selector changed** to square saturation/value plus hue strip for touch.
-31. **Content-Aware Fill added**, using the existing PatchMatch inpainting engine with a selection-driven workflow.
+31. **Content-Aware Fill added**, work-in-progress using existing algorithms as reference.
 32. **Match Color rebuilt** to use open documents/layers and provide Luminance, Color Intensity, Fade, and Neutralize controls.
-33. **Transform always starts in Free Transform mode** unless deliberately changed in visible tool options.
+33. **Transform always starts in Uniform Scale mode** unless deliberately changed in tool options.
 34. **Actions now capture real parameters** for filters, selection modifications, and image operations rather than merely reopening empty dialogs.
 35. **Dialogs are prevented from spawning above the toolbar** through a shared `KoDialog::showEvent()` correction.
 
@@ -240,7 +238,7 @@ Krimble has already completed a large restructuring pass. The detailed engineeri
 
 6. Removed a leftover invented legal-entity reference and replaced it with: **“The Krimble Project is committed to preserving Krimble as free software.”**
 
-7. Removed references to a competing graphics application that had been inserted into the README by an AI tool.
+7. Removed references to a popular graphics application that had been inserted into the README by an AI tool.
 
 </details>
 
@@ -292,7 +290,7 @@ If Krimble is useful to you, voluntary support helps fund continued development,
 
 ### [Support Krimble on Buy Me a Coffee ☕](https://www.buymeacoffee.com/GeorgeEdwardPurdy)
 
-You can also help by testing, reporting issues, improving documentation, contributing code, or simply sharing the project.
+You can also help by testing, reporting issues, improving documentation, contributing code, or simply sharing the project with others.
 
 ---
 
@@ -311,7 +309,7 @@ Krimble is forked from Krita and continues to benefit from upstream Krita develo
 
 ## License
 
-Krimble, like Krita, is free software. The project as a whole is licensed under the **GNU General Public License, Version 3**. Individual files may use different compatible licenses.
+Krimble, like Krita, is open source software. The project as a whole is licensed under the **GNU General Public License, Version 3**. Individual files may use different compatible licenses.
 
 See the repository's [LICENSES](LICENSES) directory for details.
 
@@ -321,7 +319,7 @@ See the repository's [LICENSES](LICENSES) directory for details.
 
 <img src="https://krimble.org/assets/thank-you.jpg" alt="Thank you from Krimble" width="430">
 
-### Create. Edit. Enhance. Everywhere.
+### Create. Edit. Enhance. Anywhere!
 
 **Krimble — Your Creative Companion**
 
