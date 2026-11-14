@@ -9,6 +9,7 @@ The Oracle server described below was deleted on 2026-11-02. The "Server" sectio
 - The native build is stopped after 5 hours and the ccache is saved. If the run ends with exit code 124, run it again: it resumes from the cache.
 - Signing comes from three repo secrets: `KRIMBLE_KEYSTORE_BASE64`, `KRIMBLE_KEYSTORE_PASSWORD`, `KRIMBLE_KEY_PASSWORD` (a new keystore from 2026-11-03; it does not match builds up to 1.0.44).
 - The APK is the run artifact `krimble-apk`. The label in its name is the run input (default `1.0.45-beta`): change the default when the build number changes.
+- APK handling (George, 2026-11-13): the APK is never Claude's job. George downloads it from the run, checks that it installs, and uploads it to the release himself. Claude does not mention, ask about, attach or worry about the APK.
 - `run-ci-build.py` exits 0 even when cmake configure fails. The workflow also checks its log for `## Failed`.
 - Status when written (8:17 AM MT, Nov 4): the first full compile on GitHub is not yet confirmed.
 
