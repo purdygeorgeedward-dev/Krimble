@@ -480,3 +480,21 @@ George sent three screenshots (Color Lab floating, Color Lab docked, and the Cus
 
 ## 2026-11-13 evening: build 59 voided
 George: "59 is NOT BUILT." Run 43407141407 (commit 342e871) was started before 1.0.58-beta was released, so it does not count: row 59 removed from KRIMBLE_BUILD_LOG.md, number 59 is open again. Build 60 prep taken back. Next step: publish 1.0.58-beta (tag, release page, notes), then build 59.
+
+## 2026-11-13 9:18 PM MT: George's test of the installed build ("This build is a bust")
+(item 1 missing from his list)
+2. still forces zoom on the image by expanding the side panel
+3. still stretches ColorLab
+4. still a weird beveled button on the status bar
+5. still ugly aqua
+6. still glowing tabs
+7. still opens the File menu sideways in horizontal mode
+8. still a weird positional issue with a field in the Image Size dialog
+9. keyboard in Preferences still small
+10. menu selections still shaded
+11. ColorLab still has a double label
+12. no Auto-Crop in the Image menu
+13. QuickAdjust looks nice but is out of scale with the UI
+14. selection flyouts work
+15. Layers menu unchanged
+16. raised look on the toolbox does not apply to the selection tools
