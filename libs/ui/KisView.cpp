@@ -224,7 +224,11 @@ KisView::KisView(KisDocument *document, KisViewManager *viewManager, QWidget *pa
 
     d->canvasController.setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
     d->canvasController.setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+    // d->canvasController.setCanvas(&d->canvas);
+    krimbleHookToolMemory();   // Krimble 2026-11-13: remembers the selected tool (see above)
+    s_krimbleAttaching = true;
     d->canvasController.setCanvas(&d->canvas);
+    s_krimbleAttaching = false;
 
     d->zoomManager.setup(d->actionCollection);
 
@@ -329,6 +333,24 @@ void KisView::showFloatingMessage(const QString &message, const QIcon& icon, int
     }
 }
 
+// Krimble 2026-11-13: George: "The default tool when the system starts should be the Pan tool for safety. When loading a new file the tool should not change from the current selected tool. This affects
+// workflows." Before: every new view (every file that is opened or made) ended by switching to the Pan tool (KisView::setViewManager). Now only the first view of the session starts with Pan; a later
+// view gets the tool that was selected before it. The tool that is selected is remembered here whenever the tool changes, except while a view attaches its canvas (the tool manager gives a new
+// canvas its own first tool then, which is not a choice of the user).
+static QString s_krimbleLastTool;
+static bool s_krimbleAttaching = false;
+static bool s_krimbleToolHooked = false;
+static void krimbleHookToolMemory()
+{
+    if (s_krimbleToolHooked) return;
+    s_krimbleToolHooked = true;
+    QObject::connect(KoToolManager::instance(), &KoToolManager::changedTool, qApp, [](KoCanvasController *) {
+        if (s_krimbleAttaching) return;
+        const QString id = KoToolManager::instance()->activeToolId();
+        if (!id.isEmpty()) s_krimbleLastTool = id;
+    });
+}
+
 bool KisView::canvasIsMirrored() const
 {
     return d->canvas.xAxisMirrored() || d->canvas.yAxisMirrored();
@@ -365,7 +387,9 @@ void KisView::setViewManager(KisViewManager *view)
 
     d->viewManager->updateGUI();
 
-    KoToolManager::instance()->switchToolRequested("PanTool");
+    // KoToolManager::instance()->switchToolRequested("PanTool");
+    // Krimble 2026-11-13: the first view of the session starts with the Pan tool; a later view keeps the tool that was selected (see s_krimbleLastTool)
+    KoToolManager::instance()->switchToolRequested(s_krimbleLastTool.isEmpty() ? QStringLiteral("PanTool") : s_krimbleLastTool);
 }
 
 KisViewManager* KisView::viewManager() const

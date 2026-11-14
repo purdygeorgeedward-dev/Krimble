@@ -7280,3 +7280,9 @@ George: "Finish the CMYK system." The engine (450th, 472nd), the Custom CMYK dia
 **Files:** `libs/widgetutils/KoFileDialog.cpp`
 
 George: "The save as dialog opens a list of file types that need to be taller. Easy fix." The Save As file type chooser (the `QInputDialog` list on Android) was 90% of the available screen height, the most the fit-to-screen filter allowed. Now 98% of the available height (the area the system bars leave): the minimum height of the dialog and the filter's height fraction (`KrimbleFitToScreenFilter` takes the fraction as a parameter; the other file dialogs keep 90%).
+
+## 2026-11-13 (590th) — The tool starts as Pan, and opening a file keeps the selected tool
+
+**Files:** `libs/ui/KisView.cpp`
+
+George: "The default tool when the system starts should be the Pan tool for safety. When loading a new file the tool should not change from the current selected tool. This affects workflows." The cause was the last line of `KisView::setViewManager`, which switched to the Pan tool for **every** new view (each file opened or made). Now the first view of the session starts with Pan, and a later view gets the tool that was selected before it. The tool is remembered in `s_krimbleLastTool` whenever the tool changes (`KoToolManager::changedTool`), except while a view attaches its canvas (`s_krimbleAttaching`: the tool manager then gives the new canvas its own first tool, which is not the user's choice). Not changed: each open picture keeps its own tool when you switch between them with the tabs (the tool manager's behavior).
