@@ -143,13 +143,14 @@ QString KoFileDialog::selectedMimeType() const
 class KrimbleFitToScreenFilter : public QObject
 {
 public:
-    explicit KrimbleFitToScreenFilter(QWidget *dialog) : QObject(dialog), m_dialog(dialog) {}
+    // Krimble 2026-11-13: the height fraction is a parameter (the Save As type list uses more than the file dialogs' 90%)
+    explicit KrimbleFitToScreenFilter(QWidget *dialog, qreal heightFraction = 0.90) : QObject(dialog), m_dialog(dialog), m_heightFraction(heightFraction) {}
     bool eventFilter(QObject *watched, QEvent *event) override
     {
         if (watched == m_dialog && event->type() == QEvent::Show) {
             if (QScreen *screen = QApplication::primaryScreen()) {
                 const QRect avail = screen->availableGeometry();
-                const QSize s(qMin(m_dialog->width(), int(avail.width() * 0.95)), qMin(m_dialog->height(), int(avail.height() * 0.90)));
+                const QSize s(qMin(m_dialog->width(), int(avail.width() * 0.95)), qMin(m_dialog->height(), int(avail.height() * m_heightFraction)));
                 m_dialog->resize(s);
                 m_dialog->move(avail.left() + (avail.width() - s.width()) / 2, avail.top() + (avail.height() - s.height()) / 2);
             }
@@ -158,6 +159,7 @@ public:
     }
 private:
     QWidget *m_dialog;
+    qreal m_heightFraction;
 };
 #endif
 
@@ -344,10 +346,13 @@ QString KoFileDialog::filename()
             // Krimble 2026-10-23: George (1.0.41 test list item 4): "The Save and Export windows should open a little taller." 60% -> 75% of the screen's height.
             // mimeSelector.setMinimumSize(avail.width() * 0.85, avail.height() * 0.75);   (Oct 23: 60% to 75%)
             // Krimble 2026-11-04: George: "the Save As dialog with the file type selector default height is too short." 75% to 90%, the most the fit-to-screen filter allows.
-            mimeSelector.setMinimumSize(avail.width() * 0.85, avail.height() * 0.90);
+            // mimeSelector.setMinimumSize(avail.width() * 0.85, avail.height() * 0.90);
+            // Krimble 2026-11-13: George: "The save as dialog opens a list of file types that need to be taller." 90% to 98% of the available height (the area the system bars leave), here and in the fit-to-screen filter below.
+            mimeSelector.setMinimumSize(avail.width() * 0.85, avail.height() * 0.98);
         }
 #ifdef Q_OS_ANDROID
-        mimeSelector.installEventFilter(new KrimbleFitToScreenFilter(&mimeSelector));
+        // mimeSelector.installEventFilter(new KrimbleFitToScreenFilter(&mimeSelector));
+        mimeSelector.installEventFilter(new KrimbleFitToScreenFilter(&mimeSelector, 0.98));
 #endif
 
         if (mimeSelector.exec() == QDialog::Accepted) {
