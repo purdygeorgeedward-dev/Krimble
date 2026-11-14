@@ -42,6 +42,10 @@ public:
 public Q_SLOTS:
     void slotColorSpaceChanged(const KoColorSpace *colorSpace);
     void rowActivated(const QModelIndex &index);
+    // Krimble 2026-11-13: George: "channels". Single-tap isolation and load-as-selection (the Project Bible's two missing Channels docker features).
+    void isolateChannel(int channelIndex);   // only this channel is shown (the alpha channel is not touched); the same as the double click (rowActivated)
+    void showAllChannels();                  // every channel is shown again
+    void loadChannelAsSelection(int channelIndex);   // the channel's values (of the picture as it looks, all layers) become the selection: light = selected
 
 Q_SIGNALS:
     void channelFlagsChanged();

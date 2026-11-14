@@ -18,6 +18,14 @@
 #include <kis_default_bounds.h>
 
 #include <kis_canvas2.h>
+#include <kis_image.h>
+#include <kis_selection.h>
+#include <kis_pixel_selection.h>
+#include <kis_processing_applicator.h>
+#include <commands/kis_set_global_selection_command.h>
+#include <kundo2magicstring.h>
+#include <KLocalizedString>
+#include <QVector>
 
 ChannelModel::ChannelModel(QObject* parent):
     QAbstractTableModel(parent),
@@ -155,6 +163,67 @@ void ChannelModel::rowActivated(const QModelIndex &index)
         Q_EMIT channelFlagsChanged();
         emitAllDataChanged(channels.count() - 1, 0);
     }
+}
+
+
+// Krimble 2026-11-13: only the channel at channelIndex is shown (flags of the other color channels are cleared, the alpha channel is left as it is): what a double click does (rowActivated)
+void ChannelModel::isolateChannel(int channelIndex)
+{
+    if (!m_canvas || !m_canvas->image()) return;
+    KisGroupLayerWSP rootLayer = m_canvas->image()->rootLayer();
+    const KoColorSpace *cs = rootLayer->colorSpace();
+    if (cs->channelCount() != m_channelCount) return;
+    const QList<KoChannelInfo*> channels = cs->channels();
+    if (channelIndex < 0 || channelIndex >= channels.count()) return;
+    QBitArray flags = rootLayer->channelFlags();
+    flags = flags.isEmpty() ? cs->channelFlags(true, true) : flags;
+    for (int i = 0; i < channels.count(); ++i) {
+        if (channels[i]->channelType() != KoChannelInfo::ALPHA) flags.setBit(i, (i == channelIndex));
+    }
+    rootLayer->setChannelFlags(flags);
+    Q_EMIT channelFlagsChanged();
+    emitAllDataChanged(channels.count() - 1, 0);
+}
+
+// Krimble 2026-11-13: every channel is shown again (all flags set)
+void ChannelModel::showAllChannels()
+{
+    if (!m_canvas || !m_canvas->image()) return;
+    KisGroupLayerWSP rootLayer = m_canvas->image()->rootLayer();
+    const KoColorSpace *cs = rootLayer->colorSpace();
+    if (cs->channelCount() != m_channelCount) return;
+    rootLayer->setChannelFlags(cs->channelFlags(true, true));
+    Q_EMIT channelFlagsChanged();
+    emitAllDataChanged(cs->channels().count() - 1, 0);
+}
+
+// Krimble 2026-11-13: the channel's values, read from the picture as it looks (the projection of all layers), become the selection: a pixel is selected as much as the channel is light (0 to 255).
+// The picture is read in one go on the main thread; a very large picture can take a moment.
+void ChannelModel::loadChannelAsSelection(int channelIndex)
+{
+    if (!m_canvas || !m_canvas->image()) return;
+    KisImageSP image = m_canvas->image();
+    const KoColorSpace *cs = image->rootLayer()->colorSpace();
+    if (cs->channelCount() != m_channelCount || channelIndex < 0 || channelIndex >= cs->channelCount()) return;
+    const QRect bounds = image->bounds();
+    image->barrierLock();
+    KisPaintDeviceSP projection = image->projection();
+    KisSelectionSP selection = new KisSelection();
+    KisPixelSelectionSP pixels = selection->pixelSelection();
+    QVector<float> values(cs->channelCount());
+    for (int y = bounds.top(); y <= bounds.bottom(); ++y) {
+        KisHLineConstIteratorSP source = projection->createHLineConstIteratorNG(bounds.left(), y, bounds.width());
+        KisHLineIteratorSP target = pixels->createHLineIteratorNG(bounds.left(), y, bounds.width());
+        do {
+            cs->normalisedChannelsValue(source->oldRawData(), values);
+            target->rawData()[0] = quint8(qBound(0, int(values[channelIndex] * 255.0f + 0.5f), 255));
+        } while (source->nextPixel() && target->nextPixel());
+    }
+    image->unlock();
+    pixels->invalidateOutlineCache();
+    KisProcessingApplicator applicator(image, 0, KisProcessingApplicator::NONE, KisImageSignalVector(), kundo2_i18n("Load Channel as Selection"));
+    applicator.applyCommand(new KisSetGlobalSelectionCommand(image, selection), KisStrokeJobData::SEQUENTIAL, KisStrokeJobData::EXCLUSIVE);
+    applicator.end();
 }
 
 Qt::ItemFlags ChannelModel::flags(const QModelIndex& /*index*/) const

@@ -9,6 +9,9 @@
 #include <QGridLayout>
 #include <QTableView>
 #include <QHeaderView>
+#include <QPushButton>
+#include <QHBoxLayout>
+#include <QApplication>
 
 #include "channelmodel.h"
 #include <KisViewManager.h>
@@ -36,6 +39,18 @@ ChannelDockerWidget::ChannelDockerWidget(QWidget *parent, const char *name)
     // Use a layout so the widget gets resized properly
     QGridLayout *layout = new QGridLayout();
     layout->addWidget(m_channelTable);
+    // Krimble 2026-11-13: George: "channels". A touch screen has no Ctrl key, so the two actions of a channel also have buttons under the list: "All" shows every channel again, "To selection" loads the
+    // chosen row's channel as the selection. A tap on a channel's name or thumbnail shows only that channel (the checkboxes still switch single channels on and off).
+    QHBoxLayout *buttons = new QHBoxLayout();
+    QPushButton *allButton = new QPushButton(tr("All"));
+    QPushButton *selectionButton = new QPushButton(tr("To selection"));
+    allButton->setToolTip(tr("Show every channel again"));
+    selectionButton->setToolTip(tr("Use the chosen channel as the selection (light = selected). Ctrl+click on a channel does the same."));
+    buttons->addWidget(allButton);
+    buttons->addWidget(selectionButton);
+    layout->addLayout(buttons, 1, 0);
+    connect(allButton, &QPushButton::clicked, this, [this]() { m_model->showAllChannels(); });
+    connect(selectionButton, &QPushButton::clicked, this, &ChannelDockerWidget::slotLoadSelection);
     this->setLayout(layout);
 
     QScroller *scroller = KisKineticScroller::createPreconfiguredScroller(m_channelTable);
@@ -45,6 +60,20 @@ ChannelDockerWidget::ChannelDockerWidget(QWidget *parent, const char *name)
     }
 
     connect(m_channelTable,&QTableView::activated, m_model, &ChannelModel::rowActivated);
+    connect(m_channelTable, &QTableView::clicked, this, &ChannelDockerWidget::slotTableClicked);   // Krimble 2026-11-13
+}
+
+void ChannelDockerWidget::slotTableClicked(const QModelIndex &index)
+{
+    if (!index.isValid() || index.column() == 0) return;   // column 0 is the checkbox: the view toggles it itself
+    if (QApplication::keyboardModifiers() & Qt::ControlModifier) m_model->loadChannelAsSelection(index.row());
+    else m_model->isolateChannel(index.row());
+}
+
+void ChannelDockerWidget::slotLoadSelection()
+{
+    const QModelIndex current = m_channelTable->currentIndex();
+    if (current.isValid()) m_model->loadChannelAsSelection(current.row());
 }
 
 void ChannelDockerWidget::setCanvas(KisCanvas2 * canvas)

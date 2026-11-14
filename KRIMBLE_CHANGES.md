@@ -7262,3 +7262,9 @@ George: "6. BUILD NOW." (panels over the canvas, not zooming it out). The 546th 
 **Files:** `plugins/dockers/advancedcolorselector/krimble_color_studio.h`
 
 George: "Commits to foreground before adding to recent." The recent colors list no longer gets a color the moment the picker shows it (a drag across the picker made a stream of colors). Each color change restarts a 700 ms timer (`m_recentTimer`); when it runs out, the color is added only if the canvas's edited color (foreground, or background when that is being edited) is that same color. Before: `select()` prepended it at once (commented out in the code).
+
+## 2026-11-13 (587th) — Channels docker: tap a channel to show only it, load a channel as the selection
+
+**Files:** `plugins/dockers/channeldocker/channelmodel.h`, `channelmodel.cpp`, `ChannelDockerWidget.h`, `ChannelDockerWidget.cpp`
+
+George: "channels". The Project Bible listed two missing features of the Channels docker. **Isolation:** a single tap on a channel's name or thumbnail shows only that channel (`ChannelModel::isolateChannel`: the other color channels' flags are cleared, the alpha channel is left alone; the checkboxes still switch single channels, and the double click does what it did). **Load as selection:** Ctrl+click on a channel's name or thumbnail, or the new **To selection** button under the list (a touch screen has no Ctrl), makes the channel's values the selection (`ChannelModel::loadChannelAsSelection`): the picture as it looks (all layers) is read, the chosen channel's value 0 to 255 becomes how much each pixel is selected, and it is set as the global selection with an undo step "Load Channel as Selection". The new **All** button shows every channel again. Not done: saving a selection as a stored extra channel (Krita has no place to keep one). The picture is read on the main thread, so a very large picture can pause for a moment.
