@@ -7292,3 +7292,9 @@ George: "The default tool when the system starts should be the Pan tool for safe
 **Files:** `libs/ui/KisView.cpp`
 
 George's "ok" to my offer of a global tool was an acknowledgment, not approval ("I said ok to respond that I hit your message"), so the change was undone: each open picture keeps its own tool when its tab is chosen, as in the tool manager. The 590th entry stays: Pan at the start of the session, and a file that is opened gets the tool that was selected.
+
+## 2026-11-13 (592nd) — Build 60 prepared; the log row of build 59
+
+**Files:** `packaging/android/apk/build.gradle`, `.github/workflows/android-build.yml`, `KRIMBLE_BUILD_LOG.md`, `KRIMBLE_WORKLOG.md`
+
+George: "Update all documentation. Push any remaining changes and start the next build." Build 59 (run 43407141407, commit `342e871`, 3:10 AM MST) had succeeded but its row was not in `KRIMBLE_BUILD_LOG.md`; added (not released). `krimbleBuildNumber` is 60, the workflow's `beta` default and the number check use `1.0.60-beta`; the push of the workflow file starts the run. `KRIMBLE_WORKLOG.md` has a summary of the day's entries (564th to 591st). Everything in these entries is compiled for the first time by this build (28 commits): a compile error is possible; the last 30 lines of the run's log show it.
