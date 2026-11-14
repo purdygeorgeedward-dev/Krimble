@@ -8,6 +8,10 @@
 #pragma once
 
 #include <QButtonGroup>
+#include <QCryptographicHash>
+#include <QJsonDocument>
+#include <QSettings>
+#include "KrimbleCmykIcc.h"
 #include <QCheckBox>
 #include <QComboBox>
 #include <QCursor>
@@ -435,4 +439,13 @@ inline void krimbleShowCustomCmykDialog(QWidget *parent)
     const QString typed = nameEdit->text().trimmed();
     profile.name = (typed.isEmpty() || typed == profile.autoName()) ? QString() : typed;
     KrimbleCmykProfiles::setCurrent(profile);
+    // Krimble 2026-11-13: George: "Finish the CMYK system." OK also makes the ICC profile of these settings (KrimbleCmykIcc.h), so Image > Convert Image Color Space (CMYK) and soft proofing can use it.
+    // It is made again only when the settings are not the ones the last profile was made from.
+    const QByteArray stamp = QCryptographicHash::hash(QJsonDocument(profile.toJson()).toJson(QJsonDocument::Compact), QCryptographicHash::Sha1).toHex();
+    if (QSettings().value(QStringLiteral("Krimble/CmykIccStamp")).toByteArray() == stamp) return;
+    const QString made = KrimbleCmykIcc::install(profile, parent);
+    if (made.isEmpty()) return;
+    QSettings().setValue(QStringLiteral("Krimble/CmykIccStamp"), stamp);
+    QMessageBox::information(parent, QStringLiteral("Custom CMYK"),
+                             QStringLiteral("The profile \"%1\" is ready. Use it in Image > Convert Image Color Space (color model CMYK), or as the proofing profile.").arg(made));
 }

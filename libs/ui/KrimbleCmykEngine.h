@@ -323,6 +323,10 @@ public:
         return KrimbleColorMath::xyzToSrgb(paperToSource(forward(plates)));
     }
 
+    // Krimble 2026-11-13: the two directions as the ICC profile tables use them (KrimbleCmykIcc.h): plates to the color (XYZ, D50, relative to the paper with the black point compensation of the profile), and a Lab color to plates
+    KrimbleVec3 sourceXyz(const KrimblePlates &plates) const { return paperToSource(forward(plates)); }
+    KrimblePlates separateLab(double L, double a, double b) const { return separate(sourceToPaper(KrimbleColorMath::labToXyz(L, a, b))); }
+
     // the ink limits as a guard for plates that are typed in: the black is capped at the black ink limit and the total at the total ink limit (the plate that was just changed gives way)
     KrimblePlates limitInk(KrimblePlates p, int changed = -1) const
     {
