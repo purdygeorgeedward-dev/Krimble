@@ -199,6 +199,24 @@ public:
 
 };
 
+// Krimble 2026-11-13: George: "The default tool when the system starts should be the Pan tool for safety. When loading a new file the tool should not change from the current selected tool. This affects
+// workflows." Before: every new view (every file that is opened or made) ended by switching to the Pan tool (KisView::setViewManager). Now only the first view of the session starts with Pan; a later
+// view gets the tool that was selected before it. The tool that is selected is remembered here whenever the tool changes, except while a view attaches its canvas (the tool manager gives a new
+// canvas its own first tool then, which is not a choice of the user).
+static QString s_krimbleLastTool;
+static bool s_krimbleAttaching = false;
+static bool s_krimbleToolHooked = false;
+static void krimbleHookToolMemory()
+{
+    if (s_krimbleToolHooked) return;
+    s_krimbleToolHooked = true;
+    QObject::connect(KoToolManager::instance(), &KoToolManager::changedTool, qApp, [](KoCanvasController *) {
+        if (s_krimbleAttaching) return;
+        const QString id = KoToolManager::instance()->activeToolId();
+        if (!id.isEmpty()) s_krimbleLastTool = id;
+    });
+}
+
 KisView::KisView(KisDocument *document, KisViewManager *viewManager, QWidget *parent)
     : QWidget(parent)
     , d(new Private(this, document, viewManager))
@@ -331,24 +349,6 @@ void KisView::showFloatingMessage(const QString &message, const QIcon& icon, int
             d->floatingMessageCompressor.start();
         }
     }
-}
-
-// Krimble 2026-11-13: George: "The default tool when the system starts should be the Pan tool for safety. When loading a new file the tool should not change from the current selected tool. This affects
-// workflows." Before: every new view (every file that is opened or made) ended by switching to the Pan tool (KisView::setViewManager). Now only the first view of the session starts with Pan; a later
-// view gets the tool that was selected before it. The tool that is selected is remembered here whenever the tool changes, except while a view attaches its canvas (the tool manager gives a new
-// canvas its own first tool then, which is not a choice of the user).
-static QString s_krimbleLastTool;
-static bool s_krimbleAttaching = false;
-static bool s_krimbleToolHooked = false;
-static void krimbleHookToolMemory()
-{
-    if (s_krimbleToolHooked) return;
-    s_krimbleToolHooked = true;
-    QObject::connect(KoToolManager::instance(), &KoToolManager::changedTool, qApp, [](KoCanvasController *) {
-        if (s_krimbleAttaching) return;
-        const QString id = KoToolManager::instance()->activeToolId();
-        if (!id.isEmpty()) s_krimbleLastTool = id;
-    });
 }
 
 bool KisView::canvasIsMirrored() const
