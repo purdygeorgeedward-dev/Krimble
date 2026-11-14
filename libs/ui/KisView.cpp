@@ -340,21 +340,12 @@ void KisView::showFloatingMessage(const QString &message, const QIcon& icon, int
 static QString s_krimbleLastTool;
 static bool s_krimbleAttaching = false;
 static bool s_krimbleToolHooked = false;
-static KoCanvasController *s_krimbleLastController = nullptr;
-// Krimble 2026-11-13 (second part): George: "ok" (to making the tool global). The tool is the same in every open picture: when another picture's tab is chosen (the tool manager then gives that picture's own
-// tool back, and says the tool changed for another canvas controller), the remembered tool is selected again, instead of that picture's own.
 static void krimbleHookToolMemory()
 {
     if (s_krimbleToolHooked) return;
     s_krimbleToolHooked = true;
-    QObject::connect(KoToolManager::instance(), &KoToolManager::changedTool, qApp, [](KoCanvasController *controller) {
-        if (s_krimbleAttaching) { s_krimbleLastController = controller; return; }
-        if (controller != s_krimbleLastController) {   // another picture became the active one
-            s_krimbleLastController = controller;
-            if (!s_krimbleLastTool.isEmpty() && KoToolManager::instance()->activeToolId() != s_krimbleLastTool)
-                KoToolManager::instance()->switchToolRequested(s_krimbleLastTool);
-            return;
-        }
+    QObject::connect(KoToolManager::instance(), &KoToolManager::changedTool, qApp, [](KoCanvasController *) {
+        if (s_krimbleAttaching) return;
         const QString id = KoToolManager::instance()->activeToolId();
         if (!id.isEmpty()) s_krimbleLastTool = id;
     });

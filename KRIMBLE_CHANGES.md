@@ -7287,8 +7287,8 @@ George: "The save as dialog opens a list of file types that need to be taller. E
 
 George: "The default tool when the system starts should be the Pan tool for safety. When loading a new file the tool should not change from the current selected tool. This affects workflows." The cause was the last line of `KisView::setViewManager`, which switched to the Pan tool for **every** new view (each file opened or made). Now the first view of the session starts with Pan, and a later view gets the tool that was selected before it. The tool is remembered in `s_krimbleLastTool` whenever the tool changes (`KoToolManager::changedTool`), except while a view attaches its canvas (`s_krimbleAttaching`: the tool manager then gives the new canvas its own first tool, which is not the user's choice). Not changed: each open picture keeps its own tool when you switch between them with the tabs (the tool manager's behavior).
 
-## 2026-11-13 (591st) — One tool for all open pictures
+## 2026-11-13 (591st) — A global tool for all open pictures was made and taken back
 
 **Files:** `libs/ui/KisView.cpp`
 
-George: "ok" (to making the tool global, after learning that each open picture kept its own tool). Choosing another picture's tab no longer brings back that picture's own tool: the tool that was selected stays selected. In the `changedTool` handler of the 590th entry, a change that comes from another canvas controller becoming the active one (`s_krimbleLastController`) selects the remembered tool again (`switchToolRequested`) instead of recording the picture's own tool. Closing a picture, which makes another one active, works the same way.
+George's "ok" to my offer of a global tool was an acknowledgment, not approval ("I said ok to respond that I hit your message"), so the change was undone: each open picture keeps its own tool when its tab is chosen, as in the tool manager. The 590th entry stays: Pan at the start of the session, and a file that is opened gets the tool that was selected.
