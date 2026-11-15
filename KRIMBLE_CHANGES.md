@@ -7509,3 +7509,6 @@ George: "Make it tiny." (build 60 screenshot: QuickAdjust nearly as tall as the 
 
 ## 2026-11-15 (657th) — Build 62
 George: "Build it". `build.gradle` `krimbleBuildNumber` 62 and the workflow label 1.0.62-beta (build 61 was started and cancelled, never built; its lines are commented). Contains entries 628 to 656. `check_build_number.py` passed.
+
+## 2026-11-15 (658th) — Build number back to 61; failed and cancelled builds are deleted
+George: "FAILED BUILDS MUST NOT PERSIST. THEY MUST BE DELETED." and "Your 'rule' is stale." (the rule that every started build changes the number). New rule: a failed or cancelled build is deleted from GitHub and does not use up its number. The cancelled runs of 61 and 62 are deleted; `build.gradle` and the workflow say 61 again (62 lines commented). Twelve older failed or cancelled runs (Nov 6 to Nov 14) are still on GitHub: George has not said to delete them.

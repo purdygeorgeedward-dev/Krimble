@@ -741,3 +741,6 @@ George: "Push all of the fixes to the repo." Pushed commits 639 to 650 (menu out
 
 ## 2026-11-15 11:55 MST — Build 62 pushed (this push starts the build)
 George: "Build it". Pushed commits 651 to 656 and the build 62 bump (1.0.62-beta). Run started by this push; nothing built or tested yet. Notes: the draft release for 1.0.60-beta still has no notes; no notes exist for 1.0.62.
+
+## 2026-11-15 12:00 MST — Build 61 started (number reused)
+George: "Build it", then "FAILED BUILDS MUST NOT PERSIST" and "Your rule is stale". Run for 62 cancelled and deleted; the cancelled run of the first 61 deleted. This push (1.0.61-beta) starts the build. Rule going forward: a failed or cancelled build is deleted and its number is reused.
