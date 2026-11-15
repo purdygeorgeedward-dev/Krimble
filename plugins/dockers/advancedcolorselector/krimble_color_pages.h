@@ -778,7 +778,11 @@ class KrimbleColorHeader : public KrimbleColorBase
 {
 public:
     double designHeight() const override { return 100.0; }
-    explicit KrimbleColorHeader(QWidget *parent = nullptr) : KrimbleColorBase(parent) {}
+    // explicit KrimbleColorHeader(QWidget *parent = nullptr) : KrimbleColorBase(parent) {}
+    // Krimble 2026-11-15: George (build 60): "when torn off it is right back to double titles." The panel looks for a widget named KrimbleStudioLogo (KisMainWindow.cpp, krimbleRefreshTabTitles) to know that the
+    // logo is the panel's title; the only widget with that name was in a block that is switched off, so the logo was never found: the tab group showed the tab and the logo, a floating panel the title bar and the logo.
+    // The live logo band takes the name.
+    explicit KrimbleColorHeader(QWidget *parent = nullptr) : KrimbleColorBase(parent) { setObjectName(QStringLiteral("KrimbleStudioLogo")); }
 protected:
     void paintEvent(QPaintEvent *) override
     {

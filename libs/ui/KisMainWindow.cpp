@@ -3896,7 +3896,9 @@ protected:
         // const qreal one = (menuBarTarget ? 1.0 : 1.0) / qMax<qreal>(1.0, devicePixelRatioF());
         // const qreal one = (qApp->property("krimbleBevelTheme").toBool() ? 2.0 : 1.0) / qMax<qreal>(1.0, devicePixelRatioF());
         // Krimble 2026-11-15: George: "Try 3 just to test next time." (1 and 2 real pixels were not enough on his screen; all themes must have bevels). Every theme: 3 REAL screen pixels. Before: 2 in Krimble Bevel, 1 in the others.
-        const qreal one = 3.0 / qMax<qreal>(1.0, devicePixelRatioF());
+        // const qreal one = 3.0 / qMax<qreal>(1.0, devicePixelRatioF());
+        // Krimble 2026-11-15: George (build 60, floating toolbox): "it has a fat edge again." The toolbox's edge (the dock named ToolBox) is 2 real screen pixels; everything else stays at 3.
+        const qreal one = (m_target && m_target->objectName() == QLatin1String("ToolBox") ? 2.0 : 3.0) / qMax<qreal>(1.0, devicePixelRatioF());
         // const QColor light(110, 114, 156);
         // const QColor dark(18, 19, 34);
         // Krimble 2026-11-12 (task 35): George: "Can we reverse bevel on menus so they look recessed?" A menu (popup) gets the lines the other way round: dark on the top and left,
@@ -3963,12 +3965,29 @@ static void krimbleRefreshTabTitles(QMainWindow *win)
     Q_FOREACH (QDockWidget *dock, win->findChildren<QDockWidget*>()) {
         KoDockWidgetTitleBar *bar = dynamic_cast<KoDockWidgetTitleBar*>(dock->titleBarWidget());
         if (!bar) continue;
-        const bool tabbed = !dock->isFloating() && !win->tabifiedDockWidgets(dock).isEmpty();
+        // const bool tabbed = !dock->isFloating() && !win->tabifiedDockWidgets(dock).isEmpty();
+        // Krimble 2026-11-15: George (build 60, Layers screenshot): "Layers panel has no title." The Layers panel is alone in its place (no tab row over it), but tabifiedDockWidgets() also lists
+        // panels that are closed, so it counted as "in a tab group" and its name was hidden. A panel is in a tab group only if a visible tab with its name is on screen.
+        bool tabbed = false;
+        if (!dock->isFloating()) {
+            Q_FOREACH (QTabBar *tabBar, win->findChildren<QTabBar*>(QString(), Qt::FindDirectChildrenOnly)) {
+                if (!tabBar->isVisible()) continue;
+                for (int i = 0; i < tabBar->count(); ++i) {
+                    if (tabBar->tabText(i) == dock->windowTitle()) { tabbed = true; break; }
+                }
+                if (tabbed) break;
+            }
+        }
         // bar->setTitleTextHidden(tabbed);
         // Krimble 2026-11-15: George: "The tab should only be visible when they are docked. Otherwise the tabs are pointless." (item 7, Color Lab double title: the tab, the title bar and the logo all said "Color Lab".)
         // The Color Lab panel names itself ONCE: by its tab when it is in a tab group, otherwise by its logo. The logo is hidden in a tab group; the title bar's text is always hidden for this panel (its logo or its tab
         // is the title). Other panels are as before: the title text is hidden when they are in a tab group.
         QWidget *krimbleLogo = dock->findChild<QWidget*>(QStringLiteral("KrimbleStudioLogo"));
+        // Krimble 2026-11-15: run this again the moment a panel is torn off or docked (it only ran at start and on a tab choice, so a torn-off Color Lab kept its title bar text)
+        if (!dock->property("krimbleTitleHooked").toBool()) {
+            dock->setProperty("krimbleTitleHooked", true);
+            QObject::connect(dock, &QDockWidget::topLevelChanged, win, [win](bool) { QTimer::singleShot(0, win, [win]() { krimbleRefreshTabTitles(win); }); });
+        }
         bar->setTitleTextHidden(krimbleLogo ? true : tabbed);
         if (krimbleLogo && krimbleLogo->isHidden() == !tabbed) krimbleLogo->setVisible(!tabbed);
     }

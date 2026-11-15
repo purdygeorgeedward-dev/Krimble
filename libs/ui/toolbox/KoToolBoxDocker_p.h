@@ -72,6 +72,11 @@ private:
     bool m_userDragged {false};   // Krimble 2026-10-13: a finger or mouse was down on the dock's edge since the last fit to columns
     bool m_justDocked {false};    // Krimble 2026-11-05: true for a moment after the toolbox was dropped on a dock edge (the finger is still down, but it is not dragging the edge)
     Q_INVOKABLE void krimbleDockAtEdge();   // Krimble 2026-10-17: docks a floating toolbox that has reached the left, right or top edge of the screen
+    // Krimble 2026-11-15: George: "We do not want a dock area on the left for the toolbox. Just snap the box to the edge and always draw beveled edges." The toolbox never docks.
+    void krimbleSnapFlush(Qt::DockWidgetArea area, bool toMenuBar = false);   // moves the floating toolbox flush against a screen edge (left, right, top under the menu bar, bottom)
+    void krimbleKeepFloating();                                                // if the toolbox got docked (saved layout, drag, old menu), floats it again at the edge it was at
+    int krimbleFitColumns();                                                   // the fewest columns (not less than the chosen number) at which every tool fits the screen height: no scrolling
+    int m_effColumns {0};                                                      // the columns in use now (the chosen number, or more when the tools do not fit)
     Qt::DockWidgetArea krimbleEdgeArea() const;   // Krimble 2026-11-06: the dock edge the floating toolbox is at, or NoDockWidgetArea
     int m_edgeDockToken {0};                      // Krimble 2026-11-06: raised at every check; the 1 s delay before docking at an edge only acts if it is still the latest
     // void fitHeightToContents();   // Krimble 2026-10-12: a floating toolbox is only as tall as its tools

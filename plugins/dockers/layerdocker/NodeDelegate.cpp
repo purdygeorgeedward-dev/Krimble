@@ -122,6 +122,18 @@ void NodeDelegate::paint(QPainter *p, const QStyleOptionViewItem &o, const QMode
         QStyleOptionViewItem option = getOptions(o, index);
         QStyle *style = option.widget ? option.widget->style() : QApplication::style();
         style->drawPrimitive(QStyle::PE_PanelItemViewItem, &option, p, option.widget);
+        // Krimble 2026-11-15: George (build 60, Layers screenshot): "Selected layer still looks like crap." The style sheet rule of entry 626 (NodeView::item) did not reach the rows (the screenshot still
+        // shows the old saturated blue), so the row is painted here, over whatever the style drew: mid gray #5D6272 for a layer, lighter #8E93A6 for the selected one, with dark text on it. Flat, no outline, no glow.
+        {
+            const bool krimbleSel = option.state & QStyle::State_Selected;
+            p->fillRect(option.rect, krimbleSel ? QColor(0x8e, 0x93, 0xa6) : QColor(0x5d, 0x62, 0x72));
+            if (krimbleSel) {
+                option.palette.setColor(QPalette::HighlightedText, QColor(0x0e, 0x10, 0x20));
+                option.palette.setColor(QPalette::Text, QColor(0x0e, 0x10, 0x20));
+            } else {
+                option.palette.setColor(QPalette::Text, QColor(0xff, 0xff, 0xff));
+            }
+        }
 
         bool shouldGrayOut = index.data(KisNodeModel::ShouldGrayOutRole).toBool();
         if (shouldGrayOut) {

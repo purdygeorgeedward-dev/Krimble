@@ -726,3 +726,6 @@ George: "Tag and documentation?" RELEASE_NOTES_1.0.60-beta.md written (format ch
 
 ## 2026-11-15 10:25 AM MT: Tag v1.0.60-beta not pushed
 Release notes (RELEASE_NOTES_1.0.60-beta.md, format check passed) pushed. The tag v1.0.60-beta exists locally on 12b860a, but pushing a tag fails from this session (the connection drops, and the API refuses tag creation). Creating the release on GitHub with tag v1.0.60-beta on 12b860a makes the tag there.
+
+## 2026-11-15 10:55 AM MT: Toolbox, Layers, Color Lab fixes (entries 629, 630)
+George's build 60 test: toolbox docks as a giant column and scrolls, fat edge; selected layer still bad; Layers panel has no title; Color Lab double titles when torn off. Edited the source for each; committed locally, not pushed. Not answered yet: Color Lab "giant empty space at the top" (unclear which strip), main-area color, File/K spacing, 1.0.59 release.
