@@ -7447,3 +7447,6 @@ George: "There is not supposed to be a hilight on the bottom edge of the menu ba
 
 ## 2026-11-15 (637th) — A maximized image window gets no bevel lines
 George: "Image windows are not supposed to get bevels or highlights when maximized." `KrimbleBevelOverlay::paintEvent` (KisMainWindow.cpp): a `QMdiSubWindow` that is maximized is not drawn on. A window that is not maximized keeps its bevel. Not built.
+
+## 2026-11-15 (638th) — Build number 61 (1.0.61-beta); this push starts the build
+George: "Push that." `build.gradle` `krimbleBuildNumber` 60 -> 61 and the workflow's label, number check and APK name 1.0.61-beta (old lines commented). Includes entries 629 to 637 (toolbox never docks and fits without scrolling, Layers rows and titles, Color Lab logo name, QuickAdjust compact rows, Preferences list highlight under the icon, softer bevel top lines, no bevel under the menu bar or on a maximized image window).

@@ -25,7 +25,8 @@ on:
         # default: "1.0.56-beta"
         # default: "1.0.60-beta"   # KRIMBLE 2026-11-13 (build 60, taken back)
         # default: "1.0.59-beta"   # KRIMBLE 2026-11-15 (build 60, George: "Start .60 push."): was 1.0.59-beta
-        default: "1.0.60-beta"   # KRIMBLE 2026-11-08: strict renumbering: this label is always 1.0.<krimbleBuildNumber>-beta (build.gradle); the build stops if they differ
+        # default: "1.0.60-beta"   # KRIMBLE 2026-11-15 (build 61): was 60
+        default: "1.0.61-beta"   # KRIMBLE 2026-11-08: strict renumbering: this label is always 1.0.<krimbleBuildNumber>-beta (build.gradle); the build stops if they differ
 
 concurrency:
   group: krimble-android
@@ -56,7 +57,8 @@ jobs:
         # KRIMBLE 2026-11-13 (build 60): was 1.0.59-beta: # run: python3 tools/ci/check_build_number.py "${{ inputs.beta || '1.0.59-beta' }}"   (this line is the change that starts the run)
         # KRIMBLE 2026-11-13: build 60 taken back: # run: python3 tools/ci/check_build_number.py "${{ inputs.beta || '1.0.60-beta' }}"
         # run: python3 tools/ci/check_build_number.py "${{ inputs.beta || '1.0.59-beta' }}"   # KRIMBLE 2026-11-15 (build 60): was 59
-        run: python3 tools/ci/check_build_number.py "${{ inputs.beta || '1.0.60-beta' }}"
+        # run: python3 tools/ci/check_build_number.py "${{ inputs.beta || '1.0.60-beta' }}"   # KRIMBLE 2026-11-15 (build 61): was 60
+        run: python3 tools/ci/check_build_number.py "${{ inputs.beta || '1.0.61-beta' }}"
 
       # Krimble 2026-11-13: George: "I'm concerned about his decisions get made and then later ignored." The decisions in KRIMBLE_DECISIONS.md that a program can check (the names of the releases,
       # the words and paths the rules forbid) are checked on every run. A warning only: the step is shown as failed and its lines are in the run's summary, but the build goes on.
@@ -198,7 +200,8 @@ jobs:
           # KRIMBLE 2026-11-11 (build 56): was 1.0.55-beta: NAME="Krimble-${{ inputs.beta || '1.0.55-beta' }}-$(TZ=America/Denver date +%b%d-%H%M).apk"
           # KRIMBLE 2026-11-13: George: the 59 APK says .56 inside: the fallback label of the file name was still 1.0.56-beta (a run started by a push has no input): NAME="Krimble-${{ inputs.beta || '1.0.56-beta' }}-$(TZ=America/Denver date +%b%d-%H%M).apk"
           # NAME="Krimble-${{ inputs.beta || '1.0.59-beta' }}-$(TZ=America/Denver date +%b%d-%H%M).apk"   # KRIMBLE 2026-11-15 (build 60): was 59
-          NAME="Krimble-${{ inputs.beta || '1.0.60-beta' }}-$(TZ=America/Denver date +%b%d-%H%M).apk"
+          # NAME="Krimble-${{ inputs.beta || '1.0.60-beta' }}-$(TZ=America/Denver date +%b%d-%H%M).apk"   # KRIMBLE 2026-11-15 (build 61): was 60
+          NAME="Krimble-${{ inputs.beta || '1.0.61-beta' }}-$(TZ=America/Denver date +%b%d-%H%M).apk"
           mkdir -p out && cp "$APK" "out/$NAME"
           ls -l out
 
