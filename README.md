@@ -104,16 +104,16 @@ Krimble already includes many changes to make the app more usable and familiar o
 | Area | Krimble direction |
 |---|---|
 | **Navigation** | Pan/Hand (non-destructive) as the default tool instead of Paintbrush (destructive) |
-| **Toolbox** | Reordered around familiar graphics-editing applications |
+| **Toolbox** | Reordered around familiar graphics-editing applications, flyouts added |
 | **Menus** | Simplified, renamed, and reorganized based on popular applications for familiarity |
 | **Panels** | User-facing “docker” terminology replaced with **panel**; **Detach Panel** and **Attach Panel** in the Settings menu float any panel and dock it back; floating panels stay where dropped and have a corner resize handle |
 | **Touch** | Larger crop handles, wider resize targets, mobile selection handles |
-| **Transform** | Free Transform as the predictable default scaling; accidental shear reduced |
-| **Color** | User-friendly simple square color selector; improved Match Color |
-| **Editing** | Healing Brush, Content-Aware Fill, improved adjustments and replayable Actions |
+| **Transform** | Transform defaults to uniform scaling; accidental shear prevented |
+| **Color Lab** | User-friendly simple square color selector; multi-panel controls |
+| **Editing** | Healing Brush, Content-Aware Fill, QuickAdjust menu |
 | **Branding** | Krimble identity, mascot, icon, app labels, splash, links, versioning and support graphics |
 | **Automation** | Batch Process recipes (JPG, PNG, WebP with transparency) and **Krimble Script**, a tiny script language for simple operations on many pictures |
-| **Shortcuts** | Large shortcut-alignment pass for familiar tool keys where practical |
+| **Shortcuts** | Wide shortcut-alignment pass for familiar keystrokes where practical |
 
 ---
 
