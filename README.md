@@ -285,13 +285,13 @@ Krimble exists because of these. They are not connected to Krimble and have not 
 
 ---
 
-## SUPPORT KRIMBLE! ☕
-
 <div align="center">
 <a href="https://www.buymeacoffee.com/GeorgeEdwardPurdy">
 <img src="https://krimble.org/assets/support-coffee.jpg" alt="Support Krimble" width="100%">
 </a>
 </div>
+
+## SUPPORT KRIMBLE! ☕
 
 Krimble is free and open source, but development still takes time and resources.
 
