@@ -7372,3 +7372,6 @@ George: "How about not gigantic??????" `libs/ui/KisMainWindow.cpp` `krimbleShowQ
 
 ## 2026-11-15 (612th) — QuickAdjust text is smaller (item 12)
 George: "Estimate based on common sizes. If the font in the panel is 4x bigger than all the other text in screen, it's way too big." `libs/ui/KisMainWindow.cpp`: row names 15 to 12 px (bold), number boxes 15 to 12, Reset/Cancel/OK 16 to 13 (bold) with padding 6/12 to 4/10, Preview 13 to 12. These are my estimates of common UI sizes (12 to 13 px, which is what the app's own panels use); George gave no numbers. The row pictures and sliders are not changed yet. Not built.
+
+## 2026-11-15 (613th) — The New dialog does not open at the full screen width (item 13)
+George (item 13, File > New icons tiny), after being asked for an icon size: "It's not about capping it.... It's about default sizes and bizarre insane magnification. There is no reason for this window to appear at full size of the whole screen." `libs/ui/dialogs/KisDlgCreateNewDocument.cpp`: the window opens no wider than 75% of the screen's short side (810 px on this phone), was up to 95% of the width (2223 px in landscape). The icon size (44 logical px = about 140 real px) is NOT changed. I assumed "this window" means the New dialog; the other windows (Preferences, Save As, and the rest) have their own sizing and were not looked at. Not built.

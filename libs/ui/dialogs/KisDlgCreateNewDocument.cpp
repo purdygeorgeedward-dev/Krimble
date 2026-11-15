@@ -76,7 +76,12 @@ KisDlgCreateNewDocument::KisDlgCreateNewDocument(QWidget* parent)
         // big empty gap in the Custom Document page. The height now follows what the page needs (its own size plus 70 px for the
         // frame), and is still at most 90% of the screen.
         const int pageHeight = krimbleCustomPage->sizeHint().height() + 70;
-        resize(qMin(sizeHint().width(), int(screenSize.width() * 0.95)),
+        // resize(qMin(sizeHint().width(), int(screenSize.width() * 0.95)),
+        //        qMin(qMin(sizeHint().height(), pageHeight), int(screenSize.height() * 0.90)));
+        // Krimble 2026-11-15 (item 13): George: "It's about default sizes and bizarre insane magnification. There is no reason for this window to appear at full size of the whole screen."
+        // The window opens no wider than 75% of the screen's short side (810 px on this phone, portrait or landscape; the number is mine), so it is not as wide as the screen in landscape.
+        const int shortSide = qMin(screenSize.width(), screenSize.height());
+        resize(qMin(qMin(sizeHint().width(), int(screenSize.width() * 0.95)), int(shortSide * 0.75)),
                qMin(qMin(sizeHint().height(), pageHeight), int(screenSize.height() * 0.90)));
     }
 #endif

@@ -654,3 +654,6 @@ George: "How about not gigantic??????" Width <= 75% of the short side, height <=
 
 ## 2026-11-15 10:00 AM MT: QuickAdjust text size (entry 612)
 George: text in QuickAdjust is far bigger than the rest of the screen; "Estimate based on common sizes." Row names/numbers 12 px, buttons 13 px, Preview 12 px (were 15/15/16/13). Pictures and sliders untouched. Committed locally, not pushed.
+
+## 2026-11-15 10:15 AM MT: New dialog default width (entry 613)
+George: item 13 is about default sizes and "bizarre insane magnification", not an icon cap; no reason for the window to open at the full screen. New dialog width limited to 75% of the screen's short side. Icon size untouched (44 logical px). Committed locally, not pushed.
