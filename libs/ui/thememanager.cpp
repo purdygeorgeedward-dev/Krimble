@@ -184,6 +184,33 @@ static QString krimbleSameHueSheet(const QString &sheet, int hue, int saturation
     return out;
 }
 
+// Krimble 2026-11-15: George: "No selection blue either." (the theme "Krimble Dark Gray"). Every color of the sheet that is blue or cyan (hue 180 to 260, any saturation over 10 percent), the blue-gray backgrounds and the selection blue
+// and the cyan glow included, becomes the gray of the same brightness (luma); neutral colors, black, white and the reds, greens and oranges stay.
+static QString krimbleGraySheet(const QString &sheet)
+{
+    static const QRegularExpression colorRx(QStringLiteral("#[0-9a-fA-F]{6}\\b"));
+    QString out;
+    out.reserve(sheet.size());
+    int last = 0;
+    QRegularExpressionMatchIterator it = colorRx.globalMatch(sheet);
+    while (it.hasNext()) {
+        const QRegularExpressionMatch m = it.next();
+        out += sheet.mid(last, m.capturedStart() - last);
+        const QColor c(m.captured());
+        int h = 0, sat = 0, v = 0;
+        c.getHsv(&h, &sat, &v);
+        if (h >= 180 && h <= 260 && sat > 26) {
+            const int y = qRound(0.299 * c.red() + 0.587 * c.green() + 0.114 * c.blue());
+            out += QColor(y, y, y).name();
+        } else {
+            out += m.captured();
+        }
+        last = m.capturedEnd();
+    }
+    out += sheet.mid(last);
+    return out;
+}
+
 void ThemeManager::setCurrentTheme(const QString& name)
 {
     //qDebug() << "setCurrentTheme();" << d->currentThemeName << "to" << name;
@@ -315,7 +342,8 @@ void ThemeManager::slotChangePalette()
         qApp->setStyleSheet(bevelSheet);
     } else if (theme == QStringLiteral("Krimble Dark Gray")) {
         // Krimble 2026-11-15: George: "We should create a simplified dark gray theme with no bevels. Modern pro style." The flat sheet (no bevel look) with every blue-gray background turned gray (hue 0, saturation 0, same brightness); the accent blues stay.
-        qApp->setStyleSheet(krimbleSameHueSheet(krimbleVisualStyleSheet(), 0, 0));
+        // qApp->setStyleSheet(krimbleSameHueSheet(krimbleVisualStyleSheet(), 0, 0));   // before "No selection blue either.": the accent blues stayed
+        qApp->setStyleSheet(krimbleGraySheet(krimbleVisualStyleSheet()));
     } else if (theme == QStringLiteral("Krimble Painted")) {
         // qApp->setStyleSheet(krimblePaintedStyleSheet());
         // Krimble 2026-11-15: George: "In the Krimble painted theme there isn't enough contrast between the scrollbar and the track." The painted sheet had no scroll bar rules, so the style drew them in near-equal tones. Now the track is

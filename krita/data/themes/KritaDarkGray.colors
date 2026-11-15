@@ -1,4 +1,4 @@
-# Krimble 2026-11-15: the scheme "Krimble Dark Gray" (George: "We should create a simplified dark gray theme with no bevels. Modern pro style."): the Blue-Gray palette with every low-saturation color turned to its gray (same brightness); the saturated accents (selection blue) are kept.
+# Krimble 2026-11-15: the scheme "Krimble Dark Gray" (George: "We should create a simplified dark gray theme with no bevels. Modern pro style." and "No selection blue either."): the Blue-Gray palette with every low-saturation color and every blue or cyan turned to the gray of the same brightness; red, green and orange accents are kept.
 [ColorEffects:Disabled]
 Color=20,20,20
 ColorAmount=-0.5
@@ -58,10 +58,10 @@ ForegroundVisited=160,160,160
 # DecorationFocus=138,190,236
 # DecorationHover=138,190,236
 # Krimble 2026-11-13 (task 64): George: "kill the aqua everywhere first." The aqua 29,124,178 is gone: 11,135,221 (#0b87dd).
-BackgroundAlternate=11,135,221
-BackgroundNormal=19,96,146
-DecorationFocus=67,201,255
-DecorationHover=67,201,255
+BackgroundAlternate=108,108,108
+BackgroundNormal=79,79,79
+DecorationFocus=167,167,167
+DecorationHover=167,167,167
 ForegroundActive=235,235,235
 ForegroundInactive=194,194,194
 ForegroundLink=216,216,216
