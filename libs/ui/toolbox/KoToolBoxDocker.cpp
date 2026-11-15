@@ -218,9 +218,15 @@ KoToolBoxDocker::KoToolBoxDocker(KoToolBox *toolBox)
     // "more" arrow) and the spacer took the rest: that was the dead space. While the toolbox floats, the tool area gets the spare height instead (stretch 1,
     // the spacer 0), so all the tools show and nothing is left over; docked, it is as before.
     auto applyContainerStretch = [this](bool floating) {
-        m_containerLayout->setStretchFactor(m_scrollArea, floating ? 1 : 0);
+        // m_containerLayout->setStretchFactor(m_scrollArea, floating ? 1 : 0);
+        // for (int i = 0; i < m_containerLayout->count(); ++i) {
+        //     if (m_containerLayout->itemAt(i)->spacerItem()) m_containerLayout->setStretch(i, floating ? 0 : 1);
+        // }
+        // Krimble 2026-11-15 (item 16): docked too, the tool area takes the spare height (stretch 1) and the spacer none, so the docked toolbox expands instead of scrolling.
+        Q_UNUSED(floating);
+        m_containerLayout->setStretchFactor(m_scrollArea, 1);
         for (int i = 0; i < m_containerLayout->count(); ++i) {
-            if (m_containerLayout->itemAt(i)->spacerItem()) m_containerLayout->setStretch(i, floating ? 0 : 1);
+            if (m_containerLayout->itemAt(i)->spacerItem()) m_containerLayout->setStretch(i, 0);
         }
     };
     connect(this, &QDockWidget::topLevelChanged, this, applyContainerStretch);
@@ -501,6 +507,13 @@ void KoToolBoxDocker::resizeEvent(QResizeEvent *event)
             return;
         }
         // const int contentHeight = m_toolBox->layout()->heightForWidth(m_scrollArea->viewport()->width());
+        // Krimble 2026-11-15 (item 16): George (1.0.59 screenshot, one column): the tools stop part way down with a scroll arrow and the rest of the dock is empty ("scrolls instead of expanding when docked"). The
+        // docked toolbox in columns (left or right edge) has no height limit now: the tool area is as tall as the dock, so every tool shows. A floating toolbox is cut to its tools as before.
+        if (!isFloating()) {
+            m_scrollArea->setMaximumHeight(QWIDGETSIZE_MAX);
+            setMaximumHeight(QWIDGETSIZE_MAX);
+            return;
+        }
         const int contentHeight = qMax(m_toolBox->layout()->heightForWidth(m_scrollArea->viewport()->width()), m_toolBox->height());   // Krimble 2026-10-26
         if (contentHeight > 0) {
             const int frame = m_scrollArea->height() - m_scrollArea->viewport()->height();

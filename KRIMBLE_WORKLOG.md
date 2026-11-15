@@ -687,3 +687,6 @@ George said "Push". 13 commits pushed to master: QuickAdjust (two rows, text at 
 
 ## 2026-11-15 8:35 AM MT: item 13 icons slightly bigger (entry 619)
 George: "13 adjust size of icons slightly." 140 -> 169 real pixels. Committed locally, not pushed.
+
+## 2026-11-15 8:50 AM MT: item 16 toolbox (entry 620)
+George sent a one-column screenshot (the images before it were for item 15, Save As). Docked toolbox: tools cut off with a scroll arrow. Caps removed when docked, tool area takes the spare height. Committed locally, not pushed.
