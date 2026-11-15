@@ -279,7 +279,9 @@ Krimble exists because of these. They are not connected to Krimble and have not 
 - <img src="thanks-icons/termux.svg" width="24" height="24" align="absmiddle"> **Termux**: the Android terminal that runs the whole build from a phone.
 - <img src="thanks-icons/github.svg" width="24" height="24" align="absmiddle"> **GitHub**: hosts the code, the releases and the issue tracker. What would we do without it?
 
-The logos belong to their owners and are shown only to say thank you.
+<div align="center">
+
+<img src="https://krimble.org/assets/thank-you.jpg" alt="Thank you from Krimble" width="430">
 
 ---
 
@@ -324,9 +326,6 @@ See the repository's [LICENSES](LICENSES) directory for details.
 
 ---
 
-<div align="center">
-
-<img src="https://krimble.org/assets/thank-you.jpg" alt="Thank you from Krimble" width="430">
 
 ### Create. Edit. Enhance. Anywhere!
 
