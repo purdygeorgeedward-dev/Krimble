@@ -540,7 +540,9 @@ public:
             // logoRow->addWidget(new KrimbleStudioLogoLabel(QStringLiteral(":/dark_krimble-colorstudio-logo.png"), this), 7);
             // logoRow->addStretch(1);
             // Krimble 2026-11-05 (2nd): George: the title logo is twice the size it should be and should be left aligned: 40% of the panel width, at the left.
-            logoRow->addWidget(new KrimbleStudioLogoLabel(QStringLiteral(":/dark_krimble-colorstudio-logo.png"), this), 4);
+            KrimbleStudioLogoLabel *krimbleLogo = new KrimbleStudioLogoLabel(QStringLiteral(":/dark_krimble-colorstudio-logo.png"), this);
+            krimbleLogo->setObjectName(QStringLiteral("KrimbleStudioLogo"));   // Krimble 2026-11-15: KisMainWindow.cpp (krimbleRefreshTabTitles) hides it when the panel is in a tab group (the tab names the panel)
+            logoRow->addWidget(krimbleLogo, 4);
             logoRow->addStretch(6);
             layout->addLayout(logoRow);
         }

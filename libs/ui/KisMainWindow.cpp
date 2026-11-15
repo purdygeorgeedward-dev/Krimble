@@ -3935,7 +3935,13 @@ static void krimbleRefreshTabTitles(QMainWindow *win)
         KoDockWidgetTitleBar *bar = dynamic_cast<KoDockWidgetTitleBar*>(dock->titleBarWidget());
         if (!bar) continue;
         const bool tabbed = !dock->isFloating() && !win->tabifiedDockWidgets(dock).isEmpty();
-        bar->setTitleTextHidden(tabbed);
+        // bar->setTitleTextHidden(tabbed);
+        // Krimble 2026-11-15: George: "The tab should only be visible when they are docked. Otherwise the tabs are pointless." (item 7, Color Lab double title: the tab, the title bar and the logo all said "Color Lab".)
+        // The Color Lab panel names itself ONCE: by its tab when it is in a tab group, otherwise by its logo. The logo is hidden in a tab group; the title bar's text is always hidden for this panel (its logo or its tab
+        // is the title). Other panels are as before: the title text is hidden when they are in a tab group.
+        QWidget *krimbleLogo = dock->findChild<QWidget*>(QStringLiteral("KrimbleStudioLogo"));
+        bar->setTitleTextHidden(krimbleLogo ? true : tabbed);
+        if (krimbleLogo && krimbleLogo->isHidden() == !tabbed) krimbleLogo->setVisible(!tabbed);
     }
 }
 

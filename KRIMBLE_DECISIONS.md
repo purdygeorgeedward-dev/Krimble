@@ -37,3 +37,4 @@ Krimble 2026-11-13. George: "I'm concerned about his decisions get made and then
 ## Needs George's answer (an older rule disagrees with later practice)
 
 1. **Publish the current build before the number changes** (SESSION_CATCHUP.md, Oct 24) against **"We don't always have to release a new build, but we should always change the number"** (Nov 8). The later one is in the table above; the older rule is marked as replaced in SESSION_CATCHUP.md unless he says otherwise.
+- **A panel names itself once (2026-11-15, 6:40 AM MT):** George: "The tab should only be visible when they are docked. Otherwise the tabs are pointless." The Color Lab panel: its tab names it when it is in a tab group; otherwise its logo does; never the tab, the title bar text and the logo together.
