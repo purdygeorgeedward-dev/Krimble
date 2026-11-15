@@ -633,3 +633,6 @@ This was a first run: the database did not exist (the app data is wiped by an un
 
 ## 2026-11-15 8:30 AM MT: five patterns (entry 607)
 George: "5 patterns. No more." Done in krita/data/patterns/CMakeLists.txt (107 of 112 pattern files commented out of the install list; five tiny .pat files stay). The bundles still carry their own patterns (not touched). Committed locally, not pushed, not built.
+
+## 2026-11-15 9:00 AM MT: fonts (entry 608)
+George asked which fonts are biggest (listed), then: "Kill the ten largest families, but keep Montserrat." Nine families excluded in krita/data/fonts/CMakeLists.txt. Committed locally, not pushed, not built.
