@@ -669,3 +669,6 @@ I capped QuickAdjust (entry 611) and said "The limits are my numbers". George: "
 
 ## 2026-11-15 10:50 AM MT: QuickAdjust magnified (entry 615)
 George: "The QuickAdjust window is MAGNIFIED!!!! THAT SHOULD NEVER HAPPEN." Text now follows the program's own size. Rows, pictures, sliders, switch untouched. Still on QuickAdjust; George decides when it is finished. Committed locally, not pushed.
+
+## 2026-11-15 11:00 AM MT: QuickAdjust starts small, no stretching (entry 616)
+George: resizable by the user, never magnified; starts small. Banner 520 real pixels max (my number), window opens at its natural size. Rows, pictures untouched. Committed locally, not pushed.

@@ -2016,7 +2016,14 @@ static void krimbleShowQuickAdjustDialog(KisMainWindow *win)
         // phone) and fills the width of the window.
         // logoRow->addWidget(new KrimbleLogoLabel(QStringLiteral(":/dark_krimble-quickadjust-banner.png"), QStringLiteral("Krimble QuickAdjust"), dialog, 100000), 1);
         // Krimble 2026-11-12 (task 5): George (his picture of QuickAdjust): "match this version of QuickAdjust." The header of the new picture (the wordmark, a divider, QuickAdjust, the purple streak).
-        logoRow->addWidget(new KrimbleLogoLabel(QStringLiteral(":/dark_krimble-quickadjust-banner2.png"), QStringLiteral("Krimble QuickAdjust"), dialog, 100000), 1);
+        // logoRow->addWidget(new KrimbleLogoLabel(QStringLiteral(":/dark_krimble-quickadjust-banner2.png"), QStringLiteral("Krimble QuickAdjust"), dialog, 100000), 1);
+        // Krimble 2026-11-15 (item 12): George: "It should be able to resize when the user wants it bigger, but not via magnification (stretching) of the contents." The banner stretched to the
+        // width of the window (1057 real pixels wide at full width). It is 520 real pixels wide at most, at the left, whatever the size of the window.
+        {
+            const qreal bannerDpr = qMax<qreal>(1.0, dialog->devicePixelRatioF());
+            logoRow->addWidget(new KrimbleLogoLabel(QStringLiteral(":/dark_krimble-quickadjust-banner2.png"), QStringLiteral("Krimble QuickAdjust"), dialog, qRound(520 / bannerDpr)), 1);
+            logoRow->addStretch(0);
+        }
         layout->addLayout(logoRow);
     }
     // layout->addWidget(new KrimbleQuickAdjustLogo(dialog));
@@ -2089,7 +2096,10 @@ static void krimbleShowQuickAdjustDialog(KisMainWindow *win)
     QObject::connect(dialog, &QDialog::rejected, dialog, [adjust]() { adjust->removeCreatedLayers(); });
     if (QScreen *scr = QGuiApplication::primaryScreen()) {
         const QRect avail = scr->availableGeometry();
-        const int width = int(avail.width() * 0.94);
+        // const int width = int(avail.width() * 0.94);
+        // Krimble 2026-11-15 (item 12): George: "It should start out small because otherwise it gets in the way." The window opens at the size its contents ask for (at most 94% of the screen
+        // width), and the user can make it bigger.
+        const int width = qMin(qMax(dialog->sizeHint().width(), dialog->minimumSizeHint().width()), int(avail.width() * 0.94));
         // const int height = qMin(dialog->sizeHint().height() + 20, int(avail.height() * 0.90));
         // Krimble 2026-11-06: the exact height for this width (the logo's height depends on its width, which sizeHint() does not know), no 20 px extra
         const int contentHeight = dialog->layout()->hasHeightForWidth() ? dialog->layout()->heightForWidth(width) : dialog->sizeHint().height();
