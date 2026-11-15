@@ -4580,6 +4580,13 @@ static void krimbleInstallBevels(QMainWindow *win)
     // QObject::connect(win, &QMainWindow::tabifiedDockWidgetActivated, win, [win](QDockWidget*) { krimbleRefreshTabTitles(win); });
     // }
     // krimbleRefreshTabTitles(win);
+    // Krimble 2026-11-15 (680th): George: "ColorLab has THREE TITLES." (the tab, the title bar text and the logo). This is back on: it only hides the title bar text of a panel in a tab group (and Color Lab's, whose logo or tab is its title). It paints and moves nothing.
+    static bool s_tabTitlesHooked = false;
+    if (!s_tabTitlesHooked) {
+        s_tabTitlesHooked = true;
+        QObject::connect(win, &QMainWindow::tabifiedDockWidgetActivated, win, [win](QDockWidget*) { krimbleRefreshTabTitles(win); });
+    }
+    krimbleRefreshTabTitles(win);
 }
 
 // Krimble 2026-10-18: HEX MAPS (George: "Can we offer a hex mapping feature?" and "View-show-hex and we use an svg to overlay a hex pattern which they

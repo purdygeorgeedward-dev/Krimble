@@ -34,3 +34,4 @@ George says he talked to Claude (in an earlier session; the text of that talk is
 - **2026-11-15T22:13Z:** Do you still have the comments and tags for the last few builds? I deleted them. / I definitely don't want those APKs, although I have them. / No. I think the notes need to be constructed about the many failures in those builds.
 - **2026-11-15T22:27Z:** Build the new fixes. 1.0.62
 - **2026-11-15T23:05Z:** Restore previous docking behavior for toolbox and previous status bar height
+- **2026-11-15T23:15Z:** (screenshot, build 62) ColorLab has THREE TITLES.

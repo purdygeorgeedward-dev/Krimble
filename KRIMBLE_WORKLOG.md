@@ -778,3 +778,5 @@ George: "Destroy all Krita themes. Nothing called Krita stays in themes." Delete
 **2026-11-15, 15:35 (MST).** Build 62 (1.0.62-beta) pushed; the push starts the build (678th).
 
 **2026-11-15, 16:20 (MST).** Toolbox docking and status bar height restored (679th); pushed, no build.
+
+**2026-11-15, 16:30 (MST).** Color Lab third title: tab title hiding back on (680th); pushed, no build.
