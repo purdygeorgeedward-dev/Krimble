@@ -7453,3 +7453,6 @@ George: "Push that." `build.gradle` `krimbleBuildNumber` 60 -> 61 and the workfl
 
 ## 2026-11-15 (639th) — Menus: a black outline instead of bevels
 George: "Menus look like shit with bevels. Just put a black outline around them." `KrimbleBevelOverlay::paintEvent` (KisMainWindow.cpp): a popup menu (and a submenu) is drawn with a black outline 2 real pixels thick on all four sides and nothing else; the recessed bevel code stays below it, not reached for menus. Not in build 61 (that build was already started); not built.
+
+## 2026-11-15 (640th) — Buttons less rounded
+George: "What's up with the super rounded buttons everywhere??" ... "Just make it less rounded." The `QPushButton, QDialog QToolButton` rule of the three theme sheets (`KrimbleVisualStyle.h`, `...Nov10.h`, `...Painted.h`) had `border-radius: 7px` (7 style units, about 22 real pixels on his screen, on buttons about 80 tall nearly a pill); now 3px (about 10 real pixels), the old value commented. The rule had no recorded reason in KRIMBLE_DECISIONS.md. Buttons with their own style sheet in code (QuickAdjust's 10, the Color Lab tabs) are not changed. Not built.

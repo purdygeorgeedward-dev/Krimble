@@ -76,7 +76,8 @@ QPushButton, QDialog QToolButton {
     border-left: 1px solid #8292c4;
     border-bottom: 1px solid #000000;
     border-right: 1px solid #000000;
-    border-radius: 7px;
+    /* border-radius: 7px;   Krimble 2026-11-15: George: "Just make it less rounded." (buttons, 7 style units, about 22 real pixels, were nearly pills) */
+    border-radius: 3px;
     padding: 5px 9px;
     background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #434f75, stop:1 #262e4b);
 }

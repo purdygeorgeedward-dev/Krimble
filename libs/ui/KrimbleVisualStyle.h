@@ -61,7 +61,8 @@ QGroupBox::title { subcontrol-origin: margin; left: 12px; padding: 0 5px; }
 QPushButton, QDialog QToolButton {
     color: #f1f4fc;
     border: 1px solid #000000;
-    border-radius: 7px;
+    /* border-radius: 7px;   Krimble 2026-11-15: George: "Just make it less rounded." (buttons, 7 style units, about 22 real pixels, were nearly pills) */
+    border-radius: 3px;
     /* task 28: raised edge (light #687abd top and left) */
     border-top: 1px solid #687abd;
     border-left: 1px solid #687abd;
