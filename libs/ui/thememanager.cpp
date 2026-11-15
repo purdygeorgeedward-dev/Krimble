@@ -192,7 +192,10 @@ void ThemeManager::setCurrentTheme(const QString& name)
     // old plain palette). A settings file that still says "Krimble dark" is read as the default, so it does not find no theme file and leave the app with the bare default palette.
     // d->currentThemeName = (name == QStringLiteral("Krimble dark")) ? QStringLiteral("Krimble Blue-Gray") : name;
     // Krimble 2026-11-12 (task 36): George: "Delete Krimble Blue. It looks bad." The theme is not installed any more; a settings file that says "Krimble Blue" (or "Krimble dark") is read as the default, Krimble Blue-Gray.
-    d->currentThemeName = (name == QStringLiteral("Krimble dark") || name == QStringLiteral("Krimble Blue")) ? QStringLiteral("Krimble Blue-Gray") : name;
+    // d->currentThemeName = (name == QStringLiteral("Krimble dark") || name == QStringLiteral("Krimble Blue")) ? QStringLiteral("Krimble Blue-Gray") : name;
+    // Krimble 2026-11-15: George: "We should remove the Krita themes. The less Krita the better." The five Krita themes (Krita neutral, blender, bright, dark orange, darker) are not installed; a settings file that still names one
+    // (or "Krita dark") is read as the default, Krimble Blue-Gray, so the app does not find no theme file and fall back to the bare palette.
+    d->currentThemeName = (name == QStringLiteral("Krimble dark") || name == QStringLiteral("Krimble Blue") || name.startsWith(QStringLiteral("Krita "))) ? QStringLiteral("Krimble Blue-Gray") : name;
 
     if (d->themeMenuAction  && d->themeMenuActionGroup) {
         QList<QAction*> list = d->themeMenuActionGroup->actions();

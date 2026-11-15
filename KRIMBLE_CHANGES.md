@@ -7512,3 +7512,6 @@ George: "Build it". `build.gradle` `krimbleBuildNumber` 62 and the workflow labe
 
 ## 2026-11-15 (658th) — Build number back to 61; failed and cancelled builds are deleted
 George: "FAILED BUILDS MUST NOT PERSIST. THEY MUST BE DELETED." and "Your 'rule' is stale." (the rule that every started build changes the number). New rule: a failed or cancelled build is deleted from GitHub and does not use up its number. The cancelled runs of 61 and 62 are deleted; `build.gradle` and the workflow say 61 again (62 lines commented). Twelve older failed or cancelled runs (Nov 6 to Nov 14) are still on GitHub: George has not said to delete them.
+
+## 2026-11-15 (659th) — The Krita themes are removed
+George: "We should remove the Krita themes. The less Krita the better." `krita/data/themes/CMakeLists.txt`: Krita neutral, Krita blender, Krita bright, Krita dark orange and Krita darker are no longer installed (commented out; the files stay in the repository), so the theme menu has Krimble Bevel, Krimble Blue-Gray and Krimble Painted (and System). `thememanager.cpp` `setCurrentTheme`: a saved theme name starting with "Krita " is read as Krimble Blue-Gray. Not built or tested.
