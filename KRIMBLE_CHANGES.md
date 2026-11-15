@@ -7521,3 +7521,6 @@ George: "We should create a simplified dark gray theme with no bevels. Modern pr
 
 ## 2026-11-15 (661st) — Krimble Dark Gray has no selection blue
 George: "No selection blue either." `thememanager.cpp`: new `krimbleGraySheet`: every color of the flat sheet that is blue or cyan (hue 180 to 260, saturation over 10 percent), the backgrounds, the selection blue and the cyan glow, becomes the gray of the same brightness; the theme uses it instead of `krimbleSameHueSheet(..., 0, 0)`. `KritaDarkGray.colors` regenerated the same way (Selection, focus and hover colors are gray now; red, green and orange accents stay). Not built or tested: a selected item is a mid gray (#6B6B6B for the old #0B87DD).
+
+## 2026-11-15 (662nd) — Krimble Dark Gray: orange selection, square corners
+George: "Use Krimble orange for selection. No rounded corners. All squared." `thememanager.cpp`, `krimbleGraySheet`: the saturated blues and cyan of the sheet (the selection blue, the glow) become Krimble orange #FD6001 (the paler blue-grays still become gray), and every `border-radius` of the sheet is 0. `KritaDarkGray.colors`: Selection background #FD6001 (alternate #E05400), focus and hover #FD6001. Not built or tested. Not squared: things drawn or styled in code with their own radius (QuickAdjust's buttons, Color Lab, the shaped panel tabs, the QuickAdjust switch).

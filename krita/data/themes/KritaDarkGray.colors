@@ -58,10 +58,10 @@ ForegroundVisited=160,160,160
 # DecorationFocus=138,190,236
 # DecorationHover=138,190,236
 # Krimble 2026-11-13 (task 64): George: "kill the aqua everywhere first." The aqua 29,124,178 is gone: 11,135,221 (#0b87dd).
-BackgroundAlternate=108,108,108
-BackgroundNormal=79,79,79
-DecorationFocus=167,167,167
-DecorationHover=167,167,167
+BackgroundAlternate=224,84,0
+BackgroundNormal=253,96,1
+DecorationFocus=253,96,1
+DecorationHover=253,96,1
 ForegroundActive=235,235,235
 ForegroundInactive=194,194,194
 ForegroundLink=216,216,216

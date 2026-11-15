@@ -199,7 +199,9 @@ static QString krimbleGraySheet(const QString &sheet)
         const QColor c(m.captured());
         int h = 0, sat = 0, v = 0;
         c.getHsv(&h, &sat, &v);
-        if (h >= 180 && h <= 260 && sat > 26) {
+        if (h >= 180 && h <= 260 && sat > 140) {
+            out += QStringLiteral("#fd6001");   // Krimble 2026-11-15: George: "Use Krimble orange for selection." the saturated blues and the cyan (the selection blue, the glow) are Krimble orange
+        } else if (h >= 180 && h <= 260 && sat > 26) {
             const int y = qRound(0.299 * c.red() + 0.587 * c.green() + 0.114 * c.blue());
             out += QColor(y, y, y).name();
         } else {
@@ -208,6 +210,8 @@ static QString krimbleGraySheet(const QString &sheet)
         last = m.capturedEnd();
     }
     out += sheet.mid(last);
+    // Krimble 2026-11-15: George: "No rounded corners. All squared." every border radius of the sheet is 0
+    out.replace(QRegularExpression(QStringLiteral("border-radius:\\s*[0-9.]+px")), QStringLiteral("border-radius: 0px"));
     return out;
 }
 
