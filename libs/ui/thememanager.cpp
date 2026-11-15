@@ -227,12 +227,16 @@ void ThemeManager::setCurrentTheme(const QString& name)
     // d->currentThemeName = (name == QStringLiteral("Krimble dark") || name == QStringLiteral("Krimble Blue")) ? QStringLiteral("Krimble Blue-Gray") : name;
     // Krimble 2026-11-15: George: "We should remove the Krita themes. The less Krita the better." The five Krita themes (Krita neutral, blender, bright, dark orange, darker) are not installed; a settings file that still names one
     // (or "Krita dark") is read as the default, Krimble Blue-Gray, so the app does not find no theme file and fall back to the bare palette.
-    d->currentThemeName = (name == QStringLiteral("Krimble dark") || name == QStringLiteral("Krimble Blue") || name.startsWith(QStringLiteral("Krita "))) ? QStringLiteral("Krimble Blue-Gray") : name;
+    // d->currentThemeName = (name == QStringLiteral("Krimble dark") || name == QStringLiteral("Krimble Blue") || name.startsWith(QStringLiteral("Krita "))) ? QStringLiteral("Krimble Blue-Gray") : name;
+    // Krimble 2026-11-15 (695th): George: "Krimble blue gray won't load." and "It was called Krita something before, but we changed it because this is not Krita." A saved theme name with "Krita" anywhere in it (any case)
+    // is read as the default; so is any name that has no theme file (see slotChangePalette).
+    d->currentThemeName = (name == QStringLiteral("Krimble dark") || name == QStringLiteral("Krimble Blue") || name.contains(QStringLiteral("Krita"), Qt::CaseInsensitive)) ? QStringLiteral("Krimble Blue-Gray") : name;
 
     if (d->themeMenuAction  && d->themeMenuActionGroup) {
         QList<QAction*> list = d->themeMenuActionGroup->actions();
         Q_FOREACH (QAction* action, list) {
-            if (action->text().remove('&') == name) {
+            // if (action->text().remove('&') == name) {
+            if (action->text().remove('&') == d->currentThemeName) {   // 695th: the mapped name, so the default's entry is checked when an old name was saved
                 action->setChecked(true);
             }
         }
@@ -256,6 +260,8 @@ void ThemeManager::slotChangePalette()
     KisIconUtils::clearIconCache();
 
     QString theme(currentThemeName());
+    // Krimble 2026-11-15 (695th): a name with no theme file (an old saved name, or a checked entry that is gone) loads the default instead of nothing.
+    if (!d->themeMap.contains(theme) && theme != QStringLiteral("System")) theme = QStringLiteral("Krimble Blue-Gray");
     QString filename        = d->themeMap.value(theme);
     KSharedConfigPtr config = KSharedConfig::openConfig(filename);
 
