@@ -651,3 +651,6 @@ George sent three QuickAdjust screenshots (1.0.59): buttons one per line, OK cut
 
 ## 2026-11-15 9:50 AM MT: QuickAdjust size cap (entry 611)
 George: "How about not gigantic??????" Width <= 75% of the short side, height <= 45% of screen height, rows scroll. Numbers are mine (he gave none); he can change them. Committed locally, not pushed.
+
+## 2026-11-15 10:00 AM MT: QuickAdjust text size (entry 612)
+George: text in QuickAdjust is far bigger than the rest of the screen; "Estimate based on common sizes." Row names/numbers 12 px, buttons 13 px, Preview 12 px (were 15/15/16/13). Pictures and sliders untouched. Committed locally, not pushed.

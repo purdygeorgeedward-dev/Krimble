@@ -7369,3 +7369,6 @@ George (1.0.59, three screenshots): QuickAdjust is tall and Reset, Preview, the 
 
 ## 2026-11-15 (611th) — QuickAdjust is a small panel (item 12)
 George: "How about not gigantic??????" `libs/ui/KisMainWindow.cpp` `krimbleShowQuickAdjustDialog`: width at most 75% of the screen's short side (810 px on this phone, portrait or landscape; was 94% of the width, 2200 px in landscape); height at most 45% of the screen height (was 90%); the six rows sit in a scroll area (`KrimbleQuickAdjustRows`) so every slider is still reachable when the panel is short. The old size lines are commented out. 75% and 45% are my numbers: George gave none. Not built.
+
+## 2026-11-15 (612th) — QuickAdjust text is smaller (item 12)
+George: "Estimate based on common sizes. If the font in the panel is 4x bigger than all the other text in screen, it's way too big." `libs/ui/KisMainWindow.cpp`: row names 15 to 12 px (bold), number boxes 15 to 12, Reset/Cancel/OK 16 to 13 (bold) with padding 6/12 to 4/10, Preview 13 to 12. These are my estimates of common UI sizes (12 to 13 px, which is what the app's own panels use); George gave no numbers. The row pictures and sliders are not changed yet. Not built.
