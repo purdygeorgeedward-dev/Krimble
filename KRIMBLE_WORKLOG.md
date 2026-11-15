@@ -645,3 +645,6 @@ George said "Push". 30 commits pushed to master (444bc70..9b0e822), covering bev
 
 ## 2026-11-15 9:25 AM MT: QuickAdjust is always a small panel
 George (item 12, QuickAdjust gigantic, buttons stacked): "QuickAdjust should always be a small panel. It has to be or it's in the way of seeing what you're adjusting, making it useless." Rule recorded in KRIMBLE_DECISIONS.md. The build 59 screenshot of it is not in the workspace (uploads hold only the Nov 13 batch). Code today: the window is 94% of the screen width, height from the banner shape (libs/ui/KisMainWindow.cpp krimbleShowQuickAdjustDialog), at the bottom of the screen. Size limit not yet set; asked George for it.
+
+## 2026-11-15 9:40 AM MT: item 12 cause and change (entry 610)
+George sent three QuickAdjust screenshots (1.0.59): buttons one per line, OK cut off. Cause found in libs/ui/KisApplication.cpp krimbleNarrowDialogLayouts (rows of 3+ controls turned into columns when the window's minimum width is wider than the screen). QuickAdjust's bottom row was too wide for a 340-wide portrait screen. Now two rows, both marked krimbleKeepRows. George: "The screenshots show how utterly ridiculous this is." Committed locally, not pushed.

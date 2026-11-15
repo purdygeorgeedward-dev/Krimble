@@ -7363,3 +7363,6 @@ George: "Kill the ten largest families, but keep Montserrat." The ten largest we
 
 ## 2026-11-15 (609th) — SeExpr and RGBA bundles no longer installed (startup time)
 George: "Kill those." `krita/data/bundles/CMakeLists.txt`: Krita_Artists_SeExpr_examples.bundle (2.1 MB) and RGBA_brushes.bundle (1.8 MB) commented out of the install list; files stay in the repository. Less to scan when the resource database is first built. Not built.
+
+## 2026-11-15 (610th) — QuickAdjust bottom buttons stay in rows (item 12)
+George (1.0.59, three screenshots): QuickAdjust is tall and Reset, Preview, the switch, the divider, Cancel and OK each sit on their own line, so OK is cut off at the bottom. Cause: the one bottom row is about 450 px of layout wide and the phone is about 340 wide in portrait; `krimbleNarrowDialogLayouts` (libs/ui/KisApplication.cpp, "every row of three or more controls becomes a column") turned it into a column. `libs/ui/KisMainWindow.cpp` `krimbleShowQuickAdjustDialog`: now two rows that fit, "Preview + switch" and "Reset ... Cancel OK", each marked `krimbleKeepRows` so the narrowing leaves them alone. The divider is commented out. The size limit for "always a small panel" (decisions file) is still to be set: George has not given one. Not built.

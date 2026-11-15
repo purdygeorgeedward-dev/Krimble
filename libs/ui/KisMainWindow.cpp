@@ -2031,21 +2031,32 @@ static void krimbleShowQuickAdjustDialog(KisMainWindow *win)
     // accepted and rejected signals below are driven by the Cancel and OK buttons of this row.
     buttons->hide();
     {
+        // Krimble 2026-11-15 (item 12): George (1.0.59, screenshots): "QuickAdjust should always be a small panel." Cause of the tall window with every button on its own line: the one row (Reset,
+        // Preview, switch, divider, Cancel, OK) is about 450 px of layout wide at this text size and the phone is about 340 wide in portrait, so the window narrowing in KisApplication.cpp
+        // (krimbleNarrowDialogLayouts: "every row of three or more controls becomes a column") turned it into a column. Now two short rows that fit (Preview and its switch; Reset, Cancel, OK), and both
+        // rows are marked krimbleKeepRows so the narrowing leaves them alone.
+        QVBoxLayout *bottomBox = new QVBoxLayout;
+        bottomBox->setContentsMargins(0, 6, 0, 2);
+        bottomBox->setSpacing(6);
+        QHBoxLayout *previewLine = new QHBoxLayout;
+        previewLine->setProperty("krimbleKeepRows", true);
+        previewLine->setSpacing(8);
+        if (QWidget *label = adjust->previewLabel()) { label->setParent(dialog); label->setStyleSheet(QStringLiteral("font-size: 13px; color: #ffffff; background: transparent; border: none;")); label->show(); previewLine->addWidget(label); }
+        if (QAbstractButton *sw = adjust->previewSwitch()) { sw->setParent(dialog); sw->show(); previewLine->addWidget(sw); }
+        previewLine->addStretch(1);
+        bottomBox->addLayout(previewLine);
         QHBoxLayout *bottom = new QHBoxLayout;
-        bottom->setContentsMargins(0, 6, 0, 2);
+        bottom->setProperty("krimbleKeepRows", true);
         bottom->setSpacing(8);
         QPushButton *resetRow = new QPushButton(i18n("Reset"), dialog);
         QObject::connect(resetRow, &QPushButton::clicked, adjust, [adjust]() { adjust->resetAll(); });
         bottom->addWidget(resetRow);
         bottom->addStretch(1);
-        if (QWidget *label = adjust->previewLabel()) { label->setParent(dialog); label->setStyleSheet(QStringLiteral("font-size: 13px; color: #ffffff; background: transparent; border: none;")); label->show(); bottom->addWidget(label); }
-        if (QAbstractButton *sw = adjust->previewSwitch()) { sw->setParent(dialog); sw->show(); bottom->addWidget(sw); }
-        bottom->addSpacing(4);
-        QFrame *divider = new QFrame(dialog);
-        divider->setFixedSize(1, 36);
-        divider->setStyleSheet(QStringLiteral("background: #f0f1fa; border: none;"));
-        bottom->addWidget(divider);
-        bottom->addSpacing(4);
+        // The divider between Preview and Cancel is not used now that Preview has its own line.
+        // QFrame *divider = new QFrame(dialog);
+        // divider->setFixedSize(1, 36);
+        // divider->setStyleSheet(QStringLiteral("background: #f0f1fa; border: none;"));
+        // bottom->addWidget(divider);
         QPushButton *cancelRow = new QPushButton(i18n("Cancel"), dialog);
         QObject::connect(cancelRow, &QPushButton::clicked, buttons, &QDialogButtonBox::rejected);
         bottom->addWidget(cancelRow);
@@ -2055,7 +2066,9 @@ static void krimbleShowQuickAdjustDialog(KisMainWindow *win)
                                             " background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #006bfd, stop:1 #0033c5); }"));
         QObject::connect(okRow, &QPushButton::clicked, buttons, &QDialogButtonBox::accepted);
         bottom->addWidget(okRow);
-        layout->addLayout(bottom);
+        bottomBox->addLayout(bottom);
+        layout->addLayout(bottomBox);
+        // layout->addLayout(bottom);
     }
     QObject::connect(buttons, &QDialogButtonBox::accepted, dialog, [adjust, dialog]() {
         adjust->commitVisible();
