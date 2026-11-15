@@ -7444,3 +7444,6 @@ Pixel scan of his landscape screenshot (before entries 632 and 634): rows 0-2 ne
 
 ## 2026-11-15 (636th) — No lit line under the menu bar, whichever widget it is
 George: "There is not supposed to be a hilight on the bottom edge of the menu bar!!!!!" Entry 635 guessed a thin empty tool bar; the culprit is not confirmed. `KrimbleBevelOverlay::paintEvent` (KisMainWindow.cpp): any widget (other than the menu bar and popup menus) whose top edge lies within 12 real pixels of the menu bar's bottom edge, above or below, draws no top line. Whatever draws the white row under the menu bar, it is not drawn now, if it is one of these overlays. If the white row is drawn by something else (a style sheet border, the image area), it is still there: the next step would be a screenshot of the same place from this build. Not built.
+
+## 2026-11-15 (637th) — A maximized image window gets no bevel lines
+George: "Image windows are not supposed to get bevels or highlights when maximized." `KrimbleBevelOverlay::paintEvent` (KisMainWindow.cpp): a `QMdiSubWindow` that is maximized is not drawn on. A window that is not maximized keeps its bevel. Not built.

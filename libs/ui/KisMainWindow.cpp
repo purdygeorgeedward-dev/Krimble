@@ -3903,6 +3903,10 @@ protected:
         // Krimble 2026-11-15: George (build 60, landscape screenshot): "It's the whole bottom edge of the menu bar!!!" Measured on his screenshot: the menu bar's own bottom line is dark (rows 64 to 66), and right under it,
         // rows 67 to 69 across the whole width, is a near-white line: the top line of a tool bar only about 3 real pixels high (a tool bar with nothing in it, under the menu bar). A tool bar that is
         // that thin, or has no actions, gets no bevel lines.
+        // Krimble 2026-11-15 (2nd): George: "Image windows are not supposed to get bevels or highlights when maximized." A maximized image window (QMdiSubWindow) is drawn on without any bevel lines.
+        if (QMdiSubWindow *krimbleSub = qobject_cast<QMdiSubWindow*>(m_target.data())) {
+            if (krimbleSub->isMaximized()) return;
+        }
         if (QToolBar *krimbleToolBar = qobject_cast<QToolBar*>(m_target.data())) {
             if (krimbleToolBar->height() < 24 || krimbleToolBar->actions().isEmpty()) return;
         }
