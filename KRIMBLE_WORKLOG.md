@@ -764,3 +764,5 @@ George: "Destroy all Krita themes. Nothing called Krita stays in themes." Delete
 **2026-11-15, 15:20 (MST).** Brush presets cut to 5; bundles deleted (671st); pushed, no build. Open: George's note on slow startup; fonts (24 MB) and patterns (7.6 MB) not touched.
 
 **2026-11-15, 15:25 (MST).** Deleted the nine excluded font families from the repo (672nd); pushed, no build.
+
+**2026-11-15, 15:28 (MST).** Deleted krita/data/bundles (673rd); pushed, no build.
