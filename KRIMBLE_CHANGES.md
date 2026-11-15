@@ -7548,3 +7548,5 @@ George: "Destroy all Krita themes. Nothing called Krita stays in themes." Delete
 **2026-11-15, 15:05 (MST), 668th.** George: "Remove all the tab customizations. They are all a failure." Commented out (code stays): the tab padding rule in `thememanager.cpp`; the tab-group top-line suppression in `KrimbleBevelOverlay`; the `KrimbleTabTearOff` filter install (tab row painting, tear-off); the `krimbleRefreshTabTitles` hook and call. The tab detach filter was already off. The style sheets keep their ordinary `QTabBar::tab` rules. Pushed with `[skip ci]`; no build.
 
 **2026-11-15, 15:08 (MST), 669th.** George: "Delete krimbleblue." `krita/data/themes/KrimbleBlue.colors` deleted. The theme "Krimble Blue" (not installed since 11-12) is gone. Pushed with `[skip ci]`; no build.
+
+**2026-11-15, 15:12 (MST), 670th.** George: "KEEP DETAILED NOTES AND TRANSCRIPTS ON THE REPO!!!!" New file `KRIMBLE_CONVERSATION_LOG.md`: his messages from this session, the standing rule, and the open topic of slow startup and unnecessary stuff (nothing removed). Pushed with `[skip ci]`; no build.
