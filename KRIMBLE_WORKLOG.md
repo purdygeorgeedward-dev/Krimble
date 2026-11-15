@@ -567,3 +567,6 @@ George rejected the dp explanation: "Do the opposite. Your doubletalk about virt
 
 ## 2026-11-15 6:07 AM MT: George: 1 and 2 real pixels are not enough
 George: "Neither of those is enough on a high resolution screen." (1 real pixel is the default and Painted themes; 2 is Krimble Bevel.) Thickness still not given. Not changed in the source.
+
+## 2026-11-15 6:10 AM MT: bevel lines 3 real pixels (test for the next build)
+George: "Try 3 just to test next time." KisMainWindow.cpp: the overlay lines are 3 real screen pixels on all themes (entry 599). He also asked whether the weird corners were fixed so they are angles: no, they were not (nothing in the notes or code mitres the corners; the overlay draws four rectangles that overlap at the corners). Not changed. No build started.

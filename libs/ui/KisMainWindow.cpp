@@ -3857,7 +3857,9 @@ protected:
         const bool menuBarTarget = qobject_cast<QMenuBar*>(m_target.data()) != nullptr;
         // Krimble 2026-11-14: George: "Just thicker by one pixel." The theme "Krimble Bevel" has its lines one device pixel thicker (2); every other theme stays at 1.
         // const qreal one = (menuBarTarget ? 1.0 : 1.0) / qMax<qreal>(1.0, devicePixelRatioF());
-        const qreal one = (qApp->property("krimbleBevelTheme").toBool() ? 2.0 : 1.0) / qMax<qreal>(1.0, devicePixelRatioF());
+        // const qreal one = (qApp->property("krimbleBevelTheme").toBool() ? 2.0 : 1.0) / qMax<qreal>(1.0, devicePixelRatioF());
+        // Krimble 2026-11-15: George: "Try 3 just to test next time." (1 and 2 real pixels were not enough on his screen; all themes must have bevels). Every theme: 3 REAL screen pixels. Before: 2 in Krimble Bevel, 1 in the others.
+        const qreal one = 3.0 / qMax<qreal>(1.0, devicePixelRatioF());
         // const QColor light(110, 114, 156);
         // const QColor dark(18, 19, 34);
         // Krimble 2026-11-12 (task 35): George: "Can we reverse bevel on menus so they look recessed?" A menu (popup) gets the lines the other way round: dark on the top and left,
