@@ -561,3 +561,6 @@ George sent a picture (a man holding a stone tablet reading "ALL THEMES MUST HAV
 
 ## 2026-11-15 6:04 AM MT: George: one pixel is not enough; the mockups are useless
 George: "One pixel is insufficient." This replaces the one-pixel rule for bevel lines (Oct 17, 1.0.37: "only one pixel thick"; the default theme row of Nov 13: "one-pixel light and dark lines"). Thickness not yet given; the Krimble Bevel theme already has two (Nov 14, "thicker by one pixel"). Also George: "your mockups for UI design are wildly inaccurate and useless for UI design." Mockups (HTML or image previews made before a build) do not predict how the Qt build looks on his phone: the tab design of 59 (item 6) is the case in point. Not changed in the source or the decisions file yet.
+
+## 2026-11-15 6:07 AM MT: George: real pixels only
+George rejected the dp explanation: "Do the opposite. Your doubletalk about virtual pixels is what confused me in the first place. I understand REAL PIXELS. I was a pixel artist on DOS games." Rule added to KRIMBLE_DECISIONS.md: sizes in real screen pixels only. Fact: the bevel overlay already draws in real screen pixels (one real pixel; two in Krimble Bevel); the dp talk was Claude's, not the code's. Thickness for all themes still not given.
