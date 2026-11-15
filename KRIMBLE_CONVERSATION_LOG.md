@@ -44,3 +44,4 @@ George says he talked to Claude (in an earlier session; the text of that talk is
 - **2026-11-15T23:39Z:** And I can't see the numbers any more. They have no space.
 - **2026-11-15T23:40Z:** And the preview toggle button is too big to fit in between the buttons now. Shrink it
 - **2026-11-15T23:41Z:** But put it in the space on the bottom.
+- **2026-11-15T23:45Z:** (screenshot) Preferences. The hilight still tints the icon when selected. Fix it. Again.

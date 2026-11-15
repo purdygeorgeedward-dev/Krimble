@@ -257,7 +257,14 @@ public:
         back.features &= ~QStyleOptionViewItem::HasDecoration;
         back.features &= ~QStyleOptionViewItem::HasDisplay;
         QStyle *style = opt.widget ? opt.widget->style() : QApplication::style();
-        style->drawPrimitive(QStyle::PE_PanelItemViewItem, &back, painter, opt.widget);
+        // Krimble 2026-11-15 (690th): George: "The hilight still tints the icon when selected. Fix it. Again." The style (style sheet) draw of the row may lay its highlight over the picture, so the row is filled
+        // here directly: opaque highlight color under the picture, nothing drawn after the picture. (the old style call is kept, commented out)
+        // style->drawPrimitive(QStyle::PE_PanelItemViewItem, &back, painter, opt.widget);
+        Q_UNUSED(style);
+        painter->save();
+        painter->setCompositionMode(QPainter::CompositionMode_Source);
+        if (selected) painter->fillRect(opt.rect, QColor(opt.palette.color(QPalette::Active, QPalette::Highlight).rgb()));
+        painter->restore();
         // the picture, as it is, centered at the top of the row
         const int side = qMax(16, qMin(opt.decorationSize.width(), opt.rect.width() - 8));
         QFont font = opt.font;
@@ -265,7 +272,13 @@ public:
         const QFontMetrics metrics(font);
         const int textHeight = metrics.height();
         const QRect iconRect(opt.rect.left() + (opt.rect.width() - side) / 2, opt.rect.top() + 4, side, side);
-        if (!icon.isNull()) icon.paint(painter, iconRect, Qt::AlignCenter, QIcon::Normal, QIcon::Off);
+        if (!icon.isNull()) {
+            // Krimble 2026-11-15 (690th): the picture is drawn from a plain pixmap (Normal mode, no Selected tint) with source-over
+            const qreal dpr = painter->device() ? painter->device()->devicePixelRatioF() : 1.0;
+            QPixmap pix = icon.pixmap(QSize(side, side), dpr, QIcon::Normal, QIcon::Off);
+            const QSizeF logical = QSizeF(pix.size()) / pix.devicePixelRatio();
+            painter->drawPixmap(QPointF(iconRect.left() + (side - logical.width()) / 2.0, iconRect.top() + (side - logical.height()) / 2.0), pix);
+        }
         const QRect textRect(opt.rect.left() + 2, iconRect.bottom() + 4, opt.rect.width() - 4, qMax(textHeight, opt.rect.bottom() - iconRect.bottom() - 4));
         painter->save();
         painter->setFont(font);

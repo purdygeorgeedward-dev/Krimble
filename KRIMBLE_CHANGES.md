@@ -7588,3 +7588,5 @@ George: "Destroy all Krita themes. Nothing called Krita stays in themes." Delete
 **2026-11-15, 17:55 (MST), 688th.** George: "And the preview toggle button is too big to fit in between the buttons now. Shrink it". `KisMainWindow.cpp`, `KrimbleToggleSwitch::sizeHint`: 44 x 20 (was 64 x 30). Pushed with `[skip ci]`.
 
 **2026-11-15, 18:05 (MST), 689th.** George: "But put it in the space on the bottom." `KisMainWindow.cpp` (`krimbleShowQuickAdjustDialog`): the Preview label and its switch moved from a row of their own into the bottom row, in the space between Reset and Cancel (Reset, stretch, Preview, switch, stretch, Cancel, OK). Pushed with `[skip ci]`.
+
+**2026-11-15, 18:15 (MST), 690th.** George: "Preferences. The hilight still tints the icon when selected. Fix it. Again." `KisApplication.cpp`, `KrimblePageListDelegate::paint`: the row is filled directly with the opaque highlight color (the style's `PE_PanelItemViewItem` call is commented out), and the icon is drawn from a plain Normal-mode pixmap with source-over after it, so nothing is laid over the picture. Pushed, no build.
