@@ -602,3 +602,6 @@ George said to fix the zoom: new images centered, fitted, a little margin. Done 
 
 ## 2026-11-15 7:00 AM MT: George: "Work the whole list in order."
 Item 1 and 5, 8, 9, 10: opaque panels (entries 601, 602). Item 8 also: zoom (603). Item 2 (black and white button does nothing, toolbox vanishes): NOT traced to a cause. Facts: the reset widget code (KoResetBgFgColours, KoDualColorButton::ResetColours) was not changed in 59; its tap zone in KoDualColorButton::mousePressEvent is a fixed small strip (x under backgroundRect.x(), 7 px, below the foreground rect) while the toolbox stretches the gadget up to 72 px (KoToolBoxDocker.cpp ~433); item 5 says it works once an image is open. Open. Item 3: fixed in source (entry 604). Items 4, 6, 7 and on: next, in order. All committed locally, not pushed, nothing built or compiled.
+
+## 2026-11-15 7:15 AM MT: items 4 and 6 (entry 605)
+Item 4 (no orange K): the bar's paint filter draws the K before the bar paints, and the flat sheets now paint an opaque bar background; the K is drawn again from the bevel overlay, on top. Item 6 (no space around the text in tabs): 26 px side padding for the panel tab rows. Next: 7 (Color Lab double title), 11, 12, 13, 14, 15, 16, 18; item 2 still open. Committed locally, not pushed, not built, not compiled.

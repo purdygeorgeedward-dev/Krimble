@@ -3913,6 +3913,15 @@ protected:
         { QPolygonF poly; poly << QPointF(0, 0) << QPointF(t, t) << QPointF(t, h - t) << QPointF(0, h); p.drawPolygon(poly); }
         p.setBrush(rightTone);
         { QPolygonF poly; poly << QPointF(w, 0) << QPointF(w, h) << QPointF(w - t, h - t) << QPointF(w - t, t); p.drawPolygon(poly); }
+        // Krimble 2026-11-15: George (1.0.59 test, item 4: "No orange K in corner of default layout."): the K is drawn by the menu bar's own paint filter (see KrimbleMenuBarFilter), but in every theme except
+        // Krimble Painted that drawing comes BEFORE the bar paints itself, and since task 57 the flat sheets paint an opaque bar background (#49588c), which covered the K. This overlay lies on top of the bar,
+        // so the K is also drawn here, after the lines, in the same place and size (2 px from the left, centered up and down, as tall as the menu names).
+        if (QMenuBar *kBar = qobject_cast<QMenuBar*>(m_target.data())) {
+            const QFontMetrics kMetrics(kBar->font());
+            const int kSize = qMin(kBar->height() - 4, qMax(14, kMetrics.height()));
+            p.setRenderHint(QPainter::SmoothPixmapTransform, true);
+            qApp->windowIcon().paint(&p, QRect(2, (kBar->height() - kSize) / 2, kSize, kSize));
+        }
     }
 
 private:

@@ -314,6 +314,10 @@ void ThemeManager::slotChangePalette()
     } else {
         qApp->setStyleSheet(QString());
     }
+    // Krimble 2026-11-15: George (1.0.59 test, item 6: "New tab design has no space around text inside tabs. Mockups were way off."): the tab rows of the panel groups (their tab bars are direct children of the main
+    // window) are drawn by KrimbleTabTearOff::paintTabRow, whose shape takes 10 px (the flare) off each side of the tab's rectangle, so the 13 px of the sheet's padding left about 3 px beside the text. These tabs get
+    // 26 px at the sides and 5 px above and below; the other tab bars (dialogs, image tabs) keep the sheet's padding.
+    if (!qApp->styleSheet().isEmpty()) qApp->setStyleSheet(qApp->styleSheet() + QStringLiteral("\nQMainWindow > QTabBar::tab { padding: 5px 26px; }\n"));
 #endif
     KisConfigNotifier::instance()->notifyColorThemeChanged(filename);
 
