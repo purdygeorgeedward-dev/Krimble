@@ -582,3 +582,6 @@ George: "Those are extreme closeups. The corners should be like that." Correctio
 
 ## 2026-11-15 6:25 AM MT: bevel overlay rewritten (entry 600)
 George said yes to the rewrite: KisMainWindow.cpp, four tones, 45 degree joins, 3 real pixels, all themes. Old drawing kept under #if 0. Committed locally, not pushed, no build. George: "We still have a long list of bugs to fix." (the 18 items of 5:56 AM; items traced so far are in the 6:10 AM entry).
+
+## 2026-11-15 6:30 AM MT: opaque panels (entry 601)
+George: "Opaque panels is a good place to start." Docks now paint their own background (setAutoFillBackground in krimbleInstallBevels, which runs at start and again later). Committed locally, not pushed, no build. Untested; colors come from the palette Window color (55,57,82 in the default theme), not the sheet's #2c3554, so the panels may be slightly lighter than the window's own color.

@@ -4256,6 +4256,10 @@ static void krimbleInstallBevels(QMainWindow *win)
     }
     Q_FOREACH (QDockWidget *dock, win->findChildren<QDockWidget*>()) {
         if (!dock->findChild<KrimbleBevelOverlay*>(QStringLiteral("krimbleBevelOverlay"), Qt::FindDirectChildrenOnly)) new KrimbleBevelOverlay(dock);
+        // Krimble 2026-11-15: George (1.0.59 test, items 1, 5, 8, 9, 10: "UI components are transparent", the toolbox "sits on top of the image", Recent Images "writes over the toolbox"): the style sheets make the
+        // children of a dock transparent, and since build 59 the canvas lies under the docks (KrimbleCanvasOverlay), so the image and the Recent Images page showed through every panel and the toolbox.
+        // Every dock now paints its own background (the palette's Window color) before its content.
+        dock->setAutoFillBackground(true);
     }
     Q_FOREACH (QToolBar *bar, win->findChildren<QToolBar*>()) {
         if (!bar->findChild<KrimbleBevelOverlay*>(QStringLiteral("krimbleBevelOverlay"), Qt::FindDirectChildrenOnly)) new KrimbleBevelOverlay(bar);
