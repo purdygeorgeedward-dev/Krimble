@@ -4014,7 +4014,8 @@ protected:
         }
         // Krimble 2026-11-15 (3rd): George: "Selected tab still does not connect with its own tab!" Measured on his screenshot: under the selected tab (fill #373952) a 3 px light line (#5D658C) ran across the top of the panel, between the tab and the
         // panel's title bar (#383A53). A panel in a tab group gets no top line from the overlay: the tab row draws its own line under the unselected tabs, and the selected tab runs into the panel.
-        if (!recessed) { if (QDockWidget *krimbleTabbedDock = qobject_cast<QDockWidget*>(m_target.data())) { if (krimbleDockInTabGroup(krimbleTabbedDock)) topTone = QColor(0, 0, 0, 0); } }
+        // Krimble 2026-11-15: George: "Remove all the tab customizations. They are all a failure." Off: tab line suppression
+        // if (!recessed) { if (QDockWidget *krimbleTabbedDock = qobject_cast<QDockWidget*>(m_target.data())) { if (krimbleDockInTabGroup(krimbleTabbedDock)) topTone = QColor(0, 0, 0, 0); } }
         // const QColor leftTone   = recessed ? QColor(46, 52, 84)    : QColor(140, 150, 196);
         // const QColor rightTone  = recessed ? QColor(140, 150, 196) : QColor(46, 52, 84);
         // const QColor bottomTone = recessed ? QColor(214, 222, 250) : QColor(18, 19, 34);
@@ -4562,12 +4563,13 @@ static void krimbleInstallBevels(QMainWindow *win)
         if (!sub->findChild<KrimbleBevelOverlay*>(QStringLiteral("krimbleBevelOverlay"), Qt::FindDirectChildrenOnly)) new KrimbleBevelOverlay(sub);
     }
     // Krimble 2026-10-18 (15th): the double titles of panels in tabs (see krimbleRefreshTabTitles); at once when a tab is chosen, and every 2 s with the lines above
-    static bool s_tabTitlesHooked = false;
-    if (!s_tabTitlesHooked) {
-        s_tabTitlesHooked = true;
-        QObject::connect(win, &QMainWindow::tabifiedDockWidgetActivated, win, [win](QDockWidget*) { krimbleRefreshTabTitles(win); });
-    }
-    krimbleRefreshTabTitles(win);
+    // Krimble 2026-11-15: George: "Remove all the tab customizations. They are all a failure." Off: tab titles
+    // static bool s_tabTitlesHooked = false;
+    // if (!s_tabTitlesHooked) {
+    // s_tabTitlesHooked = true;
+    // QObject::connect(win, &QMainWindow::tabifiedDockWidgetActivated, win, [win](QDockWidget*) { krimbleRefreshTabTitles(win); });
+    // }
+    // krimbleRefreshTabTitles(win);
 }
 
 // Krimble 2026-10-18: HEX MAPS (George: "Can we offer a hex mapping feature?" and "View-show-hex and we use an svg to overlay a hex pattern which they
@@ -5962,7 +5964,8 @@ KisMainWindow::KisMainWindow(QUuid uuid)
     // Krimble 2026-10-10: drag the strip to the screen edge to shut the right panels.
     qApp->installEventFilter(new KrimbleEdgeCollapseFilter(this));
     qApp->installEventFilter(new KrimbleMenuProbe(this));   // Krimble 2026-11-15: logs what happens to popup menus (KRIMBLE-MENU lines in krita.log)
-    qApp->installEventFilter(new KrimbleTabTearOff(this));   // Krimble 2026-11-13 (task 56): drag a panel's tab out of its row to float the panel
+    // Krimble 2026-11-15: George: "Remove all the tab customizations. They are all a failure." Off: tab tear-off
+    // qApp->installEventFilter(new KrimbleTabTearOff(this));   // Krimble 2026-11-13 (task 56): drag a panel's tab out of its row to float the panel
     // Krimble 2026-11-13 (task 57): George (build 57 screenshots): "\"Raised\" buttons are DARKER? WHY? The hilight is also not white or very light. Huge mistake." and "At startup I saw this big blah. Nothing to differentiate it from the other UI elements but a line." The K (drawn by the menu bar from the program's window icon) was missing on the first screen: the bar painted before the icon was set and was not painted again until something
     // changed. The bar is painted again at 0.3, 1 and 2 seconds after the start.
     Q_FOREACH (int delay, QList<int>({300, 1000, 2000})) QTimer::singleShot(delay, this, [this]() { menuBar()->update(); });

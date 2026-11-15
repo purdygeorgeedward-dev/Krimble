@@ -754,3 +754,5 @@ George: "Delete Krimble Bevel. I never authorized that theme." and "When I want 
 
 ## 2026-11-15 3:00 PM MST — The five Krita-named themes deleted (entry 660)
 George: "Destroy all Krita themes. Nothing called Krita stays in themes." Deleted the five theme files and install lines (themes/CMakeLists.txt, KRIMBLE_DECISIONS.md row). Committed locally; pushed only on his word "push".
+
+**2026-11-15, 15:05 (MST).** Tab customizations switched off (668th); pushed to master, no build.
