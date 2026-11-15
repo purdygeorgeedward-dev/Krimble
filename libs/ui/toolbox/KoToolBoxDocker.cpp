@@ -14,6 +14,7 @@
 #include <QLabel>
 #include <QFontMetrics>
 #include <QFrame>
+#include <QMenuBar>   // Krimble 2026-11-15: the toolbox snaps to just under the menu bar
 #include <QAction>
 #include <QMenu>
 #include <QActionGroup>
@@ -752,10 +753,27 @@ void KoToolBoxDocker::krimbleDockAtEdge()
         if (krimbleEdgeArea() != area) return;                         // it was moved away from the edge meanwhile
         QMainWindow *mainWindow = qobject_cast<QMainWindow*>(parentWidget());
         if (!mainWindow) return;
-        setAllowedAreas(Qt::AllDockWidgetAreas);
-        mainWindow->addDockWidget(area, this);
-        setFloating(false);
-        show();
+        // setAllowedAreas(Qt::AllDockWidgetAreas);
+        // mainWindow->addDockWidget(area, this);
+        // setFloating(false);
+        // show();
+        // Krimble 2026-11-15 (item 16): George: "It could just snap to the edge, but instead it's going inside a box. We should change that to just snapping behavior, not a box." The toolbox
+        // stays a floating window and is moved flush against the edge it reached (left, right, or just under the menu bar at the top). It is not put into a dock area, so there is no box
+        // around it and no empty strip beneath it. Dragging it away works as before. The Dock entries of the long-press menu still dock it (a deliberate choice).
+        QScreen *screenPtr = screen() ? screen() : QGuiApplication::primaryScreen();
+        if (!screenPtr) return;
+        const QRect avail = screenPtr->availableGeometry();
+        QPoint target = pos();
+        if (area == Qt::LeftDockWidgetArea) {
+            target.setX(avail.left());
+        } else if (area == Qt::RightDockWidgetArea) {
+            target.setX(avail.right() + 1 - frameGeometry().width());
+        } else if (area == Qt::TopDockWidgetArea) {
+            int belowMenu = avail.top();
+            if (QMenuBar *bar = mainWindow->menuBar()) belowMenu = bar->mapToGlobal(QPoint(0, bar->height())).y();
+            target.setY(belowMenu);
+        }
+        if (target != pos()) move(target);
     });
 }
 

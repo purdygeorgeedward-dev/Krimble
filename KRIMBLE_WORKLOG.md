@@ -693,3 +693,6 @@ George sent a one-column screenshot (the images before it were for item 15, Save
 
 ## 2026-11-15 9:05 AM MT: item 15 Save As (entry 621)
 George: "Save As should show all the file types when it loads." Window sized to its whole list after it is shown. Class syntax-checked against Qt 5.15 here. Committed locally, not pushed.
+
+## 2026-11-15 9:20 AM MT: item 16, snapping not a box (entry 622)
+George: "It could just snap to the edge, but instead it's going inside a box. We should change that to just snapping behavior, not a box." Toolbox moves flush to the edge and stays floating. Committed locally, not pushed.
