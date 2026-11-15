@@ -690,3 +690,6 @@ George: "13 adjust size of icons slightly." 140 -> 169 real pixels. Committed lo
 
 ## 2026-11-15 8:50 AM MT: item 16 toolbox (entry 620)
 George sent a one-column screenshot (the images before it were for item 15, Save As). Docked toolbox: tools cut off with a scroll arrow. Caps removed when docked, tool area takes the spare height. Committed locally, not pushed.
+
+## 2026-11-15 9:05 AM MT: item 15 Save As (entry 621)
+George: "Save As should show all the file types when it loads." Window sized to its whole list after it is shown. Class syntax-checked against Qt 5.15 here. Committed locally, not pushed.

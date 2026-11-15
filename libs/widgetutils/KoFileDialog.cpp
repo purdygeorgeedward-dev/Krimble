@@ -14,6 +14,9 @@
 #include <QImageReader>
 #include <QClipboard>
 #include <QInputDialog>
+#include <QScrollBar>
+#include <QListView>      // Krimble 2026-11-15: the Save As type list is sized to show every type
+#include <QTimer>
 #include <QMessageBox>
 
 #include <kconfiggroup.h>
@@ -160,6 +163,50 @@ public:
 private:
     QWidget *m_dialog;
     qreal m_heightFraction;
+};
+#endif
+
+#ifdef Q_OS_ANDROID
+// Krimble 2026-11-15 (item 15): George: "Save As should show all the file types when it loads." The Save As type list (a QInputDialog with a list) is made as tall as its list needs to show
+// every type (and as wide as the longest name needs, up to the screen), at most 98% of the usable screen height and 95% of its width, every time it is shown. It is sized after the dialog is
+// shown (a moment later, when the list has its final fonts and scroll bars) with resize(), because the minimum size asked for in filename() was not applied on the phone (the window came up
+// about 39% of the screen high).
+class KrimbleTypeListFit : public QObject
+{
+public:
+    explicit KrimbleTypeListFit(QDialog *dialog) : QObject(dialog), m_dialog(dialog) {}
+    bool eventFilter(QObject *watched, QEvent *event) override
+    {
+        if (watched == m_dialog && event->type() == QEvent::Show) {
+            QPointer<QDialog> guard(m_dialog);
+            QTimer::singleShot(0, m_dialog, [guard]() { fit(guard); });
+            QTimer::singleShot(150, m_dialog, [guard]() { fit(guard); });
+        }
+        return false;
+    }
+    static void fit(QDialog *dialog)
+    {
+        if (!dialog) return;
+        QListView *list = dialog->findChild<QListView*>();
+        QScreen *screen = QApplication::primaryScreen();
+        if (!list || !list->model() || !screen) return;
+        const QRect avail = screen->availableGeometry();
+        const int rows = list->model()->rowCount();
+        if (rows <= 0) return;
+        const int frame = 2 * list->frameWidth();
+        const int wantListH = list->sizeHintForRow(0) * rows + frame;
+        const int wantListW = list->sizeHintForColumn(0) + frame + list->verticalScrollBar()->sizeHint().width() + 8;
+        const int extraH = qMax(0, dialog->height() - list->height());   // the label, the buttons, the margins
+        const int extraW = qMax(0, dialog->width() - list->width());
+        const int h = qMin(wantListH + extraH, int(avail.height() * 0.98));
+        const int w = qMin(qMax(dialog->width(), wantListW + extraW), int(avail.width() * 0.95));
+        if (qAbs(h - dialog->height()) > 2 || qAbs(w - dialog->width()) > 2) {
+            dialog->resize(w, h);
+            dialog->move(avail.left() + (avail.width() - w) / 2, avail.top() + (avail.height() - h) / 2);
+        }
+    }
+private:
+    QDialog *m_dialog;
 };
 #endif
 
@@ -352,7 +399,8 @@ QString KoFileDialog::filename()
         }
 #ifdef Q_OS_ANDROID
         // mimeSelector.installEventFilter(new KrimbleFitToScreenFilter(&mimeSelector));
-        mimeSelector.installEventFilter(new KrimbleFitToScreenFilter(&mimeSelector, 0.98));
+        // mimeSelector.installEventFilter(new KrimbleFitToScreenFilter(&mimeSelector, 0.98));
+        mimeSelector.installEventFilter(new KrimbleTypeListFit(&mimeSelector));   // Krimble 2026-11-15 (item 15): every type shows when it opens
 #endif
 
         if (mimeSelector.exec() == QDialog::Accepted) {
