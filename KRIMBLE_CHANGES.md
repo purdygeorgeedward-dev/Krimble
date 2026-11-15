@@ -7497,3 +7497,6 @@ George (screenshot of the splash "Support Krimble" screen): "the donate button i
 
 ## 2026-11-15 (653rd) — Painted theme: scroll bar stands out from its track
 George: "In the Krimble painted theme there isn't enough contrast between the scrollbar and the track." `thememanager.cpp`, the "Krimble Painted" branch only: scroll bar rules after the painted sheet: dark track (#0E1226 with a black edge), a light blue-gray gradient handle (#9AA5D2 to #6671A0) with a bright edge (#D3D9F0), 16 units wide, and the arrow buttons at 0 size. Not built or tested; a style sheet scroll bar replaces the style's drawing, so its look on the phone needs a check.
+
+## 2026-11-15 (654th) — Painted theme: scroll bar track darker
+George: "The track should be darker." `thememanager.cpp`: the track is #03050A with a black edge (was #0E1226). Not built or tested.
