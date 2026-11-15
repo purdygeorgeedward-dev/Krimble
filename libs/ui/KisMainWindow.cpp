@@ -3937,7 +3937,11 @@ protected:
         // Krimble 2026-11-15: George (build 60): "There are white lines on the top and bottom of the menu bar for no apparent reason." The menu bar's top line was the near-white top tone, 3 real pixels thick, which
         // reads as a white stripe on the dark bar; the menu bar's top line is the softer light tone now (the same as its left edge). Panels and the rest keep the near-white top tone.
         const bool krimbleMenuBar = qobject_cast<QMenuBar*>(m_target.data()) != nullptr;
-        const QColor topTone    = recessed ? QColor(18, 19, 34)    : (krimbleMenuBar ? QColor(110, 120, 170) : QColor(214, 222, 250));
+        // const QColor topTone    = recessed ? QColor(18, 19, 34)    : (krimbleMenuBar ? QColor(110, 120, 170) : QColor(214, 222, 250));
+        // Krimble 2026-11-15 (2nd): George (screenshot with "WHITE LINE" and arrows at the line under the menu bar and the line between the panels): the top lines of the panels are the white ones too. Every raised
+        // top line is the softer light tone now, not only the menu bar's.
+        Q_UNUSED(krimbleMenuBar);
+        const QColor topTone    = recessed ? QColor(18, 19, 34)    : QColor(110, 120, 170);
         const QColor leftTone   = recessed ? QColor(46, 52, 84)    : QColor(140, 150, 196);
         const QColor rightTone  = recessed ? QColor(140, 150, 196) : QColor(46, 52, 84);
         const QColor bottomTone = recessed ? QColor(214, 222, 250) : QColor(18, 19, 34);
