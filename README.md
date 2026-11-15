@@ -142,6 +142,9 @@ Recent and active work includes:
 - **SmartCompression** 🗜️: saves a JPEG smaller where the loss does not show, with a live preview of the original and compressed sizes
 - **Custom CMYK** 🖨️: Edit > Custom CMYK... makes an ICC output profile from your own ink and paper settings, for converting a picture to CMYK and soft proofing
 - **Channels panel** 🎚️: tap a channel to isolate it, load a channel as a selection
+- **Color Lab** 🎨: a color panel with Picker, Sliders, Values, Palette and History tabs, a stretchable color square, and CMYK palettes
+- **QuickAdjust** ⚡: Image > Adjustments > QuickAdjust..., one window of sliders for the common corrections, with an option to keep the result as layers
+- **New themes** 🌙: Krimble Blue-Gray (the default), Krimble Bevel and Krimble Painted, with raised and recessed edges and a Flat or Raised toolbox button style
 - **Hexagon Selection** ⬢ and **Polygon and Star** ⭐ tools, with a hex grid overlay
 - **Auto Crop** ✂️ in the Image menu
 - **Long press flyouts** in the toolbox: hold a tool to reach the rest of its group (Marquee, Lasso, Wand, Shapes, Fill and more)

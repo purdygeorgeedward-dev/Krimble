@@ -7312,3 +7312,9 @@ Run 32, attempt 2 (43594210102, commit b6e6972, started 3:59 PM MST): the KisVie
 **Files:** `README.md`
 
 George: "update the list of features in the readme, but don't undo my earlier edits." Six bullets were added before "additional restoration and editing tools": SmartCompression, Custom CMYK (ICC output profile), Channels panel, Hexagon Selection and Polygon and Star tools, Auto Crop, long press flyouts. Nothing else in the file was touched (diff: 6 insertions, no deletions); George's wording from bef71ab and 4bc5e65 stands.
+
+## 2026-11-14 (596th) — README: Color Lab, QuickAdjust and the new themes added to the feature list
+
+**Files:** `README.md`
+
+George: "The ColorLab panel, QuickAdjust, new themes." Three bullets added after "Channels panel" in the "Recent and active work includes" list. Insertions only; George's wording stands.
