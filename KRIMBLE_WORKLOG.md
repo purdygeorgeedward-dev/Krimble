@@ -796,3 +796,5 @@ George: "Destroy all Krita themes. Nothing called Krita stays in themes." Delete
 **2026-11-15, 17:50 (MST).** QuickAdjust number boxes wider (687th); pushed, no build.
 
 **2026-11-15, 17:55 (MST).** QuickAdjust Preview switch smaller (688th); pushed, no build.
+
+**2026-11-15, 18:05 (MST).** QuickAdjust Preview in the bottom row (689th); pushed, no build.

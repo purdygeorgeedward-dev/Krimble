@@ -2097,16 +2097,22 @@ static void krimbleShowQuickAdjustDialog(KisMainWindow *win)
         previewLine->setProperty("krimbleKeepRows", true);
         previewLine->setSpacing(8);
         // Krimble 2026-11-15 (item 12), George: text 4x the rest of the screen is too big. Old line: (sizes 15/15/16/13/16 px before)
-        if (QWidget *label = adjust->previewLabel()) { label->setParent(dialog); label->setStyleSheet(QStringLiteral("color: #ffffff; background: transparent; border: none;")); label->show(); previewLine->addWidget(label); }
-        if (QAbstractButton *sw = adjust->previewSwitch()) { sw->setParent(dialog); sw->show(); previewLine->addWidget(sw); }
-        previewLine->addStretch(1);
-        bottomBox->addLayout(previewLine);
+        // if (QWidget *label = adjust->previewLabel()) { label->setParent(dialog); label->setStyleSheet(QStringLiteral("color: #ffffff; background: transparent; border: none;")); label->show(); previewLine->addWidget(label); }
+        if (QWidget *label = adjust->previewLabel()) { label->setParent(dialog); label->setStyleSheet(QStringLiteral("color: #ffffff; background: transparent; border: none;")); label->show();  }
+        // if (QAbstractButton *sw = adjust->previewSwitch()) { sw->setParent(dialog); sw->show(); previewLine->addWidget(sw); }
+        if (QAbstractButton *sw = adjust->previewSwitch()) { sw->setParent(dialog); sw->show(); }
+        // Krimble 2026-11-15: George: "But put it in the space on the bottom." The Preview label and its switch are in the bottom row, in the space between Reset and Cancel (they were a row of their own above it).
+        // previewLine->addStretch(1);
+        // bottomBox->addLayout(previewLine);
         QHBoxLayout *bottom = new QHBoxLayout;
         bottom->setProperty("krimbleKeepRows", true);
         bottom->setSpacing(8);
         QPushButton *resetRow = new QPushButton(i18n("Reset"), dialog);
         QObject::connect(resetRow, &QPushButton::clicked, adjust, [adjust]() { adjust->resetAll(); });
         bottom->addWidget(resetRow);
+        bottom->addStretch(1);
+        if (QWidget *pl = adjust->previewLabel()) bottom->addWidget(pl);
+        if (QAbstractButton *ps = adjust->previewSwitch()) bottom->addWidget(ps);
         bottom->addStretch(1);
         // The divider between Preview and Cancel is not used now that Preview has its own line.
         // QFrame *divider = new QFrame(dialog);
