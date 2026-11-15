@@ -558,3 +558,6 @@ George said he indicated earlier that all themes should have bevels. KRIMBLE_DEC
 
 ## 2026-11-15 6:05 AM MT: rule: all themes must have bevels
 George sent a picture (a man holding a stone tablet reading "ALL THEMES MUST HAVE BEVELS"). Written in KRIMBLE_DECISIONS.md as a rule above the default theme row. Correction of the 6:01 AM answer: the decisions file did already say, in the default theme row of Nov 13, "one-pixel light and dark lines"; what it lacked was a rule for every theme, and the "Separate themes" row gave the Nov 10 bevels to Krimble Bevel only. The two rows contradicted each other, and the 1.0.59 code followed the second. No source changed.
+
+## 2026-11-15 6:04 AM MT: George: one pixel is not enough; the mockups are useless
+George: "One pixel is insufficient." This replaces the one-pixel rule for bevel lines (Oct 17, 1.0.37: "only one pixel thick"; the default theme row of Nov 13: "one-pixel light and dark lines"). Thickness not yet given; the Krimble Bevel theme already has two (Nov 14, "thicker by one pixel"). Also George: "your mockups for UI design are wildly inaccurate and useless for UI design." Mockups (HTML or image previews made before a build) do not predict how the Qt build looks on his phone: the tab design of 59 (item 6) is the case in point. Not changed in the source or the decisions file yet.
