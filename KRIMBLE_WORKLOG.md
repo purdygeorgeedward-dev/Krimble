@@ -642,3 +642,6 @@ George: "Kill those." (SeExpr and RGBA bundles.) Commented out in krita/data/bun
 
 ## 2026-11-15 9:15 AM MT: PUSH
 George said "Push". 30 commits pushed to master (444bc70..9b0e822), covering bevels, opaque docks, zoom, menu placer, K, tab padding, Color Lab name, 5 patterns, nine font families, two bundles. No build started by this push (workflow file unchanged). Nothing compiled or tested yet.
+
+## 2026-11-15 9:25 AM MT: QuickAdjust is always a small panel
+George (item 12, QuickAdjust gigantic, buttons stacked): "QuickAdjust should always be a small panel. It has to be or it's in the way of seeing what you're adjusting, making it useless." Rule recorded in KRIMBLE_DECISIONS.md. The build 59 screenshot of it is not in the workspace (uploads hold only the Nov 13 batch). Code today: the window is 94% of the screen width, height from the banner shape (libs/ui/KisMainWindow.cpp krimbleShowQuickAdjustDialog), at the bottom of the screen. Size limit not yet set; asked George for it.
