@@ -7450,3 +7450,6 @@ George: "Image windows are not supposed to get bevels or highlights when maximiz
 
 ## 2026-11-15 (638th) — Build number 61 (1.0.61-beta); this push starts the build
 George: "Push that." `build.gradle` `krimbleBuildNumber` 60 -> 61 and the workflow's label, number check and APK name 1.0.61-beta (old lines commented). Includes entries 629 to 637 (toolbox never docks and fits without scrolling, Layers rows and titles, Color Lab logo name, QuickAdjust compact rows, Preferences list highlight under the icon, softer bevel top lines, no bevel under the menu bar or on a maximized image window).
+
+## 2026-11-15 (639th) — Menus: a black outline instead of bevels
+George: "Menus look like shit with bevels. Just put a black outline around them." `KrimbleBevelOverlay::paintEvent` (KisMainWindow.cpp): a popup menu (and a submenu) is drawn with a black outline 2 real pixels thick on all four sides and nothing else; the recessed bevel code stays below it, not reached for menus. Not in build 61 (that build was already started); not built.

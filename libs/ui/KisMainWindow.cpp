@@ -3926,6 +3926,16 @@ protected:
         // Krimble 2026-11-12 (task 35): George: "Can we reverse bevel on menus so they look recessed?" A menu (popup) gets the lines the other way round: dark on the top and left,
         // light on the bottom and right (sunken). Panels, tool bars and image windows are not changed (raised).
         const bool recessed = qobject_cast<QMenu*>(m_target.data()) != nullptr;
+        // Krimble 2026-11-15: George: "Menus look like shit with bevels. Just put a black outline around them." A menu (popup, submenus too) has no bevel: a plain black outline, 2 real screen pixels thick.
+        if (recessed) {
+            const qreal edge = 2.0 / qMax<qreal>(1.0, devicePixelRatioF());
+            p.setPen(Qt::NoPen);
+            p.fillRect(QRectF(0, 0, width(), edge), Qt::black);
+            p.fillRect(QRectF(0, height() - edge, width(), edge), Qt::black);
+            p.fillRect(QRectF(0, 0, edge, height()), Qt::black);
+            p.fillRect(QRectF(width() - edge, 0, edge, height()), Qt::black);
+            return;
+        }
 #if 0   // Krimble 2026-11-15: the old drawing (four plain rectangles, two tones), kept; replaced by the mitered frame below
         const QColor light = recessed ? QColor(18, 19, 34) : QColor(110, 114, 156);
         const QColor dark = recessed ? QColor(110, 114, 156) : QColor(18, 19, 34);
