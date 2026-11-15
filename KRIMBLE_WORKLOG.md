@@ -708,3 +708,6 @@ George sent a third bevel picture (1254 x 1254, saved as docs/bevel-reference/ge
 
 ## 2026-11-15 10:10 AM MT: Raised toolbox buttons from the third picture (entry 625)
 George: "Yes. We will check in the next build." Four-tone alpha bevel over the theme's face. Committed locally, not pushed.
+
+## 2026-11-15 10:25 AM MT: Layers panel colors (entry 626)
+George: gray layer rows, lighter selected one, no glow. Style sheet rule on NodeView in thememanager.cpp. Committed locally, not pushed.
