@@ -1,6 +1,6 @@
 add_subdirectory( actions )
 add_subdirectory( brushes )
-# add_subdirectory( bundles )   # Krimble 2026-11-15 (673rd): George: "Now delete bundles." The folder is deleted (it stays in git history)
+add_subdirectory( bundles )   # Krimble 2026-11-15 (683rd): George: "I didn't want you to delete the whole folder before." The folder is back (its CMakeLists.txt and README); the bundle files stay deleted
 add_subdirectory( patterns )
 add_subdirectory( gradients )
 add_subdirectory( profiles )

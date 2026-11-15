@@ -784,3 +784,5 @@ George: "Destroy all Krita themes. Nothing called Krita stays in themes." Delete
 **2026-11-15, 16:40 (MST).** Separator before Language in the Window menu (681st); pushed, no build. Waiting on George: a screenshot of the K and File area, and krita.log after a theme change that fails.
 
 **2026-11-15, 16:50 (MST).** No-bundles message off (682nd); pushed, no build.
+
+**2026-11-15, 17:00 (MST).** bundles folder restored without the bundle files (683rd); pushed, no build.
