@@ -720,3 +720,6 @@ George: "Start .60 push." Build number 60 / label 1.0.60-beta; pushes commits 62
 
 ## 2026-11-15 9:50 AM MT: Push of build 60 done
 Pushed to master, head 12b860a (6 commits, rebased onto 6 README commits from the remote, README only). Build 60 / 1.0.60-beta starts from this push.
+
+## 2026-11-15 10:15 AM MT: Release notes and tag for build 60
+George: "Tag and documentation?" RELEASE_NOTES_1.0.60-beta.md written (format check run); tag v1.0.60-beta on 12b860a (the build's commit). The GitHub release itself is not created yet: waiting for George's word. Build 60 run 43736626312 finished successfully.
