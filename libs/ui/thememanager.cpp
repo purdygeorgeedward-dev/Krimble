@@ -384,7 +384,7 @@ void ThemeManager::slotChangePalette()
         // " border-bottom: 1px solid rgba(255, 255, 255, 60); border-right: 1px solid rgba(255, 255, 255, 60); }\n"
         // Krimble 2026-11-15 (2nd): George: "Menu title still lights up blue despite asking for it to be recessed. Instead the menu selections get recessed instead of lighting up blue. The opposite of what I wanted." I had it the wrong way round:
         // the menu BAR's selected name (the title of the open menu) is the recessed one (a darker fill with a dark top and left edge and a light bottom and right edge); the rows inside a menu light up with the sheet's own highlight again.
-        "\nQMenuBar::item:selected { background: rgba(0, 0, 0, 120); border-top: 1px solid rgba(0, 0, 0, 210); border-left: 1px solid rgba(0, 0, 0, 210);"
+        "\nQMenuBar::item:selected, QMenuBar::item:pressed { background: rgba(0, 0, 0, 120); border-top: 1px solid rgba(0, 0, 0, 210); border-left: 1px solid rgba(0, 0, 0, 210);"
         " border-bottom: 1px solid rgba(255, 255, 255, 70); border-right: 1px solid rgba(255, 255, 255, 70); border-radius: 0px; }\n"));
     // Krimble 2026-11-15 (2nd): George: "make the base screen (not the toolbox, menubar, or panels) darker for some kind of contrast." The base screen, the area behind the image windows and the welcome page, is the theme's window color 35 percent darker.
     if (!qApp->styleSheet().isEmpty()) {

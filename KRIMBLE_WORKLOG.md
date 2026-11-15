@@ -770,3 +770,5 @@ George: "Destroy all Krita themes. Nothing called Krita stays in themes." Delete
 **2026-11-15, 15:35 (MST).** Recent files area darker (674th); pushed, no build.
 
 **2026-11-15, 15:45 (MST).** Toolbox bevel edges (675th); pushed, no build.
+
+**2026-11-15, 15:52 (MST).** Menu title recess also for :pressed (676th); pushed, no build.
