@@ -732,3 +732,6 @@ George's build 60 test: toolbox docks as a giant column and scrolls, fat edge; s
 
 ## 2026-11-15 11:10 AM MT: QuickAdjust compact rows (entry 631)
 George: "QuickAdjust is still HUGE." Rows and number boxes smaller, narrower start. Committed locally, not pushed. The white band at the top of the window is open.
+
+## 2026-11-15 10:55 AM MT: Build 61 pushed
+George: "Push that." Build number 61 / 1.0.61-beta. Pushed to master, head ec5bc9290b: entries 629 to 638 (8 commits). The build starts from this push. Not tagged, no release notes yet.
