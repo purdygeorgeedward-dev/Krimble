@@ -570,3 +570,6 @@ George: "Neither of those is enough on a high resolution screen." (1 real pixel 
 
 ## 2026-11-15 6:10 AM MT: bevel lines 3 real pixels (test for the next build)
 George: "Try 3 just to test next time." KisMainWindow.cpp: the overlay lines are 3 real screen pixels on all themes (entry 599). He also asked whether the weird corners were fixed so they are angles: no, they were not (nothing in the notes or code mitres the corners; the overlay draws four rectangles that overlap at the corners). Not changed. No build started.
+
+## 2026-11-15 6:12 AM MT: George: plain rectangles is stupid; angled corners were discussed and not noted
+George: "Plain rectangles is stupid. We wasted a whole session discussing this and you didn't make any notes??????" Searched this repo's worklog, changes and decisions files and the earlier chats Claude can search (the DPaint style chat of Nov 7 to 9, "Krimble drift"): no note or discussion of angled bevel corners was found. The toolbox buttons (KoToolBoxButton.cpp) already draw their bevel as polygons (topLeft and the matching bottom-right polygon); the panel, menu and toolbar overlay (KrimbleBevelOverlay) draws four rectangles. Rule added to KRIMBLE_DECISIONS.md: bevel corners are angled. Not changed in the source.
