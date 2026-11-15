@@ -750,3 +750,6 @@ George: "Yes. Failed builds must be deleted. They serve no purpose other than fi
 
 ## 2026-11-15 2:55 PM MST — Krimble Bevel deleted (entry 659)
 George: "Delete Krimble Bevel. I never authorized that theme." and "When I want something DELETED, I WANT IT DELETED." Deleted the theme file, the install line, the code branch and the property (thememanager.cpp, themes/CMakeLists.txt, KRIMBLE_DECISIONS.md rows). George: "No one has that theme" (no fallback added for a saved name). README and release notes still name the theme: left for George to decide. Pushed only on his word "push".
+
+## 2026-11-15 3:00 PM MST — The five Krita-named themes deleted (entry 660)
+George: "Destroy all Krita themes. Nothing called Krita stays in themes." Deleted the five theme files and install lines (themes/CMakeLists.txt, KRIMBLE_DECISIONS.md row). Committed locally; pushed only on his word "push".
