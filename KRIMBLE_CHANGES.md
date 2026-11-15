@@ -7506,3 +7506,6 @@ George: "I asked for a darker track, not a light blue gray gradient." `thememana
 
 ## 2026-11-15 (656th) — QuickAdjust is tiny: one line per row
 George: "Make it tiny." (build 60 screenshot: QuickAdjust nearly as tall as the screen). `KisMainWindow.cpp`, `KrimbleQuickAdjust`: each row is one line (picture, name, slider, number box) instead of two: the name and the number box no longer sit one above the other. Picture 22 units (the drawn picture 20; was 30 and 28), number box 58 x 20 (was 64 x 22), row margins (4,2,6,2), slider row 18 high (was 22). The window can still be resized by hand. Not built or tested: the slider has less room on a narrow window, so how it looks on the phone needs a check.
+
+## 2026-11-15 (657th) — Build 62
+George: "Build it". `build.gradle` `krimbleBuildNumber` 62 and the workflow label 1.0.62-beta (build 61 was started and cancelled, never built; its lines are commented). Contains entries 628 to 656. `check_build_number.py` passed.

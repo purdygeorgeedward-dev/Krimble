@@ -738,3 +738,6 @@ George: "Push that." Build number 61 / 1.0.61-beta. Pushed to master, head ec5bc
 
 ## 2026-11-15 11:27 MST — Push of fixes 639 to 650 (no build)
 George: "Push all of the fixes to the repo." Pushed commits 639 to 650 (menu outline, button radius, bevel tones, toolbox growth and height, menu event log, ball bearing slider handles, Color Lab handles, recent colors, dimmer toolbox highlight). No build started: the notes commit is marked [skip ci]. Rule from George: a push never starts a build; only "BUILD" does. Build 61 (run 43743202564) was started by an earlier push and cancelled at his request. Nothing here is built or tested.
+
+## 2026-11-15 11:55 MST — Build 62 pushed (this push starts the build)
+George: "Build it". Pushed commits 651 to 656 and the build 62 bump (1.0.62-beta). Run started by this push; nothing built or tested yet. Notes: the draft release for 1.0.60-beta still has no notes; no notes exist for 1.0.62.
