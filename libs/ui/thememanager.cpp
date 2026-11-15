@@ -310,7 +310,16 @@ void ThemeManager::slotChangePalette()
         bevelSheet.replace(QRegularExpression(QStringLiteral("(border-(?:top|left|bottom|right):)(\\s*)1px(\\s+solid)")), QStringLiteral("\\1\\2 2px\\3"));
         qApp->setStyleSheet(bevelSheet);
     } else if (theme == QStringLiteral("Krimble Painted")) {
-        qApp->setStyleSheet(krimblePaintedStyleSheet());
+        // qApp->setStyleSheet(krimblePaintedStyleSheet());
+        // Krimble 2026-11-15: George: "In the Krimble painted theme there isn't enough contrast between the scrollbar and the track." The painted sheet had no scroll bar rules, so the style drew them in near-equal tones. Now the track is
+        // dark (#0E1226, black edge) and the handle is a light blue-gray gradient (#9AA5D2 to #6671A0) with a bright edge (#D3D9F0); the arrow buttons are 0 size (nobody uses them on a touch screen). Painted theme only.
+        qApp->setStyleSheet(krimblePaintedStyleSheet() + QStringLiteral(
+            "\nQScrollBar:vertical { background: #0e1226; width: 16px; margin: 0px; border: 1px solid #05070f; }\n"
+            "QScrollBar:horizontal { background: #0e1226; height: 16px; margin: 0px; border: 1px solid #05070f; }\n"
+            "QScrollBar::handle:vertical { background: qlineargradient(x1:0,y1:0,x2:1,y2:0, stop:0 #9aa5d2, stop:1 #6671a0); min-height: 36px; margin: 1px; border: 1px solid #d3d9f0; border-radius: 3px; }\n"
+            "QScrollBar::handle:horizontal { background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #9aa5d2, stop:1 #6671a0); min-width: 36px; margin: 1px; border: 1px solid #d3d9f0; border-radius: 3px; }\n"
+            "QScrollBar::add-line, QScrollBar::sub-line { width: 0px; height: 0px; border: none; background: none; }\n"
+            "QScrollBar::add-page, QScrollBar::sub-page { background: none; }\n"));
     } else {
         qApp->setStyleSheet(QString());
     }

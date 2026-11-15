@@ -7494,3 +7494,6 @@ George: "A selected menu item should be shaded to look recessed. They don't need
 
 ## 2026-11-15 (652nd) — Donate button is Krimble orange
 George (screenshot of the splash "Support Krimble" screen): "the donate button is ugly. Make it Krimble orange." `packaging/android/apk/res/drawable/krita_blue_button.xml` (the background of the DONATE button in `donation_item_layout.xml`): #FD6001, the orange of the QuickAdjust title, instead of #53728E. Not built or tested. Not answered yet: the crash when picking the theme Krimble Blue-Gray.
+
+## 2026-11-15 (653rd) — Painted theme: scroll bar stands out from its track
+George: "In the Krimble painted theme there isn't enough contrast between the scrollbar and the track." `thememanager.cpp`, the "Krimble Painted" branch only: scroll bar rules after the painted sheet: dark track (#0E1226 with a black edge), a light blue-gray gradient handle (#9AA5D2 to #6671A0) with a bright edge (#D3D9F0), 16 units wide, and the arrow buttons at 0 size. Not built or tested; a style sheet scroll bar replaces the style's drawing, so its look on the phone needs a check.
