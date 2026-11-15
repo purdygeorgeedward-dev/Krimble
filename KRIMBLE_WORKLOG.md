@@ -790,3 +790,5 @@ George: "Destroy all Krita themes. Nothing called Krita stays in themes." Delete
 **2026-11-15, 17:10 (MST).** K gap also without an open image (684th); pushed, no build.
 
 **2026-11-15, 17:25 (MST).** Panel header tab and tear-off off (685th); pushed, no build.
+
+**2026-11-15, 17:40 (MST).** QuickAdjust ball bearings smaller (686th); pushed, no build.

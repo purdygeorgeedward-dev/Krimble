@@ -1673,8 +1673,11 @@ public:
             //     "QSlider::handle:horizontal { width: 16px; height: 16px; margin: -7px 0; border: 1px solid #141822; border-radius: 8px;"
             //     " background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #f4f7fc, stop:0.30 #c9d0de, stop:0.46 #4a5164, stop:0.56 #262b38, stop:0.78 #7f889c, stop:1 #c3cad8); }");
             // Krimble 2026-11-15 (2nd): George: "Use my graphic." The handle is his ball bearing picture (krimble-ball-bearing.png), stretched to a 16 unit box.
+            // Krimble 2026-11-15: George: "QuickAdjust size is better, but the ball bearings are too big." The ball is 10 units across (the same as every other slider), was 16.
+            // const QString thinHandle = QStringLiteral(
+            //     "QSlider::handle:horizontal { width: 16px; height: 16px; margin: -7px 0; border: none; background: transparent; border-image: url(:/krimble-ball-bearing.png) 0 0 0 0 stretch stretch; }");
             const QString thinHandle = QStringLiteral(
-                "QSlider::handle:horizontal { width: 16px; height: 16px; margin: -7px 0; border: none; background: transparent; border-image: url(:/krimble-ball-bearing.png) 0 0 0 0 stretch stretch; }");
+                "QSlider::handle:horizontal { width: 10px; height: 10px; margin: -4px 0; border: none; background: transparent; border-image: url(:/krimble-ball-bearing.png) 0 0 0 0 stretch stretch; }");
             if (i != Hue) {
                 // m_sliders[i]->setStyleSheet(QStringLiteral(
                 //     "QSlider::groove:horizontal { height: 4px; border: 1px solid #535c80; border-radius: 3px; background: #20263f; }"
