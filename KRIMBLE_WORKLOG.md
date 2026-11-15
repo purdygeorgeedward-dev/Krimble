@@ -657,3 +657,6 @@ George: text in QuickAdjust is far bigger than the rest of the screen; "Estimate
 
 ## 2026-11-15 10:15 AM MT: New dialog default width (entry 613)
 George: item 13 is about default sizes and "bizarre insane magnification", not an icon cap; no reason for the window to open at the full screen. New dialog width limited to 75% of the screen's short side. Icon size untouched (44 logical px). Committed locally, not pushed.
+
+## 2026-11-15 10:20 AM MT: real pixels again
+George: "Here we are back at NONSENSE. 'LOGICAL PIXELS' AGAIN." I wrote "44 logical px" about the New dialog icons. Rule (decisions file): sizes are said in REAL screen pixels only. This phone: 1080 x 2340, one unit of the style sheets and layouts = 3.19 real pixels. New dialog icons: 140 real pixels. Corrected the 612 and 613 entries. Committed locally.
