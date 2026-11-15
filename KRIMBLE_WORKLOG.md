@@ -774,3 +774,5 @@ George: "Destroy all Krita themes. Nothing called Krita stays in themes." Delete
 **2026-11-15, 15:52 (MST).** Menu title recess also for :pressed (676th); pushed, no build.
 
 **2026-11-15, 16:05 (MST).** Failure notes for 1.0.59 and 1.0.60 written into the release notes files (677th); pushed, no build.
+
+**2026-11-15, 15:35 (MST).** Build 62 (1.0.62-beta) pushed; the push starts the build (678th).
