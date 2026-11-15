@@ -711,3 +711,6 @@ George: "Yes. We will check in the next build." Four-tone alpha bevel over the t
 
 ## 2026-11-15 10:25 AM MT: Layers panel colors (entry 626)
 George: gray layer rows, lighter selected one, no glow. Style sheet rule on NodeView in thememanager.cpp. Committed locally, not pushed.
+
+## 2026-11-15 9:05 AM MT: Dock tab header and tear-off drag (entry 627)
+George: nothing to grab on a docked panel; panels are supposed to have tabs. Header tab drawn for panels docked alone; dragging the header floats the panel. Syntax-checked against Qt headers with stubs. Committed locally, not pushed.

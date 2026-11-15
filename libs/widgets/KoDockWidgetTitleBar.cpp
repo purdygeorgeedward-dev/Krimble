@@ -26,6 +26,9 @@
 #include <QStyle>
 #include <QStylePainter>
 #include <QStyleOptionFrame>
+#include <QMouseEvent>
+#include <QPainterPath>
+#include <QApplication>
 
 #include <KSqueezedTextLabel>
 
@@ -140,6 +143,31 @@ void KoDockWidgetTitleBar::paintEvent(QPaintEvent*)
     titleOpt.closable = hasFeature(q, QDockWidget::DockWidgetClosable);
     titleOpt.floatable = hasFeature(q, QDockWidget::DockWidgetFloatable);
     p.drawControl(QStyle::CE_DockWidgetTitle, titleOpt);
+
+    // Krimble 2026-11-15: George: "Docked panels are supposed to have tabs." and "There is nothing to grab in this dock to tear off this panel." A panel docked on its own has no tab (Qt draws tabs only for
+    // grouped panels), so its header draws one: a tab with rounded top corners behind the panel's name. Dragging it tears the panel off (mousePressEvent and the following). A panel in a tab group
+    // (title text hidden) keeps Qt's tabs; a floating panel keeps its own title bar.
+    if (!q->isFloating() && !d->titleTextHidden && d->titleLabel) {
+        const qreal dpr = devicePixelRatioF();
+        const int radius = qRound(8 * dpr);
+        const int textW = d->titleLabel->fontMetrics().horizontalAdvance(q->windowTitle());
+        const int padX = qRound(12 * dpr);
+        const QRect lab = d->titleLabel->geometry();
+        const int tabW = qMin(lab.width() + 2 * padX, textW + 2 * padX);
+        const QRect tab(qMax(0, lab.left() - padX), qRound(2 * dpr), tabW, height() - qRound(2 * dpr));
+        QPainterPath path;
+        path.moveTo(tab.left(), tab.bottom() + 1);
+        path.lineTo(tab.left(), tab.top() + radius);
+        path.quadTo(tab.left(), tab.top(), tab.left() + radius, tab.top());
+        path.lineTo(tab.right() - radius, tab.top());
+        path.quadTo(tab.right(), tab.top(), tab.right(), tab.top() + radius);
+        path.lineTo(tab.right(), tab.bottom() + 1);
+        path.closeSubpath();
+        p.setRenderHint(QPainter::Antialiasing, true);
+        p.fillPath(path, palette().color(QPalette::Window).lighter(140));
+        p.setPen(palette().color(QPalette::Mid));
+        p.drawPath(path);
+    }
 
     // Krimble 2026-10-15: George (1.0.36): "I can't tell where one panel ends and the next begins when they stack. They need a light line at the top
     // and a dark line at the bottom." A docked panel's top edge gets a light line, and just above it a dark line: that dark line is the bottom
@@ -356,4 +384,68 @@ void KoDockWidgetTitleBar::contextMenuEvent(QContextMenuEvent *event)
     }
     stackUnder->setEnabled(anyOther);
     menu.exec(event->globalPos());
+}
+
+// Krimble 2026-11-15: tear-off by dragging the header of a docked panel (item 16). Only a docked panel handles these; for a floating panel the events are ignored so Qt moves the window as before.
+void KoDockWidgetTitleBar::mousePressEvent(QMouseEvent *event)
+{
+    QDockWidget *q = qobject_cast<QDockWidget*>(parentWidget());
+    if (!q || q->isFloating() || event->button() != Qt::LeftButton || !hasFeature(q, QDockWidget::DockWidgetMovable)) {
+        event->ignore();
+        return;
+    }
+    d->pressed = true;
+    d->dragging = false;
+    d->pressGlobal = event->globalPos();
+    event->accept();
+}
+
+void KoDockWidgetTitleBar::mouseMoveEvent(QMouseEvent *event)
+{
+    QDockWidget *q = qobject_cast<QDockWidget*>(parentWidget());
+    if (!q || !d->pressed) {
+        event->ignore();
+        return;
+    }
+    if (!d->dragging) {
+        if ((event->globalPos() - d->pressGlobal).manhattanLength() < QApplication::startDragDistance()) {
+            event->accept();
+            return;
+        }
+        d->grabOffset = d->pressGlobal - q->mapToGlobal(QPoint(0, 0));
+        q->setFloating(true);
+        d->dragging = true;
+        qApp->installEventFilter(this);   // the mouse may no longer be grabbed by this bar once the panel is its own window; follow the finger from the application
+    }
+    q->move(event->globalPos() - d->grabOffset);
+    event->accept();
+}
+
+void KoDockWidgetTitleBar::mouseReleaseEvent(QMouseEvent *event)
+{
+    if (!d->pressed) {
+        event->ignore();
+        return;
+    }
+    d->pressed = false;
+    if (d->dragging) {
+        d->dragging = false;
+        qApp->removeEventFilter(this);
+    }
+    event->accept();
+}
+
+bool KoDockWidgetTitleBar::eventFilter(QObject *watched, QEvent *event)
+{
+    if (d->dragging) {
+        if (event->type() == QEvent::MouseMove) {
+            QDockWidget *q = qobject_cast<QDockWidget*>(parentWidget());
+            if (q) q->move(static_cast<QMouseEvent*>(event)->globalPos() - d->grabOffset);
+        } else if (event->type() == QEvent::MouseButtonRelease) {
+            d->pressed = false;
+            d->dragging = false;
+            qApp->removeEventFilter(this);
+        }
+    }
+    return QWidget::eventFilter(watched, event);
 }

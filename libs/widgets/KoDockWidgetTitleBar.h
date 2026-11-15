@@ -35,6 +35,11 @@ protected:
     void paintEvent(QPaintEvent* event) override; ///< reimplemented from QWidget
     void resizeEvent(QResizeEvent* event) override; ///< reimplemented from QWidget
     void contextMenuEvent(QContextMenuEvent *event) override; ///< Krimble 2026-10-10: Dock Left/Right/Top/Bottom, Undock
+    // Krimble 2026-11-15: drag a docked panel's header to tear it off (item 16, "There is nothing to grab in this dock to tear off this panel.")
+    void mousePressEvent(QMouseEvent *event) override;
+    void mouseMoveEvent(QMouseEvent *event) override;
+    void mouseReleaseEvent(QMouseEvent *event) override;
+    bool eventFilter(QObject *watched, QEvent *event) override;
 private:
     Q_PRIVATE_SLOT(d, void toggleFloating())
     Q_PRIVATE_SLOT(d, void topLevelChanged(bool topLevel))
