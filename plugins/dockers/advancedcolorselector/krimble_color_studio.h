@@ -622,7 +622,10 @@ public:
                 const KoColor edited = m_editBackground ? m_canvas->resourceManager()->backgroundColor() : m_canvas->resourceManager()->foregroundColor();
                 if (edited.toQColor().rgb() != c.rgb()) return;
             }
-            m_recent.removeAll(c);
+            // m_recent.removeAll(c);
+            // m_recent.prepend(c);
+            // Krimble 2026-11-15: George: "If you reselect recent colors in color lab it should not become a 'new' recent color." A color that is already in the recent colors stays where it is (it was moved to the front).
+            if (m_recent.contains(c)) return;
             m_recent.prepend(c);
             while (m_recent.size()>10) m_recent.removeLast();   // Krimble 2026-11-05: 10 across, one row
             rebuildRecent();

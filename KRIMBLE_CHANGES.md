@@ -7482,3 +7482,6 @@ George: "Give the new handle to Color Lab." `krimble_color_pages.h`: the channel
 
 ## 2026-11-15 (648th) — Color Lab sliders have the ball bearing again
 George: "Sorry. No. Put the ball bearings on color lab sliders too." 647 is reverted, so 646 stands: the channel bars and the hue slider use `krimble-ball-bearing.png`. Not built or tested.
+
+## 2026-11-15 (649th) — Choosing a recent color does not make it a new recent color
+George: "If you reselect recent colors in color lab it should not become a 'new' recent color." `krimble_color_studio.h` (the `m_recentTimer` handler): a color already in the recent colors is left where it is; before, it was moved to the front. The History tab (a different list) is not changed. Not built or tested.
