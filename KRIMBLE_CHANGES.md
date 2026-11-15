@@ -7306,3 +7306,9 @@ George: "Update all documentation. Push any remaining changes and start the next
 **Files:** `plugins/dockers/layerdocker/NodeDelegate.cpp`
 
 Run 32, attempt 2 (43594210102, commit b6e6972, started 3:59 PM MST): the KisView.cpp fix worked, but `NodeDelegate.cpp:319` and `:338` stopped with "variable has incomplete type 'QPainterPath'" (the Layers panel search and top-row code, tasks 70 to 72 of Nov 13). Added `#include <QPainterPath>`. The workflow's step "Verify signature and name the APK" is where the run ends when the native build failed. A scan of the files changed since 1c86669 found no other use of QPainterPath without the include.
+
+## 2026-11-14 (595th) — README: six features added to the "Recent and active work" list
+
+**Files:** `README.md`
+
+George: "update the list of features in the readme, but don't undo my earlier edits." Six bullets were added before "additional restoration and editing tools": SmartCompression, Custom CMYK (ICC output profile), Channels panel, Hexagon Selection and Polygon and Star tools, Auto Crop, long press flyouts. Nothing else in the file was touched (diff: 6 insertions, no deletions); George's wording from bef71ab and 4bc5e65 stands.

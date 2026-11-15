@@ -139,6 +139,12 @@ Recent and active work includes:
 - **Krimble Help** 📖: a help file inside the app (Help > Krimble Help), with search function
 - **Animated GIF and WebP in Batch Processing** 🎞️: read animated GIF and WebP, write animated WebP (smaller than the GIF, with transparency), or save the frames as separate numbered pictures
 - **Krimble Script** 📜: a tiny scripting language (15 commands) for simple operations: resize, crop, rotate, flip, gray, brightness, contrast, flatten, format, name, folder, frames, fps, loop. See [KRIMBLE_SCRIPT.md](KRIMBLE_SCRIPT.md)
+- **SmartCompression** 🗜️: saves a JPEG smaller where the loss does not show, with a live preview of the original and compressed sizes
+- **Custom CMYK** 🖨️: Edit > Custom CMYK... makes an ICC output profile from your own ink and paper settings, for converting a picture to CMYK and soft proofing
+- **Channels panel** 🎚️: tap a channel to isolate it, load a channel as a selection
+- **Hexagon Selection** ⬢ and **Polygon and Star** ⭐ tools, with a hex grid overlay
+- **Auto Crop** ✂️ in the Image menu
+- **Long press flyouts** in the toolbox: hold a tool to reach the rest of its group (Marquee, Lasso, Wand, Shapes, Fill and more)
 - additional restoration and editing tools
 
 Some of these are already implemented; others are still in development.
