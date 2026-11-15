@@ -215,7 +215,9 @@ KisOpenPane::KisOpenPane(QWidget *parent, const QStringList& mimeFilter, const Q
     // size, a larger one (the 80 and 96 px pictures) is drawn at 64. The size is George's to say: it went 112, 80, 96 before, on his feedback.
     // d->m_sectionList->setIconSize(QSize(64, 64));
     // Krimble 2026-11-13 (task 48): George (build 57): "The New dialog is huge and has conflicting hues like dissonant notes." 44 px, the size of the Preferences list's icons (a picture smaller than that is drawn at its own size).
-    d->m_sectionList->setIconSize(QSize(44, 44));
+    // d->m_sectionList->setIconSize(QSize(44, 44));
+    // Krimble 2026-11-15 (item 13): George: "adjust size of icons slightly." 140 -> 169 real pixels (44 -> 53 of the layouts' own units, one unit is 3.19 real pixels on this phone).
+    d->m_sectionList->setIconSize(QSize(53, 53));
 #endif
     QScroller *scroller = KisKineticScroller::createPreconfiguredScroller(d->m_sectionList);
     if (scroller) {
@@ -474,7 +476,8 @@ QTreeWidgetItem* KisOpenPane::addPane(const QString &title, const QString &untra
     // Krimble 2026-10-19: George (1.0.39): "New dialog icons are too big." 88 -> 64 logical px (same ratio to the 80 px template pictures as 88 to 112).
     // QPixmap iconPixmap = icon.pixmap(QSize(qRound(64 * dpr), qRound(64 * dpr)));
     // Krimble 2026-10-23: the clipboard picture is smaller (48 logical px; the custom document picture stays 64)
-    const int topIconSize = untranslatedName.contains(QLatin1String("clipboard"), Qt::CaseInsensitive) ? 48 : 64;
+    // const int topIconSize = untranslatedName.contains(QLatin1String("clipboard"), Qt::CaseInsensitive) ? 48 : 64;
+    const int topIconSize = untranslatedName.contains(QLatin1String("clipboard"), Qt::CaseInsensitive) ? 53 : 64;   // Krimble 2026-11-15 (item 13): the clipboard picture was 48, below the list's new 53, so it would have been drawn smaller than the custom document one
     QPixmap iconPixmap = icon.pixmap(QSize(qRound(topIconSize * dpr), qRound(topIconSize * dpr)));
     iconPixmap.setDevicePixelRatio(dpr);
 

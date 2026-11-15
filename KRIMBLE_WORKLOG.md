@@ -684,3 +684,6 @@ George sent the orange K keycap (transparent background). "Yes. It solves the pr
 
 ## 2026-11-15 8:25 AM MT: PUSH
 George said "Push". 13 commits pushed to master: QuickAdjust (two rows, text at program size, natural size, banner not stretched; size cap added then removed), New dialog width cap (wrong guess, entry 613, to be reverted if George says), Preferences column and the orange K keycap icon, decision rows, notes. No build started by this push.
+
+## 2026-11-15 8:35 AM MT: item 13 icons slightly bigger (entry 619)
+George: "13 adjust size of icons slightly." 140 -> 169 real pixels. Committed locally, not pushed.

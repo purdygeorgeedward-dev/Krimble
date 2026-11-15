@@ -7390,3 +7390,6 @@ George: "Ugh. Just render it full size." `libs/ui/KisApplication.cpp`: the Prefe
 
 ## 2026-11-15 (618th) — New Preferences icon: the orange K keycap (item 11)
 George made a new icon ("I'm going to make another icon.") and, asked whether to use it: "Yes. It solves the problem cleanly." His picture (1536 x 1024, an orange keycap with a white K, transparent background; the glow seen in some viewers is color data under zero opacity and is not in the picture) is saved as `krimble-artwork/3d/keyboard-george-2026-11-15-k-keycap.png`. `krita/pics/svg/dark_config-keyboard.svg` and `light_config-keyboard.svg` now hold it, cropped to the key (1046 x 863), 720 px wide, in a 480 x 396 SVG (the earlier keyboard SVG is in git history; its picture is still in krimble-artwork/3d). The page list from 617 (486 real pixels wide) draws it at 480 real pixels. Not built.
+
+## 2026-11-15 (619th) — New dialog icons a little bigger (item 13)
+George: "13 adjust size of icons slightly." `libs/ui/KisOpenPane.cpp`: the page list's icon size 140 to 169 real pixels (about 20% bigger; the number is mine, "slightly" gave none); the Create from Clipboard picture is made at that size too, so it stays equal to the Custom Document one. The New dialog width cap of entry 613 is a separate change and is untouched. Not built.
