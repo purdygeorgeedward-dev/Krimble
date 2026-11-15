@@ -681,3 +681,6 @@ George: "Ugh. Just render it full size." Page list minimum 486 real pixels (pict
 
 ## 2026-11-15 11:50 AM MT: new Preferences icon (entry 618)
 George sent the orange K keycap (transparent background). "Yes. It solves the problem cleanly." Put into both config-keyboard SVGs. Committed locally, not pushed.
+
+## 2026-11-15 8:25 AM MT: PUSH
+George said "Push". 13 commits pushed to master: QuickAdjust (two rows, text at program size, natural size, banner not stretched; size cap added then removed), New dialog width cap (wrong guess, entry 613, to be reverted if George says), Preferences column and the orange K keycap icon, decision rows, notes. No build started by this push.
