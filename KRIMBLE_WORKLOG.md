@@ -660,3 +660,6 @@ George: item 13 is about default sizes and "bizarre insane magnification", not a
 
 ## 2026-11-15 10:20 AM MT: real pixels again
 George: "Here we are back at NONSENSE. 'LOGICAL PIXELS' AGAIN." I wrote "44 logical px" about the New dialog icons. Rule (decisions file): sizes are said in REAL screen pixels only. This phone: 1080 x 2340, one unit of the style sheets and layouts = 3.19 real pixels. New dialog icons: 140 real pixels. Corrected the 612 and 613 entries. Committed locally.
+
+## 2026-11-15 10:30 AM MT: rule, who decides an issue is resolved
+I moved from QuickAdjust to item 13 on my own, then took George's next QuickAdjust message as being about the New dialog (commit 9a80741, entry 613, a wrong guess, local only). George: "YOU DONT GET TO DECIDE WHEN AN ISSUE IS RESOLVED!!!!!!" Rule added to KRIMBLE_DECISIONS.md. Still on QuickAdjust until he says otherwise.
