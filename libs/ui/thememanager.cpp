@@ -322,6 +322,13 @@ void ThemeManager::slotChangePalette()
     // layer doesn't work." Every layer row is a mid gray (#5D6272) with white text; the selected row is lighter (#8E93A6) with dark text, flat, no glow. Same in every theme (the rule comes after the
     // theme's own sheet and names the Layers panel's list, NodeView, so it wins over the general QAbstractItemView rule). The colors are mine; George gave none.
     if (!qApp->styleSheet().isEmpty()) qApp->setStyleSheet(qApp->styleSheet() + QStringLiteral("\nNodeView::item { background: #5d6272; color: #ffffff; border: none; }\nNodeView::item:selected { background: #8e93a6; color: #0e1020; border: none; border-radius: 0px; }\n"));
+    // Krimble 2026-11-15: George (Smart Compression dialog; his picture of a steel ball bearing): "This is a ball bearing. It should be tiny, shiny, and on the top layer when it's a control gadget." Only QuickAdjust had the
+    // ball; every other slider (export dialogs, filters) had the sheet's flat 13 px handle, which the slider's short row clipped into a gray block. Every slider handle is now the steel ball (10 style units, about 32 real
+    // pixels, with the same sky/horizon/bounce gradient as QuickAdjust), and the slider row is tall enough (14 units) that the ball is never cut off, so it shows above the groove. QuickAdjust keeps its own sheet.
+    if (!qApp->styleSheet().isEmpty()) qApp->setStyleSheet(qApp->styleSheet() + QStringLiteral(
+        "\nQSlider:horizontal { min-height: 14px; }\n"
+        "QSlider::handle:horizontal { width: 10px; height: 10px; margin: -5px 0; border: 1px solid #141822; border-radius: 5px;"
+        " background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #f4f7fc, stop:0.30 #c9d0de, stop:0.46 #4a5164, stop:0.56 #262b38, stop:0.78 #7f889c, stop:1 #c3cad8); }\n"));
 #endif
     KisConfigNotifier::instance()->notifyColorThemeChanged(filename);
 
