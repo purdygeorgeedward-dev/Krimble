@@ -766,3 +766,5 @@ George: "Destroy all Krita themes. Nothing called Krita stays in themes." Delete
 **2026-11-15, 15:25 (MST).** Deleted the nine excluded font families from the repo (672nd); pushed, no build.
 
 **2026-11-15, 15:28 (MST).** Deleted krita/data/bundles (673rd); pushed, no build.
+
+**2026-11-15, 15:35 (MST).** Recent files area darker (674th); pushed, no build.

@@ -28,3 +28,4 @@ George says he talked to Claude (in an earlier session; the text of that talk is
 - **2026-11-15T22:05Z:** This app is sick with bloat. Remove the biggest fonts except Montserrat. You don't remember deleting 9 font families?
 - **2026-11-15T22:06Z:** DELETE!!!!!!!!
 - **2026-11-15T22:06Z:** Now delete bundles.
+- **2026-11-15T22:08Z:** Templates for what? / No. Leave those. Fix this. Make the area where recent files live darker than the UI components so they stand out.

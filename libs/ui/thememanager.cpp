@@ -390,6 +390,9 @@ void ThemeManager::slotChangePalette()
     if (!qApp->styleSheet().isEmpty()) {
         const QString baseColor = qApp->palette().color(QPalette::Window).darker(135).name();
         qApp->setStyleSheet(qApp->styleSheet() + QStringLiteral("\nQMdiArea { background: %1; }\nKisWelcomePageWidget { background: %1; }\n").arg(baseColor));
+        // Krimble 2026-11-15: George: "Make the area where recent files live darker than the UI components so they stand out." The list of recent files on the welcome page is darker than the page around it and than the panels.
+        const QString recentColor = qApp->palette().color(QPalette::Window).darker(200).name();
+        qApp->setStyleSheet(qApp->styleSheet() + QStringLiteral("\nKisWelcomePageWidget QListView#recentDocumentsListView { background: %1; border: 1px solid %2; }\n").arg(recentColor, baseColor));
     }
 #endif
     KisConfigNotifier::instance()->notifyColorThemeChanged(filename);
