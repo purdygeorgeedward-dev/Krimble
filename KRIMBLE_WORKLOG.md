@@ -780,3 +780,5 @@ George: "Destroy all Krita themes. Nothing called Krita stays in themes." Delete
 **2026-11-15, 16:20 (MST).** Toolbox docking and status bar height restored (679th); pushed, no build.
 
 **2026-11-15, 16:30 (MST).** Color Lab third title: tab title hiding back on (680th); pushed, no build.
+
+**2026-11-15, 16:40 (MST).** Separator before Language in the Window menu (681st); pushed, no build. Waiting on George: a screenshot of the K and File area, and krita.log after a theme change that fails.

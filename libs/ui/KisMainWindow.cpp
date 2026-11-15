@@ -9097,6 +9097,8 @@ void KisMainWindow::updateWindowMenu()
         // addActionByName("style_menu");
         // Krimble 2026-10-18 (5th): George (1.0.37, c666301): "Window - Styles does nothing." On Android the Styles submenu is never filled (the loop that lists the widget styles is inside
         // #ifndef Q_OS_ANDROID, and the app has its own style), so the item opened an empty submenu. It is out of the Window menu; the action itself is kept.
+        // Krimble 2026-11-15: George: "Also put a separator before change language in window menu."
+        menu->addSeparator();
         addActionByName("switch_application_language");
     }
 
