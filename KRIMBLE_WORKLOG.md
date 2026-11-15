@@ -596,3 +596,6 @@ George also asked: "why was that first image so small?" (test item 8: the image 
 
 ## 2026-11-15 6:42 AM MT: George: the small first image may be because it was a sprite sheet
 George guessed the first image was small because it was a sprite sheet. The status bar of his screenshots shows 1,536 x 1,024 pixels (6.1 MiB) for the windmill sprite sheet, so the file is not small; its size on screen is a zoom question. Not settled; the frozen-zoom reading of 6:40 AM stands as a possible cause, unconfirmed.
+
+## 2026-11-15 6:50 AM MT: zoom fix (entry 603)
+George said to fix the zoom: new images centered, fitted, a little margin. Done in source: no freeze in the first 3 s after the canvas size is first known; fit margin 24 real pixels. Committed locally, not pushed, not built, not compiled.

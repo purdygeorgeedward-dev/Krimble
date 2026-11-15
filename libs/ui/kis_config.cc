@@ -2532,7 +2532,8 @@ void KisConfig::setZoomSteps(int steps)
 
 int KisConfig::zoomMarginSize(bool defaultValue) const
 {
-    return (defaultValue ? 0 : m_cfg.readEntry("zoomMarginSize", 0));
+    // return (defaultValue ? 0 : m_cfg.readEntry("zoomMarginSize", 0));
+    return (defaultValue ? 24 : m_cfg.readEntry("zoomMarginSize", 24));   // Krimble 2026-11-15: George: "fits the display with a little margin around it": 24 real pixels (was 0)
 }
 
 void KisConfig::setZoomMarginSize(int zoomMarginSize)

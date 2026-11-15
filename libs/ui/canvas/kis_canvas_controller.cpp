@@ -4,6 +4,7 @@
  *  SPDX-License-Identifier: GPL-2.0-or-later
  */
 
+#include <QElapsedTimer>   // Krimble 2026-11-15
 #include "kis_canvas_controller.h"
 
 #include <QMouseEvent>
@@ -56,6 +57,7 @@ struct KisCanvasController::Private {
     qreal physicalDpiY {72.0};
     qreal devicePixelRatio {1.0};
     QSize krimbleLastWindowSize;   // Krimble 2026-11-13 (task 59): George: "Another problem. Instead of laying on top of the image, the right side panel forces the image in the main canvas area to zoom waaaay out. It's super stupid." the size of the main window at the last canvas resize
+    QElapsedTimer krimbleSettle;   // Krimble 2026-11-15: started at the first canvas size; the zoom is not frozen while the picture is still opening (see updateCanvasWidgetSizeInternal)
 
     void emitPointerPositionChangedSignals(QPoint pointerPos);
     void showRotationValueOnCanvas();
@@ -531,7 +533,13 @@ void KisCanvasController::updateCanvasWidgetSizeInternal(const QSize &newSize, q
         QWidget *topLevel = window();
         const QSize windowSize = topLevel ? topLevel->size() : QSize();
         const QSizeF oldSize = m_d->coordinatesConverter->getCanvasWidgetSize();
-        if (!oldSize.isEmpty() && oldSize != QSizeF(newSize) && windowSize.isValid() && windowSize == m_d->krimbleLastWindowSize
+        // Krimble 2026-11-15: George: "I guess just fix the zoom. New images should center in the display and open at a zoom level that fits the display with a little margin around it." While a picture opens the
+        // canvas area is resized several times as the layout settles (the window does not change), and the freeze below turned the fit zoom of the first, small size into a constant zoom (a tiny picture). The
+        // zoom is not frozen in the first 3 seconds after the canvas got its first size: the picture keeps the Fit to Page mode and is fitted again to each size, so it ends centered and fitted.
+        if (!m_d->krimbleSettle.isValid() && !newSize.isEmpty()) m_d->krimbleSettle.start();
+        const bool krimbleSettled = m_d->krimbleSettle.isValid() && m_d->krimbleSettle.hasExpired(3000);
+        // if (!oldSize.isEmpty() && oldSize != QSizeF(newSize) && windowSize.isValid() && windowSize == m_d->krimbleLastWindowSize
+        if (krimbleSettled && !oldSize.isEmpty() && oldSize != QSizeF(newSize) && windowSize.isValid() && windowSize == m_d->krimbleLastWindowSize
             && m_d->coordinatesConverter->zoomMode() != KoZoomMode::ZOOM_CONSTANT) {
             m_d->coordinatesConverter->setZoom(KoZoomMode::ZOOM_CONSTANT,
                                                m_d->coordinatesConverter->zoom(),
