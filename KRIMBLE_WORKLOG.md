@@ -803,3 +803,4 @@ George: "Destroy all Krita themes. Nothing called Krita stays in themes." Delete
 
 **2026-11-15, 16:50 (MST).** Breeze themes: no Krimble bevel lines (691st); pushed, no build.
 **2026-11-15, 17:00 (MST).** Bevel tones from theme colors (692nd); pushed, no build.
+**2026-11-15, 17:10 (MST).** Repolish all widgets on theme change (693rd); pushed, no build.

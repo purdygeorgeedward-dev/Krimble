@@ -397,6 +397,13 @@ void ThemeManager::slotChangePalette()
         const QString recentColor = qApp->palette().color(QPalette::Window).darker(200).name();
         qApp->setStyleSheet(qApp->styleSheet() + QStringLiteral("\nKisWelcomePageWidget QListView#recentDocumentsListView { background: %1; border: 1px solid %2; }\n").arg(recentColor, baseColor));
     }
+    // Krimble 2026-11-15 (693rd): George (screenshot, Breeze Light): "Breeze light has a dark menu bar." (and dark navy panels, a blue Opacity bar). Switching from a Krimble theme to one with no style sheet left widgets
+    // that were polished under the old sheet (menu bar, panels) with its colors. Every widget is unpolished and polished again after the sheet and palette are set, so each shows the new theme.
+    Q_FOREACH (QWidget *krimbleWidget, QApplication::allWidgets()) {
+        krimbleWidget->style()->unpolish(krimbleWidget);
+        krimbleWidget->style()->polish(krimbleWidget);
+        krimbleWidget->update();
+    }
 #endif
     KisConfigNotifier::instance()->notifyColorThemeChanged(filename);
 

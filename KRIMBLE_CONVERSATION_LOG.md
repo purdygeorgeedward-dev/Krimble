@@ -47,3 +47,4 @@ George says he talked to Claude (in an earlier session; the text of that talk is
 - **2026-11-15T23:45Z:** (screenshot) Preferences. The hilight still tints the icon when selected. Fix it. Again.
 - **2026-11-15T23:44Z:** (screenshot) Breeze dark theme has blue lines added?
 - **2026-11-15T23:46Z:** Yes (derive bevel colors from each theme)
+- **2026-11-15T23:50Z:** (screenshot) Breeze light has a dark menu bar.
