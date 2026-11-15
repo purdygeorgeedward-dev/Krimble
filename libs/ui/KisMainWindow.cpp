@@ -23,6 +23,10 @@
 #include <QDesktopServices>
 #include <QScreen>
 #include <QRegularExpression>   // Krimble 2026-10-19: krimbleInstallDockEdgeGrabs
+#include <QLinearGradient>   // Krimble 2026-11-15: KrimbleDockBackground
+#include <QBrush>
+#include <QPair>
+#include <QVector>
 #include <QDialog>
 #include <QDockWidget>
 #include <QIcon>
@@ -4248,6 +4252,84 @@ private:
     bool m_busy = false;
 };
 
+// Krimble 2026-11-15: George: "panels should use the theme background." (1.0.59 test items 1, 5, 8, 9, 10: the panels and the toolbox were see-through). The style sheets paint the window and the docks with
+// the rule `QMainWindow, QDockWidget { background: ...; }` (a flat color in the flat themes, a vertical gradient in Krimble Bevel and Krimble Painted), but a docked panel does not draw it itself
+// and its contents are transparent, so with the canvas under the panels (KrimbleCanvasOverlay) the picture showed through. This filter paints that same background (read from the application's
+// style sheet, so every theme and a theme change are followed) into each dock before the dock draws its content. A gradient is spread over the dock's own height and width.
+struct KrimbleDockBackgroundSpec
+{
+    bool valid = false;
+    bool gradient = false;
+    QColor flat;
+    qreal x1 = 0, y1 = 0, x2 = 0, y2 = 1;
+    QVector<QPair<qreal, QColor> > stops;
+};
+
+static KrimbleDockBackgroundSpec krimbleDockBackgroundSpec()
+{
+    static const QChar *s_lastData = nullptr;
+    static int s_lastSize = -1;
+    static KrimbleDockBackgroundSpec s_spec;
+    const QString sheet = qApp->styleSheet();
+    if (sheet.constData() == s_lastData && sheet.size() == s_lastSize) return s_spec;
+    s_lastData = sheet.constData();
+    s_lastSize = sheet.size();
+    s_spec = KrimbleDockBackgroundSpec();
+    QString plain = sheet;
+    plain.remove(QRegularExpression(QStringLiteral("/\\*.*?\\*/"), QRegularExpression::DotMatchesEverythingOption));   // the comments of the sheet hold old copies of the rule
+    QRegularExpressionMatchIterator it = QRegularExpression(QStringLiteral("QMainWindow\\s*,\\s*QDockWidget\\s*\\{([^}]*)\\}")).globalMatch(plain);
+    QString body;
+    while (it.hasNext()) body = it.next().captured(1);   // the last rule wins
+    const QRegularExpressionMatch bg = QRegularExpression(QStringLiteral("background\\s*:\\s*([^;]+);")).match(body);
+    if (!bg.hasMatch()) return s_spec;
+    const QString value = bg.captured(1).trimmed();
+    if (value.startsWith(QLatin1Char('#'))) {
+        s_spec.flat = QColor(value);
+        s_spec.valid = s_spec.flat.isValid();
+    } else if (value.startsWith(QStringLiteral("qlineargradient"))) {
+        const char *names[4] = {"x1", "y1", "x2", "y2"};
+        qreal v[4] = {0, 0, 0, 1};
+        for (int i = 0; i < 4; ++i) {
+            const QRegularExpressionMatch m = QRegularExpression(QStringLiteral("%1\\s*:\\s*(-?[0-9.]+)").arg(QLatin1String(names[i]))).match(value);
+            if (m.hasMatch()) v[i] = m.captured(1).toDouble();
+        }
+        s_spec.x1 = v[0]; s_spec.y1 = v[1]; s_spec.x2 = v[2]; s_spec.y2 = v[3];
+        QRegularExpressionMatchIterator st = QRegularExpression(QStringLiteral("stop\\s*:\\s*([0-9.]+)\\s+(#[0-9a-fA-F]{6})")).globalMatch(value);
+        while (st.hasNext()) {
+            const QRegularExpressionMatch m = st.next();
+            s_spec.stops.append(qMakePair(m.captured(1).toDouble(), QColor(m.captured(2))));
+        }
+        s_spec.gradient = true;
+        s_spec.valid = s_spec.stops.size() >= 2;
+    }
+    return s_spec;
+}
+
+class KrimbleDockBackground : public QObject
+{
+public:
+    explicit KrimbleDockBackground(QDockWidget *dock) : QObject(dock) { dock->installEventFilter(this); setObjectName(QStringLiteral("krimbleDockBackground")); }
+    bool eventFilter(QObject *watched, QEvent *event) override
+    {
+        if (event->type() != QEvent::Paint) return false;
+        QDockWidget *dock = qobject_cast<QDockWidget*>(watched);
+        if (!dock) return false;
+        const KrimbleDockBackgroundSpec spec = krimbleDockBackgroundSpec();
+        QPainter p(dock);
+        const QRect r = dock->rect();
+        if (spec.valid && spec.gradient) {
+            QLinearGradient g(spec.x1 * r.width(), spec.y1 * r.height(), spec.x2 * r.width(), spec.y2 * r.height());
+            for (int i = 0; i < spec.stops.size(); ++i) g.setColorAt(spec.stops.at(i).first, spec.stops.at(i).second);
+            p.fillRect(r, QBrush(g));
+        } else if (spec.valid) {
+            p.fillRect(r, spec.flat);
+        } else {
+            p.fillRect(r, dock->palette().color(QPalette::Window));   // no rule found in the sheet: the palette's window color
+        }
+        return false;   // the dock draws its own content over this
+    }
+};
+
 static void krimbleInstallBevels(QMainWindow *win)
 {
     // Krimble 2026-11-12 (task 43): George (the new build, a screenshot of the start screen): "on start the menu bar has nothing to separate it from the rest of the screen. No border. No hilight or shadow. Then it becomes the painted version." The menu bar itself never had the one-pixel lines (only panels, tool bars, menus and image windows had): it gets them now (raised: light top and left, dark bottom and right).
@@ -4259,7 +4341,8 @@ static void krimbleInstallBevels(QMainWindow *win)
         // Krimble 2026-11-15: George (1.0.59 test, items 1, 5, 8, 9, 10: "UI components are transparent", the toolbox "sits on top of the image", Recent Images "writes over the toolbox"): the style sheets make the
         // children of a dock transparent, and since build 59 the canvas lies under the docks (KrimbleCanvasOverlay), so the image and the Recent Images page showed through every panel and the toolbox.
         // Every dock now paints its own background (the palette's Window color) before its content.
-        dock->setAutoFillBackground(true);
+        // dock->setAutoFillBackground(true);   // first try (entry 601): a flat palette color, no gradient; replaced by KrimbleDockBackground (the theme's own background), entry 602
+        if (!dock->findChild<KrimbleDockBackground*>(QStringLiteral("krimbleDockBackground"), Qt::FindDirectChildrenOnly)) new KrimbleDockBackground(dock);
     }
     Q_FOREACH (QToolBar *bar, win->findChildren<QToolBar*>()) {
         if (!bar->findChild<KrimbleBevelOverlay*>(QStringLiteral("krimbleBevelOverlay"), Qt::FindDirectChildrenOnly)) new KrimbleBevelOverlay(bar);
