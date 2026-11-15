@@ -1563,8 +1563,12 @@ public:
             // row->setVerticalSpacing(2);
             // Krimble 2026-11-15 (item 12): George (build 60 screenshot, QuickAdjust still 75% of the screen tall): "QuickAdjust is still HUGE." The rows are about a third shorter: picture 30 (was 46), number box 64 x 22
             // (was 80 x 28), margins 3 above and below (was 5), no gap between the name and the number box (was 2).
-            row->setContentsMargins(6, 3, 8, 3);
-            row->setHorizontalSpacing(8);
+            // row->setContentsMargins(6, 3, 8, 3);
+            // row->setHorizontalSpacing(8);
+            // row->setVerticalSpacing(0);
+            // Krimble 2026-11-15 (2nd): George: "Make it tiny." One line per row now: picture, name, slider, number box.
+            row->setContentsMargins(4, 2, 6, 2);
+            row->setHorizontalSpacing(6);
             row->setVerticalSpacing(0);
             // Krimble 2026-10-30: the small picture at the start of the row (the drawing's sun, half circle, drops, color ring, half square, sparkle)
             QLabel *rowIcon = new QLabel(content);
@@ -1584,22 +1588,25 @@ public:
                 const qreal ratio = content->devicePixelRatioF();
                 QPixmap big(QStringLiteral(":/dark_krimble-quickadjust-icon-%1.png").arg(i));
                 // QPixmap sharp = big.scaled(qRound(44 * ratio), qRound(44 * ratio), Qt::KeepAspectRatio, Qt::SmoothTransformation);
-                QPixmap sharp = big.scaled(qRound(28 * ratio), qRound(28 * ratio), Qt::KeepAspectRatio, Qt::SmoothTransformation);   // Krimble 2026-11-15 (item 12): was 44
+                QPixmap sharp = big.scaled(qRound(20 * ratio), qRound(20 * ratio), Qt::KeepAspectRatio, Qt::SmoothTransformation);   // Krimble 2026-11-15 (item 12): was 44; (2nd) 28 before "Make it tiny."
                 sharp.setDevicePixelRatio(ratio);
                 rowIcon->setPixmap(sharp);
                 rowIcon->setStyleSheet(QStringLiteral("background: transparent; border: none;"));
             }
             // rowIcon->setFixedSize(46, 46);
-            rowIcon->setFixedSize(30, 30);   // Krimble 2026-11-15 (item 12): was 46
+            // rowIcon->setFixedSize(30, 30);   // Krimble 2026-11-15 (item 12): was 46
+            rowIcon->setFixedSize(22, 22);   // Krimble 2026-11-15 (2nd): "Make it tiny."
             // row->addWidget(rowIcon);
-            row->addWidget(rowIcon, 0, 0, 2, 1, Qt::AlignCenter);
+            // row->addWidget(rowIcon, 0, 0, 2, 1, Qt::AlignCenter);
+            row->addWidget(rowIcon, 0, 0, Qt::AlignCenter);
             m_labels[i] = new QLabel(i18n(def(i).name), content);
             // m_labels[i]->setMinimumWidth(90);
             // m_labels[i]->setFixedWidth(nameWidth + 4);
             // row->addWidget(m_labels[i]);
             // Krimble 2026-11-15 (item 12), George: text 4x the rest of the screen is too big. Old line: (sizes 15/15/16/13/16 px before)
             m_labels[i]->setStyleSheet(QStringLiteral("font-weight: bold; color: #ffffff; background: transparent; border: none;"));   // Krimble 2026-11-12 (task 5): George (his picture of QuickAdjust): "match this version of QuickAdjust."
-            row->addWidget(m_labels[i], 0, 1, Qt::AlignLeft | Qt::AlignBottom);
+            // row->addWidget(m_labels[i], 0, 1, Qt::AlignLeft | Qt::AlignBottom);
+            row->addWidget(m_labels[i], 0, 1, Qt::AlignLeft | Qt::AlignVCenter);
             m_numbers[i] = new QSpinBox(content);
             m_numbers[i]->setRange(def(i).min, def(i).max);
             // m_numbers[i]->setMinimumWidth(72);
@@ -1607,7 +1614,8 @@ public:
             // m_numbers[i]->setFixedHeight(20);   // Krimble 2026-11-06: was the style sheet's height (about 24)
             // row->addWidget(m_numbers[i]);
             // m_numbers[i]->setFixedSize(80, 28);
-            m_numbers[i]->setFixedSize(64, 22);   // Krimble 2026-11-15 (item 12): was 80 x 28
+            // m_numbers[i]->setFixedSize(64, 22);   // Krimble 2026-11-15 (item 12): was 80 x 28
+            m_numbers[i]->setFixedSize(58, 20);   // Krimble 2026-11-15 (2nd): "Make it tiny."
             // Krimble 2026-11-12 (task 5): George (his picture of QuickAdjust): "match this version of QuickAdjust." (the picture: 74 x 25 logical px)
             m_numbers[i]->setAlignment(Qt::AlignCenter);
             // m_numbers[i]->setStyleSheet(QStringLiteral("QSpinBox { font-size: 15px; font-weight: bold; color: #ffffff; }"));
@@ -1619,7 +1627,8 @@ public:
                 "QSpinBox::down-button { subcontrol-origin: border; subcontrol-position: bottom right; width: 22px; height: 10px; border: none; border-left: 1px solid #323252; background: transparent; }"
                 "QSpinBox::up-arrow { image: url(:/dark_krimble-quickadjust-arrow-up.png); width: 9px; height: 7px; }"
                 "QSpinBox::down-arrow { image: url(:/dark_krimble-quickadjust-arrow-down.png); width: 9px; height: 7px; }"));
-            row->addWidget(m_numbers[i], 1, 1, Qt::AlignLeft | Qt::AlignTop);
+            // row->addWidget(m_numbers[i], 1, 1, Qt::AlignLeft | Qt::AlignTop);
+            row->addWidget(m_numbers[i], 0, 3, Qt::AlignRight | Qt::AlignVCenter);
             // layout->addLayout(row);
             layout->addWidget(frame);
             m_sliders[i] = new QSlider(Qt::Horizontal, content);
@@ -1628,7 +1637,8 @@ public:
             // m_sliders[i]->setMinimumHeight(38);
             // m_sliders[i]->setMinimumHeight(22);
             // m_sliders[i]->setMinimumHeight(16);   // Krimble 2026-11-06: was 22 (the ball is 12 px + 2 px rim)
-            m_sliders[i]->setMinimumHeight(22);   // Krimble 2026-11-11: the ball bearing handle is 16 px + 2 px rim, so the row is a little taller
+            // m_sliders[i]->setMinimumHeight(22);   // Krimble 2026-11-11: the ball bearing handle is 16 px + 2 px rim, so the row is a little taller
+            m_sliders[i]->setMinimumHeight(18);   // Krimble 2026-11-15 (2nd): "Make it tiny." (the ball is 16 units; the row's other widgets are 20 to 22 high)
             m_sliders[i]->setObjectName(QStringLiteral("krimbleQuickAdjustSlider"));
             // Krimble 2026-11-05: thin groove (4 px) and a small round handle (14 px; a border radius of exactly half the handle size draws a square in Qt,
             // so it is 8 px, not 9) for the QuickAdjust sliders; the filled part is the selection blue.
@@ -1774,7 +1784,8 @@ public:
             }
             // layout->addWidget(m_sliders[i]);
             // row->addWidget(m_sliders[i], 1);   // Krimble 2026-11-05: on the same line as the picture, name and number
-            row->addWidget(m_sliders[i], 0, 2, 2, 1);   // Krimble 2026-11-12 (task 5): George (his picture of QuickAdjust): "match this version of QuickAdjust." the slider on the right, as high as name and number together
+            // row->addWidget(m_sliders[i], 0, 2, 2, 1);
+            row->addWidget(m_sliders[i], 0, 2);   // Krimble 2026-11-15 (2nd): one line. Before: spanned two rows. Krimble 2026-11-12 (task 5): George (his picture of QuickAdjust): "match this version of QuickAdjust." the slider on the right, as high as name and number together
             row->setColumnStretch(2, 1);
             connect(m_sliders[i], &QSlider::valueChanged, this, [this, i](int value) {
                 m_values[i] = value;
