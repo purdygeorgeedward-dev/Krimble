@@ -1625,16 +1625,22 @@ public:
             // row->addWidget(m_numbers[i]);
             // m_numbers[i]->setFixedSize(80, 28);
             // m_numbers[i]->setFixedSize(64, 22);   // Krimble 2026-11-15 (item 12): was 80 x 28
-            m_numbers[i]->setFixedSize(58, 20);   // Krimble 2026-11-15 (2nd): "Make it tiny."
+            // m_numbers[i]->setFixedSize(58, 20);   // Krimble 2026-11-15 (2nd): "Make it tiny."
+            // Krimble 2026-11-15: George: "I can't see the numbers any more. They have no space." 74 wide (the width of his picture of QuickAdjust), same height; the arrow buttons are 16 wide (were 22), so the number has about 55 units, was about 34.
+            m_numbers[i]->setFixedSize(74, 20);
             // Krimble 2026-11-12 (task 5): George (his picture of QuickAdjust): "match this version of QuickAdjust." (the picture: 74 x 25 logical px)
             m_numbers[i]->setAlignment(Qt::AlignCenter);
             // m_numbers[i]->setStyleSheet(QStringLiteral("QSpinBox { font-size: 15px; font-weight: bold; color: #ffffff; }"));
             // Krimble 2026-11-12 (task 5): the picture's number box has a small up and down arrow at the right, with a thin line before them (arrow pictures: dark_krimble-quickadjust-arrow-up.png and -down.png)
             m_numbers[i]->setStyleSheet(QStringLiteral(
                 // Krimble 2026-11-15 (item 12), George: text 4x the rest of the screen is too big. Old line: (sizes 15/15/16/13/16 px before)
-                "QSpinBox { font-weight: bold; color: #ffffff; padding-right: 22px; }"
-                "QSpinBox::up-button { subcontrol-origin: border; subcontrol-position: top right; width: 22px; height: 10px; border: none; border-left: 1px solid #323252; background: transparent; }"
-                "QSpinBox::down-button { subcontrol-origin: border; subcontrol-position: bottom right; width: 22px; height: 10px; border: none; border-left: 1px solid #323252; background: transparent; }"
+                // "QSpinBox { font-weight: bold; color: #ffffff; padding-right: 22px; }"
+                "QSpinBox { font-weight: bold; color: #ffffff; padding-right: 17px; padding-left: 0px; }"
+                // "QSpinBox::up-button { subcontrol-origin: border; subcontrol-position: top right; width: 22px; height: 10px; border: none; border-left: 1px solid #323252; background: transparent; }"
+                // "QSpinBox::down-button { subcontrol-origin: border; subcontrol-position: bottom right; width: 22px; height: 10px; border: none; border-left: 1px solid #323252; background: transparent; }"
+                // 
+                "QSpinBox::up-button { subcontrol-origin: border; subcontrol-position: top right; width: 16px; height: 10px; border: none; border-left: 1px solid #323252; background: transparent; }"
+                "QSpinBox::down-button { subcontrol-origin: border; subcontrol-position: bottom right; width: 16px; height: 10px; border: none; border-left: 1px solid #323252; background: transparent; }"
                 "QSpinBox::up-arrow { image: url(:/dark_krimble-quickadjust-arrow-up.png); width: 9px; height: 7px; }"
                 "QSpinBox::down-arrow { image: url(:/dark_krimble-quickadjust-arrow-down.png); width: 9px; height: 7px; }"));
             // row->addWidget(m_numbers[i], 1, 1, Qt::AlignLeft | Qt::AlignTop);

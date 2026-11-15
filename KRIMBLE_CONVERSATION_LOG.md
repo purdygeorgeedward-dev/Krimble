@@ -41,3 +41,4 @@ George says he talked to Claude (in an earlier session; the text of that talk is
 - **2026-11-15T23:32Z:** (welcome page screenshot) The k too close.
 - **2026-11-15T23:33Z:** (screenshot) Disaster. Complete mess. / I loaded an image.
 - **2026-11-15T23:38Z:** QuickAdjust size is better, but the ball bearings are too big. (Also: roll back to 1.0.58 is a temptation, not an instruction yet.)
+- **2026-11-15T23:39Z:** And I can't see the numbers any more. They have no space.
