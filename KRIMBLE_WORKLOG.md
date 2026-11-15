@@ -747,3 +747,5 @@ George: "Build it", then "FAILED BUILDS MUST NOT PERSIST" and "Your rule is stal
 
 ## 2026-11-15 12:05 MST — Old failed and cancelled runs deleted
 George: "Yes. Failed builds must be deleted. They serve no purpose other than figuring out why the build failed." Deleted the 12 failed or cancelled runs (Nov 6 to Nov 14) from GitHub. Build 61 (run 43749388783) is running.
+
+**2026-11-15, 14:58 (MST).** Renamed the theme files from Krita*.colors to Krimble*.colors; committed and pushed with the earlier 659-666 commits to master (no build started).

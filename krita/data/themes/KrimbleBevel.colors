@@ -1,4 +1,4 @@
-# Krimble 2026-11-13 (task 63): George: "I TOLD YOU TO SPLIT THEM OFF!!!!!! TO USE SEPARATE THEMES!!!!!!!" The palette of the theme "Krimble Bevel" (the Nov 10 look: one-pixel light and dark lines, painted sheet): the Blue-Gray palette with the hue 227, saturation 48 backgrounds (a copy of KritaBlueGray.colors as it was on 2026-11-13 before the original Blue-Gray values came back).
+# Krimble 2026-11-13 (task 63): George: "I TOLD YOU TO SPLIT THEM OFF!!!!!! TO USE SEPARATE THEMES!!!!!!!" The palette of the theme "Krimble Bevel" (the Nov 10 look: one-pixel light and dark lines, painted sheet): the Blue-Gray palette with the hue 227, saturation 48 backgrounds (a copy of KrimbleBlueGray.colors as it was on 2026-11-13 before the original Blue-Gray values came back).
 # Krimble 2026-11-12 (task 27): the scheme "Krimble Blue-Gray": the palette of the 1.0.56-beta build before the hue 227 changes (Window 55,57,82), George: "Can we save the old one (screenshot) as blue-gray and make it default?" No style sheet is applied for it.
 [ColorEffects:Disabled]
 Color=20,20,20

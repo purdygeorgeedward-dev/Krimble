@@ -106,8 +106,8 @@ ForegroundPositive=0,212,163
 ForegroundVisited=195,195,195
 
 [General]
-ColorScheme=Krita blender
-Name=Krita blender
+ColorScheme=Krimble blender
+Name=Krimble blender
 shadeSortColumn=true
 
 [KDE]
