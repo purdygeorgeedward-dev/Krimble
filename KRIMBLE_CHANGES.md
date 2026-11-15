@@ -7485,3 +7485,6 @@ George: "Sorry. No. Put the ball bearings on color lab sliders too." 647 is reve
 
 ## 2026-11-15 (649th) — Choosing a recent color does not make it a new recent color
 George: "If you reselect recent colors in color lab it should not become a 'new' recent color." `krimble_color_studio.h` (the `m_recentTimer` handler): a color already in the recent colors is left where it is; before, it was moved to the front. The History tab (a different list) is not changed. Not built or tested.
+
+## 2026-11-15 (650th) — Raised toolbox icon highlight dimmer
+George: "Hilight on raised toolbox icons is too bright." `KoToolBoxButton.cpp`: the white of the highlight edges is about 57% of before (top 150 to 85, left 70 to 40; a pressed button's lit bottom and right the same). The dark edges are unchanged. Not built or tested.

@@ -255,10 +255,15 @@ void KoToolBoxButton::paintEvent(QPaintEvent *event)
         // const QColor rightTone  = down ? QColor(255, 255, 255, 115) : QColor(0, 0, 0, 84);
         // const QColor bottomTone = down ? QColor(255, 255, 255, 255) : QColor(0, 0, 0, 148);
         // Krimble 2026-11-15 (2nd): George: "The shading on the bevels needs to be less intense." The four opacities are about 60% of what they were (top 255, left 115, right 84, bottom 148).
-        const QColor topTone    = down ? QColor(0, 0, 0, 90)        : QColor(255, 255, 255, 150);
-        const QColor leftTone   = down ? QColor(0, 0, 0, 55)        : QColor(255, 255, 255, 70);
-        const QColor rightTone  = down ? QColor(255, 255, 255, 70)  : QColor(0, 0, 0, 55);
-        const QColor bottomTone = down ? QColor(255, 255, 255, 150) : QColor(0, 0, 0, 90);
+        // const QColor topTone    = down ? QColor(0, 0, 0, 90)        : QColor(255, 255, 255, 150);
+        // const QColor leftTone   = down ? QColor(0, 0, 0, 55)        : QColor(255, 255, 255, 70);
+        // const QColor rightTone  = down ? QColor(255, 255, 255, 70)  : QColor(0, 0, 0, 55);
+        // const QColor bottomTone = down ? QColor(255, 255, 255, 150) : QColor(0, 0, 0, 90);
+        // Krimble 2026-11-15: George: "Hilight on raised toolbox icons is too bright." The white of the highlight edges is about 57% of what it was (top 150 to 85, left 70 to 40).
+        const QColor topTone    = down ? QColor(0, 0, 0, 90)        : QColor(255, 255, 255, 85);
+        const QColor leftTone   = down ? QColor(0, 0, 0, 55)        : QColor(255, 255, 255, 40);
+        const QColor rightTone  = down ? QColor(255, 255, 255, 40)  : QColor(0, 0, 0, 55);
+        const QColor bottomTone = down ? QColor(255, 255, 255, 85)  : QColor(0, 0, 0, 90);
         box.setPen(Qt::NoPen);
         QPolygon poly;
         poly.clear(); poly << r.topLeft() << r.topRight() << QPoint(r.right() - t, r.top() + t) << QPoint(r.left() + t, r.top() + t);
