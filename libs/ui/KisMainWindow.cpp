@@ -4025,7 +4025,12 @@ protected:
         // const QColor topTone    = recessed ? QColor(18, 19, 34)    : QColor(110, 120, 170);
         // QColor topTone    = recessed ? QColor(18, 19, 34)    : QColor(110, 120, 170);
         // Krimble 2026-11-15 (4th): George: "The shading on the bevels needs to be less intense." The four tones are closer to the panel color. Before: top (110, 120, 170), left (140, 150, 196), right (46, 52, 84), bottom (18, 19, 34).
-        QColor topTone    = recessed ? QColor(18, 19, 34)    : QColor(92, 100, 145);
+        // QColor topTone    = recessed ? QColor(18, 19, 34)    : QColor(92, 100, 145);
+        // Krimble 2026-11-15 (692nd): George: "Yes" (derive the bevel from each theme's own colors, not fixed blue-gray tones). Every tone is the target's own window color made lighter or darker (same hue), by factors
+        // that reproduce the old blue-gray tones on the old blue-gray window color (#383A53): top 92,100,145 = 170%, toolbox top 250%, left 150% / toolbox 210%, right 90% / toolbox 48%, bottom 60% / toolbox 22%;
+        // recessed: top 30%, left 83%, right 170%, bottom 300%.
+        const QColor krimbleBase = m_target ? m_target->palette().color(QPalette::Window) : palette().color(QPalette::Window);
+        QColor topTone    = krimbleBase.lighter(recessed ? 30 : 170);
         // Krimble 2026-11-15 (3rd): George: "There is not supposed to be a hilight on the bottom edge of the menu bar!!!!!" Whatever widget lies right under the menu bar (its top within 12 real pixels of the
         // menu bar's bottom edge) gets no top line, so nothing lit can sit on the menu bar's lower edge, whichever widget it is.
         if (!qobject_cast<QMenuBar*>(m_target.data()) && !recessed && m_target) {
@@ -4047,10 +4052,13 @@ protected:
         // const QColor rightTone  = recessed ? QColor(140, 150, 196) : QColor(50, 54, 82);
         // const QColor bottomTone = recessed ? QColor(214, 222, 250) : QColor(32, 34, 56);
         // Krimble 2026-11-15 (674th+): the toolbox's own tones: a lit top and left, a dark right and bottom, with a wider gap between light and dark than the other panels have.
-        if (krimbleToolBoxTarget && !recessed && topTone.alpha() != 0) topTone = QColor(150, 160, 208);
-        const QColor leftTone   = recessed ? QColor(46, 52, 84)    : (krimbleToolBoxTarget ? QColor(118, 128, 176) : QColor(80, 88, 130));
-        const QColor rightTone  = recessed ? QColor(140, 150, 196) : (krimbleToolBoxTarget ? QColor(26, 28, 48) : QColor(50, 54, 82));
-        const QColor bottomTone = recessed ? QColor(214, 222, 250) : (krimbleToolBoxTarget ? QColor(12, 13, 24) : QColor(32, 34, 56));
+        if (krimbleToolBoxTarget && !recessed && topTone.alpha() != 0) topTone = krimbleBase.lighter(250);   // was QColor(150, 160, 208)
+        // const QColor leftTone   = recessed ? QColor(46, 52, 84)    : (krimbleToolBoxTarget ? QColor(118, 128, 176) : QColor(80, 88, 130));
+        const QColor leftTone   = krimbleBase.lighter(recessed ? 83 : (krimbleToolBoxTarget ? 210 : 150));
+        // const QColor rightTone  = recessed ? QColor(140, 150, 196) : (krimbleToolBoxTarget ? QColor(26, 28, 48) : QColor(50, 54, 82));
+        const QColor rightTone  = krimbleBase.lighter(recessed ? 170 : (krimbleToolBoxTarget ? 48 : 90));
+        // const QColor bottomTone = recessed ? QColor(214, 222, 250) : (krimbleToolBoxTarget ? QColor(12, 13, 24) : QColor(32, 34, 56));
+        const QColor bottomTone = krimbleBase.lighter(recessed ? 300 : (krimbleToolBoxTarget ? 22 : 60));
         const qreal w = width();
         const qreal h = height();
         const qreal t = qMin(one, qMin(w, h) / 2.0);
