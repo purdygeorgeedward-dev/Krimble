@@ -513,3 +513,29 @@ Run #32 (43594210102, b6e6972): attempt 1 sat queued from 5:19 AM until George c
 
 ## 2026-11-14 11:39 PM MT: build 59 started
 Pushed 2257c69..77dcb3e (README features, Krimble Bevel 2 px lines), then dispatched the workflow with the PAT George pasted: HTTP 204, run #33 (43686436841), commit 77dcb3e, label 1.0.59-beta. Row 59 is in KRIMBLE_BUILD_LOG.md (local, not pushed: a push of the log does not start a build).
+
+## 2026-11-15 5:58 AM MT: George's test of 1.0.59-beta (build 59, commit 77dcb3e)
+George installed 59 and tested it (12 screenshots). Verdict: everything new fails except Hexagon Selection. His words: "This build is a complete disaster." He is considering rolling back all changes to the previous version. Nothing has been changed in the source since; no cause is confirmed yet. His list, as he wrote it:
+
+1. First screen: no bevels at all. Recent Images writes over the toolbox as if it does not exist. Foreground and background color are both gray. Complete mess.
+2. Tapping the black and white (default colors) button in the toolbox does nothing. Then the toolbox vanishes.
+3. The Window menu covers up the title of the menu.
+4. No orange K in the corner of the default layout.
+5. Opening an image turns everything bright gray. Then the black and white button suddenly works.
+6. New tab design has no space around the text inside tabs. The mockups were way off.
+7. Color Lab still has a double title.
+8. The toolbox is transparent and sits on top of the image, which defaulted to a tiny size.
+9. UI components are transparent.
+10. Switching themes fixes nothing. The transparency anomaly persists.
+11. Preferences: the keyboard icon is still tiny. Is scaling it up impossible now?
+12. QuickAdjust is now gigantic. The bottom buttons now stack instead of sitting side by side.
+13. File > New dialog icons are tiny.
+14. Submenus layer awkwardly now instead of cleanly (Image menu: the Adjustments submenu overlaps the parent menu).
+15. The Save As dialog is not taller by default.
+16. The toolbox still ends awkwardly at the bottom and scrolls instead of expanding when docked.
+17. Hexagon Selection works okay (the only pass).
+18. Smart Patch flyout: an empty icon, and no labels for the other icons.
+
+What the screenshots show (Claude's reading, not confirmed against the code): panels (Tool Options, Layers, Color Lab) draw over the canvas and over each other with no opaque background; toolbox icons are drawn through the Recent Images page; the first screen and the Window menu are also affected; menus show a blue-gray fill. Items 1, 5, 8, 9, 10 look like one cause (a transparent or unpainted background on docked panels and the toolbox), but that is a guess until the source is read.
+
+Decision pending: George has not said "roll back". Nothing pushed. Local master is one commit ahead of origin (474f536).
