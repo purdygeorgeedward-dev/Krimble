@@ -250,10 +250,15 @@ void KoToolBoxButton::paintEvent(QPaintEvent *event)
         const bool down = isDown();
         const int t = qMax(2, qRound(qMin(r.width(), r.height()) * 0.075));
         box.fillRect(r, face);
-        const QColor topTone    = down ? QColor(0, 0, 0, 148)       : QColor(255, 255, 255, 255);
-        const QColor leftTone   = down ? QColor(0, 0, 0, 84)        : QColor(255, 255, 255, 115);
-        const QColor rightTone  = down ? QColor(255, 255, 255, 115) : QColor(0, 0, 0, 84);
-        const QColor bottomTone = down ? QColor(255, 255, 255, 255) : QColor(0, 0, 0, 148);
+        // const QColor topTone    = down ? QColor(0, 0, 0, 148)       : QColor(255, 255, 255, 255);
+        // const QColor leftTone   = down ? QColor(0, 0, 0, 84)        : QColor(255, 255, 255, 115);
+        // const QColor rightTone  = down ? QColor(255, 255, 255, 115) : QColor(0, 0, 0, 84);
+        // const QColor bottomTone = down ? QColor(255, 255, 255, 255) : QColor(0, 0, 0, 148);
+        // Krimble 2026-11-15 (2nd): George: "The shading on the bevels needs to be less intense." The four opacities are about 60% of what they were (top 255, left 115, right 84, bottom 148).
+        const QColor topTone    = down ? QColor(0, 0, 0, 90)        : QColor(255, 255, 255, 150);
+        const QColor leftTone   = down ? QColor(0, 0, 0, 55)        : QColor(255, 255, 255, 70);
+        const QColor rightTone  = down ? QColor(255, 255, 255, 70)  : QColor(0, 0, 0, 55);
+        const QColor bottomTone = down ? QColor(255, 255, 255, 150) : QColor(0, 0, 0, 90);
         box.setPen(Qt::NoPen);
         QPolygon poly;
         poly.clear(); poly << r.topLeft() << r.topRight() << QPoint(r.right() - t, r.top() + t) << QPoint(r.left() + t, r.top() + t);

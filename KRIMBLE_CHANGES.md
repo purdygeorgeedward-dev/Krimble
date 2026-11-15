@@ -7456,3 +7456,6 @@ George: "Menus look like shit with bevels. Just put a black outline around them.
 
 ## 2026-11-15 (640th) — Buttons less rounded
 George: "What's up with the super rounded buttons everywhere??" ... "Just make it less rounded." The `QPushButton, QDialog QToolButton` rule of the three theme sheets (`KrimbleVisualStyle.h`, `...Nov10.h`, `...Painted.h`) had `border-radius: 7px` (7 style units, about 22 real pixels on his screen, on buttons about 80 tall nearly a pill); now 3px (about 10 real pixels), the old value commented. The rule had no recorded reason in KRIMBLE_DECISIONS.md. Buttons with their own style sheet in code (QuickAdjust's 10, the Color Lab tabs) are not changed. Not built.
+
+## 2026-11-15 (641st) — Bevel shading less intense
+George: "The shading on the bevels needs to be less intense." `KrimbleBevelOverlay` (KisMainWindow.cpp), raised tones: top (110, 120, 170) -> (92, 100, 145), left (140, 150, 196) -> (80, 88, 130), right (46, 52, 84) -> (50, 54, 82), bottom (18, 19, 34) -> (32, 34, 56); the menu outline (entry 639) is not touched. Raised toolbox buttons (`KoToolBoxButton.cpp`): opacities top 255 -> 150, left 115 -> 70, right 84 -> 55, bottom 148 -> 90 (the pressed state turned round, same values). Old values commented. Not built.

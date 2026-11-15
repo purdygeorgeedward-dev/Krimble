@@ -3962,7 +3962,9 @@ protected:
         // top line is the softer light tone now, not only the menu bar's.
         Q_UNUSED(krimbleMenuBar);
         // const QColor topTone    = recessed ? QColor(18, 19, 34)    : QColor(110, 120, 170);
-        QColor topTone    = recessed ? QColor(18, 19, 34)    : QColor(110, 120, 170);
+        // QColor topTone    = recessed ? QColor(18, 19, 34)    : QColor(110, 120, 170);
+        // Krimble 2026-11-15 (4th): George: "The shading on the bevels needs to be less intense." The four tones are closer to the panel color. Before: top (110, 120, 170), left (140, 150, 196), right (46, 52, 84), bottom (18, 19, 34).
+        QColor topTone    = recessed ? QColor(18, 19, 34)    : QColor(92, 100, 145);
         // Krimble 2026-11-15 (3rd): George: "There is not supposed to be a hilight on the bottom edge of the menu bar!!!!!" Whatever widget lies right under the menu bar (its top within 12 real pixels of the
         // menu bar's bottom edge) gets no top line, so nothing lit can sit on the menu bar's lower edge, whichever widget it is.
         if (!qobject_cast<QMenuBar*>(m_target.data()) && !recessed && m_target) {
@@ -3973,9 +3975,12 @@ protected:
                 }
             }
         }
-        const QColor leftTone   = recessed ? QColor(46, 52, 84)    : QColor(140, 150, 196);
-        const QColor rightTone  = recessed ? QColor(140, 150, 196) : QColor(46, 52, 84);
-        const QColor bottomTone = recessed ? QColor(214, 222, 250) : QColor(18, 19, 34);
+        // const QColor leftTone   = recessed ? QColor(46, 52, 84)    : QColor(140, 150, 196);
+        // const QColor rightTone  = recessed ? QColor(140, 150, 196) : QColor(46, 52, 84);
+        // const QColor bottomTone = recessed ? QColor(214, 222, 250) : QColor(18, 19, 34);
+        const QColor leftTone   = recessed ? QColor(46, 52, 84)    : QColor(80, 88, 130);
+        const QColor rightTone  = recessed ? QColor(140, 150, 196) : QColor(50, 54, 82);
+        const QColor bottomTone = recessed ? QColor(214, 222, 250) : QColor(32, 34, 56);
         const qreal w = width();
         const qreal h = height();
         const qreal t = qMin(one, qMin(w, h) / 2.0);
