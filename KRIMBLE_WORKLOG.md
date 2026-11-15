@@ -744,3 +744,6 @@ George: "Build it". Pushed commits 651 to 656 and the build 62 bump (1.0.62-beta
 
 ## 2026-11-15 12:00 MST — Build 61 started (number reused)
 George: "Build it", then "FAILED BUILDS MUST NOT PERSIST" and "Your rule is stale". Run for 62 cancelled and deleted; the cancelled run of the first 61 deleted. This push (1.0.61-beta) starts the build. Rule going forward: a failed or cancelled build is deleted and its number is reused.
+
+## 2026-11-15 12:05 MST — Old failed and cancelled runs deleted
+George: "Yes. Failed builds must be deleted. They serve no purpose other than figuring out why the build failed." Deleted the 12 failed or cancelled runs (Nov 6 to Nov 14) from GitHub. Build 61 (run 43749388783) is running.
