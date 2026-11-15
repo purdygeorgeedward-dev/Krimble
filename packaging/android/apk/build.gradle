@@ -274,7 +274,8 @@ android {
     // def krimbleBuildNumber = 60   // 2026-11-13 (taken back: George: "we are nowhere near 60")
     // def krimbleBuildNumber = 60   // 2026-11-15 (George: "Start .60 push."; 1.0.59 is not to be released: "the worst build we have had so far")
     // def krimbleBuildNumber = 61   // 2026-11-15 (George: "Push that", after the build 60 test); started and cancelled, never built
-    def krimbleBuildNumber = 62   // 2026-11-15 (George: "Build it")
+    // def krimbleBuildNumber = 62   // 2026-11-15 (George: "Build it"); cancelled and deleted: a failed or cancelled build does not use up its number
+    def krimbleBuildNumber = 61   // 2026-11-15 (George: "Build it"): 61 was never built
     // (counter-file reading, replaced by the hand-set number above)
     // def krimbleBuildNumber = 0
     // try {
