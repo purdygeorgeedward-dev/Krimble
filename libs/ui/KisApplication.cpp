@@ -72,6 +72,8 @@
 #include <QStringList>
 #include <QStyle>
 #include <QProxyStyle>
+#include <QStyledItemDelegate>
+#include <QPainter>
 #include <QStyleFactory>
 #include <QSysInfo>
 #include <QTimer>
@@ -229,6 +231,52 @@ Q_GLOBAL_STATIC(QThreadStorage<AppRecursionInfo>, s_recursionInfo)
 // (`style->pixelMetric(QStyle::PM_IconViewIconSize)`, see kpageview_p.cpp of KWidgetsAddons), not from the view's iconSize(), so the
 // setIconSize(64) of 2026-10-13 did nothing (George, 1.0.36: "The new icons are way too small on the new file and prefs dialogs." and "Need big
 // icons. Small screen."). This style is put on that one list only and gives 64 logical px (about 216 on the screen) for the pictures.
+// Krimble 2026-11-15: George (build 60, Preferences): "New key icon is in Preferences, but hilight still maps over the selected icon instead of under it." The page list's own delegate draws the picture of the
+// selected page with QIcon::Selected, and Qt makes that picture by laying the highlight color (30%) over it, so the highlight shows on top of the icon. This delegate fills the selected row first, then draws the
+// icon as it is (QIcon::Normal) and the name under it, so the highlight is under the icon. Sizes come from the list's own delegate (sizeHint), the icon is the list's icon size, centered at the top of the row.
+class KrimblePageListDelegate : public QStyledItemDelegate
+{
+public:
+    KrimblePageListDelegate(QAbstractItemDelegate *original, QObject *parent) : QStyledItemDelegate(parent), m_original(original) {}
+    QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const override
+    {
+        if (m_original) return m_original->sizeHint(option, index);
+        return QStyledItemDelegate::sizeHint(option, index);
+    }
+    void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override
+    {
+        QStyleOptionViewItem opt(option);
+        initStyleOption(&opt, index);
+        const bool selected = opt.state & QStyle::State_Selected;
+        const QIcon icon = qvariant_cast<QIcon>(index.data(Qt::DecorationRole));
+        const QString text = index.data(Qt::DisplayRole).toString();
+        // the row's background (the highlight when selected), without the picture or the name
+        QStyleOptionViewItem back(opt);
+        back.icon = QIcon();
+        back.text.clear();
+        back.features &= ~QStyleOptionViewItem::HasDecoration;
+        back.features &= ~QStyleOptionViewItem::HasDisplay;
+        QStyle *style = opt.widget ? opt.widget->style() : QApplication::style();
+        style->drawPrimitive(QStyle::PE_PanelItemViewItem, &back, painter, opt.widget);
+        // the picture, as it is, centered at the top of the row
+        const int side = qMax(16, qMin(opt.decorationSize.width(), opt.rect.width() - 8));
+        QFont font = opt.font;
+        font.setBold(true);
+        const QFontMetrics metrics(font);
+        const int textHeight = metrics.height();
+        const QRect iconRect(opt.rect.left() + (opt.rect.width() - side) / 2, opt.rect.top() + 4, side, side);
+        if (!icon.isNull()) icon.paint(painter, iconRect, Qt::AlignCenter, QIcon::Normal, QIcon::Off);
+        const QRect textRect(opt.rect.left() + 2, iconRect.bottom() + 4, opt.rect.width() - 4, qMax(textHeight, opt.rect.bottom() - iconRect.bottom() - 4));
+        painter->save();
+        painter->setFont(font);
+        painter->setPen(opt.palette.color(QPalette::Active, selected ? QPalette::HighlightedText : QPalette::Text));
+        painter->drawText(textRect, Qt::AlignHCenter | Qt::AlignTop | Qt::TextWordWrap, text);
+        painter->restore();
+    }
+private:
+    QPointer<QAbstractItemDelegate> m_original;
+};
+
 class KrimblePageListStyle : public QProxyStyle
 {
 public:
@@ -763,6 +811,7 @@ protected:
                                         KrimblePageListStyle *pageListStyle = new KrimblePageListStyle();
                                         pageListStyle->setParent(pageList);
                                         pageList->setStyle(pageListStyle);   // Krimble 2026-10-14: the real way to make the pictures big (see above)
+                                        pageList->setItemDelegate(new KrimblePageListDelegate(pageList->itemDelegate(), pageList));   // Krimble 2026-11-15: the highlight under the icon, not over it
                                     }
                                 }
                             }

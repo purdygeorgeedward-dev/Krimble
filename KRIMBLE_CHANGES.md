@@ -7432,3 +7432,6 @@ George (build 60 screenshot, QuickAdjust 880 real pixels wide and about 1800 tal
 
 ## 2026-11-15 (632nd) — Menu bar top line is not white (George: "white lines on the top and bottom of the menu bar")
 `KrimbleBevelOverlay` (KisMainWindow.cpp): the menu bar's top line uses (110, 120, 170) instead of the near-white (214, 222, 250); the old line is commented. The line under the menu bar that looks white is most likely the top line of the first panel docked under it (panels keep the near-white top tone); not changed. Not built.
+
+## 2026-11-15 (633rd) — Preferences list: the highlight is under the icon (item 11)
+George (build 60): "New key icon is in Preferences, but hilight still maps over the selected icon instead of under it." The page list's delegate drew the selected page's icon as `QIcon::Selected`, which Qt makes by laying the highlight color (30%) over the picture. `libs/ui/KisApplication.cpp`: new `KrimblePageListDelegate` on the Preferences page list (and the other KPageListView lists, e.g. the New dialog's): it paints the row background (the highlight when selected) first, then the icon as it is (`QIcon::Normal`), then the name in bold under it (highlighted text color when selected). Its `sizeHint` is the list's own. The class compiles on its own against Qt 5 headers. Not built.
