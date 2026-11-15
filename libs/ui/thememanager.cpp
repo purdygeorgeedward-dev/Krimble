@@ -159,7 +159,7 @@ Q_DECL_UNUSED static QString krimbleRecolorSheet(const QString &sheet, int hue, 
 // "hue drift" of the Nov 10 brief). Every color of the sheet that is a blue-gray background, line or highlight (hue 219 to 237, saturation 25 to 65 percent) gets the SAME hue and saturation, and keeps
 // its own brightness (V): George's rule of Nov 11, "the same hue and saturation but different brightness" (227 and 48, Color Lab's HSV). The accent blues (hue 199 to 216, saturation over 65), the cyan
 // glow, the navy insides, the text (saturation under 25) and black and white are not in that range and stay. The gradients keep their shape: only each stop's hue and saturation change.
-static QString krimbleSameHueSheet(const QString &sheet, int hue, int saturationPercent)
+Q_DECL_UNUSED static QString krimbleSameHueSheet(const QString &sheet, int hue, int saturationPercent)
 {
     static const QRegularExpression colorRx(QStringLiteral("#[0-9a-fA-F]{6}\\b"));
     QString out;
@@ -291,24 +291,12 @@ void ThemeManager::slotChangePalette()
     // qApp->setProperty("krimblePaintedTheme", theme == QStringLiteral("Krimble Painted") || theme == QStringLiteral("Krimble Blue-Gray"));
     // Krimble 2026-11-13 (task 46): George: "The main menu bar is ugly. Remove the paint job on it." The menu bar painting (the gradient dark at both ends, with its lines) is back to the Krimble Painted theme only; the default theme leaves the bar to the style sheet (transparent over the window) and the one-pixel lines.
     qApp->setProperty("krimblePaintedTheme", theme == QStringLiteral("Krimble Painted"));
-    qApp->setProperty("krimbleBevelTheme", theme == QStringLiteral("Krimble Bevel"));   // Krimble 2026-11-14: the bevel overlay draws its lines one pixel thicker in this theme only   // Krimble 2026-11-11: the menu bar filter (KisMainWindow.cpp) paints its gradient only for this theme
     // if (theme == QStringLiteral("Krimble dark")) {
     if (theme == QStringLiteral("Krimble Blue")) {   // Krimble 2026-11-12 (task 27): the flat sheet belongs to the theme "Krimble Blue" now; "Krimble Blue-Gray" (the default) has none
         qApp->setStyleSheet(krimbleVisualStyleSheet());
     } else if (theme == QStringLiteral("Krimble Blue-Gray")) {   // Krimble 2026-11-12 (task 27): the default theme: the same sheet in the old blue-gray colors
-        // Krimble 2026-11-13 (task 63): George: "I TOLD YOU TO SPLIT THEM OFF!!!!!! TO USE SEPARATE THEMES!!!!!!!" The default theme is the flat one again, as in 1.0.56-beta: the flat sheet recolored to the old blue-gray (hue 236, saturation 33) with the original palette. The Nov 10 look
-        // is its own theme below. The lines that were here (the Nov 10 sheet on the default theme) are in the branch of "Krimble Bevel".
+        // Krimble 2026-11-13 (task 63): George: "I TOLD YOU TO SPLIT THEM OFF!!!!!! TO USE SEPARATE THEMES!!!!!!!" The default theme is the flat one again, as in 1.0.56-beta: the flat sheet recolored to the old blue-gray (hue 236, saturation 33) with the original palette.
         qApp->setStyleSheet(krimbleRecolorSheet(krimbleVisualStyleSheet(), 236, 33));
-    } else if (theme == QStringLiteral("Krimble Bevel")) {   // Krimble 2026-11-13 (task 63): George: "I TOLD YOU TO SPLIT THEM OFF!!!!!! TO USE SEPARATE THEMES!!!!!!!" the Nov 10 look as its own theme
-        // qApp->setStyleSheet(krimbleRecolorSheet(krimbleVisualStyleSheet(), 236, 33));   // task 27 (second part): the flat sheet recolored
-        // qApp->setStyleSheet(krimbleNov10StyleSheet());   // task 31 (before task 34)
-        // qApp->setStyleSheet(krimbleSameHueSheet(krimbleNov10StyleSheet(), 227, 48));   // Krimble 2026-11-12 (task 34): all the same hue and saturation. Krimble 2026-11-12 (task 31): George: "The Nov 10 version is so much better. Revert to that and make it the default."
-        // Krimble 2026-11-14: George: "Just thicker by one pixel." (the lines of the theme "Krimble Bevel" only): the highlight and shadow borders of the sheet are 2 px instead of 1 px, and the bevel overlay
-        // (KisMainWindow.cpp, KrimbleBevelOverlay) draws 2 device pixels when the property "krimbleBevelTheme" is set.
-        QString bevelSheet = krimbleSameHueSheet(krimbleNov10StyleSheet(), 227, 48);
-        // (the replacement has a space before 2px so that "\\2" is not read as group 22)
-        bevelSheet.replace(QRegularExpression(QStringLiteral("(border-(?:top|left|bottom|right):)(\\s*)1px(\\s+solid)")), QStringLiteral("\\1\\2 2px\\3"));
-        qApp->setStyleSheet(bevelSheet);
     } else if (theme == QStringLiteral("Krimble Painted")) {
         // qApp->setStyleSheet(krimblePaintedStyleSheet());
         // Krimble 2026-11-15: George: "In the Krimble painted theme there isn't enough contrast between the scrollbar and the track." The painted sheet had no scroll bar rules, so the style drew them in near-equal tones. Now the track is

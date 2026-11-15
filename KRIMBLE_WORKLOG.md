@@ -747,3 +747,6 @@ George: "Build it", then "FAILED BUILDS MUST NOT PERSIST" and "Your rule is stal
 
 ## 2026-11-15 12:05 MST — Old failed and cancelled runs deleted
 George: "Yes. Failed builds must be deleted. They serve no purpose other than figuring out why the build failed." Deleted the 12 failed or cancelled runs (Nov 6 to Nov 14) from GitHub. Build 61 (run 43749388783) is running.
+
+## 2026-11-15 2:55 PM MST — Krimble Bevel deleted (entry 659)
+George: "Delete Krimble Bevel. I never authorized that theme." and "When I want something DELETED, I WANT IT DELETED." Deleted the theme file, the install line, the code branch and the property (thememanager.cpp, themes/CMakeLists.txt, KRIMBLE_DECISIONS.md rows). George: "No one has that theme" (no fallback added for a saved name). README and release notes still name the theme: left for George to decide. Pushed only on his word "push".
