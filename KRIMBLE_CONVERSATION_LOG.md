@@ -31,3 +31,4 @@ George says he talked to Claude (in an earlier session; the text of that talk is
 - **2026-11-15T22:08Z:** Templates for what? / No. Leave those. Fix this. Make the area where recent files live darker than the UI components so they stand out.
 - **2026-11-15T22:11Z:** (15 screenshots) Make the bevel edges of the toolbox better.
 - **2026-11-15T22:12Z:** Make sure menu titles recede when selected, not glow.
+- **2026-11-15T22:13Z:** Do you still have the comments and tags for the last few builds? I deleted them. / I definitely don't want those APKs, although I have them. / No. I think the notes need to be constructed about the many failures in those builds.

@@ -9,6 +9,9 @@ Krimble is open source software made with the assistance of Claude and ChatGPT.
 
 **Version numbers:** this is build 59. The last release was 1.0.58 beta.
 
+**Do not install this build.** It has many faults, listed under Known issues at the end.
+
+
 **Panels and Tabs**
 
 - Panel tabs have a new look
@@ -46,4 +49,26 @@ Krimble is open source software made with the assistance of Claude and ChatGPT.
 
 **Known issues**
 
+George installed this build and tested it. Everything new failed except Hexagon Selection.
+
+- The first screen has no bevels, and Recent Images draws over the toolbox. Foreground and background color are both gray.
+- Tapping the black and white default colors button in the toolbox does nothing, and then the toolbox vanishes.
+- The Window menu covers up its own title.
+- The orange K is missing from the corner of the default layout.
+- Opening an image turns everything bright gray.
+- The new tabs have no space around their text.
+- Color Lab shows its title twice.
+- The toolbox and the other panels are transparent and sit on top of the image, which opens tiny.
+- Switching themes does not fix the transparency.
+- The Preferences keyboard icon and the icons in the New dialog are tiny.
+- QuickAdjust is gigantic and its bottom buttons stack instead of sitting side by side.
+- Submenus overlap their parent menu (the Image menu's Adjustments submenu).
+- The Save As dialog is not taller by default.
+- The toolbox ends awkwardly at the bottom and scrolls instead of expanding when docked.
+- The Smart Patch flyout has an empty icon and no labels for the other icons.
+
+<!-- Krimble 2026-11-15: the Known issues list before George's test results (kept):
+Known issues (old list)
+
 - The Healing Brush icon is a placeholder.
+-->
