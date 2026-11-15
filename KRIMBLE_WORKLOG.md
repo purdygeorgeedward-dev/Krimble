@@ -579,3 +579,6 @@ George sent two pictures and asked "You get this concept?" Saved in docs/bevel-r
 
 ## 2026-11-15 6:21 AM MT: correction: the pictures are close-ups
 George: "Those are extreme closeups. The corners should be like that." Correction of the entry above: the bands in the pictures are not the thickness to use (the 6:21 entry said bands a fifth of the width). The real bevel stays thin (the 3 real pixel test); the pictures show how the CORNERS join (45 degree pixel staircase) and the four tones (top lightest, left light, right dark, bottom darkest). Decisions row rewritten to say so. Source not changed.
+
+## 2026-11-15 6:25 AM MT: bevel overlay rewritten (entry 600)
+George said yes to the rewrite: KisMainWindow.cpp, four tones, 45 degree joins, 3 real pixels, all themes. Old drawing kept under #if 0. Committed locally, not pushed, no build. George: "We still have a long list of bugs to fix." (the 18 items of 5:56 AM; items traced so far are in the 6:10 AM entry).

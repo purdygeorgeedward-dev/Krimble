@@ -3865,6 +3865,7 @@ protected:
         // Krimble 2026-11-12 (task 35): George: "Can we reverse bevel on menus so they look recessed?" A menu (popup) gets the lines the other way round: dark on the top and left,
         // light on the bottom and right (sunken). Panels, tool bars and image windows are not changed (raised).
         const bool recessed = qobject_cast<QMenu*>(m_target.data()) != nullptr;
+#if 0   // Krimble 2026-11-15: the old drawing (four plain rectangles, two tones), kept; replaced by the mitered frame below
         const QColor light = recessed ? QColor(18, 19, 34) : QColor(110, 114, 156);
         const QColor dark = recessed ? QColor(110, 114, 156) : QColor(18, 19, 34);
         const qreal w = width();
@@ -3877,6 +3878,33 @@ protected:
             p.fillRect(QRectF(0, 0, one, h), light);
             p.fillRect(QRectF(w - one, 0, one, h), dark);
         }
+#endif
+        // Krimble 2026-11-15: George: "Plain rectangles is stupid." and his two close-up pictures (docs/bevel-reference/): four edges, each its own tone (top the lightest, left light,
+        // right dark, bottom the darkest), meeting at 45 degree diagonal joins (a staircase of real pixels: no antialiasing). A menu is recessed: the tones are turned round.
+        // A docked panel has its top and bottom edges only (as before), straight, with no joins. The width of an edge is `one` (3 real screen pixels, entry 599).
+        const QColor topTone    = recessed ? QColor(18, 19, 34)    : QColor(214, 222, 250);
+        const QColor leftTone   = recessed ? QColor(46, 52, 84)    : QColor(140, 150, 196);
+        const QColor rightTone  = recessed ? QColor(140, 150, 196) : QColor(46, 52, 84);
+        const QColor bottomTone = recessed ? QColor(214, 222, 250) : QColor(18, 19, 34);
+        const qreal w = width();
+        const qreal h = height();
+        const qreal t = qMin(one, qMin(w, h) / 2.0);
+        QDockWidget *dock = qobject_cast<QDockWidget*>(m_target.data());
+        const bool allEdges = !dock || dock->isFloating();
+        p.setPen(Qt::NoPen);
+        if (!allEdges) {
+            p.fillRect(QRectF(0, 0, w, t), topTone);
+            p.fillRect(QRectF(0, h - t, w, t), bottomTone);
+            return;
+        }
+        p.setBrush(topTone);
+        { QPolygonF poly; poly << QPointF(0, 0) << QPointF(w, 0) << QPointF(w - t, t) << QPointF(t, t); p.drawPolygon(poly); }
+        p.setBrush(bottomTone);
+        { QPolygonF poly; poly << QPointF(0, h) << QPointF(w, h) << QPointF(w - t, h - t) << QPointF(t, h - t); p.drawPolygon(poly); }
+        p.setBrush(leftTone);
+        { QPolygonF poly; poly << QPointF(0, 0) << QPointF(t, t) << QPointF(t, h - t) << QPointF(0, h); p.drawPolygon(poly); }
+        p.setBrush(rightTone);
+        { QPolygonF poly; poly << QPointF(w, 0) << QPointF(w, h) << QPointF(w - t, h - t) << QPointF(w - t, t); p.drawPolygon(poly); }
     }
 
 private:
