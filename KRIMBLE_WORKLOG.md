@@ -564,3 +564,6 @@ George: "One pixel is insufficient." This replaces the one-pixel rule for bevel 
 
 ## 2026-11-15 6:07 AM MT: George: real pixels only
 George rejected the dp explanation: "Do the opposite. Your doubletalk about virtual pixels is what confused me in the first place. I understand REAL PIXELS. I was a pixel artist on DOS games." Rule added to KRIMBLE_DECISIONS.md: sizes in real screen pixels only. Fact: the bevel overlay already draws in real screen pixels (one real pixel; two in Krimble Bevel); the dp talk was Claude's, not the code's. Thickness for all themes still not given.
+
+## 2026-11-15 6:07 AM MT: George: 1 and 2 real pixels are not enough
+George: "Neither of those is enough on a high resolution screen." (1 real pixel is the default and Painted themes; 2 is Krimble Bevel.) Thickness still not given. Not changed in the source.
