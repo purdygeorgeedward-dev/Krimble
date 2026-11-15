@@ -1591,7 +1591,7 @@ public:
             // m_labels[i]->setFixedWidth(nameWidth + 4);
             // row->addWidget(m_labels[i]);
             // Krimble 2026-11-15 (item 12), George: text 4x the rest of the screen is too big. Old line: (sizes 15/15/16/13/16 px before)
-            m_labels[i]->setStyleSheet(QStringLiteral("font-size: 12px; font-weight: bold; color: #ffffff; background: transparent; border: none;"));   // Krimble 2026-11-12 (task 5): George (his picture of QuickAdjust): "match this version of QuickAdjust."
+            m_labels[i]->setStyleSheet(QStringLiteral("font-weight: bold; color: #ffffff; background: transparent; border: none;"));   // Krimble 2026-11-12 (task 5): George (his picture of QuickAdjust): "match this version of QuickAdjust."
             row->addWidget(m_labels[i], 0, 1, Qt::AlignLeft | Qt::AlignBottom);
             m_numbers[i] = new QSpinBox(content);
             m_numbers[i]->setRange(def(i).min, def(i).max);
@@ -1605,7 +1605,7 @@ public:
             // Krimble 2026-11-12 (task 5): the picture's number box has a small up and down arrow at the right, with a thin line before them (arrow pictures: dark_krimble-quickadjust-arrow-up.png and -down.png)
             m_numbers[i]->setStyleSheet(QStringLiteral(
                 // Krimble 2026-11-15 (item 12), George: text 4x the rest of the screen is too big. Old line: (sizes 15/15/16/13/16 px before)
-                "QSpinBox { font-size: 12px; font-weight: bold; color: #ffffff; padding-right: 22px; }"
+                "QSpinBox { font-weight: bold; color: #ffffff; padding-right: 22px; }"
                 "QSpinBox::up-button { subcontrol-origin: border; subcontrol-position: top right; width: 22px; height: 13px; border: none; border-left: 1px solid #323252; background: transparent; }"
                 "QSpinBox::down-button { subcontrol-origin: border; subcontrol-position: bottom right; width: 22px; height: 13px; border: none; border-left: 1px solid #323252; background: transparent; }"
                 "QSpinBox::up-arrow { image: url(:/dark_krimble-quickadjust-arrow-up.png); width: 9px; height: 7px; }"
@@ -1958,8 +1958,9 @@ static void krimbleShowQuickAdjustDialog(KisMainWindow *win)
     // white like the mockup's.
     {
         QFont smaller = dialog->font();
-        if (smaller.pixelSize() > 0) smaller.setPixelSize(qMax(8, int(smaller.pixelSize() * 0.75)));
-        else smaller.setPointSizeF(qMax(6.0, smaller.pointSizeF() * 0.75));
+        // Krimble 2026-11-15 (item 12): George: "The QuickAdjust window is MAGNIFIED!!!! THAT SHOULD NEVER HAPPEN." The window's text is the program's own text size now (no 75%, and no sizes written in the style sheets).
+        // if (smaller.pixelSize() > 0) smaller.setPixelSize(qMax(8, int(smaller.pixelSize() * 0.75)));
+        // else smaller.setPointSizeF(qMax(6.0, smaller.pointSizeF() * 0.75));
         dialog->setFont(smaller);
     }
     dialog->setStyleSheet(QStringLiteral(
@@ -1976,7 +1977,7 @@ static void krimbleShowQuickAdjustDialog(KisMainWindow *win)
         // " background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #3b3d5a, stop:1 #323450); }"));
         // Krimble 2026-11-12 (task 5): George (his picture of QuickAdjust): "match this version of QuickAdjust." The picture's buttons: a #3c3971 to #323062 fill, a #635ab0 outline, bold, rounded 10 px.
         // Krimble 2026-11-15 (item 12), George: text 4x the rest of the screen is too big. Old line: (sizes 15/15/16/13/16 px before)
-        "QPushButton { color: #f1f4fc; font-size: 13px; font-weight: bold; border: 1px solid #635ab0; border-radius: 10px; padding: 4px 10px;"
+        "QPushButton { color: #f1f4fc; font-weight: bold; border: 1px solid #635ab0; border-radius: 10px; padding: 4px 10px;"
         " background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #3c3971, stop:1 #323062); }"));
     dialog->setAttribute(Qt::WA_DeleteOnClose);
     dialog->setWindowTitle(i18n("Quick Adjust"));
@@ -2045,7 +2046,7 @@ static void krimbleShowQuickAdjustDialog(KisMainWindow *win)
         previewLine->setProperty("krimbleKeepRows", true);
         previewLine->setSpacing(8);
         // Krimble 2026-11-15 (item 12), George: text 4x the rest of the screen is too big. Old line: (sizes 15/15/16/13/16 px before)
-        if (QWidget *label = adjust->previewLabel()) { label->setParent(dialog); label->setStyleSheet(QStringLiteral("font-size: 12px; color: #ffffff; background: transparent; border: none;")); label->show(); previewLine->addWidget(label); }
+        if (QWidget *label = adjust->previewLabel()) { label->setParent(dialog); label->setStyleSheet(QStringLiteral("color: #ffffff; background: transparent; border: none;")); label->show(); previewLine->addWidget(label); }
         if (QAbstractButton *sw = adjust->previewSwitch()) { sw->setParent(dialog); sw->show(); previewLine->addWidget(sw); }
         previewLine->addStretch(1);
         bottomBox->addLayout(previewLine);
@@ -2067,7 +2068,7 @@ static void krimbleShowQuickAdjustDialog(KisMainWindow *win)
         QPushButton *okRow = new QPushButton(i18n("OK"), dialog);
         okRow->setDefault(true);
         // Krimble 2026-11-15 (item 12), George: text 4x the rest of the screen is too big. Old line: (sizes 15/15/16/13/16 px before)
-        okRow->setStyleSheet(QStringLiteral("QPushButton { color: #ffffff; font-size: 13px; font-weight: bold; padding: 4px 10px; border: 1px solid #29c4ff; border-radius: 10px;"
+        okRow->setStyleSheet(QStringLiteral("QPushButton { color: #ffffff; font-weight: bold; padding: 4px 10px; border: 1px solid #29c4ff; border-radius: 10px;"
                                             " background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #006bfd, stop:1 #0033c5); }"));
         QObject::connect(okRow, &QPushButton::clicked, buttons, &QDialogButtonBox::accepted);
         bottom->addWidget(okRow);
