@@ -735,3 +735,6 @@ George: "QuickAdjust is still HUGE." Rows and number boxes smaller, narrower sta
 
 ## 2026-11-15 10:55 AM MT: Build 61 pushed
 George: "Push that." Build number 61 / 1.0.61-beta. Pushed to master, head ec5bc9290b: entries 629 to 638 (8 commits). The build starts from this push. Not tagged, no release notes yet.
+
+## 2026-11-15 11:27 MST — Push of fixes 639 to 650 (no build)
+George: "Push all of the fixes to the repo." Pushed commits 639 to 650 (menu outline, button radius, bevel tones, toolbox growth and height, menu event log, ball bearing slider handles, Color Lab handles, recent colors, dimmer toolbox highlight). No build started: the notes commit is marked [skip ci]. Rule from George: a push never starts a build; only "BUILD" does. Build 61 (run 43743202564) was started by an earlier push and cancelled at his request. Nothing here is built or tested.
