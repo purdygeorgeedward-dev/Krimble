@@ -282,7 +282,7 @@ Krimble exists because of these. They are not connected to Krimble and have not 
 <div align="center">
 
 <img src="https://krimble.org/assets/thank-you.jpg" alt="Thank you from Krimble" width="430">
-
+</div>
 ---
 
 <div align="center">
