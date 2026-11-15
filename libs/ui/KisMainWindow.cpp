@@ -4106,6 +4106,43 @@ private:
     bool m_taken = false;
 };
 
+// Krimble 2026-11-15: George: "Submenu opens but is unresponsive." (Window > Panels, build 60). The cause is not known from the code, so this only writes what happens to the popup menus to krita.log (lines start with
+// KRIMBLE-MENU, Help > Show Krimble Log): every press, release and touch on a menu, which widget got it, which entry is under the finger, whether the entry is enabled, and when an entry is triggered. At most 200 lines.
+class KrimbleMenuProbe : public QObject
+{
+public:
+    explicit KrimbleMenuProbe(QObject *parent = nullptr) : QObject(parent) {}
+    bool eventFilter(QObject *watched, QEvent *event) override
+    {
+        if (m_lines > 200) return false;
+        const QEvent::Type t = event->type();
+        if (t != QEvent::MouseButtonPress && t != QEvent::MouseButtonRelease && t != QEvent::TouchBegin && t != QEvent::TouchEnd && t != QEvent::Show) return false;
+        QWidget *w = qobject_cast<QWidget *>(watched);
+        if (!w) return false;
+        QMenu *menu = qobject_cast<QMenu *>(w);
+        if (!menu) menu = qobject_cast<QMenu *>(w->parentWidget());
+        if (!menu) return false;
+        QString line = QStringLiteral("event %1 on %2 (%3) in menu \"%4\" geometry %5,%6 %7x%8, submenu %9")
+            .arg(int(t)).arg(QString::fromLatin1(w->metaObject()->className())).arg(w->objectName())
+            .arg(menu->title()).arg(menu->x()).arg(menu->y()).arg(menu->width()).arg(menu->height())
+            .arg(menu->menuAction() && menu->menuAction()->associatedWidgets().size() > 0 && qobject_cast<QMenu *>(menu->menuAction()->associatedWidgets().first()));
+        if (t == QEvent::MouseButtonPress || t == QEvent::MouseButtonRelease) {
+            QMouseEvent *me = static_cast<QMouseEvent *>(event);
+            const QPoint local = menu->mapFromGlobal(me->globalPos());
+            QAction *under = menu->actionAt(local);
+            line += QStringLiteral(" | at %1,%2 | entry \"%3\" enabled %4 visible %5 | popup widget %6")
+                .arg(local.x()).arg(local.y()).arg(under ? under->text() : QStringLiteral("(none)"))
+                .arg(under ? int(under->isEnabled()) : -1).arg(under ? int(under->isVisible()) : -1)
+                .arg(QApplication::activePopupWidget() ? QString::fromLatin1(QApplication::activePopupWidget()->metaObject()->className()) + QLatin1Char(' ') + static_cast<QMenu *>(QApplication::activePopupWidget())->title() : QStringLiteral("none"));
+        }
+        ++m_lines;
+        KisUsageLogger::log(QStringLiteral("KRIMBLE-MENU ") + line);
+        return false;
+    }
+private:
+    int m_lines {0};
+};
+
 // Krimble 2026-11-13 (task 56): George: "Tabs still do not tear off a panel. At all. They never did." The filter of 2026-11-12 (task 29) sat on each tab bar and, in a test in real Qt with real
 // mouse events, it does tear a panel off; on the phone it never did, and nothing in krita.log said why. This one sits on the application (it sees every event on its way to any widget, as
 // the other Krimble filters that work on the phone do), reads the mouse events AND the touch events of a tab bar of a panel group, follows the finger with the floating panel, and writes what
@@ -5880,6 +5917,7 @@ KisMainWindow::KisMainWindow(QUuid uuid)
 #ifdef Q_OS_ANDROID
     // Krimble 2026-10-10: drag the strip to the screen edge to shut the right panels.
     qApp->installEventFilter(new KrimbleEdgeCollapseFilter(this));
+    qApp->installEventFilter(new KrimbleMenuProbe(this));   // Krimble 2026-11-15: logs what happens to popup menus (KRIMBLE-MENU lines in krita.log)
     qApp->installEventFilter(new KrimbleTabTearOff(this));   // Krimble 2026-11-13 (task 56): drag a panel's tab out of its row to float the panel
     // Krimble 2026-11-13 (task 57): George (build 57 screenshots): "\"Raised\" buttons are DARKER? WHY? The hilight is also not white or very light. Huge mistake." and "At startup I saw this big blah. Nothing to differentiate it from the other UI elements but a line." The K (drawn by the menu bar from the program's window icon) was missing on the first screen: the bar painted before the icon was set and was not painted again until something
     // changed. The bar is painted again at 0.3, 1 and 2 seconds after the start.

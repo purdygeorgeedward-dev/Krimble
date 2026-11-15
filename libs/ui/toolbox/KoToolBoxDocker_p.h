@@ -76,7 +76,8 @@ private:
     void krimbleSnapFlush(Qt::DockWidgetArea area, bool toMenuBar = false);   // moves the floating toolbox flush against a screen edge (left, right, top under the menu bar, bottom)
     void krimbleKeepFloating();                                                // if the toolbox got docked (saved layout, drag, old menu), floats it again at the edge it was at
     int krimbleFitColumns();                                                   // the fewest columns (not less than the chosen number) at which every tool fits the screen height: no scrolling
-    int m_effColumns {0};                                                      // the columns in use now (the chosen number, or more when the tools do not fit)
+    int m_effColumns {0};
+    int m_forceMinColumns {0};                                                 // Krimble 2026-11-15: raised when the tools still scroll at the columns in use                                                      // the columns in use now (the chosen number, or more when the tools do not fit)
     Qt::DockWidgetArea krimbleEdgeArea() const;   // Krimble 2026-11-06: the dock edge the floating toolbox is at, or NoDockWidgetArea
     int m_edgeDockToken {0};                      // Krimble 2026-11-06: raised at every check; the 1 s delay before docking at an edge only acts if it is still the latest
     // void fitHeightToContents();   // Krimble 2026-10-12: a floating toolbox is only as tall as its tools

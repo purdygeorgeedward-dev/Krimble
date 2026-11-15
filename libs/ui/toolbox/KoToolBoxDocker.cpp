@@ -14,7 +14,8 @@
 #include <QLabel>
 #include <QFontMetrics>
 #include <QFrame>
-#include <QMenuBar>   // Krimble 2026-11-15: the toolbox snaps to just under the menu bar
+#include <QMenuBar>
+#include <QScrollBar>   // Krimble 2026-11-15: the toolbox snaps to just under the menu bar
 #include <QAction>
 #include <QMenu>
 #include <QActionGroup>
@@ -526,6 +527,22 @@ void KoToolBoxDocker::resizeEvent(QResizeEvent *event)
         // (first row hidden, a scroll arrow). The tool area is not limited any more; fitHeightToContents() works the height out from the columns' own width and picks the columns that fit.
         m_scrollArea->setMaximumHeight(QWIDGETSIZE_MAX);
         fitHeightToContents(true);
+        // Krimble 2026-11-15 (2nd): George: "Make sure the toolbox is tall enough to hold its contents without scrolling." If the tool area still has something to scroll to (the height worked out
+        // from the layout was a little short, or something else sits inside the area), the box grows by that much; if that does not fit the screen, one more column is used.
+        if (QScrollBar *krimbleBar = m_scrollArea->verticalScrollBar()) {
+            const int overflow = krimbleBar->maximum();
+            QScreen *krimbleScreen = screen() ? screen() : QGuiApplication::primaryScreen();
+            if (overflow > 0 && krimbleScreen) {
+                const int cap = int(krimbleScreen->availableGeometry().height() * 0.95);
+                if (height() + overflow <= cap) {
+                    setMaximumHeight(height() + overflow);
+                    resize(width(), height() + overflow);
+                } else if (m_forceMinColumns < 40) {
+                    m_forceMinColumns = qMax(qMax(1, m_columns), m_effColumns) + 1;
+                    fitHeightToContents(true);
+                }
+            }
+        }
         return;
         const int contentHeight = qMax(m_toolBox->layout()->heightForWidth(m_scrollArea->viewport()->width()), m_toolBox->height());   // Krimble 2026-10-26
         if (contentHeight > 0) {
@@ -820,7 +837,7 @@ int KoToolBoxDocker::krimbleFitColumns()
     const int scrollFrame = m_scrollArea->height() - m_scrollArea->viewport()->height();
     const int chrome = titleAndFrame + margins.top() + margins.bottom() + scrollFrame;
     const int icon = iconWidth();
-    for (int c = qMax(1, m_columns); c < 40; ++c) {
+    for (int c = qMax(qMax(1, m_columns), m_forceMinColumns); c < 40; ++c) {
         const int toolsHeight = m_toolBox->layout()->heightForWidth(c * icon);
         if (toolsHeight > 0 && chrome + toolsHeight <= cap) return c;
     }
