@@ -1361,15 +1361,22 @@ public:
             break;
         }
         if (!first) return;
-        const int deficit = (target.x() + label->width() + 4) - bar->actionGeometry(first).x();
+        // const int deficit = (target.x() + label->width() + 4) - bar->actionGeometry(first).x();
+        // Krimble 2026-11-15: George: "File menu title is still too close to the orange K. PLEASE MOVE THE MENU TO THE RIGHT!!!!!" The gap was measured from the invisible button (22 units wide), but the K the bar draws is as tall as the menu font
+        // (drawK, 2 units from the left edge), so the open menu's box started at the K's right edge and the name "File" about 11 units later (the sheet's padding), only about 3 units clear on the phone. The first menu's box now starts at least
+        // 8 units right of the drawn K.
+        const int krimbleKSize = qMin(bar->height() - 4, qMax(14, QFontMetrics(bar->font()).height()));
+        const int deficit = (2 + krimbleKSize + 8) - bar->actionGeometry(first).x();
         if (deficit <= 0) return;
         if (!spacer) {
             ensureSpacer(bar);
             spacer = bar->findChild<QWidgetAction *>(QStringLiteral("krimbleKSpacer"));
         }
         QWidget *gap = spacer ? spacer->defaultWidget() : nullptr;
-        if (!gap || gap->width() >= 60) return;
-        gap->setFixedSize(qMin(60, gap->width() + deficit), gap->height());
+        // if (!gap || gap->width() >= 60) return;
+        // gap->setFixedSize(qMin(60, gap->width() + deficit), gap->height());
+        if (!gap || gap->width() >= 90) return;   // Krimble 2026-11-15: was 60
+        gap->setFixedSize(qMin(90, gap->width() + deficit), gap->height());
     }
 
     static void schedulePlaceK(QMenuBar *bar)
