@@ -39,3 +39,4 @@ George says he talked to Claude (in an earlier session; the text of that talk is
 - **2026-11-15T23:29Z:** I got a message about not having any resource bundles.
 - **2026-11-15T23:30Z:** I didn't want you to delete the whole folder before.
 - **2026-11-15T23:32Z:** (welcome page screenshot) The k too close.
+- **2026-11-15T23:33Z:** (screenshot) Disaster. Complete mess. / I loaded an image.

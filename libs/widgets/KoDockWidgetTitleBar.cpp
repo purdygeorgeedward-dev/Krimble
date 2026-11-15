@@ -147,7 +147,8 @@ void KoDockWidgetTitleBar::paintEvent(QPaintEvent*)
     // Krimble 2026-11-15: George: "Docked panels are supposed to have tabs." and "There is nothing to grab in this dock to tear off this panel." A panel docked on its own has no tab (Qt draws tabs only for
     // grouped panels), so its header draws one: a tab with rounded top corners behind the panel's name. Dragging it tears the panel off (mousePressEvent and the following). A panel in a tab group
     // (title text hidden) keeps Qt's tabs; a floating panel keeps its own title bar.
-    if (!q->isFloating() && !d->titleTextHidden && d->titleLabel) {
+    // Krimble 2026-11-15: George: "Remove all the tab customizations." and "super buggy and twitchy now": the tab drawn behind a docked panel's name is off (the condition below is never true).
+    if (false && !q->isFloating() && !d->titleTextHidden && d->titleLabel) {
         const qreal dpr = devicePixelRatioF();
         const int radius = qRound(8 * dpr);
         const int textW = d->titleLabel->fontMetrics().horizontalAdvance(q->windowTitle());
@@ -389,6 +390,9 @@ void KoDockWidgetTitleBar::contextMenuEvent(QContextMenuEvent *event)
 // Krimble 2026-11-15: tear-off by dragging the header of a docked panel (item 16). Only a docked panel handles these; for a floating panel the events are ignored so Qt moves the window as before.
 void KoDockWidgetTitleBar::mousePressEvent(QMouseEvent *event)
 {
+    // Krimble 2026-11-15: George: "Remove all the tab customizations." The tear-off by dragging the header of a docked panel is off: a press is always ignored, so Qt handles the header as before (a drag could float a panel by accident).
+    event->ignore();
+    return;
     QDockWidget *q = qobject_cast<QDockWidget*>(parentWidget());
     if (!q || q->isFloating() || event->button() != Qt::LeftButton || !hasFeature(q, QDockWidget::DockWidgetMovable)) {
         event->ignore();
