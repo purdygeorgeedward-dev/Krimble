@@ -7471,6 +7471,3 @@ George (Smart Compression dialog, with a picture of a steel ball bearing): "This
 
 ## 2026-11-15 (645th) — Slider handles use George's ball bearing graphic
 George: "No. I gave you an instruction. Use my graphic." The handle is now his steel ball picture itself: cut round from the picture (96 px, transparent corners) as `krita/pics/svg/krimble-ball-bearing.png` (listed in `svg-icons.qrc`), used as `border-image` (stretched to the handle box, so it stays sharp and round) on every `QSlider` handle: the rule appended in `thememanager.cpp` (10 units, about 32 real px) and the QuickAdjust sliders in `KisMainWindow.cpp` (16 units). The gradient-drawn balls are commented out. Not built or tested. The Color Lab hue slider (its own handle) is not changed.
-
-## 2026-11-15 (646th) — Color Lab uses the ball bearing handle
-George: "Give the new handle to Color Lab." `krimble_color_pages.h`: the channel bars (`KrimbleSliderBar`) draw `krimble-ball-bearing.png` as the ball, last, over the track (the colored glossy ball is commented out). `krimble_color_studio.h`: the hue slider's handle is the picture too. The Size and Opacity sliders of the mixer already take the global rule (645). Not built or tested.

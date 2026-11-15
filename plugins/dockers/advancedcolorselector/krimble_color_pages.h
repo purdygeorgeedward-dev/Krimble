@@ -165,20 +165,16 @@ protected:
         const QPointF center(ballR + (width() - 2 * ballR) * t, h / 2);
         QColor ballColor = ballOverride.isValid() ? ballOverride : (trackColor ? trackColor(t) : QColor(Qt::gray));
         ballColor.setAlpha(255);
-        // QRadialGradient ball(center + QPointF(-ballR * 0.25, -ballR * 0.35), ballR * 1.25);
-        // ball.setColorAt(0.0, ballColor.lighter(190));
-        // ball.setColorAt(0.45, ballColor);
-        // ball.setColorAt(1.0, ballColor.darker(165));
-        // p.setPen(QPen(QColor(6, 10, 24, 230), 2.0));
-        // p.setBrush(ball);
-        // p.drawEllipse(center, ballR, ballR);
-        // p.setPen(QPen(QColor(235, 240, 255, 200), 1.6));
-        // p.setBrush(Qt::NoBrush);
-        // p.drawEllipse(center, ballR - 1.6, ballR - 1.6);
-        // Krimble 2026-11-15: George: "Give the new handle to Color Lab." The ball is his ball bearing picture (krimble-ball-bearing.png), drawn last so it is on top of the track.
-        p.setRenderHint(QPainter::SmoothPixmapTransform);
-        static const QPixmap bearing(QStringLiteral(":/krimble-ball-bearing.png"));
-        p.drawPixmap(QRectF(center.x() - ballR, center.y() - ballR, 2 * ballR, 2 * ballR), bearing, QRectF(bearing.rect()));
+        QRadialGradient ball(center + QPointF(-ballR * 0.25, -ballR * 0.35), ballR * 1.25);
+        ball.setColorAt(0.0, ballColor.lighter(190));
+        ball.setColorAt(0.45, ballColor);
+        ball.setColorAt(1.0, ballColor.darker(165));
+        p.setPen(QPen(QColor(6, 10, 24, 230), 2.0));
+        p.setBrush(ball);
+        p.drawEllipse(center, ballR, ballR);
+        p.setPen(QPen(QColor(235, 240, 255, 200), 1.6));
+        p.setBrush(Qt::NoBrush);
+        p.drawEllipse(center, ballR - 1.6, ballR - 1.6);
     }
     void mousePressEvent(QMouseEvent *e) override { pick(e->pos().x()); }
     void mouseMoveEvent(QMouseEvent *e) override { if (e->buttons() & Qt::LeftButton) pick(e->pos().x()); }
