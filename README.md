@@ -266,10 +266,13 @@ Planned Targets:
 | iOS | Planned |
 | macOS | Planned |
 
-Android is the primary focus. Other platforms are intended to share the same Krimble workflow where practical.
+Android is just the beginning.
 
 ---
+<div align="center">
 
+<img src="https://krimble.org/assets/thank-you.jpg" alt="Thank you from Krimble" width="430">
+</div>
 ## THANK YOU! 🙏
 
 Krimble exists because of these. They are not connected to Krimble and have not endorsed it; we are simply grateful for their services.
@@ -279,10 +282,6 @@ Krimble exists because of these. They are not connected to Krimble and have not 
 - <img src="thanks-icons/termux.svg" width="24" height="24" align="absmiddle"> **Termux**: the Android terminal that runs the whole build from a phone.
 - <img src="thanks-icons/github.svg" width="24" height="24" align="absmiddle"> **GitHub**: hosts the code, the releases and the issue tracker. What would we do without it?
 
-<div align="center">
-
-<img src="https://krimble.org/assets/thank-you.jpg" alt="Thank you from Krimble" width="430">
-</div>
 ---
 
 <div align="center">
