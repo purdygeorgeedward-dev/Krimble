@@ -336,21 +336,24 @@ void ThemeManager::slotChangePalette()
     // Krimble 2026-11-15 (691st): George: "Breeze dark theme has blue lines added?" The bevel overlay (blue-gray lines) and the raised toolbox buttons were drawn in every theme but Dark Gray. Now only the Krimble themes
     // other than Dark Gray get them; Breeze Dark, Breeze Light and Breeze High Contrast show their own colors only.
     qApp->setProperty("krimbleFlatTheme", theme == QStringLiteral("Krimble Dark Gray") || !theme.startsWith(QStringLiteral("Krimble")));   // Krimble 2026-11-15: no bevel overlay lines and no raised toolbox buttons in this theme
+    // Krimble 2026-11-15 (696th): George: "Ok it finally switched. There was a long delay." The sheet was set up to seven times in a row (the theme's sheet, then each added rule set), and each call parses the whole
+    // sheet and restyles every widget. It is now put together in one string and set once. (The calls are kept below, as comments in the text they replaced: each "krimbleSheet = (" was "qApp->setStyleSheet(".)
+    QString krimbleSheet;
     // if (theme == QStringLiteral("Krimble dark")) {
     if (theme == QStringLiteral("Krimble Blue")) {   // Krimble 2026-11-12 (task 27): the flat sheet belongs to the theme "Krimble Blue" now; "Krimble Blue-Gray" (the default) has none
-        qApp->setStyleSheet(krimbleVisualStyleSheet());
+        krimbleSheet = (krimbleVisualStyleSheet());
     } else if (theme == QStringLiteral("Krimble Blue-Gray")) {   // Krimble 2026-11-12 (task 27): the default theme: the same sheet in the old blue-gray colors
         // Krimble 2026-11-13 (task 63): George: "I TOLD YOU TO SPLIT THEM OFF!!!!!! TO USE SEPARATE THEMES!!!!!!!" The default theme is the flat one again, as in 1.0.56-beta: the flat sheet recolored to the old blue-gray (hue 236, saturation 33) with the original palette.
-        qApp->setStyleSheet(krimbleRecolorSheet(krimbleVisualStyleSheet(), 236, 33));
+        krimbleSheet = (krimbleRecolorSheet(krimbleVisualStyleSheet(), 236, 33));
     } else if (theme == QStringLiteral("Krimble Dark Gray")) {
         // Krimble 2026-11-15: George: "We should create a simplified dark gray theme with no bevels. Modern pro style." The flat sheet (no bevel look) with every blue-gray background turned gray (hue 0, saturation 0, same brightness); the accent blues stay.
-        // qApp->setStyleSheet(krimbleSameHueSheet(krimbleVisualStyleSheet(), 0, 0));   // before "No selection blue either.": the accent blues stayed
-        qApp->setStyleSheet(krimbleGraySheet(krimbleVisualStyleSheet()));
+        // krimbleSheet = (krimbleSameHueSheet(krimbleVisualStyleSheet(), 0, 0));   // before "No selection blue either.": the accent blues stayed
+        krimbleSheet = (krimbleGraySheet(krimbleVisualStyleSheet()));
     } else if (theme == QStringLiteral("Krimble Painted")) {
-        // qApp->setStyleSheet(krimblePaintedStyleSheet());
+        // krimbleSheet = (krimblePaintedStyleSheet());
         // Krimble 2026-11-15: George: "In the Krimble painted theme there isn't enough contrast between the scrollbar and the track." The painted sheet had no scroll bar rules, so the style drew them in near-equal tones. Now the track is
         // dark (#0E1226, black edge) and the handle is a light blue-gray gradient (#9AA5D2 to #6671A0) with a bright edge (#D3D9F0); the arrow buttons are 0 size (nobody uses them on a touch screen). Painted theme only.
-        qApp->setStyleSheet(krimblePaintedStyleSheet() + QStringLiteral(
+        krimbleSheet = (krimblePaintedStyleSheet() + QStringLiteral(
             // "\nQScrollBar:vertical { background: #0e1226; width: 16px; margin: 0px; border: 1px solid #05070f; }\n"
             // Krimble 2026-11-15 (2nd): George: "The track should be darker." #0E1226 to #03050A.
             "\nQScrollBar:vertical { background: #03050a; width: 16px; margin: 0px; border: 1px solid #000000; }\n"
@@ -365,21 +368,21 @@ void ThemeManager::slotChangePalette()
             "QScrollBar::add-line, QScrollBar::sub-line { width: 0px; height: 0px; border: none; background: none; }\n"
             "QScrollBar::add-page, QScrollBar::sub-page { background: none; }\n"));
     } else {
-        qApp->setStyleSheet(QString());
+        krimbleSheet = (QString());
     }
     // Krimble 2026-11-15: George (1.0.59 test, item 6: "New tab design has no space around text inside tabs. Mockups were way off."): the tab rows of the panel groups (their tab bars are direct children of the main
     // window) are drawn by KrimbleTabTearOff::paintTabRow, whose shape takes 10 px (the flare) off each side of the tab's rectangle, so the 13 px of the sheet's padding left about 3 px beside the text. These tabs get
     // 26 px at the sides and 5 px above and below; the other tab bars (dialogs, image tabs) keep the sheet's padding.
     // Krimble 2026-11-15: George: "Remove all the tab customizations. They are all a failure." Off: 
-    // if (!qApp->styleSheet().isEmpty()) qApp->setStyleSheet(qApp->styleSheet() + QStringLiteral("\nQMainWindow > QTabBar::tab { padding: 5px 26px; }\n"));
+    // if (!krimbleSheet.isEmpty()) krimbleSheet = (krimbleSheet + QStringLiteral("\nQMainWindow > QTabBar::tab { padding: 5px 26px; }\n"));
     // Krimble 2026-11-15 (item 16 and the Layers panel): George: "In the layers panel I think the regular layers should be mid tones like a gray and the selected layer should be lighter. The glowing
     // layer doesn't work." Every layer row is a mid gray (#5D6272) with white text; the selected row is lighter (#8E93A6) with dark text, flat, no glow. Same in every theme (the rule comes after the
     // theme's own sheet and names the Layers panel's list, NodeView, so it wins over the general QAbstractItemView rule). The colors are mine; George gave none.
-    if (!qApp->styleSheet().isEmpty()) qApp->setStyleSheet(qApp->styleSheet() + QStringLiteral("\nNodeView::item { background: #5d6272; color: #ffffff; border: none; }\nNodeView::item:selected { background: #8e93a6; color: #0e1020; border: none; border-radius: 0px; }\n"));
+    if (!krimbleSheet.isEmpty()) krimbleSheet = (krimbleSheet + QStringLiteral("\nNodeView::item { background: #5d6272; color: #ffffff; border: none; }\nNodeView::item:selected { background: #8e93a6; color: #0e1020; border: none; border-radius: 0px; }\n"));
     // Krimble 2026-11-15: George (Smart Compression dialog; his picture of a steel ball bearing): "This is a ball bearing. It should be tiny, shiny, and on the top layer when it's a control gadget." Only QuickAdjust had the
     // ball; every other slider (export dialogs, filters) had the sheet's flat 13 px handle, which the slider's short row clipped into a gray block. Every slider handle is now the steel ball (10 style units, about 32 real
     // pixels, with the same sky/horizon/bounce gradient as QuickAdjust), and the slider row is tall enough (14 units) that the ball is never cut off, so it shows above the groove. QuickAdjust keeps its own sheet.
-    if (!qApp->styleSheet().isEmpty()) qApp->setStyleSheet(qApp->styleSheet() + QStringLiteral(
+    if (!krimbleSheet.isEmpty()) krimbleSheet = (krimbleSheet + QStringLiteral(
         "\nQSlider:horizontal { min-height: 14px; }\n"
         // "QSlider::handle:horizontal { width: 10px; height: 10px; margin: -5px 0; border: 1px solid #141822; border-radius: 5px;"
         // " background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #f4f7fc, stop:0.30 #c9d0de, stop:0.46 #4a5164, stop:0.56 #262b38, stop:0.78 #7f889c, stop:1 #c3cad8); }\n"
@@ -387,7 +390,7 @@ void ThemeManager::slotChangePalette()
         "QSlider::handle:horizontal { width: 10px; height: 10px; margin: -5px 0; border: none; background: transparent; border-image: url(:/krimble-ball-bearing.png) 0 0 0 0 stretch stretch; }\n"));
     // Krimble 2026-11-15: George: "A selected menu item should be shaded to look recessed. They don't need to glow." The selected row of a menu is no longer the bright blue: it is darker than the menu, with a dark top and left edge and a
     // light bottom and right edge, like the recessed menus' bevel (an inset). Every menu item has a transparent 1 px border so the text does not move when a row is selected. Same in every theme with a sheet.
-    if (!qApp->styleSheet().isEmpty()) qApp->setStyleSheet(qApp->styleSheet() + QStringLiteral(
+    if (!krimbleSheet.isEmpty()) krimbleSheet = (krimbleSheet + QStringLiteral(
         // "\nQMenu::item { border: 1px solid transparent; }\n"
         // "QMenu::item:selected { background: #0f1424; border-top: 1px solid #04060d; border-left: 1px solid #04060d;"
         // " border-bottom: 1px solid rgba(255, 255, 255, 60); border-right: 1px solid rgba(255, 255, 255, 60); }\n"
@@ -396,20 +399,22 @@ void ThemeManager::slotChangePalette()
         "\nQMenuBar::item:selected, QMenuBar::item:pressed { background: rgba(0, 0, 0, 120); border-top: 1px solid rgba(0, 0, 0, 210); border-left: 1px solid rgba(0, 0, 0, 210);"
         " border-bottom: 1px solid rgba(255, 255, 255, 70); border-right: 1px solid rgba(255, 255, 255, 70); border-radius: 0px; }\n"));
     // Krimble 2026-11-15 (2nd): George: "make the base screen (not the toolbox, menubar, or panels) darker for some kind of contrast." The base screen, the area behind the image windows and the welcome page, is the theme's window color 35 percent darker.
-    if (!qApp->styleSheet().isEmpty()) {
+    if (!krimbleSheet.isEmpty()) {
         const QString baseColor = qApp->palette().color(QPalette::Window).darker(135).name();
-        qApp->setStyleSheet(qApp->styleSheet() + QStringLiteral("\nQMdiArea { background: %1; }\nKisWelcomePageWidget { background: %1; }\n").arg(baseColor));
+        krimbleSheet = (krimbleSheet + QStringLiteral("\nQMdiArea { background: %1; }\nKisWelcomePageWidget { background: %1; }\n").arg(baseColor));
         // Krimble 2026-11-15: George: "Make the area where recent files live darker than the UI components so they stand out." The list of recent files on the welcome page is darker than the page around it and than the panels.
         const QString recentColor = qApp->palette().color(QPalette::Window).darker(200).name();
-        qApp->setStyleSheet(qApp->styleSheet() + QStringLiteral("\nKisWelcomePageWidget QListView#recentDocumentsListView { background: %1; border: 1px solid %2; }\n").arg(recentColor, baseColor));
+        krimbleSheet = (krimbleSheet + QStringLiteral("\nKisWelcomePageWidget QListView#recentDocumentsListView { background: %1; border: 1px solid %2; }\n").arg(recentColor, baseColor));
     }
+    qApp->setStyleSheet(krimbleSheet);   // 696th: the one and only call
     // Krimble 2026-11-15 (693rd): George (screenshot, Breeze Light): "Breeze light has a dark menu bar." (and dark navy panels, a blue Opacity bar). Switching from a Krimble theme to one with no style sheet left widgets
     // that were polished under the old sheet (menu bar, panels) with its colors. Every widget is unpolished and polished again after the sheet and palette are set, so each shows the new theme.
-    Q_FOREACH (QWidget *krimbleWidget, QApplication::allWidgets()) {
-        krimbleWidget->style()->unpolish(krimbleWidget);
-        krimbleWidget->style()->polish(krimbleWidget);
-        krimbleWidget->update();
-    }
+    // Krimble 2026-11-15 (696th): off: setting the sheet and the palette already restyles every widget, and this was a third full pass (slow).
+    // Q_FOREACH (QWidget *krimbleWidget, QApplication::allWidgets()) {
+    //     krimbleWidget->style()->unpolish(krimbleWidget);
+    //     krimbleWidget->style()->polish(krimbleWidget);
+    //     krimbleWidget->update();
+    // }
 #endif
     KisConfigNotifier::instance()->notifyColorThemeChanged(filename);
 

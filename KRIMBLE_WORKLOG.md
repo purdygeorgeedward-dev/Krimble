@@ -806,3 +806,4 @@ George: "Destroy all Krita themes. Nothing called Krita stays in themes." Delete
 **2026-11-15, 17:10 (MST).** Repolish all widgets on theme change (693rd); pushed, no build.
 **2026-11-15, 17:20 (MST).** Layers bottom buttons: no black menu-indicator bars (694th); pushed, no build.
 **2026-11-15, 17:30 (MST).** Old Krita-named saved theme reads as Blue-Gray; unknown name loads default (695th); pushed, no build.
+**2026-11-15, 17:40 (MST).** Theme switch: one style sheet call instead of seven; repolish loop off (696th); pushed, no build.

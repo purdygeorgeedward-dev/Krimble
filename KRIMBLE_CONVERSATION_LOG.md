@@ -50,3 +50,4 @@ George says he talked to Claude (in an earlier session; the text of that talk is
 - **2026-11-15T23:50Z:** (screenshot) Breeze light has a dark menu bar.
 - **2026-11-15T23:52Z:** (screenshot) There are still weird black things at the bottom of the layers panel.
 - **2026-11-15T23:55Z:** It was called Krita something before, but we changed it because this is not Krita. (re: Krimble blue gray won't load)
+- **2026-11-15T23:58Z:** Ok it finally switched. There was a long delay
