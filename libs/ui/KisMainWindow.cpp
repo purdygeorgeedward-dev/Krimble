@@ -3957,7 +3957,11 @@ protected:
         // Krimble 2026-11-15: George: "Try 3 just to test next time." (1 and 2 real pixels were not enough on his screen; all themes must have bevels). Every theme: 3 REAL screen pixels. Before: 2 in Krimble Bevel, 1 in the others.
         // const qreal one = 3.0 / qMax<qreal>(1.0, devicePixelRatioF());
         // Krimble 2026-11-15: George (build 60, floating toolbox): "it has a fat edge again." The toolbox's edge (the dock named ToolBox) is 2 real screen pixels; everything else stays at 3.
-        const qreal one = (m_target && m_target->objectName() == QLatin1String("ToolBox") ? 2.0 : 3.0) / qMax<qreal>(1.0, devicePixelRatioF());
+        // const qreal one = (m_target && m_target->objectName() == QLatin1String("ToolBox") ? 2.0 : 3.0) / qMax<qreal>(1.0, devicePixelRatioF());
+        // Krimble 2026-11-15 (674th+): George (landscape screenshot, "NO EDGES" with arrows at the toolbox): "Make the bevel edges of the toolbox better." The toolbox's edge is 3 real pixels again, on all four sides in
+        // every case (docked too), with clearer tones (below).
+        const bool krimbleToolBoxTarget = m_target && m_target->objectName() == QLatin1String("ToolBox");
+        const qreal one = 3.0 / qMax<qreal>(1.0, devicePixelRatioF());
         // const QColor light(110, 114, 156);
         // const QColor dark(18, 19, 34);
         // Krimble 2026-11-12 (task 35): George: "Can we reverse bevel on menus so they look recessed?" A menu (popup) gets the lines the other way round: dark on the top and left,
@@ -4019,14 +4023,20 @@ protected:
         // const QColor leftTone   = recessed ? QColor(46, 52, 84)    : QColor(140, 150, 196);
         // const QColor rightTone  = recessed ? QColor(140, 150, 196) : QColor(46, 52, 84);
         // const QColor bottomTone = recessed ? QColor(214, 222, 250) : QColor(18, 19, 34);
-        const QColor leftTone   = recessed ? QColor(46, 52, 84)    : QColor(80, 88, 130);
-        const QColor rightTone  = recessed ? QColor(140, 150, 196) : QColor(50, 54, 82);
-        const QColor bottomTone = recessed ? QColor(214, 222, 250) : QColor(32, 34, 56);
+        // const QColor leftTone   = recessed ? QColor(46, 52, 84)    : QColor(80, 88, 130);
+        // const QColor rightTone  = recessed ? QColor(140, 150, 196) : QColor(50, 54, 82);
+        // const QColor bottomTone = recessed ? QColor(214, 222, 250) : QColor(32, 34, 56);
+        // Krimble 2026-11-15 (674th+): the toolbox's own tones: a lit top and left, a dark right and bottom, with a wider gap between light and dark than the other panels have.
+        if (krimbleToolBoxTarget && !recessed && topTone.alpha() != 0) topTone = QColor(150, 160, 208);
+        const QColor leftTone   = recessed ? QColor(46, 52, 84)    : (krimbleToolBoxTarget ? QColor(118, 128, 176) : QColor(80, 88, 130));
+        const QColor rightTone  = recessed ? QColor(140, 150, 196) : (krimbleToolBoxTarget ? QColor(26, 28, 48) : QColor(50, 54, 82));
+        const QColor bottomTone = recessed ? QColor(214, 222, 250) : (krimbleToolBoxTarget ? QColor(12, 13, 24) : QColor(32, 34, 56));
         const qreal w = width();
         const qreal h = height();
         const qreal t = qMin(one, qMin(w, h) / 2.0);
         QDockWidget *dock = qobject_cast<QDockWidget*>(m_target.data());
-        const bool allEdges = !dock || dock->isFloating();
+        // const bool allEdges = !dock || dock->isFloating();
+        const bool allEdges = !dock || dock->isFloating() || krimbleToolBoxTarget;   // 674th+: the docked toolbox has all four edges too
         p.setPen(Qt::NoPen);
         if (!allEdges) {
             p.fillRect(QRectF(0, 0, w, t), topTone);
