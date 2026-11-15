@@ -237,7 +237,36 @@ void KoToolBoxButton::paintEvent(QPaintEvent *event)
     // Krimble 2026-11-12 (task 40): George: "The user should have the choice between flat looking buttons like in your mockup and raised buttons with thicker bevels like DPaint." The Raised style: a tool that is not selected sits in its own box with a thick bevel, as in DPaint: a black outline, a light top and left edge, a dark
     // bottom and right edge (the corners are mitered), a flat face. A button held down (isDown) has the bevel the other way round. The selected tool keeps its glow below.
     // The Flat style (the default) paints nothing here.
+    // Krimble 2026-11-15 (item 16): George (his third bevel picture, docs/bevel-reference/george-bevel-concept-3-stepped-miters.png): "the previous time I used beveled icons in the toolbox they
+    // were oddly colorful and ugly. Refer to previous discussion of bevels." and, asked if alpha could give nice shades in every theme and be multi tone like his image: "Yes. We will check in the
+    // next build." The Raised style is drawn from the picture: the face is the theme's own color; each side is white or black laid over it at its own opacity, so every theme gets the same four tones
+    // in its own hue: top white 100%, left white 45%, right black 33%, bottom black 58% (measured from the picture: #FEFDFD, #9EACD4, #3E4866, #272C43 over a face of #5E6B91). A button held down has the
+    // sides the other way round. The four corners are 45 degree joins, drawn without smoothing so they step like the picture. No outline, no color.
     if (KrimbleToolboxIcons::buttonStyle() == 1 && !isChecked()) {
+        QPainter box(this);
+        box.setRenderHint(QPainter::Antialiasing, false);
+        const QRect r = rect().adjusted(1, 1, -1, -1);
+        const QColor face = qApp->palette().color(QPalette::Window).lighter(150);
+        const bool down = isDown();
+        const int t = qMax(2, qRound(qMin(r.width(), r.height()) * 0.075));
+        box.fillRect(r, face);
+        const QColor topTone    = down ? QColor(0, 0, 0, 148)       : QColor(255, 255, 255, 255);
+        const QColor leftTone   = down ? QColor(0, 0, 0, 84)        : QColor(255, 255, 255, 115);
+        const QColor rightTone  = down ? QColor(255, 255, 255, 115) : QColor(0, 0, 0, 84);
+        const QColor bottomTone = down ? QColor(255, 255, 255, 255) : QColor(0, 0, 0, 148);
+        box.setPen(Qt::NoPen);
+        QPolygon poly;
+        poly.clear(); poly << r.topLeft() << r.topRight() << QPoint(r.right() - t, r.top() + t) << QPoint(r.left() + t, r.top() + t);
+        box.setBrush(topTone); box.drawPolygon(poly);
+        poly.clear(); poly << r.topLeft() << QPoint(r.left() + t, r.top() + t) << QPoint(r.left() + t, r.bottom() - t) << r.bottomLeft();
+        box.setBrush(leftTone); box.drawPolygon(poly);
+        poly.clear(); poly << r.topRight() << r.bottomRight() << QPoint(r.right() - t, r.bottom() - t) << QPoint(r.right() - t, r.top() + t);
+        box.setBrush(rightTone); box.drawPolygon(poly);
+        poly.clear(); poly << r.bottomLeft() << QPoint(r.left() + t, r.bottom() - t) << QPoint(r.right() - t, r.bottom() - t) << r.bottomRight();
+        box.setBrush(bottomTone); box.drawPolygon(poly);
+    }
+    // The first version of the Raised style (near-white and near-black sides, a near-black outline), not used any more:
+    if (false && KrimbleToolboxIcons::buttonStyle() == 1 && !isChecked()) {
         QPainter box(this);
         const QRect r = rect().adjusted(1, 1, -1, -1);
         // const QColor face = qApp->palette().color(QPalette::Button).lighter(112);
