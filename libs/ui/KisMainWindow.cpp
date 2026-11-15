@@ -4045,6 +4045,8 @@ protected:
         // panel's title bar (#383A53). A panel in a tab group gets no top line from the overlay: the tab row draws its own line under the unselected tabs, and the selected tab runs into the panel.
         // Krimble 2026-11-15: George: "Remove all the tab customizations. They are all a failure." Off: tab line suppression
         // if (!recessed) { if (QDockWidget *krimbleTabbedDock = qobject_cast<QDockWidget*>(m_target.data())) { if (krimbleDockInTabGroup(krimbleTabbedDock)) topTone = QColor(0, 0, 0, 0); } }
+        // Krimble 2026-11-15 (697th): George: "Please make tabs match their panels and don't put a line between them." Back on: a panel in a tab group gets no top line from the overlay (the tab runs into the panel).
+        if (!recessed) { if (QDockWidget *krimbleTabbedDock = qobject_cast<QDockWidget*>(m_target.data())) { if (krimbleDockInTabGroup(krimbleTabbedDock)) topTone = QColor(0, 0, 0, 0); } }
         // const QColor leftTone   = recessed ? QColor(46, 52, 84)    : QColor(140, 150, 196);
         // const QColor rightTone  = recessed ? QColor(140, 150, 196) : QColor(46, 52, 84);
         // const QColor bottomTone = recessed ? QColor(214, 222, 250) : QColor(18, 19, 34);

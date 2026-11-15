@@ -388,6 +388,12 @@ void ThemeManager::slotChangePalette()
         // " background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #f4f7fc, stop:0.30 #c9d0de, stop:0.46 #4a5164, stop:0.56 #262b38, stop:0.78 #7f889c, stop:1 #c3cad8); }\n"
         // Krimble 2026-11-15 (2nd): George: "No. I gave you an instruction. Use my graphic." The handle is his ball bearing picture itself (krimble-ball-bearing.png, cut round from his picture), stretched to the handle box.
         "QSlider::handle:horizontal { width: 10px; height: 10px; margin: -5px 0; border: none; background: transparent; border-image: url(:/krimble-ball-bearing.png) 0 0 0 0 stretch stretch; }\n"));
+    // Krimble 2026-11-15 (697th): George (screenshots of the Layers, Text Properties and Tool Options tabs): "Please make tabs match their panels and don't put a line between them." The selected tab of a panel
+    // group (the tab bars of the main window) has the panel's own color (palette(window)), no bottom edge, and the bar draws no base line under the tabs. (The overlay's light top line on a panel in a tab group is
+    // off too, see KrimbleBevelOverlay.) The unselected tabs are as they were. This is one rule set for the tabs of the panel groups only, not a return of the tab shapes removed on 2026-11-15.
+    if (!krimbleSheet.isEmpty()) krimbleSheet = (krimbleSheet + QStringLiteral(
+        "\nQMainWindow > QTabBar { qproperty-drawBase: 0; }\n"
+        "QMainWindow > QTabBar::tab:selected { background: palette(window); border-bottom: 1px solid palette(window); }\n"));
     // Krimble 2026-11-15: George: "A selected menu item should be shaded to look recessed. They don't need to glow." The selected row of a menu is no longer the bright blue: it is darker than the menu, with a dark top and left edge and a
     // light bottom and right edge, like the recessed menus' bevel (an inset). Every menu item has a transparent 1 px border so the text does not move when a row is selected. Same in every theme with a sheet.
     if (!krimbleSheet.isEmpty()) krimbleSheet = (krimbleSheet + QStringLiteral(
