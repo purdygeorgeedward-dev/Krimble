@@ -273,7 +273,8 @@ android {
     // def krimbleBuildNumber = 59   // 2026-11-13 (run 43407141407, commit 342e871: built before 1.0.58-beta was released; the number stays until 58 is released)
     // def krimbleBuildNumber = 60   // 2026-11-13 (taken back: George: "we are nowhere near 60")
     // def krimbleBuildNumber = 60   // 2026-11-15 (George: "Start .60 push."; 1.0.59 is not to be released: "the worst build we have had so far")
-    def krimbleBuildNumber = 61   // 2026-11-15 (George: "Push that", after the build 60 test)
+    // def krimbleBuildNumber = 61   // 2026-11-15 (George: "Push that", after the build 60 test); started and cancelled, never built
+    def krimbleBuildNumber = 62   // 2026-11-15 (George: "Build it")
     // (counter-file reading, replaced by the hand-set number above)
     // def krimbleBuildNumber = 0
     // try {
