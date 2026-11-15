@@ -21,6 +21,7 @@
 #include <QModelIndex>
 #include <QMouseEvent>
 #include <QPainter>
+#include <QPainterPath>   // Krimble 2026-11-14: run 32 (attempt 2) "variable has incomplete type QPainterPath" at lines 319 and 338
 #include <QPointer>
 #include <QStyle>
 #include <QStyleOptionViewItem>
