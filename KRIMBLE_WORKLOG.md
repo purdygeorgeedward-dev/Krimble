@@ -648,3 +648,6 @@ George (item 12, QuickAdjust gigantic, buttons stacked): "QuickAdjust should alw
 
 ## 2026-11-15 9:40 AM MT: item 12 cause and change (entry 610)
 George sent three QuickAdjust screenshots (1.0.59): buttons one per line, OK cut off. Cause found in libs/ui/KisApplication.cpp krimbleNarrowDialogLayouts (rows of 3+ controls turned into columns when the window's minimum width is wider than the screen). QuickAdjust's bottom row was too wide for a 340-wide portrait screen. Now two rows, both marked krimbleKeepRows. George: "The screenshots show how utterly ridiculous this is." Committed locally, not pushed.
+
+## 2026-11-15 9:50 AM MT: QuickAdjust size cap (entry 611)
+George: "How about not gigantic??????" Width <= 75% of the short side, height <= 45% of screen height, rows scroll. Numbers are mine (he gave none); he can change them. Committed locally, not pushed.

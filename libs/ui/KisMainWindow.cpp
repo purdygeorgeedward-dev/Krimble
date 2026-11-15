@@ -2016,7 +2016,22 @@ static void krimbleShowQuickAdjustDialog(KisMainWindow *win)
         layout->addLayout(logoRow);
     }
     // layout->addWidget(new KrimbleQuickAdjustLogo(dialog));
-    layout->addWidget(content);
+    // layout->addWidget(content);
+    // Krimble 2026-11-15 (item 12): George: "How about not gigantic??????" and "QuickAdjust should always be a small panel." The six rows are in a scroll area, so the window can be short
+    // (see the size limit below) and still reach every slider.
+    {
+        QScrollArea *rowsScroll = new QScrollArea(dialog);
+        rowsScroll->setObjectName(QStringLiteral("KrimbleQuickAdjustRows"));
+        rowsScroll->setWidgetResizable(true);
+        rowsScroll->setFrameShape(QFrame::NoFrame);
+        rowsScroll->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        rowsScroll->setStyleSheet(QStringLiteral("QScrollArea, QScrollArea > QWidget > QWidget { background: transparent; }"));
+        rowsScroll->setMinimumHeight(60);
+        rowsScroll->setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);   // its natural height is its rows' height, so a roomy screen gets the whole panel and a small one scrolls
+        content->setParent(rowsScroll);
+        rowsScroll->setWidget(content);
+        layout->addWidget(rowsScroll, 1);
+    }
     // Krimble 2026-11-05: Reset at the left of Cancel and OK; OK is blue (the mockup's default button)
     QPushButton *resetButton = buttons->addButton(i18n("Reset"), QDialogButtonBox::ResetRole);
     QObject::connect(resetButton, &QPushButton::clicked, adjust, [adjust]() { adjust->resetAll(); });
@@ -2083,11 +2098,14 @@ static void krimbleShowQuickAdjustDialog(KisMainWindow *win)
     QObject::connect(dialog, &QDialog::rejected, dialog, [adjust]() { adjust->removeCreatedLayers(); });
     if (QScreen *scr = QGuiApplication::primaryScreen()) {
         const QRect avail = scr->availableGeometry();
-        const int width = int(avail.width() * 0.94);
+        // const int width = int(avail.width() * 0.94);
+        // Krimble 2026-11-15 (item 12): small: no wider than 75% of the screen's short side (810 px on this phone, portrait or landscape), and no taller than 45% of the screen's height; the rows scroll.
+        const int width = qMin(int(avail.width() * 0.94), int(qMin(avail.width(), avail.height()) * 0.75));
         // const int height = qMin(dialog->sizeHint().height() + 20, int(avail.height() * 0.90));
         // Krimble 2026-11-06: the exact height for this width (the logo's height depends on its width, which sizeHint() does not know), no 20 px extra
         const int contentHeight = dialog->layout()->hasHeightForWidth() ? dialog->layout()->heightForWidth(width) : dialog->sizeHint().height();
-        const int height = qMin(contentHeight, int(avail.height() * 0.90));
+        // const int height = qMin(contentHeight, int(avail.height() * 0.90));
+        const int height = qMin(contentHeight, int(avail.height() * 0.45));
         dialog->resize(width, height);
         dialog->move(avail.left() + (avail.width() - width)/2,
                      avail.bottom() - height - 8);
