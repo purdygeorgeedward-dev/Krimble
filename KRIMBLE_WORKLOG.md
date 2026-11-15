@@ -507,3 +507,6 @@ Pushed master 59e5ac7..eb9ff6d (8 commits: build 60 taken back to 59, void of bu
 
 ## 2026-11-14 9:35 AM MT: George's README edits
 George edited README.md by hand and pushed bef71ab and 4bc5e65 (master was at b6e6972). Read the diff and merged it locally (fa15882). Rule written in KRIMBLE_DECISIONS.md: do not revert or reword his README text. Main changes: hero image is now krita/data/splash/logo_splash.jpg; icon block removed; headings in title case; "Content-Aware Fills", "Image Upscaling", "Advanced Color Matching and Separations", "Batch Processing"; the Krimble Help line ends at "search function"; roadmap wording simplified, the engineering log is "documented elsewhere"; Transform starts in Uniform Scale; "open source software"; closing line "Create. Edit. Enhance. Anywhere!".
+
+## 2026-11-14 11:32 PM MT: build 59 still not built
+Run #32 (43594210102, b6e6972): attempt 1 sat queued from 5:19 AM until George cancelled it (about 10:30 AM); attempt 2 (3:59 PM to 4:06 PM MST) failed to compile NodeDelegate.cpp (QPainterPath include; fixed in 955b7d5, 594th entry). The KisView.cpp error of run #31 is fixed (b6e6972). Row 59 is not in KRIMBLE_BUILD_LOG.md (no APK was made); the number 59 stays open. George said "Push": master pushed with these.
