@@ -544,7 +544,11 @@ public:
             QScreen *screen = QGuiApplication::screenAt(wanted);
             if (!screen) screen = QGuiApplication::primaryScreen();
             const QRect avail = screen->availableGeometry();
-            wanted.setY(qMin(wanted.y(), avail.bottom() + 1 - m_menu->height()));
+            // wanted.setY(qMin(wanted.y(), avail.bottom() + 1 - m_menu->height()));
+            // wanted.setY(qMax(wanted.y(), avail.top()));
+            // Krimble 2026-11-15: George (1.0.59 test, item 3: "Window menu covers up title of menu!"): a menu nearly as tall as the screen (the Window menu is 1040 px of 1080 in landscape) was moved UP by the
+            // lines above until it fitted, over the bar and its own title. The top of the menu stays at the bottom of the bar (its title stays visible); when the menu is too tall for the room below, its
+            // lower part is below the screen edge (it is not moved up over the bar).
             wanted.setY(qMax(wanted.y(), avail.top()));
             wanted.setX(qMin(wanted.x(), avail.right() + 1 - m_menu->width()));
             wanted.setX(qMax(wanted.x(), avail.left()));
