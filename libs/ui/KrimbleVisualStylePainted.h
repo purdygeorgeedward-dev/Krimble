@@ -301,7 +301,7 @@ QMenuBar::item:selected {
 }
 QMenu {
     color: #eef1fa;
-    border: 1px solid #3d4967;
+    border: none;   /* Krimble 2026-11-15 (698th): no outline around menus (was 1px solid #3d4967) */
     background: #192138;   /* Krimble 2026-11-06 (3rd): flat (was a #2e354e to #212639 gradient) */
 }
 QMenu::item:selected {

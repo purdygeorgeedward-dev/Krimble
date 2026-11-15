@@ -52,3 +52,4 @@ George says he talked to Claude (in an earlier session; the text of that talk is
 - **2026-11-15T23:55Z:** It was called Krita something before, but we changed it because this is not Krita. (re: Krimble blue gray won't load)
 - **2026-11-15T23:58Z:** Ok it finally switched. There was a long delay
 - **2026-11-15T23:59Z:** (3 screenshots) Please make tabs match their panels and don't put a line between them.
+- **2026-11-15T24:00Z:** Remove the outline around menus.

@@ -210,7 +210,7 @@ QMenuBar::item:selected {
 }
 QMenu {
     color: #eef1fa;
-    border: 1px solid #000000;
+    border: none;   /* Krimble 2026-11-15 (698th): no outline around menus (was 1px solid #000000) */
     background: #232a42;
 }
 QMenu::item:selected {
