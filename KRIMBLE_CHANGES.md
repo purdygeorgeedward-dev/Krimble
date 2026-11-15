@@ -7524,3 +7524,6 @@ George: "No selection blue either." `thememanager.cpp`: new `krimbleGraySheet`: 
 
 ## 2026-11-15 (662nd) — Krimble Dark Gray: orange selection, square corners
 George: "Use Krimble orange for selection. No rounded corners. All squared." `thememanager.cpp`, `krimbleGraySheet`: the saturated blues and cyan of the sheet (the selection blue, the glow) become Krimble orange #FD6001 (the paler blue-grays still become gray), and every `border-radius` of the sheet is 0. `KritaDarkGray.colors`: Selection background #FD6001 (alternate #E05400), focus and hover #FD6001. Not built or tested. Not squared: things drawn or styled in code with their own radius (QuickAdjust's buttons, Color Lab, the shaped panel tabs, the QuickAdjust switch).
+
+## 2026-11-15 (663rd) — Krimble Dark Gray uses warm grays
+George: "Use warm grays like modern graphics apps." Every gray of the theme is warmed: red 4 above and blue 4 below the gray's middle value (for example #3B3B3B becomes #3F3B37). `KritaDarkGray.colors`: every neutral gray triple (not near black or white) is warmed; `thememanager.cpp` `krimbleGraySheet`: the blue-grays turned gray and the sheet's own neutral grays (not near black or white) are warmed the same way. The orange selection is unchanged. Not built or tested.

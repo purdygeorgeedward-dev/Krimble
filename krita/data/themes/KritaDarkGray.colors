@@ -1,6 +1,6 @@
-# Krimble 2026-11-15: the scheme "Krimble Dark Gray" (George: "We should create a simplified dark gray theme with no bevels. Modern pro style." and "No selection blue either."): the Blue-Gray palette with every low-saturation color and every blue or cyan turned to the gray of the same brightness; red, green and orange accents are kept.
+# Krimble 2026-11-15: the scheme "Krimble Dark Gray" (George: "We should create a simplified dark gray theme with no bevels. Modern pro style." and "No selection blue either."): the Blue-Gray palette with every low-saturation color and every blue or cyan turned to the gray of the same brightness; red, green and orange accents are kept. Then (George: "Use warm grays like modern graphics apps.") every neutral gray is warmed: red 4 above, blue 4 below the gray's middle value.
 [ColorEffects:Disabled]
-Color=20,20,20
+Color=24,20,16
 ColorAmount=-0.5
 ColorEffect=0
 ContrastAmount=0.45
@@ -21,35 +21,35 @@ IntensityEffect=0
 
 [Colors:Button]
 # Krimble 2026-11-13 (task 63): the original value is back (task 47 had made it hue 227, saturation 48: BackgroundAlternate=39,47,75)
-BackgroundAlternate=53,53,53
+BackgroundAlternate=57,53,49
 # Krimble 2026-11-13 (task 63): the original value is back (task 47 had made it hue 227, saturation 48: BackgroundNormal=34,41,65)
-BackgroundNormal=42,42,42
-DecorationFocus=108,108,108
-DecorationHover=108,108,108
-ForegroundActive=230,230,230
-ForegroundInactive=162,162,162
-ForegroundLink=216,216,216
+BackgroundNormal=46,42,38
+DecorationFocus=112,108,104
+DecorationHover=112,108,104
+ForegroundActive=234,230,226
+ForegroundInactive=166,162,158
+ForegroundLink=220,216,212
 ForegroundNegative=238,83,52
 ForegroundNeutral=247,198,76
-ForegroundNormal=200,200,200
+ForegroundNormal=204,200,196
 ForegroundPositive=151,202,64
-ForegroundVisited=160,160,160
+ForegroundVisited=164,160,156
 
 [Colors:Complementary]
 # Krimble 2026-11-13 (task 63): the original value is back (task 47 had made it hue 227, saturation 48: BackgroundAlternate=45,54,86)
-BackgroundAlternate=63,63,63
+BackgroundAlternate=67,63,59
 # Krimble 2026-11-13 (task 63): the original value is back (task 47 had made it hue 227, saturation 48: BackgroundNormal=43,51,82)
-BackgroundNormal=59,59,59
-DecorationFocus=108,108,108
-DecorationHover=108,108,108
-ForegroundActive=230,230,230
-ForegroundInactive=162,162,162
-ForegroundLink=216,216,216
+BackgroundNormal=63,59,55
+DecorationFocus=112,108,104
+DecorationHover=112,108,104
+ForegroundActive=234,230,226
+ForegroundInactive=166,162,158
+ForegroundLink=220,216,212
 ForegroundNegative=238,83,52
 ForegroundNeutral=247,198,76
-ForegroundNormal=200,200,200
+ForegroundNormal=204,200,196
 ForegroundPositive=151,202,64
-ForegroundVisited=160,160,160
+ForegroundVisited=164,160,156
 
 [Colors:Selection]
 # Krimble 2026-11-04: selection blue matches the stylesheet's selected rows and buttons (old values below)
@@ -62,62 +62,62 @@ BackgroundAlternate=224,84,0
 BackgroundNormal=253,96,1
 DecorationFocus=253,96,1
 DecorationHover=253,96,1
-ForegroundActive=235,235,235
-ForegroundInactive=194,194,194
-ForegroundLink=216,216,216
+ForegroundActive=239,235,231
+ForegroundInactive=198,194,190
+ForegroundLink=220,216,212
 ForegroundNegative=255,156,106
 ForegroundNeutral=247,198,76
-ForegroundNormal=235,235,235
+ForegroundNormal=239,235,231
 ForegroundPositive=151,202,64
-ForegroundVisited=194,194,194
+ForegroundVisited=198,194,190
 
 [Colors:Tooltip]
 # Krimble 2026-11-13 (task 63): the original value is back (task 47 had made it hue 227, saturation 48: BackgroundAlternate=29,34,55)
-BackgroundAlternate=32,32,32
+BackgroundAlternate=36,32,28
 # Krimble 2026-11-13 (task 63): the original value is back (task 47 had made it hue 227, saturation 48: BackgroundNormal=34,41,65)
-BackgroundNormal=42,42,42
-DecorationFocus=146,146,146
-DecorationHover=108,108,108
-ForegroundActive=230,230,230
-ForegroundInactive=162,162,162
-ForegroundLink=216,216,216
+BackgroundNormal=46,42,38
+DecorationFocus=150,146,142
+DecorationHover=112,108,104
+ForegroundActive=234,230,226
+ForegroundInactive=166,162,158
+ForegroundLink=220,216,212
 ForegroundNegative=238,83,52
 ForegroundNeutral=247,198,76
-ForegroundNormal=162,162,162
+ForegroundNormal=166,162,158
 ForegroundPositive=151,202,64
-ForegroundVisited=160,160,160
+ForegroundVisited=164,160,156
 
 [Colors:View]
 # Krimble 2026-11-13 (task 63): the original value is back (task 47 had made it hue 227, saturation 48: BackgroundAlternate=32,38,61)
-BackgroundAlternate=38,38,38
+BackgroundAlternate=42,38,34
 # Krimble 2026-11-13 (task 63): the original value is back (task 47 had made it hue 227, saturation 48: BackgroundNormal=35,42,67)
-BackgroundNormal=44,44,44
-DecorationFocus=108,108,108
-DecorationHover=108,108,108
-ForegroundActive=230,230,230
-ForegroundInactive=162,162,162
-ForegroundLink=216,216,216
+BackgroundNormal=48,44,40
+DecorationFocus=112,108,104
+DecorationHover=112,108,104
+ForegroundActive=234,230,226
+ForegroundInactive=166,162,158
+ForegroundLink=220,216,212
 ForegroundNegative=238,83,52
 ForegroundNeutral=247,198,76
-ForegroundNormal=200,200,200
+ForegroundNormal=204,200,196
 ForegroundPositive=151,202,64
-ForegroundVisited=160,160,160
+ForegroundVisited=164,160,156
 
 [Colors:Window]
 # Krimble 2026-11-13 (task 63): the original value is back (task 47 had made it hue 227, saturation 48: BackgroundAlternate=45,54,86)
-BackgroundAlternate=63,63,63
+BackgroundAlternate=67,63,59
 # Krimble 2026-11-13 (task 63): the original value is back (task 47 had made it hue 227, saturation 48: BackgroundNormal=43,51,82)
-BackgroundNormal=59,59,59
-DecorationFocus=108,108,108
-DecorationHover=108,108,108
-ForegroundActive=230,230,230
-ForegroundInactive=162,162,162
-ForegroundLink=216,216,216
+BackgroundNormal=63,59,55
+DecorationFocus=112,108,104
+DecorationHover=112,108,104
+ForegroundActive=234,230,226
+ForegroundInactive=166,162,158
+ForegroundLink=220,216,212
 ForegroundNegative=238,83,52
 ForegroundNeutral=247,198,76
-ForegroundNormal=200,200,200
+ForegroundNormal=204,200,196
 ForegroundPositive=151,202,64
-ForegroundVisited=160,160,160
+ForegroundVisited=164,160,156
 
 [General]
 ColorScheme=Krimble Dark Gray
@@ -128,9 +128,9 @@ shadeSortColumn=true
 contrast=2
 
 [WM]
-activeBackground=68,68,68
+activeBackground=72,68,64
 activeBlend=255,255,255
-activeForeground=180,180,180
-inactiveBackground=51,51,51
-inactiveBlend=72,72,72
-inactiveForeground=127,127,127
+activeForeground=184,180,176
+inactiveBackground=55,51,47
+inactiveBlend=76,72,68
+inactiveForeground=131,127,123
