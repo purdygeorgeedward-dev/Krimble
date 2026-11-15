@@ -93,6 +93,14 @@ inline void setButtonStyle(int style)
     group.config()->sync();
 }
 
+// Krimble 2026-11-15: does the tool have a picture for the Full color style?
+inline bool hasPicture(const QString &iconName)
+{
+    const auto it = files().constFind(iconName);
+    if (it == files().constEnd()) return false;
+    return !QIcon(QStringLiteral(":/krimble-toolbox/") + it.value() + QStringLiteral(".png")).isNull();
+}
+
 // the icon for a tool: the picture icon in the Full color style (when the tool has one), the program's own icon otherwise
 inline QIcon icon(const QString &iconName)
 {

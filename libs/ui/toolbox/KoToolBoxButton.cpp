@@ -99,6 +99,40 @@ void KoToolBoxButton::contextMenuEvent(QContextMenuEvent *event)
 void KoToolBoxButton::krimbleRefreshIcon()
 {
     setIcon(KrimbleToolboxIcons::icon(m_toolAction->iconName()));
+    krimbleFitIconSize();
+}
+
+// Krimble 2026-11-15 (item 16): George: "I don't use those color icons ... They should always be sized to take up most of the button space because at smaller sizes they are garbage." In the
+// Full color style a tool that has a picture is drawn at 92% of the button's smaller side (the toolbox's own icon size, about 62% of the button, is made for the line icons). In the
+// Silhouette style the size the toolbox gave is put back.
+void KoToolBoxButton::krimbleFitIconSize()
+{
+    if (!m_toolAction) return;
+    const bool picture = KrimbleToolboxIcons::colorMode() && KrimbleToolboxIcons::hasPicture(m_toolAction->iconName());
+    if (picture) {
+        const int side = qMin(width(), height());
+        if (side < 8) return;   // not laid out yet; resizeEvent comes later
+        if (!m_krimbleColorFit || iconSize() != m_krimbleSetIconSize) m_krimbleBaseIconSize = iconSize();   // a size from the toolbox since we set ours is the new base
+        const int wanted = qRound(side * 0.92);
+        m_krimbleSetIconSize = QSize(wanted, wanted);
+        m_krimbleColorFit = true;
+        if (iconSize() != m_krimbleSetIconSize) setIconSize(m_krimbleSetIconSize);
+    } else if (m_krimbleColorFit) {
+        m_krimbleColorFit = false;
+        if (m_krimbleBaseIconSize.isValid()) setIconSize(m_krimbleBaseIconSize);
+    }
+}
+
+void KoToolBoxButton::resizeEvent(QResizeEvent *event)
+{
+    QToolButton::resizeEvent(event);
+    krimbleFitIconSize();
+}
+
+void KoToolBoxButton::showEvent(QShowEvent *event)
+{
+    QToolButton::showEvent(event);
+    krimbleFitIconSize();
 }
 
 void KoToolBoxButton::attachAction(QAction *action)

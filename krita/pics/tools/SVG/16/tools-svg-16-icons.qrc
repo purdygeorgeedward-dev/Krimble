@@ -102,6 +102,8 @@
         <file>light_krita_tool_lazybrush.svg</file>
         <file>dark_krita_tool_smart_patch.svg</file>
         <file>light_krita_tool_smart_patch.svg</file>
+        <file>dark_krita_tool_clone_stamp.svg</file>
+        <file>light_krita_tool_clone_stamp.svg</file>
         <file>light_krita_tool_assistant.svg</file>
         <file>dark_krita_tool_assistant.svg</file>
         <file>dark_krita_tool_reference_images.svg</file>

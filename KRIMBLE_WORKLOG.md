@@ -699,3 +699,6 @@ George: "It could just snap to the edge, but instead it's going inside a box. We
 
 ## 2026-11-15 8:40 AM MT: PUSH
 George said "Push". 4 commits pushed to master (the cafdecf and later work): New dialog icons slightly bigger (619), docked toolbox without height cap (620), Save As window sized to show every type (621), toolbox snaps to the edge instead of docking (622). No build started by this push.
+
+## 2026-11-15 9:45 AM MT: Heal icon and colour icon size (entries 623, 624)
+George: "Fix the missing icon. Then make sure the color icons are big when they are chosen by the user." Heal silhouette files added to the resource list; colour pictures 92% of the button. Committed locally, not pushed.
