@@ -7500,3 +7500,6 @@ George: "In the Krimble painted theme there isn't enough contrast between the sc
 
 ## 2026-11-15 (654th) — Painted theme: scroll bar track darker
 George: "The track should be darker." `thememanager.cpp`: the track is #03050A with a black edge (was #0E1226). Not built or tested.
+
+## 2026-11-15 (655th) — Painted theme: scroll bar handle back to the theme's own color
+George: "I asked for a darker track, not a light blue gray gradient." `thememanager.cpp`: the handle is the theme's button color (`palette(button)`, a `palette(mid)` edge) instead of my light gradient; only the track stays darker (654). A style sheet scroll bar replaces the style's own drawing, so this is close to the old handle, not identical. Not built or tested.

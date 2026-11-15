@@ -319,8 +319,12 @@ void ThemeManager::slotChangePalette()
             "\nQScrollBar:vertical { background: #03050a; width: 16px; margin: 0px; border: 1px solid #000000; }\n"
             // "QScrollBar:horizontal { background: #0e1226; height: 16px; margin: 0px; border: 1px solid #05070f; }\n"
             "QScrollBar:horizontal { background: #03050a; height: 16px; margin: 0px; border: 1px solid #000000; }\n"
-            "QScrollBar::handle:vertical { background: qlineargradient(x1:0,y1:0,x2:1,y2:0, stop:0 #9aa5d2, stop:1 #6671a0); min-height: 36px; margin: 1px; border: 1px solid #d3d9f0; border-radius: 3px; }\n"
-            "QScrollBar::handle:horizontal { background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #9aa5d2, stop:1 #6671a0); min-width: 36px; margin: 1px; border: 1px solid #d3d9f0; border-radius: 3px; }\n"
+            // "QScrollBar::handle:vertical { background: qlineargradient(x1:0,y1:0,x2:1,y2:0, stop:0 #9aa5d2, stop:1 #6671a0); min-height: 36px; margin: 1px; border: 1px solid #d3d9f0; border-radius: 3px; }\n"
+            // Krimble 2026-11-15 (3rd): George: "I asked for a darker track, not a light blue gray gradient." The handle keeps the theme's own button color again.
+            "QScrollBar::handle:vertical { background: palette(button); min-height: 36px; margin: 1px; border: 1px solid palette(mid); border-radius: 3px; }\n"
+            // "QScrollBar::handle:horizontal { background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #9aa5d2, stop:1 #6671a0); min-width: 36px; margin: 1px; border: 1px solid #d3d9f0; border-radius: 3px; }\n"
+            // Krimble 2026-11-15 (3rd): George: "I asked for a darker track, not a light blue gray gradient." The handle keeps the theme's own button color again.
+            "QScrollBar::handle:horizontal { background: palette(button); min-width: 36px; margin: 1px; border: 1px solid palette(mid); border-radius: 3px; }\n"
             "QScrollBar::add-line, QScrollBar::sub-line { width: 0px; height: 0px; border: none; background: none; }\n"
             "QScrollBar::add-page, QScrollBar::sub-page { background: none; }\n"));
     } else {
