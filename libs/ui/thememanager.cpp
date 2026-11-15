@@ -294,6 +294,7 @@ void ThemeManager::slotChangePalette()
     // qApp->setProperty("krimblePaintedTheme", theme == QStringLiteral("Krimble Painted") || theme == QStringLiteral("Krimble Blue-Gray"));
     // Krimble 2026-11-13 (task 46): George: "The main menu bar is ugly. Remove the paint job on it." The menu bar painting (the gradient dark at both ends, with its lines) is back to the Krimble Painted theme only; the default theme leaves the bar to the style sheet (transparent over the window) and the one-pixel lines.
     qApp->setProperty("krimblePaintedTheme", theme == QStringLiteral("Krimble Painted"));
+    qApp->setProperty("krimbleFlatTheme", theme == QStringLiteral("Krimble Dark Gray"));   // Krimble 2026-11-15: no bevel overlay lines and no raised toolbox buttons in this theme
     qApp->setProperty("krimbleBevelTheme", theme == QStringLiteral("Krimble Bevel"));   // Krimble 2026-11-14: the bevel overlay draws its lines one pixel thicker in this theme only   // Krimble 2026-11-11: the menu bar filter (KisMainWindow.cpp) paints its gradient only for this theme
     // if (theme == QStringLiteral("Krimble dark")) {
     if (theme == QStringLiteral("Krimble Blue")) {   // Krimble 2026-11-12 (task 27): the flat sheet belongs to the theme "Krimble Blue" now; "Krimble Blue-Gray" (the default) has none
@@ -312,6 +313,9 @@ void ThemeManager::slotChangePalette()
         // (the replacement has a space before 2px so that "\\2" is not read as group 22)
         bevelSheet.replace(QRegularExpression(QStringLiteral("(border-(?:top|left|bottom|right):)(\\s*)1px(\\s+solid)")), QStringLiteral("\\1\\2 2px\\3"));
         qApp->setStyleSheet(bevelSheet);
+    } else if (theme == QStringLiteral("Krimble Dark Gray")) {
+        // Krimble 2026-11-15: George: "We should create a simplified dark gray theme with no bevels. Modern pro style." The flat sheet (no bevel look) with every blue-gray background turned gray (hue 0, saturation 0, same brightness); the accent blues stay.
+        qApp->setStyleSheet(krimbleSameHueSheet(krimbleVisualStyleSheet(), 0, 0));
     } else if (theme == QStringLiteral("Krimble Painted")) {
         // qApp->setStyleSheet(krimblePaintedStyleSheet());
         // Krimble 2026-11-15: George: "In the Krimble painted theme there isn't enough contrast between the scrollbar and the track." The painted sheet had no scroll bar rules, so the style drew them in near-equal tones. Now the track is

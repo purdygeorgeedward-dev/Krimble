@@ -242,7 +242,7 @@ void KoToolBoxButton::paintEvent(QPaintEvent *event)
     // next build." The Raised style is drawn from the picture: the face is the theme's own color; each side is white or black laid over it at its own opacity, so every theme gets the same four tones
     // in its own hue: top white 100%, left white 45%, right black 33%, bottom black 58% (measured from the picture: #FEFDFD, #9EACD4, #3E4866, #272C43 over a face of #5E6B91). A button held down has the
     // sides the other way round. The four corners are 45 degree joins, drawn without smoothing so they step like the picture. No outline, no color.
-    if (KrimbleToolboxIcons::buttonStyle() == 1 && !isChecked()) {
+    if (KrimbleToolboxIcons::buttonStyle() == 1 && !isChecked() && !qApp->property("krimbleFlatTheme").toBool()) {   // Krimble 2026-11-15: no raised bevel in the theme "Krimble Dark Gray"
         QPainter box(this);
         box.setRenderHint(QPainter::Antialiasing, false);
         const QRect r = rect().adjusted(1, 1, -1, -1);

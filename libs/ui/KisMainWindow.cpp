@@ -3914,6 +3914,7 @@ public:
 protected:
     void paintEvent(QPaintEvent *) override
     {
+        if (qApp->property("krimbleFlatTheme").toBool()) return;   // Krimble 2026-11-15: the theme "Krimble Dark Gray" has no bevels at all
         // Krimble 2026-11-15: George (build 60, landscape screenshot): "It's the whole bottom edge of the menu bar!!!" Measured on his screenshot: the menu bar's own bottom line is dark (rows 64 to 66), and right under it,
         // rows 67 to 69 across the whole width, is a near-white line: the top line of a tool bar only about 3 real pixels high (a tool bar with nothing in it, under the menu bar). A tool bar that is
         // that thin, or has no actions, gets no bevel lines.
