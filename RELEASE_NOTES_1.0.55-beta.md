@@ -3,7 +3,7 @@ Your Creative Companion
 
 Krimble is a mobile-first graphics editing app for Android, with familiar industry-standard terminology, pro customizations, and touch screen oriented controls.
 
-Krimble is free open source software made with the assistance of Claude and ChatGPT.
+Krimble is open source software made with the assistance of Claude and ChatGPT.
 
 **NEW IN 1.0.55 BETA**
 

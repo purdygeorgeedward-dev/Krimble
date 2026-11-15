@@ -8,6 +8,7 @@ The names of a release must follow one rule (written in BUILD_ANDROID.md, sectio
 
 Before creating a release:   python3 tools/ci/check_release_names.py --tag v1.0.58-beta --title "Krimble v1.0.58-beta"
 To check all the releases:   GITHUB_PAT=<token> python3 tools/ci/check_release_names.py          (reads them from GitHub with the token; without one GitHub refused it in a test, HTTP 403)
+To check the format of a release body:   python3 tools/ci/check_release_names.py --notes RELEASE_NOTES_1.0.59-beta.md   (the format is in RELEASE_NOTES_TEMPLATE.md; Krimble 2026-11-15: George: "The format of these is inconsistent md.")
 Exit 1 if a name is wrong.
 """
 import json
@@ -29,7 +30,48 @@ def problems(tag, title):
         found.append("title %r should be %r" % (title, want))
     return found
 
+def notes_problems(path):   # applies from 1.0.59 (1.0.58 was published before the template)
+    """Krimble 2026-11-15: the format of a release body (RELEASE_NOTES_TEMPLATE.md)."""
+    found = []
+    m = re.search(r"RELEASE_NOTES_1\.0\.(\d+)-beta\.md$", path)
+    if not m:
+        return ["the file name is not RELEASE_NOTES_1.0.N-beta.md"]
+    n = m.group(1)
+    if int(n) < 59:
+        return []
+    lines = open(path, encoding="utf-8").read().split("\n")
+    if lines[:2] != ["**KRIMBLE**", "Your Creative Companion"]:
+        found.append("the first two lines are not the banner (**KRIMBLE** / Your Creative Companion)")
+    head = "**NEW IN 1.0.%s BETA**" % n
+    if head not in lines:
+        found.append("the line %s is missing" % head)
+    else:
+        i = lines.index(head)
+        if i + 1 >= len(lines) or lines[i + 1] != "":
+            found.append("%s needs a blank line after it" % head)
+    if not any(re.match(r"\*\*Version numbers:\*\* this is build %s\. The last release was 1\.0\.\d+ beta\.$" % n, l) for l in lines):
+        found.append("the **Version numbers:** line is missing or wrong")
+    for i, l in enumerate(lines):
+        if re.match(r"#+ |---$|\|", l):
+            found.append("line %d: no # headings, --- rules or tables: %r" % (i + 1, l[:40]))
+        if re.fullmatch(r"\*\*[^*]+\*\*", l) and l != "**KRIMBLE**" and not l.startswith("**NEW IN"):
+            if i + 1 >= len(lines) or lines[i + 1] != "" or (i > 0 and lines[i - 1] != ""):
+                found.append("line %d: the section %s needs a blank line before and after it" % (i + 1, l))
+        # Krimble 2026-11-15: George: "don't rewrite my edits for content": the words of a bullet are his; a bold lead-in is not required.
+        #         if l.startswith("- ") and not re.match(r"- \*\*[^*]+:\*\* ", l):
+        #             found.append("line %d: a bullet starts with a bold lead-in ending in a colon: %r" % (i + 1, l[:50]))
+
+    return found
+
 def main(argv):
+    if "--notes" in argv:
+        path = argv[argv.index("--notes") + 1]
+        found = notes_problems(path)
+        for line in found:
+            print("%s: %s" % (path, line))
+        if not found:
+            print("%s: the format is right" % path)
+        return 1 if found else 0
     if "--tag" in argv:
         tag = argv[argv.index("--tag") + 1]
         title = argv[argv.index("--title") + 1] if "--title" in argv else ""

@@ -28,6 +28,8 @@ Krimble 2026-11-13. George: "I'm concerned about his decisions get made and then
 
 - **README.md is George's text (2026-11-14 9:35 AM MT):** he made surgical edits to it by hand (commits bef71ab and 4bc5e65: new splash logo image, wording changes, Content-Aware Fills, Image Upscaling, Advanced Color Matching and Separations, Batch Processing, roadmap wording, "Uniform Scale" for Transform, "open source software", "Anywhere!"). Claude must not revert or reword them. Any change to README.md is made on top of the current text and only when George asks.
 
+- **Release notes have one format (2026-11-15):** George: "The format of these is inconsistent md." The format is `RELEASE_NOTES_TEMPLATE.md` (banner, `**NEW IN 1.0.N BETA**`, `**Version numbers:**`, bold section names, plain bullets), checked with `check_release_names.py --notes`. George checks the text before he posts it, and his edits of the content are never rewritten (formatting only, never his words); Claude hands it over and reads the draft back on request.
+
 ## Needs George's answer (an older rule disagrees with later practice)
 
 1. **Publish the current build before the number changes** (SESSION_CATCHUP.md, Oct 24) against **"We don't always have to release a new build, but we should always change the number"** (Nov 8). The later one is in the table above; the older rule is marked as replaced in SESSION_CATCHUP.md unless he says otherwise.
