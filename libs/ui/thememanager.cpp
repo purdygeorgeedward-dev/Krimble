@@ -331,6 +331,12 @@ void ThemeManager::slotChangePalette()
         // " background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #f4f7fc, stop:0.30 #c9d0de, stop:0.46 #4a5164, stop:0.56 #262b38, stop:0.78 #7f889c, stop:1 #c3cad8); }\n"
         // Krimble 2026-11-15 (2nd): George: "No. I gave you an instruction. Use my graphic." The handle is his ball bearing picture itself (krimble-ball-bearing.png, cut round from his picture), stretched to the handle box.
         "QSlider::handle:horizontal { width: 10px; height: 10px; margin: -5px 0; border: none; background: transparent; border-image: url(:/krimble-ball-bearing.png) 0 0 0 0 stretch stretch; }\n"));
+    // Krimble 2026-11-15: George: "A selected menu item should be shaded to look recessed. They don't need to glow." The selected row of a menu is no longer the bright blue: it is darker than the menu, with a dark top and left edge and a
+    // light bottom and right edge, like the recessed menus' bevel (an inset). Every menu item has a transparent 1 px border so the text does not move when a row is selected. Same in every theme with a sheet.
+    if (!qApp->styleSheet().isEmpty()) qApp->setStyleSheet(qApp->styleSheet() + QStringLiteral(
+        "\nQMenu::item { border: 1px solid transparent; }\n"
+        "QMenu::item:selected { background: #0f1424; border-top: 1px solid #04060d; border-left: 1px solid #04060d;"
+        " border-bottom: 1px solid rgba(255, 255, 255, 60); border-right: 1px solid rgba(255, 255, 255, 60); }\n"));
 #endif
     KisConfigNotifier::instance()->notifyColorThemeChanged(filename);
 

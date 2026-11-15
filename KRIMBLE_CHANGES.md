@@ -7488,3 +7488,6 @@ George: "If you reselect recent colors in color lab it should not become a 'new'
 
 ## 2026-11-15 (650th) — Raised toolbox icon highlight dimmer
 George: "Hilight on raised toolbox icons is too bright." `KoToolBoxButton.cpp`: the white of the highlight edges is about 57% of before (top 150 to 85, left 70 to 40; a pressed button's lit bottom and right the same). The dark edges are unchanged. Not built or tested.
+
+## 2026-11-15 (651st) — Selected menu item is recessed, not glowing
+George: "A selected menu item should be shaded to look recessed. They don't need to glow." `thememanager.cpp`: a rule after every theme sheet: the selected `QMenu::item` is a dark fill (#0F1424, darker than the menu) with a dark top and left edge and a light (white 60/255) bottom and right edge, an inset. Every menu item gets a transparent 1 px border so the text does not move on selection. The bright blue rows of the sheets stay in the files, overridden. Not built or tested.
