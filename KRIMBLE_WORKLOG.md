@@ -717,3 +717,6 @@ George: nothing to grab on a docked panel; panels are supposed to have tabs. Hea
 
 ## 2026-11-15 9:45 AM MT: Build 60 pushed
 George: "Start .60 push." Build number 60 / label 1.0.60-beta; pushes commits 6239c44 to 3fdf059 and the bump. Notes for this push follow in a [skip ci] commit.
+
+## 2026-11-15 9:50 AM MT: Push of build 60 done
+Pushed to master, head 12b860a (6 commits, rebased onto 6 README commits from the remote, README only). Build 60 / 1.0.60-beta starts from this push.
