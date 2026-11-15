@@ -672,3 +672,6 @@ George: "The QuickAdjust window is MAGNIFIED!!!! THAT SHOULD NEVER HAPPEN." Text
 
 ## 2026-11-15 11:00 AM MT: QuickAdjust starts small, no stretching (entry 616)
 George: resizable by the user, never magnified; starts small. Banner 520 real pixels max (my number), window opens at its natural size. Rows, pictures untouched. Committed locally, not pushed.
+
+## 2026-11-15 11:10 AM MT: QuickAdjust rules
+George: "And it cannot be made to bounce when moved off screen either. Again it will get in the way. If anything it should be able to collapse to a bar." I took it as a bug report; he: "I didn't say it bounces." It is a rule. Recorded in KRIMBLE_DECISIONS.md. Code check: only keepOnScreen at first Show (libs/ui/KisApplication.cpp), no pull-back after moves. Collapse to a bar not built (his "if anything"). Committed locally.

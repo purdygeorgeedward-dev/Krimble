@@ -6,6 +6,7 @@ Krimble 2026-11-13. George: "I'm concerned about his decisions get made and then
 |---|---|---|
 | Tag `v1.0.N-beta`, release title `Krimble v1.0.N-beta`, notes heading `# Krimble v1.0.N-beta`; the APK file name (made by the workflow) has no v | tags 2026-10-24, titles 2026-11-13 | `tools/ci/check_release_names.py` (a warning on every build) |
 | Only George decides when an issue is resolved; Claude stays on the current issue until George says to move on, and never starts the next one by itself (George, 2026-11-15: "YOU DONT GET TO DECIDE WHEN AN ISSUE IS RESOLVED!!!!!!") | 2026-11-15 | George |
+| QuickAdjust never bounces back when it is moved off screen; it starts small, can be resized bigger by the user but never magnifies (stretches) its contents; collapsing it to a bar is wanted "if anything" (George, 2026-11-15) | 2026-11-15 | George |
 | QuickAdjust is always a small panel; it must never cover the picture being adjusted (George, 2026-11-15: "It has to be or it's in the way of seeing what you're adjusting, making it useless.") | 2026-11-15 | George's eyes (size limit to be set) |
 | Every build gets a new number; a build does not have to be released | 2026-11-08 | `tools/ci/check_build_number.py` (stops the build) |
 | Every menu, form and resource file is parsed as XML before a build | 2026-11-08 | `tools/ci/check_xml.py` (stops the build) |
