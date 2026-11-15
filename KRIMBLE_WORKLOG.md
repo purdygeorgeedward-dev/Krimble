@@ -636,3 +636,6 @@ George: "5 patterns. No more." Done in krita/data/patterns/CMakeLists.txt (107 o
 
 ## 2026-11-15 9:00 AM MT: fonts (entry 608)
 George asked which fonts are biggest (listed), then: "Kill the ten largest families, but keep Montserrat." Nine families excluded in krita/data/fonts/CMakeLists.txt. Committed locally, not pushed, not built.
+
+## 2026-11-15 9:10 AM MT: bundles (entry 609)
+George: "Kill those." (SeExpr and RGBA bundles.) Commented out in krita/data/bundles/CMakeLists.txt. Committed locally, not pushed, not built.

@@ -1,8 +1,8 @@
 set (krita_BUNDLE_FILES
      README
      Krita_4_Default_Resources.bundle
-     Krita_Artists_SeExpr_examples.bundle
-     RGBA_brushes.bundle
+#     Krita_Artists_SeExpr_examples.bundle   # Krimble 2026-11-15 (609th): not installed (startup time)
+#     RGBA_brushes.bundle   # Krimble 2026-11-15 (609th): not installed (startup time)
 )
 
 if (NOT ANDROID)

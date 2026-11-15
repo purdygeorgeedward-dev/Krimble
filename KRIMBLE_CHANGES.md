@@ -7360,3 +7360,6 @@ George: "I never use patterns, but they should be small. No?" and "5 patterns. N
 
 ## 2026-11-15 (608th) — Nine big font families no longer installed (startup time)
 George: "Kill the ten largest families, but keep Montserrat." The ten largest were Lato, NotoEmoji, Montserrat, Inter, EBGaramond, SourceSans3, Saira, Tinos, IBMPlexMono, CrimsonPro; Montserrat stays, so nine are left out: Lato (3941 KB), NotoEmoji (1936), Inter (1257), EBGaramond (1112), SourceSans3 (1017), Saira (973), Tinos (862), IBMPlexMono (820), CrimsonPro (599) = about 12.5 MB, 51 of 142 font files. `krita/data/fonts/CMakeLists.txt`: one `list(FILTER ... EXCLUDE REGEX ...)` line after the glob. Files stay in the repository. Nothing in the code refers to these families by name (searched). Not built.
+
+## 2026-11-15 (609th) — SeExpr and RGBA bundles no longer installed (startup time)
+George: "Kill those." `krita/data/bundles/CMakeLists.txt`: Krita_Artists_SeExpr_examples.bundle (2.1 MB) and RGBA_brushes.bundle (1.8 MB) commented out of the install list; files stay in the repository. Less to scan when the resource database is first built. Not built.
