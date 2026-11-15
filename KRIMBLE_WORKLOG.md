@@ -630,3 +630,6 @@ Device: samsung SM-S266V, Android 16, density 3.1875 (510 dpi), 2340 x 1080 px, 
 - 06:51:20 the tab filter is installed (the main window is built): 44 s later (plugin loading, window creation, the bundled fonts registered)
 - 06:51:45 and 06:51:50 the toolbox lays itself out: about 3 min 33 s after the start
 This was a first run: the database did not exist (the app data is wiped by an uninstall). The start with an existing database is not measured yet. About 2 min 24 s of the 3 min 33 s are the first-run copy and database fill, which grow with the size of the bundled resources (bundles 21 MB on Android, patterns 7.6 MB, presets, 24 MB of fonts). Nothing changed.
+
+## 2026-11-15 8:30 AM MT: five patterns (entry 607)
+George: "5 patterns. No more." Done in krita/data/patterns/CMakeLists.txt (107 of 112 pattern files commented out of the install list; five tiny .pat files stay). The bundles still carry their own patterns (not touched). Committed locally, not pushed, not built.
