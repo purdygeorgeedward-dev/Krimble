@@ -7318,3 +7318,9 @@ George: "update the list of features in the readme, but don't undo my earlier ed
 **Files:** `README.md`
 
 George: "The ColorLab panel, QuickAdjust, new themes." Three bullets added after "Channels panel" in the "Recent and active work includes" list. Insertions only; George's wording stands.
+
+## 2026-11-14 (597th) — Krimble Bevel: the lines are one pixel thicker (this theme only)
+
+**Files:** `libs/ui/thememanager.cpp`, `libs/ui/KisMainWindow.cpp`
+
+George: "I guess by the name that [Krimble Bevel] should have the most visible bevels." then "Just thicker by one pixel." In the theme "Krimble Bevel" only: (1) the 33 highlight and shadow borders of the style sheet (`border-top/left/bottom/right: 1px solid`) are made 2 px by a replacement in the Bevel branch of `thememanager.cpp` (the shared sheet file is unchanged); (2) the bevel overlay (`KrimbleBevelOverlay`: menu bar, panels, tool bars, menus, image windows) draws 2 device pixels when the application property `krimbleBevelTheme` is set. Krimble Blue-Gray and Krimble Painted keep 1 px. The replacement pattern was tried in Python on the real sheet (33 matches); the Qt side is not compiled here.
