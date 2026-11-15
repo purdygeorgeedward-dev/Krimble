@@ -800,3 +800,5 @@ George: "Destroy all Krita themes. Nothing called Krita stays in themes." Delete
 **2026-11-15, 18:05 (MST).** QuickAdjust Preview in the bottom row (689th); pushed, no build.
 
 **2026-11-15, 18:15 (MST).** Preferences icon highlight: direct fill under the icon (690th); pushed, no build.
+
+**2026-11-15, 16:50 (MST).** Breeze themes: no Krimble bevel lines (691st); pushed, no build.

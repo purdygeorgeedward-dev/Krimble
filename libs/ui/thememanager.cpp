@@ -326,7 +326,10 @@ void ThemeManager::slotChangePalette()
     // qApp->setProperty("krimblePaintedTheme", theme == QStringLiteral("Krimble Painted") || theme == QStringLiteral("Krimble Blue-Gray"));
     // Krimble 2026-11-13 (task 46): George: "The main menu bar is ugly. Remove the paint job on it." The menu bar painting (the gradient dark at both ends, with its lines) is back to the Krimble Painted theme only; the default theme leaves the bar to the style sheet (transparent over the window) and the one-pixel lines.
     qApp->setProperty("krimblePaintedTheme", theme == QStringLiteral("Krimble Painted"));
-    qApp->setProperty("krimbleFlatTheme", theme == QStringLiteral("Krimble Dark Gray"));   // Krimble 2026-11-15: no bevel overlay lines and no raised toolbox buttons in this theme
+    // qApp->setProperty("krimbleFlatTheme", theme == QStringLiteral("Krimble Dark Gray"));
+    // Krimble 2026-11-15 (691st): George: "Breeze dark theme has blue lines added?" The bevel overlay (blue-gray lines) and the raised toolbox buttons were drawn in every theme but Dark Gray. Now only the Krimble themes
+    // other than Dark Gray get them; Breeze Dark, Breeze Light and Breeze High Contrast show their own colors only.
+    qApp->setProperty("krimbleFlatTheme", theme == QStringLiteral("Krimble Dark Gray") || !theme.startsWith(QStringLiteral("Krimble")));   // Krimble 2026-11-15: no bevel overlay lines and no raised toolbox buttons in this theme
     // if (theme == QStringLiteral("Krimble dark")) {
     if (theme == QStringLiteral("Krimble Blue")) {   // Krimble 2026-11-12 (task 27): the flat sheet belongs to the theme "Krimble Blue" now; "Krimble Blue-Gray" (the default) has none
         qApp->setStyleSheet(krimbleVisualStyleSheet());
