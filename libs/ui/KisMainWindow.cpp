@@ -3881,6 +3881,21 @@ private:
 // panel and every toolbar. A docked panel gets a light line along its top and a dark line along its bottom; a detached panel and a toolbar get a
 // light line along the top and left edges and a dark line along the bottom and right edges (a raised look). Each line is ONE DEVICE PIXEL thick.
 // (This replaces the lines drawn by KoDockWidgetTitleBar of the 135th entry, which were 3 device px each and only on docked panels.)
+// Krimble 2026-11-15 (3rd): true if the docked panel is in a tab group: its name is on a visible tab of a tab row of the main window that has two or more tabs (a lone panel can have a tab bar object with one tab that is not drawn).
+static bool krimbleDockInTabGroup(QDockWidget *dock)
+{
+    if (!dock || dock->isFloating()) return false;
+    QMainWindow *mainWin = qobject_cast<QMainWindow*>(dock->parentWidget());
+    if (!mainWin) return false;
+    Q_FOREACH (QTabBar *tabBar, mainWin->findChildren<QTabBar*>(QString(), Qt::FindDirectChildrenOnly)) {
+        if (!tabBar->isVisible() || tabBar->count() < 2) continue;
+        for (int i = 0; i < tabBar->count(); ++i) {
+            if (tabBar->tabText(i) == dock->windowTitle()) return true;
+        }
+    }
+    return false;
+}
+
 class KrimbleBevelOverlay : public QWidget
 {
 public:
@@ -3997,6 +4012,9 @@ protected:
                 }
             }
         }
+        // Krimble 2026-11-15 (3rd): George: "Selected tab still does not connect with its own tab!" Measured on his screenshot: under the selected tab (fill #373952) a 3 px light line (#5D658C) ran across the top of the panel, between the tab and the
+        // panel's title bar (#383A53). A panel in a tab group gets no top line from the overlay: the tab row draws its own line under the unselected tabs, and the selected tab runs into the panel.
+        if (!recessed) { if (QDockWidget *krimbleTabbedDock = qobject_cast<QDockWidget*>(m_target.data())) { if (krimbleDockInTabGroup(krimbleTabbedDock)) topTone = QColor(0, 0, 0, 0); } }
         // const QColor leftTone   = recessed ? QColor(46, 52, 84)    : QColor(140, 150, 196);
         // const QColor rightTone  = recessed ? QColor(140, 150, 196) : QColor(46, 52, 84);
         // const QColor bottomTone = recessed ? QColor(214, 222, 250) : QColor(18, 19, 34);
@@ -4046,16 +4064,18 @@ static void krimbleRefreshTabTitles(QMainWindow *win)
         // const bool tabbed = !dock->isFloating() && !win->tabifiedDockWidgets(dock).isEmpty();
         // Krimble 2026-11-15: George (build 60, Layers screenshot): "Layers panel has no title." The Layers panel is alone in its place (no tab row over it), but tabifiedDockWidgets() also lists
         // panels that are closed, so it counted as "in a tab group" and its name was hidden. A panel is in a tab group only if a visible tab with its name is on screen.
-        bool tabbed = false;
-        if (!dock->isFloating()) {
-            Q_FOREACH (QTabBar *tabBar, win->findChildren<QTabBar*>(QString(), Qt::FindDirectChildrenOnly)) {
-                if (!tabBar->isVisible()) continue;
-                for (int i = 0; i < tabBar->count(); ++i) {
-                    if (tabBar->tabText(i) == dock->windowTitle()) { tabbed = true; break; }
-                }
-                if (tabbed) break;
-            }
-        }
+        // bool tabbed = false;
+        // if (!dock->isFloating()) {
+        //     Q_FOREACH (QTabBar *tabBar, win->findChildren<QTabBar*>(QString(), Qt::FindDirectChildrenOnly)) {
+        //         if (!tabBar->isVisible()) continue;
+        //         for (int i = 0; i < tabBar->count(); ++i) {
+        //             if (tabBar->tabText(i) == dock->windowTitle()) { tabbed = true; break; }
+        //         }
+        //         if (tabbed) break;
+        //     }
+        // }
+        // Krimble 2026-11-15 (3rd): George: "Layers menu still appears with NO TITLE." A tab bar with a single tab (a lone panel) no longer counts as a tab group: two or more tabs are needed (krimbleDockInTabGroup).
+        const bool tabbed = krimbleDockInTabGroup(dock);
         // bar->setTitleTextHidden(tabbed);
         // Krimble 2026-11-15: George: "The tab should only be visible when they are docked. Otherwise the tabs are pointless." (item 7, Color Lab double title: the tab, the title bar and the logo all said "Color Lab".)
         // The Color Lab panel names itself ONCE: by its tab when it is in a tab group, otherwise by its logo. The logo is hidden in a tab group; the title bar's text is always hidden for this panel (its logo or its tab
@@ -4067,7 +4087,9 @@ static void krimbleRefreshTabTitles(QMainWindow *win)
             QObject::connect(dock, &QDockWidget::topLevelChanged, win, [win](bool) { QTimer::singleShot(0, win, [win]() { krimbleRefreshTabTitles(win); }); });
         }
         bar->setTitleTextHidden(krimbleLogo ? true : tabbed);
-        if (krimbleLogo && krimbleLogo->isHidden() == !tabbed) krimbleLogo->setVisible(!tabbed);
+        // if (krimbleLogo && krimbleLogo->isHidden() == !tabbed) krimbleLogo->setVisible(!tabbed);
+        // Krimble 2026-11-15 (3rd): George: "Color Lab now has no logo!!!!!!" The logo is always shown (it was hidden while the panel was in a tab group, as its name was on the tab).
+        if (krimbleLogo && krimbleLogo->isHidden()) krimbleLogo->setVisible(true);
     }
 }
 
