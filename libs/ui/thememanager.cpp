@@ -327,8 +327,10 @@ void ThemeManager::slotChangePalette()
     // pixels, with the same sky/horizon/bounce gradient as QuickAdjust), and the slider row is tall enough (14 units) that the ball is never cut off, so it shows above the groove. QuickAdjust keeps its own sheet.
     if (!qApp->styleSheet().isEmpty()) qApp->setStyleSheet(qApp->styleSheet() + QStringLiteral(
         "\nQSlider:horizontal { min-height: 14px; }\n"
-        "QSlider::handle:horizontal { width: 10px; height: 10px; margin: -5px 0; border: 1px solid #141822; border-radius: 5px;"
-        " background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #f4f7fc, stop:0.30 #c9d0de, stop:0.46 #4a5164, stop:0.56 #262b38, stop:0.78 #7f889c, stop:1 #c3cad8); }\n"));
+        // "QSlider::handle:horizontal { width: 10px; height: 10px; margin: -5px 0; border: 1px solid #141822; border-radius: 5px;"
+        // " background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #f4f7fc, stop:0.30 #c9d0de, stop:0.46 #4a5164, stop:0.56 #262b38, stop:0.78 #7f889c, stop:1 #c3cad8); }\n"
+        // Krimble 2026-11-15 (2nd): George: "No. I gave you an instruction. Use my graphic." The handle is his ball bearing picture itself (krimble-ball-bearing.png, cut round from his picture), stretched to the handle box.
+        "QSlider::handle:horizontal { width: 10px; height: 10px; margin: -5px 0; border: none; background: transparent; border-image: url(:/krimble-ball-bearing.png) 0 0 0 0 stretch stretch; }\n"));
 #endif
     KisConfigNotifier::instance()->notifyColorThemeChanged(filename);
 

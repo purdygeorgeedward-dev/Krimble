@@ -1649,9 +1649,12 @@ public:
             // Krimble 2026-11-11: George: "make the handles round balls ... A metal ball bearing would look better." (then, of a first picture: "Too big. Too flat. Do you know what a ball
             // bearing looks like?", and "better" for the second). A steel ball 18 px across: the top of the ball reflects the bright sky (#F4F7FC to #C9D0DE), then a dark horizon band across the
             // middle (#4A5164, #262B38), then the lighter bounce from below (#7F889C to #C3CAD8), with a dark rim (#141822). A border radius of 8 on a handle 18 px wide with a 1 px border is a circle.
+            // const QString thinHandle = QStringLiteral(
+            //     "QSlider::handle:horizontal { width: 16px; height: 16px; margin: -7px 0; border: 1px solid #141822; border-radius: 8px;"
+            //     " background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #f4f7fc, stop:0.30 #c9d0de, stop:0.46 #4a5164, stop:0.56 #262b38, stop:0.78 #7f889c, stop:1 #c3cad8); }");
+            // Krimble 2026-11-15 (2nd): George: "Use my graphic." The handle is his ball bearing picture (krimble-ball-bearing.png), stretched to a 16 unit box.
             const QString thinHandle = QStringLiteral(
-                "QSlider::handle:horizontal { width: 16px; height: 16px; margin: -7px 0; border: 1px solid #141822; border-radius: 8px;"
-                " background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #f4f7fc, stop:0.30 #c9d0de, stop:0.46 #4a5164, stop:0.56 #262b38, stop:0.78 #7f889c, stop:1 #c3cad8); }");
+                "QSlider::handle:horizontal { width: 16px; height: 16px; margin: -7px 0; border: none; background: transparent; border-image: url(:/krimble-ball-bearing.png) 0 0 0 0 stretch stretch; }");
             if (i != Hue) {
                 // m_sliders[i]->setStyleSheet(QStringLiteral(
                 //     "QSlider::groove:horizontal { height: 4px; border: 1px solid #535c80; border-radius: 3px; background: #20263f; }"
