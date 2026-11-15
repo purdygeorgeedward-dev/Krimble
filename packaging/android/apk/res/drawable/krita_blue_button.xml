@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
-  <solid android:color="#53728e" />
+  <!-- Krimble 2026-11-15: George: "the donate button is ugly. Make it Krimble orange." Before: #53728e (Krita blue-gray) -->
+  <!-- <solid android:color="#53728e" /> -->
+  <solid android:color="#fd6001" />
   <corners android:radius="4dp" />
 </shape>

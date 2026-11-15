@@ -7491,3 +7491,6 @@ George: "Hilight on raised toolbox icons is too bright." `KoToolBoxButton.cpp`: 
 
 ## 2026-11-15 (651st) — Selected menu item is recessed, not glowing
 George: "A selected menu item should be shaded to look recessed. They don't need to glow." `thememanager.cpp`: a rule after every theme sheet: the selected `QMenu::item` is a dark fill (#0F1424, darker than the menu) with a dark top and left edge and a light (white 60/255) bottom and right edge, an inset. Every menu item gets a transparent 1 px border so the text does not move on selection. The bright blue rows of the sheets stay in the files, overridden. Not built or tested.
+
+## 2026-11-15 (652nd) — Donate button is Krimble orange
+George (screenshot of the splash "Support Krimble" screen): "the donate button is ugly. Make it Krimble orange." `packaging/android/apk/res/drawable/krita_blue_button.xml` (the background of the DONATE button in `donation_item_layout.xml`): #FD6001, the orange of the QuickAdjust title, instead of #53728E. Not built or tested. Not answered yet: the crash when picking the theme Krimble Blue-Gray.
