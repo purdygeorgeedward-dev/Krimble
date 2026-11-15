@@ -7472,5 +7472,13 @@ George (Smart Compression dialog, with a picture of a steel ball bearing): "This
 ## 2026-11-15 (645th) — Slider handles use George's ball bearing graphic
 George: "No. I gave you an instruction. Use my graphic." The handle is now his steel ball picture itself: cut round from the picture (96 px, transparent corners) as `krita/pics/svg/krimble-ball-bearing.png` (listed in `svg-icons.qrc`), used as `border-image` (stretched to the handle box, so it stays sharp and round) on every `QSlider` handle: the rule appended in `thememanager.cpp` (10 units, about 32 real px) and the QuickAdjust sliders in `KisMainWindow.cpp` (16 units). The gradient-drawn balls are commented out. Not built or tested. The Color Lab hue slider (its own handle) is not changed.
 
+<<<<<<< HEAD
 ## 2026-11-15 (647th) — Color Lab is as it was
 George: "Take it back. Leave Color Lab as it was." 646 is reverted: the channel bars have their colored glossy balls again and the hue slider has its own handle again (`krimble_color_pages.h`, `krimble_color_studio.h`). The ball bearing graphic stays on the QuickAdjust sliders and the global slider rule (645). Not built or tested.
+=======
+## 2026-11-15 (646th) — Color Lab uses the ball bearing handle
+George: "Give the new handle to Color Lab." `krimble_color_pages.h`: the channel bars (`KrimbleSliderBar`) draw `krimble-ball-bearing.png` as the ball, last, over the track (the colored glossy ball is commented out). `krimble_color_studio.h`: the hue slider's handle is the picture too. The Size and Opacity sliders of the mixer already take the global rule (645). Not built or tested.
+>>>>>>> parent of b23a19f798 (Revert "Color Lab: ball bearing handles (646th)")
+
+## 2026-11-15 (648th) — Color Lab sliders have the ball bearing again
+George: "Sorry. No. Put the ball bearings on color lab sliders too." 647 is reverted, so 646 stands: the channel bars and the hue slider use `krimble-ball-bearing.png`. Not built or tested.
