@@ -1558,9 +1558,14 @@ public:
             // row->setSpacing(6);
             // row->setContentsMargins(6, 1, 6, 1);
             // row->setSpacing(4);
-            row->setContentsMargins(8, 5, 10, 5);
-            row->setHorizontalSpacing(10);
-            row->setVerticalSpacing(2);
+            // row->setContentsMargins(8, 5, 10, 5);
+            // row->setHorizontalSpacing(10);
+            // row->setVerticalSpacing(2);
+            // Krimble 2026-11-15 (item 12): George (build 60 screenshot, QuickAdjust still 75% of the screen tall): "QuickAdjust is still HUGE." The rows are about a third shorter: picture 30 (was 46), number box 64 x 22
+            // (was 80 x 28), margins 3 above and below (was 5), no gap between the name and the number box (was 2).
+            row->setContentsMargins(6, 3, 8, 3);
+            row->setHorizontalSpacing(8);
+            row->setVerticalSpacing(0);
             // Krimble 2026-10-30: the small picture at the start of the row (the drawing's sun, half circle, drops, color ring, half square, sparkle)
             QLabel *rowIcon = new QLabel(content);
             // rowIcon->setPixmap(krimbleQuickAdjustIcon(i, 34));
@@ -1578,12 +1583,14 @@ public:
                 // the six pictures cut out of George's picture (krita/pics/svg/dark_krimble-quickadjust-icon-N.png), 38 logical px, sharp at the screen's resolution
                 const qreal ratio = content->devicePixelRatioF();
                 QPixmap big(QStringLiteral(":/dark_krimble-quickadjust-icon-%1.png").arg(i));
-                QPixmap sharp = big.scaled(qRound(44 * ratio), qRound(44 * ratio), Qt::KeepAspectRatio, Qt::SmoothTransformation);
+                // QPixmap sharp = big.scaled(qRound(44 * ratio), qRound(44 * ratio), Qt::KeepAspectRatio, Qt::SmoothTransformation);
+                QPixmap sharp = big.scaled(qRound(28 * ratio), qRound(28 * ratio), Qt::KeepAspectRatio, Qt::SmoothTransformation);   // Krimble 2026-11-15 (item 12): was 44
                 sharp.setDevicePixelRatio(ratio);
                 rowIcon->setPixmap(sharp);
                 rowIcon->setStyleSheet(QStringLiteral("background: transparent; border: none;"));
             }
-            rowIcon->setFixedSize(46, 46);
+            // rowIcon->setFixedSize(46, 46);
+            rowIcon->setFixedSize(30, 30);   // Krimble 2026-11-15 (item 12): was 46
             // row->addWidget(rowIcon);
             row->addWidget(rowIcon, 0, 0, 2, 1, Qt::AlignCenter);
             m_labels[i] = new QLabel(i18n(def(i).name), content);
@@ -1599,15 +1606,17 @@ public:
             // m_numbers[i]->setFixedWidth(50);
             // m_numbers[i]->setFixedHeight(20);   // Krimble 2026-11-06: was the style sheet's height (about 24)
             // row->addWidget(m_numbers[i]);
-            m_numbers[i]->setFixedSize(80, 28);   // Krimble 2026-11-12 (task 5): George (his picture of QuickAdjust): "match this version of QuickAdjust." (the picture: 74 x 25 logical px)
+            // m_numbers[i]->setFixedSize(80, 28);
+            m_numbers[i]->setFixedSize(64, 22);   // Krimble 2026-11-15 (item 12): was 80 x 28
+            // Krimble 2026-11-12 (task 5): George (his picture of QuickAdjust): "match this version of QuickAdjust." (the picture: 74 x 25 logical px)
             m_numbers[i]->setAlignment(Qt::AlignCenter);
             // m_numbers[i]->setStyleSheet(QStringLiteral("QSpinBox { font-size: 15px; font-weight: bold; color: #ffffff; }"));
             // Krimble 2026-11-12 (task 5): the picture's number box has a small up and down arrow at the right, with a thin line before them (arrow pictures: dark_krimble-quickadjust-arrow-up.png and -down.png)
             m_numbers[i]->setStyleSheet(QStringLiteral(
                 // Krimble 2026-11-15 (item 12), George: text 4x the rest of the screen is too big. Old line: (sizes 15/15/16/13/16 px before)
                 "QSpinBox { font-weight: bold; color: #ffffff; padding-right: 22px; }"
-                "QSpinBox::up-button { subcontrol-origin: border; subcontrol-position: top right; width: 22px; height: 13px; border: none; border-left: 1px solid #323252; background: transparent; }"
-                "QSpinBox::down-button { subcontrol-origin: border; subcontrol-position: bottom right; width: 22px; height: 13px; border: none; border-left: 1px solid #323252; background: transparent; }"
+                "QSpinBox::up-button { subcontrol-origin: border; subcontrol-position: top right; width: 22px; height: 10px; border: none; border-left: 1px solid #323252; background: transparent; }"
+                "QSpinBox::down-button { subcontrol-origin: border; subcontrol-position: bottom right; width: 22px; height: 10px; border: none; border-left: 1px solid #323252; background: transparent; }"
                 "QSpinBox::up-arrow { image: url(:/dark_krimble-quickadjust-arrow-up.png); width: 9px; height: 7px; }"
                 "QSpinBox::down-arrow { image: url(:/dark_krimble-quickadjust-arrow-down.png); width: 9px; height: 7px; }"));
             row->addWidget(m_numbers[i], 1, 1, Qt::AlignLeft | Qt::AlignTop);
@@ -2099,7 +2108,10 @@ static void krimbleShowQuickAdjustDialog(KisMainWindow *win)
         // const int width = int(avail.width() * 0.94);
         // Krimble 2026-11-15 (item 12): George: "It should start out small because otherwise it gets in the way." The window opens at the size its contents ask for (at most 94% of the screen
         // width), and the user can make it bigger.
-        const int width = qMin(qMax(dialog->sizeHint().width(), dialog->minimumSizeHint().width()), int(avail.width() * 0.94));
+        // const int width = qMin(qMax(dialog->sizeHint().width(), dialog->minimumSizeHint().width()), int(avail.width() * 0.94));
+        // Krimble 2026-11-15 (item 12): George (build 60 screenshot): "QuickAdjust is still HUGE." It opens as narrow as its contents allow, at most 72% of the screen width (the contents' wish was 80%); it is only the
+        // START size: the user can drag it wider. (No limit on resizing.)
+        const int width = qMax(dialog->minimumSizeHint().width(), qMin(dialog->sizeHint().width(), int(avail.width() * 0.72)));
         // const int height = qMin(dialog->sizeHint().height() + 20, int(avail.height() * 0.90));
         // Krimble 2026-11-06: the exact height for this width (the logo's height depends on its width, which sizeHint() does not know), no 20 px extra
         const int contentHeight = dialog->layout()->hasHeightForWidth() ? dialog->layout()->heightForWidth(width) : dialog->sizeHint().height();

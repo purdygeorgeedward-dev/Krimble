@@ -729,3 +729,6 @@ Release notes (RELEASE_NOTES_1.0.60-beta.md, format check passed) pushed. The ta
 
 ## 2026-11-15 10:55 AM MT: Toolbox, Layers, Color Lab fixes (entries 629, 630)
 George's build 60 test: toolbox docks as a giant column and scrolls, fat edge; selected layer still bad; Layers panel has no title; Color Lab double titles when torn off. Edited the source for each; committed locally, not pushed. Not answered yet: Color Lab "giant empty space at the top" (unclear which strip), main-area color, File/K spacing, 1.0.59 release.
+
+## 2026-11-15 11:10 AM MT: QuickAdjust compact rows (entry 631)
+George: "QuickAdjust is still HUGE." Rows and number boxes smaller, narrower start. Committed locally, not pushed. The white band at the top of the window is open.
