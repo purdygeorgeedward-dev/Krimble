@@ -714,3 +714,6 @@ George: gray layer rows, lighter selected one, no glow. Style sheet rule on Node
 
 ## 2026-11-15 9:05 AM MT: Dock tab header and tear-off drag (entry 627)
 George: nothing to grab on a docked panel; panels are supposed to have tabs. Header tab drawn for panels docked alone; dragging the header floats the panel. Syntax-checked against Qt headers with stubs. Committed locally, not pushed.
+
+## 2026-11-15 9:45 AM MT: Build 60 pushed
+George: "Start .60 push." Build number 60 / label 1.0.60-beta; pushes commits 6239c44 to 3fdf059 and the bump. Notes for this push follow in a [skip ci] commit.
