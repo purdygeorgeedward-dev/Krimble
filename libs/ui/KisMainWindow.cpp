@@ -7936,9 +7936,10 @@ void KisMainWindow::slotStoragesWarning(const QString &/*location*/)
         }
     }
 
-    if (!checkActiveBundlesAvailable()) {
-        QMessageBox::warning(this, i18nc("@title:window", "Krimble"), warning + i18n("\nOnly your local resources are available."));
-    }
+    // if (!checkActiveBundlesAvailable()) {
+    //     QMessageBox::warning(this, i18nc("@title:window", "Krimble"), warning + i18n("\nOnly your local resources are available."));
+    // }
+    // Krimble 2026-11-15: George: "I got a message about not having any resource bundles." Krimble has no bundles (they are deleted); the five brushes are loose resources. No message about bundles any more. The message about missing brush presets above stays.
 
 }
 
