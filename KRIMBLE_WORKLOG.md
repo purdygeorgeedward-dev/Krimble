@@ -702,3 +702,6 @@ George said "Push". 4 commits pushed to master (the cafdecf and later work): New
 
 ## 2026-11-15 9:45 AM MT: Heal icon and colour icon size (entries 623, 624)
 George: "Fix the missing icon. Then make sure the color icons are big when they are chosen by the user." Heal silhouette files added to the resource list; colour pictures 92% of the button. Committed locally, not pushed.
+
+## 2026-11-15 9:55 AM MT: third bevel picture
+George sent a third bevel picture (1254 x 1254, saved as docs/bevel-reference/george-bevel-concept-3-stepped-miters.png): a square with a white top, light periwinkle left, slate right, near-black navy bottom, a mid slate face, and the four corners cut as 45 degree stair steps (pixel art). Tones measured: top #FEFDFD, left #9EACD4, right #3E4866, bottom #272C43, face #5E6B91. His words: "Also, the previous time I used beveled icons in the toolbox they were oddly colorful and ugly. Refer to previous discussion of bevels." Rule row added to KRIMBLE_DECISIONS.md. The Raised style code (KoToolBoxButton.cpp paintEvent) is NOT changed: waiting for his word. Committed locally.
