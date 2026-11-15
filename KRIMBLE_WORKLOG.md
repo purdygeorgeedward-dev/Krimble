@@ -675,3 +675,6 @@ George: resizable by the user, never magnified; starts small. Banner 520 real pi
 
 ## 2026-11-15 11:10 AM MT: QuickAdjust rules
 George: "And it cannot be made to bounce when moved off screen either. Again it will get in the way. If anything it should be able to collapse to a bar." I took it as a bug report; he: "I didn't say it bounces." It is a rule. Recorded in KRIMBLE_DECISIONS.md. Code check: only keepOnScreen at first Show (libs/ui/KisApplication.cpp), no pull-back after moves. Collapse to a bar not built (his "if anything"). Committed locally.
+
+## 2026-11-15 11:35 AM MT: item 11 keyboard at full size (entry 617)
+George: "Ugh. Just render it full size." Page list minimum 486 real pixels (picture is 480). Committed locally, not pushed.

@@ -747,8 +747,14 @@ protected:
                         Q_FOREACH (QAbstractItemView *pageList, pageDialog->findChildren<QAbstractItemView*>()) {
                             if (QLatin1String(pageList->metaObject()->className()) == QLatin1String("KPageListView")) {
                                 if (QScreen *pageScreen = QGuiApplication::primaryScreen()) {
-                                    const int cap = int(pageScreen->availableGeometry().width() * 0.24);
+                                    // const int cap = int(pageScreen->availableGeometry().width() * 0.24);
+                                    // Krimble 2026-11-15 (item 11): George: "Just render it full size." The keyboard picture is 480 real pixels wide; the column is wide enough for it (486 real pixels with
+                                    // its 3 px at each side), or 24% of the screen, whichever is wider.
+                                    const qreal keyboardDpr = qMax<qreal>(1.0, pageScreen->devicePixelRatio());
+                                    const int keyboardColumn = qRound(486 / keyboardDpr);   // in the style sheets' and layouts' own units
+                                    const int cap = qMax(int(pageScreen->availableGeometry().width() * 0.24), keyboardColumn);
                                     if (pageList->maximumWidth() > cap) pageList->setMaximumWidth(cap);
+                                    pageList->setMinimumWidth(qMax(pageList->minimumWidth(), keyboardColumn));
                                     // Krimble 2026-10-13 (3rd): George (1.0.35): "Preferences icons are way too small." The pictures were drawn at
                                     // the program's small default (32 logical px); they are now 64 logical px (about 216 on the screen), which
                                     // is the most that fits in the narrowed list.
