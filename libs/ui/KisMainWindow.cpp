@@ -3933,7 +3933,11 @@ protected:
         // Krimble 2026-11-15: George: "Plain rectangles is stupid." and his two close-up pictures (docs/bevel-reference/): four edges, each its own tone (top the lightest, left light,
         // right dark, bottom the darkest), meeting at 45 degree diagonal joins (a staircase of real pixels: no antialiasing). A menu is recessed: the tones are turned round.
         // A docked panel has its top and bottom edges only (as before), straight, with no joins. The width of an edge is `one` (3 real screen pixels, entry 599).
-        const QColor topTone    = recessed ? QColor(18, 19, 34)    : QColor(214, 222, 250);
+        // const QColor topTone    = recessed ? QColor(18, 19, 34)    : QColor(214, 222, 250);
+        // Krimble 2026-11-15: George (build 60): "There are white lines on the top and bottom of the menu bar for no apparent reason." The menu bar's top line was the near-white top tone, 3 real pixels thick, which
+        // reads as a white stripe on the dark bar; the menu bar's top line is the softer light tone now (the same as its left edge). Panels and the rest keep the near-white top tone.
+        const bool krimbleMenuBar = qobject_cast<QMenuBar*>(m_target.data()) != nullptr;
+        const QColor topTone    = recessed ? QColor(18, 19, 34)    : (krimbleMenuBar ? QColor(110, 120, 170) : QColor(214, 222, 250));
         const QColor leftTone   = recessed ? QColor(46, 52, 84)    : QColor(140, 150, 196);
         const QColor rightTone  = recessed ? QColor(140, 150, 196) : QColor(46, 52, 84);
         const QColor bottomTone = recessed ? QColor(214, 222, 250) : QColor(18, 19, 34);
