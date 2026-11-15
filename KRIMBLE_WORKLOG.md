@@ -555,3 +555,6 @@ Two sources of bevels exist. (1) The style sheet borders (light top/left, dark b
 
 ## 2026-11-15 6:01 AM MT: George: all themes should have bevels
 George said he indicated earlier that all themes should have bevels. KRIMBLE_DECISIONS.md line 18 (task 63 split, Nov 13) says the default theme is flat and the Nov 10 bevels belong to Krimble Bevel only: this conflicts with his statement. Not yet changed in the source or in KRIMBLE_DECISIONS.md; he has not said how thick or how visible the bevels in the other themes should be.
+
+## 2026-11-15 6:05 AM MT: rule: all themes must have bevels
+George sent a picture (a man holding a stone tablet reading "ALL THEMES MUST HAVE BEVELS"). Written in KRIMBLE_DECISIONS.md as a rule above the default theme row. Correction of the 6:01 AM answer: the decisions file did already say, in the default theme row of Nov 13, "one-pixel light and dark lines"; what it lacked was a rule for every theme, and the "Separate themes" row gave the Nov 10 bevels to Krimble Bevel only. The two rows contradicted each other, and the 1.0.59 code followed the second. No source changed.
