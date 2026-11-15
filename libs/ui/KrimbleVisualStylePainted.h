@@ -363,7 +363,8 @@ QStatusBar {
 }
 */
 QStatusBar {
-    max-height: 22px;
+    /* Krimble 2026-11-15: George: "Restore ... previous status bar height." The 22 px cap (562nd entry) is off. */
+    /* max-height: 22px; */
     color: #ffffff;
     /* Krimble 2026-11-11: across only, dark at both ends. Before: background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #364063, stop:1 #212945); */
     background: qlineargradient(x1:0,y1:0,x2:1,y2:0, stop:0 #212945, stop:0.5 #364063, stop:1 #212945);

@@ -255,7 +255,8 @@ QDockWidget > QMenu {
 QStatusBar {
     color: #ffffff;
     background: #3e4b78;
-    max-height: 22px;   /* task 73 */
+    /* Krimble 2026-11-15: George: "Restore ... previous status bar height." The 22 px cap (562nd entry) is off. */
+    /* max-height: 22px; */
 }
 /* Krimble 2026-11-13 (task 73): George (a screenshot of the status bar): "no buttons or bevels or whatever. This was good before. but still too tall." The status bar: its items (the size and memory readout, the selection indicator) are plain: no button border, no bevel, no fill, no extra padding, so the bar is only as tall as its
    contents, and at most 22 px. */
