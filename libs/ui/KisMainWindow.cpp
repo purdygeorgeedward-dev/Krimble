@@ -1350,9 +1350,12 @@ public:
     {
         if (!bar) return;
         QWidget *label = bar->cornerWidget(Qt::TopLeftCorner);
-        if (!label || !QByteArray(label->metaObject()->className()).endsWith("ControlLabel") || !label->isVisible()) return;
-        const QPoint target(1, qMax(0, (bar->height() - label->height()) / 2));
-        if (label->pos() != target) label->move(target);
+        // if (!label || !QByteArray(label->metaObject()->className()).endsWith("ControlLabel") || !label->isVisible()) return;
+        // Krimble 2026-11-15: George (screenshot of the welcome page, no image open): "The k too close." With no image open the bar has no corner button (the K is drawn by the overlay), so this function returned at once and the
+        // gap in front of the menus was never widened. The button is only moved when it exists; the gap is made wide enough in every case.
+        const bool krimbleHaveLabel = label && QByteArray(label->metaObject()->className()).endsWith("ControlLabel") && label->isVisible();
+        const QPoint target(1, krimbleHaveLabel ? qMax(0, (bar->height() - label->height()) / 2) : 0);
+        if (krimbleHaveLabel && label->pos() != target) label->move(target);
         QWidgetAction *spacer = bar->findChild<QWidgetAction *>(QStringLiteral("krimbleKSpacer"));
         QAction *first = nullptr;
         Q_FOREACH (QAction *entry, bar->actions()) {

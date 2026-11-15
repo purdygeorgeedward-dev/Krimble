@@ -38,3 +38,4 @@ George says he talked to Claude (in an earlier session; the text of that talk is
 - **2026-11-15T23:20Z:** It's super buggy and twitchy now. / The tabs work better, but titles are weird now. / Nothing wants to dock right now. / I thought the whole point of this build was to implement all new changes. Why didn't you do that? / No. You're way off. / When it started the file menu was still too close to the K. Somehow I changed themes. Now it refuses to change themes. / Also put a separator before change language in window menu.
 - **2026-11-15T23:29Z:** I got a message about not having any resource bundles.
 - **2026-11-15T23:30Z:** I didn't want you to delete the whole folder before.
+- **2026-11-15T23:32Z:** (welcome page screenshot) The k too close.

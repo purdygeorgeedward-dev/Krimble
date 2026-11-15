@@ -786,3 +786,5 @@ George: "Destroy all Krita themes. Nothing called Krita stays in themes." Delete
 **2026-11-15, 16:50 (MST).** No-bundles message off (682nd); pushed, no build.
 
 **2026-11-15, 17:00 (MST).** bundles folder restored without the bundle files (683rd); pushed, no build.
+
+**2026-11-15, 17:10 (MST).** K gap also without an open image (684th); pushed, no build.
