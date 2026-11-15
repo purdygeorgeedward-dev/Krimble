@@ -510,3 +510,6 @@ George edited README.md by hand and pushed bef71ab and 4bc5e65 (master was at b6
 
 ## 2026-11-14 11:32 PM MT: build 59 still not built
 Run #32 (43594210102, b6e6972): attempt 1 sat queued from 5:19 AM until George cancelled it (about 10:30 AM); attempt 2 (3:59 PM to 4:06 PM MST) failed to compile NodeDelegate.cpp (QPainterPath include; fixed in 955b7d5, 594th entry). The KisView.cpp error of run #31 is fixed (b6e6972). Row 59 is not in KRIMBLE_BUILD_LOG.md (no APK was made); the number 59 stays open. George said "Push": master pushed with these.
+
+## 2026-11-14 11:39 PM MT: build 59 started
+Pushed 2257c69..77dcb3e (README features, Krimble Bevel 2 px lines), then dispatched the workflow with the PAT George pasted: HTTP 204, run #33 (43686436841), commit 77dcb3e, label 1.0.59-beta. Row 59 is in KRIMBLE_BUILD_LOG.md (local, not pushed: a push of the log does not start a build).
