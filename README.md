@@ -269,10 +269,12 @@ Planned Targets:
 Android is just the beginning.
 
 ---
+
 <div align="center">
 
 <img src="https://krimble.org/assets/thank-you.jpg" alt="Thank you from Krimble" width="430">
 </div>
+
 ## THANK YOU! 🙏
 
 Krimble exists because of these. They are not connected to Krimble and have not endorsed it; we are simply grateful for their services.
