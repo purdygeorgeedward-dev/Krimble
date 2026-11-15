@@ -453,7 +453,10 @@ LayerBox::LayerBox()
             "QToolButton:hover { background: rgba(120, 160, 255, 35); border-radius: 6px; }"
             "QToolButton:pressed { background: rgba(80, 150, 255, 90); border-radius: 6px; }"
             "QToolButton:disabled { background: transparent; }"
-            "QToolButton::menu-indicator { subcontrol-position: right bottom; }");
+            // "QToolButton::menu-indicator { subcontrol-position: right bottom; }");
+            // Krimble 2026-11-15 (694th): George (screenshot): "There are still weird black things at the bottom of the layers panel." With a style sheet on the button, the menu indicator (Add and Properties have menus)
+            // is drawn as a black bar when it has no picture. It has no picture and no size here now, so nothing is drawn; the menus open as before (press and hold, or the button itself).
+            "QToolButton::menu-indicator { image: none; width: 0px; height: 0px; }");
         for (QToolButton *button : symbolButtons) {
             button->setAutoRaise(true);
             button->setFocusPolicy(Qt::NoFocus);
