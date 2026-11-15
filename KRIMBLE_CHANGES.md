@@ -7584,3 +7584,5 @@ George: "Destroy all Krita themes. Nothing called Krita stays in themes." Delete
 **2026-11-15, 17:40 (MST), 686th.** George: "QuickAdjust size is better, but the ball bearings are too big." `KisMainWindow.cpp`, `KrimbleQuickAdjust`: the slider handle (ball bearing picture) is 10 units across (was 16), margin -4 (was -7); the same size as the other sliders. Pushed with `[skip ci]`.
 
 **2026-11-15, 17:50 (MST), 687th.** George: "And I can't see the numbers any more. They have no space." `KisMainWindow.cpp`, `KrimbleQuickAdjust`: the number box is 74 x 20 (was 58 x 20, the width of his picture of QuickAdjust); its arrow buttons are 16 wide (were 22) and the right padding 17 (was 22), so the number has about 55 units of room (was about 34). Pushed with `[skip ci]`.
+
+**2026-11-15, 17:55 (MST), 688th.** George: "And the preview toggle button is too big to fit in between the buttons now. Shrink it". `KisMainWindow.cpp`, `KrimbleToggleSwitch::sizeHint`: 44 x 20 (was 64 x 30). Pushed with `[skip ci]`.

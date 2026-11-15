@@ -1111,7 +1111,9 @@ public:
     }
     // QSize sizeHint() const override { return QSize(84, 40); }
     // Krimble 2026-11-11: George: "The rounded preview toggle is too big in QuickAdjust." 64 x 30 (was 84 x 40), with a thinner margin around the switch and a smaller knob.
-    QSize sizeHint() const override { return QSize(64, 30); }
+    // QSize sizeHint() const override { return QSize(64, 30); }
+    // Krimble 2026-11-15: George: "the preview toggle button is too big to fit in between the buttons now. Shrink it." 44 x 20 (was 64 x 30).
+    QSize sizeHint() const override { return QSize(44, 20); }
 protected:
     void paintEvent(QPaintEvent *) override
     {
