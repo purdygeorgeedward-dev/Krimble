@@ -1,20 +1,10 @@
+# Krimble 2026-11-15: George: "we don't need more than about 5 brushes. Delete the others." The watercolor presets are deleted; the five that stay are listed below.
 install( FILES
 a\)_Eraser_Circle.kpp
 b\)_Basic-5_Size_default.kpp
-j\)_WaterC_Basic_Lines-Dry.kpp
-j\)_WaterC_Basic_Lines-Wet.kpp
-j\)_WaterC_Basic_Lines-Wet-Pattern.kpp
-j\)_WaterC_Basic_Round-Fringe_02.kpp
-j\)_WaterC_Basic_Round-Grain.kpp
-j\)_WaterC_Basic_Round-Grunge.kpp
-j\)_WaterC_Flat_Big-Grain_Tilt.kpp
-j\)_WaterC_Flat_Decay_Tilt.kpp
-j\)_WaterC_Special_Blobs.kpp
-j\)_WaterC_Special_Splats.kpp
-j\)_WaterC_Spread.kpp
-j\)_WaterC_Spread-Pattern.kpp
-j\)_WaterC_Spread_WideArea.kpp
-j\)_WaterC_Water-Pattern.kpp
+b\)_Airbrush_Soft.kpp
+c\)_Pencil-2.kpp
+d\)_Ink-2_Fineliner.kpp
 DESTINATION  ${KDE_INSTALL_DATADIR}/krita/paintoppresets)
 
 install( FILES

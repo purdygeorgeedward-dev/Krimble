@@ -760,3 +760,5 @@ George: "Destroy all Krita themes. Nothing called Krita stays in themes." Delete
 **2026-11-15, 15:08 (MST).** KrimbleBlue.colors deleted (669th); pushed, no build.
 
 **2026-11-15, 15:12 (MST).** Added KRIMBLE_CONVERSATION_LOG.md (670th); pushed, no build.
+
+**2026-11-15, 15:20 (MST).** Brush presets cut to 5; bundles deleted (671st); pushed, no build. Open: George's note on slow startup; fonts (24 MB) and patterns (7.6 MB) not touched.
