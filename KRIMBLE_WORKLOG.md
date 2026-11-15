@@ -678,3 +678,6 @@ George: "And it cannot be made to bounce when moved off screen either. Again it 
 
 ## 2026-11-15 11:35 AM MT: item 11 keyboard at full size (entry 617)
 George: "Ugh. Just render it full size." Page list minimum 486 real pixels (picture is 480). Committed locally, not pushed.
+
+## 2026-11-15 11:50 AM MT: new Preferences icon (entry 618)
+George sent the orange K keycap (transparent background). "Yes. It solves the problem cleanly." Put into both config-keyboard SVGs. Committed locally, not pushed.
