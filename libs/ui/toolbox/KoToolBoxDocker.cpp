@@ -835,7 +835,12 @@ int KoToolBoxDocker::krimbleFitColumns()
     const QMargins margins = widget()->layout()->contentsMargins();
     const int titleAndFrame = height() - widget()->height();
     const int scrollFrame = m_scrollArea->height() - m_scrollArea->viewport()->height();
-    const int chrome = titleAndFrame + margins.top() + margins.bottom() + scrollFrame;
+    // const int chrome = titleAndFrame + margins.top() + margins.bottom() + scrollFrame;
+    // Krimble 2026-11-15 (3rd): George: "If I choose two columns it should make a window area big enough for all of those two columns and the crap at the bottom." The sum above left out what sits under
+    // the tool area (the color wells, the swap arrow, the document icon): the box was cut that much too short and the tools had to scroll. Everything that is not the tool area's own viewport
+    // (title bar, frame, margins, the wells and what is under them) is chrome.
+    Q_UNUSED(titleAndFrame); Q_UNUSED(margins); Q_UNUSED(scrollFrame);
+    const int chrome = qMax(0, height() - m_scrollArea->viewport()->height());
     const int icon = iconWidth();
     for (int c = qMax(qMax(1, m_columns), m_forceMinColumns); c < 40; ++c) {
         const int toolsHeight = m_toolBox->layout()->heightForWidth(c * icon);
@@ -887,7 +892,10 @@ void KoToolBoxDocker::fitHeightToContents(bool setWidthToo)
     const QMargins margins = widget()->layout()->contentsMargins();
     const int titleAndFrame = height() - widget()->height();
     const int scrollFrame = m_scrollArea->height() - m_scrollArea->viewport()->height();
-    int target = titleAndFrame + margins.top() + margins.bottom() + scrollFrame + toolsHeight;
+    // int target = titleAndFrame + margins.top() + margins.bottom() + scrollFrame + toolsHeight;
+    // Krimble 2026-11-15 (3rd): the height of everything that is not the tool area's viewport, the color wells and what is under them included (see krimbleFitColumns)
+    Q_UNUSED(titleAndFrame); Q_UNUSED(margins); Q_UNUSED(scrollFrame);
+    int target = qMax(0, height() - m_scrollArea->viewport()->height()) + toolsHeight;
     if (QScreen *screenPtr = screen() ? screen() : QGuiApplication::primaryScreen()) {
         target = qMin(target, int(screenPtr->availableGeometry().height() * 0.95));
     }
