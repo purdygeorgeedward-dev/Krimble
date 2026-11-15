@@ -186,6 +186,10 @@ KisWelcomePageWidget::KisWelcomePageWidget(QWidget *parent)
     wdgAndroidSupportBanner->hide();
 #ifdef Q_OS_ANDROID
     initDonations();
+    // Krimble 2026-11-15: George: "The recent list is obscured by the toolbox still. Let's move that to the right" and "make the base screen darker". The page's contents start to the right of the toolbox (64 units, about 204 real pixels, a little wider
+    // than the toolbox in either orientation), and the page paints its own background from the style sheet (the base screen color, thememanager.cpp).
+    setContentsMargins(64, 0, 0, 0);
+    setAttribute(Qt::WA_StyledBackground, true);
 #endif
 
     // configure the News area
