@@ -18,6 +18,7 @@ file(GLOB KRIMBLE_OPEN_FONTS ${CMAKE_CURRENT_SOURCE_DIR}/open/*.ttf)
 # Krimble 2026-11-15 (608th): startup time. George: "Kill the ten largest families, but keep Montserrat." Nine families are left out of the
 # install list (the files stay in the repository): Lato, NotoEmoji, Inter, EBGaramond, SourceSans3, Saira, Tinos, IBMPlexMono, CrimsonPro.
 # To bring one back, remove its name from the pattern below.
+# Krimble 2026-11-15 (672nd): George: "DELETE!!!!!!!!" The nine families and their license files are deleted from the repository too (they stay in the git history); the line below now matches nothing.
 list(FILTER KRIMBLE_OPEN_FONTS EXCLUDE REGEX "/open/(Lato|NotoEmoji|Inter|EBGaramond|SourceSans3|Saira|Tinos|IBMPlexMono|CrimsonPro)[-.]")
 install( FILES ${KRIMBLE_OPEN_FONTS} DESTINATION ${KDE_INSTALL_DATADIR}/krita/fonts)
 install( FILES open/readme.md DESTINATION ${KDE_INSTALL_DATADIR}/krita/fonts/licenses RENAME readme-open-fonts.md)

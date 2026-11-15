@@ -25,3 +25,5 @@ George says he talked to Claude (in an earlier session; the text of that talk is
 - Rules: build only when he says "BUILD"; a push is not a build; failed builds are deleted and the number reused; terse replies; no multiple-choice menus; one step at a time; offers, not orders; no unprompted theories; never claim done unless it is in the repo; comment out, never delete; dated notes for every change and push.
 - **2026-11-15T22:03Z:** I said before we don't need more than about 5 brushes. Delete the others.
 - **2026-11-15T22:04Z:** You pick. I don't care.
+- **2026-11-15T22:05Z:** This app is sick with bloat. Remove the biggest fonts except Montserrat. You don't remember deleting 9 font families?
+- **2026-11-15T22:06Z:** DELETE!!!!!!!!
