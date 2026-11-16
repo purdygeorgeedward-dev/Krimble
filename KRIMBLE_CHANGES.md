@@ -7638,3 +7638,5 @@ Not fixed, cause not found in the code: **1** (normal docking of the toolbox), *
 **2026-11-15, 21:15 (MST), 710th.** George: "Build". Build 64 (1.0.64-beta): `krimbleBuildNumber` 64 in `packaging/android/apk/build.gradle`, label 1.0.64-beta in `.github/workflows/android-build.yml`; this push starts the build. It contains entries 704 to 709 on top of build 63 (706th to 709th are the fixes for the ten faults of build 63). No build log row until the run has succeeded.
 
 **2026-11-15, 21:30 (MST), 711th.** Build 64 (1.0.64-beta) built: run 43802615314, 15 min, commit `4ba8bb1`, APK artifact 14197553400 (about 146 MB). All files of the 706th to 709th compiled with the Krita headers. Row 64 added to `KRIMBLE_BUILD_LOG.md`.
+
+**2026-11-16, 05:40 (MST), 712th.** George: "Tag and document." `RELEASE_NOTES_1.0.63-beta.md` (what build 63 held, entries 679 to 703, and the faults he found in it) and `RELEASE_NOTES_1.0.64-beta.md` (the fixes of the 706th to 709th; marked "Not tested yet"). Tags `v1.0.63-beta` (commit `f8edc72`) and `v1.0.64-beta` (commit `4ba8bb1`): see the next line of the worklog for whether the push of the tags went through.
