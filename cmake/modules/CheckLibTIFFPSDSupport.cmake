@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2021 L. E. Segovia <amy@amyspark.me>
 # SPDX-License-Identifier: BSD-3-Clause
 
-# Test libtiff support for Photoshop TIFFs
+# Test libtiff support for PS TIFFs
 #
 # This module defines
 #   TIFF_HAS_PSD_TAGS -- if TIFFTAG_IMAGESOURCEDATA and TIFFTAG_PHOTOSHOP are defined in tiff.h
@@ -57,6 +57,6 @@ if (TIFF_FOUND)
         check_libtiff_psd_support(TIFF_HAS_PSD_TAGS TIFF_CAN_WRITE_PSD_TAGS)
     endif()
     if (NOT TIFF_HAS_PSD_TAGS OR NOT TIFF_CAN_WRITE_PSD_TAGS)
-        message(WARNING "Your version of libtiff cannot read or write Photoshop TIFFs!")
+        message(WARNING "Your version of libtiff cannot read or write PS TIFFs!")
     endif (NOT TIFF_HAS_PSD_TAGS OR NOT TIFF_CAN_WRITE_PSD_TAGS)
 endif(TIFF_FOUND)

@@ -23174,7 +23174,7 @@ msgstr "Otvori Slike"
 #: libs/koplugin/KisMimeDatabase.cpp:229
 #, fuzzy, kde-format
 msgctxt "description of a file type"
-msgid "Photoshop Layer Style Library"
+msgid "Layer Style Library (ASL)"
 msgstr "OpenColorIO konfiguraciju (*.ocio)"
 
 #: libs/koplugin/KisMimeDatabase.cpp:234
@@ -23274,9 +23274,9 @@ msgstr "OpenEXR Opcije eksportovanja"
 
 #: libs/koplugin/KisMimeDatabase.cpp:309
 #, fuzzy, kde-format
-#| msgid "Photoshop Brushes (*.abr)"
+#| msgid "PS Brushes (*.abr)"
 msgctxt "description of a file type"
-msgid "Photoshop Image (Large)"
+msgid "PSB Image (Large)"
 msgstr "Fotošop četke (*.abr)"
 
 #: libs/koplugin/KisMimeDatabase.cpp:314
@@ -24060,17 +24060,17 @@ msgstr "Blago svjetlo (SVG)"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:82
 #, fuzzy, kde-format
-#| msgid "Soft Light (Photoshop)"
+#| msgid "Soft Light (Standard)"
 msgctxt "Blending mode - Soft Light (Pegtop-Delphi)"
 msgid "Soft Light (Pegtop-Delphi)"
-msgstr "Blago svjetlo (Photoshop)"
+msgstr "Blago svjetlo (PS)"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:83
 #, fuzzy, kde-format
-#| msgid "Soft Light (Photoshop)"
-msgctxt "Blending mode - Soft Light (Photoshop)"
-msgid "Soft Light (Photoshop)"
-msgstr "Blago svjetlo (Photoshop)"
+#| msgid "Soft Light (Standard)"
+msgctxt "Blending mode - Soft Light (Standard)"
+msgid "Soft Light (Standard)"
+msgstr "Blago svjetlo (PS)"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:84
 #, fuzzy, kde-format
@@ -24296,17 +24296,17 @@ msgstr "Čvrsta mješavina"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:121
 #, fuzzy, kde-format
-#| msgid "Soft Light (Photoshop)"
-msgctxt "Blending mode - Hard Mix (Photoshop)"
-msgid "Hard Mix (Photoshop)"
-msgstr "Blago svjetlo (Photoshop)"
+#| msgid "Soft Light (Standard)"
+msgctxt "Blending mode - Hard Mix (Standard)"
+msgid "Hard Mix (Standard)"
+msgstr "Blago svjetlo (PS)"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:122
 #, fuzzy, kde-format
-#| msgid "Soft Light (Photoshop)"
-msgctxt "Blending mode - Hard Mix Softer (Photoshop)"
-msgid "Hard Mix Softer (Photoshop)"
-msgstr "Blago svjetlo (Photoshop)"
+#| msgid "Soft Light (Standard)"
+msgctxt "Blending mode - Hard Mix Softer (Standard)"
+msgid "Hard Mix Softer (Standard)"
+msgstr "Blago svjetlo (PS)"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:123
 #, fuzzy, kde-format
@@ -37543,7 +37543,7 @@ msgstr "Dimenzije"
 #, fuzzy, kde-format
 msgctxt "@title:window"
 msgid "Krita: Export Error"
-msgstr "Greška u izvozu u Photoshop"
+msgstr "Greška u izvozu u PS"
 
 #: libs/ui/KisImportExportManager.cpp:639
 #, kde-format
@@ -60453,7 +60453,7 @@ msgstr ""
 #. i18n: ectx: property (title), widget (QGroupBox, chkPhotoshop)
 #: plugins/impex/tiff/kis_wdg_options_tiff.ui:79
 #, fuzzy, kde-format
-msgid "Save layers as Photoshop"
+msgid "Save layers as PS"
 msgstr "Spremi sloj/masku..."
 
 #. i18n: ectx: property (text), widget (QLabel, label_4)
@@ -62907,17 +62907,17 @@ msgstr "VIsina štampe:"
 
 #: plugins/paintops/libpaintop/kis_texture_chooser.cpp:72
 #, fuzzy, kde-format
-#| msgid "Soft Light (Photoshop)"
-msgctxt "Height (Photoshop) blend mode for brush texture"
-msgid "Height (Photoshop)"
-msgstr "Blago svjetlo (Photoshop)"
+#| msgid "Soft Light (Standard)"
+msgctxt "Height (PS) blend mode for brush texture"
+msgid "Height (PS)"
+msgstr "Blago svjetlo (PS)"
 
 #: plugins/paintops/libpaintop/kis_texture_chooser.cpp:73
 #, fuzzy, kde-format
-#| msgid "Soft Light (Photoshop)"
-msgctxt "Linear Height (Photoshop) blend mode for brush texture"
-msgid "Linear Height (Photoshop)"
-msgstr "Blago svjetlo (Photoshop)"
+#| msgid "Soft Light (Standard)"
+msgctxt "Linear Height (PS) blend mode for brush texture"
+msgid "Linear Height (PS)"
+msgstr "Blago svjetlo (PS)"
 
 #: plugins/paintops/libpaintop/kis_texture_chooser.cpp:82
 #, kde-format
@@ -66913,7 +66913,7 @@ msgstr ""
 
 #: plugins/python/photobash_images/photobash_images_docker.py:83
 #, fuzzy
-#| msgid "Photoshop Brushes (*.abr)"
+#| msgid "PS Brushes (*.abr)"
 msgctxt "@title:window"
 msgid "Photobash Images"
 msgstr "Fotošop četke (*.abr)"
@@ -75308,14 +75308,14 @@ msgstr ""
 #~ msgstr "Izvađena zrna"
 
 #, fuzzy
-#~| msgid "Soft Light (Photoshop)"
-#~ msgid "Hard Mix (Photoshop)"
-#~ msgstr "Blago svjetlo (Photoshop)"
+#~| msgid "Soft Light (Standard)"
+#~ msgid "Hard Mix (Standard)"
+#~ msgstr "Blago svjetlo (PS)"
 
 #, fuzzy
-#~| msgid "Soft Light (Photoshop)"
-#~ msgid "Hard Mix Softer (Photoshop)"
-#~ msgstr "Blago svjetlo (Photoshop)"
+#~| msgid "Soft Light (Standard)"
+#~ msgid "Hard Mix Softer (Standard)"
+#~ msgstr "Blago svjetlo (PS)"
 
 #~ msgid "Parallel"
 #~ msgstr "Paralelno"
@@ -75350,15 +75350,15 @@ msgstr ""
 #~ msgstr "Blago svjetlo (SVG)"
 
 #, fuzzy
-#~| msgid "Soft Light (Photoshop)"
+#~| msgid "Soft Light (Standard)"
 #~ msgid "Soft Light (Pegtop-Delphi)"
-#~ msgstr "Blago svjetlo (Photoshop)"
+#~ msgstr "Blago svjetlo (PS)"
 
 #~ msgid "Soft Light (SVG)"
 #~ msgstr "Blago svjetlo (SVG)"
 
-#~ msgid "Soft Light (Photoshop)"
-#~ msgstr "Blago svjetlo (Photoshop)"
+#~ msgid "Soft Light (Standard)"
+#~ msgstr "Blago svjetlo (PS)"
 
 #~ msgid "Gamma Light"
 #~ msgstr "Gama svjetlo"
@@ -78370,7 +78370,7 @@ msgstr ""
 
 #, fuzzy
 #~ msgid "Video Export Error"
-#~ msgstr "Greška u izvozu u Photoshop"
+#~ msgstr "Greška u izvozu u PS"
 
 #, fuzzy
 #~| msgid "Color Dodge"
@@ -94721,7 +94721,7 @@ msgstr ""
 
 #, fuzzy
 #~ msgctxt "(qtundo-format) description of a file type"
-#~ msgid "Photoshop Layer Style Library"
+#~ msgid "Layer Style Library (ASL)"
 #~ msgstr "OpenColorIO konfiguraciju (*.ocio)"
 
 #, fuzzy
@@ -95322,10 +95322,10 @@ msgstr ""
 #~ msgstr "Blago svjetlo (SVG)"
 
 #, fuzzy
-#~| msgid "Soft Light (Photoshop)"
+#~| msgid "Soft Light (Standard)"
 #~ msgctxt "(qtundo-format)"
-#~ msgid "Soft Light (Photoshop)"
-#~ msgstr "Blago svjetlo (Photoshop)"
+#~ msgid "Soft Light (Standard)"
+#~ msgstr "Blago svjetlo (PS)"
 
 #, fuzzy
 #~| msgid "Gamma Light"
@@ -104400,20 +104400,20 @@ msgstr ""
 #, fuzzy
 #~ msgctxt "(qtundo-format) @title:window"
 #~ msgid "CSV Export Error"
-#~ msgstr "Greška u izvozu u Photoshop"
+#~ msgstr "Greška u izvozu u PS"
 
 #, fuzzy
 #~ msgctxt "@title:window"
 #~ msgid "CSV Export Error"
-#~ msgstr "Greška u izvozu u Photoshop"
+#~ msgstr "Greška u izvozu u PS"
 
 #, fuzzy
 #~ msgid ""
 #~ "Unable to save to the CSV format.\n"
 #~ "The CSV format not supports layer groups or masked layers."
 #~ msgstr ""
-#~ "Ne mogu snimiti u Photoshop format.\n"
-#~ "Photoshop format podržava samo slike koje su manje od 30000x3000 piksela."
+#~ "Ne mogu snimiti u PS format.\n"
+#~ "PS format podržava samo slike koje su manje od 30000x3000 piksela."
 
 #, fuzzy
 #~ msgctxt "(qtundo-format)"
@@ -104421,8 +104421,8 @@ msgstr ""
 #~ "Unable to save to the CSV format.\n"
 #~ "The CSV format not supports layer groups or masked layers."
 #~ msgstr ""
-#~ "Ne mogu snimiti u Photoshop format.\n"
-#~ "Photoshop format podržava samo slike koje su manje od 30000x3000 piksela."
+#~ "Ne mogu snimiti u PS format.\n"
+#~ "PS format podržava samo slike koje su manje od 30000x3000 piksela."
 
 #, fuzzy
 #~| msgctxt "@info"
@@ -104777,59 +104777,59 @@ msgstr ""
 
 #, fuzzy
 #~| msgctxt "@title:window"
-#~| msgid "Photoshop Export Error"
+#~| msgid "PS Export Error"
 #~ msgctxt "(qtundo-format) @title:window"
-#~ msgid "Photoshop Export Error"
-#~ msgstr "Greška u izvozu u Photoshop"
+#~ msgid "PS Export Error"
+#~ msgstr "Greška u izvozu u PS"
 
 #~ msgctxt "@title:window"
-#~ msgid "Photoshop Export Error"
-#~ msgstr "Greška u izvozu u Photoshop"
+#~ msgid "PS Export Error"
+#~ msgstr "Greška u izvozu u PS"
 
 #~ msgid ""
-#~ "Unable to save to the Photoshop format.\n"
-#~ "The Photoshop format only supports images that are smaller than "
+#~ "Unable to save to the PS format.\n"
+#~ "The PS format only supports images that are smaller than "
 #~ "30000x3000 pixels."
 #~ msgstr ""
-#~ "Ne mogu snimiti u Photoshop format.\n"
-#~ "Photoshop format podržava samo slike koje su manje od 30000x3000 piksela."
+#~ "Ne mogu snimiti u PS format.\n"
+#~ "PS format podržava samo slike koje su manje od 30000x3000 piksela."
 
 #, fuzzy
 #~| msgid ""
-#~| "Unable to save to the Photoshop format.\n"
-#~| "The Photoshop format only supports images that are smaller than "
+#~| "Unable to save to the PS format.\n"
+#~| "The PS format only supports images that are smaller than "
 #~| "30000x3000 pixels."
 #~ msgctxt "(qtundo-format)"
 #~ msgid ""
-#~ "Unable to save to the Photoshop format.\n"
-#~ "The Photoshop format only supports images that are smaller than "
+#~ "Unable to save to the PS format.\n"
+#~ "The PS format only supports images that are smaller than "
 #~ "30000x3000 pixels."
 #~ msgstr ""
-#~ "Ne mogu snimiti u Photoshop format.\n"
-#~ "Photoshop format podržava samo slike koje su manje od 30000x3000 piksela."
+#~ "Ne mogu snimiti u PS format.\n"
+#~ "PS format podržava samo slike koje su manje od 30000x3000 piksela."
 
 #~ msgid ""
-#~ "Unable to save to the Photoshop format.\n"
-#~ "The Photoshop format only supports images where all layers have the same "
+#~ "Unable to save to the PS format.\n"
+#~ "The PS format only supports images where all layers have the same "
 #~ "colorspace as the image."
 #~ msgstr ""
-#~ "Ne mogu snimiti u Photoshop format.\n"
-#~ "Photoshop format podržava samo slike čiji su svi slojevi u istom prostoru "
+#~ "Ne mogu snimiti u PS format.\n"
+#~ "PS format podržava samo slike čiji su svi slojevi u istom prostoru "
 #~ "boja kao slika."
 
 #, fuzzy
 #~| msgid ""
-#~| "Unable to save to the Photoshop format.\n"
-#~| "The Photoshop format only supports images where all layers have the same "
+#~| "Unable to save to the PS format.\n"
+#~| "The PS format only supports images where all layers have the same "
 #~| "colorspace as the image."
 #~ msgctxt "(qtundo-format)"
 #~ msgid ""
-#~ "Unable to save to the Photoshop format.\n"
-#~ "The Photoshop format only supports images where all layers have the same "
+#~ "Unable to save to the PS format.\n"
+#~ "The PS format only supports images where all layers have the same "
 #~ "colorspace as the image."
 #~ msgstr ""
-#~ "Ne mogu snimiti u Photoshop format.\n"
-#~ "Photoshop format podržava samo slike čiji su svi slojevi u istom prostoru "
+#~ "Ne mogu snimiti u PS format.\n"
+#~ "PS format podržava samo slike čiji su svi slojevi u istom prostoru "
 #~ "boja kao slika."
 
 #, fuzzy
@@ -105094,7 +105094,7 @@ msgstr ""
 #, fuzzy
 #~ msgctxt "(qtundo-format)"
 #~ msgid "Video Export Error"
-#~ msgstr "Greška u izvozu u Photoshop"
+#~ msgstr "Greška u izvozu u PS"
 
 #, fuzzy
 #~| msgid "Superscript"

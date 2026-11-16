@@ -22305,8 +22305,8 @@ msgstr "תמונת OpenRaster"
 #: libs/koplugin/KisMimeDatabase.cpp:229
 #, kde-format
 msgctxt "description of a file type"
-msgid "Photoshop Layer Style Library"
-msgstr "ספריית סגנונות שכבות של Photoshop"
+msgid "Layer Style Library (ASL)"
+msgstr "ספריית סגנונות שכבות של PS"
 
 #: libs/koplugin/KisMimeDatabase.cpp:234
 #, kde-format
@@ -22401,8 +22401,8 @@ msgstr "OpenEXR (מורחב)"
 #: libs/koplugin/KisMimeDatabase.cpp:309
 #, kde-format
 msgctxt "description of a file type"
-msgid "Photoshop Image (Large)"
-msgstr "תמונת Photoshop (גדולה)"
+msgid "PSB Image (Large)"
+msgstr "תמונת PS (גדולה)"
 
 #: libs/koplugin/KisMimeDatabase.cpp:314
 #, kde-format
@@ -23122,9 +23122,9 @@ msgstr "אור רך (Pegtop-Delphi)"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:83
 #, kde-format
-msgctxt "Blending mode - Soft Light (Photoshop)"
-msgid "Soft Light (Photoshop)"
-msgstr "אור רך (Photoshop)"
+msgctxt "Blending mode - Soft Light (Standard)"
+msgid "Soft Light (Standard)"
+msgstr "אור רך (PS)"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:84
 #, kde-format
@@ -23326,14 +23326,14 @@ msgstr "&גובה:"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:121
 #, fuzzy, kde-format
-msgctxt "Blending mode - Hard Mix (Photoshop)"
-msgid "Hard Mix (Photoshop)"
+msgctxt "Blending mode - Hard Mix (Standard)"
+msgid "Hard Mix (Standard)"
 msgstr "בודד"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:122
 #, fuzzy, kde-format
-msgctxt "Blending mode - Hard Mix Softer (Photoshop)"
-msgid "Hard Mix Softer (Photoshop)"
+msgctxt "Blending mode - Hard Mix Softer (Standard)"
+msgid "Hard Mix Softer (Standard)"
 msgstr "בודד"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:123
@@ -57305,8 +57305,8 @@ msgstr ""
 #. i18n: ectx: property (title), widget (QGroupBox, chkPhotoshop)
 #: plugins/impex/tiff/kis_wdg_options_tiff.ui:79
 #, kde-format
-msgid "Save layers as Photoshop"
-msgstr "שמירת שכבות כ־Photoshop"
+msgid "Save layers as PS"
+msgstr "שמירת שכבות כ־PS"
 
 #. i18n: ectx: property (text), widget (QLabel, label_4)
 #: plugins/impex/tiff/kis_wdg_options_tiff.ui:88
@@ -59613,15 +59613,15 @@ msgstr "גובה קווי"
 
 #: plugins/paintops/libpaintop/kis_texture_chooser.cpp:72
 #, kde-format
-msgctxt "Height (Photoshop) blend mode for brush texture"
-msgid "Height (Photoshop)"
-msgstr "גובה (Photoshop)"
+msgctxt "Height (PS) blend mode for brush texture"
+msgid "Height (PS)"
+msgstr "גובה (PS)"
 
 #: plugins/paintops/libpaintop/kis_texture_chooser.cpp:73
 #, kde-format
-msgctxt "Linear Height (Photoshop) blend mode for brush texture"
-msgid "Linear Height (Photoshop)"
-msgstr "גובה קווי (Photoshop)"
+msgctxt "Linear Height (PS) blend mode for brush texture"
+msgid "Linear Height (PS)"
+msgstr "גובה קווי (PS)"
 
 #: plugins/paintops/libpaintop/kis_texture_chooser.cpp:82
 #, fuzzy, kde-format
@@ -70243,11 +70243,11 @@ msgstr ""
 #~ msgstr "מיזוג דואר"
 
 #, fuzzy
-#~ msgid "Hard Mix (Photoshop)"
+#~ msgid "Hard Mix (Standard)"
 #~ msgstr "בודד"
 
 #, fuzzy
-#~ msgid "Hard Mix Softer (Photoshop)"
+#~ msgid "Hard Mix Softer (Standard)"
 #~ msgstr "בודד"
 
 #, fuzzy
@@ -70290,7 +70290,7 @@ msgstr ""
 #~ msgstr "בודד"
 
 #, fuzzy
-#~ msgid "Soft Light (Photoshop)"
+#~ msgid "Soft Light (Standard)"
 #~ msgstr "בודד"
 
 #, fuzzy

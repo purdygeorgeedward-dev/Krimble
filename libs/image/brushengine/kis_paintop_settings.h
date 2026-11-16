@@ -125,7 +125,7 @@ public:
      * XXX: Remove this after 2.0, when the paint operation (incremental/non incremental) will
      *      be completely handled in the paintop, not in the tool. This is a filthy hack to move
      *      the option to the right place, at least.
-     * @return true if we paint incrementally, false if we paint like Photoshop. By default, paintops
+     * @return true if we paint incrementally, false if we paint like PS. By default, paintops
      *      do not support non-incremental.
      */
     virtual bool paintIncremental() {

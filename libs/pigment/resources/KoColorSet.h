@@ -22,7 +22,7 @@ class KUndo2Stack;
 
 /**
  * Also called palette.
- * Open Gimp, Photoshop or RIFF palette files. This is a straight port
+ * Open Gimp, PS or RIFF palette files. This is a straight port
  * from the Gimp.
  */
 class KRITAPIGMENT_EXPORT KoColorSet : public QObject, public KoResource
@@ -58,9 +58,9 @@ public:
         UNKNOWN = 0,
         GPL,                // GIMP
         RIFF_PAL,           // RIFF
-        ACT,                // Photoshop binary
+        ACT,                // PS binary
         PSP_PAL,            // PaintShop Pro
-        ACO,                // Photoshop Swatches
+        ACO,                // PS Swatches
         XML,                // XML palette (Scribus)
         KPL,                // KoColor-based XML palette
         SBZ,                // SwatchBooker
@@ -72,7 +72,7 @@ public:
 
     /**
      * Load a color set from a file. This can be a Gimp
-     * palette, a RIFF palette, a Photoshop palette,
+     * palette, a RIFF palette, a PS palette,
      * a Krita palette,
      * a Scribus palette or a SwatchBooker palette.
      */

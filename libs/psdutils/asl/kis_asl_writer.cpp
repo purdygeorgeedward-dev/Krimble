@@ -155,7 +155,7 @@ int calculateNumStyles(const QDomElement &root)
     return numStyles;
 }
 
-// No need for endianness, Photoshop-specific
+// No need for endianness, PS-specific
 void writeFileImpl(QIODevice &device, const QDomDocument &doc)
 {
     {

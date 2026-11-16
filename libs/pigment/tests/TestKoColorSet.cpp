@@ -53,7 +53,7 @@ void TestKoColorSet::testLoadRIFF()
 }
 void TestKoColorSet::testLoadACT()
 {
-    KoColorSet set(QString(FILES_DATA_DIR)+ "/photoshop.act");
+    KoColorSet set(QString(FILES_DATA_DIR)+ "/ps_reference.act");
     QVERIFY(set.load(KisGlobalResourcesInterface::instance()));
     QCOMPARE(set.paletteType(), KoColorSet::ACT);
     QVERIFY(set.valid());
@@ -92,7 +92,7 @@ void TestKoColorSet::testLoadPSP_PAL()
 }
 void TestKoColorSet::testLoadACO()
 {
-    KoColorSet set(QString(FILES_DATA_DIR)+ "/photoshop.aco");
+    KoColorSet set(QString(FILES_DATA_DIR)+ "/ps_reference.aco");
     QVERIFY(set.load(KisGlobalResourcesInterface::instance()));
     QCOMPARE(set.paletteType(), KoColorSet::ACO);
     QVERIFY(set.valid());
@@ -238,7 +238,7 @@ void TestKoColorSet::testLoadSBZ()
 
 void TestKoColorSet::testLoadASE()
 {
-    KoColorSet set(QString(FILES_DATA_DIR) + "/photoshop.ase");
+    KoColorSet set(QString(FILES_DATA_DIR) + "/ps_reference.ase");
     QVERIFY(set.load(KisGlobalResourcesInterface::instance()));
     QCOMPARE(set.paletteType(), KoColorSet::ASE);
 
@@ -256,7 +256,7 @@ void TestKoColorSet::testLoadASE()
 
 void TestKoColorSet::testLoadACB()
 {
-    KoColorSet set(QString(FILES_DATA_DIR) + "/photoshop.acb");
+    KoColorSet set(QString(FILES_DATA_DIR) + "/ps_reference.acb");
     QVERIFY(set.load(KisGlobalResourcesInterface::instance()));
     QCOMPARE(set.paletteType(), KoColorSet::ACB);
 

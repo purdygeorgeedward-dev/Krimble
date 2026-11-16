@@ -26,7 +26,7 @@ class QAction;
 namespace ToolBoxSection {
     static const QString Main {"main"};                   ///< Tools that only work on vector shapes
     static const QString Shape {"0 Krita/Shape"};         ///< Freehand and shapes like ellipses and lines
-    static const QString PSOrder {"1 Krimble/PSOrder"};   ///< Krimble: tools with a Photoshop equivalent, ordered to match PS's toolbox
+    static const QString PSOrder {"1 Krimble/PSOrder"};   ///< Krimble: tools with an industry standard equivalent, ordered to match PS's toolbox
     static const QString Transform {"2 Krita/Transform"}; ///< Tools that transform the layer
     static const QString Fill {"3 Krita/Fill"};           ///< Tools that fill parts of the canvas
     static const QString View {"4 Krita/View"};           ///< Assistance tools: guides, reference, etc.

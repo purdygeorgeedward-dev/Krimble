@@ -97,7 +97,7 @@ msgstr ""
 "X-POFile-SpellExtra: rabiscos Phong Luis Toloza Giet BD Timothée Calligra\n"
 "X-POFile-SpellExtra: pt Geoffry Matus Song Talcik megapixels Silvio\n"
 "X-POFile-SpellExtra: Heinrich HSI Art Pref HSL Abs HSY Chispas LFolha\n"
-"X-POFile-SpellExtra: photoshop ancinhocomtextura Sharma ADesenho\n"
+"X-POFile-SpellExtra: PS ancinhocomtextura Sharma ADesenho\n"
 "X-POFile-SpellExtra: PeleHumana HR LFolhagem AAngularigreja chao\n"
 "X-POFile-SpellExtra: sketchlings MTubo Bokey Siddharth NESPAL\n"
 "X-POFile-SpellExtra: Labioshumanos OÓleo Tarkan ScRiscos CNuvem DPó gpl\n"
@@ -111,7 +111,7 @@ msgstr ""
 "X-POFile-SpellExtra: pix DNormal MBolha Galvplat PReal swatches OÓleos\n"
 "X-POFile-SpellExtra: TFibras aco AAngular NaturezaRelva GFaiscas\n"
 "X-POFile-SpellExtra: NaturezaCeuAgua neg ZPixel MSeta CPonto Ella Zestudo\n"
-"X-POFile-SpellExtra: Bicúbica LUT Little CMS OCIO OpenColorIO Photoshop\n"
+"X-POFile-SpellExtra: Bicúbica LUT Little CMS OCIO OpenColorIO PS\n"
 "X-POFile-IgnoreConsistency: Show\n"
 "X-POFile-SpellExtra: Pocinhas CurvaB hor Bell Anublado Avegetal\n"
 "X-POFile-SpellExtra: ZFormatriangular AAncinho CPontoSujo AAngularigrejaHR\n"
@@ -23141,8 +23141,8 @@ msgstr "Imagem OpenRaster"
 #: libs/koplugin/KisMimeDatabase.cpp:229
 #, kde-format
 msgctxt "description of a file type"
-msgid "Photoshop Layer Style Library"
-msgstr "Biblioteca de Estilos de Camadas do Photoshop"
+msgid "Layer Style Library (ASL)"
+msgstr "Biblioteca de Estilos de Camadas do PS"
 
 #: libs/koplugin/KisMimeDatabase.cpp:234
 #, kde-format
@@ -23237,8 +23237,8 @@ msgstr "OpenEXR (estendido)"
 #: libs/koplugin/KisMimeDatabase.cpp:309
 #, kde-format
 msgctxt "description of a file type"
-msgid "Photoshop Image (Large)"
-msgstr "Imagem do Photoshop (Grande)"
+msgid "PSB Image (Large)"
+msgstr "Imagem do PS (Grande)"
 
 #: libs/koplugin/KisMimeDatabase.cpp:314
 #, kde-format
@@ -23971,9 +23971,9 @@ msgstr "Luz Suave (Pegtop-Delphi)"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:83
 #, kde-format
-msgctxt "Blending mode - Soft Light (Photoshop)"
-msgid "Soft Light (Photoshop)"
-msgstr "Luz Suave (Photoshop)"
+msgctxt "Blending mode - Soft Light (Standard)"
+msgid "Soft Light (Standard)"
+msgstr "Luz Suave (PS)"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:84
 #, kde-format
@@ -24180,15 +24180,15 @@ msgstr "Mistura Forte"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:121
 #, kde-format
-msgctxt "Blending mode - Hard Mix (Photoshop)"
-msgid "Hard Mix (Photoshop)"
-msgstr "Mistura Forte (Photoshop)"
+msgctxt "Blending mode - Hard Mix (Standard)"
+msgid "Hard Mix (Standard)"
+msgstr "Mistura Forte (PS)"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:122
 #, kde-format
-msgctxt "Blending mode - Hard Mix Softer (Photoshop)"
-msgid "Hard Mix Softer (Photoshop)"
-msgstr "Mistura Semi-Forte (Photoshop)"
+msgctxt "Blending mode - Hard Mix Softer (Standard)"
+msgid "Hard Mix Softer (Standard)"
+msgstr "Mistura Semi-Forte (PS)"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:123
 #, kde-format
@@ -60024,8 +60024,8 @@ msgstr ""
 #. i18n: ectx: property (title), widget (QGroupBox, chkPhotoshop)
 #: plugins/impex/tiff/kis_wdg_options_tiff.ui:79
 #, kde-format
-msgid "Save layers as Photoshop"
-msgstr "Gravar as camadas como Photoshop"
+msgid "Save layers as PS"
+msgstr "Gravar as camadas como PS"
 
 #. i18n: ectx: property (text), widget (QLabel, label_4)
 #: plugins/impex/tiff/kis_wdg_options_tiff.ui:88
@@ -62449,15 +62449,15 @@ msgstr "Altura Linear"
 
 #: plugins/paintops/libpaintop/kis_texture_chooser.cpp:72
 #, kde-format
-msgctxt "Height (Photoshop) blend mode for brush texture"
-msgid "Height (Photoshop)"
-msgstr "Altura (Photoshop)"
+msgctxt "Height (PS) blend mode for brush texture"
+msgid "Height (PS)"
+msgstr "Altura (PS)"
 
 #: plugins/paintops/libpaintop/kis_texture_chooser.cpp:73
 #, kde-format
-msgctxt "Linear Height (Photoshop) blend mode for brush texture"
-msgid "Linear Height (Photoshop)"
-msgstr "Altura Linear (Photoshop)"
+msgctxt "Linear Height (PS) blend mode for brush texture"
+msgid "Linear Height (PS)"
+msgstr "Altura Linear (PS)"
 
 #: plugins/paintops/libpaintop/kis_texture_chooser.cpp:82
 #, kde-format

@@ -251,6 +251,21 @@ void KisStatusBar::imageSizeChanged()
     m_memoryReportBox->setIcon(m_memoryStatusIcon);
     m_memoryReportBox->setText(sizeText);
     m_memoryReportBox->setToolTip(m_longMemoryTag);
+    // Krimble 2026-11-16 (722nd): George (build 64): "in portrait (vertical) view the dimensions on status bar at bottom right get cut off. Needs more room." and "There is a weird visual
+    // jitter (periodic jolts) when trying to paint on screen which disrupts the line." The button had a smallest width of 120 and shared the bar with two labels that stretch, so in portrait
+    // it was squeezed to less than its text (cut off at both ends). And its text changes while painting (the memory figure), so its wanted size changed every time and the bar, and the window
+    // around it, were laid out again in the middle of a stroke. The button now has a fixed width that fits its text with some spare, and the width changes only when the text no longer
+    // fits or has become much shorter; a new figure of the same length changes nothing in the layout.
+    {
+        QString plain = sizeText;
+        plain.remove(QLatin1Char('&'));
+        int needed = m_memoryReportBox->fontMetrics().horizontalAdvance(plain) + 28;
+        if (!m_memoryStatusIcon.isNull()) needed += m_memoryReportBox->iconSize().width() + 6;
+        const int now = m_memoryReportBox->minimumWidth() == m_memoryReportBox->maximumWidth() ? m_memoryReportBox->width() : -1;
+        if (now < 0 || needed > now || needed < now - 60) {
+            m_memoryReportBox->setFixedWidth(needed + 12);
+        }
+    }
 }
 
 void KisStatusBar::updateSelectionIcon()

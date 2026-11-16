@@ -332,7 +332,7 @@ George sent three screenshots (Color Lab floating, Color Lab docked, and the Cus
 
 **2026-11-12, 12:05 (MST), task 22.** George: "Try 26." Main dark level 28 to 26, tabs 22, fields 15, odd darks, scheme View colors 26/22; changelog 500; picture dark_areas_26.png.
 
-**2026-11-12, 12:15 (MST), task 23.** George asked where "Load Layer Transparency as Selection" is in Photoshop (answer: a Ctrl-click on the layer thumbnail; menu: Select > Load Selection with the layer's transparency channel), then "Shouldnt we rename it to match Ps?"; I proposed "Load Layer Transparency" and the two exact lines of krita5.xmlgui; "yes. push." Done, changelog 501.
+**2026-11-12, 12:15 (MST), task 23.** George asked where "Load Layer Transparency as Selection" is in the industry standard (answer: a Ctrl-click on the layer thumbnail; menu: Select > Load Selection with the layer's transparency channel), then "Shouldnt we rename it to match Ps?"; I proposed "Load Layer Transparency" and the two exact lines of krita5.xmlgui; "yes. push." Done, changelog 501.
 
 **2026-11-12, 12:45 (MST), task 27.** George sent a screenshot of the old plain gray look (every bar #373952, no flat sheet) and asked to keep today's theme as Blue and make the old one the default ("blue-gray"). Two schemes (KritaBlueGray.colors from ad64d9b, KritaBlue.colors), flat sheet gated on "Krimble Blue", default name "Krimble Blue-Gray", legacy "Krimble dark" read as the default (changelog 502).
 
@@ -426,7 +426,7 @@ George sent three screenshots (Color Lab floating, Color Lab docked, and the Cus
 
 **2026-11-13, 03:06 (MST), build 58 finished.** Run 43404551956 (commit 1c86669, label 1.0.58-beta) succeeded; the SmartCompression panel and the other code that had never been compiled with the Krita headers compiled. Row 58 added to the build log (not released yet). Pushed with the PAT George pasted in this chat.
 
-**2026-11-13, 03:09 (MST), decisions.** George: both (a decisions file and a workflow check). KRIMBLE_DECISIONS.md, tools/ci/check_decisions.py, workflow step "Check the decisions (a warning)", SESSION_CATCHUP pointer (541st entry). The check finds 30 mentions of Photoshop in KRIMBLE_CHANGES.md (not changed). Pushed with the PAT George pasted in this chat.
+**2026-11-13, 03:09 (MST), decisions.** George: both (a decisions file and a workflow check). KRIMBLE_DECISIONS.md, tools/ci/check_decisions.py, workflow step "Check the decisions (a warning)", SESSION_CATCHUP pointer (541st entry). The check finds 30 mentions of the industry standard in KRIMBLE_CHANGES.md (not changed). Pushed with the PAT George pasted in this chat.
 
 **2026-11-13, 03:10 (MST), build 59 started by the push.** The push of the workflow with the decisions check started run 43406947650 with the old label; it stopped at the build number check (expected). Label and number moved to 59; this push starts build 59 (542nd entry). Pushed with the PAT George pasted in this chat.
 
@@ -468,7 +468,7 @@ George sent three screenshots (Color Lab floating, Color Lab docked, and the Cus
 
 **2026-11-13, 05:34 (MST), task 71.** George: Color Lab should hide behind the edge, not shrink, when the dock narrows. Scale and height use a 330 minimum width, studio minimum width 330, no horizontal scroll bar (560th entry). Pushed with the PAT George pasted in this chat.
 
-**2026-11-13, 05:35 (MST), task 72.** George: implement any easy Photoshop layers feature, estimate the rest. Search box for layer names in the free top-row space (561st entry). Pushed with the PAT George pasted in this chat.
+**2026-11-13, 05:35 (MST), task 72.** George: implement any easy the industry standard layers feature, estimate the rest. Search box for layer names in the free top-row space (561st entry). Pushed with the PAT George pasted in this chat.
 
 **2026-11-13, 05:47 (MST), task 73.** George: status bar items plain, no buttons or bevels, and not so tall. Flat items and max height 22 px in the three sheets (562nd entry). Pushed with the PAT George pasted in this chat.
 
@@ -831,4 +831,8 @@ George: "Destroy all Krita themes. Nothing called Krita stays in themes." Delete
 **2026-11-16, 06:52 (MST).** Flyout long press 400 ms (718th); pushed, not built.
 **2026-11-16, 06:58 (MST).** Beginner manual KRIMBLE_MANUAL.md (719th); pushed; copy in the project documents.
 **2026-11-16, 07:02 (MST).** Manual refocused on image editing, not painting (720th); pushed; project copy replaced.
-**2026-11-16, 07:05 (MST).** Manual: no mention of Photoshop (721st); pushed; project copy replaced.
+**2026-11-16, 07:05 (MST).** Manual: no mention of the industry standard (721st); pushed; project copy replaced.
+
+**2026-11-16, 09:21 (MST).** George's list "New bugs 1.0.64-beta" (14 items, 11 pictures). "Push and build" at 06:47, "Belay the build" at 07:30: no build started.
+**2026-11-16, 14:39 (MST).** George sent the list again with items 15 (image tabs gone) and 16 (crashes, also on a fill), says he is using 1.0.58, and asks for a list of all revisions after 58 and the best way to redo them after a rollback.
+**2026-11-16, 14:58 (MST).** Pushed, not built: 722nd (items 1 to 14), 723rd (the brand name removed from the repository), 724th (image tabs the default again), KRIMBLE_ROLLBACK_PLAN.md. Nothing of it has run on a phone. Crash cause (item 16) not found.

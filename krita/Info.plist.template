@@ -164,14 +164,14 @@
         </dict>
         <dict>
           <key>CFBundleTypeName</key>
-          <string>Photoshop Image</string>
+          <string>PSD Image</string>
           <key>CFBundleTypeRole</key>
           <string>Editor</string>
           <key>LSHandlerRank</key>
           <string>Default</string>
           <key>LSItemContentTypes</key>
           <array>
-            <string>com.adobe.photoshop-image</string>
+            <string>com.adobe.the industry standard-image</string>
           </array>
         </dict>
         <dict>

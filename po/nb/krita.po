@@ -22243,7 +22243,7 @@ msgstr "Lim inn bilde"
 #: libs/koplugin/KisMimeDatabase.cpp:229
 #, fuzzy, kde-format
 msgctxt "description of a file type"
-msgid "Photoshop Layer Style Library"
+msgid "Layer Style Library (ASL)"
 msgstr "Lagstil-bibliotek (*.asl)"
 
 #: libs/koplugin/KisMimeDatabase.cpp:234
@@ -22339,7 +22339,7 @@ msgstr "Valg for OpenEXR-eksport"
 #: libs/koplugin/KisMimeDatabase.cpp:309
 #, kde-format
 msgctxt "description of a file type"
-msgid "Photoshop Image (Large)"
+msgid "PSB Image (Large)"
 msgstr ""
 
 #: libs/koplugin/KisMimeDatabase.cpp:314
@@ -23064,8 +23064,8 @@ msgstr ""
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:83
 #, kde-format
-msgctxt "Blending mode - Soft Light (Photoshop)"
-msgid "Soft Light (Photoshop)"
+msgctxt "Blending mode - Soft Light (Standard)"
+msgid "Soft Light (Standard)"
 msgstr ""
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:84
@@ -23268,14 +23268,14 @@ msgstr ""
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:121
 #, kde-format
-msgctxt "Blending mode - Hard Mix (Photoshop)"
-msgid "Hard Mix (Photoshop)"
+msgctxt "Blending mode - Hard Mix (Standard)"
+msgid "Hard Mix (Standard)"
 msgstr ""
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:122
 #, kde-format
-msgctxt "Blending mode - Hard Mix Softer (Photoshop)"
-msgid "Hard Mix Softer (Photoshop)"
+msgctxt "Blending mode - Hard Mix Softer (Standard)"
+msgid "Hard Mix Softer (Standard)"
 msgstr ""
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:123
@@ -56955,7 +56955,7 @@ msgstr ""
 #. i18n: ectx: property (title), widget (QGroupBox, chkPhotoshop)
 #: plugins/impex/tiff/kis_wdg_options_tiff.ui:79
 #, kde-format
-msgid "Save layers as Photoshop"
+msgid "Save layers as PS"
 msgstr ""
 
 #. i18n: ectx: property (text), widget (QLabel, label_4)
@@ -59301,14 +59301,14 @@ msgstr ""
 
 #: plugins/paintops/libpaintop/kis_texture_chooser.cpp:72
 #, kde-format
-msgctxt "Height (Photoshop) blend mode for brush texture"
-msgid "Height (Photoshop)"
+msgctxt "Height (PS) blend mode for brush texture"
+msgid "Height (PS)"
 msgstr ""
 
 #: plugins/paintops/libpaintop/kis_texture_chooser.cpp:73
 #, kde-format
-msgctxt "Linear Height (Photoshop) blend mode for brush texture"
-msgid "Linear Height (Photoshop)"
+msgctxt "Linear Height (PS) blend mode for brush texture"
+msgid "Linear Height (PS)"
 msgstr ""
 
 #: plugins/paintops/libpaintop/kis_texture_chooser.cpp:82

@@ -56,7 +56,7 @@ Other applications support other types of brushes:
         brushes again.
  <li> svg: defining brushes in svg format has the advantage that scaling is
         lot nicer.
- <li> abr: photoshop's brush format. Early versions are open, later versions
+ <li> abr: PS's brush format. Early versions are open, later versions
         are closed
  <li> painter: Corel Painter has its own closed brush format that would be
         interesting to support

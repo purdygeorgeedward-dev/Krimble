@@ -22647,7 +22647,7 @@ msgstr "تصویر"
 #: libs/koplugin/KisMimeDatabase.cpp:229
 #, fuzzy, kde-format
 msgctxt "description of a file type"
-msgid "Photoshop Layer Style Library"
+msgid "Layer Style Library (ASL)"
 msgstr "بدون گزینه پیکربندی."
 
 #: libs/koplugin/KisMimeDatabase.cpp:234
@@ -22744,7 +22744,7 @@ msgstr "گزینه‌های هندسی"
 #: libs/koplugin/KisMimeDatabase.cpp:309
 #, fuzzy, kde-format
 msgctxt "description of a file type"
-msgid "Photoshop Image (Large)"
+msgid "PSB Image (Large)"
 msgstr "بدون گزینه پیکربندی."
 
 #: libs/koplugin/KisMimeDatabase.cpp:314
@@ -23491,8 +23491,8 @@ msgstr "رشته:"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:83
 #, fuzzy, kde-format
-msgctxt "Blending mode - Soft Light (Photoshop)"
-msgid "Soft Light (Photoshop)"
+msgctxt "Blending mode - Soft Light (Standard)"
+msgid "Soft Light (Standard)"
 msgstr "رشته:"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:84
@@ -23698,14 +23698,14 @@ msgstr "ارتفاع:"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:121
 #, fuzzy, kde-format
-msgctxt "Blending mode - Hard Mix (Photoshop)"
-msgid "Hard Mix (Photoshop)"
+msgctxt "Blending mode - Hard Mix (Standard)"
+msgid "Hard Mix (Standard)"
 msgstr "رشته:"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:122
 #, fuzzy, kde-format
-msgctxt "Blending mode - Hard Mix Softer (Photoshop)"
-msgid "Hard Mix Softer (Photoshop)"
+msgctxt "Blending mode - Hard Mix Softer (Standard)"
+msgid "Hard Mix Softer (Standard)"
 msgstr "رشته:"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:123
@@ -58137,7 +58137,7 @@ msgstr ""
 #. i18n: ectx: property (title), widget (QGroupBox, chkPhotoshop)
 #: plugins/impex/tiff/kis_wdg_options_tiff.ui:79
 #, fuzzy, kde-format
-msgid "Save layers as Photoshop"
+msgid "Save layers as PS"
 msgstr "ذخیره لایه به عنوان تصویر..."
 
 #. i18n: ectx: property (text), widget (QLabel, label_4)
@@ -60475,14 +60475,14 @@ msgstr "ارتفاع تصویردانه"
 
 #: plugins/paintops/libpaintop/kis_texture_chooser.cpp:72
 #, fuzzy, kde-format
-msgctxt "Height (Photoshop) blend mode for brush texture"
-msgid "Height (Photoshop)"
+msgctxt "Height (PS) blend mode for brush texture"
+msgid "Height (PS)"
 msgstr "رشته:"
 
 #: plugins/paintops/libpaintop/kis_texture_chooser.cpp:73
 #, fuzzy, kde-format
-msgctxt "Linear Height (Photoshop) blend mode for brush texture"
-msgid "Linear Height (Photoshop)"
+msgctxt "Linear Height (PS) blend mode for brush texture"
+msgid "Linear Height (PS)"
 msgstr "رشته:"
 
 #: plugins/paintops/libpaintop/kis_texture_chooser.cpp:82
@@ -71946,11 +71946,11 @@ msgstr ""
 #~ msgstr "ادغام نامه"
 
 #, fuzzy
-#~ msgid "Hard Mix (Photoshop)"
+#~ msgid "Hard Mix (Standard)"
 #~ msgstr "رشته:"
 
 #, fuzzy
-#~ msgid "Hard Mix Softer (Photoshop)"
+#~ msgid "Hard Mix Softer (Standard)"
 #~ msgstr "رشته:"
 
 #, fuzzy
@@ -71992,7 +71992,7 @@ msgstr ""
 #~ msgstr "رشته:"
 
 #, fuzzy
-#~ msgid "Soft Light (Photoshop)"
+#~ msgid "Soft Light (Standard)"
 #~ msgstr "رشته:"
 
 #, fuzzy
@@ -86721,7 +86721,7 @@ msgstr ""
 
 #, fuzzy
 #~ msgctxt "(qtundo-format) description of a file type"
-#~ msgid "Photoshop Layer Style Library"
+#~ msgid "Layer Style Library (ASL)"
 #~ msgstr "بدون گزینه پیکربندی."
 
 #, fuzzy
@@ -87040,7 +87040,7 @@ msgstr ""
 
 #, fuzzy
 #~ msgctxt "(qtundo-format)"
-#~ msgid "Soft Light (Photoshop)"
+#~ msgid "Soft Light (Standard)"
 #~ msgstr "رشته:"
 
 #, fuzzy
@@ -93308,7 +93308,7 @@ msgstr ""
 
 #, fuzzy
 #~ msgctxt "(qtundo-format) @title:window"
-#~ msgid "Photoshop Export Error"
+#~ msgid "PS Export Error"
 #~ msgstr "موج عمودی"
 
 #, fuzzy

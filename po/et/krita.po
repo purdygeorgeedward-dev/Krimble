@@ -23974,7 +23974,7 @@ msgstr "OpenRasteri pilt"
 #: libs/koplugin/KisMimeDatabase.cpp:229
 #, kde-format
 msgctxt "description of a file type"
-msgid "Photoshop Layer Style Library"
+msgid "Layer Style Library (ASL)"
 msgstr "Photoshopi kihistiili teek"
 
 #: libs/koplugin/KisMimeDatabase.cpp:234
@@ -24070,7 +24070,7 @@ msgstr "OpenEXR (laiendatud)"
 #: libs/koplugin/KisMimeDatabase.cpp:309
 #, kde-format
 msgctxt "description of a file type"
-msgid "Photoshop Image (Large)"
+msgid "PSB Image (Large)"
 msgstr "Photoshopi pilt (suur)"
 
 #: libs/koplugin/KisMimeDatabase.cpp:314
@@ -24853,10 +24853,10 @@ msgstr "Pehme valgus (Pegtop-Delphi)"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:83
 #, fuzzy, kde-format
-#| msgid "Soft Light (Photoshop)"
-msgctxt "Blending mode - Soft Light (Photoshop)"
-msgid "Soft Light (Photoshop)"
-msgstr "Pehme valgus (Photoshop)"
+#| msgid "Soft Light (Standard)"
+msgctxt "Blending mode - Soft Light (Standard)"
+msgid "Soft Light (Standard)"
+msgstr "Pehme valgus (PS)"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:84
 #, fuzzy, kde-format
@@ -25086,17 +25086,17 @@ msgstr "Terav segu"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:121
 #, fuzzy, kde-format
-#| msgid "Hard Mix (Photoshop)"
-msgctxt "Blending mode - Hard Mix (Photoshop)"
-msgid "Hard Mix (Photoshop)"
-msgstr "Terav segu (Photoshop)"
+#| msgid "Hard Mix (Standard)"
+msgctxt "Blending mode - Hard Mix (Standard)"
+msgid "Hard Mix (Standard)"
+msgstr "Terav segu (PS)"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:122
 #, fuzzy, kde-format
-#| msgid "Hard Mix (Photoshop)"
-msgctxt "Blending mode - Hard Mix Softer (Photoshop)"
-msgid "Hard Mix Softer (Photoshop)"
-msgstr "Terav segu (Photoshop)"
+#| msgid "Hard Mix (Standard)"
+msgctxt "Blending mode - Hard Mix Softer (Standard)"
+msgid "Hard Mix Softer (Standard)"
+msgstr "Terav segu (PS)"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:123
 #, fuzzy, kde-format
@@ -61682,7 +61682,7 @@ msgstr ""
 #: plugins/impex/tiff/kis_wdg_options_tiff.ui:79
 #, fuzzy, kde-format
 #| msgid "Save layers to..."
-msgid "Save layers as Photoshop"
+msgid "Save layers as PS"
 msgstr "Kihtide salvestamine ..."
 
 #. i18n: ectx: property (text), widget (QLabel, label_4)
@@ -64138,17 +64138,17 @@ msgstr "Rea kõrgus"
 
 #: plugins/paintops/libpaintop/kis_texture_chooser.cpp:72
 #, fuzzy, kde-format
-#| msgid "Soft Light (Photoshop)"
-msgctxt "Height (Photoshop) blend mode for brush texture"
-msgid "Height (Photoshop)"
-msgstr "Pehme valgus (Photoshop)"
+#| msgid "Soft Light (Standard)"
+msgctxt "Height (PS) blend mode for brush texture"
+msgid "Height (PS)"
+msgstr "Pehme valgus (PS)"
 
 #: plugins/paintops/libpaintop/kis_texture_chooser.cpp:73
 #, fuzzy, kde-format
-#| msgid "Soft Light (Photoshop)"
-msgctxt "Linear Height (Photoshop) blend mode for brush texture"
-msgid "Linear Height (Photoshop)"
-msgstr "Pehme valgus (Photoshop)"
+#| msgid "Soft Light (Standard)"
+msgctxt "Linear Height (PS) blend mode for brush texture"
+msgid "Linear Height (PS)"
+msgstr "Pehme valgus (PS)"
 
 #: plugins/paintops/libpaintop/kis_texture_chooser.cpp:82
 #, kde-format
@@ -67779,7 +67779,7 @@ msgstr "{input} eksporditi asukohta {output}."
 #: plugins/python/photobash_images/photobash_images_docker.py:83
 #, fuzzy
 #| msgctxt "description of a file type"
-#| msgid "Photoshop Image (Large)"
+#| msgid "PSB Image (Large)"
 msgctxt "@title:window"
 msgid "Photobash Images"
 msgstr "Photoshopi pilt (suur)"
@@ -76184,13 +76184,13 @@ msgstr ""
 #~ msgid "Grain Extract"
 #~ msgstr "Teralisuse lahutamine"
 
-#~ msgid "Hard Mix (Photoshop)"
-#~ msgstr "Terav segu (Photoshop)"
+#~ msgid "Hard Mix (Standard)"
+#~ msgstr "Terav segu (PS)"
 
 #, fuzzy
-#~| msgid "Hard Mix (Photoshop)"
-#~ msgid "Hard Mix Softer (Photoshop)"
-#~ msgstr "Terav segu (Photoshop)"
+#~| msgid "Hard Mix (Standard)"
+#~ msgid "Hard Mix Softer (Standard)"
+#~ msgstr "Terav segu (PS)"
 
 #~ msgid "Parallel"
 #~ msgstr "Paralleel"
@@ -76237,8 +76237,8 @@ msgstr ""
 #~ msgid "Soft Light (SVG)"
 #~ msgstr "Pehme valgus (SVG)"
 
-#~ msgid "Soft Light (Photoshop)"
-#~ msgstr "Pehme valgus (Photoshop)"
+#~ msgid "Soft Light (Standard)"
+#~ msgstr "Pehme valgus (PS)"
 
 #~ msgid "Gamma Light"
 #~ msgstr "Gammavalgus"
@@ -96500,7 +96500,7 @@ msgstr ""
 
 #, fuzzy
 #~ msgctxt "(qtundo-format) description of a file type"
-#~ msgid "Photoshop Layer Style Library"
+#~ msgid "Layer Style Library (ASL)"
 #~ msgstr "Kihistiili teek (*.asl)"
 
 #, fuzzy
@@ -97102,10 +97102,10 @@ msgstr ""
 #~ msgstr "Pehme valgus (SVG)"
 
 #, fuzzy
-#~| msgid "Soft Light (Photoshop)"
+#~| msgid "Soft Light (Standard)"
 #~ msgctxt "(qtundo-format)"
-#~ msgid "Soft Light (Photoshop)"
-#~ msgstr "Pehme valgus (Photoshop)"
+#~ msgid "Soft Light (Standard)"
+#~ msgstr "Pehme valgus (PS)"
 
 #, fuzzy
 #~| msgid "Gamma Light"
@@ -107159,18 +107159,18 @@ msgstr ""
 
 #, fuzzy
 #~| msgctxt "@title:window"
-#~| msgid "Photoshop Export Error"
+#~| msgid "PS Export Error"
 #~ msgctxt "(qtundo-format) @title:window"
-#~ msgid "Photoshop Export Error"
+#~ msgid "PS Export Error"
 #~ msgstr "Photoshopi ekspordi tõrge"
 
 #~ msgctxt "@title:window"
-#~ msgid "Photoshop Export Error"
+#~ msgid "PS Export Error"
 #~ msgstr "Photoshopi ekspordi tõrge"
 
 #~ msgid ""
-#~ "Unable to save to the Photoshop format.\n"
-#~ "The Photoshop format only supports images that are smaller than "
+#~ "Unable to save to the PS format.\n"
+#~ "The PS format only supports images that are smaller than "
 #~ "30000x3000 pixels."
 #~ msgstr ""
 #~ "Photoshopi vormingusse ei saa salvestada.\n"
@@ -107179,13 +107179,13 @@ msgstr ""
 
 #, fuzzy
 #~| msgid ""
-#~| "Unable to save to the Photoshop format.\n"
-#~| "The Photoshop format only supports images that are smaller than "
+#~| "Unable to save to the PS format.\n"
+#~| "The PS format only supports images that are smaller than "
 #~| "30000x3000 pixels."
 #~ msgctxt "(qtundo-format)"
 #~ msgid ""
-#~ "Unable to save to the Photoshop format.\n"
-#~ "The Photoshop format only supports images that are smaller than "
+#~ "Unable to save to the PS format.\n"
+#~ "The PS format only supports images that are smaller than "
 #~ "30000x3000 pixels."
 #~ msgstr ""
 #~ "Photoshopi vormingusse ei saa salvestada.\n"
@@ -107193,8 +107193,8 @@ msgstr ""
 #~ "pikslit."
 
 #~ msgid ""
-#~ "Unable to save to the Photoshop format.\n"
-#~ "The Photoshop format only supports images where all layers have the same "
+#~ "Unable to save to the PS format.\n"
+#~ "The PS format only supports images where all layers have the same "
 #~ "colorspace as the image."
 #~ msgstr ""
 #~ "Photoshopi vormingusse ei saa salvestada.\n"
@@ -107203,13 +107203,13 @@ msgstr ""
 
 #, fuzzy
 #~| msgid ""
-#~| "Unable to save to the Photoshop format.\n"
-#~| "The Photoshop format only supports images where all layers have the same "
+#~| "Unable to save to the PS format.\n"
+#~| "The PS format only supports images where all layers have the same "
 #~| "colorspace as the image."
 #~ msgctxt "(qtundo-format)"
 #~ msgid ""
-#~ "Unable to save to the Photoshop format.\n"
-#~ "The Photoshop format only supports images where all layers have the same "
+#~ "Unable to save to the PS format.\n"
+#~ "The PS format only supports images where all layers have the same "
 #~ "colorspace as the image."
 #~ msgstr ""
 #~ "Photoshopi vormingusse ei saa salvestada.\n"
@@ -114516,8 +114516,8 @@ msgstr ""
 #~ msgid "KDE (new)"
 #~ msgstr "KDE (uus)"
 
-#~ msgid "photoshop-swatches-sketchlings-swatches.aco"
-#~ msgstr "photoshop-swatches-sketchlings-swatches.aco"
+#~ msgid "swatches-sketchlings-swatches.aco"
+#~ msgstr "swatches-sketchlings-swatches.aco"
 
 #~ msgid "Skin.gpl.txt"
 #~ msgstr "Skin.gpl.txt"

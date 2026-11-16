@@ -22759,8 +22759,8 @@ msgstr "OpenRaster irudia"
 #: libs/koplugin/KisMimeDatabase.cpp:229
 #, kde-format
 msgctxt "description of a file type"
-msgid "Photoshop Layer Style Library"
-msgstr "Photoshop geruza-estiloen liburutegia"
+msgid "Layer Style Library (ASL)"
+msgstr "PS geruza-estiloen liburutegia"
 
 #: libs/koplugin/KisMimeDatabase.cpp:234
 #, kde-format
@@ -22855,8 +22855,8 @@ msgstr "OpenEXR (hedatua)"
 #: libs/koplugin/KisMimeDatabase.cpp:309
 #, kde-format
 msgctxt "description of a file type"
-msgid "Photoshop Image (Large)"
-msgstr "Photoshop irudia (handia)"
+msgid "PSB Image (Large)"
+msgstr "PS irudia (handia)"
 
 #: libs/koplugin/KisMimeDatabase.cpp:314
 #, kde-format
@@ -23579,13 +23579,13 @@ msgstr "Argi leuna (SVG)"
 #, kde-format
 msgctxt "Blending mode - Soft Light (Pegtop-Delphi)"
 msgid "Soft Light (Pegtop-Delphi)"
-msgstr "Argi leuna (Photoshop)"
+msgstr "Argi leuna (PS)"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:83
 #, kde-format
-msgctxt "Blending mode - Soft Light (Photoshop)"
-msgid "Soft Light (Photoshop)"
-msgstr "Argi leuna (Photoshop)"
+msgctxt "Blending mode - Soft Light (Standard)"
+msgid "Soft Light (Standard)"
+msgstr "Argi leuna (PS)"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:84
 #, kde-format
@@ -23792,15 +23792,15 @@ msgstr "Nahaste gogorra"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:121
 #, kde-format
-msgctxt "Blending mode - Hard Mix (Photoshop)"
-msgid "Hard Mix (Photoshop)"
-msgstr "Nahaste gogorra (Photoshop)"
+msgctxt "Blending mode - Hard Mix (Standard)"
+msgid "Hard Mix (Standard)"
+msgstr "Nahaste gogorra (PS)"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:122
 #, kde-format
-msgctxt "Blending mode - Hard Mix Softer (Photoshop)"
-msgid "Hard Mix Softer (Photoshop)"
-msgstr "Nahaste gogor leunagoa (Photoshop)"
+msgctxt "Blending mode - Hard Mix Softer (Standard)"
+msgid "Hard Mix Softer (Standard)"
+msgstr "Nahaste gogor leunagoa (PS)"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:123
 #, kde-format
@@ -59068,8 +59068,8 @@ msgstr ""
 #. i18n: ectx: property (title), widget (QGroupBox, chkPhotoshop)
 #: plugins/impex/tiff/kis_wdg_options_tiff.ui:79
 #, kde-format
-msgid "Save layers as Photoshop"
-msgstr "Gorde geruzak Photoshop gisa"
+msgid "Save layers as PS"
+msgstr "Gorde geruzak PS gisa"
 
 #. i18n: ectx: property (text), widget (QLabel, label_4)
 #: plugins/impex/tiff/kis_wdg_options_tiff.ui:88
@@ -61471,15 +61471,15 @@ msgstr "Altuera lineala"
 
 #: plugins/paintops/libpaintop/kis_texture_chooser.cpp:72
 #, kde-format
-msgctxt "Height (Photoshop) blend mode for brush texture"
-msgid "Height (Photoshop)"
-msgstr "Altuera (Photoshop)"
+msgctxt "Height (PS) blend mode for brush texture"
+msgid "Height (PS)"
+msgstr "Altuera (PS)"
 
 #: plugins/paintops/libpaintop/kis_texture_chooser.cpp:73
 #, kde-format
-msgctxt "Linear Height (Photoshop) blend mode for brush texture"
-msgid "Linear Height (Photoshop)"
-msgstr "Altuera lineala (Photoshop)"
+msgctxt "Linear Height (PS) blend mode for brush texture"
+msgid "Linear Height (PS)"
+msgstr "Altuera lineala (PS)"
 
 #: plugins/paintops/libpaintop/kis_texture_chooser.cpp:82
 #, kde-format
@@ -73244,11 +73244,11 @@ msgstr ""
 #~ msgid "Grain Extract"
 #~ msgstr "Pikor-erauztea"
 
-#~ msgid "Hard Mix (Photoshop)"
-#~ msgstr "Nahaste gogorra (Photoshop)"
+#~ msgid "Hard Mix (Standard)"
+#~ msgstr "Nahaste gogorra (PS)"
 
-#~ msgid "Hard Mix Softer (Photoshop)"
-#~ msgstr "Nahaste gogor leunagoa (Photoshop)"
+#~ msgid "Hard Mix Softer (Standard)"
+#~ msgstr "Nahaste gogor leunagoa (PS)"
 
 #~ msgid "Parallel"
 #~ msgstr "Paraleloa"
@@ -73295,8 +73295,8 @@ msgstr ""
 #~ msgid "Soft Light (SVG)"
 #~ msgstr "Argi leuna (SVG)"
 
-#~ msgid "Soft Light (Photoshop)"
-#~ msgstr "Argi leuna (Photoshop)"
+#~ msgid "Soft Light (Standard)"
+#~ msgstr "Argi leuna (PS)"
 
 #~ msgid "Gamma Light"
 #~ msgstr "Gamma argia"
@@ -90128,7 +90128,7 @@ msgstr ""
 
 #, fuzzy
 #~ msgctxt "(qtundo-format) description of a file type"
-#~ msgid "Photoshop Layer Style Library"
+#~ msgid "Layer Style Library (ASL)"
 #~ msgstr "OpenColorIO-ren konfigurazioaren bide-izena:"
 
 #, fuzzy
@@ -90727,10 +90727,10 @@ msgstr ""
 #~ msgstr "Argi leuna (SVG)"
 
 #, fuzzy
-#~| msgid "Soft Light (Photoshop)"
+#~| msgid "Soft Light (Standard)"
 #~ msgctxt "(qtundo-format)"
-#~ msgid "Soft Light (Photoshop)"
-#~ msgstr "Argi leuna (Photoshop)"
+#~ msgid "Soft Light (Standard)"
+#~ msgstr "Argi leuna (PS)"
 
 #, fuzzy
 #~| msgid "Gamma Light"
@@ -98119,7 +98119,7 @@ msgstr ""
 
 #, fuzzy
 #~ msgctxt "(qtundo-format) @title:window"
-#~ msgid "Photoshop Export Error"
+#~ msgid "PS Export Error"
 #~ msgstr "Errorea MathML inportatzean"
 
 #, fuzzy

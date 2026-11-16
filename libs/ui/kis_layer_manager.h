@@ -63,7 +63,7 @@ private Q_SLOTS:
     void mergeLayer();
 
     /**
-     * Krimble addition: Photoshop-parity "Merge Visible" (Ctrl+Shift+E).
+     * Krimble addition: the industry standard-parity "Merge Visible" (Ctrl+Shift+E).
      * Not a separate merge implementation -- just triggers the same two
      * steps described in the Krita manual: select all visible layers,
      * then merge with layer below (mergeLayer() already handles merging

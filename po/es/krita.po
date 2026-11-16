@@ -22496,8 +22496,8 @@ msgstr "Imagen OpenRaster"
 #: libs/koplugin/KisMimeDatabase.cpp:229
 #, kde-format
 msgctxt "description of a file type"
-msgid "Photoshop Layer Style Library"
-msgstr "Biblioteca de estilos de capas de Photoshop"
+msgid "Layer Style Library (ASL)"
+msgstr "Biblioteca de estilos de capas de PS"
 
 #: libs/koplugin/KisMimeDatabase.cpp:234
 #, kde-format
@@ -22592,8 +22592,8 @@ msgstr "OpenEXR (extendido)"
 #: libs/koplugin/KisMimeDatabase.cpp:309
 #, kde-format
 msgctxt "description of a file type"
-msgid "Photoshop Image (Large)"
-msgstr "Imagen de Photoshop (grande)"
+msgid "PSB Image (Large)"
+msgstr "Imagen de PS (grande)"
 
 #: libs/koplugin/KisMimeDatabase.cpp:314
 #, kde-format
@@ -23318,9 +23318,9 @@ msgstr "Luz suave (Pegtop-Delphi)"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:83
 #, kde-format
-msgctxt "Blending mode - Soft Light (Photoshop)"
-msgid "Soft Light (Photoshop)"
-msgstr "Luz suave (Photoshop)"
+msgctxt "Blending mode - Soft Light (Standard)"
+msgid "Soft Light (Standard)"
+msgstr "Luz suave (PS)"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:84
 #, kde-format
@@ -23522,15 +23522,15 @@ msgstr "Mezcla HDR dura"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:121
 #, kde-format
-msgctxt "Blending mode - Hard Mix (Photoshop)"
-msgid "Hard Mix (Photoshop)"
-msgstr "Mezcla dura (Photoshop)"
+msgctxt "Blending mode - Hard Mix (Standard)"
+msgid "Hard Mix (Standard)"
+msgstr "Mezcla dura (PS)"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:122
 #, kde-format
-msgctxt "Blending mode - Hard Mix Softer (Photoshop)"
-msgid "Hard Mix Softer (Photoshop)"
-msgstr "Mezcla dura más suave (Photoshop)"
+msgctxt "Blending mode - Hard Mix Softer (Standard)"
+msgid "Hard Mix Softer (Standard)"
+msgstr "Mezcla dura más suave (PS)"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:123
 #, kde-format
@@ -59013,8 +59013,8 @@ msgstr ""
 #. i18n: ectx: property (title), widget (QGroupBox, chkPhotoshop)
 #: plugins/impex/tiff/kis_wdg_options_tiff.ui:79
 #, kde-format
-msgid "Save layers as Photoshop"
-msgstr "Guardar capas como Photoshop"
+msgid "Save layers as PS"
+msgstr "Guardar capas como PS"
 
 #. i18n: ectx: property (text), widget (QLabel, label_4)
 #: plugins/impex/tiff/kis_wdg_options_tiff.ui:88
@@ -61435,15 +61435,15 @@ msgstr "Altura lineal"
 
 #: plugins/paintops/libpaintop/kis_texture_chooser.cpp:72
 #, kde-format
-msgctxt "Height (Photoshop) blend mode for brush texture"
-msgid "Height (Photoshop)"
-msgstr "Altura (Photoshop)"
+msgctxt "Height (PS) blend mode for brush texture"
+msgid "Height (PS)"
+msgstr "Altura (PS)"
 
 #: plugins/paintops/libpaintop/kis_texture_chooser.cpp:73
 #, kde-format
-msgctxt "Linear Height (Photoshop) blend mode for brush texture"
-msgid "Linear Height (Photoshop)"
-msgstr "Altura lineal (Photoshop)"
+msgctxt "Linear Height (PS) blend mode for brush texture"
+msgid "Linear Height (PS)"
+msgstr "Altura lineal (PS)"
 
 #: plugins/paintops/libpaintop/kis_texture_chooser.cpp:82
 #, kde-format

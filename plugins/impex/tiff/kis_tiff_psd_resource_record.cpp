@@ -194,73 +194,73 @@ QString KisTiffPsdResourceRecord::idToString(KisTiffPsdResourceRecord::PSDResour
     case VERSION_INFO:
         return "0x0421 - Version info";
     case EXIF_DATA:
-        return "0x0422 - (Photoshop 7.0) EXIF data 1. See http://www.kodak.com/global/plugins/acrobat/en/service/digCam/exifStandard2.pdf";
+        return "0x0422 - (PS 7.0) EXIF data 1. See http://www.kodak.com/global/plugins/acrobat/en/service/digCam/exifStandard2.pdf";
     case EXIF_DATA_3:
-        return "0x0423 - (Photoshop 7.0) EXIF data 3. See http://www.kodak.com/global/plugins/acrobat/en/service/digCam/exifStandard2.pdf";
+        return "0x0423 - (PS 7.0) EXIF data 3. See http://www.kodak.com/global/plugins/acrobat/en/service/digCam/exifStandard2.pdf";
 
     case XMP_DATA:
         return "0x0424 - XMP data block";
     case CAPTION_DIGEST:
-        return "0x0425 - (Photoshop 7.0) Caption digest. 16 bytes: RSA Data Security, MD5 message-digest algorithm";
+        return "0x0425 - (PS 7.0) Caption digest. 16 bytes: RSA Data Security, MD5 message-digest algorithm";
     case PRINT_SCALE:
-        return "0x0426 - (Photoshop 7.0) Print scale. 2 bytes style (0 = centered, 1 = size to fit, 2 = user defined). 4 bytes x location (floating point). 4 "
+        return "0x0426 - (PS 7.0) Print scale. 2 bytes style (0 = centered, 1 = size to fit, 2 = user defined). 4 bytes x location (floating point). 4 "
                "bytes y location (floating point). 4 bytes scale (floating point)";
     case PIXEL_ASPECT_RATION:
-        return "0x0428 - (Photoshop CS) Pixel Aspect Ratio. 4 bytes (version = 1 or 2), 8 bytes double, x / y of a pixel. Version 2, attempting to correct "
+        return "0x0428 - (PS CS) Pixel Aspect Ratio. 4 bytes (version = 1 or 2), 8 bytes double, x / y of a pixel. Version 2, attempting to correct "
                "values for NTSC and PAL, previously off by a factor of approx. 5%.";
     case LAYER_COMPS:
-        return "0x0429 - (Photoshop CS) Layer Comps. 4 bytes (descriptor version = 16), Descriptor (see Descriptor structure)";
+        return "0x0429 - (PS CS) Layer Comps. 4 bytes (descriptor version = 16), Descriptor (see Descriptor structure)";
     case ALTERNATE_DUOTONE:
-        return "0x042A - (Photoshop CS) Alternate Duotone Colors. 2 bytes (version = 1), 2 bytes count, following is repeated for each count: [ Color: 2 bytes "
+        return "0x042A - (PS CS) Alternate Duotone Colors. 2 bytes (version = 1), 2 bytes count, following is repeated for each count: [ Color: 2 bytes "
                "for space followed by 4 * 2 byte color component ], following this is another 2 byte count, usually 256, followed by Lab colors one byte each "
-               "for L, a, b. This resource is not read or used by Photoshop.";
+               "for L, a, b. This resource is not read or used by PS.";
     case ALTERNATE_SPOT:
-        return "0x042B - (Photoshop CS)Alternate Spot Colors. 2 bytes (version = 1), 2 bytes channel count, following is repeated for each count: 4 bytes "
-               "channel ID, Color: 2 bytes for space followed by 4 * 2 byte color component. This resource is not read or used by Photoshop.";
+        return "0x042B - (PS CS)Alternate Spot Colors. 2 bytes (version = 1), 2 bytes channel count, following is repeated for each count: 4 bytes "
+               "channel ID, Color: 2 bytes for space followed by 4 * 2 byte color component. This resource is not read or used by PS.";
     case LAYER_SELECTION_ID:
-        return "0x042D - (Photoshop CS2) Layer Selection ID(s). 2 bytes count, following is repeated for each count: 4 bytes layer ID";
+        return "0x042D - (PS CS2) Layer Selection ID(s). 2 bytes count, following is repeated for each count: 4 bytes layer ID";
 
     case HDR_TONING:
-        return "0x042E - (Photoshop CS2) HDR Toning information";
+        return "0x042E - (PS CS2) HDR Toning information";
     case CS2_PRINT_INFO:
-        return "0x042F - (Photoshop CS2) Print info";
+        return "0x042F - (PS CS2) Print info";
     case LAYER_GROUP_ENABLED_ID:
-        return "0x0430 - (Photoshop CS2) Layer Group(s) Enabled ID. 1 byte for each layer in the document, repeated by length of the resource. NOTE: Layer "
+        return "0x0430 - (PS CS2) Layer Group(s) Enabled ID. 1 byte for each layer in the document, repeated by length of the resource. NOTE: Layer "
                "groups have start and end markers";
     case COLOR_SAMPLERS:
-        return "0x0431 - (Photoshop CS3) Color samplers resource. Also see ID 1038 for old format. See Color samplers resource format.";
+        return "0x0431 - (PS CS3) Color samplers resource. Also see ID 1038 for old format. See Color samplers resource format.";
     case MEASUREMENT_SCALE:
-        return "0x0432 - (Photoshop CS3) Measurement Scale. 4 bytes (descriptor version = 16), Descriptor (see See Descriptor structure)";
+        return "0x0432 - (PS CS3) Measurement Scale. 4 bytes (descriptor version = 16), Descriptor (see See Descriptor structure)";
     case TIMELINE_INFO:
-        return "0x0433 - (Photoshop CS3) Timeline Information. 4 bytes (descriptor version = 16), Descriptor (see See Descriptor structure)";
+        return "0x0433 - (PS CS3) Timeline Information. 4 bytes (descriptor version = 16), Descriptor (see See Descriptor structure)";
     case SHEET_DISCLOSURE:
-        return "0x0434 - (Photoshop CS3) Sheet Disclosure. 4 bytes (descriptor version = 16), Descriptor (see See Descriptor structure)";
+        return "0x0434 - (PS CS3) Sheet Disclosure. 4 bytes (descriptor version = 16), Descriptor (see See Descriptor structure)";
     case CS3_DISPLAY_INFO:
-        return "0x0435 - (Photoshop CS3) DisplayInfo structure to support floating point colors. Also see ID 1007. See Appendix A in Photoshop API Guide.pdf .";
+        return "0x0435 - (PS CS3) DisplayInfo structure to support floating point colors. Also see ID 1007. See Appendix A in PS API Guide.pdf .";
     case ONION_SKINS:
-        return "0x0436 - (Photoshop CS3) Onion Skins. 4 bytes (descriptor version = 16), Descriptor (see See Descriptor structure)";
+        return "0x0436 - (PS CS3) Onion Skins. 4 bytes (descriptor version = 16), Descriptor (see See Descriptor structure)";
 
     case COUNT_INFO:
-        return "0x0438 - (Photoshop CS4) Count Information. 4 bytes (descriptor version = 16), Descriptor (see See Descriptor structure) Information about the "
+        return "0x0438 - (PS CS4) Count Information. 4 bytes (descriptor version = 16), Descriptor (see See Descriptor structure) Information about the "
                "count in the document. See the Count Tool.";
     case CS5_PRINT_INFO:
-        return "0x043A - (Photoshop CS5) Print Information. 4 bytes (descriptor version = 16), Descriptor (see See Descriptor structure) Information about the "
+        return "0x043A - (PS CS5) Print Information. 4 bytes (descriptor version = 16), Descriptor (see See Descriptor structure) Information about the "
                "current print settings in the document. The color management options.";
     case CS5_PRINT_STYLE:
-        return "0x043B - (Photoshop CS5) Print Style. 4 bytes (descriptor version = 16), Descriptor (see See Descriptor structure) Information about the "
+        return "0x043B - (PS CS5) Print Style. 4 bytes (descriptor version = 16), Descriptor (see See Descriptor structure) Information about the "
                "current print style in the document. The printing marks, labels, ornaments, etc.";
     case CS5_NSPrintInfo:
-        return "0x043C - (Photoshop CS5) Macintosh NSPrintInfo. Variable OS specific info for Macintosh. NSPrintInfo. It is recommended that you do not "
+        return "0x043C - (PS CS5) Macintosh NSPrintInfo. Variable OS specific info for Macintosh. NSPrintInfo. It is recommended that you do not "
                "interpret or use this data.";
     case CS5_WIN_DEVMODE:
-        return "0x043D - (Photoshop CS5) Windows DEVMODE. Variable OS specific info for Windows. DEVMODE. It is recommended that you do not interpret or use "
+        return "0x043D - (PS CS5) Windows DEVMODE. Variable OS specific info for Windows. DEVMODE. It is recommended that you do not interpret or use "
                "this data.";
     case CS6_AUTOSAVE_FILE_PATH:
-        return "0x043E - (Photoshop CS6) Auto Save File Path. Unicode string. It is recommended that you do not interpret or use this data.";
+        return "0x043E - (PS CS6) Auto Save File Path. Unicode string. It is recommended that you do not interpret or use this data.";
     case CS6_AUTOSAVE_FORMAT:
-        return "0x043F - (Photoshop CS6) Auto Save Format. Unicode string. It is recommended that you do not interpret or use this data.";
+        return "0x043F - (PS CS6) Auto Save Format. Unicode string. It is recommended that you do not interpret or use this data.";
     case CC_PATH_SELECTION_SATE:
-        return "0x0440 - (Photoshop CC) Path Selection State. 4 bytes (descriptor version = 16), Descriptor (see See Descriptor structure) Information about "
+        return "0x0440 - (PS CC) Path Selection State. 4 bytes (descriptor version = 16), Descriptor (see See Descriptor structure) Information about "
                "the current path selection state.";
 
     case PATH_INFO_FIRST:
@@ -271,7 +271,7 @@ QString KisTiffPsdResourceRecord::idToString(KisTiffPsdResourceRecord::PSDResour
         return "0x0bb7 - Name of clipping path";
 
     case CC_ORIGIN_PATH_INFO:
-        return "0x0BB8 (Photoshop CC) Origin Path Info. 4 bytes (descriptor version = 16), Descriptor (see See Descriptor structure) Information about the "
+        return "0x0BB8 (PS CC) Origin Path Info. 4 bytes (descriptor version = 16), Descriptor (see See Descriptor structure) Information about the "
                "origin path data.";
 
     case PLUGIN_RESOURCE_START:
@@ -285,7 +285,7 @@ QString KisTiffPsdResourceRecord::idToString(KisTiffPsdResourceRecord::PSDResour
         return "0x1B59 Image Ready data sets";
 
     case LIGHTROOM_WORKFLOW:
-        return "0x1F40 (Photoshop CS3) Lightroom workflow, if present the document is in the middle of a Lightroom workflow.";
+        return "0x1F40 (PS CS3) Lightroom workflow, if present the document is in the middle of a Lightroom workflow.";
 
     case PRINT_FLAGS_2:
         return "0x2710 - Print flags";

@@ -16,7 +16,7 @@ class Ui_WdgFastColorTransfer;
 class KisDocument;
 
 /**
- * Krimble: reworked into Photoshop's Match Color dialog shape -- pick a
+ * Krimble: reworked into the industry standard's Match Color dialog shape -- pick a
  * source from currently open documents (not a file loaded from disk, which
  * is what this used to require), a layer within it (or Merged), selection-
  * scoping checkboxes, Neutralize, and Luminance/Color Intensity/Fade

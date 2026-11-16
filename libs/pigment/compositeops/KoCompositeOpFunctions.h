@@ -691,7 +691,7 @@ struct CFHardMixPhotoshop : KoClampedSourceAndDestinationCompositeOpGenericFunct
     }
 };
 
-// Approximation of the hard mix mode used by photoshop in the brush texturing
+// Approximation of the hard mix mode used by PS in the brush texturing
 // In contrast to the normal hard mix, this produces antialiased edges, better
 // for texturing the brush dab, at least visually
 

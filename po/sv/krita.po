@@ -22471,8 +22471,8 @@ msgstr "OpenRaster-bild"
 #: libs/koplugin/KisMimeDatabase.cpp:229
 #, kde-format
 msgctxt "description of a file type"
-msgid "Photoshop Layer Style Library"
-msgstr "Photoshop lagerstilbibliotek"
+msgid "Layer Style Library (ASL)"
+msgstr "PS lagerstilbibliotek"
 
 #: libs/koplugin/KisMimeDatabase.cpp:234
 #, kde-format
@@ -22567,8 +22567,8 @@ msgstr "OpenEXR (utökad)"
 #: libs/koplugin/KisMimeDatabase.cpp:309
 #, kde-format
 msgctxt "description of a file type"
-msgid "Photoshop Image (Large)"
-msgstr "Photoshop-bild (stor)"
+msgid "PSB Image (Large)"
+msgstr "PS-bild (stor)"
 
 #: libs/koplugin/KisMimeDatabase.cpp:314
 #, kde-format
@@ -23292,9 +23292,9 @@ msgstr "Diffust ljus (Pegtop Delphi)"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:83
 #, kde-format
-msgctxt "Blending mode - Soft Light (Photoshop)"
-msgid "Soft Light (Photoshop)"
-msgstr "Diffust ljus (Photoshop)"
+msgctxt "Blending mode - Soft Light (Standard)"
+msgid "Soft Light (Standard)"
+msgstr "Diffust ljus (PS)"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:84
 #, kde-format
@@ -23496,15 +23496,15 @@ msgstr "Hård blandning HDR"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:121
 #, kde-format
-msgctxt "Blending mode - Hard Mix (Photoshop)"
-msgid "Hard Mix (Photoshop)"
-msgstr "Hård blandning (Photoshop)"
+msgctxt "Blending mode - Hard Mix (Standard)"
+msgid "Hard Mix (Standard)"
+msgstr "Hård blandning (PS)"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:122
 #, kde-format
-msgctxt "Blending mode - Hard Mix Softer (Photoshop)"
-msgid "Hard Mix Softer (Photoshop)"
-msgstr "Mjukare hård blandning (Photoshop)"
+msgctxt "Blending mode - Hard Mix Softer (Standard)"
+msgid "Hard Mix Softer (Standard)"
+msgstr "Mjukare hård blandning (PS)"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:123
 #, kde-format
@@ -58740,8 +58740,8 @@ msgstr ""
 #. i18n: ectx: property (title), widget (QGroupBox, chkPhotoshop)
 #: plugins/impex/tiff/kis_wdg_options_tiff.ui:79
 #, kde-format
-msgid "Save layers as Photoshop"
-msgstr "Spara lager som Photoshop"
+msgid "Save layers as PS"
+msgstr "Spara lager som PS"
 
 #. i18n: ectx: property (text), widget (QLabel, label_4)
 #: plugins/impex/tiff/kis_wdg_options_tiff.ui:88
@@ -61147,15 +61147,15 @@ msgstr "Linjär höjd"
 
 #: plugins/paintops/libpaintop/kis_texture_chooser.cpp:72
 #, kde-format
-msgctxt "Height (Photoshop) blend mode for brush texture"
-msgid "Height (Photoshop)"
-msgstr "Höjd (Photoshop)"
+msgctxt "Height (PS) blend mode for brush texture"
+msgid "Height (PS)"
+msgstr "Höjd (PS)"
 
 #: plugins/paintops/libpaintop/kis_texture_chooser.cpp:73
 #, kde-format
-msgctxt "Linear Height (Photoshop) blend mode for brush texture"
-msgid "Linear Height (Photoshop)"
-msgstr "Linjär höjd (Photoshop)"
+msgctxt "Linear Height (PS) blend mode for brush texture"
+msgid "Linear Height (PS)"
+msgstr "Linjär höjd (PS)"
 
 #: plugins/paintops/libpaintop/kis_texture_chooser.cpp:82
 #, kde-format
@@ -72496,11 +72496,11 @@ msgstr ""
 #~ msgid "Grain Extract"
 #~ msgstr "Extrahera ådring"
 
-#~ msgid "Hard Mix (Photoshop)"
-#~ msgstr "Hård blandning (Photoshop)"
+#~ msgid "Hard Mix (Standard)"
+#~ msgstr "Hård blandning (PS)"
 
-#~ msgid "Hard Mix Softer (Photoshop)"
-#~ msgstr "Hård blandning (Photoshop)"
+#~ msgid "Hard Mix Softer (Standard)"
+#~ msgstr "Hård blandning (PS)"
 
 #~ msgid "Parallel"
 #~ msgstr "Parallell"
@@ -72547,8 +72547,8 @@ msgstr ""
 #~ msgid "Soft Light (SVG)"
 #~ msgstr "Diffust ljus (SVG)"
 
-#~ msgid "Soft Light (Photoshop)"
-#~ msgstr "Diffust ljus (Photoshop)"
+#~ msgid "Soft Light (Standard)"
+#~ msgstr "Diffust ljus (PS)"
 
 #~ msgid "Gamma Light"
 #~ msgstr "Ljus gamma"
@@ -88681,8 +88681,8 @@ msgstr ""
 #~ msgstr "OpenRaster-bild"
 
 #~ msgctxt "(qtundo-format) description of a file type"
-#~ msgid "Photoshop Layer Style Library"
-#~ msgstr "Photoshop lagerstilbibliotek"
+#~ msgid "Layer Style Library (ASL)"
+#~ msgstr "PS lagerstilbibliotek"
 
 #~ msgctxt "(qtundo-format) description of a file type"
 #~ msgid "Color Palette"
@@ -89073,8 +89073,8 @@ msgstr ""
 #~ msgstr "Diffust ljus (SVG)"
 
 #~ msgctxt "(qtundo-format)"
-#~ msgid "Soft Light (Photoshop)"
-#~ msgstr "Diffust ljus (Photoshop)"
+#~ msgid "Soft Light (Standard)"
+#~ msgstr "Diffust ljus (PS)"
 
 #~ msgctxt "(qtundo-format)"
 #~ msgid "Gamma Light"
@@ -97262,49 +97262,49 @@ msgstr ""
 #~ msgstr "PPM-exportalternativ"
 
 #~ msgctxt "(qtundo-format) @title:window"
-#~ msgid "Photoshop Export Error"
-#~ msgstr "Fel vid export till Photoshop"
+#~ msgid "PS Export Error"
+#~ msgstr "Fel vid export till PS"
 
 #~ msgctxt "@title:window"
-#~ msgid "Photoshop Export Error"
-#~ msgstr "Fel vid export till Photoshop"
+#~ msgid "PS Export Error"
+#~ msgstr "Fel vid export till PS"
 
 #~ msgid ""
-#~ "Unable to save to the Photoshop format.\n"
-#~ "The Photoshop format only supports images that are smaller than "
+#~ "Unable to save to the PS format.\n"
+#~ "The PS format only supports images that are smaller than "
 #~ "30000x3000 pixels."
 #~ msgstr ""
-#~ "Kan inte spara med Photoshop-format.\n"
-#~ "Photoshop-formatet stöder bara bilder som är mindre än 30000x3000 "
+#~ "Kan inte spara med PS-format.\n"
+#~ "PS-formatet stöder bara bilder som är mindre än 30000x3000 "
 #~ "bildpunkter."
 
 #~ msgctxt "(qtundo-format)"
 #~ msgid ""
-#~ "Unable to save to the Photoshop format.\n"
-#~ "The Photoshop format only supports images that are smaller than "
+#~ "Unable to save to the PS format.\n"
+#~ "The PS format only supports images that are smaller than "
 #~ "30000x3000 pixels."
 #~ msgstr ""
-#~ "Kan inte spara med Photoshop-format.\n"
-#~ "Photoshop-formatet stöder bara bilder som är mindre än 30000x3000 "
+#~ "Kan inte spara med PS-format.\n"
+#~ "PS-formatet stöder bara bilder som är mindre än 30000x3000 "
 #~ "bildpunkter."
 
 #~ msgid ""
-#~ "Unable to save to the Photoshop format.\n"
-#~ "The Photoshop format only supports images where all layers have the same "
+#~ "Unable to save to the PS format.\n"
+#~ "The PS format only supports images where all layers have the same "
 #~ "colorspace as the image."
 #~ msgstr ""
-#~ "Kan inte spara med Photoshop-format.\n"
-#~ "Photoshop-formatet stöder bara bilder där alla lager har samma färgrymd "
+#~ "Kan inte spara med PS-format.\n"
+#~ "PS-formatet stöder bara bilder där alla lager har samma färgrymd "
 #~ "som bilden."
 
 #~ msgctxt "(qtundo-format)"
 #~ msgid ""
-#~ "Unable to save to the Photoshop format.\n"
-#~ "The Photoshop format only supports images where all layers have the same "
+#~ "Unable to save to the PS format.\n"
+#~ "The PS format only supports images where all layers have the same "
 #~ "colorspace as the image."
 #~ msgstr ""
-#~ "Kan inte spara med Photoshop-format.\n"
-#~ "Photoshop-formatet stöder bara bilder där alla lager har samma färgrymd "
+#~ "Kan inte spara med PS-format.\n"
+#~ "PS-formatet stöder bara bilder där alla lager har samma färgrymd "
 #~ "som bilden."
 
 #~ msgctxt ""
@@ -104410,8 +104410,8 @@ msgstr ""
 #~ msgid "KDE (new)"
 #~ msgstr "KDE (ny)"
 
-#~ msgid "photoshop-swatches-sketchlings-swatches.aco"
-#~ msgstr "photoshop-swatches-sketchlings-swatches.aco"
+#~ msgid "swatches-sketchlings-swatches.aco"
+#~ msgstr "swatches-sketchlings-swatches.aco"
 
 #~ msgid "Skin.gpl.txt"
 #~ msgstr "Skin.gpl.txt"

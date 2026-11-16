@@ -23238,7 +23238,7 @@ msgstr "Billeder"
 #: libs/koplugin/KisMimeDatabase.cpp:229
 #, fuzzy, kde-format
 msgctxt "description of a file type"
-msgid "Photoshop Layer Style Library"
+msgid "Layer Style Library (ASL)"
 msgstr "Sti til OpenColorIO-konfiguration:"
 
 #: libs/koplugin/KisMimeDatabase.cpp:234
@@ -23339,7 +23339,7 @@ msgstr "Eksportindstillinger for OpenEXR"
 #: libs/koplugin/KisMimeDatabase.cpp:309
 #, fuzzy, kde-format
 msgctxt "description of a file type"
-msgid "Photoshop Image (Large)"
+msgid "PSB Image (Large)"
 msgstr "Sti til OpenColorIO-konfiguration:"
 
 #: libs/koplugin/KisMimeDatabase.cpp:314
@@ -24098,16 +24098,16 @@ msgstr "Blødt lys (SVG)"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:82
 #, fuzzy, kde-format
-#| msgid "Soft Light (Photoshop)"
+#| msgid "Soft Light (Standard)"
 msgctxt "Blending mode - Soft Light (Pegtop-Delphi)"
 msgid "Soft Light (Pegtop-Delphi)"
-msgstr "Blødt lys (Photoshop)"
+msgstr "Blødt lys (PS)"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:83
 #, kde-format
-msgctxt "Blending mode - Soft Light (Photoshop)"
-msgid "Soft Light (Photoshop)"
-msgstr "Blødt lys (Photoshop)"
+msgctxt "Blending mode - Soft Light (Standard)"
+msgid "Soft Light (Standard)"
+msgstr "Blødt lys (PS)"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:84
 #, kde-format
@@ -24325,17 +24325,17 @@ msgstr "Hårdt miks"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:121
 #, fuzzy, kde-format
-#| msgid "Soft Light (Photoshop)"
-msgctxt "Blending mode - Hard Mix (Photoshop)"
-msgid "Hard Mix (Photoshop)"
-msgstr "Blødt lys (Photoshop)"
+#| msgid "Soft Light (Standard)"
+msgctxt "Blending mode - Hard Mix (Standard)"
+msgid "Hard Mix (Standard)"
+msgstr "Blødt lys (PS)"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:122
 #, fuzzy, kde-format
-#| msgid "Soft Light (Photoshop)"
-msgctxt "Blending mode - Hard Mix Softer (Photoshop)"
-msgid "Hard Mix Softer (Photoshop)"
-msgstr "Blødt lys (Photoshop)"
+#| msgid "Soft Light (Standard)"
+msgctxt "Blending mode - Hard Mix Softer (Standard)"
+msgid "Hard Mix Softer (Standard)"
+msgstr "Blødt lys (PS)"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:123
 #, kde-format
@@ -60066,7 +60066,7 @@ msgstr ""
 #. i18n: ectx: property (title), widget (QGroupBox, chkPhotoshop)
 #: plugins/impex/tiff/kis_wdg_options_tiff.ui:79
 #, fuzzy, kde-format
-msgid "Save layers as Photoshop"
+msgid "Save layers as PS"
 msgstr "Gem lag/maske..."
 
 #. i18n: ectx: property (text), widget (QLabel, label_4)
@@ -62514,17 +62514,17 @@ msgstr "Udskriftshøjde:"
 
 #: plugins/paintops/libpaintop/kis_texture_chooser.cpp:72
 #, fuzzy, kde-format
-#| msgid "Soft Light (Photoshop)"
-msgctxt "Height (Photoshop) blend mode for brush texture"
-msgid "Height (Photoshop)"
-msgstr "Blødt lys (Photoshop)"
+#| msgid "Soft Light (Standard)"
+msgctxt "Height (PS) blend mode for brush texture"
+msgid "Height (PS)"
+msgstr "Blødt lys (PS)"
 
 #: plugins/paintops/libpaintop/kis_texture_chooser.cpp:73
 #, fuzzy, kde-format
-#| msgid "Soft Light (Photoshop)"
-msgctxt "Linear Height (Photoshop) blend mode for brush texture"
-msgid "Linear Height (Photoshop)"
-msgstr "Blødt lys (Photoshop)"
+#| msgid "Soft Light (Standard)"
+msgctxt "Linear Height (PS) blend mode for brush texture"
+msgid "Linear Height (PS)"
+msgstr "Blødt lys (PS)"
 
 #: plugins/paintops/libpaintop/kis_texture_chooser.cpp:82
 #, kde-format
@@ -74715,14 +74715,14 @@ msgstr ""
 #~ msgstr "Udtræk korn"
 
 #, fuzzy
-#~| msgid "Soft Light (Photoshop)"
-#~ msgid "Hard Mix (Photoshop)"
-#~ msgstr "Blødt lys (Photoshop)"
+#~| msgid "Soft Light (Standard)"
+#~ msgid "Hard Mix (Standard)"
+#~ msgstr "Blødt lys (PS)"
 
 #, fuzzy
-#~| msgid "Soft Light (Photoshop)"
-#~ msgid "Hard Mix Softer (Photoshop)"
-#~ msgstr "Blødt lys (Photoshop)"
+#~| msgid "Soft Light (Standard)"
+#~ msgid "Hard Mix Softer (Standard)"
+#~ msgstr "Blødt lys (PS)"
 
 #~ msgid "Parallel"
 #~ msgstr "Parallel"
@@ -74755,15 +74755,15 @@ msgstr ""
 #~ msgstr "Blødt lys (SVG)"
 
 #, fuzzy
-#~| msgid "Soft Light (Photoshop)"
+#~| msgid "Soft Light (Standard)"
 #~ msgid "Soft Light (Pegtop-Delphi)"
-#~ msgstr "Blødt lys (Photoshop)"
+#~ msgstr "Blødt lys (PS)"
 
 #~ msgid "Soft Light (SVG)"
 #~ msgstr "Blødt lys (SVG)"
 
-#~ msgid "Soft Light (Photoshop)"
-#~ msgstr "Blødt lys (Photoshop)"
+#~ msgid "Soft Light (Standard)"
+#~ msgstr "Blødt lys (PS)"
 
 #~ msgid "Gamma Light"
 #~ msgstr "Gammalys"
@@ -93797,7 +93797,7 @@ msgstr ""
 
 #, fuzzy
 #~ msgctxt "(qtundo-format) description of a file type"
-#~ msgid "Photoshop Layer Style Library"
+#~ msgid "Layer Style Library (ASL)"
 #~ msgstr "Sti til OpenColorIO-konfiguration:"
 
 #, fuzzy
@@ -94398,10 +94398,10 @@ msgstr ""
 #~ msgstr "Blødt lys (SVG)"
 
 #, fuzzy
-#~| msgid "Soft Light (Photoshop)"
+#~| msgid "Soft Light (Standard)"
 #~ msgctxt "(qtundo-format)"
-#~ msgid "Soft Light (Photoshop)"
-#~ msgstr "Blødt lys (Photoshop)"
+#~ msgid "Soft Light (Standard)"
+#~ msgstr "Blødt lys (PS)"
 
 #, fuzzy
 #~| msgid "Gamma Light"
@@ -102964,8 +102964,8 @@ msgstr ""
 #~ "Unable to save to the CSV format.\n"
 #~ "The CSV format not supports layer groups or masked layers."
 #~ msgstr ""
-#~ "Kan ikke gemme i Photoshop-formatet.\n"
-#~ "Photoshop-formatet understøtter kun billeder som er mindre end "
+#~ "Kan ikke gemme i PS-formatet.\n"
+#~ "PS-formatet understøtter kun billeder som er mindre end "
 #~ "30.000x3.000 pixel."
 
 #, fuzzy
@@ -102974,8 +102974,8 @@ msgstr ""
 #~ "Unable to save to the CSV format.\n"
 #~ "The CSV format not supports layer groups or masked layers."
 #~ msgstr ""
-#~ "Kan ikke gemme i Photoshop-formatet.\n"
-#~ "Photoshop-formatet understøtter kun billeder som er mindre end "
+#~ "Kan ikke gemme i PS-formatet.\n"
+#~ "PS-formatet understøtter kun billeder som er mindre end "
 #~ "30.000x3.000 pixel."
 
 #~ msgid "OpenEXR Export Options"
@@ -103141,52 +103141,52 @@ msgstr ""
 
 #, fuzzy
 #~ msgctxt "(qtundo-format) @title:window"
-#~ msgid "Photoshop Export Error"
+#~ msgid "PS Export Error"
 #~ msgstr "MathML importfejl"
 
 #~ msgid ""
-#~ "Unable to save to the Photoshop format.\n"
-#~ "The Photoshop format only supports images that are smaller than "
+#~ "Unable to save to the PS format.\n"
+#~ "The PS format only supports images that are smaller than "
 #~ "30000x3000 pixels."
 #~ msgstr ""
-#~ "Kan ikke gemme i Photoshop-formatet.\n"
-#~ "Photoshop-formatet understøtter kun billeder som er mindre end "
+#~ "Kan ikke gemme i PS-formatet.\n"
+#~ "PS-formatet understøtter kun billeder som er mindre end "
 #~ "30.000x3.000 pixel."
 
 #, fuzzy
 #~| msgid ""
-#~| "Unable to save to the Photoshop format.\n"
-#~| "The Photoshop format only supports images that are smaller than "
+#~| "Unable to save to the PS format.\n"
+#~| "The PS format only supports images that are smaller than "
 #~| "30000x3000 pixels."
 #~ msgctxt "(qtundo-format)"
 #~ msgid ""
-#~ "Unable to save to the Photoshop format.\n"
-#~ "The Photoshop format only supports images that are smaller than "
+#~ "Unable to save to the PS format.\n"
+#~ "The PS format only supports images that are smaller than "
 #~ "30000x3000 pixels."
 #~ msgstr ""
-#~ "Kan ikke gemme i Photoshop-formatet.\n"
-#~ "Photoshop-formatet understøtter kun billeder som er mindre end "
+#~ "Kan ikke gemme i PS-formatet.\n"
+#~ "PS-formatet understøtter kun billeder som er mindre end "
 #~ "30.000x3.000 pixel."
 
 #, fuzzy
 #~ msgid ""
-#~ "Unable to save to the Photoshop format.\n"
-#~ "The Photoshop format only supports images where all layers have the same "
+#~ "Unable to save to the PS format.\n"
+#~ "The PS format only supports images where all layers have the same "
 #~ "colorspace as the image."
 #~ msgstr ""
-#~ "Kan ikke gemme i Photoshop-formatet.\n"
-#~ "Photoshop-formatet understøtter kun billeder som er mindre end "
+#~ "Kan ikke gemme i PS-formatet.\n"
+#~ "PS-formatet understøtter kun billeder som er mindre end "
 #~ "30.000x3.000 pixel."
 
 #, fuzzy
 #~ msgctxt "(qtundo-format)"
 #~ msgid ""
-#~ "Unable to save to the Photoshop format.\n"
-#~ "The Photoshop format only supports images where all layers have the same "
+#~ "Unable to save to the PS format.\n"
+#~ "The PS format only supports images where all layers have the same "
 #~ "colorspace as the image."
 #~ msgstr ""
-#~ "Kan ikke gemme i Photoshop-formatet.\n"
-#~ "Photoshop-formatet understøtter kun billeder som er mindre end "
+#~ "Kan ikke gemme i PS-formatet.\n"
+#~ "PS-formatet understøtter kun billeder som er mindre end "
 #~ "30.000x3.000 pixel."
 
 #, fuzzy
@@ -110215,8 +110215,8 @@ msgstr ""
 #~ msgid "KDE (new)"
 #~ msgstr "KDE (ny)"
 
-#~ msgid "photoshop-swatches-sketchlings-swatches.aco"
-#~ msgstr "photoshop-swatches-sketchlings-swatches.aco"
+#~ msgid "swatches-sketchlings-swatches.aco"
+#~ msgstr "swatches-sketchlings-swatches.aco"
 
 #~ msgid "Skin.gpl.txt"
 #~ msgstr "Skin.gpl.txt"

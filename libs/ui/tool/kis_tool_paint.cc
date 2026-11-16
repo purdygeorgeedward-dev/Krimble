@@ -58,6 +58,8 @@
 #include "kis_slider_spin_box.h"
 #include "kis_canvas_resource_provider.h"
 #include "kis_paintop_box.h"   // Krimble 2026-10-20 (2nd)
+#include <KisGlobalResourcesInterface.h>      // Krimble 2026-11-16 (722nd): the default brush
+#include <brushengine/kis_paintop_preset.h>
 #include "kis_tool_utils.h"
 #include <brushengine/kis_paintop.h>
 #include <brushengine/kis_paintop_preset.h>
@@ -170,7 +172,7 @@ void KisToolPaint::activate(const QSet<KoShape*> &shapes)
         // Krimble 2026-10-23: THE REAL CAUSE of the Smudge leak (George, 1.0.36 to 1.0.42: "Smudge still takes over other tools"). Nothing ever gave the tools the object names
         // "tool_smudge" etc.: the tool manager names every tool after its action id (KoToolManager.cpp: tool->setObjectName(toolAction->id())), here "KritaShape/KisToolSmudge", so
         // this test (and the same one in KisToolBrush::activate) was never true, the user's brush was never kept, and nothing could be given back. The ids are used now.
-        const bool retouchTool = me.endsWith(QLatin1String("KisToolSmudge")) || me.endsWith(QLatin1String("KisToolSoften")) || me.endsWith(QLatin1String("KisToolHeal"))   /* Krimble 2026-11-13 (task 77) */
+        const bool retouchTool = me.endsWith(QLatin1String("KisToolSmudge")) || me.endsWith(QLatin1String("KisToolSoften")) || me.endsWith(QLatin1String("KisToolSharpen")) || me.endsWith(QLatin1String("KisToolHeal"))   /* Krimble 2026-11-13 (task 77) */
                 || me.endsWith(QLatin1String("KisToolDodge")) || me.endsWith(QLatin1String("KisToolBurn"))
                 || me == QLatin1String("tool_smudge") || me == QLatin1String("tool_soften") || me == QLatin1String("tool_dodge") || me == QLatin1String("tool_burn");
         KisCanvas2 *kisCanvas = dynamic_cast<KisCanvas2*>(canvas());
@@ -188,6 +190,30 @@ void KisToolPaint::activate(const QSet<KoShape*> &shapes)
                 if (qApp->property("krimbleUserOpacity").isValid()) provider->setOpacity(qApp->property("krimbleUserOpacity").toDouble());
                 if (qApp->property("krimbleUserFlow").isValid()) provider->setFlow(qApp->property("krimbleUserFlow").toDouble());
                 if (qApp->property("krimbleUserSize").isValid()) provider->setSize(qApp->property("krimbleUserSize").toDouble());
+            }
+        }
+    }
+
+    // Krimble 2026-11-16 (722nd): George (build 64): "There is no default brush. There should be a default setting. The brush shouldn't start as a dead tool." A painting tool that is not
+    // a retouch tool and starts with no brush at all, or with a retouch brush that could not be given back (no brush of the user's was ever kept: a retouch tool was the first painting
+    // tool of the session), takes the built-in basic brush (the "paintbrush" preset of plugins/paintops/defaultpresets), set through the brush panel like any other brush.
+    {
+        const QString me = objectName();
+        const bool retouchTool = me.endsWith(QLatin1String("KisToolSmudge")) || me.endsWith(QLatin1String("KisToolSoften")) || me.endsWith(QLatin1String("KisToolSharpen"))
+                || me.endsWith(QLatin1String("KisToolHeal")) || me.endsWith(QLatin1String("KisToolDodge")) || me.endsWith(QLatin1String("KisToolBurn"));
+        KisCanvas2 *kisCanvas = dynamic_cast<KisCanvas2*>(canvas());
+        KisPaintOpPresetSP current = currentPaintOpPreset();
+        if (!retouchTool && kisCanvas && kisCanvas->viewManager()
+                && (!current || current->name().startsWith(QLatin1String("Krimble Retouch")))) {
+            if (KisPaintopBox *box = kisCanvas->viewManager()->paintOpBox()) {
+                KisPaintOpPresetSP basic(new KisPaintOpPreset(QStringLiteral(":/presets/paintbrush.kpp")));   // loaded the way KisPaintopBox::defaultPreset() does
+                if (basic->load(KisGlobalResourcesInterface::instance())) {
+                    basic->setName(QStringLiteral("Krimble Brush"));
+                    box->resourceSelected(basic);
+                    KisCanvasResourceProvider *provider = kisCanvas->viewManager()->canvasResourceProvider();
+                    if (provider && provider->currentPreset() != basic) provider->setPaintOpPreset(basic);
+                    if (provider && provider->opacity() <= 0.0) provider->setOpacity(1.0);
+                }
             }
         }
     }

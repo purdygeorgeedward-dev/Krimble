@@ -96,10 +96,17 @@ static const QList<QStringList> &krimbleToolGroupIds()
         // { QStringLiteral("KritaShape/KisToolSmartPatch"), QStringLiteral("KritaShape/KisToolHeal") },                                                        // Healing (the bandaid; the stamp in its flyout)
         // Krimble 2026-11-16 (717th): George (19 buttons, an odd number): "Separate the stamp tool." The bandaid (Smart Patch) and the stamp (Heal) are in no group: each has its own
         // button and no flyout. The bandaid stays after the Eyedropper; the stamp is after the Eraser, before the Gradient. 20 buttons with UNDO.
-        { QStringLiteral("KritaShape/KisToolSmudge"), QStringLiteral("KritaShape/KisToolSoften") },                                                          // Smudge and Soften
-        { QStringLiteral("KritaSelected/KisToolColorSampler"), QStringLiteral("KritaShape/KisToolMeasure"), QStringLiteral("ToolReferenceImages") },         // Sampler
+        // { QStringLiteral("KritaShape/KisToolSmudge"), QStringLiteral("KritaShape/KisToolSoften") },                                                          // Smudge and Soften
+        // { QStringLiteral("KritaSelected/KisToolColorSampler"), QStringLiteral("KritaShape/KisToolMeasure"), QStringLiteral("ToolReferenceImages") },         // Sampler
+        // Krimble 2026-11-16 (722nd): George (build 64): "The visible tools should go in this order from top to bottom: Move, Rectangular selection, Lasso selection, Magic wand, Crop,
+        // Eyedropper, Spot healing tool (bandaid), Paintbrush, Clone stamp, Eraser, Gradient, Blur, Sharpen, Pen, Text, Path select, Shape creator, Hand, Zoom, Transform (uniform scale),
+        // Undo, Foreground and Background colors". The order itself is in the tools' own toolbox places (setToolBoxPriority, the sorting system of the first days). Here: Blur (Soften) is
+        // the shown tool with Smudge in its flyout; Sharpen is a new tool with its own button; Hand and Zoom each have a button (the Navigation group is off); the Assistant, which is not
+        // in his list of visible tools, is in the Eyedropper's flyout with the Ruler and Reference Images.
+        { QStringLiteral("KritaShape/KisToolSoften"), QStringLiteral("KritaShape/KisToolSmudge") },                                                          // Blur (Smudge in its flyout)
+        { QStringLiteral("KritaSelected/KisToolColorSampler"), QStringLiteral("KritaShape/KisToolMeasure"), QStringLiteral("ToolReferenceImages"), QStringLiteral("KisAssistantTool") },   // Sampler
         { QStringLiteral("KrimbleTextTool"), QStringLiteral("SvgTextTool") },                                                                                // Type
-        { QStringLiteral("PanTool"), QStringLiteral("ZoomTool") },                                                                                           // Navigation
+        // { QStringLiteral("PanTool"), QStringLiteral("ZoomTool") },                                                                                           // Navigation (722nd: each has its own button)
     };
     return groups;
 }

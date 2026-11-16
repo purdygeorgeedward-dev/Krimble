@@ -60,25 +60,26 @@ Turn the phone sideways and everything rearranges for the wide screen.
 
 | Button | What it does | In its flyout |
 |---|---|---|
-| Select Shapes | Picks and moves vector shapes and text | |
 | Move | Moves a layer or a selection | |
 | Marquee | Selects a rectangle | Elliptical, Hexagon |
 | Lasso | Selects a freehand outline | Polygonal, Magnetic, Path-Based |
 | Magic Wand | Selects an area of similar color | Select Similar |
 | Crop | Cuts the picture down to a frame | |
-| Eyedropper | Picks a color from the picture | Ruler, Reference Images |
+| Eyedropper | Picks a color from the picture | Ruler, Reference Images, Assistant |
 | Bandaid | Heals a marked spot from its surroundings | |
 | Brush | Applies the foreground color by hand, for touch-ups and masks | |
-| Smudge | Pushes pixels along with the finger | Soften (blurs gently) |
-| Eraser | Rubs parts of a layer away to transparency | |
 | Stamp | Heals by copying texture from a source spot: tap **Set source** first | |
+| Eraser | Rubs parts of a layer away to transparency | |
 | Gradient | Fills with a blend of colors | Paint Bucket |
+| Blur | Softens where you brush | Smudge (pushes pixels along) |
+| Sharpen | Sharpens where you brush | |
 | Pen | Draws curves point by point | Polyline, Polygon, Pencil |
 | Type (T) | Adds text | Krimble Type, Old Type |
+| Arrow | Picks and moves vector shapes and text | |
 | Rectangle | Draws a rectangle | Ellipse, Polygon and Star, Line |
-| Hand | Moves the picture | Zoom |
+| Hand | Moves the picture | |
+| Zoom | Zooms in and out | |
 | Transform | Scales, turns and warps a layer | Free Rotate |
-| Assistant | Drawing guides | |
 | UNDO | Tap to undo. Press and hold for Redo | |
 
 **Arranging the toolbox.** Press and hold the toolbox's handle (the bar with three lines) for its menu:
@@ -150,7 +151,7 @@ These work by hand, directly on the picture. The brush toolbar has the size and 
 
 - **Bandaid:** mark a blemish and it is healed from its surroundings.
 - **Stamp:** tap **Set source** on a clean spot, then brush over the flaw; the texture is copied across.
-- **Smudge** and **Soften** (same button): push pixels along, or blur an area gently.
+- **Blur** and **Sharpen:** soften or sharpen only where you brush. **Smudge** (in the Blur button's flyout) pushes pixels along.
 - **Eraser:** rubs parts of a layer away to transparency. For erasing you can take back later, use a layer mask instead.
 - **Brush:** applies the foreground color by hand: for touch-ups, and for working on masks.
 - **Gradient** and **Paint Bucket** (same button): fill a layer or a selection with a blend or a flat color.

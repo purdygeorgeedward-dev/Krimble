@@ -336,6 +336,9 @@ void ThemeManager::slotChangePalette()
     // Krimble 2026-11-15 (691st): George: "Breeze dark theme has blue lines added?" The bevel overlay (blue-gray lines) and the raised toolbox buttons were drawn in every theme but Dark Gray. Now only the Krimble themes
     // other than Dark Gray get them; Breeze Dark, Breeze Light and Breeze High Contrast show their own colors only.
     qApp->setProperty("krimbleFlatTheme", theme == QStringLiteral("Krimble Dark Gray") || !theme.startsWith(QStringLiteral("Krimble")));   // Krimble 2026-11-15: no bevel overlay lines and no raised toolbox buttons in this theme
+    // Krimble 2026-11-16 (722nd): George (build 64): "The raised tool button effect doesn't work with the white theme." The Raised button style was tied to "krimbleFlatTheme", which is also set
+    // for every theme that is not a Krimble theme (Breeze Light, Breeze Dark, High Contrast), so the Raised style did nothing there. It has its own switch now: off only in "Krimble Dark Gray".
+    qApp->setProperty("krimbleNoRaisedButtons", theme == QStringLiteral("Krimble Dark Gray"));
     // Krimble 2026-11-15 (696th): George: "Ok it finally switched. There was a long delay." The sheet was set up to seven times in a row (the theme's sheet, then each added rule set), and each call parses the whole
     // sheet and restyles every widget. It is now put together in one string and set once. (The calls are kept below, as comments in the text they replaced: each "krimbleSheet = (" was "qApp->setStyleSheet(".)
     QString krimbleSheet;
@@ -375,6 +378,20 @@ void ThemeManager::slotChangePalette()
     // 26 px at the sides and 5 px above and below; the other tab bars (dialogs, image tabs) keep the sheet's padding.
     // Krimble 2026-11-15: George: "Remove all the tab customizations. They are all a failure." Off: 
     // if (!krimbleSheet.isEmpty()) krimbleSheet = (krimbleSheet + QStringLiteral("\nQMainWindow > QTabBar::tab { padding: 5px 26px; }\n"));
+    // Krimble 2026-11-16 (722nd): George (build 64, screenshots of the New Image and File Info windows): "Tab color should match connecting panel area. I saved a color for tabs." (his Color Lab
+    // screenshot: #364064) and "Would like the selections to match the pretty gradient from design screenshots. This should apply to menu selections too." (1) In a window with tabs, the selected
+    // tab and the page area under it are the same color, his #364064, with no line between them (the tab's bottom edge has the same color). The tabs of the panel groups of the main window keep
+    // the panel's own color (the rule of the 697th above is more specific). (2) A selected row of a list and a selected row of a menu have the design's selection gradient (#1196D8 at the top
+    // edge, #0A78BB, #073D6B in the middle, #074A85 at the bottom: the gradient of the lit buttons), square, no outline. The Layers panel keeps its own rows (NodeView: its rule comes after this one and wins). In "Krimble Dark
+    // Gray" (no blue anywhere) both are the grays of the same brightness.
+    if (!krimbleSheet.isEmpty()) {
+        const QString krimbleTabsAndSelection = QStringLiteral(
+            "\nQTabWidget::pane { background: #364064; border: none; }\n"
+            "QTabBar::tab:selected { background: #364064; border-bottom: 1px solid #364064; }\n"
+            "QAbstractItemView::item:selected, QMenu::item:selected { color: #ffffff; border-radius: 0px;"
+            " background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #1196d8, stop:0.10 #0a78bb, stop:0.5 #073d6b, stop:1 #074a85); }\n");
+        krimbleSheet = krimbleSheet + (theme == QStringLiteral("Krimble Dark Gray") ? krimbleGraySheet(krimbleTabsAndSelection) : krimbleTabsAndSelection);
+    }
     // Krimble 2026-11-15 (item 16 and the Layers panel): George: "In the layers panel I think the regular layers should be mid tones like a gray and the selected layer should be lighter. The glowing
     // layer doesn't work." Every layer row is a mid gray (#5D6272) with white text; the selected row is lighter (#8E93A6) with dark text, flat, no glow. Same in every theme (the rule comes after the
     // theme's own sheet and names the Layers panel's list, NodeView, so it wins over the general QAbstractItemView rule). The colors are mine; George gave none.
@@ -389,7 +406,9 @@ void ThemeManager::slotChangePalette()
         // "QSlider::handle:horizontal { width: 10px; height: 10px; margin: -5px 0; border: 1px solid #141822; border-radius: 5px;"
         // " background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #f4f7fc, stop:0.30 #c9d0de, stop:0.46 #4a5164, stop:0.56 #262b38, stop:0.78 #7f889c, stop:1 #c3cad8); }\n"
         // Krimble 2026-11-15 (2nd): George: "No. I gave you an instruction. Use my graphic." The handle is his ball bearing picture itself (krimble-ball-bearing.png, cut round from his picture), stretched to the handle box.
-        "QSlider::handle:horizontal { width: 10px; height: 10px; margin: -5px 0; border: none; background: transparent; border-image: url(:/krimble-ball-bearing.png) 0 0 0 0 stretch stretch; }\n"));
+        // "QSlider::handle:horizontal { width: 10px; height: 10px; margin: -5px 0; border: none; background: transparent; border-image: url(:/krimble-ball-bearing.png) 0 0 0 0 stretch stretch; }\n"
+        // Krimble 2026-11-16 (722nd): George (build 64): "My ball bearing needs to be redesigned for the smaller size. ... Should probably be darker, like a little more shadow. Can it have a small cast shadow via alpha channel transparency?" krimble-ball-bearing-small.png: his picture made darker (shaded away from the light) with a soft cast shadow in the transparent margin; the handle box is 12 units so the ball itself stays about 10.
+        "QSlider::handle:horizontal { width: 12px; height: 12px; margin: -6px 0; border: none; background: transparent; border-image: url(:/krimble-ball-bearing-small.png) 0 0 0 0 stretch stretch; }\n"));
     // Krimble 2026-11-15 (697th): George (screenshots of the Layers, Text Properties and Tool Options tabs): "Please make tabs match their panels and don't put a line between them." The selected tab of a panel
     // group (the tab bars of the main window) has the panel's own color (palette(window)), no bottom edge, and the bar draws no base line under the tabs. (The overlay's light top line on a panel in a tab group is
     // off too, see KrimbleBevelOverlay.) The unselected tabs are as they were. This is one rule set for the tabs of the panel groups only, not a return of the tab shapes removed on 2026-11-15.

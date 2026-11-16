@@ -76,7 +76,7 @@
       <item row="2" column="0" colspan="2">
        <widget class="QGroupBox" name="chkPhotoshop">
         <property name="title">
-         <string>Save layers as Photoshop</string>
+         <string>Save layers (PSD data)</string>
         </property>
         <property name="checkable">
          <bool>true</bool>

@@ -82,4 +82,12 @@ George says he talked to Claude (in an earlier session; the text of that talk is
 - **2026-11-16T13:41Z:** Push all changes to master.
 - **2026-11-16T13:42Z:** Can you write a simple Krimble manual? Basic introduction and documentation for beginners?
 - **2026-11-16T13:44Z:** Manual should not focus on painting. Krimble is not a paint app.
-- **2026-11-16T13:45Z:** Krimble is a graphics editor like Photoshop (although we should avoid mentioning Photoshop or Adobe).
+- **2026-11-16T13:45Z:** Krimble is a graphics editor like the industry standard (although we should avoid mentioning the industry standard or Adobe).
+- **2026-11-16T13:46Z:** Remove ANY AND ALL MENTIONS OF [the brand name]!!!!!!
+- **2026-11-16T13:47Z:** Adobe RGB is fine.
+- **2026-11-16T13:47Z:** Push and build.
+- **2026-11-16T14:30Z:** Belay the build. I have a bug list from 1.0.64-beta.
+- **2026-11-16T16:21Z:** New bugs 1.0.64-beta: (14 items: jolts while painting; window buttons too high; K too close to File with no image; Polygon and Star icon; themes: raised buttons in the white theme, tab color (saved #364064), selection gradient also in menus; taller menu bar; remove the QuickAdjust toolbar; Hand as the start tool; the toolbox order; a default brush; ball bearing darker with a cast shadow; status bar size cut off in portrait; File Info General icon; 250 ms flyouts.) "Almost everything is perfect. Very few issues left to fix."
+- **2026-11-16T16:23Z:** There should already be a sorting assignment system in place for the toolbox. It was the first thing I asked for because I wanted pan/hand to be the default. It was why I started editing Krita for mobile in the first place.
+- **2026-11-16T16:28Z:** The jolt may be some kind of reset or redraw linked to the theme. I don't know.
+- **2026-11-16T21:39Z:** (the list again, plus) 15. Krita previously had tabs at the top for the open image files so you could select them. Now it doesn't for some reason. I didn't ask for that to be removed. Please restore it. 16. There are stability issues. Even just doing a simple operation like a fill can crash the app. I have been forced to use 1.0.58 due to severe stability issues with the new build. if these issues persist I will be forced to roll back to 1.0.58 and start over on revisions. Please make a list of all revisions requested/attempted in subsequent versions and formulate the best implementation if a rollback is performed.

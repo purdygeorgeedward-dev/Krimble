@@ -15,7 +15,7 @@
 
 class KoCanvasBase;
 
-// Krimble: dedicated toolbox entry for Photoshop's Burn tool. Same
+// Krimble: dedicated toolbox entry for the industry standard's Burn tool. Same
 // mechanism as KisToolDodge -- clones the standard default brush preset
 // and overrides CompositeOp to COMPOSITE_BURN, an already-supported
 // composite op with no prior dedicated toolbox tool. See KisToolDodge's

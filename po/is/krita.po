@@ -22668,7 +22668,7 @@ msgstr "OpenRaster-mynd"
 #: libs/koplugin/KisMimeDatabase.cpp:229
 #, fuzzy, kde-format
 msgctxt "description of a file type"
-msgid "Photoshop Layer Style Library"
+msgid "Layer Style Library (ASL)"
 msgstr "Mynd"
 
 #: libs/koplugin/KisMimeDatabase.cpp:234
@@ -22764,8 +22764,8 @@ msgstr "JPEG útflutningsvalkostir"
 #: libs/koplugin/KisMimeDatabase.cpp:309
 #, kde-format
 msgctxt "description of a file type"
-msgid "Photoshop Image (Large)"
-msgstr "Photoshop-mynd (stór)"
+msgid "PSB Image (Large)"
+msgstr "PS-mynd (stór)"
 
 #: libs/koplugin/KisMimeDatabase.cpp:314
 #, kde-format
@@ -23491,16 +23491,16 @@ msgstr "Mjúkt ljós"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:82
 #, fuzzy, kde-format
-#| msgid "Soft Light (Photoshop)"
+#| msgid "Soft Light (Standard)"
 msgctxt "Blending mode - Soft Light (Pegtop-Delphi)"
 msgid "Soft Light (Pegtop-Delphi)"
 msgstr "Mjúkt ljós"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:83
 #, fuzzy, kde-format
-#| msgid "Soft Light (Photoshop)"
-msgctxt "Blending mode - Soft Light (Photoshop)"
-msgid "Soft Light (Photoshop)"
+#| msgid "Soft Light (Standard)"
+msgctxt "Blending mode - Soft Light (Standard)"
+msgid "Soft Light (Standard)"
 msgstr "Mjúkt ljós"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:84
@@ -23714,14 +23714,14 @@ msgstr "Hart ljós"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:121
 #, fuzzy, kde-format
-msgctxt "Blending mode - Hard Mix (Photoshop)"
-msgid "Hard Mix (Photoshop)"
+msgctxt "Blending mode - Hard Mix (Standard)"
+msgid "Hard Mix (Standard)"
 msgstr "Mjúkt ljós"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:122
 #, fuzzy, kde-format
-msgctxt "Blending mode - Hard Mix Softer (Photoshop)"
-msgid "Hard Mix Softer (Photoshop)"
+msgctxt "Blending mode - Hard Mix Softer (Standard)"
+msgid "Hard Mix Softer (Standard)"
 msgstr "Mjúkt ljós"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:123
@@ -58340,7 +58340,7 @@ msgstr ""
 #. i18n: ectx: property (title), widget (QGroupBox, chkPhotoshop)
 #: plugins/impex/tiff/kis_wdg_options_tiff.ui:79
 #, fuzzy, kde-format
-msgid "Save layers as Photoshop"
+msgid "Save layers as PS"
 msgstr "Vista &sem..."
 
 #. i18n: ectx: property (text), widget (QLabel, label_4)
@@ -60677,16 +60677,16 @@ msgstr "Línuhæð"
 
 #: plugins/paintops/libpaintop/kis_texture_chooser.cpp:72
 #, fuzzy, kde-format
-#| msgid "Soft Light (Photoshop)"
-msgctxt "Height (Photoshop) blend mode for brush texture"
-msgid "Height (Photoshop)"
+#| msgid "Soft Light (Standard)"
+msgctxt "Height (PS) blend mode for brush texture"
+msgid "Height (PS)"
 msgstr "Mjúkt ljós"
 
 #: plugins/paintops/libpaintop/kis_texture_chooser.cpp:73
 #, fuzzy, kde-format
-#| msgid "Soft Light (Photoshop)"
-msgctxt "Linear Height (Photoshop) blend mode for brush texture"
-msgid "Linear Height (Photoshop)"
+#| msgid "Soft Light (Standard)"
+msgctxt "Linear Height (PS) blend mode for brush texture"
+msgid "Linear Height (PS)"
 msgstr "Mjúkt ljós"
 
 #: plugins/paintops/libpaintop/kis_texture_chooser.cpp:82
@@ -72129,11 +72129,11 @@ msgstr ""
 #~ msgstr "Kornaeimun"
 
 #, fuzzy
-#~ msgid "Hard Mix (Photoshop)"
+#~ msgid "Hard Mix (Standard)"
 #~ msgstr "Mjúkt ljós"
 
 #, fuzzy
-#~ msgid "Hard Mix Softer (Photoshop)"
+#~ msgid "Hard Mix Softer (Standard)"
 #~ msgstr "Mjúkt ljós"
 
 #, fuzzy
@@ -72170,14 +72170,14 @@ msgstr ""
 #~ msgstr "Mjúkt ljós"
 
 #, fuzzy
-#~| msgid "Soft Light (Photoshop)"
+#~| msgid "Soft Light (Standard)"
 #~ msgid "Soft Light (Pegtop-Delphi)"
 #~ msgstr "Mjúkt ljós"
 
 #~ msgid "Soft Light (SVG)"
 #~ msgstr "Mjúkt ljós"
 
-#~ msgid "Soft Light (Photoshop)"
+#~ msgid "Soft Light (Standard)"
 #~ msgstr "Mjúkt ljós"
 
 #, fuzzy
@@ -82968,7 +82968,7 @@ msgstr ""
 
 #, fuzzy
 #~ msgctxt "(qtundo-format)"
-#~ msgid "Soft Light (Photoshop)"
+#~ msgid "Soft Light (Standard)"
 #~ msgstr "Mjúkt ljós"
 
 #, fuzzy
@@ -87071,7 +87071,7 @@ msgstr ""
 
 #, fuzzy
 #~ msgctxt "(qtundo-format) @title:window"
-#~ msgid "Photoshop Export Error"
+#~ msgid "PS Export Error"
 #~ msgstr "Gildi"
 
 #, fuzzy

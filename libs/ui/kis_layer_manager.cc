@@ -154,7 +154,7 @@ void KisLayerManager::setup(KisActionManager* actionManager)
     m_imageMergeLayer = actionManager->createAction("merge_layer");
     connect(m_imageMergeLayer, SIGNAL(triggered()), this, SLOT(mergeLayer()));
 
-    // Krimble addition: Photoshop-parity "Merge Visible" action.
+    // Krimble addition: the industry standard-parity "Merge Visible" action.
     m_imageMergeVisibleLayers = actionManager->createAction("merge_visible_layers");
     connect(m_imageMergeVisibleLayers, SIGNAL(triggered()), this, SLOT(mergeVisibleLayers()));
 
@@ -846,7 +846,7 @@ void KisLayerManager::flattenImage()
 
 void KisLayerManager::mergeVisibleLayers()
 {
-    // Krimble addition: Photoshop-parity "Merge Visible" (Ctrl+Shift+E).
+    // Krimble addition: the industry standard-parity "Merge Visible" (Ctrl+Shift+E).
     // Exactly the two-step sequence from the Krita manual:
     //   1. Layer > Select > Visible Layers
     //   2. Layer > Merge with Layer Below

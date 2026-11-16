@@ -15,7 +15,7 @@
 
 class KoCanvasBase;
 
-// Krimble: dedicated toolbox entry for Photoshop's Dodge tool. Unlike
+// Krimble: dedicated toolbox entry for the industry standard's Dodge tool. Unlike
 // Smudge/Soften, there is no dedicated bundled preset for this -- instead,
 // on activation this clones the standard default brush preset ("defaultPreset",
 // plugins/paintops/defaultpresets/paintbrush.kpp) and overrides its
@@ -49,7 +49,7 @@ public:
         setToolTip(i18n("Dodge Tool"));
         setSection(ToolBoxSection::PSOrder);
         setIconName(koIconNameCStr("krita_tool_dodge"));
-        setShortcut(QKeySequence(Qt::Key_O)); // Krimble: matches Photoshop's actual Dodge shortcut (Shift+O in PS; Krimble tools use unmodified single keys, see other PSOrder factories)
+        setShortcut(QKeySequence(Qt::Key_O)); // Krimble: matches the industry standard's actual Dodge shortcut (Shift+O in PS; Krimble tools use unmodified single keys, see other PSOrder factories)
         setPriority(23); // Krimble: directly after Soften (22).
         setToolBoxPriority(123);
         setActivationShapeId(KRITA_TOOL_ACTIVATION_ID);

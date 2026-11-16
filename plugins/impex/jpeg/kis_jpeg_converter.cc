@@ -21,7 +21,7 @@ extern "C" {
 #include <exiv2/jpgimage.hpp>
 #include <exiv2/version.hpp>
 #if EXIV2_TEST_VERSION(0,28,0)
-#include <exiv2/photoshop.hpp>
+#include <exiv2/PS.hpp>
 #endif
 
 #include <QFile>
@@ -372,18 +372,18 @@ KisImportExportErrorCode KisJPEGConverter::decode(QIODevice *io)
                 for (int i = 0; i < 14; i++) {
                     dbgFile << (int)(*(marker->data + i)) << "" << (int)(photoshopMarker[i]);
                 }
-                dbgFile << "No photoshop marker";
+                dbgFile << "No PS marker";
                 continue; /* No IPTC Header */
             }
 
-            dbgFile << "Found Photoshop information of length :" << marker->data_length;
+            dbgFile << "Found PS information of length :" << marker->data_length;
             KisMetaData::IOBackend *iptcIO = KisMetadataBackendRegistry::instance()->value("iptc");
             Q_ASSERT(iptcIO);
             const Exiv2::byte *record = 0;
             uint32_t sizeIptc = 0;
             uint32_t sizeHdr = 0;
             // Find actual Iptc data within the APP13 segment
-            if (!Exiv2::Photoshop::locateIptcIrb((Exiv2::byte*)(marker->data + 14),
+            if (!Exiv2::PS::locateIptcIrb((Exiv2::byte*)(marker->data + 14),
 #if EXIV2_TEST_VERSION(0,28,0)
                                                  marker->data_length - 14, &record, sizeHdr, sizeIptc)) {
 #else
@@ -395,7 +395,7 @@ KisImportExportErrorCode KisJPEGConverter::decode(QIODevice *io)
                     QBuffer buf(&byteArray);
                     iptcIO->loadFrom(layer->metaData(), &buf);
                 } else {
-                    dbgFile << "IPTC Not found in Photoshop marker";
+                    dbgFile << "IPTC Not found in PS marker";
                 }
             }
             break;

@@ -22792,7 +22792,7 @@ msgstr "ओपनरास्टर छवि"
 #: libs/koplugin/KisMimeDatabase.cpp:229
 #, kde-format
 msgctxt "description of a file type"
-msgid "Photoshop Layer Style Library"
+msgid "Layer Style Library (ASL)"
 msgstr "फोटोशॉप परत शैली संग्रह"
 
 #: libs/koplugin/KisMimeDatabase.cpp:234
@@ -22888,7 +22888,7 @@ msgstr "ओपनएक्सआर (विस्तारित)"
 #: libs/koplugin/KisMimeDatabase.cpp:309
 #, kde-format
 msgctxt "description of a file type"
-msgid "Photoshop Image (Large)"
+msgid "PSB Image (Large)"
 msgstr "फ़ोटोशॉप छवि (बड़ी)"
 
 #: libs/koplugin/KisMimeDatabase.cpp:314
@@ -23619,8 +23619,8 @@ msgstr "कोमल प्रकाशक (पैगटोप डेल्फ�
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:83
 #, kde-format
-msgctxt "Blending mode - Soft Light (Photoshop)"
-msgid "Soft Light (Photoshop)"
+msgctxt "Blending mode - Soft Light (Standard)"
+msgid "Soft Light (Standard)"
 msgstr "कोमल प्रकाशक (फोटोशाॅप)"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:84
@@ -23827,14 +23827,14 @@ msgstr "ठोस मिश्रण"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:121
 #, kde-format
-msgctxt "Blending mode - Hard Mix (Photoshop)"
-msgid "Hard Mix (Photoshop)"
+msgctxt "Blending mode - Hard Mix (Standard)"
+msgid "Hard Mix (Standard)"
 msgstr "ठोस मिश्रण (फोटोशाॅप)"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:122
 #, kde-format
-msgctxt "Blending mode - Hard Mix Softer (Photoshop)"
-msgid "Hard Mix Softer (Photoshop)"
+msgctxt "Blending mode - Hard Mix Softer (Standard)"
+msgid "Hard Mix Softer (Standard)"
 msgstr "ठोस मिश्रण हल्का (फोटोशाॅप)"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:123
@@ -58837,7 +58837,7 @@ msgstr ""
 #: plugins/impex/tiff/kis_wdg_options_tiff.ui:79
 #, fuzzy, kde-format
 #| msgid "Save layers to..."
-msgid "Save layers as Photoshop"
+msgid "Save layers as PS"
 msgstr "परत को सहेजें..."
 
 #. i18n: ectx: property (text), widget (QLabel, label_4)
@@ -61182,16 +61182,16 @@ msgstr "लीनियर ऊंचाई"
 
 #: plugins/paintops/libpaintop/kis_texture_chooser.cpp:72
 #, fuzzy, kde-format
-#| msgid "Soft Light (Photoshop)"
-msgctxt "Height (Photoshop) blend mode for brush texture"
-msgid "Height (Photoshop)"
+#| msgid "Soft Light (Standard)"
+msgctxt "Height (PS) blend mode for brush texture"
+msgid "Height (PS)"
 msgstr "कोमल प्रकाशक (फोटोशाॅप)"
 
 #: plugins/paintops/libpaintop/kis_texture_chooser.cpp:73
 #, fuzzy, kde-format
-#| msgid "Soft Light (Photoshop)"
-msgctxt "Linear Height (Photoshop) blend mode for brush texture"
-msgid "Linear Height (Photoshop)"
+#| msgid "Soft Light (Standard)"
+msgctxt "Linear Height (PS) blend mode for brush texture"
+msgid "Linear Height (PS)"
 msgstr "कोमल प्रकाशक (फोटोशाॅप)"
 
 #: plugins/paintops/libpaintop/kis_texture_chooser.cpp:82
@@ -64793,7 +64793,7 @@ msgstr ""
 #: plugins/python/photobash_images/photobash_images_docker.py:83
 #, fuzzy
 #| msgctxt "description of a file type"
-#| msgid "Photoshop Image (Large)"
+#| msgid "PSB Image (Large)"
 msgctxt "@title:window"
 msgid "Photobash Images"
 msgstr "फ़ोटोशॉप छवि (बड़ी)"
@@ -72724,10 +72724,10 @@ msgstr ""
 #~ msgid "Grain Extract"
 #~ msgstr "ग्रेन निर्यात"
 
-#~ msgid "Hard Mix (Photoshop)"
+#~ msgid "Hard Mix (Standard)"
 #~ msgstr "ठोस मिश्रण (फोटोशाॅप)"
 
-#~ msgid "Hard Mix Softer (Photoshop)"
+#~ msgid "Hard Mix Softer (Standard)"
 #~ msgstr "ठोस मिश्रण हल्का(फोटोशाॅप)"
 
 #~ msgid "Parallel"
@@ -72775,7 +72775,7 @@ msgstr ""
 #~ msgid "Soft Light (SVG)"
 #~ msgstr "कोमल प्रकाशक (एसवीजी)"
 
-#~ msgid "Soft Light (Photoshop)"
+#~ msgid "Soft Light (Standard)"
 #~ msgstr "कोमल प्रकाशक (फोटोशाॅप)"
 
 #~ msgid "Gamma Light"
@@ -87775,7 +87775,7 @@ msgstr ""
 
 #, fuzzy
 #~ msgctxt "(qtundo-format) description of a file type"
-#~ msgid "Photoshop Layer Style Library"
+#~ msgid "Layer Style Library (ASL)"
 #~ msgstr "कोई कॉन्फ़िगरेशन विकल्प नहीं."
 
 #, fuzzy
@@ -88210,7 +88210,7 @@ msgstr ""
 
 #, fuzzy
 #~ msgctxt "(qtundo-format)"
-#~ msgid "Soft Light (Photoshop)"
+#~ msgid "Soft Light (Standard)"
 #~ msgstr "सीधा"
 
 #, fuzzy
@@ -94762,7 +94762,7 @@ msgstr ""
 
 #, fuzzy
 #~ msgctxt "(qtundo-format) @title:window"
-#~ msgid "Photoshop Export Error"
+#~ msgid "PS Export Error"
 #~ msgstr "खड़ा लहर"
 
 #, fuzzy

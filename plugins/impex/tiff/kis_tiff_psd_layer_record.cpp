@@ -45,7 +45,7 @@ KisTiffPsdLayerRecord::KisTiffPsdLayerRecord(bool isBigEndian,
     } else if (photometricInterpretation == PHOTOMETRIC_PALETTE) {
         m_colorMode = psd_color_mode::Indexed;
     } else {
-        dbgFile << "TIFF PSD error: " << photometricInterpretation << "does not map to a Photoshop supported mode";
+        dbgFile << "TIFF PSD error: " << photometricInterpretation << "does not map to a PS supported mode";
         m_colorMode = psd_color_mode::COLORMODE_UNKNOWN;
     }
 }
@@ -87,7 +87,7 @@ bool KisTiffPsdLayerRecord::readImpl(QIODevice &device)
     QLatin1String signature("Adobe Photoshop Document Data Block");
     QByteArray b = device.read(signature.size() + 1);
     if (b.size() != signature.size() + 1 || QLatin1String(b) != signature) {
-        m_record->error = QString("Invalid Photoshop data block: %1").arg(QLatin1String(b));
+        m_record->error = QString("Invalid PS data block: %1").arg(QLatin1String(b));
         return false;
     }
 

@@ -776,7 +776,7 @@ struct PLevel {
     std::vector<float> nd;        // its distance
     std::vector<int> srcList;     // the valid sources, as indices
     std::vector<float> conf;      // w * h: how much a pixel counts when patches are compared (known pixels 1; the guessed hole less)
-    // Krimble 2026-10-19 (2nd), the Photoshop-style engine (inpaint(), below): per target, which transform its source is copied with (turned, resized,
+    // Krimble 2026-10-19 (2nd), the industry standard-style engine (inpaint(), below): per target, which transform its source is copied with (turned, resized,
     // mirrored) and the colour shift that adapts the copied patch to where it lands; per pixel, how far it is from the hole and the picture's edge.
     std::vector<uint8_t> xf;      // w * h: index into the transform table
     std::vector<float> bias;      // w * h * c
@@ -1116,7 +1116,7 @@ void pPeel(PLevel &L)
 } // namespace
 
 // Krimble 2026-10-19 (2nd): the engine of the 206th entry (whole-colour PatchMatch, real pixels, seamless edge), kept; the engine used now is inpaint() at the end
-// of this file, the same with Photoshop's additions.
+// of this file, the same with the industry standard's additions.
 bool inpaintPatchMatchV1(uint8_t *pixels, const uint8_t *holeIn, int w, int h, int channels, const Options &opt, uint8_t *filledHole)
 {
     if (!pixels || !holeIn || w < 8 || h < 8 || channels < 1 || channels > 4) return false;
@@ -1222,8 +1222,8 @@ bool inpaintPatchMatchV1(uint8_t *pixels, const uint8_t *holeIn, int w, int h, i
 
 
 // ====================================================================================================================================================================
-// Krimble 2026-10-19 (2nd): the engine used now. George: "For now try to do Photoshop's way. Develop an algorithm." The same whole-colour multi-scale PatchMatch as
-// inpaintPatchMatchV1 (real pixels, seamless edge), with what Photoshop's Content-Aware Fill adds on top of PatchMatch (Barnes et al. 2010, "The generalized PatchMatch
+// Krimble 2026-10-19 (2nd): the engine used now. George: "For now try to do the industry standard's way. Develop an algorithm." The same whole-colour multi-scale PatchMatch as
+// inpaintPatchMatchV1 (real pixels, seamless edge), with what the industry standard's Content-Aware Fill adds on top of PatchMatch (Barnes et al. 2010, "The generalized PatchMatch
 // correspondence algorithm"; Darabi et al. 2012, "Image melding"):
 //  - ROTATION and SCALE: a source patch may be copied turned (-30 to +30 degrees) and resized (0.8 to 1.25 times), so curves, perspective and repeated things at
 //    other sizes continue properly;
@@ -1643,9 +1643,9 @@ void qFinalSeamless(PLevel &L, const std::vector<QXf> &tab, int r, int threads)
 
 } // namespace
 
-// Krimble 2026-10-20: the Photoshop-style engine of the 208th to 225th entries, kept; the engine used now is inpaint() at the end of this file (the same,
+// Krimble 2026-10-20: the industry standard-style engine of the 208th to 225th entries, kept; the engine used now is inpaint() at the end of this file (the same,
 // in less memory).
-bool inpaintPhotoshopV2(uint8_t *pixels, const uint8_t *holeIn, int w, int h, int channels, const Options &opt, uint8_t *filledHole)
+bool inpaintStandardV2(uint8_t *pixels, const uint8_t *holeIn, int w, int h, int channels, const Options &opt, uint8_t *filledHole)
 {
     if (!pixels || !holeIn || w < 8 || h < 8 || channels < 1 || channels > 4) return false;
     const int r = std::max(2, std::min(5, opt.patchRadius));
@@ -1765,7 +1765,7 @@ bool inpaintPhotoshopV2(uint8_t *pixels, const uint8_t *holeIn, int w, int h, in
 
 
 // ====================================================================================================================================================================
-// Krimble 2026-10-20: the engine used now: the Photoshop-style engine above (now inpaintPhotoshopV2, kept), the same steps and results, kept in less memory.
+// Krimble 2026-10-20: the engine used now: the industry standard-style engine above (now inpaintStandardV2, kept), the same steps and results, kept in less memory.
 // George, asked whether the fill could use less memory (it needed about 450 MB at its peak for a 3 MP area): "Yes." Per pixel of each level:
 //  - the picture in bytes, not floats (4 bytes a pixel instead of 16; the rebuilt hole is rounded to whole levels of 0 to 255, as it is saved anyway);
 //  - the match positions as 16-bit numbers (pictures up to 32 767 px a side), the colour shifts as signed bytes (they are at most 28), the distance map
@@ -2247,7 +2247,7 @@ bool rRandomSource(const RLevel &L, const std::vector<QXf> &tab, std::mt19937 &r
     return false;
 }
 
-// Krimble 2026-10-23: the coarsest level, filled the way Photoshop's Content-Aware Fill does it (measured as a black box by the PhotoCraft project, github.com/storytold/photocraft,
+// Krimble 2026-10-23: the coarsest level, filled the way the industry standard's Content-Aware Fill does it (measured as a black box by the PhotoCraft project, github.com/storytold/photocraft,
 // notes in crates/algo/src/inpaint.rs; Wexler, Shechtman, Irani, "Space-Time Completion of Video", 2007): from the edge of the hole inwards, ring by ring, each pixel is copied
 // from the middle of the patch that best matches what is already known around it. The first version of this engine started the coarsest level from an AVERAGE of the surroundings
 // (rPeel): a smooth start that "draws the fill towards flat areas", and the finer levels, which only refine what they start from, kept the smoothness (George, 1.0.41:
@@ -2311,7 +2311,7 @@ void rRingFill(RLevel &L, const std::vector<QXf> &tab, int r, unsigned seed, int
                     const size_t q = size_t(y) * w + x;
                     if (matchX[q] >= 0) tryCand(matchX[q] - dx, matchY[q] - dy);
                 }
-                // (a version that took half of the candidates from near the hole, as Photoshop's sampling window does, was tried and made the fill hazier on the cup and spoon
+                // (a version that took half of the candidates from near the hole, as the industry standard's sampling window does, was tried and made the fill hazier on the cup and spoon
                 // pictures of tools/inpaint-bench: the nearby colours pull the match towards a smooth look; not used.)
                 for (int t = 0; t < kRandom; ++t) tryCand(int(rng() % unsigned(w)), int(rng() % unsigned(h)));
                 if (bx >= 0) {
@@ -2341,7 +2341,7 @@ void rRingFill(RLevel &L, const std::vector<QXf> &tab, int r, unsigned seed, int
 bool inpaint(uint8_t *pixels, const uint8_t *holeIn, int w, int h, int channels, const Options &opt, uint8_t *filledHole)
 {
     if (!pixels || !holeIn || w < 8 || h < 8 || channels < 1 || channels > 4) return false;
-    if (w > 32767 || h > 32767) return inpaintPhotoshopV2(pixels, holeIn, w, h, channels, opt, filledHole);   // the 16-bit match positions
+    if (w > 32767 || h > 32767) return inpaintStandardV2(pixels, holeIn, w, h, channels, opt, filledHole);   // the 16-bit match positions
     const int r = std::max(2, std::min(5, opt.patchRadius));
     const int T = opt.threads > 0 ? opt.threads : int(std::max(1u, std::thread::hardware_concurrency()));
     const std::vector<QXf> &tab = qTable(r);
@@ -2376,7 +2376,7 @@ bool inpaint(uint8_t *pixels, const uint8_t *holeIn, int w, int h, int channels,
     if (holeCount >= size_t(w) * h) return false;
 
     const int holeDim = std::max(maxX - minX + 1, maxY - minY + 1);
-    // Krimble 2026-10-23: a thin hole (a selected wire, string or hair: long but only a few patches thick) is measured by its THICKNESS, not its bounds (PhotoCraft/Photoshop notes,
+    // Krimble 2026-10-23: a thin hole (a selected wire, string or hair: long but only a few patches thick) is measured by its THICKNESS, not its bounds (PhotoCraft/the industry standard notes,
     // crates/algo/src/inpaint.rs): shrunk until its bounds are four patches across, a long thin hole would vanish into its surroundings and the coarse matches would copy a blur. The
     // thickness is twice the largest distance (in pixels, square steps) from a hole pixel to a known pixel; no level is added that would make the hole thinner than two patches.
     int thickness = 0;

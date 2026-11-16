@@ -83,7 +83,7 @@ inline bool TRY_READ_SIGNATURE_2OPS_EX(QIODevice &device, const std::array<T, S>
         }
     }
 
-    dbgFile << "Photoshop signature verification failed! Got: " << bytes.toHex() << "(" << QString(bytes) << ")";
+    dbgFile << "PS signature verification failed! Got: " << bytes.toHex() << "(" << QString(bytes) << ")";
     return false;
 }
 

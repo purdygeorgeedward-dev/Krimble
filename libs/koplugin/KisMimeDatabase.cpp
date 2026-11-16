@@ -234,7 +234,7 @@ void KisMimeDatabase::fillMimeData()
         s_mimeDatabase << mimeType;
 
         mimeType.mimeType = "application/x-photoshop-style-library";
-        mimeType.description = i18nc("description of a file type", "Photoshop Layer Style Library");
+        mimeType.description = i18nc("description of a file type", "Layer Style Library (ASL)");
         mimeType.suffixes = QStringList() << "asl";
         s_mimeDatabase << mimeType;
 
@@ -314,7 +314,7 @@ void KisMimeDatabase::fillMimeData()
         s_mimeDatabase << mimeType;
 
         mimeType.mimeType = "image/x-psb";
-        mimeType.description = i18nc("description of a file type", "Photoshop Image (Large)");
+        mimeType.description = i18nc("description of a file type", "PSB Image (Large)");
         mimeType.suffixes = QStringList() << "psb";
         s_mimeDatabase << mimeType;
 

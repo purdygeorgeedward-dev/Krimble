@@ -393,7 +393,8 @@ GeneralTab::GeneralTab(QWidget *_parent, const char *_name)
     // m_cmbMDIType->setCurrentIndex(cfg.readEntry<int>("mdi_viewmode", (int)QMdiArea::SubWindowView));
     // m_cmbMDIType->setCurrentIndex(cfg.readEntry<int>("mdi_viewmode", (int)QMdiArea::TabbedView));
     // Krimble 2026-10-11: floating windows are the default again.
-    m_cmbMDIType->setCurrentIndex(cfg.readEntry<int>("mdi_viewmode", (int)QMdiArea::SubWindowView));
+    // m_cmbMDIType->setCurrentIndex(cfg.readEntry<int>("mdi_viewmode", (int)QMdiArea::SubWindowView));
+    m_cmbMDIType->setCurrentIndex(cfg.readEntry<int>("mdi_viewmode", (int)QMdiArea::TabbedView));   // Krimble 2026-11-16 (724th): tabs are the default again
     enableSubWindowOptions(m_cmbMDIType->currentIndex());
     connect(m_cmbMDIType, SIGNAL(currentIndexChanged(int)), SLOT(enableSubWindowOptions(int)));
 

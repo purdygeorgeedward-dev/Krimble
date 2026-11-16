@@ -51,7 +51,7 @@ public Q_SLOTS:
      * Instead of compositing all the layers before compositing it with the rest of the image,
      * the group layer becomes a sort of formal way to organise everything.
      *
-     * Passthrough mode is the same as it is in photoshop,
+     * Passthrough mode is the same as it is in PS,
      * and the inverse of SVG's isolation attribute(with passthrough=false being the same as
      * isolation="isolate").
      *

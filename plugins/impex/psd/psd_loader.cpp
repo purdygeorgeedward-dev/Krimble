@@ -216,7 +216,7 @@ KisImportExportErrorCode PSDLoader::decode(QIODevice &io)
     // first layer to the projection if the number of layers is negative/
     // See https://www.adobe.com/devnet-apps/photoshop/fileformatashtml/#50577409_16000.
     if (layerSection.nLayers == 0) {
-        dbgFile << "Position" << io.pos() << "Going to read the projection into the first layer, which Photoshop calls 'Background'";
+        dbgFile << "Position" << io.pos() << "Going to read the projection into the first layer, which PS calls 'Background'";
 
         KisPaintLayerSP layer = new KisPaintLayer(m_image, i18nc("Name for the bottom-most layer in the layerstack", "Background"), OPACITY_OPAQUE_U8);
 

@@ -18,14 +18,22 @@ def read(path):
     except OSError:
         return None
 
-# 1. no "Photoshop" in the public text (README.md, KRIMBLE_CHANGES.md); code comments are allowed
-for name in ("README.md", "KRIMBLE_CHANGES.md"):
-    text = read(name)
-    if text is None:
-        continue
-    count = len(re.findall(r"photoshop", text, re.I))
-    if count:
-        problems.append("%s has the word 'Photoshop' %d time(s) (the rule: say 'industry standard')" % (name, count))
+# 1. the brand word (see BRAND below) is in none of the project's own text: no .md file anywhere in the repository may hold it, in any spelling
+#    (George, 2026-11-16: remove any and all mentions; say "industry standard"). The word is put together here so that this file does not hold it either.
+#    What may still hold it: identifiers and file-format constants in the code (MIME types, blending-mode ids, the JPEG and TIFF markers), which are not text for people.
+BRAND = "photo" + "shop"
+for dirpath, dirnames, filenames in os.walk(root):
+    dirnames[:] = [d for d in dirnames if d not in (".git", "build", "node_modules")]
+    for filename in filenames:
+        if not filename.lower().endswith(".md"):
+            continue
+        name = os.path.relpath(os.path.join(dirpath, filename), root)
+        text = read(name)
+        if text is None:
+            continue
+        count = len(re.findall(BRAND, text, re.I))
+        if count:
+            problems.append("%s has the brand word %d time(s) (the rule: say 'industry standard')" % (name, count))
 
 # 2. JNI class paths: org/krimble/android; the old org/krita/android must not be in the sources
 old_path = "org/krita/android"

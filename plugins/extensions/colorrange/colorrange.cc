@@ -94,7 +94,7 @@ void ColorRange::selectOpaque(int id)
 }
 
 /**
- * Krimble: Select > Similar, as in Photoshop.
+ * Krimble: Select > Similar, as in the industry standard.
  * Adds to the selection every pixel of the active layer whose colour is
  * within the Magic Wand's threshold of a colour inside the current selection.
  * Colours are kept in a 64 x 64 x 64 grid (4 levels per cell), grown by the

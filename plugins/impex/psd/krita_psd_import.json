@@ -1,6 +1,6 @@
 {
     "Icon": "",
-    "Id": "Krita PhotoShop Import Filter",
+    "Id": "Krita PSD Import Filter",
     "NoDisplay": "true",
     "Type": "Service",
     "X-KDE-Import": "image/x-psd,image/photoshop,image/x-photoshop,image/vnd.adobe.photoshop,image/x-psb",

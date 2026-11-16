@@ -42,10 +42,10 @@ KisTiffPsdWriter::~KisTiffPsdWriter() = default;
 
 KisImportExportErrorCode KisTiffPsdWriter::writeImage(KisGroupLayerSP layer)
 {
-    dbgFile << "Starting write of Photoshop layer data";
+    dbgFile << "Starting write of PS layer data";
 
     /**
-     * For Photoshop tiff files, first thing is to write the
+     * For PS tiff files, first thing is to write the
      * projection of the image file.
      */
 
@@ -218,7 +218,7 @@ KisImportExportErrorCode KisTiffPsdWriter::writeImage(KisGroupLayerSP layer)
     }
     buff.reset();
 
-    ///* BEGIN PHOTOSHOP SPECIFIC HANDLING CODE *///
+    ///* BEGIN PS SPECIFIC HANDLING CODE *///
 
     /**
      * Synthesize the PSD file into the TIFFTAG_IMAGESOURCEDATA field.
@@ -332,7 +332,7 @@ KisImportExportErrorCode KisTiffPsdWriter::writeImage(KisGroupLayerSP layer)
      * Freshly baked Photoshoppy TIFF file!
      */
 
-    ///* END PHOTOSHOP SPECIFIC HANDLING CODE *///
+    ///* END PS SPECIFIC HANDLING CODE *///
 
     TIFFWriteDirectory(image());
     return ImportExportCodes::OK;

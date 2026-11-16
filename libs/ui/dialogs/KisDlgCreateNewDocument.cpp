@@ -32,7 +32,7 @@ KisDlgCreateNewDocument::KisDlgCreateNewDocument(QWidget* parent)
     const QString colorDepth = cfg.defaultColorDepth();
     const QString colorProfile = cfg.defColorProfile();
 
-    // Krimble 2026-10-12: George's idea ("Here's something Photoshop does that would be nice to have..."): when a picture was copied
+    // Krimble 2026-10-12: George's idea ("Here's something the industry standard does that would be nice to have..."): when a picture was copied
     // or cut, the Custom Document page starts with the size of that picture, so it can be pasted into the new document cleanly.
     // Without a copied picture, the saved default size is used as before.
     KisClipboard *krimbleClipboard = KisClipboard::instance();

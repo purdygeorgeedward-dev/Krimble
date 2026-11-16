@@ -55,7 +55,7 @@ struct KRITAPSD_EXPORT psd_layer_level_record {
 // Levels settings files are loaded and saved in the Levels dialog.
 struct KRITAPSD_EXPORT psd_layer_levels {
     psd_layer_level_record record[29]; // 29 sets of level records, each level containing 5 qint8 integers
-    // Photoshop CS (8.0) Additional information
+    // PS CS (8.0) Additional information
     // At the end of the Version 2 file is the following information:
     quint16 extra_level_count {0}; // Count of total level record structures. Subtract the legacy number of level record structures, 29, to determine how many are
                                // remaining in the file for reading.
@@ -98,12 +98,12 @@ struct KRITAPSD_EXPORT psd_layer_color_balance {
 };
 
 // HUE/SATURATION
-// Hue/Saturation settings files are loaded and saved in Photoshop¡¯s Hue/Saturation dialog
+// Hue/Saturation settings files are loaded and saved in PS¡¯s Hue/Saturation dialog
 struct KRITAPSD_EXPORT psd_layer_hue_saturation {
     quint8 hue_or_colorization {0}; // 0 = Use settings for hue-adjustment; 1 = Use settings for colorization.
-    qint8 colorization_hue {0}; // Photoshop 5.0: The actual values are stored for the new version. Hue is - 180...180, Saturation is 0...100, and Lightness is
+    qint8 colorization_hue {0}; // PS 5.0: The actual values are stored for the new version. Hue is - 180...180, Saturation is 0...100, and Lightness is
                             // -100...100.
-    qint8 colorization_saturation {0}; // Photoshop 4.0: Three qint8 integers Hue, Saturation, and Lightness from ¨C100...100.
+    qint8 colorization_saturation {0}; // PS 4.0: Three qint8 integers Hue, Saturation, and Lightness from ¨C100...100.
     qint8 colorization_lightness {0}; // The user interface represents hue as ¨C180...180, saturation as 0...100, and Lightness as -100...1000, as the traditional
                                   // HSB color wheel, with red = 0.
     qint8 master_hue {0}; // Master hue, saturation and lightness values.
@@ -118,7 +118,7 @@ struct KRITAPSD_EXPORT psd_layer_hue_saturation {
 };
 
 // SELECTIVE COLOR
-// Selective Color settings files are loaded and saved in Photoshop¡¯s Selective Color dialog.
+// Selective Color settings files are loaded and saved in PS¡¯s Selective Color dialog.
 struct KRITAPSD_EXPORT psd_layer_selective_color {
     quint16 correction_method {0}; // 0 = Apply color correction in relative mode; 1 = Apply color correction in absolute mode.
     qint8 cyan_correction[10]; // Amount of cyan correction. Short integer from ¨C100...100.
@@ -894,7 +894,7 @@ struct KRITAPSD_EXPORT psd_layer_type_shape {
         catcher.subscribeUnitFloat(path + "/TxLr/bounds/Rght", "#Pnt", std::bind(&psd_layer_type_shape::setRight, data, std::placeholders::_1));
         catcher.subscribeUnitFloat(path + "/TxLr/bounds/Btom", "#Pnt", std::bind(&psd_layer_type_shape::setBottom, data, std::placeholders::_1));
 
-        // Newer photoshop files use pxl as the unit, which is correct...
+        // Newer PS files use pxl as the unit, which is correct...
         catcher.subscribeUnitFloat(path + "/TxLr/bounds/Left", "#Pxl", std::bind(&psd_layer_type_shape::setLeft, data, std::placeholders::_1));
         catcher.subscribeUnitFloat(path + "/TxLr/bounds/Top ", "#Pxl", std::bind(&psd_layer_type_shape::setTop, data, std::placeholders::_1));
         catcher.subscribeUnitFloat(path + "/TxLr/bounds/Rght", "#Pxl", std::bind(&psd_layer_type_shape::setRight, data, std::placeholders::_1));

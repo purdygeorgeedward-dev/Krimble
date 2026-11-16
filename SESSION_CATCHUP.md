@@ -7,7 +7,7 @@
 
 (Rewritten 2026-10-25, 2:55 PM Mountain Time, for a new chat inside the Krimble project. The version of 2026-10-24 is replaced. The repo docs listed below are the source of truth; `KRIMBLE_NEXT_BUILD.md` and `KRIMBLE_WORKLOG.md` are new.)
 
-I'm **George** (George Edward Purdy), building **Krimble**, a professional Android graphics app (Photoshop-caliber — never call it a "paint app") forked from Krita. Repo: `github.com/purdygeorgeedward-dev/krimble`, branch `master`. I'm in El Paso (Mountain Time); I work from my phone (Samsung Galaxy A26 5G, Android 16, touch only).
+I'm **George** (George Edward Purdy), building **Krimble**, a professional Android graphics app (the industry standard-caliber — never call it a "paint app") forked from Krita. Repo: `github.com/purdygeorgeedward-dev/krimble`, branch `master`. I'm in El Paso (Mountain Time); I work from my phone (Samsung Galaxy A26 5G, Android 16, touch only).
 
 ## How to work with me
 - Terse, direct. No padding, no affirmations, no empathy statements. Don't say "Understood", "frustrating", or "fair" (say "okay").
@@ -53,7 +53,7 @@ I'm **George** (George Edward Purdy), building **Krimble**, a professional Andro
 - The Text menu is closed (only the new text window). No how-to popups. The Polygonal Selection how-to messages are gone.
 - File > New keeps the 2026-10-13 pictures; the Preferences pictures are the 3D set plus my own keyboard, house and clipboard; unused art was removed (the emoji logo and the future tool icons were kept on purpose).
 - Labels beside their fields and buttons side by side are the default again (a window with no scroll area is still squeezed).
-- **Design premise (George, 2026-10-26): "My whole premise was that drawing or painting on a phone sucks, but editing works fine."** Krimble on the phone is an editing app (Photoshop-style edits: selections, layers, adjustments, filters, transforms), not a drawing or painting app. Too many options overwhelm: pare the phone down. Six inherited tools have no toolbox button on Android (313th entry: Colorize Mask, Enclose and Fill, Assistant, Ruler, Reference Images, Path-Based Selection); desktop builds (Linux, Windows, macOS) will enable them. They were Krita's own, nobody chose them for Krimble. Judge any new or existing feature by that premise.
+- **Design premise (George, 2026-10-26): "My whole premise was that drawing or painting on a phone sucks, but editing works fine."** Krimble on the phone is an editing app (the industry standard-style edits: selections, layers, adjustments, filters, transforms), not a drawing or painting app. Too many options overwhelm: pare the phone down. Six inherited tools have no toolbox button on Android (313th entry: Colorize Mask, Enclose and Fill, Assistant, Ruler, Reference Images, Path-Based Selection); desktop builds (Linux, Windows, macOS) will enable them. They were Krita's own, nobody chose them for Krimble. Judge any new or existing feature by that premise.
 - **No 32-bit Android build (George, 2026-10-26: "Okay, 7a is off the map.")**: only arm64-v8a. About 5 to 10 percent of active devices are 32-bit ARM, mostly cheap low-RAM phones where Krimble would be killed by Android anyway. Check Google Play Console "Reach and devices" after publishing before reopening this.
 
 ## State as of 2026-10-30, 12:37 PM MT (branch `feature/krimble-ui-refresh`)

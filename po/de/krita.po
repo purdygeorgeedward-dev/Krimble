@@ -23543,8 +23543,8 @@ msgstr "OpenRaster-Bild"
 #: libs/koplugin/KisMimeDatabase.cpp:229
 #, kde-format
 msgctxt "description of a file type"
-msgid "Photoshop Layer Style Library"
-msgstr "Photoshop-Ebenenstil-Bibliothek"
+msgid "Layer Style Library (ASL)"
+msgstr "PS-Ebenenstil-Bibliothek"
 
 #: libs/koplugin/KisMimeDatabase.cpp:234
 #, kde-format
@@ -23641,8 +23641,8 @@ msgstr "OpenEXR (Erweitert)"
 #: libs/koplugin/KisMimeDatabase.cpp:309
 #, kde-format
 msgctxt "description of a file type"
-msgid "Photoshop Image (Large)"
-msgstr "Photoshop-Bild (groß)"
+msgid "PSB Image (Large)"
+msgstr "PS-Bild (groß)"
 
 #: libs/koplugin/KisMimeDatabase.cpp:314
 #, kde-format
@@ -24386,9 +24386,9 @@ msgstr "Weiches Licht (Pegtop-Delphi)"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:83
 #, kde-format
-msgctxt "Blending mode - Soft Light (Photoshop)"
-msgid "Soft Light (Photoshop)"
-msgstr "Weiches Licht (Photoshop)"
+msgctxt "Blending mode - Soft Light (Standard)"
+msgid "Soft Light (Standard)"
+msgstr "Weiches Licht (PS)"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:84
 #, kde-format
@@ -24606,17 +24606,17 @@ msgstr "Aggressives Mischen"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:121
 #, fuzzy, kde-format
-#| msgid "Soft Light (Photoshop)"
-msgctxt "Blending mode - Hard Mix (Photoshop)"
-msgid "Hard Mix (Photoshop)"
-msgstr "Weiches Licht (Photoshop)"
+#| msgid "Soft Light (Standard)"
+msgctxt "Blending mode - Hard Mix (Standard)"
+msgid "Hard Mix (Standard)"
+msgstr "Weiches Licht (PS)"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:122
 #, fuzzy, kde-format
-#| msgid "Soft Light (Photoshop)"
-msgctxt "Blending mode - Hard Mix Softer (Photoshop)"
-msgid "Hard Mix Softer (Photoshop)"
-msgstr "Weiches Licht (Photoshop)"
+#| msgid "Soft Light (Standard)"
+msgctxt "Blending mode - Hard Mix Softer (Standard)"
+msgid "Hard Mix Softer (Standard)"
+msgstr "Weiches Licht (PS)"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:123
 #, fuzzy, kde-format
@@ -60450,7 +60450,7 @@ msgstr ""
 #: plugins/impex/tiff/kis_wdg_options_tiff.ui:79
 #, fuzzy, kde-format
 #| msgid "Save layers to..."
-msgid "Save layers as Photoshop"
+msgid "Save layers as PS"
 msgstr "Ebenen speichern in ..."
 
 #. i18n: ectx: property (text), widget (QLabel, label_4)
@@ -62888,17 +62888,17 @@ msgstr "Zeilenhöhe"
 
 #: plugins/paintops/libpaintop/kis_texture_chooser.cpp:72
 #, fuzzy, kde-format
-#| msgid "Soft Light (Photoshop)"
-msgctxt "Height (Photoshop) blend mode for brush texture"
-msgid "Height (Photoshop)"
-msgstr "Weiches Licht (Photoshop)"
+#| msgid "Soft Light (Standard)"
+msgctxt "Height (PS) blend mode for brush texture"
+msgid "Height (PS)"
+msgstr "Weiches Licht (PS)"
 
 #: plugins/paintops/libpaintop/kis_texture_chooser.cpp:73
 #, fuzzy, kde-format
-#| msgid "Soft Light (Photoshop)"
-msgctxt "Linear Height (Photoshop) blend mode for brush texture"
-msgid "Linear Height (Photoshop)"
-msgstr "Weiches Licht (Photoshop)"
+#| msgid "Soft Light (Standard)"
+msgctxt "Linear Height (PS) blend mode for brush texture"
+msgid "Linear Height (PS)"
+msgstr "Weiches Licht (PS)"
 
 #: plugins/paintops/libpaintop/kis_texture_chooser.cpp:82
 #, kde-format
@@ -66627,10 +66627,10 @@ msgstr ""
 #: plugins/python/photobash_images/photobash_images_docker.py:83
 #, fuzzy
 #| msgctxt "description of a file type"
-#| msgid "Photoshop Image (Large)"
+#| msgid "PSB Image (Large)"
 msgctxt "@title:window"
 msgid "Photobash Images"
-msgstr "Photoshop-Bild (groß)"
+msgstr "PS-Bild (groß)"
 
 #: plugins/python/photobash_images/photobash_images_docker.py:151
 #: plugins/python/photobash_images/photobash_images_docker.py:479
@@ -74901,14 +74901,14 @@ msgstr ""
 #~ msgstr "Faser extrahieren"
 
 #, fuzzy
-#~| msgid "Soft Light (Photoshop)"
-#~ msgid "Hard Mix (Photoshop)"
-#~ msgstr "Weiches Licht (Photoshop)"
+#~| msgid "Soft Light (Standard)"
+#~ msgid "Hard Mix (Standard)"
+#~ msgstr "Weiches Licht (PS)"
 
 #, fuzzy
-#~| msgid "Soft Light (Photoshop)"
-#~ msgid "Hard Mix Softer (Photoshop)"
-#~ msgstr "Weiches Licht (Photoshop)"
+#~| msgid "Soft Light (Standard)"
+#~ msgid "Hard Mix Softer (Standard)"
+#~ msgstr "Weiches Licht (PS)"
 
 #~ msgid "Parallel"
 #~ msgstr "Parallel"
@@ -74940,15 +74940,15 @@ msgstr ""
 #~ msgstr "Weiches Licht (SVG)"
 
 #, fuzzy
-#~| msgid "Soft Light (Photoshop)"
+#~| msgid "Soft Light (Standard)"
 #~ msgid "Soft Light (Pegtop-Delphi)"
-#~ msgstr "Weiches Licht (Photoshop)"
+#~ msgstr "Weiches Licht (PS)"
 
 #~ msgid "Soft Light (SVG)"
 #~ msgstr "Weiches Licht (SVG)"
 
-#~ msgid "Soft Light (Photoshop)"
-#~ msgstr "Weiches Licht (Photoshop)"
+#~ msgid "Soft Light (Standard)"
+#~ msgstr "Weiches Licht (PS)"
 
 #~ msgid "Gamma Light"
 #~ msgstr "Gamma-Licht"
@@ -91001,7 +91001,7 @@ msgstr ""
 
 #, fuzzy
 #~ msgctxt "(qtundo-format) description of a file type"
-#~ msgid "Photoshop Layer Style Library"
+#~ msgid "Layer Style Library (ASL)"
 #~ msgstr "Ebenenstil-Bibliothek (*.asl)"
 
 #, fuzzy
@@ -91406,8 +91406,8 @@ msgstr ""
 #~ msgstr "Weiches Licht (SVG)"
 
 #~ msgctxt "(qtundo-format)"
-#~ msgid "Soft Light (Photoshop)"
-#~ msgstr "Weiches Licht (Photoshop)"
+#~ msgid "Soft Light (Standard)"
+#~ msgstr "Weiches Licht (PS)"
 
 #~ msgctxt "(qtundo-format)"
 #~ msgid "Gamma Light"
@@ -98467,8 +98467,8 @@ msgstr ""
 #~ "Unable to save to the CSV format.\n"
 #~ "The CSV format not supports layer groups or masked layers."
 #~ msgstr ""
-#~ "Das Bild kann nicht im Photoshop-Format gesichert werden.\n"
-#~ "Das Photoshop-Format unterstützt nur Bilder, die kleiner als 30000x3000 "
+#~ "Das Bild kann nicht im PS-Format gesichert werden.\n"
+#~ "Das PS-Format unterstützt nur Bilder, die kleiner als 30000x3000 "
 #~ "Pixel sind."
 
 #, fuzzy
@@ -98477,8 +98477,8 @@ msgstr ""
 #~ "Unable to save to the CSV format.\n"
 #~ "The CSV format not supports layer groups or masked layers."
 #~ msgstr ""
-#~ "Das Bild kann nicht im Photoshop-Format gesichert werden.\n"
-#~ "Das Photoshop-Format unterstützt nur Bilder, die kleiner als 30000x3000 "
+#~ "Das Bild kann nicht im PS-Format gesichert werden.\n"
+#~ "Das PS-Format unterstützt nur Bilder, die kleiner als 30000x3000 "
 #~ "Pixel sind."
 
 #~ msgctxt "(qtundo-format) @title:window"
@@ -98702,49 +98702,49 @@ msgstr ""
 #~ msgstr "PPM-Exporteinstellungen"
 
 #~ msgctxt "(qtundo-format) @title:window"
-#~ msgid "Photoshop Export Error"
-#~ msgstr "PhotoShop-Exportfehler"
+#~ msgid "PS Export Error"
+#~ msgstr "PS-Exportfehler"
 
 #~ msgctxt "@title:window"
-#~ msgid "Photoshop Export Error"
-#~ msgstr "PhotoShop-Exportfehler"
+#~ msgid "PS Export Error"
+#~ msgstr "PS-Exportfehler"
 
 #~ msgid ""
-#~ "Unable to save to the Photoshop format.\n"
-#~ "The Photoshop format only supports images that are smaller than "
+#~ "Unable to save to the PS format.\n"
+#~ "The PS format only supports images that are smaller than "
 #~ "30000x3000 pixels."
 #~ msgstr ""
-#~ "Das Bild kann nicht im Photoshop-Format gesichert werden.\n"
-#~ "Das Photoshop-Format unterstützt nur Bilder, die kleiner als 30000x3000 "
+#~ "Das Bild kann nicht im PS-Format gesichert werden.\n"
+#~ "Das PS-Format unterstützt nur Bilder, die kleiner als 30000x3000 "
 #~ "Pixel sind."
 
 #~ msgctxt "(qtundo-format)"
 #~ msgid ""
-#~ "Unable to save to the Photoshop format.\n"
-#~ "The Photoshop format only supports images that are smaller than "
+#~ "Unable to save to the PS format.\n"
+#~ "The PS format only supports images that are smaller than "
 #~ "30000x3000 pixels."
 #~ msgstr ""
-#~ "Das Bild kann nicht im Photoshop-Format gesichert werden.\n"
-#~ "Das Photoshop-Format unterstützt nur Bilder, die kleiner als 30000x3000 "
+#~ "Das Bild kann nicht im PS-Format gesichert werden.\n"
+#~ "Das PS-Format unterstützt nur Bilder, die kleiner als 30000x3000 "
 #~ "Pixel sind."
 
 #~ msgid ""
-#~ "Unable to save to the Photoshop format.\n"
-#~ "The Photoshop format only supports images where all layers have the same "
+#~ "Unable to save to the PS format.\n"
+#~ "The PS format only supports images where all layers have the same "
 #~ "colorspace as the image."
 #~ msgstr ""
-#~ "Das Bild kann nicht im Photoshop-Format gespeichert werden.\n"
-#~ "Das Photoshop-Format unterstützt nur Bilder, in denen alle Ebenen den "
+#~ "Das Bild kann nicht im PS-Format gespeichert werden.\n"
+#~ "Das PS-Format unterstützt nur Bilder, in denen alle Ebenen den "
 #~ "gleichen Farbraum wie das Bild haben."
 
 #~ msgctxt "(qtundo-format)"
 #~ msgid ""
-#~ "Unable to save to the Photoshop format.\n"
-#~ "The Photoshop format only supports images where all layers have the same "
+#~ "Unable to save to the PS format.\n"
+#~ "The PS format only supports images where all layers have the same "
 #~ "colorspace as the image."
 #~ msgstr ""
-#~ "Das Bild kann nicht im Photoshop-Format gespeichert werden.\n"
-#~ "Das Photoshop-Format unterstützt nur Bilder, in denen alle Ebenen den "
+#~ "Das Bild kann nicht im PS-Format gespeichert werden.\n"
+#~ "Das PS-Format unterstützt nur Bilder, in denen alle Ebenen den "
 #~ "gleichen Farbraum wie das Bild haben."
 
 #~ msgctxt ""
@@ -105056,8 +105056,8 @@ msgstr ""
 #~ msgid "KDE (new)"
 #~ msgstr "KDE (neu)"
 
-#~ msgid "photoshop-swatches-sketchlings-swatches.aco"
-#~ msgstr "photoshop-swatches-sketchlings-swatches.aco"
+#~ msgid "swatches-sketchlings-swatches.aco"
+#~ msgstr "swatches-sketchlings-swatches.aco"
 
 #~ msgid "Skin.gpl.txt"
 #~ msgstr "Skin.gpl.txt"

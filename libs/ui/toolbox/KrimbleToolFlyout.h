@@ -41,6 +41,7 @@ public:
             // Krimble 2026-11-15 (707th): a row is never left without a name: the tool's own name, then its id
             if (name.trimmed().isEmpty() && member->krimbleToolAction()) name = member->krimbleToolAction()->toolTip();
             if (name.trimmed().isEmpty()) name = member->objectName().section(QLatin1Char('/'), -1);
+            name.replace(QRegularExpression(QStringLiteral("\\s*\\(\\s*\\)\\s*$")), QString());   // Krimble 2026-11-16 (722nd): George's screenshot: "Rectangle ()", "Ellipse ()", "Line ()": the empty brackets of a tool with no shortcut
             name.replace(QRegularExpression(QStringLiteral("\\sTool\\s*$")), QString());
             QToolButton *row = new QToolButton(this);
             row->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);

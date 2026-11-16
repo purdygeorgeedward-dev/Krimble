@@ -398,7 +398,7 @@ const uint16_t FNumber = 0x829d;
  */
 const uint16_t IPTCNAA = 0x83bb;
 /**
- * Contains information embedded by the Adobe Photoshop application
+ * Contains information embedded by the PS application
  */
 const uint16_t ImageResources = 0x8649;
 /**

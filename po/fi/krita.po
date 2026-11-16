@@ -23856,8 +23856,8 @@ msgstr "OpenRaster-kuva"
 #: libs/koplugin/KisMimeDatabase.cpp:229
 #, kde-format
 msgctxt "description of a file type"
-msgid "Photoshop Layer Style Library"
-msgstr "Photoshop tasotyyli kirjasto"
+msgid "Layer Style Library (ASL)"
+msgstr "PS tasotyyli kirjasto"
 
 #: libs/koplugin/KisMimeDatabase.cpp:234
 #, kde-format
@@ -23952,10 +23952,10 @@ msgstr "OpenEXR-viennin asetukset"
 
 #: libs/koplugin/KisMimeDatabase.cpp:309
 #, fuzzy, kde-format
-#| msgid "Photoshop Brushes (*.abr)"
+#| msgid "PS Brushes (*.abr)"
 msgctxt "description of a file type"
-msgid "Photoshop Image (Large)"
-msgstr "Photoshop-siveltimet (*.abr)"
+msgid "PSB Image (Large)"
+msgstr "PS-siveltimet (*.abr)"
 
 #: libs/koplugin/KisMimeDatabase.cpp:314
 #, kde-format
@@ -24710,17 +24710,17 @@ msgstr "Pehmeä valo (SVG)"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:82
 #, fuzzy, kde-format
-#| msgid "Soft Light (Photoshop)"
+#| msgid "Soft Light (Standard)"
 msgctxt "Blending mode - Soft Light (Pegtop-Delphi)"
 msgid "Soft Light (Pegtop-Delphi)"
-msgstr "Pehmeä valo (Photoshop)"
+msgstr "Pehmeä valo (PS)"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:83
 #, fuzzy, kde-format
-#| msgid "Soft Light (Photoshop)"
-msgctxt "Blending mode - Soft Light (Photoshop)"
-msgid "Soft Light (Photoshop)"
-msgstr "Pehmeä valo (Photoshop)"
+#| msgid "Soft Light (Standard)"
+msgctxt "Blending mode - Soft Light (Standard)"
+msgid "Soft Light (Standard)"
+msgstr "Pehmeä valo (PS)"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:84
 #, fuzzy, kde-format
@@ -24950,17 +24950,17 @@ msgstr "Kova sekoitus"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:121
 #, fuzzy, kde-format
-#| msgid "Soft Light (Photoshop)"
-msgctxt "Blending mode - Hard Mix (Photoshop)"
-msgid "Hard Mix (Photoshop)"
-msgstr "Pehmeä valo (Photoshop)"
+#| msgid "Soft Light (Standard)"
+msgctxt "Blending mode - Hard Mix (Standard)"
+msgid "Hard Mix (Standard)"
+msgstr "Pehmeä valo (PS)"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:122
 #, fuzzy, kde-format
-#| msgid "Soft Light (Photoshop)"
-msgctxt "Blending mode - Hard Mix Softer (Photoshop)"
-msgid "Hard Mix Softer (Photoshop)"
-msgstr "Pehmeä valo (Photoshop)"
+#| msgid "Soft Light (Standard)"
+msgctxt "Blending mode - Hard Mix Softer (Standard)"
+msgid "Hard Mix Softer (Standard)"
+msgstr "Pehmeä valo (PS)"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:123
 #, fuzzy, kde-format
@@ -61409,7 +61409,7 @@ msgstr ""
 #. i18n: ectx: property (title), widget (QGroupBox, chkPhotoshop)
 #: plugins/impex/tiff/kis_wdg_options_tiff.ui:79
 #, kde-format
-msgid "Save layers as Photoshop"
+msgid "Save layers as PS"
 msgstr "Tallenna tasot Photoshopiksi"
 
 #. i18n: ectx: property (text), widget (QLabel, label_4)
@@ -63743,15 +63743,15 @@ msgstr "Lineaarinen korkeus"
 
 #: plugins/paintops/libpaintop/kis_texture_chooser.cpp:72
 #, kde-format
-msgctxt "Height (Photoshop) blend mode for brush texture"
-msgid "Height (Photoshop)"
-msgstr "Korkeus (Photoshop)"
+msgctxt "Height (PS) blend mode for brush texture"
+msgid "Height (PS)"
+msgstr "Korkeus (PS)"
 
 #: plugins/paintops/libpaintop/kis_texture_chooser.cpp:73
 #, kde-format
-msgctxt "Linear Height (Photoshop) blend mode for brush texture"
-msgid "Linear Height (Photoshop)"
-msgstr "Lineaarinen korkeus (Photoshop)"
+msgctxt "Linear Height (PS) blend mode for brush texture"
+msgid "Linear Height (PS)"
+msgstr "Lineaarinen korkeus (PS)"
 
 #: plugins/paintops/libpaintop/kis_texture_chooser.cpp:82
 #, fuzzy, kde-format
@@ -75391,14 +75391,14 @@ msgstr ""
 #~ msgstr "Tallenna…"
 
 #, fuzzy
-#~| msgid "Soft Light (Photoshop)"
-#~ msgid "Hard Mix (Photoshop)"
-#~ msgstr "Pehmeä valo (Photoshop)"
+#~| msgid "Soft Light (Standard)"
+#~ msgid "Hard Mix (Standard)"
+#~ msgstr "Pehmeä valo (PS)"
 
 #, fuzzy
-#~| msgid "Soft Light (Photoshop)"
-#~ msgid "Hard Mix Softer (Photoshop)"
-#~ msgstr "Pehmeä valo (Photoshop)"
+#~| msgid "Soft Light (Standard)"
+#~ msgid "Hard Mix Softer (Standard)"
+#~ msgstr "Pehmeä valo (PS)"
 
 #~ msgid "Parallel"
 #~ msgstr "Rinnakkainen"
@@ -75431,15 +75431,15 @@ msgstr ""
 #~ msgstr "Pehmeä valo (SVG)"
 
 #, fuzzy
-#~| msgid "Soft Light (Photoshop)"
+#~| msgid "Soft Light (Standard)"
 #~ msgid "Soft Light (Pegtop-Delphi)"
-#~ msgstr "Pehmeä valo (Photoshop)"
+#~ msgstr "Pehmeä valo (PS)"
 
 #~ msgid "Soft Light (SVG)"
 #~ msgstr "Pehmeä valo (SVG)"
 
-#~ msgid "Soft Light (Photoshop)"
-#~ msgstr "Pehmeä valo (Photoshop)"
+#~ msgid "Soft Light (Standard)"
+#~ msgstr "Pehmeä valo (PS)"
 
 #~ msgid "Gamma Light"
 #~ msgstr "Gammavaalea"
@@ -95093,7 +95093,7 @@ msgstr ""
 
 #, fuzzy
 #~ msgctxt "(qtundo-format) description of a file type"
-#~ msgid "Photoshop Layer Style Library"
+#~ msgid "Layer Style Library (ASL)"
 #~ msgstr "Ei asetettavaa valintaa."
 
 #, fuzzy
@@ -95677,10 +95677,10 @@ msgstr ""
 #~ msgstr "Pehmeä valo (SVG)"
 
 #, fuzzy
-#~| msgid "Soft Light (Photoshop)"
+#~| msgid "Soft Light (Standard)"
 #~ msgctxt "(qtundo-format)"
-#~ msgid "Soft Light (Photoshop)"
-#~ msgstr "Pehmeä valo (Photoshop)"
+#~ msgid "Soft Light (Standard)"
+#~ msgstr "Pehmeä valo (PS)"
 
 #, fuzzy
 #~| msgid "Gamma Light"
@@ -105519,7 +105519,7 @@ msgstr ""
 
 #, fuzzy
 #~ msgctxt "(qtundo-format) @title:window"
-#~ msgid "Photoshop Export Error"
+#~ msgid "PS Export Error"
 #~ msgstr "Vakava virhe"
 
 #, fuzzy

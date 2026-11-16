@@ -3531,9 +3531,9 @@
       <isCheckable>false</isCheckable>
       <statusTip/>
     </Action>
-    <!-- Krimble: Photoshop-parity "Merge Visible" (Layer > Select Visible + Merge Down,
+    <!-- Krimble: the industry standard-parity "Merge Visible" (Layer > Select Visible + Merge Down,
          per the Krita manual). Ctrl+Shift+E moved here from flatten_image to match
-         Photoshop's default shortcut assignment (Photoshop has no default shortcut
+         the industry standard's default shortcut assignment (the industry standard has no default shortcut
          for Flatten Image). -->
     <Action name="merge_visible_layers">
       <icon/>

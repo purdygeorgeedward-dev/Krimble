@@ -23,7 +23,7 @@ Status: DONE = pushed (in the build after 1.0.41); OPEN = not done yet; ASK = a 
 19. Image Properties is too wide and has no corner sizing handle. **IN PROGRESS** (250th: every KoDialog window now has its main part in a scroll area; George's Oct 23 screenshots of Image Size, Image Properties, Split Image and File Info) **CLAIMED by the KRIMBLE-MAIN chat (2026-10-23)**
 20. Upscale and Batch look good, need more testing.
 21. Layers menu looks good.
-22. Quick Mask Edit: like what Photoshop has at the bottom of the toolbox; not sure how to implement. **OPEN / design**
+22. Quick Mask Edit: like what the industry standard has at the bottom of the toolbox; not sure how to implement. **OPEN / design**
 23. Select menu looks good.
 24. Filter menu looks good (too much to analyze right now).
 25. The Text window is way too wide; it needs a complete redesign. **OPEN** **CLAIMED by the KRIMBLE-MAIN chat (2026-10-23, in progress; other chats: skip)**

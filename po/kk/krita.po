@@ -23120,7 +23120,7 @@ msgstr "Кескіндер"
 #: libs/koplugin/KisMimeDatabase.cpp:229
 #, fuzzy, kde-format
 msgctxt "description of a file type"
-msgid "Photoshop Layer Style Library"
+msgid "Layer Style Library (ASL)"
 msgstr "OpenColorIO баптау файлының жолы:"
 
 #: libs/koplugin/KisMimeDatabase.cpp:234
@@ -23220,7 +23220,7 @@ msgstr "OpenEXR экспорттау параметрлері"
 #: libs/koplugin/KisMimeDatabase.cpp:309
 #, fuzzy, kde-format
 msgctxt "description of a file type"
-msgid "Photoshop Image (Large)"
+msgid "PSB Image (Large)"
 msgstr "OpenColorIO баптау файлының жолы:"
 
 #: libs/koplugin/KisMimeDatabase.cpp:314
@@ -23999,17 +23999,17 @@ msgstr "Сәл ашық қылу (SVG)"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:82
 #, fuzzy, kde-format
-#| msgid "Soft Light (Photoshop)"
+#| msgid "Soft Light (Standard)"
 msgctxt "Blending mode - Soft Light (Pegtop-Delphi)"
 msgid "Soft Light (Pegtop-Delphi)"
-msgstr "Сәл ашық қылу (Photoshop)"
+msgstr "Сәл ашық қылу (PS)"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:83
 #, fuzzy, kde-format
-#| msgid "Soft Light (Photoshop)"
-msgctxt "Blending mode - Soft Light (Photoshop)"
-msgid "Soft Light (Photoshop)"
-msgstr "Сәл ашық қылу (Photoshop)"
+#| msgid "Soft Light (Standard)"
+msgctxt "Blending mode - Soft Light (Standard)"
+msgid "Soft Light (Standard)"
+msgstr "Сәл ашық қылу (PS)"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:84
 #, fuzzy, kde-format
@@ -24235,17 +24235,17 @@ msgstr "Қатты араластыру"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:121
 #, fuzzy, kde-format
-#| msgid "Soft Light (Photoshop)"
-msgctxt "Blending mode - Hard Mix (Photoshop)"
-msgid "Hard Mix (Photoshop)"
-msgstr "Сәл ашық қылу (Photoshop)"
+#| msgid "Soft Light (Standard)"
+msgctxt "Blending mode - Hard Mix (Standard)"
+msgid "Hard Mix (Standard)"
+msgstr "Сәл ашық қылу (PS)"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:122
 #, fuzzy, kde-format
-#| msgid "Soft Light (Photoshop)"
-msgctxt "Blending mode - Hard Mix Softer (Photoshop)"
-msgid "Hard Mix Softer (Photoshop)"
-msgstr "Сәл ашық қылу (Photoshop)"
+#| msgid "Soft Light (Standard)"
+msgctxt "Blending mode - Hard Mix Softer (Standard)"
+msgid "Hard Mix Softer (Standard)"
+msgstr "Сәл ашық қылу (PS)"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:123
 #, fuzzy, kde-format
@@ -59719,7 +59719,7 @@ msgstr ""
 #. i18n: ectx: property (title), widget (QGroupBox, chkPhotoshop)
 #: plugins/impex/tiff/kis_wdg_options_tiff.ui:79
 #, fuzzy, kde-format
-msgid "Save layers as Photoshop"
+msgid "Save layers as PS"
 msgstr "Қабат/Қалқасын сақтау..."
 
 #. i18n: ectx: property (text), widget (QLabel, label_4)
@@ -62154,17 +62154,17 @@ msgstr "Басатын биіктігі:"
 
 #: plugins/paintops/libpaintop/kis_texture_chooser.cpp:72
 #, fuzzy, kde-format
-#| msgid "Soft Light (Photoshop)"
-msgctxt "Height (Photoshop) blend mode for brush texture"
-msgid "Height (Photoshop)"
-msgstr "Сәл ашық қылу (Photoshop)"
+#| msgid "Soft Light (Standard)"
+msgctxt "Height (PS) blend mode for brush texture"
+msgid "Height (PS)"
+msgstr "Сәл ашық қылу (PS)"
 
 #: plugins/paintops/libpaintop/kis_texture_chooser.cpp:73
 #, fuzzy, kde-format
-#| msgid "Soft Light (Photoshop)"
-msgctxt "Linear Height (Photoshop) blend mode for brush texture"
-msgid "Linear Height (Photoshop)"
-msgstr "Сәл ашық қылу (Photoshop)"
+#| msgid "Soft Light (Standard)"
+msgctxt "Linear Height (PS) blend mode for brush texture"
+msgid "Linear Height (PS)"
+msgstr "Сәл ашық қылу (PS)"
 
 #: plugins/paintops/libpaintop/kis_texture_chooser.cpp:82
 #, kde-format
@@ -74241,14 +74241,14 @@ msgstr ""
 #~ msgstr "Дақтарын шығару"
 
 #, fuzzy
-#~| msgid "Soft Light (Photoshop)"
-#~ msgid "Hard Mix (Photoshop)"
-#~ msgstr "Сәл ашық қылу (Photoshop)"
+#~| msgid "Soft Light (Standard)"
+#~ msgid "Hard Mix (Standard)"
+#~ msgstr "Сәл ашық қылу (PS)"
 
 #, fuzzy
-#~| msgid "Soft Light (Photoshop)"
-#~ msgid "Hard Mix Softer (Photoshop)"
-#~ msgstr "Сәл ашық қылу (Photoshop)"
+#~| msgid "Soft Light (Standard)"
+#~ msgid "Hard Mix Softer (Standard)"
+#~ msgstr "Сәл ашық қылу (PS)"
 
 #~ msgid "Parallel"
 #~ msgstr "Параллель"
@@ -74283,15 +74283,15 @@ msgstr ""
 #~ msgstr "Сәл ашық қылу (SVG)"
 
 #, fuzzy
-#~| msgid "Soft Light (Photoshop)"
+#~| msgid "Soft Light (Standard)"
 #~ msgid "Soft Light (Pegtop-Delphi)"
-#~ msgstr "Сәл ашық қылу (Photoshop)"
+#~ msgstr "Сәл ашық қылу (PS)"
 
 #~ msgid "Soft Light (SVG)"
 #~ msgstr "Сәл ашық қылу (SVG)"
 
-#~ msgid "Soft Light (Photoshop)"
-#~ msgstr "Сәл ашық қылу (Photoshop)"
+#~ msgid "Soft Light (Standard)"
+#~ msgstr "Сәл ашық қылу (PS)"
 
 #~ msgid "Gamma Light"
 #~ msgstr "Гамма-ашықтау"
@@ -92873,7 +92873,7 @@ msgstr ""
 
 #, fuzzy
 #~ msgctxt "(qtundo-format) description of a file type"
-#~ msgid "Photoshop Layer Style Library"
+#~ msgid "Layer Style Library (ASL)"
 #~ msgstr "OpenColorIO баптау файлының жолы:"
 
 #, fuzzy
@@ -93466,10 +93466,10 @@ msgstr ""
 #~ msgstr "Сәл ашық қылу (SVG)"
 
 #, fuzzy
-#~| msgid "Soft Light (Photoshop)"
+#~| msgid "Soft Light (Standard)"
 #~ msgctxt "(qtundo-format)"
-#~ msgid "Soft Light (Photoshop)"
-#~ msgstr "Сәл ашық қылу (Photoshop)"
+#~ msgid "Soft Light (Standard)"
+#~ msgstr "Сәл ашық қылу (PS)"
 
 #, fuzzy
 #~| msgid "Gamma Light"
@@ -101568,8 +101568,8 @@ msgstr ""
 #~ "Unable to save to the CSV format.\n"
 #~ "The CSV format not supports layer groups or masked layers."
 #~ msgstr ""
-#~ "Photoshop пішімінде сақталмады.\n"
-#~ "Photoshop пішімі тек өлшемі 30000x3000-дан ғана кем кескіндерді сақтайды."
+#~ "PS пішімінде сақталмады.\n"
+#~ "PS пішімі тек өлшемі 30000x3000-дан ғана кем кескіндерді сақтайды."
 
 #, fuzzy
 #~ msgctxt "(qtundo-format)"
@@ -101577,8 +101577,8 @@ msgstr ""
 #~ "Unable to save to the CSV format.\n"
 #~ "The CSV format not supports layer groups or masked layers."
 #~ msgstr ""
-#~ "Photoshop пішімінде сақталмады.\n"
-#~ "Photoshop пішімі тек өлшемі 30000x3000-дан ғана кем кескіндерді сақтайды."
+#~ "PS пішімінде сақталмады.\n"
+#~ "PS пішімі тек өлшемі 30000x3000-дан ғана кем кескіндерді сақтайды."
 
 #~ msgid "OpenEXR Export Options"
 #~ msgstr "OpenEXR экспорттау параметрлері"
@@ -101740,49 +101740,49 @@ msgstr ""
 
 #, fuzzy
 #~ msgctxt "(qtundo-format) @title:window"
-#~ msgid "Photoshop Export Error"
+#~ msgid "PS Export Error"
 #~ msgstr "Тік жиегі:"
 
 #~ msgid ""
-#~ "Unable to save to the Photoshop format.\n"
-#~ "The Photoshop format only supports images that are smaller than "
+#~ "Unable to save to the PS format.\n"
+#~ "The PS format only supports images that are smaller than "
 #~ "30000x3000 pixels."
 #~ msgstr ""
-#~ "Photoshop пішімінде сақталмады.\n"
-#~ "Photoshop пішімі тек өлшемі 30000x3000-дан ғана кем кескіндерді сақтайды."
+#~ "PS пішімінде сақталмады.\n"
+#~ "PS пішімі тек өлшемі 30000x3000-дан ғана кем кескіндерді сақтайды."
 
 #, fuzzy
 #~| msgid ""
-#~| "Unable to save to the Photoshop format.\n"
-#~| "The Photoshop format only supports images that are smaller than "
+#~| "Unable to save to the PS format.\n"
+#~| "The PS format only supports images that are smaller than "
 #~| "30000x3000 pixels."
 #~ msgctxt "(qtundo-format)"
 #~ msgid ""
-#~ "Unable to save to the Photoshop format.\n"
-#~ "The Photoshop format only supports images that are smaller than "
+#~ "Unable to save to the PS format.\n"
+#~ "The PS format only supports images that are smaller than "
 #~ "30000x3000 pixels."
 #~ msgstr ""
-#~ "Photoshop пішімінде сақталмады.\n"
-#~ "Photoshop пішімі тек өлшемі 30000x3000-дан ғана кем кескіндерді сақтайды."
+#~ "PS пішімінде сақталмады.\n"
+#~ "PS пішімі тек өлшемі 30000x3000-дан ғана кем кескіндерді сақтайды."
 
 #, fuzzy
 #~ msgid ""
-#~ "Unable to save to the Photoshop format.\n"
-#~ "The Photoshop format only supports images where all layers have the same "
+#~ "Unable to save to the PS format.\n"
+#~ "The PS format only supports images where all layers have the same "
 #~ "colorspace as the image."
 #~ msgstr ""
-#~ "Photoshop пішімінде сақталмады.\n"
-#~ "Photoshop пішімі тек өлшемі 30000x3000-дан ғана кем кескіндерді сақтайды."
+#~ "PS пішімінде сақталмады.\n"
+#~ "PS пішімі тек өлшемі 30000x3000-дан ғана кем кескіндерді сақтайды."
 
 #, fuzzy
 #~ msgctxt "(qtundo-format)"
 #~ msgid ""
-#~ "Unable to save to the Photoshop format.\n"
-#~ "The Photoshop format only supports images where all layers have the same "
+#~ "Unable to save to the PS format.\n"
+#~ "The PS format only supports images where all layers have the same "
 #~ "colorspace as the image."
 #~ msgstr ""
-#~ "Photoshop пішімінде сақталмады.\n"
-#~ "Photoshop пішімі тек өлшемі 30000x3000-дан ғана кем кескіндерді сақтайды."
+#~ "PS пішімінде сақталмады.\n"
+#~ "PS пішімі тек өлшемі 30000x3000-дан ғана кем кескіндерді сақтайды."
 
 #, fuzzy
 #~| msgid "Background"
@@ -107329,8 +107329,8 @@ msgstr ""
 #~ msgid "KDE (new)"
 #~ msgstr "KDE (жаңа)"
 
-#~ msgid "photoshop-swatches-sketchlings-swatches.aco"
-#~ msgstr "photoshop-swatches-sketchlings-swatches.aco"
+#~ msgid "swatches-sketchlings-swatches.aco"
+#~ msgstr "swatches-sketchlings-swatches.aco"
 
 #~ msgid "Skin.gpl.txt"
 #~ msgstr "Skin.gpl.txt"

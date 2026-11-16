@@ -22434,8 +22434,8 @@ msgstr "OpenRaster obrázok"
 #: libs/koplugin/KisMimeDatabase.cpp:229
 #, kde-format
 msgctxt "description of a file type"
-msgid "Photoshop Layer Style Library"
-msgstr "Knižnica štýlu vrstvy Photoshop"
+msgid "Layer Style Library (ASL)"
+msgstr "Knižnica štýlu vrstvy PS"
 
 #: libs/koplugin/KisMimeDatabase.cpp:234
 #, kde-format
@@ -22530,8 +22530,8 @@ msgstr "OpenEXR  (Rozšírené)"
 #: libs/koplugin/KisMimeDatabase.cpp:309
 #, kde-format
 msgctxt "description of a file type"
-msgid "Photoshop Image (Large)"
-msgstr "Obrázok Photoshop (Veľký)"
+msgid "PSB Image (Large)"
+msgstr "Obrázok PS (Veľký)"
 
 #: libs/koplugin/KisMimeDatabase.cpp:314
 #, kde-format
@@ -23254,9 +23254,9 @@ msgstr "Mäkké svetlo (Pegtop-Delphi)"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:83
 #, kde-format
-msgctxt "Blending mode - Soft Light (Photoshop)"
-msgid "Soft Light (Photoshop)"
-msgstr "Mäkké svetlo (Photoshop)"
+msgctxt "Blending mode - Soft Light (Standard)"
+msgid "Soft Light (Standard)"
+msgstr "Mäkké svetlo (PS)"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:84
 #, kde-format
@@ -23458,15 +23458,15 @@ msgstr "Tvrdé miešanie HDR."
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:121
 #, kde-format
-msgctxt "Blending mode - Hard Mix (Photoshop)"
-msgid "Hard Mix (Photoshop)"
-msgstr "Tvrdé miešanie (Photoshop)"
+msgctxt "Blending mode - Hard Mix (Standard)"
+msgid "Hard Mix (Standard)"
+msgstr "Tvrdé miešanie (PS)"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:122
 #, kde-format
-msgctxt "Blending mode - Hard Mix Softer (Photoshop)"
-msgid "Hard Mix Softer (Photoshop)"
-msgstr "Tvrdé miešanie mäkšie (Photoshop)"
+msgctxt "Blending mode - Hard Mix Softer (Standard)"
+msgid "Hard Mix Softer (Standard)"
+msgstr "Tvrdé miešanie mäkšie (PS)"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:123
 #, kde-format
@@ -58761,8 +58761,8 @@ msgstr ""
 #. i18n: ectx: property (title), widget (QGroupBox, chkPhotoshop)
 #: plugins/impex/tiff/kis_wdg_options_tiff.ui:79
 #, kde-format
-msgid "Save layers as Photoshop"
-msgstr "Uložiť vrstvy ako Photoshop"
+msgid "Save layers as PS"
+msgstr "Uložiť vrstvy ako PS"
 
 #. i18n: ectx: property (text), widget (QLabel, label_4)
 #: plugins/impex/tiff/kis_wdg_options_tiff.ui:88
@@ -61166,15 +61166,15 @@ msgstr "Lineárna výška"
 
 #: plugins/paintops/libpaintop/kis_texture_chooser.cpp:72
 #, kde-format
-msgctxt "Height (Photoshop) blend mode for brush texture"
-msgid "Height (Photoshop)"
-msgstr "Výška (Photoshop)"
+msgctxt "Height (PS) blend mode for brush texture"
+msgid "Height (PS)"
+msgstr "Výška (PS)"
 
 #: plugins/paintops/libpaintop/kis_texture_chooser.cpp:73
 #, kde-format
-msgctxt "Linear Height (Photoshop) blend mode for brush texture"
-msgid "Linear Height (Photoshop)"
-msgstr "Lineárna výška (Photoshop)"
+msgctxt "Linear Height (PS) blend mode for brush texture"
+msgid "Linear Height (PS)"
+msgstr "Lineárna výška (PS)"
 
 #: plugins/paintops/libpaintop/kis_texture_chooser.cpp:82
 #, kde-format
@@ -72632,12 +72632,12 @@ msgstr ""
 #~ msgid "Grain Extract"
 #~ msgstr "Rozbalenie zŕn"
 
-#~ msgid "Hard Mix (Photoshop)"
-#~ msgstr "Tvrdé miešanie (Photoshop)"
+#~ msgid "Hard Mix (Standard)"
+#~ msgstr "Tvrdé miešanie (PS)"
 
 #, fuzzy
-#~ msgid "Hard Mix Softer (Photoshop)"
-#~ msgstr "Tvrdé miešanie (Photoshop)"
+#~ msgid "Hard Mix Softer (Standard)"
+#~ msgstr "Tvrdé miešanie (PS)"
 
 #~ msgid "Parallel"
 #~ msgstr "Rovnobežka"
@@ -72684,8 +72684,8 @@ msgstr ""
 #~ msgid "Soft Light (SVG)"
 #~ msgstr "Mäkké svetlo (SVG)"
 
-#~ msgid "Soft Light (Photoshop)"
-#~ msgstr "Mäkké svetlo (Photoshop)"
+#~ msgid "Soft Light (Standard)"
+#~ msgstr "Mäkké svetlo (PS)"
 
 #~ msgid "Gamma Light"
 #~ msgstr "Gama svetlo"
@@ -88760,7 +88760,7 @@ msgstr ""
 
 #, fuzzy
 #~ msgctxt "(qtundo-format) description of a file type"
-#~ msgid "Photoshop Layer Style Library"
+#~ msgid "Layer Style Library (ASL)"
 #~ msgstr "Knižnica štýlu vrstvy (*.asl)"
 
 #, fuzzy
@@ -89184,8 +89184,8 @@ msgstr ""
 #~ msgstr "Mäkké svetlo (SVG)"
 
 #~ msgctxt "(qtundo-format)"
-#~ msgid "Soft Light (Photoshop)"
-#~ msgstr "Mäkké svetlo (Photoshop)"
+#~ msgid "Soft Light (Standard)"
+#~ msgstr "Mäkké svetlo (PS)"
 
 #~ msgctxt "(qtundo-format)"
 #~ msgid "Gamma Light"
@@ -96795,8 +96795,8 @@ msgstr ""
 #~ "Unable to save to the CSV format.\n"
 #~ "The CSV format not supports layer groups or masked layers."
 #~ msgstr ""
-#~ "Nemôžem uložiť do formátu Photoshop.\n"
-#~ "Formát Photoshop podporuje iba obrázky menšie ako 30000x3000 bodov."
+#~ "Nemôžem uložiť do formátu PS.\n"
+#~ "Formát PS podporuje iba obrázky menšie ako 30000x3000 bodov."
 
 #, fuzzy
 #~ msgctxt "(qtundo-format)"
@@ -96804,8 +96804,8 @@ msgstr ""
 #~ "Unable to save to the CSV format.\n"
 #~ "The CSV format not supports layer groups or masked layers."
 #~ msgstr ""
-#~ "Nemôžem uložiť do formátu Photoshop.\n"
-#~ "Formát Photoshop podporuje iba obrázky menšie ako 30000x3000 bodov."
+#~ "Nemôžem uložiť do formátu PS.\n"
+#~ "Formát PS podporuje iba obrázky menšie ako 30000x3000 bodov."
 
 #~ msgctxt "(qtundo-format) @info"
 #~ msgid ""
@@ -97087,47 +97087,47 @@ msgstr ""
 #~ msgstr "Možnosti exportu do PPM"
 
 #~ msgctxt "(qtundo-format) @title:window"
-#~ msgid "Photoshop Export Error"
+#~ msgid "PS Export Error"
 #~ msgstr "Chyba exportu do Photoshopu"
 
 #~ msgctxt "@title:window"
-#~ msgid "Photoshop Export Error"
+#~ msgid "PS Export Error"
 #~ msgstr "Chyba exportu do Photoshopu"
 
 #~ msgid ""
-#~ "Unable to save to the Photoshop format.\n"
-#~ "The Photoshop format only supports images that are smaller than "
+#~ "Unable to save to the PS format.\n"
+#~ "The PS format only supports images that are smaller than "
 #~ "30000x3000 pixels."
 #~ msgstr ""
-#~ "Nemôžem uložiť do formátu Photoshop.\n"
-#~ "Formát Photoshop podporuje iba obrázky menšie ako 30000x3000 bodov."
+#~ "Nemôžem uložiť do formátu PS.\n"
+#~ "Formát PS podporuje iba obrázky menšie ako 30000x3000 bodov."
 
 #~ msgctxt "(qtundo-format)"
 #~ msgid ""
-#~ "Unable to save to the Photoshop format.\n"
-#~ "The Photoshop format only supports images that are smaller than "
+#~ "Unable to save to the PS format.\n"
+#~ "The PS format only supports images that are smaller than "
 #~ "30000x3000 pixels."
 #~ msgstr ""
-#~ "Nemôžem uložiť do formátu Photoshop.\n"
-#~ "Formát Photoshop podporuje iba obrázky menšie ako 30000x3000 bodov."
+#~ "Nemôžem uložiť do formátu PS.\n"
+#~ "Formát PS podporuje iba obrázky menšie ako 30000x3000 bodov."
 
 #~ msgid ""
-#~ "Unable to save to the Photoshop format.\n"
-#~ "The Photoshop format only supports images where all layers have the same "
+#~ "Unable to save to the PS format.\n"
+#~ "The PS format only supports images where all layers have the same "
 #~ "colorspace as the image."
 #~ msgstr ""
-#~ "Nemôžem uložiť do formátu Photoshop.\n"
-#~ "Formát Photoshop podporuje iba obrázky, kde všetky vrstvy majú rovnaký "
+#~ "Nemôžem uložiť do formátu PS.\n"
+#~ "Formát PS podporuje iba obrázky, kde všetky vrstvy majú rovnaký "
 #~ "farebný priestor ako obrázok."
 
 #~ msgctxt "(qtundo-format)"
 #~ msgid ""
-#~ "Unable to save to the Photoshop format.\n"
-#~ "The Photoshop format only supports images where all layers have the same "
+#~ "Unable to save to the PS format.\n"
+#~ "The PS format only supports images where all layers have the same "
 #~ "colorspace as the image."
 #~ msgstr ""
-#~ "Nemôžem uložiť do formátu Photoshop.\n"
-#~ "Formát Photoshop podporuje iba obrázky, kde všetky vrstvy majú rovnaký "
+#~ "Nemôžem uložiť do formátu PS.\n"
+#~ "Formát PS podporuje iba obrázky, kde všetky vrstvy majú rovnaký "
 #~ "farebný priestor ako obrázok."
 
 #~ msgctxt ""

@@ -58,7 +58,7 @@ drifting out of sync. Key ones worth remembering without opening that
 file: no change without showing the exact diff and getting explicit
 approval; no batching multiple files under one approval; every fix needs
 both an inline code comment AND a KRIMBLE_CHANGES.md entry; never write
-"Photoshop" in README.md/KRIMBLE_CHANGES.md (use "industry standard");
+"the industry standard" in README.md/KRIMBLE_CHANGES.md (use "industry standard");
 mobile-first design priority, then industry-standard parity.
 
 ## Website / Forum

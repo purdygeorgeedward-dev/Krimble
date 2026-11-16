@@ -2,7 +2,7 @@ install(FILES
     clipstudiopaintcompatible.profile
     kritadefault.profile
     painttoolsaicompatible.profile
-    photoshopcompatible.profile
+    industrystandard.profile
     DESTINATION  ${KDE_INSTALL_DATADIR}/krita/input
 )
 if (WIN32)

@@ -330,7 +330,7 @@ ProphotoRGB
 White point, standard TRC, and color space specification:
 
     White point: D50 as given in the RIMM/ROMM specs.
-    Standard TRC: Gamma=1.80078125. The original specs called for a point curve that approximated the gamma=1.8 TRC, but had a linear portion in the shadows. A ProPhotoRGB profile with the original point curve TRC is available from ArgyllCMS. PhotoShop and probably all other image editing programs use ProPhotoRGB made with a simple gamma curve.
+    Standard TRC: Gamma=1.80078125. The original specs called for a point curve that approximated the gamma=1.8 TRC, but had a linear portion in the shadows. A ProPhotoRGB profile with the original point curve TRC is available from ArgyllCMS. PS and probably all other image editing programs use ProPhotoRGB made with a simple gamma curve.
     Color space specification: See Reference Input/Output Medium Metric RGB Color Encodings (RIMM/ROMM RGB), by Kevin E. Spaulding, Geoffrey J. Woolfe and Edward J. Giorgianni, Eastman Kodak Company, Rochester, New York, U.S.A. ("RIMM" refers to ProPhotoRGB with the linear gamma TRC. "ROMM" refers to ProPhotoRGB with the approximately gamma=1.8 TRC.)
 
 Description:

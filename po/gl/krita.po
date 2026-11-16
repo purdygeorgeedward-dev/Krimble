@@ -22662,8 +22662,8 @@ msgstr "Imaxe OpenRaster"
 #: libs/koplugin/KisMimeDatabase.cpp:229
 #, kde-format
 msgctxt "description of a file type"
-msgid "Photoshop Layer Style Library"
-msgstr "Biblioteca de estilos de capa de Photoshop"
+msgid "Layer Style Library (ASL)"
+msgstr "Biblioteca de estilos de capa de PS"
 
 #: libs/koplugin/KisMimeDatabase.cpp:234
 #, kde-format
@@ -22758,8 +22758,8 @@ msgstr "OpenEXR (estendido)"
 #: libs/koplugin/KisMimeDatabase.cpp:309
 #, kde-format
 msgctxt "description of a file type"
-msgid "Photoshop Image (Large)"
-msgstr "Imaxe de Photoshop (grande)"
+msgid "PSB Image (Large)"
+msgstr "Imaxe de PS (grande)"
 
 #: libs/koplugin/KisMimeDatabase.cpp:314
 #, kde-format
@@ -23484,9 +23484,9 @@ msgstr "Luz suave (Pegtop-Delphi)"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:83
 #, kde-format
-msgctxt "Blending mode - Soft Light (Photoshop)"
-msgid "Soft Light (Photoshop)"
-msgstr "Luz suave (Photoshop)"
+msgctxt "Blending mode - Soft Light (Standard)"
+msgid "Soft Light (Standard)"
+msgstr "Luz suave (PS)"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:84
 #, kde-format
@@ -23691,15 +23691,15 @@ msgstr "HDR de mestura en bruto"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:121
 #, kde-format
-msgctxt "Blending mode - Hard Mix (Photoshop)"
-msgid "Hard Mix (Photoshop)"
-msgstr "Mestura bruta (Photoshop)"
+msgctxt "Blending mode - Hard Mix (Standard)"
+msgid "Hard Mix (Standard)"
+msgstr "Mestura bruta (PS)"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:122
 #, kde-format
-msgctxt "Blending mode - Hard Mix Softer (Photoshop)"
-msgid "Hard Mix Softer (Photoshop)"
-msgstr "Mestura bruta (Photoshop)"
+msgctxt "Blending mode - Hard Mix Softer (Standard)"
+msgid "Hard Mix Softer (Standard)"
+msgstr "Mestura bruta (PS)"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:123
 #, kde-format
@@ -59303,8 +59303,8 @@ msgstr ""
 #. i18n: ectx: property (title), widget (QGroupBox, chkPhotoshop)
 #: plugins/impex/tiff/kis_wdg_options_tiff.ui:79
 #, kde-format
-msgid "Save layers as Photoshop"
-msgstr "Gardar as capas como Photoshop"
+msgid "Save layers as PS"
+msgstr "Gardar as capas como PS"
 
 #. i18n: ectx: property (text), widget (QLabel, label_4)
 #: plugins/impex/tiff/kis_wdg_options_tiff.ui:88
@@ -61730,15 +61730,15 @@ msgstr "Altura linear"
 
 #: plugins/paintops/libpaintop/kis_texture_chooser.cpp:72
 #, kde-format
-msgctxt "Height (Photoshop) blend mode for brush texture"
-msgid "Height (Photoshop)"
-msgstr "Altura (Photoshop)"
+msgctxt "Height (PS) blend mode for brush texture"
+msgid "Height (PS)"
+msgstr "Altura (PS)"
 
 #: plugins/paintops/libpaintop/kis_texture_chooser.cpp:73
 #, kde-format
-msgctxt "Linear Height (Photoshop) blend mode for brush texture"
-msgid "Linear Height (Photoshop)"
-msgstr "Altura linear (Photoshop)"
+msgctxt "Linear Height (PS) blend mode for brush texture"
+msgid "Linear Height (PS)"
+msgstr "Altura linear (PS)"
 
 #: plugins/paintops/libpaintop/kis_texture_chooser.cpp:82
 #, kde-format
@@ -73639,13 +73639,13 @@ msgstr ""
 #~ msgid "Grain Extract"
 #~ msgstr "Extraer o gran"
 
-#~ msgid "Hard Mix (Photoshop)"
-#~ msgstr "Mestura bruta (Photoshop)"
+#~ msgid "Hard Mix (Standard)"
+#~ msgstr "Mestura bruta (PS)"
 
 #, fuzzy
-#~| msgid "Hard Mix (Photoshop)"
-#~ msgid "Hard Mix Softer (Photoshop)"
-#~ msgstr "Mestura bruta (Photoshop)"
+#~| msgid "Hard Mix (Standard)"
+#~ msgid "Hard Mix Softer (Standard)"
+#~ msgstr "Mestura bruta (PS)"
 
 #~ msgid "Parallel"
 #~ msgstr "Paralelo"
@@ -73692,8 +73692,8 @@ msgstr ""
 #~ msgid "Soft Light (SVG)"
 #~ msgstr "Luz suave (SVG)"
 
-#~ msgid "Soft Light (Photoshop)"
-#~ msgstr "Luz suave (Photoshop)"
+#~ msgid "Soft Light (Standard)"
+#~ msgstr "Luz suave (PS)"
 
 #~ msgid "Gamma Light"
 #~ msgstr "Claridade gamma"
@@ -96064,10 +96064,10 @@ msgstr ""
 
 #, fuzzy
 #~| msgctxt "description of a file type"
-#~| msgid "Photoshop Layer Style Library"
+#~| msgid "Layer Style Library (ASL)"
 #~ msgctxt "(qtundo-format) description of a file type"
-#~ msgid "Photoshop Layer Style Library"
-#~ msgstr "Biblioteca de estilos de capa de Photoshop"
+#~ msgid "Layer Style Library (ASL)"
+#~ msgstr "Biblioteca de estilos de capa de PS"
 
 #, fuzzy
 #~| msgctxt "description of a file type"
@@ -96690,10 +96690,10 @@ msgstr ""
 #~ msgstr "Luz suave (SVG)"
 
 #, fuzzy
-#~| msgid "Soft Light (Photoshop)"
+#~| msgid "Soft Light (Standard)"
 #~ msgctxt "(qtundo-format)"
-#~ msgid "Soft Light (Photoshop)"
-#~ msgstr "Luz suave (Photoshop)"
+#~ msgid "Soft Light (Standard)"
+#~ msgstr "Luz suave (PS)"
 
 #, fuzzy
 #~| msgid "Gamma Light"
@@ -108979,61 +108979,61 @@ msgstr ""
 
 #, fuzzy
 #~| msgctxt "@title:window"
-#~| msgid "Photoshop Export Error"
+#~| msgid "PS Export Error"
 #~ msgctxt "(qtundo-format) @title:window"
-#~ msgid "Photoshop Export Error"
-#~ msgstr "Erro de exportación de Photoshop"
+#~ msgid "PS Export Error"
+#~ msgstr "Erro de exportación de PS"
 
 #~ msgctxt "@title:window"
-#~ msgid "Photoshop Export Error"
-#~ msgstr "Erro de exportación de Photoshop"
+#~ msgid "PS Export Error"
+#~ msgstr "Erro de exportación de PS"
 
 #~ msgid ""
-#~ "Unable to save to the Photoshop format.\n"
-#~ "The Photoshop format only supports images that are smaller than "
+#~ "Unable to save to the PS format.\n"
+#~ "The PS format only supports images that are smaller than "
 #~ "30000x3000 pixels."
 #~ msgstr ""
-#~ "Non foi posíbel gardar no formato de Photoshop.\n"
-#~ "O formato de Photoshop só soporta imaxes que sexan máis pequenas que "
+#~ "Non foi posíbel gardar no formato de PS.\n"
+#~ "O formato de PS só soporta imaxes que sexan máis pequenas que "
 #~ "30000x3000 píxeles."
 
 #, fuzzy
 #~| msgid ""
-#~| "Unable to save to the Photoshop format.\n"
-#~| "The Photoshop format only supports images that are smaller than "
+#~| "Unable to save to the PS format.\n"
+#~| "The PS format only supports images that are smaller than "
 #~| "30000x3000 pixels."
 #~ msgctxt "(qtundo-format)"
 #~ msgid ""
-#~ "Unable to save to the Photoshop format.\n"
-#~ "The Photoshop format only supports images that are smaller than "
+#~ "Unable to save to the PS format.\n"
+#~ "The PS format only supports images that are smaller than "
 #~ "30000x3000 pixels."
 #~ msgstr ""
-#~ "Non foi posíbel gardar no formato de Photoshop.\n"
-#~ "O formato de Photoshop só soporta imaxes que sexan máis pequenas que "
+#~ "Non foi posíbel gardar no formato de PS.\n"
+#~ "O formato de PS só soporta imaxes que sexan máis pequenas que "
 #~ "30000x3000 píxeles."
 
 #~ msgid ""
-#~ "Unable to save to the Photoshop format.\n"
-#~ "The Photoshop format only supports images where all layers have the same "
+#~ "Unable to save to the PS format.\n"
+#~ "The PS format only supports images where all layers have the same "
 #~ "colorspace as the image."
 #~ msgstr ""
-#~ "Non foi posíbel gardar no formato de Photoshop.\n"
-#~ "O formato de Photoshop só permite imaxes nas que todas as capas teñan o "
+#~ "Non foi posíbel gardar no formato de PS.\n"
+#~ "O formato de PS só permite imaxes nas que todas as capas teñan o "
 #~ "mesmo espazo de cores que a imaxe."
 
 #, fuzzy
 #~| msgid ""
-#~| "Unable to save to the Photoshop format.\n"
-#~| "The Photoshop format only supports images where all layers have the same "
+#~| "Unable to save to the PS format.\n"
+#~| "The PS format only supports images where all layers have the same "
 #~| "colorspace as the image."
 #~ msgctxt "(qtundo-format)"
 #~ msgid ""
-#~ "Unable to save to the Photoshop format.\n"
-#~ "The Photoshop format only supports images where all layers have the same "
+#~ "Unable to save to the PS format.\n"
+#~ "The PS format only supports images where all layers have the same "
 #~ "colorspace as the image."
 #~ msgstr ""
-#~ "Non foi posíbel gardar no formato de Photoshop.\n"
-#~ "O formato de Photoshop só permite imaxes nas que todas as capas teñan o "
+#~ "Non foi posíbel gardar no formato de PS.\n"
+#~ "O formato de PS só permite imaxes nas que todas as capas teñan o "
 #~ "mesmo espazo de cores que a imaxe."
 
 #, fuzzy
@@ -116407,8 +116407,8 @@ msgstr ""
 #~ msgid "KDE (new)"
 #~ msgstr "KDE (novo)"
 
-#~ msgid "photoshop-swatches-sketchlings-swatches.aco"
-#~ msgstr "photoshop-swatches-sketchlings-swatches.aco"
+#~ msgid "swatches-sketchlings-swatches.aco"
+#~ msgstr "swatches-sketchlings-swatches.aco"
 
 #~ msgid "Skin.gpl.txt"
 #~ msgstr "Skin.gpl.txt"

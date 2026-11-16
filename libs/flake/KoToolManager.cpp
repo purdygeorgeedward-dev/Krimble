@@ -715,6 +715,13 @@ void KoToolManager::Private::attachCanvas(KoCanvasController *controller)
         // no active tool, so we activate the highest priority main tool
         int highestPriority = INT_MAX;
         KoToolAction * helper = 0;
+        // Krimble 2026-11-16 (722nd): George (build 64): "Default tool should still be the Pan(hand) tool at start or with new file open. Instead it is now the arrow". A new canvas started
+        // with the first tool of the "main" section, which is the arrow (Select Shapes), and the view then switched to the Hand; when that second step was lost or came too early the arrow
+        // stayed. A new canvas starts with the Hand itself now. (The old search below runs only if there is no Hand tool.)
+        Q_FOREACH (KoToolAction * th, toolActionList) {
+            if (th->id() == QLatin1String("PanTool")) { helper = th; break; }
+        }
+        if (!helper)
         Q_FOREACH (KoToolAction * th, toolActionList) {
             if (th->section() == ToolBoxSection::Main) {
                 if (th->priority() < highestPriority) {

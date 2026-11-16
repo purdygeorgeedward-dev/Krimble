@@ -6677,7 +6677,7 @@ msgstr "像素畫 32 色"
 #, kde-format
 msgctxt "./krita/data/bundles/Krita_3_Default_Resources.bundle:palettes/ps.gpl"
 msgid "Ps"
-msgstr "Photoshop"
+msgstr "PS"
 
 #. i18n: Display name of resource, see context: [path-to-resources]/[resource-type]/[resource-filename]
 #: krita/data/bundles/Krita_3_Default_Resources.bundle:palettes/swatch-cmyk.gpl:2
@@ -7161,7 +7161,7 @@ msgstr "像素畫 32 色"
 #, kde-format
 msgctxt "./krita/data/palettes/ps.gpl"
 msgid "Ps"
-msgstr "Photoshop"
+msgstr "PS"
 
 #. i18n: Display name of resource, see context: [path-to-resources]/[resource-type]/[resource-filename]
 #: krita/data/palettes/swatch-cmyk.gpl:2
@@ -22676,8 +22676,8 @@ msgstr "OpenRaster 影像"
 #: libs/koplugin/KisMimeDatabase.cpp:229
 #, kde-format
 msgctxt "description of a file type"
-msgid "Photoshop Layer Style Library"
-msgstr "Photoshop 圖層樣式庫"
+msgid "Layer Style Library (ASL)"
+msgstr "PS 圖層樣式庫"
 
 #: libs/koplugin/KisMimeDatabase.cpp:234
 #, kde-format
@@ -22772,8 +22772,8 @@ msgstr "OpenEXR (擴展)"
 #: libs/koplugin/KisMimeDatabase.cpp:309
 #, kde-format
 msgctxt "description of a file type"
-msgid "Photoshop Image (Large)"
-msgstr "Photoshop 影像 (大型)"
+msgid "PSB Image (Large)"
+msgstr "PS 影像 (大型)"
 
 #: libs/koplugin/KisMimeDatabase.cpp:314
 #, kde-format
@@ -23502,9 +23502,9 @@ msgstr "柔光 (Pegtop-Delphi)"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:83
 #, kde-format
-msgctxt "Blending mode - Soft Light (Photoshop)"
-msgid "Soft Light (Photoshop)"
-msgstr "柔光 (Photoshop)"
+msgctxt "Blending mode - Soft Light (Standard)"
+msgid "Soft Light (Standard)"
+msgstr "柔光 (PS)"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:84
 #, kde-format
@@ -23711,15 +23711,15 @@ msgstr "實色混合"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:121
 #, kde-format
-msgctxt "Blending mode - Hard Mix (Photoshop)"
-msgid "Hard Mix (Photoshop)"
-msgstr "實色混合 (Photoshop)"
+msgctxt "Blending mode - Hard Mix (Standard)"
+msgid "Hard Mix (Standard)"
+msgstr "實色混合 (PS)"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:122
 #, kde-format
-msgctxt "Blending mode - Hard Mix Softer (Photoshop)"
-msgid "Hard Mix Softer (Photoshop)"
-msgstr "實色混合 - 更柔和 (Photoshop)"
+msgctxt "Blending mode - Hard Mix Softer (Standard)"
+msgid "Hard Mix Softer (Standard)"
+msgstr "實色混合 - 更柔和 (PS)"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:123
 #, kde-format
@@ -58752,8 +58752,8 @@ msgstr "使用色塊預測演算法可提高壓縮率 (主要用於 LZW 和 defl
 #. i18n: ectx: property (title), widget (QGroupBox, chkPhotoshop)
 #: plugins/impex/tiff/kis_wdg_options_tiff.ui:79
 #, kde-format
-msgid "Save layers as Photoshop"
-msgstr "將圖層儲存為 Photoshop 格式"
+msgid "Save layers as PS"
+msgstr "將圖層儲存為 PS 格式"
 
 #. i18n: ectx: property (text), widget (QLabel, label_4)
 #: plugins/impex/tiff/kis_wdg_options_tiff.ui:88
@@ -61135,15 +61135,15 @@ msgstr "線性高度"
 
 #: plugins/paintops/libpaintop/kis_texture_chooser.cpp:72
 #, kde-format
-msgctxt "Height (Photoshop) blend mode for brush texture"
-msgid "Height (Photoshop)"
-msgstr "高度 (Photoshop)"
+msgctxt "Height (PS) blend mode for brush texture"
+msgid "Height (PS)"
+msgstr "高度 (PS)"
 
 #: plugins/paintops/libpaintop/kis_texture_chooser.cpp:73
 #, kde-format
-msgctxt "Linear Height (Photoshop) blend mode for brush texture"
-msgid "Linear Height (Photoshop)"
-msgstr "線性高度 (Photoshop)"
+msgctxt "Linear Height (PS) blend mode for brush texture"
+msgid "Linear Height (PS)"
+msgstr "線性高度 (PS)"
 
 #: plugins/paintops/libpaintop/kis_texture_chooser.cpp:82
 #, kde-format

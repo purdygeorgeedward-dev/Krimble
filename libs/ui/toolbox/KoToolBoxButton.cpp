@@ -49,7 +49,8 @@ KoToolBoxButton::KoToolBoxButton(KoToolAction *toolAction, QWidget *parent)
     // Krimble 2026-11-12 (task 38): George: "I want long press to open a flyout of other buttons. Then a tap selects one or misses and cancels selection." The long press: a timer started by a press, stopped by a release or a move away; when it runs out (and the button is still held) the flyout is asked for.
     m_krimbleTimer.setSingleShot(true);
     // m_krimbleTimer.setInterval(450);
-    m_krimbleTimer.setInterval(400);   // Krimble 2026-11-16 (718th): George: "How long is the flyout delay." (450 ms) "Make it 400 Ms."
+    // m_krimbleTimer.setInterval(400);   // Krimble 2026-11-16 (718th): George: "How long is the flyout delay." (450 ms) "Make it 400 Ms."
+    m_krimbleTimer.setInterval(250);   // Krimble 2026-11-16 (722nd): George (build 64): "Try 250ms delay on flyouts." "Make it 400 Ms."
     connect(&m_krimbleTimer, &QTimer::timeout, this, [this]() {
         if (!m_krimbleLongPress || !isDown()) return;
         m_krimbleLongPressFired = true;
@@ -244,13 +245,20 @@ void KoToolBoxButton::krimblePaintRaisedBox(QWidget *widget, bool down)
     QPainter box(widget);
     box.setRenderHint(QPainter::Antialiasing, false);
     const QRect r = widget->rect().adjusted(1, 1, -1, -1);
-    const QColor face = qApp->palette().color(QPalette::Window).lighter(150);
+    // const QColor face = qApp->palette().color(QPalette::Window).lighter(150);
+    // Krimble 2026-11-16 (722nd): a light theme (Breeze Light): a face made lighter is white on white, and white edges do not show. There the face is a little darker than the panel and the
+    // light edges are stronger, so the box reads as raised on a light panel too.
+    const QColor krimbleWindow = qApp->palette().color(QPalette::Window);
+    const bool krimbleLight = krimbleWindow.lightness() > 150;
+    const QColor face = krimbleLight ? krimbleWindow.darker(108) : krimbleWindow.lighter(150);
     const int t = qMax(2, qRound(qMin(r.width(), r.height()) * 0.075));
     box.fillRect(r, face);
-    const QColor topTone    = down ? QColor(0, 0, 0, 90)        : QColor(255, 255, 255, 85);
-    const QColor leftTone   = down ? QColor(0, 0, 0, 55)        : QColor(255, 255, 255, 40);
-    const QColor rightTone  = down ? QColor(255, 255, 255, 40)  : QColor(0, 0, 0, 55);
-    const QColor bottomTone = down ? QColor(255, 255, 255, 85)  : QColor(0, 0, 0, 90);
+    const int hiTop = krimbleLight ? 255 : 85;
+    const int hiLeft = krimbleLight ? 170 : 40;
+    const QColor topTone    = down ? QColor(0, 0, 0, 90)            : QColor(255, 255, 255, hiTop);
+    const QColor leftTone   = down ? QColor(0, 0, 0, 55)            : QColor(255, 255, 255, hiLeft);
+    const QColor rightTone  = down ? QColor(255, 255, 255, hiLeft)  : QColor(0, 0, 0, 55);
+    const QColor bottomTone = down ? QColor(255, 255, 255, hiTop)   : QColor(0, 0, 0, 90);
     box.setPen(Qt::NoPen);
     QPolygon poly;
     poly << r.topLeft() << r.topRight() << QPoint(r.right() - t, r.top() + t) << QPoint(r.left() + t, r.top() + t);
@@ -274,7 +282,8 @@ void KoToolBoxButton::paintEvent(QPaintEvent *event)
     // in its own hue: top white 100%, left white 45%, right black 33%, bottom black 58% (measured from the picture: #FEFDFD, #9EACD4, #3E4866, #272C43 over a face of #5E6B91). A button held down has the
     // sides the other way round. The four corners are 45 degree joins, drawn without smoothing so they step like the picture. No outline, no color.
     // Krimble 2026-11-15 (707th): the box is drawn by krimblePaintRaisedBox() now (the same code, moved, so the UNDO button can use it); the block below is kept, switched off.
-    if (KrimbleToolboxIcons::buttonStyle() == 1 && !isChecked() && !qApp->property("krimbleFlatTheme").toBool()) {
+    // if (KrimbleToolboxIcons::buttonStyle() == 1 && !isChecked() && !qApp->property("krimbleFlatTheme").toBool()) {
+    if (KrimbleToolboxIcons::buttonStyle() == 1 && !isChecked() && !qApp->property("krimbleNoRaisedButtons").toBool()) {   // Krimble 2026-11-16 (722nd): in every theme but Krimble Dark Gray (see thememanager.cpp)
         krimblePaintRaisedBox(this, isDown());
     }
     if (false && KrimbleToolboxIcons::buttonStyle() == 1 && !isChecked() && !qApp->property("krimbleFlatTheme").toBool()) {   // Krimble 2026-11-15: no raised bevel in the theme "Krimble Dark Gray"

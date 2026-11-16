@@ -379,7 +379,10 @@ public:
         // Krimble 2026-11-08: George: "Why are we still calling it the free transform tool? How about just Transform and change the name based on selected function."
         // The name at the top of Tool Options follows the mode (Scale, Rotate, Position, Shear, Warp ...): see KisToolTransformConfigWidget::updateConfig().
         setToolTip(i18n("Transform"));
-        setSection(ToolBoxSection::Transform);
+        // setSection(ToolBoxSection::Transform);
+        // Krimble 2026-11-16 (722nd): George (build 64): the order of the toolbox, Transform after Zoom (230). It is in the sorted section with a toolbox place of its own.
+        setSection(ToolBoxSection::PSOrder);
+        setToolBoxPriority(240);
         setIconName(koIconNameCStr("krita_tool_transform"));
         setShortcut(QKeySequence(Qt::CTRL | Qt::Key_T));
         setPriority(2);
@@ -453,7 +456,9 @@ public:
     KisToolFreeRotateFactory()
             : KisToolPaintFactoryBase("KisToolFreeRotate") {
         setToolTip(i18n("Free Rotate"));
-        setSection(ToolBoxSection::Transform);
+        // setSection(ToolBoxSection::Transform);
+        setSection(ToolBoxSection::PSOrder);   // Krimble 2026-11-16 (722nd): with Transform (in its flyout)
+        setToolBoxPriority(241);
         setIconName(koIconNameCStr("krimble-free-rotate"));
         setPriority(3);
         setActivationShapeId(KRITA_TOOL_ACTIVATION_ID);

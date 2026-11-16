@@ -2880,7 +2880,7 @@ void TestSvgParser::testRenderPattern_r_Obb_c_View_Rotated()
      * This test case differs from any application existent in the world :(
      *
      * Chrome and Firefox premultiply the patternTransform instead of doing post-
-     * multiplication. Photoshop forgets to multiply the reference rect on it.
+     * multiplication. PS forgets to multiply the reference rect on it.
      *
      * So...
      */

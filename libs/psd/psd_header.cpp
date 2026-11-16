@@ -85,7 +85,7 @@ bool PSDHeader::write(QIODevice &device)
 bool PSDHeader::valid()
 {
     if (signature != "8BPS") {
-        error = "Not a PhotoShop document. Signature is: " + signature;
+        error = "Not a PSD document. Signature is: " + signature;
         return false;
     }
     if (version < 1 || version > 2) {

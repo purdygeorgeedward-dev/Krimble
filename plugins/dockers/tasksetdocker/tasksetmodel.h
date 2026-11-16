@@ -20,7 +20,7 @@ class QAction;
  * Krita-native behaviour -- fine for parameterless commands like Flatten
  * Image or a tool switch), or a real filter application captured with its
  * exact parameters via KisFilterManager::sigFilterApplied -- the
- * Photoshop-Actions-equivalent case, correctly replayable without
+ * industry standard actions equivalent case, correctly replayable without
  * reopening an empty dialog the way a plain trigger of a filter's menu
  * action would.
  */

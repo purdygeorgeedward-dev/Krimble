@@ -423,7 +423,7 @@ KisImportExportErrorCode KisTIFFImport::readImageFromPsdRecords(
         psdImage->addAnnotation(resourceBlock);
     }
 
-    dbgFile << "Loading Photoshop layers";
+    dbgFile << "Loading PS layers";
 
     QStack<KisGroupLayerSP> groupStack;
 
@@ -580,7 +580,7 @@ KisImportExportErrorCode KisTIFFImport::readImageFromPsdRecords(
     // Only assign the image if the parsing was successful (for fallback
     // purposes)
     this->m_image = psdImage;
-    // Photoshop images only have one IFD plus the layer blob
+    // PS images only have one IFD plus the layer blob
     // Ward off inconsistencies by blocking future attempts to parse them
     this->m_photoshopBlockParsed = true;
 
@@ -1505,7 +1505,7 @@ KisTIFFImport::readImageFromTiff(KisDocument *m_doc,
 KisImportExportErrorCode KisTIFFImport::readImageFromPsd(KisDocument *m_doc, TIFF *image, KisTiffBasicInfo &basicInfo)
 {
 #ifdef TIFF_HAS_PSD_TAGS
-  // Attempt to parse Photoshop metadata
+  // Attempt to parse PS metadata
     // if it succeeds, divert and load as PSD
 
     if (!m_photoshopBlockParsed) {
@@ -1521,13 +1521,13 @@ KisImportExportErrorCode KisTIFFImport::readImageFromPsd(KisDocument *m_doc, TIF
         KisTiffPsdResourceRecord photoshopImageResourceRecord;
 
         {
-            // Determine if we have Photoshop metadata
+            // Determine if we have PS metadata
             uint32_t length{0};
             uint8_t *data{nullptr};
 
             if (TIFFGetField(image, TIFFTAG_IMAGESOURCEDATA, &length, &data)
                 == 1) {
-                dbgFile << "There are Photoshop layers, processing them now. "
+                dbgFile << "There are PS layers, processing them now. "
                            "Section size: "
                         << length;
 
@@ -1537,20 +1537,20 @@ KisImportExportErrorCode KisTIFFImport::readImageFromPsd(KisDocument *m_doc, TIF
                 photoshopLayerData.open(QIODevice::ReadOnly);
 
                 if (!photoshopLayerRecord.read(photoshopLayerData)) {
-                    dbgFile << "TIFF: failed reading Photoshop layer metadata: "
+                    dbgFile << "TIFF: failed reading PS layer metadata: "
                             << photoshopLayerRecord.record()->error;
                 }
             }
         }
 
         {
-            // Determine if we have Photoshop metadata
+            // Determine if we have PS metadata
             uint32_t length{0};
             uint8_t *data{nullptr};
 
             if (TIFFGetField(image, TIFFTAG_PHOTOSHOP, &length, &data) == 1
                 && data != nullptr) {
-                dbgFile << "There is Photoshop metadata, processing it now. "
+                dbgFile << "There is PS metadata, processing it now. "
                            "Section size: "
                         << length;
 
@@ -1562,7 +1562,7 @@ KisImportExportErrorCode KisTIFFImport::readImageFromPsd(KisDocument *m_doc, TIF
                 buf.open(QIODevice::ReadOnly);
 
                 if (!photoshopImageResourceRecord.read(buf)) {
-                    dbgFile << "TIFF: failed reading Photoshop image metadata: "
+                    dbgFile << "TIFF: failed reading PS image metadata: "
                             << photoshopImageResourceRecord.error;
                 }
             }
@@ -1597,7 +1597,7 @@ KisImportExportErrorCode KisTIFFImport::readImageFromPsd(KisDocument *m_doc, TIF
                                         basicInfo);
 
             if (!result.isOk()) {
-                dbgFile << "Photoshop import failed";
+                dbgFile << "PS import failed";
             }
             return result;
         }
@@ -1855,7 +1855,7 @@ KisTIFFImport::convert(KisDocument *document,
     }
 
     if (!m_photoshopBlockParsed) {
-        // Photoshop images only have one IFD plus the layer blob
+        // PS images only have one IFD plus the layer blob
         // Ward off inconsistencies by blocking future attempts to parse them
         m_photoshopBlockParsed = true;
         while (TIFFReadDirectory(image.get())) {

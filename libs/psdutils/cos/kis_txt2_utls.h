@@ -23,7 +23,7 @@ public:
 
     /**
      * @brief uncompressKeys
-     * One of the problems with the Txt2 block is that older versions of photoshop (cs2-cs3 era)
+     * One of the problems with the Txt2 block is that older versions of PS (cs2-cs3 era)
      * stored the dictionary keys as names, while new versions stores it as numbers. This function
      * translates the numbers to the names.
      *

@@ -244,7 +244,7 @@ KisImportExportErrorCode PSDSaver::buildFile(QIODevice &io)
     // IMAGE DATA
     dbgFile << "Saving composited image" << io.pos();
     PSDImageData imagedata(&header);
-    // Photoshop compresses layer data by default with RLE.
+    // PS compresses layer data by default with RLE.
     if (!imagedata.write(io, m_image->projection(), haveLayers, psd_compression_type::RLE)) {
         dbgFile << "Failed to write image data. Error:"  << imagedata.error;
         return ImportExportCodes::ErrorWhileWriting;

@@ -69,8 +69,8 @@ KisTextureChooser::KisTextureChooser(KisBrushTextureFlags flags, QWidget *parent
         << std::make_pair(KoCompositeOpRegistry::instance().getKoID(COMPOSITE_HARD_MIX_SOFTER_PHOTOSHOP).name(), KisTextureOptionData::HARD_MIX_SOFTER_PHOTOSHOP)
         << std::make_pair(i18nc("Height blend mode for brush texture", "Height"), KisTextureOptionData::HEIGHT)
         << std::make_pair(i18nc("Linear Height blend mode for brush texture", "Linear Height"), KisTextureOptionData::LINEAR_HEIGHT)
-        << std::make_pair(i18nc("Height (Photoshop) blend mode for brush texture", "Height (Photoshop)"), KisTextureOptionData::HEIGHT_PHOTOSHOP)
-        << std::make_pair(i18nc("Linear Height (Photoshop) blend mode for brush texture", "Linear Height (Photoshop)"), KisTextureOptionData::LINEAR_HEIGHT_PHOTOSHOP);
+        << std::make_pair(i18nc("Height (Standard) blend mode for brush texture", "Height (Standard)"), KisTextureOptionData::HEIGHT_PHOTOSHOP)
+        << std::make_pair(i18nc("Linear Height (Standard) blend mode for brush texture", "Linear Height (Standard)"), KisTextureOptionData::LINEAR_HEIGHT_PHOTOSHOP);
 
     for (auto it = texturingModes.begin(); it != texturingModes.end(); ++it) {
         cmbTexturingMode->addItem(it->first, it->second);

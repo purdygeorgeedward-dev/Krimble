@@ -6,7 +6,7 @@ Status: **planning only** — not started. Captured here so they don't stay stuc
 
 - **AI upscaling: a separate app is a MUST** ("I think a separate upscaler is a must."). The "Krimble Upscaler" app, not a feature inside Krimble. Not started.
 - **Selective compression (Advanced JPEG Export): "would be awesome".** Wanted. Not started.
-- **Quick Mask: wanted** ("in Photoshop it's very useful"; George was not sure how it works now). What exists now: **Select > Show Global Selection Mask** (and Add New Selection Mask / Convert to Selection Mask): the selection is shown as an ordinary grey mask *layer* in the Layers panel that can be painted on; there is no Photoshop-style toggle with a red overlay and a Q key. See the Quick Mask section below. Not started.
+- **Quick Mask: wanted** ("in the industry standard it's very useful"; George was not sure how it works now). What exists now: **Select > Show Global Selection Mask** (and Add New Selection Mask / Convert to Selection Mask): the selection is shown as an ordinary grey mask *layer* in the Layers panel that can be painted on; there is no the industry standard-style toggle with a red overlay and a Q key. See the Quick Mask section below. Not started.
 - **Fonts (browser, add your own, curated set): "future must".**
 - **Auto Tone / Auto Contrast / Auto Color on curves:** George wrote "There are ways to edit images with curves. I would assume these" and the message ended there: waiting for the rest.
 - **The small things: "Do all the small things."** Magnetic Selection bar (done, 320th entry), Match Color's exact selection shape and its two selection options, a Channels panel tap to load a channel as a selection, styling part of a text, Krimble's own smaller text-selection droplets (waits for the log numbers, 318th entry), Google Play (an app bundle, a closed test of 12 testers for 14 days; process, not code).
@@ -54,7 +54,7 @@ export-and-reassemble approach if not.
   wrapping Krita's existing colorsmudge paintop engine, own icon/shortcut/
   toolbox slot, auto-loads the "smudge" preset on activation.
 - **Eraser tool** -- ✅ written 2026-10-25 (290th entry; not compiled or tried on a phone yet). Dedicated toolbox tool after Soften: the Brush tool with the eraser switch turned on while it is active; it paints transparency with the current brush. Pencil, Path Selection and Clone Stamp icons are still waiting in `krita/pics/tools/krimble-future-icons`.
-- **Soften tool** -- not started. Photoshop's Blur tool equivalent: a
+- **Soften tool** -- not started. The industry standard's Blur tool equivalent: a
   localized blur/softening brush for softening edges/skin/detail in specific
   areas without running a full-image filter. Krita's `filterop` paintop
   engine (paint-with-any-filter) already exists and can drive this --
@@ -115,7 +115,7 @@ zero hits). Not a relocation/UI-parity case like Channels or Select Opaque;
 this needs building from scratch.
 
 **What it is:** paint a selection into existence instead of using
-marquee/lasso/wand. Toggle on (Q key in Photoshop) -> canvas shows a
+marquee/lasso/wand. Toggle on (Q key in the industry standard) -> canvas shows a
 semi-transparent red overlay (rubylith-style) over everything NOT selected
 -> paint in black/white/gray with any normal brush (black removes from
 selection, white adds, gray = partial/feathered) -> toggle off -> the
@@ -142,7 +142,7 @@ painted result becomes a real active selection.
    KisSelection (threshold/gradient -> selection, feathered where gray),
    apply it as the active selection, discard the temporary device.
 5. Toolbox button (bottom of toolbox, alongside the FG/BG swap widget and
-   Screen Mode) + Q shortcut, matching Photoshop's actual entry points.
+   Screen Mode) + Q shortcut, matching the industry standard's actual entry points.
 
 Likely a genuinely medium-sized feature -- more than a UI wrapper, less
 than the AI upscaler. Worth scoping properly (time estimate, step-by-step
@@ -174,7 +174,7 @@ docker (originally logged as "no thumbnails, no isolation" -- both were
 already fully implemented; see channelmodel.cpp's Qt::DecorationRole handling
 and rowActivated()'s isolate-on-double-click). Only genuinely missing piece,
 confirmed by searching for any Ctrl/modifier handling in the docker (none
-found): Photoshop's Ctrl+click-a-channel-thumbnail -> load that channel's
+found): the industry standard's Ctrl+click-a-channel-thumbnail -> load that channel's
 data as a selection.
 
 **Why it's real work, not a UI wrapper:** unlike Select Opaque (which loads

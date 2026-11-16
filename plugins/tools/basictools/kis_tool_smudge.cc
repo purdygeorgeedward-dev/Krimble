@@ -34,7 +34,7 @@ void KisToolSmudge::activate(const QSet<KoShape*> &shapes)
 
     // Krimble: auto-load the bundled "smudge" preset (Krita's existing
     // colorsmudge paintop engine) so this tool smudges immediately on
-    // selection, matching Photoshop's dedicated Smudge tool -- no manual
+    // selection, matching the industry standard's dedicated Smudge tool -- no manual
     // preset picking required. If the preset isn't found for any reason
     // (renamed/removed resource), the tool still falls back to whatever
     // preset was already active, same as any other brush-family tool.

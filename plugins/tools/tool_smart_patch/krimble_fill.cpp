@@ -60,7 +60,7 @@ bool fill(KisPaintDeviceSP imageDev, KisPaintDeviceSP maskDev, const QRect &boun
     // Krita's old Smart Patch fill ran instead (the blur). Now the area around the hole is made smaller until it fits a budget (4 MP: the new engine needs about 50 bytes
     // per pixel of it, about 200 MB), so the new engine runs for any hole whose own box fits; only a hole bigger than that still falls back.
     // const qint64 budget = 4000000;
-    // Krimble 2026-10-19 (2nd): 3 MP: the Photoshop-style engine keeps a little more per pixel (the transform, the colour shift, the window sums: about 75 bytes)
+    // Krimble 2026-10-19 (2nd): 3 MP: the industry standard-style engine keeps a little more per pixel (the transform, the colour shift, the window sums: about 75 bytes)
     // const qint64 budget = 3000000;
     // Krimble 2026-10-20: George (1.0.40): "Content-Aware fill does nothing now." (1.0.39 at least blurred.) The engine, on the bench, fills exactly as the
     // app calls it, with 1 or 4 threads; on the phone, an area of 3 MP needs about 450 MB at the peak (the pyramid, the matches, the colour shifts, the

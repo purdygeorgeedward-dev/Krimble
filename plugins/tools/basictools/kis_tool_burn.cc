@@ -63,7 +63,7 @@ void KisToolBurn::activate(const QSet<KoShape*> &shapes)
 
     // burnPreset->settings()->setProperty("CompositeOp", COMPOSITE_BURN);
     // Krimble 2026-10-11 (QA of 1.0.32): the color burn op with the foreground color made a faint line
-    // (dodge) or an instant black one (burn) on a white canvas. Photoshop's tool darkens what is already there, a little at
+    // (dodge) or an instant black one (burn) on a white canvas. The industry standard's tool darkens what is already there, a little at
     // a time. The linear op does that: with a black brush each dab moves the pixel a small step toward
     // black, so the effect builds up slowly the more you paint over a spot. The tool sets its brush color to
     // black while it is active (see below) and a low flow (4% per dab); flow and opacity can be changed.

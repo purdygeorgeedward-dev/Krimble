@@ -80,7 +80,7 @@ KoCompositeOpRegistry::KoCompositeOpRegistry()
     m_map.insert(m_categories[3], KoID(COMPOSITE_HARD_LIGHT  ,  i18nc("Blending mode - Hard Light", "Hard Light")));
     m_map.insert(m_categories[3], KoID(COMPOSITE_SOFT_LIGHT_IFS_ILLUSIONS,  i18nc("Blending mode - Soft Light (IFS Illusions)", "Soft Light (IFS Illusions)")));
     m_map.insert(m_categories[3], KoID(COMPOSITE_SOFT_LIGHT_PEGTOP_DELPHI,  i18nc("Blending mode - Soft Light (Pegtop-Delphi)", "Soft Light (Pegtop-Delphi)")));
-    m_map.insert(m_categories[3], KoID(COMPOSITE_SOFT_LIGHT_PHOTOSHOP,  i18nc("Blending mode - Soft Light (Photoshop)", "Soft Light (Photoshop)")));
+    m_map.insert(m_categories[3], KoID(COMPOSITE_SOFT_LIGHT_PHOTOSHOP,  i18nc("Blending mode - Soft Light (Standard)", "Soft Light (Standard)")));
     m_map.insert(m_categories[3], KoID(COMPOSITE_SOFT_LIGHT_SVG,  i18nc("Blending mode - Soft Light (SVG)", "Soft Light (SVG)")));
     m_map.insert(m_categories[3], KoID(COMPOSITE_GAMMA_LIGHT ,  i18nc("Blending mode - Gamma Light", "Gamma Light")));
     m_map.insert(m_categories[3], KoID(COMPOSITE_GAMMA_ILLUMINATION ,  i18nc("Blending mode - Gamma Illumination", "Gamma Illumination")));
@@ -118,8 +118,8 @@ KoCompositeOpRegistry::KoCompositeOpRegistry()
     m_map.insert(m_categories[6], KoID(COMPOSITE_MARKER          ,  i18nc("Blending mode - Marker", "Marker")));
     m_map.insert(m_categories[6], KoID(COMPOSITE_HARD_MIX        ,  i18nc("Blending mode - Hard Mix", "Hard Mix")));
     m_map.insert(m_categories[6], KoID(COMPOSITE_HARD_MIX_HDR    ,  i18nc("Blending mode - Hard Mix HDR", "Hard Mix HDR")));
-    m_map.insert(m_categories[6], KoID(COMPOSITE_HARD_MIX_PHOTOSHOP,  i18nc("Blending mode - Hard Mix (Photoshop)", "Hard Mix (Photoshop)")));
-    m_map.insert(m_categories[6], KoID(COMPOSITE_HARD_MIX_SOFTER_PHOTOSHOP,  i18nc("Blending mode - Hard Mix Softer (Photoshop)", "Hard Mix Softer (Photoshop)")));
+    m_map.insert(m_categories[6], KoID(COMPOSITE_HARD_MIX_PHOTOSHOP,  i18nc("Blending mode - Hard Mix (Standard)", "Hard Mix (Standard)")));
+    m_map.insert(m_categories[6], KoID(COMPOSITE_HARD_MIX_SOFTER_PHOTOSHOP,  i18nc("Blending mode - Hard Mix Softer (Standard)", "Hard Mix Softer (Standard)")));
     m_map.insert(m_categories[6], KoID(COMPOSITE_GRAIN_MERGE     ,  i18nc("Blending mode - Grain Merge", "Grain Merge")));
     m_map.insert(m_categories[6], KoID(COMPOSITE_GRAIN_EXTRACT   ,  i18nc("Blending mode - Grain Extract", "Grain Extract")));
     m_map.insert(m_categories[6], KoID(COMPOSITE_PARALLEL        ,  i18nc("Blending mode - Parallel", "Parallel")));

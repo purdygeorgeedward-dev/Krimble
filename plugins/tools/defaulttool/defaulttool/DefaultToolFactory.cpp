@@ -17,7 +17,11 @@ DefaultToolFactory::DefaultToolFactory()
     : KoToolFactoryBase(KoInteractionTool_ID)
 {
     setToolTip(i18n("Select Shapes Tool"));
-    setSection(ToolBoxSection::Main);
+    // setSection(ToolBoxSection::Main);
+    // Krimble 2026-11-16 (722nd): George (build 64): the order of the toolbox: the arrow ("Path select") between Text (170) and the shapes (180), no longer the first tool. It is in the
+    // sorted section with a toolbox place of its own. (The tool a new canvas starts with was "the first tool of the main section", which was this one: see KoToolManager.cpp, it is the Hand now.)
+    setSection(ToolBoxSection::PSOrder);
+    setToolBoxPriority(175);
     setPriority(0);
     setIconName(koIconNameCStr("select"));
     setActivationShapeId("flake/always");

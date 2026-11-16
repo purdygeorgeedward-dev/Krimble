@@ -13,6 +13,7 @@
 #include "KoToolBoxButton_p.h"      // Krimble 2026-11-15 (707th): the raised box for the UNDO button
 #include "KrimbleToolboxIcons.h"
 #include <QStylePainter>
+#include <QCursor>   // Krimble 2026-11-16 (722nd)
 #include <QStyleOptionToolButton>
 
 #include <QLabel>
@@ -64,7 +65,8 @@ public:
 protected:
     void paintEvent(QPaintEvent *) override
     {
-        if (KrimbleToolboxIcons::buttonStyle() == 1 && !qApp->property("krimbleFlatTheme").toBool()) {
+        // if (KrimbleToolboxIcons::buttonStyle() == 1 && !qApp->property("krimbleFlatTheme").toBool()) {
+        if (KrimbleToolboxIcons::buttonStyle() == 1 && !qApp->property("krimbleNoRaisedButtons").toBool()) {   // Krimble 2026-11-16 (722nd)
             KoToolBoxButton::krimblePaintRaisedBox(this, isDown());
         }
         QStylePainter stylePainter(this);
@@ -175,8 +177,8 @@ KoToolBoxDocker::KoToolBoxDocker(KoToolBox *toolBox)
     , m_scrollArea(new KoToolBoxScrollArea(toolBox, this))
 {
     // Krimble: wrap the tool-button scroll area in a container so a
-    // Photoshop-style foreground/background color swap widget can be added
-    // below it, matching Photoshop's toolbox layout. Kept alongside its
+    // the industry standard-style foreground/background color swap widget can be added
+    // below it, matching the industry standard's toolbox layout. Kept alongside its
     // existing home in the classic toolbar (kis_control_frame.cpp) -- both
     // locations retained per project decision, not a relocation.
     QWidget *toolBoxContainer = new QWidget(this);
@@ -407,7 +409,7 @@ void KoToolBoxDocker::setViewManager(KisViewManager *viewManager)
         slotUpdateDisplayRenderer();
 
         // Krimble: Screen Mode toggle at the bottom of the toolbox, matching
-        // Photoshop's toolbox layout. Reuses the existing view_show_canvas_only
+        // the industry standard's toolbox layout. Reuses the existing view_show_canvas_only
         // action (checkable, Tab shortcut) -- no new action needed, just a
         // toolbox entry point for it. Icon overridden locally to view-fullscreen
         // since the action's own icon (document-new) is a placeholder; the
@@ -486,8 +488,13 @@ void KoToolBoxDocker::resizeEvent(QResizeEvent *event)
     // if (m_snapTimer && !m_windowResizing && !m_applying && !isFloating()) {
     if (m_justDocked) {
         // Krimble 2026-11-05: just dropped on a dock edge: no snapping to the width of the moment
+    // } else if (m_snapTimer && !m_windowResizing && !m_applying && !isFloating() && QApplication::mouseButtons() != Qt::NoButton) {
+    //     m_snapTimer->start();
+    // Krimble 2026-11-16 (722nd): George (build 64): "There is a weird visual jitter (periodic jolts) when trying to paint on screen which disrupts the line." A finger that is down was
+    // always taken for a finger dragging the toolbox's edge, also when it was painting on the picture: any small change of the toolbox's size during a stroke started the column snapping
+    // (every 250 ms while the finger stayed down, and a resize of the docks at the end). Only a finger at the toolbox counts as a drag of its edge now (krimbleFingerAtToolbox).
     } else if (m_snapTimer && !m_windowResizing && !m_applying && !isFloating() && QApplication::mouseButtons() != Qt::NoButton) {
-        m_snapTimer->start();
+        if (krimbleFingerAtToolbox()) m_snapTimer->start();
     } else if (m_restoreTimer && !m_windowResizing && !m_applying && !isFloating() && isVisible() && QApplication::mouseButtons() == Qt::NoButton) {
         // Krimble 2026-10-10: a width change with no finger down (a workspace or layout restore, a rotation): put the saved
         // column count back a moment later. Only a drag with a finger or the Columns menu can change the saved count.
@@ -914,6 +921,13 @@ void KoToolBoxDocker::applyColumns()
     }
 }
 
+// Krimble 2026-11-16 (722nd): is the pointer (the finger) on the toolbox or within 48 units of it? A drag of the toolbox's dock edge is; a finger painting on the picture is not.
+bool KoToolBoxDocker::krimbleFingerAtToolbox() const
+{
+    const QPoint p = mapFromGlobal(QCursor::pos());
+    return rect().adjusted(-48, -48, 48, 48).contains(p);
+}
+
 void KoToolBoxDocker::snapToColumns()
 {
     if (isFloating() || !isVisible()) return;
@@ -923,6 +937,7 @@ void KoToolBoxDocker::snapToColumns()
     if (m_windowResizing || m_applying) return;
     // do not fight a finger that is still down on the separator
     if (QApplication::mouseButtons() != Qt::NoButton) {
+        if (!krimbleFingerAtToolbox()) return;   // Krimble 2026-11-16 (722nd): a finger painting on the picture is not a drag of the toolbox's edge
         m_userDragged = true;      // Krimble 2026-10-13: someone is dragging the edge: the width that follows is theirs
         m_snapTimer->start();
         return;

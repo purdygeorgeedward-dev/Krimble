@@ -1288,6 +1288,23 @@ private:
 // whenever Qt puts it in the menu bar. On a style change Qt sizes it without dividing by the screen density, so on this phone it is about 3.4 times too
 // big and covers "File"; a tap on "File" then opened the image window's system menu (George, 1.0.45-beta). Taps go through it to the menu bar now.
 // Tested with real Qt: the label gets the attribute while the window keeps its system menu hint (so the close button and Close stay).
+// Krimble 2026-11-16 (722nd): George (build 64): "The orange K logo is too close to File until you open an image, and then it fits. I'd like for it to fit all the time." With an image
+// open, the image window's icon button sits in the bar's left corner and Qt starts the menus 16 units later; with no image there was no button and the menus started at the edge, under the
+// K the bar draws. (The gap item in front of the menus never helped: Qt gives an item without text no width at all. Tried in real Qt 5.15.) With no image open the bar now has this
+// empty holder in its left corner, the same size as the image window's button, so the menus are in the same place with and without an image. Qt swaps it for the image window's button
+// when an image is opened and puts it back when the last one is closed (tried in real Qt 5.15: "File" starts at the same place in every state).
+class KrimbleKHolder : public QWidget
+{
+public:
+    explicit KrimbleKHolder(QWidget *parent) : QWidget(parent)
+    {
+        setObjectName(QStringLiteral("krimbleKHolder"));
+        setAttribute(Qt::WA_TransparentForMouseEvents, true);
+        setFixedSize(22, 22);
+    }
+    QSize sizeHint() const override { return QSize(16, 16); }   // what Qt reserves for the image window's button
+};
+
 class KrimbleMenuBarFilter : public QObject
 {
 public:
@@ -1366,12 +1383,30 @@ public:
     static void placeK(QMenuBar *bar)
     {
         if (!bar) return;
+        // Krimble 2026-11-16 (722nd): George (build 64): "menubar should be taller by a few pixels by adding more shadow area at bottom." The bar is 4 units taller than Qt makes it from the
+        // menu names; the names, the K and the window buttons stay where they were (centered in the old height), so the 4 units are all under them.
+        const int krimbleBarExtra = 4;
+        {
+            const int wantMin = bar->sizeHint().height() + krimbleBarExtra;
+            if (bar->minimumHeight() != wantMin) bar->setMinimumHeight(wantMin);
+            if (bar->property("krimbleBarExtra").toInt() != krimbleBarExtra) bar->setProperty("krimbleBarExtra", krimbleBarExtra);
+        }
+        if (!bar->cornerWidget(Qt::TopLeftCorner)) bar->setCornerWidget(new KrimbleKHolder(bar), Qt::TopLeftCorner);   // no image open: the holder keeps the menus clear of the K (see KrimbleKHolder)
+        // Krimble 2026-11-16 (722nd): George (build 64): "The minimize, maximize, and close gadgets render too high in the menu bar." Qt puts them at the top edge of the bar; they are
+        // centered up and down on the menu names (as the K is), now and whenever Qt moves them back.
+        if (QWidget *buttons = bar->cornerWidget(Qt::TopRightCorner)) {
+            if (buttons->isVisible() && QByteArray(buttons->metaObject()->className()).endsWith("ControllerWidget")) {
+                const int y = qMax(0, (bar->height() - krimbleBarExtra - buttons->height()) / 2);
+                if (buttons->y() != y) buttons->move(buttons->x(), y);
+            }
+        }
         QWidget *label = bar->cornerWidget(Qt::TopLeftCorner);
         // if (!label || !QByteArray(label->metaObject()->className()).endsWith("ControlLabel") || !label->isVisible()) return;
         // Krimble 2026-11-15: George (screenshot of the welcome page, no image open): "The k too close." With no image open the bar has no corner button (the K is drawn by the overlay), so this function returned at once and the
         // gap in front of the menus was never widened. The button is only moved when it exists; the gap is made wide enough in every case.
         const bool krimbleHaveLabel = label && QByteArray(label->metaObject()->className()).endsWith("ControlLabel") && label->isVisible();
-        const QPoint target(1, krimbleHaveLabel ? qMax(0, (bar->height() - label->height()) / 2) : 0);
+        // const QPoint target(1, krimbleHaveLabel ? qMax(0, (bar->height() - label->height()) / 2) : 0);
+        const QPoint target(1, krimbleHaveLabel ? qMax(0, (bar->height() - krimbleBarExtra - label->height()) / 2) : 0);   // Krimble 2026-11-16 (722nd): in the bar's old height
         if (krimbleHaveLabel && label->pos() != target) label->move(target);
         QWidgetAction *spacer = bar->findChild<QWidgetAction *>(QStringLiteral("krimbleKSpacer"));
         QAction *first = nullptr;
@@ -1423,11 +1458,16 @@ protected:
                     adopt(child, qobject_cast<QMenuBar *>(watched));
                     child->installEventFilter(this);
                 }
+                // Krimble 2026-11-16 (722nd): the window buttons (minimize, restore, close) of an image, at the right end of the bar: watched, so they are centered again whenever Qt moves them
+                else if (QByteArray(child->metaObject()->className()).endsWith("ControllerWidget")) {
+                    child->installEventFilter(this);
+                    schedulePlaceK(qobject_cast<QMenuBar *>(watched));
+                }
             }
         } else if ((event->type() == QEvent::LayoutRequest || event->type() == QEvent::Resize || event->type() == QEvent::Show) && qobject_cast<QMenuBar *>(watched)) {
             schedulePlaceK(qobject_cast<QMenuBar *>(watched));   // 2026-11-11: the K in the corner, the menus clear of it
         } else if ((event->type() == QEvent::Move || event->type() == QEvent::Show) && qobject_cast<QWidget *>(watched)
-                   && QByteArray(watched->metaObject()->className()).endsWith("ControlLabel")) {
+                   && (QByteArray(watched->metaObject()->className()).endsWith("ControlLabel") || QByteArray(watched->metaObject()->className()).endsWith("ControllerWidget"))) {   // Krimble 2026-11-16 (722nd): the window buttons too
             schedulePlaceK(qobject_cast<QMenuBar *>(static_cast<QWidget *>(watched)->parentWidget()));   // Qt moved the button: put it back in the corner
         } else if ((event->type() == QEvent::ActionAdded || event->type() == QEvent::ActionRemoved) && qobject_cast<QMenuBar *>(watched)) {
             QMenuBar *bar = qobject_cast<QMenuBar *>(watched);
@@ -1453,7 +1493,8 @@ protected:
                 const int kSize = qMin(kBar->height() - 4, qMax(14, kMetrics.height()));
                 QPainter kPainter(kBar);
                 kPainter.setRenderHint(QPainter::SmoothPixmapTransform, true);
-                qApp->windowIcon().paint(&kPainter, QRect(2, (kBar->height() - kSize) / 2, kSize, kSize));
+                // qApp->windowIcon().paint(&kPainter, QRect(2, (kBar->height() - kSize) / 2, kSize, kSize));
+                qApp->windowIcon().paint(&kPainter, QRect(2, (kBar->height() - kBar->property("krimbleBarExtra").toInt() - kSize) / 2, kSize, kSize));   // Krimble 2026-11-16 (722nd): centered on the menu names (the bar's extra height is under them)
             };
             if (!qApp->property("krimblePaintedTheme").toBool()) {
                 drawK();
@@ -1706,7 +1747,9 @@ public:
             // const QString thinHandle = QStringLiteral(
             //     "QSlider::handle:horizontal { width: 16px; height: 16px; margin: -7px 0; border: none; background: transparent; border-image: url(:/krimble-ball-bearing.png) 0 0 0 0 stretch stretch; }");
             const QString thinHandle = QStringLiteral(
-                "QSlider::handle:horizontal { width: 10px; height: 10px; margin: -4px 0; border: none; background: transparent; border-image: url(:/krimble-ball-bearing.png) 0 0 0 0 stretch stretch; }");
+                // "QSlider::handle:horizontal { width: 10px; height: 10px; margin: -4px 0; border: none; background: transparent; border-image: url(:/krimble-ball-bearing.png) 0 0 0 0 stretch stretch; }"
+                // Krimble 2026-11-16 (722nd): the smaller, darker ball with a cast shadow (see thememanager.cpp)
+                "QSlider::handle:horizontal { width: 12px; height: 12px; margin: -5px 0; border: none; background: transparent; border-image: url(:/krimble-ball-bearing-small.png) 0 0 0 0 stretch stretch; }");
             if (i != Hue) {
                 // m_sliders[i]->setStyleSheet(QStringLiteral(
                 //     "QSlider::groove:horizontal { height: 4px; border: 1px solid #535c80; border-radius: 3px; background: #20263f; }"
@@ -4116,7 +4159,8 @@ protected:
             const QFontMetrics kMetrics(kBar->font());
             const int kSize = qMin(kBar->height() - 4, qMax(14, kMetrics.height()));
             p.setRenderHint(QPainter::SmoothPixmapTransform, true);
-            qApp->windowIcon().paint(&p, QRect(2, (kBar->height() - kSize) / 2, kSize, kSize));
+            // qApp->windowIcon().paint(&p, QRect(2, (kBar->height() - kSize) / 2, kSize, kSize));
+            qApp->windowIcon().paint(&p, QRect(2, (kBar->height() - kBar->property("krimbleBarExtra").toInt() - kSize) / 2, kSize, kSize));   // Krimble 2026-11-16 (722nd): centered on the menu names
         }
     }
 
@@ -4485,7 +4529,13 @@ public:
         if (watched == m_win.data()) {
             if (event->type() == QEvent::Resize || event->type() == QEvent::LayoutRequest || event->type() == QEvent::Show || event->type() == QEvent::ChildAdded) schedule();
         } else if (watched == m_central.data()) {
-            if (event->type() == QEvent::Resize || event->type() == QEvent::Move) schedule();
+            // if (event->type() == QEvent::Resize || event->type() == QEvent::Move) schedule();
+            // Krimble 2026-11-16 (722nd): George (build 64): "There is a weird visual jitter (periodic jolts) when trying to paint on screen which disrupts the line. Very bad bug." Every time
+            // the main window lays itself out again (any widget in it asking for a new size: the status bar's memory figure does, again and again while painting), Qt puts the canvas area
+            // back between the panels (narrower, and moved right by the toolbox's width), and it was stretched back to the full width only a moment LATER (a timer), so for that moment the
+            // picture sat in another place under the finger and was drawn there: the jolt, and the break in the line. The canvas area is now put back AT ONCE, inside the very move or
+            // resize that Qt made, before anything is drawn and before the next touch arrives.
+            if ((event->type() == QEvent::Resize || event->type() == QEvent::Move) && !m_busy) apply();
         }
         return false;
     }
@@ -4510,7 +4560,9 @@ private:
         if (!m_win) return;
         track();
         if (!m_central || !m_win->isVisible()) return;
-        if (!QSettings().value(QStringLiteral("krimble/PanelsOverlayCanvas"), true).toBool()) return;
+        // if (!QSettings().value(QStringLiteral("krimble/PanelsOverlayCanvas"), true).toBool()) return;
+        static const bool krimbleOverlayOn = QSettings().value(QStringLiteral("krimble/PanelsOverlayCanvas"), true).toBool();   // Krimble 2026-11-16 (722nd): read once (this runs inside every move of the canvas area now)
+        if (!krimbleOverlayOn) return;
         const QRect now = m_central->geometry();
         const QRect wanted(0, now.top(), m_win->width(), now.height());
         if (now == wanted) return;
@@ -8917,7 +8969,8 @@ void KisMainWindow::updateWindowMenu()
     // picture while a floating window is dragged. They write the same settings the Preferences window does and apply at once.
     {
         KisConfig windowCfg(true);
-        const bool tabbed = windowCfg.readEntry<int>("mdi_viewmode", (int)QMdiArea::SubWindowView) == (int)QMdiArea::TabbedView;
+        // const bool tabbed = windowCfg.readEntry<int>("mdi_viewmode", (int)QMdiArea::SubWindowView) == (int)QMdiArea::TabbedView;
+        const bool tabbed = windowCfg.readEntry<int>("mdi_viewmode", (int)QMdiArea::TabbedView) == (int)QMdiArea::TabbedView;   // Krimble 2026-11-16 (724th): tabs are the default
         // QAction *viewModeAction = menu->addAction(tabbed ? i18n("Switch to Windows") : i18n("Switch to Tabs"));
         QAction *viewModeAction = menu->addAction(tabbed ? i18n("Switch to Floating Windows") : i18n("Switch to Tabs"));   // Krimble 2026-10-11 (George)
         connect(viewModeAction, &QAction::triggered, this, [this, tabbed]() {
@@ -9325,7 +9378,16 @@ void KisMainWindow::configChanged()
     // QMdiArea::ViewMode viewMode = (QMdiArea::ViewMode)cfg.readEntry<int>("mdi_viewmode", (int)QMdiArea::TabbedView);
     // Krimble 2026-10-11: floating windows are the default again, so people know they are there. The Window menu has a
     // one tap switch to tabs (and back).
-    QMdiArea::ViewMode viewMode = (QMdiArea::ViewMode)cfg.readEntry<int>("mdi_viewmode", (int)QMdiArea::SubWindowView);
+    // QMdiArea::ViewMode viewMode = (QMdiArea::ViewMode)cfg.readEntry<int>("mdi_viewmode", (int)QMdiArea::SubWindowView);
+    // Krimble 2026-11-16 (724th): George (build 64): "Krita previously had tabs at the top for the open image files so you could select them. Now it doesn't for some reason. I didn't ask
+    // for that to be removed. Please restore it." Tabs are the default again. A phone that has "floating windows" saved (the Preferences window saves it on every OK, asked for or not) is
+    // put back to tabs ONCE; after that Window > Switch to Floating Windows / Switch to Tabs is the user's own choice and is kept.
+    if (!cfg.readEntry<bool>("krimbleTabsRestored724", false)) {
+        KisConfig krimbleWrite(false);
+        krimbleWrite.writeEntry<int>("mdi_viewmode", (int)QMdiArea::TabbedView);
+        krimbleWrite.writeEntry<bool>("krimbleTabsRestored724", true);
+    }
+    QMdiArea::ViewMode viewMode = (QMdiArea::ViewMode)KisConfig(true).readEntry<int>("mdi_viewmode", (int)QMdiArea::TabbedView);
     d->mdiArea->setViewMode(viewMode);
     Q_FOREACH (QMdiSubWindow *subwin, d->mdiArea->subWindowList()) {
         // subwin->setOption(QMdiSubWindow::RubberBandMove, cfg.readEntry<int>("mdi_rubberband", cfg.useOpenGL()));

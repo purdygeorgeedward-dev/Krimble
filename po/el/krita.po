@@ -23082,7 +23082,7 @@ msgstr "Εικόνες"
 #: libs/koplugin/KisMimeDatabase.cpp:229
 #, fuzzy, kde-format
 msgctxt "description of a file type"
-msgid "Photoshop Layer Style Library"
+msgid "Layer Style Library (ASL)"
 msgstr "Διαδρομή διαμόρφωσης OpenColorIO:"
 
 #: libs/koplugin/KisMimeDatabase.cpp:234
@@ -23180,7 +23180,7 @@ msgstr "Επιλογές εξαγωγής OpenEXR"
 #: libs/koplugin/KisMimeDatabase.cpp:309
 #, fuzzy, kde-format
 msgctxt "description of a file type"
-msgid "Photoshop Image (Large)"
+msgid "PSB Image (Large)"
 msgstr "Διαδρομή διαμόρφωσης OpenColorIO:"
 
 #: libs/koplugin/KisMimeDatabase.cpp:314
@@ -23958,17 +23958,17 @@ msgstr "Απαλός φωτισμός (SVG)"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:82
 #, fuzzy, kde-format
-#| msgid "Soft Light (Photoshop)"
+#| msgid "Soft Light (Standard)"
 msgctxt "Blending mode - Soft Light (Pegtop-Delphi)"
 msgid "Soft Light (Pegtop-Delphi)"
-msgstr "Απαλός φωτισμός (Photoshop)"
+msgstr "Απαλός φωτισμός (PS)"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:83
 #, fuzzy, kde-format
-#| msgid "Soft Light (Photoshop)"
-msgctxt "Blending mode - Soft Light (Photoshop)"
-msgid "Soft Light (Photoshop)"
-msgstr "Απαλός φωτισμός (Photoshop)"
+#| msgid "Soft Light (Standard)"
+msgctxt "Blending mode - Soft Light (Standard)"
+msgid "Soft Light (Standard)"
+msgstr "Απαλός φωτισμός (PS)"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:84
 #, fuzzy, kde-format
@@ -24187,17 +24187,17 @@ msgstr "Σκληρή μίξη"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:121
 #, fuzzy, kde-format
-#| msgid "Soft Light (Photoshop)"
-msgctxt "Blending mode - Hard Mix (Photoshop)"
-msgid "Hard Mix (Photoshop)"
-msgstr "Απαλός φωτισμός (Photoshop)"
+#| msgid "Soft Light (Standard)"
+msgctxt "Blending mode - Hard Mix (Standard)"
+msgid "Hard Mix (Standard)"
+msgstr "Απαλός φωτισμός (PS)"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:122
 #, fuzzy, kde-format
-#| msgid "Soft Light (Photoshop)"
-msgctxt "Blending mode - Hard Mix Softer (Photoshop)"
-msgid "Hard Mix Softer (Photoshop)"
-msgstr "Απαλός φωτισμός (Photoshop)"
+#| msgid "Soft Light (Standard)"
+msgctxt "Blending mode - Hard Mix Softer (Standard)"
+msgid "Hard Mix Softer (Standard)"
+msgstr "Απαλός φωτισμός (PS)"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:123
 #, fuzzy, kde-format
@@ -59621,7 +59621,7 @@ msgstr ""
 #. i18n: ectx: property (title), widget (QGroupBox, chkPhotoshop)
 #: plugins/impex/tiff/kis_wdg_options_tiff.ui:79
 #, fuzzy, kde-format
-msgid "Save layers as Photoshop"
+msgid "Save layers as PS"
 msgstr "Αποθήκευση στρώματος ως εικόνα..."
 
 #. i18n: ectx: property (text), widget (QLabel, label_4)
@@ -62024,17 +62024,17 @@ msgstr "Ύψος εκτύπωσης:"
 
 #: plugins/paintops/libpaintop/kis_texture_chooser.cpp:72
 #, fuzzy, kde-format
-#| msgid "Soft Light (Photoshop)"
-msgctxt "Height (Photoshop) blend mode for brush texture"
-msgid "Height (Photoshop)"
-msgstr "Απαλός φωτισμός (Photoshop)"
+#| msgid "Soft Light (Standard)"
+msgctxt "Height (PS) blend mode for brush texture"
+msgid "Height (PS)"
+msgstr "Απαλός φωτισμός (PS)"
 
 #: plugins/paintops/libpaintop/kis_texture_chooser.cpp:73
 #, fuzzy, kde-format
-#| msgid "Soft Light (Photoshop)"
-msgctxt "Linear Height (Photoshop) blend mode for brush texture"
-msgid "Linear Height (Photoshop)"
-msgstr "Απαλός φωτισμός (Photoshop)"
+#| msgid "Soft Light (Standard)"
+msgctxt "Linear Height (PS) blend mode for brush texture"
+msgid "Linear Height (PS)"
+msgstr "Απαλός φωτισμός (PS)"
 
 #: plugins/paintops/libpaintop/kis_texture_chooser.cpp:82
 #, fuzzy, kde-format
@@ -74022,14 +74022,14 @@ msgstr ""
 #~ msgstr "Εξαγωγή κόκκων"
 
 #, fuzzy
-#~| msgid "Soft Light (Photoshop)"
-#~ msgid "Hard Mix (Photoshop)"
-#~ msgstr "Απαλός φωτισμός (Photoshop)"
+#~| msgid "Soft Light (Standard)"
+#~ msgid "Hard Mix (Standard)"
+#~ msgstr "Απαλός φωτισμός (PS)"
 
 #, fuzzy
-#~| msgid "Soft Light (Photoshop)"
-#~ msgid "Hard Mix Softer (Photoshop)"
-#~ msgstr "Απαλός φωτισμός (Photoshop)"
+#~| msgid "Soft Light (Standard)"
+#~ msgid "Hard Mix Softer (Standard)"
+#~ msgstr "Απαλός φωτισμός (PS)"
 
 #~ msgid "Parallel"
 #~ msgstr "Παράλληλο"
@@ -74063,15 +74063,15 @@ msgstr ""
 #~ msgstr "Απαλός φωτισμός (SVG)"
 
 #, fuzzy
-#~| msgid "Soft Light (Photoshop)"
+#~| msgid "Soft Light (Standard)"
 #~ msgid "Soft Light (Pegtop-Delphi)"
-#~ msgstr "Απαλός φωτισμός (Photoshop)"
+#~ msgstr "Απαλός φωτισμός (PS)"
 
 #~ msgid "Soft Light (SVG)"
 #~ msgstr "Απαλός φωτισμός (SVG)"
 
-#~ msgid "Soft Light (Photoshop)"
-#~ msgstr "Απαλός φωτισμός (Photoshop)"
+#~ msgid "Soft Light (Standard)"
+#~ msgstr "Απαλός φωτισμός (PS)"
 
 #~ msgid "Gamma Light"
 #~ msgstr "Φωτισμός γάμμα"
@@ -92187,7 +92187,7 @@ msgstr ""
 
 #, fuzzy
 #~ msgctxt "(qtundo-format) description of a file type"
-#~ msgid "Photoshop Layer Style Library"
+#~ msgid "Layer Style Library (ASL)"
 #~ msgstr "Διαδρομή διαμόρφωσης OpenColorIO:"
 
 #, fuzzy
@@ -92783,10 +92783,10 @@ msgstr ""
 #~ msgstr "Απαλός φωτισμός (SVG)"
 
 #, fuzzy
-#~| msgid "Soft Light (Photoshop)"
+#~| msgid "Soft Light (Standard)"
 #~ msgctxt "(qtundo-format)"
-#~ msgid "Soft Light (Photoshop)"
-#~ msgstr "Απαλός φωτισμός (Photoshop)"
+#~ msgid "Soft Light (Standard)"
+#~ msgstr "Απαλός φωτισμός (PS)"
 
 #, fuzzy
 #~| msgid "Gamma Light"
@@ -100684,7 +100684,7 @@ msgstr ""
 
 #, fuzzy
 #~ msgctxt "(qtundo-format) @title:window"
-#~ msgid "Photoshop Export Error"
+#~ msgid "PS Export Error"
 #~ msgstr "Κατακόρυφο περίγραμμα"
 
 #, fuzzy
@@ -105673,8 +105673,8 @@ msgstr ""
 #~ msgid "KDE (new)"
 #~ msgstr "KDE (νέο)"
 
-#~ msgid "photoshop-swatches-sketchlings-swatches.aco"
-#~ msgstr "photoshop-swatches-sketchlings-swatches.aco"
+#~ msgid "swatches-sketchlings-swatches.aco"
+#~ msgstr "swatches-sketchlings-swatches.aco"
 
 #~ msgid "Skin.gpl.txt"
 #~ msgstr "Skin.gpl.txt"

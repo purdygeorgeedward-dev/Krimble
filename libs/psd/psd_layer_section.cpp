@@ -395,7 +395,7 @@ bool PSDLayerMaskSection::readTiffImpl(QIODevice &io)
     globalInfoSection.setUserMaskInfoBlockHandler(std::bind(&PSDLayerMaskSection::readGlobalMask<byteOrder>, this, std::placeholders::_1));
 
     if (!globalInfoSection.read(io)) {
-        dbgFile << "Failed to read TIFF Photoshop blocks!";
+        dbgFile << "Failed to read TIFF PS blocks!";
         return false;
     }
 
@@ -924,7 +924,7 @@ void PSDLayerMaskSection::writePsdImpl(QIODevice &io, KisNodeSP rootLayer, psd_c
                     QRect rc = layerContentDevice->exactBounds();
                     rc = rc.normalized();
 
-                    // keep to the max of photoshop's capabilities
+                    // keep to the max of PS's capabilities
                     if (rc.width() > 30000)
                         rc.setWidth(30000);
                     if (rc.height() > 30000)
@@ -1102,7 +1102,7 @@ void PSDLayerMaskSection::writeTiffImpl(QIODevice &io, KisNodeSP rootLayer, psd_
                     QRect rc = layerContentDevice->exactBounds();
                     rc = rc.normalized();
 
-                    // keep to the max of photoshop's capabilities
+                    // keep to the max of PS's capabilities
                     // XXX: update this to PSB
                     if (rc.width() > 30000)
                         rc.setWidth(30000);

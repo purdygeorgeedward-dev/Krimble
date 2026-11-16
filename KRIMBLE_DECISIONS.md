@@ -12,7 +12,7 @@ Krimble 2026-11-13. George: "I'm concerned about his decisions get made and then
 | Every build gets a new number; a build does not have to be released | 2026-11-08 | `tools/ci/check_build_number.py` (stops the build) |
 | Every menu, form and resource file is parsed as XML before a build | 2026-11-08 | `tools/ci/check_xml.py` (stops the build) |
 | The default branch is `master`; never create `main` | Bible | not automatic |
-| No "Photoshop" in README.md or KRIMBLE_CHANGES.md (say "industry standard"); code comments may | Bible | `tools/ci/check_decisions.py` (a warning) |
+| No "the industry standard" in README.md or KRIMBLE_CHANGES.md (say "industry standard"); code comments may | Bible | `tools/ci/check_decisions.py` (a warning) |
 | JNI class paths are `org/krimble/android` | 2026-09-19 | `tools/ci/check_decisions.py` (a warning) |
 | Code is commented out, never deleted; menu and action XML entries are commented out | Bible | not automatic |
 | Every change: an inline comment, a KRIMBLE_CHANGES.md entry, a KRIMBLE_WORKLOG.md entry, times in MST; a change is called done only when it is on the repository (`git ls-remote`), and the entry is written only after the edit is seen in the file | Bible, 2026-11-13 | not automatic |

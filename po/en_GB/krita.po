@@ -22822,8 +22822,8 @@ msgstr "OpenRaster Image"
 #: libs/koplugin/KisMimeDatabase.cpp:229
 #, kde-format
 msgctxt "description of a file type"
-msgid "Photoshop Layer Style Library"
-msgstr "Photoshop Layer Style Library"
+msgid "Layer Style Library (ASL)"
+msgstr "Layer Style Library (ASL)"
 
 #: libs/koplugin/KisMimeDatabase.cpp:234
 #, kde-format
@@ -22918,8 +22918,8 @@ msgstr "OpenEXR (Extended)"
 #: libs/koplugin/KisMimeDatabase.cpp:309
 #, kde-format
 msgctxt "description of a file type"
-msgid "Photoshop Image (Large)"
-msgstr "Photoshop Image (Large)"
+msgid "PSB Image (Large)"
+msgstr "PSB Image (Large)"
 
 #: libs/koplugin/KisMimeDatabase.cpp:314
 #, kde-format
@@ -23645,9 +23645,9 @@ msgstr "Soft Light (Pegtop-Delphi)"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:83
 #, kde-format
-msgctxt "Blending mode - Soft Light (Photoshop)"
-msgid "Soft Light (Photoshop)"
-msgstr "Soft Light (Photoshop)"
+msgctxt "Blending mode - Soft Light (Standard)"
+msgid "Soft Light (Standard)"
+msgstr "Soft Light (Standard)"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:84
 #, kde-format
@@ -23853,15 +23853,15 @@ msgstr "Hard Mix"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:121
 #, kde-format
-msgctxt "Blending mode - Hard Mix (Photoshop)"
-msgid "Hard Mix (Photoshop)"
-msgstr "Hard Mix (Photoshop)"
+msgctxt "Blending mode - Hard Mix (Standard)"
+msgid "Hard Mix (Standard)"
+msgstr "Hard Mix (Standard)"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:122
 #, kde-format
-msgctxt "Blending mode - Hard Mix Softer (Photoshop)"
-msgid "Hard Mix Softer (Photoshop)"
-msgstr "Hard Mix Softer (Photoshop)"
+msgctxt "Blending mode - Hard Mix Softer (Standard)"
+msgid "Hard Mix Softer (Standard)"
+msgstr "Hard Mix Softer (Standard)"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:123
 #, kde-format
@@ -59323,8 +59323,8 @@ msgstr ""
 #. i18n: ectx: property (title), widget (QGroupBox, chkPhotoshop)
 #: plugins/impex/tiff/kis_wdg_options_tiff.ui:79
 #, kde-format
-msgid "Save layers as Photoshop"
-msgstr "Save layers as Photoshop"
+msgid "Save layers as PS"
+msgstr "Save layers as PS"
 
 #. i18n: ectx: property (text), widget (QLabel, label_4)
 #: plugins/impex/tiff/kis_wdg_options_tiff.ui:88
@@ -61732,15 +61732,15 @@ msgstr "Linear Height"
 
 #: plugins/paintops/libpaintop/kis_texture_chooser.cpp:72
 #, kde-format
-msgctxt "Height (Photoshop) blend mode for brush texture"
-msgid "Height (Photoshop)"
-msgstr "Height (Photoshop)"
+msgctxt "Height (PS) blend mode for brush texture"
+msgid "Height (PS)"
+msgstr "Height (PS)"
 
 #: plugins/paintops/libpaintop/kis_texture_chooser.cpp:73
 #, kde-format
-msgctxt "Linear Height (Photoshop) blend mode for brush texture"
-msgid "Linear Height (Photoshop)"
-msgstr "Linear Height (Photoshop)"
+msgctxt "Linear Height (PS) blend mode for brush texture"
+msgid "Linear Height (PS)"
+msgstr "Linear Height (PS)"
 
 #: plugins/paintops/libpaintop/kis_texture_chooser.cpp:82
 #, kde-format
@@ -73589,11 +73589,11 @@ msgstr ""
 #~ msgid "Grain Extract"
 #~ msgstr "Grain Extract"
 
-#~ msgid "Hard Mix (Photoshop)"
-#~ msgstr "Hard Mix (Photoshop)"
+#~ msgid "Hard Mix (Standard)"
+#~ msgstr "Hard Mix (Standard)"
 
-#~ msgid "Hard Mix Softer (Photoshop)"
-#~ msgstr "Hard Mix Softer (Photoshop)"
+#~ msgid "Hard Mix Softer (Standard)"
+#~ msgstr "Hard Mix Softer (Standard)"
 
 #~ msgid "Parallel"
 #~ msgstr "Parallel"
@@ -73640,8 +73640,8 @@ msgstr ""
 #~ msgid "Soft Light (SVG)"
 #~ msgstr "Soft Light (SVG)"
 
-#~ msgid "Soft Light (Photoshop)"
-#~ msgstr "Soft Light (Photoshop)"
+#~ msgid "Soft Light (Standard)"
+#~ msgstr "Soft Light (Standard)"
 
 #~ msgid "Gamma Light"
 #~ msgstr "Gamma Light"
@@ -89799,8 +89799,8 @@ msgstr ""
 #~ msgstr "OpenRaster Image"
 
 #~ msgctxt "(qtundo-format) description of a file type"
-#~ msgid "Photoshop Layer Style Library"
-#~ msgstr "Photoshop Layer Style Library"
+#~ msgid "Layer Style Library (ASL)"
+#~ msgstr "Layer Style Library (ASL)"
 
 #~ msgctxt "(qtundo-format) description of a file type"
 #~ msgid "Color Palette"
@@ -90191,8 +90191,8 @@ msgstr ""
 #~ msgstr "Soft Light (SVG)"
 
 #~ msgctxt "(qtundo-format)"
-#~ msgid "Soft Light (Photoshop)"
-#~ msgstr "Soft Light (Photoshop)"
+#~ msgid "Soft Light (Standard)"
+#~ msgstr "Soft Light (Standard)"
 
 #~ msgctxt "(qtundo-format)"
 #~ msgid "Gamma Light"
@@ -98378,49 +98378,49 @@ msgstr ""
 #~ msgstr "PPM Export Options"
 
 #~ msgctxt "(qtundo-format) @title:window"
-#~ msgid "Photoshop Export Error"
-#~ msgstr "Photoshop Export Error"
+#~ msgid "PS Export Error"
+#~ msgstr "PS Export Error"
 
 #~ msgctxt "@title:window"
-#~ msgid "Photoshop Export Error"
-#~ msgstr "Photoshop Export Error"
+#~ msgid "PS Export Error"
+#~ msgstr "PS Export Error"
 
 #~ msgid ""
-#~ "Unable to save to the Photoshop format.\n"
-#~ "The Photoshop format only supports images that are smaller than "
+#~ "Unable to save to the PS format.\n"
+#~ "The PS format only supports images that are smaller than "
 #~ "30000x3000 pixels."
 #~ msgstr ""
-#~ "Unable to save to the Photoshop format.\n"
-#~ "The Photoshop format only supports images that are smaller than "
+#~ "Unable to save to the PS format.\n"
+#~ "The PS format only supports images that are smaller than "
 #~ "30000x3000 pixels."
 
 #~ msgctxt "(qtundo-format)"
 #~ msgid ""
-#~ "Unable to save to the Photoshop format.\n"
-#~ "The Photoshop format only supports images that are smaller than "
+#~ "Unable to save to the PS format.\n"
+#~ "The PS format only supports images that are smaller than "
 #~ "30000x3000 pixels."
 #~ msgstr ""
-#~ "Unable to save to the Photoshop format.\n"
-#~ "The Photoshop format only supports images that are smaller than "
+#~ "Unable to save to the PS format.\n"
+#~ "The PS format only supports images that are smaller than "
 #~ "30000x3000 pixels."
 
 #~ msgid ""
-#~ "Unable to save to the Photoshop format.\n"
-#~ "The Photoshop format only supports images where all layers have the same "
+#~ "Unable to save to the PS format.\n"
+#~ "The PS format only supports images where all layers have the same "
 #~ "colorspace as the image."
 #~ msgstr ""
-#~ "Unable to save to the Photoshop format.\n"
-#~ "The Photoshop format only supports images where all layers have the same "
+#~ "Unable to save to the PS format.\n"
+#~ "The PS format only supports images where all layers have the same "
 #~ "colourspace as the image."
 
 #~ msgctxt "(qtundo-format)"
 #~ msgid ""
-#~ "Unable to save to the Photoshop format.\n"
-#~ "The Photoshop format only supports images where all layers have the same "
+#~ "Unable to save to the PS format.\n"
+#~ "The PS format only supports images where all layers have the same "
 #~ "colorspace as the image."
 #~ msgstr ""
-#~ "Unable to save to the Photoshop format.\n"
-#~ "The Photoshop format only supports images where all layers have the same "
+#~ "Unable to save to the PS format.\n"
+#~ "The PS format only supports images where all layers have the same "
 #~ "colourspace as the image."
 
 #~ msgctxt ""

@@ -50,7 +50,7 @@ public:
         setSection(ToolBoxSection::PSOrder);
         setIconName(koIconNameCStr("krita_tool_clone_stamp"));
         setPriority(23);
-        setToolBoxPriority(124);
+        setToolBoxPriority(122);   // Krimble 2026-11-16 (722nd): the toolbox order of the build 64 list (was 124): the stamp after the Brush (120), before the Eraser (124)
         setActivationShapeId(KRITA_TOOL_ACTIVATION_ID);
     }
 

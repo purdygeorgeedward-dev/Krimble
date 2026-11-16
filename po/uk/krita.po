@@ -22715,8 +22715,8 @@ msgstr "зображення OpenRaster"
 #: libs/koplugin/KisMimeDatabase.cpp:229
 #, kde-format
 msgctxt "description of a file type"
-msgid "Photoshop Layer Style Library"
-msgstr "бібліотека стилів шарів Photoshop"
+msgid "Layer Style Library (ASL)"
+msgstr "бібліотека стилів шарів PS"
 
 #: libs/koplugin/KisMimeDatabase.cpp:234
 #, kde-format
@@ -22811,8 +22811,8 @@ msgstr "OpenEXR (розширений)"
 #: libs/koplugin/KisMimeDatabase.cpp:309
 #, kde-format
 msgctxt "description of a file type"
-msgid "Photoshop Image (Large)"
-msgstr "зображення Photoshop (велике)"
+msgid "PSB Image (Large)"
+msgstr "зображення PS (велике)"
 
 #: libs/koplugin/KisMimeDatabase.cpp:314
 #, kde-format
@@ -23538,9 +23538,9 @@ msgstr "Розсіяне світло (Pegtop-Delphi)"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:83
 #, kde-format
-msgctxt "Blending mode - Soft Light (Photoshop)"
-msgid "Soft Light (Photoshop)"
-msgstr "Розсіяне світло (Photoshop)"
+msgctxt "Blending mode - Soft Light (Standard)"
+msgid "Soft Light (Standard)"
+msgstr "Розсіяне світло (PS)"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:84
 #, kde-format
@@ -23742,15 +23742,15 @@ msgstr "Агресивне змішування HDR"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:121
 #, kde-format
-msgctxt "Blending mode - Hard Mix (Photoshop)"
-msgid "Hard Mix (Photoshop)"
-msgstr "Жорстке змішування (Photoshop)"
+msgctxt "Blending mode - Hard Mix (Standard)"
+msgid "Hard Mix (Standard)"
+msgstr "Жорстке змішування (PS)"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:122
 #, kde-format
-msgctxt "Blending mode - Hard Mix Softer (Photoshop)"
-msgid "Hard Mix Softer (Photoshop)"
-msgstr "Жорстке змішування пом'якшене (Photoshop)"
+msgctxt "Blending mode - Hard Mix Softer (Standard)"
+msgid "Hard Mix Softer (Standard)"
+msgstr "Жорстке змішування пом'якшене (PS)"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:123
 #, kde-format
@@ -59577,8 +59577,8 @@ msgstr ""
 #. i18n: ectx: property (title), widget (QGroupBox, chkPhotoshop)
 #: plugins/impex/tiff/kis_wdg_options_tiff.ui:79
 #, kde-format
-msgid "Save layers as Photoshop"
-msgstr "Зберігати шари як Photoshop"
+msgid "Save layers as PS"
+msgstr "Зберігати шари як PS"
 
 #. i18n: ectx: property (text), widget (QLabel, label_4)
 #: plugins/impex/tiff/kis_wdg_options_tiff.ui:88
@@ -61998,15 +61998,15 @@ msgstr "Лінійна висота"
 
 #: plugins/paintops/libpaintop/kis_texture_chooser.cpp:72
 #, kde-format
-msgctxt "Height (Photoshop) blend mode for brush texture"
-msgid "Height (Photoshop)"
-msgstr "Висота (Photoshop)"
+msgctxt "Height (PS) blend mode for brush texture"
+msgid "Height (PS)"
+msgstr "Висота (PS)"
 
 #: plugins/paintops/libpaintop/kis_texture_chooser.cpp:73
 #, kde-format
-msgctxt "Linear Height (Photoshop) blend mode for brush texture"
-msgid "Linear Height (Photoshop)"
-msgstr "Лінійна висота (Photoshop)"
+msgctxt "Linear Height (PS) blend mode for brush texture"
+msgid "Linear Height (PS)"
+msgstr "Лінійна висота (PS)"
 
 #: plugins/paintops/libpaintop/kis_texture_chooser.cpp:82
 #, kde-format
@@ -73651,11 +73651,11 @@ msgstr ""
 #~ msgid "Grain Extract"
 #~ msgstr "Видобування зерен"
 
-#~ msgid "Hard Mix (Photoshop)"
-#~ msgstr "Жорстке змішування (Photoshop)"
+#~ msgid "Hard Mix (Standard)"
+#~ msgstr "Жорстке змішування (PS)"
 
-#~ msgid "Hard Mix Softer (Photoshop)"
-#~ msgstr "Жорстке змішування пом'якшене (Photoshop)"
+#~ msgid "Hard Mix Softer (Standard)"
+#~ msgstr "Жорстке змішування пом'якшене (PS)"
 
 #~ msgid "Parallel"
 #~ msgstr "Паралель"
@@ -73702,8 +73702,8 @@ msgstr ""
 #~ msgid "Soft Light (SVG)"
 #~ msgstr "Розсіяне світло (SVG)"
 
-#~ msgid "Soft Light (Photoshop)"
-#~ msgstr "Розсіяне світло (Photoshop)"
+#~ msgid "Soft Light (Standard)"
+#~ msgstr "Розсіяне світло (PS)"
 
 #~ msgid "Gamma Light"
 #~ msgstr "Освітлення гами"

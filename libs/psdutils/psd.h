@@ -159,7 +159,7 @@ struct psd_gradient_transparency_stop {
     qint8 opacity; // Opacity of transparency stop
 };
 
-// Gradient settings (Photoshop 6.0)
+// Gradient settings (PS 6.0)
 struct psd_layer_gradient_map {
     bool reverse; // Is gradient reverse
     bool dithered; // Is gradient dithered
@@ -169,9 +169,9 @@ struct psd_layer_gradient_map {
     psd_gradient_color_stop *color_stop;
     qint8 number_transparency_stops; // Number of transparency stops to follow
     psd_gradient_transparency_stop *transparency_stop;
-    qint8 expansion_count; // Expansion count ( = 2 for Photoshop 6.0)
+    qint8 expansion_count; // Expansion count ( = 2 for PS 6.0)
     qint8 interpolation; // Interpolation if length above is non-zero
-    qint8 length; // Length (= 32 for Photoshop 6.0)
+    qint8 length; // Length (= 32 for PS 6.0)
     qint8 mode; // Mode for this gradient
     qint32 random_number_seed; // Random number seed
     qint8 showing_transparency_flag; // Flag for showing transparency
@@ -1299,7 +1299,7 @@ private:
 QPair<QString, QString> KRITAPSDUTILS_EXPORT psd_colormode_to_colormodelid(psd_color_mode colormode, quint16 channelDepth);
 
 /**
- * Convert the Photoshop blend mode strings to Pigment compositeop id's
+ * Convert the PS blend mode strings to Pigment compositeop id's
  */
 QString KRITAPSDUTILS_EXPORT psd_blendmode_to_composite_op(const QString &blendmode);
 QString KRITAPSDUTILS_EXPORT composite_op_to_psd_blendmode(const QString &compositeOp);

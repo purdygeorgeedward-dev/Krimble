@@ -2,7 +2,7 @@
 <kpartgui xmlns="http://www.kde.org/standards/kxmlgui/1.0"
 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 name="Krita"
-version="543"
+version="544"
 xsi:schemaLocation="http://www.kde.org/standards/kxmlgui/1.0  http://www.kde.org/standards/kxmlgui/1.0/kxmlgui.xsd">
 
 <!-- Do not add the word "Krimble" to this menu. It serves no purpose. -->
@@ -1568,6 +1568,7 @@ xsi:schemaLocation="http://www.kde.org/standards/kxmlgui/1.0  http://www.kde.org
 </ToolBar>
 -->
 
+<!-- Krimble 2026-11-16 (722nd): George (build 64): "The QuickAdjust toolbar does nothing. We have a gadget. No need for a toolbar. Remove." Kept, not deleted:
 <ToolBar name="QuickAdjustBar" fullWidth="false" position="top" hidden="true">
     <Text>Quick Adjust</Text>
     <Action name="krita_filter_brightnesscontrast"/>
@@ -1578,6 +1579,7 @@ xsi:schemaLocation="http://www.kde.org/standards/kxmlgui/1.0  http://www.kde.org
     <Action name="krita_filter_colorbalance"/>
     <Action name="krita_filter_invert"/>
 </ToolBar>
+-->
 
 <!-- Krimble 2026-10-12: removed (George: too many toolbars). Kept, not deleted:
 <ToolBar name="FileBar" fullWidth="false" position="top" hidden="true">

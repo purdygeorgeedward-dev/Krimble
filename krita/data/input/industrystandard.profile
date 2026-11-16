@@ -14,7 +14,7 @@
 0={0;2;[];0;0;0}
 
 [General]
-name=Photoshop Compatible
+name=Industry Standard
 version=6
 
 [Pan Canvas]

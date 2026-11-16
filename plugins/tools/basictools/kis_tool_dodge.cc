@@ -63,7 +63,7 @@ void KisToolDodge::activate(const QSet<KoShape*> &shapes)
 
     // dodgePreset->settings()->setProperty("CompositeOp", COMPOSITE_DODGE);
     // Krimble 2026-10-11 (QA of 1.0.32): the color dodge op with the foreground color made a faint line
-    // (dodge) or an instant black one (burn) on a white canvas. Photoshop's tool lightens what is already there, a little at
+    // (dodge) or an instant black one (burn) on a white canvas. The industry standard's tool lightens what is already there, a little at
     // a time. The linear op does that: with a white brush each dab moves the pixel a small step toward
     // white, so the effect builds up slowly the more you paint over a spot. The tool sets its brush color to
     // white while it is active (see below) and a low flow (4% per dab); flow and opacity can be changed.

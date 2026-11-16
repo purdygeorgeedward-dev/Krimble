@@ -49,7 +49,7 @@ public:
         setIconName(koIconNameCStr("krita_tool_eraser"));
         // no key: E is the eraser switch of the brush toolbar already (a second user of the key would make it ambiguous)
         setPriority(25);          // after Burn (24)
-        setToolBoxPriority(123);  // in the toolbox: after Brush (120), Smudge (121), Soften (122)
+        setToolBoxPriority(124);   // Krimble 2026-11-16 (722nd): the toolbox order of the build 64 list (was 123) //  // in the toolbox: after Brush (120), Smudge (121), Soften (122)
         setActivationShapeId(KRITA_TOOL_ACTIVATION_ID);
     }
 

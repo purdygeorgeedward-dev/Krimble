@@ -23,7 +23,7 @@ public:
 private Q_SLOTS:
     void slotActivated();
     void selectOpaque(int id);
-    // Krimble: Select > Similar (Photoshop's Select > Similar)
+    // Krimble: Select > Similar (the industry standard's Select > Similar)
     void selectSimilar();
 };
 

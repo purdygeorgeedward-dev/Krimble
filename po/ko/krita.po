@@ -7354,7 +7354,7 @@ msgstr "픽셀아트 32"
 #| msgid "Ps"
 msgctxt "./krita/data/bundles/Krita_3_Default_Resources.bundle:palettes/ps.gpl"
 msgid "Ps"
-msgstr "Photoshop"
+msgstr "PS"
 
 #. i18n: Display name of resource, see context: [path-to-resources]/[resource-type]/[resource-filename]
 #: krita/data/bundles/Krita_3_Default_Resources.bundle:palettes/swatch-cmyk.gpl:2
@@ -7876,7 +7876,7 @@ msgstr "픽셀아트 32"
 #, kde-format
 msgctxt "./krita/data/palettes/ps.gpl"
 msgid "Ps"
-msgstr "Photoshop"
+msgstr "PS"
 
 #. i18n: Display name of resource, see context: [path-to-resources]/[resource-type]/[resource-filename]
 #: krita/data/palettes/swatch-cmyk.gpl:2
@@ -23701,8 +23701,8 @@ msgstr "OpenRaster 이미지"
 #: libs/koplugin/KisMimeDatabase.cpp:229
 #, kde-format
 msgctxt "description of a file type"
-msgid "Photoshop Layer Style Library"
-msgstr "Photoshop 레이어 스타일 라이브러리"
+msgid "Layer Style Library (ASL)"
+msgstr "PS 레이어 스타일 라이브러리"
 
 #: libs/koplugin/KisMimeDatabase.cpp:234
 #, kde-format
@@ -23797,8 +23797,8 @@ msgstr "OpenEXR(확장)"
 #: libs/koplugin/KisMimeDatabase.cpp:309
 #, kde-format
 msgctxt "description of a file type"
-msgid "Photoshop Image (Large)"
-msgstr "Photoshop 이미지(대형)"
+msgid "PSB Image (Large)"
+msgstr "PS 이미지(대형)"
 
 #: libs/koplugin/KisMimeDatabase.cpp:314
 #, kde-format
@@ -24529,9 +24529,9 @@ msgstr "부드러운 조명(Pegtop-Delphi)"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:83
 #, kde-format
-msgctxt "Blending mode - Soft Light (Photoshop)"
-msgid "Soft Light (Photoshop)"
-msgstr "부드러운 조명(Photoshop)"
+msgctxt "Blending mode - Soft Light (Standard)"
+msgid "Soft Light (Standard)"
+msgstr "부드러운 조명(PS)"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:84
 #, kde-format
@@ -24736,15 +24736,15 @@ msgstr "강한 섞기"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:121
 #, kde-format
-msgctxt "Blending mode - Hard Mix (Photoshop)"
-msgid "Hard Mix (Photoshop)"
-msgstr "강한 섞기(Photoshop)"
+msgctxt "Blending mode - Hard Mix (Standard)"
+msgid "Hard Mix (Standard)"
+msgstr "강한 섞기(PS)"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:122
 #, kde-format
-msgctxt "Blending mode - Hard Mix Softer (Photoshop)"
-msgid "Hard Mix Softer (Photoshop)"
-msgstr "부드럽게 강한 섞기(Photoshop)"
+msgctxt "Blending mode - Hard Mix Softer (Standard)"
+msgid "Hard Mix Softer (Standard)"
+msgstr "부드럽게 강한 섞기(PS)"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:123
 #, kde-format
@@ -60697,7 +60697,7 @@ msgstr "예측 인자를 사용하여 압축을 개선할 수 있습니다(대�
 #: plugins/impex/tiff/kis_wdg_options_tiff.ui:79
 #, fuzzy, kde-format
 #| msgid "Save layers to..."
-msgid "Save layers as Photoshop"
+msgid "Save layers as PS"
 msgstr "다른 이름으로 레이어 저장..."
 
 #. i18n: ectx: property (text), widget (QLabel, label_4)
@@ -63123,15 +63123,15 @@ msgstr "선형 높이"
 
 #: plugins/paintops/libpaintop/kis_texture_chooser.cpp:72
 #, kde-format
-msgctxt "Height (Photoshop) blend mode for brush texture"
-msgid "Height (Photoshop)"
-msgstr "높이 (Photoshop)"
+msgctxt "Height (PS) blend mode for brush texture"
+msgid "Height (PS)"
+msgstr "높이 (PS)"
 
 #: plugins/paintops/libpaintop/kis_texture_chooser.cpp:73
 #, kde-format
-msgctxt "Linear Height (Photoshop) blend mode for brush texture"
-msgid "Linear Height (Photoshop)"
-msgstr "선형 높이 (Photoshop)"
+msgctxt "Linear Height (PS) blend mode for brush texture"
+msgid "Linear Height (PS)"
+msgstr "선형 높이 (PS)"
 
 #: plugins/paintops/libpaintop/kis_texture_chooser.cpp:82
 #, kde-format
@@ -66682,10 +66682,10 @@ msgstr "{input}을(를) {output}(으)로 내보냈습니다."
 #: plugins/python/photobash_images/photobash_images_docker.py:83
 #, fuzzy
 #| msgctxt "description of a file type"
-#| msgid "Photoshop Image (Large)"
+#| msgid "PSB Image (Large)"
 msgctxt "@title:window"
 msgid "Photobash Images"
-msgstr "Photoshop 이미지(대형)"
+msgstr "PS 이미지(대형)"
 
 #: plugins/python/photobash_images/photobash_images_docker.py:151
 #: plugins/python/photobash_images/photobash_images_docker.py:479
@@ -75123,11 +75123,11 @@ msgstr ""
 #~ msgid "Grain Extract"
 #~ msgstr "그레인 추출"
 
-#~ msgid "Hard Mix (Photoshop)"
-#~ msgstr "강한 섞기(Photoshop)"
+#~ msgid "Hard Mix (Standard)"
+#~ msgstr "강한 섞기(PS)"
 
-#~ msgid "Hard Mix Softer (Photoshop)"
-#~ msgstr "부드럽게 강한 섞기(Photoshop)"
+#~ msgid "Hard Mix Softer (Standard)"
+#~ msgstr "부드럽게 강한 섞기(PS)"
 
 #~ msgid "Parallel"
 #~ msgstr "평행"
@@ -75174,8 +75174,8 @@ msgstr ""
 #~ msgid "Soft Light (SVG)"
 #~ msgstr "부드러운 조명(SVG)"
 
-#~ msgid "Soft Light (Photoshop)"
-#~ msgstr "부드러운 조명(Photoshop)"
+#~ msgid "Soft Light (Standard)"
+#~ msgstr "부드러운 조명(PS)"
 
 #~ msgid "Gamma Light"
 #~ msgstr "감마 광선"
@@ -93863,7 +93863,7 @@ msgstr ""
 #~| msgid "Ps"
 #~ msgctxt "(qtundo-format) ./krita/data/palettes/ps.gpl"
 #~ msgid "Ps"
-#~ msgstr "photoshop"
+#~ msgstr "PS"
 
 #, fuzzy
 #~| msgctxt "./krita/data/palettes/swatch-cmyk.gpl"
@@ -95813,9 +95813,9 @@ msgstr ""
 
 #, fuzzy
 #~| msgctxt "description of a file type"
-#~| msgid "Photoshop Layer Style Library"
+#~| msgid "Layer Style Library (ASL)"
 #~ msgctxt "(qtundo-format) description of a file type"
-#~ msgid "Photoshop Layer Style Library"
+#~ msgid "Layer Style Library (ASL)"
 #~ msgstr "포토샵 레이어 스타일 라이브러리"
 
 #, fuzzy
@@ -96311,9 +96311,9 @@ msgstr ""
 #~ msgstr "소프트 라이트 (SVG)"
 
 #, fuzzy
-#~| msgid "Soft Light (Photoshop)"
+#~| msgid "Soft Light (Standard)"
 #~ msgctxt "(qtundo-format)"
-#~ msgid "Soft Light (Photoshop)"
+#~ msgid "Soft Light (Standard)"
 #~ msgstr "소프트 라이트 (포토샵)"
 
 #, fuzzy
@@ -106502,18 +106502,18 @@ msgstr ""
 
 #, fuzzy
 #~| msgctxt "@title:window"
-#~| msgid "Photoshop Export Error"
+#~| msgid "PS Export Error"
 #~ msgctxt "(qtundo-format) @title:window"
-#~ msgid "Photoshop Export Error"
+#~ msgid "PS Export Error"
 #~ msgstr "포토샵 내보내기 오류"
 
 #~ msgctxt "@title:window"
-#~ msgid "Photoshop Export Error"
+#~ msgid "PS Export Error"
 #~ msgstr "포토샵 내보내기 오류"
 
 #~ msgid ""
-#~ "Unable to save to the Photoshop format.\n"
-#~ "The Photoshop format only supports images that are smaller than "
+#~ "Unable to save to the PS format.\n"
+#~ "The PS format only supports images that are smaller than "
 #~ "30000x3000 pixels."
 #~ msgstr ""
 #~ "포토샵 형식으로 저장할 수 없습니다.\n"
@@ -106521,21 +106521,21 @@ msgstr ""
 
 #, fuzzy
 #~| msgid ""
-#~| "Unable to save to the Photoshop format.\n"
-#~| "The Photoshop format only supports images that are smaller than "
+#~| "Unable to save to the PS format.\n"
+#~| "The PS format only supports images that are smaller than "
 #~| "30000x3000 pixels."
 #~ msgctxt "(qtundo-format)"
 #~ msgid ""
-#~ "Unable to save to the Photoshop format.\n"
-#~ "The Photoshop format only supports images that are smaller than "
+#~ "Unable to save to the PS format.\n"
+#~ "The PS format only supports images that are smaller than "
 #~ "30000x3000 pixels."
 #~ msgstr ""
 #~ "포토샵 형식으로 저장할 수 없습니다.\n"
 #~ "포토샵의 형식은 30000x3000 픽셀보다 작은 그림을 지원합니다."
 
 #~ msgid ""
-#~ "Unable to save to the Photoshop format.\n"
-#~ "The Photoshop format only supports images where all layers have the same "
+#~ "Unable to save to the PS format.\n"
+#~ "The PS format only supports images where all layers have the same "
 #~ "colorspace as the image."
 #~ msgstr ""
 #~ "포토샵 포맷으로 저장할 수 없습니다.\n"
@@ -106543,13 +106543,13 @@ msgstr ""
 
 #, fuzzy
 #~| msgid ""
-#~| "Unable to save to the Photoshop format.\n"
-#~| "The Photoshop format only supports images where all layers have the same "
+#~| "Unable to save to the PS format.\n"
+#~| "The PS format only supports images where all layers have the same "
 #~| "colorspace as the image."
 #~ msgctxt "(qtundo-format)"
 #~ msgid ""
-#~ "Unable to save to the Photoshop format.\n"
-#~ "The Photoshop format only supports images where all layers have the same "
+#~ "Unable to save to the PS format.\n"
+#~ "The PS format only supports images where all layers have the same "
 #~ "colorspace as the image."
 #~ msgstr ""
 #~ "포토샵 포맷으로 저장할 수 없습니다.\n"

@@ -1534,7 +1534,7 @@
       <isCheckable>false</isCheckable>
       <statusTip></statusTip>
     </Action>
-    <!-- Krimble: Select > Similar (Photoshop) -->
+    <!-- Krimble: Select > Similar (the industry standard) -->
     <Action name="similar">
       <icon></icon>
       <text>Si&amp;milar</text>

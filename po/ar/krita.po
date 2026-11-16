@@ -22337,7 +22337,7 @@ msgstr "صورة OpenRaster"
 #: libs/koplugin/KisMimeDatabase.cpp:229
 #, kde-format
 msgctxt "description of a file type"
-msgid "Photoshop Layer Style Library"
+msgid "Layer Style Library (ASL)"
 msgstr "مكتبة أنماط طبقات فوتوشوب"
 
 #: libs/koplugin/KisMimeDatabase.cpp:234
@@ -22433,7 +22433,7 @@ msgstr "‏OpenEXR ‏(Extended)"
 #: libs/koplugin/KisMimeDatabase.cpp:309
 #, kde-format
 msgctxt "description of a file type"
-msgid "Photoshop Image (Large)"
+msgid "PSB Image (Large)"
 msgstr "صورة فوتوشوب (كبيرة)"
 
 #: libs/koplugin/KisMimeDatabase.cpp:314
@@ -23156,8 +23156,8 @@ msgstr "إضاءة ناعمة (Pegtop-Delphi)"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:83
 #, kde-format
-msgctxt "Blending mode - Soft Light (Photoshop)"
-msgid "Soft Light (Photoshop)"
+msgctxt "Blending mode - Soft Light (Standard)"
+msgid "Soft Light (Standard)"
 msgstr "إضاءة ناعمة (فوتوشوب)"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:84
@@ -23360,14 +23360,14 @@ msgstr "خلط صعب عالي النطاق الديناميكي"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:121
 #, kde-format
-msgctxt "Blending mode - Hard Mix (Photoshop)"
-msgid "Hard Mix (Photoshop)"
+msgctxt "Blending mode - Hard Mix (Standard)"
+msgid "Hard Mix (Standard)"
 msgstr "خلط صعب (فوتوشوب)"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:122
 #, kde-format
-msgctxt "Blending mode - Hard Mix Softer (Photoshop)"
-msgid "Hard Mix Softer (Photoshop)"
+msgctxt "Blending mode - Hard Mix Softer (Standard)"
+msgid "Hard Mix Softer (Standard)"
 msgstr "خلط صعب أكثر نعومة (فوتوشوب)"
 
 #: libs/pigment/KoCompositeOpRegistry.cpp:123
@@ -58410,8 +58410,8 @@ msgstr "استخدام المُتَنَبّئ يمكن أن يحسِّن الض�
 #. i18n: ectx: property (title), widget (QGroupBox, chkPhotoshop)
 #: plugins/impex/tiff/kis_wdg_options_tiff.ui:79
 #, kde-format
-msgid "Save layers as Photoshop"
-msgstr "احفظ الطبقات كـ Photoshop"
+msgid "Save layers as PS"
+msgstr "احفظ الطبقات كـ PS"
 
 #. i18n: ectx: property (text), widget (QLabel, label_4)
 #: plugins/impex/tiff/kis_wdg_options_tiff.ui:88
@@ -60795,14 +60795,14 @@ msgstr "ارتفاع خطي"
 
 #: plugins/paintops/libpaintop/kis_texture_chooser.cpp:72
 #, kde-format
-msgctxt "Height (Photoshop) blend mode for brush texture"
-msgid "Height (Photoshop)"
+msgctxt "Height (PS) blend mode for brush texture"
+msgid "Height (PS)"
 msgstr "الارتفاع (فوتوشوب)"
 
 #: plugins/paintops/libpaintop/kis_texture_chooser.cpp:73
 #, kde-format
-msgctxt "Linear Height (Photoshop) blend mode for brush texture"
-msgid "Linear Height (Photoshop)"
+msgctxt "Linear Height (PS) blend mode for brush texture"
+msgid "Linear Height (PS)"
 msgstr "الارتفاع الخطي (فوتوشوب)"
 
 #: plugins/paintops/libpaintop/kis_texture_chooser.cpp:82

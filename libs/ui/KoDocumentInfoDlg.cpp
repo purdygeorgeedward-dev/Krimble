@@ -117,7 +117,10 @@ KoDocumentInfoDlg::KoDocumentInfoDlg(QWidget* parent, KoDocumentInfo* docInfo)
     // Ugly hack, the mimetype should be a parameter, instead
     KisDocument* doc = dynamic_cast< KisDocument* >(d->info->parent());
     if (doc) {
-        page->setIcon(KisIconUtils::loadIcon(KisMimeDatabase::iconNameForMimeType(doc->mimeType())));
+        // page->setIcon(KisIconUtils::loadIcon(KisMimeDatabase::iconNameForMimeType(doc->mimeType())));
+        // Krimble 2026-11-16 (722nd): George (build 64, screenshot of File Info: the General entry is an empty box): "File info General needs icon." The icon was the file type's, and the
+        // program has no pictures for file types on Android. It is the information sign he sent, for every file type.
+        page->setIcon(koIcon("krimble-file-info-general"));
     } else {
         // hide all entries not used in pages for KoDocumentInfoPropsPage
         d->aboutUi->filePathInfoLabel->setVisible(false);
