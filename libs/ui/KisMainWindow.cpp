@@ -2097,9 +2097,10 @@ static void krimbleShowQuickAdjustDialog(KisMainWindow *win)
         QVBoxLayout *bottomBox = new QVBoxLayout;
         bottomBox->setContentsMargins(0, 6, 0, 2);
         bottomBox->setSpacing(6);
-        QHBoxLayout *previewLine = new QHBoxLayout;
-        previewLine->setProperty("krimbleKeepRows", true);
-        previewLine->setSpacing(8);
+        // Krimble 2026-11-15 (702nd): the Preview row is no longer used (Preview is in the bottom row since the 689th); this layout had no parent and was never freed.
+        // QHBoxLayout *previewLine = new QHBoxLayout;
+        // previewLine->setProperty("krimbleKeepRows", true);
+        // previewLine->setSpacing(8);
         // Krimble 2026-11-15 (item 12), George: text 4x the rest of the screen is too big. Old line: (sizes 15/15/16/13/16 px before)
         // if (QWidget *label = adjust->previewLabel()) { label->setParent(dialog); label->setStyleSheet(QStringLiteral("color: #ffffff; background: transparent; border: none;")); label->show(); previewLine->addWidget(label); }
         if (QWidget *label = adjust->previewLabel()) { label->setParent(dialog); label->setStyleSheet(QStringLiteral("color: #ffffff; background: transparent; border: none;")); label->show();  }

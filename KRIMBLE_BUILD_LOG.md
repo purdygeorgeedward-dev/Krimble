@@ -27,3 +27,4 @@ Numbers 45 to 54 were given afterwards, on 2026-11-08, to the ten builds that ha
 | 60 | Nov 15, 9:38 AM | 43736626312 | `12b860a` | no | George tested it: not to be released; failures written into RELEASE_NOTES_1.0.60-beta.md |
 | 61 | Nov 15, 11:54 AM | 43749388783 | `a88d845` | no | George tested it (menu, tab, Color Lab and recent images reports) |
 | 62 | Nov 15, 3:28 PM | 43769444886 | `69d2873` | no | George tested it (theme switch, docking, K gap, Layers reports); contains commits up to the 677th only |
+| 63 | Nov 15, 5:06 PM | 43778358166 | `(701st)` | no | FAILED: compile error in KisApplication.cpp (QIcon::pixmap with a dpr argument is Qt 6 only, 690th); fixed in the 702nd, rebuilt under the same number |

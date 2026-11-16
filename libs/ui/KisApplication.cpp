@@ -274,8 +274,10 @@ public:
         const QRect iconRect(opt.rect.left() + (opt.rect.width() - side) / 2, opt.rect.top() + 4, side, side);
         if (!icon.isNull()) {
             // Krimble 2026-11-15 (690th): the picture is drawn from a plain pixmap (Normal mode, no Selected tint) with source-over
-            const qreal dpr = painter->device() ? painter->device()->devicePixelRatioF() : 1.0;
-            QPixmap pix = icon.pixmap(QSize(side, side), dpr, QIcon::Normal, QIcon::Off);
+            // const qreal dpr = painter->device() ? painter->device()->devicePixelRatioF() : 1.0;
+            // QPixmap pix = icon.pixmap(QSize(side, side), dpr, QIcon::Normal, QIcon::Off);
+            // Krimble 2026-11-15 (702nd): build 63 failed here: QIcon::pixmap(QSize, qreal, ...) exists only in Qt 6. Qt 5 form: with AA_UseHighDpiPixmaps (main.cc) the pixmap comes at the screen's density.
+            QPixmap pix = icon.pixmap(QSize(side, side), QIcon::Normal, QIcon::Off);
             const QSizeF logical = QSizeF(pix.size()) / pix.devicePixelRatio();
             painter->drawPixmap(QPointF(iconRect.left() + (side - logical.width()) / 2.0, iconRect.top() + (side - logical.height()) / 2.0), pix);
         }
