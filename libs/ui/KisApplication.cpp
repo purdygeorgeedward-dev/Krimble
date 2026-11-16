@@ -266,12 +266,16 @@ public:
         if (selected) painter->fillRect(opt.rect, QColor(opt.palette.color(QPalette::Active, QPalette::Highlight).rgb()));
         painter->restore();
         // the picture, as it is, centered at the top of the row
-        const int side = qMax(16, qMin(opt.decorationSize.width(), opt.rect.width() - 8));
+        // const int side = qMax(16, qMin(opt.decorationSize.width(), opt.rect.width() - 8));
+        // Krimble 2026-11-15 (706th): the picture has the size the list's own delegate uses (the style's PM_IconViewIconSize, about 85 units on George's phone in build 63), so the list looks as it does now, only
+        // without the tint. (decorationSize is the view's small list icon size, which that delegate never used.)
+        const int side = qMax(16, qMin((opt.widget ? opt.widget->style() : QApplication::style())->pixelMetric(QStyle::PM_IconViewIconSize), opt.rect.width() - 8));
         QFont font = opt.font;
         font.setBold(true);
         const QFontMetrics metrics(font);
         const int textHeight = metrics.height();
-        const QRect iconRect(opt.rect.left() + (opt.rect.width() - side) / 2, opt.rect.top() + 4, side, side);
+        // const QRect iconRect(opt.rect.left() + (opt.rect.width() - side) / 2, opt.rect.top() + 4, side, side);
+        const QRect iconRect(opt.rect.left() + (opt.rect.width() - side) / 2, opt.rect.top() + 5, side, side);   // 706th: 5 from the top, as the list's own delegate
         if (!icon.isNull()) {
             // Krimble 2026-11-15 (690th): the picture is drawn from a plain pixmap (Normal mode, no Selected tint) with source-over
             // const qreal dpr = painter->device() ? painter->device()->devicePixelRatioF() : 1.0;
@@ -808,6 +812,19 @@ protected:
                 if (QDialog *pageDialog = qobject_cast<QDialog*>(dialog)) {
                     if (pageDialog->isWindow()) {
                         Q_FOREACH (QAbstractItemView *pageList, pageDialog->findChildren<QAbstractItemView*>()) {
+                            // Krimble 2026-11-15 (706th): George (build 63, Preferences screenshots): "Preferences selection still tints icons." Measured on his screenshots: the selected keycap is the plain
+                            // one blended with about 30% of the highlight color (Qt's QIcon::Selected picture, drawn by the list's own delegate), and the pictures are about 85 units, not the 44 the block
+                            // below sets. So the block below has never run: its test asks for the class name "KPageListView" exactly, and the list's class is in a namespace (KDEPrivate::KPageListView in
+                            // KWidgetsAddons). The delegate that draws the highlight UNDER the picture is installed here, once, for any class whose name ends in KPageListView. Only the delegate: the sizes
+                            // (44 unit pictures, the column cap) of the block below would change a list George has been looking at for a month, so they stay off.
+                            const QString krimblePageListClass = QString::fromLatin1(pageList->metaObject()->className());
+                            if (event->type() == QEvent::Show) qWarning() << "KRIMBLE-PREFS item view in dialog" << pageDialog->objectName() << "class" << krimblePageListClass;
+                            if (krimblePageListClass.endsWith(QLatin1String("KPageListView")) && !pageList->property("krimblePageListDelegate").toBool()) {
+                                pageList->setProperty("krimblePageListDelegate", true);
+                                pageList->setItemDelegate(new KrimblePageListDelegate(pageList->itemDelegate(), pageList));
+                                pageList->viewport()->update();
+                                qWarning() << "KRIMBLE-PREFS highlight-under-icon delegate installed on" << krimblePageListClass;
+                            }
                             if (QLatin1String(pageList->metaObject()->className()) == QLatin1String("KPageListView")) {
                                 if (QScreen *pageScreen = QGuiApplication::primaryScreen()) {
                                     // const int cap = int(pageScreen->availableGeometry().width() * 0.24);

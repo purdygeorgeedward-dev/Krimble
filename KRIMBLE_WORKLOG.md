@@ -816,3 +816,4 @@ George: "Destroy all Krita themes. Nothing called Krita stays in themes." Delete
 **2026-11-15, 18:45 (MST).** Failed-build row removed; build 63 started again (703rd).
 **2026-11-15, 18:55 (MST).** Release notes for 1.0.61 and 1.0.62 (704th); pushed.
 **2026-11-15, 19:00 (MST).** Build 63 built (run 43779575290); build log row 63 (705th).
+**2026-11-15, 20:40 (MST).** Preferences delegate installed by class-name suffix with log lines; K gap laid out at once (706th); pushed, not built.

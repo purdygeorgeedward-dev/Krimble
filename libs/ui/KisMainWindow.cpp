@@ -1386,6 +1386,11 @@ public:
         // gap->setFixedSize(qMin(60, gap->width() + deficit), gap->height());
         if (!gap || gap->width() >= 90) return;   // Krimble 2026-11-15: was 60
         gap->setFixedSize(qMin(90, gap->width() + deficit), gap->height());
+        // Krimble 2026-11-15 (706th): George (build 63): "K still starts out too close then corrects later." The menu bar keeps the places of its entries and works them out again only when an entry
+        // changes (or the bar is resized); a new size of the gap's widget alone does not count, so the wider gap showed only after something else made the bar lay out again (opening an image).
+        // Changing the entry's data makes Qt send the bar an "entry changed" event, and the bar lays its entries out again at once.
+        spacer->setData(gap->width());
+        bar->update();
     }
 
     static void schedulePlaceK(QMenuBar *bar)
@@ -1416,6 +1421,7 @@ protected:
         } else if ((event->type() == QEvent::ActionAdded || event->type() == QEvent::ActionRemoved) && qobject_cast<QMenuBar *>(watched)) {
             QMenuBar *bar = qobject_cast<QMenuBar *>(watched);
             QTimer::singleShot(0, bar, [bar]() { KrimbleMenuBarFilter::hideSettingsMenu(bar); });   // 2026-11-07: no Settings menu, also after the menu bar is rebuilt
+            schedulePlaceK(bar);   // Krimble 2026-11-15 (706th): the gap is checked again when the menus arrive (at the start the bar is shown before it has its menus, and then nothing was measured)
             QWidgetAction *spacer = bar->findChild<QWidgetAction *>(QStringLiteral("krimbleKSpacer"));
             const QList<QAction *> all = bar->actions();
             if (spacer && (all.isEmpty() || all.first() != spacer))
