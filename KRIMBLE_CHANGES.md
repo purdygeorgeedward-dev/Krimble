@@ -7618,3 +7618,5 @@ George: "Destroy all Krita themes. Nothing called Krita stays in themes." Delete
 **2026-11-15, 18:45 (MST), 703rd.** The row for the failed build 63 added in the 702nd is taken out of `KRIMBLE_BUILD_LOG.md` (a failed build does not use up its number, and `check_build_number.py` needs 63 to be above every row). Run 43779526267 (started with that row in) cancelled; build 63 started again. The failed run 43778358166 is recorded here and in the 702nd entry only.
 
 **2026-11-15, 18:55 (MST), 704th.** George: "There are no comments about the last several builds." Added `RELEASE_NOTES_1.0.61-beta.md` (entries 629 to 656 and his build 61 reports) and `RELEASE_NOTES_1.0.62-beta.md` (entries 659 to 677 and his build 62 reports), both marked "Do not install this build", format check passes. No GitHub release or tag made. Build 63's notes follow when it is built.
+
+**2026-11-15, 19:00 (MST), 705th.** Build 63 (1.0.63-beta) built: run 43779575290, 14 min, APK artifact 14187763046 (about 146 MB). Row 63 added to `KRIMBLE_BUILD_LOG.md`.

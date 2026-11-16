@@ -815,3 +815,4 @@ George: "Destroy all Krita themes. Nothing called Krita stays in themes." Delete
 **2026-11-15, 18:40 (MST).** Build 63 compile error fixed (Qt 6 pixmap call); previewLine leak; review of 679 to 701 (702nd).
 **2026-11-15, 18:45 (MST).** Failed-build row removed; build 63 started again (703rd).
 **2026-11-15, 18:55 (MST).** Release notes for 1.0.61 and 1.0.62 (704th); pushed.
+**2026-11-15, 19:00 (MST).** Build 63 built (run 43779575290); build log row 63 (705th).
