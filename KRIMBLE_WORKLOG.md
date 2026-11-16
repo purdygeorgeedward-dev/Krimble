@@ -826,3 +826,4 @@ George: "Destroy all Krita themes. Nothing called Krita stays in themes." Delete
 **2026-11-16, 05:45 (MST).** Help file checked against the code and rewritten in parts (713th); release documentation and help saved in the project documents; pushed, not built.
 **2026-11-16, 06:40 (MST).** Type tools named Krimble Type and Old Type (714th); pushed, not built. Open: Retouch regrouping, waiting on the stamp tool answer.
 **2026-11-16, 06:45 (MST).** Toolbox groups: bandaid with the stamp in its flyout; Smudge with Soften (715th); help updated; pushed, not built.
+**2026-11-16, 06:48 (MST).** Screen Mode button removed from the toolbox (716th); pushed, not built.

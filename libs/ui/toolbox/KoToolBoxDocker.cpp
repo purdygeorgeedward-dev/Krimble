@@ -413,7 +413,9 @@ void KoToolBoxDocker::setViewManager(KisViewManager *viewManager)
         // since the action's own icon (document-new) is a placeholder; the
         // action definition itself in kritamenu.action is left untouched.
         QAction *canvasOnlyAction = viewManager->actionCollection()->action("view_show_canvas_only");
-        if (canvasOnlyAction) {
+        // Krimble 2026-11-16 (716th): George, about the small page icon under the color wells: "Remove it. I don't think anyone will use it." The Screen Mode button is no longer made
+        // (the block below is kept, switched off). Canvas Only is still in View > Screen Mode.
+        if (false && canvasOnlyAction) {
             QToolButton *screenModeButton = new QToolButton(this);
             screenModeButton->setDefaultAction(canvasOnlyAction);
             screenModeButton->setIcon(KisIconUtils::loadIcon("view-fullscreen"));
