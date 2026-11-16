@@ -821,3 +821,4 @@ George: "Destroy all Krita themes. Nothing called Krita stays in themes." Delete
 **2026-11-15, 21:05 (MST).** 708th: toolbox docking: one place per side, no Qt drop, sides win over top; pushed, not built.
 **2026-11-15, 21:20 (MST).** 709th: menus of the menu bar fit under the bar (Window menu: Toolbars entry was off screen); releases 59 to 62 tried with the new PAT: blocked for this session (403); pushed, not built.
 **2026-11-15, 21:15 (MST).** Build 64 started by push (710th).
+**2026-11-15, 21:30 (MST).** Build 64 built (run 43802615314); build log row 64 (711th).

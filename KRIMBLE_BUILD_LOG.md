@@ -28,3 +28,4 @@ Numbers 45 to 54 were given afterwards, on 2026-11-08, to the ten builds that ha
 | 61 | Nov 15, 11:54 AM | 43749388783 | `a88d845` | no | George tested it (menu, tab, Color Lab and recent images reports) |
 | 62 | Nov 15, 3:28 PM | 43769444886 | `69d2873` | no | George tested it (theme switch, docking, K gap, Layers reports); contains commits up to the 677th only |
 | 63 | Nov 15, 5:18 PM | 43779575290 | `f8edc72` | no | built after the first run (43778358166) failed on a compile error (fixed in the 702nd); contains entries 679 to 703 |
+| 64 | Nov 15, 9:11 PM | 43802615314 | `4ba8bb1` | no | started by the push of the 710th; 15 min; APK artifact 14197553400 (about 146 MB); contains entries 704 to 710 (706th to 709th: the fixes for the ten faults of build 63) |
