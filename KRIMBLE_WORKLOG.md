@@ -829,3 +829,4 @@ George: "Destroy all Krita themes. Nothing called Krita stays in themes." Delete
 **2026-11-16, 06:48 (MST).** Screen Mode button removed from the toolbox (716th); pushed, not built.
 **2026-11-16, 06:50 (MST).** Stamp tool on its own button (717th); 20 buttons with UNDO; pushed, not built.
 **2026-11-16, 06:52 (MST).** Flyout long press 400 ms (718th); pushed, not built.
+**2026-11-16, 06:58 (MST).** Beginner manual KRIMBLE_MANUAL.md (719th); pushed; copy in the project documents.
