@@ -831,3 +831,4 @@ George: "Destroy all Krita themes. Nothing called Krita stays in themes." Delete
 **2026-11-16, 06:52 (MST).** Flyout long press 400 ms (718th); pushed, not built.
 **2026-11-16, 06:58 (MST).** Beginner manual KRIMBLE_MANUAL.md (719th); pushed; copy in the project documents.
 **2026-11-16, 07:02 (MST).** Manual refocused on image editing, not painting (720th); pushed; project copy replaced.
+**2026-11-16, 07:05 (MST).** Manual: no mention of Photoshop (721st); pushed; project copy replaced.

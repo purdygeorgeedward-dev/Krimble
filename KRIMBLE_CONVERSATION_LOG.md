@@ -82,3 +82,4 @@ George says he talked to Claude (in an earlier session; the text of that talk is
 - **2026-11-16T13:41Z:** Push all changes to master.
 - **2026-11-16T13:42Z:** Can you write a simple Krimble manual? Basic introduction and documentation for beginners?
 - **2026-11-16T13:44Z:** Manual should not focus on painting. Krimble is not a paint app.
+- **2026-11-16T13:45Z:** Krimble is a graphics editor like Photoshop (although we should avoid mentioning Photoshop or Adobe).

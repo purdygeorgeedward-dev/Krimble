@@ -8,7 +8,7 @@ Written 2026-11-16 for the build after 1.0.64 beta. Krimble is beta software: th
 
 ## 1. What Krimble is
 
-Krimble is a graphics editor for Android phones and tablets: an image editor for photos, graphics and design work, in the tradition of Photoshop. It is **not a paint app**. It is made from Krita and changed to work with a finger.
+Krimble is a graphics editor for Android phones and tablets: an image editor for photos, graphics and design work. It is **not a paint app**. It is made from Krita and changed to work with a finger.
 
 What it is for:
 
@@ -17,7 +17,7 @@ What it is for:
 - **Design work:** text, shapes, gradients, layer styles.
 - **Preparing files:** export to JPG, PNG and WebP, and convert many pictures at once.
 
-If you have used Photoshop, most names will be familiar: Marquee, Lasso, Magic Wand, Layers, Adjustments, Free Transform.
+It uses the familiar, industry-standard names: Marquee, Lasso, Magic Wand, Layers, Adjustments, Free Transform.
 
 ---
 
