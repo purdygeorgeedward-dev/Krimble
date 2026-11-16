@@ -809,3 +809,4 @@ George: "Destroy all Krita themes. Nothing called Krita stays in themes." Delete
 **2026-11-15, 17:40 (MST).** Theme switch: one style sheet call instead of seven; repolish loop off (696th); pushed, no build.
 **2026-11-15, 17:50 (MST).** Selected tab matches panel, no line between (697th); pushed, no build.
 **2026-11-15, 18:00 (MST).** No outline around menus (698th); pushed, no build.
+**2026-11-15, 18:10 (MST).** Layers rows warm grays (699th); pushed, no build. Right dock vanished on tapping the Layers tab: open.
