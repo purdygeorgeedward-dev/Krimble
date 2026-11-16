@@ -61,3 +61,4 @@ George says he talked to Claude (in an earlier session; the text of that talk is
 - **2026-11-16T00:30Z:** 1.0.59 and 1.0.60 are still missing. (GitHub releases: this session may not create releases, HTTP 403)
 - **2026-11-16T02:10Z:** Ten faults after build 63 (toolbox docking, right dock highlight line, Window menu, toolbox cut off, K too close, Color Lab giant, Preferences tint, dock right gives dock top, stamp icon with nameless tools, raised toolbox skips three icons). "Version numbers mean nothing because you never fix what I ask you to fix."
 - **2026-11-16T03:39Z:** "my fix has never run, in any build." WHY? (answer: exact class-name test never matched the namespaced class; 706th)
+- **2026-11-16T03:40Z:** Fix these issues and push.

@@ -15,6 +15,7 @@
 #include <QList>
 
 #include "KoToolBoxButton_p.h"
+#include <KoToolManager.h>   // Krimble 2026-11-15 (707th): KoToolAction
 
 class KrimbleToolFlyout : public QFrame
 {
@@ -37,6 +38,10 @@ public:
         Q_FOREACH (KoToolBoxButton *member, members) {
             QString name = member->toolTip();
             name.remove(QRegularExpression(QStringLiteral("<[^>]*>")));   // the tool tip may carry markup
+            // Krimble 2026-11-15 (707th): a row is never left without a name: the tool's own name, then its id
+            if (name.trimmed().isEmpty() && member->krimbleToolAction()) name = member->krimbleToolAction()->toolTip();
+            if (name.trimmed().isEmpty()) name = member->objectName().section(QLatin1Char('/'), -1);
+            name.replace(QRegularExpression(QStringLiteral("\\sTool\\s*$")), QString());
             QToolButton *row = new QToolButton(this);
             row->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
             row->setIcon(member->icon());

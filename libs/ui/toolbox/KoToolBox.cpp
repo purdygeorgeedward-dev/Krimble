@@ -599,6 +599,7 @@ void KoToolBox::setupButtonStyleMenu(QMenu *menu)
         Q_FOREACH (KoToolBoxButton *button, d->buttonsByToolId) {
             button->update();
         }
+        Q_FOREACH (QToolButton *button, d->buttons) button->update();   // Krimble 2026-11-15 (707th): the UNDO button too
         update();
     };
     connect(flatAction, &QAction::triggered, this, [apply]() { apply(0); });

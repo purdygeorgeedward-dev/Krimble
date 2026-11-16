@@ -4084,6 +4084,10 @@ protected:
         if (!allEdges) {
             p.fillRect(QRectF(0, 0, w, t), topTone);
             p.fillRect(QRectF(0, h - t, w, t), bottomTone);
+            // Krimble 2026-11-15 (707th): George (build 63): "The right dock has no hilight line on the left side." A docked panel had only its top and bottom lines. It has the light line down its
+            // left side too (the same tone as a floating panel's left side), joined to the top line with a 45 degree corner.
+            p.setBrush(leftTone);
+            { QPolygonF poly; poly << QPointF(0, 0) << QPointF(t, t) << QPointF(t, h - t) << QPointF(0, h); p.drawPolygon(poly); }
             return;
         }
         p.setBrush(topTone);

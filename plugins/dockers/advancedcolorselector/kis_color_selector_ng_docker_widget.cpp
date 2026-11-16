@@ -132,6 +132,8 @@ KisColorSelectorNgDockerWidget::KisColorSelectorNgDockerWidget(QWidget *parent, 
     // hidden behind the edge, with no scroll bar, instead of the whole card shrinking.
     studioScroll->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     m_krimbleStudio->setMinimumWidth(330);
+    m_krimbleStudio->setMaximumWidth(384);   // Krimble 2026-11-15 (707th): George: "Color Lab still MAGNIFIES TO GIANT SIZE." Never wider than the phone in portrait; in a wider panel it stays at the left (see MaxWidth in krimble_color_paint.h)
+    studioScroll->setAlignment(Qt::AlignLeft | Qt::AlignTop);
     studioScroll->setWidget(m_krimbleStudio);
     // colorTabs->addTab(studioScroll, tr("Picker"));
     // colorTabs->addTab(classicPanel, tr("Classic"));

@@ -25,8 +25,14 @@ public:
     // int heightForWidth(int w) const override { return qRound(w * designHeight() / DW); }
     // qreal scale() const { return width() / DW; }
     // Krimble 2026-11-13 (task 71): George: "The ColorLab when moved to the right in the dock should hide behind the edge instead of shrinking, just as the image on the canvas should not zoom out when the docked panels move."
-    int heightForWidth(int w) const override { return qRound(qMax<double>(w, MinWidth) * designHeight() / DW); }
-    qreal scale() const { return qMax<qreal>(width(), MinWidth) / DW; }
+    // int heightForWidth(int w) const override { return qRound(qMax<double>(w, MinWidth) * designHeight() / DW); }
+    // qreal scale() const { return qMax<qreal>(width(), MinWidth) / DW; }
+    // Krimble 2026-11-15 (707th): George (build 63, Color Lab docked at the top or in a wide dock, drawn 2.5 times its size): "Color Lab still MAGNIFIES TO GIANT SIZE." The card was drawn at
+    // width / 1178 with no upper limit, so a panel as wide as the screen in landscape (832) made everything 2.5 times larger. A panel wider than MaxWidth (384, the phone's width in portrait) no
+    // longer makes the card larger: it keeps that size at the left and the rest of the panel is empty.
+    static constexpr double MaxWidth = 384.0;
+    int heightForWidth(int w) const override { return qRound(qBound<double>(MinWidth, w, MaxWidth) * designHeight() / DW); }
+    qreal scale() const { return qBound<qreal>(MinWidth, width(), MaxWidth) / DW; }
     QSize sizeHint() const override { return QSize(330, heightForWidth(330)); }
     QSize minimumSizeHint() const override { return QSize(240, heightForWidth(240)); }
 

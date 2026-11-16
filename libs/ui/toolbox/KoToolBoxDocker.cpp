@@ -10,6 +10,10 @@
 #include "KoToolBoxDocker_p.h"
 #include "KoToolBox_p.h"
 #include "KoToolBoxScrollArea_p.h"
+#include "KoToolBoxButton_p.h"      // Krimble 2026-11-15 (707th): the raised box for the UNDO button
+#include "KrimbleToolboxIcons.h"
+#include <QStylePainter>
+#include <QStyleOptionToolButton>
 
 #include <QLabel>
 #include <QFontMetrics>
@@ -50,6 +54,26 @@
 #include <kis_canvas2.h>
 #include <kis_image.h>
 #include <kis_icon_utils.h>
+
+// Krimble 2026-11-15 (707th): George (build 63, Raised style): "Raised toolbox skips three icons." The UNDO button is not a tool button, so it had no raised box. It draws the same box
+// (KoToolBoxButton::krimblePaintRaisedBox) under its icon when the Raised style is on, and never the style's "hover" box (there is no hover on a touch screen).
+class KrimbleUndoButton : public QToolButton
+{
+public:
+    explicit KrimbleUndoButton(QWidget *parent) : QToolButton(parent) {}
+protected:
+    void paintEvent(QPaintEvent *) override
+    {
+        if (KrimbleToolboxIcons::buttonStyle() == 1 && !qApp->property("krimbleFlatTheme").toBool()) {
+            KoToolBoxButton::krimblePaintRaisedBox(this, isDown());
+        }
+        QStylePainter stylePainter(this);
+        QStyleOptionToolButton opt;
+        initStyleOption(&opt);
+        if (!isDown()) opt.state &= ~QStyle::State_MouseOver;
+        stylePainter.drawComplexControl(QStyle::CC_ToolButton, opt);
+    }
+};
 
 // Krimble 2026-10-11: the toolbox's drag handle (its empty title bar) shows three light horizontal lines, so it is obvious
 // that it is meant to be grabbed.
@@ -218,9 +242,16 @@ KoToolBoxDocker::KoToolBoxDocker(KoToolBox *toolBox)
     // "more" arrow) and the spacer took the rest: that was the dead space. While the toolbox floats, the tool area gets the spare height instead (stretch 1,
     // the spacer 0), so all the tools show and nothing is left over; docked, it is as before.
     auto applyContainerStretch = [this](bool floating) {
-        m_containerLayout->setStretchFactor(m_scrollArea, floating ? 1 : 0);
+        // m_containerLayout->setStretchFactor(m_scrollArea, floating ? 1 : 0);
+        // for (int i = 0; i < m_containerLayout->count(); ++i) {
+        //     if (m_containerLayout->itemAt(i)->spacerItem()) m_containerLayout->setStretch(i, floating ? 0 : 1);
+        // }
+        // Krimble 2026-11-15 (707th): George (build 63): "Toolbox still cuts off halfway down and forces scrolling." Docked, the tool area had stretch 0, so it got only its size hint (about half
+        // the dock's height) and the spacer under it took the rest. Docked too, the tool area takes the spare height and the spacer none (this is the change of 4032149, which the 679th restore undid).
+        Q_UNUSED(floating);
+        m_containerLayout->setStretchFactor(m_scrollArea, 1);
         for (int i = 0; i < m_containerLayout->count(); ++i) {
-            if (m_containerLayout->itemAt(i)->spacerItem()) m_containerLayout->setStretch(i, floating ? 0 : 1);
+            if (m_containerLayout->itemAt(i)->spacerItem()) m_containerLayout->setStretch(i, 0);
         }
     };
     connect(this, &QDockWidget::topLevelChanged, this, applyContainerStretch);
@@ -350,7 +381,8 @@ void KoToolBoxDocker::setViewManager(KisViewManager *viewManager)
             QAction *undoAction = viewManager->actionCollection()->action("edit_undo");
             QAction *redoAction = viewManager->actionCollection()->action("edit_redo");
             if (undoAction) {
-                QToolButton *undoButton = new QToolButton(m_toolBox);
+                // QToolButton *undoButton = new QToolButton(m_toolBox);
+                QToolButton *undoButton = new KrimbleUndoButton(m_toolBox);   // Krimble 2026-11-15 (707th): in the Raised style it has the box of the tool buttons
                 undoButton->setObjectName(QStringLiteral("krimbleUndoButton"));
                 undoButton->setAutoRaise(true);
                 undoButton->setToolButtonStyle(Qt::ToolButtonIconOnly);
@@ -501,6 +533,12 @@ void KoToolBoxDocker::resizeEvent(QResizeEvent *event)
             return;
         }
         // const int contentHeight = m_toolBox->layout()->heightForWidth(m_scrollArea->viewport()->width());
+        // Krimble 2026-11-15 (707th): docked in columns (left or right edge) there is no height limit: the tool area is as tall as the dock, so every tool shows (4032149 again). Floating: cut to its tools as before.
+        if (!isFloating()) {
+            m_scrollArea->setMaximumHeight(QWIDGETSIZE_MAX);
+            setMaximumHeight(QWIDGETSIZE_MAX);
+            return;
+        }
         const int contentHeight = qMax(m_toolBox->layout()->heightForWidth(m_scrollArea->viewport()->width()), m_toolBox->height());   // Krimble 2026-10-26
         if (contentHeight > 0) {
             const int frame = m_scrollArea->height() - m_scrollArea->viewport()->height();

@@ -19,6 +19,8 @@
 #include <QLinearGradient>
 #include <QRadialGradient>
 #include <QPaintEvent>
+#include <QStylePainter>          // Krimble 2026-11-15 (707th)
+#include <QStyleOptionToolButton>
 #include <QMouseEvent>   // Krimble 2026-11-12 (task 38): George: "I want long press to open a flyout of other buttons. Then a tap selects one or misses and cancels selection."
 #include <QContextMenuEvent>
 #include <QApplication>
@@ -191,6 +193,8 @@ void KoToolBoxButton::setDataFromToolAction(QAction *action)
     // Krimble 2026-11-08: George: "Does it have to say \"Tool\" after every tool?" The word is left off the tool tip ("Freehand Brush Tool" is "Freehand Brush").
     {
         QString tip = action->toolTip();
+        // Krimble 2026-11-15 (707th): George: "Unwanted stamp icon still leads to nameless tools." The Heal, Smudge and Soften tools have no entry in a .action file, so their action has an empty tool tip, and the flyout takes its names from the button's tool tip. The tool's own name (from its factory) is used then.
+        if (tip.trimmed().isEmpty() && m_toolAction) tip = m_toolAction->toolTip();
         tip.replace(QRegularExpression(QStringLiteral("\\sTool(\\s*\\(|\\s*$)")), QStringLiteral("\\1"));
         setToolTip(tip);
     }
@@ -232,6 +236,32 @@ static void krimbleMiterPen(QPainter &painter)
     painter.setPen(pen);
 }
 
+// Krimble 2026-11-15 (707th): George (build 63, Raised style): "Raised toolbox skips three icons." The raised box of a toolbox button (the four-tone bevel of item 16, unchanged), as a
+// function of its own so the UNDO button, which is not a tool button, is drawn in the same box.
+void KoToolBoxButton::krimblePaintRaisedBox(QWidget *widget, bool down)
+{
+    QPainter box(widget);
+    box.setRenderHint(QPainter::Antialiasing, false);
+    const QRect r = widget->rect().adjusted(1, 1, -1, -1);
+    const QColor face = qApp->palette().color(QPalette::Window).lighter(150);
+    const int t = qMax(2, qRound(qMin(r.width(), r.height()) * 0.075));
+    box.fillRect(r, face);
+    const QColor topTone    = down ? QColor(0, 0, 0, 90)        : QColor(255, 255, 255, 85);
+    const QColor leftTone   = down ? QColor(0, 0, 0, 55)        : QColor(255, 255, 255, 40);
+    const QColor rightTone  = down ? QColor(255, 255, 255, 40)  : QColor(0, 0, 0, 55);
+    const QColor bottomTone = down ? QColor(255, 255, 255, 85)  : QColor(0, 0, 0, 90);
+    box.setPen(Qt::NoPen);
+    QPolygon poly;
+    poly << r.topLeft() << r.topRight() << QPoint(r.right() - t, r.top() + t) << QPoint(r.left() + t, r.top() + t);
+    box.setBrush(topTone); box.drawPolygon(poly);
+    poly.clear(); poly << r.topLeft() << QPoint(r.left() + t, r.top() + t) << QPoint(r.left() + t, r.bottom() - t) << r.bottomLeft();
+    box.setBrush(leftTone); box.drawPolygon(poly);
+    poly.clear(); poly << r.topRight() << r.bottomRight() << QPoint(r.right() - t, r.bottom() - t) << QPoint(r.right() - t, r.top() + t);
+    box.setBrush(rightTone); box.drawPolygon(poly);
+    poly.clear(); poly << r.bottomLeft() << QPoint(r.left() + t, r.bottom() - t) << QPoint(r.right() - t, r.bottom() - t) << r.bottomRight();
+    box.setBrush(bottomTone); box.drawPolygon(poly);
+}
+
 void KoToolBoxButton::paintEvent(QPaintEvent *event)
 {
     // Krimble 2026-11-12 (task 40): George: "The user should have the choice between flat looking buttons like in your mockup and raised buttons with thicker bevels like DPaint." The Raised style: a tool that is not selected sits in its own box with a thick bevel, as in DPaint: a black outline, a light top and left edge, a dark
@@ -242,7 +272,11 @@ void KoToolBoxButton::paintEvent(QPaintEvent *event)
     // next build." The Raised style is drawn from the picture: the face is the theme's own color; each side is white or black laid over it at its own opacity, so every theme gets the same four tones
     // in its own hue: top white 100%, left white 45%, right black 33%, bottom black 58% (measured from the picture: #FEFDFD, #9EACD4, #3E4866, #272C43 over a face of #5E6B91). A button held down has the
     // sides the other way round. The four corners are 45 degree joins, drawn without smoothing so they step like the picture. No outline, no color.
-    if (KrimbleToolboxIcons::buttonStyle() == 1 && !isChecked() && !qApp->property("krimbleFlatTheme").toBool()) {   // Krimble 2026-11-15: no raised bevel in the theme "Krimble Dark Gray"
+    // Krimble 2026-11-15 (707th): the box is drawn by krimblePaintRaisedBox() now (the same code, moved, so the UNDO button can use it); the block below is kept, switched off.
+    if (KrimbleToolboxIcons::buttonStyle() == 1 && !isChecked() && !qApp->property("krimbleFlatTheme").toBool()) {
+        krimblePaintRaisedBox(this, isDown());
+    }
+    if (false && KrimbleToolboxIcons::buttonStyle() == 1 && !isChecked() && !qApp->property("krimbleFlatTheme").toBool()) {   // Krimble 2026-11-15: no raised bevel in the theme "Krimble Dark Gray"
         QPainter box(this);
         box.setRenderHint(QPainter::Antialiasing, false);
         const QRect r = rect().adjusted(1, 1, -1, -1);
@@ -389,7 +423,18 @@ void KoToolBoxButton::paintEvent(QPaintEvent *event)
         painter.setBrush(shadow);
         painter.drawEllipse(centre, s * 0.30, s * 0.30);
     }
-    QToolButton::paintEvent(event);
+    // QToolButton::paintEvent(event);
+    // Krimble 2026-11-15 (707th): George (build 63, Raised style): "Raised toolbox skips three icons." (the Stamp and the Gradient buttons were dark boxes with no bevel.) A long press opens the
+    // flyout, a popup, so the button never gets the "finger left" event and stays marked as under the pointer; the style then paints its dark "hover" box over the raised box, for good. There is no
+    // hover on a touch screen: the button is painted as QToolButton does it, without the under-the-pointer state.
+    Q_UNUSED(event);
+    {
+        QStylePainter stylePainter(this);
+        QStyleOptionToolButton opt;
+        initStyleOption(&opt);
+        if (!isDown()) opt.state &= ~QStyle::State_MouseOver;
+        stylePainter.drawComplexControl(QStyle::CC_ToolButton, opt);
+    }
     // Krimble 2026-11-12 (task 38): George: "I want long press to open a flyout of other buttons. Then a tap selects one or misses and cancels selection." A small triangle in the bottom right corner marks a button that has a flyout (as in the industry-standard toolbox).
     if (m_krimbleLongPress) {
         QPainter mark(this);

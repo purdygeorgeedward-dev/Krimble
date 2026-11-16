@@ -26,6 +26,7 @@ public:
     void krimbleSetLongPress(bool on) { m_krimbleLongPress = on; update(); }
     bool krimbleHasLongPress() const { return m_krimbleLongPress; }
     KoToolAction *krimbleToolAction() const { return m_toolAction; }
+    static void krimblePaintRaisedBox(QWidget *widget, bool down);   // Krimble 2026-11-15 (707th): the Raised style's box, also used by the UNDO button
 
 Q_SIGNALS:
     void krimbleLongPressed();
