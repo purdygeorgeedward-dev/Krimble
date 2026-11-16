@@ -7683,3 +7683,5 @@ Not fixed, cause not found in the code: **1** (normal docking of the toolbox), *
 **2026-11-16, 15:05 (MST), 725th.** George: "Build." Build number 65, label 1.0.65-beta; this push starts the build. It holds entries 712 to 724.
 
 **2026-11-16, 15:12 (MST), 726th.** Build 65, first run (43963457903): failed, no APK. Cause: the script of the 723rd changed two lines of code in `plugins/impex/jpeg/kis_jpeg_converter.cc` that it should have left alone: an `#include` of a library header and a call into the same library (Exiv2); both carry the brand word as the name the library itself uses. Both put back. Everything in `libs/` had compiled and linked before the stop; the tool plugins had not been reached. A failed build does not use its number: this push starts build 65 again.
+
+**2026-11-16, 15:20 (MST), 727th.** Build 65 built (run 43965939960, commit `50c3a4e`, APK artifact 14276432810). Build log row added. Not tested on a phone.
