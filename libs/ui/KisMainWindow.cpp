@@ -5420,6 +5420,10 @@ protected:
                     const QRect otherRect(other->mapToGlobal(QPoint(0, 0)), other->size());
                     if (otherRect.contains(p)) allowed |= m_win->dockWidgetArea(other);
                 }
+                // Krimble 2026-11-15 (708th): George (build 63): "I used the menu and dragged the toolbox and got unpredictable results." Three things could dock a dragged toolbox: Qt's own drop
+                // (which picks a place inside the dock area from where the finger is: above, below or beside the panels there), the code on release below, and the toolbox's own edge timer.
+                // Qt's own drop is off for the toolbox; it is docked only by the release code and the timer, and both put it in one place per side (its own column or row, see the release code below).
+                if (m_dock->objectName() == QLatin1String("ToolBox")) allowed = Qt::NoDockWidgetArea;
                 if (m_dock->allowedAreas() != allowed) {
                     m_dock->setAllowedAreas(allowed);
                 }
@@ -5453,11 +5457,26 @@ protected:
                 // Krimble 2026-10-23 (2nd): George (1.0.42): "Right panels could stand to be a touch more eager to attach." The right side reaches twice as far (28 logical px).
                 const int reach = (nearest == toRight) ? 28 : 14;
                 if (nearest > reach) return;
-                const Qt::DockWidgetArea area = (nearest == toLeft) ? Qt::LeftDockWidgetArea
-                                              : (nearest == toRight) ? Qt::RightDockWidgetArea
-                                              : (nearest == toTop) ? Qt::TopDockWidgetArea
-                                              : Qt::BottomDockWidgetArea;
-                window->addDockWidget(area, dock);
+                // const Qt::DockWidgetArea area = (nearest == toLeft) ? Qt::LeftDockWidgetArea
+                //                               : (nearest == toRight) ? Qt::RightDockWidgetArea
+                //                               : (nearest == toTop) ? Qt::TopDockWidgetArea
+                //                               : Qt::BottomDockWidgetArea;
+                // window->addDockWidget(area, dock);
+                Qt::DockWidgetArea area = (nearest == toLeft) ? Qt::LeftDockWidgetArea
+                                        : (nearest == toRight) ? Qt::RightDockWidgetArea
+                                        : (nearest == toTop) ? Qt::TopDockWidgetArea
+                                        : Qt::BottomDockWidgetArea;
+                // Krimble 2026-11-15 (708th): George: "Dock right causes dock top on toolbox." The finger holds the toolbox by its handle, which is at its top: near a corner of the screen the top
+                // edge could be the nearest one by a pixel or two, and the toolbox went to the top when it was let go at the right. For the toolbox a side within reach wins over top and bottom.
+                // It is also given its own full-height column at the outer end of that side (Qt::Horizontal), or its own row (top, bottom), instead of a place among the panels there.
+                if (dock->objectName() == QLatin1String("ToolBox")) {
+                    if (toRight <= 28) area = Qt::RightDockWidgetArea;
+                    else if (toLeft <= 14) area = Qt::LeftDockWidgetArea;
+                    const bool side = (area == Qt::LeftDockWidgetArea || area == Qt::RightDockWidgetArea);
+                    window->addDockWidget(area, dock, side ? Qt::Horizontal : Qt::Vertical);
+                } else {
+                    window->addDockWidget(area, dock);
+                }
                 dock->setFloating(false);
                 dock->show();
             });

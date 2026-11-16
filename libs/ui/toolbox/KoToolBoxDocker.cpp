@@ -778,7 +778,8 @@ void KoToolBoxDocker::krimbleDockAtEdge()
         QMainWindow *mainWindow = qobject_cast<QMainWindow*>(parentWidget());
         if (!mainWindow) return;
         setAllowedAreas(Qt::AllDockWidgetAreas);
-        mainWindow->addDockWidget(area, this);
+        // mainWindow->addDockWidget(area, this);
+        mainWindow->addDockWidget(area, this, (area == Qt::LeftDockWidgetArea || area == Qt::RightDockWidgetArea) ? Qt::Horizontal : Qt::Vertical);   // Krimble 2026-11-15 (708th): its own column or row (see the Dock menu)
         setFloating(false);
         show();
     });
@@ -1211,7 +1212,11 @@ void KoToolBoxDocker::contextMenuEvent(QContextMenuEvent *event)
             connect(dockAction, &QAction::triggered, this, [this, area]() {
                 if (QMainWindow *mainWindow = qobject_cast<QMainWindow*>(parentWidget())) {
                     setAllowedAreas(Qt::AllDockWidgetAreas);
-                    mainWindow->addDockWidget(area, this);
+                    // mainWindow->addDockWidget(area, this);
+                    // Krimble 2026-11-15 (708th): George (build 63): "Dock right causes dock top on toolbox." and "I used the menu and dragged the toolbox and got unpredictable results." The plain
+                    // addDockWidget put the toolbox at the END of that side's stack: on the right, under (or over) the panels that are docked there, as a wide slab. The toolbox now gets its own
+                    // full-height column at the outer end of the left or right side (Qt::Horizontal), and its own row at the top or bottom (Qt::Vertical). The same in the edge timer below.
+                    mainWindow->addDockWidget(area, this, (area == Qt::LeftDockWidgetArea || area == Qt::RightDockWidgetArea) ? Qt::Horizontal : Qt::Vertical);
                     if (isFloating()) {
                         setFloating(false);
                     }

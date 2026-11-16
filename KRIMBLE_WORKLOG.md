@@ -818,3 +818,4 @@ George: "Destroy all Krita themes. Nothing called Krita stays in themes." Delete
 **2026-11-15, 19:00 (MST).** Build 63 built (run 43779575290); build log row 63 (705th).
 **2026-11-15, 20:40 (MST).** Preferences delegate installed by class-name suffix with log lines; K gap laid out at once (706th); pushed, not built.
 **2026-11-15, 21:25 (MST).** 707th: toolbox no longer cut off when docked, Color Lab size limit, flyout names, raised boxes (hover state, UNDO), left line on docked panels; pushed, not built. Open: items 1, 3, 8.
+**2026-11-15, 21:05 (MST).** 708th: toolbox docking: one place per side, no Qt drop, sides win over top; pushed, not built.

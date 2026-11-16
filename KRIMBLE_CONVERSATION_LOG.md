@@ -62,3 +62,5 @@ George says he talked to Claude (in an earlier session; the text of that talk is
 - **2026-11-16T02:10Z:** Ten faults after build 63 (toolbox docking, right dock highlight line, Window menu, toolbox cut off, K too close, Color Lab giant, Preferences tint, dock right gives dock top, stamp icon with nameless tools, raised toolbox skips three icons). "Version numbers mean nothing because you never fix what I ask you to fix."
 - **2026-11-16T03:39Z:** "my fix has never run, in any build." WHY? (answer: exact class-name test never matched the namespaced class; 706th)
 - **2026-11-16T03:40Z:** Fix these issues and push.
+- **2026-11-16T03:54Z:** I tried different ways. I used the menu and dragged the toolbox and got unpredictable results.
+- **2026-11-16T03:55Z:** If I give you a PAT can you try to update the release docs?
