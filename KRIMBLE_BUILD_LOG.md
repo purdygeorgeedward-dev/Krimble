@@ -26,3 +26,4 @@ Numbers 45 to 54 were given afterwards, on 2026-11-08, to the ten builds that ha
 | 59 | Nov 14, 11:39 PM | 43686436841 | `77dcb3e` | no | started with the PAT George gave (dispatch, HTTP 204, label 1.0.59-beta, run #33); the earlier attempts: run 43407141407 (voided), run #31 and #32 (compile errors, fixed) |
 | 60 | Nov 15, 9:38 AM | 43736626312 | `12b860a` | no | George tested it: not to be released; failures written into RELEASE_NOTES_1.0.60-beta.md |
 | 61 | Nov 15, 11:54 AM | 43749388783 | `a88d845` | no | George tested it (menu, tab, Color Lab and recent images reports) |
+| 62 | Nov 15, 3:28 PM | 43769444886 | `69d2873` | no | George tested it (theme switch, docking, K gap, Layers reports); contains commits up to the 677th only |

@@ -811,3 +811,4 @@ George: "Destroy all Krita themes. Nothing called Krita stays in themes." Delete
 **2026-11-15, 18:00 (MST).** No outline around menus (698th); pushed, no build.
 **2026-11-15, 18:10 (MST).** Layers rows warm grays (699th); pushed, no build. Right dock vanished on tapping the Layers tab: open.
 **2026-11-15, 18:20 (MST).** Menus start at the bar's bottom, not 3 logical px above (700th); pushed, no build.
+**2026-11-15, 18:30 (MST).** Build 63 started by this push (701st).

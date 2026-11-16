@@ -55,3 +55,4 @@ George says he talked to Claude (in an earlier session; the text of that talk is
 - **2026-11-15T24:00Z:** Remove the outline around menus.
 - **2026-11-15T24:05Z:** I tapped the layer tab and the whole right dock vanished. Then I rotated and it came back. Twitchy. / Can the layers use warm greys instead of cold grays?
 - **2026-11-15T24:10Z:** (screenshot) It looks like menus are a little too high.
+- **2026-11-15T24:15Z:** Let's build 1.0.63. / All pushes in?

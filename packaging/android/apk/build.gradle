@@ -276,7 +276,8 @@ android {
     // def krimbleBuildNumber = 61   // 2026-11-15 (George: "Push that", after the build 60 test); started and cancelled, never built
     // def krimbleBuildNumber = 62   // 2026-11-15 (George: "Build it"); cancelled and deleted: a failed or cancelled build does not use up its number
     // def krimbleBuildNumber = 61   // 2026-11-15 (run 43749388783, commit a88d845; George tested it)
-    def krimbleBuildNumber = 62   // 2026-11-15 (George: "Build the new fixes. 1.0.62")
+    // def krimbleBuildNumber = 62   // 2026-11-15 (run 43769444886, commit 69d2873; George tested it)
+    def krimbleBuildNumber = 63   // 2026-11-15 (George: "Let's build 1.0.63.")
     // (counter-file reading, replaced by the hand-set number above)
     // def krimbleBuildNumber = 0
     // try {
