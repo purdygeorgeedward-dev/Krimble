@@ -77,3 +77,5 @@ George says he talked to Claude (in an earlier session; the text of that talk is
 - **2026-11-16T13:38Z:** Remove it. I don't think anyone will use it.
 - **2026-11-16T13:38Z:** Are there an even number of tools or odd now?
 - **2026-11-16T13:39Z:** Separate the stamp tool.
+- **2026-11-16T13:40Z:** The flyouts already cleaned up the UI a lot. How long is the flyout delay.
+- **2026-11-16T13:40Z:** Make it 400 Ms.

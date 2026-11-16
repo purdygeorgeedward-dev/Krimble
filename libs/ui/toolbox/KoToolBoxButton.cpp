@@ -48,7 +48,8 @@ KoToolBoxButton::KoToolBoxButton(KoToolAction *toolAction, QWidget *parent)
 
     // Krimble 2026-11-12 (task 38): George: "I want long press to open a flyout of other buttons. Then a tap selects one or misses and cancels selection." The long press: a timer started by a press, stopped by a release or a move away; when it runs out (and the button is still held) the flyout is asked for.
     m_krimbleTimer.setSingleShot(true);
-    m_krimbleTimer.setInterval(450);
+    // m_krimbleTimer.setInterval(450);
+    m_krimbleTimer.setInterval(400);   // Krimble 2026-11-16 (718th): George: "How long is the flyout delay." (450 ms) "Make it 400 Ms."
     connect(&m_krimbleTimer, &QTimer::timeout, this, [this]() {
         if (!m_krimbleLongPress || !isDown()) return;
         m_krimbleLongPressFired = true;
