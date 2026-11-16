@@ -540,7 +540,11 @@ public:
         if (watched == m_menu && event->type() == QEvent::Show && m_bar && m_menu->isWindow()) {
             const qreal dpr = qMax<qreal>(1.0, m_menu->devicePixelRatioF());
             const QRect nameRect = m_bar->actionGeometry(m_action);
-            QPoint wanted = m_bar->mapToGlobal(QPoint(nameRect.left(), m_bar->height() - qRound(dpr)));
+            // QPoint wanted = m_bar->mapToGlobal(QPoint(nameRect.left(), m_bar->height() - qRound(dpr)));
+            // Krimble 2026-11-15 (700th): George (screenshot, Select menu): "It looks like menus are a little too high." The old line took dpr (about 3) LOGICAL pixels off the bar's bottom, which is about 9 real
+            // screen pixels, so the menu's top lay over the bottom of the bar. The menu now starts exactly at the bottom of the bar.
+            QPoint wanted = m_bar->mapToGlobal(QPoint(nameRect.left(), m_bar->height()));
+            Q_UNUSED(dpr);
             QScreen *screen = QGuiApplication::screenAt(wanted);
             if (!screen) screen = QGuiApplication::primaryScreen();
             const QRect avail = screen->availableGeometry();
