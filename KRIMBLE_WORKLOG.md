@@ -825,3 +825,4 @@ George: "Destroy all Krita themes. Nothing called Krita stays in themes." Delete
 **2026-11-16, 05:40 (MST).** Release notes for 1.0.63 and 1.0.64 (712th). Tags v1.0.63-beta (f8edc72) and v1.0.64-beta (4ba8bb1) made locally; the push of the tags was refused for this session (HTTP 403), so they are NOT on GitHub.
 **2026-11-16, 05:45 (MST).** Help file checked against the code and rewritten in parts (713th); release documentation and help saved in the project documents; pushed, not built.
 **2026-11-16, 06:40 (MST).** Type tools named Krimble Type and Old Type (714th); pushed, not built. Open: Retouch regrouping, waiting on the stamp tool answer.
+**2026-11-16, 06:45 (MST).** Toolbox groups: bandaid with the stamp in its flyout; Smudge with Soften (715th); help updated; pushed, not built.

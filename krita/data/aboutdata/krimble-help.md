@@ -13,7 +13,7 @@ Krimble is a graphics editor for Android phones and tablets, made from Krita and
 
 - **One button, several tools.** Tools of the same kind share a button: the selection shapes, the lassos, the wands, the shapes, the fills, the pens, the transform tools, the retouch tools, the samplers, the type tools, and Hand with Zoom. A small triangle in the corner of a button marks a group.
 - **Tap** a button to use the tool it shows. **Press and hold** it to open a flyout beside it, with the group's tools by picture and name. Tap one to pick it; tap anywhere else to close the flyout without changing anything.
-- For example, the **Retouch** button holds the Healing Brush, Smart Patch, Smudge and Soften; the **Marquee** button holds the Rectangular, Elliptical and Hexagon selections.
+- For example, the **bandaid** button holds the two healing tools (the bandaid and the stamp), the **Smudge** button holds Smudge and Soften, and the **Marquee** button holds the Rectangular, Elliptical and Hexagon selections. The **Type** button holds **Krimble Type** (the text window described below) and **Old Type**.
 - **UNDO** is the last button: tap it to undo, press and hold it for Redo.
 - **The toolbox menu:** press and hold the toolbox's handle (the bar with three lines). It has **Compact**, **Icon Size**, **Icon Style** (Full color or Silhouette), **Button Style** (Flat or Raised), **Layout**, **Orientation**, **Columns**, and **Dock**.
 - **Docking:** in the toolbox menu, **Dock Left**, **Dock Right**, **Dock Top** and **Dock Bottom** put the toolbox on that side of the screen, and **Undock** makes it float. On the left or right it is a column as tall as the screen; at the top or bottom it is a row. A floating toolbox can also be dragged by its handle to an edge of the screen and let go there.
@@ -65,7 +65,7 @@ Emoji (as plain black shapes) can be used in text.
 
 ## Erasing: painting with transparency
 
-- The **Eraser** tool (in the toolbox, beside the Brush) is the brush that paints **transparency** instead of color. It uses the brush you have picked: its size, softness and opacity. Pick the Brush tool again to paint with color.
+- The **Eraser** tool (in the toolbox, after the Brush and Smudge) is the brush that paints **transparency** instead of color. It uses the brush you have picked: its size, softness and opacity. Pick the Brush tool again to paint with color.
 - Another way to the same: the **eraser switch** of the brush toolbar (the Retouch toolbar has one too; turn a toolbar on in **Window > Toolbars**). The Eraser tool turns this switch on while it is the tool, and puts it back as it was when you change tools.
 - For erasing that you can change your mind about, add a **transparency mask** to the layer (**Layer > Add Transparency Mask**) and paint on it: black hides, white shows.
 - To clear a whole area: select it, then **Edit > Clear**.
