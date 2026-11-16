@@ -534,7 +534,18 @@ static void krimbleStripShortcuts(QMenu *menu, KrimbleSavedShortcuts *saved, int
 class KrimbleMenuPlacer : public QObject
 {
 public:
-    KrimbleMenuPlacer(QMenu *menu, QMenuBar *bar, QAction *nameAction) : QObject(menu), m_menu(menu), m_bar(bar), m_action(nameAction) { menu->installEventFilter(this); }
+    // KrimbleMenuPlacer(QMenu *menu, QMenuBar *bar, QAction *nameAction) : QObject(menu), m_menu(menu), m_bar(bar), m_action(nameAction) { menu->installEventFilter(this); }
+    // Krimble 2026-11-15 (709th): George (build 63): "Window menu still doesn't work right." The menu is moved down by the bar's height after Qt has laid its columns out for the whole screen
+    // height, so the last entry of a full column was below the screen (Toolbars, in his screenshot). Before each opening the menu is told how much room to keep free (half the bar's height,
+    // above and below: the style reads "krimbleMenuDeskFrame", see KisWideDockSeparatorStyle.cpp), so its columns are shorter by the bar's height and all of it is on the screen.
+    KrimbleMenuPlacer(QMenu *menu, QMenuBar *bar, QAction *nameAction) : QObject(menu), m_menu(menu), m_bar(bar), m_action(nameAction)
+    {
+        menu->installEventFilter(this);
+        menu->setProperty("krimbleMenuDeskFrame", qMax(8, (bar->height() + 1) / 2 + 2));
+        QObject::connect(menu, &QMenu::aboutToShow, menu, [menu, bar]() {
+            menu->setProperty("krimbleMenuDeskFrame", qMax(8, (bar->height() + 1) / 2 + 2));
+        });
+    }
     bool eventFilter(QObject *watched, QEvent *event) override
     {
         if (watched == m_menu && event->type() == QEvent::Show && m_bar && m_menu->isWindow()) {

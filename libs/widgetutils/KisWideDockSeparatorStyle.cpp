@@ -27,6 +27,16 @@ int KisWideDockSeparatorStyle::pixelMetric(PixelMetric metric, const QStyleOptio
         return 64;
     }
 #endif
+#ifdef Q_OS_ANDROID
+    // Krimble 2026-11-15 (709th): George (build 63, screenshot of the Window menu in landscape): "Window menu still doesn't work right." Qt lays a tall menu out in columns as high as the
+    // whole screen, and Krimble then moves the menu down to the bottom of the menu bar (task 67), so the last entry of each full column was under the bottom edge of the screen (in his
+    // screenshot the Toolbars entry, the last of the first column, cannot be seen or tapped). A menu of the menu bar carries the number "krimbleMenuDeskFrame" (half the bar's height, set in
+    // KisMainWindow.cpp, KrimbleMenuPlacer); Qt keeps that much room free above AND below when it works out the columns, so the menu is shorter by the bar's height and fits under the bar.
+    if (metric == QStyle::PM_MenuDesktopFrameWidth && widget) {
+        const int krimbleFrame = widget->property("krimbleMenuDeskFrame").toInt();
+        if (krimbleFrame > 0) return qMax(krimbleFrame, QProxyStyle::pixelMetric(metric, option, widget));
+    }
+#endif
     if (metric == QStyle::PM_DockWidgetSeparatorExtent) {
         // Krimble 2026-10-10: on Android at least 20 px (the same touch size as the dialog edges), so a finger can grab it.
         // return QProxyStyle::pixelMetric(metric, option, widget) * 2;

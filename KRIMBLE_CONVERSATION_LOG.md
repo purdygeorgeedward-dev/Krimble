@@ -64,3 +64,4 @@ George says he talked to Claude (in an earlier session; the text of that talk is
 - **2026-11-16T03:40Z:** Fix these issues and push.
 - **2026-11-16T03:54Z:** I tried different ways. I used the menu and dragged the toolbox and got unpredictable results.
 - **2026-11-16T03:55Z:** If I give you a PAT can you try to update the release docs?
+- **2026-11-16T03:56Z:** Work independently to resolve issues and document everything. (new PAT given)
