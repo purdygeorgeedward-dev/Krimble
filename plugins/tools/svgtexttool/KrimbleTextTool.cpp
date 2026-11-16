@@ -922,7 +922,8 @@ void KrimbleTextTool::askAndAddText(const QPointF &where, const QRectF &box)
 KrimbleTextToolFactory::KrimbleTextToolFactory()
     : KoToolFactoryBase("KrimbleTextTool")
 {
-    setToolTip(i18n("Type Tool"));
+    // setToolTip(i18n("Type Tool"));
+    setToolTip(i18n("Krimble Type"));   // Krimble 2026-11-16 (714th): George: "Label one type tool Krimble Type and the other Old Type."
     setIconName(koIconNameCStr("draw-text"));
     setSection(ToolBoxSection::PSOrder);
     setPriority(1);

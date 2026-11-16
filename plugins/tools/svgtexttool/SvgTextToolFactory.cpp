@@ -18,7 +18,8 @@
 SvgTextToolFactory::SvgTextToolFactory()
     : KoToolFactoryBase("SvgTextTool")
 {
-    setToolTip(i18n("Type Tool"));
+    // setToolTip(i18n("Type Tool"));
+    setToolTip(i18n("Old Type"));   // Krimble 2026-11-16 (714th): George: "Label one type tool Krimble Type and the other Old Type."
     setIconName(koIconNameCStr("draw-text"));
     setSection(ToolBoxSection::PSOrder);
     setPriority(1);

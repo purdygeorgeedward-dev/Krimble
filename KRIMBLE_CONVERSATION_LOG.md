@@ -68,3 +68,7 @@ George says he talked to Claude (in an earlier session; the text of that talk is
 - **2026-11-16T04:11Z:** Build
 - **2026-11-16T12:37Z:** Tag and document.
 - **2026-11-16T12:38Z:** Save all documentation from releases in your project documents. Construct accurate help file for app.
+- **2026-11-16T13:28Z:** Did we finally get rid of the stamp icon and make the flyout better?
+- **2026-11-16T13:29Z:** Show me the toolbox.
+- **2026-11-16T13:34Z:** Smudge and soften should be on their own. The bandaid should be on its own. I don't even know what the stamp is. Why are there two Type tools? A lot of these changes are never approved.
+- **2026-11-16T13:36Z:** Label one type tool Krimble Type and the other Old Type.

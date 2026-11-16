@@ -4,10 +4,11 @@
     <text>Type</text>
     <Action name="SvgTextTool">
       <icon>draw-text</icon>
-      <text>Text Tool</text>
+      <!-- Krimble 2026-11-16 (714th): George: "Label one type tool Krimble Type and the other Old Type." This is Krita's own text tool. Before: Text Tool (text, toolTip, iconText) -->
+      <text>Old Type</text>
       <whatsThis></whatsThis>
-      <toolTip>Text Tool</toolTip>
-      <iconText>Text Tool</iconText>
+      <toolTip>Old Type</toolTip>
+      <iconText>Old Type</iconText>
       <shortcut>T</shortcut>
       <isCheckable>false</isCheckable>
       <statusTip/>
@@ -15,10 +16,11 @@
     <!-- Krimble 2026-10-18: the new Type tool (KrimbleTextTool.cpp) -->
     <Action name="KrimbleTextTool">
       <icon>draw-text</icon>
-      <text>Type Tool</text>
+      <!-- Krimble 2026-11-16 (714th): George: "Label one type tool Krimble Type and the other Old Type." This is Krimble's own type tool (the text window). Before: Type Tool (text, toolTip, iconText) -->
+      <text>Krimble Type</text>
       <whatsThis></whatsThis>
-      <toolTip>Type Tool</toolTip>
-      <iconText>Type Tool</iconText>
+      <toolTip>Krimble Type</toolTip>
+      <iconText>Krimble Type</iconText>
       <shortcut>T</shortcut>
       <isCheckable>false</isCheckable>
       <statusTip/>
