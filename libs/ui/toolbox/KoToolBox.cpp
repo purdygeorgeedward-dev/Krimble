@@ -93,7 +93,9 @@ static const QList<QStringList> &krimbleToolGroupIds()
         // Krimble 2026-11-16 (715th): George (the chart of the toolbox): "Smudge and soften should be on their own. The bandaid should be on its own. I don't even know what the stamp is." and
         // "Make the stamp a flyout from the bandaid." The Retouch group (stamp first, with the bandaid, Smudge and Soften) is two groups now: the bandaid (Smart Patch) with the stamp (Heal) in
         // its flyout, and Smudge with Soften. A group's button sits at the place of its first tool: the bandaid after the Eyedropper, Smudge after the Brush.
-        { QStringLiteral("KritaShape/KisToolSmartPatch"), QStringLiteral("KritaShape/KisToolHeal") },                                                        // Healing (the bandaid; the stamp in its flyout)
+        // { QStringLiteral("KritaShape/KisToolSmartPatch"), QStringLiteral("KritaShape/KisToolHeal") },                                                        // Healing (the bandaid; the stamp in its flyout)
+        // Krimble 2026-11-16 (717th): George (19 buttons, an odd number): "Separate the stamp tool." The bandaid (Smart Patch) and the stamp (Heal) are in no group: each has its own
+        // button and no flyout. The bandaid stays after the Eyedropper; the stamp is after the Eraser, before the Gradient. 20 buttons with UNDO.
         { QStringLiteral("KritaShape/KisToolSmudge"), QStringLiteral("KritaShape/KisToolSoften") },                                                          // Smudge and Soften
         { QStringLiteral("KritaSelected/KisToolColorSampler"), QStringLiteral("KritaShape/KisToolMeasure"), QStringLiteral("ToolReferenceImages") },         // Sampler
         { QStringLiteral("KrimbleTextTool"), QStringLiteral("SvgTextTool") },                                                                                // Type
