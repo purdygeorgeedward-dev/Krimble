@@ -5,19 +5,36 @@ Krimble is a graphics editor for Android phones and tablets, made from Krita and
 ## Moving around
 
 - The **Hand** tool is the tool Krimble starts with: drag a finger to move the picture. Pick another tool from the toolbox when you want to draw, select or edit.
-- Every open picture has its own window. Drag a window by its title bar. The three buttons in the corner make it small, make it big, and close it.
+- Every open picture has its own window. Drag a window by its title bar. The three buttons in the corner make it small, make it big, and close it. **Window > Switch to Tabs** shows the pictures as tabs instead; **Switch to Floating Windows** goes back.
+- **View > Rotation Gadget** and **View > Zoom Gadget** put a rotation control and a zoom slider on the bottom bar. Both are off until you turn them on.
 - The bottom bar shows the picture's color kind and its size.
 
-## Toolbox, panels and toolbars
+## Toolbox
 
-- The **toolbox** can sit on a side of the screen, or be pulled off its edge and put anywhere. Held upright, it can use two columns so that more tools fit.
-- **Panels** (Tool Options, Layers, Color and others) sit on the right. Each has a lock button, a button that makes it float, and a close button. A locked panel cannot be made to float: unlock it first.
-- The **Window** menu has the commands for panels and toolbars: **Detach Panel** (makes a panel float), **Attach Panel**, **Show Right Panels** and **Hide All Panels**, **Stack Panels** (puts the floating panels in a neat pile), **Toolbars**, **Customize Toolbar...** and **Lock Toolbars**.
+- **One button, several tools.** Tools of the same kind share a button: the selection shapes, the lassos, the wands, the shapes, the fills, the pens, the transform tools, the retouch tools, the samplers, the type tools, and Hand with Zoom. A small triangle in the corner of a button marks a group.
+- **Tap** a button to use the tool it shows. **Press and hold** it to open a flyout beside it, with the group's tools by picture and name. Tap one to pick it; tap anywhere else to close the flyout without changing anything.
+- For example, the **Retouch** button holds the Healing Brush, Smart Patch, Smudge and Soften; the **Marquee** button holds the Rectangular, Elliptical and Hexagon selections.
+- **UNDO** is the last button: tap it to undo, press and hold it for Redo.
+- **The toolbox menu:** press and hold the toolbox's handle (the bar with three lines). It has **Compact**, **Icon Size**, **Icon Style** (Full color or Silhouette), **Button Style** (Flat or Raised), **Layout**, **Orientation**, **Columns**, and **Dock**.
+- **Docking:** in the toolbox menu, **Dock Left**, **Dock Right**, **Dock Top** and **Dock Bottom** put the toolbox on that side of the screen, and **Undock** makes it float. On the left or right it is a column as tall as the screen; at the top or bottom it is a row. A floating toolbox can also be dragged by its handle to an edge of the screen and let go there.
+- **Columns** sets how many columns an upright toolbox uses, so that more tools fit.
+
+## Panels and toolbars
+
+- **Panels** (Tool Options, Layers, Color Lab and others) sit on the right, as tabs when several share a place. Each has a lock button, a button that makes it float, and a close button. A locked panel cannot be made to float: unlock it first.
+- The **Window** menu has the commands for panels: **Panels** (turn each panel on or off), **Show Panels**, **Detach Panel** (makes a panel float), **Attach Panel**, **Hide Right Panels**, **Hide All Panels** and **Stack Panels** (puts the floating panels in a neat pile).
+- For toolbars, the Window menu has **Toolbars** (turn each toolbar on or off), **Configure Toolbars...** and **Lock Toolbars**.
+- **Color Lab** is the panel for choosing colors. It keeps its size in a wide panel: it does not grow past the width of the phone held upright.
+
+## Themes
+
+**Window > Themes** changes the look of the whole app. The themes are **Krimble Blue-Gray**, **Krimble Dark Gray**, **Krimble Painted**, **Breeze Dark**, **Breeze Light** and **Breeze High Contrast**. Krimble Dark Gray is flat: warm grays, no bevels. **Window > Switch Application Language...** changes the language.
 
 ## Files
 
 - **File > New** starts a picture of the size you choose. **File > Open** opens pictures; each opens in its own window.
 - **File > Save** keeps your work as a Krimble/Krita file with layers. **File > Export** (or Save As) writes a flat picture: JPG, PNG, WebP and others.
+- **File > Share...** sends the picture to another app, as JPG or PNG. **File > Take Photo...** opens the camera and brings the photo in as a picture.
 - **WebP** keeps transparency. In its export window, **Lossless encoding** keeps every pixel; with it off, the quality slider sets the size.
 
 ## Type tool
@@ -38,16 +55,17 @@ Emoji (as plain black shapes) can be used in text.
 ## The Image menu
 
 - **Mode** changes the color kind. **Indexed Color...** limits a picture to a palette (see below).
+- **Quick Adjust...** is the first entry: six sliders in one window (**Brightness**, **Contrast**, **Saturation**, **Hue**, **Lightness**, **Vibrance**), a **Preview** switch, **Reset**, and **Keep as layers**, which leaves the changes as adjustment layers you can edit later.
 - **Adjustments**: Quick Adjust, Brightness/Contrast, Levels, Curves, Vibrance, Hue/Saturation, Color Balance, Photo Filter, Invert, Posterize, Threshold, Gradient Map, Desaturate, Match Color.
 - **Auto Tone**, **Auto Contrast**, **Auto Color**: one-tap fixes.
-- **Image Size...**, **Canvas Size...**, **Image Rotation**, **Crop**, **Crop to Image Size**, **Crop to Layer**, **Crop to Selection**, **Shear...**, **Offset...**.
+- **Image Size...**, **Resolution...**, **Canvas Size...**, **Image Rotation** (with **Free Rotate**, which turns the picture with two fingers), **Crop**, **Crop to Image Size**, **Crop to Layer**, **Auto Crop...**, **Crop to Selection**, **Duplicate...**, **Shear...**, **Offset...**.
 - **Properties...**, **Purge Unused Data**, **Split Image...**, **Wavelet Decompose...**, **Separate**.
-- **Upscale...** makes a picture 2, 3 or 4 times larger.
+- **Upscale...** makes a picture 2, 3 or 4 times larger, and can add a light sharpen layer on top. It refuses a result of more than 100 million pixels.
 - **Batch Process...** works on many pictures at once (see below).
 
 ## Erasing: painting with transparency
 
-- The **Eraser** tool (in the toolbox, after Brush, Smudge and Soften) is the brush that paints **transparency** instead of color. It uses the brush you have picked: its size, softness and opacity. Pick the Brush tool again to paint with color.
+- The **Eraser** tool (in the toolbox, beside the Brush) is the brush that paints **transparency** instead of color. It uses the brush you have picked: its size, softness and opacity. Pick the Brush tool again to paint with color.
 - Another way to the same: the **eraser switch** of the brush toolbar (the Retouch toolbar has one too; turn a toolbar on in **Window > Toolbars**). The Eraser tool turns this switch on while it is the tool, and puts it back as it was when you change tools.
 - For erasing that you can change your mind about, add a **transparency mask** to the layer (**Layer > Add Transparency Mask**) and paint on it: black hides, white shows.
 - To clear a whole area: select it, then **Edit > Clear**.
@@ -61,6 +79,17 @@ Emoji (as plain black shapes) can be used in text.
 ## Content-Aware Fill
 
 Select the part you want to remove (with any selection tool), then choose **Edit > Fill > Content-Aware...**. Krimble fills the hole from the picture around it. It works best on plain or repeating backgrounds; on very busy pictures the fill can look soft.
+
+## Hex maps and stars
+
+- **View > Show > Hex** draws a pattern of hexagons over the picture, for making hex maps. It follows the zoom and is not part of the picture. **Hex Size...** sets the size of a hexagon (center to corner, in pixels), **Hex Lines...** sets the lines, and **Lock Hex Settings** keeps them from being changed by accident.
+- **Layer > New > Hex Pattern...** puts the hexagons into the picture, on a vector layer, with the size, the line thickness and the color you choose. The lines stay sharp at any zoom.
+- The **Hexagon Selection** tool is in the Marquee flyout of the toolbox.
+- **Layer > New > Star...** makes a star on a new vector layer in the middle of the picture. It can be moved, scaled and turned afterward.
+
+## Preferences
+
+**Edit > Preferences...** has the settings, one page for each subject; pick a page from the list of pictures at the side. **Edit > Configure Shortcuts...** is for keyboards.
 
 ## Indexed Color and the retro palettes
 

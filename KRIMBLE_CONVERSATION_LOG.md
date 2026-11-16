@@ -67,3 +67,4 @@ George says he talked to Claude (in an earlier session; the text of that talk is
 - **2026-11-16T03:56Z:** Work independently to resolve issues and document everything. (new PAT given)
 - **2026-11-16T04:11Z:** Build
 - **2026-11-16T12:37Z:** Tag and document.
+- **2026-11-16T12:38Z:** Save all documentation from releases in your project documents. Construct accurate help file for app.

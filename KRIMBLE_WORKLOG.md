@@ -823,3 +823,4 @@ George: "Destroy all Krita themes. Nothing called Krita stays in themes." Delete
 **2026-11-15, 21:15 (MST).** Build 64 started by push (710th).
 **2026-11-15, 21:30 (MST).** Build 64 built (run 43802615314); build log row 64 (711th).
 **2026-11-16, 05:40 (MST).** Release notes for 1.0.63 and 1.0.64 (712th). Tags v1.0.63-beta (f8edc72) and v1.0.64-beta (4ba8bb1) made locally; the push of the tags was refused for this session (HTTP 403), so they are NOT on GitHub.
+**2026-11-16, 05:45 (MST).** Help file checked against the code and rewritten in parts (713th); release documentation and help saved in the project documents; pushed, not built.
