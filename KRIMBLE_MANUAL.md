@@ -8,7 +8,14 @@ Written 2026-11-16 for the build after 1.0.64 beta. Krimble is beta software: th
 
 ## 1. What Krimble is
 
-Krimble is a graphics editor for Android phones and tablets. It is made from Krita and changed to work with a finger. You can paint, retouch photos, select and cut out parts of a picture, work in layers, add text, and save in the usual formats (JPG, PNG, WebP and others).
+Krimble is a graphics editor for Android phones and tablets: an image editor for photos, graphics and design work, in the tradition of Photoshop. It is **not a paint app**. It is made from Krita and changed to work with a finger.
+
+What it is for:
+
+- **Editing photos:** adjust light and color, crop, resize, retouch, remove things.
+- **Cutting out and combining:** select parts of a picture, and build a picture from layers.
+- **Design work:** text, shapes, gradients, layer styles.
+- **Preparing files:** export to JPG, PNG and WebP, and convert many pictures at once.
 
 If you have used Photoshop, most names will be familiar: Marquee, Lasso, Magic Wand, Layers, Adjustments, Free Transform.
 
@@ -26,13 +33,14 @@ Turn the phone sideways and everything rearranges for the wide screen.
 
 ---
 
-## 3. Your first picture
+## 3. Your first edit
 
-1. **File > New** starts an empty picture of the size you choose. **File > Open** opens one from your phone.
-2. Krimble starts with the **Hand** tool, so a finger drag moves the picture and does not paint on it by accident.
-3. Pick the **Brush** in the toolbox and draw.
-4. Made a mistake? Tap **UNDO** at the end of the toolbox.
-5. **File > Save** keeps your work with its layers. **File > Export** writes a flat picture (JPG, PNG, WebP) to send to someone.
+1. **File > Open** opens a picture from your phone. (**File > New** starts an empty one of the size you choose.)
+2. Krimble starts with the **Hand** tool, so a finger drag moves the picture and changes nothing by accident.
+3. **Image > Quick Adjust...**: move the Brightness and Contrast sliders until the picture looks right, then **OK**.
+4. Pick the **Crop** tool in the toolbox, drag the frame to the part you want, and confirm.
+5. Changed your mind? Tap **UNDO** at the end of the toolbox.
+6. **File > Export** writes the finished picture (JPG, PNG, WebP). **File > Save** keeps your work with its layers, to go on later.
 
 ---
 
@@ -60,9 +68,9 @@ Turn the phone sideways and everything rearranges for the wide screen.
 | Crop | Cuts the picture down to a frame | |
 | Eyedropper | Picks a color from the picture | Ruler, Reference Images |
 | Bandaid | Heals a marked spot from its surroundings | |
-| Brush | Paints with the foreground color | |
-| Smudge | Smears paint with the finger | Soften |
-| Eraser | Paints transparency | |
+| Brush | Applies the foreground color by hand, for touch-ups and masks | |
+| Smudge | Pushes pixels along with the finger | Soften (blurs gently) |
+| Eraser | Rubs parts of a layer away to transparency | |
 | Stamp | Heals by copying texture from a source spot: tap **Set source** first | |
 | Gradient | Fills with a blend of colors | Paint Bucket |
 | Pen | Draws curves point by point | Polyline, Polygon, Pencil |
@@ -83,20 +91,23 @@ Turn the phone sideways and everything rearranges for the wide screen.
 
 ## 6. Colors
 
-- The two squares at the bottom of the toolbox are the **foreground** color (what you paint with) and the **background** color.
+- The two squares at the bottom of the toolbox are the **foreground** color (used by the brush, fills, shapes and text) and the **background** color.
 - Tap a square to choose its color. The small arrows swap the two. The small black-and-white squares put them back to black and white.
 - The **Color Lab** panel is the full color picker.
 - The **Eyedropper** tool takes a color from the picture.
 
 ---
 
-## 7. Painting and erasing
+## 7. Fixing a photo
 
-- **Brush:** paints with the foreground color. The brush toolbar has its size and opacity sliders; turn toolbars on in **Window > Toolbars**.
-- **Eraser:** the same brush, but it paints transparency instead of color.
-- **Smudge** and **Soften** (same button): smear paint, or blur it gently.
-- **Paint Bucket** (in the Gradient flyout): fills an area with the foreground color.
-- To clear a whole area: select it, then **Edit > Clear**.
+- **Image > Quick Adjust...**: six sliders in one window: Brightness, Contrast, Saturation, Hue, Lightness, Vibrance. The **Preview** switch shows before and after.
+- **Image > Auto Tone**, **Auto Contrast**, **Auto Color**: one-tap fixes.
+- **Image > Adjustments**: the full set: Levels, Curves, Hue/Saturation, Color Balance and more.
+- **Crop tool**: drag the frame, then confirm.
+- **Image > Image Size...** makes the picture smaller or larger. **Image > Canvas Size...** adds or removes room around it.
+- **Image > Image Rotation**: turn or flip the whole picture.
+- **Image > Upscale...**: makes a picture 2, 3 or 4 times larger.
+- **Filter** menu: Blur, Sharpen, Stylize and others.
 
 ---
 
@@ -110,22 +121,20 @@ A selection limits what you do next to one part of the picture.
 - **Magic Wand**: tap an area; everything of similar color joining it is selected.
 - **Select > All**, **Deselect**, **Inverse** (selects everything else), **Feather...** (softens the edge).
 
-With a selection made you can paint inside it, **Edit > Cut** or **Copy** it, fill it (**Edit > Fill**), or remove something from the picture with **Edit > Fill > Content-Aware...**, which fills the hole from the picture around it.
+With a selection made, an adjustment or a fill touches only that part. You can also **Edit > Cut** or **Copy** it, fill it (**Edit > Fill**), or remove something from the picture with **Edit > Fill > Content-Aware...**, which fills the hole from the picture around it.
 
 ---
-
 ## 9. Layers
 
-Layers are sheets stacked on top of each other. Paint on one without touching the others.
+Layers are sheets stacked on top of each other: a photo, a cut-out placed over it, a line of text on top. Change one without touching the others.
 
 - The **Layers** panel lists them, top sheet first. Tap a layer to work on it. The **eye** hides or shows it.
 - **Layer > New > Layer** adds an empty one. **Layer > Duplicate Layer...** copies one.
 - **Layer > Merge Down** joins a layer with the one under it. **Layer > Flatten Image** joins them all.
-- **Layer > New > Layer Mask** adds a mask: paint black on it to hide parts of the layer, white to show them again. Nothing is erased for good.
+- **Layer > New > Layer Mask** adds a mask: brush black on it to hide parts of the layer, white to show them again. Nothing is erased for good.
 - **Layer > Layer Style...** adds effects such as shadows and glows.
 
 ---
-
 ## 10. Text
 
 1. Pick the **T** tool and tap the picture where the text should go.
@@ -135,17 +144,17 @@ Layers are sheets stacked on top of each other. Paint on one without touching th
 Afterward a frame surrounds the text: drag a corner to resize, drag inside to move, tap inside to edit it again.
 
 ---
+## 11. Retouching and hand tools
 
-## 11. Fixing a photo
+These work by hand, directly on the picture. The brush toolbar has the size and opacity sliders; turn toolbars on in **Window > Toolbars**.
 
-- **Image > Quick Adjust...**: six sliders in one window: Brightness, Contrast, Saturation, Hue, Lightness, Vibrance. The **Preview** switch shows before and after.
-- **Image > Auto Tone**, **Auto Contrast**, **Auto Color**: one-tap fixes.
-- **Image > Adjustments**: the full set: Levels, Curves, Hue/Saturation, Color Balance and more.
-- **Crop tool**: drag the frame, then confirm.
-- **Image > Image Size...** makes the picture smaller or larger. **Image > Canvas Size...** adds or removes room around it.
-- **Image > Image Rotation**: turn or flip the whole picture.
-- **Image > Upscale...**: makes a picture 2, 3 or 4 times larger.
-- **Filter** menu: Blur, Sharpen, Stylize and others.
+- **Bandaid:** mark a blemish and it is healed from its surroundings.
+- **Stamp:** tap **Set source** on a clean spot, then brush over the flaw; the texture is copied across.
+- **Smudge** and **Soften** (same button): push pixels along, or blur an area gently.
+- **Eraser:** rubs parts of a layer away to transparency. For erasing you can take back later, use a layer mask instead.
+- **Brush:** applies the foreground color by hand: for touch-ups, and for working on masks.
+- **Gradient** and **Paint Bucket** (same button): fill a layer or a selection with a blend or a flat color.
+- To clear a whole area: select it, then **Edit > Clear**.
 
 ---
 
