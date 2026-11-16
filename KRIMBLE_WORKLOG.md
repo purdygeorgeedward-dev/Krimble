@@ -837,3 +837,4 @@ George: "Destroy all Krita themes. Nothing called Krita stays in themes." Delete
 **2026-11-16, 14:39 (MST).** George sent the list again with items 15 (image tabs gone) and 16 (crashes, also on a fill), says he is using 1.0.58, and asks for a list of all revisions after 58 and the best way to redo them after a rollback.
 **2026-11-16, 14:58 (MST).** Pushed, not built: 722nd (items 1 to 14), 723rd (the brand name removed from the repository), 724th (image tabs the default again), KRIMBLE_ROLLBACK_PLAN.md. Nothing of it has run on a phone. Crash cause (item 16) not found.
 **2026-11-16, 15:05 (MST).** George: "Build." Build 65 (1.0.65-beta) started by push (725th).
+**2026-11-16, 15:12 (MST).** Build 65 first run failed (compile error from the 723rd script, two lines in kis_jpeg_converter.cc); fixed (726th); build 65 started again by push.
