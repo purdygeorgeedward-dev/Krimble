@@ -394,6 +394,7 @@ public:
 protected:
     void paintEvent(QPaintEvent *) override
     {
+        if (property("krimbleInvisible").toBool()) return;   // Krimble 2026-11-17 (731st): the small grip of QuickAdjust is not drawn
         QPainter p(this);
         p.setRenderHint(QPainter::Antialiasing, true);
         QColor c = palette().color(QPalette::WindowText);
@@ -933,9 +934,15 @@ protected:
                             grip = new KrimbleResizeGrip(gripDialog);
                             grip->setObjectName(QStringLiteral("krimbleResizeGrip"));
                         }
+                        // Krimble 2026-11-17 (731st): a window that asks for a small grip (QuickAdjust) gets one of 16 units, drawn as nothing, and no extra strip under its buttons
+                        const bool krimbleSmallGrip = gripDialog->property("krimbleSmallGrip").toBool();
+                        if (krimbleSmallGrip && grip->width() != 16) {
+                            grip->setFixedSize(16, 16);
+                            grip->setProperty("krimbleInvisible", true);
+                        }
                         // Krimble 2026-10-12: George: "Sizing gadget covers the button." A strip as tall as the grip is added under the
                         // dialog's contents (once), so the grip sits below the buttons instead of on top of them.
-                        if (gripDialog->layout() && !gripDialog->property("krimbleGripStrip").toBool()) {
+                        if (gripDialog->layout() && !krimbleSmallGrip && !gripDialog->property("krimbleGripStrip").toBool()) {
                             QMargins m = gripDialog->layout()->contentsMargins();
                             m.setBottom(m.bottom() + grip->height());
                             gripDialog->layout()->setContentsMargins(m);

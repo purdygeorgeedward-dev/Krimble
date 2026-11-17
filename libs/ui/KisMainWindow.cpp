@@ -2103,7 +2103,11 @@ static void krimbleShowQuickAdjustDialog(KisMainWindow *win)
     // Krimble 2026-11-16 (728th): George (build 65): "OK does not close QuickAdjust. It's probably blocked by the sizing gadget." It was: the corner grip every plain dialog gets
     // (KrimbleResizeGrip, KisApplication.cpp) lies in the bottom right corner, on top of OK (the room that is normally added under the buttons for it is lost when this window sets
     // its own margins). QuickAdjust opens at its natural size and has no corner grip.
-    dialog->setProperty("krimbleNoGrip", true);
+    // dialog->setProperty("krimbleNoGrip", true);
+    // Krimble 2026-11-17 (731st): George: "You could just make the corner grip on QuickAdjust smaller and a little outside of the corner and invisible and scoot the button a little to
+    // the left. Then both functions would work." QuickAdjust keeps a corner grip, small (16 units), drawn as nothing, in the very corner (a part of a window cannot lie outside it); OK
+    // is moved 18 units to the left (the bottom row has that much room at its right end), so the grip and OK no longer overlap.
+    dialog->setProperty("krimbleSmallGrip", true);
     // Krimble 2026-11-06 (2nd): George: "CAPTURE DARKER COLOR SCHEME FROM MOCK-UPS." The QuickAdjust window has the mockup's colors, sampled from the mockup picture: window
     // #181B2E, number boxes #121420 with a #5A5D80 outline, grey buttons #4A4B6A (top) to #26283D (bottom) with a #6B6C8C outline.
     // Krimble 2026-11-06 (3rd): George: "make QuickAdjust text smaller (not talking about the logo)". The text of the window (rows, Preview, Keep as layers, buttons) is 25% smaller,
@@ -2238,6 +2242,7 @@ static void krimbleShowQuickAdjustDialog(KisMainWindow *win)
                                             " background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #006bfd, stop:1 #0033c5); }"));
         QObject::connect(okRow, &QPushButton::clicked, buttons, &QDialogButtonBox::accepted);
         bottom->addWidget(okRow);
+        bottom->addSpacing(18);   // Krimble 2026-11-17 (731st): room for the small corner grip at the right of OK
         bottomBox->addLayout(bottom);
         layout->addLayout(bottomBox);
         // layout->addLayout(bottom);

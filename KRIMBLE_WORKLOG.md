@@ -843,3 +843,4 @@ George: "Destroy all Krita themes. Nothing called Krita stays in themes." Delete
 **2026-11-16, 20:25 (MST).** Pushed, not built: 728th (the build 65 list). "Layers snapped into a column" not found.
 **2026-11-17, 03:15 (MST).** 729th pushed (glow line on the selected menu item). Not built.
 **2026-11-17, 03:40 (MST).** 730th pushed (Color Lab wishlist: buttons in the band, no title bar). Not built.
+**2026-11-17, 04:40 (MST).** 731st pushed (QuickAdjust: small invisible corner grip, OK moved left). Not built.
