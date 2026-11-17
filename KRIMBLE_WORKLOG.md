@@ -853,3 +853,4 @@ George: "Destroy all Krita themes. Nothing called Krita stays in themes." Delete
 **2026-11-17, 05:20 (MST).** Branches release-1.0.59-beta to release-1.0.66-beta pushed, one at each build's commit, so George can pick them as release targets on GitHub (its target list only shows recent commits); same way as release-1.0.58-beta.
 **2026-11-17, 05:24 (MST).** Correction: the first pushes made branches without '-beta' (release-1.0.59 to release-1.0.66); this session cannot delete branches, so George deletes those 8 on GitHub. The release-1.0.59-beta to release-1.0.66-beta branches are the targets.
 **2026-11-17, 08:10 (MST).** 734th pushed: build 66's compile error (KisMainWindow.cpp:893, from the 728th). Build 66 started again.
+**2026-11-17, 08:12 (MST).** Branch release-1.0.66-beta moved to 2b5cdb3 (the commit build 66 is now built from, run 44110178988).
