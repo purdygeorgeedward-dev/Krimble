@@ -847,3 +847,4 @@ George: "Destroy all Krita themes. Nothing called Krita stays in themes." Delete
 **2026-11-17, 04:42 (MST).** 732nd pushed (canvas no longer under the panels by default; suspected cause of the slowdown). Not built.
 **2026-11-17, 04:50 (MST).** 733rd pushed (files opening tiny: zoom freeze only when the canvas area shrinks). Not built.
 **2026-11-17, 04:47 (MST).** Build 66 started (George: "Ok. Let's build it and see."): build number 66, label 1.0.66-beta.
+**2026-11-17, 04:53 (MST).** Build 66 first run (44076877193) stopped at the build number check: the push run's fallback label (2 lines in android-build.yml) still said 1.0.65-beta. Fixed; this push starts build 66 again.
