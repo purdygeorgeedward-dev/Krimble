@@ -4265,6 +4265,16 @@ static void krimbleRefreshTabTitles(QMainWindow *win)
         // if (krimbleLogo && krimbleLogo->isHidden() == !tabbed) krimbleLogo->setVisible(!tabbed);
         // Krimble 2026-11-15 (3rd): George: "Color Lab now has no logo!!!!!!" The logo is always shown (it was hidden while the panel was in a tab group, as its name was on the tab).
         if (krimbleLogo && krimbleLogo->isHidden()) krimbleLogo->setVisible(true);
+        // Krimble 2026-11-17 (730th): George's Color Lab wishlist mockup: no title bar over the COLOR LAB band (the band has the float and close buttons now, krimble_color_pages.h).
+        // The title bar is folded away: its buttons and label hidden, no margins, 0 high (tried in real Qt 5.15: the panel's contents then start at the top; a title bar that is only
+        // hidden still takes its room). In a tab group the tab names the panel and can be dragged off as before.
+        if (krimbleLogo) {
+            Q_FOREACH (QWidget *part, bar->findChildren<QWidget*>(QString(), Qt::FindDirectChildrenOnly)) {
+                if (part->isVisible()) part->hide();
+            }
+            if (bar->layout()) bar->layout()->setContentsMargins(0, 0, 0, 0);
+            if (bar->maximumHeight() != 0) bar->setFixedHeight(0);
+        }
     }
 }
 

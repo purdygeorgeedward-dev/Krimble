@@ -10,6 +10,9 @@
 #include <QMouseEvent>
 #include <QSignalBlocker>
 #include <QSpinBox>
+#include <QToolButton>   // Krimble 2026-11-17 (730th)
+#include <QDockWidget>
+#include <kis_icon_utils.h>
 #include "krimble_color_paint.h"
 #include "krimble_color_logo.h"
 
@@ -786,7 +789,80 @@ public:
     // Krimble 2026-11-15: George (build 60): "when torn off it is right back to double titles." The panel looks for a widget named KrimbleStudioLogo (KisMainWindow.cpp, krimbleRefreshTabTitles) to know that the
     // logo is the panel's title; the only widget with that name was in a block that is switched off, so the logo was never found: the tab group showed the tab and the logo, a floating panel the title bar and the logo.
     // The live logo band takes the name.
-    explicit KrimbleColorHeader(QWidget *parent = nullptr) : KrimbleColorBase(parent) { setObjectName(QStringLiteral("KrimbleStudioLogo")); }
+    // explicit KrimbleColorHeader(QWidget *parent = nullptr) : KrimbleColorBase(parent) { setObjectName(QStringLiteral("KrimbleStudioLogo")); }
+    // Krimble 2026-11-17 (730th): George's Color Lab wishlist mockup (krimble-artwork/mockups/color-lab-wishlist-2026-11-16.jpg): the float and close buttons are at the right end of the
+    // COLOR LAB band, and there is no title bar above it (KisMainWindow.cpp, krimbleRefreshTabTitles, folds the panel's title bar away). The band is also the handle of a floating Color
+    // Lab: drag it to move the panel.
+    explicit KrimbleColorHeader(QWidget *parent = nullptr) : KrimbleColorBase(parent)
+    {
+        setObjectName(QStringLiteral("KrimbleStudioLogo"));
+        const QString look = QStringLiteral(
+            "QToolButton { background: #3a4470; border: 1px solid #6a78b0; border-radius: 2px; padding: 2px; }"
+            "QToolButton:pressed { background: #1196d8; }");
+        m_float = new QToolButton(this);
+        m_float->setIcon(KisIconUtils::loadIcon(QStringLiteral("docker_float")));
+        m_float->setStyleSheet(look);
+        m_float->setFocusPolicy(Qt::NoFocus);
+        m_close = new QToolButton(this);
+        m_close->setIcon(KisIconUtils::loadIcon(QStringLiteral("docker_close")));
+        m_close->setStyleSheet(look);
+        m_close->setFocusPolicy(Qt::NoFocus);
+        connect(m_float, &QToolButton::clicked, this, [this]() { if (QDockWidget *d = dock()) d->setFloating(!d->isFloating()); });
+        connect(m_close, &QToolButton::clicked, this, [this]() { if (QDockWidget *d = dock()) d->close(); });
+    }
+protected:
+    QDockWidget *dock() const
+    {
+        for (QWidget *w = parentWidget(); w; w = w->parentWidget()) {
+            if (QDockWidget *d = qobject_cast<QDockWidget*>(w)) return d;
+        }
+        return nullptr;
+    }
+    void resizeEvent(QResizeEvent *e) override
+    {
+        KrimbleColorBase::resizeEvent(e);
+        const int side = qMax(20, qRound(height() * 0.46));
+        const int gap = qMax(4, side / 4);
+        const int right = qMax(6, qRound(24 * scale()));
+        const int y = (height() - side) / 2;
+        m_close->setGeometry(width() - right - side, y, side, side);
+        m_float->setGeometry(width() - right - 2 * side - gap, y, side, side);
+        m_close->setIconSize(QSize(side - 6, side - 6));
+        m_float->setIconSize(QSize(side - 6, side - 6));
+    }
+    void mousePressEvent(QMouseEvent *e) override
+    {
+        QDockWidget *d = dock();
+        if (e->button() == Qt::LeftButton && d && d->isFloating()) {
+            m_dragFrom = e->globalPos();
+            m_dockFrom = d->pos();
+            m_dragging = true;
+            e->accept();
+            return;
+        }
+        KrimbleColorBase::mousePressEvent(e);
+    }
+    void mouseMoveEvent(QMouseEvent *e) override
+    {
+        QDockWidget *d = dock();
+        if (m_dragging && d && d->isFloating() && (e->buttons() & Qt::LeftButton)) {
+            d->move(m_dockFrom + (e->globalPos() - m_dragFrom));
+            e->accept();
+            return;
+        }
+        KrimbleColorBase::mouseMoveEvent(e);
+    }
+    void mouseReleaseEvent(QMouseEvent *e) override
+    {
+        m_dragging = false;
+        KrimbleColorBase::mouseReleaseEvent(e);
+    }
+private:
+    QToolButton *m_float = nullptr;
+    QToolButton *m_close = nullptr;
+    QPoint m_dragFrom;
+    QPoint m_dockFrom;
+    bool m_dragging = false;
 protected:
     void paintEvent(QPaintEvent *) override
     {
