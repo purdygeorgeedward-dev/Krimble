@@ -32,7 +32,8 @@ on:
         # default: "1.0.63-beta"   # Krimble 2026-11-15: build 63 is built; George: "Build" (64)
         # default: "1.0.64-beta"   # Krimble 2026-11-16: build 64 is built; George: "Build." (65). The first run of 65 (43963457903) failed on a compile error (726th); 65 is run again
         # default: "1.0.65-beta"   # Krimble 2026-11-17: build 65 is built; George: "Ok. Let's build it and see." (66)
-        default: "1.0.66-beta"   # KRIMBLE 2026-11-08: strict renumbering: this label is always 1.0.<krimbleBuildNumber>-beta (build.gradle); the build stops if they differ
+        # default: "1.0.66-beta"   # KRIMBLE 2026-11-08: strict renumbering: this label is always 1.0.<krimbleBuildNumber>-beta (build.gradle); the build stops if they differ   # Krimble 2026-11-17: build 66 is built
+        default: "1.0.67-beta"   # KRIMBLE 2026-11-08: strict renumbering: this label is always 1.0.<krimbleBuildNumber>-beta (build.gradle); the build stops if they differ
 
 concurrency:
   group: krimble-android
@@ -68,7 +69,8 @@ jobs:
         # run: python3 tools/ci/check_build_number.py "${{ inputs.beta || '1.0.61-beta' }}"   # Krimble 2026-11-15: build 61 is built
         # run: python3 tools/ci/check_build_number.py "${{ inputs.beta || '1.0.62-beta' }}"   # Krimble 2026-11-15: build 62 is built
         # run: python3 tools/ci/check_build_number.py "${{ inputs.beta || '1.0.65-beta' }}"   # Krimble 2026-11-17: build 65 is built
-        run: python3 tools/ci/check_build_number.py "${{ inputs.beta || '1.0.66-beta' }}"
+        # run: python3 tools/ci/check_build_number.py "${{ inputs.beta || '1.0.66-beta' }}"   # Krimble 2026-11-17: build 66 is built
+        run: python3 tools/ci/check_build_number.py "${{ inputs.beta || '1.0.67-beta' }}"
 
       # Krimble 2026-11-13: George: "I'm concerned about his decisions get made and then later ignored." The decisions in KRIMBLE_DECISIONS.md that a program can check (the names of the releases,
       # the words and paths the rules forbid) are checked on every run. A warning only: the step is shown as failed and its lines are in the run's summary, but the build goes on.
@@ -215,7 +217,8 @@ jobs:
           # NAME="Krimble-${{ inputs.beta || '1.0.61-beta' }}-$(TZ=America/Denver date +%b%d-%H%M).apk"   # Krimble 2026-11-15: build 61 is built
           # NAME="Krimble-${{ inputs.beta || '1.0.62-beta' }}-$(TZ=America/Denver date +%b%d-%H%M).apk"   # Krimble 2026-11-15: build 62 is built
           # NAME="Krimble-${{ inputs.beta || '1.0.65-beta' }}-$(TZ=America/Denver date +%b%d-%H%M).apk"   # Krimble 2026-11-17: build 65 is built
-          NAME="Krimble-${{ inputs.beta || '1.0.66-beta' }}-$(TZ=America/Denver date +%b%d-%H%M).apk"
+          # NAME="Krimble-${{ inputs.beta || '1.0.66-beta' }}-$(TZ=America/Denver date +%b%d-%H%M).apk"   # Krimble 2026-11-17: build 66 is built
+          NAME="Krimble-${{ inputs.beta || '1.0.67-beta' }}-$(TZ=America/Denver date +%b%d-%H%M).apk"
           mkdir -p out && cp "$APK" "out/$NAME"
           ls -l out
 

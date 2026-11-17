@@ -280,7 +280,8 @@ android {
     // def krimbleBuildNumber = 63   // 2026-11-15 (run 43779575290, commit f8edc72; George tested it: ten faults)
     // def krimbleBuildNumber = 64   (2026-11-15)
     // def krimbleBuildNumber = 65   // 2026-11-16 (George: "Build.")
-    def krimbleBuildNumber = 66   // 2026-11-17 (George: "Ok. Let's build it and see.")
+    // def krimbleBuildNumber = 66   // 2026-11-17 (George: "Ok. Let's build it and see.")
+    def krimbleBuildNumber = 67   // 2026-11-17 (George: "Build it.")
     // (counter-file reading, replaced by the hand-set number above)
     // def krimbleBuildNumber = 0
     // try {
