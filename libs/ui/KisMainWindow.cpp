@@ -890,7 +890,9 @@ public:
         }
         show();
         raise();
-        m_reason = QStringLiteral("shown at x%1 y%2, %3x%4").arg(x()).arg(y).arg(width()).arg(height());
+        // m_reason = QStringLiteral("shown at x%1 y%2, %3x%4").arg(x()).arg(y).arg(width()).arg(height());
+        // Krimble 2026-11-17: build 66 compile error: the local y now lives only inside the left-side branch above, so "y" here was the member function. y() is the place it was shown at.
+        m_reason = QStringLiteral("shown at x%1 y%2, %3x%4").arg(x()).arg(y()).arg(width()).arg(height());
     }
     // Krimble 2026-10-23 (2nd): one line for the layout-info overlay (Window > ... QA overlay): is this panel's edge tab shown, and if not, why
     QString status() const { return QStringLiteral("edge tab %1: %2").arg(m_dock ? m_dock->objectName() : QString(), m_reason); }
