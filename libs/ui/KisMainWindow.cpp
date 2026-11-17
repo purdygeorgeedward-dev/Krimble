@@ -905,13 +905,21 @@ public:
         // whole edge again: as tall as the column of panels, and as wide as Qt's separator plus 4 units on the canvas side and 4 on the panel side (the first full-edge zones, 24 to 30
         // units wide over the canvas, took fingers that were drawing; this one is the strip the separator had in 1.0.58 and a little more). On the right side only.
         // The toolbox's side (left) keeps the zone it had: George said of a full-edge zone there (1.0.39) that any tool that draws would grab the toolbox's edge.
-        if (area == Qt::LeftDockWidgetArea) {
-            const int zoneH = qMin(kTabHeight, column.height());
-            const int y = column.top() + (column.height() - zoneH) / 2;
-            setGeometry(column.right() + 1, y, kTabZone, zoneH);
-        } else {
+        // if (area == Qt::LeftDockWidgetArea) {
+        //     const int zoneH = qMin(kTabHeight, column.height());
+        //     const int y = column.top() + (column.height() - zoneH) / 2;
+        //     setGeometry(column.right() + 1, y, kTabZone, zoneH);
+        // } else {
+        //     const int sepWidth = qMax(4, m_win->style()->pixelMetric(QStyle::PM_DockWidgetSeparatorExtent, nullptr, m_win));
+        //     setGeometry(column.left() - sepWidth - 4, column.top(), sepWidth + 8, column.height());
+        // }
+        // Krimble 2026-11-17 (740th): George (build 67): "Can't grab the edge of the side panel either." and, of the edge between the canvas and the toolbox / side panel: "If it's a grab area,
+        // it's not big enough and should also be invisible as previously discussed." Both edges (toolbox and side panels) now have an invisible zone along the WHOLE edge: Qt's separator, plus
+        // 16 units on the panel's own side and 4 on the canvas side (the canvas side stays narrow so fingers that are drawing are not taken; the canvas no longer lies under the panels, 732nd).
+        {
             const int sepWidth = qMax(4, m_win->style()->pixelMetric(QStyle::PM_DockWidgetSeparatorExtent, nullptr, m_win));
-            setGeometry(column.left() - sepWidth - 4, column.top(), sepWidth + 8, column.height());
+            if (area == Qt::LeftDockWidgetArea) setGeometry(column.right() + 1 - 16, column.top(), 16 + sepWidth + 4, column.height());
+            else setGeometry(column.left() - sepWidth - 4, column.top(), sepWidth + 4 + 16, column.height());
         }
         show();
         raise();
