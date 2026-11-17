@@ -112,6 +112,9 @@ void KisWideDockSeparatorStyle::drawPrimitive(PrimitiveElement element, const QS
         // Krimble 2026-10-11: George wants the ORIGINAL default look of these edges, with only the grabbing made bigger. The
         // strip is wider so a finger can catch it, but what is drawn is exactly what the base style drew before: its own
         // handle, in a strip of the original width, centered in the wide one.
+        // Krimble 2026-11-17 (739th): George (build 67): "There is an ugly extra line on the right side of the toolbox and the left side of the side panel. It does nothing but ruin my day.
+        // Remove it" Since the canvas no longer lies under the panels (732nd) this separator shows again, and the base style draws it as a line. It draws nothing now; it can still be dragged.
+        if (element == QStyle::PE_IndicatorDockWidgetResizeHandle) return;
         {
             const int originalWidth = QProxyStyle::pixelMetric(QStyle::PM_DockWidgetSeparatorExtent, option, widget) * 2;
             QStyleOption originalLook(*option);

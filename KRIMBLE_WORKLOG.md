@@ -861,3 +861,4 @@ George: "Destroy all Krita themes. Nothing called Krita stays in themes." Delete
 **2026-11-17, 11:32 (MST).** Build 67 started (George: "Build it."): build number 67, label 1.0.67-beta; holds the 735th to the 737th.
 **2026-11-17 (MST).** Build 67 built (run 44148705860, commit a15b76a). Branch release-1.0.67-beta made at a15b76a for the release target. Not tested on a phone.
 **2026-11-17, 13:30 (MST).** 738th pushed (menu bottom room, menu meets its name, K room). Not built.
+**2026-11-17, 13:45 (MST).** 739th pushed (no line drawn on the panel separators). Not built.
