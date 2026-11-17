@@ -46,6 +46,9 @@
 #include <QToolTip>
 #include <QMouseEvent>
 #include <QPainter>
+#include <QSettings>   // Krimble 2026-11-16 (728th)
+#include <QInputDialog>   // Krimble 2026-11-16 (728th)
+#include <QLinearGradient>   // Krimble 2026-11-16 (728th)
 #include <QProgressDialog>
 #ifndef KRIMBLE_HARNESS
 #include "kis_slider_spin_box.h"
@@ -240,8 +243,21 @@ public:
     KrimblePageListDelegate(QAbstractItemDelegate *original, QObject *parent) : QStyledItemDelegate(parent), m_original(original) {}
     QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const override
     {
-        if (m_original) return m_original->sizeHint(option, index);
-        return QStyledItemDelegate::sizeHint(option, index);
+        // if (m_original) return m_original->sizeHint(option, index);
+        // return QStyledItemDelegate::sizeHint(option, index);
+        // Krimble 2026-11-16 (728th): George (build 65, Preferences screenshot): "Canvas input settings selection overlaps onto the keyboard title area." The row's size came from the list's
+        // own delegate, but this delegate draws the name in bold under a picture of its own size, so a name could reach below its row, into the next one, and the next row's highlight
+        // covered it. The row is at least as tall as what paint() below draws: 5, the picture, 4, the name (bold, wrapped to the row's width), 6.
+        QSize size = m_original ? m_original->sizeHint(option, index) : QStyledItemDelegate::sizeHint(option, index);
+        const QWidget *list = option.widget;
+        const int side = qMax(16, (list ? list->style() : QApplication::style())->pixelMetric(QStyle::PM_IconViewIconSize));
+        QFont font = option.font;
+        font.setBold(true);
+        const int textWidth = qMax(40, size.width() - 4);
+        const int textHeight = QFontMetrics(font).boundingRect(QRect(0, 0, textWidth, 10000), Qt::AlignHCenter | Qt::AlignTop | Qt::TextWordWrap, index.data(Qt::DisplayRole).toString()).height();
+        const int needed = 5 + side + 4 + textHeight + 6;
+        if (size.height() < needed) size.setHeight(needed);
+        return size;
     }
     void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override
     {
@@ -263,7 +279,21 @@ public:
         Q_UNUSED(style);
         painter->save();
         painter->setCompositionMode(QPainter::CompositionMode_Source);
-        if (selected) painter->fillRect(opt.rect, QColor(opt.palette.color(QPalette::Active, QPalette::Highlight).rgb()));
+        // if (selected) painter->fillRect(opt.rect, QColor(opt.palette.color(QPalette::Active, QPalette::Highlight).rgb()));
+        // Krimble 2026-11-16 (728th): the design's selection gradient in the Krimble themes with blue selections (as the other lists and the menus have since the 722nd), the theme's
+        // highlight color elsewhere. Still under the picture, opaque.
+        if (selected) {
+            if (qApp->property("krimbleSelectionGradient").toBool()) {
+                QLinearGradient glow(opt.rect.topLeft(), opt.rect.bottomLeft());
+                glow.setColorAt(0.0, QColor(0x11, 0x96, 0xd8));
+                glow.setColorAt(0.10, QColor(0x0a, 0x78, 0xbb));
+                glow.setColorAt(0.5, QColor(0x07, 0x3d, 0x6b));
+                glow.setColorAt(1.0, QColor(0x07, 0x4a, 0x85));
+                painter->fillRect(opt.rect, glow);
+            } else {
+                painter->fillRect(opt.rect, QColor(opt.palette.color(QPalette::Active, QPalette::Highlight).rgb()));
+            }
+        }
         painter->restore();
         // the picture, as it is, centered at the top of the row
         // const int side = qMax(16, qMin(opt.decorationSize.width(), opt.rect.width() - 8));
@@ -779,9 +809,52 @@ public:
         return false;
     }
 
+    // Krimble 2026-11-16 (728th): George (build 65): "Resizing Save As... window does not set the size for next time it is invoked. When the dimensions of a window are resized by user,
+    // they should be that size and position when invoked again." Every dialog window: when the user has resized or moved it (its size or place changed while a finger was down), its
+    // size and place are saved when it closes, and put back a moment after it opens the next time (after the fitting code above has run). Saved per window (its class, its name or title,
+    // for an input window also its label) and per orientation of the screen, under krimble/DialogGeometry in the settings. A saved place that no longer fits the screen is moved inside.
+    static QString krimbleDialogKey(QDialog *dialog)
+    {
+        QString name = QString::fromLatin1(dialog->metaObject()->className()) + QLatin1Char('|');
+        name += dialog->objectName().isEmpty() ? dialog->windowTitle() : dialog->objectName();
+        if (QInputDialog *input = qobject_cast<QInputDialog*>(dialog)) { name += QLatin1Char('|'); name += input->labelText(); }
+        QScreen *screen = QGuiApplication::primaryScreen();
+        const bool portrait = screen && screen->availableGeometry().height() > screen->availableGeometry().width();
+        return QStringLiteral("krimble/DialogGeometry/%1_%2").arg(qHash(name)).arg(portrait ? QStringLiteral("P") : QStringLiteral("L"));
+    }
+    static void krimbleRememberDialog(QDialog *dialog, QEvent *event)
+    {
+        if (!dialog || !dialog->isWindow()) return;
+        if (event->type() == QEvent::Resize || event->type() == QEvent::Move) {
+            if (dialog->isVisible() && QApplication::mouseButtons() != Qt::NoButton) dialog->setProperty("krimbleUserSized", true);
+        } else if (event->type() == QEvent::Hide) {
+            if (dialog->property("krimbleUserSized").toBool()) {
+                QSettings().setValue(krimbleDialogKey(dialog), dialog->geometry());
+                dialog->setProperty("krimbleUserSized", false);
+            }
+        } else if (event->type() == QEvent::Show) {
+            dialog->setProperty("krimbleUserSized", false);
+            QPointer<QDialog> guard(dialog);
+            QTimer::singleShot(250, dialog, [guard]() {
+                if (!guard || !guard->isVisible()) return;
+                QRect saved = QSettings().value(krimbleDialogKey(guard)).toRect();
+                QScreen *screen = QGuiApplication::primaryScreen();
+                if (!saved.isValid() || !screen) return;
+                const QRect avail = screen->availableGeometry();
+                saved.setSize(saved.size().boundedTo(avail.size()).expandedTo(guard->minimumSize().boundedTo(avail.size())));
+                saved.moveLeft(qBound(avail.left(), saved.left(), avail.right() - saved.width() + 1));
+                saved.moveTop(qBound(avail.top(), saved.top(), avail.bottom() - saved.height() + 1));
+                if (guard->geometry() != saved) guard->setGeometry(saved);
+            });
+        }
+    }
+
 protected:
     bool eventFilter(QObject *watched, QEvent *event) override
     {
+        if (event->type() == QEvent::Show || event->type() == QEvent::Hide || event->type() == QEvent::Resize || event->type() == QEvent::Move) {
+            if (QDialog *rememberDialog = qobject_cast<QDialog*>(watched)) krimbleRememberDialog(rememberDialog, event);   // Krimble 2026-11-16 (728th)
+        }
         switch (event->type()) {
         case QEvent::Show:
         case QEvent::Resize: {
@@ -853,6 +926,7 @@ protected:
                 // Krimble 2026-10-11: the corner grip on dialogs that have no touch resize of their own
                 if (QDialog *gripDialog = qobject_cast<QDialog*>(dialog)) {
                     if (gripDialog->isWindow() && !qobject_cast<KoDialog*>(gripDialog)
+                            && !gripDialog->property("krimbleNoGrip").toBool()   // Krimble 2026-11-16 (728th): a window that asks for no corner grip (QuickAdjust: it lay on top of OK)
                             && !qobject_cast<QMessageBox*>(gripDialog) && !qobject_cast<QProgressDialog*>(gripDialog)) {
                         QWidget *grip = gripDialog->findChild<QWidget*>(QStringLiteral("krimbleResizeGrip"), Qt::FindDirectChildrenOnly);
                         if (!grip) {

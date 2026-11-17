@@ -33,6 +33,10 @@
 #include <QListWidgetItem>
 #include <QMenu>
 #include <QScrollBar>
+#include <QLayout>          // Krimble 2026-11-16 (728th)
+#include <QSpacerItem>
+#include <QStackedWidget>
+#include <QListView>
 
 #include "kis_clipboard.h"
 #include "kis_icon_utils.h"
@@ -433,6 +437,30 @@ void KisWelcomePageWidget::slotUpdateThemeColors()
     // as the two buttons; Help > Krimble Website is the website link. The widgets are hidden, not deleted (the .ui and the code that fills them are unchanged).
     widgetCenter->hide();
     widgetRight->hide();
+
+    // Krimble 2026-11-16 (728th): George (build 65): "Recent images should be a bigger scrolling area with smaller preview images to choose from." The previews were 200 units wide (more than
+    // half the phone's width, one to a row); they are 88, several to a row. The list takes all the room the page has: on the way up from the list to the page, every layout loses its margins
+    // (4 units are left) and every spacer that pushed the list away from the top or the bottom.
+    recentDocumentsListView->setIconSize(QSize(88, 88));
+    recentDocumentsListView->setResizeMode(QListView::Adjust);
+    recentDocumentsListView->setWrapping(true);
+    recentDocumentsListView->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    recentDocsStackedWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    for (QWidget *up = recentDocsStackedWidget->parentWidget(); up; up = up->parentWidget()) {
+        if (QLayout *upLayout = up->layout()) {
+            if (up != this) upLayout->setContentsMargins(4, 4, 4, 4);
+            for (int i = 0; i < upLayout->count(); ++i) {
+                QLayoutItem *item = upLayout->itemAt(i);
+                if (QSpacerItem *spacer = item ? item->spacerItem() : nullptr) {
+                    if (spacer->sizePolicy().verticalPolicy() & QSizePolicy::ExpandFlag) {
+                        spacer->changeSize(spacer->sizeHint().width(), 0, spacer->sizePolicy().horizontalPolicy(), QSizePolicy::Fixed);
+                    }
+                }
+            }
+            upLayout->invalidate();
+        }
+        if (up == this) break;
+    }
 }
 
 void KisWelcomePageWidget::dragEnterEvent(QDragEnterEvent *event)

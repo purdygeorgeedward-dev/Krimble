@@ -130,6 +130,34 @@ protected:
         option->features |= QStyleOptionViewItem::WrapText;
 #endif
     }
+public:
+    // Krimble 2026-11-16 (728th): George (build 65, New window): "New dialog selection maps over the icon." Qt draws the picture of a selected row with the highlight color laid over it
+    // (the same thing the Preferences list did). The selected row is filled here first (the design's selection gradient, or the theme's highlight color: see "krimbleSelectionGradient" in
+    // thememanager.cpp), and then the row is drawn as a row that is not selected: the picture as it is, the name in the highlighted text color.
+    void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override
+    {
+        QStyleOptionViewItem opt(option);
+        if (opt.state & QStyle::State_Selected) {
+            painter->save();
+            if (qApp->property("krimbleSelectionGradient").toBool()) {
+                QLinearGradient glow(opt.rect.topLeft(), opt.rect.bottomLeft());
+                glow.setColorAt(0.0, QColor(0x11, 0x96, 0xd8));
+                glow.setColorAt(0.10, QColor(0x0a, 0x78, 0xbb));
+                glow.setColorAt(0.5, QColor(0x07, 0x3d, 0x6b));
+                glow.setColorAt(1.0, QColor(0x07, 0x4a, 0x85));
+                painter->fillRect(opt.rect, glow);
+            } else {
+                painter->fillRect(opt.rect, opt.palette.color(QPalette::Active, QPalette::Highlight));
+            }
+            painter->restore();
+            const QColor textColor = opt.palette.color(QPalette::Active, QPalette::HighlightedText);
+            opt.palette.setColor(QPalette::Text, textColor);
+            opt.palette.setColor(QPalette::WindowText, textColor);
+            opt.state &= ~QStyle::State_Selected;
+            opt.state &= ~QStyle::State_MouseOver;
+        }
+        QStyledItemDelegate::paint(painter, opt, index);
+    }
 };
 
 // Krimble 2026-10-23: a scroll area that asks for the size of the page inside it (the base class caps its size hint at about 36 by 24 text heights) and can be

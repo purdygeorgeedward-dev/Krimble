@@ -21,6 +21,7 @@
 #include <QModelIndex>
 #include <QMouseEvent>
 #include <QPainter>
+#include <QLinearGradient>   // Krimble 2026-11-16 (728th)
 #include <QPainterPath>   // Krimble 2026-11-14: run 32 (attempt 2) "variable has incomplete type QPainterPath" at lines 319 and 338
 #include <QPointer>
 #include <QStyle>
@@ -126,12 +127,32 @@ void NodeDelegate::paint(QPainter *p, const QStyleOptionViewItem &o, const QMode
         // shows the old saturated blue), so the row is painted here, over whatever the style drew: mid gray #5D6272 for a layer, lighter #8E93A6 for the selected one, with dark text on it. Flat, no outline, no glow.
         {
             const bool krimbleSel = option.state & QStyle::State_Selected;
-            p->fillRect(option.rect, krimbleSel ? QColor(0x8e, 0x93, 0xa6) : QColor(0x5d, 0x62, 0x72));
+            // p->fillRect(option.rect, krimbleSel ? QColor(0x8e, 0x93, 0xa6) : QColor(0x5d, 0x62, 0x72));
+            // if (krimbleSel) {
+            //     option.palette.setColor(QPalette::HighlightedText, QColor(0x0e, 0x10, 0x20));
+            //     option.palette.setColor(QPalette::Text, QColor(0x0e, 0x10, 0x20));
+            // } else {
+            //     option.palette.setColor(QPalette::Text, QColor(0xff, 0xff, 0xff));
+            // }
+            // Krimble 2026-11-16 (728th): George (build 65): "Change the layer colors back. Give me the selection effect blue for the selected layer and make the other layers dark and match
+            // the theme." The grays of 2026-11-15 are gone. A layer's row is the list's own dark color (the theme's Base color, the color of the empty part of the list); the selected
+            // layer's row is the design's blue selection gradient (the theme's highlight color in Krimble Dark Gray and in the themes that are not Krimble's). White names on both.
             if (krimbleSel) {
-                option.palette.setColor(QPalette::HighlightedText, QColor(0x0e, 0x10, 0x20));
-                option.palette.setColor(QPalette::Text, QColor(0x0e, 0x10, 0x20));
-            } else {
+                if (qApp->property("krimbleSelectionGradient").toBool()) {
+                    QLinearGradient glow(option.rect.topLeft(), option.rect.bottomLeft());
+                    glow.setColorAt(0.0, QColor(0x11, 0x96, 0xd8));
+                    glow.setColorAt(0.10, QColor(0x0a, 0x78, 0xbb));
+                    glow.setColorAt(0.5, QColor(0x07, 0x3d, 0x6b));
+                    glow.setColorAt(1.0, QColor(0x07, 0x4a, 0x85));
+                    p->fillRect(option.rect, glow);
+                } else {
+                    p->fillRect(option.rect, option.palette.color(QPalette::Active, QPalette::Highlight));
+                }
+                option.palette.setColor(QPalette::HighlightedText, QColor(0xff, 0xff, 0xff));
                 option.palette.setColor(QPalette::Text, QColor(0xff, 0xff, 0xff));
+            } else {
+                p->fillRect(option.rect, option.palette.color(QPalette::Active, QPalette::Base));
+                option.palette.setColor(QPalette::Text, option.palette.color(QPalette::Active, QPalette::Base).lightness() < 128 ? QColor(0xf1, 0xf4, 0xfc) : QColor(0x10, 0x12, 0x18));
             }
         }
 

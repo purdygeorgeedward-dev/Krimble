@@ -388,7 +388,11 @@ LayerBox::LayerBox()
             topRow->setContentsMargins(0, 0, 0, 0);
             topRow->setSpacing(6);
             // topRow->addStretch(1);
-            topRow->addWidget(krimbleSearch, 1);   // Krimble 2026-11-13 (task 72): George: "Try to implement any easy the industry standard layers feature." The easiest: a search box for layer names in the free space of the top row (the filter model already has setTextFilter).
+            // topRow->addWidget(krimbleSearch, 1);   // Krimble 2026-11-13 (task 72): George: "Try to implement any easy the industry standard layers feature." The easiest: a search box for layer names in the free space of the top row (the filter model already has setTextFilter).
+            // Krimble 2026-11-16 (728th): George (build 65): "The search field is a mess. Get rid of the search. It's useless." The search box is not in the row and not shown (the
+            // widget stays, hidden, so the rest of the code is as it was); the row's free space is empty again.
+            krimbleSearch->hide();
+            topRow->addStretch(1);
             // Krimble 2026-11-13 (task 73): George: "put them in the empty space at the top ... next to the layer type selector." Three symbol buttons from the industry standard layers panel
             // (add layer mask, new adjustment layer, layer styles "fx") sit between the search box and the blending mode box. The six buttons under the layer list are not touched.
             {
@@ -456,7 +460,13 @@ LayerBox::LayerBox()
             // "QToolButton::menu-indicator { subcontrol-position: right bottom; }");
             // Krimble 2026-11-15 (694th): George (screenshot): "There are still weird black things at the bottom of the layers panel." With a style sheet on the button, the menu indicator (Add and Properties have menus)
             // is drawn as a black bar when it has no picture. It has no picture and no size here now, so nothing is drawn; the menus open as before (press and hold, or the button itself).
-            "QToolButton::menu-indicator { image: none; width: 0px; height: 0px; }");
+            // "QToolButton::menu-indicator { image: none; width: 0px; height: 0px; }");
+            // Krimble 2026-11-16 (728th): George (build 65, Layers screenshot): "It still has the black things at the bottom." The 694th took away the wrong part. Add and Properties are
+            // buttons with a separate arrow section at their right (QToolButton::menu-button); with a style sheet on the button and no rule for that section, Qt paints it as a black
+            // box. It is now clear, with no border, and only its small arrow is drawn.
+            "QToolButton::menu-indicator { image: none; width: 0px; height: 0px; }"
+            "QToolButton::menu-button { border: none; background: transparent; width: 12px; }"
+            "QToolButton::menu-button:hover, QToolButton::menu-button:pressed { border: none; background: transparent; }");
         for (QToolButton *button : symbolButtons) {
             button->setAutoRaise(true);
             button->setFocusPolicy(Qt::NoFocus);

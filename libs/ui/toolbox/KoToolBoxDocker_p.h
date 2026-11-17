@@ -68,6 +68,7 @@ private:
     // multiples of tool icon columns on scale?").
     void snapToColumns();
     bool krimbleFingerAtToolbox() const;   // Krimble 2026-11-16 (722nd)
+    QAction *m_dragDockAction {nullptr};   // Krimble 2026-11-16 (728th): "Dock by Dragging"
     void applyColumns();
     void krimbleLogState(const char *where) const;   // Krimble 2026-11-07: one line in krita.log (Help > Show Krimble Log) with the toolbox's state, to find why a tear-off goes to one column
     bool m_userDragged {false};   // Krimble 2026-10-13: a finger or mouse was down on the dock's edge since the last fit to columns

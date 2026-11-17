@@ -199,7 +199,11 @@ public:
         const int extraH = qMax(0, dialog->height() - list->height());   // the label, the buttons, the margins
         const int extraW = qMax(0, dialog->width() - list->width());
         const int h = qMin(wantListH + extraH, int(avail.height() * 0.98));
-        const int w = qMin(qMax(dialog->width(), wantListW + extraW), int(avail.width() * 0.95));
+        // const int w = qMin(qMax(dialog->width(), wantListW + extraW), int(avail.width() * 0.95));
+        // Krimble 2026-11-16 (728th): George (build 65): "Save As... dialog is WAY TOO WIDE. I ASKED FOR MORE HEIGHT, NOT MORE WIDTH." The window was never narrower than it opened, and it
+        // opened at 85 percent of the screen's width (the minimum size set in filename(), also in landscape, where that is most of the long side). It is as wide as the longest type name
+        // needs (at least 240 units, at most 95 percent of the screen); the height is as before (every type shows).
+        const int w = qMin(qMax(240, wantListW + extraW), int(avail.width() * 0.95));
         if (qAbs(h - dialog->height()) > 2 || qAbs(w - dialog->width()) > 2) {
             dialog->resize(w, h);
             dialog->move(avail.left() + (avail.width() - w) / 2, avail.top() + (avail.height() - h) / 2);
@@ -395,7 +399,10 @@ QString KoFileDialog::filename()
             // Krimble 2026-11-04: George: "the Save As dialog with the file type selector default height is too short." 75% to 90%, the most the fit-to-screen filter allows.
             // mimeSelector.setMinimumSize(avail.width() * 0.85, avail.height() * 0.90);
             // Krimble 2026-11-13: George: "The save as dialog opens a list of file types that need to be taller." 90% to 98% of the available height (the area the system bars leave), here and in the fit-to-screen filter below.
-            mimeSelector.setMinimumSize(avail.width() * 0.85, avail.height() * 0.98);
+            // mimeSelector.setMinimumSize(avail.width() * 0.85, avail.height() * 0.98);
+            // Krimble 2026-11-16 (728th): no forced width (see KrimbleTypeListFit); the height as before, but as a size to open at, not a minimum, so the window can be made smaller by hand
+            // and the size the user gave it can be put back the next time (KisApplication.cpp, krimbleRememberDialog).
+            mimeSelector.resize(qMin(int(avail.width() * 0.95), 300), int(avail.height() * 0.98));
         }
 #ifdef Q_OS_ANDROID
         // mimeSelector.installEventFilter(new KrimbleFitToScreenFilter(&mimeSelector));

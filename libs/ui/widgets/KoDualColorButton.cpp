@@ -226,11 +226,15 @@ void KoDualColorButton::paintEvent(QPaintEvent *)
         backgroundBrush = Qt::white;
     }
 
-    qDrawShadeRect( &painter, backgroundRect, palette(), false, 1, 0,
-                    isEnabled() ? &backgroundBrush : &defBrush );
-
-    qDrawShadeRect( &painter, foregroundRect, palette(), false, 1, 0,
-                    isEnabled() ? &foregroundBrush : &defBrush );
+    // qDrawShadeRect( &painter, backgroundRect, palette(), false, 1, 0,
+    //                 isEnabled() ? &backgroundBrush : &defBrush );
+    // qDrawShadeRect( &painter, foregroundRect, palette(), false, 1, 0,
+    //                 isEnabled() ? &foregroundBrush : &defBrush );
+    // Krimble 2026-11-16 (728th): George (build 65): "Foreground and background start as dark gray still instead of white and black." With no image open the button is switched off and both
+    // squares were painted in the panel's own color. They show the real colors always.
+    Q_UNUSED(defBrush);
+    qDrawShadeRect( &painter, backgroundRect, palette(), false, 1, 0, &backgroundBrush );
+    qDrawShadeRect( &painter, foregroundRect, palette(), false, 1, 0, &foregroundBrush );
 
     painter.setPen( palette().color( QPalette::Shadow ) );
 

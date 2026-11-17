@@ -103,7 +103,10 @@ static const QList<QStringList> &krimbleToolGroupIds()
         // Undo, Foreground and Background colors". The order itself is in the tools' own toolbox places (setToolBoxPriority, the sorting system of the first days). Here: Blur (Soften) is
         // the shown tool with Smudge in its flyout; Sharpen is a new tool with its own button; Hand and Zoom each have a button (the Navigation group is off); the Assistant, which is not
         // in his list of visible tools, is in the Eyedropper's flyout with the Ruler and Reference Images.
-        { QStringLiteral("KritaShape/KisToolSoften"), QStringLiteral("KritaShape/KisToolSmudge") },                                                          // Blur (Smudge in its flyout)
+        // { QStringLiteral("KritaShape/KisToolSoften"), QStringLiteral("KritaShape/KisToolSmudge") },                                                          // Blur (Smudge in its flyout)
+        // Krimble 2026-11-16 (728th): George (build 65): "Odd number of tools in toolbox makes 2 columns look lopsided. Sharpen should be a flyout of soften/blur. We should never have an odd
+        // number of tools." Sharpen is in Blur's flyout: 19 tool buttons and UNDO, 20 in all.
+        { QStringLiteral("KritaShape/KisToolSoften"), QStringLiteral("KritaShape/KisToolSharpen"), QStringLiteral("KritaShape/KisToolSmudge") },                // Blur (Sharpen and Smudge in its flyout)
         { QStringLiteral("KritaSelected/KisToolColorSampler"), QStringLiteral("KritaShape/KisToolMeasure"), QStringLiteral("ToolReferenceImages"), QStringLiteral("KisAssistantTool") },   // Sampler
         { QStringLiteral("KrimbleTextTool"), QStringLiteral("SvgTextTool") },                                                                                // Type
         // { QStringLiteral("PanTool"), QStringLiteral("ZoomTool") },                                                                                           // Navigation (722nd: each has its own button)

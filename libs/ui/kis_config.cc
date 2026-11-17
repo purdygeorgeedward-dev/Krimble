@@ -1335,8 +1335,14 @@ void KisConfig::setScrollingCheckers(bool sc) const
 
 QColor KisConfig::canvasBorderColor(bool defaultValue) const
 {
-    QColor color(QColor(128,128,128));
-    return (defaultValue ? color : m_cfg.readEntry("canvasBorderColor", color));
+    // QColor color(QColor(128,128,128));
+    // return (defaultValue ? color : m_cfg.readEntry("canvasBorderColor", color));
+    // Krimble 2026-11-16 (728th): George (build 65): "Make the canvas background darker." The area around the picture was mid gray (128); the default is a dark gray (64). A phone that has
+    // the old default saved (the Preferences window saves it on every OK) gets the new one too; any other saved color is a choice and is kept.
+    QColor color(QColor(64, 64, 64));
+    if (defaultValue) return color;
+    const QColor saved = m_cfg.readEntry("canvasBorderColor", color);
+    return (saved == QColor(128, 128, 128)) ? color : saved;
 }
 
 void KisConfig::setCanvasBorderColor(const QColor& color) const

@@ -71,8 +71,7 @@ Turn the phone sideways and everything rearranges for the wide screen.
 | Stamp | Heals by copying texture from a source spot: tap **Set source** first | |
 | Eraser | Rubs parts of a layer away to transparency | |
 | Gradient | Fills with a blend of colors | Paint Bucket |
-| Blur | Softens where you brush | Smudge (pushes pixels along) |
-| Sharpen | Sharpens where you brush | |
+| Blur | Softens where you brush | Sharpen, Smudge (pushes pixels along) |
 | Pen | Draws curves point by point | Polyline, Polygon, Pencil |
 | Type (T) | Adds text | Krimble Type, Old Type |
 | Arrow | Picks and moves vector shapes and text | |
@@ -85,6 +84,7 @@ Turn the phone sideways and everything rearranges for the wide screen.
 **Arranging the toolbox.** Press and hold the toolbox's handle (the bar with three lines) for its menu:
 
 - **Dock Left / Right / Top / Bottom** puts it on that side. **Undock** makes it float; drag it by the handle.
+- **Dock by Dragging** (on or off): when off, the toolbox and the panels stay wherever you let them go and never snap to an edge.
 - **Columns** sets how many columns it uses.
 - **Icon Size**, **Icon Style** (Full color or Silhouette) and **Button Style** (Flat or Raised) change its look.
 
@@ -92,7 +92,7 @@ Turn the phone sideways and everything rearranges for the wide screen.
 
 ## 6. Colors
 
-- The two squares at the bottom of the toolbox are the **foreground** color (used by the brush, fills, shapes and text) and the **background** color.
+- The two squares at the bottom of the toolbox are the **foreground** color (used by the brush, fills, shapes and text) and the **background** color. Krimble starts with white and black.
 - Tap a square to choose its color. The small arrows swap the two. The small black-and-white squares put them back to black and white.
 - The **Color Lab** panel is the full color picker.
 - The **Eyedropper** tool takes a color from the picture.
@@ -151,7 +151,7 @@ These work by hand, directly on the picture. The brush toolbar has the size and 
 
 - **Bandaid:** mark a blemish and it is healed from its surroundings.
 - **Stamp:** tap **Set source** on a clean spot, then brush over the flaw; the texture is copied across.
-- **Blur** and **Sharpen:** soften or sharpen only where you brush. **Smudge** (in the Blur button's flyout) pushes pixels along.
+- **Blur:** softens only where you brush. In its flyout: **Sharpen** (sharpens where you brush) and **Smudge** (pushes pixels along).
 - **Eraser:** rubs parts of a layer away to transparency. For erasing you can take back later, use a layer mask instead.
 - **Brush:** applies the foreground color by hand: for touch-ups, and for working on masks.
 - **Gradient** and **Paint Bucket** (same button): fill a layer or a selection with a blend or a flat color.

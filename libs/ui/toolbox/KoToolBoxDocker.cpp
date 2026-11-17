@@ -14,6 +14,7 @@
 #include "KrimbleToolboxIcons.h"
 #include <QStylePainter>
 #include <QCursor>   // Krimble 2026-11-16 (722nd)
+#include <QSettings>   // Krimble 2026-11-16 (728th)
 #include <QStyleOptionToolButton>
 
 #include <QLabel>
@@ -755,6 +756,17 @@ void KoToolBoxDocker::krimbleDockAtEdge()
 
 // Krimble 2026-11-06: which dock edge a floating toolbox is at (the same test as before: within 4 px of the left or right edge, or its top at the screen's
 // top), or NoDockWidgetArea.
+// Krimble 2026-11-16 (728th): the "Dock by Dragging" switch (see KrimbleDockTolerance in KisMainWindow.cpp, the same function).
+static bool krimbleDragDockingOn()
+{
+    QVariant v = qApp->property("krimbleDragDocking");
+    if (!v.isValid()) {
+        v = QSettings().value(QStringLiteral("krimble/DragDocking"), true).toBool();
+        qApp->setProperty("krimbleDragDocking", v);
+    }
+    return v.toBool();
+}
+
 Qt::DockWidgetArea KoToolBoxDocker::krimbleEdgeArea() const
 {
     QScreen *screenPtr = screen() ? screen() : QGuiApplication::primaryScreen();
@@ -775,6 +787,7 @@ Qt::DockWidgetArea KoToolBoxDocker::krimbleEdgeArea() const
 void KoToolBoxDocker::krimbleDockAtEdge()
 {
     if (!isFloating() || !isVisible()) return;
+    if (!krimbleDragDockingOn()) { ++m_edgeDockToken; return; }   // Krimble 2026-11-16 (728th): "Dock by Dragging" is off: a toolbox left at an edge stays floating there
     const Qt::DockWidgetArea area = krimbleEdgeArea();
     const int token = ++m_edgeDockToken;
     if (area == Qt::NoDockWidgetArea) return;
@@ -1244,8 +1257,16 @@ void KoToolBoxDocker::contextMenuEvent(QContextMenuEvent *event)
         m_dockActions[4] = m_contextMenu->addAction(i18n("Undock"));
         m_dockActions[4]->setCheckable(true);
         connect(m_dockActions[4], &QAction::triggered, this, [this]() { setFloating(true); });
+        // Krimble 2026-11-16 (728th): George (build 65): "Can docking be turned on and off? That seems like a good idea." For every panel and the toolbox (see krimbleDragDockingOn).
+        m_dragDockAction = m_contextMenu->addAction(i18n("Dock by Dragging"));
+        m_dragDockAction->setCheckable(true);
+        connect(m_dragDockAction, &QAction::triggered, this, [](bool on) {
+            QSettings().setValue(QStringLiteral("krimble/DragDocking"), on);
+            qApp->setProperty("krimbleDragDocking", on);
+        });
     }
 
+    if (m_dragDockAction) m_dragDockAction->setChecked(krimbleDragDockingOn());   // Krimble 2026-11-16 (728th)
     // Krimble 2026-10-09: tick the current column count each time the menu opens
     for (int i = 0; i < 4; ++i) {
         if (m_columnActions[i]) m_columnActions[i]->setChecked(m_columns == i + 1);

@@ -839,3 +839,5 @@ George: "Destroy all Krita themes. Nothing called Krita stays in themes." Delete
 **2026-11-16, 15:05 (MST).** George: "Build." Build 65 (1.0.65-beta) started by push (725th).
 **2026-11-16, 15:12 (MST).** Build 65 first run failed (compile error from the 723rd script, two lines in kis_jpeg_converter.cc); fixed (726th); build 65 started again by push.
 **2026-11-16, 15:20 (MST).** Build 65 (1.0.65-beta) succeeded: run 43965939960, APK artifact 14276432810. Build log row (727th) pushed.
+**2026-11-16, 18:03 (MST).** George's list for build 65 (18 points) and a Color Lab wishlist mockup.
+**2026-11-16, 20:25 (MST).** Pushed, not built: 728th (the build 65 list). "Layers snapped into a column" not found.

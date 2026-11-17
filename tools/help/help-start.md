@@ -13,14 +13,14 @@ Krimble is a graphics editor for Android phones and tablets, made from Krita and
 
 - **One button, several tools.** Tools of the same kind share a button: the selection shapes, the lassos, the wands, the shapes, the fills, the pens, the transform tools, Blur with Smudge, the samplers and the type tools. A small triangle in the corner of a button marks a group.
 - **Tap** a button to use the tool it shows. **Press and hold** it to open a flyout beside it, with the group's tools by picture and name. Tap one to pick it; tap anywhere else to close the flyout without changing anything.
-- **The order, top to bottom:** Move, Marquee, Lasso, Magic Wand, Crop, Eyedropper, bandaid, Brush, stamp, Eraser, Gradient, Blur, Sharpen, Pen, Type, the arrow (Select Shapes), the shapes, Hand, Zoom, Transform, UNDO, and under them the foreground and background colors.
+- **The order, top to bottom:** Move, Marquee, Lasso, Magic Wand, Crop, Eyedropper, bandaid, Brush, stamp, Eraser, Gradient, Blur, Pen, Type, the arrow (Select Shapes), the shapes, Hand, Zoom, Transform, UNDO, and under them the foreground and background colors.
 - Krimble starts with the **Hand** tool, so a finger on the picture moves it and changes nothing.
-- For example, the **Blur** button holds Blur and Smudge, the **Eyedropper** button holds the Eyedropper, the Ruler, Reference Images and the Assistant, and the **Marquee** button holds the Rectangular, Elliptical and Hexagon selections. The **Type** button holds **Krimble Type** (the text window described below) and **Old Type**.
+- For example, the **Blur** button holds Blur, Sharpen and Smudge, the **Eyedropper** button holds the Eyedropper, the Ruler, Reference Images and the Assistant, and the **Marquee** button holds the Rectangular, Elliptical and Hexagon selections. The **Type** button holds **Krimble Type** (the text window described below) and **Old Type**.
 - The two healing tools have a button each: the **bandaid** and the **stamp** (tap **Set source**, then paint: it copies the texture from the source spot).
 - **Blur** and **Sharpen** are brushes: they soften or sharpen only where you brush.
 - **UNDO** is the last button: tap it to undo, press and hold it for Redo.
 - **The toolbox menu:** press and hold the toolbox's handle (the bar with three lines). It has **Compact**, **Icon Size**, **Icon Style** (Full color or Silhouette), **Button Style** (Flat or Raised), **Layout**, **Orientation**, **Columns**, and **Dock**.
-- **Docking:** in the toolbox menu, **Dock Left**, **Dock Right**, **Dock Top** and **Dock Bottom** put the toolbox on that side of the screen, and **Undock** makes it float. On the left or right it is a column as tall as the screen; at the top or bottom it is a row. A floating toolbox can also be dragged by its handle to an edge of the screen and let go there.
+- **Docking:** in the toolbox menu, **Dock Left**, **Dock Right**, **Dock Top** and **Dock Bottom** put the toolbox on that side of the screen, and **Undock** makes it float. On the left or right it is a column as tall as the screen; at the top or bottom it is a row. A floating toolbox can also be dragged by its handle to an edge of the screen and let go there. **Dock by Dragging**, in the same menu, turns that off for the toolbox and every panel: they then stay wherever they are let go.
 - **Columns** sets how many columns an upright toolbox uses, so that more tools fit.
 
 ## Panels and toolbars

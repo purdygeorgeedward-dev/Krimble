@@ -871,9 +871,23 @@ public:
         // idea." His drawing: a tab sticking out of the middle of the toolbox's edge onto the canvas, the toolbox's own color, angled top and bottom
         // ends, a dotted line down its middle. The zone is now only that tab (not the whole edge, which took fingers that were drawing), centred on
         // the column of panels on that side. kTabDepth is what is drawn; the zone is kTabZone wide so a finger can catch it.
-        const int zoneH = qMin(kTabHeight, column.height());
-        const int y = column.top() + (column.height() - zoneH) / 2;
-        setGeometry(area == Qt::LeftDockWidgetArea ? column.right() + 1 : column.left() - kTabZone, y, kTabZone, zoneH);
+        // const int zoneH = qMin(kTabHeight, column.height());
+        // const int y = column.top() + (column.height() - zoneH) / 2;
+        // setGeometry(area == Qt::LeftDockWidgetArea ? column.right() + 1 : column.left() - kTabZone, y, kTabZone, zoneH);
+        // Krimble 2026-11-16 (728th): George (build 65): "It's hard to move the edge of the right hand pane again. So sick of the same issues coming back." Why it came back: since the
+        // canvas lies under the panels (build 59, KrimbleCanvasOverlay) the canvas area covers Qt's own separator, the strip along the whole edge that could be dragged anywhere in
+        // 1.0.58; a finger on it went to the canvas. Only this zone still worked, and it is 140 units tall in the middle of the edge with nothing drawn to show where. The zone is the
+        // whole edge again: as tall as the column of panels, and as wide as Qt's separator plus 4 units on the canvas side and 4 on the panel side (the first full-edge zones, 24 to 30
+        // units wide over the canvas, took fingers that were drawing; this one is the strip the separator had in 1.0.58 and a little more). On the right side only.
+        // The toolbox's side (left) keeps the zone it had: George said of a full-edge zone there (1.0.39) that any tool that draws would grab the toolbox's edge.
+        if (area == Qt::LeftDockWidgetArea) {
+            const int zoneH = qMin(kTabHeight, column.height());
+            const int y = column.top() + (column.height() - zoneH) / 2;
+            setGeometry(column.right() + 1, y, kTabZone, zoneH);
+        } else {
+            const int sepWidth = qMax(4, m_win->style()->pixelMetric(QStyle::PM_DockWidgetSeparatorExtent, nullptr, m_win));
+            setGeometry(column.left() - sepWidth - 4, column.top(), sepWidth + 8, column.height());
+        }
         show();
         raise();
         m_reason = QStringLiteral("shown at x%1 y%2, %3x%4").arg(x()).arg(y).arg(width()).arg(height());
@@ -1302,7 +1316,8 @@ public:
         setAttribute(Qt::WA_TransparentForMouseEvents, true);
         setFixedSize(22, 22);
     }
-    QSize sizeHint() const override { return QSize(16, 16); }   // what Qt reserves for the image window's button
+    // QSize sizeHint() const override { return QSize(16, 16); }   // what Qt reserves for the image window's button
+    QSize sizeHint() const override { return QSize(qMax(16, minimumWidth()), 16); }   // Krimble 2026-11-16 (728th): as wide as the K needs (set by placeK)
 };
 
 class KrimbleMenuBarFilter : public QObject
@@ -1385,13 +1400,38 @@ public:
         if (!bar) return;
         // Krimble 2026-11-16 (722nd): George (build 64): "menubar should be taller by a few pixels by adding more shadow area at bottom." The bar is 4 units taller than Qt makes it from the
         // menu names; the names, the K and the window buttons stay where they were (centered in the old height), so the 4 units are all under them.
-        const int krimbleBarExtra = 4;
+        // const int krimbleBarExtra = 4;
+        // {
+        //     const int wantMin = bar->sizeHint().height() + krimbleBarExtra;
+        //     if (bar->minimumHeight() != wantMin) bar->setMinimumHeight(wantMin);
+        //     if (bar->property("krimbleBarExtra").toInt() != krimbleBarExtra) bar->setProperty("krimbleBarExtra", krimbleBarExtra);
+        // }
+        // if (!bar->cornerWidget(Qt::TopLeftCorner)) bar->setCornerWidget(new KrimbleKHolder(bar), Qt::TopLeftCorner);   // no image open: the holder keeps the menus clear of the K (see KrimbleKHolder)
+        // Krimble 2026-11-16 (728th): George (build 65): "Extra shadow lines on menubar disappeared. Menu appeared detached from title. No good. That was a decision before. The menu connects to
+        // the title without overlap and not separated." and "Would like a couple more lines under the menu titles before getting down to the shadow." The 722nd made the BAR taller than its
+        // names, so the open name's box stopped 4 units above the bar's lower edge and the menu hung under a gap. The bar is no longer forced taller. Instead every name has 3 more units of
+        // room under its text (the style sheet, thememanager.cpp: padding-bottom), so the name's box is the full height of the bar again and the menu meets it. The K and the window buttons
+        // are centered on the text (3 units above the middle of the bar).
+        const int krimbleBarExtra = 3;
+        if (bar->minimumHeight() != 0) bar->setMinimumHeight(0);
+        if (bar->property("krimbleBarExtra").toInt() != krimbleBarExtra) bar->setProperty("krimbleBarExtra", krimbleBarExtra);
+        // Krimble 2026-11-16 (728th): George (build 65, tabs, no corner button): "File menu title is still too close to the orange K." The holder of the 722nd was created and never SHOWN: a
+        // widget added to a bar that is already on screen stays hidden until show() is called, and Qt reserves no room for a hidden corner widget. Tried in real Qt 5.15 this way round (bar
+        // shown first, holder added after): hidden, "File" starts at 6; shown, at the holder's width plus 6. The holder is shown, and is as wide as the K plus 8 units.
         {
-            const int wantMin = bar->sizeHint().height() + krimbleBarExtra;
-            if (bar->minimumHeight() != wantMin) bar->setMinimumHeight(wantMin);
-            if (bar->property("krimbleBarExtra").toInt() != krimbleBarExtra) bar->setProperty("krimbleBarExtra", krimbleBarExtra);
+            const QFontMetrics holderMetrics(bar->font());
+            const int holderWidth = 2 + qMin(bar->height() - 4, qMax(14, holderMetrics.height())) + 8;
+            QWidget *corner = bar->cornerWidget(Qt::TopLeftCorner);
+            if (!corner) {
+                corner = new KrimbleKHolder(bar);
+                bar->setCornerWidget(corner, Qt::TopLeftCorner);
+            }
+            if (corner->objectName() == QLatin1String("krimbleKHolder")) {
+                if (corner->width() != holderWidth || corner->minimumWidth() != holderWidth) corner->setFixedWidth(holderWidth);
+                // shown unless Qt has put it aside for an image window's own button (then it is not the bar's corner widget and this code does not see it)
+                if (!corner->isVisible() && bar->isVisible()) corner->show();
+            }
         }
-        if (!bar->cornerWidget(Qt::TopLeftCorner)) bar->setCornerWidget(new KrimbleKHolder(bar), Qt::TopLeftCorner);   // no image open: the holder keeps the menus clear of the K (see KrimbleKHolder)
         // Krimble 2026-11-16 (722nd): George (build 64): "The minimize, maximize, and close gadgets render too high in the menu bar." Qt puts them at the top edge of the bar; they are
         // centered up and down on the menu names (as the K is), now and whenever Qt moves them back.
         if (QWidget *buttons = bar->cornerWidget(Qt::TopRightCorner)) {
@@ -2060,6 +2100,10 @@ static void krimbleShowQuickAdjustDialog(KisMainWindow *win)
         return;
     }
     QDialog *dialog = new QDialog(win);
+    // Krimble 2026-11-16 (728th): George (build 65): "OK does not close QuickAdjust. It's probably blocked by the sizing gadget." It was: the corner grip every plain dialog gets
+    // (KrimbleResizeGrip, KisApplication.cpp) lies in the bottom right corner, on top of OK (the room that is normally added under the buttons for it is lost when this window sets
+    // its own margins). QuickAdjust opens at its natural size and has no corner grip.
+    dialog->setProperty("krimbleNoGrip", true);
     // Krimble 2026-11-06 (2nd): George: "CAPTURE DARKER COLOR SCHEME FROM MOCK-UPS." The QuickAdjust window has the mockup's colors, sampled from the mockup picture: window
     // #181B2E, number boxes #121420 with a #5A5D80 outline, grey buttons #4A4B6A (top) to #26283D (bottom) with a #6B6C8C outline.
     // Krimble 2026-11-06 (3rd): George: "make QuickAdjust text smaller (not talking about the logo)". The text of the window (rows, Preview, Keep as layers, buttons) is 25% smaller,
@@ -4146,11 +4190,29 @@ protected:
         }
         p.setBrush(topTone);
         { QPolygonF poly; poly << QPointF(0, 0) << QPointF(w, 0) << QPointF(w - t, t) << QPointF(t, t); p.drawPolygon(poly); }
-        p.setBrush(bottomTone);
+        // p.setBrush(bottomTone);
+        // Krimble 2026-11-16 (728th): George (build 65): "Shadow on the toolbox is just a black line." The toolbox's right and bottom edges were one flat, nearly black band. They are a
+        // shadow that deepens toward the outer edge now: from a little darker than the toolbox (85 percent) on the inside to the old dark tone at the very edge.
+        if (krimbleToolBoxTarget && !recessed) {
+            QLinearGradient shade(QPointF(0, h - t), QPointF(0, h));
+            shade.setColorAt(0.0, krimbleBase.lighter(85));
+            shade.setColorAt(1.0, bottomTone);
+            p.setBrush(shade);
+        } else {
+            p.setBrush(bottomTone);
+        }
         { QPolygonF poly; poly << QPointF(0, h) << QPointF(w, h) << QPointF(w - t, h - t) << QPointF(t, h - t); p.drawPolygon(poly); }
         p.setBrush(leftTone);
         { QPolygonF poly; poly << QPointF(0, 0) << QPointF(t, t) << QPointF(t, h - t) << QPointF(0, h); p.drawPolygon(poly); }
-        p.setBrush(rightTone);
+        // p.setBrush(rightTone);
+        if (krimbleToolBoxTarget && !recessed) {
+            QLinearGradient shade(QPointF(w - t, 0), QPointF(w, 0));
+            shade.setColorAt(0.0, krimbleBase.lighter(85));
+            shade.setColorAt(1.0, rightTone);
+            p.setBrush(shade);
+        } else {
+            p.setBrush(rightTone);
+        }
         { QPolygonF poly; poly << QPointF(w, 0) << QPointF(w, h) << QPointF(w - t, h - t) << QPointF(w - t, t); p.drawPolygon(poly); }
         // Krimble 2026-11-15: George (1.0.59 test, item 4: "No orange K in corner of default layout."): the K is drawn by the menu bar's own paint filter (see KrimbleMenuBarFilter), but in every theme except
         // Krimble Painted that drawing comes BEFORE the bar paints itself, and since task 57 the flat sheets paint an opaque bar background (#49588c), which covered the K. This overlay lies on top of the bar,
@@ -5421,6 +5483,19 @@ public:
     }
 };
 
+// Krimble 2026-11-16 (728th): George (build 65): "I tried to leave the toolbox at the bottom, out of the way, but it snapped to the side. Not sure how to set that. Can docking be turned on
+// and off? That seems like a good idea." One switch for every panel and the toolbox: "Dock by Dragging" (in the toolbox handle's menu; setting krimble/DragDocking, on by default). Off: a
+// panel or the toolbox that is dragged stays where it is let go, anywhere, and never docks by itself; the Dock entries of the menus still dock it. The same function is in KoToolBoxDocker.cpp.
+static bool krimbleDragDockingOn()
+{
+    QVariant v = qApp->property("krimbleDragDocking");
+    if (!v.isValid()) {
+        v = QSettings().value(QStringLiteral("krimble/DragDocking"), true).toBool();
+        qApp->setProperty("krimbleDragDocking", v);
+    }
+    return v.toBool();
+}
+
 class KrimbleDockTolerance : public QObject
 {
 public:
@@ -5487,6 +5562,7 @@ protected:
                 // (which picks a place inside the dock area from where the finger is: above, below or beside the panels there), the code on release below, and the toolbox's own edge timer.
                 // Qt's own drop is off for the toolbox; it is docked only by the release code and the timer, and both put it in one place per side (its own column or row, see the release code below).
                 if (m_dock->objectName() == QLatin1String("ToolBox")) allowed = Qt::NoDockWidgetArea;
+                if (!krimbleDragDockingOn()) allowed = Qt::NoDockWidgetArea;   // Krimble 2026-11-16 (728th): "Dock by Dragging" is off: nothing docks from a drag
                 if (m_dock->allowedAreas() != allowed) {
                     m_dock->setAllowedAreas(allowed);
                 }
@@ -5510,6 +5586,7 @@ protected:
                 // side of the window and Qt has not docked it, it is docked there, on the nearest side.
                 if (!dock || !window || !dock->isFloating()) return;
                 if (!dwelled) return;     // Krimble 2026-10-30: not deliberate: it stays where it was let go
+                if (!krimbleDragDockingOn()) return;   // Krimble 2026-11-16 (728th): "Dock by Dragging" is off
                 const QRect r(window->mapToGlobal(QPoint(0, 0)), window->size());
                 const int toLeft = releasePos.x() - r.left();
                 const int toRight = r.right() - releasePos.x();
@@ -5533,8 +5610,14 @@ protected:
                 // edge could be the nearest one by a pixel or two, and the toolbox went to the top when it was let go at the right. For the toolbox a side within reach wins over top and bottom.
                 // It is also given its own full-height column at the outer end of that side (Qt::Horizontal), or its own row (top, bottom), instead of a place among the panels there.
                 if (dock->objectName() == QLatin1String("ToolBox")) {
-                    if (toRight <= 28) area = Qt::RightDockWidgetArea;
-                    else if (toLeft <= 14) area = Qt::LeftDockWidgetArea;
+                    // if (toRight <= 28) area = Qt::RightDockWidgetArea;
+                    // else if (toLeft <= 14) area = Qt::LeftDockWidgetArea;
+                    // Krimble 2026-11-16 (728th): George (build 65): "I tried to leave the toolbox at the bottom ... but it snapped to the side." A side within reach won over the bottom
+                    // too. It wins only over the TOP now (the case of the 708th: the handle is at the toolbox's top); let go at the bottom edge, the toolbox docks at the bottom.
+                    if (area == Qt::TopDockWidgetArea) {
+                        if (toRight <= 28) area = Qt::RightDockWidgetArea;
+                        else if (toLeft <= 14) area = Qt::LeftDockWidgetArea;
+                    }
                     const bool side = (area == Qt::LeftDockWidgetArea || area == Qt::RightDockWidgetArea);
                     window->addDockWidget(area, dock, side ? Qt::Horizontal : Qt::Vertical);
                 } else {

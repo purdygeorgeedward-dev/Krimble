@@ -339,6 +339,9 @@ void ThemeManager::slotChangePalette()
     // Krimble 2026-11-16 (722nd): George (build 64): "The raised tool button effect doesn't work with the white theme." The Raised button style was tied to "krimbleFlatTheme", which is also set
     // for every theme that is not a Krimble theme (Breeze Light, Breeze Dark, High Contrast), so the Raised style did nothing there. It has its own switch now: off only in "Krimble Dark Gray".
     qApp->setProperty("krimbleNoRaisedButtons", theme == QStringLiteral("Krimble Dark Gray"));
+    // Krimble 2026-11-16 (728th): the lists that paint their own selected row (the page list of Preferences, the list of the New window) use the design's selection gradient in the Krimble
+    // themes that have blue selections; in Krimble Dark Gray and in the themes that are not Krimble's they use the theme's own highlight color.
+    qApp->setProperty("krimbleSelectionGradient", theme.startsWith(QStringLiteral("Krimble")) && theme != QStringLiteral("Krimble Dark Gray"));
     // Krimble 2026-11-15 (696th): George: "Ok it finally switched. There was a long delay." The sheet was set up to seven times in a row (the theme's sheet, then each added rule set), and each call parses the whole
     // sheet and restyles every widget. It is now put together in one string and set once. (The calls are kept below, as comments in the text they replaced: each "krimbleSheet = (" was "qApp->setStyleSheet(".)
     QString krimbleSheet;
@@ -388,6 +391,12 @@ void ThemeManager::slotChangePalette()
         const QString krimbleTabsAndSelection = QStringLiteral(
             "\nQTabWidget::pane { background: #364064; border: none; }\n"
             "QTabBar::tab:selected { background: #364064; border-bottom: 1px solid #364064; }\n"
+            // Krimble 2026-11-16 (728th): George (build 65): "Would like a couple more lines under the menu titles before getting down to the shadow." 3 more units under the text of every
+            // menu bar name (was padding: 1px 9px). The name's box stays the full height of the bar, so an open menu meets its name (see placeK in KisMainWindow.cpp).
+            "QMenuBar::item { padding: 1px 9px 4px 9px; }\n"
+            // Krimble 2026-11-16 (728th): George (build 65): "The little pointer gadgets beside the file tabs are too thin. Double the width." The two scroll arrows at the end of a row of
+            // tabs: 32 units each (Qt's own size is 16). The width in the rule is for the two together (tried in real Qt 5.15: 32 gives 16 each, 64 gives 32 each).
+            "QTabBar::scroller { width: 64px; }\n"
             "QAbstractItemView::item:selected, QMenu::item:selected { color: #ffffff; border-radius: 0px;"
             " background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #1196d8, stop:0.10 #0a78bb, stop:0.5 #073d6b, stop:1 #074a85); }\n");
         krimbleSheet = krimbleSheet + (theme == QStringLiteral("Krimble Dark Gray") ? krimbleGraySheet(krimbleTabsAndSelection) : krimbleTabsAndSelection);
@@ -397,7 +406,10 @@ void ThemeManager::slotChangePalette()
     // theme's own sheet and names the Layers panel's list, NodeView, so it wins over the general QAbstractItemView rule). The colors are mine; George gave none.
     // Krimble 2026-11-15 (699th): George: "Can the layers use warm greys instead of cold grays?" Rows #6B6863 (was the cold #5D6272), selected row #A39D94 (was #8E93A6) with a warm near-black text #1B1915 (was #0E1020).
     // old: "\nNodeView::item { background: #5d6272; color: #ffffff; border: none; }\nNodeView::item:selected { background: #8e93a6; color: #0e1020; border: none; border-radius: 0px; }\n"
-    if (!krimbleSheet.isEmpty()) krimbleSheet = (krimbleSheet + QStringLiteral("\nNodeView::item { background: #6b6863; color: #ffffff; border: none; }\nNodeView::item:selected { background: #a39d94; color: #1b1915; border: none; border-radius: 0px; }\n"));
+    // if (!krimbleSheet.isEmpty()) krimbleSheet = (krimbleSheet + QStringLiteral("\nNodeView::item { background: #6b6863; color: #ffffff; border: none; }\nNodeView::item:selected { background: #a39d94; color: #1b1915; border: none; border-radius: 0px; }\n"));
+    // Krimble 2026-11-16 (728th): George (build 65): "Change the layer colors back. Give me the selection effect blue for the selected layer and make the other layers dark and match the theme." The rows are painted by the
+    // Layers panel itself (NodeDelegate.cpp: the list's dark color, the blue selection gradient for the selected layer); this rule only keeps the style sheet from painting anything of its own under or over them.
+    if (!krimbleSheet.isEmpty()) krimbleSheet = (krimbleSheet + QStringLiteral("\nNodeView::item { background: transparent; color: #f1f4fc; border: none; }\nNodeView::item:selected { background: transparent; color: #ffffff; border: none; border-radius: 0px; }\n"));
     // Krimble 2026-11-15: George (Smart Compression dialog; his picture of a steel ball bearing): "This is a ball bearing. It should be tiny, shiny, and on the top layer when it's a control gadget." Only QuickAdjust had the
     // ball; every other slider (export dialogs, filters) had the sheet's flat 13 px handle, which the slider's short row clipped into a gray block. Every slider handle is now the steel ball (10 style units, about 32 real
     // pixels, with the same sky/horizon/bounce gradient as QuickAdjust), and the slider row is tall enough (14 units) that the ball is never cut off, so it shows above the groove. QuickAdjust keeps its own sheet.
