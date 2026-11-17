@@ -470,7 +470,15 @@ LayerBox::LayerBox()
             }
             header->addLayout(topRow, 0, 0, 1, 2);
         }
-        header->addWidget(opacityBar, 1, 0);
+        // header->addWidget(opacityBar, 1, 0);
+        // Krimble 2026-11-17 (737th): George (build 66): "Layers opacity bar goes all the way to the edge with no margin. Bad." ... "It's the left margin." The bar gets 6 more units on its left.
+        {
+            QHBoxLayout *opacityRow = new QHBoxLayout;
+            opacityRow->setContentsMargins(6, 0, 0, 0);
+            opacityRow->setSpacing(0);
+            opacityRow->addWidget(opacityBar);
+            header->addLayout(opacityRow, 1, 0);
+        }
         header->addWidget(m_wdgLayerBox->configureLayerDockerToolbar, 1, 1);
         header->setColumnStretch(0, 1);
         m_wdgLayerBox->bnLayerFilters->setFixedSize(34, 34);
