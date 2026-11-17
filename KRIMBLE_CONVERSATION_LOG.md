@@ -115,3 +115,4 @@ George says he talked to Claude (in an earlier session; the text of that talk is
 - **20:13Z:** Can't grab panels to tear them off. No handles. / There is nothing to grab. / **20:16Z:** Can't grab the edge of the side panel either. (open)
 - **20:17Z:** There is an ugly extra line on the right side of the toolbox and the left side of the side panel. It does nothing but ruin my day. Remove it (739th)
 - **20:18Z:** If it's a grab area, it's not big enough and should also be invisible as previously discussed. Make a note of this. Save notes. (740th; rule written in KRIMBLE_CHANGES.md)
+- **20:24Z:** In painted theme make the selected tab the color values in this color lab image. (Color Lab showing #374165; 741st)

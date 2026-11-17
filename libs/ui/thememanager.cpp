@@ -389,8 +389,12 @@ void ThemeManager::slotChangePalette()
     // Gray" (no blue anywhere) both are the grays of the same brightness.
     if (!krimbleSheet.isEmpty()) {
         const QString krimbleTabsAndSelection = QStringLiteral(
-            "\nQTabWidget::pane { background: #364064; border: none; }\n"
-            "QTabBar::tab:selected { background: #364064; border-bottom: 1px solid #364064; }\n"
+            // "\nQTabWidget::pane { background: #364064; border: none; }\n"
+            // "QTabBar::tab:selected { background: #364064; border-bottom: 1px solid #364064; }\n"
+            // Krimble 2026-11-17 (741st): George (Color Lab screenshot, HSV 226/45/40, RGB 55/65/101, HEX #374165): "In painted theme make the selected tab the color values in this color lab image."
+            // The selected tab and its page area are #374165 (were #364064).
+            "\nQTabWidget::pane { background: #374165; border: none; }\n"
+            "QTabBar::tab:selected { background: #374165; border-bottom: 1px solid #374165; }\n"
             // Krimble 2026-11-16 (728th): George (build 65): "Would like a couple more lines under the menu titles before getting down to the shadow." 3 more units under the text of every
             // menu bar name (was padding: 1px 9px). The name's box stays the full height of the bar, so an open menu meets its name (see placeK in KisMainWindow.cpp).
             "QMenuBar::item { padding: 1px 9px 4px 9px; }\n"
