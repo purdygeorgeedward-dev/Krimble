@@ -7704,3 +7704,5 @@ Not fixed, cause not found in the code: **1** (normal docking of the toolbox), *
 - **Tab scroll arrows**: 32 units each (were 16).
 - **Not fixed: "Layers did super weird snap into a column for no reason."** Cause not found. With "Dock by Dragging" off it cannot happen from a drag.
 - **Wishlist**: his Color Lab mockup is saved as `krimble-artwork/mockups/color-lab-wishlist-2026-11-16.jpg` (the float and close buttons inside the COLOR LAB header band, no separate title bar). Not built.
+
+**2026-11-17, 03:15 (MST), 729th.** George: "Can the selected item in menu have a glow line around it?" / "Yes, let's try it." The selected menu item has a 1 unit light blue line (#7fdcff) around it, over the blue gradient (`thememanager.cpp`); every menu item has a clear 1 unit border so the text does not move. Krimble Dark Gray gets it in gray. A soft blurred glow is not possible in a Qt menu. Pushed, not built.

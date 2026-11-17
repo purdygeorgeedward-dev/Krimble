@@ -841,3 +841,4 @@ George: "Destroy all Krita themes. Nothing called Krita stays in themes." Delete
 **2026-11-16, 15:20 (MST).** Build 65 (1.0.65-beta) succeeded: run 43965939960, APK artifact 14276432810. Build log row (727th) pushed.
 **2026-11-16, 18:03 (MST).** George's list for build 65 (18 points) and a Color Lab wishlist mockup.
 **2026-11-16, 20:25 (MST).** Pushed, not built: 728th (the build 65 list). "Layers snapped into a column" not found.
+**2026-11-17, 03:15 (MST).** 729th pushed (glow line on the selected menu item). Not built.

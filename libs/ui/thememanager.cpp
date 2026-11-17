@@ -398,7 +398,12 @@ void ThemeManager::slotChangePalette()
             // tabs: 32 units each (Qt's own size is 16). The width in the rule is for the two together (tried in real Qt 5.15: 32 gives 16 each, 64 gives 32 each).
             "QTabBar::scroller { width: 64px; }\n"
             "QAbstractItemView::item:selected, QMenu::item:selected { color: #ffffff; border-radius: 0px;"
-            " background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #1196d8, stop:0.10 #0a78bb, stop:0.5 #073d6b, stop:1 #074a85); }\n");
+            " background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #1196d8, stop:0.10 #0a78bb, stop:0.5 #073d6b, stop:1 #074a85); }\n"
+            // Krimble 2026-11-17 (729th): George: "Can the selected item in menu have a glow line around it?" ... "Yes, let's try it." A bright light blue line (#7fdcff, the outline
+            // of the lit toolbox buttons) around the selected menu item. Every item has the same 1 unit border, clear, so the text does not move when an item is selected. (A soft,
+            // blurred glow is not possible in a Qt menu: a line is.)
+            "QMenu::item { border: 1px solid transparent; }\n"
+            "QMenu::item:selected { border: 1px solid #7fdcff; }\n");
         krimbleSheet = krimbleSheet + (theme == QStringLiteral("Krimble Dark Gray") ? krimbleGraySheet(krimbleTabsAndSelection) : krimbleTabsAndSelection);
     }
     // Krimble 2026-11-15 (item 16 and the Layers panel): George: "In the layers panel I think the regular layers should be mid tones like a gray and the selected layer should be lighter. The glowing
