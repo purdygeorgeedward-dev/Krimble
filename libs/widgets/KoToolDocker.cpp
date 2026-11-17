@@ -191,10 +191,8 @@ KoToolDocker::KoToolDocker(QWidget *parent)
         nameFont.setBold(true);
         d->toolNameLabel->setFont(nameFont);
     }
-    // d->toolNameLabel->setStyleSheet(QStringLiteral("QLabel#krimbleToolOptionsName { color: #ffffff; padding: 3px 6px; border-bottom: 1px solid #343c57; }"));
-    // Krimble 2026-11-17 (735th): George (build 66): "Text in the tool options for Pan tool are too close to the edge." The Hand (Pan) has no options, so the tool's name is all that shows; it sat
-    // 6 units from the panel's edge. 12 units at the left and right, 6 above and below, for every tool.
-    d->toolNameLabel->setStyleSheet(QStringLiteral("QLabel#krimbleToolOptionsName { color: #ffffff; padding: 6px 12px; border-bottom: 1px solid #343c57; }"));
+    // Krimble 2026-11-17 (736th): the 735th's wider padding here is undone; George meant the "No options" text (kis_tool.cc), not the tool name.
+    d->toolNameLabel->setStyleSheet(QStringLiteral("QLabel#krimbleToolOptionsName { color: #ffffff; padding: 3px 6px; border-bottom: 1px solid #343c57; }"));
     d->housekeeperMainLayout->insertWidget(0, d->toolNameLabel);
     d->updateToolName();
     connect(KoToolManager::instance(), &KoToolManager::changedTool, this, [this](KoCanvasController *) { d->updateToolName(); });
