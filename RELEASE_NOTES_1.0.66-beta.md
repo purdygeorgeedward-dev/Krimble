@@ -7,46 +7,43 @@ Krimble is open source software made with the assistance of Claude and ChatGPT.
 
 **NEW IN 1.0.66 BETA**
 
-**Version numbers:** this is build 66. It also holds the changes of build 65, which was not released. The last release was 1.0.58 beta.
+**Version numbers:** this is build 66. The last release was 1.0.58 beta.
 
-**Not tested yet.**
+**Not tested yet.** This build holds the fixes for the faults George found in build 65.
 
 **Speed and zoom**
 
-- Painting no longer jolts: the canvas was being moved twice every time the screen laid itself out.
 - The canvas no longer lies under the side panels. It ends at the panel's edge, which removes a slowdown in many features.
-- Opening a side panel does not zoom the image out.
+- Opening a side panel still does not zoom the image out.
 - Pictures open fitted to the screen instead of tiny.
+- Darker canvas background.
 
 **Toolbox**
 
-- Krimble starts with the Hand tool.
 - 20 buttons, always an even number: Sharpen is in the Blur flyout with Smudge.
-- Type tools are named Krimble Type and Old Type. The Screen Mode button is gone.
-- Flyouts open after a short hold (250 ms).
 - New "Dock by Dragging" switch in the toolbox handle's menu, for the toolbox and every panel. With it off, they stay where you let go.
 - A toolbox let go at the bottom docks at the bottom.
 - The toolbox shadow is graded instead of a black line.
-- Foreground starts white and background black, shown even with no image open.
+- Foreground starts white and background black, every time, shown even with no image open.
 
 **Menus**
 
-- The File menu no longer crowds the orange K.
+- "File" no longer crowds the orange K.
 - Menus connect to their titles again, with more space under each title.
 - The selected menu item has a light-blue outline.
 
 **Panels and windows**
 
-- Image tabs at the top are back; their scroll arrows are twice as wide.
 - Layers: the search box and the black boxes are gone; rows are dark, with a blue selected layer.
 - The right panel's whole edge can be grabbed again.
 - Color Lab has its float and close buttons in the COLOR LAB band, with no title bar above it.
 - Every dialog remembers the size and place you gave it, in portrait and landscape separately.
 - Save As is narrower.
-- QuickAdjust: OK closes it again; its toolbar is gone.
-- Preferences and New: the selected row no longer overlaps or tints the icon.
+- QuickAdjust: OK closes it again; it sits further left, and the corner grip is small and invisible.
+- Preferences: a page name no longer runs into the next row.
+- New: the selected row no longer covers or tints the icon.
 - Recent Images: smaller previews, bigger scrolling list.
-- Darker canvas background.
+- The scroll arrows beside the image tabs are twice as wide.
 
 **Known issues**
 
