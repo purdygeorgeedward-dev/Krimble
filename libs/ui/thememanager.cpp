@@ -402,8 +402,15 @@ void ThemeManager::slotChangePalette()
             // Krimble 2026-11-17 (729th): George: "Can the selected item in menu have a glow line around it?" ... "Yes, let's try it." A bright light blue line (#7fdcff, the outline
             // of the lit toolbox buttons) around the selected menu item. Every item has the same 1 unit border, clear, so the text does not move when an item is selected. (A soft,
             // blurred glow is not possible in a Qt menu: a line is.)
-            "QMenu::item { border: 1px solid transparent; }\n"
-            "QMenu::item:selected { border: 1px solid #7fdcff; }\n");
+            // "QMenu::item { border: 1px solid transparent; }\n"
+            // "QMenu::item:selected { border: 1px solid #7fdcff; }\n");
+            // Krimble 2026-11-17 (735th): George (build 66): "Go back to simple blue hilight for menu selections. The glow is too much." The light-blue line (729th) is off, and the selected row of a
+            // menu is one flat blue (#0b87dd, the blue of the open menu's name in the menu bar), no gradient, no outline. Lists keep the gradient of the rule above.
+            "QMenu::item { border: none; }\n"
+            "QMenu::item:selected { border: none; background: #0b87dd; }\n"
+            // Krimble 2026-11-17 (735th): George (build 66): "Tops of menus still have a line separating them from menu titles." The open menu's name in the menu bar had a light line along its
+            // bottom (the recessed look below, 2026-11-15), right where the menu starts. No line at the bottom of the name now (the menu bar's own bottom edge under it is left out too, see KrimbleBevelOverlay).
+            "QMenuBar::item:selected, QMenuBar::item:pressed { border-bottom: none; }\n");
         krimbleSheet = krimbleSheet + (theme == QStringLiteral("Krimble Dark Gray") ? krimbleGraySheet(krimbleTabsAndSelection) : krimbleTabsAndSelection);
     }
     // Krimble 2026-11-15 (item 16 and the Layers panel): George: "In the layers panel I think the regular layers should be mid tones like a gray and the selected layer should be lighter. The glowing
@@ -441,7 +448,7 @@ void ThemeManager::slotChangePalette()
         // Krimble 2026-11-15 (2nd): George: "Menu title still lights up blue despite asking for it to be recessed. Instead the menu selections get recessed instead of lighting up blue. The opposite of what I wanted." I had it the wrong way round:
         // the menu BAR's selected name (the title of the open menu) is the recessed one (a darker fill with a dark top and left edge and a light bottom and right edge); the rows inside a menu light up with the sheet's own highlight again.
         "\nQMenuBar::item:selected, QMenuBar::item:pressed { background: rgba(0, 0, 0, 120); border-top: 1px solid rgba(0, 0, 0, 210); border-left: 1px solid rgba(0, 0, 0, 210);"
-        " border-bottom: 1px solid rgba(255, 255, 255, 70); border-right: 1px solid rgba(255, 255, 255, 70); border-radius: 0px; }\n"));
+        " border-right: 1px solid rgba(255, 255, 255, 70); border-radius: 0px; }\n"));   // Krimble 2026-11-17 (735th): no light bottom line (it lay between the name and its open menu); was " border-bottom: 1px solid rgba(255, 255, 255, 70);" before the right edge
     // Krimble 2026-11-15 (2nd): George: "make the base screen (not the toolbox, menubar, or panels) darker for some kind of contrast." The base screen, the area behind the image windows and the welcome page, is the theme's window color 35 percent darker.
     if (!krimbleSheet.isEmpty()) {
         const QString baseColor = qApp->palette().color(QPalette::Window).darker(135).name();

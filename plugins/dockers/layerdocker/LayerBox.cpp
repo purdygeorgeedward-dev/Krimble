@@ -202,6 +202,31 @@ private:
     QTimer m_timer;
 };
 
+// Krimble 2026-11-17 (735th): the top row of the Layers panel (symbols, blending mode box, filter button) is one row when the panel is wide enough for it, two rows when it is not
+class KrimbleLayerTopRowFilter : public QObject
+{
+public:
+    KrimbleLayerTopRowFilter(QWidget *box, QBoxLayout *row, int needed)
+        : QObject(box), m_box(box), m_row(row), m_needed(needed)
+    {
+        box->installEventFilter(this);
+    }
+protected:
+    bool eventFilter(QObject *watched, QEvent *event) override
+    {
+        if (watched == m_box && event->type() == QEvent::Resize && m_row) {
+            const int room = m_box->width() - 12;   // the panel's 6 unit margins
+            const QBoxLayout::Direction want = (room >= m_needed) ? QBoxLayout::LeftToRight : QBoxLayout::TopToBottom;
+            if (m_row->direction() != want) m_row->setDirection(want);
+        }
+        return false;
+    }
+private:
+    QPointer<QWidget> m_box;
+    QPointer<QBoxLayout> m_row;
+    int m_needed;
+};
+
 class KrimbleLayerButtonsFilter : public QObject
 {
 public:
@@ -422,6 +447,27 @@ LayerBox::LayerBox()
             blend->setFixedWidth(110);
             topRow->addWidget(blend);
             topRow->addWidget(m_wdgLayerBox->bnLayerFilters);
+            // Krimble 2026-11-17 (735th): George (build 66): "Layers menu is a mess at small sizes. The icons jumble." The row has fixed widths (three 34 unit symbols, the 110 unit blending mode box,
+            // the 34 unit filter button: about 280 units with the gaps) and nothing in it can get smaller, so on a narrow panel the pieces lay over each other. When the panel is narrower than the
+            // row, the row becomes two: the three symbols on top, the blending mode box and the filter button under them, both at the right.
+            {
+                QHBoxLayout *symbolRow = new QHBoxLayout;
+                symbolRow->setContentsMargins(0, 0, 0, 0);
+                symbolRow->setSpacing(6);
+                QHBoxLayout *blendRow = new QHBoxLayout;
+                blendRow->setContentsMargins(0, 0, 0, 0);
+                blendRow->setSpacing(6);
+                while (QLayoutItem *item = topRow->takeAt(0)) {
+                    QWidget *w = item->widget();
+                    if (w == blend || w == m_wdgLayerBox->bnLayerFilters) { blendRow->addWidget(w); delete item; }
+                    else if (w) { symbolRow->addWidget(w); delete item; }
+                    else symbolRow->addItem(item);   // the stretch
+                }
+                blendRow->insertStretch(0, 1);
+                topRow->addLayout(symbolRow, 1);
+                topRow->addLayout(blendRow);
+                new KrimbleLayerTopRowFilter(mainWidget, topRow, 3 * 34 + 2 * 6 + 6 + 110 + 6 + 34);
+            }
             header->addLayout(topRow, 0, 0, 1, 2);
         }
         header->addWidget(opacityBar, 1, 0);
@@ -497,11 +543,17 @@ LayerBox::LayerBox()
 
     m_newLayerMenu = new QMenu(this);
     m_wdgLayerBox->bnAdd->setMenu(m_newLayerMenu);
-    m_wdgLayerBox->bnAdd->setPopupMode(QToolButton::MenuButtonPopup);
+    // m_wdgLayerBox->bnAdd->setPopupMode(QToolButton::MenuButtonPopup);
+    // Krimble 2026-11-17 (735th): George (build 66): "There is a miniature gadget overlapping on the + sign at bottom of layers." The gadget was the button's separate arrow section (see the 728th
+    // note above); on a narrow panel it lay over the symbol. No arrow section now: a tap does what the button does, and a press and hold opens its menu.
+    m_wdgLayerBox->bnAdd->setPopupMode(QToolButton::DelayedPopup);
 
     m_opLayerMenu = new QMenu(this);
     m_wdgLayerBox->bnProperties->setMenu(m_opLayerMenu);
-    m_wdgLayerBox->bnProperties->setPopupMode(QToolButton::MenuButtonPopup);
+    // m_wdgLayerBox->bnProperties->setPopupMode(QToolButton::MenuButtonPopup);
+    // Krimble 2026-11-17 (735th): George (build 66): "There is a miniature gadget overlapping on the + sign at bottom of layers." The gadget was the button's separate arrow section (see the 728th
+    // note above); on a narrow panel it lay over the symbol. No arrow section now: a tap does what the button does, and a press and hold opens its menu.
+    m_wdgLayerBox->bnProperties->setPopupMode(QToolButton::DelayedPopup);
 
     m_nodeModel = new KisNodeModel(this, 2);
     m_filteringModel = new KisNodeFilterProxyModel(this);

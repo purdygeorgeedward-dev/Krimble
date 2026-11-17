@@ -855,3 +855,4 @@ George: "Destroy all Krita themes. Nothing called Krita stays in themes." Delete
 **2026-11-17, 08:10 (MST).** 734th pushed: build 66's compile error (KisMainWindow.cpp:893, from the 728th). Build 66 started again.
 **2026-11-17, 08:12 (MST).** Branch release-1.0.66-beta moved to 2b5cdb3 (the commit build 66 is now built from, run 44110178988).
 **2026-11-17, 08:20 (MST).** Build 66 built (run 44110178988, commit 2b5cdb3, APK artifact 14340438532). Build log row added. Not tested on a phone. George redoes the 1.0.66 release (tag v1.0.66-beta was on 272d630, never built).
+**2026-11-17, 11:05 (MST).** 735th pushed (build 66 list: menus, Layers panel, Tool Options name). Not built.

@@ -541,10 +541,24 @@ public:
     KrimbleMenuPlacer(QMenu *menu, QMenuBar *bar, QAction *nameAction) : QObject(menu), m_menu(menu), m_bar(bar), m_action(nameAction)
     {
         menu->installEventFilter(this);
-        menu->setProperty("krimbleMenuDeskFrame", qMax(8, (bar->height() + 1) / 2 + 2));
-        QObject::connect(menu, &QMenu::aboutToShow, menu, [menu, bar]() {
-            menu->setProperty("krimbleMenuDeskFrame", qMax(8, (bar->height() + 1) / 2 + 2));
-        });
+        menu->setProperty("krimbleBarMenu", true);   // Krimble 2026-11-17 (735th): no outline along its top (KrimbleBevelOverlay)
+        // menu->setProperty("krimbleMenuDeskFrame", qMax(8, (bar->height() + 1) / 2 + 2));
+        // QObject::connect(menu, &QMenu::aboutToShow, menu, [menu, bar]() {
+        //     menu->setProperty("krimbleMenuDeskFrame", qMax(8, (bar->height() + 1) / 2 + 2));
+        // });
+        // Krimble 2026-11-17 (735th): George (build 66): "Bottoms of menus are chopped off." The room kept free was only the menu bar's height, but the menu also starts below the phone's status
+        // bar and ends above its navigation buttons, and Qt measures its columns against the whole screen. The room kept free is now everything from the top of the screen to the bottom of the
+        // menu bar, plus what the system takes at the bottom of the screen, plus 4 units (shared out above and below, as the style reads it).
+        auto krimbleFrame = [menu, bar]() {
+            QScreen *screen = bar->screen() ? bar->screen() : QGuiApplication::primaryScreen();
+            const QRect full = screen->geometry();
+            const QRect avail = screen->availableGeometry();
+            const int above = qMax(bar->height(), bar->mapToGlobal(QPoint(0, bar->height())).y() - full.top());
+            const int below = qMax(0, full.bottom() - avail.bottom());
+            menu->setProperty("krimbleMenuDeskFrame", qMax(8, (above + below + 1) / 2 + 2));
+        };
+        krimbleFrame();
+        QObject::connect(menu, &QMenu::aboutToShow, menu, krimbleFrame);
     }
     bool eventFilter(QObject *watched, QEvent *event) override
     {
@@ -568,6 +582,14 @@ public:
             wanted.setX(qMin(wanted.x(), avail.right() + 1 - m_menu->width()));
             wanted.setX(qMax(wanted.x(), avail.left()));
             if (m_menu->pos() != wanted) m_menu->move(wanted);
+        }
+        // Krimble 2026-11-17 (735th): the menu bar's edge is drawn without a line under an open menu's name; redraw it when a menu opens or closes
+        if (watched == m_menu && m_bar && (event->type() == QEvent::Show || event->type() == QEvent::Hide)) {
+            QPointer<QMenuBar> bar = m_bar;
+            QTimer::singleShot(0, bar, [bar]() {
+                if (!bar) return;
+                if (QWidget *overlay = bar->findChild<QWidget*>(QStringLiteral("krimbleBevelOverlay"), Qt::FindDirectChildrenOnly)) overlay->update();
+            });
         }
         return false;
     }
@@ -4107,7 +4129,15 @@ protected:
         if (recessed) {
             const qreal edge = 2.0 / qMax<qreal>(1.0, devicePixelRatioF());
             // Krimble 2026-11-15 (698th): George: "Remove the outline around menus." The black outline is off (the four fills are kept as comments).
-            Q_UNUSED(edge);
+            // Q_UNUSED(edge);
+            // Krimble 2026-11-17 (735th): George (build 66): "Menus have no line around them or beveled edges so they just merge with other menus." The black outline is back (2 real
+            // screen pixels), but a menu that opens from the menu bar has no line along its top, where it meets its name ("Tops of menus still have a line separating them from menu titles").
+            // Submenus and other popups have all four sides.
+            p.setPen(Qt::NoPen);
+            if (!m_target->property("krimbleBarMenu").toBool()) p.fillRect(QRectF(0, 0, width(), edge), Qt::black);
+            p.fillRect(QRectF(0, height() - edge, width(), edge), Qt::black);
+            p.fillRect(QRectF(0, 0, edge, height()), Qt::black);
+            p.fillRect(QRectF(width() - edge, 0, edge, height()), Qt::black);
             // p.setPen(Qt::NoPen);
             // p.fillRect(QRectF(0, 0, width(), edge), Qt::black);
             // p.fillRect(QRectF(0, height() - edge, width(), edge), Qt::black);
@@ -4208,7 +4238,17 @@ protected:
         } else {
             p.setBrush(bottomTone);
         }
+        // Krimble 2026-11-17 (735th): George (build 66): "Tops of menus still have a line separating them from menu titles." While a menu is open, the menu bar's dark bottom edge is left
+        // out under that menu's name, so the name runs straight into its menu.
+        if (QMenuBar *krimbleOpenBar = qobject_cast<QMenuBar*>(m_target.data())) {
+            QAction *krimbleOpen = krimbleOpenBar->activeAction();
+            if (krimbleOpen && krimbleOpen->menu() && krimbleOpen->menu()->isVisible()) {
+                const QRect krimbleName = krimbleOpenBar->actionGeometry(krimbleOpen);
+                p.setClipRegion(QRegion(rect()) - QRegion(krimbleName.left(), 0, krimbleName.width(), height()));
+            }
+        }
         { QPolygonF poly; poly << QPointF(0, h) << QPointF(w, h) << QPointF(w - t, h - t) << QPointF(t, h - t); p.drawPolygon(poly); }
+        p.setClipping(false);
         p.setBrush(leftTone);
         { QPolygonF poly; poly << QPointF(0, 0) << QPointF(t, t) << QPointF(t, h - t) << QPointF(0, h); p.drawPolygon(poly); }
         // p.setBrush(rightTone);
