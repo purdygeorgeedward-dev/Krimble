@@ -863,3 +863,4 @@ George: "Destroy all Krita themes. Nothing called Krita stays in themes." Delete
 **2026-11-17, 13:30 (MST).** 738th pushed (menu bottom room, menu meets its name, K room). Not built.
 **2026-11-17, 13:45 (MST).** 739th pushed (no line drawn on the panel separators). Not built.
 **2026-11-17, 13:55 (MST).** 740th pushed (whole-edge invisible grab zones, toolbox and side panel; George's rule: grab areas invisible and big enough). Not built. Open: panels can't be torn off (no handles).
+**2026-11-17, 14:00 (MST).** Failed build 66 runs 44076877193 and 44077735833 deleted (rule: failed builds must not persist). Conversation log updated for this session.

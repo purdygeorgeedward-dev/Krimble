@@ -99,3 +99,19 @@ George says he talked to Claude (in an earlier session; the text of that talk is
 - **2026-11-17T10:12Z:** Yes, let's try it. After that return to the list.
 - **2026-11-17T10:22Z:** Continue.
 - **2026-11-17T11:36Z:** You could just make the corner grip on QuickAdjust smaller and a little outside of the corner and invisible and scoot the button a little to the left. Then both functions would work.
+
+## 2026-11-17 session (Opus 5.5), George's words (times UTC)
+- **11:29Z:** I believe the crashes may be dealt with, but there is a noticable slowdown in some features and I wasn't expecting that after trying to remove bloat from the app. Theorize.
+- **11:30Z:** Look at the repo and compare to your theories.
+- **11:39Z:** I think it's that canvas effect. / **11:40Z:** Yes. That's the correct solution. (732nd: canvas no longer under the panels)
+- **11:41Z:** I also notice a lot of files are opening zoomed way out so they look tiny on load. Can we fix that? What's the default zoom level on new files when they open? (733rd)
+- **11:44Z:** But why? The whole problem I had before was that the canvas would shrink and the image would get tiny when the side panels opened.
+- **11:45Z:** Ok. Let's build it and see.
+- **11:49Z–12:56Z:** Release notes and tags: "If I give you a PAT can you try to update the release documentation and tag?", "I can handle the apk.", "It used to work fine. What changed?", "I don't want to fold different releases notes into one. They should all be separate. I'll go back and create empty placeholders and we will reconstruct the notes." (tags and releases are refused for this session since Nov 15; George makes them by hand; release-1.0.59-beta to release-1.0.67-beta branches are the targets)
+- **15:03Z:** I need to download the apk for .66 beta. (build 66 had failed on a compile error; 734th fixed it; built)
+- **17:36Z:** New issues: Bottoms of menus are chopped off. Tops of menus still have a line separating them from menu titles. Layers menu is a mess at small sizes. The icons jumble. There is a miniature gadget overlapping on the + sign at bottom of layers. Layers opacity bar goes all the way to the edge with no margin. Bad. Menus have no line around them or beveled edges so they just merge with other menus. Text in the tool options for Pan tool are too close to the edge. Go back to simple blue hilight for menu selections. The glow is too much. (735th)
+- **18:28Z:** It's not the name of the tool. It's where it says no options. (736th) / **18:29Z:** 5. Why not just ask, chatbot? It's the left margin. (737th) / **18:30Z:** Build it. (build 67)
+- **20:11Z:** Same short menus. Same line dividing menus from titles. Same orange K too close to the File menu. No changes. / Can't you just add a blank line at the bottom of the menus? (738th)
+- **20:13Z:** Can't grab panels to tear them off. No handles. / There is nothing to grab. / **20:16Z:** Can't grab the edge of the side panel either. (open)
+- **20:17Z:** There is an ugly extra line on the right side of the toolbox and the left side of the side panel. It does nothing but ruin my day. Remove it (739th)
+- **20:18Z:** If it's a grab area, it's not big enough and should also be invisible as previously discussed. Make a note of this. Save notes. (740th; rule written in KRIMBLE_CHANGES.md)
