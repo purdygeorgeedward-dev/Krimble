@@ -866,3 +866,4 @@ George: "Destroy all Krita themes. Nothing called Krita stays in themes." Delete
 **2026-11-17, 14:00 (MST).** Failed build 66 runs 44076877193 and 44077735833 deleted (rule: failed builds must not persist). Conversation log updated for this session.
 **2026-11-17, 13:19 (MST).** George: "The next build will be a bug fix build and should not go up in number." The next build stays build 67 (label 1.0.67-beta, krimbleBuildNumber 67); do not bump the number for it. It will hold the 738th to the 740th.
 **2026-11-17, 13:30 (MST).** 741st pushed (selected tab #374165). Not built.
+**2026-11-17, 15:25 (MST).** RELEASE_NOTES_1.0.67-beta.md written (George: "Can you give me release notes for .67?"): what build 67 holds (735th to 737th) and the faults George found in it. Release target: branch release-1.0.67-beta (a15b76a).
