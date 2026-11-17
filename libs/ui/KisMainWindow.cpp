@@ -568,7 +568,10 @@ public:
             // QPoint wanted = m_bar->mapToGlobal(QPoint(nameRect.left(), m_bar->height() - qRound(dpr)));
             // Krimble 2026-11-15 (700th): George (screenshot, Select menu): "It looks like menus are a little too high." The old line took dpr (about 3) LOGICAL pixels off the bar's bottom, which is about 9 real
             // screen pixels, so the menu's top lay over the bottom of the bar. The menu now starts exactly at the bottom of the bar.
-            QPoint wanted = m_bar->mapToGlobal(QPoint(nameRect.left(), m_bar->height()));
+            // QPoint wanted = m_bar->mapToGlobal(QPoint(nameRect.left(), m_bar->height()));
+            // Krimble 2026-11-17 (738th): George (build 67 screenshots): "Same line dividing menus from titles." The name's box ends a few pixels above the bar's lower edge, and that strip of the
+            // bar showed between the box and the menu as a light line. The menu now starts right at the bottom of the name's box.
+            QPoint wanted = m_bar->mapToGlobal(QPoint(nameRect.left(), qMin(m_bar->height(), nameRect.bottom() + 1)));
             Q_UNUSED(dpr);
             QScreen *screen = QGuiApplication::screenAt(wanted);
             if (!screen) screen = QGuiApplication::primaryScreen();
@@ -1454,6 +1457,26 @@ public:
                 if (corner->width() != holderWidth || corner->minimumWidth() != holderWidth) corner->setFixedWidth(holderWidth);
                 // shown unless Qt has put it aside for an image window's own button (then it is not the bar's corner widget and this code does not see it)
                 if (!corner->isVisible() && bar->isVisible()) corner->show();
+            }
+        }
+        // Krimble 2026-11-17 (738th): George (build 67 screenshots, no image open): "Same orange K too close to the File menu." The holder and the spacer above still left "File" (and its box when
+        // open) right against the K. Now the menu bar measures where the first menu name actually starts and, if that is short of the K plus 8 units, adds the difference as left padding
+        // (style sheet, the menu bar's own), whatever Qt reserves or does not reserve in front of it. At most the K plus 8 units, so it cannot run away.
+        {
+            const QFontMetrics krimbleKMetrics(bar->font());
+            const int krimbleKRoom = 2 + qMin(bar->height() - 4, qMax(14, krimbleKMetrics.height())) + 8;
+            QAction *krimbleFirst = nullptr;
+            Q_FOREACH (QAction *a, bar->actions()) {
+                if (a->isVisible() && a->objectName() != QLatin1String("krimbleKSpacer") && !qobject_cast<QWidgetAction*>(a)) { krimbleFirst = a; break; }
+            }
+            if (krimbleFirst && bar->isVisible()) {
+                const int have = bar->actionGeometry(krimbleFirst).left();
+                const int cur = bar->property("krimblePadLeft").toInt();
+                const int want = qBound(0, cur + krimbleKRoom - have, krimbleKRoom);
+                if (have > 0 && want != cur) {
+                    bar->setProperty("krimblePadLeft", want);
+                    bar->setStyleSheet(QStringLiteral("QMenuBar { padding-left: %1px; }").arg(want));
+                }
             }
         }
         // Krimble 2026-11-16 (722nd): George (build 64): "The minimize, maximize, and close gadgets render too high in the menu bar." Qt puts them at the top edge of the bar; they are

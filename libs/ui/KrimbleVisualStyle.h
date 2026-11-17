@@ -212,6 +212,10 @@ QMenu {
     color: #eef1fa;
     border: none;   /* Krimble 2026-11-15 (698th): no outline around menus (was 1px solid #000000) */
     background: #232a42;
+    /* Krimble 2026-11-17 (738th): George (build 67 screenshots, File, Edit, Image menus): "Same short menus." ... "Can't you just add a blank line at the bottom of the menus?" The last item was cut
+       off at the bottom and long names ran past the right side (Wavelet Decompose..., Open as Untitled...). 16 units of room at the bottom (about one blank line) and 12 at the right. */
+    padding-bottom: 16px;
+    padding-right: 12px;
 }
 QMenu::item:selected {
     /* Krimble 2026-11-13 (task 66): George: "no outline on the menu selection." border: 1px solid #3bd5f7; */
