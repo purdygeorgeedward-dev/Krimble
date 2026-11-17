@@ -539,7 +539,12 @@ void KisCanvasController::updateCanvasWidgetSizeInternal(const QSize &newSize, q
         if (!m_d->krimbleSettle.isValid() && !newSize.isEmpty()) m_d->krimbleSettle.start();
         const bool krimbleSettled = m_d->krimbleSettle.isValid() && m_d->krimbleSettle.hasExpired(3000);
         // if (!oldSize.isEmpty() && oldSize != QSizeF(newSize) && windowSize.isValid() && windowSize == m_d->krimbleLastWindowSize
-        if (krimbleSettled && !oldSize.isEmpty() && oldSize != QSizeF(newSize) && windowSize.isValid() && windowSize == m_d->krimbleLastWindowSize
+        // if (krimbleSettled && !oldSize.isEmpty() && oldSize != QSizeF(newSize) && windowSize.isValid() && windowSize == m_d->krimbleLastWindowSize
+        // Krimble 2026-11-17 (733rd): George: "a lot of files are opening zoomed way out so they look tiny on load." The 3 second wait is wall time, and a big file can hold the app
+        // for longer than that while it opens, so the canvas area was still growing from its first small size after the wait ran out, and the fit zoom of that small size was frozen
+        // (a tiny picture). The zoom is now frozen only when the canvas area gets smaller (a panel opening, the case this is for). When it grows, the picture keeps Fit to Page.
+        const bool krimbleShrinks = newSize.width() < oldSize.width() || newSize.height() < oldSize.height();
+        if (krimbleSettled && krimbleShrinks && !oldSize.isEmpty() && oldSize != QSizeF(newSize) && windowSize.isValid() && windowSize == m_d->krimbleLastWindowSize
             && m_d->coordinatesConverter->zoomMode() != KoZoomMode::ZOOM_CONSTANT) {
             m_d->coordinatesConverter->setZoom(KoZoomMode::ZOOM_CONSTANT,
                                                m_d->coordinatesConverter->zoom(),

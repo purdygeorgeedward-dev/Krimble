@@ -845,3 +845,4 @@ George: "Destroy all Krita themes. Nothing called Krita stays in themes." Delete
 **2026-11-17, 03:40 (MST).** 730th pushed (Color Lab wishlist: buttons in the band, no title bar). Not built.
 **2026-11-17, 04:40 (MST).** 731st pushed (QuickAdjust: small invisible corner grip, OK moved left). Not built.
 **2026-11-17, 04:42 (MST).** 732nd pushed (canvas no longer under the panels by default; suspected cause of the slowdown). Not built.
+**2026-11-17, 04:50 (MST).** 733rd pushed (files opening tiny: zoom freeze only when the canvas area shrinks). Not built.
