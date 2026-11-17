@@ -859,3 +859,4 @@ George: "Destroy all Krita themes. Nothing called Krita stays in themes." Delete
 **2026-11-17, 11:35 (MST).** 736th pushed ("No options" margins; 735th tool name padding undone). Not built.
 **2026-11-17, 11:40 (MST).** 737th pushed (Layers opacity bar left margin). Not built.
 **2026-11-17, 11:32 (MST).** Build 67 started (George: "Build it."): build number 67, label 1.0.67-beta; holds the 735th to the 737th.
+**2026-11-17 (MST).** Build 67 built (run 44148705860, commit a15b76a). Branch release-1.0.67-beta made at a15b76a for the release target. Not tested on a phone.
