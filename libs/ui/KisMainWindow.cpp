@@ -4638,7 +4638,11 @@ private:
         track();
         if (!m_central || !m_win->isVisible()) return;
         // if (!QSettings().value(QStringLiteral("krimble/PanelsOverlayCanvas"), true).toBool()) return;
-        static const bool krimbleOverlayOn = QSettings().value(QStringLiteral("krimble/PanelsOverlayCanvas"), true).toBool();   // Krimble 2026-11-16 (722nd): read once (this runs inside every move of the canvas area now)
+        // static const bool krimbleOverlayOn = QSettings().value(QStringLiteral("krimble/PanelsOverlayCanvas"), true).toBool();   // Krimble 2026-11-16 (722nd): read once (this runs inside every move of the canvas area now)
+        // Krimble 2026-11-17 (732nd): off by default. George: the slowdown is the canvas lying under the panels (full-width canvas draws pixels nobody sees, and every
+        // panel repaint forces the canvas under it to be redrawn). The canvas now ends at the panel's edge, as in the industry standard; the zoom freeze (546th) stays.
+        // krimble/PanelsOverlayCanvas = true turns the overlay back on.
+        static const bool krimbleOverlayOn = QSettings().value(QStringLiteral("krimble/PanelsOverlayCanvas"), false).toBool();
         if (!krimbleOverlayOn) return;
         const QRect now = m_central->geometry();
         const QRect wanted(0, now.top(), m_win->width(), now.height());
