@@ -483,7 +483,17 @@ LayerBox::LayerBox()
         header->setColumnStretch(0, 1);
         m_wdgLayerBox->bnLayerFilters->setFixedSize(34, 34);
         m_wdgLayerBox->configureLayerDockerToolbar->setFixedSize(34, 34);
-        panel->insertLayout(0, header);
+        // panel->insertLayout(0, header);
+        // Krimble 2026-11-17 (743rd): George (a floating Layers panel with the symbols, blending mode box, filter button and opacity bar piled on each other): "The top of layers should always
+        // have had a minimum height." The top rows sit in a holder of fixed height (its own rows' full height, one or two rows of symbols); when the panel is short, only the layer list gets shorter.
+        {
+            QWidget *krimbleHeaderHolder = new QWidget(mainWidget);
+            krimbleHeaderHolder->setObjectName(QStringLiteral("krimbleLayersHeader"));
+            krimbleHeaderHolder->setLayout(header);
+            krimbleHeaderHolder->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+            panel->insertWidget(0, krimbleHeaderHolder);
+            m_wdgLayerBox->listLayers->setMinimumHeight(0);
+        }
         QFrame *underHeader = new QFrame(mainWidget);
         underHeader->setFrameShape(QFrame::HLine);
         underHeader->setStyleSheet(QStringLiteral("color: #3a4468;"));
