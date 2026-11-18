@@ -116,3 +116,4 @@ George says he talked to Claude (in an earlier session; the text of that talk is
 - **20:17Z:** There is an ugly extra line on the right side of the toolbox and the left side of the side panel. It does nothing but ruin my day. Remove it (739th)
 - **20:18Z:** If it's a grab area, it's not big enough and should also be invisible as previously discussed. Make a note of this. Save notes. (740th; rule written in KRIMBLE_CHANGES.md)
 - **20:24Z:** In painted theme make the selected tab the color values in this color lab image. (Color Lab showing #374165; 741st)
+- **00:53Z (Nov 18):** Plus color lab slides the logo up into nowhere and then you have to use a scrollbar to get it back. That should never happen. / DUH. It should always have been pinned. / THE COLOR LAB LOGO SHOULD ALWAYS HAVE BEEN PINNED. (742nd) / Keep your answers really really short because I won't read long answers. Like cut all the fat off your answers.

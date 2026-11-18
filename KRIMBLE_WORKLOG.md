@@ -869,3 +869,4 @@ George: "Destroy all Krita themes. Nothing called Krita stays in themes." Delete
 **2026-11-17, 15:25 (MST).** RELEASE_NOTES_1.0.67-beta.md written (George: "Can you give me release notes for .67?"): what build 67 holds (735th to 737th) and the faults George found in it. Release target: branch release-1.0.67-beta (a15b76a).
 **2026-11-17, 17:18 (MST).** Build 68 started (George: "Build 1.0.68 now.", replacing the earlier plan to keep 67): build number 68, label 1.0.68-beta; holds the 738th to the 741st.
 **2026-11-17 (MST).** Build 68 built (run 44206525292, commit eae9186). Branch release-1.0.68-beta made for the release target. Not tested on a phone.
+**2026-11-17, 18:05 (MST).** 742nd pushed (COLOR LAB band pinned above the scrolling part). Not built.

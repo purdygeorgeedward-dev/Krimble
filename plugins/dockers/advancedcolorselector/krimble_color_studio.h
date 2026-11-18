@@ -581,6 +581,7 @@ public:
         // header of the panel: a black band the width of the panel with the logo centered.
         auto *header = new KrimbleColorHeader(this);
         layout->addWidget(header);
+        m_band = header;   // Krimble 2026-11-17 (742nd): the panel takes the band out of the scrolling part and pins it at the top (kis_color_selector_ng_docker_widget.cpp)
         m_tabs = new KrimbleColorTabBar(this);
         layout->addWidget(m_tabs);
         m_ui = new KrimbleColorCanvas(this);
@@ -1341,6 +1342,10 @@ private:
     QGridLayout *m_swatches=nullptr;
     KrimbleColorCanvas *m_ui=nullptr;   // Krimble 2026-11-08: the measured Picker page
     KrimbleColorTabBar *m_tabs=nullptr;
+public:
+    QWidget *krimbleBand() const { return m_band; }   // Krimble 2026-11-17 (742nd): the COLOR LAB band
+private:
+    QWidget *m_band=nullptr;
     KrimblePalettePage *m_palettePage=nullptr;
     KrimbleHistoryPage *m_historyPage=nullptr;
     QTimer m_historyTimer;

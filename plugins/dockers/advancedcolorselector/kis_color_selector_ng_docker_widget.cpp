@@ -138,7 +138,36 @@ KisColorSelectorNgDockerWidget::KisColorSelectorNgDockerWidget(QWidget *parent, 
     // colorTabs->addTab(studioScroll, tr("Picker"));
     // colorTabs->addTab(classicPanel, tr("Classic"));
     // m_widgetLayout->addWidget(colorTabs);
-    m_widgetLayout->addWidget(studioScroll);
+    // m_widgetLayout->addWidget(studioScroll);
+    // Krimble 2026-11-17 (742nd): George: "Plus color lab slides the logo up into nowhere and then you have to use a scrollbar to get it back. That should never happen." and "THE COLOR LAB
+    // LOGO SHOULD ALWAYS HAVE BEEN PINNED." The COLOR LAB band (logo, float and close buttons) is taken out of the scrolling part and pinned above it, in a holder as wide as the scrolling
+    // part (330 to 384) with the same margins it had inside it. Only the tabs and the pages under it scroll.
+    {
+        QWidget *krimbleColumn = new QWidget(this);
+        QVBoxLayout *krimbleColumnLayout = new QVBoxLayout(krimbleColumn);
+        krimbleColumnLayout->setContentsMargins(0, 0, 0, 0);
+        krimbleColumnLayout->setSpacing(0);
+        if (QWidget *krimbleBand = m_krimbleStudio->krimbleBand()) {
+            QLayout *studioLayout = m_krimbleStudio->layout();
+            const QMargins studioMargins = studioLayout ? studioLayout->contentsMargins() : QMargins(3, 3, 3, 3);
+            if (studioLayout) studioLayout->removeWidget(krimbleBand);
+            QWidget *bandHolder = new QWidget(krimbleColumn);
+            bandHolder->setMinimumWidth(330);
+            bandHolder->setMaximumWidth(384);
+            QHBoxLayout *bandLayout = new QHBoxLayout(bandHolder);
+            bandLayout->setContentsMargins(studioMargins.left(), studioMargins.top(), studioMargins.right(), 0);
+            bandLayout->setSpacing(0);
+            krimbleBand->setParent(bandHolder);
+            krimbleBand->setFont(m_krimbleStudio->font());
+            bandLayout->addWidget(krimbleBand);
+            krimbleBand->show();
+            if (studioLayout) { QMargins m = studioMargins; m.setTop(qMax(0, studioLayout->spacing())); studioLayout->setContentsMargins(m); }
+            krimbleColumnLayout->addWidget(bandHolder, 0, Qt::AlignLeft | Qt::AlignTop);
+        }
+        studioScroll->setParent(krimbleColumn);
+        krimbleColumnLayout->addWidget(studioScroll, 1);
+        m_widgetLayout->addWidget(krimbleColumn);
+    }
     }
 
     updateLayout();
