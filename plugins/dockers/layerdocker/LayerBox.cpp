@@ -560,11 +560,13 @@ LayerBox::LayerBox()
     connect(m_wdgLayerBox->cmbComposite, SIGNAL(activated(int)), SLOT(slotCompositeOpChanged(int)));
 
     m_newLayerMenu = new QMenu(this);
-    m_wdgLayerBox->bnAdd->setMenu(m_newLayerMenu);
+    // m_wdgLayerBox->bnAdd->setMenu(m_newLayerMenu);
+    // Krimble 2026-11-18 (748th): George: "I tried to hit the plus to add a layer and instead got a menu. Why???" The + has no menu: a tap always adds a layer. The other layer types are in
+    // Layer > New. (m_newLayerMenu is still built, unused by the button.)
     // m_wdgLayerBox->bnAdd->setPopupMode(QToolButton::MenuButtonPopup);
     // Krimble 2026-11-17 (735th): George (build 66): "There is a miniature gadget overlapping on the + sign at bottom of layers." The gadget was the button's separate arrow section (see the 728th
     // note above); on a narrow panel it lay over the symbol. No arrow section now: a tap does what the button does, and a press and hold opens its menu.
-    m_wdgLayerBox->bnAdd->setPopupMode(QToolButton::DelayedPopup);
+    // m_wdgLayerBox->bnAdd->setPopupMode(QToolButton::DelayedPopup);   // Krimble 2026-11-18 (748th): no menu on +
 
     m_opLayerMenu = new QMenu(this);
     m_wdgLayerBox->bnProperties->setMenu(m_opLayerMenu);
