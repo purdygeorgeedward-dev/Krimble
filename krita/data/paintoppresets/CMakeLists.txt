@@ -2,6 +2,7 @@
 install( FILES
 a\)_Eraser_Circle.kpp
 b\)_Basic-5_Size_default.kpp
+b\)_Basic-5_Size_Opacity.kpp
 b\)_Airbrush_Soft.kpp
 c\)_Pencil-2.kpp
 d\)_Ink-2_Fineliner.kpp

@@ -879,3 +879,4 @@ George: "Destroy all Krita themes. Nothing called Krita stays in themes." Delete
 **2026-11-18, 18:25 (MST).** 749th pushed (three top symbols in Layers deleted; blend box fills the row). Not built.
 **2026-11-18, 18:35 (MST).** 750th pushed (toolbox handle taller, strip with a line at the bottom). Not built. Pending George's OK: Layers bottom buttons keep full height.
 **2026-11-18, 21:10 (MST).** 751st pushed (Dark Gray keeps blue selections; Layers bottom buttons keep full height). Not built.
+**2026-11-18, 21:30 (MST).** 752nd pushed (default brush b) Basic-5 Size Opacity restored from history). Not built.
