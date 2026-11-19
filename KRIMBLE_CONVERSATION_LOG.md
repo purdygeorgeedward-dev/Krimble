@@ -120,3 +120,4 @@ George says he talked to Claude (in an earlier session; the text of that talk is
 - **00:56Z (Nov 18):** The top of layers should always have had a minimum height. (743rd)
 - **00:21Z–00:28Z (Nov 19):** Desaturate dialog: "Can that dialog." S to 0 in HSV, instant (744th). Menu text vertical spacing too tight (proposal: about 9 real pixels more above and below; not answered yet).
 - **00:29Z (Nov 19):** And fix the painted theme. I had no idea themes changed spacing. Also, the smudge tool should be the default for that flyout set, not soften. (745th)
+- **00:52Z (Nov 19):** I try to select something and a box covers what I'm trying to do just to tell me the pixel dimensions. I thought we had moved that thing. / Perfect. (746th)
