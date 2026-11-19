@@ -127,3 +127,4 @@ George says he talked to Claude (in an earlier session; the text of that talk is
 - **01:01Z–01:03Z (Nov 19):** It's hard now to get to the long press menu for the toolbox... Unresponsive. I need somewhere to press. Maybe a little space at the top and bottom? / Ok. And a line at the bottom of the toolbox even when it's docked. (750th)
 - **04:01Z (Nov 19):** I guess so. I want to change the gray theme that has the orange selections. They should all have the plain blue selections. (751st)
 - **04:24Z (Nov 19):** Did we ever get a decent default brush set up like before? ... Find out what it was before. / Just restore or recreate that brush. (752nd)
+- **18:39Z:** Now the goddamned layer type slider is back. I don't want that there!!!!!! / We moved that for a reason, and it wasn't to make room for the stupid extra tools. (753rd)

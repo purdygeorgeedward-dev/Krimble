@@ -396,13 +396,18 @@ LayerBox::LayerBox()
             // Krimble 2026-11-16 (728th): George (build 65): "The search field is a mess. Get rid of the search. It's useless." The search box is not in the row and not shown (the
             // widget stays, hidden, so the rest of the code is as it was); the row's free space is empty again.
             krimbleSearch->hide();
+            topRow->addStretch(1);   // Krimble 2026-11-19 (753rd): empty space at the left, the box at the far right (558th)
             // Krimble 2026-11-13 (task 73): George: "put them in the empty space at the top ... next to the layer type selector." Three symbol buttons from the industry standard layers panel
             // (add layer mask, new adjustment layer, layer styles "fx") sit between the search box and the blending mode box. The six buttons under the layer list are not touched.
             // Krimble 2026-11-18 (749th): George (the narrow Layers panel): "All those extra buttons are just a mess. The empty space looks bad and the sloppy symbol positions look bad. Just
             // get rid of them." The three symbols at the top (layer mask, adjustment layer, layer styles; 2026-11-13) are deleted; Layer > New and Layer > Layer Style have them. The
             // blending mode box now fills the row up to the filter button, with no empty space in front of it.
-            blend->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);   // Krimble 2026-11-18 (749th): fills the row (was a fixed 110 units after an empty stretch)
-            blend->setMinimumWidth(80);
+            // blend->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);   // Krimble 2026-11-18 (749th): fills the row (was a fixed 110 units after an empty stretch)
+            // blend->setMinimumWidth(80);
+            // Krimble 2026-11-19 (753rd): George: "Now the goddamned layer type slider is back. I don't want that there!!!!!!" ... "We moved that for a reason, and it wasn't to make room for the
+            // stupid extra tools." The 749th was wrong to stretch it: the blending mode box is back at the far right, a fixed 110 units (558th: a wide box at the top was easy to hit by accident).
+            blend->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+            blend->setFixedWidth(110);
             topRow->addWidget(blend);
             topRow->addWidget(m_wdgLayerBox->bnLayerFilters);
             // Krimble 2026-11-18 (749th): the 735th's two-row top row is deleted with the three symbols (the row is the blending mode box and the filter button only).
