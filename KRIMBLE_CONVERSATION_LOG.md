@@ -124,3 +124,4 @@ George says he talked to Claude (in an earlier session; the text of that talk is
 - **00:54Z (Nov 19):** I tried resizing the color lab panel and it hid the close gadget on the upper right corner. / The buttons should move with the window edge. (747th)
 - **00:57Z (Nov 19):** The layers panel looks weird. I tried to hit the plus to add a layer and instead got a menu. Why??? / Yes. (748th)
 - **00:58Z (Nov 19):** All those extra buttons are just a mess. The empty space looks bad and the sloppy symbol positions look bad. Just get rid of them. (749th)
+- **01:01Z–01:03Z (Nov 19):** It's hard now to get to the long press menu for the toolbox... Unresponsive. I need somewhere to press. Maybe a little space at the top and bottom? / Ok. And a line at the bottom of the toolbox even when it's docked. (750th)

@@ -105,6 +105,24 @@ protected:
 
 // KRIMBLE 2026-10-07: an edge strip of the floating toolbox. Dragging it changes the toolbox's width (right strip) or
 // height (bottom strip). It lives in a margin the toolbox gets while it floats, so it covers none of the tool icons.
+// Krimble 2026-11-18 (750th): George: "It's hard now to get to the long press menu for the toolbox." ... "Unresponsive. I need somewhere to press. Maybe a little space at the top and
+// bottom?" ... "Ok. And a line at the bottom of the toolbox even when it's docked." A strip under the tools, 12 units tall, with one line (2 device pixels, the grip's color) along its bottom
+// edge. It takes no touches itself, so a long press on it opens the toolbox's menu like the handle at the top.
+class KrimbleToolBoxFoot : public QWidget
+{
+public:
+    explicit KrimbleToolBoxFoot(QWidget *parent) : QWidget(parent) { setFixedHeight(12); }
+protected:
+    void paintEvent(QPaintEvent *) override
+    {
+        QPainter p(this);
+        const qreal thick = 2.0 / devicePixelRatioF();
+        QColor c = palette().color(QPalette::WindowText);
+        c.setAlpha(150);
+        p.fillRect(QRectF(0, height() - thick, width(), thick), c);
+    }
+};
+
 class KrimbleToolBoxEdge : public QWidget
 {
 public:
@@ -191,6 +209,7 @@ KoToolBoxDocker::KoToolBoxDocker(KoToolBox *toolBox)
     // wells follow right under it, and the spare space goes to the stretch after them.
     // m_containerLayout->addWidget(m_scrollArea, 1);
     m_containerLayout->addWidget(m_scrollArea, 0);
+    m_containerLayout->addWidget(new KrimbleToolBoxFoot(toolBoxContainer), 0);   // Krimble 2026-11-18 (750th): room for the long press, and the line at the bottom of the toolbox
     m_containerLayout->addStretch(1);
     setWidget(toolBoxContainer);
 
@@ -281,7 +300,8 @@ KoToolBoxDocker::KoToolBoxDocker(KoToolBox *toolBox)
         font.setPixelSize(qRound(font.pixelSize() * ratio));
     }
     int titleSize = QFontMetrics(font).height();
-    w->setMinimumSize(titleSize, titleSize);
+    // w->setMinimumSize(titleSize, titleSize);
+    w->setMinimumSize(titleSize, titleSize + 12);   // Krimble 2026-11-18 (750th): the handle is 12 units taller, more room for the long press that opens the toolbox menu
     setTitleBarWidget(w);
 
     KConfigGroup cfg =  KSharedConfig::openConfig()->group("KoToolBox");
