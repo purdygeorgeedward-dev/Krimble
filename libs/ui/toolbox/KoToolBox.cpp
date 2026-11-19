@@ -106,7 +106,10 @@ static const QList<QStringList> &krimbleToolGroupIds()
         // { QStringLiteral("KritaShape/KisToolSoften"), QStringLiteral("KritaShape/KisToolSmudge") },                                                          // Blur (Smudge in its flyout)
         // Krimble 2026-11-16 (728th): George (build 65): "Odd number of tools in toolbox makes 2 columns look lopsided. Sharpen should be a flyout of soften/blur. We should never have an odd
         // number of tools." Sharpen is in Blur's flyout: 19 tool buttons and UNDO, 20 in all.
-        { QStringLiteral("KritaShape/KisToolSoften"), QStringLiteral("KritaShape/KisToolSharpen"), QStringLiteral("KritaShape/KisToolSmudge") },                // Blur (Sharpen and Smudge in its flyout)
+        // { QStringLiteral("KritaShape/KisToolSoften"), QStringLiteral("KritaShape/KisToolSharpen"), QStringLiteral("KritaShape/KisToolSmudge") },                // Blur (Sharpen and Smudge in its flyout)
+        // Krimble 2026-11-18 (745th): George: "the smudge tool should be the default for that flyout set, not soften." Smudge is the shown tool, Blur (Soften) and Sharpen in its flyout. The
+        // button stays in the same place (Smudge's toolbox place is 135, between Blur's 134 and Sharpen's 136).
+        { QStringLiteral("KritaShape/KisToolSmudge"), QStringLiteral("KritaShape/KisToolSoften"), QStringLiteral("KritaShape/KisToolSharpen") },                // Smudge (Blur and Sharpen in its flyout)
         { QStringLiteral("KritaSelected/KisToolColorSampler"), QStringLiteral("KritaShape/KisToolMeasure"), QStringLiteral("ToolReferenceImages"), QStringLiteral("KisAssistantTool") },   // Sampler
         { QStringLiteral("KrimbleTextTool"), QStringLiteral("SvgTextTool") },                                                                                // Type
         // { QStringLiteral("PanTool"), QStringLiteral("ZoomTool") },                                                                                           // Navigation (722nd: each has its own button)

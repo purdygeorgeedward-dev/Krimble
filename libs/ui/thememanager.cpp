@@ -410,8 +410,12 @@ void ThemeManager::slotChangePalette()
             // "QMenu::item:selected { border: 1px solid #7fdcff; }\n");
             // Krimble 2026-11-17 (735th): George (build 66): "Go back to simple blue hilight for menu selections. The glow is too much." The light-blue line (729th) is off, and the selected row of a
             // menu is one flat blue (#0b87dd, the blue of the open menu's name in the menu bar), no gradient, no outline. Lists keep the gradient of the rule above.
-            "QMenu::item { border: none; }\n"
-            "QMenu::item:selected { border: none; background: #0b87dd; }\n"
+            // "QMenu::item { border: none; }\n"
+            // "QMenu::item:selected { border: none; background: #0b87dd; }\n"
+            // Krimble 2026-11-18 (745th): George: "I think the vertical spacing on the text in the menus is way too tight." ... "And fix the painted theme." A rule for every menu item (the
+            // 729th's border, then the 735th's "border: none") makes the style sheet size each item itself, with no room above and below the text; before the 729th the items were sized by
+            // Krimble's own style, with room. Only the selected item has a rule now, its flat blue, as before the 729th.
+            "QMenu::item:selected { background: #0b87dd; }\n"
             // Krimble 2026-11-17 (735th): George (build 66): "Tops of menus still have a line separating them from menu titles." The open menu's name in the menu bar had a light line along its
             // bottom (the recessed look below, 2026-11-15), right where the menu starts. No line at the bottom of the name now (the menu bar's own bottom edge under it is left out too, see KrimbleBevelOverlay).
             "QMenuBar::item:selected, QMenuBar::item:pressed { border-bottom: none; }\n");
