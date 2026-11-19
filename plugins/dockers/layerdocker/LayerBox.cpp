@@ -327,7 +327,11 @@ LayerBox::LayerBox()
             buttonGrid->setSpacing(2);
             for (int i = 0; i < 6; ++i) {
                 buttonRow->removeWidget(layerButtons[i]);
-                layerButtons[i]->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+                // layerButtons[i]->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+                // Krimble 2026-11-18 (751st): George (the bottom symbols of a short Layers panel piled on each other): "I guess so." to Claude's proposal: the bottom buttons keep their full
+                // height (34 units), one row or two rows of three, never squeezed; when the panel is short, only the layer list gets shorter (as the top rows, 743rd).
+                layerButtons[i]->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+                layerButtons[i]->setMinimumHeight(34);
                 buttonGrid->addWidget(layerButtons[i], i / 3, i % 3);
             }
             buttonRow->insertLayout(0, buttonGrid, 1);

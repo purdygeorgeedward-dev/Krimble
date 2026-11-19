@@ -200,7 +200,10 @@ static QString krimbleGraySheet(const QString &sheet)
         int h = 0, sat = 0, v = 0;
         c.getHsv(&h, &sat, &v);
         if (h >= 180 && h <= 260 && sat > 140) {
-            out += QStringLiteral("#fd6001");   // Krimble 2026-11-15: George: "Use Krimble orange for selection." the saturated blues and the cyan (the selection blue, the glow) are Krimble orange
+            // out += QStringLiteral("#fd6001");   // Krimble 2026-11-15: George: "Use Krimble orange for selection." the saturated blues and the cyan (the selection blue, the glow) are Krimble orange
+            // Krimble 2026-11-18 (751st): George: "I want to change the gray theme that has the orange selections. They should all have the plain blue selections." The saturated blues and the
+            // cyan stay as they are in Krimble Dark Gray (the same blue selections as the other themes); only the grays are converted.
+            out += m.captured();
         } else if ((h >= 180 && h <= 260 && sat > 26) || (sat <= 26 && v >= 12 && v <= 243)) {
             // Krimble 2026-11-15: George: "Use warm grays like modern graphics apps." the grays (the blue-gray backgrounds turned gray, and the neutral grays of the sheet) are warmed: red 4 above, blue 4 below the gray
             const int y = qRound(0.299 * c.red() + 0.587 * c.green() + 0.114 * c.blue());
