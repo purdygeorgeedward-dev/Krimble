@@ -118,3 +118,4 @@ George says he talked to Claude (in an earlier session; the text of that talk is
 - **20:24Z:** In painted theme make the selected tab the color values in this color lab image. (Color Lab showing #374165; 741st)
 - **00:53Z (Nov 18):** Plus color lab slides the logo up into nowhere and then you have to use a scrollbar to get it back. That should never happen. / DUH. It should always have been pinned. / THE COLOR LAB LOGO SHOULD ALWAYS HAVE BEEN PINNED. (742nd) / Keep your answers really really short because I won't read long answers. Like cut all the fat off your answers.
 - **00:56Z (Nov 18):** The top of layers should always have had a minimum height. (743rd)
+- **00:21Z–00:28Z (Nov 19):** Desaturate dialog: "Can that dialog." S to 0 in HSV, instant (744th). Menu text vertical spacing too tight (proposal: about 9 real pixels more above and below; not answered yet).

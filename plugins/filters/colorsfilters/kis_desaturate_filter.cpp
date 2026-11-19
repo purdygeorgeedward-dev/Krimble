@@ -49,6 +49,10 @@ KisDesaturateFilter::KisDesaturateFilter()
 {
     setShortcut(QKeySequence(Qt::CTRL, Qt::SHIFT, Qt::Key_U));
     setSupportsPainting(true);
+    // Krimble 2026-11-18 (744th): George: "I just tried Desaturate, which in Photoshop instantly takes the saturation to zero in an image. Instead it gave me some weird dialog asking about
+    // desaturation methods." ... "It's about saturation. Saturation is a value. HSV." ... "Can that dialog." Desaturate applies at once, no dialog, and sets S to 0 in HSV (each pixel
+    // becomes gray at its V, its brightest channel: the method numbered 5, "Max", below).
+    setShowConfigurationWidget(false);
 }
 
 KisDesaturateFilter::~KisDesaturateFilter()
@@ -74,7 +78,8 @@ KoColorTransformation* KisDesaturateFilter::createTransformation(const KoColorSp
 KisFilterConfigurationSP KisDesaturateFilter::defaultConfiguration(KisResourcesInterfaceSP resourcesInterface) const
 {
     KisFilterConfigurationSP config = factoryConfiguration(resourcesInterface);
-    config->setProperty("type", 0);
+    // config->setProperty("type", 0);
+    config->setProperty("type", 5);   // Krimble 2026-11-18 (744th): S to 0 in HSV (gray at V, the brightest channel)
     return config;
 }
 

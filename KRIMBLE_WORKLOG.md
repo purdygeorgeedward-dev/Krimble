@@ -871,3 +871,4 @@ George: "Destroy all Krita themes. Nothing called Krita stays in themes." Delete
 **2026-11-17 (MST).** Build 68 built (run 44206525292, commit eae9186). Branch release-1.0.68-beta made for the release target. Not tested on a phone.
 **2026-11-17, 18:05 (MST).** 742nd pushed (COLOR LAB band pinned above the scrolling part). Not built.
 **2026-11-17, 18:15 (MST).** 743rd pushed (Layers top rows keep their full height). Not built.
+**2026-11-18, 17:35 (MST).** 744th pushed (Desaturate: no dialog, S to 0 in HSV). Not built.
