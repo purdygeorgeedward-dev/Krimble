@@ -7,24 +7,25 @@ Krimble is open source software made with the assistance of Claude and ChatGPT.
 
 **NEW IN 1.0.68 BETA**
 
-**Version numbers:** this is build 68. The last release was 1.0.58 beta.
+**Version numbers:** this is build 68. The last stable release was 1.0.58 beta. You can try the more recent one, but I don't recommend it.
 
 **Menus**
 
-- Menus have room at the bottom and right (themes other than Krimble Painted).
-- An open menu starts right at the bottom of its name.
-- The menu bar measures the room after the orange K.
+- Menus have extra room at the bottom and on the right, so the last item and long names are no longer cut off.
+- An open menu now meets its name, with no line between them.
+- The File menu has more room after the orange K.
 
 **Panels**
 
-- No line is drawn between the toolbox or side panel and the canvas.
-- The toolbox edge and the side panel edge can be grabbed along their whole length (invisible).
+- The line on the right of the toolbox and the left of the side panel is gone.
+- The toolbox and side panel edges have invisible grab areas along the whole edge, big enough for a finger.
+
+**Painted theme**
+
 - The selected tab and its page are #374165.
 
 **Known issues**
 
-- Menu text lines are too close together.
-- Panels have thin margins.
-- In a short Layers panel the top rows and the bottom buttons pile on each other.
-- The Color Lab logo scrolls away in a short panel.
+- Panels can't be torn off.
+- Panels have no visible edges or inside margins.
 - Krimble often restarts after switching to another app.

@@ -883,3 +883,4 @@ George: "Destroy all Krita themes. Nothing called Krita stays in themes." Delete
 **2026-11-19, 06:40 (MST).** Build 69 started (George: "Build"): build number 69, label 1.0.69-beta; holds the 742nd to the 752nd.
 **2026-11-19 (MST).** Build 69 built (run 44535556062, commit 585cc99). Branch release-1.0.69-beta made.
 **2026-11-19, 10:25 (MST).** RELEASE_NOTES_1.0.68-beta.md and RELEASE_NOTES_1.0.69-beta.md written (George: "Can you document it?"). Targets: release-1.0.68-beta, release-1.0.69-beta.
+**2026-11-19, 11:12 (MST).** RELEASE_NOTES_1.0.68-beta.md replaced with the text George posted on GitHub (his wording).
