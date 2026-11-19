@@ -202,31 +202,6 @@ private:
     QTimer m_timer;
 };
 
-// Krimble 2026-11-17 (735th): the top row of the Layers panel (symbols, blending mode box, filter button) is one row when the panel is wide enough for it, two rows when it is not
-class KrimbleLayerTopRowFilter : public QObject
-{
-public:
-    KrimbleLayerTopRowFilter(QWidget *box, QBoxLayout *row, int needed)
-        : QObject(box), m_box(box), m_row(row), m_needed(needed)
-    {
-        box->installEventFilter(this);
-    }
-protected:
-    bool eventFilter(QObject *watched, QEvent *event) override
-    {
-        if (watched == m_box && event->type() == QEvent::Resize && m_row) {
-            const int room = m_box->width() - 12;   // the panel's 6 unit margins
-            const QBoxLayout::Direction want = (room >= m_needed) ? QBoxLayout::LeftToRight : QBoxLayout::TopToBottom;
-            if (m_row->direction() != want) m_row->setDirection(want);
-        }
-        return false;
-    }
-private:
-    QPointer<QWidget> m_box;
-    QPointer<QBoxLayout> m_row;
-    int m_needed;
-};
-
 class KrimbleLayerButtonsFilter : public QObject
 {
 public:
@@ -417,57 +392,16 @@ LayerBox::LayerBox()
             // Krimble 2026-11-16 (728th): George (build 65): "The search field is a mess. Get rid of the search. It's useless." The search box is not in the row and not shown (the
             // widget stays, hidden, so the rest of the code is as it was); the row's free space is empty again.
             krimbleSearch->hide();
-            topRow->addStretch(1);
             // Krimble 2026-11-13 (task 73): George: "put them in the empty space at the top ... next to the layer type selector." Three symbol buttons from the industry standard layers panel
             // (add layer mask, new adjustment layer, layer styles "fx") sit between the search box and the blending mode box. The six buttons under the layer list are not touched.
-            {
-                const QString topSymbolStyle = QStringLiteral(
-                    "QToolButton { border: none; background: transparent; padding: 2px; color: #e3e8f6; font-style: italic; font-weight: bold; }"
-                    "QToolButton:hover { background: rgba(120, 160, 255, 35); border-radius: 6px; }"
-                    "QToolButton:pressed { background: rgba(80, 150, 255, 90); border-radius: 6px; }"
-                    "QToolButton:disabled { background: transparent; color: #7a8199; }");
-                const char *ids[3] = { "krimbleMaskBn", "krimbleAdjustBn", "krimbleStyleBn" };
-                const QString tips[3] = { i18n("Add layer mask"), i18n("New adjustment layer"), i18n("Layer styles") };
-                for (int i = 0; i < 3; ++i) {
-                    QToolButton *b = new QToolButton(mainWidget);
-                    b->setObjectName(QLatin1String(ids[i]));
-                    b->setAutoRaise(true);
-                    b->setFocusPolicy(Qt::NoFocus);
-                    b->setFixedSize(34, 34);
-                    b->setIconSize(QSize(22, 22));
-                    b->setToolTip(tips[i]);
-                    b->setStyleSheet(topSymbolStyle);
-                    if (i == 0) b->setIcon(KisIconUtils::loadIcon("transparencyMask"));
-                    else if (i == 1) b->setIcon(KisIconUtils::loadIcon("filterLayer"));
-                    else b->setText(QStringLiteral("fx"));
-                    topRow->addWidget(b);
-                }
-            }
-            blend->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-            blend->setFixedWidth(110);
+            // Krimble 2026-11-18 (749th): George (the narrow Layers panel): "All those extra buttons are just a mess. The empty space looks bad and the sloppy symbol positions look bad. Just
+            // get rid of them." The three symbols at the top (layer mask, adjustment layer, layer styles; 2026-11-13) are deleted; Layer > New and Layer > Layer Style have them. The
+            // blending mode box now fills the row up to the filter button, with no empty space in front of it.
+            blend->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);   // Krimble 2026-11-18 (749th): fills the row (was a fixed 110 units after an empty stretch)
+            blend->setMinimumWidth(80);
             topRow->addWidget(blend);
             topRow->addWidget(m_wdgLayerBox->bnLayerFilters);
-            // Krimble 2026-11-17 (735th): George (build 66): "Layers menu is a mess at small sizes. The icons jumble." The row has fixed widths (three 34 unit symbols, the 110 unit blending mode box,
-            // the 34 unit filter button: about 280 units with the gaps) and nothing in it can get smaller, so on a narrow panel the pieces lay over each other. When the panel is narrower than the
-            // row, the row becomes two: the three symbols on top, the blending mode box and the filter button under them, both at the right.
-            {
-                QHBoxLayout *symbolRow = new QHBoxLayout;
-                symbolRow->setContentsMargins(0, 0, 0, 0);
-                symbolRow->setSpacing(6);
-                QHBoxLayout *blendRow = new QHBoxLayout;
-                blendRow->setContentsMargins(0, 0, 0, 0);
-                blendRow->setSpacing(6);
-                while (QLayoutItem *item = topRow->takeAt(0)) {
-                    QWidget *w = item->widget();
-                    if (w == blend || w == m_wdgLayerBox->bnLayerFilters) { blendRow->addWidget(w); delete item; }
-                    else if (w) { symbolRow->addWidget(w); delete item; }
-                    else symbolRow->addItem(item);   // the stretch
-                }
-                blendRow->insertStretch(0, 1);
-                topRow->addLayout(symbolRow, 1);
-                topRow->addLayout(blendRow);
-                new KrimbleLayerTopRowFilter(mainWidget, topRow, 3 * 34 + 2 * 6 + 6 + 110 + 6 + 34);
-            }
+            // Krimble 2026-11-18 (749th): the 735th's two-row top row is deleted with the three symbols (the row is the blending mode box and the filter button only).
             header->addLayout(topRow, 0, 0, 1, 2);
         }
         // header->addWidget(opacityBar, 1, 0);

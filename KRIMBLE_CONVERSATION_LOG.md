@@ -123,3 +123,4 @@ George says he talked to Claude (in an earlier session; the text of that talk is
 - **00:52Z (Nov 19):** I try to select something and a box covers what I'm trying to do just to tell me the pixel dimensions. I thought we had moved that thing. / Perfect. (746th)
 - **00:54Z (Nov 19):** I tried resizing the color lab panel and it hid the close gadget on the upper right corner. / The buttons should move with the window edge. (747th)
 - **00:57Z (Nov 19):** The layers panel looks weird. I tried to hit the plus to add a layer and instead got a menu. Why??? / Yes. (748th)
+- **00:58Z (Nov 19):** All those extra buttons are just a mess. The empty space looks bad and the sloppy symbol positions look bad. Just get rid of them. (749th)

@@ -876,3 +876,4 @@ George: "Destroy all Krita themes. Nothing called Krita stays in themes." Delete
 **2026-11-18, 18:00 (MST).** 746th pushed (selection/shape/crop size in the status bar, no box on the canvas). Not built.
 **2026-11-18, 18:10 (MST).** 747th pushed (COLOR LAB band as wide as the panel; buttons follow its edge). Not built.
 **2026-11-18, 18:15 (MST).** 748th pushed (no menu on the Layers +). Not built. Asked George what looks weird in the Layers panel (empty space at top, or symbols pushed right).
+**2026-11-18, 18:25 (MST).** 749th pushed (three top symbols in Layers deleted; blend box fills the row). Not built.
