@@ -880,3 +880,4 @@ George: "Destroy all Krita themes. Nothing called Krita stays in themes." Delete
 **2026-11-18, 18:35 (MST).** 750th pushed (toolbox handle taller, strip with a line at the bottom). Not built. Pending George's OK: Layers bottom buttons keep full height.
 **2026-11-18, 21:10 (MST).** 751st pushed (Dark Gray keeps blue selections; Layers bottom buttons keep full height). Not built.
 **2026-11-18, 21:30 (MST).** 752nd pushed (default brush b) Basic-5 Size Opacity restored from history). Not built.
+**2026-11-19, 06:40 (MST).** Build 69 started (George: "Build"): build number 69, label 1.0.69-beta; holds the 742nd to the 752nd.
