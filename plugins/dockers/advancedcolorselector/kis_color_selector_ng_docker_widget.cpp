@@ -152,8 +152,11 @@ KisColorSelectorNgDockerWidget::KisColorSelectorNgDockerWidget(QWidget *parent, 
             const QMargins studioMargins = studioLayout ? studioLayout->contentsMargins() : QMargins(3, 3, 3, 3);
             if (studioLayout) studioLayout->removeWidget(krimbleBand);
             QWidget *bandHolder = new QWidget(krimbleColumn);
-            bandHolder->setMinimumWidth(330);
-            bandHolder->setMaximumWidth(384);
+            // bandHolder->setMinimumWidth(330);
+            // bandHolder->setMaximumWidth(384);
+            // Krimble 2026-11-18 (747th): George: "I tried resizing the color lab panel and it hid the close gadget on the upper right corner." and "The buttons should move with the window edge."
+            // The band is as wide as the panel, whatever its width; the float and close buttons sit at its right end (KrimbleColorHeader::resizeEvent), so they follow the panel's edge.
+            krimbleBand->setMinimumWidth(0);
             QHBoxLayout *bandLayout = new QHBoxLayout(bandHolder);
             bandLayout->setContentsMargins(studioMargins.left(), studioMargins.top(), studioMargins.right(), 0);
             bandLayout->setSpacing(0);
@@ -162,7 +165,8 @@ KisColorSelectorNgDockerWidget::KisColorSelectorNgDockerWidget(QWidget *parent, 
             bandLayout->addWidget(krimbleBand);
             krimbleBand->show();
             if (studioLayout) { QMargins m = studioMargins; m.setTop(qMax(0, studioLayout->spacing())); studioLayout->setContentsMargins(m); }
-            krimbleColumnLayout->addWidget(bandHolder, 0, Qt::AlignLeft | Qt::AlignTop);
+            // krimbleColumnLayout->addWidget(bandHolder, 0, Qt::AlignLeft | Qt::AlignTop);
+            krimbleColumnLayout->addWidget(bandHolder);   // Krimble 2026-11-18 (747th): the full width of the panel
         }
         studioScroll->setParent(krimbleColumn);
         krimbleColumnLayout->addWidget(studioScroll, 1);

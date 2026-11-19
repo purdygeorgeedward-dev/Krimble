@@ -874,3 +874,4 @@ George: "Destroy all Krita themes. Nothing called Krita stays in themes." Delete
 **2026-11-18, 17:35 (MST).** 744th pushed (Desaturate: no dialog, S to 0 in HSV). Not built.
 **2026-11-18, 17:45 (MST).** 745th pushed (menu item spacing restored, Painted menu bottom/right room, Smudge first in its flyout). Not built.
 **2026-11-18, 18:00 (MST).** 746th pushed (selection/shape/crop size in the status bar, no box on the canvas). Not built.
+**2026-11-18, 18:10 (MST).** 747th pushed (COLOR LAB band as wide as the panel; buttons follow its edge). Not built.

@@ -121,3 +121,4 @@ George says he talked to Claude (in an earlier session; the text of that talk is
 - **00:21Z–00:28Z (Nov 19):** Desaturate dialog: "Can that dialog." S to 0 in HSV, instant (744th). Menu text vertical spacing too tight (proposal: about 9 real pixels more above and below; not answered yet).
 - **00:29Z (Nov 19):** And fix the painted theme. I had no idea themes changed spacing. Also, the smudge tool should be the default for that flyout set, not soften. (745th)
 - **00:52Z (Nov 19):** I try to select something and a box covers what I'm trying to do just to tell me the pixel dimensions. I thought we had moved that thing. / Perfect. (746th)
+- **00:54Z (Nov 19):** I tried resizing the color lab panel and it hid the close gadget on the upper right corner. / The buttons should move with the window edge. (747th)
