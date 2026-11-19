@@ -182,6 +182,27 @@ void KoDockWidgetTitleBar::paintEvent(QPaintEvent*)
         p.fillRect(QRect(0, 0, width(), line), QColor(18, 19, 34));                 // dark (the bottom of the panel above)
         p.fillRect(QRect(0, line, width(), line), QColor(110, 114, 156));           // light (the top of this panel)
     }
+
+    // Krimble 2026-11-19 (754th): George: "Create a grab pad with lines so people know where to grab these since the tab grab has never worked." ... "Make it bigger. This is for phone
+    // touchscreens." ... "The same spaces that were odd empty spots should be grab pads." The empty part of the title row (after the title, if it shows, up to the first button) carries three
+    // lines, 8 real pixels thick and 24 real pixels apart, in the toolbox handle's color. Dragging anywhere on that empty part moves or tears off the panel (Qt's own title bar drag).
+    {
+        const qreal dpr = devicePixelRatioF();
+        int left = 12;
+        if (d->titleLabel && d->titleLabel->isVisible() && !d->titleTextHidden) left = d->titleLabel->geometry().left() + d->titleLabel->fontMetrics().horizontalAdvance(q->windowTitle()) + 16;
+        int right = width() - 12;
+        Q_FOREACH (QAbstractButton *b, QList<QAbstractButton*>() << d->floatButton << d->closeButton << d->lockButton) {
+            if (b && b->isVisible()) right = qMin(right, b->geometry().left() - 12);
+        }
+        if (right - left >= 24) {
+            const qreal thick = 8.0 / dpr;
+            const qreal gap = 24.0 / dpr;
+            QColor c = palette().color(QPalette::WindowText);
+            c.setAlpha(150);
+            const qreal mid = height() / 2.0;
+            for (int i = -1; i <= 1; ++i) p.fillRect(QRectF(left, mid + i * gap - thick / 2, right - left, thick), c);
+        }
+    }
 }
 
 void KoDockWidgetTitleBar::resizeEvent(QResizeEvent*)

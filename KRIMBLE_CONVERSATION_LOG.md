@@ -128,3 +128,4 @@ George says he talked to Claude (in an earlier session; the text of that talk is
 - **04:01Z (Nov 19):** I guess so. I want to change the gray theme that has the orange selections. They should all have the plain blue selections. (751st)
 - **04:24Z (Nov 19):** Did we ever get a decent default brush set up like before? ... Find out what it was before. / Just restore or recreate that brush. (752nd)
 - **18:39Z:** Now the goddamned layer type slider is back. I don't want that there!!!!!! / We moved that for a reason, and it wasn't to make room for the stupid extra tools. (753rd)
+- **18:43Z–18:57Z:** grab pad request, mockups, "Make it bigger", "The same spaces that were odd empty spots should be grab pads.", "Yes", "Instead the tabs just slide to the side and spring back into place." (754th)

@@ -886,3 +886,4 @@ George: "Destroy all Krita themes. Nothing called Krita stays in themes." Delete
 **2026-11-19, 11:12 (MST).** RELEASE_NOTES_1.0.68-beta.md replaced with the text George posted on GitHub (his wording).
 **2026-11-19, 11:36 (MST).** George: "Just take that part out completely." The "Version numbers ... last release was 1.0.58 beta" line removed from RELEASE_NOTES_1.0.69-beta.md; not to be written in future release notes.
 **2026-11-19, 11:45 (MST).** 753rd pushed (blending mode box back at the far right, 110 units; the 749th's stretch undone). Not built.
+**2026-11-19, 12:05 (MST).** 754th pushed (grab pads: title row empty space, Layers top row empty space). Not built.
