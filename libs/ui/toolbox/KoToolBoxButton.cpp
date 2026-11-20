@@ -223,70 +223,75 @@ void KoToolBoxButton::paintEvent(QPaintEvent *event)
     // The first version of the Raised style (near-white and near-black sides, a near-black outline), not used any more:
     if (isChecked()) {
         QPainter painter(this);
-        painter.setRenderHint(QPainter::Antialiasing, true);
         const qreal s = qMin(width(), height());
-        const QRectF base = QRectF(rect()).adjusted(s * 0.12, s * 0.12, -s * 0.12, -s * 0.12);
-        const qreal bw = base.width();
-        const qreal r = 0.0;
-        const QPointF centre = base.center();
-        // the glow outside the outline: tight and weak, fading out within 6 percent of the width, stronger where the mockup's is
-        const int glowSteps = 18;
-        for (int i = glowSteps; i >= 1; --i) {
-            const qreal t = qreal(i) / glowSteps;
-            const qreal w = bw * 0.05 * t;
-            const qreal alpha = 255 * 0.6 * qExp(-3.4 * t);
-            painter.setPen(QPen(QBrush(krimbleSelConical(centre, krimbleSelGlow, [alpha](qreal v) { return QColor(28, 128, 235, qMin(255, int(alpha * (0.25 + 0.9 * v)))); })), qMax<qreal>(1.0, bw * 0.012)));
-            krimbleMiterPen(painter);   // task 37: a pen's corners are cut off (bevel join) unless it says miter; that is what looked rounded
-            painter.setBrush(Qt::NoBrush);
-            painter.drawRoundedRect(base.adjusted(-w, -w, w, w), r, r);
-        }
-        // the fill, darker in the middle
-        QLinearGradient fill(base.topLeft(), base.bottomLeft());
-        fill.setColorAt(0.0, QColor("#10498c"));
-        fill.setColorAt(0.5, QColor("#07306f"));
-        fill.setColorAt(1.0, QColor("#033075"));
-        painter.setPen(Qt::NoPen);
-        painter.setBrush(fill);
-        painter.drawRoundedRect(base, r, r);
-        QRadialGradient vignette(centre, bw * 0.62);
-        vignette.setColorAt(0.0, QColor(1, 8, 34, 235));
-        vignette.setColorAt(0.3, QColor(1, 10, 40, 150));
-        vignette.setColorAt(0.62, QColor(1, 12, 45, 34));
-        vignette.setColorAt(0.85, QColor(1, 12, 45, 0));
-        vignette.setColorAt(1.0, QColor(1, 12, 45, 0));
-        painter.setBrush(vignette);
-        painter.drawRoundedRect(base, r, r);
-        // vivid blue just inside the edge, fading toward the middle, as strong as the outline is bright at each place
-        const int innerSteps = 24;
-        for (int k = 1; k <= innerSteps; ++k) {
-            const qreal t = qreal(k) / innerSteps;
-            const qreal d = bw * 0.06 * t;
-            const qreal alpha = 255 * qExp(-4.5 * t);
-            painter.setPen(QPen(QBrush(krimbleSelConical(centre, krimbleSelOutline, [alpha](qreal v) { return QColor(36, 150, 248, qMax(0, qMin(255, int(alpha * (0.8 + 0.9 * (v - 0.55)))))); })), qMax<qreal>(1.0, bw * 0.011)));
-            krimbleMiterPen(painter);   // task 37
-            painter.setBrush(Qt::NoBrush);
-            painter.drawRoundedRect(base.adjusted(d, d, -d, -d), r, r);
-        }
-        painter.setPen(QPen(QBrush(krimbleSelConical(centre, krimbleSelOutline, [](qreal v) { return QColor(80, 200, 255, qMin(255, int(255 * v))); })), qMax<qreal>(3.0, bw * 0.022)));
-        // qMax<qreal>(2.0, bw * 0.014)));   // the thinner try of task 37 (not wanted)
-        krimbleMiterPen(painter);   // task 37
-        painter.setBrush(Qt::NoBrush);
-        painter.drawRoundedRect(base, r, r);
-        painter.setPen(QPen(QBrush(krimbleSelConical(centre, krimbleSelOutline, [](qreal v) {
-            const qreal t = qBound<qreal>(0.0, (v - 0.62) / 0.38, 1.0);
-            return QColor(int(105 + (205 - 105) * t), int(220 + (255 - 220) * t), 255);
-        })), qMax<qreal>(2.2, bw * 0.018)));
-        // qMax<qreal>(1.5, bw * 0.011)));   // the thinner try of task 37 (not wanted)
-        krimbleMiterPen(painter);   // task 37
-        painter.drawRoundedRect(base, r, r);
-        // the dark shadow behind the icon (the mockup's icon casts one): the icon is drawn over it below
-        QRadialGradient shadow(centre, s * 0.30);
-        shadow.setColorAt(0.0, QColor(0, 4, 24, 170));
-        shadow.setColorAt(1.0, QColor(0, 4, 24, 0));
-        painter.setPen(Qt::NoPen);
-        painter.setBrush(shadow);
-        painter.drawEllipse(centre, s * 0.30, s * 0.30);
+        painter.fillRect(QRectF(rect()).adjusted(s * 0.12, s * 0.12, -s * 0.12, -s * 0.12), QColor("#0b87dd"));   // flat, the blue of the menu selection
     }
+    // if (isChecked()) {
+    //     QPainter painter(this);
+    //     painter.setRenderHint(QPainter::Antialiasing, true);
+    //     const qreal s = qMin(width(), height());
+    //     const QRectF base = QRectF(rect()).adjusted(s * 0.12, s * 0.12, -s * 0.12, -s * 0.12);
+    //     const qreal bw = base.width();
+    //     const qreal r = 0.0;
+    //     const QPointF centre = base.center();
+    //     // the glow outside the outline: tight and weak, fading out within 6 percent of the width, stronger where the mockup's is
+    //     const int glowSteps = 18;
+    //     for (int i = glowSteps; i >= 1; --i) {
+    //         const qreal t = qreal(i) / glowSteps;
+    //         const qreal w = bw * 0.05 * t;
+    //         const qreal alpha = 255 * 0.6 * qExp(-3.4 * t);
+    //         painter.setPen(QPen(QBrush(krimbleSelConical(centre, krimbleSelGlow, [alpha](qreal v) { return QColor(28, 128, 235, qMin(255, int(alpha * (0.25 + 0.9 * v)))); })), qMax<qreal>(1.0, bw * 0.012)));
+    //         krimbleMiterPen(painter);   // task 37: a pen's corners are cut off (bevel join) unless it says miter; that is what looked rounded
+    //         painter.setBrush(Qt::NoBrush);
+    //         painter.drawRoundedRect(base.adjusted(-w, -w, w, w), r, r);
+    //     }
+    //     // the fill, darker in the middle
+    //     QLinearGradient fill(base.topLeft(), base.bottomLeft());
+    //     fill.setColorAt(0.0, QColor("#10498c"));
+    //     fill.setColorAt(0.5, QColor("#07306f"));
+    //     fill.setColorAt(1.0, QColor("#033075"));
+    //     painter.setPen(Qt::NoPen);
+    //     painter.setBrush(fill);
+    //     painter.drawRoundedRect(base, r, r);
+    //     QRadialGradient vignette(centre, bw * 0.62);
+    //     vignette.setColorAt(0.0, QColor(1, 8, 34, 235));
+    //     vignette.setColorAt(0.3, QColor(1, 10, 40, 150));
+    //     vignette.setColorAt(0.62, QColor(1, 12, 45, 34));
+    //     vignette.setColorAt(0.85, QColor(1, 12, 45, 0));
+    //     vignette.setColorAt(1.0, QColor(1, 12, 45, 0));
+    //     painter.setBrush(vignette);
+    //     painter.drawRoundedRect(base, r, r);
+    //     // vivid blue just inside the edge, fading toward the middle, as strong as the outline is bright at each place
+    //     const int innerSteps = 24;
+    //     for (int k = 1; k <= innerSteps; ++k) {
+    //         const qreal t = qreal(k) / innerSteps;
+    //         const qreal d = bw * 0.06 * t;
+    //         const qreal alpha = 255 * qExp(-4.5 * t);
+    //         painter.setPen(QPen(QBrush(krimbleSelConical(centre, krimbleSelOutline, [alpha](qreal v) { return QColor(36, 150, 248, qMax(0, qMin(255, int(alpha * (0.8 + 0.9 * (v - 0.55)))))); })), qMax<qreal>(1.0, bw * 0.011)));
+    //         krimbleMiterPen(painter);   // task 37
+    //         painter.setBrush(Qt::NoBrush);
+    //         painter.drawRoundedRect(base.adjusted(d, d, -d, -d), r, r);
+    //     }
+    //     painter.setPen(QPen(QBrush(krimbleSelConical(centre, krimbleSelOutline, [](qreal v) { return QColor(80, 200, 255, qMin(255, int(255 * v))); })), qMax<qreal>(3.0, bw * 0.022)));
+    //     // qMax<qreal>(2.0, bw * 0.014)));   // the thinner try of task 37 (not wanted)
+    //     krimbleMiterPen(painter);   // task 37
+    //     painter.setBrush(Qt::NoBrush);
+    //     painter.drawRoundedRect(base, r, r);
+    //     painter.setPen(QPen(QBrush(krimbleSelConical(centre, krimbleSelOutline, [](qreal v) {
+    //         const qreal t = qBound<qreal>(0.0, (v - 0.62) / 0.38, 1.0);
+    //         return QColor(int(105 + (205 - 105) * t), int(220 + (255 - 220) * t), 255);
+    //     })), qMax<qreal>(2.2, bw * 0.018)));
+    //     // qMax<qreal>(1.5, bw * 0.011)));   // the thinner try of task 37 (not wanted)
+    //     krimbleMiterPen(painter);   // task 37
+    //     painter.drawRoundedRect(base, r, r);
+    //     // the dark shadow behind the icon (the mockup's icon casts one): the icon is drawn over it below
+    //     QRadialGradient shadow(centre, s * 0.30);
+    //     shadow.setColorAt(0.0, QColor(0, 4, 24, 170));
+    //     shadow.setColorAt(1.0, QColor(0, 4, 24, 0));
+    //     painter.setPen(Qt::NoPen);
+    //     painter.setBrush(shadow);
+    //     painter.drawEllipse(centre, s * 0.30, s * 0.30);
+    // }
     Q_UNUSED(event);
     {
         QStylePainter stylePainter(this);
