@@ -171,7 +171,10 @@ public:
         // 16 units on the panel's own side and 4 on the canvas side (the canvas side stays narrow so fingers that are drawing are not taken; the canvas no longer lies under the panels, 732nd).
         {
             const int sepWidth = qMax(4, m_win->style()->pixelMetric(QStyle::PM_DockWidgetSeparatorExtent, nullptr, m_win));
-            if (area == Qt::LeftDockWidgetArea) setGeometry(column.right() + 1 - 16, column.top(), 16 + sepWidth + 4, column.height());
+            // if (area == Qt::LeftDockWidgetArea) setGeometry(column.right() + 1 - 16, column.top(), 16 + sepWidth + 4, column.height());
+            // Krimble 2026-11-20 (757th): George: "Much harder to just select toolbox tools." The zone reached 16 units into the toolbox, over its right column of tools. On the toolbox
+            // side it now stays off the tools: Qt's separator plus 8 units on the canvas side.
+            if (area == Qt::LeftDockWidgetArea) setGeometry(column.right() + 1, column.top(), sepWidth + 8, column.height());
             else setGeometry(column.left() - sepWidth - 4, column.top(), sepWidth + 4 + 16, column.height());
         }
         show();

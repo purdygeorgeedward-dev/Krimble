@@ -145,7 +145,7 @@ public:
                 glow.setColorAt(0.10, QColor(0x0a, 0x78, 0xbb));
                 glow.setColorAt(0.5, QColor(0x07, 0x3d, 0x6b));
                 glow.setColorAt(1.0, QColor(0x07, 0x4a, 0x85));
-                painter->fillRect(opt.rect, glow);
+                painter->fillRect(opt.rect, QColor(0x0b, 0x87, 0xdd));   // Krimble 2026-11-20 (757th): George: "Make the other selections plain blue like menus. No gradients." One flat blue, #0b87dd, as the menus.
             } else {
                 painter->fillRect(opt.rect, opt.palette.color(QPalette::Active, QPalette::Highlight));
             }

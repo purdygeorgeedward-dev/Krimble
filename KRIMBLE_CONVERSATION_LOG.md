@@ -131,3 +131,4 @@ George says he talked to Claude (in an earlier session; the text of that talk is
 - **18:43Z–18:57Z:** grab pad request, mockups, "Make it bigger", "The same spaces that were odd empty spots should be grab pads.", "Yes", "Instead the tabs just slide to the side and spring back into place." (754th)
 - **06:52Z (Nov 20):** Use branching. Prioritize and implement all. (755th, branch krimble-cleanup)
 - **10:22Z (Nov 20):** Do the other steps next. (756th, branch krimble-cleanup)
+- **10:57Z (Nov 20):** 1. Much harder to just select toolbox tools. 2. grab areas look bad... 6. Menus are still a jumble of different hues. Make them match. Same hue. (757th)

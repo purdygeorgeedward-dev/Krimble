@@ -237,7 +237,7 @@ public:
         g.setColorAt(0.55, QColor("#073d6b"));
         g.setColorAt(1.0, QColor("#074a85"));
         p.setPen(Qt::NoPen);
-        p.setBrush(g);
+        p.setBrush(QColor("#0b87dd"));   // Krimble 2026-11-20 (757th): George: "Make the other selections plain blue like menus. No gradients." One flat blue, #0b87dd, as the menus.
         p.drawRoundedRect(b, radius, radius);
         p.setBrush(Qt::NoBrush);
         p.setPen(QPen(QColor("#6fe3ff"), 2.4 * qMax<qreal>(0.5, s * 2)));

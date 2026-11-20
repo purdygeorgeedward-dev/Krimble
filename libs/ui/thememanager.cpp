@@ -387,7 +387,7 @@ void ThemeManager::slotChangePalette()
             // tabs: 32 units each (Qt's own size is 16). The width in the rule is for the two together (tried in real Qt 5.15: 32 gives 16 each, 64 gives 32 each).
             "QTabBar::scroller { width: 64px; }\n"
             "QAbstractItemView::item:selected, QMenu::item:selected { color: #ffffff; border-radius: 0px;"
-            " background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #1196d8, stop:0.10 #0a78bb, stop:0.5 #073d6b, stop:1 #074a85); }\n"
+            " background: #0b87dd; }\n"
             // Krimble 2026-11-17 (729th): George: "Can the selected item in menu have a glow line around it?" ... "Yes, let's try it." A bright light blue line (#7fdcff, the outline
             // of the lit toolbox buttons) around the selected menu item. Every item has the same 1 unit border, clear, so the text does not move when an item is selected. (A soft,
             // blurred glow is not possible in a Qt menu: a line is.)
@@ -448,7 +448,12 @@ void ThemeManager::slotChangePalette()
         const QString recentColor = qApp->palette().color(QPalette::Window).darker(200).name();
         krimbleSheet = (krimbleSheet + QStringLiteral("\nKisWelcomePageWidget QListView#recentDocumentsListView { background: %1; border: 1px solid %2; }\n").arg(recentColor, baseColor));
     }
-    if (!krimbleSheet.isEmpty()) krimbleSheet += krimbleCommonStyleSheet();   // Krimble 2026-11-20 (756th): shared size and spacing, after the theme's own rules
+    if (!krimbleSheet.isEmpty()) krimbleSheet += krimbleCommonStyleSheet();
+    // Krimble 2026-11-20 (757th): George: "Menus are still a jumble of different hues. Make them match. Same hue." Only the theme's own sheet was recolored (Blue-Gray: hue 236,
+    // Dark Gray: grays); the rules added after it (tabs, menu bar, menus, lists) kept the hue-227 colors. The whole sheet is recolored now, once, at the end (the recolor only touches
+    // hue-227 colors, so the theme's already recolored rules stay as they are).
+    if (theme == QStringLiteral("Krimble Blue-Gray")) krimbleSheet = krimbleRecolorSheet(krimbleSheet, 236, 33);
+    else if (theme == QStringLiteral("Krimble Dark Gray")) krimbleSheet = krimbleGraySheet(krimbleSheet);   // Krimble 2026-11-20 (756th): shared size and spacing, after the theme's own rules
     qApp->setStyleSheet(krimbleSheet);   // 696th: the one and only call
     // Krimble 2026-11-15 (693rd): George (screenshot, Breeze Light): "Breeze light has a dark menu bar." (and dark navy panels, a blue Opacity bar). Switching from a Krimble theme to one with no style sheet left widgets
     // that were polished under the old sheet (menu bar, panels) with its colors. Every widget is unpolished and polished again after the sheet and palette are set, so each shows the new theme.

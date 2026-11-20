@@ -101,7 +101,7 @@ QPushButton:checked, QDialog QToolButton:checked {
                                 stop:1 #05429d);
     */
     border: 2px solid #35d8f8;
-    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #1196d8, stop:0.10 #0a78bb, stop:0.5 #073d6b, stop:1 #074a85);
+    background: #0b87dd;
 }
 QPushButton:default {
     /* Krimble 2026-11-07: the mockup's OK button (sampled): #0A89CD at the top, #085892, #07497E, #044A9C at the bottom, a bright cyan outline. */
@@ -216,7 +216,7 @@ QAbstractItemView::item:selected {
     /* Krimble 2026-11-09: George: "Weird curved selection of layer has to go. It's horrible. Not everything selected is a button. You're rounding everything and it sucks. Not every UI element
        needs to glow. Some can just darken." A selected row of a list (the Layers panel, the Preferences page list) is a flat, darker fill: no outline, no rounding, no glow, no gradient.
     color: white;
-    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #1196d8, stop:0.10 #0a78bb, stop:0.5 #073d6b, stop:1 #074a85);
+    background: #0b87dd;
     border: 2px solid #35d8f8;
     border-radius: 9px;
     */
@@ -289,8 +289,7 @@ QMenuBar::item {
 QMenuBar::item:selected {
     border: 1px solid #35d8f8;
     border-radius: 7px;
-    background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
-                                stop:0 #1196d8, stop:0.12 #0a78bb, stop:0.55 #073d6b, stop:1 #074a85);
+    background: #0b87dd;
 }
 */
 QMenuBar::item:selected {

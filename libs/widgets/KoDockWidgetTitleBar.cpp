@@ -164,9 +164,12 @@ void KoDockWidgetTitleBar::paintEvent(QPaintEvent*)
         Q_FOREACH (QAbstractButton *b, QList<QAbstractButton*>() << d->floatButton << d->closeButton << d->lockButton) {
             if (b && b->isVisible()) right = qMin(right, b->geometry().left() - 12);
         }
+        // Krimble 2026-11-20 (757th): George: "grab areas look bad. Clunky big weird lines." The lines look like the toolbox handle's now: thin (3 real pixels), 9 real pixels apart,
+        // at most 120 real pixels long, in the middle of the empty part (the whole empty part still drags).
+        if (right - left > 120.0 / dpr) { const int extra = int((right - left) - 120.0 / dpr); left += extra / 2; right -= extra - extra / 2; }
         if (right - left >= 24) {
-            const qreal thick = 8.0 / dpr;
-            const qreal gap = 24.0 / dpr;
+            const qreal thick = 3.0 / dpr;
+            const qreal gap = 9.0 / dpr;
             QColor c = palette().color(QPalette::WindowText);
             c.setAlpha(150);
             const qreal mid = height() / 2.0;

@@ -777,6 +777,21 @@ private:
 };
 
 // the Color Lab header: a black band the width of the panel with the logo centered (the logo's own background is black, so the picture and the band are one)
+// Krimble 2026-11-20 (757th): three thin grab lines (3 real pixels thick, 9 apart), as the panels' title rows, in a light gray on the black COLOR LAB band
+class KrimbleBandGrabLines : public QWidget
+{
+public:
+    explicit KrimbleBandGrabLines(QWidget *parent) : QWidget(parent) {}
+protected:
+    void paintEvent(QPaintEvent *) override
+    {
+        QPainter p(this);
+        const qreal dpr = devicePixelRatioF();
+        const qreal thick = 3.0 / dpr, gap = 9.0 / dpr, mid = height() / 2.0;
+        for (int i = -1; i <= 1; ++i) p.fillRect(QRectF(0, mid + i * gap - thick / 2, width(), thick), QColor(150, 158, 190));
+    }
+};
+
 class KrimbleColorHeader : public KrimbleColorBase
 {
 public:
@@ -821,16 +836,29 @@ protected:
         const int y = (height() - side) / 2;
         m_close->setGeometry(width() - right - side, y, side, side);
         m_float->setGeometry(width() - right - 2 * side - gap, y, side, side);
+        // Krimble 2026-11-20 (757th): the grab lines, between the logo (about the left 60% of the band) and the float button, at most 120 real pixels long
+        if (!m_lines) { m_lines = new KrimbleBandGrabLines(this); m_lines->setAttribute(Qt::WA_TransparentForMouseEvents); m_lines->show(); }
+        {
+            const qreal dpr = devicePixelRatioF();
+            int l = int(width() * 0.62), r = m_float->x() - qRound(12 * scale());
+            const int most = int(120.0 / dpr);
+            if (r - l > most) { const int extra = (r - l) - most; l += extra / 2; r -= extra - extra / 2; }
+            m_lines->setGeometry(l, 0, qMax(0, r - l), height());
+            m_lines->setVisible(r - l >= 16);
+        }
         m_close->setIconSize(QSize(side - 6, side - 6));
         m_float->setIconSize(QSize(side - 6, side - 6));
     }
     void mousePressEvent(QMouseEvent *e) override
     {
         QDockWidget *d = dock();
-        if (e->button() == Qt::LeftButton && d && d->isFloating()) {
+        // Krimble 2026-11-20 (757th): George: "layers has two grab areas, color lab has none." The band is Color Lab's grab area, docked or floating: a drag on it tears the panel
+        // off first if it is docked or in a tab group (before, it only moved a floating panel). The grab lines sit between the logo and the buttons (KrimbleBandGrabLines).
+        if (e->button() == Qt::LeftButton && d) {
             m_dragFrom = e->globalPos();
             m_dockFrom = d->pos();
             m_dragging = true;
+            m_tornOff = d->isFloating();
             e->accept();
             return;
         }
@@ -839,7 +867,15 @@ protected:
     void mouseMoveEvent(QMouseEvent *e) override
     {
         QDockWidget *d = dock();
-        if (m_dragging && d && d->isFloating() && (e->buttons() & Qt::LeftButton)) {
+        if (m_dragging && d && !m_tornOff && (e->buttons() & Qt::LeftButton) && (e->globalPos() - m_dragFrom).manhattanLength() >= 12) {
+            const QSize keep = d->size();
+            const QPoint grabInDock = m_dragFrom - d->mapToGlobal(QPoint(0, 0));
+            d->setFloating(true);
+            d->resize(keep);
+            m_dockFrom = m_dragFrom - grabInDock;
+            m_tornOff = true;
+        }
+        if (m_dragging && d && d->isFloating() && m_tornOff && (e->buttons() & Qt::LeftButton)) {
             d->move(m_dockFrom + (e->globalPos() - m_dragFrom));
             e->accept();
             return;
@@ -857,6 +893,8 @@ private:
     QPoint m_dragFrom;
     QPoint m_dockFrom;
     bool m_dragging = false;
+    bool m_tornOff = false;   // Krimble 2026-11-20 (757th)
+    QWidget *m_lines = nullptr;   // Krimble 2026-11-20 (757th): the grab lines
 protected:
     void paintEvent(QPaintEvent *) override
     {

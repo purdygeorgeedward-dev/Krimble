@@ -77,7 +77,7 @@ QPushButton:pressed, QDialog QToolButton:pressed,
 QPushButton:checked, QDialog QToolButton:checked {
     border: 2px solid #3bd5f7;
     /* background: #1d7cb2; */
-    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #1196d8, stop:0.10 #0a78bb, stop:0.5 #073d6b, stop:1 #074a85);   /* Krimble 2026-11-13 (task 78): George: "do the same glow on them all": the lit glow of the Bevel and Painted themes; before: dark navy #072349 to #0e3f78 */
+    background: #0b87dd;   /* Krimble 2026-11-13 (task 78): George: "do the same glow on them all": the lit glow of the Bevel and Painted themes; before: dark navy #072349 to #0e3f78 */
 }
 QPushButton:default {
     color: white;
@@ -183,7 +183,7 @@ QCheckBox::indicator:checked {
     image: url(:/krimble-checkmark.svg);
     border: 2px solid #3bd5f7;
     /* background: #1d7cb2; */
-    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #1196d8, stop:0.10 #0a78bb, stop:0.5 #073d6b, stop:1 #074a85);   /* Krimble 2026-11-13 (task 78): same glow as the other themes; before: #072349 to #0e3f78 */
+    background: #0b87dd;   /* Krimble 2026-11-13 (task 78): same glow as the other themes; before: #072349 to #0e3f78 */
 }
 QMenuBar {
     color: #f1f4fc;

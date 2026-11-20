@@ -449,7 +449,9 @@ LayerBox::LayerBox()
             // Krimble 2026-11-16 (728th): George (build 65): "The search field is a mess. Get rid of the search. It's useless." The search box is not in the row and not shown (the
             // widget stays, hidden, so the rest of the code is as it was); the row's free space is empty again.
             krimbleSearch->hide();
-            topRow->addWidget(new KrimbleLayersGrabPad(mainWidget), 1);   // Krimble 2026-11-19 (754th): the empty space is a grab pad
+            // topRow->addWidget(new KrimbleLayersGrabPad(mainWidget), 1);   // Krimble 2026-11-19 (754th): the empty space is a grab pad
+            // Krimble 2026-11-20 (757th): George: "layers has two grab areas, color lab has none." Layers keeps only the grab pad in its title row; this space is plain again.
+            topRow->addStretch(1);
             // Krimble 2026-11-13 (task 73): George: "put them in the empty space at the top ... next to the layer type selector." Three symbol buttons from the industry standard layers panel
             // (add layer mask, new adjustment layer, layer styles "fx") sit between the search box and the blending mode box. The six buttons under the layer list are not touched.
             // Krimble 2026-11-18 (749th): George (the narrow Layers panel): "All those extra buttons are just a mess. The empty space looks bad and the sloppy symbol positions look bad. Just
@@ -485,6 +487,13 @@ LayerBox::LayerBox()
             krimbleHeaderHolder->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
             panel->insertWidget(0, krimbleHeaderHolder);
             m_wdgLayerBox->listLayers->setMinimumHeight(0);
+            // Krimble 2026-11-20 (757th): George (a small floating Layers panel, the opacity bar over the blending mode box): "Layers menu still a mess." The panel could be made shorter
+            // than its top rows and bottom buttons, so Qt pressed them together. The panel now has a minimum height: the top rows, the bottom buttons and room for one layer row.
+            QTimer::singleShot(0, this, [this, krimbleHeaderHolder]() {
+                const int minimum = krimbleHeaderHolder->sizeHint().height() + 2 * 34 + 12 + 60 + 40;
+                if (widget()) widget()->setMinimumHeight(minimum);
+                setMinimumHeight(minimum);
+            });
         }
         QFrame *underHeader = new QFrame(mainWidget);
         underHeader->setFrameShape(QFrame::HLine);
