@@ -5,6 +5,7 @@
 #pragma once
 #include <functional>
 #include <QDateTime>
+#include <QHash>
 #include <QInputDialog>
 #include <QLineEdit>
 #include <QMenu>
@@ -61,10 +62,35 @@ public:
         for (const QColor &c : colors) l << c.name(QColor::HexRgb);
         QSettings().setValue(QStringLiteral("Krimble/ColorStudioPinned"), l);
     }
-    static bool option(const char *key, bool fallback) { return QSettings().value(QStringLiteral("Krimble/ColorStudioHistory_") + QLatin1String(key), fallback).toBool(); }
-    static void setOption(const char *key, bool v) { QSettings().setValue(QStringLiteral("Krimble/ColorStudioHistory_") + QLatin1String(key), v); }
-    static int limit() { return QSettings().value(QStringLiteral("Krimble/ColorStudioHistory_limitValue"), 100).toInt(); }
-    static void setLimit(int v) { QSettings().setValue(QStringLiteral("Krimble/ColorStudioHistory_limitValue"), v); }
+    static bool option(const char *key, bool fallback)
+    {
+        const QString k = QStringLiteral("Krimble/ColorStudioHistory_") + QLatin1String(key);
+        QHash<QString, QVariant> &c = cache();
+        auto it = c.constFind(k);
+        if (it == c.constEnd()) it = c.insert(k, QSettings().value(k, fallback));
+        return it->toBool();
+    }
+    static void setOption(const char *key, bool v)
+    {
+        const QString k = QStringLiteral("Krimble/ColorStudioHistory_") + QLatin1String(key);
+        cache().insert(k, v);
+        QSettings().setValue(k, v);
+    }
+    static int limit()
+    {
+        const QString k = QStringLiteral("Krimble/ColorStudioHistory_limitValue");
+        QHash<QString, QVariant> &c = cache();
+        auto it = c.constFind(k);
+        if (it == c.constEnd()) it = c.insert(k, QSettings().value(k, 100));
+        return it->toInt();
+    }
+    static void setLimit(int v)
+    {
+        const QString k = QStringLiteral("Krimble/ColorStudioHistory_limitValue");
+        cache().insert(k, v);
+        QSettings().setValue(k, v);
+    }
+    static QHash<QString, QVariant> &cache() { static QHash<QString, QVariant> c; return c; }
     // record a color that became the foreground color (a color equal to the newest entry only updates its time when duplicates are grouped)
     static void add(const QColor &c, int alpha, const QString &tool, const QDateTime &when = QDateTime::currentDateTime())
     {

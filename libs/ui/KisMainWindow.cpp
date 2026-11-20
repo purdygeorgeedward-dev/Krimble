@@ -689,7 +689,10 @@ KisMainWindow::KisMainWindow(QUuid uuid)
     QTimer::singleShot(2500, this, [this]() { krimbleStackToolBars(this); krimbleInstallHelpExtras(this); krimbleInstallFileExtras(this);
         krimbleInstallDockEdgeGrabs(this);
         QTimer *grabTimer = new QTimer(this);
-        connect(grabTimer, &QTimer::timeout, this, [this]() {
+        connect(grabTimer, &QTimer::timeout, this, [this, grabTimer]() {
+            static QElapsedTimer passClock;
+            if (!passClock.isValid()) passClock.start();
+            grabTimer->setInterval(passClock.elapsed() < 30000 ? 2000 : 8000);
             krimbleInstallDockEdgeGrabs(this);
             Q_FOREACH (QAction *top, menuBar()->actions()) krimbleHideMenuShortcuts(top->menu(), 0);
             krimbleInstallMenuShortcutStripping(this);
@@ -741,6 +744,7 @@ KisMainWindow::KisMainWindow(QUuid uuid)
             }
         });
         grabTimer->start(2000);
+        connect(this, &KisMainWindow::activeViewChanged, grabTimer, [grabTimer]() { grabTimer->start(500); });
         Q_FOREACH (QAction *top, menuBar()->actions()) krimbleHideMenuShortcuts(top->menu(), 0);
         {
             KisConfig floatCfg(false);
