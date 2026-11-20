@@ -100,6 +100,7 @@ protected:
         const qreal w = width();
         const qreal h = height();
         const qreal t = qMin(one, qMin(w, h) / 2.0);
+        const qreal ts = (krimbleToolBoxTarget && !recessed) ? qMin(one + 1.0 / qMax<qreal>(1.0, devicePixelRatioF()), qMin(w, h) / 2.0) : t;   // the toolbox's right and bottom shadow: one more line
         QDockWidget *dock = qobject_cast<QDockWidget*>(m_target.data());
         // const bool allEdges = !dock || dock->isFloating();
         const bool allEdges = !dock || dock->isFloating() || krimbleToolBoxTarget;   // 674th+: the docked toolbox has all four edges too
@@ -112,9 +113,9 @@ protected:
             return;
         }
         p.setBrush(topTone);
-        { QPolygonF poly; poly << QPointF(0, 0) << QPointF(w, 0) << QPointF(w - t, t) << QPointF(t, t); p.drawPolygon(poly); }
+        { QPolygonF poly; poly << QPointF(0, 0) << QPointF(w, 0) << QPointF(w - ts, t) << QPointF(t, t); p.drawPolygon(poly); }
         if (krimbleToolBoxTarget && !recessed) {
-            QLinearGradient shade(QPointF(0, h - t), QPointF(0, h));
+            QLinearGradient shade(QPointF(0, h - ts), QPointF(0, h));
             shade.setColorAt(0.0, krimbleBase.lighter(85));
             shade.setColorAt(1.0, bottomTone);
             p.setBrush(shade);
@@ -128,20 +129,20 @@ protected:
                 p.setClipRegion(QRegion(rect()) - QRegion(krimbleName.left(), 0, krimbleName.width(), height()));
             }
         }
-        { QPolygonF poly; poly << QPointF(0, h) << QPointF(w, h) << QPointF(w - t, h - t) << QPointF(t, h - t); p.drawPolygon(poly); }
+        { QPolygonF poly; poly << QPointF(0, h) << QPointF(w, h) << QPointF(w - ts, h - ts) << QPointF(t, h - ts); p.drawPolygon(poly); }
         p.setClipping(false);
         p.setBrush(leftTone);
-        { QPolygonF poly; poly << QPointF(0, 0) << QPointF(t, t) << QPointF(t, h - t) << QPointF(0, h); p.drawPolygon(poly); }
+        { QPolygonF poly; poly << QPointF(0, 0) << QPointF(t, t) << QPointF(t, h - ts) << QPointF(0, h); p.drawPolygon(poly); }
         // p.setBrush(rightTone);
         if (krimbleToolBoxTarget && !recessed) {
-            QLinearGradient shade(QPointF(w - t, 0), QPointF(w, 0));
+            QLinearGradient shade(QPointF(w - ts, 0), QPointF(w, 0));
             shade.setColorAt(0.0, krimbleBase.lighter(85));
             shade.setColorAt(1.0, rightTone);
             p.setBrush(shade);
         } else {
             p.setBrush(rightTone);
         }
-        { QPolygonF poly; poly << QPointF(w, 0) << QPointF(w, h) << QPointF(w - t, h - t) << QPointF(w - t, t); p.drawPolygon(poly); }
+        { QPolygonF poly; poly << QPointF(w, 0) << QPointF(w, h) << QPointF(w - ts, h - ts) << QPointF(w - ts, t); p.drawPolygon(poly); }
         if (QMenuBar *kBar = qobject_cast<QMenuBar*>(m_target.data())) {
             const QFontMetrics kMetrics(kBar->font());
             const int kSize = qMin(kBar->height() - 4, qMax(14, kMetrics.height()));

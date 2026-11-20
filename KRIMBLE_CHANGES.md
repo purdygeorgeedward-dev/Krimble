@@ -7778,3 +7778,5 @@ Not fixed, cause not found in the code: **1** (normal docking of the toolbox), *
 - The remaining per-widget sheets are set once when the widget is made; moving them into the shared sheet gains nothing at run time, and the Blue-Gray and Dark Gray recoloring would change their colors, so they stay.
 - 2026-11-20 04:25: the first build 71 run (44727346799) was cancelled and deleted to include the style sheet items.
 Built as 71.
+
+**2026-11-20, 04:35 (MST), 763rd, branch `krimble-cleanup`.** George: "I think the toolbox needs one more line of shadow on the side and bottom." `KrimbleBevelOverlay::paintEvent` (KrimbleBevelsAndTabs.inc): for the toolbox only, the right and bottom shadow bands are one real pixel thicker (`ts`, 4 real pixels instead of 3); the top and left edges are unchanged. Pushed, not built (build 71 was already running).
