@@ -14,6 +14,12 @@
 #include "krimble_color_symbols.h"
 #include "krimble_color_icons.h"
 
+// sets a widget's own style sheet only when it changes (setting one, even the same text, makes Qt restyle the widget)
+inline void krimbleSetSheet(QWidget *w, const QString &sheet)
+{
+    if (w && w->styleSheet() != sheet) w->setStyleSheet(sheet);
+}
+
 class KrimbleColorBase : public QWidget
 {
 public:

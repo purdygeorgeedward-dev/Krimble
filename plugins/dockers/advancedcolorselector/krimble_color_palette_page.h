@@ -112,7 +112,7 @@ public:
             const QRect w = whole.toAlignedRect();
             box->setGeometry(w.left(), w.top(), w.width() - arrowW, w.height());
             box->setFont(f);
-            box->setStyleSheet(QStringLiteral("QSpinBox { background: transparent; border: none; padding: 0px 0px 0px %1px; color: #f4f6fc; selection-background-color: #1196d8; }"
+            krimbleSetSheet(box, QStringLiteral("QSpinBox { background: transparent; border: none; padding: 0px 0px 0px %1px; color: #f4f6fc; selection-background-color: #1196d8; }"
                                               "QSpinBox QLineEdit { background: transparent; border: none; padding: 0px; }"
                                               "QSpinBox::up-button, QSpinBox::down-button { width: 0px; height: 0px; border: none; }").arg(qRound(padUnits * s)));
             up->setGeometry(w.right() - arrowW + 1, w.top(), arrowW, w.height() / 2);
@@ -125,7 +125,7 @@ public:
         for (int i = 0; i < 4; ++i) place(cmykBox[i], m_cmykUp[i], m_cmykDown[i], r(45 + 80 * i, 839, 60, 34), 16, 4);
         hex->setGeometry(r(165, 751, 148, 39).toAlignedRect());
         hex->setFont(f);
-        hex->setStyleSheet(QStringLiteral("QLineEdit { background: transparent; border: none; padding: 0px 0px 0px %1px; color: #f4f6fc; selection-background-color: #1196d8; }").arg(qRound(12 * s)));
+        krimbleSetSheet(hex, QStringLiteral("QLineEdit { background: transparent; border: none; padding: 0px 0px 0px %1px; color: #f4f6fc; selection-background-color: #1196d8; }").arg(qRound(12 * s)));
         copy->setGeometry(r(313, 751, 41, 39).toAlignedRect());
     }
 

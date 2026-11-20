@@ -1108,6 +1108,11 @@ private:
         }
         if (m_ui) m_ui->relayout();
     }
+    static QString swatchSheet(const QColor &color, bool selected) {
+        return selected
+            ? QStringLiteral("background:%1;border:2px solid #35d8f8;border-radius:0px;").arg(color.name())
+            : QStringLiteral("background:%1;border:none;border-right:1px solid #000000;border-bottom:1px solid #000000;border-radius:0px;").arg(color.name());
+    }
     void rebuildSwatches() {
         for (QWidget *cell : m_swatchCells) { cell->hide(); cell->deleteLater(); }
         m_swatchCells.clear();
@@ -1116,14 +1121,13 @@ private:
             auto *button=new KrimbleSwatchButton(m_ui);
             button->setToolTip(color.name());
             // the selected swatch has the bright outline of a selected item; it is the one the trash button removes
-            button->setStyleSheet(i==m_selectedSwatch
-                // ? QStringLiteral("background:%1;border:2px solid #35d8f8;border-radius:3px;").arg(color.name())
-                ? QStringLiteral("background:%1;border:2px solid #35d8f8;border-radius:0px;").arg(color.name())   // 2026-11-09: square corners
-                : QStringLiteral("background:%1;border:none;border-right:1px solid #000000;border-bottom:1px solid #000000;border-radius:0px;").arg(color.name()));
+            button->setStyleSheet(swatchSheet(color, i==m_selectedSwatch));
             connect(button,&QPushButton::clicked,this,[this,color,i](){
+                const int old=m_selectedSwatch;
                 m_selectedSwatch=i;
                 select(color);
-                rebuildSwatches();
+                if (old>=0 && old<m_swatchCells.size() && old<m_colors.size()) krimbleSetSheet(m_swatchCells[old], swatchSheet(m_colors[old], false));   // only the two cells that changed are restyled
+                if (i<m_swatchCells.size()) krimbleSetSheet(m_swatchCells[i], swatchSheet(color, true));
             });
             button->setContextMenuPolicy(Qt::CustomContextMenu);
             auto editSwatch=[this,button,i](const QPoint &globalPos) {

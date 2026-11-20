@@ -142,11 +142,8 @@ void KoToolBoxButton::attachAction(QAction *action)
 void KoToolBoxButton::setHighlightColor()
 {
     setPalette(qApp->palette());
-    if (isChecked()) {
-        setStyleSheet(QStringLiteral("QToolButton { border: none; background: transparent; }"));
-    } else {
-        setStyleSheet(QString());
-    }
+    const QString sheet = isChecked() ? QStringLiteral("QToolButton { border: none; background: transparent; }") : QString();
+    if (styleSheet() != sheet) setStyleSheet(sheet);   // unchanged: no restyle
 }
 
 void KoToolBoxButton::setDataFromToolAction(QAction *action)

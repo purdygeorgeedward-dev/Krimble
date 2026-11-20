@@ -179,13 +179,13 @@ public:
         f = fittedFont(f, QStringLiteral("Group consecutive duplicates"), 286 * s);
         hex->setGeometry(r(195, 87, 133, 38).toAlignedRect());
         hex->setFont(f);
-        hex->setStyleSheet(QStringLiteral("QLineEdit { background: transparent; border: none; padding: 0px 0px 0px %1px; color: #f4f6fc; selection-background-color: #1196d8; }").arg(qRound(14 * s)));
+        krimbleSetSheet(hex, QStringLiteral("QLineEdit { background: transparent; border: none; padding: 0px 0px 0px %1px; color: #f4f6fc; selection-background-color: #1196d8; }").arg(qRound(14 * s)));
         copy->setGeometry(r(328, 87, 38, 38).toAlignedRect());
         const QRect whole = r(255.6, 758, 107, 39).toAlignedRect();
         const int arrowW = qRound(38 * s);
         limitBox->setGeometry(whole.left(), whole.top(), whole.width() - arrowW, whole.height());
         limitBox->setFont(f);
-        limitBox->setStyleSheet(QStringLiteral("QSpinBox { background: transparent; border: none; padding: 0px 0px 0px %1px; color: #f4f6fc; selection-background-color: #1196d8; }"
+        krimbleSetSheet(limitBox, QStringLiteral("QSpinBox { background: transparent; border: none; padding: 0px 0px 0px %1px; color: #f4f6fc; selection-background-color: #1196d8; }"
                                                "QSpinBox QLineEdit { background: transparent; border: none; padding: 0px; }"
                                                "QSpinBox::up-button, QSpinBox::down-button { width: 0px; height: 0px; border: none; }").arg(qRound(12 * s)));
         m_limitUp->setGeometry(whole.right() - arrowW + 1, whole.top(), arrowW, whole.height() / 2);

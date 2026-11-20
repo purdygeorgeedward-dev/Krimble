@@ -118,8 +118,8 @@ public:
 
     QColor fgColor;
     QColor bgColor;
-    void setForeground(const QColor &c) { fgColor = c; if (fg) fg->setStyleSheet(foregroundStyle(c)); }
-    void setBackground(const QColor &c) { bgColor = c; if (bg) bg->setStyleSheet(backgroundStyle(c)); }
+    void setForeground(const QColor &c) { fgColor = c; if (fg) krimbleSetSheet(fg, foregroundStyle(c)); }
+    void setBackground(const QColor &c) { bgColor = c; if (bg) krimbleSetSheet(bg, backgroundStyle(c)); }
 
     // the sizes of the color boxes' own frames follow the scale (the style sheet text is made here)
     QString foregroundStyle(const QColor &c) const
@@ -162,7 +162,7 @@ public:
             const QRect whole = r(876, spinY[i], 229, spinH[i]).toAlignedRect();
             boxes[i]->setGeometry(whole.left(), whole.top(), whole.width() - arrowW, whole.height());
             boxes[i]->setFont(f);
-            boxes[i]->setStyleSheet(QStringLiteral("QSpinBox { background: transparent; border: none; padding: 0px 0px 0px %1px; color: #f4f6fc; selection-background-color: #1196d8; }"
+            krimbleSetSheet(boxes[i], QStringLiteral("QSpinBox { background: transparent; border: none; padding: 0px 0px 0px %1px; color: #f4f6fc; selection-background-color: #1196d8; }"
                                                     "QSpinBox QLineEdit { background: transparent; border: none; padding: 0px; }"
                                                     "QSpinBox::up-button, QSpinBox::down-button { width: 0px; height: 0px; border: none; }").arg(qRound(18 * s)));
             if (m_up[i] && m_down[i]) {
@@ -173,13 +173,13 @@ public:
         if (hex) {
             hex->setGeometry(r(876, 520, 214, 54).toAlignedRect());
             hex->setFont(f);
-            hex->setStyleSheet(QStringLiteral("QLineEdit { background: transparent; border: none; padding: 0px 0px 0px %1px; color: #f4f6fc; selection-background-color: #1196d8; }").arg(qRound(22 * s)));
+            krimbleSetSheet(hex, QStringLiteral("QLineEdit { background: transparent; border: none; padding: 0px 0px 0px %1px; color: #f4f6fc; selection-background-color: #1196d8; }").arg(qRound(22 * s)));
         }
         copy->setGeometry(r(1100, 520, 56, 54).toAlignedRect());
         if (fg) fg->setGeometry(r(33, 615, 119, 112).toAlignedRect());
         if (bg) bg->setGeometry(r(247, 613, 117, 118).toAlignedRect());
-        if (fg && fgColor.isValid()) fg->setStyleSheet(foregroundStyle(fgColor));   // the frames' sizes follow the scale
-        if (bg && bgColor.isValid()) bg->setStyleSheet(backgroundStyle(bgColor));
+        if (fg && fgColor.isValid()) krimbleSetSheet(fg, foregroundStyle(fgColor));   // the frames' sizes follow the scale
+        if (bg && bgColor.isValid()) krimbleSetSheet(bg, backgroundStyle(bgColor));
         swap->setGeometry(r(176, 646, 54, 52).toAlignedRect());
         add->setGeometry(r(788, 764, 54, 56).toAlignedRect());
         paletteMenu->setGeometry(r(215, 761, 536, 64).toAlignedRect());
