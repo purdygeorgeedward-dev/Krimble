@@ -842,7 +842,8 @@ protected:
             const qreal dpr = devicePixelRatioF();
             int l = int(width() * 0.62), r = m_float->x() - qRound(12 * scale());
             const int most = int(120.0 / dpr);
-            if (r - l > most) { const int extra = (r - l) - most; l += extra / 2; r -= extra - extra / 2; }
+            // if (r - l > most) { const int extra = (r - l) - most; l += extra / 2; r -= extra - extra / 2; }
+            Q_UNUSED(most);   // Krimble 2026-11-20 (758th): the lines fill the space between the logo and the float button
             m_lines->setGeometry(l, 0, qMax(0, r - l), height());
             m_lines->setVisible(r - l >= 16);
         }

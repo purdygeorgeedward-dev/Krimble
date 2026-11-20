@@ -166,7 +166,9 @@ void KoDockWidgetTitleBar::paintEvent(QPaintEvent*)
         }
         // Krimble 2026-11-20 (757th): George: "grab areas look bad. Clunky big weird lines." The lines look like the toolbox handle's now: thin (3 real pixels), 9 real pixels apart,
         // at most 120 real pixels long, in the middle of the empty part (the whole empty part still drags).
-        if (right - left > 120.0 / dpr) { const int extra = int((right - left) - 120.0 / dpr); left += extra / 2; right -= extra - extra / 2; }
+        // if (right - left > 120.0 / dpr) { const int extra = int((right - left) - 120.0 / dpr); left += extra / 2; right -= extra - extra / 2; }
+        // Krimble 2026-11-20 (758th): George: "Grab lines should not go all the way to the top edge, but they should fill up the area. Not just a tiny little section." The thin lines run the
+        // whole empty part (12 units from the title and the buttons), in the middle of the row's height, clear of its top edge.
         if (right - left >= 24) {
             const qreal thick = 3.0 / dpr;
             const qreal gap = 9.0 / dpr;

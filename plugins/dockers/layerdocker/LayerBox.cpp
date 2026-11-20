@@ -490,6 +490,9 @@ LayerBox::LayerBox()
             // Krimble 2026-11-20 (757th): George (a small floating Layers panel, the opacity bar over the blending mode box): "Layers menu still a mess." The panel could be made shorter
             // than its top rows and bottom buttons, so Qt pressed them together. The panel now has a minimum height: the top rows, the bottom buttons and room for one layer row.
             QTimer::singleShot(0, this, [this, krimbleHeaderHolder]() {
+                // Krimble 2026-11-20 (758th): George: "In the layers panel reserve an area for those top sections so they don't get squeezed and overlap at all." The top rows' holder has a
+                // fixed height of its own full height (never less, never more), on top of the panel's minimum height (757th).
+                krimbleHeaderHolder->setFixedHeight(krimbleHeaderHolder->sizeHint().height());
                 const int minimum = krimbleHeaderHolder->sizeHint().height() + 2 * 34 + 12 + 60 + 40;
                 if (widget()) widget()->setMinimumHeight(minimum);
                 setMinimumHeight(minimum);
