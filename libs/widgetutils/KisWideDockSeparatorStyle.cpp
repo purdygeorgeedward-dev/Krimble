@@ -31,7 +31,8 @@ int KisWideDockSeparatorStyle::pixelMetric(PixelMetric metric, const QStyleOptio
 #endif
     if (metric == QStyle::PM_DockWidgetSeparatorExtent) {
 #ifdef Q_OS_ANDROID
-        return QProxyStyle::pixelMetric(metric, option, widget);
+        // return QProxyStyle::pixelMetric(metric, option, widget);
+        return 0;   // no gap between a docked panel and the image area: the panel's shadow is its outer edge (KRIMBLE_DESIGN_RULES.md)
 #else
         return QProxyStyle::pixelMetric(metric, option, widget) * 2;
 #endif
