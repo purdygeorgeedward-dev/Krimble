@@ -66,9 +66,8 @@ public:
     {
         const QString k = QStringLiteral("Krimble/ColorStudioHistory_") + QLatin1String(key);
         QHash<QString, QVariant> &c = cache();
-        auto it = c.constFind(k);
-        if (it == c.constEnd()) it = c.insert(k, QSettings().value(k, fallback));
-        return it->toBool();
+        if (!c.contains(k)) c.insert(k, QSettings().value(k, fallback));
+        return c.value(k).toBool();
     }
     static void setOption(const char *key, bool v)
     {
@@ -80,9 +79,8 @@ public:
     {
         const QString k = QStringLiteral("Krimble/ColorStudioHistory_limitValue");
         QHash<QString, QVariant> &c = cache();
-        auto it = c.constFind(k);
-        if (it == c.constEnd()) it = c.insert(k, QSettings().value(k, 100));
-        return it->toInt();
+        if (!c.contains(k)) c.insert(k, QSettings().value(k, 100));
+        return c.value(k).toInt();
     }
     static void setLimit(int v)
     {
