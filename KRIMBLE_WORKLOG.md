@@ -893,3 +893,4 @@ George: "Destroy all Krita themes. Nothing called Krita stays in themes." Delete
 **2026-11-20, 03:40 (MST).** Branch krimble-cleanup: 756th (KrimbleCommonStyle.h, menu logger off, edge filter once per event, preview tool). Not built.
 **2026-11-20, 04:30 (MST).** Branch krimble-cleanup: 757th (toolbox zone off the tools, thin grab lines, Layers minimum height, one Layers grab pad, Color Lab band grab area, flat blue selections, one hue in Blue-Gray). Not built.
 **2026-11-20, 04:10 (MST).** Branch krimble-cleanup: 758th (grab lines fill the empty part; Layers top rows' fixed height). Not built.
+**2026-11-20, 04:12 (MST).** Branch krimble-cleanup: 759th (no grab lines on the COLOR LAB band). Not built.

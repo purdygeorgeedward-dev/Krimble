@@ -845,7 +845,9 @@ protected:
             // if (r - l > most) { const int extra = (r - l) - most; l += extra / 2; r -= extra - extra / 2; }
             Q_UNUSED(most);   // Krimble 2026-11-20 (758th): the lines fill the space between the logo and the float button
             m_lines->setGeometry(l, 0, qMax(0, r - l), height());
-            m_lines->setVisible(r - l >= 16);
+            // m_lines->setVisible(r - l >= 16);
+            // Krimble 2026-11-20 (759th): George: "Make grab area lines invisible on color lab." No lines on the COLOR LAB band; the band is still the grab area (a drag on it moves or tears off the panel).
+            m_lines->setVisible(false);
         }
         m_close->setIconSize(QSize(side - 6, side - 6));
         m_float->setIconSize(QSize(side - 6, side - 6));
