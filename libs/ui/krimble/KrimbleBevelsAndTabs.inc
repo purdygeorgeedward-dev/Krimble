@@ -53,6 +53,21 @@ protected:
         const bool krimbleToolBoxTarget = m_target && m_target->objectName() == QLatin1String("ToolBox");
         const qreal one = 3.0 / qMax<qreal>(1.0, devicePixelRatioF());
         const bool recessed = qobject_cast<QMenu*>(m_target.data()) != nullptr;
+        if (krimbleToolBoxTarget && !recessed) {   // the toolbox: drawn like the raised buttons, 7 real pixels on every side
+            const qreal tb = qMin(7.0 / qMax<qreal>(1.0, devicePixelRatioF()), qMin<qreal>(width(), height()) / 2.0);
+            const qreal w = width();
+            const qreal h = height();
+            p.setPen(Qt::NoPen);
+            p.setBrush(QColor(255, 255, 255, 85));
+            { QPolygonF poly; poly << QPointF(0, 0) << QPointF(w, 0) << QPointF(w - tb, tb) << QPointF(tb, tb); p.drawPolygon(poly); }
+            p.setBrush(QColor(255, 255, 255, 40));
+            { QPolygonF poly; poly << QPointF(0, 0) << QPointF(tb, tb) << QPointF(tb, h - tb) << QPointF(0, h); p.drawPolygon(poly); }
+            p.setBrush(QColor(0, 0, 0, 55));
+            { QPolygonF poly; poly << QPointF(w, 0) << QPointF(w, h) << QPointF(w - tb, h - tb) << QPointF(w - tb, tb); p.drawPolygon(poly); }
+            p.setBrush(QColor(0, 0, 0, 90));
+            { QPolygonF poly; poly << QPointF(0, h) << QPointF(tb, h - tb) << QPointF(w - tb, h - tb) << QPointF(w, h); p.drawPolygon(poly); }
+            return;
+        }
         if (recessed) {
             const qreal edge = 2.0 / qMax<qreal>(1.0, devicePixelRatioF());
             p.setPen(Qt::NoPen);
