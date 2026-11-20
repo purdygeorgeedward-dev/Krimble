@@ -332,18 +332,24 @@ void KisView::showFloatingMessage(const QString &message, const QIcon& icon, int
 {
     if (!d->viewManager) return;
 
-    if(d->isCurrent && d->showFloatingMessage && d->viewManager->qtMainWindow()) {
-        if (d->savedFloatingMessage) {
-            d->savedFloatingMessage->tryOverrideMessage(message, icon, timeout, priority, alignment);
-        } else {
-            d->savedFloatingMessage = new KisFloatingMessage(message, this->canvasBase()->canvasWidget(), false, timeout, priority, alignment);
-            d->savedFloatingMessage->setShowOverParent(true);
-            d->savedFloatingMessage->setIcon(icon);
-
-            connect(&d->floatingMessageCompressor, SIGNAL(timeout()), d->savedFloatingMessage, SLOT(showMessage()));
-            d->floatingMessageCompressor.start();
-        }
+    if (d->isCurrent && d->viewManager->qtMainWindow()) {
+        d->viewManager->qtMainWindow()->statusBar()->showMessage(QString(message).replace(QLatin1Char('\n'), QLatin1Char(' ')), timeout);
     }
+    Q_UNUSED(icon);
+    Q_UNUSED(priority);
+    Q_UNUSED(alignment);
+    // if(d->isCurrent && d->showFloatingMessage && d->viewManager->qtMainWindow()) {
+    //     if (d->savedFloatingMessage) {
+    //         d->savedFloatingMessage->tryOverrideMessage(message, icon, timeout, priority, alignment);
+    //     } else {
+    //         d->savedFloatingMessage = new KisFloatingMessage(message, this->canvasBase()->canvasWidget(), false, timeout, priority, alignment);
+    //         d->savedFloatingMessage->setShowOverParent(true);
+    //         d->savedFloatingMessage->setIcon(icon);
+    //
+    //         connect(&d->floatingMessageCompressor, SIGNAL(timeout()), d->savedFloatingMessage, SLOT(showMessage()));
+    //         d->floatingMessageCompressor.start();
+    //     }
+    // }
 }
 
 bool KisView::canvasIsMirrored() const
