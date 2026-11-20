@@ -280,67 +280,95 @@ public:
         const int krimbleBarExtra = 3;
         if (bar->minimumHeight() != 0) bar->setMinimumHeight(0);
         if (bar->property("krimbleBarExtra").toInt() != krimbleBarExtra) bar->setProperty("krimbleBarExtra", krimbleBarExtra);
-        {
-            const QFontMetrics holderMetrics(bar->font());
-            const int holderWidth = 2 + qMin(bar->height() - 4, qMax(14, holderMetrics.height())) + 8;
-            QWidget *corner = bar->cornerWidget(Qt::TopLeftCorner);
-            if (!corner) {
-                corner = new KrimbleKHolder(bar);
-                bar->setCornerWidget(corner, Qt::TopLeftCorner);
-            }
-            if (corner->objectName() == QLatin1String("krimbleKHolder")) {
-                if (corner->width() != holderWidth || corner->minimumWidth() != holderWidth) corner->setFixedWidth(holderWidth);
-                // shown unless Qt has put it aside for an image window's own button (then it is not the bar's corner widget and this code does not see it)
-                if (!corner->isVisible() && bar->isVisible()) corner->show();
-            }
+        if (QWidget *corner = bar->cornerWidget(Qt::TopLeftCorner)) {
+            if (corner->isVisible()) corner->hide();
         }
-        {
-            const QFontMetrics krimbleKMetrics(bar->font());
-            const int krimbleKRoom = 2 + qMin(bar->height() - 4, qMax(14, krimbleKMetrics.height())) + 8;
-            QAction *krimbleFirst = nullptr;
-            Q_FOREACH (QAction *a, bar->actions()) {
-                if (a->isVisible() && a->objectName() != QLatin1String("krimbleKSpacer") && !qobject_cast<QWidgetAction*>(a)) { krimbleFirst = a; break; }
-            }
-            if (krimbleFirst && bar->isVisible()) {
-                const int have = bar->actionGeometry(krimbleFirst).left();
-                const int cur = bar->property("krimblePadLeft").toInt();
-                const int want = qBound(0, cur + krimbleKRoom - have, krimbleKRoom);
-                if (have > 0 && want != cur) {
-                    bar->setProperty("krimblePadLeft", want);
-                    bar->setStyleSheet(QStringLiteral("QMenuBar { padding-left: %1px; }").arg(want));
-                }
-            }
-        }
+        // {
+        //     const QFontMetrics holderMetrics(bar->font());
+        //     const int holderWidth = 2 + qMin(bar->height() - 4, qMax(14, holderMetrics.height())) + 8;
+        //     QWidget *corner = bar->cornerWidget(Qt::TopLeftCorner);
+        //     if (!corner) {
+        //         corner = new KrimbleKHolder(bar);
+        //         bar->setCornerWidget(corner, Qt::TopLeftCorner);
+        //     }
+        //     if (corner->objectName() == QLatin1String("krimbleKHolder")) {
+        //         if (corner->width() != holderWidth || corner->minimumWidth() != holderWidth) corner->setFixedWidth(holderWidth);
+        //         // shown unless Qt has put it aside for an image window's own button (then it is not the bar's corner widget and this code does not see it)
+        //         if (!corner->isVisible() && bar->isVisible()) corner->show();
+        //     }
+        // }
+        // {
+        //     const QFontMetrics krimbleKMetrics(bar->font());
+        //     const int krimbleKRoom = 2 + qMin(bar->height() - 4, qMax(14, krimbleKMetrics.height())) + 8;
+        //     QAction *krimbleFirst = nullptr;
+        //     Q_FOREACH (QAction *a, bar->actions()) {
+        //         if (a->isVisible() && a->objectName() != QLatin1String("krimbleKSpacer") && !qobject_cast<QWidgetAction*>(a)) { krimbleFirst = a; break; }
+        //     }
+        //     if (krimbleFirst && bar->isVisible()) {
+        //         const int have = bar->actionGeometry(krimbleFirst).left();
+        //         const int cur = bar->property("krimblePadLeft").toInt();
+        //         const int want = qBound(0, cur + krimbleKRoom - have, krimbleKRoom);
+        //         if (have > 0 && want != cur) {
+        //             bar->setProperty("krimblePadLeft", want);
+        //             bar->setStyleSheet(QStringLiteral("QMenuBar { padding-left: %1px; }").arg(want));
+        //         }
+        //     }
+        // }
         if (QWidget *buttons = bar->cornerWidget(Qt::TopRightCorner)) {
             if (buttons->isVisible() && QByteArray(buttons->metaObject()->className()).endsWith("ControllerWidget")) {
                 const int y = qMax(0, (bar->height() - krimbleBarExtra - buttons->height()) / 2);
                 if (buttons->y() != y) buttons->move(buttons->x(), y);
             }
         }
-        QWidget *label = bar->cornerWidget(Qt::TopLeftCorner);
-        const bool krimbleHaveLabel = label && QByteArray(label->metaObject()->className()).endsWith("ControlLabel") && label->isVisible();
-        const QPoint target(1, krimbleHaveLabel ? qMax(0, (bar->height() - krimbleBarExtra - label->height()) / 2) : 0);
-        if (krimbleHaveLabel && label->pos() != target) label->move(target);
-        QWidgetAction *spacer = bar->findChild<QWidgetAction *>(QStringLiteral("krimbleKSpacer"));
+        // QWidget *label = bar->cornerWidget(Qt::TopLeftCorner);
+        // const bool krimbleHaveLabel = label && QByteArray(label->metaObject()->className()).endsWith("ControlLabel") && label->isVisible();
+        // const QPoint target(1, krimbleHaveLabel ? qMax(0, (bar->height() - krimbleBarExtra - label->height()) / 2) : 0);
+        // if (krimbleHaveLabel && label->pos() != target) label->move(target);
+        // QWidgetAction *spacer = bar->findChild<QWidgetAction *>(QStringLiteral("krimbleKSpacer"));
+        // QAction *first = nullptr;
+        // Q_FOREACH (QAction *entry, bar->actions()) {
+        //     if (entry == spacer || !entry->isVisible() || !entry->menu()) continue;
+        //     first = entry;
+        //     break;
+        // }
+        // if (!first) return;
+        // const int krimbleKSize = qMin(bar->height() - 4, qMax(14, QFontMetrics(bar->font()).height()));
+        // const int deficit = (2 + krimbleKSize + 8) - bar->actionGeometry(first).x();
+        // if (deficit <= 0) return;
+        // if (!spacer) {
+        //     ensureSpacer(bar);
+        //     spacer = bar->findChild<QWidgetAction *>(QStringLiteral("krimbleKSpacer"));
+        // }
+        // QWidget *gap = spacer ? spacer->defaultWidget() : nullptr;
+        // if (!gap || gap->width() >= 90) return;
+        // gap->setFixedSize(qMin(90, gap->width() + deficit), gap->height());
+        // spacer->setData(gap->width());
+        // bar->update();
+        if (QWidgetAction *spacer = bar->findChild<QWidgetAction *>(QStringLiteral("krimbleKSpacer"))) {
+            spacer->setObjectName(QString());   // a menu bar does not lay out a widget item, so the empty item never moved File
+            bar->removeAction(spacer);
+            spacer->deleteLater();
+        }
+        const int krimbleKSize = qMin(bar->height() - 4, qMax(14, QFontMetrics(bar->font()).height()));
         QAction *first = nullptr;
         Q_FOREACH (QAction *entry, bar->actions()) {
-            if (entry == spacer || !entry->isVisible() || !entry->menu()) continue;
+            if (!entry->isVisible() || !entry->menu()) continue;
             first = entry;
             break;
         }
-        if (!first) return;
-        const int krimbleKSize = qMin(bar->height() - 4, qMax(14, QFontMetrics(bar->font()).height()));
-        const int deficit = (2 + krimbleKSize + 8) - bar->actionGeometry(first).x();
-        if (deficit <= 0) return;
-        if (!spacer) {
-            ensureSpacer(bar);
-            spacer = bar->findChild<QWidgetAction *>(QStringLiteral("krimbleKSpacer"));
+        if (!first || !bar->isVisible()) return;
+        const QRect item = bar->actionGeometry(first);
+        if (item.width() <= 0) return;
+        QString title = first->text();
+        title.remove(QLatin1Char('&'));
+        const int textInset = qMax(0, (item.width() - QFontMetrics(bar->font()).horizontalAdvance(title)) / 2);
+        const int textStart = 2 + krimbleKSize + qRound(90.0 / qMax<qreal>(1.0, bar->devicePixelRatioF()));   // the K's right edge plus 90 real screen pixels
+        const int cur = bar->property("krimblePadLeft").toInt();
+        const int want = qBound(0, cur + (textStart - textInset) - item.left(), 200);
+        if (want != cur) {
+            bar->setProperty("krimblePadLeft", want);
+            bar->setStyleSheet(QStringLiteral("QMenuBar { padding-left: %1px; }").arg(want));
         }
-        QWidget *gap = spacer ? spacer->defaultWidget() : nullptr;
-        if (!gap || gap->width() >= 90) return;
-        gap->setFixedSize(qMin(90, gap->width() + deficit), gap->height());
-        spacer->setData(gap->width());
-        bar->update();
     }
 
     static void schedulePlaceK(QMenuBar *bar)
