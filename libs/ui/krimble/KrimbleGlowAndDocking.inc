@@ -193,7 +193,25 @@ public:
                 copy.palette.setColor(QPalette::HighlightedText, QColor(230, 230, 230));
                 const QString title = copy.text;
                 copy.text = QString();
+                copy.subControls &= ~QStyle::SC_TitleBarSysMenu;   // the K is drawn below, pinned to the corner
                 QProxyStyle::drawComplexControl(control, &copy, painter, widget);
+                if (!titleBar->icon.isNull()) {
+                    const int kSize = QProxyStyle::pixelMetric(QStyle::PM_SmallIconSize, titleBar, widget);
+                    const qreal dpr = widget ? widget->devicePixelRatioF() : qApp->devicePixelRatio();
+                    const QPixmap kPix = titleBar->icon.pixmap(kSize, kSize);
+                    const QImage kImage = kPix.toImage().convertToFormat(QImage::Format_ARGB32);
+                    int kBlank = kImage.width();   // empty columns at the left of the K picture, in real pixels
+                    for (int y = 0; y < kImage.height(); ++y) {
+                        for (int x = 0; x < kBlank; ++x) {
+                            if (qAlpha(kImage.pixel(x, y)) > 40) { kBlank = x; break; }
+                        }
+                    }
+                    if (kBlank >= kImage.width()) kBlank = 0;
+                    const qreal kPixDpr = qMax<qreal>(1.0, kPix.devicePixelRatioF());
+                    const qreal kLeft = titleBar->rect.left() + 17.0 / qMax<qreal>(1.0, dpr) - kBlank / kPixDpr;   // the visible K starts 17 real pixels from the window's left edge
+                    const QRectF kRect(kLeft, titleBar->rect.top() + (titleBar->rect.height() - kSize) / 2.0, kSize, kSize);
+                    painter->drawPixmap(kRect, kPix, QRectF(QPointF(0, 0), QSizeF(kPix.size())));
+                }
                 const QRect textRect = subControlRect(control, titleBar, QStyle::SC_TitleBarLabel, widget);
                 painter->save();
                 QFont titleFont = painter->font();
