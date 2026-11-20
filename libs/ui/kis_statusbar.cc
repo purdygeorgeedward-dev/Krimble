@@ -82,7 +82,7 @@ void KisStatusBar::setup()
     m_statusBarStatusLabel = new KSqueezedTextLabel();
     m_statusBarStatusLabel->setObjectName("statsBarStatusLabel");
     m_statusBarStatusLabel->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
-    m_statusBarStatusLabel->setContentsMargins(5, 5, 5, 5);
+    m_statusBarStatusLabel->setContentsMargins(5, 3, 5, 3);
     connect(KoToolManager::instance(), SIGNAL(changedStatusText(QString)),
             m_statusBarStatusLabel, SLOT(setText(QString)));
     addStatusBarItem(m_statusBarStatusLabel, 2);
@@ -91,7 +91,7 @@ void KisStatusBar::setup()
     m_statusBarProfileLabel = new KSqueezedTextLabel();
     m_statusBarProfileLabel->setObjectName("statsBarProfileLabel");
     m_statusBarProfileLabel->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
-    m_statusBarProfileLabel->setContentsMargins(5, 5, 5, 5);
+    m_statusBarProfileLabel->setContentsMargins(5, 3, 5, 3);
     addStatusBarItem(m_statusBarProfileLabel, 3);
     m_statusBarProfileLabel->setVisible(false);
 
@@ -116,7 +116,7 @@ void KisStatusBar::setup()
     m_memoryReportBox = new KisMemoryReportButton();
     m_memoryReportBox->setObjectName("memoryReportBox");
     m_memoryReportBox->setFlat(true);
-    m_memoryReportBox->setContentsMargins(5, 5, 5, 5);
+    m_memoryReportBox->setContentsMargins(5, 3, 5, 3);
     m_memoryReportBox->setMinimumWidth(120);
     addStatusBarItem(m_memoryReportBox);
     m_memoryReportBox->setVisible(false);

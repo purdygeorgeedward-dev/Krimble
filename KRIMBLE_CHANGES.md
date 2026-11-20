@@ -7780,3 +7780,5 @@ Not fixed, cause not found in the code: **1** (normal docking of the toolbox), *
 Built as 71.
 
 **2026-11-20, 04:35 (MST), 763rd, branch `krimble-cleanup`.** George: "I think the toolbox needs one more line of shadow on the side and bottom." `KrimbleBevelOverlay::paintEvent` (KrimbleBevelsAndTabs.inc): for the toolbox only, the right and bottom shadow bands are one real pixel thicker (`ts`, 4 real pixels instead of 3); the top and left edges are unchanged. Pushed, not built (build 71 was already running).
+
+**2026-11-20, 04:40 (MST), 764th, branch `krimble-cleanup`.** George: "And scrollbars should be a tiny bit bigger. Status bar a tiny bit shorter." (1) `thememanager.cpp`: scrollbars 18 units thick instead of 16 (vertical width, horizontal height), all themes. (2) `kis_statusbar.cc`: the status text, profile and memory labels have 3 units of room above and below instead of 5, so the status bar is 4 units shorter. Pushed, not built.

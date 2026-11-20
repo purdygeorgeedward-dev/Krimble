@@ -290,9 +290,9 @@ void ThemeManager::slotChangePalette()
         krimbleSheet = (krimbleGraySheet(krimbleVisualStyleSheet()));
     } else if (theme == QStringLiteral("Krimble Painted")) {
         krimbleSheet = (krimblePaintedStyleSheet() + QStringLiteral(
-            "\nQScrollBar:vertical { background: #03050a; width: 16px; margin: 0px; border: 1px solid #000000; }\n"
+            "\nQScrollBar:vertical { background: #03050a; width: 18px; margin: 0px; border: 1px solid #000000; }\n"
             // "QScrollBar:horizontal { background: #0e1226; height: 16px; margin: 0px; border: 1px solid #05070f; }\n"
-            "QScrollBar:horizontal { background: #03050a; height: 16px; margin: 0px; border: 1px solid #000000; }\n"
+            "QScrollBar:horizontal { background: #03050a; height: 18px; margin: 0px; border: 1px solid #000000; }\n"
             "QScrollBar::handle:vertical { background: palette(button); min-height: 36px; margin: 1px; border: 1px solid palette(mid); border-radius: 3px; }\n"
             "QScrollBar::handle:horizontal { background: palette(button); min-width: 36px; margin: 1px; border: 1px solid palette(mid); border-radius: 3px; }\n"
             "QScrollBar::add-line, QScrollBar::sub-line { width: 0px; height: 0px; border: none; background: none; }\n"
