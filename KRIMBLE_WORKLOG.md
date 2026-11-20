@@ -889,3 +889,4 @@ George: "Destroy all Krita themes. Nothing called Krita stays in themes." Delete
 **2026-11-19, 12:05 (MST).** 754th pushed (grab pads: title row empty space, Layers top row empty space). Not built.
 **2026-11-20, 00:30 (MST).** Branch krimble-cleanup: 755th (dead code, commented-out code, KisMainWindow.cpp split into libs/ui/krimble/*.inc). Not built; master untouched.
 **2026-11-20, 00:00 (MST).** Branch krimble-cleanup: build number 70 (George: "Yes"); branch build started. The first branch run stopped at the number check (69 used) and was deleted.
+**2026-11-20, 01:00 (MST).** Branch build 70 built (run 44691470212, commit 53d0fde): the 755th split and deletions compile clean.
