@@ -888,3 +888,4 @@ George: "Destroy all Krita themes. Nothing called Krita stays in themes." Delete
 **2026-11-19, 11:45 (MST).** 753rd pushed (blending mode box back at the far right, 110 units; the 749th's stretch undone). Not built.
 **2026-11-19, 12:05 (MST).** 754th pushed (grab pads: title row empty space, Layers top row empty space). Not built.
 **2026-11-20, 00:30 (MST).** Branch krimble-cleanup: 755th (dead code, commented-out code, KisMainWindow.cpp split into libs/ui/krimble/*.inc). Not built; master untouched.
+**2026-11-20, 00:00 (MST).** Branch krimble-cleanup: build number 70 (George: "Yes"); branch build started. The first branch run stopped at the number check (69 used) and was deleted.

@@ -283,7 +283,8 @@ android {
     // def krimbleBuildNumber = 66   // 2026-11-17 (George: "Ok. Let's build it and see.")
     // def krimbleBuildNumber = 67   // 2026-11-17 (George: "Build it.")
     // def krimbleBuildNumber = 68   // 2026-11-17 (George: "Build 1.0.68 now.")
-    def krimbleBuildNumber = 69   // 2026-11-19 (George: "Build")
+    // def krimbleBuildNumber = 69   // 2026-11-19 (George: "Build")
+    def krimbleBuildNumber = 70   // 2026-11-20 (branch krimble-cleanup; George: "Yes" to 70)
     // (counter-file reading, replaced by the hand-set number above)
     // def krimbleBuildNumber = 0
     // try {
