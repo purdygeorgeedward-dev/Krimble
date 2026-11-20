@@ -1249,6 +1249,12 @@ void KisMainWindow::showView(KisView *imageView, QMdiSubWindow *subwin)
         subwin->setAttribute(Qt::WA_DeleteOnClose, true);
         connect(subwin, SIGNAL(destroyed()), SLOT(updateWindowMenu()));
         krimbleInstallMenuBarFilter(menuBar());
+        if (QTabBar *krimbleTabs = d->findTabBarHACK()) {
+            if (!krimbleTabs->property("krimbleTabK").toBool()) {
+                krimbleTabs->setProperty("krimbleTabK", true);
+                new KrimbleTabKFilter(krimbleTabs);
+            }
+        }
 
         KisConfig cfg(true);
         // subwin->setOption(QMdiSubWindow::RubberBandMove, cfg.readEntry<int>("mdi_rubberband", cfg.useOpenGL()));

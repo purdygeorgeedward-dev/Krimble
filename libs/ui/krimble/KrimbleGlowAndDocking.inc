@@ -22,6 +22,7 @@ public:
     {
         if (!button || !button->isCheckable() || button->property("krimbleGlowHooked").toBool()) return;
         if (!qobject_cast<QToolButton*>(button) && !qobject_cast<QPushButton*>(button)) return;   // not check boxes or radio buttons
+        if (QByteArray(button->metaObject()->className()) == "KoToolBoxButton") return;   // the toolbox selection is flat, no glow
         button->setProperty("krimbleGlowHooked", true);
         QObject::connect(button, &QAbstractButton::toggled, button, [button](bool on) { krimbleSetButtonGlow(button, on); });
         krimbleSetButtonGlow(button, button->isChecked());
@@ -226,6 +227,59 @@ public:
         }
         QProxyStyle::drawComplexControl(control, option, painter, widget);
     }
+};
+
+// The image tabs: Qt's K is replaced by an empty picture of the same size (so the names stay where they are) and the K is
+// drawn after the tab bar, its visible left edge 17 real pixels from each tab's left edge, the same as the image window title bar.
+class KrimbleTabKFilter : public QObject
+{
+public:
+    explicit KrimbleTabKFilter(QTabBar *bar) : QObject(bar) { bar->installEventFilter(this); }
+    bool eventFilter(QObject *watched, QEvent *event) override
+    {
+        QTabBar *bar = qobject_cast<QTabBar *>(watched);
+        if (!bar || event->type() != QEvent::Paint || m_painting) return false;
+        const QIcon k = qApp->windowIcon();
+        if (k.isNull()) return false;
+        const qreal dpr = qMax<qreal>(1.0, bar->devicePixelRatioF());
+        const QSize iconSize = bar->iconSize();
+        if (m_blank.isNull() || m_blankSize != iconSize) {
+            QPixmap blank(iconSize * dpr);
+            blank.setDevicePixelRatio(dpr);
+            blank.fill(Qt::transparent);
+            m_blank = QIcon(blank);
+            m_blankSize = iconSize;
+        }
+        for (int i = 0; i < bar->count(); ++i) {
+            if (!bar->tabIcon(i).isNull() && bar->tabIcon(i).cacheKey() != m_blank.cacheKey()) bar->setTabIcon(i, m_blank);
+        }
+        m_painting = true;
+        static_cast<QObject *>(bar)->event(event);
+        m_painting = false;
+        const int kSize = iconSize.height();
+        const QPixmap kPix = k.pixmap(kSize, kSize);
+        const QImage kImage = kPix.toImage().convertToFormat(QImage::Format_ARGB32);
+        int kBlank = kImage.width();   // empty columns at the left of the K picture, in real pixels
+        for (int y = 0; y < kImage.height(); ++y) {
+            for (int x = 0; x < kBlank; ++x) {
+                if (qAlpha(kImage.pixel(x, y)) > 40) { kBlank = x; break; }
+            }
+        }
+        if (kBlank >= kImage.width()) kBlank = 0;
+        const qreal kPixDpr = qMax<qreal>(1.0, kPix.devicePixelRatioF());
+        QPainter painter(bar);
+        painter.setRenderHint(QPainter::SmoothPixmapTransform, true);
+        for (int i = 0; i < bar->count(); ++i) {
+            const QRect tab = bar->tabRect(i);
+            const qreal kLeft = tab.left() + 17.0 / dpr - kBlank / kPixDpr;
+            painter.drawPixmap(QRectF(kLeft, tab.top() + (tab.height() - kSize) / 2.0, kSize, kSize), kPix, QRectF(QPointF(0, 0), QSizeF(kPix.size())));
+        }
+        return true;
+    }
+private:
+    QIcon m_blank;
+    QSize m_blankSize;
+    bool m_painting {false};
 };
 
 static bool krimbleDragDockingOn()
