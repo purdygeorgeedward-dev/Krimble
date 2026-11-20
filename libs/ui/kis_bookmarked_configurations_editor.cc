@@ -9,7 +9,7 @@
 
 #include "kis_bookmarked_configurations_model.h"
 
-#include <QBoxLayout>   // Krimble 2026-10-24
+#include <QBoxLayout>
 #include <QGuiApplication>
 #include <QScreen>
 
@@ -23,8 +23,6 @@ struct KisBookmarkedConfigurationsEditor::Private {
 KisBookmarkedConfigurationsEditor::KisBookmarkedConfigurationsEditor(QWidget* parent, KisBookmarkedConfigurationsModel* model, const KisSerializableConfigurationSP currentConfig) : QDialog(parent), d(new Private)
 {
     d->editorUi.setupUi(this);
-    // Krimble 2026-10-24: George (test list item 13): "Edit Presets is too wide". The list asked for 400 px (and the buttons stood beside it: about 570 px); a phone upright is about
-    // 340. The list asks for 150 px now (the .ui file), and on a narrow or upright screen the buttons are in a row under the list.
     if (QScreen *screen = QGuiApplication::primaryScreen()) {
         if (screen->availableGeometry().width() < screen->availableGeometry().height() || screen->availableGeometry().width() < 600) {
             if (QBoxLayout *outer = qobject_cast<QBoxLayout*>(layout())) {

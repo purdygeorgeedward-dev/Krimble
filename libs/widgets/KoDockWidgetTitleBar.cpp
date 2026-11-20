@@ -63,7 +63,6 @@ KoDockWidgetTitleBar::KoDockWidgetTitleBar(QDockWidget* dockWidget)
     d->lockButton->setCheckable(true);
     d->lockButton->setIcon(d->lockIcon);
     connect(d->lockButton, SIGNAL(toggled(bool)), SLOT(setLocked(bool)));
-    // Krimble 2026-11-12: George: "I would like to get rid of the little locks at the top of the panels" and "I never got that, never used it for that. I see panels as very fluid." The lock button is kept as an object (the code below uses it) but is never shown and is not in the layout.
     d->lockButton->setVisible(false);
     d->lockButton->setToolTip(i18nc("@info:tooltip", "Lock Docker"));
     d->lockButton->setStyleSheet("border: 0");
@@ -95,12 +94,6 @@ KoDockWidgetTitleBar::~KoDockWidgetTitleBar()
 
 void KoDockWidgetTitleBar::setTitleTextHidden(bool hidden)
 {
-    // Krimble 2026-10-18 (15th): George (1.0.37, c666301; screenshots of the Color and Tool Options panels in tabs): "8. Double titles in panels look weird. Fix?" A panel in a tab
-    // group shows its name on its tab and again in its own title bar. The title bar keeps its buttons (lock, float, close); only the text is hidden.
-    // Krimble 2026-10-20: George (1.0.40, screenshots of the Color and Layers panels): "Gadgets on the panels should be on the far right." The label
-    // is the part of the title bar that takes all the spare room (stretch 1), which pushes the float and close buttons to the right edge. Hiding the
-    // label took that room away, and the lock, float and close buttons were spread evenly across the bar. The label now stays (it keeps its room) and
-    // only its text is emptied while hidden; the buttons stay at the right edge.
     d->titleTextHidden = hidden;
     QDockWidget *dock = qobject_cast<QDockWidget*>(parentWidget());
     d->titleLabel->setVisible(true);
@@ -141,21 +134,8 @@ void KoDockWidgetTitleBar::paintEvent(QPaintEvent*)
     titleOpt.floatable = hasFeature(q, QDockWidget::DockWidgetFloatable);
     p.drawControl(QStyle::CE_DockWidgetTitle, titleOpt);
 
-    // Krimble 2026-11-15: George: "Docked panels are supposed to have tabs." and "There is nothing to grab in this dock to tear off this panel." A panel docked on its own has no tab (Qt draws tabs only for
-    // grouped panels), so its header draws one: a tab with rounded top corners behind the panel's name. Dragging it tears the panel off (mousePressEvent and the following). A panel in a tab group
-    // (title text hidden) keeps Qt's tabs; a floating panel keeps its own title bar.
-    // Krimble 2026-11-15: George: "Remove all the tab customizations." and "super buggy and twitchy now": the tab drawn behind a docked panel's name is off (the condition below is never true).
 
-    // Krimble 2026-10-15: George (1.0.36): "I can't tell where one panel ends and the next begins when they stack. They need a light line at the top
-    // and a dark line at the bottom." A docked panel's top edge gets a light line, and just above it a dark line: that dark line is the bottom
-    // edge of the panel above (the title bar is the only part of a panel this code draws), so every panel is lit at its top and shaded at its
-    // bottom. The last panel of a column has no panel below it, so its bottom has no dark line. Floating panels are not changed.
-    // Krimble 2026-10-17: George (1.0.37): "Giant mega lines again for bevels instead of one pixel." These 3 px lines are off; the one-pixel lines
-    // are drawn by KrimbleBevelOverlay (KisMainWindow.cpp) on panels and toolbars.
 
-    // Krimble 2026-11-19 (754th): George: "Create a grab pad with lines so people know where to grab these since the tab grab has never worked." ... "Make it bigger. This is for phone
-    // touchscreens." ... "The same spaces that were odd empty spots should be grab pads." The empty part of the title row (after the title, if it shows, up to the first button) carries three
-    // lines, 8 real pixels thick and 24 real pixels apart, in the toolbox handle's color. Dragging anywhere on that empty part moves or tears off the panel (Qt's own title bar drag).
     {
         const qreal dpr = devicePixelRatioF();
         int left = 12;
@@ -164,11 +144,6 @@ void KoDockWidgetTitleBar::paintEvent(QPaintEvent*)
         Q_FOREACH (QAbstractButton *b, QList<QAbstractButton*>() << d->floatButton << d->closeButton << d->lockButton) {
             if (b && b->isVisible()) right = qMin(right, b->geometry().left() - 12);
         }
-        // Krimble 2026-11-20 (757th): George: "grab areas look bad. Clunky big weird lines." The lines look like the toolbox handle's now: thin (3 real pixels), 9 real pixels apart,
-        // at most 120 real pixels long, in the middle of the empty part (the whole empty part still drags).
-        // if (right - left > 120.0 / dpr) { const int extra = int((right - left) - 120.0 / dpr); left += extra / 2; right -= extra - extra / 2; }
-        // Krimble 2026-11-20 (758th): George: "Grab lines should not go all the way to the top edge, but they should fill up the area. Not just a tiny little section." The thin lines run the
-        // whole empty part (12 units from the title and the buttons), in the middle of the row's height, clear of its top edge.
         if (right - left >= 24) {
             const qreal thick = 3.0 / dpr;
             const qreal gap = 9.0 / dpr;
@@ -249,7 +224,7 @@ void KoDockWidgetTitleBar::Private::featuresChanged(QDockWidget::DockWidgetFeatu
 
 void KoDockWidgetTitleBar::Private::dockWidgetTitleChanged(const QString &title)
 {
-    titleLabel->setText(titleTextHidden ? QString() : title);   // Krimble 2026-10-20: stays empty while the title text is hidden
+    titleLabel->setText(titleTextHidden ? QString() : title);
 }
 
 
@@ -305,7 +280,6 @@ void KoDockWidgetTitleBar::Private::updateButtonSizes()
 
 void KoDockWidgetTitleBar::contextMenuEvent(QContextMenuEvent *event)
 {
-    // KRIMBLE 2026-10-10: docking from a menu, no dragging: Dock Left / Right / Top / Bottom, and Undock (float).
     QDockWidget *dock = qobject_cast<QDockWidget*>(parentWidget());
     QMainWindow *mainWindow = dock ? qobject_cast<QMainWindow*>(dock->parentWidget()) : nullptr;
     if (!dock || !mainWindow || d->lockButton->isChecked()) {
@@ -324,9 +298,6 @@ void KoDockWidgetTitleBar::contextMenuEvent(QContextMenuEvent *event)
         QAction *action = menu.addAction(entry.text);
         action->setCheckable(true);
         action->setChecked(current == entry.area);
-        // Krimble 2026-10-13: George: "Dock right from the long press menu did nothing." A floating panel's allowed areas may be
-        // none or only some (floating panels are allowed in no area, or in the sides the finger was near while dragging), so the
-        // choices were greyed out or ignored. A choice from this menu is always allowed.
         action->setEnabled(true);
         const Qt::DockWidgetArea area = entry.area;
         // connect(action, &QAction::triggered, dock, [dock, mainWindow, area]() {
@@ -349,9 +320,6 @@ void KoDockWidgetTitleBar::contextMenuEvent(QContextMenuEvent *event)
     undock->setChecked(dock->isFloating());
     connect(undock, &QAction::triggered, dock, [dock]() { dock->setFloating(true); });
 
-    // Krimble 2026-10-18 (17th): George (1.0.37, c666301): "Could we have a stack command? Like the side panel would stack instead of overlaying tabs?" and "Add stack command."
-    // A panel that is in a tab group can be taken out of it and put BELOW the panel it was tabbed with ("Stack Below"); and any panel, docked or floating, can be put
-    // under another panel ("Stack Under" and the list of the other panels). Qt's splitDockWidget does it: the space of the other panel is split in two, up and down.
     menu.addSeparator();
     const QList<QDockWidget*> tabMates = mainWindow->tabifiedDockWidgets(dock);
     if (!dock->isFloating() && !tabMates.isEmpty()) {
@@ -380,10 +348,8 @@ void KoDockWidgetTitleBar::contextMenuEvent(QContextMenuEvent *event)
     menu.exec(event->globalPos());
 }
 
-// Krimble 2026-11-15: tear-off by dragging the header of a docked panel (item 16). Only a docked panel handles these; for a floating panel the events are ignored so Qt moves the window as before.
 void KoDockWidgetTitleBar::mousePressEvent(QMouseEvent *event)
 {
-    // Krimble 2026-11-15: George: "Remove all the tab customizations." The tear-off by dragging the header of a docked panel is off: a press is always ignored, so Qt handles the header as before (a drag could float a panel by accident).
     event->ignore();
     return;
     QDockWidget *q = qobject_cast<QDockWidget*>(parentWidget());

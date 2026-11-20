@@ -15,7 +15,7 @@
 #include <QList>
 
 #include "KoToolBoxButton_p.h"
-#include <KoToolManager.h>   // Krimble 2026-11-15 (707th): KoToolAction
+#include <KoToolManager.h>
 
 class KrimbleToolFlyout : public QFrame
 {
@@ -29,7 +29,7 @@ public:
         setStyleSheet(QStringLiteral(
             "QFrame#krimbleToolFlyout { background: #181b2e; border: 1px solid #6058aa; }"
             // "QToolButton { color: #ffffff; font-size: 15px; padding: 4px 14px 4px 8px; border: none; background: transparent; text-align: left; }"
-            "QToolButton { color: #ffffff; font-size: 12px; padding: 1px 10px 1px 2px; border: none; background: transparent; text-align: left; }"   // Krimble 2026-11-13 (task 46)
+            "QToolButton { color: #ffffff; font-size: 12px; padding: 1px 10px 1px 2px; border: none; background: transparent; text-align: left; }"
             "QToolButton:pressed { background: #10498c; }"
             "QToolButton:checked { background: #0b2f66; }"));
         QVBoxLayout *layout = new QVBoxLayout(this);
@@ -38,15 +38,13 @@ public:
         Q_FOREACH (KoToolBoxButton *member, members) {
             QString name = member->toolTip();
             name.remove(QRegularExpression(QStringLiteral("<[^>]*>")));   // the tool tip may carry markup
-            // Krimble 2026-11-15 (707th): a row is never left without a name: the tool's own name, then its id
             if (name.trimmed().isEmpty() && member->krimbleToolAction()) name = member->krimbleToolAction()->toolTip();
             if (name.trimmed().isEmpty()) name = member->objectName().section(QLatin1Char('/'), -1);
-            name.replace(QRegularExpression(QStringLiteral("\\s*\\(\\s*\\)\\s*$")), QString());   // Krimble 2026-11-16 (722nd): George's screenshot: "Rectangle ()", "Ellipse ()", "Line ()": the empty brackets of a tool with no shortcut
+            name.replace(QRegularExpression(QStringLiteral("\\s*\\(\\s*\\)\\s*$")), QString());
             name.replace(QRegularExpression(QStringLiteral("\\sTool\\s*$")), QString());
             QToolButton *row = new QToolButton(this);
             row->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
             row->setIcon(member->icon());
-            // Krimble 2026-11-13 (task 46): George: "The flyouts do not match the size of the icons in the toolbar. This is bad. Should be next to the tool you long press and [the] same size." A row's picture is the toolbox's own icon size (it was 1.5 times larger) and its height is the toolbox button's height, the text is smaller.
             row->setIconSize(member->iconSize());
             row->setText(name);
             row->setCheckable(true);
@@ -73,7 +71,6 @@ public:
         int x = topRight.x();
         if (x + width() > avail.right()) x = topLeft.x() - width();
         x = qBound(avail.left(), x, qMax(avail.left(), avail.right() - width()));
-        // Krimble 2026-11-12 (task 38): George: "Why isn't the flyout next to the tool?" (the mockup of a tall flyout was moved up and ended far from the button). A flyout that does not fit below the button's top now grows UPWARD from the button's bottom edge, so the button is still beside it; only if it does not fit there either is it moved onto the screen.
         int y = topLeft.y();
         if (y + height() > avail.bottom()) y = topLeft.y() + button->height() - height();
         y = qBound(avail.top(), y, qMax(avail.top(), avail.bottom() - height()));

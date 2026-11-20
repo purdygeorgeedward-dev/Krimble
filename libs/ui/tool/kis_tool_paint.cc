@@ -43,7 +43,7 @@
 #include <kis_paint_device.h>
 #include <kis_layer.h>
 #include <KisViewManager.h>
-#include <QApplication>   // Krimble 2026-10-20
+#include <QApplication>
 #include <kis_canvas2.h>
 #include <kis_cubic_curve.h>
 #include "kis_display_color_converter.h"
@@ -57,8 +57,8 @@
 #include "widgets/kis_cmb_composite.h"
 #include "kis_slider_spin_box.h"
 #include "kis_canvas_resource_provider.h"
-#include "kis_paintop_box.h"   // Krimble 2026-10-20 (2nd)
-#include <KisGlobalResourcesInterface.h>      // Krimble 2026-11-16 (722nd): the default brush
+#include "kis_paintop_box.h"
+#include <KisGlobalResourcesInterface.h>
 #include <brushengine/kis_paintop_preset.h>
 #include "kis_tool_utils.h"
 #include <brushengine/kis_paintop.h>
@@ -161,17 +161,8 @@ void KisToolPaint::tryRestoreOpacitySnapshot()
 
 void KisToolPaint::activate(const QSet<KoShape*> &shapes)
 {
-    // Krimble 2026-10-20: George (1.0.40, test list, items 11 to 13): "Switch to paintbrush and it's the Smudge tool." Line and Circle too. A painting
-    // tool that is not one of the retouch tools (Smudge, Soften, Dodge, Burn) takes the user's own brush back when it starts while a retouch brush
-    // ("Krimble Retouch ...", see KrimbleEmbeddedPreset.h) is still current; the user's brush is kept by the retouch tools when they start
-    // (KisToolBrush::activate).
     {
         const QString me = objectName();
-        // const bool retouchTool = me == QLatin1String("tool_smudge") || me == QLatin1String("tool_soften")
-        //         || me == QLatin1String("tool_dodge") || me == QLatin1String("tool_burn");
-        // Krimble 2026-10-23: THE REAL CAUSE of the Smudge leak (George, 1.0.36 to 1.0.42: "Smudge still takes over other tools"). Nothing ever gave the tools the object names
-        // "tool_smudge" etc.: the tool manager names every tool after its action id (KoToolManager.cpp: tool->setObjectName(toolAction->id())), here "KritaShape/KisToolSmudge", so
-        // this test (and the same one in KisToolBrush::activate) was never true, the user's brush was never kept, and nothing could be given back. The ids are used now.
         const bool retouchTool = me.endsWith(QLatin1String("KisToolSmudge")) || me.endsWith(QLatin1String("KisToolSoften")) || me.endsWith(QLatin1String("KisToolSharpen")) || me.endsWith(QLatin1String("KisToolHeal"))   /* Krimble 2026-11-13 (task 77) */
                 || me.endsWith(QLatin1String("KisToolDodge")) || me.endsWith(QLatin1String("KisToolBurn"))
                 || me == QLatin1String("tool_smudge") || me == QLatin1String("tool_soften") || me == QLatin1String("tool_dodge") || me == QLatin1String("tool_burn");
@@ -183,7 +174,6 @@ void KisToolPaint::activate(const QSet<KoShape*> &shapes)
             KisPaintOpPresetSP userPreset = saved.isValid() ? saved.value<KisPaintOpPresetSP>() : KisPaintOpPresetSP();
             if (userPreset) {
                 KisCanvasResourceProvider *provider = kisCanvas->viewManager()->canvasResourceProvider();
-                // Krimble 2026-10-20 (2nd): through the brush panel, which keeps its widget and preset maps in step (see KrimbleEmbeddedPreset.h)
                 if (KisPaintopBox *box = kisCanvas->viewManager()->paintOpBox()) box->resourceSelected(userPreset);
                 if (provider->currentPreset() != userPreset) provider->setPaintOpPreset(userPreset);
                 if (qApp->property("krimbleUserOpacity").isValid()) provider->setOpacity(qApp->property("krimbleUserOpacity").toDouble());
@@ -193,9 +183,6 @@ void KisToolPaint::activate(const QSet<KoShape*> &shapes)
         }
     }
 
-    // Krimble 2026-11-16 (722nd): George (build 64): "There is no default brush. There should be a default setting. The brush shouldn't start as a dead tool." A painting tool that is not
-    // a retouch tool and starts with no brush at all, or with a retouch brush that could not be given back (no brush of the user's was ever kept: a retouch tool was the first painting
-    // tool of the session), takes the built-in basic brush (the "paintbrush" preset of plugins/paintops/defaultpresets), set through the brush panel like any other brush.
     {
         const QString me = objectName();
         const bool retouchTool = me.endsWith(QLatin1String("KisToolSmudge")) || me.endsWith(QLatin1String("KisToolSoften")) || me.endsWith(QLatin1String("KisToolSharpen"))

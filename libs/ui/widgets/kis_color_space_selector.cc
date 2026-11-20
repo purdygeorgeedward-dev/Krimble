@@ -49,10 +49,6 @@ KisColorSpaceSelector::KisColorSpaceSelector(QWidget *parent)
     d->colorSpaceSelector = new Ui_WdgColorSpaceSelector;
     d->colorSpaceSelector->setupUi(this);
 #ifdef Q_OS_ANDROID
-    // KRIMBLE 2026-10-02: the form gives the Profile dropdown a hard minimum
-    // width of 300 (about 750 screen pixels on a phone), which alone made
-    // the File > New dialog wider than a portrait screen. The dropdown elides
-    // long profile names, so a much smaller minimum is enough. Android only.
     d->colorSpaceSelector->cmbProfile->setMinimumWidth(100);
 #endif
     d->colorSpaceSelector->cmbColorModels->setIDList(KoColorSpaceRegistry::instance()->colorModelsList(KoColorSpaceRegistry::OnlyUserVisible));

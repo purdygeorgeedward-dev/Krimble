@@ -80,7 +80,7 @@ public Q_SLOTS:
     void slotWarpResetPointsButtonClicked();
 
     void slotSetFreeTransformModeButtonClicked(bool);
-    void slotKrimbleRotateButtonClicked(bool);   // Krimble 2026-10-30: the Rotate mode button
+    void slotKrimbleRotateButtonClicked(bool);
     void slotSetWarpModeButtonClicked(bool);
     void slotSetCageModeButtonClicked(bool);
     void slotCageOptionsChanged(int);
@@ -142,7 +142,7 @@ private:
     TransformTransactionProperties *m_transaction;
     QPointF m_handleDir[9];
     QButtonGroup *m_rotationCenterButtons;
-    QToolButton *m_krimbleRotateButton = nullptr;   // Krimble 2026-10-30: the Rotate mode button
+    QToolButton *m_krimbleRotateButton = nullptr;
     int m_notificationsBlocked;
     int m_uiSlotsBlocked;
     double m_scaleRatio;

@@ -142,7 +142,6 @@ public:
     void mouseReleaseEvent(KoPointerEvent *e) override;
     void beginActionImpl(KoPointerEvent *event, bool usePrimaryAction, KisTool::AlternateAction action);
 
-    // Krimble 2026-10-18 (6th): the center of the transformation in image coordinates (read only); used by the Free Rotate tool, which turns the layer around it
     QPointF krimbleTransformCenter() const { return m_currentArgs.transformedCenter(); }
     void continueActionImpl(KoPointerEvent *event, bool usePrimaryAction, KisTool::AlternateAction action);
     void endActionImpl(KoPointerEvent *event, bool usePrimaryAction, KisTool::AlternateAction action);
@@ -194,8 +193,6 @@ public Q_SLOTS:
 
     void requestImageRecalculation();
 
-    // Krimble 2026-11-11: redraws the handles and the outline after the transform arguments were changed from the outside, WHILE a finger is down (slotUiChangedConfig does nothing in
-    // paint mode, which is what a drag is). Used by the Free Rotate dial (KisToolFreeRotate::rotateByDegrees).
     void krimbleRefreshHandles();
 
     void setTransformMode( KisToolTransform::TransformToolMode newMode );
@@ -375,10 +372,7 @@ public:
 
     KisToolTransformFactory()
             : KisToolPaintFactoryBase("KisToolTransform") {
-        // Krimble 2026-11-08: George: "Why are we still calling it the free transform tool? How about just Transform and change the name based on selected function."
-        // The name at the top of Tool Options follows the mode (Scale, Rotate, Position, Shear, Warp ...): see KisToolTransformConfigWidget::updateConfig().
         setToolTip(i18n("Transform"));
-        // Krimble 2026-11-16 (722nd): George (build 64): the order of the toolbox, Transform after Zoom (230). It is in the sorted section with a toolbox place of its own.
         setSection(ToolBoxSection::PSOrder);
         setToolBoxPriority(240);
         setIconName(koIconNameCStr("krita_tool_transform"));
@@ -409,14 +403,6 @@ private Q_SLOTS:
 
 
 
-// Krimble 2026-10-15: a second toolbox button, "Free Rotate" (George: "Draw an icon for free rotate and add it to the toolbox." / "Oh, your icon is
-// even better than my idea. Yes."). It is the same tool as the Transform tool (a KisToolTransform), with its own id, icon and place right after
-// the Transform button; the tool starts in Free Transform mode, where dragging outside the box turns the graphic by any angle. A few places of the
-// code look for the id "KisToolTransform" (for example after a layer change); with this button they treat it as another tool.
-// Krimble 2026-10-18: George (1.0.37, fc126d8): "7. Rotate tool is just scale. It does not rotate." and "The rotate tool should do what the default pinch zoom and
-// rotate tool originally did, but not scaling. Only rotate." The Free Rotate tool is the Transform tool with one addition: while it is active, two fingers on the
-// canvas turn the layer (the angle of the line between the fingers; the turn is given to the tool's own "rotate Z" setting, so the preview, the rotation
-// center and the Apply of the Transform tool are used as they are), and the canvas does not zoom or turn at the same time. One finger works as in the Transform tool.
 class KisToolFreeRotate : public KisToolTransform
 {
     Q_OBJECT
@@ -425,11 +411,9 @@ public:
     explicit KisToolFreeRotate(KoCanvasBase *canvas);
 
 public:
-    // Krimble 2026-10-18 (2nd): turns the layer by this many degrees more (see the 164th entry)
     void rotateByDegrees(double degrees);
 
 protected:
-    // Krimble 2026-10-18 (6th): one finger turns the layer (see the 187th entry); the Transform tool's own handling (move, scale) is not called
     void beginPrimaryAction(KoPointerEvent *event) override;
     void continuePrimaryAction(KoPointerEvent *event) override;
     void endPrimaryAction(KoPointerEvent *event) override;
@@ -454,7 +438,7 @@ public:
     KisToolFreeRotateFactory()
             : KisToolPaintFactoryBase("KisToolFreeRotate") {
         setToolTip(i18n("Free Rotate"));
-        setSection(ToolBoxSection::PSOrder);   // Krimble 2026-11-16 (722nd): with Transform (in its flyout)
+        setSection(ToolBoxSection::PSOrder);
         setToolBoxPriority(241);
         setIconName(koIconNameCStr("krimble-free-rotate"));
         setPriority(3);
@@ -464,7 +448,7 @@ public:
     ~KisToolFreeRotateFactory() override {}
 
     KoToolBase * createTool(KoCanvasBase *canvas) override {
-        return new KisToolFreeRotate(canvas);   // Krimble 2026-10-18: two fingers rotate
+        return new KisToolFreeRotate(canvas);
     }
 };
 

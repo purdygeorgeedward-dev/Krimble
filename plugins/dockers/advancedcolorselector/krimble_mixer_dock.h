@@ -6,10 +6,10 @@
 // + Palette adds the foreground color to the Color panel's saved swatches.
 #pragma once
 
-#include "krimble_color_palettes.h"   // Krimble 2026-11-08
+#include "krimble_color_palettes.h"
 #include <QDockWidget>
 #include <QPointer>
-#include <QScrollArea>   // Krimble 2026-11-05: the Mixer panel scrolls instead of overlapping when it is small
+#include <QScrollArea>
 #include <KoCanvasObserverBase.h>
 #include <KoCanvasBase.h>
 #include <KoCanvasResourceProvider.h>
@@ -22,10 +22,6 @@ public:
     KrimbleMixerDock() : QDockWidget(QObject::tr("Mixer"))
     {
         auto *panel = new QWidget(this);
-        // Krimble 2026-11-06 (2nd): George: "Let's fix all these new panels and make them look sharp. Make them fit on screen." Measured with the real code (real Qt, stand-ins
-        // for Krita's classes): the panel needed 269 x 383 logical px, wider than a docked panel (about 242), so it needed a sideways scroll bar. Its text is 15% smaller like the
-        // Color panel's, the buttons are 30 px tall (were 38), Size and Opacity are a thin slider with a number box each, as in the mockup (they were two number boxes in one
-        // row), and the pad may be shorter. The pad's picture is sharp (one pixel per screen pixel).
         {
             QFont smaller = panel->font();
             if (smaller.pixelSize() > 0) smaller.setPixelSize(qMax(8, int(smaller.pixelSize() * 0.85)));
@@ -35,7 +31,7 @@ public:
         // the buttons of this panel have less padding, so a row of four fits a docked panel (3 px above and below, 5 px at the sides)
         panel->setStyleSheet(QStringLiteral("QPushButton { padding: 3px 5px; }"));
         auto *mixLayout = new QVBoxLayout(panel);
-        mixLayout->setContentsMargins(3, 3, 3, 3);   // Krimble 2026-11-06 (3rd): George: "more and more unnecessary negative space": 3 px margins, 2 px between the parts (were 5 and 4)
+        mixLayout->setContentsMargins(3, 3, 3, 3);
         mixLayout->setSpacing(2);
 
         auto *mixTools = new QHBoxLayout;
@@ -54,7 +50,7 @@ public:
 
         m_pad = new KrimbleMixingPad(panel);
         {
-            auto *title = new QLabel(tr("Mixing & Brush Test Pad"), panel);   // Krimble 2026-11-06 (2nd): the mockup's title; it may shrink (clip) in a narrow panel
+            auto *title = new QLabel(tr("Mixing & Brush Test Pad"), panel);
             title->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
             mixLayout->addWidget(title);
         }
@@ -85,7 +81,7 @@ public:
             line->addWidget(slider, 1);
             auto *number = new QSpinBox(panel);
             number->setRange(1, 100);
-            number->setFixedWidth(76);   // Krimble 2026-11-08: the fields of the style sheet have padding and a frame now (the Color panel's boxes showed one digit at 46 px): "100%" needs about 76 px; the same in both rows
+            number->setFixedWidth(76);
             number->setFixedHeight(24);
             if (row == 1) number->setSuffix(QStringLiteral("%"));
             line->addWidget(number);
@@ -101,15 +97,13 @@ public:
         auto *undoButton = new QPushButton(tr("Undo"), panel);
         auto *redoButton = new QPushButton(tr("Redo"), panel);
         auto *clearButton = new QPushButton(tr("Clear"), panel);
-        auto *addMixed = new QPushButton(tr("+ Color"), panel);   // Krimble 2026-11-06 (2nd): shorter (was "+ Palette"); it adds the foreground color to the palette
+        auto *addMixed = new QPushButton(tr("+ Color"), panel);
         for (QPushButton *button : {undoButton, redoButton, clearButton, addMixed}) {
             button->setMinimumHeight(30);
             button->setMinimumWidth(0);
             padActions->addWidget(button);
         }
         mixLayout->addLayout(padActions);
-        // Krimble 2026-11-05: George (Mixer screenshots): in a small panel the Size and Opacity row sat on top of the pad. The panel is inside a scroll
-        // area now, so a panel smaller than its contents scrolls (the contents keep their own minimum size).
         {
             auto *scroll = new QScrollArea(this);
             scroll->setWidgetResizable(true);
@@ -141,7 +135,7 @@ public:
             const QColor current = m_canvas->resourceManager()->foregroundColor().toQColor();
             if (!current.isValid()) return;
             // QSettings settings;
-            KrimblePaletteStore::addColor(current);   // Krimble 2026-11-08: the color joins the ACTIVE palette (a GPL file); the Color panel shows it within a moment
+            KrimblePaletteStore::addColor(current);
         });
         // Sample: the sampled color becomes the foreground color
         m_pad->onSample = [this](QColor c) {

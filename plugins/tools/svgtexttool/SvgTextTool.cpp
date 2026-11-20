@@ -186,8 +186,6 @@ void SvgTextTool::activate(const QSet<KoShape *> &shapes)
     KoToolBase::activate(shapes);
     m_canvasConnections.addConnection(canvas()->selectedShapesProxy(), SIGNAL(selectionChanged()), this, SLOT(slotShapeSelectionChanged()));
 
-    // Krimble 2026-10-11: the circle, dashes and handles of Type Setting mode showed up without being asked for (QA of 1.0.32).
-    // The mode starts switched off every time the text tool starts; it can still be switched on in the tool options.
     if (m_optionManager) {
         m_optionManager->setTypeSettingMode(false);
     }
@@ -422,9 +420,6 @@ void SvgTextTool::updateQuickActionBar()
     int x = qRound(centerX - m_quickActionBar->width() / 2.0);
     int y = qRound(topY - m_quickActionBar->height() - spacing);
 
-    // Krimble: keep the bar on-screen -- clamp horizontally, and if there's
-    // no room above the selection (it starts near the top of the canvas),
-    // show it below instead.
     x = qBound(0, x, qMax(0, canvasWidget->width() - m_quickActionBar->width()));
     if (y < 0) {
         const qreal bottomY = qMax(startView.y(), endView.y());
@@ -494,7 +489,6 @@ KoSvgTextProperties SvgTextTool::propertiesForNewText() const
     } else {
         KisAllResourcesModel *model = KisResourceModelProvider::resourceModel(ResourceType::CssStyles);
         QVector<KoResourceSP> res = model->resourcesForName(presetName);
-        // Krimble 2026-10-15: a removed style preset must not dereference an empty list (idea from a Codex patch, read as a clue)
         if (!res.isEmpty() && res.first()) {
             KoCssStylePresetSP style = res.first().staticCast<KoCssStylePreset>();
             qreal dpi = 72;
@@ -509,9 +503,6 @@ KoSvgTextProperties SvgTextTool::propertiesForNewText() const
     }
 
 #ifdef Q_OS_ANDROID
-    // Krimble 2026-10-15: George (1.0.36): "Default text size is way too small." New text starts at 24 pt (the size box showed 12 pt) when nothing
-    // else gives a size; a size from the selected text or from a style preset is kept. (From a Codex patch, read as a clue; the effect is not
-    // seen: if the current properties already carry a size, this does nothing.)
     if (!props.hasProperty(KoSvgTextProperties::FontSizeId)) {
         props.setFontSize(KoSvgText::CssLengthPercentage(24.0));
     }
@@ -554,10 +545,6 @@ void SvgTextTool::slotShapeSelectionChanged()
     }
     KoSvgTextShape *const shape = selectedShape();
 #ifdef Q_OS_ANDROID
-    // Krimble 2026-10-18: George (1.0.37): "Text tool: complete disaster. Unusable." Chose "2": a text window, "Krita used to have something like that before."
-    // On the phone the on-canvas editing fights Android's own text selection controls. The old editor window of the Type tool ("Krimble - Edit Text", showEditor())
-    // is opened as soon as a text shape is created or tapped (selected), and the text is typed there; OK puts it on the picture (textUpdated). A shape is opened once
-    // until the selection is cleared (tapping outside), then it can be opened again by tapping it.
     if (shape && shape != m_krimbleEditorShape) {
         m_krimbleEditorShape = shape;
         QTimer::singleShot(200, this, SLOT(showEditor()));
@@ -913,9 +900,6 @@ void SvgTextTool::mousePressEvent(KoPointerEvent *event)
             return;
         }
 
-        // Krimble: mobile-style draggable selection handles -- grabbing one
-        // of the two handles at the current selection's ends takes priority
-        // over starting a fresh selection with this same tap.
         bool isStartHandle = false;
         if (m_textCursor.hitTestSelectionHandle(event->point, grabSensitivityInPt(), isStartHandle)) {
             m_interactionStrategy.reset(new SvgAdjustSelectionHandleStrategy(this, &m_textCursor, isStartHandle));
@@ -983,11 +967,6 @@ void SvgTextTool::mousePressEvent(KoPointerEvent *event)
             m_hoveredShapeHighlightRect = QPainterPath();
         }
 
-        // Krimble: triple-tap-to-select-paragraph -- a third tap landing
-        // within the double-click time window and close to the same spot
-        // as the preceding double-click (which already selected a word)
-        // extends the selection to the whole paragraph instead of starting
-        // a fresh single-tap cursor placement.
         const bool withinDoubleClickWindow = m_lastDoubleClickElapsed.isValid()
             && m_lastDoubleClickElapsed.elapsed() < QApplication::doubleClickInterval();
         const bool nearLastDoubleClick = kisDistance(event->point, m_lastDoubleClickPos) < grabSensitivityInPt();
@@ -1200,8 +1179,6 @@ void SvgTextTool::mouseReleaseEvent(KoPointerEvent *event)
     }
     event->accept();
 #ifdef Q_OS_ANDROID
-    // Krimble 2026-10-11: tapping a text to edit it again did not bring the on-screen keyboard back (QA of 1.0.32); nothing in
-    // the text tool ever asked Android to show it. After a tap that leaves a text selected, the keyboard is shown.
     if (selectedShape()) {
         QTimer::singleShot(0, this, []() { QGuiApplication::inputMethod()->show(); });
     }

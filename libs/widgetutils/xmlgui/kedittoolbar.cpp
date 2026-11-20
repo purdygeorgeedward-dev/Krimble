@@ -22,7 +22,7 @@
 #include <QToolButton>
 #include <QLabel>
 #include <QApplication>
-#include <QGuiApplication>   // Krimble 2026-10-24
+#include <QGuiApplication>
 #include <QScreen>
 #include <QGridLayout>
 #include <QCheckBox>
@@ -1000,9 +1000,6 @@ void KisKEditToolBarWidget::rebuildKisKXMLGUIClients()
 
 void KisKEditToolBarWidgetPrivate::setupLayout()
 {
-    // Krimble 2026-10-24: George (test list item 10): "Edit > Customize Toolbar is double the width it should be". The two lists (180 px at least each) side by side with a grid of arrow
-    // buttons between them need about 500 px; a phone held upright is about 340. On a narrow or upright screen the lists are one above the other: Available actions, a row with the
-    // Add (down) and Remove (up) buttons, then Current actions with the Up and Down buttons beside it. Sideways the lists are side by side as before, but smaller.
     bool narrow = false;
     if (QScreen *screen = QGuiApplication::primaryScreen()) {
         narrow = screen->availableGeometry().width() < screen->availableGeometry().height() || screen->availableGeometry().width() < 600;
@@ -1027,7 +1024,7 @@ void KisKEditToolBarWidgetPrivate::setupLayout()
     m_inactiveList = new ToolBarListWidget(m_widget);
     m_inactiveList->setDragEnabled(true);
     m_inactiveList->setActiveList(false);
-    m_inactiveList->setMinimumSize(narrow ? 100 : 130, narrow ? 80 : 150);   // Krimble 2026-10-24: smaller
+    m_inactiveList->setMinimumSize(narrow ? 100 : 130, narrow ? 80 : 150);
     m_inactiveList->setDropIndicatorShown(false); // #165663
     inactive_label->setBuddy(m_inactiveList);
     QObject::connect(m_inactiveList, SIGNAL(itemSelectionChanged()),
@@ -1055,7 +1052,7 @@ void KisKEditToolBarWidgetPrivate::setupLayout()
     m_activeList->setDragEnabled(true);
     m_activeList->setActiveList(true);
     // With Qt-4.1 only setting MiniumWidth results in a 0-width icon column ...
-    m_activeList->setMinimumSize(m_inactiveList->minimumWidth(), narrow ? 80 : 100);   // Krimble 2026-10-24
+    m_activeList->setMinimumSize(m_inactiveList->minimumWidth(), narrow ? 80 : 100);
     active_label->setBuddy(m_activeList);
 
     QObject::connect(m_activeList, SIGNAL(itemSelectionChanged()),
@@ -1152,7 +1149,7 @@ void KisKEditToolBarWidgetPrivate::setupLayout()
     active_layout->addWidget(m_activeList, 1);
     active_layout->addWidget(m_changeIconAction);
 
-    QVBoxLayout *stacked_layout = new QVBoxLayout();   // Krimble 2026-10-24: used on a narrow or upright screen
+    QVBoxLayout *stacked_layout = new QVBoxLayout();
     if (!narrow) {
         list_layout->addLayout(inactive_layout);
         list_layout->addLayout(button_layout);

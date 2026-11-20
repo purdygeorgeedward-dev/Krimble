@@ -201,9 +201,6 @@ public:
     inline bool keepAspectRatio() const {
         return m_keepAspectRatio;
     }
-    // Krimble 2026-11-07: George: "Selecting position from the tool options does not put it in move mode." and Rotate as "a mode change in the tool options for transform". The four
-    // radio buttons of the Free Transform options (Position, Rotate, Scale, Shear) only showed their own number boxes; they are the drag mode now: what a drag on the canvas does.
-    // Scale is the default (handles scale uniformly, any other touch moves). Not saved with a transform mask, and not part of the comparison of two sets of arguments.
     enum FreeGesture { GestureScale = 0, GestureMove, GestureRotate, GestureShear };
     inline FreeGesture freeGesture() const {
         return m_freeGesture;
@@ -375,11 +372,8 @@ private:
     double m_shearX {0.0};
     double m_shearY {0.0};
     double m_boundsRotation {0.0};
-    // bool m_keepAspectRatio {false};
-    // Krimble 2026-11-07: George: "scale tool should always default to uniform scaling (locked 100%/100%) before doing anything loose by user selection." Every new transform starts
-    // with the aspect ratio lock ON (the chain between the two scale boxes), at 100% and 100%; the user can unlock it afterwards. It was off.
     bool m_keepAspectRatio {true};
-    FreeGesture m_freeGesture {GestureScale};   // Krimble 2026-11-07: see freeGesture()
+    FreeGesture m_freeGesture {GestureScale};
 
     // perspective transform related
     QTransform m_flattenedPerspectiveTransform;
@@ -393,7 +387,7 @@ private:
     bool m_meshShowHandles = true;
     bool m_meshSymmetricalHandles = true;
     bool m_meshScaleHandles = false;
-    bool m_allowShear = false; // Krimble: shear disabled by default, matching item 10 (default to scale)
+    bool m_allowShear = false;
 
     /**
      * When we continue a transformation, m_continuedTransformation

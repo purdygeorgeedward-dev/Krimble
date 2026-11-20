@@ -35,9 +35,6 @@ public:
     void addButton(QAbstractButton *button, int priority)
     {
         addChildWidget(button);
-        //     qWarning() << "Button" << button << "has a conflicting priority";
-        // }
-        // Krimble 2026-11-12 (task 38): George: "I want long press to open a flyout of other buttons. Then a tap selects one or misses and cancels selection." The tools of a group (Marquee, Lasso, Wand) have the same priority on purpose: the one that is shown always sits in the group's place.
 
         m_priorities.insert(button, priority);
         int index = 1;
@@ -373,8 +370,6 @@ public:
         invalidate();
     }
 
-    // Krimble 2026-10-11: one extra widget (the color wells and the screen mode button) that sits right after the last tool
-    // and scrolls together with the tools, instead of being stuck to the bottom of the panel in its own box (George).
     void setTrailingWidget(QWidget *widget)
     {
         m_trailing = widget;
@@ -517,7 +512,6 @@ private:
         // cache total height (or width), adding the iconHeight for the current row
         // return y + iconHeight;
         int total = y + iconHeight;
-        // Krimble 2026-10-11: the trailing widget goes right after the last row, and counts in the total
         if (m_trailing) {
             const int gap = spacing();
             const QSize trailingHint = m_trailing->sizeHint();
@@ -539,7 +533,7 @@ private:
     QList <QWidgetItem*> m_sections;
     Qt::Orientation m_orientation;
     bool m_compact;
-    QWidget *m_trailing {nullptr};   // Krimble 2026-10-11
+    QWidget *m_trailing {nullptr};
 };
 
 #endif

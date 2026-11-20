@@ -103,7 +103,7 @@ QString KoBasicU8HistogramProducer::positionToString(qreal pos) const
 void KoBasicU8HistogramProducer::addRegionToBin(const quint8 * pixels, const quint8 * selectionMask, quint32 nPixels, const KoColorSpace *cs)
 {
     quint32 dstPixelSize = m_colorSpace->pixelSize();
-    const quint32 srcPixelSize = cs->pixelSize();   // Krimble 2026-10-26: the source pointer must move on with every pixel (see below)
+    const quint32 srcPixelSize = cs->pixelSize();
     quint8 *dstPixels = new quint8[nPixels * dstPixelSize];
     cs->convertPixelsTo(pixels, dstPixels, m_colorSpace, nPixels, KoColorConversionTransformation::IntentAbsoluteColorimetric, KoColorConversionTransformation::Empty);
 
@@ -119,7 +119,7 @@ void KoBasicU8HistogramProducer::addRegionToBin(const quint8 * pixels, const qui
             }
             dst += dstPixelSize;
             selectionMask++;
-            pixels += srcPixelSize;   // Krimble 2026-10-26: was missing: m_skipTransparent looked at the FIRST pixel of the piece for every pixel
+            pixels += srcPixelSize;
             nPixels--;
         }
     } else {
@@ -133,7 +133,7 @@ void KoBasicU8HistogramProducer::addRegionToBin(const quint8 * pixels, const qui
                 m_count++;
             }
             dst += dstPixelSize;
-            pixels += srcPixelSize;   // Krimble 2026-10-26: was missing: m_skipTransparent looked at the FIRST pixel of the piece for every pixel
+            pixels += srcPixelSize;
             nPixels--;
         }
     }
@@ -165,7 +165,7 @@ void KoBasicU16HistogramProducer::addRegionToBin(const quint8 * pixels, const qu
     qreal factor = 255.0 / width;
 
     quint32 dstPixelSize = m_colorSpace->pixelSize();
-    const quint32 srcPixelSize = cs->pixelSize();   // Krimble 2026-10-26: the source pointer must move on with every pixel (see below)
+    const quint32 srcPixelSize = cs->pixelSize();
     quint8 *dstPixels = new quint8[nPixels * dstPixelSize];
     cs->convertPixelsTo(pixels, dstPixels, m_colorSpace, nPixels, KoColorConversionTransformation::IntentAbsoluteColorimetric, KoColorConversionTransformation::Empty);
     quint8 *dst = dstPixels;
@@ -188,7 +188,7 @@ void KoBasicU16HistogramProducer::addRegionToBin(const quint8 * pixels, const qu
             }
             dst += dstPixelSize;
             selectionMask++;
-            pixels += srcPixelSize;   // Krimble 2026-10-26: was missing: m_skipTransparent looked at the FIRST pixel of the piece for every pixel
+            pixels += srcPixelSize;
             nPixels--;
         }
     } else {
@@ -208,7 +208,7 @@ void KoBasicU16HistogramProducer::addRegionToBin(const quint8 * pixels, const qu
                 m_count++;
             }
             dst += dstPixelSize;
-            pixels += srcPixelSize;   // Krimble 2026-10-26: was missing: m_skipTransparent looked at the FIRST pixel of the piece for every pixel
+            pixels += srcPixelSize;
             nPixels--;
         }
     }
@@ -240,7 +240,7 @@ void KoBasicF32HistogramProducer::addRegionToBin(const quint8 * pixels, const qu
     float factor = 255.0 / width;
 
     quint32 dstPixelSize = m_colorSpace->pixelSize();
-    const quint32 srcPixelSize = cs->pixelSize();   // Krimble 2026-10-26: the source pointer must move on with every pixel (see below)
+    const quint32 srcPixelSize = cs->pixelSize();
     quint8 *dstPixels = new quint8[nPixels * dstPixelSize];
     cs->convertPixelsTo(pixels, dstPixels, m_colorSpace, nPixels, KoColorConversionTransformation::IntentAbsoluteColorimetric, KoColorConversionTransformation::Empty);
     quint8 *dst = dstPixels;
@@ -263,7 +263,7 @@ void KoBasicF32HistogramProducer::addRegionToBin(const quint8 * pixels, const qu
             }
             dst += dstPixelSize;
             selectionMask++;
-            pixels += srcPixelSize;   // Krimble 2026-10-26: was missing: m_skipTransparent looked at the FIRST pixel of the piece for every pixel
+            pixels += srcPixelSize;
             nPixels--;
 
         }
@@ -283,7 +283,7 @@ void KoBasicF32HistogramProducer::addRegionToBin(const quint8 * pixels, const qu
                 m_count++;
             }
             dst += dstPixelSize;
-            pixels += srcPixelSize;   // Krimble 2026-10-26: was missing: m_skipTransparent looked at the FIRST pixel of the piece for every pixel
+            pixels += srcPixelSize;
             nPixels--;
 
         }
@@ -318,7 +318,7 @@ void KoBasicF16HalfHistogramProducer::addRegionToBin(const quint8 * pixels, cons
     float factor = 255.0 / width;
 
     quint32 dstPixelSize = m_colorSpace->pixelSize();
-    const quint32 srcPixelSize = cs->pixelSize();   // Krimble 2026-10-26: the source pointer must move on with every pixel (see below)
+    const quint32 srcPixelSize = cs->pixelSize();
     quint8 *dstPixels = new quint8[nPixels * dstPixelSize];
     cs->convertPixelsTo(pixels, dstPixels, m_colorSpace, nPixels, KoColorConversionTransformation::IntentAbsoluteColorimetric, KoColorConversionTransformation::Empty);
     quint8 *dst = dstPixels;
@@ -341,7 +341,7 @@ void KoBasicF16HalfHistogramProducer::addRegionToBin(const quint8 * pixels, cons
             }
             dst += dstPixelSize;
             selectionMask++;
-            pixels += srcPixelSize;   // Krimble 2026-10-26: was missing: m_skipTransparent looked at the FIRST pixel of the piece for every pixel
+            pixels += srcPixelSize;
             nPixels--;
         }
     } else {
@@ -360,7 +360,7 @@ void KoBasicF16HalfHistogramProducer::addRegionToBin(const quint8 * pixels, cons
                 m_count++;
             }
             dst += dstPixelSize;
-            pixels += srcPixelSize;   // Krimble 2026-10-26: was missing: m_skipTransparent looked at the FIRST pixel of the piece for every pixel
+            pixels += srcPixelSize;
             nPixels--;
         }
     }
@@ -513,7 +513,7 @@ void KoGenericLabHistogramProducer::addRegionToBin(const quint8 *pixels, const q
                 m_count++;
             }
             dst+= dstPixelSize;
-            pixels += pSize;   // Krimble 2026-10-26: was missing (the loop with a selection mask had it): m_skipTransparent looked at the first pixel for every pixel
+            pixels += pSize;
             nPixels--;
         }
     }

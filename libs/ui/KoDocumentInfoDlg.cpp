@@ -29,13 +29,11 @@
 #include <QDateTime>
 #include <KisMimeDatabase.h>
 #ifdef Q_OS_ANDROID
-#include <QScrollArea>     // Krimble 2026-10-23: File Info window fitted to the screen
+#include <QScrollArea>
 #include <QGuiApplication>
 #include <QScreen>
 #include <QTextEdit>
 
-// Krimble 2026-10-23: George (1.0.41 test list item 5): "File Info dialog is WAY TOO BIG!!" Each page is put in a scroll area, so the
-// window no longer has to be as big as its largest page; a page that does not fit scrolls.
 static QWidget *krimbleScrollPage(QWidget *page)
 {
     QScrollArea *scroll = new QScrollArea;
@@ -106,7 +104,6 @@ KoDocumentInfoDlg::KoDocumentInfoDlg(QWidget* parent, KoDocumentInfo* docInfo)
     d->aboutUi->leLicense->setCompleter(examples);
 
 #ifdef Q_OS_ANDROID
-    // Krimble 2026-10-23: the description box asked for 192 px of height; capped (see krimbleScrollPage above)
     d->aboutUi->meDescription->setMaximumHeight(110);
     KPageWidgetItem *page = new KPageWidgetItem(krimbleScrollPage(infodlg), i18n("General"));
 #else
@@ -117,8 +114,6 @@ KoDocumentInfoDlg::KoDocumentInfoDlg(QWidget* parent, KoDocumentInfo* docInfo)
     // Ugly hack, the mimetype should be a parameter, instead
     KisDocument* doc = dynamic_cast< KisDocument* >(d->info->parent());
     if (doc) {
-        // Krimble 2026-11-16 (722nd): George (build 64, screenshot of File Info: the General entry is an empty box): "File info General needs icon." The icon was the file type's, and the
-        // program has no pictures for file types on Android. It is the information sign he sent, for every file type.
         page->setIcon(koIcon("krimble-file-info-general"));
     } else {
         // hide all entries not used in pages for KoDocumentInfoPropsPage
@@ -137,19 +132,18 @@ KoDocumentInfoDlg::KoDocumentInfoDlg(QWidget* parent, KoDocumentInfo* docInfo)
     QWidget *authordlg = new QWidget();
     d->authorUi->setupUi(authordlg);
 #ifdef Q_OS_ANDROID
-    page = new KPageWidgetItem(krimbleScrollPage(authordlg), i18n("Author"));   // Krimble 2026-10-23 (see krimbleScrollPage)
+    page = new KPageWidgetItem(krimbleScrollPage(authordlg), i18n("Author"));
 #else
     page = new KPageWidgetItem(authordlg, i18n("Author"));
 #endif
     page->setHeader(i18n("Last saved by"));
-    page->setIcon(koIcon("krimble-file-info-author"));   // Krimble 2026-10-23: George (1.0.41 test list item 5): "replace Author pic with robot head."
+    page->setIcon(koIcon("krimble-file-info-author"));
     addPage(page);
     d->pages.append(page);
 
     initAuthorTab();
 
 #ifdef Q_OS_ANDROID
-    // Krimble 2026-10-23: the window opens no larger than 90% of the screen's width and 80% of its height.
     if (QScreen *scr = QGuiApplication::primaryScreen()) {
         const QRect avail = scr->availableGeometry();
         adjustSize();

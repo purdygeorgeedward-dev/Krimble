@@ -77,9 +77,6 @@ KisFilterSelectorWidget::KisFilterSelectorWidget(QWidget* parent)
     d->uiFilterSelector.setupUi(this);
 
 #ifdef Q_OS_ANDROID
-    // Krimble 2026-10-18: George (1.0.37, fc126d8): "11. Image - Mode - Index Color dialog is way too wide." and "On index color, rearrange the UI to fit if you can."
-    // (the Palettize dialog was 366 logical px wide against a 360 px window; the widest part was the top row of this widget: the presets list, "Use last preset",
-    // "Edit Presets" and "XML" side by side). The row is two rows of two: the presets list and Edit Presets above, Use last preset and XML below.
     {
         QVBoxLayout *column = d->uiFilterSelector.verticalLayout;
         QHBoxLayout *row = d->uiFilterSelector.horizontalLayout;

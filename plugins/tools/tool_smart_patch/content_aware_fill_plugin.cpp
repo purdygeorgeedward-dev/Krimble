@@ -15,7 +15,7 @@
 #include <kis_pixel_selection.h>
 #include <kis_action.h>
 #include <kis_processing_applicator.h>
-#include <QCoreApplication>   // Krimble 2026-10-20
+#include <QCoreApplication>
 #include <QIcon>
 #include <commands_new/kis_transaction_based_command.h>
 #include <kis_transaction.h>
@@ -32,7 +32,7 @@
 #include <cstring>
 
 #include "krimble_inpaint.h"
-#include "krimble_fill.h"   // Krimble 2026-10-19
+#include "krimble_fill.h"
 
 // Declared in kis_inpaint.cpp -- compiled into this plugin module
 // separately from kritatoolSmartPatch's own copy (see CMakeLists.txt);
@@ -42,20 +42,12 @@ QRect patchImage(KisPaintDeviceSP imageDev, KisPaintDeviceSP maskDev, int radius
 
 namespace {
 
-// Krimble 2026-10-18: George: "Can we find a better algorithm?" then "could you write one?" The old fill (Krita's Smart Patch, patchImage() above) leaves "a blurry mess". This
-// one is Krimble's own engine (krimble_inpaint.cpp: a multi-scale PatchMatch fill that solves the smooth colour of the hole from its edges at every size and copies the detail from
-// patches near the hole; see the 188th entry of KRIMBLE_CHANGES.md). It works on the part of the picture around the selection (the box of the selection and a margin of twice its
-// shorter side), as 8-bit sRGB, and writes back only the pixels it replaced. Returns false when it cannot (nothing selected, a hole bigger than the memory allows, the picture too
-// small): the caller then uses the old fill.
-#if 0   // Krimble 2026-10-19: moved to krimble_fill.cpp (KrimbleFill::fill), with a choice of method; kept here, not compiled
+#if 0
 bool krimbleContentAwareFill(KisPaintDeviceSP imageDev, KisPaintDeviceSP maskDev, KisImageSP image)
 {
     const QRect maskRect = maskDev->exactBounds();
     if (maskRect.isEmpty()) return false;
     const int holeShort = qMin(maskRect.width(), maskRect.height());
-    // Krimble 2026-10-19: George (1.0.39): Content-Aware Fill still "a blurry mess". On a phone photo (12 MP and more) the area above was often over the 9 MP limit, and then
-    // Krita's old Smart Patch fill ran instead (the blur). Now the area around the hole is made smaller until it fits a budget (4 MP: the new engine needs about 50 bytes
-    // per pixel of it, about 200 MB), so the new engine runs for any hole whose own box fits; only a hole bigger than that still falls back.
     const qint64 budget = 4000000;
     int margin = qMax(64, 2 * holeShort + 24);
     QRect roi = maskRect.adjusted(-margin, -margin, margin, margin) & image->bounds();
@@ -104,10 +96,6 @@ bool krimbleContentAwareFill(KisPaintDeviceSP imageDev, KisPaintDeviceSP maskDev
 }
 #endif
 
-// Krimble: same tiny transaction-wrapping command shape as
-// KisToolSmartPatch::InpaintCommand in kis_tool_smart_patch.cpp -- kept as
-// its own local copy here rather than reused across the tool/action
-// boundary, since the tool's version is a private nested class.
 class ContentAwareFillCommand : public KisTransactionBasedCommand
 {
 public:
@@ -119,8 +107,6 @@ public:
     KUndo2Command *paint() override
     {
         KisTransaction transaction(m_imageDev);
-        // Krimble 2026-10-18: the new engine first; Krita's own Smart Patch fill is the fallback (when the engine cannot take the job: see krimbleContentAwareFill)
-        // Krimble 2026-10-19: the method chosen in the healing brush's Tool Options (Sharp, Smooth or Classic); Classic, or a job Krimble's engines cannot take, uses Krita's fill
         if (!KrimbleFill::fill(m_imageDev, m_maskDev, m_image->bounds(), KrimbleFill::savedMethod())) {
             patchImage(m_imageDev, m_maskDev, m_patchRadius, m_accuracy, m_selection);
         }
@@ -158,9 +144,6 @@ void ContentAwareFillPlugin::slotContentAwareFill()
     if (!node || !node->paintDevice()) return;
 
     KisSelectionSP selection = viewManager()->selection();
-    // if (!selection) return; // nothing to fill without an active selection
-    // Krimble 2026-10-20: George (1.0.40): "Content-Aware fill does nothing now." Every way it could quietly do nothing now says so, and the fill says
-    // it is working (a big hole can take several seconds on the phone) and when it is done.
     if (!selection) {
         viewManager()->showFloatingMessage(i18n("Content-Aware Fill: select the area to fill first"), QIcon());
         return;
@@ -176,11 +159,6 @@ void ContentAwareFillPlugin::slotContentAwareFill()
     viewManager()->showFloatingMessage(i18n("Content-Aware Fill: working..."), QIcon());
     QCoreApplication::processEvents();
 
-    // Krimble: unlike the sloppy KisFilter-based first pass, this passes
-    // the selection's own real pixel mask straight through -- correct for
-    // irregular/feathered selections, since patchImage() gets to see the
-    // true selected shape while deciding what to fill vs. what's valid
-    // source material, not just a rectangular bounding-box approximation.
     KisPaintDeviceSP maskDev = selection->pixelSelection();
 
     const int patchRadius = 4; // matches the Healing Brush tool's own default
@@ -194,16 +172,9 @@ void ContentAwareFillPlugin::slotContentAwareFill()
 
     applicator.end();
     image->waitForDone();
-    // Krimble 2026-10-20 (2nd): George (1.0.41): "Content Aware Fill is faster, but just a blur." The message says which fill ran, and if it was Krita's
-    // old fill (the blur), why Krimble's engine did not take the job.
     {
         const QString status = KrimbleFill::lastStatus();
         const bool engine = status.endsWith(QLatin1String("engine"));
-        // viewManager()->showFloatingMessage(engine ? i18n("Content-Aware Fill: done (%1)", status)
-        //                                           : i18n("Content-Aware Fill: done with Krita's old fill (%1)", status.isEmpty() ? i18n("unknown") : status),
-        //                                    QIcon());
-        // Krimble 2026-10-24: George: "sometimes the UI puts messages on screen that are unnecessary": the fill working is seen in the picture; the message is only shown when Krita's old fill
-        // (the blur) had to be used instead of Krimble's engine, and why.
         if (!engine) {
             viewManager()->showFloatingMessage(i18n("Content-Aware Fill: done with Krita's old fill (%1)", status.isEmpty() ? i18n("unknown") : status), QIcon());
         }

@@ -15,7 +15,7 @@
 #include <QClipboard>
 #include <QInputDialog>
 #include <QScrollBar>
-#include <QListView>      // Krimble 2026-11-15: the Save As type list is sized to show every type
+#include <QListView>
 #include <QTimer>
 #include <QMessageBox>
 
@@ -141,12 +141,9 @@ QString KoFileDialog::selectedMimeType() const
 }
 
 #ifdef Q_OS_ANDROID
-// Krimble 2026-10-10: a dialog that comes up bigger than the screen (for example a size saved in landscape and restored in
-// portrait) is cut down to 95% x 90% of the screen and moved onto it, every time it is shown.
 class KrimbleFitToScreenFilter : public QObject
 {
 public:
-    // Krimble 2026-11-13: the height fraction is a parameter (the Save As type list uses more than the file dialogs' 90%)
     explicit KrimbleFitToScreenFilter(QWidget *dialog, qreal heightFraction = 0.90) : QObject(dialog), m_dialog(dialog), m_heightFraction(heightFraction) {}
     bool eventFilter(QObject *watched, QEvent *event) override
     {
@@ -167,10 +164,6 @@ private:
 #endif
 
 #ifdef Q_OS_ANDROID
-// Krimble 2026-11-15 (item 15): George: "Save As should show all the file types when it loads." The Save As type list (a QInputDialog with a list) is made as tall as its list needs to show
-// every type (and as wide as the longest name needs, up to the screen), at most 98% of the usable screen height and 95% of its width, every time it is shown. It is sized after the dialog is
-// shown (a moment later, when the list has its final fonts and scroll bars) with resize(), because the minimum size asked for in filename() was not applied on the phone (the window came up
-// about 39% of the screen high).
 class KrimbleTypeListFit : public QObject
 {
 public:
@@ -199,9 +192,6 @@ public:
         const int extraH = qMax(0, dialog->height() - list->height());   // the label, the buttons, the margins
         const int extraW = qMax(0, dialog->width() - list->width());
         const int h = qMin(wantListH + extraH, int(avail.height() * 0.98));
-        // Krimble 2026-11-16 (728th): George (build 65): "Save As... dialog is WAY TOO WIDE. I ASKED FOR MORE HEIGHT, NOT MORE WIDTH." The window was never narrower than it opened, and it
-        // opened at 85 percent of the screen's width (the minimum size set in filename(), also in landscape, where that is most of the long side). It is as wide as the longest type name
-        // needs (at least 240 units, at most 95 percent of the screen); the height is as before (every type shows).
         const int w = qMin(qMax(240, wantListW + extraW), int(avail.width() * 0.95));
         if (qAbs(h - dialog->height()) > 2 || qAbs(w - dialog->width()) > 2) {
             dialog->resize(w, h);
@@ -335,15 +325,6 @@ void KoFileDialog::createFileDialog()
     // QFileDialog::filterSelected is not emitted with the initial value
     onFilterSelected(d->fileDialog->selectedNameFilter());
 
-    // Krimble: bug item 14 -- these dialogs never remembered a size the
-    // user manually resized them to; every reopen went back to the
-    // default. Same KConfigGroup/dialogName pattern already used by
-    // getUsedDir()/saveUsedDir() above for remembering the last-used
-    // directory. Restored here (once, before the dialog is shown);
-    // saved via the finished() signal so it's captured regardless of
-    // which exec() call site (filename() or filenames()) is used, and
-    // regardless of whether the dialog was accepted or cancelled --
-    // a resize the user made should be remembered either way.
     if (!d->dialogName.isEmpty()) {
         KConfigGroup group = KSharedConfig::openConfig()->group("File Dialogs");
         const QByteArray geom = QByteArray::fromBase64(group.readEntry(d->dialogName + "_geometry", QByteArray()));
@@ -353,9 +334,6 @@ void KoFileDialog::createFileDialog()
 
         const QString dialogName = d->dialogName;
         QPointer<QFileDialog> dialogPtr = d->fileDialog.get();
-        // Krimble: d->fileDialog is a QScopedPointer, not a raw QFileDialog*;
-        // connect() needs the underlying pointer, hence .get() here (matches
-        // the .get() usage already in createFileDialog() above).
         connect(d->fileDialog.get(), &QDialog::finished, this, [dialogName, dialogPtr](int) {
             if (dialogPtr) {
                 KConfigGroup group = KSharedConfig::openConfig()->group("File Dialogs");
@@ -364,7 +342,6 @@ void KoFileDialog::createFileDialog()
         });
     }
 #ifdef Q_OS_ANDROID
-    // Krimble 2026-10-10: fit the file dialog to the screen each time it is shown (see KrimbleFitToScreenFilter).
     d->fileDialog->installEventFilter(new KrimbleFitToScreenFilter(d->fileDialog.get()));
 #endif
 }
@@ -384,24 +361,12 @@ QString KoFileDialog::filename()
         mimeSelector.setCancelButtonText(KStandardGuiItem::cancel().text());
         // combobox as they stand, are very hard to scroll on a touch device
         mimeSelector.setOption(QInputDialog::UseListViewForComboBoxItems);
-        // Krimble: this dialog had no explicit size at all, so it fell back
-        // to Qt's tiny default QInputDialog size (built for a one-line text
-        // prompt, not a scrollable format list on a touchscreen) -- bug
-        // item 13, "little Krita windows" for Save As. Sized relative to
-        // the available screen instead of a fixed pixel value, so it's
-        // reasonable across different device sizes.
         if (QScreen *screen = QApplication::primaryScreen()) {
             const QRect avail = screen->availableGeometry();
-            // Krimble 2026-10-23: George (1.0.41 test list item 4): "The Save and Export windows should open a little taller." 60% -> 75% of the screen's height.
-            // mimeSelector.setMinimumSize(avail.width() * 0.85, avail.height() * 0.75);   (Oct 23: 60% to 75%)
-            // Krimble 2026-11-04: George: "the Save As dialog with the file type selector default height is too short." 75% to 90%, the most the fit-to-screen filter allows.
-            // Krimble 2026-11-13: George: "The save as dialog opens a list of file types that need to be taller." 90% to 98% of the available height (the area the system bars leave), here and in the fit-to-screen filter below.
-            // Krimble 2026-11-16 (728th): no forced width (see KrimbleTypeListFit); the height as before, but as a size to open at, not a minimum, so the window can be made smaller by hand
-            // and the size the user gave it can be put back the next time (KisApplication.cpp, krimbleRememberDialog).
             mimeSelector.resize(qMin(int(avail.width() * 0.95), 300), int(avail.height() * 0.98));
         }
 #ifdef Q_OS_ANDROID
-        mimeSelector.installEventFilter(new KrimbleTypeListFit(&mimeSelector));   // Krimble 2026-11-15 (item 15): every type shows when it opens
+        mimeSelector.installEventFilter(new KrimbleTypeListFit(&mimeSelector));
 #endif
 
         if (mimeSelector.exec() == QDialog::Accepted) {
@@ -413,8 +378,6 @@ QString KoFileDialog::filename()
             if (!extension.startsWith(".")) {
                 extension = "." + extension;
             }
-            // Krimble 2026-10-18: George: "Also make sure the jpg images never default to saving with the .jpeg extension." The extension proposed for a JPEG is .jpg,
-            // whatever the order of the suffixes in the filter.
             if (extension.compare(QStringLiteral(".jpeg"), Qt::CaseInsensitive) == 0) {
                 extension = QStringLiteral(".jpg");
             }

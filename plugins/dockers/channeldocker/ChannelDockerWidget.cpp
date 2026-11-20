@@ -39,8 +39,6 @@ ChannelDockerWidget::ChannelDockerWidget(QWidget *parent, const char *name)
     // Use a layout so the widget gets resized properly
     QGridLayout *layout = new QGridLayout();
     layout->addWidget(m_channelTable);
-    // Krimble 2026-11-13: George: "channels". A touch screen has no Ctrl key, so the two actions of a channel also have buttons under the list: "All" shows every channel again, "To selection" loads the
-    // chosen row's channel as the selection. A tap on a channel's name or thumbnail shows only that channel (the checkboxes still switch single channels on and off).
     QHBoxLayout *buttons = new QHBoxLayout();
     QPushButton *allButton = new QPushButton(tr("All"));
     QPushButton *selectionButton = new QPushButton(tr("To selection"));
@@ -60,7 +58,7 @@ ChannelDockerWidget::ChannelDockerWidget(QWidget *parent, const char *name)
     }
 
     connect(m_channelTable,&QTableView::activated, m_model, &ChannelModel::rowActivated);
-    connect(m_channelTable, &QTableView::clicked, this, &ChannelDockerWidget::slotTableClicked);   // Krimble 2026-11-13
+    connect(m_channelTable, &QTableView::clicked, this, &ChannelDockerWidget::slotTableClicked);
 }
 
 void ChannelDockerWidget::slotTableClicked(const QModelIndex &index)

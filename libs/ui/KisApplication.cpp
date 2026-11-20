@@ -9,7 +9,7 @@
 #include <QHBoxLayout>
 #include <QBoxLayout>
 #include "KisApplication.h"
-#include "KrimbleVisualStyle.h"   // Krimble shared visual refresh
+#include "KrimbleVisualStyle.h"
 
 #include <stdlib.h>
 #ifdef Q_OS_WIN
@@ -46,26 +46,26 @@
 #include <QToolTip>
 #include <QMouseEvent>
 #include <QPainter>
-#include <QSettings>   // Krimble 2026-11-16 (728th)
-#include <QInputDialog>   // Krimble 2026-11-16 (728th)
-#include <QLinearGradient>   // Krimble 2026-11-16 (728th)
+#include <QSettings>
+#include <QInputDialog>
+#include <QLinearGradient>
 #include <QProgressDialog>
 #ifndef KRIMBLE_HARNESS
 #include "kis_slider_spin_box.h"
 #endif
 #include <QGuiApplication>
-#include <QInputMethod>   // Krimble 2026-11-11: hide the keyboard after a drag
+#include <QInputMethod>
 #include <QPointer>
 #include <QTimer>
 #endif
-#include <QTabWidget>   // Krimble 2026-10-23: krimbleCompactDialog
-#include <QAbstractButton>   // Krimble 2026-11-08: krimbleNoSqueeze
-#include <QAbstractScrollArea>   // Krimble 2026-11-08: krimbleNoSqueeze
-#include <QComboBox>   // Krimble 2026-11-08: krimbleNoSqueeze
-#include <QGroupBox>   // Krimble 2026-11-08: krimbleNoSqueeze
-#include <QSpacerItem>   // Krimble 2026-10-23: krimbleCompactDialog
+#include <QTabWidget>
+#include <QAbstractButton>
+#include <QAbstractScrollArea>
+#include <QComboBox>
+#include <QGroupBox>
+#include <QSpacerItem>
 #include <QScreen>
-#include <QScrollArea>   // Krimble 2026-10-23: krimbleDialogMinWidth
+#include <QScrollArea>
 #include <QDir>
 #include <QFile>
 #include <QLocale>
@@ -97,7 +97,7 @@
 #include <KoShapeRegistry.h>
 #include "KoConfig.h"
 #include <QFontDatabase>
-#include <QFileInfo>   // Krimble 2026-10-19: krimbleLoadBundledFonts
+#include <QFileInfo>
 #include <KoFontRegistry.h>
 #include <KoResourcePaths.h>
 #include <KisMimeDatabase.h>
@@ -230,22 +230,12 @@ private:
  */
 Q_GLOBAL_STATIC(QThreadStorage<AppRecursionInfo>, s_recursionInfo)
 
-// Krimble 2026-10-14: the page list of Preferences (KPageListView) takes the size of its pictures from the style
-// (`style->pixelMetric(QStyle::PM_IconViewIconSize)`, see kpageview_p.cpp of KWidgetsAddons), not from the view's iconSize(), so the
-// setIconSize(64) of 2026-10-13 did nothing (George, 1.0.36: "The new icons are way too small on the new file and prefs dialogs." and "Need big
-// icons. Small screen."). This style is put on that one list only and gives 64 logical px (about 216 on the screen) for the pictures.
-// Krimble 2026-11-15: George (build 60, Preferences): "New key icon is in Preferences, but hilight still maps over the selected icon instead of under it." The page list's own delegate draws the picture of the
-// selected page with QIcon::Selected, and Qt makes that picture by laying the highlight color (30%) over it, so the highlight shows on top of the icon. This delegate fills the selected row first, then draws the
-// icon as it is (QIcon::Normal) and the name under it, so the highlight is under the icon. Sizes come from the list's own delegate (sizeHint), the icon is the list's icon size, centered at the top of the row.
 class KrimblePageListDelegate : public QStyledItemDelegate
 {
 public:
     KrimblePageListDelegate(QAbstractItemDelegate *original, QObject *parent) : QStyledItemDelegate(parent), m_original(original) {}
     QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const override
     {
-        // Krimble 2026-11-16 (728th): George (build 65, Preferences screenshot): "Canvas input settings selection overlaps onto the keyboard title area." The row's size came from the list's
-        // own delegate, but this delegate draws the name in bold under a picture of its own size, so a name could reach below its row, into the next one, and the next row's highlight
-        // covered it. The row is at least as tall as what paint() below draws: 5, the picture, 4, the name (bold, wrapped to the row's width), 6.
         QSize size = m_original ? m_original->sizeHint(option, index) : QStyledItemDelegate::sizeHint(option, index);
         const QWidget *list = option.widget;
         const int side = qMax(16, (list ? list->style() : QApplication::style())->pixelMetric(QStyle::PM_IconViewIconSize));
@@ -271,24 +261,17 @@ public:
         back.features &= ~QStyleOptionViewItem::HasDecoration;
         back.features &= ~QStyleOptionViewItem::HasDisplay;
         QStyle *style = opt.widget ? opt.widget->style() : QApplication::style();
-        // Krimble 2026-11-15 (690th): George: "The hilight still tints the icon when selected. Fix it. Again." The style (style sheet) draw of the row may lay its highlight over the picture, so the row is filled
-        // here directly: opaque highlight color under the picture, nothing drawn after the picture. (the old style call is kept, commented out)
         Q_UNUSED(style);
         painter->save();
         painter->setCompositionMode(QPainter::CompositionMode_Source);
-        // Krimble 2026-11-16 (728th): the design's selection gradient in the Krimble themes with blue selections (as the other lists and the menus have since the 722nd), the theme's
-        // highlight color elsewhere. Still under the picture, opaque.
         if (selected) {
             if (qApp->property("krimbleSelectionGradient").toBool()) {
-                painter->fillRect(opt.rect, QColor(0x0b, 0x87, 0xdd));   // Krimble 2026-11-20 (757th): George: "Make the other selections plain blue like menus. No gradients." One flat blue, #0b87dd, as the menus.
+                painter->fillRect(opt.rect, QColor(0x0b, 0x87, 0xdd));
             } else {
                 painter->fillRect(opt.rect, QColor(opt.palette.color(QPalette::Active, QPalette::Highlight).rgb()));
             }
         }
         painter->restore();
-        // the picture, as it is, centered at the top of the row
-        // Krimble 2026-11-15 (706th): the picture has the size the list's own delegate uses (the style's PM_IconViewIconSize, about 85 units on George's phone in build 63), so the list looks as it does now, only
-        // without the tint. (decorationSize is the view's small list icon size, which that delegate never used.)
         const int side = qMax(16, qMin((opt.widget ? opt.widget->style() : QApplication::style())->pixelMetric(QStyle::PM_IconViewIconSize), opt.rect.width() - 8));
         QFont font = opt.font;
         font.setBold(true);
@@ -297,8 +280,6 @@ public:
         // const QRect iconRect(opt.rect.left() + (opt.rect.width() - side) / 2, opt.rect.top() + 4, side, side);
         const QRect iconRect(opt.rect.left() + (opt.rect.width() - side) / 2, opt.rect.top() + 5, side, side);   // 706th: 5 from the top, as the list's own delegate
         if (!icon.isNull()) {
-            // Krimble 2026-11-15 (690th): the picture is drawn from a plain pixmap (Normal mode, no Selected tint) with source-over
-            // Krimble 2026-11-15 (702nd): build 63 failed here: QIcon::pixmap(QSize, qreal, ...) exists only in Qt 6. Qt 5 form: with AA_UseHighDpiPixmaps (main.cc) the pixmap comes at the screen's density.
             QPixmap pix = icon.pixmap(QSize(side, side), QIcon::Normal, QIcon::Off);
             const QSizeF logical = QSizeF(pix.size()) / pix.devicePixelRatio();
             painter->drawPixmap(QPointF(iconRect.left() + (side - logical.width()) / 2.0, iconRect.top() + (side - logical.height()) / 2.0), pix);
@@ -366,8 +347,8 @@ public:
     int m_fileCount;
 };
 
-#include "krimble/KrimbleDialogs.inc"   // Krimble 2026-11-20 (760th)
-#include "krimble/KrimbleNumberFields.inc"   // Krimble 2026-11-20 (760th)
+#include "krimble/KrimbleDialogs.inc"
+#include "krimble/KrimbleNumberFields.inc"
 KisApplication::KisApplication(const QString &key, int &argc, char **argv)
     : QtSingleApplication(key, argc, argv)
     , d(new Private)
@@ -378,10 +359,8 @@ KisApplication::KisApplication(const QString &key, int &argc, char **argv)
     // else, including our own dialog decorations.
     qputenv("QT_QUICK_BACKEND", "software");
 
-    // KRIMBLE 2026-10-03: keep dialogs on screen (see KrimbleDialogKeeper above).
     installEventFilter(new KrimbleDialogKeeper(this));
 
-    // KRIMBLE 2026-10-04: number fields: tap = Krimble's number pad, long press + drag = change the value.
     installEventFilter(new KrimbleNumberFields(this));
 #endif
 #ifdef Q_OS_MACOS
@@ -412,8 +391,6 @@ KisApplication::KisApplication(const QString &key, int &argc, char **argv)
     }
 #endif
 
-    // Krimble: double the dock widget (panel) separator width so it's a
-    // reliable touch target for resizing docked panels, not just a mouse one.
     qApp->setStyle(new KisWideDockSeparatorStyle(qApp->style()));
 #ifdef Q_OS_ANDROID
     // A single visual skin for dialogs and controls. Do not change window flags,
@@ -511,7 +488,6 @@ void KisApplication::initializeGlobals(const KisApplicationArguments &args)
 
 void KisApplication::addResourceTypes()
 {
-    // All Krimble's resource types
     KoResourcePaths::addAssetType("markers", "data", "/styles/");
     KoResourcePaths::addAssetType("kis_pics", "data", "/pics/");
     KoResourcePaths::addAssetType("kis_images", "data", "/images/");
@@ -598,8 +574,6 @@ bool KisApplication::registerResources()
                                                      i18nc("Resource type name", "Layer styles"),
                                                      QStringList() << "application/x-photoshop-style"));
 
-    // KRIMBLE 2026-10-04: shown to the user as "Fonts" (George: "Font families in Krita is a LIE. It's just fonts.").
-    // reg->add(new KisResourceLoader<KoFontFamily>(ResourceType::FontFamilies, ResourceType::FontFamilies, i18n("Font Families"), QStringList() << "application/x-font-ttf" << "application/x-font-otf"));
     reg->add(new KisResourceLoader<KoFontFamily>(ResourceType::FontFamilies, ResourceType::FontFamilies, i18n("Fonts"), QStringList() << "application/x-font-ttf" << "application/x-font-otf"));
     reg->add(new KisResourceLoader<KoCssStylePreset>(ResourceType::CssStyles, ResourceType::CssStyles, i18n("Style Presets"), QStringList() << "image/svg+xml"));
 
@@ -641,19 +615,9 @@ void KisApplication::loadPlugins()
     KisMetadataBackendRegistry::instance();
 }
 
-// Krimble 2026-10-18 (10th): George: "I have several fonts which could be included with the app. I can license them to the project." and "The ttf files are in Krita/data/fonts/ now."
-// The fonts of krita/data/fonts (installed to <data>/krita/fonts) are made known to Qt (the font lists of the Type tool and the dialogs) and to the text engine (KoFontRegistry,
-// fontconfig, which draws text shapes). LICENSE: they are not GPL; they are George Edward Purdy's (Purdy Design) and are included with his permission, to be used inside Krimble;
-// each file carries its own license text (see krita/data/fonts/readme.md).
 static void krimbleLoadBundledFonts()
 {
     QStringList files;
-    // Krimble 2026-10-19: George (1.0.39): none of the bundled fonts (his five, or the 52 open families) are in the Type tool's list. The
-    // folders searched were only KoResourcePaths::assetDirs("data") + "/fonts". On Android the installed share/ folder is packed into the APK's
-    // assets (build.gradle, copyAssets: share/krita/fonts -> assets/krita/fonts), which is not one of those folders. That folder is now
-    // searched too ("assets:/krita/fonts"), and because the text engine (fontconfig, FreeType) can only open real files, every font found in
-    // the assets is first copied to the app's own data folder (<app data>/krimble-fonts, copied again only when its size changed), and the
-    // copy is what is registered with Qt and with the text engine.
     QStringList fontDirs;
     Q_FOREACH (const QString &dir, KoResourcePaths::assetDirs("data")) {
         fontDirs << dir + QStringLiteral("/fonts");
@@ -697,10 +661,6 @@ static void krimbleLoadBundledFonts()
     qInfo() << "Krimble: bundled fonts found:" << files.size() << "loaded:" << loaded;
 }
 
-// Krimble 2026-10-23: George: "Can we have a toggle to reset all options to defaults on restart?" With Window/Help-menu item "Reset Tool Options on Start" checked, the saved options of
-// the tools are thrown away when the program starts: every configuration group whose name has "Tool" in it (KisToolBrush, KisToolSelectBase, KritaShape/KisToolBrush, KritaTransform/
-// KisToolTransform, KritaFill/KisToolFill ...; the toolbox's own layout settings are not touched). The tools then start with their defaults. Preferences, panel layout, brushes
-// and the recent files are not touched.
 static void krimbleResetToolOptionsIfWanted()
 {
     KSharedConfigPtr config = KSharedConfig::openConfig();
@@ -720,11 +680,11 @@ bool KisApplication::start(const KisApplicationArguments &args)
     KisAndroidDonations::showDonationDialog(true);
 #endif
 
-    krimbleResetToolOptionsIfWanted();   // Krimble 2026-10-23 (before any tool reads its options)
+    krimbleResetToolOptionsIfWanted();
 
     KisConfig cfg(false);
 
-    krimbleLoadBundledFonts();   // Krimble 2026-10-18 (10th)
+    krimbleLoadBundledFonts();
 
     auto iconsInMenuMode = cfg.iconsInMenu();
     if (iconsInMenuMode == KisConfig::IIM_Yes) {
@@ -787,7 +747,7 @@ bool KisApplication::start(const KisApplicationArguments &args)
     KConfigGroup group(KSharedConfig::openConfig(), "theme");
 #ifndef Q_OS_HAIKU
     Digikam::ThemeManager themeManager;
-    themeManager.setCurrentTheme(group.readEntry("Theme", "Krimble Blue-Gray"));   // Krimble 2026-11-12 (task 27): the default theme
+    themeManager.setCurrentTheme(group.readEntry("Theme", "Krimble Blue-Gray"));
 #endif
 
     ResetStarting resetStarting(d->splashScreen, args.filenames().count()); // remove the splash when done
@@ -858,14 +818,6 @@ bool KisApplication::start(const KisApplicationArguments &args)
                 }
             }
 
-            // KRIMBLE 2026-10-02: Krita only applies the "Default" workspace when it
-            // is asked for explicitly (command line, canvas-only mode, Reset All
-            // Settings). On a normal first launch the panels therefore came from
-            // each panel's built-in default, which is why Color Selector and Brush
-            // Presets showed up even though the Default workspace was set to
-            // ToolBox, Tool Options and Layers only. Apply the Default workspace once,
-            // on the first launch of an installation. Later launches keep whatever
-            // layout the user left.
             if (args.workspace().isEmpty()) {
                 KConfigGroup krimbleGroup = KSharedConfig::openConfig()->group("Krimble");
                 if (!krimbleGroup.readEntry("DefaultWorkspaceApplied", false)) {
@@ -928,12 +880,6 @@ if (!d->batchRun) {
     setPageUpDownMouseButtonEmulationWorkaround(cfg.usePageUpDownMouseButtonEmulationWorkaround());
 #endif
 
-    // OnePlus workaround: their stylus inexplicably inputs the F21 key when
-    // pressing the stylus button. This flag causes the Android platform
-    // integration to turn it into middle clicks instead. Currently
-    // unconditional because a setting requires translation-relevant text
-    // changes, but later versions of Krimble let you toggle it like the Xiaomi
-    // workarounds above.
 #if KRITA_QT_HAS_ANDROID_EMULATE_MOUSE_BUTTONS_FOR_HIGH_FUNCTION_KEYS
     QCoreApplication::setKritaAttribute(KRITA_QATTRIBUTE_ANDROID_EMULATE_MOUSE_BUTTONS_FOR_HIGH_FUNCTION_KEYS, true);
     auto setHighFunctionKeyMouseButtonEmulationWorkaround = [](bool enabled) {
@@ -1100,8 +1046,6 @@ if (!d->batchRun) {
         }
     }
 
-    // fixes BUG:369308  - Krimble crashing on splash screen when loading.
-    // trying to open a file before Krimble has loaded can cause it to hang and crash
     if (d->splashScreen) {
         d->splashScreen->displayLinks(true);
         d->splashScreen->displayRecentFiles(true);

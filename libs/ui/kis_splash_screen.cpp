@@ -60,12 +60,6 @@ KisSplashScreen::KisSplashScreen(bool themed, QWidget *parent, Qt::WindowFlags f
     m_loadingTextLabel->setAlignment(Qt::AlignRight | Qt::AlignTop);
     addDropShadow(m_loadingTextLabel);
 
-    // KRIMBLE 2026-10-06: the logo (orange K with paw) and the "KRITA" wordmark (banner.svg, now removed from the
-    // source) are no longer drawn on the splash / About screen (George: "Remove the Krita logo completely from the
-    // source and keep that paw icon out of that screen"). Original lines:
-    // m_brandingSvg = new QSvgWidget(QStringLiteral(":/krita-branding.svgz"), lblSplash);
-    // m_bannerSvg = new QSvgWidget(QStringLiteral(":/splash/banner.svg"), lblSplash);
-    // addDropShadow(m_bannerSvg);
     m_brandingSvg = nullptr;
     m_bannerSvg = nullptr;
 
@@ -75,8 +69,6 @@ KisSplashScreen::KisSplashScreen(bool themed, QWidget *parent, Qt::WindowFlags f
     m_artCreditsLabel->setAlignment(Qt::AlignRight | Qt::AlignBottom);
     addDropShadow(m_artCreditsLabel);
 
-    // Krimble 2026-11-04: George: "Can we put the version number at the bottom of the splash instead of the top?" The version number is its own label
-    // at the bottom left now, on the same line as the art credit (bottom right). It used to be the first line of the loading text at the top.
     m_versionLabel = new QLabel(lblSplash);
     m_versionLabel->setTextFormat(Qt::RichText);
     m_versionLabel->setStyleSheet(QStringLiteral("QLabel { color: #fff; background-color: transparent; }"));
@@ -118,7 +110,6 @@ void KisSplashScreen::updateSplashImage()
     } else {
         splashHeight = SPLASH_HEIGHT_LOADING;
     }
-    // Krimble 2026-10-11: no longer const, they are worked out again when the About image is made smaller (below).
     int bannerHeight = splashHeight * 0.16875;
     int marginTop = splashHeight * 0.05;
     int marginRight = splashHeight * 0.1;
@@ -133,12 +124,8 @@ void KisSplashScreen::updateSplashImage()
     int height = splashHeight;
     int width = height * img.width() / img.height();
 #ifdef Q_OS_ANDROID
-    // Krimble 2026-10-11: the splash in the About window is scaled to at most 80% of the screen width (it was a fixed 320 px high
-    // and about 480 px wide, wider than a phone in portrait, which made the whole About window bigger than the screen).
     if (m_displayLinks) {
         if (QScreen *screenPtr = QGuiApplication::primaryScreen()) {
-            // Krimble 2026-10-18: George (1.0.37): "8. About Krimble text is all over the place." The picture was sized from the screen, and came out
-            // wider than the window it is in; the About dialog now gives the width of the window (see kis_about_application.cpp).
             const int maxWidth = m_maxAboutWidth > 0 ? m_maxAboutWidth : int(screenPtr->availableGeometry().width() * 0.80);
             if (maxWidth > 0 && width > maxWidth) {
                 width = maxWidth;
@@ -163,20 +150,6 @@ void KisSplashScreen::updateSplashImage()
     img.setDevicePixelRatio(devicePixelRatioF());
     lblSplash->setPixmap(img);
 
-    // KRIMBLE 2026-10-06: no logo and no banner any more; the loading text keeps the place it had (just below
-    // where they used to be). Original lines:
-    // // Align banner to top-left with margin.
-    // m_bannerSvg->setFixedHeight(bannerHeight);
-    // m_bannerSvg->setFixedWidth(bannerHeight * m_bannerSvg->sizeHint().width() / m_bannerSvg->sizeHint().height());
-    // m_bannerSvg->move(width - m_bannerSvg->width() - marginRight, marginTop);
-    //
-    // // Place logo to the left of banner.
-    // m_brandingSvg->setFixedSize(bannerHeight, bannerHeight);
-    // m_brandingSvg->move(m_bannerSvg->x() - m_brandingSvg->width(), marginTop);
-    //
-    // // Place loading text immediately below.
-    // m_loadingTextLabel->move(marginRight, m_brandingSvg->geometry().bottom());
-    // m_loadingTextLabel->setFixedWidth(m_bannerSvg->geometry().right() - marginRight);
     m_loadingTextLabel->move(marginRight, marginTop + bannerHeight - 1);
     m_loadingTextLabel->setFixedWidth((width - marginRight - 1) - marginRight);
 
@@ -186,7 +159,6 @@ void KisSplashScreen::updateSplashImage()
     m_artCreditsLabel->setFixedHeight(20);
     m_artCreditsLabel->move(m_loadingTextLabel->x(), height - marginTop - m_artCreditsLabel->height());
 
-    // Krimble 2026-11-04: the version number, bottom left, on the same line as the art credit (bottom right).
     m_versionLabel->setFixedWidth(m_loadingTextLabel->width() / 2);
     m_versionLabel->setFixedHeight(m_artCreditsLabel->height());
     m_versionLabel->move(m_loadingTextLabel->x(), m_artCreditsLabel->y());
@@ -308,9 +280,6 @@ void KisSplashScreen::setLoadingText(QString text)
 {
     int larger = 12;
     int notAsLarge = larger - 1;
-    // QString htmlText = QStringLiteral("<span style='font: %3pt;'><span style='font: bold %4pt;'>%1</span><br><i>%2</i></span>")
-    //         .arg(m_versionHtml, text.toHtmlEscaped(), QString::number(notAsLarge), QString::number(larger));
-    // Krimble 2026-11-04: the version number is not in this text any more (it is m_versionLabel, bottom left); only the loading message stays at the top.
     Q_UNUSED(larger);
     QString htmlText = QStringLiteral("<span style='font: %2pt;'><i>%1</i></span>")
             .arg(text.toHtmlEscaped(), QString::number(notAsLarge));
@@ -326,9 +295,7 @@ KisSplashScreen::Source KisSplashScreen::getImageSource()
     // Enterprise Splash Screen Solution where we choose the image based on
     // screen size or something, we'll just use a HD JPEG instead. It's fine.
 #ifdef Q_OS_ANDROID
-    // KRIMBLE 2026-10-02: splash images are JPG now (see splash-android.qrc).
     QString resourcePath = QStringLiteral(":/splash/hd.jpg");
-    // Krimble: holiday splash, active Dec 1 through Dec 26 inclusive.
     QDate currentDate = QDate::currentDate();
     if (currentDate >= QDate(currentDate.year(), 12, 1) &&
             currentDate <= QDate(currentDate.year(), 12, 26)) {

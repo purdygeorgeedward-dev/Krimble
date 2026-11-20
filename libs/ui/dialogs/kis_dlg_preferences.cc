@@ -256,9 +256,6 @@ GeneralTab::GeneralTab(QWidget *_parent, const char *_name)
         scrollAreaWidgetContents->parentWidget()->setAutoFillBackground(false);
     }
 
-    // Krimble 2026-10-12: George: "I don't know if the paste behavior with the new dialog is great. I think it should be a preference
-    // that can be toggled on and off." On the Pasting tab: when on (the default), the Custom Document page of File > New starts with the
-    // size of the picture on the clipboard (the 91st changelog entry). The choice is saved as soon as the box is changed.
     {
         QCheckBox *newFromClipboardSize = new QCheckBox(i18n("New document starts with the size of the copied picture"), Pasting);
         newFromClipboardSize->setToolTip(i18n("When a picture was copied or cut, File > New starts with its width and height, so it can be pasted into the new document cleanly."));
@@ -389,9 +386,7 @@ GeneralTab::GeneralTab(QWidget *_parent, const char *_name)
         intFontSize->setValue(fontSize);
     }
 
-    // KRIMBLE 2026-10-04: tabs again (Subwindows as the default was tried and undone the same day).
-    // Krimble 2026-10-11: floating windows are the default again.
-    m_cmbMDIType->setCurrentIndex(cfg.readEntry<int>("mdi_viewmode", (int)QMdiArea::TabbedView));   // Krimble 2026-11-16 (724th): tabs are the default again
+    m_cmbMDIType->setCurrentIndex(cfg.readEntry<int>("mdi_viewmode", (int)QMdiArea::TabbedView));
     enableSubWindowOptions(m_cmbMDIType->currentIndex());
     connect(m_cmbMDIType, SIGNAL(currentIndexChanged(int)), SLOT(enableSubWindowOptions(int)));
 
@@ -403,7 +398,6 @@ GeneralTab::GeneralTab(QWidget *_parent, const char *_name)
     KoColor mdiColor = KoColor::fromXML(xml);
     m_mdiColor->setColor(mdiColor);
 
-    // Krimble 2026-10-11: on Android the picture is shown while a floating window is dragged (the default is "no outline only").
 #ifdef Q_OS_ANDROID
     m_chkRubberBand->setChecked(cfg.readEntry<int>("mdi_rubberband", 0));
 #else
@@ -414,10 +408,6 @@ GeneralTab::GeneralTab(QWidget *_parent, const char *_name)
 
     const QString configPath = QStandardPaths::writableLocation(QStandardPaths::GenericConfigLocation);
     QSettings kritarc(configPath + QStringLiteral("/kritadisplayrc"), QSettings::IniFormat);
-    // Krimble: default matches krita/main.cc's default for this same
-    // "EnableHiDPI" key (kritadisplayrc) -- both were changed from false to
-    // true so the checkbox here reflects the feature actually being on by
-    // default, rather than showing unchecked while the feature is enabled.
     m_chkHiDPI->setChecked(kritarc.value("EnableHiDPI", true).toBool());
 #if defined(Q_OS_WIN) && defined(HAVE_HIGH_DPI_SCALE_FACTOR_ROUNDING_POLICY)
     m_chkHiDPIFractionalScaling->setChecked(kritarc.value("EnableHiDPIFractionalScaling", false).toBool());
@@ -864,8 +854,6 @@ void GeneralTab::setDefault()
     intFontSize->setValue(qApp->font().pointSize());
 
         
-    // KRIMBLE 2026-10-04: Restore Defaults selects tabs again (Subwindows as the default was tried and undone).
-    // m_cmbMDIType->setCurrentIndex((int)QMdiArea::SubWindowView);
     m_cmbMDIType->setCurrentIndex((int)QMdiArea::TabbedView);
     m_chkRubberBand->setChecked(cfg.useOpenGL(true));
     KoColor mdiColor;
@@ -2729,10 +2717,6 @@ void PopupPaletteTab::slotSelectorTypeChanged(int index) {
 
 //---------------------------------------------------------------------------------------------------
 
-// KRIMBLE 2026-10-04: on Android every page of the Preferences window is put inside a scroll area. The
-// window can then never be wider or taller than the screen: a page that is too big for the window scrolls
-// instead of making the window grow (the General page, with its row of tabs and long check box texts, made
-// the window several screens wide). On other platforms the page is used as it is.
 static QWidget *krimblePrefsPage(QWidget *page)
 {
 #ifdef Q_OS_ANDROID
@@ -2747,14 +2731,10 @@ static QWidget *krimblePrefsPage(QWidget *page)
 }
 
 #ifdef Q_OS_ANDROID
-// KRIMBLE 2026-10-09: the left list of the Preferences window was about 31% of the screen, sized by its longest one-line title.
-// This draws each entry as icon on top, title wrapped under it, in a fixed narrow width.
 class KrimblePrefsListDelegate : public QStyledItemDelegate
 {
 public:
     KrimblePrefsListDelegate(int itemWidth, QObject *parent) : QStyledItemDelegate(parent), m_w(itemWidth) {}
-    // Krimble 2026-11-13 (task 45): George: "Preferences keyboard is never big enough, but column is too wide and selection area is darkening the selected icon. Yuck. What happened to bright blue background for selection?" The height of an item's picture: the decoration's height, but a WIDE picture (the whole keyboard is 1.5 times wider than tall) is as tall as its width allows, so it fills the
-    // item's width (3 px at each side) instead of being limited by the height of a square icon. The item grows with it.
     int iconHeight(const QStyleOptionViewItem &option, const QModelIndex &index) const
     {
         const int base = option.decorationSize.height();
@@ -2786,13 +2766,7 @@ public:
         QStyle *style = opt.widget ? opt.widget->style() : QApplication::style();
         style->drawPrimitive(QStyle::PE_PanelItemViewItem, &opt, p, opt.widget);
         const bool selected = opt.state & QStyle::State_Selected;
-        const QSize isz(option.decorationSize.width(), iconHeight(option, index));   // Krimble 2026-11-13 (task 45): George: "Preferences keyboard is never big enough, but column is too wide and selection area is darkening the selected icon. Yuck. What happened to bright blue background for selection?"
-        // Krimble 2026-11-07: George: "The new keyboard icon in Prefs is chopped in half." The icon is drawn in the whole width of the list item (a wide picture, the whole keyboard, now fits, a square one is as large as before: QIcon::paint keeps the picture's shape inside the box).
-        // index.data(Qt::DecorationRole).value<QIcon>().paint(p, QRect(opt.rect.x() + (opt.rect.width() - isz.width()) / 2, opt.rect.y() + pad, isz.width(), isz.height()), Qt::AlignCenter, selected ? QIcon::Selected : QIcon::Normal);
-        // index.data(Qt::DecorationRole).value<QIcon>().paint(p, QRect(opt.rect.x() + pad, opt.rect.y() + pad, opt.rect.width() - 2 * pad, isz.height()), Qt::AlignCenter, selected ? QIcon::Selected : QIcon::Normal);
-        // 2026-11-08: only 3 px at each side for the picture (a wide picture such as the keyboard uses the whole width; a square one is as before)
-        // index.data(Qt::DecorationRole).value<QIcon>().paint(p, QRect(opt.rect.x() + 3, opt.rect.y() + pad, opt.rect.width() - 6, isz.height()), Qt::AlignCenter, selected ? QIcon::Selected : QIcon::Normal);
-        // Krimble 2026-11-13 (task 45): George: "Preferences keyboard is never big enough, but column is too wide and selection area is darkening the selected icon. Yuck. What happened to bright blue background for selection?" The icon of a selected page is no longer drawn in the Selected mode (the style tints it with the selection color: it darkened the keyboard). The selection is a bright blue fill now, and the picture is drawn as it is.
+        const QSize isz(option.decorationSize.width(), iconHeight(option, index));
         index.data(Qt::DecorationRole).value<QIcon>().paint(p, QRect(opt.rect.x() + 3, opt.rect.y() + pad, opt.rect.width() - 6, isz.height()), Qt::AlignCenter, QIcon::Normal);
         const QRect tr(opt.rect.x() + pad, opt.rect.y() + pad + isz.height() + 2, opt.rect.width() - 2 * pad, opt.rect.height() - (pad + isz.height() + 2 + pad));
         p->save();
@@ -2816,7 +2790,6 @@ KisDlgPreferences::KisDlgPreferences(QWidget* parent, const char* name)
 
     // General
     KoVBox *vbox = new KoVBox();
-    // KRIMBLE 2026-10-04: was KPageWidgetItem *page = new KPageWidgetItem(vbox, i18n("General"));
     KPageWidgetItem *page = new KPageWidgetItem(krimblePrefsPage(vbox), i18n("General"));
     page->setObjectName("general");
     page->setHeader(i18n("General"));
@@ -2825,16 +2798,11 @@ KisDlgPreferences::KisDlgPreferences(QWidget* parent, const char* name)
     addPage(page);
     m_general = new GeneralTab(vbox);
 #ifdef Q_OS_ANDROID
-    // KRIMBLE 2026-10-02: the General page form has a hard minimum width of 552
-    // (about 1380 screen pixels on a phone), which made the whole Preferences
-    // window far wider than a screen. The page already scrolls inside, so it does
-    // not need that minimum. Android only.
     m_general->setMinimumWidth(0);
 #endif
 
     // Shortcuts
     vbox = new KoVBox();
-    // KRIMBLE 2026-10-04: was page = new KPageWidgetItem(vbox, i18n("Keyboard Shortcuts"));
     page = new KPageWidgetItem(krimblePrefsPage(vbox), i18n("Keyboard Shortcuts"));
     page->setObjectName("shortcuts");
     page->setHeader(i18n("Shortcuts"));
@@ -2847,7 +2815,6 @@ KisDlgPreferences::KisDlgPreferences(QWidget* parent, const char* name)
 
     // Canvas input settings
     m_inputConfiguration = new KisInputConfigurationPage();
-    // KRIMBLE 2026-10-04: was page = addPage(m_inputConfiguration, i18n("Canvas Input Settings"));
     page = addPage(krimblePrefsPage(m_inputConfiguration), i18n("Canvas Input Settings"));
     page->setHeader(i18n("Canvas Input"));
     page->setObjectName("canvasinput");
@@ -2856,7 +2823,6 @@ KisDlgPreferences::KisDlgPreferences(QWidget* parent, const char* name)
 
     // Display
     vbox = new KoVBox();
-    // KRIMBLE 2026-10-04: was page = new KPageWidgetItem(vbox, i18n("Display"));
     page = new KPageWidgetItem(krimblePrefsPage(vbox), i18n("Display"));
     page->setObjectName("display");
     page->setHeader(i18n("Display"));
@@ -2867,7 +2833,6 @@ KisDlgPreferences::KisDlgPreferences(QWidget* parent, const char* name)
 
     // Color
     vbox = new KoVBox();
-    // KRIMBLE 2026-10-04: was page = new KPageWidgetItem(vbox, i18n("Color Management"));
     page = new KPageWidgetItem(krimblePrefsPage(vbox), i18n("Color Management"));
     page->setObjectName("colormanagement");
     page->setHeader(i18nc("Label of color as in Color Management", "Color"));
@@ -2878,7 +2843,6 @@ KisDlgPreferences::KisDlgPreferences(QWidget* parent, const char* name)
 
     // Performance
     vbox = new KoVBox();
-    // KRIMBLE 2026-10-04: was page = new KPageWidgetItem(vbox, i18n("Performance"));
     page = new KPageWidgetItem(krimblePrefsPage(vbox), i18n("Performance"));
     page->setObjectName("performance");
     page->setHeader(i18n("Performance"));
@@ -2889,7 +2853,6 @@ KisDlgPreferences::KisDlgPreferences(QWidget* parent, const char* name)
 
     // Tablet
     vbox = new KoVBox();
-    // KRIMBLE 2026-10-04: was page = new KPageWidgetItem(vbox, i18n("Tablet settings"));
     page = new KPageWidgetItem(krimblePrefsPage(vbox), i18n("Tablet settings"));
     page->setObjectName("tablet");
     page->setHeader(i18n("Tablet"));
@@ -2900,7 +2863,6 @@ KisDlgPreferences::KisDlgPreferences(QWidget* parent, const char* name)
 
     // full-screen mode
     vbox = new KoVBox();
-    // KRIMBLE 2026-10-04: was page = new KPageWidgetItem(vbox, i18n("Canvas-only settings"));
     page = new KPageWidgetItem(krimblePrefsPage(vbox), i18n("Canvas-only settings"));
     page->setObjectName("canvasonly");
     page->setHeader(i18n("Canvas-only"));
@@ -2911,7 +2873,6 @@ KisDlgPreferences::KisDlgPreferences(QWidget* parent, const char* name)
 
     // Pop-up Palette
     vbox = new KoVBox();
-    // KRIMBLE 2026-10-04: was page = new KPageWidgetItem(vbox, i18n("Pop-up Palette"));
     page = new KPageWidgetItem(krimblePrefsPage(vbox), i18n("Pop-up Palette"));
     page->setObjectName("popuppalette");
     page->setHeader(i18n("Pop-up Palette"));
@@ -2922,7 +2883,6 @@ KisDlgPreferences::KisDlgPreferences(QWidget* parent, const char* name)
 
     // Author profiles
     m_authorPage = new KoConfigAuthorPage();
-    // KRIMBLE 2026-10-04: was page = addPage(m_authorPage, i18nc("@title:tab Author page", "Author" ));
     page = addPage(krimblePrefsPage(m_authorPage), i18nc("@title:tab Author page", "Author" ));
     page->setObjectName("author");
     page->setHeader(i18n("Author"));
@@ -2944,7 +2904,6 @@ KisDlgPreferences::KisDlgPreferences(QWidget* parent, const char* name)
         KisAbstractPreferenceSetFactory *preferenceSetFactory = preferenceSetRegistry->value(key);
         KisPreferenceSet* preferenceSet = preferenceSetFactory->createPreferenceSet();
         vbox = new KoVBox();
-        // KRIMBLE 2026-10-04: was page = new KPageWidgetItem(vbox, preferenceSet->name());
         page = new KPageWidgetItem(krimblePrefsPage(vbox), preferenceSet->name());
         page->setHeader(preferenceSet->header());
         page->setIcon(preferenceSet->icon());
@@ -2983,21 +2942,14 @@ KisDlgPreferences::KisDlgPreferences(QWidget* parent, const char* name)
 #endif
 
 #ifdef Q_OS_ANDROID
-    // KRIMBLE 2026-10-02: open the Preferences window no wider than 95% and no taller
-    // than 90% of the screen. If a page still needs more than that, the page's own
-    // minimum size wins; send a screenshot of that page.
     if (QScreen *scr = QGuiApplication::primaryScreen()) {
         const QSize screenSize = scr->availableGeometry().size();
         const QSize hint = sizeHint();
         resize(qMin(hint.width(), int(screenSize.width() * 0.95)),
                qMin(hint.height(), int(screenSize.height() * 0.90)));
-        // KRIMBLE 2026-10-09: narrow left list (see KrimblePrefsListDelegate above). Only used if the list is found and has one row per page.
         if (QListView *navList = findChild<QListView*>()) {
             if (navList->model() && navList->model()->rowCount() == m_pages.size()) {
                 const int shortSide = qMin(screenSize.width(), screenSize.height());
-                // Krimble 2026-11-08: George: "Keyboard icon in Prefs is too small." A whole keyboard is 2.6 times wider than tall, so its height is what the list item's width allows: the
-                // items were 20% of the screen's short side wide (the keyboard 52 logical px wide and 20 px tall on this phone); 28% now (the keyboard about 1.6 times larger, whole).
-                // Krimble 2026-11-13 (task 45): George: "Preferences keyboard is never big enough, but column is too wide and selection area is darkening the selected icon. Yuck. What happened to bright blue background for selection?" 24 percent now (it was 28): the keyboard fills the item's width, so the column can be narrower and the keyboard is still larger than before.
                 navList->setItemDelegate(new KrimblePrefsListDelegate(int(shortSide * 0.24), navList));
                 navList->setUniformItemSizes(false);
             }

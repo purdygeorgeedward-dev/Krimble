@@ -32,11 +32,7 @@ KisDlgCreateNewDocument::KisDlgCreateNewDocument(QWidget* parent)
     const QString colorDepth = cfg.defaultColorDepth();
     const QString colorProfile = cfg.defColorProfile();
 
-    // Krimble 2026-10-12: George's idea ("Here's something the industry standard does that would be nice to have..."): when a picture was copied
-    // or cut, the Custom Document page starts with the size of that picture, so it can be pasted into the new document cleanly.
-    // Without a copied picture, the saved default size is used as before.
     KisClipboard *krimbleClipboard = KisClipboard::instance();
-    // (Krimble 2026-10-12 (2nd): George: this should be a preference. Edit > Preferences > General > Pasting; on by default.)
     if (cfg.readEntry<int>("krimble_new_from_clipboard_size", 1) != 0 && krimbleClipboard && krimbleClipboard->hasClip()) {
         const QSize clipSize = krimbleClipboard->clipSize();
         if (clipSize.isValid() && clipSize.width() > 0 && clipSize.height() > 0) {
@@ -45,7 +41,6 @@ KisDlgCreateNewDocument::KisDlgCreateNewDocument(QWidget* parent)
         }
     }
 
-    // Krimble 2026-10-12: kept so the dialog's height can follow this page (below)
     KisCustomImageWidget *krimbleCustomPage = new KisCustomImageWidget(this, w, h, resolution, colorModel, colorDepth, colorProfile, i18n("Unnamed"));
     addCustomDocumentWidget(
         // new KisCustomImageWidget(this, w, h, resolution, colorModel, colorDepth, colorProfile, i18n("Unnamed")),
@@ -53,32 +48,22 @@ KisDlgCreateNewDocument::KisDlgCreateNewDocument(QWidget* parent)
         i18n("Custom Document"),
         "Custom Document",
         // "document-new");
-        "krimble-new-document");   // Krimble 2026-10-13: George's own picture (the general "document-new" icon is used in other places too)
+        "krimble-new-document");
 
    addCustomDocumentWidget(
         new KisImageFromClipboardWidget(this, 0, 0, resolution, colorModel, colorDepth, colorProfile, i18n("Unnamed")),
         i18n("Create from Clipboard"),
         "Create from ClipBoard",
         // "tab-new");
-        "krimble-new-from-clipboard");   // Krimble 2026-10-13: George's own picture (the general "tab-new" icon is used in other places too)
+        "krimble-new-from-clipboard");
 
     connect(this, SIGNAL(documentSelected(KisDocument*)), KisPart::instance(), SLOT(startCustomDocument(KisDocument*)));
     connect(this, SIGNAL(openTemplate(QUrl)), KisPart::instance(), SLOT(openTemplate(QUrl)));
 
 #ifdef Q_OS_ANDROID
-    // KRIMBLE 2026-10-09: open no wider than 95% and no taller than 90% of the screen; the pages scroll inside.
     if (QScreen *scr = QGuiApplication::primaryScreen()) {
         const QSize screenSize = scr->availableGeometry().size();
-        // resize(qMin(sizeHint().width(), int(screenSize.width() * 0.95)),
-        //        qMin(sizeHint().height(), int(screenSize.height() * 0.90)));
-        // Krimble 2026-10-12: George: "New dialog is too tall." The height came from the tall left list (icons over text) and left a
-        // big empty gap in the Custom Document page. The height now follows what the page needs (its own size plus 70 px for the
-        // frame), and is still at most 90% of the screen.
         const int pageHeight = krimbleCustomPage->sizeHint().height() + 70;
-        // resize(qMin(sizeHint().width(), int(screenSize.width() * 0.95)),
-        //        qMin(qMin(sizeHint().height(), pageHeight), int(screenSize.height() * 0.90)));
-        // Krimble 2026-11-15 (item 13): George: "It's about default sizes and bizarre insane magnification. There is no reason for this window to appear at full size of the whole screen."
-        // The window opens no wider than 75% of the screen's short side (810 px on this phone, portrait or landscape; the number is mine), so it is not as wide as the screen in landscape.
         const int shortSide = qMin(screenSize.width(), screenSize.height());
         resize(qMin(qMin(sizeHint().width(), int(screenSize.width() * 0.95)), int(shortSide * 0.75)),
                qMin(qMin(sizeHint().height(), pageHeight), int(screenSize.height() * 0.90)));

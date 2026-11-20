@@ -26,7 +26,7 @@ public:
     KisToolPolylineBase(KoCanvasBase * canvas, KisToolPolylineBase::ToolType type, const QCursor & cursor=KisCursor::load("tool_polygon_cursor.png", 6, 6));
 
     void beginPrimaryAction(KoPointerEvent *event) override;
-    void continuePrimaryAction(KoPointerEvent *event) override;   // Krimble 2026-10-13: the point follows the finger
+    void continuePrimaryAction(KoPointerEvent *event) override;
     void endPrimaryAction(KoPointerEvent *event) override;
     void beginPrimaryDoubleClickAction(KoPointerEvent *event) override;
     void mouseMoveEvent(KoPointerEvent *event) override;
@@ -42,13 +42,10 @@ public:
     void requestStrokeCancellation() override;
     KisPopupWidgetInterface* popupWidget() override;
 
-    // Krimble 2026-10-13: what the buttons in Tool Options (Undo Point, Close, Cancel) do, for a finger that has no Enter or Escape key
     void touchUndoPoint();
     void touchClosePolygon();
     void touchCancelPolygon();
 
-    // Krimble 2026-10-25: George: "I need an END button to stop a selection in progress. No keyboard obviously." While a polygon selection is being made, a bar with
-    // Undo point, END and Cancel is shown at the bottom of the canvas (the same three things as the buttons in Tool Options, which are behind a tab on a portrait screen).
     void showStrokeBar(bool show);
 
 protected:
@@ -63,7 +60,7 @@ private:
 private Q_SLOTS:
     void undoSelection();
     void undoSelectionOrCancel();
-    void advanceAnts();   // Krimble 2026-10-13: moves the marching ants one step
+    void advanceAnts();
 
 private:
 
@@ -74,12 +71,11 @@ private:
     ToolType m_type;
     bool m_closeSnappingActivated;
 
-    // Krimble 2026-10-13 (George's design): on a touch screen the polygon is built point by point with a finger, with marching ants
     QTimer *m_antsTimer {nullptr};
     qreal m_antsOffset {0.0};
     bool m_firstPointJustPlaced {false};   // the press that is going on put down the first point
     QPointF m_pressPoint;                  // where that press started (image pixels)
-    QPointer<QWidget> m_strokeBar;         // Krimble 2026-10-25: the Undo point / END / Cancel bar over the canvas
+    QPointer<QWidget> m_strokeBar;
 };
 
 #endif // KIS_TOOL_POLYLINE_BASE_H

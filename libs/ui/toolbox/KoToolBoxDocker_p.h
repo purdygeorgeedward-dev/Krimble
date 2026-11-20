@@ -39,9 +39,9 @@ public:
 
 protected:
     void resizeEvent(QResizeEvent *event) override;
-    QSize sizeHint() const override;   // Krimble 2026-10-11: the width the chosen column count needs
-    void moveEvent(QMoveEvent *event) override;   // Krimble 2026-10-11: a floating toolbox bounces back inside the screen
-    bool eventFilter(QObject *watched, QEvent *event) override; // KRIMBLE 2026-10-06: watches the main window for rotation
+    QSize sizeHint() const override;
+    void moveEvent(QMoveEvent *event) override;
+    bool eventFilter(QObject *watched, QEvent *event) override;
     void contextMenuEvent(QContextMenuEvent *event) override;
 
 protected Q_SLOTS:
@@ -63,24 +63,19 @@ private:
     void changeLayoutDir(Qt::LayoutDirection);
     void changeOrientation(Orientation);
     void changeCompact(bool);
-    // KRIMBLE 2026-10-06: the toolbox keeps its number of icon columns when the screen rotates, and fits to a
-    // whole number of columns when it is resized (George: "It should maintain its size. Also, why not snap to
-    // multiples of tool icon columns on scale?").
     void snapToColumns();
-    bool krimbleFingerAtToolbox() const;   // Krimble 2026-11-16 (722nd)
-    QAction *m_dragDockAction {nullptr};   // Krimble 2026-11-16 (728th): "Dock by Dragging"
+    bool krimbleFingerAtToolbox() const;
+    QAction *m_dragDockAction {nullptr};
     void applyColumns();
-    void krimbleLogState(const char *where) const;   // Krimble 2026-11-07: one line in krita.log (Help > Show Krimble Log) with the toolbox's state, to find why a tear-off goes to one column
-    bool m_userDragged {false};   // Krimble 2026-10-13: a finger or mouse was down on the dock's edge since the last fit to columns
-    bool m_justDocked {false};    // Krimble 2026-11-05: true for a moment after the toolbox was dropped on a dock edge (the finger is still down, but it is not dragging the edge)
-    Q_INVOKABLE void krimbleDockAtEdge();   // Krimble 2026-10-17: docks a floating toolbox that has reached the left, right or top edge of the screen
-    Qt::DockWidgetArea krimbleEdgeArea() const;   // Krimble 2026-11-06: the dock edge the floating toolbox is at, or NoDockWidgetArea
-    int m_edgeDockToken {0};                      // Krimble 2026-11-06: raised at every check; the 1 s delay before docking at an edge only acts if it is still the latest
-    void fitHeightToContents(bool setWidthToo = false);   // Krimble 2026-10-12: a floating toolbox is only as tall as its tools (2026-10-23: and, when asked, as wide as its columns)
-    void krimbleFitFloatingShape();   // Krimble 2026-10-19: a floating toolbox takes the shape of its layout (rows or columns)
+    void krimbleLogState(const char *where) const;
+    bool m_userDragged {false};
+    bool m_justDocked {false};
+    Q_INVOKABLE void krimbleDockAtEdge();
+    Qt::DockWidgetArea krimbleEdgeArea() const;
+    int m_edgeDockToken {0};
+    void fitHeightToContents(bool setWidthToo = false);
+    void krimbleFitFloatingShape();
 public:
-    // KRIMBLE 2026-10-07: a floating toolbox has no corner gadget; it is resized by two edge strips (right edge: width,
-    // fitted to whole icon columns; bottom edge: height). Called by the strips while they are dragged.
     void floatingEdgeDrag(const QSize &startSize, const QPoint &delta, bool changeWidth, bool changeHeight);
 private Q_SLOTS:
     void setFloatingEdges(bool floating);
@@ -91,25 +86,23 @@ private:
 private:
     KoToolBox *m_toolBox;
     KoToolBoxScrollArea *m_scrollArea;
-    QVBoxLayout *m_containerLayout {nullptr}; // Krimble: holds scroll area + dual color button
-    KoDualColorButton *m_dualColorButton {nullptr}; // Krimble: PS-style FG/BG swap widget, bottom of toolbox
-    KisViewManager *m_viewManager {nullptr}; // Krimble: stored for slotUpdateDisplayRenderer
+    QVBoxLayout *m_containerLayout {nullptr};
+    KoDualColorButton *m_dualColorButton {nullptr};
+    KisViewManager *m_viewManager {nullptr};
     QMenu *m_contextMenu {nullptr};
     Qt::DockWidgetArea m_dockArea {Qt::NoDockWidgetArea};
     Qt::LayoutDirection m_layoutDir {Qt::LayoutDirectionAuto};
     Orientation m_orientation {Auto};
-    // Krimble 2026-10-09: default is 1 column (was 2), so a screen rotation never changes the column count.
-    // Krimble 2026-10-10 (2nd): default is 2 columns (George).
-    int m_columns {2};                 // Krimble: the number of icon columns the user wants (2 = the default look)
-    QTimer *m_snapTimer {nullptr};     // Krimble: runs a moment after a resize of the docked toolbox stops
-    QTimer *m_restoreTimer {nullptr};  // Krimble: runs a moment after the main window stops resizing (rotation)
-    QTimer *m_screenTimer {nullptr};   // Krimble 2026-10-11: runs a moment after a floating toolbox stops being moved
-    bool m_windowResizing {false};     // Krimble: true while the main window is being resized (rotation)
-    bool m_applying {false};           // Krimble: true while we set the width ourselves
-    QAction *m_columnActions[4] {nullptr, nullptr, nullptr, nullptr}; // Krimble 2026-10-09: the "Columns" menu entries (1 to 4)
-    QAction *m_dockActions[5] {nullptr, nullptr, nullptr, nullptr, nullptr}; // Krimble 2026-10-10: the "Dock" menu entries: left, right, top, bottom, undock
-    QWidget *m_edgeRight {nullptr};    // Krimble: edge strip, only while floating
-    QWidget *m_edgeBottom {nullptr};   // Krimble: edge strip, only while floating
+    int m_columns {2};
+    QTimer *m_snapTimer {nullptr};
+    QTimer *m_restoreTimer {nullptr};
+    QTimer *m_screenTimer {nullptr};
+    bool m_windowResizing {false};
+    bool m_applying {false};
+    QAction *m_columnActions[4] {nullptr, nullptr, nullptr, nullptr};
+    QAction *m_dockActions[5] {nullptr, nullptr, nullptr, nullptr, nullptr};
+    QWidget *m_edgeRight {nullptr};
+    QWidget *m_edgeBottom {nullptr};
 };
 
 #endif // _KO_TOOLBOX_DOCKER_H_

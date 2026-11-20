@@ -32,9 +32,6 @@ KisSampleScreenColor::~KisSampleScreenColor()
 void KisSampleScreenColor::slotSampleScreenColor(bool sampleRealCanvas)
 {
 #ifdef Q_OS_ANDROID
-    // Krimble 2026-10-26: George (1.0.44): "Edit - Sample Color does nothing." This sampler watches the mouse pointer over the whole screen and reads the color
-    // of the screen under it (grabWindow): a phone has no pointer, and the screen cannot be read like that, so a tap did nothing. Here "Sample Color" starts the
-    // Color Sampler (eyedropper) tool of the toolbox, which picks the color under the finger on the picture and works. The old code below is not reached.
     Q_UNUSED(sampleRealCanvas);
     KoToolManager::instance()->switchToolRequested(QStringLiteral("KritaSelected/KisToolColorSampler"));
     return;

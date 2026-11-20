@@ -611,9 +611,6 @@ inline float sampleBilinear(const Level &C, float fx, float fy, int k)
 
 } // namespace
 
-// Krimble 2026-10-19: the first engine (2026-10-18), kept, no longer called. It fills the hole with a smooth colour (a Laplace solution from the edge) and votes only the
-// fine detail (a radius-3 high-pass) on top of it; anything larger than the fine detail came from the smooth colour, which is why George saw "a smear" ("anything with
-// detail is going to fail", "Still looked blurry"). The engine that is used now is inpaint() at the end of this file.
 bool inpaintLegacy(uint8_t *pixels, const uint8_t *holeIn, int w, int h, int channels, const Options &opt, uint8_t *filledHole)
 {
 
@@ -624,8 +621,6 @@ bool inpaintLegacy(uint8_t *pixels, const uint8_t *holeIn, int w, int h, int cha
 
     if (!pixels || !holeIn || w < 8 || h < 8 || channels < 1 || channels > 4) return false;
     const int r = std::max(1, opt.patchRadius);
-    // const int T = opt.threads > 0 ? opt.threads : int(std::max(1u, std::min(4u, std::thread::hardware_concurrency())));
-    // Krimble 2026-10-20: George: "Use as many threads as it takes. That's what multi-core is for." Every core the device has (was at most 4).
     const int T = opt.threads > 0 ? opt.threads : int(std::max(1u, std::thread::hardware_concurrency()));
     std::mt19937 rng(opt.seed);
 
@@ -754,16 +749,6 @@ bool inpaintLegacy(uint8_t *pixels, const uint8_t *holeIn, int w, int h, int cha
 }
 
 
-// ====================================================================================================================================================================
-// Krimble 2026-10-19: the engine used now. George (1.0.39): Content-Aware Fill "just leaves a blurry mess", "anything with detail is going to fail", "We need it to look like
-// magic. Not a smear.", and, of the plan: "Using real pixels is better." This is the classic way (Wexler, Shechtman and Irani 2007; Barnes et al. 2009, PatchMatch), with
-// the whole colour of the patches, at every size:
-//  - a pyramid of the picture, down to a size where the hole is small;
-//  - at every size, every patch that touches the hole gets the most similar patch of the known picture (PatchMatch: neighbours' matches spread, plus a random search);
-//  - the hole is rebuilt from those matches (each pixel from the patches that cover it), and the matching is done again on the rebuilt hole, a few times;
-//  - going up a size, the matches are carried up and the hole is rebuilt from the bigger picture's OWN pixels (not an enlarged smaller picture), so no blur comes up;
-//  - at full size, the last rebuild takes every pixel from the ONE best patch that covers it: real pixels, copied, never averaged.
-// ====================================================================================================================================================================
 namespace {
 
 struct PLevel {
@@ -776,8 +761,6 @@ struct PLevel {
     std::vector<float> nd;        // its distance
     std::vector<int> srcList;     // the valid sources, as indices
     std::vector<float> conf;      // w * h: how much a pixel counts when patches are compared (known pixels 1; the guessed hole less)
-    // Krimble 2026-10-19 (2nd), the industry standard-style engine (inpaint(), below): per target, which transform its source is copied with (turned, resized,
-    // mirrored) and the colour shift that adapts the copied patch to where it lands; per pixel, how far it is from the hole and the picture's edge.
     std::vector<uint8_t> xf;      // w * h: index into the transform table
     std::vector<float> bias;      // w * h * c
     std::vector<int> freeR;       // w * h: Chebyshev distance to the nearest hole pixel or the edge of the picture
@@ -1115,14 +1098,10 @@ void pPeel(PLevel &L)
 
 } // namespace
 
-// Krimble 2026-10-19 (2nd): the engine of the 206th entry (whole-colour PatchMatch, real pixels, seamless edge), kept; the engine used now is inpaint() at the end
-// of this file, the same with the industry standard's additions.
 bool inpaintPatchMatchV1(uint8_t *pixels, const uint8_t *holeIn, int w, int h, int channels, const Options &opt, uint8_t *filledHole)
 {
     if (!pixels || !holeIn || w < 8 || h < 8 || channels < 1 || channels > 4) return false;
     const int r = std::max(2, opt.patchRadius);
-    // const int T = opt.threads > 0 ? opt.threads : int(std::max(1u, std::min(4u, std::thread::hardware_concurrency())));
-    // Krimble 2026-10-20: George: "Use as many threads as it takes. That's what multi-core is for." Every core the device has (was at most 4).
     const int T = opt.threads > 0 ? opt.threads : int(std::max(1u, std::thread::hardware_concurrency()));
     unsigned seed = opt.seed;
 
@@ -1221,17 +1200,6 @@ bool inpaintPatchMatchV1(uint8_t *pixels, const uint8_t *holeIn, int w, int h, i
 }
 
 
-// ====================================================================================================================================================================
-// Krimble 2026-10-19 (2nd): the engine used now. George: "For now try to do the industry standard's way. Develop an algorithm." The same whole-colour multi-scale PatchMatch as
-// inpaintPatchMatchV1 (real pixels, seamless edge), with what the industry standard's Content-Aware Fill adds on top of PatchMatch (Barnes et al. 2010, "The generalized PatchMatch
-// correspondence algorithm"; Darabi et al. 2012, "Image melding"):
-//  - ROTATION and SCALE: a source patch may be copied turned (-30 to +30 degrees) and resized (0.8 to 1.25 times), so curves, perspective and repeated things at
-//    other sizes continue properly;
-//  - MIRRORING: a source patch may be copied flipped left-right;
-//  - COLOUR ADAPTATION: each copied patch gets the colour shift (per channel, at most 28 levels of 255) that makes it fit where it lands, so a darker or warmer copy
-//    of a texture can still be used; the shift is part of the match (patches are compared after it), and a large shift costs a little;
-//  - each transform costs a little more than a plain copy, so a plain copy wins when it is as good.
-// ====================================================================================================================================================================
 namespace {
 
 struct QXf { float a, b, c, d; float reach; float cost; };    // source offset = [a b; c d] * patch offset; reach: how far the patch reaches; cost: the penalty factor
@@ -1438,7 +1406,6 @@ void qPass(PLevel &L, const std::vector<QXf> &tab, int r, bool forward, int ya, 
                 const int sy = L.ny[i] + int(rng() % unsigned(2 * rad + 1)) - rad;
                 qTry(L, tab, i, x, y, sx, sy, L.xf[i], r);
             }
-            // Krimble 2026-10-20: at full size the transforms found on the smaller sizes are kept and refined, not searched again (speed)
             if (tryTransforms) {
                 qTry(L, tab, i, x, y, L.nx[i], L.ny[i], int(rng() % unsigned(nT)), r);
                 if (L.xf[i] != 0) qTry(L, tab, i, x, y, L.nx[i], L.ny[i], 0, r);
@@ -1565,7 +1532,6 @@ void qFinalSeamless(PLevel &L, const std::vector<QXf> &tab, int r, int threads)
     for (size_t p = 0; p < L.hole.size(); ++p)
         if (L.hole[p] && has[p]) for (int k = 0; k < c; ++k) L.img[p * c + k] = pred[p * c + k];
     std::vector<uint8_t> known(fixedRing);
-    // Krimble 2026-10-20: the peel only looks inside the hole's box (it scanned the whole picture once a ring: about 6 s for a big hole)
     int bx0 = w, by0 = h, bx1 = -1, by1 = -1;
     for (int y = 0; y < h; ++y)
         for (int x = 0; x < w; ++x)
@@ -1594,8 +1560,6 @@ void qFinalSeamless(PLevel &L, const std::vector<QXf> &tab, int r, int threads)
     }
     std::vector<size_t> holeList;
     for (size_t p = 0; p < L.hole.size(); ++p) if (L.hole[p]) holeList.push_back(p);
-    // Krimble 2026-10-20: red-black order, each colour in parallel (the same result as the one-by-one sweep converges to, about 4 times faster on
-    // the phone's 4 cores), and fewer rounds for a very big hole (the peeled guess above is already close).
     std::vector<size_t> redBlack[2];
     for (size_t p : holeList) redBlack[((p % size_t(w)) + (p / size_t(w))) & 1].push_back(p);
     const int rounds = holeList.size() > 60000 ? 200 : 400;
@@ -1621,7 +1585,7 @@ void qFinalSeamless(PLevel &L, const std::vector<QXf> &tab, int r, int threads)
                 }
             });
         }
-    if (false)   // Krimble 2026-10-20: the one-by-one sweep (kept, not run)
+    if (false)
     for (int it = 0; it < 400; ++it)
         for (size_t p : holeList) {
             const int x = int(p % size_t(w)), y = int(p / size_t(w));
@@ -1643,14 +1607,10 @@ void qFinalSeamless(PLevel &L, const std::vector<QXf> &tab, int r, int threads)
 
 } // namespace
 
-// Krimble 2026-10-20: the industry standard-style engine of the 208th to 225th entries, kept; the engine used now is inpaint() at the end of this file (the same,
-// in less memory).
 bool inpaintStandardV2(uint8_t *pixels, const uint8_t *holeIn, int w, int h, int channels, const Options &opt, uint8_t *filledHole)
 {
     if (!pixels || !holeIn || w < 8 || h < 8 || channels < 1 || channels > 4) return false;
     const int r = std::max(2, std::min(5, opt.patchRadius));
-    // const int T = opt.threads > 0 ? opt.threads : int(std::max(1u, std::min(4u, std::thread::hardware_concurrency())));
-    // Krimble 2026-10-20: George: "Use as many threads as it takes. That's what multi-core is for." Every core the device has (was at most 4).
     const int T = opt.threads > 0 ? opt.threads : int(std::max(1u, std::thread::hardware_concurrency()));
     const std::vector<QXf> &tab = qTable(r);
     unsigned seed = opt.seed;
@@ -1741,8 +1701,6 @@ bool inpaintStandardV2(uint8_t *pixels, const uint8_t *holeIn, int w, int h, int
         qRemeasure(L, tab, r, T);
         for (int it = 0; it < emIters; ++it) {
             if (lv == levels - 1) pSetConfidence(L, 0.15f + 0.6f * float(it) / float(emIters));
-            // Krimble 2026-10-20: George (1.0.40): "Content-Aware fill does nothing now." A big hole took about 20 s or more (one core, a PC) with no sign of
-            // work. At full size: one PatchMatch pass per round instead of two, and no new transforms tried (those of the smaller sizes are kept).
             if (lv == 0) qMatch(L, tab, r, 1, T, seed, false);
             else qMatch(L, tab, r, 2, T, seed);
             if (opt.progress && !opt.progress(float(levels - 1 - lv) / float(levels) + (float(it + 1) / float(emIters)) / float(levels))) return false;
@@ -1763,18 +1721,6 @@ bool inpaintStandardV2(uint8_t *pixels, const uint8_t *holeIn, int w, int h, int
 }
 
 
-// ====================================================================================================================================================================
-// Krimble 2026-10-20: the engine used now: the industry standard-style engine above (now inpaintStandardV2, kept), the same steps and results, kept in less memory.
-// George, asked whether the fill could use less memory (it needed about 450 MB at its peak for a 3 MP area): "Yes." Per pixel of each level:
-//  - the picture in bytes, not floats (4 bytes a pixel instead of 16; the rebuilt hole is rounded to whole levels of 0 to 255, as it is saved anyway);
-//  - the match positions as 16-bit numbers (pictures up to 32 767 px a side), the colour shifts as signed bytes (they are at most 28), the distance map
-//    as 16-bit numbers;
-//  - no per-pixel weight array (a pixel's weight is 1, or the hole's weight for the whole level), no list of every valid source (a random source is found
-//    by trying random spots);
-//  - the seam correction works only inside the hole's box;
-//  - a smaller size's arrays are freed as soon as the next size has taken its matches.
-// About 55 bytes a pixel of the full size at the peak (was about 150), so the area around the hole can be bigger again (krimble_fill.cpp).
-// ====================================================================================================================================================================
 namespace {
 
 struct RLevel {
@@ -2246,12 +2192,6 @@ bool rRandomSource(const RLevel &L, const std::vector<QXf> &tab, std::mt19937 &r
     return false;
 }
 
-// Krimble 2026-10-23: the coarsest level, filled the way the industry standard's Content-Aware Fill does it (measured as a black box by the PhotoCraft project, github.com/storytold/photocraft,
-// notes in crates/algo/src/inpaint.rs; Wexler, Shechtman, Irani, "Space-Time Completion of Video", 2007): from the edge of the hole inwards, ring by ring, each pixel is copied
-// from the middle of the patch that best matches what is already known around it. The first version of this engine started the coarsest level from an AVERAGE of the surroundings
-// (rPeel): a smooth start that "draws the fill towards flat areas", and the finer levels, which only refine what they start from, kept the smoothness (George, 1.0.41:
-// "Content Aware Fill is faster, but just a blur"). A pixel is matched against random sources, the matches of its already filled neighbours (shifted), and a small search around
-// the best. matchX/matchY get the source of every hole pixel.
 void rRingFill(RLevel &L, const std::vector<QXf> &tab, int r, unsigned seed, int threads, std::vector<int16_t> &matchX, std::vector<int16_t> &matchY)
 {
 
@@ -2375,9 +2315,6 @@ bool inpaint(uint8_t *pixels, const uint8_t *holeIn, int w, int h, int channels,
     if (holeCount >= size_t(w) * h) return false;
 
     const int holeDim = std::max(maxX - minX + 1, maxY - minY + 1);
-    // Krimble 2026-10-23: a thin hole (a selected wire, string or hair: long but only a few patches thick) is measured by its THICKNESS, not its bounds (PhotoCraft/the industry standard notes,
-    // crates/algo/src/inpaint.rs): shrunk until its bounds are four patches across, a long thin hole would vanish into its surroundings and the coarse matches would copy a blur. The
-    // thickness is twice the largest distance (in pixels, square steps) from a hole pixel to a known pixel; no level is added that would make the hole thinner than two patches.
     int thickness = 0;
     {
         std::vector<uint16_t> dist(size_t(w) * h, 0);

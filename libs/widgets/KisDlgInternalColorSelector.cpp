@@ -69,10 +69,6 @@ KisDlgInternalColorSelector::KisDlgInternalColorSelector(QWidget *parent, KoColo
     m_ui->setupUi(this);
 
 #ifdef Q_OS_ANDROID
-    // KRIMBLE 2026-10-02: the color picker opened from a color well (for example
-    // the foreground/background colors in the toolbox) was a little too big on a
-    // phone. Its form is designed at 505 x 490; open it at 80% of that, and never
-    // larger than 90% of the screen. The layout still enforces what it needs.
     if (QScreen *scr = QGuiApplication::primaryScreen()) {
         const QSize screenSize = scr->availableGeometry().size();
         resize(qMin(int(505 * 0.8), int(screenSize.width() * 0.9)),

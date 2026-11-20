@@ -49,8 +49,8 @@
 #include <kis_icon.h>
 #include <kis_config_notifier.h>
 #include "KrimbleVisualStyle.h"
-#include "KrimbleCommonStyle.h"   // Krimble 2026-11-20 (756th): size and spacing rules shared by every Krimble theme
-#include "KrimbleVisualStylePainted.h"   // Krimble 2026-11-11: the painted sheet, for the theme "Krimble Painted"   // Krimble 2026-11-04: krimbleVisualStyleSheet(), re-applied after the theme palette
+#include "KrimbleCommonStyle.h"
+#include "KrimbleVisualStylePainted.h"
 
 #ifdef __APPLE__
 #include <QStyle>
@@ -112,20 +112,12 @@ QString ThemeManager::currentThemeName() const
         themeName = d->currentThemeName;
     }
     if (themeName.isEmpty()) {
-        // KRIMBLE 2026-10-02: fallback renamed. The theme is now called
-        // "Krimble dark"; falling back to the old name "Krita dark" found no
-        // theme file and left the app with the plain gray default palette.
-        themeName = "Krimble Blue-Gray";   // Krimble 2026-11-12 (task 27): the default theme
+        themeName = "Krimble Blue-Gray";
     }
     return themeName;
 }
 
 
-// Krimble 2026-11-12 (task 27, second part): George: "Please keep all the glow stuff. It's all really good." (after the default theme became the plain blue-gray look). The theme "Krimble Blue-Gray"
-// is the flat sheet (the glow edges, the dark insides of selections, the black lines, the bars) in the old blue-gray: every color of the sheet that is one of the theme's backgrounds (hue 221 to 233,
-// saturation 40 to 60 percent: the hue 227, saturation 48 family) is given hue 236 and saturation 33, as the old palette (#373952) has, and keeps its brightness; the accent blues, the cyan
-// edge, the dark navy inside the glow, the text and the black are not backgrounds and stay as they are. So there is one sheet, in KrimbleVisualStyle.h, and two color families.
-// Krimble 2026-11-12 (task 31): not used now (the default theme has the Nov 10 sheet); kept
 Q_DECL_UNUSED static QString krimbleRecolorSheet(const QString &sheet, int hue, int saturationPercent)
 {
     static const QRegularExpression colorRx(QStringLiteral("#[0-9a-fA-F]{6}\\b"));
@@ -151,10 +143,6 @@ Q_DECL_UNUSED static QString krimbleRecolorSheet(const QString &sheet, int hue, 
     return out;
 }
 
-// Krimble 2026-11-12 (task 34): George, about the default theme (the Nov 10 gradients): "And all the same hue in the theme?" The sheet's blue-gray colors drifted (hue 223 to 231, saturation 34 to 63: the
-// "hue drift" of the Nov 10 brief). Every color of the sheet that is a blue-gray background, line or highlight (hue 219 to 237, saturation 25 to 65 percent) gets the SAME hue and saturation, and keeps
-// its own brightness (V): George's rule of Nov 11, "the same hue and saturation but different brightness" (227 and 48, Color Lab's HSV). The accent blues (hue 199 to 216, saturation over 65), the cyan
-// glow, the navy insides, the text (saturation under 25) and black and white are not in that range and stay. The gradients keep their shape: only each stop's hue and saturation change.
 Q_DECL_UNUSED static QString krimbleSameHueSheet(const QString &sheet, int hue, int saturationPercent)
 {
     static const QRegularExpression colorRx(QStringLiteral("#[0-9a-fA-F]{6}\\b"));
@@ -180,8 +168,6 @@ Q_DECL_UNUSED static QString krimbleSameHueSheet(const QString &sheet, int hue, 
     return out;
 }
 
-// Krimble 2026-11-15: George: "No selection blue either." (the theme "Krimble Dark Gray"). Every color of the sheet that is blue or cyan (hue 180 to 260, any saturation over 10 percent), the blue-gray backgrounds and the selection blue
-// and the cyan glow included, becomes the gray of the same brightness (luma); neutral colors, black, white and the reds, greens and oranges stay.
 static QString krimbleGraySheet(const QString &sheet)
 {
     static const QRegularExpression colorRx(QStringLiteral("#[0-9a-fA-F]{6}\\b"));
@@ -196,11 +182,8 @@ static QString krimbleGraySheet(const QString &sheet)
         int h = 0, sat = 0, v = 0;
         c.getHsv(&h, &sat, &v);
         if (h >= 180 && h <= 260 && sat > 140) {
-            // Krimble 2026-11-18 (751st): George: "I want to change the gray theme that has the orange selections. They should all have the plain blue selections." The saturated blues and the
-            // cyan stay as they are in Krimble Dark Gray (the same blue selections as the other themes); only the grays are converted.
             out += m.captured();
         } else if ((h >= 180 && h <= 260 && sat > 26) || (sat <= 26 && v >= 12 && v <= 243)) {
-            // Krimble 2026-11-15: George: "Use warm grays like modern graphics apps." the grays (the blue-gray backgrounds turned gray, and the neutral grays of the sheet) are warmed: red 4 above, blue 4 below the gray
             const int y = qRound(0.299 * c.red() + 0.587 * c.green() + 0.114 * c.blue());
             out += QColor(qMin(255, y + 4), y, qMax(0, y - 4)).name();
         } else {
@@ -209,20 +192,12 @@ static QString krimbleGraySheet(const QString &sheet)
         last = m.capturedEnd();
     }
     out += sheet.mid(last);
-    // Krimble 2026-11-15: George: "No rounded corners. All squared." every border radius of the sheet is 0
     out.replace(QRegularExpression(QStringLiteral("border-radius:\\s*[0-9.]+px")), QStringLiteral("border-radius: 0px"));
     return out;
 }
 
 void ThemeManager::setCurrentTheme(const QString& name)
 {
-    // Krimble 2026-11-12 (task 27): the theme "Krimble dark" is gone: its colors and the flat style sheet are now the theme "Krimble Blue", and the default theme is "Krimble Blue-Gray" (the
-    // old plain palette). A settings file that still says "Krimble dark" is read as the default, so it does not find no theme file and leave the app with the bare default palette.
-    // Krimble 2026-11-12 (task 36): George: "Delete Krimble Blue. It looks bad." The theme is not installed any more; a settings file that says "Krimble Blue" (or "Krimble dark") is read as the default, Krimble Blue-Gray.
-    // Krimble 2026-11-15: George: "We should remove the Krita themes. The less Krita the better." The five Krita themes (Krita neutral, blender, bright, dark orange, darker) are not installed; a settings file that still names one
-    // (or "Krita dark") is read as the default, Krimble Blue-Gray, so the app does not find no theme file and fall back to the bare palette.
-    // Krimble 2026-11-15 (695th): George: "Krimble blue gray won't load." and "It was called Krita something before, but we changed it because this is not Krita." A saved theme name with "Krita" anywhere in it (any case)
-    // is read as the default; so is any name that has no theme file (see slotChangePalette).
     d->currentThemeName = (name == QStringLiteral("Krimble dark") || name == QStringLiteral("Krimble Blue") || name.contains(QStringLiteral("Krita"), Qt::CaseInsensitive)) ? QStringLiteral("Krimble Blue-Gray") : name;
 
     if (d->themeMenuAction  && d->themeMenuActionGroup) {
@@ -253,7 +228,6 @@ void ThemeManager::slotChangePalette()
     KisIconUtils::clearIconCache();
 
     QString theme(currentThemeName());
-    // Krimble 2026-11-15 (695th): a name with no theme file (an old saved name, or a checked entry that is gone) loads the default instead of nothing.
     if (!d->themeMap.contains(theme) && theme != QStringLiteral("System")) theme = QStringLiteral("Krimble Blue-Gray");
     QString filename        = d->themeMap.value(theme);
     KSharedConfigPtr config = KSharedConfig::openConfig(filename);
@@ -289,11 +263,6 @@ void ThemeManager::slotChangePalette()
         palette.setColor(state, QPalette::Dark,            schemeWindow.shade(KColorScheme::DarkShade));
         palette.setColor(state, QPalette::Shadow,          schemeWindow.shade(KColorScheme::ShadowShade));
 #ifdef Q_OS_ANDROID
-        // Krimble 2026-11-05: George's screenshots show thin white lines (beside the canvas, along the edges of panels) and a white frame around dialogs. Qt's Fusion
-        // style, which Krimble uses, draws the highlight edge of frames and window frames (QStyle::PE_FrameWindow, QFusionStyle) with palette.light() and
-        // palette.midlight(), and the lines above make those a bright gray (the "light shade" of the window color). They are the theme's blue-gray family
-        // now: Light #4A5074, Midlight #41466A. The five lines above are kept; this only replaces two of their results on Android. This is the
-        // white-line part only: it does not by itself prove that the large white box around dialogs comes from the same drawing.
         palette.setColor(state, QPalette::Light,           QColor(0x4A, 0x50, 0x74));
         palette.setColor(state, QPalette::Midlight,        QColor(0x41, 0x46, 0x6A));
 #endif
@@ -308,93 +277,39 @@ void ThemeManager::slotChangePalette()
     qApp->setProperty("KDE_COLOR_SCHEME_PATH", filename);
     qApp->setPalette(palette);
 #ifdef Q_OS_ANDROID
-    // Krimble 2026-11-04: George: the app starts with a weird gray (window and behind the toolbox) that goes away
-    // after using it a while. The application style sheet is set early in KisApplication.cpp, before this palette is
-    // applied; widgets styled before the palette changed can keep the old (gray) colors until something makes Qt
-    // repolish them. Setting the same style sheet again here, right after the palette, makes Qt repolish every widget
-    // with the theme's colors. This also runs when the theme is changed from the menu.
-    // Krimble 2026-11-11: George: "The painted in theme has to go. It conflicts with all other themes." and "The other themes stopped working with the new gradient theme."
-    // The sheet used to be applied for every theme, so it painted over the other themes' colors. It is now applied only while the "Krimble dark" theme is chosen;
-    // for any other theme the application style sheet is cleared, so that theme's own palette shows.
-    // Krimble 2026-11-11: George: "Can we put in the Krimble gradient theme as an option?" Three cases, by the theme's name: "Krimble dark" gets the flat sheet, "Krimble Painted" gets the
-    // painted (gradient) sheet (KrimbleVisualStylePainted.h), and every other theme gets no sheet at all.
-    // Krimble 2026-11-12 (task 31): the Nov 10 look painted the menu bar across (dark at both ends) too: the default theme "Krimble Blue-Gray" has it again.
-    // Krimble 2026-11-13 (task 46): George: "The main menu bar is ugly. Remove the paint job on it." The menu bar painting (the gradient dark at both ends, with its lines) is back to the Krimble Painted theme only; the default theme leaves the bar to the style sheet (transparent over the window) and the one-pixel lines.
     qApp->setProperty("krimblePaintedTheme", theme == QStringLiteral("Krimble Painted"));
-    // Krimble 2026-11-15 (691st): George: "Breeze dark theme has blue lines added?" The bevel overlay (blue-gray lines) and the raised toolbox buttons were drawn in every theme but Dark Gray. Now only the Krimble themes
-    // other than Dark Gray get them; Breeze Dark, Breeze Light and Breeze High Contrast show their own colors only.
-    qApp->setProperty("krimbleFlatTheme", theme == QStringLiteral("Krimble Dark Gray") || !theme.startsWith(QStringLiteral("Krimble")));   // Krimble 2026-11-15: no bevel overlay lines and no raised toolbox buttons in this theme
-    // Krimble 2026-11-16 (722nd): George (build 64): "The raised tool button effect doesn't work with the white theme." The Raised button style was tied to "krimbleFlatTheme", which is also set
-    // for every theme that is not a Krimble theme (Breeze Light, Breeze Dark, High Contrast), so the Raised style did nothing there. It has its own switch now: off only in "Krimble Dark Gray".
+    qApp->setProperty("krimbleFlatTheme", theme == QStringLiteral("Krimble Dark Gray") || !theme.startsWith(QStringLiteral("Krimble")));
     qApp->setProperty("krimbleNoRaisedButtons", theme == QStringLiteral("Krimble Dark Gray"));
-    // Krimble 2026-11-16 (728th): the lists that paint their own selected row (the page list of Preferences, the list of the New window) use the design's selection gradient in the Krimble
-    // themes that have blue selections; in Krimble Dark Gray and in the themes that are not Krimble's they use the theme's own highlight color.
     qApp->setProperty("krimbleSelectionGradient", theme.startsWith(QStringLiteral("Krimble")) && theme != QStringLiteral("Krimble Dark Gray"));
-    // Krimble 2026-11-15 (696th): George: "Ok it finally switched. There was a long delay." The sheet was set up to seven times in a row (the theme's sheet, then each added rule set), and each call parses the whole
-    // sheet and restyles every widget. It is now put together in one string and set once. (The calls are kept below, as comments in the text they replaced: each "krimbleSheet = (" was "qApp->setStyleSheet(".)
     QString krimbleSheet;
-    if (theme == QStringLiteral("Krimble Blue")) {   // Krimble 2026-11-12 (task 27): the flat sheet belongs to the theme "Krimble Blue" now; "Krimble Blue-Gray" (the default) has none
+    if (theme == QStringLiteral("Krimble Blue")) {
         krimbleSheet = (krimbleVisualStyleSheet());
-    } else if (theme == QStringLiteral("Krimble Blue-Gray")) {   // Krimble 2026-11-12 (task 27): the default theme: the same sheet in the old blue-gray colors
-        // Krimble 2026-11-13 (task 63): George: "I TOLD YOU TO SPLIT THEM OFF!!!!!! TO USE SEPARATE THEMES!!!!!!!" The default theme is the flat one again, as in 1.0.56-beta: the flat sheet recolored to the old blue-gray (hue 236, saturation 33) with the original palette.
+    } else if (theme == QStringLiteral("Krimble Blue-Gray")) {
         krimbleSheet = (krimbleRecolorSheet(krimbleVisualStyleSheet(), 236, 33));
     } else if (theme == QStringLiteral("Krimble Dark Gray")) {
-        // Krimble 2026-11-15: George: "We should create a simplified dark gray theme with no bevels. Modern pro style." The flat sheet (no bevel look) with every blue-gray background turned gray (hue 0, saturation 0, same brightness); the accent blues stay.
         krimbleSheet = (krimbleGraySheet(krimbleVisualStyleSheet()));
     } else if (theme == QStringLiteral("Krimble Painted")) {
-        // Krimble 2026-11-15: George: "In the Krimble painted theme there isn't enough contrast between the scrollbar and the track." The painted sheet had no scroll bar rules, so the style drew them in near-equal tones. Now the track is
-        // dark (#0E1226, black edge) and the handle is a light blue-gray gradient (#9AA5D2 to #6671A0) with a bright edge (#D3D9F0); the arrow buttons are 0 size (nobody uses them on a touch screen). Painted theme only.
         krimbleSheet = (krimblePaintedStyleSheet() + QStringLiteral(
-            // "\nQScrollBar:vertical { background: #0e1226; width: 16px; margin: 0px; border: 1px solid #05070f; }\n"
-            // Krimble 2026-11-15 (2nd): George: "The track should be darker." #0E1226 to #03050A.
             "\nQScrollBar:vertical { background: #03050a; width: 16px; margin: 0px; border: 1px solid #000000; }\n"
             // "QScrollBar:horizontal { background: #0e1226; height: 16px; margin: 0px; border: 1px solid #05070f; }\n"
             "QScrollBar:horizontal { background: #03050a; height: 16px; margin: 0px; border: 1px solid #000000; }\n"
-            // "QScrollBar::handle:vertical { background: qlineargradient(x1:0,y1:0,x2:1,y2:0, stop:0 #9aa5d2, stop:1 #6671a0); min-height: 36px; margin: 1px; border: 1px solid #d3d9f0; border-radius: 3px; }\n"
-            // Krimble 2026-11-15 (3rd): George: "I asked for a darker track, not a light blue gray gradient." The handle keeps the theme's own button color again.
             "QScrollBar::handle:vertical { background: palette(button); min-height: 36px; margin: 1px; border: 1px solid palette(mid); border-radius: 3px; }\n"
-            // "QScrollBar::handle:horizontal { background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #9aa5d2, stop:1 #6671a0); min-width: 36px; margin: 1px; border: 1px solid #d3d9f0; border-radius: 3px; }\n"
-            // Krimble 2026-11-15 (3rd): George: "I asked for a darker track, not a light blue gray gradient." The handle keeps the theme's own button color again.
             "QScrollBar::handle:horizontal { background: palette(button); min-width: 36px; margin: 1px; border: 1px solid palette(mid); border-radius: 3px; }\n"
             "QScrollBar::add-line, QScrollBar::sub-line { width: 0px; height: 0px; border: none; background: none; }\n"
             "QScrollBar::add-page, QScrollBar::sub-page { background: none; }\n"));
     } else {
         krimbleSheet = (QString());
     }
-    // Krimble 2026-11-15: George (1.0.59 test, item 6: "New tab design has no space around text inside tabs. Mockups were way off."): the tab rows of the panel groups (their tab bars are direct children of the main
-    // window) are drawn by KrimbleTabTearOff::paintTabRow, whose shape takes 10 px (the flare) off each side of the tab's rectangle, so the 13 px of the sheet's padding left about 3 px beside the text. These tabs get
-    // 26 px at the sides and 5 px above and below; the other tab bars (dialogs, image tabs) keep the sheet's padding.
-    // Krimble 2026-11-15: George: "Remove all the tab customizations. They are all a failure." Off: 
-    // Krimble 2026-11-16 (722nd): George (build 64, screenshots of the New Image and File Info windows): "Tab color should match connecting panel area. I saved a color for tabs." (his Color Lab
-    // screenshot: #364064) and "Would like the selections to match the pretty gradient from design screenshots. This should apply to menu selections too." (1) In a window with tabs, the selected
-    // tab and the page area under it are the same color, his #364064, with no line between them (the tab's bottom edge has the same color). The tabs of the panel groups of the main window keep
-    // the panel's own color (the rule of the 697th above is more specific). (2) A selected row of a list and a selected row of a menu have the design's selection gradient (#1196D8 at the top
-    // edge, #0A78BB, #073D6B in the middle, #074A85 at the bottom: the gradient of the lit buttons), square, no outline. The Layers panel keeps its own rows (NodeView: its rule comes after this one and wins). In "Krimble Dark
-    // Gray" (no blue anywhere) both are the grays of the same brightness.
-    // Krimble 2026-11-20 (760th): the rules added here after every Krimble theme's sheet (tabs, menu bar, selection, Layers rows, slider handle, image tab bar) moved unchanged to
-    // KrimbleCommonStyle.h, added at the end with the other shared rules (krimbleCommonStyleSheet()).
-    // Krimble 2026-11-15 (2nd): George: "make the base screen (not the toolbox, menubar, or panels) darker for some kind of contrast." The base screen, the area behind the image windows and the welcome page, is the theme's window color 35 percent darker.
     if (!krimbleSheet.isEmpty()) {
         const QString baseColor = qApp->palette().color(QPalette::Window).darker(135).name();
         krimbleSheet = (krimbleSheet + QStringLiteral("\nQMdiArea { background: %1; }\nKisWelcomePageWidget { background: %1; }\n").arg(baseColor));
-        // Krimble 2026-11-15: George: "Make the area where recent files live darker than the UI components so they stand out." The list of recent files on the welcome page is darker than the page around it and than the panels.
         const QString recentColor = qApp->palette().color(QPalette::Window).darker(200).name();
         krimbleSheet = (krimbleSheet + QStringLiteral("\nKisWelcomePageWidget QListView#recentDocumentsListView { background: %1; border: 1px solid %2; }\n").arg(recentColor, baseColor));
     }
     if (!krimbleSheet.isEmpty()) krimbleSheet += krimbleCommonStyleSheet();
-    // Krimble 2026-11-20 (757th): George: "Menus are still a jumble of different hues. Make them match. Same hue." Only the theme's own sheet was recolored (Blue-Gray: hue 236,
-    // Dark Gray: grays); the rules added after it (tabs, menu bar, menus, lists) kept the hue-227 colors. The whole sheet is recolored now, once, at the end (the recolor only touches
-    // hue-227 colors, so the theme's already recolored rules stay as they are).
     if (theme == QStringLiteral("Krimble Blue-Gray")) krimbleSheet = krimbleRecolorSheet(krimbleSheet, 236, 33);
-    else if (theme == QStringLiteral("Krimble Dark Gray")) krimbleSheet = krimbleGraySheet(krimbleSheet);   // Krimble 2026-11-20 (756th): shared size and spacing, after the theme's own rules
+    else if (theme == QStringLiteral("Krimble Dark Gray")) krimbleSheet = krimbleGraySheet(krimbleSheet);
     qApp->setStyleSheet(krimbleSheet);   // 696th: the one and only call
-    // Krimble 2026-11-15 (693rd): George (screenshot, Breeze Light): "Breeze light has a dark menu bar." (and dark navy panels, a blue Opacity bar). Switching from a Krimble theme to one with no style sheet left widgets
-    // that were polished under the old sheet (menu bar, panels) with its colors. Every widget is unpolished and polished again after the sheet and palette are set, so each shows the new theme.
-    // Krimble 2026-11-15 (696th): off: setting the sheet and the palette already restyles every widget, and this was a third full pass (slow).
-    //     krimbleWidget->style()->unpolish(krimbleWidget);
-    //     krimbleWidget->style()->polish(krimbleWidget);
-    //     krimbleWidget->update();
-    // }
 #endif
     KisConfigNotifier::instance()->notifyColorThemeChanged(filename);
 
@@ -454,13 +369,7 @@ void ThemeManager::populateThemeMenu()
     QStringList actionMapKeys = actionMap.keys();
     actionMapKeys.sort();
 
-    // KRIMBLE 2026-10-02: currentThemeName() cannot be used here. The action
-    // group was just created and has nothing checked yet, so it returns the
-    // fallback name and no menu entry got checked. Compare against the theme
-    // name that was requested instead.
-    // const QString requestedThemeName = d->currentThemeName.isEmpty() ? QStringLiteral("Krimble dark")
-    //                                                                  : d->currentThemeName;
-    const QString requestedThemeName = d->currentThemeName.isEmpty() ? QStringLiteral("Krimble Blue-Gray")   // Krimble 2026-11-12 (task 27): the default theme
+    const QString requestedThemeName = d->currentThemeName.isEmpty() ? QStringLiteral("Krimble Blue-Gray")
                                                                      : d->currentThemeName;
     Q_FOREACH (const QString& name, actionMapKeys) {
         if (name == requestedThemeName) {

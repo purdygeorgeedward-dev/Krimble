@@ -283,11 +283,6 @@ void KisPasteActionFactory::run(Flags flags, KisViewManager *view)
     KisPaintDeviceSP clip = KisClipboard::instance()->clip(fittingBounds, true, -1, &range);
 
     if (clip) {
-        // Krimble 2026-10-13: George: "Paste as new image works. Paste does not." Pasting into a new document made the layer appear in
-        // the Layers panel with its picture in the thumbnail, but nothing on the canvas and nothing in the saved file: the layer was
-        // placed where the picture came from in the source image, outside the page of the new, differently sized document.
-        // "Paste as New Image" works because it moves the picture to the corner of its own page. If the pasted picture does not touch
-        // the image at all, it is now moved to the center of the image, whatever path the clipboard data took.
         if (!pasteAtCursorPosition) {
             const QRect pastedBounds = clip->exactBounds();
             if (!pastedBounds.isEmpty() && !image->bounds().intersects(pastedBounds)) {

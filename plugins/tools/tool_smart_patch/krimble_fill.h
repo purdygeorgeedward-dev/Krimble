@@ -9,8 +9,8 @@
 namespace KrimbleFill {
 
 enum Method {
-    Sharp = 0,     // Krimble's engine (2026-10-19): copies real pixels from the best matching patches, with a seamless edge
-    Smooth = 1,    // Krimble's first engine (2026-10-18): a smooth colour with blended detail; softer, good on skin and skies
+    Sharp = 0,
+    Smooth = 1,
     Classic = 2    // Krita's own Smart Patch fill
 };
 
@@ -22,8 +22,6 @@ void saveMethod(int method);
 // then uses Krita's fill.
 bool fill(KisPaintDeviceSP imageDev, KisPaintDeviceSP maskDev, const QRect &bounds, int method);
 
-// Krimble 2026-10-20 (2nd): what the last fill() did, in words: "Sharp engine", "Smooth engine", or why it returned false (so that Krita's fill ran):
-// "Classic method chosen", "nothing selected", "area too small", "area too big", "engine could not fill", "out of memory", "nothing filled".
 QString lastStatus();
 
 }

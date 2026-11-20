@@ -25,9 +25,6 @@ KoAspectButton::KoAspectButton(QWidget *parent)
     : QToolButton(parent),
     d( new Private() )
 {
-    // Krimble: doubled from the original 9x24 icon / 19x34 button --
-    // the old fixed size was a poor touch target on any device, worse
-    // once the UI itself is scaled down. Same proportions, just bigger.
     setIconSize(QSize(18, 48));
     setFixedSize(38, 68);
     setAutoRaise(true);

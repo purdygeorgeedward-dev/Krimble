@@ -39,8 +39,6 @@
 #include <kwindowconfig.h>
 
 #ifdef Q_OS_ANDROID
-// Krimble 2026-10-23: a scroll area that asks for the size of the widget inside it (the base class caps its size hint at about 36 by 24 text heights) and can be made
-// small (its minimum size hint is small); used for the main widget of KoDialog windows (see setupLayout).
 class KrimbleDialogScroll : public QScrollArea
 {
 public:
@@ -96,11 +94,6 @@ void KoDialogPrivate::queuedLayoutUpdate()
 
     if (mMainWidget) {
 #ifdef Q_OS_ANDROID
-        // Krimble 2026-10-23: George (test list "Mercury's Shadow", items 9, 15, 19 and his screenshots of Image Size, Image Properties, Split Image, File Info): "too wide."
-        // A window cannot be made smaller than its contents' minimum width (the narrowing in KisApplication.cpp makes the contents narrower but cannot always get below the
-        // screen), so the main widget of every KoDialog window (most of the program's windows) is put in a scroll area: the window opens as large as the contents want
-        // (KrimbleDialogScroll asks for the size of what is inside), is cut to the screen when it is shown, and what does not fit scrolls. The buttons (OK, Cancel ...)
-        // stay outside the scroll area, so they are always in reach.
         if (!mKrimbleScroll || mKrimbleScroll->widget() != mMainWidget) {
             if (mKrimbleScroll) {
                 mKrimbleScroll->takeWidget();
@@ -207,9 +200,6 @@ void KoDialogPrivate::init(KoDialog *q)
 
     q->setPlainCaption(qApp->applicationDisplayName()); // set appropriate initial window title for case it gets not set later
 
-    // Krimble: needed for the resize-cursor hover feedback in
-    // mouseMoveEvent() to fire without a button held; the actual
-    // touch-drag resize works regardless of this setting.
     q->setMouseTracking(true);
 }
 
@@ -482,11 +472,6 @@ void KoDialog::keyPressEvent(QKeyEvent *event)
 
 namespace {
 
-// Krimble: find the bottommost edge (in global screen coordinates) of any
-// visible QToolBar belonging to the nearest QMainWindow ancestor of
-// `widget`. A newly shown dialog whose own top edge -- its only grabbable
-// area -- ends up hidden above the toolbar has no way to be dragged back
-// into view on a touch-only device once stuck there.
 int toolbarBottomGlobalY(QWidget *widget)
 {
     QWidget *w = widget;
@@ -516,10 +501,6 @@ void KoDialog::showEvent(QShowEvent *e)
     QTimer::singleShot(5, Qt::CoarseTimer, [&]() {
         adjustPosition(parentWidget());
 
-        // Krimble: clamp downward only, after the default positioning --
-        // never moves a dialog that's already safely below the toolbar,
-        // only rescues one whose top edge would otherwise end up hidden
-        // above it.
         const int minY = toolbarBottomGlobalY(parentWidget());
         if (minY >= 0 && y() < minY) {
             move(x(), minY);
@@ -527,12 +508,8 @@ void KoDialog::showEvent(QShowEvent *e)
     });
 }
 
-// Krimble: touch-friendly custom edge/corner resize -- see declaration
-// comment in KoDialog.h for why this exists (no reliable native resize
-// border on Android). Margin is intentionally generous, matching the
-// pattern used for the crop tool's handle hit-test padding.
 namespace {
-    const int kResizeMargin = 26;   // Krimble 2026-10-17 (2nd): "Try just one more pixel? Or 2?" 24 -> 26. Before: 24 // Krimble 2026-10-17: George (1.0.37): "It's also sometimes still hard to grab edges for resize." "Try a small change first." 20 -> 24
+    const int kResizeMargin = 26;
 
     enum ResizeEdgeFlag {
         ResizeNone   = 0,
@@ -582,8 +559,6 @@ void KoDialog::mouseMoveEvent(QMouseEvent *e)
         if (d->mResizeEdge & ResizeTop) g.setTop(g.top() + delta.y());
         if (d->mResizeEdge & ResizeBottom) g.setBottom(g.bottom() + delta.y());
 
-        // Krimble: respect the dialog's own min/max size constraints instead
-        // of letting it collapse to nothing or grow past its intended limits.
         if (g.width() < minimumWidth()) {
             if (d->mResizeEdge & ResizeLeft) g.setLeft(g.right() - minimumWidth());
             else g.setRight(g.left() + minimumWidth());
@@ -606,8 +581,6 @@ void KoDialog::mouseMoveEvent(QMouseEvent *e)
         return;
     }
 
-    // Krimble: cursor feedback when hovering an edge with a mouse (harmless,
-    // no-op on touch input since there's no hover concept there).
     const int edge = edgeAt(rect(), e->pos(), kResizeMargin);
     switch (edge) {
     case ResizeLeft:

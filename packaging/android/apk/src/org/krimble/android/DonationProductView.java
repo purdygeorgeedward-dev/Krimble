@@ -61,26 +61,6 @@ public class DonationProductView {
 
     public static List<DonationProductView> getFallbackProducts(Activity activity) {
         String lang = Locale.getDefault().toLanguageTag();
-        // KRIMBLE 2026-10-03: these fallback buttons used to send people to Krita's own
-        // fund (fund.krita.org) and donation page (krita.org/en/donations). Krimble's only
-        // support link is Buy Me a Coffee, so there is now a single "Donate" product that
-        // opens it. The original two-product list is kept below as a comment.
-        //
-        // return List.of(
-        //         new DonationProductView(
-        //                 activity,
-        //                 activity.getDrawable(R.drawable.product_fund),
-        //                 null,
-        //                 activity.getString(R.string.product_development_fund_description),
-        //                 activity.getString(R.string.product_development_fund_button),
-        //                 openLinkOnClick(activity, "https://fund.krita.org/?lang=" + lang)),
-        //         new DonationProductView(
-        //                 activity,
-        //                 null,
-        //                 activity.getDrawable(R.drawable.product_donation),
-        //                 activity.getString(R.string.product_donations_description),
-        //                 activity.getString(R.string.product_donations_button),
-        //                 openLinkOnClick(activity, "https://krita.org/en/donations?lang=" + lang)));
         return List.of(
                 new DonationProductView(
                         activity,

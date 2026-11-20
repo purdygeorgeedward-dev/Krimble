@@ -8,10 +8,10 @@
 */
 
 #include "KisMainWindow.h"
-#include "KrimbleBatchDialog.h"   // Krimble 2026-10-25: Batch Process with recipes and WebP
-#include "KrimbleHelpDialog.h"    // Krimble 2026-10-25: Help > Krimble Help
-#include "KrimbleLogDialog.h"     // Krimble 2026-10-25: Help > Show Krimble Log...
-#include "KrimbleCustomCmykDialog.h"   // Krimble 2026-11-11: Edit > Custom CMYK... (the CMYK conversion profile)
+#include "KrimbleBatchDialog.h"
+#include "KrimbleHelpDialog.h"
+#include "KrimbleLogDialog.h"
+#include "KrimbleCustomCmykDialog.h"
 
 #include <KoConfig.h>
 
@@ -22,8 +22,8 @@
 #include <QStandardPaths>
 #include <QDesktopServices>
 #include <QScreen>
-#include <QRegularExpression>   // Krimble 2026-10-19: krimbleInstallDockEdgeGrabs
-#include <QLinearGradient>   // Krimble 2026-11-15: KrimbleDockBackground
+#include <QRegularExpression>
+#include <QLinearGradient>
 #include <QBrush>
 #include <QPair>
 #include <QVector>
@@ -53,7 +53,7 @@
 #include <kis_filter_strategy.h>
 #include <QDialogButtonBox>
 #include <QHBoxLayout>
-#include <QFrame>   // Krimble 2026-11-05: the framed rows of Quick Adjust
+#include <QFrame>
 #include <KisAngleSelector.h>
 #include <QPainterPath>
 #include <kis_selection.h>
@@ -96,9 +96,9 @@
 #include <QMouseEvent>
 // #include <QSizeGrip>  // no longer used, see KisFloatingDockSizeGrip
 #include <QPainter>
-#include <QFontMetrics>   // Krimble 2026-11-11: the orange K in the menu bar corner is as tall as the menu names
-#include <QAbstractButton>   // Krimble 2026-10-30: the Quick Adjust Preview switch
-#include <cmath>              // Krimble 2026-10-30: the Quick Adjust row pictures
+#include <QFontMetrics>
+#include <QAbstractButton>
+#include <cmath>
 #include <QPolygonF>
 #include <QDomDocument>
 #include <QDomElement>
@@ -195,9 +195,9 @@
 #include "kis_coordinates_converter.h"
 #include "flake/kis_shape_layer.h"
 #include <KoPathShape.h>
-#include <KoShapeRegistry.h>      // Krimble 2026-10-30: Layer > New > Star...
-#include <QGraphicsDropShadowEffect>   // Krimble 2026-10-30: the blue glow of a selected button
-#include <kis_paint_layer.h>      // Krimble 2026-10-30: QuickAdjust bakes its layers into the paint layer below
+#include <KoShapeRegistry.h>
+#include <QGraphicsDropShadowEffect>
+#include <kis_paint_layer.h>
 #include <KoShapeFactoryBase.h>
 #include <KoProperties.h>
 #include <QDialogButtonBox>
@@ -259,15 +259,15 @@
 #include <KisAndroidScaling.h>
 #endif
 
-#include "krimble/KrimbleDockHelpers.inc"   // Krimble 2026-11-19 (755th)
-#include "krimble/KrimbleMenus.inc"   // Krimble 2026-11-19 (755th)
-#include "krimble/KrimbleDockEdges.inc"   // Krimble 2026-11-19 (755th)
-#include "krimble/KrimbleMenuBarAndQuickAdjust.inc"   // Krimble 2026-11-19 (755th)
-#include "krimble/KrimbleFileAndHelpExtras.inc"   // Krimble 2026-11-19 (755th)
-#include "krimble/KrimblePanelsAndLayout.inc"   // Krimble 2026-11-19 (755th)
-#include "krimble/KrimbleBevelsAndTabs.inc"   // Krimble 2026-11-19 (755th)
-#include "krimble/KrimbleHexGrid.inc"   // Krimble 2026-11-19 (755th)
-#include "krimble/KrimbleGlowAndDocking.inc"   // Krimble 2026-11-19 (755th)
+#include "krimble/KrimbleDockHelpers.inc"
+#include "krimble/KrimbleMenus.inc"
+#include "krimble/KrimbleDockEdges.inc"
+#include "krimble/KrimbleMenuBarAndQuickAdjust.inc"
+#include "krimble/KrimbleFileAndHelpExtras.inc"
+#include "krimble/KrimblePanelsAndLayout.inc"
+#include "krimble/KrimbleBevelsAndTabs.inc"
+#include "krimble/KrimbleHexGrid.inc"
+#include "krimble/KrimbleGlowAndDocking.inc"
 class ToolDockerFactory : public KoDockFactoryBase
 {
 public:
@@ -470,8 +470,6 @@ KisMainWindow::KisMainWindow(QUuid uuid)
 {
     KAcceleratorManager::setNoAccel(this);
 
-    // Krimble 2026-11-13 (task 50): George: "Don't start with toolbox floating. Especially when it's an unstable mess. Dock left with 2 columns on start." Once (the first start of this version): the toolbox starts with TWO columns (the saved number is reset here, before the toolbox panel is made and reads it) and, further down
-    // (after the saved layout is restored), docked at the left. After that the saved layout and the user's own choices decide again.
     {
         KConfigGroup columnsGroup(KSharedConfig::openConfig(), "krimble");
         if (!columnsGroup.readEntry("ToolBoxDockedLeftReset", false)) {
@@ -486,8 +484,6 @@ KisMainWindow::KisMainWindow(QUuid uuid)
     connect(d->workspacemodel, SIGNAL(rowsRemoved(QModelIndex,int,int)), this, SLOT(updateWindowMenu()));
 
     d->viewManager = new KisViewManager(this, actionCollection());
-    // Krimble 2026-11-13 (task 50): George: "jeez, no. Don't start with toolbox floating. Especially when it's an unstable mess. Dock left with 2 columns on start." Once (the setting krimble/ToolboxStartV58 is not set yet): the saved number of columns of the toolbox is put back to 2 before the toolbox is made (a phone that ran
-    // the older builds had 1 or 3, from the first-run float and from the tear-offs); the toolbox itself is docked at the left further down, 2.5 seconds after the start.
     {
         KConfigGroup toolboxStart(KSharedConfig::openConfig(), "krimble");
         if (!toolboxStart.readEntry("ToolboxStartV58", false)) {
@@ -497,9 +493,7 @@ KisMainWindow::KisMainWindow(QUuid uuid)
     }
     KConfigGroup group( KSharedConfig::openConfig(), "theme");
 #ifndef Q_OS_HAIKU
-    d->themeManager = new Digikam::ThemeManager(group.readEntry("Theme", "Krimble Blue-Gray"), this);   // Krimble 2026-11-12 (task 27): the default theme
-    // Krimble 2026-11-12 (task 43): George (the new build, a screenshot of the start screen): "on start the menu bar has nothing to separate it from the rest of the screen. No border. No hilight or shadow. Then it becomes the painted version." The theme (the style sheet and the menu bar painting) used to be applied only at the very end of the window's setup, so the first picture the user saw was the bare menu bar and
-    // it turned into the themed one later. It is applied here, as soon as the manager exists, so the window is themed when it first appears (the later call stays: it finds the same theme).
+    d->themeManager = new Digikam::ThemeManager(group.readEntry("Theme", "Krimble Blue-Gray"), this);
 #ifndef Q_OS_HAIKU
     d->themeManager->setCurrentTheme(group.readEntry("Theme", "Krimble Blue-Gray"));
 #endif
@@ -565,13 +559,6 @@ KisMainWindow::KisMainWindow(QUuid uuid)
         d->dockWidgetMenu->addAction(dockwidgetActions[title]);
     }
 
-    // KRIMBLE 2026-10-02: "Detach Panel" submenu. Lists the panels that are
-    // currently shown and docked; choosing one makes it a free-floating window.
-    // A locked panel (lock icon in its title bar) is unlocked first, because a
-    // locked panel cannot float. The list is rebuilt every time the submenu opens.
-    // Moved out of the (very long) Settings > Panels list: it is registered as an
-    // action ("settings_detach_panel_menu") and placed in krita5.xmlgui, directly
-    // below the Panels entry of the Settings menu.
     KActionMenu *detachPanelAction = new KActionMenu(i18nc("@action:inmenu", "Detach Panel"), this);
     QMenu *detachPanelMenu = detachPanelAction->menu();
     connect(detachPanelMenu, &QMenu::aboutToShow, this, [this, detachPanelMenu]() {
@@ -602,17 +589,7 @@ KisMainWindow::KisMainWindow(QUuid uuid)
     // d->dockWidgetMenu->addSeparator();
     // d->dockWidgetMenu->menu()->addMenu(detachPanelMenu);
     actionCollection()->addAction("settings_detach_panel_menu", detachPanelAction);
-    // KRIMBLE 2026-10-04: was hidden when the single on/off item "Attach Panels" replaced it; George wants the
-    // Detach Panel and Attach Panel menus back (2026-10-04, build b12), so it is visible again.
-    // detachPanelAction->setVisible(false);
 
-    // KRIMBLE 2026-10-04: "Attach Panels" on/off (replaces the "Attach Panel" submenu, which is
-    // kept below as a comment). ON = the standard behaviour: a panel that floats docks at the
-    // edge of the window when dragged there. OFF = floating panels stay wherever they are put.
-    // The setting is remembered. The menu item keeps the old action name so krita5.xmlgui is
-    // unchanged.
-    // KRIMBLE 2026-10-04 (3rd): switched off again (#if 0): George wants the "Detach Panel" and "Attach Panel" menus
-    // back. The Attach Panel submenu is made right after this block.
 #if 0
     {
         KConfigGroup krimbleGroup = KSharedConfig::openConfig()->group("Krimble");
@@ -622,7 +599,6 @@ KisMainWindow::KisMainWindow(QUuid uuid)
         attachPanelsAction->setCheckable(true);
         attachPanelsAction->setChecked(attachOn);
         actionCollection()->addAction("settings_attach_panel_menu", attachPanelsAction);
-        // KRIMBLE 2026-10-04 (2nd): hidden and switched off; see the note in the topLevelChanged handler.
         attachPanelsAction->setVisible(false);
         attachPanelsAction->setEnabled(false);
         connect(attachPanelsAction, &QAction::toggled, this, [this](bool on) {
@@ -639,10 +615,6 @@ KisMainWindow::KisMainWindow(QUuid uuid)
     }
 #endif
 
-    // KRIMBLE 2026-10-04 (3rd): "Attach Panel" submenu, the counterpart of "Detach Panel", back again. It lists the
-    // panels that are currently floating; choosing one docks it with the STANDARD behaviour (back into its previous
-    // dock area). The earlier "dock where it was put" version (commented below) is not used: it sent panels to the
-    // wrong side and one vanished. Placed like Detach Panel (krita5.xmlgui, action "settings_attach_panel_menu").
     {
         KActionMenu *attachPanelAction = new KActionMenu(i18nc("@action:inmenu", "Attach Panel"), this);
         QMenu *attachPanelMenu = attachPanelAction->menu();
@@ -666,56 +638,13 @@ KisMainWindow::KisMainWindow(QUuid uuid)
         actionCollection()->addAction("settings_attach_panel_menu", attachPanelAction);
     }
 
-    // ---- Old "Attach Panel" submenu (2026-10-02), kept for reference ----
-    //     // KRIMBLE 2026-10-02: "Attach Panel" submenu, the counterpart of "Detach
-    //     // Panel". Lists the panels that are currently floating; choosing one docks
-    //     // it back into its previous dock area. Placed like Detach Panel.
-    //     KActionMenu *attachPanelAction = new KActionMenu(i18nc("@action:inmenu", "Attach Panel"), this);
-    //     QMenu *attachPanelMenu = attachPanelAction->menu();
-    //     connect(attachPanelMenu, &QMenu::aboutToShow, this, [this, attachPanelMenu]() {
-    //         attachPanelMenu->clear();
-    //         Q_FOREACH (QDockWidget *dock, dockWidgets()) {
-    //             if (!dock || !dock->isVisible() || !dock->isFloating()) {
-    //                 continue;
-    //             }
-    //             QAction *attachAction = attachPanelMenu->addAction(dock->windowTitle());
-    //             connect(attachAction, &QAction::triggered, this, [this, dock]() {
-    //                 // KRIMBLE 2026-10-02: dock the panel where it was put (nearest side,
-    //                 // between the panels above and below) instead of sending it back to
-    //                 // its old place. Old behaviour: dock->setFloating(false);
-    //                 krimbleAttachDockWhereItIs(this, dock);
-    //             });
-    //         }
-    //         if (attachPanelMenu->isEmpty()) {
-    //             QAction *noneAction = attachPanelMenu->addAction(i18nc("@action:inmenu", "No floating panels"));
-    //             noneAction->setEnabled(false);
-    //         }
-    //     });
-    //     // d->dockWidgetMenu->menu()->addMenu(attachPanelMenu);
-    //     actionCollection()->addAction("settings_attach_panel_menu", attachPanelAction);
 
-    // KRIMBLE 2026-10-03: "Hide Right Panels" / "Show Right Panels" (Settings menu), see
-    // krimbleSetRightPanelsHidden(). The toolbox on the left is not touched.
     QAction *toggleRightPanelsAction = new QAction(i18nc("@action:inmenu", "Hide Right Panels"), this);
     actionCollection()->addAction("settings_toggle_right_panels", toggleRightPanelsAction);
     connect(toggleRightPanelsAction, &QAction::triggered, this, [this]() {
         krimbleSetRightPanelsHidden(this, !krimbleRightDocks(this, true).isEmpty());
         krimbleUpdateRightPanelUi(this);
     });
-    // The big side button: tap = hide / show the right panels, long press or sideways swipe = resize.
-    // It is only made on Android; the menu entry works everywhere.
-    // KRIMBLE 2026-10-04: SWITCHED OFF at George's decision ("the sidebar gadget is just causing problems.
-    // It's a failure."). The button is no longer created, so nothing is drawn at the panels' edge; the
-    // menu item Settings > Hide/Show Right Panels stays. To bring the button back, change "#if 0" to
-    // "#ifdef Q_OS_ANDROID".
-    // KRIMBLE 2026-10-04 (2nd): was switched on again, hanging on the canvas area (d->mdiArea) instead of the
-    // window; SWITCHED OFF AGAIN at George's decision ("Comment out the sliver. I'll worry about it later.").
-    // To bring it back change "#if 0" to "#ifdef Q_OS_ANDROID".
-    // KRIMBLE 2026-10-05: ON AGAIN (George: "At one point that side gadget was working"): the version that hangs on
-    // the canvas area and is placed from that area's own size. Tap = hide / show the right panels; long press or a
-    // sideways swipe = resize them. To park it again change the line below back to "#if 0".
-    // KRIMBLE 2026-10-07: OFF AGAIN (George: "Still have unwanted extra gadget on edge of side panel", and it covered
-    // the X that closes a document tab). To bring it back change "#if 0" to "#ifdef Q_OS_ANDROID".
 #if 0
     {
         struct DragState { int startWidth {0}; };
@@ -723,8 +652,6 @@ KisMainWindow::KisMainWindow(QUuid uuid)
         d->mdiArea->setObjectName(QStringLiteral("krimbleCanvasArea"));
         new KrimbleSideBarButton(d->mdiArea,
             [this]() {                                             // tap
-                // KRIMBLE 2026-10-06: no collapse button any more (George: collapse by closeness to the side).
-                // A tap still opens the panels when they are hidden. Old body:
                 if (krimbleRightDocks(this, true).isEmpty()) {
                     krimbleSetRightPanelsHidden(this, false);
                 }
@@ -742,8 +669,6 @@ KisMainWindow::KisMainWindow(QUuid uuid)
                 krimbleUpdateRightPanelUi(this);
             },
             [this](int globalX) {                                  // drag ends
-                // KRIMBLE 2026-10-06: collapse by closeness to the side: let go within 56 px of the right edge of
-                // the window, or with the panels dragged below 120 px wide.
                 const int rightEdge = mapToGlobal(QPoint(width(), 0)).x();
                 if (globalX >= rightEdge - 56 || krimbleRightPanelsWidth(this) < 120) {
                     krimbleSetRightPanelsHidden(this, true);
@@ -758,33 +683,21 @@ KisMainWindow::KisMainWindow(QUuid uuid)
         d->mdiArea->installEventFilter(rightPanelsFilter);     // the canvas area: its edge is where the sliver sits
     }
 #ifdef Q_OS_ANDROID
-    // Krimble 2026-10-10: drag the strip to the screen edge to shut the right panels.
     qApp->installEventFilter(new KrimbleEdgeCollapseFilter(this));
-    // Krimble 2026-11-20 (756th): the menu logger (KrimbleMenuProbe, 2026-11-15, KRIMBLE-MENU lines in krita.log) is no longer installed: it was for finding a menu bug, and it
-    // looked at every event in the app. One app-wide filter fewer.
-    // Krimble 2026-11-15: George: "Remove all the tab customizations. They are all a failure." Off: tab tear-off
-    // Krimble 2026-11-13 (task 57): George (build 57 screenshots): "\"Raised\" buttons are DARKER? WHY? The hilight is also not white or very light. Huge mistake." and "At startup I saw this big blah. Nothing to differentiate it from the other UI elements but a line." The K (drawn by the menu bar from the program's window icon) was missing on the first screen: the bar painted before the icon was set and was not painted again until something
-    // changed. The bar is painted again at 0.3, 1 and 2 seconds after the start.
     Q_FOREACH (int delay, QList<int>({300, 1000, 2000})) QTimer::singleShot(delay, this, [this]() { menuBar()->update(); });
     KisUsageLogger::log(QStringLiteral("KRIMBLE-TABS the tab tear-off filter is installed (application level)"));
-    // Krimble 2026-10-12: stack the top toolbars once the saved layout has been restored.
     QTimer::singleShot(2500, this, [this]() { krimbleStackToolBars(this); krimbleInstallHelpExtras(this); krimbleInstallFileExtras(this);
-        // Krimble 2026-10-12: the invisible grab zones along the panel edges, kept up to date for panels that are added later
         krimbleInstallDockEdgeGrabs(this);
         QTimer *grabTimer = new QTimer(this);
         connect(grabTimer, &QTimer::timeout, this, [this]() {
             krimbleInstallDockEdgeGrabs(this);
-            Q_FOREACH (QAction *top, menuBar()->actions()) krimbleHideMenuShortcuts(top->menu(), 0);   // Krimble 2026-10-12
-            krimbleInstallMenuShortcutStripping(this);   // Krimble 2026-10-13 (4th): the real fix for the wide menus (see above)
-            krimbleInstallCanvasOnlyExit(this);          // Krimble 2026-10-13 (5th): the X that leaves Canvas Only mode
-            krimbleRemoveMinimumWidths(this);            // Krimble 2026-10-13 (6th): no minimum widths (see above)
-            krimbleInstallBevels(this);                  // Krimble 2026-10-17: one-pixel bevel lines on panels and toolbars (see above)
-            krimbleInstallHexMenus(this);                // Krimble 2026-10-18: View > Show > Hex and Layer > New > Hex Pattern... (see above)
-            krimbleInstallSelectionGlow(this);           // Krimble 2026-10-30: the blue glow of a selected (checked) button
-            // Krimble 2026-10-18: George (1.0.37, git 41a4afb): "1. Brushes still loads at start." The hiding at start (2.5 s) came too early: opening
-            // the first image brings the saved layout back, with Brushes. So it is hidden once more, once, the first time an image is open.
-            // Krimble 2026-10-18 (2nd): George (1.0.37, fc126d8): "2. Brushes still loads by default." The two hidings above and below happen once, and a
-            // saved layout brought it back again afterwards. For the first 30 s after the start it is hidden whenever it shows up.
+            Q_FOREACH (QAction *top, menuBar()->actions()) krimbleHideMenuShortcuts(top->menu(), 0);
+            krimbleInstallMenuShortcutStripping(this);
+            krimbleInstallCanvasOnlyExit(this);
+            krimbleRemoveMinimumWidths(this);
+            krimbleInstallBevels(this);
+            krimbleInstallHexMenus(this);
+            krimbleInstallSelectionGlow(this);
             {
                 static QElapsedTimer brushesClock;
                 if (!brushesClock.isValid()) brushesClock.start();
@@ -794,9 +707,6 @@ KisMainWindow::KisMainWindow(QUuid uuid)
                     }
                 }
             }
-            // Krimble 2026-10-18 (3rd): George (1.0.37, fc126d8): "2. I don't think so." (about the 30 s rule: an image opened later than that still brings Brushes
-            // back, through the saved layout / the Default workspace). When the first image of the session is opened, whenever that is, Brushes is hidden
-            // again, twice (1.2 s and 3 s after), to come after the layout is restored.
             if (!property("krimbleBrushesViewHook").toBool()) {
                 setProperty("krimbleBrushesViewHook", true);
                 connect(this, &KisMainWindow::activeViewChanged, this, [this]() {
@@ -817,11 +727,6 @@ KisMainWindow::KisMainWindow(QUuid uuid)
                     if (dock->objectName() == QLatin1String("PresetDocker") || dock->windowTitle() == QLatin1String("Brushes")) dock->hide();
                 }
             }
-            // Krimble 2026-10-13 (13th): George: "The saved window state on close is the most reliable predictor of the next load state. If we can
-            // set it, Brushes will behave." Krita writes the panel layout only when the last image is closed or a toolbar is changed, never when
-            // Android stops the app (swiping it away, or low memory), so a panel closed in one session came back in the next. The layout is
-            // now also written when the app goes to the background (as it does when the last image is closed), unless the welcome page is
-            // showing (Krita does not save that layout) or Canvas Only mode is on (its layout hides everything).
             if (!property("krimbleSaveOnBackground").toBool()) {
                 setProperty("krimbleSaveOnBackground", true);
                 connect(qApp, &QGuiApplication::applicationStateChanged, this, [this](Qt::ApplicationState state) {
@@ -837,15 +742,8 @@ KisMainWindow::KisMainWindow(QUuid uuid)
         });
         grabTimer->start(2000);
         Q_FOREACH (QAction *top, menuBar()->actions()) krimbleHideMenuShortcuts(top->menu(), 0);
-        // (c) Krimble 2026-10-12: George: "Maybe start with toolbox floating by default." The first time the app runs (and only
-        // then) the toolbox is floating, at the top left, two columns wide; after that the saved layout decides. A floating
-        // toolbox does not have to fit next to the canvas and the panels, which has no room in portrait.
         {
             KisConfig floatCfg(false);
-            // Krimble 2026-11-13 (task 48): George (build 57): "I didn't float the toolbox. It started out that way and was displaying the tools crookedly or only one column." The first-run float
-            // of 2026-10-12 (above) is switched off: on the first run the log shows the floating window 211 px wide with its tool area 27 px wide (columnsNeed 52), so one column or a crooked
-            // layout, until the toolbox was docked and floated again. The toolbox starts docked on the left, where it lays out correctly (the screenshots). The old condition is below, kept.
-            // Krimble 2026-11-13 (task 50): George: "jeez, no. Don't start with toolbox floating. Especially when it's an unstable mess. Dock left with 2 columns on start." Once (krimble/ToolboxStartV58): the toolbox is docked at the left, whatever the saved layout says (it was floating in the layouts of the older builds).
             {
                 KConfigGroup toolboxStart(KSharedConfig::openConfig(), "krimble");
                 if (!toolboxStart.readEntry("ToolboxStartV58", false)) {
@@ -857,7 +755,6 @@ KisMainWindow::KisMainWindow(QUuid uuid)
                     }
                 }
             }
-            // Krimble 2026-11-13 (task 50): George: "Don't start with toolbox floating. Especially when it's an unstable mess. Dock left with 2 columns on start." The one-time reset of this version: if the saved layout has the toolbox floating (or anywhere else), it is docked at the left, with the two columns set at the top of the constructor.
             {
                 KConfigGroup resetGroup(KSharedConfig::openConfig(), "krimble");
                 if (!resetGroup.readEntry("ToolBoxDockedLeftReset", false)) {
@@ -885,15 +782,8 @@ KisMainWindow::KisMainWindow(QUuid uuid)
                 }
             }
         }
-        // Krimble 2026-10-12: George: "Still loads brushes by default." The first time the app runs (once, remembered in the setting
-        // krimble_default_panels_done) the Brushes panel is hidden; it can be shown again in Window > Panels. This is done before the
-        // "default" layout below is kept, so Reset Layout also comes back without it.
         {
             KisConfig panelsCfg(false);
-            // if (!panelsCfg.readEntry<int>("krimble_default_panels_done", 0)) {
-            //     panelsCfg.writeEntry<int>("krimble_default_panels_done", 1);
-            // Krimble 2026-10-17: George (1.0.37): "4. Brushes still auto loads on start." Hidden at every start, not only the first (the saved layout
-            // of a phone that had run an older build kept bringing it back); it is shown again from Window > Panels.
             if (true) {
                 Q_FOREACH (QDockWidget *dock, findChildren<QDockWidget*>()) {
                     const QString title = dock->windowTitle().remove(QLatin1Char('&')).trimmed();
@@ -904,8 +794,6 @@ KisMainWindow::KisMainWindow(QUuid uuid)
                 }
             }
         }
-        // Krimble 2026-10-17: George (1.0.37): "7. Default side panel size is too wide on load. It squeezes the picture." In landscape the column of
-        // panels on the right is not wider than 30% of the window at start (it was 254 of 665 logical px, 38%); it can still be dragged wider.
         {
             QDockWidget *firstRight = nullptr;
             int rightWidth = 0;
@@ -921,15 +809,9 @@ KisMainWindow::KisMainWindow(QUuid uuid)
                 resizeDocks({firstRight}, {maxRightWidth}, Qt::Horizontal);
             }
         }
-        // Krimble 2026-10-13 (2nd): George, portrait: "the toolbox reverts to one column ... the right panel will not resize in portrait at
-        // all". The canvas area could not be narrower than about 147 logical px (about 500 on the screen), so with the toolbox and the
-        // panels next to it there was no room in portrait and the program shrank the toolbox back to one column and refused to resize
-        // the panels. The canvas area may now be as narrow as 40 logical px.
         if (QWidget *central = centralWidget()) {
             central->setMinimumWidth(40);
         }
-        // Krimble 2026-10-12: keep the layout the app first started with (for "Reset Layout"), then put back the layout the
-        // user saved for this orientation, if any; and add "Style Presets" to the Layer menu.
         {
             KConfigGroup layoutGroup = KSharedConfig::openConfig()->group("KrimbleLayouts");
             if (!layoutGroup.hasKey("default")) {
@@ -937,15 +819,13 @@ KisMainWindow::KisMainWindow(QUuid uuid)
                 layoutGroup.sync();
             }
             krimbleRestoreSavedLayout(this);
-            krimbleInstallLayerExtras(this);      // Krimble 2026-10-13 (11th): George: "Re-enable 3, 4, 5 for testing." (Layer > Style Presets)
+            krimbleInstallLayerExtras(this);
             krimbleInstallViewExtras(this);
-            krimbleInstallColorSettings(this);    // Krimble 2026-11-11: Edit > Custom CMYK...
-            krimbleInstallImageExtras(this);      // Krimble 2026-10-13 (11th): George: "Re-enable 3, 4, 5 for testing." (Image > Upscale... and Batch Process..., and Quick Adjust... in Image > Adjustments)
+            krimbleInstallColorSettings(this);
+            krimbleInstallImageExtras(this);
         }
     });
-    // Krimble 2026-10-11: close open menus when the window changes size (rotation).
     installEventFilter(new KrimbleClosePopupsOnResizeFilter(this));
-    // Krimble 2026-10-18 (5th): and when the program comes back to the front (after another app), no menu stays open
     connect(qApp, &QGuiApplication::applicationStateChanged, this, [](Qt::ApplicationState state) {
         if (state != Qt::ApplicationActive) return;
         while (QWidget *popup = QApplication::activePopupWidget()) {
@@ -954,11 +834,8 @@ KisMainWindow::KisMainWindow(QUuid uuid)
     });
 #endif
 
-    // KRIMBLE 2026-10-04: apply the labels typed in krita5.xmlgui (see krimbleApplyXmlGuiLabels). Run
-    // once everything is built, and again when a tool is chosen (tool actions appear later).
     QTimer::singleShot(0, this, [this]() {
         krimbleApplyXmlGuiLabels(this);
-        // and once more just before any menu is shown (KRIMBLE 2026-10-04, 2nd: Quit did not change on the phone)
         Q_FOREACH (QMenu *menu, this->findChildren<QMenu*>()) {
             connect(menu, &QMenu::aboutToShow, this, [this]() { krimbleApplyXmlGuiLabels(this); });
         }
@@ -966,8 +843,6 @@ KisMainWindow::KisMainWindow(QUuid uuid)
     connect(KoToolManager::instance(), &KoToolManager::changedTool, this,
             [this](KoCanvasController*) { krimbleApplyXmlGuiLabels(this); });
 #ifdef Q_OS_ANDROID
-    // Krimble 2026-10-19: the panel edge grab zones hide while the Crop tool or a selection tool is in use and come back for any other
-    // tool (see krimbleSelectionToolActive); this places or hides them right away when the tool changes.
     connect(KoToolManager::instance(), &KoToolManager::changedTool, this,
             [this](KoCanvasController*) { krimbleInstallDockEdgeGrabs(this); });
 #endif
@@ -1084,7 +959,6 @@ KisMainWindow::KisMainWindow(QUuid uuid)
         if (aboutKdeAction) {
             actions->addAction(aboutKdeAction->objectName(), aboutKdeAction);
         }
-        // Krimble 2026-10-25: George: "Krimble relaunches constantly on switching ... I want it to stop crashing." The log (krita.log) already says at every start why the run before ended; this shows it.
         {
             QAction *showLogAction = new QAction(i18n("Show Krimble Log..."), this);
             connect(showLogAction, &QAction::triggered, this, [this]() {
@@ -1114,7 +988,6 @@ KisMainWindow::KisMainWindow(QUuid uuid)
     // KDE' libs 4''s help contents action is broken outside kde, for some reason... We can handle it just as easily ourselves
     QAction *helpAction = actionCollection()->action("help_contents");
     helpAction->disconnect();
-    // Krimble 2026-10-25: George: "Do we have a help file? We should." Help > Krimble Help shows the Krimble handbook (krita/data/aboutdata/krimble-help.md, in the app's resources).
     helpAction->setText(i18n("Krimble Help"));
     connect(helpAction, &QAction::triggered, this, [this]() {
         (new KrimbleHelpDialog(this, KrimbleHelpDialog::handbookText()))->show();
@@ -1218,9 +1091,6 @@ KisMainWindow::KisMainWindow(QUuid uuid)
     }
 #endif
 
-    // When Krimble starts, Java side sends an event to set applicationState() to active. But, before
-    // the event could reach KisApplication's platform integration, it is cleared by KisOpenGLModeProber::probeFormat.
-    // So, we send it manually when MainWindow shows up.
     QAndroidJniObject::callStaticMethod<void>("org/qtproject/qt5/android/QtNative", "setApplicationState", "(I)V", Qt::ApplicationActive);
 #endif
 
@@ -1351,13 +1221,6 @@ void KisMainWindow::showView(KisView *imageView, QMdiSubWindow *subwin)
         imageView->setSubWindow(subwin);
         subwin->setAttribute(Qt::WA_DeleteOnClose, true);
         connect(subwin, SIGNAL(destroyed()), SLOT(updateWindowMenu()));
-        // Krimble 2026-11-04: George: tapping "File" opened the image window's system menu (Restore, Move, Size, Minimize ...) instead of the File menu.
-        // With the window maximized, Qt puts an invisible icon button at the left end of the menu bar (ControlLabel); on a style change Qt sizes it
-        // without dividing by the screen density, so it is about 3.4 times too big and covers "File". Without the system menu hint Qt does not
-        // put that button in the menu bar at all (ControlContainer::showButtonsInMenuBar, qmdisubwindow.cpp).
-        // Krimble 2026-11-05: George (1.0.45-beta, screenshots): "no X in the top right corner of image windows to close them", and the system menu has no
-        // Close. That line caused it: Qt shows the close button and the system menu's Close only for windows WITH the system menu hint (QMdiSubWindow
-        // and QCommonStyle check it). The hint is back. The invisible oversized icon button that covered "File" is made click-through instead (below).
         if (QMenuBar *bar = menuBar()) {
             if (!bar->property("krimbleCornerGuard").toBool()) {
                 bar->setProperty("krimbleCornerGuard", true);
@@ -1370,7 +1233,6 @@ void KisMainWindow::showView(KisView *imageView, QMdiSubWindow *subwin)
                         child->installEventFilter(kFilter);
                     }
                 }
-                // Krimble 2026-11-06: the button can already be the menu bar's left corner widget (found that way in real Qt; findChildren() did not list it)
                 if (QWidget *corner = bar->cornerWidget(Qt::TopLeftCorner)) {
                     if (QByteArray(corner->metaObject()->className()).endsWith("ControlLabel")) {
                         KrimbleMenuBarFilter::adopt(corner, bar);
@@ -1388,7 +1250,7 @@ void KisMainWindow::showView(KisView *imageView, QMdiSubWindow *subwin)
         subwin->setWindowIcon(qApp->windowIcon());
 #ifdef Q_OS_ANDROID
         {
-            KrimbleMdiTitleStyle *titleStyle = new KrimbleMdiTitleStyle();   // Krimble 2026-10-15: bigger buttons, blue-gray title bar (see above)
+            KrimbleMdiTitleStyle *titleStyle = new KrimbleMdiTitleStyle();
             titleStyle->setParent(subwin);
             subwin->setStyle(titleStyle);
         }
@@ -2258,9 +2120,6 @@ void KisMainWindow::showEvent(QShowEvent *event)
         setMainWindowLayoutForCurrentMainWidget(d->widgetStack->currentIndex(), false);
     }
 #ifdef Q_OS_ANDROID
-    // The user can conceivably purchase a product from the splash screen while
-    // Krimble is still loading. In that case, the "pending" flag will be set. The
-    // dialog in question will clear the flag.
     KisAndroidDonations *androidDonations = KisAndroidDonations::instance();
     if (androidDonations && androidDonations->isShowDonationManagementDialogPending()) {
         QTimer::singleShot(0, this, &KisMainWindow::slotShowDonationManagementDialog);
@@ -2326,7 +2185,7 @@ void KisMainWindow::adjustLayoutForWelcomePage()
 void KisMainWindow::setActiveView(KisView* view)
 {
     d->activeView = view;
-    krimbleApplyXmlGuiLabels(this);     // KRIMBLE 2026-10-04: labels from krita5.xmlgui
+    krimbleApplyXmlGuiLabels(this);
 
     if (d->undoActionsUpdateManager) {
         d->undoActionsUpdateManager->setCurrentDocument(view ? view->document() : 0);
@@ -2450,7 +2309,6 @@ void KisMainWindow::slotFileOpenRecent(const QUrl &url)
     (void) openDocument(url.toLocalFile(), None);
 }
 
-// Krimble 2026-10-23: File > Revert (see the action's creation above)
 void KisMainWindow::slotFileRevert()
 {
     KisView *view = activeView();
@@ -2710,9 +2568,6 @@ void KisMainWindow::slotStoragesWarning(const QString &/*location*/)
         }
     }
 
-    //     QMessageBox::warning(this, i18nc("@title:window", "Krimble"), warning + i18n("\nOnly your local resources are available."));
-    // }
-    // Krimble 2026-11-15: George: "I got a message about not having any resource bundles." Krimble has no bundles (they are deleted); the five brushes are loose resources. No message about bundles any more. The message about missing brush presets above stays.
 
 }
 
@@ -2722,14 +2577,6 @@ bool KisMainWindow::restoreWorkspace(KoResourceSP res)
 
     bool success = restoreWorkspaceState(workspace->dockerState());
 
-    // KRIMBLE 2026-10-02: while the welcome page is shown (no document open) the
-    // panels are hidden and the layout from before they were hidden is kept in
-    // dockerStateBeforeHiding; it is put back when a document opens. A workspace
-    // applied at that point (for example the first-launch Default workspace) left
-    // that saved layout untouched, so the first new file brought back the panels
-    // from before the workspace (Brush Presets, Color Selector) instead of the
-    // workspace's panels. Capture the workspace layout and hide the panels again,
-    // exactly as the welcome page does.
     if (success && d->mdiArea->subWindowList().isEmpty()) {
         toggleDockersVisibility(false, true);
     }
@@ -3105,22 +2952,6 @@ QDockWidget* KisMainWindow::createDockWidget(KoDockFactoryBase* factory)
 
         dockWidget->setObjectName(factory->id());
         dockWidget->setParent(this);
-        // Krimble (2026-09-04, reverted): this previously called
-        // dockWidget->setAllowedAreas(Qt::NoDockWidgetArea) to stop a
-        // dragged panel from docking itself back into a dock zone. That
-        // broke docking entirely instead -- addDockWidget() below
-        // immediately places the widget into `side`, an area it had
-        // just been told it wasn't allowed in at all, a direct
-        // self-contradiction fed to Qt's dock-layout engine. This is a
-        // strong candidate for both bug #7 (window docking broken --
-        // dragged panels can't be dropped back into ANY area, since
-        // zero areas are allowed) and bug #12 (docker panels rendering
-        // as unmanageable narrow columns -- plausible symptom of Qt's
-        // internal dock-layout width allocation misbehaving for a
-        // widget that declares itself allowed nowhere). Removed;
-        // QDockWidget defaults to Qt::AllDockWidgetAreas when this is
-        // never called, restoring normal dock/undock behavior.
-        // // dockWidget->setAllowedAreas(Qt::NoDockWidgetArea);
         if (!showTitlebars) {
             if (dockWidget->titleBarWidget() && !dockWidget->titleBarWidget()->inherits("KisUtilityTitleBar")) {
                 dockWidget->titleBarWidget()->setVisible(false);
@@ -3160,7 +2991,6 @@ QDockWidget* KisMainWindow::createDockWidget(KoDockFactoryBase* factory)
             dockWidget->hide();
         }
 
-        // Krimble 2026-11-12: no lock buttons any more, so a lock saved in an old layout is ignored (it could not be undone): panels always start unlocked. Before:
         bool locked = false;
         if (titleBar && locked) {
             titleBar->setLocked(true);
@@ -3171,33 +3001,8 @@ QDockWidget* KisMainWindow::createDockWidget(KoDockFactoryBase* factory)
         }
 
 #ifdef Q_OS_ANDROID
-        // KRIMBLE 2026-10-02: floating panels on a touch screen.
-        // 1) They re-docked too easily: dragging a floating panel across a dock
-        //    area docked it back in. While a panel floats it is now allowed in
-        //    no dock area, so it stays where it is dropped. It goes back into the
-        //    layout only through its float button or Settings > Panels > Attach
-        //    Panel; its allowed areas are restored as soon as it is docked again.
-        //    (The allowed areas are changed only here, after the panel has been
-        //    added to a dock area. Setting them before addDockWidget() was
-        //    tried on 2026-09-04 and broke docking; see the note above.)
-        // 2) They were hard to grab. While floating, the title bar gets extra
-        //    padding top and bottom. This is done with the title bar's layout
-        //    margins so the panel lays out correctly; a larger minimum height on
-        //    the title bar made it overlap the panel's content.
-        // 3) They were too big and could not be resized. A panel that floats is
-        //    capped to a default size (60% x 75% of the screen's shorter side) and
-        //    gets a resize handle in its lower right corner.
         dockWidget->installEventFilter(new KisDockedSizeTracker(dockWidget));
-        // KRIMBLE 2026-10-04: the toolbox docks only close to a side of the window (see KrimbleDockTolerance).
-        //     dockWidget->installEventFilter(new KrimbleDockTolerance(this, dockWidget));
-        // }
-        // Krimble 2026-10-12: George: the Layers panel, once detached, "tried really hard to attach to edges that were far away from it".
-        // Every floating panel, not only the toolbox, now docks only when the finger is close to a side of the window.
         dockWidget->installEventFilter(new KrimbleDockTolerance(this, dockWidget));
-        // Krimble 2026-10-30: George: "I created a new file and the Brushes panel appeared. Why?" The hiding above (at the start, once after the first image,
-        // for 30 s) did not cover a later new file, when a saved layout brings the panel back. The Brushes panel is now hidden every time it shows up by
-        // itself. It stays only when George opens it from the Window menu (the panel's own show/hide action, which is triggered only by a person, not
-        // by the layout code); it is forgotten when the panel is closed with its X, so the next appearance is hidden again.
         if (dockWidget->objectName() == QLatin1String("PresetDocker") || dockWidget->windowTitle() == QLatin1String("Brushes")) {
             dockWidget->setProperty("krimbleUserOpened", false);
             connect(dockWidget->toggleViewAction(), &QAction::triggered, dockWidget, [dockWidget](bool on) {
@@ -3215,23 +3020,8 @@ QDockWidget* KisMainWindow::createDockWidget(KoDockFactoryBase* factory)
             });
         }
         connect(dockWidget, &QDockWidget::topLevelChanged, this, [this, dockWidget](bool floating) {
-            // KRIMBLE 2026-10-04: Settings > "Attach Panels" decides what a floating panel does.
-            // ON (the default) = the standard behaviour: a panel dragged to the edge of the window
-            // docks there. OFF = floating panels never dock anywhere. Old line:
-            // dockWidget->setAllowedAreas(floating ? Qt::NoDockWidgetArea : Qt::AllDockWidgetAreas);
-            // KRIMBLE 2026-10-04 (2nd): the Attach/Detach features are switched off again, so panels
-            // behave as they did before them: they may always dock, wherever they float. (The
-            // "Attach Panels" menu item is hidden below; the lines below are kept for reference.)
-            // const bool attachOn = property("krimbleAttachPanels").toBool();
-            // dockWidget->setAllowedAreas((floating && !attachOn) ? Qt::NoDockWidgetArea : Qt::AllDockWidgetAreas);
             dockWidget->setAllowedAreas(Qt::AllDockWidgetAreas);
 
-            // KRIMBLE 2026-10-02: a panel docked again with its own float button used to
-            // fly back to its old place. Dock it where it was put instead, exactly as
-            // Settings > Attach Panel does. (Attach Panel sets krimbleAttaching while it
-            // runs, so it is not handled twice.)
-            // KRIMBLE 2026-10-04: switched off. Detach and Attach together became unpredictable
-            // (a panel could vanish), so the float button is back to the standard behaviour.
             if (false && !floating && dockWidget->isVisible() && !dockWidget->property("krimbleAttaching").toBool()) {
                 const QVariant floatingCenter = dockWidget->property("krimbleFloatingCenter");
                 if (floatingCenter.isValid()) {
@@ -3241,9 +3031,6 @@ QDockWidget* KisMainWindow::createDockWidget(KoDockFactoryBase* factory)
 
             if (QWidget *bar = dockWidget->titleBarWidget()) {
                 if (QLayout *barLayout = bar->layout()) {
-                    // KRIMBLE 2026-10-04: the extra title padding (was 14 on top and 14 at the bottom)
-                    // made floating panels show big empty bands; removed.
-                    // const int extra = 14;
                     const int extra = 0;
                     QMargins margins = barLayout->contentsMargins();
                     const bool padded = bar->property("krimbleTitlePadded").toBool();
@@ -3261,10 +3048,6 @@ QDockWidget* KisMainWindow::createDockWidget(KoDockFactoryBase* factory)
                 }
             }
 
-            // KRIMBLE 2026-10-04: a floating panel may be made much smaller than its docked
-            // minimum (Layers could not go below about 312 x 276). While floating, its content
-            // gets a small minimum size and its layout no longer forces the bigger one; docked
-            // again, both are put back.
             if (QWidget *content = dockWidget->widget()) {
                 QLayout *contentLayout = content->layout();
                 if (floating) {
@@ -3276,7 +3059,6 @@ QDockWidget* KisMainWindow::createDockWidget(KoDockFactoryBase* factory)
                     if (contentLayout) {
                         contentLayout->setSizeConstraint(QLayout::SetNoConstraint);
                     }
-                    // KRIMBLE 2026-10-07: the toolbox keeps its own small minimum (George: it must not get a minimum width)
                     if (dockWidget->objectName() != QLatin1String("ToolBox")) {
                         content->setMinimumSize(150, 120);
                     }
@@ -3290,15 +3072,8 @@ QDockWidget* KisMainWindow::createDockWidget(KoDockFactoryBase* factory)
                 }
             }
 
-            // KRIMBLE 2026-10-02: the resize handle covered whatever sits in the
-            // lower right corner of a panel (the Delete button of Layers). While a
-            // panel floats, a strip as high as the handle is reserved under its
-            // content, and the handle sits in that strip. Docked: strip removed.
-            // const int gripStrip = 36;     // KRIMBLE 2026-10-04: smaller, matches the 26 px handle
-            // const int gripStrip = 26;     // KRIMBLE 2026-10-04 (2nd pass): 20, matches the 20 px handle
             const int gripStrip = 20;
             const bool stripped = dockWidget->property("krimbleGripStrip").toBool();
-            // KRIMBLE 2026-10-07: not for the toolbox (it has edge strips of its own, no corner gadget)
             const bool isToolBox = dockWidget->objectName() == QLatin1String("ToolBox");
             if (floating && !stripped && !isToolBox) {
                 QMargins m = dockWidget->contentsMargins();
@@ -3312,16 +3087,9 @@ QDockWidget* KisMainWindow::createDockWidget(KoDockFactoryBase* factory)
                 dockWidget->setProperty("krimbleGripStrip", false);
             }
 
-            // KRIMBLE 2026-10-02: look the handle up by name. With the class no longer
-            // derived from QSizeGrip (cfa2343), findChild<KisFloatingDockSizeGrip*>()
-            // matched whichever widget was the first child of the panel, so no handle was
-            // ever created and the panel's own widget was moved to the corner instead.
-            // KisFloatingDockSizeGrip *grip = dockWidget->findChild<KisFloatingDockSizeGrip*>();
             KisFloatingDockSizeGrip *grip = static_cast<KisFloatingDockSizeGrip*>(
                 dockWidget->findChild<QWidget*>(QStringLiteral("krimbleResizeHandle"), Qt::FindDirectChildrenOnly));
             if (floating && isToolBox) {
-                // KRIMBLE 2026-10-07: the toolbox has no corner gadget: it keeps the size it had while docked and is
-                // resized by the two edge strips in KoToolBoxDocker.
                 const QSize dockedSize = dockWidget->property("krimbleDockedSize").toSize();
                 if (dockedSize.isValid()) {
                     dockWidget->resize(dockedSize);
@@ -3334,8 +3102,6 @@ QDockWidget* KisMainWindow::createDockWidget(KoDockFactoryBase* factory)
                     grip = new KisFloatingDockSizeGrip(dockWidget);
                     dockWidget->installEventFilter(new KisFloatingDockGripPlacer(dockWidget, grip));
                 }
-                // KRIMBLE 2026-10-02: the toolbox keeps the size it had while docked
-                // (a narrow strip of tools); it is not capped to the default size.
                 const QSize dockedSize = dockWidget->property("krimbleDockedSize").toSize();
                 if (dockWidget->objectName() == QLatin1String("ToolBox")) {
                     if (dockedSize.isValid()) {
@@ -3344,9 +3110,6 @@ QDockWidget* KisMainWindow::createDockWidget(KoDockFactoryBase* factory)
                 } else if (QScreen *scr = QGuiApplication::primaryScreen()) {
                     const QSize screenSize = scr->availableGeometry().size();
                     const int shortSide = qMin(screenSize.width(), screenSize.height());
-                    // KRIMBLE 2026-10-04: smaller default, was 60% x 75% of the screen's shorter side.
-                    // dockWidget->resize(qMin(dockWidget->width(), int(shortSide * 0.6)),
-                    //                    qMin(dockWidget->height(), int(shortSide * 0.75)));
                     dockWidget->resize(qMin(dockWidget->width(), int(shortSide * 0.5)),
                                        qMin(dockWidget->height(), int(shortSide * 0.5)));
                 }
@@ -3531,14 +3294,10 @@ void KisMainWindow::windowFocused()
 }
 
 
-// Krimble 2026-10-23: George (test list "Mercury's Shadow", item 29): "Window - Stack panels (in panels section to stack the side panels)." Puts the panels docked on the
-// right side one above the other, each in its own part of the column (they may have been tabs), with equal heights. The toolbox is not touched.
 static void krimbleStackPanels(QMainWindow *win)
 {
     QList<QDockWidget*> docks;
     Q_FOREACH (QDockWidget *dock, win->findChildren<QDockWidget*>()) {
-        // Krimble 2026-11-07: George: "stack panels doesn't work with floating panels." A panel that is floating (torn off) and open is stacked with the others now: it is docked
-        // into the right column. A floating panel that is closed stays closed, and the toolbox is still not touched.
         if (dock->objectName() == QLatin1String("ToolBox")) continue;
         if (dock->isFloating()) {
             if (!dock->isVisible()) continue;
@@ -3559,20 +3318,13 @@ static void krimbleStackPanels(QMainWindow *win)
     Q_FOREACH (QDockWidget *dock, docks) {
         if (dock->isVisible()) totalHeight += dock->height();
     }
-    // Krimble 2026-11-07: the floating panels' heights add to the total, which can be more than the window has: at most the window's height less its bars
     totalHeight = qMin(totalHeight, qMax(200, win->height() - 140));
-    //     win->splitDockWidget(docks.at(i - 1), docks.at(i), Qt::Vertical);
-    //     docks.at(i)->show();
-    // }
-    // Krimble 2026-10-23: George (1.0.42): "Stacking does not work." The result of the splitDockWidget version was the Color panel on top and the other two SIDE BY SIDE under
-    // it (Qt's split goes the way the area is already divided, not the way it is asked). Each panel is now taken out of the window and added again to the right area, one after
-    // the other: on the left and right sides Qt lays added panels out one above the other, and a panel that was a tab is no longer one.
     Q_FOREACH (QDockWidget *dock, docks) {
         win->removeDockWidget(dock);
     }
     Q_FOREACH (QDockWidget *dock, docks) {
         win->addDockWidget(Qt::RightDockWidgetArea, dock);
-        if (dock->isFloating()) dock->setFloating(false);   // Krimble 2026-11-07: a floating panel is docked into the column
+        if (dock->isFloating()) dock->setFloating(false);
         dock->show();
     }
     QList<int> sizes;
@@ -3584,10 +3336,6 @@ static void krimbleStackPanels(QMainWindow *win)
 void KisMainWindow::updateWindowMenu()
 {
     QMenu *menu = d->windowMenu->menu();
-    // Krimble 2026-10-18 (5th): George (1.0.38): "window menu is still sticky" and: "It won't close and won't allow selection and if you rotate the device it is stuck." This function empties
-    // and fills the menu and its submenus (the documents, the workspaces). It is called whenever a document is opened or closed, a workspace is added or removed, or a window is destroyed;
-    // when that happens while the menu is open on the screen, the items are removed from under the finger and the open popup can no longer be used or closed. While the menu is open the
-    // rebuild is put off until it is closed.
     if (menu->isVisible() || QApplication::activePopupWidget() == menu) {
         menu->setProperty("krimbleRebuildPending", true);
         if (!menu->property("krimbleHideHooked").toBool()) {
@@ -3603,12 +3351,10 @@ void KisMainWindow::updateWindowMenu()
     }
     menu->clear();
 
-    // Krimble 2026-10-11: two switches at the very top of the Window menu (George): tabs or floating windows, and showing the
-    // picture while a floating window is dragged. They write the same settings the Preferences window does and apply at once.
     {
         KisConfig windowCfg(true);
-        const bool tabbed = windowCfg.readEntry<int>("mdi_viewmode", (int)QMdiArea::TabbedView) == (int)QMdiArea::TabbedView;   // Krimble 2026-11-16 (724th): tabs are the default
-        QAction *viewModeAction = menu->addAction(tabbed ? i18n("Switch to Floating Windows") : i18n("Switch to Tabs"));   // Krimble 2026-10-11 (George)
+        const bool tabbed = windowCfg.readEntry<int>("mdi_viewmode", (int)QMdiArea::TabbedView) == (int)QMdiArea::TabbedView;
+        QAction *viewModeAction = menu->addAction(tabbed ? i18n("Switch to Floating Windows") : i18n("Switch to Tabs"));
         connect(viewModeAction, &QAction::triggered, this, [this, tabbed]() {
             KisConfig cfg(false);
             cfg.writeEntry<int>("mdi_viewmode", tabbed ? (int)QMdiArea::SubWindowView : (int)QMdiArea::TabbedView);
@@ -3618,7 +3364,6 @@ void KisMainWindow::updateWindowMenu()
                 QTimer::singleShot(0, this, [this]() { d->mdiArea->cascadeSubWindows(); });
             }
         });
-        // Krimble 2026-10-13 (12th): George: "Try ShowDrag." (a shorter label, to see how much narrower the Window menu gets)
         QAction *showDragAction = menu->addAction(i18n("ShowDrag"));
         showDragAction->setCheckable(true);
         showDragAction->setChecked(windowCfg.readEntry<int>("mdi_rubberband", krimbleRubberBandDefault(windowCfg)) == 0);
@@ -3646,8 +3391,6 @@ void KisMainWindow::updateWindowMenu()
     if (screen) {
         fileStringWidth = int(screen->availableGeometry().width() * .40f);
     }
-    // Krimble 2026-10-14: George (1.0.36): "Filename length for open image is stretching the width of Window menu. Could it have a set length ...
-    // like so many characters?" At most 24 characters wide (the middle is left out: "content://c...41984e.png"), instead of 40% of the screen.
     fileStringWidth = qMin(fileStringWidth, fontMetrics.averageCharWidth() * 24);
     Q_FOREACH (QPointer<KisDocument> doc, KisPart::instance()->documents()) {
         if (doc) {
@@ -3754,16 +3497,13 @@ void KisMainWindow::updateWindowMenu()
         }
     }
 
-    // Krimble 2026-10-10 (3rd): Panels now sits with the panel items at the end of the menu (below).
 
-    // Krimble 2026-10-10 (2nd): these items keep the order and separators they had in the View menu; Panels sits with the panel items.
     {
         auto addActionByName = [this, menu](const char *name) {
             if (QAction *action = actionCollection()->action(QLatin1String(name))) {
                 menu->addAction(action);
             }
         };
-        // Krimble 2026-10-11: Themes, Styles and Language moved to the end of the menu (George); they were here:
         menu->addSeparator();
         QMenu *toolbarsMenu = menu->addMenu(i18nc("@action:inmenu", "&Toolbars"));
         connect(toolbarsMenu, &QMenu::aboutToShow, this, [this, toolbarsMenu]() {
@@ -3775,10 +3515,7 @@ void KisMainWindow::updateWindowMenu()
                 toggle->setChecked(toolBar->isVisible());
                 connect(toggle, &QAction::toggled, toolBar, &QWidget::setVisible);
             }
-            // Krimble 2026-10-11: Reset Toolbars (George): every toolbar goes back to the top, horizontal and visible, as the
-            // menu file (krita5.xmlgui) defines them.
             toolbarsMenu->addSeparator();
-            // Krimble 2026-10-12: Close All Toolbars (George: "add a Close All item to the toolbar submenu")
             QAction *closeAllToolbars = toolbarsMenu->addAction(i18n("Close All Toolbars"));
             connect(closeAllToolbars, &QAction::triggered, this, [this]() {
                 Q_FOREACH (KisToolBar *toolBar, toolBars()) {
@@ -3795,11 +3532,9 @@ void KisMainWindow::updateWindowMenu()
                     toolBar->setOrientation(Qt::Horizontal);
                     toolBar->show();
                 }
-                // Krimble 2026-10-12: and one on each row
                 QTimer::singleShot(0, this, [this]() { krimbleStackToolBars(this); });
             });
         });
-        // Krimble 2026-10-24: Customize Toolbar... is here, with the other toolbar items (George, test list item 10); it was in the Edit menu
         addActionByName("options_configure_toolbars");
         addActionByName("lock_toolbars");
         menu->addSeparator();
@@ -3808,21 +3543,13 @@ void KisMainWindow::updateWindowMenu()
         addActionByName("settings_detach_panel_menu");
         addActionByName("settings_attach_panel_menu");
         addActionByName("settings_toggle_right_panels");
-        // Krimble 2026-10-11: Hide All Panels (and Show All Panels while they are hidden), next to Hide Right Panels (George).
         QAction *hideAllPanels = menu->addAction(d->toggleDockers->isChecked() ? i18n("Hide All Panels") : i18n("Show All Panels"));
         connect(hideAllPanels, &QAction::triggered, this, [this]() {
             d->toggleDockers->setChecked(!d->toggleDockers->isChecked());
         });
-        // Krimble 2026-10-23: Stack Panels (George, test list item 29), right after Hide All Panels
         QAction *stackPanelsAction = menu->addAction(i18n("Stack Panels"));
         connect(stackPanelsAction, &QAction::triggered, this, [this]() { krimbleStackPanels(this); });
-        // Krimble 2026-10-12: Mirror Layout (Left-Handed) (Claude's idea): checked while the toolbox is on the right
-        // Krimble 2026-10-12: Mirror Layout removed from the menu (George): it corrupted the display in 1.0.33. The code is kept.
-        //     mirrorLayout->setChecked(!toolBoxDock->isFloating() && dockWidgetArea(toolBoxDock) == Qt::RightDockWidgetArea);
-        // }
-        // Krimble 2026-10-13 (9th): George: "8. Comment out." (Window > Layout Presets, Save Layout as Startup, Reset Layout)
 #if 0
-        // Krimble 2026-10-12: Layout Presets (Claude's idea)
         QMenu *presets = menu->addMenu(i18n("Layout Presets"));
         struct PresetDef { const char *label; QStringList panels; };
         const QList<PresetDef> presetList = {
@@ -3837,7 +3564,6 @@ void KisMainWindow::updateWindowMenu()
             const QStringList panels = def.panels;
             connect(presetAction, &QAction::triggered, this, [this, panels]() { krimbleApplyPanelPreset(this, panels); });
         }
-        // Krimble 2026-10-12: Startup layouts (George's idea, Claude's design)
         QAction *saveLayout = menu->addAction(i18n("Save Layout as Startup"));
         connect(saveLayout, &QAction::triggered, this, [this]() {
             krimbleSaveLayout(this);
@@ -3850,16 +3576,11 @@ void KisMainWindow::updateWindowMenu()
 #endif
         menu->addSeparator();
         addActionByName("theme_menu");
-        // Krimble 2026-10-18 (5th): George (1.0.37, c666301): "Window - Styles does nothing." On Android the Styles submenu is never filled (the loop that lists the widget styles is inside
-        // #ifndef Q_OS_ANDROID, and the app has its own style), so the item opened an empty submenu. It is out of the Window menu; the action itself is kept.
-        // Krimble 2026-11-15: George: "Also put a separator before change language in window menu."
         menu->addSeparator();
         addActionByName("switch_application_language");
     }
 
-    // Krimble 2026-10-10: the first version of the block above (kept, not deleted).
 #if 0
-    // Krimble 2026-10-10: panel, toolbar and appearance controls live in the Window menu, not the View menu (George).
     {
         menu->addSeparator();
         const char *panelActions[] = {"view_toggledockers", "settings_detach_panel_menu", "settings_attach_panel_menu", "settings_toggle_right_panels"};
@@ -3887,7 +3608,7 @@ void KisMainWindow::updateWindowMenu()
             menu->addAction(lockToolbars);
         }
         menu->addSeparator();
-        const char *appearanceActions[] = {"theme_menu"};   // Krimble 2026-10-18 (5th): no Styles item (see above)
+        const char *appearanceActions[] = {"theme_menu"};
         for (const char *name : appearanceActions) {
             if (QAction *action = actionCollection()->action(QLatin1String(name))) {
                 menu->addAction(action);
@@ -3896,13 +3617,7 @@ void KisMainWindow::updateWindowMenu()
     }
 #endif
 
-    // KRIMBLE 2026-10-06 (2nd): George: "If Window is constructed on the fly, use View menu instead." The former Settings
-    // items above Presets are now in the View menu (krita5.xmlgui), so the block below is switched off (kept, not deleted).
 #if 0
-    // KRIMBLE 2026-10-06: the Settings menu is gone (George: "Move everything below Presets in the Settings menu to
-    // the Help menu. Everything above that move to Window menu. Then remove Settings menu."). What was above
-    // "Presets..." now ends the Window menu. ("Panels" is the entry added just above; the rest of the old Settings
-    // entries below Presets are in the Help menu, see krita5.xmlgui.) The texts are the ones the Settings menu showed.
     {
         auto addNamed = [this, menu](const char *name, const QString &text = QString()) {
             if (QAction *action = actionCollection()->action(QLatin1String(name))) {
@@ -3995,13 +3710,6 @@ void KisMainWindow::setActiveSubWindow(QWidget *window)
 void KisMainWindow::configChanged()
 {
     KisConfig cfg(true);
-    // KRIMBLE 2026-10-04: Subwindows (floating pictures) were tried as the default and went back to tabs the same
-    // day ("the sub Windows are a little wonky"). The Subwindows line is kept for later.
-    // Krimble 2026-10-11: floating windows are the default again, so people know they are there. The Window menu has a
-    // one tap switch to tabs (and back).
-    // Krimble 2026-11-16 (724th): George (build 64): "Krita previously had tabs at the top for the open image files so you could select them. Now it doesn't for some reason. I didn't ask
-    // for that to be removed. Please restore it." Tabs are the default again. A phone that has "floating windows" saved (the Preferences window saves it on every OK, asked for or not) is
-    // put back to tabs ONCE; after that Window > Switch to Floating Windows / Switch to Tabs is the user's own choice and is kept.
     if (!cfg.readEntry<bool>("krimbleTabsRestored724", false)) {
         KisConfig krimbleWrite(false);
         krimbleWrite.writeEntry<int>("mdi_viewmode", (int)QMdiArea::TabbedView);
@@ -4044,10 +3752,10 @@ void KisMainWindow::configChanged()
 
     KConfigGroup group( KSharedConfig::openConfig(), "theme");
 #ifndef Q_OS_HAIKU
-    d->themeManager->setCurrentTheme(group.readEntry("Theme", "Krimble Blue-Gray"));   // Krimble 2026-11-12 (task 27): the default theme
+    d->themeManager->setCurrentTheme(group.readEntry("Theme", "Krimble Blue-Gray"));
 #endif
-    new KrimbleCanvasOverlay(this);   // Krimble 2026-11-13: the panels lie over the canvas
-    krimbleInstallBevels(this);   // Krimble 2026-11-12 (task 43): George (the new build, a screenshot of the start screen): "on start the menu bar has nothing to separate it from the rest of the screen. No border. No hilight or shadow. Then it becomes the painted version." the lines of the menu bar, panels and tool bars at once, not 2.5 seconds later
+    new KrimbleCanvasOverlay(this);
+    krimbleInstallBevels(this);
     d->actionManager()->updateGUI();
 
     QString s = cfg.getMDIBackgroundColor();
@@ -4211,8 +3919,6 @@ void KisMainWindow::createActions()
     d->saveActionAs = actionManager->createStandardAction(KStandardAction::SaveAs, this, SLOT(slotFileSaveAs()));
     d->saveActionAs->setActivationFlags(KisAction::ACTIVE_IMAGE);
 
-    // Krimble 2026-10-23: George (test list "Mercury's Shadow"): "Where is File - Revert??? Put it back." The menu definition (krita5.xmlgui) still has the line
-    // "file_reload_file" under Save As, but no action of that name was ever created, so nothing showed. It is created here, and named Revert.
     {
         KisAction *revertAction = actionManager->createAction("file_reload_file");
         revertAction->setText(i18n("Revert"));
@@ -4289,8 +3995,6 @@ void KisMainWindow::createActions()
     d->resetConfigurations  = actionManager->createAction("reset_configurations");
     connect(d->resetConfigurations, SIGNAL(triggered()), this, SLOT(slotResetConfigurations()));
 
-    // Krimble 2026-10-23: George: "Can we have a toggle to reset all options to defaults on restart?" A checkable item next to Reset Preferences; the work is done at the next start
-    // (krimbleResetToolOptionsIfWanted in KisApplication.cpp).
     {
         KisAction *resetToolOptionsOnStart = actionManager->createAction("krimble_reset_tool_options_on_start");
         resetToolOptionsOnStart->setText(i18n("Reset Tool Options on Start"));

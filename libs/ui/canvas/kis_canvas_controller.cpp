@@ -4,7 +4,7 @@
  *  SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#include <QElapsedTimer>   // Krimble 2026-11-15
+#include <QElapsedTimer>
 #include "kis_canvas_controller.h"
 
 #include <QMouseEvent>
@@ -56,8 +56,8 @@ struct KisCanvasController::Private {
     qreal physicalDpiX {72.0};
     qreal physicalDpiY {72.0};
     qreal devicePixelRatio {1.0};
-    QSize krimbleLastWindowSize;   // Krimble 2026-11-13 (task 59): George: "Another problem. Instead of laying on top of the image, the right side panel forces the image in the main canvas area to zoom waaaay out. It's super stupid." the size of the main window at the last canvas resize
-    QElapsedTimer krimbleSettle;   // Krimble 2026-11-15: started at the first canvas size; the zoom is not frozen while the picture is still opening (see updateCanvasWidgetSizeInternal)
+    QSize krimbleLastWindowSize;
+    QElapsedTimer krimbleSettle;
 
     void emitPointerPositionChangedSignals(QPoint pointerPos);
     void showRotationValueOnCanvas();
@@ -522,27 +522,12 @@ void KisCanvasController::updateCanvasOffsetInternal(const QPointF &newOffset)
 void KisCanvasController::updateCanvasWidgetSizeInternal(const QSize &newSize, qreal devicePixelRatio)
 {
     m_d->coordinatesConverter->setDevicePixelRatio(devicePixelRatio);
-    // Krimble 2026-11-13 (task 59): George: "Another problem. Instead of laying on top of the image, the right side panel forces the image in the main canvas area to zoom waaaay out. It's super stupid."
-    // When the canvas area gets smaller or larger while the picture is shown with a "fit" zoom (Fit to Page, Width or Height; the picture opens that way), the converter zooms the picture
-    // again to fit the new size: a panel that opens at the right and takes most of a phone's width made the picture zoom far out. The canvas area changes size without the main window
-    // changing size only when a panel is opened, closed, resized or moved (a turn of the phone changes the window too, and then fitting again is right). In that case the zoom is frozen first:
-    // the fit mode becomes a constant zoom at the zoom it has, the picture is kept where it is on the screen, and the area that is left shows the picture as before (the panel covers the
-    // right part of it, as the user expects; the user can still choose Fit to Page again). The mode is changed here, before the size is applied (the converter's own note says the
-    // constant mode reads the state before the change to place the still point).
     {
         QWidget *topLevel = window();
         const QSize windowSize = topLevel ? topLevel->size() : QSize();
         const QSizeF oldSize = m_d->coordinatesConverter->getCanvasWidgetSize();
-        // Krimble 2026-11-15: George: "I guess just fix the zoom. New images should center in the display and open at a zoom level that fits the display with a little margin around it." While a picture opens the
-        // canvas area is resized several times as the layout settles (the window does not change), and the freeze below turned the fit zoom of the first, small size into a constant zoom (a tiny picture). The
-        // zoom is not frozen in the first 3 seconds after the canvas got its first size: the picture keeps the Fit to Page mode and is fitted again to each size, so it ends centered and fitted.
         if (!m_d->krimbleSettle.isValid() && !newSize.isEmpty()) m_d->krimbleSettle.start();
         const bool krimbleSettled = m_d->krimbleSettle.isValid() && m_d->krimbleSettle.hasExpired(3000);
-        // if (!oldSize.isEmpty() && oldSize != QSizeF(newSize) && windowSize.isValid() && windowSize == m_d->krimbleLastWindowSize
-        // if (krimbleSettled && !oldSize.isEmpty() && oldSize != QSizeF(newSize) && windowSize.isValid() && windowSize == m_d->krimbleLastWindowSize
-        // Krimble 2026-11-17 (733rd): George: "a lot of files are opening zoomed way out so they look tiny on load." The 3 second wait is wall time, and a big file can hold the app
-        // for longer than that while it opens, so the canvas area was still growing from its first small size after the wait ran out, and the fit zoom of that small size was frozen
-        // (a tiny picture). The zoom is now frozen only when the canvas area gets smaller (a panel opening, the case this is for). When it grows, the picture keeps Fit to Page.
         const bool krimbleShrinks = newSize.width() < oldSize.width() || newSize.height() < oldSize.height();
         if (krimbleSettled && krimbleShrinks && !oldSize.isEmpty() && oldSize != QSizeF(newSize) && windowSize.isValid() && windowSize == m_d->krimbleLastWindowSize
             && m_d->coordinatesConverter->zoomMode() != KoZoomMode::ZOOM_CONSTANT) {

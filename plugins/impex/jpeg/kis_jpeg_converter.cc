@@ -53,7 +53,7 @@ extern "C" {
 #include <kis_painter.h>
 #include <kis_transaction.h>
 #include <kis_transform_worker.h>
-#include <kis_selection.h>            // Krimble 2026-11-12 (task 24a): SmartCompression level and protected area.
+#include <kis_selection.h>
 #include <kis_pixel_selection.h>
 #include <QBuffer>
 #include <vector>
@@ -458,7 +458,6 @@ KisImageSP KisJPEGConverter::image()
 }
 
 
-// Krimble 2026-11-12 (task 24a): SmartCompression level and protected area. The protected area of a picture, one byte per pixel (255 = protected): the Smart Selection of the picture's own detail (mode 0), the picture's selection (mode 1), or nothing (mode 2).
 static std::vector<uint8_t> krimbleSmartMask(const KisJPEGOptions &options, KisImageSP image, KisPaintDeviceSP dev, J_COLOR_SPACE colorType, int w, int h)
 {
     std::vector<uint8_t> mask(size_t(w) * h, 0);
@@ -466,8 +465,6 @@ static std::vector<uint8_t> krimbleSmartMask(const KisJPEGOptions &options, KisI
         return mask;
     }
     if (options.smartProtect == 1) {
-        // Krimble 2026-11-13 (task 52): the picture's selection is the area to COMPRESS (the Smart Selection of the SmartCompression panel is that: the flat areas); what it does not cover
-        // (what the film covers) is protected. No selection: nothing is protected, the whole picture is compressed.
         KisSelectionSP selection = image->globalSelection();
         if (selection && selection->pixelSelection()) {
             selection->pixelSelection()->readBytes(mask.data(), 0, 0, w, h);
@@ -492,8 +489,6 @@ static std::vector<uint8_t> krimbleSmartMask(const KisJPEGOptions &options, KisI
     return KrimbleSmart::detailMask(lum.data(), w, h, options.smartSensitivity);
 }
 
-// Krimble 2026-11-12 (task 24c): George: "Do SmartCompression now" (part c: a picture that is all gray is saved as a one-channel gray JPEG). True when every pixel of an 8-bit RGB device has the same value in all three color channels (the pixel is a gray: red = green = blue). The check
-// stops at the first pixel that is not gray, so a color picture costs almost nothing. The color channels are read in the device's own order (the three first bytes of a pixel).
 static bool krimbleDeviceIsGray(KisPaintDeviceSP dev, int width, int height)
 {
     const KoColorSpace *deviceSpace = dev->colorSpace();
@@ -538,7 +533,6 @@ KisImportExportErrorCode KisJPEGConverter::buildFile(QIODevice *io, KisPaintLaye
     uint height = image->height();
     uint width = image->width();
 
-    // Krimble 2026-11-12 (task 24c): George: "Do SmartCompression now" (part c: a picture that is all gray is saved as a one-channel gray JPEG). The picture to write (the layer on the fill color), made here, before the JPEG is set up, because the setup depends on whether it is all gray.
     KisPaintDeviceSP dev = new KisPaintDevice(layer->colorSpace());
     {
         KoColor fillColor(options.transparencyFillColor, layer->colorSpace());
@@ -548,7 +542,7 @@ KisImportExportErrorCode KisJPEGConverter::buildFile(QIODevice *io, KisPaintLaye
         fillPainter.end();
     }
     bool krimbleGray = false;   // SmartCompression: written as a one-channel gray JPEG
-    bool krimbleLuma = false;   // Krimble 2026-11-13 (task 49): George (build 57): "SmartCompression logo is too big. Too much explanation in the panel. Doesn't look like XAT. Jpeg save dialog is enormous." the gray value is the brightness (299 R + 587 G + 114 B) / 1000 of a color picture
+    bool krimbleLuma = false;
     if (options.smartForceGray && color_type == JCS_RGB) {
         krimbleGray = true;
         krimbleLuma = true;
@@ -558,7 +552,6 @@ KisImportExportErrorCode KisJPEGConverter::buildFile(QIODevice *io, KisPaintLaye
         color_type = JCS_GRAYSCALE;
     }
 
-    // Krimble 2026-11-12 (task 24a): SmartCompression level and protected area. With a level above 0 the JPEG is first written to a buffer, made coarser outside the protected area, and then written to the file.
     const bool krimbleSmart = options.smartLevel > 0;
     QBuffer smartBuffer;
     if (krimbleSmart) {
@@ -577,11 +570,11 @@ KisImportExportErrorCode KisJPEGConverter::buildFile(QIODevice *io, KisPaintLaye
 
         jpeg_create_compress(&cinfo);
         // Initialize output stream
-        KisJPEGDestination::setDestination(&cinfo, krimbleSmart ? static_cast<QIODevice *>(&smartBuffer) : io);   // Krimble 2026-11-12 (task 24a): SmartCompression level and protected area.
+        KisJPEGDestination::setDestination(&cinfo, krimbleSmart ? static_cast<QIODevice *>(&smartBuffer) : io);
 
         cinfo.image_width = width;  // image width and height, in pixels
         cinfo.image_height = height;
-        cinfo.input_components = krimbleGray ? 1 : cs->colorChannelCount();   // Krimble 2026-11-12 (task 24c): George: "Do SmartCompression now" (part c: a picture that is all gray is saved as a one-channel gray JPEG).
+        cinfo.input_components = krimbleGray ? 1 : cs->colorChannelCount();
         cinfo.in_color_space = color_type;   // colorspace of input image
 
         // Set default compression parameters
@@ -598,8 +591,6 @@ KisImportExportErrorCode KisJPEGConverter::buildFile(QIODevice *io, KisPaintLaye
         // Smoothing
         cinfo.smoothing_factor = (boolean)options.smooth;
 
-        // Subsampling
-        // Krimble 2026-11-12 (task 24c): George: "Do SmartCompression now" (part c: a picture that is all gray is saved as a one-channel gray JPEG). A one-channel gray JPEG has nothing to subsample.
         if (krimbleGray) {
         } else switch (options.subsampling) {
         default:
@@ -709,12 +700,8 @@ KisImportExportErrorCode KisJPEGConverter::buildFile(QIODevice *io, KisPaintLaye
         }
 
 
-        // Krimble 2026-11-12 (task 24c): George: "Do SmartCompression now" (part c: a picture that is all gray is saved as a one-channel gray JPEG). The picture is made earlier now (see above). The old lines:
-        // gc.bitBlt(QPoint(0, 0), layer->paintDevice(), QRect(0, 0, width, height));
 
 
-        // if (options.saveProfile) {
-        // Krimble 2026-11-12 (task 24c): George: "Do SmartCompression now" (part c: a picture that is all gray is saved as a one-channel gray JPEG). An RGB profile does not belong in a gray JPEG, so it is not written for one.
         if (options.saveProfile && !krimbleGray) {
             const KoColorProfile* colorProfile = layer->colorSpace()->profile();
             QByteArray colorProfileData = colorProfile->rawData();
@@ -800,8 +787,6 @@ KisImportExportErrorCode KisJPEGConverter::buildFile(QIODevice *io, KisPaintLaye
         // Writing is over
         jpeg_finish_compress(&cinfo);
 
-        // Krimble 2026-11-12 (task 24a): SmartCompression level and protected area. The coefficients of every 8 x 8 block outside the protected area are made coarser (KrimbleSmartCompression.h); the file is written from the result. If that fails, the
-        // JPEG as it was written is used.
         if (krimbleSmart) {
             const QByteArray encoded = smartBuffer.data();
             const std::vector<uint8_t> mask = krimbleSmartMask(options, image, dev, color_type, width, height);

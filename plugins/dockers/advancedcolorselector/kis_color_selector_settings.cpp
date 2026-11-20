@@ -40,8 +40,6 @@ KisColorSelectorSettings::KisColorSelectorSettings(QWidget *parent) :
     connect(ui->useDifferentColorSpaceCheckbox, SIGNAL(clicked(bool)), this, SLOT(useDifferentColorSpaceChecked(bool)));
 
     /* color docker selector drop down */
-    // KRIMBLE: renamed from "Advanced Color Selector" to match the docker title.
-    // ui->dockerColorSettingsComboBox->addItem(i18n("Advanced Color Selector"));
     ui->dockerColorSettingsComboBox->addItem(i18n("Color Selector"));
     ui->dockerColorSettingsComboBox->addItem(i18n("Color Hotkeys"));
 
@@ -147,7 +145,7 @@ QString KisColorSelectorSettings::header()
 
 QIcon KisColorSelectorSettings::icon()
 {
-    return KisIconUtils::loadIcon("krimble-config-color-selector");   // Krimble 2026-10-13: George's own picture (the general icon is used elsewhere too)
+    return KisIconUtils::loadIcon("krimble-config-color-selector");
 }
 
 

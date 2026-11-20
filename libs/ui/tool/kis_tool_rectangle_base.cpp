@@ -17,7 +17,7 @@
 #include <KoViewConverter.h>
 #include <input/kis_extended_modifiers_mapper.h>
 #include <kis_icon.h>
-#include <QMainWindow>   // Krimble 2026-11-18 (746th)
+#include <QMainWindow>
 #include <QStatusBar>
 #include <KisViewManager.h>
 
@@ -93,7 +93,6 @@ void KisToolRectangleBase::roundCornersChanged(int rx, int ry)
 
 static void krimbleShowSizeInStatusBar(KisCanvas2 *kisCanvas, const QString &text)
 {
-    // Krimble 2026-11-18 (746th): the size of a selection, shape or crop goes in the window's status bar, not in a box on the canvas
     QMainWindow *krimbleWindow = qobject_cast<QMainWindow*>(kisCanvas->viewManager()->mainWindowAsQWidget());
     if (krimbleWindow && krimbleWindow->statusBar()) krimbleWindow->statusBar()->showMessage(QString(text).replace(QLatin1Char('\n'), QStringLiteral("   ")), 1000);
 }
@@ -102,12 +101,6 @@ void KisToolRectangleBase::showSize()
 {
     KisCanvas2 *kisCanvas =dynamic_cast<KisCanvas2*>(canvas());
     KIS_SAFE_ASSERT_RECOVER_RETURN(kisCanvas);
-    // kisCanvas->viewManager()->showFloatingMessage(i18n("Width: %1 px\nHeight: %2 px"
-    //                                                    , createRect(m_dragStart, m_dragEnd).width()
-    //                                                    , createRect(m_dragStart, m_dragEnd).height()), QIcon(), 1000
-    //                                                    , KisFloatingMessage::High,  Qt::AlignLeft | Qt::TextWordWrap | Qt::AlignVCenter);
-    // Krimble 2026-11-18 (746th): George (a rectangle selection with the size box over it): "I try to select something and a box covers what I'm trying to do just to tell me the pixel
-    // dimensions." No box: the size shows in the status bar at the bottom of the window for a second (Claude's proposal; George: "Perfect").
     krimbleShowSizeInStatusBar(kisCanvas, i18n("Width: %1 px\nHeight: %2 px"
                                                , createRect(m_dragStart, m_dragEnd).width()
                                                , createRect(m_dragStart, m_dragEnd).height()));

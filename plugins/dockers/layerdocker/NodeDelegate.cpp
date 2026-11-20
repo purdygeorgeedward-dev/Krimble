@@ -8,7 +8,7 @@
 #include "kis_config.h"
 #include "NodeDelegate.h"
 #include "kis_node_model.h"
-#include "kis_node_filter_proxy_model.h"   // Krimble 2026-11-13 (task 70)
+#include "kis_node_filter_proxy_model.h"
 #include "NodeToolTip.h"
 #include "NodeView.h"
 #include "KisPart.h"
@@ -21,8 +21,8 @@
 #include <QModelIndex>
 #include <QMouseEvent>
 #include <QPainter>
-#include <QLinearGradient>   // Krimble 2026-11-16 (728th)
-#include <QPainterPath>   // Krimble 2026-11-14: run 32 (attempt 2) "variable has incomplete type QPainterPath" at lines 319 and 338
+#include <QLinearGradient>
+#include <QPainterPath>
 #include <QPointer>
 #include <QStyle>
 #include <QStyleOptionViewItem>
@@ -123,21 +123,11 @@ void NodeDelegate::paint(QPainter *p, const QStyleOptionViewItem &o, const QMode
         QStyleOptionViewItem option = getOptions(o, index);
         QStyle *style = option.widget ? option.widget->style() : QApplication::style();
         style->drawPrimitive(QStyle::PE_PanelItemViewItem, &option, p, option.widget);
-        // Krimble 2026-11-15: George (build 60, Layers screenshot): "Selected layer still looks like crap." The style sheet rule of entry 626 (NodeView::item) did not reach the rows (the screenshot still
-        // shows the old saturated blue), so the row is painted here, over whatever the style drew: mid gray #5D6272 for a layer, lighter #8E93A6 for the selected one, with dark text on it. Flat, no outline, no glow.
         {
             const bool krimbleSel = option.state & QStyle::State_Selected;
-            // if (krimbleSel) {
-            //     option.palette.setColor(QPalette::HighlightedText, QColor(0x0e, 0x10, 0x20));
-            //     option.palette.setColor(QPalette::Text, QColor(0x0e, 0x10, 0x20));
-            //     option.palette.setColor(QPalette::Text, QColor(0xff, 0xff, 0xff));
-            // }
-            // Krimble 2026-11-16 (728th): George (build 65): "Change the layer colors back. Give me the selection effect blue for the selected layer and make the other layers dark and match
-            // the theme." The grays of 2026-11-15 are gone. A layer's row is the list's own dark color (the theme's Base color, the color of the empty part of the list); the selected
-            // layer's row is the design's blue selection gradient (the theme's highlight color in Krimble Dark Gray and in the themes that are not Krimble's). White names on both.
             if (krimbleSel) {
                 if (qApp->property("krimbleSelectionGradient").toBool()) {
-                    p->fillRect(option.rect, QColor(0x0b, 0x87, 0xdd));   // Krimble 2026-11-20 (757th): George: "Make the other selections plain blue like menus. No gradients." One flat blue, #0b87dd, as the menus.
+                    p->fillRect(option.rect, QColor(0x0b, 0x87, 0xdd));
                 } else {
                     p->fillRect(option.rect, option.palette.color(QPalette::Active, QPalette::Highlight));
                 }
@@ -308,8 +298,6 @@ QRect NodeDelegate::thumbnailClickRect(const QStyleOptionViewItem &option, const
 }
 
 
-// Krimble 2026-11-13 (task 70): George: "Your proposed changes for layers are good. Let's do that." (the type badge on the thumbnail, the fx mark, the linked mask thumbnail, the lock mark; this is the first part: the type badge)
-// The kind of a layer for the small badge on its thumbnail, by the name of its class: nothing for an ordinary paint layer.
 static const char *krimbleBadgeKind(const KisNodeSP &node)
 {
     if (!node) return nullptr;
@@ -419,7 +407,6 @@ void NodeDelegate::drawThumbnail(QPainter *p, const QStyleOptionViewItem &option
     QRect borderRect = kisGrowRect(imageRectLowRes, 1).translated(offset);
     KritaUtils::renderExactRect(p, borderRect, scm.gridColor(option, d->view));
 
-    // Krimble 2026-11-13 (task 70): George: "Your proposed changes for layers are good. Let's do that." (the type badge on the thumbnail, the fx mark, the linked mask thumbnail, the lock mark; this is the first part: the type badge)
     {
         KisNodeSP badgeNode;
         if (KisNodeFilterProxyModel *proxy = qobject_cast<KisNodeFilterProxyModel *>(d->view->model())) {

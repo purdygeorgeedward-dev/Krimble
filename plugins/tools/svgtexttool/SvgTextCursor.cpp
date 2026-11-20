@@ -409,13 +409,6 @@ QPointF SvgTextCursor::selectionHandlePos(bool startHandle) const
 
 bool SvgTextCursor::hitTestSelectionHandle(QPointF point, qreal sensitivity, bool &isStartHandle) const
 {
-    // Krimble build fix: can't call hasSelection() here since this method is
-    // const and hasSelection() is a non-const override of
-    // KoToolSelection::hasSelection() (also non-const in the base, so it
-    // can't be changed without breaking the override relationship). Checks
-    // the same underlying state directly instead -- hasSelection()'s own
-    // implementation is exactly this comparison, verified against the
-    // current source before making this change.
     if (d->pos == d->anchor) return false;
 
     const QPointF startPos = selectionHandlePos(true);
@@ -918,13 +911,6 @@ void SvgTextCursor::paintDecorations(QPainter &gc, QColor selectionColor, int de
             gc.fillPath(d->selection, brush);
             gc.restore();
 
-            // Krimble: mobile-style draggable selection handles, one at
-            // each end. Painted in shape-local coordinates since gc is
-            // already transformed to shape space above -- unlike
-            // selectionHandlePos()/hitTestSelectionHandle(), which work in
-            // document space for hit-testing against touch points.
-            // Krimble 2026-10-15: George (1.0.36): "Text editor still has giant balls." ("yes please shrink the large circles") The selection
-            // handles are drawn at half their radius; the grab area (handleRadius, used for hit tests) is unchanged.
             KisHandlePainterHelper selectionHandleHelper(&gc, handleRadius * 0.5, decorationThickness);
             selectionHandleHelper.setHandleStyle(KisHandleStyle::secondarySelection(handlePalette));
             QLineF anchorCaret;
@@ -962,7 +948,6 @@ void SvgTextCursor::paintDecorations(QPainter &gc, QColor selectionColor, int de
         if (d->typeSettingMode && d->drawTypeSettingHandle) {
             d->handleRadius = handleRadius;
             QTransform painterTf = gc.transform();
-            // Krimble 2026-10-15: the typesetting handle is drawn at half its radius too (see above); d->handleRadius, the grab area, is unchanged.
             KisHandlePainterHelper helper(&gc, handleRadius * 0.5, decorationThickness);
             const KisHandleStyle highlight = KisHandleStyle::partiallyHighlightedPrimaryHandles(handlePalette);
             const KisHandleStyle regular = KisHandleStyle::secondarySelection(handlePalette);
@@ -1834,9 +1819,6 @@ void SvgTextCursor::updateSelection()
         d->oldSelectionRect = d->shape->shapeToDocument(d->selection.boundingRect());
         d->shape->cursorForPos(d->anchor, d->anchorCaret, d->cursorColor);
         d->selection = d->shape->selectionBoxes(d->pos, d->anchor);
-        // Krimble: grow the invalidation rect so the new draggable selection
-        // handles (drawn at the selection's edges, extending handleRadius
-        // beyond it) get fully redrawn/cleared during a drag.
         const QRectF selectionRectInDoc = kisGrowRect(d->shape->shapeToDocument(d->selection.boundingRect()), d->handleRadius);
         Q_EMIT updateCursorDecoration(selectionRectInDoc | d->oldSelectionRect);
 

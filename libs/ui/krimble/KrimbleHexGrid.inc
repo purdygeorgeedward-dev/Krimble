@@ -1,14 +1,5 @@
-// Krimble 2026-11-19 (755th): part of KisMainWindow.cpp, moved here unchanged and included at the same place (George: "Use branching. Prioritize and implement all."). It only
-// compiles as part of KisMainWindow.cpp.
 
-#ifdef Q_OS_ANDROID   // Krimble 2026-11-19 (755th): the Android-only part continues across the split files
-// Krimble 2026-10-18: HEX MAPS (George: "Can we offer a hex mapping feature?" and "View-show-hex and we use an svg to overlay a hex pattern which they
-// can pinch zoom/scale to make it easier to make hex maps. Add a layer that's a hex pattern and the user sets the scale." and "Hexes are drawn as vector
-// art. User can set the line thickness."). Two things: (1) View > Show > Hex: a hexagon pattern drawn over the canvas (a canvas decoration, like the
-// grid), which follows the zoom; its size is set with View > Show > Hex Size...; (2) Layer > New > Hex Pattern...: a VECTOR layer (a KisShapeLayer) holding
-// the pattern as one path shape, so the lines stay sharp at any zoom, with the size, the line thickness and the color chosen by the user.
-// A hexagon is described by its "size" = the distance from the center to a corner, in image pixels. Pointy-top: columns sqrt(3) x size apart, rows 1.5 x size
-// apart, every second row shifted by half a column. Flat-top: the same turned by a quarter turn.
+#ifdef Q_OS_ANDROID
 static void krimbleHexCenters(qreal size, bool flatTop, const QRectF &area, const std::function<void(const QPointF&)> &visit)
 {
     const qreal s3 = 1.7320508075688772;
@@ -57,7 +48,7 @@ public:
     }
     qreal size = 100.0;      // center to corner, in image pixels
     bool flatTop = false;
-    qreal lineWidth = 2.0;                       // Krimble 2026-11-12 (task 41): George: "I turned on the hex overlay in view and the lines are too thin to see. There is no control for line thickness or color." in screen pixels (it was 1)
+    qreal lineWidth = 2.0;
     QColor lineColor = QColor(30, 30, 30, 210);  // the color with its opacity (the alpha)
     bool adjusting = false;  // George: "Hex overlay should be pinch zoom then drop with a tap." While true, a pinch scales the hexes and a tap drops them.
 
@@ -160,8 +151,6 @@ static bool krimbleAskHex(QMainWindow *win, bool forLayer, qreal *size, bool *fl
     return true;
 }
 
-// Krimble 2026-11-12 (task 41): George: "I turned on the hex overlay in view and the lines are too thin to see. There is no control for line thickness or color." The window of View > Show > Hex Lines...: the thickness of the overlay's lines (screen pixels) and their color with its opacity. Every change shows at once
-// (onChange is called after each one); Cancel puts the old values back.
 static bool krimbleAskHexLines(QMainWindow *win, qreal *width, QColor *color, const std::function<void()> &onChange)
 {
     const qreal oldWidth = *width;
@@ -220,11 +209,8 @@ static bool krimbleAskHexLines(QMainWindow *win, qreal *width, QColor *color, co
 static qreal g_krimbleHexSize = 100.0;
 static bool g_krimbleHexFlat = false;
 static qreal g_krimbleHexThickness = 2.0;
-// Krimble 2026-10-18 (8th): George: "The hexes disappeared at one point while I was working with them." Asked what he had just done: "3" (switched pictures or left the app). The overlay was
-// kept by the picture window (KisView) it was switched on in, so another picture started without it, and an app that was closed by Android started without it too. Whether the hexes are
-// on, and their size and orientation, are now kept for the whole program (these three) and saved in the settings; the overlay follows the picture that is open.
 static bool g_krimbleHexOn = false;
-static qreal g_krimbleHexLineWidth = 2.0;                     // Krimble 2026-11-12 (task 41): George: "I turned on the hex overlay in view and the lines are too thin to see. There is no control for line thickness or color."
+static qreal g_krimbleHexLineWidth = 2.0;
 static QColor g_krimbleHexLineColor = QColor(30, 30, 30, 210);
 static void krimbleHexSaveState()
 {
@@ -246,8 +232,6 @@ static void krimbleHexLoadState()
     g_krimbleHexLineColor = g.readEntry("lineColor", g_krimbleHexLineColor);
 }
 static QColor g_krimbleHexColor = QColor(Qt::black);
-// Krimble 2026-11-12 (task 42): George: "you should be able to lock the settings so it doesn't rotate or scale or change line thickness or the hex grid until you unlock it." One lock for everything hex
-// (the grid, the overlay's lines, the Hexagon tools), kept in the settings (KrimbleHex/locked) so the tools can read it too. While locked: Hex Size..., Hex Lines... and the pinch do nothing.
 static bool krimbleHexLocked()
 {
     return KSharedConfig::openConfig()->group("KrimbleHex").readEntry("locked", false);
@@ -280,7 +264,7 @@ public:
     void setOnDrop(const std::function<void()> &onDrop) { m_onDrop = onDrop; }
     void finish(bool dropped = false)
     {
-        krimbleHexSaveState();      // Krimble 2026-10-18 (8th): the size set by pinching is kept
+        krimbleHexSaveState();
         if (m_deco) m_deco->adjusting = false;
         if (m_widget) m_widget->removeEventFilter(this);
         if (m_canvas) m_canvas->updateCanvas();
@@ -345,7 +329,7 @@ private:
 static KrimbleHexDecoration *krimbleHexDecorationOf(KisMainWindow *win, bool create)
 {
     KisViewManager *manager = win->viewManager();
-    KisView *view = win->activeView();   // Krimble 2026-10-18: KisMainWindow::activeView() (KisViewManager has none)
+    KisView *view = win->activeView();
     if (!view || !view->canvasBase()) return nullptr;
     KisCanvasDecorationSP existing = view->canvasBase()->decoration(QStringLiteral("krimblehex"));
     KrimbleHexDecoration *hex = dynamic_cast<KrimbleHexDecoration*>(existing.data());
@@ -364,7 +348,7 @@ static void krimbleHexFollowView(KisMainWindow *win)
     if (!deco) return;
     deco->size = g_krimbleHexSize;
     deco->flatTop = g_krimbleHexFlat;
-    deco->lineWidth = g_krimbleHexLineWidth;   // Krimble 2026-11-12 (task 41): George: "I turned on the hex overlay in view and the lines are too thin to see. There is no control for line thickness or color."
+    deco->lineWidth = g_krimbleHexLineWidth;
     deco->lineColor = g_krimbleHexLineColor;
     deco->adjusting = false;
     deco->setVisible(true);
@@ -412,13 +396,6 @@ static void krimbleMakeHexLayer(KisMainWindow *win)
     node->setName(image->nextLayerName(i18n("Hex Pattern")));
 }
 
-// Krimble 2026-10-30: Layer > New > Star... George: "The star tool in Illustrator is a cool tool. it's essentially two invisible circles with equidistant
-// vertices on them and lines drawn between them to make the star shapes. The user changes the number of points to change the star and moves the inner
-// circle inward or outward. The whole thing can be rotated as a vector object." and "Instead of a new tool in the already full toolbox, we can just have a menu
-// item called Star or Create Star somewhere appropriate." and, of the plan (a vector layer, the Points and Inner Radius in a small dialog, the foreground color as
-// the fill, no outline): "sounds great". The star is Krita's own StarShape (shape id "StarShape": corner count, tip radius = the outer circle, base radius = the
-// inner circle), on a new vector layer in the middle of the picture. It can be moved, scaled and rotated with the Select Shapes tool, and its circles changed
-// with the shape edit handles. Only the dialog's last values are remembered while the program runs.
 static int g_krimbleStarPoints = 5;
 static int g_krimbleStarInner = 40;      // percent of the outer circle
 static int g_krimbleStarSize = 0;        // outer circle diameter in pixels; 0 = half of the picture's shorter side
@@ -500,4 +477,4 @@ static void krimbleMakeStarLayer(KisMainWindow *win)
     // so that it can be moved, rotated and its circles changed at once
     QTimer::singleShot(0, win, []() { KoToolManager::instance()->switchToolRequested(QStringLiteral("InteractionTool")); });
 }
-#endif   // Krimble 2026-11-19 (755th): the Android-only part continues across the split files
+#endif

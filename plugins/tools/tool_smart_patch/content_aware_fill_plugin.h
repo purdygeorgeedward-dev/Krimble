@@ -9,15 +9,6 @@
 #include <QVariant>
 #include <KisActionPlugin.h>
 
-// Krimble: registered separately from ToolSmartPatch (see
-// tool_smartpatch.cpp) because that plugin is loaded via the "Krita/Tool"
-// mechanism (KoToolRegistry::init(), no per-view parent, called once at
-// startup), while KisActionPlugin's own constructor requires a real
-// per-view KisViewManager as its parent. Those two loading paths can't be
-// combined in one class. This one is instead registered as
-// "Krita/ViewPlugin" (see contentawarefill.json), loaded the same way
-// KisMainWindow.cpp loads every other per-view plugin, with a genuine
-// KisViewManager as parent.
 class ContentAwareFillPlugin : public KisActionPlugin
 {
     Q_OBJECT

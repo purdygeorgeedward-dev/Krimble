@@ -155,9 +155,6 @@ void KisStatusBar::setView(QPointer<KisView> imageView)
 
     if (imageView) {
         m_imageView = imageView;
-        // Krimble 2026-10-12: George: "I sometimes accidentally trigger the rotation gadget on the bottom. Can we turn it off and on at
-        // will?" It is shown unless View > Rotation Gadget was switched off (setting krimble_show_rotation_gadget).
-        // m_canvasAngleSelector->setVisible(KisConfig(true).readEntry<int>("krimble_show_rotation_gadget", 1) != 0);   (shown by default)
         m_canvasAngleSelector->setVisible(KisConfig(true).readEntry<int>("krimble_show_rotation_gadget", 0) != 0);   // George: hidden by default
         connect(m_imageView, SIGNAL(sigColorSpaceChanged(const KoColorSpace*)),
                 this, SLOT(updateStatusBarProfileLabel()));
@@ -170,10 +167,6 @@ void KisStatusBar::setView(QPointer<KisView> imageView)
         updateStatusBarProfileLabel();
         slotCanvasRotationChanged();
         addStatusBarItem(m_imageView->zoomManager()->zoomActionWidget());
-        // Krimble 2026-10-20: George (1.0.40, test list, item 4): "Thumb tripped over the gadget on the bottom bar and blew up the image accidentally.
-        // Toggle off just like the little rotate gadget on the bar." The zoom gadget (the zoom slider in the status bar) is hidden unless
-        // View > Zoom Gadget is checked (setting krimble_show_zoom_gadget, hidden by default like the rotation gadget). Pinch zoom and the
-        // View menu's zoom items still work.
         if (QWidget *zoomGadget = m_imageView->zoomManager()->zoomActionWidget()) {
             zoomGadget->setObjectName(QStringLiteral("krimbleZoomGadget"));
             zoomGadget->setVisible(KisConfig(true).readEntry<int>("krimble_show_zoom_gadget", 0) != 0);
@@ -225,7 +218,6 @@ void KisStatusBar::hideAllStatusBarItems()
 void KisStatusBar::showAllStatusBarItems()
 {
     Q_FOREACH(const StatusBarItem& sbItem, m_statusBarItems) {
-        // Krimble 2026-10-20: the zoom gadget stays hidden when View > Zoom Gadget is off (see setView)
         if (sbItem.widget() && sbItem.widget()->objectName() == QLatin1String("krimbleZoomGadget")
                 && KisConfig(true).readEntry<int>("krimble_show_zoom_gadget", 0) == 0) continue;
         sbItem.show();
@@ -250,11 +242,6 @@ void KisStatusBar::imageSizeChanged()
     m_memoryReportBox->setIcon(m_memoryStatusIcon);
     m_memoryReportBox->setText(sizeText);
     m_memoryReportBox->setToolTip(m_longMemoryTag);
-    // Krimble 2026-11-16 (722nd): George (build 64): "in portrait (vertical) view the dimensions on status bar at bottom right get cut off. Needs more room." and "There is a weird visual
-    // jitter (periodic jolts) when trying to paint on screen which disrupts the line." The button had a smallest width of 120 and shared the bar with two labels that stretch, so in portrait
-    // it was squeezed to less than its text (cut off at both ends). And its text changes while painting (the memory figure), so its wanted size changed every time and the bar, and the window
-    // around it, were laid out again in the middle of a stroke. The button now has a fixed width that fits its text with some spare, and the width changes only when the text no longer
-    // fits or has become much shorter; a new figure of the same length changes nothing in the layout.
     {
         QString plain = sizeText;
         plain.remove(QLatin1Char('&'));

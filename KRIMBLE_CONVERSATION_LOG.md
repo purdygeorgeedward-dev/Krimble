@@ -135,3 +135,4 @@ George says he talked to Claude (in an earlier session; the text of that talk is
 - **11:04Z (Nov 20):** Grab lines should not go all the way to the top edge, but they should fill up the area... / In the layers panel reserve an area for those top sections so they don't get squeezed and overlap at all. (758th)
 - **11:06Z (Nov 20):** Make grab area lines invisible on color lab. (759th)
 - **11:16Z (Nov 20):** Fix all of that before any build can take place. (760th)
+- **11:19Z (Nov 20):** Yes. Delete the inline notes. (761st)

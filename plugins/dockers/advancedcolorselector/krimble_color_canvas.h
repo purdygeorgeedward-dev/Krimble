@@ -64,7 +64,6 @@ public:
         relayout();
     }
     int paletteRowCount() const { return paletteCells ? (paletteCells->size() + 18) / 19 : 0; }
-    // Krimble 2026-11-08: the top part of the card is the Picker (painted here), the Sliders page or the Values page; the bottom part (colors, recent, palette) is shared
     int topPage = 0;
     KrimbleSlidersTop *sliders = nullptr;
     KrimbleValuesTop *values = nullptr;
@@ -126,11 +125,6 @@ public:
     QString foregroundStyle(const QColor &c) const
     {
         const qreal s = scale();
-        // return QStringLiteral("background:%1;border:%2px solid #4fd8fb;border-radius:%3px;")
-        //     .arg(c.name()).arg(qMax(2, qRound(3 * s))).arg(qMax(3, qRound(12 * s)));
-        // 2026-11-09: George: "Why are the color wells rounded at the corners? You know I hate that." The wells have square corners.
-        // Krimble 2026-11-11: George: "The two color wells under the big gradient area should have rounded corners."
-        // Krimble 2026-11-13 (task 53): George: "In the ColorLab panel the left color well had a weird blue box around it. Remove that. No color crap around the color wells. no glow." The well is the color and nothing else: no cyan outline.
         return QStringLiteral("background:%1;border:none;border-radius:%2px;").arg(c.name()).arg(qMax(3, qRound(12 * s)));
     }
     QString backgroundStyle(const QColor &c) const
@@ -138,7 +132,7 @@ public:
         const qreal s = scale();
         // return QStringLiteral("background:%1;border:%2px solid #e6ecfa;border-radius:%3px;")
         //     .arg(c.name()).arg(qMax(2, qRound(3 * s))).arg(qMax(3, qRound(14 * s)));
-        return QStringLiteral("background:%1;border:none;border-radius:%2px;").arg(c.name()).arg(qMax(3, qRound(14 * s)));   // Krimble 2026-11-13 (task 53): George: "In the ColorLab panel the left color well had a weird blue box around it. Remove that. No color crap around the color wells. no glow."   // Krimble 2026-11-11: rounded again
+        return QStringLiteral("background:%1;border:none;border-radius:%2px;").arg(c.name()).arg(qMax(3, qRound(14 * s)));
     }
 
     void relayout()
@@ -155,11 +149,7 @@ public:
         }
         QFont f = font();
         f.setPixelSize(qMax(8, qRound(38 * s)));
-        // Krimble 2026-11-11: George: "It should be a strict square area. That square can expand in size with the panel scale, but should stay square." The area was 617 x 557 units; it is now
-        // 557 x 557 (r() scales both sides by the same factor), and the square and the hue strip are centered in the same span as before (29 to 761).
         if (square) square->setGeometry(r(75, 27, 557, 557).toAlignedRect());
-        // the hue strip is 82 units wide; its widget is 4 units wider at each side and each end, so the white handle can reach beyond the strip like the mockup's
-        // Krimble 2026-11-11: George: "The rainbow hue line can be thinner." The widget is 58 units wide (was 90), so the rainbow is about 53 units (was 82).
         if (hue) hue->setGeometry(r(657, 21, 58, 570).toAlignedRect());
         mode->setGeometry(r(804, 26, 237, 62).toAlignedRect());
         eyedropper->setGeometry(r(1073, 26, 78, 62).toAlignedRect());
@@ -304,8 +294,6 @@ protected:
         drawSymbol(p, QStringLiteral("copy"), r(1100, 520, 56, 54).center(), 1.0);
 
         }   // the Picker page's own painting
-        // the foreground color's glow, the swap arrows between the two colors
-        // Krimble 2026-11-13 (task 53): George: "In the ColorLab panel the left color well had a weird blue box around it. Remove that. No color crap around the color wells. no glow." The glow around the foreground well is gone (the loop below is not run).
         drawSymbol(p, QStringLiteral("swap"), r(176, 646, 54, 52).center(), 1.0);
 
         // Recent Colors: a divider above and below, the label, the dark well with the ten cells (empty places are dark), the chevron of the mockup is left out
@@ -427,10 +415,6 @@ private:
             const int col = i % cols;
             const int row = i / cols - firstRow;
             if (row < 0 || row >= rows) { cell->hide(); continue; }
-            // Krimble 2026-11-11: George: "It looks like ColorLab scaled down so far that some of the black lines dividing the color wells disappeared. Not good." The cells were placed with
-            // toAlignedRect(), which rounds each cell OUTWARD to whole pixels, so at a scale where a cell is not a whole number of pixels neighbors overlapped by a pixel and the next cell's color
-            // covered the black line (the 1 px dark border on the right and bottom of each cell) of the one before it. Now every cell edge is rounded to the nearest whole pixel by ONE formula, so
-            // the right edge of a cell is exactly the left edge of the next: no overlap, no gap, and each cell keeps its own 1 px line.
             const double pitchX = cellW + gapX, pitchY = cellH + gapY;
             const int x0 = qRound((host.left() + col * pitchX) * s);
             const int x1 = qRound((host.left() + (col + 1) * pitchX - gapX) * s);

@@ -33,7 +33,7 @@
 #include <QListWidgetItem>
 #include <QMenu>
 #include <QScrollBar>
-#include <QLayout>          // Krimble 2026-11-16 (728th)
+#include <QLayout>
 #include <QSpacerItem>
 #include <QStackedWidget>
 #include <QListView>
@@ -190,8 +190,6 @@ KisWelcomePageWidget::KisWelcomePageWidget(QWidget *parent)
     wdgAndroidSupportBanner->hide();
 #ifdef Q_OS_ANDROID
     initDonations();
-    // Krimble 2026-11-15: George: "The recent list is obscured by the toolbox still. Let's move that to the right" and "make the base screen darker". The page's contents start to the right of the toolbox (64 units, about 204 real pixels, a little wider
-    // than the toolbox in either orientation), and the page paints its own background from the style sheet (the base screen color, thememanager.cpp).
     setContentsMargins(64, 0, 0, 0);
     setAttribute(Qt::WA_StyledBackground, true);
 #endif
@@ -203,14 +201,6 @@ KisWelcomePageWidget::KisWelcomePageWidget(QWidget *parent)
 
 #ifdef ENABLE_UPDATERS
 #ifndef Q_OS_ANDROID
-    // Setup version updater, but do not check for them, unless the user explicitly
-    // wants to check for updates.
-    // * No updater is created for Linux/Steam, Windows/Steam and Windows/Store distributions,
-    // as those stores have their own updating mechanism.
-    // * STEAMAPPID(Windows)/SteamAppId(Linux) environment variable is set when Krimble is run from Steam.
-    // The environment variables are not public API.
-    // * MS Store version runs as a package (though we cannot know if it was
-    // installed from the Store or manually with the .msix package)
 #if defined Q_OS_LINUX
     if (!qEnvironmentVariableIsSet("SteamAppId")) { // do not create updater for linux/steam
         if (qEnvironmentVariableIsSet("APPIMAGE")) {
@@ -411,10 +401,6 @@ void KisWelcomePageWidget::slotUpdateThemeColors()
     }
 #endif
 
-    // Krimble 2026-10-24: George (1.0.42 screenshots of the start page, shown while no image is open): "This stuff that floats in the negative space... mentions Krita (again) and wasted
-    // space on useless crap." Left out: the DEV BUILD warning, User Manual, Getting Started and User Community (all pointed at the same krimble.org page, or at Krita's),
-    // Powered by KDE, the empty News column (and its menu) and the closing paragraph about Krita ("Krita is an open source and community-driven tool ..."). What stays:
-    // New Image, Open Image, Recent Images, Support Krimble, Source Code, Krimble Website. The widgets are hidden, not deleted (the .ui and the code that fills them are unchanged).
     devBuildIcon->hide();
     devBuildLabel->hide();
     userManualIcon->hide();
@@ -430,17 +416,9 @@ void KisWelcomePageWidget::slotUpdateThemeColors()
     btnNewsOptions->hide();
     newsFrame->hide();
 
-    // Krimble 2026-10-26: George (1.0.44, a screenshot with arrows and "CRAP" written on it, then): "How about screaming out the useless crap on the start screen. Too much
-    // handholding. I get that having some of the file menu up front looks like a good idea for faster workflows, but it's really not that great." The whole left column is
-    // not shown any more: Start (New Image, Open Image) and Community (Support Krimble, Source Code, Krimble Website); and the right column (News), which has nothing left in
-    // it. What stays on the start page is the Recent Images list, which takes the whole width (its column is the one that expands). File > New and File > Open do the same
-    // as the two buttons; Help > Krimble Website is the website link. The widgets are hidden, not deleted (the .ui and the code that fills them are unchanged).
     widgetCenter->hide();
     widgetRight->hide();
 
-    // Krimble 2026-11-16 (728th): George (build 65): "Recent images should be a bigger scrolling area with smaller preview images to choose from." The previews were 200 units wide (more than
-    // half the phone's width, one to a row); they are 88, several to a row. The list takes all the room the page has: on the way up from the list to the page, every layout loses its margins
-    // (4 units are left) and every spacer that pushed the list away from the top or the bottom.
     recentDocumentsListView->setIconSize(QSize(88, 88));
     recentDocumentsListView->setResizeMode(QListView::Adjust);
     recentDocumentsListView->setWrapping(true);
@@ -569,11 +547,6 @@ QString getAutoNewsLang()
 
 void KisWelcomePageWidget::setupNewsLangSelection(QMenu *newsOptionsMenu)
 {
-    // Hard-coded news language data:
-    // These are languages in which the news items should be regularly
-    // translated into as of 04-09-2024.
-    // The language display names should not be translated. This reflects
-    // the language selection box on the Krimble website.
     struct Lang {
         const QString siteCode;
         const QString name;
@@ -652,8 +625,6 @@ void KisWelcomePageWidget::setupNewsLangSelection(QMenu *newsOptionsMenu)
 
 void KisWelcomePageWidget::showDevVersionHighlight()
 {
-    // always flag development version
-    // Krimble 2026-10-24: not shown any more (see the end of the constructor); the lines below are kept as they were
     if (false && isDevelopmentBuild()) {
         QString devBuildLabelText = QString("<a style=\"color: " +
                                            blendedColor.name() +
@@ -896,7 +867,6 @@ void KisWelcomePageWidget::initDonations()
     if (welcomeBannerPixmap.isNull()) {
         qWarning("KisWelcomePage::initDonations: failed to load welcome banner from '%s'",
                  qUtf8Printable(welcomeBannerPath));
-        // Leave the button alone, it will just say "Support Krimble!"
     } else {
         QVector<QString> headlines = {
             i18n("Become a Supporter!"),

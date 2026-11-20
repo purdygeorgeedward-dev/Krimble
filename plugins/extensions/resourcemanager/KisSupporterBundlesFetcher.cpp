@@ -69,9 +69,6 @@ void KisSupporterBundlesFetcher::handleCheckTxtFetched(QNetworkReply *reply)
 
     QString content = QString::fromUtf8(reply->readAll());
 
-    // "Predefined failures" are for forward-compatibility for stuff like the
-    // format changing and old versions of Krimble becoming unsupported or the
-    // service getting discontinued altogether.
     if (handleCheckTxtPredefinedFailure(content)) {
         return;
     }

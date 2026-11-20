@@ -14,7 +14,6 @@ struct Options {
     int threads = 0;           // 0 = as many as the device has (Krimble 2026-10-20: no longer at most 4)
     std::function<bool(float)> progress;   // called now and then with 0..1; return false to stop (inpaint() then returns false and changes nothing)
     float sharpness = 8.0f;    // higher = sharper and more "copied" (a few sources win), lower = smoother (many sources are averaged)
-                               // Krimble 2026-10-19: used only by the first engine (inpaintLegacy); the engine used now always ends with real pixels, copied
 };
 
 // pixels: w * h * channels, 8 bit, interleaved (RGB or RGBA); hole: w * h, non-zero = to be filled.
@@ -23,7 +22,6 @@ struct Options {
 // filledHole (optional, w * h): set to 1 for every pixel that was replaced (the hole, grown by Options::expand), so that the caller can write back only those.
 bool inpaint(uint8_t *pixels, const uint8_t *hole, int w, int h, int channels, const Options &options = Options(), uint8_t *filledHole = nullptr);
 
-// Krimble 2026-10-19: the first engine (2026-10-18), offered as the "Smooth" method: a smooth colour from the edge with the fine detail blended on top. Same arguments.
 bool inpaintLegacy(uint8_t *pixels, const uint8_t *hole, int w, int h, int channels, const Options &options = Options(), uint8_t *filledHole = nullptr);
 
 }

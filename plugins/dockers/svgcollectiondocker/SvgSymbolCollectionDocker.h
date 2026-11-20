@@ -55,8 +55,6 @@ public:
     QDockWidget *createDockWidget() override;
     DockPosition defaultDockPosition() const override
     {
-        // Krimble: start minimized, not auto-docked right -- 4 dockers
-        // shared DockRight and crammed the column into unusable strips (bug 12)
         return DockMinimized;
     }
 };

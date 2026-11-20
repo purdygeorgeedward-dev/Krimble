@@ -21,7 +21,7 @@
 #include "kis_canvas2.h"
 #include <kis_canvas_resource_provider.h>
 #include <KisViewManager.h>
-#include "KisView.h"   // Krimble 2026-10-25: the bar over the canvas is a child of the view
+#include "KisView.h"
 #include <kis_action.h>
 #include <kactioncollection.h>
 #include <kis_icon.h>
@@ -31,18 +31,12 @@
 #define SNAPPING_THRESHOLD 10
 #define SNAPPING_HANDLE_RADIUS 8
 #define PREVIEW_LINE_WIDTH 1
-// Krimble 2026-10-12: on a touch screen the polygon is closed by tapping near its first point, within this many view px (a finger is
-// not a mouse pointer: nothing hovers before the tap, so the close check cannot wait for a mouse move).
 #define SNAPPING_THRESHOLD_TOUCH 40
-// #define SNAPPING_RING_RADIUS_TOUCH 16
-// Krimble 2026-10-18 (6th): George (1.0.37, c666301): "19. Poly select tool is awesome, but selection balls for vertices should be smaller." and "19 fix the vertices." The ring on the first point
-// is drawn smaller (16 -> 9 view px; it is only drawn, the distances that close the polygon are the other numbers below, unchanged).
 #define SNAPPING_RING_RADIUS_TOUCH 9
-// Krimble 2026-10-13: touch polygon (George's design). Distances are in view px (logical).
 #define TOUCH_CLOSE_DISTANCE 30      // dropping a point this close to the first point closes the polygon
 #define TOUCH_TAP_DISTANCE 12        // a press of the first point that moves less than this is a tap (the first point only)
 // #define TOUCH_ANCHOR_RADIUS 6
-#define TOUCH_ANCHOR_RADIUS 3        // Krimble 2026-10-18 (6th): the white dots on the points, 6 -> 3 view px (half; only drawn)
+#define TOUCH_ANCHOR_RADIUS 3
 #define TOUCH_ANTS_DASH 4
 
 KisToolPolylineBase::KisToolPolylineBase(KoCanvasBase * canvas,  KisToolPolylineBase::ToolType type, const QCursor & cursor)
@@ -152,29 +146,14 @@ void KisToolPolylineBase::beginPrimaryAction(KoPointerEvent *event)
     setMode(KisTool::PAINT_MODE);
 
 #ifdef Q_OS_ANDROID
-    // Krimble 2026-10-13: George's design for the polygon on a touch screen: "the first touch lays the first point. Then you drag the
-    // next point with a visible marching ants effect on the line. That drag could start immediately or with a subsequent tap. When you
-    // release it sets that next point ... until a point is dropped within a few pixels of the first point, and then it ends and
-    // closes the selection area."
-    // - a press with no points yet puts down the first point at once;
-    // - every press starts a rubber band (marching ants) from the last point to the finger, which follows the finger;
-    // - releasing puts the next point down (endPrimaryAction), or closes the polygon if it is dropped close to the first point.
     {
         const QPointF pressPoint = convertToPixelCoordAndSnap(event);
         beginShape();
         m_dragging = true;
-        // Krimble 2026-11-05: George (1.0.45-beta): "crazy unnecessary menu appears when using polygon select tool ... it was perfect before." The on-canvas bar (Undo point / END / Cancel, added 2026-10-25 and 26) is switched off: it is not shown any more. Undo Point, Close and Cancel are still in Tool Options, and Enter, Escape and Shift+Z still work. To bring the bar back, remove the two slashes.
         m_firstPointJustPlaced = false;
         if (m_points.empty()) {
             m_points.append(pressPoint);
             m_firstPointJustPlaced = true;
-            // if (m_type == SELECT) {
-            //     if (KisCanvas2 *kiscanvas = dynamic_cast<KisCanvas2*>(canvas())) {
-            //         kiscanvas->viewManager()->showFloatingMessage(i18n("Tap or drag to put down each point. Drop a point on the first one to close the selection."), QIcon());
-            //     }
-            // }
-            // Krimble 2026-10-24: George: "that message on the poly select tool has to go. It just gets in the way. They can read the manual after we write it." (the how-to text of the
-            // Polygonal Selection tool, shown at the first point; the manual will have it)
         }
         m_pressPoint = pressPoint;
         m_dragStart = m_points.last();
@@ -204,11 +183,6 @@ void KisToolPolylineBase::beginPrimaryAction(KoPointerEvent *event)
         beginShape();
         m_dragging = true;
 #ifdef Q_OS_ANDROID
-        //     if (KisCanvas2 *kiscanvas = dynamic_cast<KisCanvas2*>(canvas())) {
-        //         kiscanvas->viewManager()->showFloatingMessage(i18n("Tap each corner. Tap the first point again to close the selection."), QIcon());
-        //     }
-        // }
-        // Krimble 2026-10-24: the same how-to message, the older version of it: gone (see above)
 #endif
     }
 }
@@ -219,9 +193,6 @@ void KisToolPolylineBase::endPrimaryAction(KoPointerEvent *event)
     setMode(KisTool::HOVER_MODE);
 
 #ifdef Q_OS_ANDROID
-    // Krimble 2026-10-13 (George's design): releasing puts the next point down where the finger is; dropping it close to the first
-    // point (once there are at least three points) closes the polygon and makes the selection. A press that only put down the first
-    // point and did not move is just that point.
     if (m_dragging) {
         const QPointF releasePoint = convertToPixelCoordAndSnap(event);
         const qreal movedFromPress = (pixelToView(releasePoint) - pixelToView(m_pressPoint)).manhattanLength();
@@ -255,8 +226,6 @@ void KisToolPolylineBase::endPrimaryAction(KoPointerEvent *event)
 void KisToolPolylineBase::continuePrimaryAction(KoPointerEvent *event)
 {
 #ifdef Q_OS_ANDROID
-    // Krimble 2026-10-13 (George's design): while the finger is down, the line from the last point follows it (with marching ants), and
-    // the first point lights up when the finger is close enough to close the polygon.
     if (m_dragging && !m_points.empty()) {
         QRectF updateRect = pixelToView(QRectF(m_dragStart, m_dragEnd).normalized());
         m_dragEnd = convertToPixelCoordAndSnap(event);
@@ -351,7 +320,6 @@ void KisToolPolylineBase::undoSelection()
     }
 }
 
-// Krimble 2026-10-13: the Tool Options buttons.
 void KisToolPolylineBase::touchUndoPoint()
 {
     if (!m_dragging) return;
@@ -381,8 +349,6 @@ void KisToolPolylineBase::touchCancelPolygon()
     cancelStroke();
 }
 
-// Krimble 2026-10-25: George: "I need an END button to stop a selection in progress. No keyboard obviously." The bar is a child of the view (like the floating messages), at the bottom
-// in the middle, above the scroll bar; it is only for the selection tool, and only while a polygon is being made. END is the same as Close in Tool Options (it needs three points).
 void KisToolPolylineBase::showStrokeBar(bool show)
 {
     if (m_type != SELECT) return;
@@ -447,8 +413,6 @@ void KisToolPolylineBase::paint(QPainter& gc, const KoViewConverter &converter)
         return;
 
 #ifdef Q_OS_ANDROID
-    // Krimble 2026-10-13 (George's design): the selection being built is drawn with marching ants (a black and a white dashed line that
-    // slide along it), with a round anchor at every point, and the first point is ringed when the polygon can be closed.
     if (m_type == SELECT && m_dragging && !m_points.empty()) {
         QPainterPath ants;
         ants.moveTo(pixelToView(m_points.first()));
@@ -524,7 +488,6 @@ void KisToolPolylineBase::paint(QPainter& gc, const KoViewConverter &converter)
         path.addEllipse(basePoint, SNAPPING_HANDLE_RADIUS, SNAPPING_HANDLE_RADIUS);
     }
 #ifdef Q_OS_ANDROID
-    // Krimble 2026-10-12: a ring on the first point once the polygon can be closed, so it is clear where to tap.
     else if (m_dragging && m_points.size() > 2) {
         path.addEllipse(pixelToView(m_points.first()), SNAPPING_RING_RADIUS_TOUCH, SNAPPING_RING_RADIUS_TOUCH);
     }
@@ -544,7 +507,7 @@ void KisToolPolylineBase::endStroke()
     if (!m_dragging) return;
 
     m_dragging = false;
-    showStrokeBar(false);   // Krimble 2026-10-25
+    showStrokeBar(false);
     if (m_antsTimer) m_antsTimer->stop();
     if(m_points.count() > 1) {
         finishPolyline(m_points);
@@ -560,7 +523,7 @@ void KisToolPolylineBase::cancelStroke()
     if (!m_dragging) return;
 
     m_dragging = false;
-    showStrokeBar(false);   // Krimble 2026-10-25
+    showStrokeBar(false);
     if (m_antsTimer) m_antsTimer->stop();
     m_points.clear();
     m_closeSnappingActivated = false;

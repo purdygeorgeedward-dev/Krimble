@@ -166,7 +166,6 @@ void ChannelModel::rowActivated(const QModelIndex &index)
 }
 
 
-// Krimble 2026-11-13: only the channel at channelIndex is shown (flags of the other color channels are cleared, the alpha channel is left as it is): what a double click does (rowActivated)
 void ChannelModel::isolateChannel(int channelIndex)
 {
     if (!m_canvas || !m_canvas->image()) return;
@@ -185,7 +184,6 @@ void ChannelModel::isolateChannel(int channelIndex)
     emitAllDataChanged(channels.count() - 1, 0);
 }
 
-// Krimble 2026-11-13: every channel is shown again (all flags set)
 void ChannelModel::showAllChannels()
 {
     if (!m_canvas || !m_canvas->image()) return;
@@ -197,8 +195,6 @@ void ChannelModel::showAllChannels()
     emitAllDataChanged(cs->channels().count() - 1, 0);
 }
 
-// Krimble 2026-11-13: the channel's values, read from the picture as it looks (the projection of all layers), become the selection: a pixel is selected as much as the channel is light (0 to 255).
-// The picture is read in one go on the main thread; a very large picture can take a moment.
 void ChannelModel::loadChannelAsSelection(int channelIndex)
 {
     if (!m_canvas || !m_canvas->image()) return;

@@ -20,8 +20,8 @@
 #include "kis_tool_smudge.h"
 #include "kis_tool_soften.h"
 #include "kis_tool_sharpen.h"
-#include "kis_tool_heal.h"   // Krimble 2026-11-13 (task 77)
-#include "kis_tool_eraser.h"   // Krimble 2026-10-25
+#include "kis_tool_heal.h"
+#include "kis_tool_eraser.h"
 #include "kis_tool_dodge.h"
 #include "kis_tool_burn.h"
 #include "kis_tool_multihand.h"
@@ -31,7 +31,7 @@
 #include "kis_tool_colorsampler.h"
 #include "kis_tool_line.h"
 #include "kis_tool_ellipse.h"
-#include "kis_tool_polygon_star.h"   // Krimble 2026-11-13 (task 74)
+#include "kis_tool_polygon_star.h"
 #include "kis_tool_measure.h"
 #include "kis_tool_path.h"
 #include "kis_tool_move.h"
@@ -47,27 +47,19 @@ DefaultTools::DefaultTools(QObject *parent, const QVariantList &)
     KoToolRegistry::instance()->add(new KisToolFillFactory());
     KoToolRegistry::instance()->add(new KisToolGradientFactory());
     KoToolRegistry::instance()->add(new KisToolBrushFactory());
-    KoToolRegistry::instance()->add(new KisToolSmudgeFactory()); // Krimble: dedicated Smudge tool (colorsmudge paintop)
-    KoToolRegistry::instance()->add(new KisToolHealFactory());   // Krimble 2026-11-13 (task 77): Healing Brush (the Clone brush with Healing on)
-    KoToolRegistry::instance()->add(new KisToolSoftenFactory()); // Krimble: dedicated Soften tool (filterop + Gaussian Blur)
-    KoToolRegistry::instance()->add(new KisToolSharpenFactory()); // Krimble 2026-11-16 (722nd): Sharpen tool (filterop + Sharpen)
-    KoToolRegistry::instance()->add(new KisToolEraserFactory()); // Krimble 2026-10-25: dedicated Eraser tool (the brush with the eraser switch on)
-    // Krimble 2026-10-20: George (1.0.40, test list, item 14): "Dodge and Burn suck. It's just black and white. Comment out these tools for now." and
-    // "Dodge and Burn do nothing more than a simple brush could do, and they add clutter to an already cluttered toolbox." Not registered, so they are
-    // not in the toolbox; their code (kis_tool_dodge.cc, kis_tool_burn.cc) stays and is still built, ready to come back as real exposure tools.
+    KoToolRegistry::instance()->add(new KisToolSmudgeFactory());
+    KoToolRegistry::instance()->add(new KisToolHealFactory());
+    KoToolRegistry::instance()->add(new KisToolSoftenFactory());
+    KoToolRegistry::instance()->add(new KisToolSharpenFactory());
+    KoToolRegistry::instance()->add(new KisToolEraserFactory());
     KoToolRegistry::instance()->add(new KisToolColorSamplerFactory());
     KoToolRegistry::instance()->add(new KisToolLineFactory());
     KoToolRegistry::instance()->add(new KisToolEllipseFactory());
     KoToolRegistry::instance()->add(new KisToolRectangleFactory());
-    KoToolRegistry::instance()->add(new KisToolPolygonStarFactory());   // Krimble 2026-11-13 (task 74)
-    // Krimble 2026-10-30: the Ruler/Measure tool stays in the toolbox. George, 2026-10-30: "keep ruler and reference images." (ChatGPT's notes of 2026-10-28 had it
-    // as excluded, "Krimble 1.0.45-beta: Ruler/Measure excluded from toolbox."; that was not George's decision.)
+    KoToolRegistry::instance()->add(new KisToolPolygonStarFactory());
     KoToolRegistry::instance()->add(new KisToolMeasureFactory());
     KoToolRegistry::instance()->add(new KisToolPathFactory());
     KoToolRegistry::instance()->add(new KisToolMoveFactory());
-    // KRIMBLE 2026-10-03: removed from the toolbox at George's request so the first button is the Move tool (industry-standard order). Uncomment to bring it back. (Multibrush, Pencil)
-    // KoToolRegistry::instance()->add(new KisToolMultiBrushFactory());
-    // KoToolRegistry::instance()->add(new KisToolPencilFactory());
     KoToolRegistry::instance()->add(new KisToolPanFactory());
 }
 

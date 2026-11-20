@@ -70,11 +70,6 @@ static const QString pixelsCentimeterStr()
     return str;
 }
 
-// Krimble 2026-11-12: George (two screenshots of Image Size, one with four white boxes over the empty parts): "Yes, white areas represent wasted space. Please eliminate as much as you can."
-// What was empty (measured in the screenshot, in logical pixels of a 708 px wide window): about 34 px of margin left of the labels, about 33 px inside every number field (a spin box is as wide as the
-// widest number it could ever show, and the "size group" made all five the same), about 50 px inside every unit box (they were all made as wide as "Pixels/Inch"), and a blank band of about 135 px right
-// of the chain buttons (the window was wider than its contents). Now: a number field is as wide as eight characters and its arrows, a unit box as wide as its own text and its arrow, the filter box
-// is narrow, the spacers that pushed the columns apart are zero, the margins and the spacing between columns are small, and the window is made as wide as its contents need.
 template <class Page>
 static void krimbleCompactImageSizeWidgets(QWidget *root, Page *page)
 {
@@ -233,11 +228,6 @@ WdgImageSize::WdgImageSize(QWidget *parent, int width, int height, double resolu
     labelsGroup->addWidget(m_page->lblPrintHeight);
     labelsGroup->addWidget(m_page->lblResolution);
 
-    // Krimble 2026-11-12: the two size groups below made all five number fields as wide as the widest of them, and all three unit boxes as wide as the widest (the "wasted space" George marked in the
-    // Image Size screenshots); krimbleCompactImageSizeWidgets() sizes each field and box to what it needs, so they are not used (the code is kept):
-    // spinboxesGroup->addWidget(m_page->printWidth);
-    // spinboxesGroup->addWidget(m_page->printHeight);
-    // spinboxesGroup->addWidget(m_page->printResolution);
 
     // KisSizeGroup *comboboxesGroup = new KisSizeGroup(this);
     // comboboxesGroup->addWidget(m_page->pixelSizeUnit);
@@ -348,7 +338,7 @@ WdgImageSize::WdgImageSize(QWidget *parent, int width, int height, double resolu
     l->addWidget(m_page);
     this->setLayout(l);
 
-    krimbleCompactImageSizeWidgets(this, m_page);   // Krimble 2026-11-12: no wasted space (see the function above)
+    krimbleCompactImageSizeWidgets(this, m_page);
 
     m_page->pixelWidthDouble->setFocus();
 }
@@ -404,10 +394,6 @@ KisFilterStrategy *WdgImageSize::filterType()
 
 void WdgImageSize::getConfiguration(KisOperationConfigurationSP config)
 {
-    // Krimble: everything ImageSizeOperation needs to genuinely replay this
-    // step later, not just re-trigger the menu item. filterType() always
-    // resolves "Auto" to a concrete strategy already, so the saved id is
-    // never ambiguous on replay.
     config->setProperty("width", desiredWidth());
     config->setProperty("height", desiredHeight());
     config->setProperty("resolution", desiredResolution());

@@ -13,8 +13,8 @@
 #include <kis_canvas2.h>
 
 class KisPaintOpPresetsChooserPopup;
-class QSlider;   // Krimble 2026-10-30: the Size, Opacity and Flow controls
-class QLineEdit; // Krimble 2026-10-30: the name of the current brush
+class QSlider;
+class QLineEdit;
 class QSpinBox;
 class QTimer;
 
@@ -28,15 +28,14 @@ public:
 public Q_SLOTS:
     void canvasResourceChanged(int key = 0, const QVariant& v = QVariant());
 private Q_SLOTS:
-    void slotKrimbleSizeChanged(int value);      // Krimble 2026-10-30
+    void slotKrimbleSizeChanged(int value);
     void slotKrimbleOpacityChanged(int value);
     void slotKrimbleFlowChanged(int value);
     void slotKrimbleSync();                      // shows the current brush's size, opacity and flow
 private:
     QPointer<KisCanvas2> m_canvas;
     KisPaintOpPresetsChooserPopup* m_presetChooser;
-    // Krimble 2026-10-30: the new controls above the presets
-    QLineEdit *m_nameField {nullptr};   // Krimble 2026-10-30: shows the current brush's name
+    QLineEdit *m_nameField {nullptr};
     QSlider *m_sizeSlider {nullptr};
     QSpinBox *m_sizeSpin {nullptr};
     QSlider *m_opacitySlider {nullptr};

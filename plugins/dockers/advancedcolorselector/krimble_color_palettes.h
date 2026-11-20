@@ -242,7 +242,6 @@ public:
         for (const KrimbleCmyk &v : pal.cmyk) text += QStringLiteral(";%1,%2,%3,%4").arg(v[0]).arg(v[1]).arg(v[2]).arg(v[3]);
         return text;
     }
-    // the first run: "My Palette" (the user's own swatches: the saved list of earlier versions, or a starting set) and "Krimble 256" (16 x 16: grays, then hues from tints to shades)
     static void ensureDefaults()
     {
         if (!names().isEmpty()) return;

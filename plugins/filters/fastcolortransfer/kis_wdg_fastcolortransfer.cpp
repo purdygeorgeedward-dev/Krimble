@@ -149,15 +149,9 @@ void computeLabStatistics(KisPaintDeviceSP device, const QRect &bounds, KisSelec
     }
     if (rc.isEmpty()) return;
 
-    // Krimble 2026-10-26: each pixel counts as much as it is opaque (see fastcolortransfer.cpp): the transparent pixels of a cut-out are not part of its colors.
     double count = 0.;
     KisSequentialConstIterator it(lab, rc);
     while (it.nextPixel()) {
-        // Krimble: sloppy first pass -- iterates the full rc rect rather
-        // than skipping pixels outside an irregular selection's exact
-        // shape when `selection` is set. Good enough for a rectangular or
-        // roughly-rectangular selection; an irregular one will pull in a
-        // few extra unselected pixels at the edges of its bounding rect.
         const quint16* data = reinterpret_cast<const quint16*>(it.oldRawData());
         const double w = double(data[3]) / 65535.0;
         if (w <= 0.) continue;

@@ -44,9 +44,6 @@ DlgResourceManager::DlgResourceManager(KisActionManager *actionMgr, QWidget *par
     setDefaultButton(Close);
 
 #ifdef Q_OS_ANDROID
-    // Krimble 2026-10-18: George (1.0.37): "Presets opens a giant dialog window." and, to "a smaller window with the Details pane hidden, or leave it?": "Yes, fix the
-    // presets window." The window is 86% of the window it is opened from (it was as wide as its two panes together), and the right-hand pane (the thumbnail, the
-    // details and the tags) is hidden. The Delete button lived in that pane; it is moved under the buttons of the left pane, so it can still be used.
     if (m_ui->splitter->count() > 1) {
         m_ui->gridLayout->addWidget(m_ui->btnDeleteResource, m_ui->gridLayout->rowCount(), 0, 1, qMax(1, m_ui->gridLayout->columnCount()));
         m_ui->splitter->widget(1)->hide();

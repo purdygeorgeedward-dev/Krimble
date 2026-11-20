@@ -30,7 +30,7 @@
 #include <kis_default_bounds.h>
 
 #include "canvas/kis_canvas2.h"
-#include "KisView.h"   // Krimble 2026-10-26: the bar over the canvas is a child of the view
+#include "KisView.h"
 #include <QApplication>
 #include <QHBoxLayout>
 #include <QPushButton>
@@ -240,7 +240,6 @@ void KisToolSelectMagnetic::beginPrimaryAction(KoPointerEvent *event)
         beginSelectInteraction();
         updateInitialAnchorBounds(temp.toPoint());
         Q_EMIT setButtonsEnabled(true);
-        // Krimble 2026-11-05: George (1.0.45-beta): "crazy unnecessary menu appears when using polygon select tool ... it was perfect before." The on-canvas bar (Undo point / END / Cancel, added 2026-10-25 and 26) is switched off: it is not shown any more. Undo Point, Close and Cancel are still in Tool Options, and Enter, Escape and Shift+Z still work. To bring the bar back, remove the two slashes.
     }
 
     m_lastAnchor = temp.toPoint();
@@ -592,7 +591,7 @@ void KisToolSelectMagnetic::finishSelectionAction()
 
 void KisToolSelectMagnetic::resetVariables()
 {
-    showStrokeBar(false);   // Krimble 2026-10-26: finished, cancelled, all anchors gone, or the tool was changed
+    showStrokeBar(false);
     m_points.clear();
     m_anchorPoints.clear();
     m_pointCollection.clear();
@@ -600,10 +599,6 @@ void KisToolSelectMagnetic::resetVariables()
     m_complete = false;
 }
 
-// Krimble 2026-10-26: George (the "small things", Magnetic Selection bar): the same bar as the Polygonal Selection's (the 298th entry), because the Tool Options buttons (Complete and
-// Discard) are a tab behind Color on a portrait screen, and there was no way to take back an anchor with a finger. A child of the view, at the bottom in the middle above the scroll bar,
-// shown from the first anchor until the selection is finished, cancelled, or the tool is changed (resetVariables() hides it). Undo point is undoPoints() (the last anchor is taken
-// back; the only anchor left throws the selection away), END is requestStrokeEnd() (the same as Complete selection; it needs two anchors), Cancel is requestStrokeCancellation().
 void KisToolSelectMagnetic::showStrokeBar(bool show)
 {
     if (!show) {

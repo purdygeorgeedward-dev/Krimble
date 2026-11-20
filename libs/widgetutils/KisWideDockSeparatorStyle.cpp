@@ -19,30 +19,18 @@ KisWideDockSeparatorStyle::KisWideDockSeparatorStyle(QStyle *baseStyle)
 int KisWideDockSeparatorStyle::pixelMetric(PixelMetric metric, const QStyleOption *option, const QWidget *widget) const
 {
 #ifdef Q_OS_ANDROID
-    // Krimble 2026-10-17: George (1.0.37): "6. New full color icons are still too small. Should be 2x larger. Both in Prefs and New dialog." The
-    // page list of Preferences takes its picture size from the style and calls it WITHOUT a widget, so a style put on that one list is never asked
-    // (the 133rd entry did that and changed nothing); the app's own style answers: 64 logical px (it was 32). Lists that set their own icon size
-    // do not use this number.
     if (metric == QStyle::PM_IconViewIconSize) {
         return 64;
     }
 #endif
 #ifdef Q_OS_ANDROID
-    // Krimble 2026-11-15 (709th): George (build 63, screenshot of the Window menu in landscape): "Window menu still doesn't work right." Qt lays a tall menu out in columns as high as the
-    // whole screen, and Krimble then moves the menu down to the bottom of the menu bar (task 67), so the last entry of each full column was under the bottom edge of the screen (in his
-    // screenshot the Toolbars entry, the last of the first column, cannot be seen or tapped). A menu of the menu bar carries the number "krimbleMenuDeskFrame" (half the bar's height, set in
-    // KisMainWindow.cpp, KrimbleMenuPlacer); Qt keeps that much room free above AND below when it works out the columns, so the menu is shorter by the bar's height and fits under the bar.
     if (metric == QStyle::PM_MenuDesktopFrameWidth && widget) {
         const int krimbleFrame = widget->property("krimbleMenuDeskFrame").toInt();
         if (krimbleFrame > 0) return qMax(krimbleFrame, QProxyStyle::pixelMetric(metric, option, widget));
     }
 #endif
     if (metric == QStyle::PM_DockWidgetSeparatorExtent) {
-        // Krimble 2026-10-10: on Android at least 20 px (the same touch size as the dialog edges), so a finger can grab it.
 #ifdef Q_OS_ANDROID
-        // Krimble 2026-10-10 (3rd): 14 (was 20): each strip is about 32 device pixels narrower, which gives the toolbox room to widen.
-        // Krimble 2026-10-12: George: no "UI fat" along the edge. The strip is the base style's own thin one again; the touch
-        // zone is made by an invisible grab area inside each panel instead (KrimbleDockEdgeGrab in KisMainWindow.cpp).
         return QProxyStyle::pixelMetric(metric, option, widget);
 #else
         return QProxyStyle::pixelMetric(metric, option, widget) * 2;
@@ -50,11 +38,8 @@ int KisWideDockSeparatorStyle::pixelMetric(PixelMetric metric, const QStyleOptio
     }
 
 #ifdef Q_OS_ANDROID
-    // Krimble 2026-10-13: George: "It is extremely hard to resize image windows." The frame of an image window (a QMdiSubWindow) is
-    // both what is drawn around it and the zone a finger can grab to resize it, and the base style makes it only a few pixels wide.
-    // On Android it is at least 12 logical px (about 40 on the screen), the same idea as the 20 px edges of the dialogs.
     if (metric == QStyle::PM_MdiSubWindowFrameWidth) {
-        return qMax(QProxyStyle::pixelMetric(metric, option, widget), 16);   // Krimble 2026-10-17 (2nd): "Try just one more pixel? Or 2?" 14 -> 16. Before: 14 // Krimble 2026-10-17: "Try a small change first." 12 -> 14
+        return qMax(QProxyStyle::pixelMetric(metric, option, widget), 16);
     }
 #endif
 
@@ -64,10 +49,6 @@ int KisWideDockSeparatorStyle::pixelMetric(PixelMetric metric, const QStyleOptio
 void KisWideDockSeparatorStyle::drawPrimitive(PrimitiveElement element, const QStyleOption *option, QPainter *painter, const QWidget *widget) const
 {
 #ifdef Q_OS_ANDROID
-    // Krimble 2026-11-05: George's screenshots show white lines and frames; ChatGPT's reading of Qt's code: an image window (QMdiSubWindow) asks the style to
-    // draw its frame with QStyle::PE_FrameWindow, and Fusion draws that frame with a light edge (palette.light()). On Android the frame is made 16 logical
-    // px wide (PM_MdiSubWindowFrameWidth, 2026-10-13, so a finger can grab it to resize), so the bright edge is about 54 px wide on the screen. The width stays
-    // (the grab zone is unchanged); the frame is drawn as one flat window-colored band with a thin 1 px blue-gray outline instead.
     if (element == QStyle::PE_FrameWindow) {
         painter->save();
         painter->setRenderHint(QPainter::Antialiasing, false);
@@ -79,8 +60,6 @@ void KisWideDockSeparatorStyle::drawPrimitive(PrimitiveElement element, const QS
     }
 #endif
 #ifdef Q_OS_ANDROID
-    // Krimble 2026-10-18: George (1.0.37): "11. Can menus have the one pixel hilight and shadow edges?" The frame of a menu gets a one-device-pixel
-    // light line on its top and left edges and a dark one on its bottom and right edges (the colors of the panel bevels).
     if (element == QStyle::PE_FrameMenu) {
         QProxyStyle::drawPrimitive(element, option, painter, widget);
         const qreal dpr = painter->device() ? painter->device()->devicePixelRatioF() : 1.0;
@@ -98,17 +77,6 @@ void KisWideDockSeparatorStyle::drawPrimitive(PrimitiveElement element, const QS
 #endif
 #ifdef Q_OS_ANDROID
     if (element == QStyle::PE_IndicatorDockWidgetResizeHandle) {
-        // Krimble 2026-10-12: the strip draws nothing now (invisible); the code below is kept, not deleted, and is not reached.
-        // return;
-        // Krimble 2026-10-20: George (1.0.40, test list, item 2): "Invisible resize gadget on toolbox is 75% down the screen. Why? And I can't see it.
-        // The Krita thing was 50% down and at least visible with its little dots. Can I have that back?" The return above is commented out, so the
-        // separator between a panel (or the toolbox) and the canvas draws Krita's own handle again: the base style's little dots, in the middle of the
-        // separator (centred along it), in a strip of the original width (the 2026-10-11 code just below).
-        // Krimble 2026-10-11: George wants the ORIGINAL default look of these edges, with only the grabbing made bigger. The
-        // strip is wider so a finger can catch it, but what is drawn is exactly what the base style drew before: its own
-        // handle, in a strip of the original width, centered in the wide one.
-        // Krimble 2026-11-17 (739th): George (build 67): "There is an ugly extra line on the right side of the toolbox and the left side of the side panel. It does nothing but ruin my day.
-        // Remove it" Since the canvas no longer lies under the panels (732nd) this separator shows again, and the base style draws it as a line. It draws nothing now; it can still be dragged.
         if (element == QStyle::PE_IndicatorDockWidgetResizeHandle) return;
         {
             const int originalWidth = QProxyStyle::pixelMetric(QStyle::PM_DockWidgetSeparatorExtent, option, widget) * 2;
@@ -127,11 +95,6 @@ void KisWideDockSeparatorStyle::drawPrimitive(PrimitiveElement element, const QS
         }
 
 #if 0
-        // (4th) the three tiny dots, 6 device pixels across and 25 apart, and no line:
-        // Krimble 2026-10-10 (4th): George: the original tiny dots were visually right
-        // (4th) comment:, only hard to grab. The strip is 20 px
-        // wide so a finger can grab it; what is drawn is the same tiny grip as before: three dots, each 6 device pixels
-        // across and 25 device pixels apart, and no line or band.
         painter->save();
         painter->setRenderHint(QPainter::Antialiasing, true);
         painter->setPen(Qt::NoPen);
@@ -178,19 +141,16 @@ void KisWideDockSeparatorStyle::drawControl(ControlElement element, const QStyle
     if (element == QStyle::CE_MenuItem) {
         if (const QStyleOptionMenuItem *menuItem = qstyleoption_cast<const QStyleOptionMenuItem *>(option)) {
             if (menuItem->menuItemType == QStyleOptionMenuItem::Separator && menuItem->text.isEmpty()) {
-                // Krimble 2026-10-10: the divider between menu items: a black line with a highlight line below it.
                 const QRect r = menuItem->rect;
                 const int y = r.center().y();
                 painter->save();
                 painter->setPen(Qt::NoPen);
-                // Krimble 2026-10-10 (2nd): each line is exactly one device pixel thick (the 2 logical pixel lines were about 5).
                 const qreal px = 1.0 / painter->device()->devicePixelRatioF();
                 painter->fillRect(QRectF(r.left() + 6, y - px, r.width() - 12, px), QColor(0, 0, 0));
                 painter->fillRect(QRectF(r.left() + 6, y, r.width() - 12, px), QColor(255, 255, 255, 110));
                 painter->restore();
                 return;
             }
-            // Krimble 2026-10-10: draw the item without its shortcut text (no keyboard on a touch screen).
             QStyleOptionMenuItem plain(*menuItem);
             const int tab = plain.text.indexOf(QLatin1Char('\t'));
             if (tab >= 0) plain.text = plain.text.left(tab);
@@ -210,16 +170,13 @@ QSize KisWideDockSeparatorStyle::sizeFromContents(ContentsType type, const QStyl
         if (const QStyleOptionMenuItem *menuItem = qstyleoption_cast<const QStyleOptionMenuItem *>(option)) {
             if (menuItem->menuItemType == QStyleOptionMenuItem::Separator && menuItem->text.isEmpty()) {
                 QSize s = QProxyStyle::sizeFromContents(type, option, size, widget);
-                s.setHeight(qMax(s.height(), 6));   // Krimble 2026-10-10 (2nd): slot 6 (was 8) for the 1 pixel lines
+                s.setHeight(qMax(s.height(), 6));
                 return s;
             }
-            // Krimble 2026-10-10: no keyboard on a touch screen, so no shortcut text and no column reserved for it.
             QStyleOptionMenuItem plain(*menuItem);
             const int tab = plain.text.indexOf(QLatin1Char('\t'));
             if (tab >= 0) plain.text = plain.text.left(tab);
             plain.tabWidth = 0;
-            // Krimble 2026-10-12: George: "Menus are still too wide." The width of an item is at most its text plus 60 px (the
-            // check/icon margin on the left and the arrow on the right), however much the base style adds.
             QSize base = QProxyStyle::sizeFromContents(type, &plain, size, widget);
             base.setWidth(qMin(base.width(), size.width() + 60));
             return base;
@@ -232,8 +189,6 @@ QSize KisWideDockSeparatorStyle::sizeFromContents(ContentsType type, const QStyl
 QIcon KisWideDockSeparatorStyle::standardIcon(StandardPixmap standardIcon, const QStyleOption *option, const QWidget *widget) const
 {
 #ifdef Q_OS_ANDROID
-    // Krimble 2026-10-11: the window buttons (close, minimize, maximize, restore) drawn by the base style came out as dashes and
-    // blobs on a phone; the close button was not an X. They are drawn here: lines in the text color on a transparent square.
     if (standardIcon == SP_TitleBarCloseButton || standardIcon == SP_TitleBarMinButton
         || standardIcon == SP_TitleBarMaxButton || standardIcon == SP_TitleBarNormalButton) {
         const qreal dpr = widget ? widget->devicePixelRatioF() : 2.0;
@@ -273,8 +228,6 @@ QIcon KisWideDockSeparatorStyle::standardIcon(StandardPixmap standardIcon, const
 QRect KisWideDockSeparatorStyle::subControlRect(ComplexControl control, const QStyleOptionComplex *option, SubControl subControl, const QWidget *widget) const
 {
 #ifdef Q_OS_ANDROID
-    // Krimble 2026-10-18: George (1.0.37, fc126d8): "10. Up and down gadgets on predefined sizes list are too small to use." The up and down buttons of a spin
-    // box are 26 logical px wide (about 88 on the screen), each one half of the height; the field takes the rest.
     if (control == QStyle::CC_SpinBox) {
         if (const QStyleOptionSpinBox *spin = qstyleoption_cast<const QStyleOptionSpinBox*>(option)) {
             if (spin->buttonSymbols != QAbstractSpinBox::NoButtons) {

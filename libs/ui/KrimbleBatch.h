@@ -26,7 +26,7 @@ struct Recipe {
     int format = FormatJpg;
     int quality = 90;          // 1 to 100: JPG and lossy WebP
     QString suffix;            // added to the name: "photo-suffix.webp"
-    QString script;            // Krimble Script (see KRIMBLE_SCRIPT.md): when it is not empty it is what the recipe does, instead of the settings above
+    QString script;
     bool builtIn = false;
 
     QString extension() const;
@@ -37,7 +37,6 @@ struct Recipe {
     static Recipe fromJson(const QJsonObject &object);
 };
 
-// ---- Krimble Script: a very small language for simple picture operations (KRIMBLE_SCRIPT.md) ----
 struct ScriptStep {
     enum Kind { Resize, Fit, Crop, Rotate, Flip, Gray, Brightness, Contrast, Flatten };
     Kind kind = Resize;

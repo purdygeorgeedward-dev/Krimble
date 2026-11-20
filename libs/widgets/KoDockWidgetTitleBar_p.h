@@ -38,9 +38,8 @@ public:
     QAbstractButton* floatButton {nullptr};
     QAbstractButton* lockButton {nullptr};
     KSqueezedTextLabel* titleLabel {nullptr};
-    bool titleTextHidden {false};   // Krimble 2026-10-20: the title text is not shown (the panel is a tab), but its label keeps its place
+    bool titleTextHidden {false};
     bool locked {false};
-    // Krimble 2026-11-15: tear-off drag of a docked panel by its header
     bool pressed {false};
     bool dragging {false};
     QPoint pressGlobal;

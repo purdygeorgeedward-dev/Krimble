@@ -93,7 +93,6 @@ KisPalettizeWidget::KisPalettizeWidget(QWidget* parent)
     Q_UNUSED(m_ditherPatternWidget);
     setupUi(this);
 
-    // Krimble 2026-10-26: George (1.0.44): "Palette icon in index color is too small." 32 -> 64 logical px (the same 2x as the icons of the Preferences window)
     paletteIconWidget->setFixedSize(64, 64);
     m_paletteWidget = new KisResourceItemChooser(ResourceType::Palettes, false, this);
     paletteIconWidget->setPopupWidget(m_paletteWidget);
@@ -188,9 +187,6 @@ KisConfigWidget* KisFilterPalettize::createConfigurationWidget(QWidget *parent, 
 /*                      KisFilterPalettize                                     */
 /*******************************************************************************/
 
-// Krimble: renamed from "Palettize" to "Indexed Color" to match
-// industry-standard naming; also relocated to Image > Mode (see
-// kis_filter_manager.cc and krita5.xmlgui) instead of Filter > Adjust.
 KisFilterPalettize::KisFilterPalettize() : KisFilter(id(), FiltersCategoryAdjustId, i18n("&Indexed Color..."))
 {
     setColorSpaceIndependence(FULLY_INDEPENDENT);

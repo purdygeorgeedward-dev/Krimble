@@ -18,14 +18,10 @@ class KrimbleColorBase : public QWidget
 {
 public:
     static constexpr double DW = 1178.0;   // the card's width in design units
-    static constexpr double MinWidth = 330.0;   // Krimble 2026-11-13 (task 71): George: "The ColorLab when moved to the right in the dock should hide behind the edge instead of shrinking, just as the image on the canvas should not zoom out when the docked panels move." below this width the card is not drawn smaller: it keeps its size and is cut off at the panel's edge
+    static constexpr double MinWidth = 330.0;
     explicit KrimbleColorBase(QWidget *parent = nullptr) : QWidget(parent) {}
     virtual double designHeight() const = 0;
     bool hasHeightForWidth() const override { return true; }
-    // Krimble 2026-11-13 (task 71): George: "The ColorLab when moved to the right in the dock should hide behind the edge instead of shrinking, just as the image on the canvas should not zoom out when the docked panels move."
-    // Krimble 2026-11-15 (707th): George (build 63, Color Lab docked at the top or in a wide dock, drawn 2.5 times its size): "Color Lab still MAGNIFIES TO GIANT SIZE." The card was drawn at
-    // width / 1178 with no upper limit, so a panel as wide as the screen in landscape (832) made everything 2.5 times larger. A panel wider than MaxWidth (384, the phone's width in portrait) no
-    // longer makes the card larger: it keeps that size at the left and the rest of the panel is empty.
     static constexpr double MaxWidth = 384.0;
     int heightForWidth(int w) const override { return qRound(qBound<double>(MinWidth, w, MaxWidth) * designHeight() / DW); }
     qreal scale() const { return qBound<qreal>(MinWidth, width(), MaxWidth) / DW; }
@@ -232,7 +228,7 @@ public:
         }
         const QRectF b = rect.adjusted(0.5, 0.5, -0.5, -0.5);
         p.setPen(Qt::NoPen);
-        p.setBrush(QColor("#0b87dd"));   // Krimble 2026-11-20 (757th): George: "Make the other selections plain blue like menus. No gradients." One flat blue, #0b87dd, as the menus.
+        p.setBrush(QColor("#0b87dd"));
         p.drawRoundedRect(b, radius, radius);
         p.setBrush(Qt::NoBrush);
         p.setPen(QPen(QColor("#6fe3ff"), 2.4 * qMax<qreal>(0.5, s * 2)));
@@ -241,13 +237,12 @@ public:
     // a pill that keeps the color and the glow of the item it shows (the preview boxes): a colored rounded square with the cyan outline and its glow
     static void paintColorBox(QPainter &p, const QRectF &rect, const QColor &c, qreal radius, qreal s, bool glow)
     {
-        // Krimble 2026-11-13 (task 53): George: "In the ColorLab panel the left color well had a weird blue box around it. Remove that. No color crap around the color wells. no glow." The preview boxes (the wells of the pages) have no glow and no outline now; swatch cells (glow false) keep their outline.
         const QRectF b = rect.adjusted(0.5, 0.5, -0.5, -0.5);
         p.setPen(Qt::NoPen);
         p.setBrush(c);
         p.drawRoundedRect(b, radius, radius);
         p.setBrush(Qt::NoBrush);
-        if (!glow) {   // Krimble 2026-11-13 (task 53): George: "In the ColorLab panel the left color well had a weird blue box around it. Remove that. No color crap around the color wells. no glow."
+        if (!glow) {
             p.setPen(QPen(QColor("#e6ecfa"), qMax<qreal>(2.0, 3.0 * s)));
             p.drawRoundedRect(b, radius, radius);
         }

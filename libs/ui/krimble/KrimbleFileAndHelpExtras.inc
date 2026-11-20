@@ -1,9 +1,4 @@
-// Krimble 2026-11-19 (755th): part of KisMainWindow.cpp, moved here unchanged and included at the same place (George: "Use branching. Prioritize and implement all."). It only
-// compiles as part of KisMainWindow.cpp.
 
-// Krimble 2026-10-12: Mirror Layout (Left-Handed) (Claude's idea; George: "Mirror layout - smart idea. Yes"). Every panel docked on
-// the left moves to the right and every panel docked on the right moves to the left, keeping the order top to bottom and keeping
-// panels that share tabs together. The window layout is saved when the app closes, so the choice stays.
 static void krimbleMirrorLayout(QMainWindow *win)
 {
     struct Group { QDockWidget *first; QList<QDockWidget*> others; int y; };
@@ -43,11 +38,6 @@ static void krimbleMirrorLayout(QMainWindow *win)
     place(rightGroups, Qt::LeftDockWidgetArea);
 }
 
-// ============================================================================================================================
-// Krimble 2026-10-12: Help menu extras: "Where is...?", "Send Feedback" and the "QA Overlay".
-// "Where is...?" and the QA overlay were Claude's ideas (Claude's idea); the QA overlay is like the developer tools in a web
-// browser (George: "Yes."). "Send Feedback" is Claude's idea too.
-// ============================================================================================================================
 
 // "Where is...?": every menu entry with its path, searchable; tapping one opens it (Claude's idea).
 static void krimbleCollectMenuActions(QMenu *menu, const QString &path, QList<QPair<QString, QPointer<QAction> > > &out, int depth)
@@ -117,9 +107,6 @@ static void krimbleShowWhereIs(QMainWindow *win)
     edit->setFocus();
 }
 
-// "Cheat Sheet": the names people know from other graphics editors, each with where it is in Krimble (Claude's idea).
-// The paths are looked up in the real menus when the sheet opens, so they are always right; a name whose entry is not found
-// is left out. Tapping a line opens that entry.
 static void krimbleShowCheatSheet(QMainWindow *win)
 {
     QList<QPair<QString, QPointer<QAction> > > all;
@@ -231,11 +218,6 @@ static void krimbleShareImage(KisMainWindow *win, bool asJpg)
 #endif
 }
 
-// Krimble 2026-10-13 (10th): "Share..." (George's design, in his own words and by his choices: "What if the menu item for sharing is just Share...
-// and it opens a dialog window to get the details?", "And that universal share symbol.", "After export options.", "All of the things you
-// indicated.", "PNG has a quality slider too.", "No warnings. Build it."). The dialog has: Format (JPG or PNG); a slider, "Quality" for JPG
-// (10 to 100) and "Compression" for PNG (0 to 9, where more makes a smaller file and the picture stays the same); Size (original, or a
-// longest side of 1920, 1280 or 1080 px); and "Flatten onto white" (JPG only). Share then opens Android's share sheet.
 static void krimbleShareWithOptions(KisMainWindow *win, bool asJpg, int level, int maxSide, bool flatten)
 {
 #ifdef Q_OS_ANDROID
@@ -359,15 +341,9 @@ static void krimbleShowShare(KisMainWindow *win)
     dialog->show();
 }
 
-// "Batch Process...": resize or convert many pictures with one tap (Claude's idea; George: "Add batch presets.").
-// Pick pictures, pick a preset, and the results are saved in Pictures/Krimble/Batch (the originals are not touched).
-// Works on pictures Qt can read (JPG, PNG, WebP, BMP and the like), not on layered files.
 static void krimbleShowBatch(KisMainWindow *win)
 {
 #ifdef Q_OS_ANDROID
-    // Krimble 2026-10-25: George: "I'm working a lot with webp. I would like to add this feature." Batch Process is now KrimbleBatchDialog (KrimbleBatchDialog.cpp, with the engine
-    // in KrimbleBatch.cpp): recipes (resize, format JPG / PNG / WebP lossless / WebP lossy, quality, name) that can be changed and saved, WebP read and written with its transparency.
-    // Only the two things that need Android are here: asking for the pictures, and saving each result in Pictures/Krimble/Batch.
     auto pickPictures = [win]() -> QStringList {
         KoFileDialog fileDialog(win, KoFileDialog::OpenFiles, "KrimbleBatch");
         fileDialog.setCaption(i18n("Choose pictures"));
@@ -386,16 +362,9 @@ static void krimbleShowBatch(KisMainWindow *win)
     };
     KrimbleBatchDialog *batchDialog = new KrimbleBatchDialog(win, pickPictures, savePicture, QStringLiteral("Pictures/Krimble"));
     batchDialog->show();
-#if 0   // Krimble 2026-10-25: the Batch Process window before the recipes (2026-10-12 to 2026-10-24: six presets, JPG and PNG only), kept
+#if 0
     struct Preset { const char *label; int width; bool jpg; int quality; const char *suffix; };
     static const Preset presets[] = {
-        // (the first version, by width, kept:)
-        // { "Resize to 1080 px wide (JPG)",           1080, true,  90, "1080" },
-        // { "Resize to 1920 px wide (JPG)",           1920, true,  90, "1920" },
-        // { "Small for messages: 1280 px (JPG 80%)",  1280, true,  80, "msg" },
-        // { "Thumbnail 256 px wide (PNG)",             256, false, 100, "thumb" },
-        // Krimble 2026-10-12: George: "Why 1080 wide? It's usually a height from 1080p." The number is the LONGEST side now, so a picture
-        // fits whichever way up it is (landscape or portrait).
         { "HD 1080p: longest side 1920 px (JPG)",    1920, true,  90, "hd" },
         { "Social: longest side 1080 px (JPG)",      1080, true,  90, "social" },
         { "Messages: longest side 1280 px (JPG 80%)", 1280, true,  80, "msg" },
@@ -418,8 +387,6 @@ static void krimbleShowBatch(KisMainWindow *win)
     bar->setValue(0);
     QLabel *status = new QLabel(dialog);
     status->setWordWrap(true);
-    // Krimble 2026-10-12: George: "There is no cancel option for Batch process." Cancel stops after the picture being processed (it is
-    // enabled only while a batch runs); Close closes the window (enabled only when no batch runs).
     QPushButton *cancel = new QPushButton(i18n("Cancel"), dialog);
     cancel->setEnabled(false);
     QPushButton *closeButton = new QPushButton(i18n("Close"), dialog);
@@ -516,9 +483,6 @@ static void krimbleShowBatch(KisMainWindow *win)
 }
 
 #ifdef Q_OS_ANDROID
-// Krimble 2026-10-13: "Take Photo..." (Claude's idea; George: "Yes. Go for it."): opens the phone's own camera app (with its zoom, HDR, flash
-// and night mode) and, when the photo is taken, opens it in Krimble. The photo is also kept in Pictures/Krimble/Camera. No camera
-// permission is needed, because the phone's camera app takes the picture, not Krimble.
 class KrimbleCameraReceiver : public QAndroidActivityResultReceiver
 {
 public:
@@ -528,13 +492,6 @@ public:
         Q_UNUSED(data);
         const bool taken = (requestCode == 4711 && resultCode == -1);    // -1 is RESULT_OK
         if (taken) {
-            // Krimble 2026-10-13 (2nd): George: "Take photo is a failure. You take a pic and then crash." The camera's answer arrives on
-            // Android's own thread, not on the thread that runs Krimble's windows; opening a picture from there crashed the app. The
-            // opening is now queued to the window's own thread.
-            // Krimble 2026-10-15: George (1.0.36): the camera opened, the photo was taken, no crash, but "The file
-            // content://media/external/images/media/1000356140 does not exist." The picture is now copied into the app's cache first
-            // (ShareHelper.copyCameraPhoto, on this thread) and the copy is opened like any file; if there is nothing to copy, the reason is shown.
-            // if (window) { QMetaObject::invokeMethod(window, [window, uri]() { window->openDocument(uri, KisMainWindow::OpenFlags()); }, Qt::QueuedConnection); }
             KisMainWindow *window = m_win.data();
             const QString uri = m_uri;
             QAndroidJniObject jUriString = QAndroidJniObject::fromString(uri);
@@ -694,7 +651,6 @@ static void krimbleInstallFileExtras(KisMainWindow *win)
             text.remove(QLatin1Char('&'));
             if (text == QLatin1String("Quit") || text == QLatin1String("Exit")) before = action;
         }
-        // Krimble 2026-10-13 (10th): Share... (George's design): right after Export Options..., with the share symbol.
         {
             QAction *shareAction = new QAction(KisIconUtils::loadIcon(QStringLiteral("krimble-share")), i18n("Share..."), file);
             QObject::connect(shareAction, &QAction::triggered, win, [win]() { krimbleShowShare(win); });
@@ -705,7 +661,6 @@ static void krimbleInstallFileExtras(KisMainWindow *win)
                 text.remove(QLatin1Char('&'));
                 if (text.startsWith(QLatin1String("Export Options")) && i + 1 < fileActions.size()) afterExport = fileActions.at(i + 1);
             }
-            // Krimble 2026-10-18 (3rd): George (1.0.37, c666301): "7. Share seems to work. Let's put Share... above Exit." It is inserted below, after Take Photo..., just above Exit.
             Q_UNUSED(afterExport);
             Q_UNUSED(shareAction);
         }
@@ -713,23 +668,9 @@ static void krimbleInstallFileExtras(KisMainWindow *win)
         QObject::connect(shareJpg, &QAction::triggered, win, [win]() { krimbleShareImage(win, true); });
         QAction *sharePng = new QAction(i18n("Share as PNG..."), file);
         QObject::connect(sharePng, &QAction::triggered, win, [win]() { krimbleShareImage(win, false); });
-        // Krimble 2026-10-12: Batch Process... (Claude's idea)
-        // Krimble 2026-10-12 (2nd): George: "I think it should be in the image menu, not below exit." Moved to the Image menu
-        // (krimbleInstallImageExtras); the File menu lines are kept here, commented out.
-        // Krimble 2026-10-13 (9th): George: "1. comment out." (Share as JPG / Share as PNG, to be tried again after other things work.)
-        // Krimble 2026-10-13: Take Photo... (Claude's idea)
-        // Krimble 2026-10-13 (3rd): George: "Remove take photo. It's a failure." (1.0.35 crashed after the photo was taken.) Removed from the
-        // File menu; the code (krimbleTakePhoto, KrimbleCameraReceiver, the Java helper) is kept, with the thread fix of the 115th entry.
-        // Krimble 2026-10-13 (12th): George: "Re-enable and I will test your fix." Back in the File menu, in the place it had in 1.0.35 (just above
-        // Exit), to test the thread fix of the 115th entry.
-        // Krimble 2026-10-14: George (1.0.36): "The camera generated an error, but it didn't crash! Not crashing is good! We should still comment it
-        // out temporarily." The error was: The file content://media/external/images/media/1000356140 does not exist. Out again; the code stays.
-        // Krimble 2026-10-15: George: "I would like to troubleshoot Take Photo if possible." Back in the File menu, just above Exit, with the copy-first
-        // fix of the 138th entry.
         QAction *takePhoto = new QAction(i18n("Take Photo..."), file);
         QObject::connect(takePhoto, &QAction::triggered, win, [win]() { krimbleTakePhoto(win); });
         file->insertAction(before, takePhoto);
-        // Krimble 2026-10-18 (3rd): Share... just above Exit (below Take Photo...).
         QAction *shareLast = new QAction(KisIconUtils::loadIcon(QStringLiteral("krimble-share")), i18n("Share..."), file);
         QObject::connect(shareLast, &QAction::triggered, win, [win]() { krimbleShowShare(win); });
         file->insertAction(before, shareLast);
@@ -782,7 +723,6 @@ static QString krimbleQaReport(QMainWindow *win)
         r += QStringLiteral("bar %1 %2x%3\n").arg(bar->objectName()).arg(bar->width()).arg(bar->height());
     }
 #ifdef Q_OS_ANDROID
-    // Krimble 2026-10-23 (2nd): the panels' edge tabs (KrimbleDockEdgeGrab): shown, or why not (George, 1.0.42: the right panel has none)
     Q_FOREACH (QWidget *grab, win->findChildren<QWidget*>(QRegularExpression(QStringLiteral("^krimbleEdgeGrab_")), Qt::FindDirectChildrenOnly)) {
         r += static_cast<KrimbleDockEdgeGrab*>(grab)->status() + QLatin1Char('\n');
     }
@@ -847,13 +787,7 @@ static void krimbleInstallHelpExtras(QMainWindow *win)
         if (help->property("krimbleHelpExtrasAdded").toBool()) return;
         help->setProperty("krimbleHelpExtrasAdded", true);
         help->addSeparator();
-        // Krimble 2026-10-13 (3rd): George: "Where is? Is unpredictable and has to go." Removed from the Help menu; the code
-        // (krimbleShowWhereIs, the search window) is kept.
-        // Krimble 2026-10-12: removed (George): choosing a line in the Cheat Sheet crashed the app in 1.0.33. The code is kept.
-        // Krimble 2026-10-18: George (1.0.37): "7. Send feedback does nothing. Might as well remove it." Out of the Help menu; the code stays.
-        // Krimble 2026-10-13 (6th): George: "5 no": Menu Diagnostics is removed from the Help menu; the code is kept here.
 #if 0
-        // Krimble 2026-10-13 (2nd): Menu Diagnostics (for George's "Menus are still too wide"): shows numbers about the Edit menu
         QAction *menuDiag = help->addAction(i18n("Menu Diagnostics"));
         QObject::connect(menuDiag, &QAction::triggered, win, [win]() {
             QMenu *edit = nullptr;

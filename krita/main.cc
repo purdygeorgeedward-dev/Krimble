@@ -159,12 +159,6 @@ void resetRotation()
 #endif
 
 #ifdef Q_OS_ANDROID
-// Krimble 2026-10-25: George: "Krimble relaunches constantly on switching ... I want it to stop crashing." THE CAUSE (found in the code): when the Java package was renamed
-// from org.krita.android to org.krimble.android, these three native functions kept the old name (Java_org_krita_android_JNIWrappers_...), so the Java methods of
-// org.krimble.android.JNIWrappers had nothing to call: hasMainWindowLoaded() is called by MainActivity.onKeyUp on EVERY Back key or back gesture (an UnsatisfiedLinkError on the main
-// thread = the app crashes and starts again), openFileFromIntent() when a file is sent to a running Krimble, and saveState() on every pause (it was caught there, so nothing was saved).
-// The old name is kept in the comment above each function.
-// was: Java_org_krita_android_JNIWrappers_saveState
 extern "C" JNIEXPORT void JNICALL
 Java_org_krimble_android_JNIWrappers_saveState(JNIEnv* /*env*/,
                                              jobject /*obj*/,
@@ -394,17 +388,6 @@ extern "C" MAIN_EXPORT int MAIN_FN(int argc, char **argv)
     bool openGLDebugSynchronous = false;
     bool logUsage = true;
     {
-        // Krimble: default this to true (was false, matching upstream Krita
-        // desktop where HiDPI is normally handled by the OS/monitor). On
-        // Android, this flag is also what gates the entire interface-scaling
-        // feature -- both the Settings > Interface Scale menu item and the
-        // "set your UI scale" dialog shown on first launch are only created
-        // at all when this ends up true (see KisAndroidScaling::isSupported()
-        // / isHighDpiScalingEnabled(), which only get a valid primary screen
-        // to work with if high-DPI scaling was enabled here). This feature
-        // was present in an earlier Krimble build and was explicitly wanted
-        // kept, so it should not depend on the user manually discovering and
-        // setting "EnableHiDPI=true" in kritarc -- default it on instead.
         bool enableHighDpiScaling = kritarc.value("EnableHiDPI", true).toBool() || !qgetenv("KRITA_HIDPI").isEmpty();
         // The AA_(Enable|Disable)HighDpiScaling attributes no longer have an
         // effect on Qt6, high-DPI scaling is always enabled. To "disable" it,

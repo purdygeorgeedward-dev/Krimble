@@ -25,7 +25,6 @@ KritaExtensionsColors::KritaExtensionsColors(QObject *parent, const QVariantList
     manager->add(new KisFilterMin());
     manager->add(new KisFilterColorToAlpha());
     manager->add(new KisFilterFastColorOverlay());
-    // KRIMBLE 2026-10-02: Photo Filter, built on the Fast Color Overlay blend.
     manager->add(new KisFilterPhotoFilter());
 
 }

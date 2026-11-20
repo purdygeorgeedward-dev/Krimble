@@ -14,8 +14,6 @@
 
 class KoCanvasBase;
 
-// Krimble 2026-11-16 (722nd): George (build 64, the order of the toolbox): "Blur / Sharpen". The Sharpen tool: the same filter brush as the
-// Blur tool (KisToolSoften), with the Sharpen filter in place of Gaussian Blur. It is a brush: it sharpens only where it is brushed.
 class KisToolSharpen : public KisToolBrush
 {
     Q_OBJECT

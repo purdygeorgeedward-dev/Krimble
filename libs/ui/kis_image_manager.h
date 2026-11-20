@@ -56,7 +56,7 @@ public Q_SLOTS:
     void shearCurrentImage(double angleX, double angleY);
     void slotImageProperties();
     void slotImageColor();
-    void slotAutoCrop(); // Krimble: Image > Auto Crop
+    void slotAutoCrop();
 
 private:
     KisViewManager * m_view;

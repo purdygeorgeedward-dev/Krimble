@@ -14,7 +14,7 @@
 #include <QEvent>
 #include <QGridLayout>
 #include "LayerBox.h"
-#include <QDockWidget>   // Krimble 2026-11-19 (754th)
+#include <QDockWidget>
 
 #include <QApplication>
 #include <QToolButton>
@@ -27,11 +27,11 @@
 #include <QToolTip>
 #include <QWidget>
 #include <QComboBox>
-#include <QLineEdit>   // Krimble 2026-11-13 (task 72)
-#include <QWheelEvent>   // Krimble 2026-11-13 (task 68)
-#include <QPointer>   // Krimble 2026-11-13 (task 68)
-#include <QTimer>   // Krimble 2026-11-13 (task 68)
-#include <QFrame>   // Krimble 2026-11-13 (task 58)
+#include <QLineEdit>
+#include <QWheelEvent>
+#include <QPointer>
+#include <QTimer>
+#include <QFrame>
 #include <QCheckBox>
 #include <QVBoxLayout>
 #include <QPixmap>
@@ -165,12 +165,6 @@ qint32 LayerBox::convertOpacityToInt(qreal opacity)
 }
 
 #ifdef Q_OS_ANDROID
-// Krimble 2026-10-18 (4th): George (1.0.37, c666301): "Bottom buttons in Layers panel are stacking for some reason." and "Fix layers buttons stacking." The 12 Oct change put the six buttons
-// under the layer list in two rows of three, always, so that they all fit in a narrow panel. When the panel is wide enough for all six, they are in one row; when it is
-// narrower they are in two rows. Decided again at every resize, from the buttons' own widths.
-// Krimble 2026-11-13 (task 68): George: "NORMAL is just a layer type. tapping that thing opens a giant slippery list of layer types like DARKEN, LIGHTEN, MULTIPLY, etc. It's a mess!! For one
-// thing there is zero delay in opening it. At the very least it should be a long press to open it." A combo box opens its list on the first touch. This one opens it only when the finger has
-// stayed down for half a second; a tap does nothing, and the mouse wheel (a finger-scroll that lands on the box) does not change the blending mode.
 class KrimbleLongPressOpen : public QObject
 {
 public:
@@ -301,10 +295,6 @@ LayerBox::LayerBox()
     m_wdgLayerBox->bnDuplicate->setIconSize(QSize(22, 22));
 
 #ifdef Q_OS_ANDROID
-    // Krimble 2026-10-12: the six buttons under the layer list (add, duplicate, lower, raise, properties, delete) made the Layers
-    // panel at least 258 logical px wide (about 870 device px), most of a portrait screen (found with the QA overlay). On
-    // Android their icons are 18 px (were 22), and the buttons share the row evenly and may be as narrow as 30 px, so the panel's
-    // minimum width drops to about 190 px.
     {
         QToolButton *layerButtons[] = {
             m_wdgLayerBox->bnAdd, m_wdgLayerBox->bnDuplicate, m_wdgLayerBox->bnLower,
@@ -312,29 +302,18 @@ LayerBox::LayerBox()
         };
         for (QToolButton *button : layerButtons) {
             button->setIconSize(QSize(18, 18));
-            // Krimble 2026-10-12 (2nd): George: "The tools at the bottom of the Layers panel disappeared." In the 1.0.34 screenshots the six buttons
-            // were squeezed on top of each other. The two lines below (a 30 px minimum and a size policy that ignores the buttons' own
-            // size) are switched off; only the smaller icons (18 px) remain.
         }
-        // Krimble 2026-10-12 (3rd): George: "If it reattaches to the side those bottom tools disappear again. They are important to
-        // layers functions." Six buttons in one row need about 215 logical px, more than a docked Layers panel has in portrait, so the
-        // ones on the right were pushed out of view. They are now in two rows of three (add, duplicate, lower / raise, properties,
-        // delete), each button sharing its row evenly, so all six stay visible when the panel is narrow. The single row ("hbox1" in
-        // WdgLayerBox.ui) is kept; the buttons are only moved out of it into a grid placed in it.
         if (QHBoxLayout *buttonRow = findChild<QHBoxLayout*>(QStringLiteral("hbox1"))) {
             QGridLayout *buttonGrid = new QGridLayout;
             buttonGrid->setContentsMargins(0, 0, 0, 0);
             buttonGrid->setSpacing(2);
             for (int i = 0; i < 6; ++i) {
                 buttonRow->removeWidget(layerButtons[i]);
-                // Krimble 2026-11-18 (751st): George (the bottom symbols of a short Layers panel piled on each other): "I guess so." to Claude's proposal: the bottom buttons keep their full
-                // height (34 units), one row or two rows of three, never squeezed; when the panel is short, only the layer list gets shorter (as the top rows, 743rd).
                 layerButtons[i]->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
                 layerButtons[i]->setMinimumHeight(34);
                 buttonGrid->addWidget(layerButtons[i], i / 3, i % 3);
             }
             buttonRow->insertLayout(0, buttonGrid, 1);
-            // Krimble 2026-10-18 (4th): one row when the panel is wide enough, two rows when it is not
             QList<QToolButton*> buttonList;
             for (int i = 0; i < 6; ++i) buttonList.append(layerButtons[i]);
             new KrimbleLayerButtonsFilter(this, buttonGrid, buttonList);
@@ -345,12 +324,6 @@ LayerBox::LayerBox()
     m_wdgLayerBox->bnLower->setEnabled(false);
     m_wdgLayerBox->bnRaise->setEnabled(false);
 
-    // Krimble 2026-11-13 (task 58): George (build 57 screenshots): "Layers panel is a mess. No sense of design or spacing at all."
-    // What the screenshot showed: the blending mode box and the opacity bar did not start or end at the same place (the box was 78 px narrower on the left), the rows had the form's own
-    // 0 and 9 px margins and 1 px spacing, the header was not separated from the list, and the buttons at the bottom floated with no line above them. The header is now one grid:
-    // column 0 stretches and holds the blending mode box (row 0) and the opacity bar (row 1), column 1 holds the filter button and the menu button, both 34 px high, 6 px
-    // between everything, 6 px around the panel, a thin divider under the header and one above the buttons. The old rows (hbox2 and opacityLayout of the form) are emptied and removed.
-    // Krimble 2026-11-13 (task 72): George: "Try to implement any easy the industry standard layers feature." The easiest: a search box for layer names in the free space of the top row (the filter model already has setTextFilter).
     QLineEdit *krimbleSearch = new QLineEdit(mainWidget);
     krimbleSearch->setPlaceholderText(i18n("Search layers"));
     krimbleSearch->setClearButtonEnabled(true);
@@ -381,34 +354,19 @@ LayerBox::LayerBox()
         blend->setMaximumWidth(QWIDGETSIZE_MAX);
         opacityBar->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
         opacityBar->setMinimumHeight(34);
-        new KrimbleLongPressOpen(blend);   // Krimble 2026-11-13 (task 68): the blending mode list opens on a long press only
-        // Krimble 2026-11-13 (task 69): George: "push that thing way over to the right. it's in a bad spot." The blending mode box is a small box at the far right of the top row
-        // (110 px wide, next to the filter button), not a bar across the panel; the rest of the row is empty.
+        new KrimbleLongPressOpen(blend);
         {
             QHBoxLayout *topRow = new QHBoxLayout;
             topRow->setContentsMargins(0, 0, 0, 0);
             topRow->setSpacing(6);
-            // Krimble 2026-11-16 (728th): George (build 65): "The search field is a mess. Get rid of the search. It's useless." The search box is not in the row and not shown (the
-            // widget stays, hidden, so the rest of the code is as it was); the row's free space is empty again.
             krimbleSearch->hide();
-            // topRow->addWidget(new KrimbleLayersGrabPad(mainWidget), 1);   // Krimble 2026-11-19 (754th): the empty space is a grab pad
-            // Krimble 2026-11-20 (757th): George: "layers has two grab areas, color lab has none." Layers keeps only the grab pad in its title row; this space is plain again.
             topRow->addStretch(1);
-            // Krimble 2026-11-13 (task 73): George: "put them in the empty space at the top ... next to the layer type selector." Three symbol buttons from the industry standard layers panel
-            // (add layer mask, new adjustment layer, layer styles "fx") sit between the search box and the blending mode box. The six buttons under the layer list are not touched.
-            // Krimble 2026-11-18 (749th): George (the narrow Layers panel): "All those extra buttons are just a mess. The empty space looks bad and the sloppy symbol positions look bad. Just
-            // get rid of them." The three symbols at the top (layer mask, adjustment layer, layer styles; 2026-11-13) are deleted; Layer > New and Layer > Layer Style have them. The
-            // blending mode box now fills the row up to the filter button, with no empty space in front of it.
-            // Krimble 2026-11-19 (753rd): George: "Now the goddamned layer type slider is back. I don't want that there!!!!!!" ... "We moved that for a reason, and it wasn't to make room for the
-            // stupid extra tools." The 749th was wrong to stretch it: the blending mode box is back at the far right, a fixed 110 units (558th: a wide box at the top was easy to hit by accident).
             blend->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
             blend->setFixedWidth(110);
             topRow->addWidget(blend);
             topRow->addWidget(m_wdgLayerBox->bnLayerFilters);
-            // Krimble 2026-11-18 (749th): the 735th's two-row top row is deleted with the three symbols (the row is the blending mode box and the filter button only).
             header->addLayout(topRow, 0, 0, 1, 2);
         }
-        // Krimble 2026-11-17 (737th): George (build 66): "Layers opacity bar goes all the way to the edge with no margin. Bad." ... "It's the left margin." The bar gets 6 more units on its left.
         {
             QHBoxLayout *opacityRow = new QHBoxLayout;
             opacityRow->setContentsMargins(6, 0, 0, 0);
@@ -420,8 +378,6 @@ LayerBox::LayerBox()
         header->setColumnStretch(0, 1);
         m_wdgLayerBox->bnLayerFilters->setFixedSize(34, 34);
         m_wdgLayerBox->configureLayerDockerToolbar->setFixedSize(34, 34);
-        // Krimble 2026-11-17 (743rd): George (a floating Layers panel with the symbols, blending mode box, filter button and opacity bar piled on each other): "The top of layers should always
-        // have had a minimum height." The top rows sit in a holder of fixed height (its own rows' full height, one or two rows of symbols); when the panel is short, only the layer list gets shorter.
         {
             QWidget *krimbleHeaderHolder = new QWidget(mainWidget);
             krimbleHeaderHolder->setObjectName(QStringLiteral("krimbleLayersHeader"));
@@ -429,11 +385,7 @@ LayerBox::LayerBox()
             krimbleHeaderHolder->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
             panel->insertWidget(0, krimbleHeaderHolder);
             m_wdgLayerBox->listLayers->setMinimumHeight(0);
-            // Krimble 2026-11-20 (757th): George (a small floating Layers panel, the opacity bar over the blending mode box): "Layers menu still a mess." The panel could be made shorter
-            // than its top rows and bottom buttons, so Qt pressed them together. The panel now has a minimum height: the top rows, the bottom buttons and room for one layer row.
             QTimer::singleShot(0, this, [this, krimbleHeaderHolder]() {
-                // Krimble 2026-11-20 (758th): George: "In the layers panel reserve an area for those top sections so they don't get squeezed and overlap at all." The top rows' holder has a
-                // fixed height of its own full height (never less, never more), on top of the panel's minimum height (757th).
                 krimbleHeaderHolder->setFixedHeight(krimbleHeaderHolder->sizeHint().height());
                 const int minimum = krimbleHeaderHolder->sizeHint().height() + 2 * 34 + 12 + 60 + 40;
                 if (widget()) widget()->setMinimumHeight(minimum);
@@ -453,10 +405,6 @@ LayerBox::LayerBox()
         m_wdgLayerBox->hbox1->setSpacing(6);
     }
 
-    // Krimble 2026-11-13 (task 62): George: "I would rather have symbols without buttons or boxes on the bottom of the layers panel, and I routinely use the ones that are there now to move layers up and down or to add or delete layers."
-    // The six buttons under the layer list stay (add, duplicate, lower, raise, properties, delete: the ones he uses), but as symbols only: no box, no border, no fill (the theme's
-    // button look is overridden for these six); a finger down on one shows a soft blue field behind the symbol, a disabled one is dimmed. The symbols are 24 px (they were 18 on
-    // Android) and each button is 38 px high, so the touch targets stay large. (Task 62, 2nd: the sizes are NOT changed, see below.)
     {
         QToolButton *symbolButtons[] = {
             m_wdgLayerBox->bnAdd, m_wdgLayerBox->bnDuplicate, m_wdgLayerBox->bnLower,
@@ -467,18 +415,12 @@ LayerBox::LayerBox()
             "QToolButton:hover { background: rgba(120, 160, 255, 35); border-radius: 6px; }"
             "QToolButton:pressed { background: rgba(80, 150, 255, 90); border-radius: 6px; }"
             "QToolButton:disabled { background: transparent; }"
-            // Krimble 2026-11-15 (694th): George (screenshot): "There are still weird black things at the bottom of the layers panel." With a style sheet on the button, the menu indicator (Add and Properties have menus)
-            // is drawn as a black bar when it has no picture. It has no picture and no size here now, so nothing is drawn; the menus open as before (press and hold, or the button itself).
-            // Krimble 2026-11-16 (728th): George (build 65, Layers screenshot): "It still has the black things at the bottom." The 694th took away the wrong part. Add and Properties are
-            // buttons with a separate arrow section at their right (QToolButton::menu-button); with a style sheet on the button and no rule for that section, Qt paints it as a black
-            // box. It is now clear, with no border, and only its small arrow is drawn.
             "QToolButton::menu-indicator { image: none; width: 0px; height: 0px; }"
             "QToolButton::menu-button { border: none; background: transparent; width: 12px; }"
             "QToolButton::menu-button:hover, QToolButton::menu-button:pressed { border: none; background: transparent; }");
         for (QToolButton *button : symbolButtons) {
             button->setAutoRaise(true);
             button->setFocusPolicy(Qt::NoFocus);
-            // Krimble 2026-11-13 (task 62, 2nd): George: "NO!!!!! DONT CHANGE MY LAYERS SYMBOLS!!!!!!" Only the boxes go: the symbols are the program's own, at the size they had (18 px on Android); their size is not changed.
             button->setStyleSheet(symbolStyle);
         }
     }
@@ -489,9 +431,6 @@ LayerBox::LayerBox()
         KisSpinBoxI18nHelper::setText(m_wdgLayerBox->doubleOpacity,
                                       i18nc("{n} is the number value, % is the percent sign", "Opacity: {n}%"));
     } else {
-        // KisSpinBoxI18nHelper::setText(m_wdgLayerBox->doubleOpacity,
-        //                               i18nc("{n} is the number value, % is the percent sign", "{n}%"));
-        // Krimble 2026-11-13 (task 58): George (build 57 screenshots): "Layers panel is a mess. No sense of design or spacing at all." The label is not shown any more (the header is a grid), so the bar always says what it is.
         KisSpinBoxI18nHelper::setText(m_wdgLayerBox->doubleOpacity,
                                       i18nc("{n} is the number value, % is the percent sign", "Opacity: {n}%"));
     }
@@ -502,21 +441,15 @@ LayerBox::LayerBox()
     connect(m_wdgLayerBox->cmbComposite, SIGNAL(activated(int)), SLOT(slotCompositeOpChanged(int)));
 
     m_newLayerMenu = new QMenu(this);
-    // Krimble 2026-11-18 (748th): George: "I tried to hit the plus to add a layer and instead got a menu. Why???" The + has no menu: a tap always adds a layer. The other layer types are in
-    // Layer > New. (m_newLayerMenu is still built, unused by the button.)
-    // Krimble 2026-11-17 (735th): George (build 66): "There is a miniature gadget overlapping on the + sign at bottom of layers." The gadget was the button's separate arrow section (see the 728th
-    // note above); on a narrow panel it lay over the symbol. No arrow section now: a tap does what the button does, and a press and hold opens its menu.
 
     m_opLayerMenu = new QMenu(this);
     m_wdgLayerBox->bnProperties->setMenu(m_opLayerMenu);
-    // Krimble 2026-11-17 (735th): George (build 66): "There is a miniature gadget overlapping on the + sign at bottom of layers." The gadget was the button's separate arrow section (see the 728th
-    // note above); on a narrow panel it lay over the symbol. No arrow section now: a tap does what the button does, and a press and hold opens its menu.
     m_wdgLayerBox->bnProperties->setPopupMode(QToolButton::DelayedPopup);
 
     m_nodeModel = new KisNodeModel(this, 2);
     m_filteringModel = new KisNodeFilterProxyModel(this);
     m_filteringModel->setNodeModel(m_nodeModel);
-    connect(krimbleSearch, &QLineEdit::textChanged, m_filteringModel.data(), &KisNodeFilterProxyModel::setTextFilter);   // Krimble 2026-11-13 (task 72): George: "Try to implement any easy the industry standard layers feature." The easiest: a search box for layer names in the free space of the top row (the filter model already has setTextFilter).
+    connect(krimbleSearch, &QLineEdit::textChanged, m_filteringModel.data(), &KisNodeFilterProxyModel::setTextFilter);
 
     /**
      * Connect model updateUI() to enable/disable controls.
@@ -784,7 +717,6 @@ void LayerBox::setViewManager(KisViewManager* kisview)
     connect(m_wdgLayerBox->bnAdd, SIGNAL(clicked()), this, SLOT(slotAddLayerBnClicked()));
 
     connectActionToButton(kisview, m_wdgLayerBox->bnDuplicate, "duplicatelayer");
-    // Krimble 2026-11-13 (task 73): the three top-row symbol buttons run the existing actions.
     connectActionToButton(kisview, findChild<QToolButton*>("krimbleMaskBn"), "add_new_transparency_mask");
     connectActionToButton(kisview, findChild<QToolButton*>("krimbleAdjustBn"), "add_new_adjustment_layer");
     connectActionToButton(kisview, findChild<QToolButton*>("krimbleStyleBn"), "layer_style");
@@ -1591,7 +1523,7 @@ void LayerBox::slotForgetAboutSavedNodeBeforeEditSelectionMode()
 
 void LayerBox::slotUpdateIcons() {
     m_wdgLayerBox->bnAdd->setIcon(KisIconUtils::loadIcon("addlayer"));
-    if (QToolButton *b = findChild<QToolButton*>("krimbleMaskBn")) b->setIcon(KisIconUtils::loadIcon("transparencyMask"));   // Krimble task 73
+    if (QToolButton *b = findChild<QToolButton*>("krimbleMaskBn")) b->setIcon(KisIconUtils::loadIcon("transparencyMask"));
     if (QToolButton *b = findChild<QToolButton*>("krimbleAdjustBn")) b->setIcon(KisIconUtils::loadIcon("filterLayer"));
     m_wdgLayerBox->bnRaise->setIcon(KisIconUtils::loadIcon("arrowup"));
     m_wdgLayerBox->bnDelete->setIcon(KisIconUtils::loadIcon("deletelayer"));

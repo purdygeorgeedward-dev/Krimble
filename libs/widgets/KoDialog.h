@@ -756,11 +756,6 @@ protected:
 
     void showEvent(QShowEvent *e) override;
 
-    // Krimble: touch-friendly custom edge/corner resize. Most dialogs have
-    // no reliable native resize border on Android (no window manager), or
-    // one too thin to grab with a finger. These give every dialog a
-    // generous invisible resize margin along each edge, independent of
-    // any native/Qt-platform-provided border. See kResizeMargin in the .cc.
     void mousePressEvent(QMouseEvent *e) override;
     void mouseMoveEvent(QMouseEvent *e) override;
     void mouseReleaseEvent(QMouseEvent *e) override;

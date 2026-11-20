@@ -4,12 +4,12 @@
  *  SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#include <QLabel>   // Krimble 2026-11-08: the name at the top of Tool Options
+#include <QLabel>
 #include <QVector3D>
 #include "kis_tool_transform_config_widget.h"
-#include <QToolButton>   // Krimble 2026-10-19: the mode buttons (see the constructor)
-#include <QTimer>         // Krimble 2026-10-30: switching between the Transform and Rotate tools
-#include <KoToolManager.h> // Krimble 2026-10-30: same
+#include <QToolButton>
+#include <QTimer>
+#include <KoToolManager.h>
 
 #include <kis_icon.h>
 #include "rotation_icons.h"
@@ -331,10 +331,6 @@ KisToolTransformConfigWidget::KisToolTransformConfigWidget(TransformTransactionP
     connect(liquifyButton, SIGNAL(clicked(bool)), this, SLOT(slotSetLiquifyModeButtonClicked(bool)));
     connect(meshButton, SIGNAL(clicked(bool)), this, SLOT(slotSetMeshModeButtonClicked(bool)));
 
-    // Krimble 2026-10-30: George: "the various transform modes should be selectable buttons inside the Tool Options panel" and "if there is no rotate
-    // button in the tool options panel, there should be." A seventh mode button, Rotate, next to the first. The first button is Scale (its tool tip, which
-    // is also the label under the buttons, was "Free Transform"). Rotate is the Free Rotate tool (KisToolFreeRotate): clicking it switches to that tool,
-    // which applies the work done so far (deactivate ends the stroke); clicking Scale in the Rotate tool switches back to the Transform tool.
     m_krimbleRotateButton = new QToolButton(freeTransformButton->parentWidget());
     m_krimbleRotateButton->setCheckable(true);
     m_krimbleRotateButton->setAutoExclusive(true);
@@ -345,15 +341,8 @@ KisToolTransformConfigWidget::KisToolTransformConfigWidget(TransformTransactionP
     horizontalLayout_3->insertWidget(1, m_krimbleRotateButton);
     connect(m_krimbleRotateButton, SIGNAL(clicked(bool)), this, SLOT(slotKrimbleRotateButtonClicked(bool)));
 
-    // Krimble 2026-10-19: George (1.0.39, test list, item 3): "The little buttons in the Tool Options which select different modes in the
-    // transform tool should be bigger and should change color to show which one is selected." The six mode buttons get 28 px icons
-    // (they had the small default) and a minimum height of 40 px, and the chosen one is filled with the theme's highlight color (with
-    // autoRaise the checked button looked almost the same as the others). Nothing else in the widget is changed.
-    // Q_FOREACH (QToolButton *modeButton, QList<QToolButton*>({freeTransformButton, perspectiveTransformButton, warpButton,
-    //                                                           cageButton, liquifyButton, meshButton})) {
     Q_FOREACH (QToolButton *modeButton, QList<QToolButton*>({freeTransformButton, m_krimbleRotateButton, perspectiveTransformButton, warpButton,
-                                                              cageButton, liquifyButton, meshButton})) {   // Krimble 2026-10-30: plus Rotate
-        // Krimble 2026-10-20: George (1.0.40): "Transform tool mode buttons are HUGE now. Please reduce." 28 -> 20 px icons, 40 -> 30 px height.
+                                                              cageButton, liquifyButton, meshButton})) {
         modeButton->setIconSize(QSize(20, 20));
         modeButton->setMinimumHeight(30);
         modeButton->setStyleSheet(QStringLiteral(
@@ -374,7 +363,7 @@ KisToolTransformConfigWidget::KisToolTransformConfigWidget(TransformTransactionP
 void KisToolTransformConfigWidget::slotUpdateIcons()
 {
     freeTransformButton->setIcon(KisIconUtils::loadIcon("transform_icons_main"));
-    if (m_krimbleRotateButton) m_krimbleRotateButton->setIcon(KisIconUtils::loadIcon("krimble-free-rotate"));   // Krimble 2026-10-30
+    if (m_krimbleRotateButton) m_krimbleRotateButton->setIcon(KisIconUtils::loadIcon("krimble-free-rotate"));
     warpButton->setIcon(KisIconUtils::loadIcon("transform_icons_warp"));
     cageButton->setIcon(KisIconUtils::loadIcon("transform_icons_cage"));
     perspectiveTransformButton->setIcon(KisIconUtils::loadIcon("transform_icons_perspective"));
@@ -567,10 +556,6 @@ void KisToolTransformConfigWidget::liquifyReverseDirectionChanged(bool value)
     notifyConfigChanged(false);
 }
 
-// Krimble 2026-11-08: George: "Why are we still calling it the free transform tool? How about just Transform and change the name based on selected function. You could just call it
-// Scale, Rotate, whatever based on mode. Does that work?" The name at the top of Tool Options (the label \"krimbleToolOptionsName\" of KoToolDocker) shows the mode of the Transform tool:
-// Scale, Position, Rotate or Shear for the free transform (the radio buttons), and Perspective, Warp, Cage, Liquify or Mesh. Only while the Transform tool itself is the active tool (the
-// Rotate tool shares this widget and has its own name).
 static void krimbleShowTransformTitle(QWidget *from, const ToolTransformArgs &config)
 {
     if (!from || KoToolManager::instance()->activeToolId() != QLatin1String("KisToolTransform")) return;
@@ -599,7 +584,7 @@ static void krimbleShowTransformTitle(QWidget *from, const ToolTransformArgs &co
 void KisToolTransformConfigWidget::updateConfig(const ToolTransformArgs &config)
 {
     blockUiSlots();
-    krimbleShowTransformTitle(this, config);   // Krimble 2026-11-08
+    krimbleShowTransformTitle(this, config);
  
     if (config.mode() == ToolTransformArgs::FREE_TRANSFORM ||
         config.mode() == ToolTransformArgs::PERSPECTIVE_4POINT) {
@@ -613,7 +598,6 @@ void KisToolTransformConfigWidget::updateConfig(const ToolTransformArgs &config)
         if (freeTransformIsActive)
         {
             freeTransformButton->setChecked(true);
-            // Krimble 2026-10-30: in the Rotate tool, the Free mode is the Rotate button
             if (m_krimbleRotateButton && KoToolManager::instance()->activeToolId() == QLatin1String("KisToolFreeRotate")) {
                 m_krimbleRotateButton->setChecked(true);
             }
@@ -647,7 +631,6 @@ void KisToolTransformConfigWidget::updateConfig(const ToolTransformArgs &config)
         aZBox->setAngle(normalizeAngleDegrees(kisRadiansToDegrees(config.aZ())));
         cameraHeightBox->setValue(config.cameraPos().z());
         aspectButton->setKeepAspectRatio(config.keepAspectRatio());
-        // Krimble 2026-11-07: the radio buttons show the drag mode of the arguments (Scale at the start of every transform)
         {
             const ToolTransformArgs::FreeGesture gesture = config.freeGesture();
             freeMoveRadioButton->setChecked(gesture == ToolTransformArgs::GestureMove);
@@ -878,7 +861,6 @@ void KisToolTransformConfigWidget::slotSetMeshModeButtonClicked(bool value)
 
 void KisToolTransformConfigWidget::slotKrimbleRotateButtonClicked(bool value)
 {
-    // Krimble 2026-10-30: the Rotate mode button (see the constructor).
     if (!value) return;
 
     if (KoToolManager::instance()->activeToolId() != QLatin1String("KisToolFreeRotate")) {
@@ -894,7 +876,6 @@ void KisToolTransformConfigWidget::slotSetFreeTransformModeButtonClicked(bool va
 {
     if (!value) return;
 
-    // Krimble 2026-10-30: in the Rotate tool the Scale button goes back to the Transform tool (Scale mode)
     if (KoToolManager::instance()->activeToolId() == QLatin1String("KisToolFreeRotate")) {
         QTimer::singleShot(0, []() { KoToolManager::instance()->switchToolRequested(QStringLiteral("KisToolTransform")); });
         return;
@@ -1221,7 +1202,6 @@ void KisToolTransformConfigWidget::slotTransformAreaVisible(bool value)
     moveGroup->hide();
 
 
-    // Krimble 2026-11-07: the radio buttons also choose the drag mode (see ToolTransformArgs::freeGesture())
     ToolTransformArgs::FreeGesture gesture = ToolTransformArgs::GestureRotate;
     if ("freeMoveRadioButton" == senderName)
     {
@@ -1244,7 +1224,7 @@ void KisToolTransformConfigWidget::slotTransformAreaVisible(bool value)
     }
     if (m_transaction && m_transaction->currentConfig()) {
         m_transaction->currentConfig()->setFreeGesture(gesture);
-        krimbleShowTransformTitle(this, *m_transaction->currentConfig());   // Krimble 2026-11-08: the name at the top of Tool Options follows the mode
+        krimbleShowTransformTitle(this, *m_transaction->currentConfig());
     }
 
 }

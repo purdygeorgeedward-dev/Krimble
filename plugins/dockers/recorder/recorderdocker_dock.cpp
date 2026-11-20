@@ -372,11 +372,6 @@ public:
 #ifdef Q_OS_ANDROID
     void fixInternalSnapshotDirectory()
     {
-        // Older versions of Krimble used an internal directory as the snapshots
-        // directory by default, which is a bogus place to save stuff to because
-        // the user can't access it. That means the files stored there are stuck
-        // inaccessible and once the user picks a "real" directory, they can no
-        // longer even delete the files. So here we're rectifying the situation.
         if (snapshotDirectory == RecorderConfig::defaultInternalSnapshotDirectory()) {
             // Internal path got persisted to settings. Clear that out, replace
             // it with the default of nothing.

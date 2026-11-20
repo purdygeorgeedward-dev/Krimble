@@ -41,10 +41,6 @@ namespace {
 
 QString readConfigBlob(const QDomElement &parent)
 {
-    // Krimble: the parameter blob is itself a small XML document (a
-    // KisFilterConfiguration's or KisOperationConfiguration's own toXML()
-    // output), stored as a single CDATA child so it round-trips without
-    // needing to merge two separate DOMs.
     QDomElement configElement = parent.firstChildElement("config");
     if (configElement.isNull()) return QString();
 
@@ -90,8 +86,6 @@ bool TasksetResource::loadFromDevice(QIODevice *dev, KisResourcesInterfaceSP res
                 m_steps.append(record);
                 m_actions.append(record.action);
             } else if (child.tagName() == "action") {
-                // Krimble: version-1 files only ever stored plain
-                // action-trigger steps.
                 StepRecord record;
                 record.action = child.text();
                 m_steps.append(record);

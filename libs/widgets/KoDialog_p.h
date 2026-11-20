@@ -10,7 +10,7 @@
 
 #include "KoDialog.h"
 #include <QPointer>
-#include <QScrollArea>   // Krimble 2026-10-23
+#include <QScrollArea>
 #include <KisSignalMapper.h>
 #include <QSize>
 #include <QHash>
@@ -54,7 +54,7 @@ protected:
 
     QBoxLayout *mTopLayout {nullptr};
     QPointer<QWidget> mMainWidget;
-    QPointer<QScrollArea> mKrimbleScroll;   // Krimble 2026-10-23: the scroll area that holds the main widget (Android)
+    QPointer<QScrollArea> mKrimbleScroll;
     KUrlLabel *mUrlHelp {nullptr};
     KSeparator *mActionSeparator {nullptr};
 
@@ -69,7 +69,6 @@ protected:
     QDialogButtonBox *mButtonBox {nullptr};
     QHash<int, QPushButton *> mButtonList;
 
-    // Krimble: touch-friendly custom edge/corner resize state.
     int mResizeEdge {0};
     bool mResizing {false};
     QPoint mResizeStartPos;

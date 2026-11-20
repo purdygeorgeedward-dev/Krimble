@@ -34,7 +34,7 @@
 
 #include "kis_tool_line_helper.h"
 
-#include <QSlider>      // Krimble 2026-10-30: the Thickness setting
+#include <QSlider>
 #include <QSpinBox>
 #include <QTimer>
 #include <QHBoxLayout>
@@ -97,7 +97,7 @@ void KisToolLine::activate(const QSet<KoShape*> &shapes)
 {
    KisToolPaint::activate(shapes);
    configGroup =  KSharedConfig::openConfig()->group(toolId());
-   if (m_krimbleThicknessTimer) {   // Krimble 2026-10-30: the Thickness controls follow the brush size again
+   if (m_krimbleThicknessTimer) {
        m_krimbleThicknessTimer->start();
        syncKrimbleThickness();
    }
@@ -106,7 +106,7 @@ void KisToolLine::activate(const QSet<KoShape*> &shapes)
 void KisToolLine::deactivate()
 {
     KisToolPaint::deactivate();
-    if (m_krimbleThicknessTimer) m_krimbleThicknessTimer->stop();   // Krimble 2026-10-30
+    if (m_krimbleThicknessTimer) m_krimbleThicknessTimer->stop();
     cancelStroke();
 }
 
@@ -129,10 +129,6 @@ QWidget* KisToolLine::createOptionWidget()
     m_chkSnapEraser = new QCheckBox(i18n("Snap Eraser"));
     addOptionWidgetOption(m_chkSnapEraser);
 
-    // Krimble 2026-10-30: George: "There is no option in the Tool Options for the line tool to set the line thickness." and "Add a size setting for line
-    // thickness to the tool options for line." The line is drawn with the current brush, so Thickness is that brush's size (the same size the Brushes
-    // panel and the brush settings change). A slider with a number box; they follow the brush if its size is changed somewhere else (checked every 0.4 s
-    // while the tool is active).
     {
         QWidget *thicknessRow = new QWidget();
         QHBoxLayout *thicknessLayout = new QHBoxLayout(thicknessRow);
@@ -189,7 +185,6 @@ QWidget* KisToolLine::createOptionWidget()
     return widget;
 }
 
-// Krimble 2026-10-30: writes the Thickness setting into the current brush's size.
 void KisToolLine::setKrimbleThickness(int value)
 {
     KisPaintOpPresetSP preset = currentPaintOpPreset();
@@ -198,7 +193,6 @@ void KisToolLine::setKrimbleThickness(int value)
     preset->settings()->setPaintOpSize(value);
 }
 
-// Krimble 2026-10-30: shows the current brush's size in the Thickness controls (not while the number box is being typed in).
 void KisToolLine::syncKrimbleThickness()
 {
     if (!m_krimbleThicknessSpin || !m_krimbleThicknessSlider) return;

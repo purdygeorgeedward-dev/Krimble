@@ -836,8 +836,6 @@ void KisImage::resizeImageImpl(const QRect& newRect, bool cropLayers, const KUnd
 {
     if (newRect == bounds() && !cropLayers) return;
 
-    // Krimble: caller-supplied name (e.g. "Resize Canvas") overrides the
-    // generic default -- see KRIMBLE_CHANGES.md.
     KUndo2MagicString actionName = !customActionName.isEmpty() ? customActionName :
         cropLayers ?
         kundo2_i18n("Crop Image") :

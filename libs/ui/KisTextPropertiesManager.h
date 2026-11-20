@@ -43,8 +43,6 @@ public:
     void setTextPropertiesInterface(KoSvgTextPropertiesInterface *interface);
 
 Q_SIGNALS:
-    /// KRIMBLE 2026-10-04: emitted whenever a tool hands over its interface, or hands over nothing (nullptr).
-    /// Used by the Type Options toolbar.
     void sigInterfaceChanged(KoSvgTextPropertiesInterface *interface);
 
 private Q_SLOTS:

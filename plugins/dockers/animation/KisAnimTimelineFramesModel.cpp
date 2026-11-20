@@ -349,8 +349,6 @@ void KisAnimTimelineFramesModel::slotCurrentNodeChanged(KisNodeSP node)
 
     KisNodeDummy *dummy = m_d->dummiesFacade->dummyForNode(node);
     if (!dummy) {
-        // It's perfectly normal that dummyForNode returns 0; that happens
-        // when views get activated while Krimble is closing down.
         return;
     }
     

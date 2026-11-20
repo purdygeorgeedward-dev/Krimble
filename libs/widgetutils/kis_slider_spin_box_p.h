@@ -15,7 +15,7 @@
 #include <QLineEdit>
 #include <QStyleOptionSpinBox>
 #include <QPainter>
-#include <QLinearGradient>   // Krimble 2026-11-11: the shaded, glowing percentage fill
+#include <QLinearGradient>
 #include <QEvent>
 #include <QInputMethodQueryEvent>
 #include <QApplication>
@@ -606,8 +606,6 @@ public:
         painter.restore();
     }
 
-    // Krimble 2026-11-11: the percentage fill: shaded left to right (#0B4D94, #1D8FD6 at 60%, #46D6FF at the end) with a 16 px glow that fades out past the end of the fill (cyan,
-    // 130 of 255 opacity down to none) and a 2 px bright line (#B4F0FF) at the end. Nothing is drawn past the end when the bar is empty or full.
     void paintGlowFill(QPainter &painter, const QRectF &fill)
     {
         painter.save();
@@ -654,15 +652,9 @@ public:
     void paintSlider(QPainter &painter, const QString &text, double slider01Width, double slider02Width = -1.0)
     {
         const QRectF rect = m_lineEdit->rect();
-        // Krimble 2026-10-30: George: "all the dialogs that show a bar or fill area to represent a percentage [should] use Krimble orange." The filled part of the
-        // slider is Krimble orange, #FD6001 (the K of the logo), whatever the palette's highlight color is.
-        // Krimble 2026-11-04: George: the orange is obnoxious; "light blue like the selection highlight might work better." The
-        // filled part of the slider is the selection blue, #1D7CB2 (the same blue as a selected button).
         const QColor highlightColor(0x1D, 0x7C, 0xB2);
         if (slider02Width < 0.0) {
             const QRectF sliderRect = rect.adjusted(0, 0, -(rect.width() - slider01Width), 0);
-            // Krimble 2026-11-11: George: "percentage bars were supposed to be shaded left to right. They are flat. not glowing." (and, of the picture of them: "Gotta have that.") The
-            // fill is shaded across, dark blue at the left to bright cyan at its end, with a soft glow and a thin bright line just past its end (see paintGlowFill).
             paintGlowFill(painter, sliderRect);
             if (!text.isNull()) {
                 paintGenericSliderText(painter, text, rect, sliderRect);

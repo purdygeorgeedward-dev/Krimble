@@ -77,13 +77,10 @@ void KisImageManager::setup(KisActionManager *actionManager)
     action = actionManager->createAction("image_color");
     connect(action, SIGNAL(triggered()), this, SLOT(slotImageColor()));
 
-    // Krimble: Image > Auto Crop
     action = actionManager->createAction("auto_crop_image");
     connect(action, SIGNAL(triggered()), this, SLOT(slotAutoCrop()));
 }
 
-// Krimble Auto Crop: finds the background from the four corners of the flattened image
-// (all fully transparent, or all the same color within a tolerance) and crops to the content.
 static bool krimbleAutoCropPixelIsBackground(QRgb p, QRgb bg, int tol)
 {
     const int a = qAlpha(p), ba = qAlpha(bg);

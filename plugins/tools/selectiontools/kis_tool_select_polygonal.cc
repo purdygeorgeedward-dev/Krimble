@@ -44,9 +44,6 @@ KisToolSelectPolygonal::KisToolSelectPolygonal(KoCanvasBase *canvas):
 {
 }
 
-// Krimble 2026-10-13: George: "Keep working on the Tool Options for polygon selection." A row of three buttons at the top of the tool's
-// options replaces the keys a phone does not have: Undo Point (takes back the last point; the only point left cancels), Close (finishes
-// the polygon and makes the selection; needs three points) and Cancel (throws the polygon away).
 QWidget *KisToolSelectPolygonal::createOptionWidget()
 {
     QWidget *widget = KisToolSelectBase<__KisToolSelectPolygonalLocal>::createOptionWidget();

@@ -1,17 +1,3 @@
-// Krimble 2026-11-11: moved from plugins/dockers/advancedcolorselector/krimble_cmyk_engine.h to libs/ui/KrimbleCmykEngine.h so that the program (the Custom CMYK dialog, KrimbleCustomCmykDialog.h) and the Color Lab plugin can both include it.
-// Krimble 2026-11-08: George: "Please build this and include any available open source formulas for professional conversion. We should have some equivalent tools to [the industry standard] in the long run."
-// (the industry standard Custom CMYK, Ink Colors, Dot Gain Curves and Convert to Profile dialogs are the model).
-//
-// A CMYK conversion engine for the Color Lab: RGB (sRGB) to and from CMYK plates (percent of ink) for a "profile" the user sets in the Custom CMYK dialog:
-//   - ink colors: the colors of the paper, the 3 inks, their overprints and black (CIE Lab D50), with presets (SWOP Coated from the industry standard Ink Colors dialog; ISO 12647-2 coated and matte coated
-//     from the ISO / ICC printing conditions),
-//   - dot gain: the "Standard" curve from one number (the gain at 50%; a smooth curve fitted to the industry standard one, see KrimbleDotGain::standard), or a table of 13 points per ink (monotone cubic),
-//   - separation: UCR or GCR black generation (None, Light, Medium, Heavy, Maximum), black ink limit, total ink limit and undercolor addition (UCA),
-//   - black point compensation.
-// The formulas are the open ones: the Neugebauer equations with the Demichel dot overlap weights for the colors of the 16 overprints (the overprints with black are the black ink's color times
-// the other overprint's reflectance), the PostScript / PDF black generation and undercolor removal (k = BG(min(c, m, y)), c' = c - UCR(k)), the "total area coverage" guard (when the sum of the four
-// inks is over the limit, black is raised and C, M, Y are reduced equally until it fits) and a least squares (Levenberg-Marquardt) solution of C, M, Y for a chosen K so that the printed color
-// matches the wanted color.
 #pragma once
 
 #include <algorithm>
@@ -323,7 +309,6 @@ public:
         return KrimbleColorMath::xyzToSrgb(paperToSource(forward(plates)));
     }
 
-    // Krimble 2026-11-13: the two directions as the ICC profile tables use them (KrimbleCmykIcc.h): plates to the color (XYZ, D50, relative to the paper with the black point compensation of the profile), and a Lab color to plates
     KrimbleVec3 sourceXyz(const KrimblePlates &plates) const { return paperToSource(forward(plates)); }
     KrimblePlates separateLab(double L, double a, double b) const { return separate(sourceToPaper(KrimbleColorMath::labToXyz(L, a, b))); }
 
@@ -507,12 +492,6 @@ private:
     }
 
 public:
-    // the wanted color (XYZ on the paper) to plates: black from the gray component, C, M, Y to match, then the ink limits.
-    // Black never takes so much that the color can no longer be matched (the biggest K with the same match as K = 0 is used), and the total ink guard raises black (and matches C, M, Y again) before
-    // it reduces anything.
-    // Krimble 2026-11-11: George: "It should be a smooth calculation between the nodes in the gamut." The separation is now a smooth function: the black is a smooth function of the gray component,
-    // C, M, Y are solved for that black, and the total ink guard finds the smallest black that keeps the total under the limit by bisection (a continuous search). The earlier version
-    // (separateLegacy, below, kept) chose the black with a tolerance search and a 24 step scan, which made the plates jump (the gray ramp dipped and rose again).
     KrimblePlates separate(const KrimbleVec3 &target) const
     {
         double cmy0[3];

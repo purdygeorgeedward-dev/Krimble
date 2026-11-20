@@ -29,7 +29,6 @@
 #include <KoColorSpace.h>
 #include <KisSignalMapper.h>
 
-// Krimble: Select > Similar
 #include <KoColorSpaceRegistry.h>
 #include <KSharedConfig>
 #include <KConfigGroup>
@@ -67,7 +66,6 @@ ColorRange::ColorRange(QObject *parent, const QVariantList &)
     mapper->setMapping(action, int(SELECTION_INTERSECT));
     connect(action, SIGNAL(triggered(bool)), mapper, SLOT(map()));
 
-    // Krimble: Select > Similar
     action = createAction("similar");
     connect(action, SIGNAL(triggered()), this, SLOT(selectSimilar()));
 }

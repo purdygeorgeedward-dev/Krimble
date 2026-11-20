@@ -579,8 +579,6 @@ QWidget* KisTool::createOptionWidget()
 {
     d->optionWidget = new QLabel(i18n("No options"));
     d->optionWidget->setObjectName("SpecialSpacer");
-    // Krimble 2026-11-17 (736th): George (build 66): "Text in the tool options for Pan tool are too close to the edge." ... "It's where it says no options." The "No options" text of a tool
-    // with no options (the Hand, Zoom ...) sat at the very edge of the panel: 12 units at the left and right now, 6 above and below.
     if (QLabel *krimbleNoOptions = qobject_cast<QLabel*>(d->optionWidget)) krimbleNoOptions->setContentsMargins(12, 6, 12, 6);
     return d->optionWidget;
 }

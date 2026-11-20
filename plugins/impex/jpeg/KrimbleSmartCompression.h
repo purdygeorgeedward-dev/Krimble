@@ -25,7 +25,6 @@ extern "C" {
 
 namespace KrimbleSmart {
 
-// (the Smart Selection analysis, detailMask(), is in KrimbleSmartDetail.h now: Krimble 2026-11-13, task 52)
 
 struct ErrorMgr { jpeg_error_mgr pub; jmp_buf jump; };
 inline void errorExit(j_common_ptr cinfo) { longjmp(reinterpret_cast<ErrorMgr *>(cinfo->err)->jump, 1); }

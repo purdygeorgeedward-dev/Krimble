@@ -11,10 +11,10 @@
 #include <KoColorSpaceRegistry.h>
 #include <kis_iterator_ng.h>
 #include <QImage>
-#include <QMutex>   // Krimble 2026-10-20 (2nd): the status of the last fill
+#include <QMutex>
 #include <vector>
 #include <cstring>
-#include <new>   // Krimble 2026-10-20: std::bad_alloc
+#include <new>
 
 namespace KrimbleFill {
 
@@ -33,7 +33,7 @@ void saveMethod(int method)
 
 static QString s_lastStatus;
 static QMutex s_statusMutex;
-static bool say(const QString &status)   // Krimble 2026-10-20 (2nd): remember what happened, and return false (every use of it is a "could not")
+static bool say(const QString &status)
 {
     QMutexLocker lock(&s_statusMutex);
     s_lastStatus = status;
@@ -52,16 +52,6 @@ bool fill(KisPaintDeviceSP imageDev, KisPaintDeviceSP maskDev, const QRect &boun
     const QRect maskRect = maskDev->exactBounds();
     if (maskRect.isEmpty()) return say(QStringLiteral("nothing selected"));
     const int holeShort = qMin(maskRect.width(), maskRect.height());
-    // Krimble 2026-10-19: George (1.0.39): Content-Aware Fill still "a blurry mess". On a phone photo (12 MP and more) the area above was often over the 9 MP limit, and then
-    // Krita's old Smart Patch fill ran instead (the blur). Now the area around the hole is made smaller until it fits a budget (4 MP: the new engine needs about 50 bytes
-    // per pixel of it, about 200 MB), so the new engine runs for any hole whose own box fits; only a hole bigger than that still falls back.
-    // Krimble 2026-10-19 (2nd): 3 MP: the industry standard-style engine keeps a little more per pixel (the transform, the colour shift, the window sums: about 75 bytes)
-    // Krimble 2026-10-20: George (1.0.40): "Content-Aware fill does nothing now." (1.0.39 at least blurred.) The engine, on the bench, fills exactly as the
-    // app calls it, with 1 or 4 threads; on the phone, an area of 3 MP needs about 450 MB at the peak (the pyramid, the matches, the colour shifts, the
-    // window sums, the seam correction), and a failed allocation inside the fill's job may end the job without a word. The area is now at most 1.5 MP
-    // (about 230 MB), and an allocation failure falls back to Krita's fill (see the try below) instead of doing nothing.
-    // Krimble 2026-10-20 (2nd): George asked for the leaner storage ("Yes."): the engine now peaks at about 170 MB for a 2.9 MP area (tested, was 425 MB),
-    // so the area goes back to 3 MP.
     const qint64 budget = 3000000;
     int margin = qMax(64, 2 * holeShort + 24);
     QRect roi = maskRect.adjusted(-margin, -margin, margin, margin) & bounds;
@@ -89,20 +79,16 @@ bool fill(KisPaintDeviceSP imageDev, KisPaintDeviceSP maskDev, const QRect &boun
 
     std::vector<uint8_t> filled(size_t(w) * h, 0);
     KrimbleInpaint::Options options;
-    // const bool ok = (method == Smooth)
-    //     ? KrimbleInpaint::inpaintLegacy(pixels.data(), hole.data(), w, h, 4, options, filled.data())
-    //     : KrimbleInpaint::inpaint(pixels.data(), hole.data(), w, h, 4, options, filled.data());
     bool ok = false;
     try {
         ok = (method == Smooth)
             ? KrimbleInpaint::inpaintLegacy(pixels.data(), hole.data(), w, h, 4, options, filled.data())
             : KrimbleInpaint::inpaint(pixels.data(), hole.data(), w, h, 4, options, filled.data());
     } catch (const std::bad_alloc &) {
-        ok = false;   // Krimble 2026-10-20: out of memory: Krita's fill instead
+        ok = false;
         return say(QStringLiteral("out of memory"));
     }
     if (!ok) return say(QStringLiteral("engine could not fill"));
-    // Krimble 2026-10-20: nothing filled (should not happen): Krita's fill instead, rather than doing nothing
     size_t filledCount = 0;
     for (uint8_t v : filled) filledCount += v ? 1 : 0;
     if (filledCount == 0) return say(QStringLiteral("nothing filled"));

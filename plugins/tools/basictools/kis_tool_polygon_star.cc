@@ -72,7 +72,6 @@ QPointF nearestHexCenter(const QPointF &p, qreal size, bool flatTop)
 
 } // namespace
 
-// the settings: the hex grid and the shared lock (group KrimbleHex, written by View > Show > Hex, Hex Size... and Lock Hex Settings) and this tool's own options (group KrimblePolyTool)
 KisToolPolygonStar::Settings KisToolPolygonStar::readSettings()
 {
     Settings s;

@@ -2,11 +2,11 @@
  * Krimble 2026-10-18: see KrimbleTextTool.h.
  */
 #include "KrimbleTextTool.h"
-#include "KrimbleTextDialog.h"   // Krimble 2026-10-24: the redesigned window
-#include <KoCanvasResourceProvider.h>   // Krimble 2026-10-24: the foreground color for the eyedropper button
+#include "KrimbleTextDialog.h"
+#include <KoCanvasResourceProvider.h>
 #include <KoColor.h>
-#include <commands/KoShapeMoveCommand.h>   // Krimble 2026-10-24: moving the chosen text
-#include <KoSelection.h>   // Krimble 2026-11-07: only the new text is selected
+#include <commands/KoShapeMoveCommand.h>
+#include <KoSelection.h>
 #include <KoShapeManager.h>
 
 #include <KoCanvasBase.h>
@@ -22,7 +22,7 @@
 #include <KoSvgTextShapeMarkupConverter.h>
 #include <KoShapeManager.h>
 #include <KoViewConverter.h>
-#include <QPainter>   // Krimble 2026-10-20: the dashed text box
+#include <QPainter>
 #include <commands/KoShapeBackgroundCommand.h>
 #include "SvgTextChangeCommand.h"
 #include <KoIcon.h>
@@ -38,12 +38,12 @@
 #include <QDialogButtonBox>
 #include <QDoubleSpinBox>
 #include <QFontComboBox>
-#include <QFontMetricsF>   // Krimble 2026-10-20: kerning preview
-#include <QTextDocument>   // Krimble 2026-10-20: kerning preview
-#include <QPixmap>   // Krimble 2026-10-20: kerning preview
-#include <QFontDatabase>   // Krimble 2026-10-20: the font list
-#include <QComboBox>   // Krimble 2026-10-20: the font list
-#include <QStringListModel>   // Krimble 2026-10-19: Noto families taken out of the font list
+#include <QFontMetricsF>
+#include <QTextDocument>
+#include <QPixmap>
+#include <QFontDatabase>
+#include <QComboBox>
+#include <QStringListModel>
 #include <QGuiApplication>
 #include <QHBoxLayout>
 #include <QLabel>
@@ -61,22 +61,16 @@ QString s_family = QStringLiteral("sans-serif");
 qreal s_size = 24.0;
 bool s_bold = false;
 bool s_italic = false;
-// Krimble 2026-10-20: George (1.0.39, test list, item 9): "New type tool just makes one long line of text. You can't make a paragraph area and have it
-// flow into it." The width of the text box (document units), or 0 for text that is one line per typed line (no box).
 qreal s_boxWidth = 0.0;
-// Krimble 2026-10-20: George (1.0.40, with his fonts): "they have horrible kerning issues. I think we need kerning controls for the small adjustments
-// between letters in a display typeface." Tracking (letter-spacing for the whole text, pt) and kerning (an extra gap, pt, before the character at each
-// position of the typed text; negative pulls the letters together).
 qreal s_tracking = 0.0;
 QVector<qreal> s_kern;
 int s_align = 0;               // 0 left, 1 center, 2 right (3 justified: Krimble 2026-10-24)
-bool s_underline = false;      // Krimble 2026-10-24: the redesigned window: underline, strike-out, line spacing (percent)
+bool s_underline = false;
 bool s_strike = false;
 int s_lineSpacing = 100;
 QColor s_color = QColor(Qt::black);
 }
 
-// Krimble 2026-10-20: the dx list (SVG per-character shifts) for the characters text[from .. from+count), from the kerning; empty when all are 0
 static QString krimbleDxList(int from, int count)
 {
     int last = -1;
@@ -96,44 +90,31 @@ static QString krimbleTextSvg(const QString &text)
 {
     const QStringList lines = text.split(QLatin1Char('\n'));
     const QString anchor = (s_align == 0 || s_align == 3) ? QStringLiteral("start") : (s_align == 1 ? QStringLiteral("middle") : QStringLiteral("end"));
-    // Krimble 2026-10-24: the distance between lines: 1.2 times the font size is 100%
     const QString lineStepEm = QString::number(1.2 * qBound(50, s_lineSpacing, 400) / 100.0, 'f', 3);
     QString family = s_family;
     family.remove(QLatin1Char('\''));
     family.remove(QLatin1Char('"'));
-    // QString style = QStringLiteral("font-family:'%1'; font-size:%2pt; fill:%3; text-anchor:%4;")
-    // Krimble 2026-10-19: George (1.0.39, test list, item 8): the Type tool "does not display emojis". The chosen font has no emoji, and the text
-    // engine was given only that one family. The phone's color emoji fonts are now listed after it, as fallbacks for the characters it lacks
-    // (Android's own, and Samsung's). Reading the style back (krimbleApplyTextProperty) still takes only the first family.
-    // QString style = QStringLiteral("font-family:'%1', 'Noto Color Emoji', 'Samsung Color Emoji'; font-size:%2pt; fill:%3; text-anchor:%4;")
-    // Krimble 2026-10-24: emoji still did not show (George, 1.0.41 and 1.0.42): the text engine probably cannot draw the phone's color emoji fonts (bitmap or layered). "Noto Emoji", the
-    // monochrome outline font (SIL OFL 1.1, bundled in fonts/open), comes first among the fallbacks: an emoji is drawn as a shape in the text color. The color fonts follow, as before.
     QString style = QStringLiteral("font-family:'%1', 'Noto Emoji', 'Noto Color Emoji', 'Samsung Color Emoji'; font-size:%2pt; fill:%3; text-anchor:%4;")
                         .arg(family.toHtmlEscaped(), QString::number(s_size), s_color.name(), anchor);
     if (s_bold) style += QStringLiteral(" font-weight:bold;");
     if (s_italic) style += QStringLiteral(" font-style:italic;");
-    if (qAbs(s_tracking) > 0.0001) style += QStringLiteral(" letter-spacing:%1;").arg(QString::number(s_tracking, 'f', 2));   // Krimble 2026-10-20: tracking
-    // Krimble 2026-10-24: underline and strike-out
+    if (qAbs(s_tracking) > 0.0001) style += QStringLiteral(" letter-spacing:%1;").arg(QString::number(s_tracking, 'f', 2));
     if (s_underline || s_strike) {
         style += QStringLiteral(" text-decoration:%1%2%3;").arg(s_underline ? QStringLiteral("underline") : QString(), (s_underline && s_strike) ? QStringLiteral(" ") : QString(),
                                                               s_strike ? QStringLiteral("line-through") : QString());
     }
-    // Krimble 2026-10-20: a text box: the text engine wraps the words at the box's width (SVG 2 inline-size), and the lines the user typed are kept
-    // (white-space: pre-wrap), all in one piece of text instead of one tspan a line (separate tspans with their own x would not flow).
     if (s_boxWidth > 0.0) {
         style += QStringLiteral(" inline-size:%1; white-space:pre-wrap;").arg(QString::number(s_boxWidth, 'f', 2));
-        // Krimble 2026-10-24: line spacing (only when it is not the usual 100%) and justified lines, in a box
         if (s_lineSpacing != 100) style += QStringLiteral(" line-height:%1;").arg(lineStepEm);
         if (s_align == 3) style += QStringLiteral(" text-align:justify;");
-        const QString dx = krimbleDxList(0, text.size());   // Krimble 2026-10-20: kerning
+        const QString dx = krimbleDxList(0, text.size());
         const QString dxAttr = dx.isEmpty() ? QString() : QStringLiteral(" dx=\"%1\"").arg(dx);
         return QStringLiteral("<text style=\"%1\"%3>%2</text>").arg(style, text.toHtmlEscaped(), dxAttr);
     }
     QString svg = QStringLiteral("<text xml:space=\"preserve\" style=\"%1\">").arg(style);
-    int lineStart = 0;   // Krimble 2026-10-20: where each line starts in the typed text (for the kerning)
+    int lineStart = 0;
     for (int i = 0; i < lines.size(); ++i) {
         const QString line = lines.at(i).isEmpty() ? QStringLiteral(" ") : lines.at(i).toHtmlEscaped();
-        // Krimble 2026-10-20: the kerning of this line's characters (the first one of a line is not shifted)
         QString dx = lines.at(i).isEmpty() ? QString() : krimbleDxList(lineStart, lines.at(i).size());
         if (!dx.isEmpty()) dx = QStringLiteral("0") + dx.mid(dx.indexOf(QLatin1Char(' ')) < 0 ? dx.size() : dx.indexOf(QLatin1Char(' ')));
         const QString dxAttr = dx.isEmpty() || dx == QLatin1String("0") ? QString() : QStringLiteral(" dx=\"%1\"").arg(dx);
@@ -141,7 +122,7 @@ static QString krimbleTextSvg(const QString &text)
             // svg += QStringLiteral("<tspan>%1</tspan>").arg(line);
             svg += QStringLiteral("<tspan%2>%1</tspan>").arg(line, dxAttr);
         } else {
-            svg += QStringLiteral("<tspan x=\"0\" dy=\"%3em\"%2>%1</tspan>").arg(line, dxAttr, lineStepEm);   // Krimble 2026-10-24: line spacing
+            svg += QStringLiteral("<tspan x=\"0\" dy=\"%3em\"%2>%1</tspan>").arg(line, dxAttr, lineStepEm);
         }
         lineStart += lines.at(i).size() + 1;
     }
@@ -149,10 +130,6 @@ static QString krimbleTextSvg(const QString &text)
     return svg;
 }
 
-// the text window; returns false when it is cancelled
-// Krimble 2026-10-24: George: "Text tool UI sucks. Here's what it is and what it should be." The window is now KrimbleTextDialog (KrimbleTextDialog.cpp), built after his picture: the title, the
-// tabs Text, Font, Style and Layout, the font with its favorite star, size, color, B I U S Aa, the four alignments, the spacing, the kerning at the cursor, the preview, and Reset, Cancel,
-// OK. The version before is kept below, switched off.
 static bool krimbleAskText(QWidget *parent, QString *text, bool editing = false, const QColor &foreground = QColor())
 {
     KrimbleTextStyle chosen;
@@ -188,25 +165,18 @@ static bool krimbleAskText(QWidget *parent, QString *text, bool editing = false,
     return true;
 }
 
-#if 0   // Krimble 2026-10-24: the window before the redesign (1.0.42 and earlier), kept
+#if 0
 static bool krimbleAskText(QWidget *parent, QString *text, bool editing = false)
 {
     QDialog dialog(parent);
     dialog.setWindowTitle(editing ? i18n("Edit Text") : i18n("Text"));
     QVBoxLayout *layout = new QVBoxLayout(&dialog);
 
-    // Krimble 2026-10-19: George (1.0.39, test list, item 8): "The new type tool should have a title at the top". On the phone a dialog has no
-    // title bar, so the window's title is not seen; it is now also shown as a bold heading at the top of the window.
-// Krimble 2026-10-20 (2nd): George: "Leave it out. It just sucks." The heading is not shown (the 203rd entry's lines, kept, not run).
-    // heading->setFont(headingFont);
-    // heading->setAlignment(Qt::AlignHCenter);
-    // layout->addWidget(heading);
 
     QPlainTextEdit *edit = new QPlainTextEdit(&dialog);
     edit->setPlainText(*text);
 #if QT_VERSION >= QT_VERSION_CHECK(5, 13, 0)
     {
-        // Krimble 2026-10-19: emoji show in the typing box too
         QFont editFont = edit->font();
         editFont.setFamilies(QStringList() << editFont.family() << QStringLiteral("Noto Color Emoji") << QStringLiteral("Samsung Color Emoji"));
         edit->setFont(editFont);
@@ -215,20 +185,6 @@ static bool krimbleAskText(QWidget *parent, QString *text, bool editing = false)
     edit->setMinimumHeight(edit->fontMetrics().height() * 5);
     layout->addWidget(edit);
 
-    // // Krimble 2026-10-19: George (1.0.39, test list, item 8): "There are still lots of foreign language Noto fonts" and "I'm starting to really hate
-    // // Noto." The phone's own Noto families (one per script) are taken out of this list. They stay installed, so text in other scripts still draws
-    // // (the text engine falls back to them); they are only not offered here.
-    //     QStringList kept;
-    //     Q_FOREACH (const QString &family, families->stringList()) {
-    //         if (!family.startsWith(QLatin1String("Noto"), Qt::CaseInsensitive)) kept << family;
-    //     }
-    //     families->setStringList(kept);
-    // }
-    // Krimble 2026-10-20: George (1.0.40): "There is also still a ton of Noto and SEC crapola in the fonts. Can we remove all of that or is it built in?"
-    // They are the phone's own system fonts (Android's Noto, one per script; Samsung's SEC and Samsung fonts), not Krimble's. The filter above did
-    // not hold: QFontComboBox rebuilds its list from the font database whenever it likes (setCurrentFont does it), so the Noto names came back. The
-    // list is now a plain combo box filled once, here, with every family except the phone's script and system fonts (names starting with Noto, SEC,
-    // New SEC, Samsung, AndroidClock); each name is drawn in its own font. The hidden fonts stay installed, so text in other scripts still draws.
     QComboBox *fontBox = new QComboBox(&dialog);
     {
         const QStringList hiddenPrefixes = {QStringLiteral("Noto"), QStringLiteral("SEC"), QStringLiteral("New SEC"),
@@ -289,9 +245,6 @@ static bool krimbleAskText(QWidget *parent, QString *text, bool editing = false)
     }
     layout->addLayout(row2);
 
-    // Krimble 2026-10-20: George (1.0.40): "I think we need kerning controls for the small adjustments between letters in a display typeface."
-    // Spacing: tracking for the whole text, in pt. Kern: the gap before the letter at the typing cursor (put the cursor between two letters in the
-    // box above), tighter or looser by 2% of the size a tap; Reset clears all kerning. The preview shows both.
     QVector<qreal> kern = s_kern;
     if (kern.size() < text->size()) kern.resize(text->size());
     QHBoxLayout *row3 = new QHBoxLayout();
@@ -329,7 +282,6 @@ static bool krimbleAskText(QWidget *parent, QString *text, bool editing = false)
     QObject::connect(edit, &QPlainTextEdit::cursorPositionChanged, &dialog, [&]() { showKern(); });
     showKern();
 
-    // Krimble 2026-10-18 (14th): George, asked what to do with fonts: "A preview of the text in the window." (see updatePreview below)
     std::function<void()> updatePreview;
     QColor chosenColor = s_color;
     QPushButton *colorButton = new QPushButton(i18n("Color..."), &dialog);
@@ -356,9 +308,8 @@ static bool krimbleAskText(QWidget *parent, QString *text, bool editing = false)
     preview->setMinimumHeight(preview->fontMetrics().height() * 4);
     layout->addWidget(preview);
     updatePreview = [&]() {
-        QFont previewFont(fontBox->currentText());   // Krimble 2026-10-20: a plain combo box now
+        QFont previewFont(fontBox->currentText());
 #if QT_VERSION >= QT_VERSION_CHECK(5, 13, 0)
-        // Krimble 2026-10-19: emoji show in the preview too (the same fallbacks as the text on the canvas)
         previewFont.setFamilies(QStringList() << previewFont.family() << QStringLiteral("Noto Color Emoji") << QStringLiteral("Samsung Color Emoji"));
 #endif
         previewFont.setPointSizeF(qBound(8.0, sizeBox->value(), 40.0));
@@ -370,8 +321,6 @@ static bool krimbleAskText(QWidget *parent, QString *text, bool editing = false)
         const int alignId = qMax(0, alignGroup->checkedId());
         preview->setAlignment((alignId == 0 ? Qt::AlignLeft : (alignId == 1 ? Qt::AlignHCenter : Qt::AlignRight)) | Qt::AlignVCenter);
         const QString sample = edit->toPlainText();
-        // Krimble 2026-10-20: drawn by hand, so the tracking and the kerning show: each line is drawn in pieces between kerned letters (the font's own
-        // kerning still applies inside a piece), with the tracking as the font's letter spacing, scaled to the preview's size.
         const QString shown = sample.isEmpty() ? i18n("Sample text") : sample;
         const qreal scale = previewFont.pointSizeF() / qMax(1.0, sizeBox->value());
         QFont drawFont = previewFont;
@@ -425,7 +374,6 @@ static bool krimbleAskText(QWidget *parent, QString *text, bool editing = false)
     QObject::connect(boldButton, &QPushButton::toggled, &dialog, [&]() { updatePreview(); });
     QObject::connect(italicButton, &QPushButton::toggled, &dialog, [&]() { updatePreview(); });
     QObject::connect(alignGroup, QOverload<int>::of(&QButtonGroup::buttonClicked), &dialog, [&]() { updatePreview(); });
-    // Krimble 2026-10-20: tracking and kerning
     QObject::connect(trackBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), &dialog, [&]() { updatePreview(); });
     auto nudge = [&](qreal direction) {
         const int at = edit->textCursor().position();
@@ -460,7 +408,7 @@ static bool krimbleAskText(QWidget *parent, QString *text, bool editing = false)
     s_italic = italicButton->isChecked();
     s_align = qMax(0, alignGroup->checkedId());
     s_color = chosenColor;
-    s_tracking = trackBox->value();   // Krimble 2026-10-20
+    s_tracking = trackBox->value();
     s_kern = kern;
     s_kern.resize(text->size());
     return true;
@@ -468,8 +416,6 @@ static bool krimbleAskText(QWidget *parent, QString *text, bool editing = false)
 
 #endif
 
-// Krimble 2026-10-18 (7th): George: "Yes, continue work on the Type tool. It will be our showpiece in this app." Tapping existing text opens the same window with its words and
-// look in it. What the shape says is read back from the SVG the program makes of it (the converter that made it), so text from other files can be edited too.
 static void krimbleApplyTextProperty(const QString &name, const QString &rawValue)
 {
     const QString value = rawValue.trimmed();
@@ -488,24 +434,22 @@ static void krimbleApplyTextProperty(const QString &name, const QString &rawValu
     } else if (name == QLatin1String("text-anchor")) {
         s_align = (value == QLatin1String("middle")) ? 1 : (value == QLatin1String("end") ? 2 : 0);
     } else if (name == QLatin1String("text-align")) {
-        if (value == QLatin1String("justify")) s_align = 3;   // Krimble 2026-10-24
+        if (value == QLatin1String("justify")) s_align = 3;
     } else if (name == QLatin1String("text-decoration") || name == QLatin1String("text-decoration-line")) {
-        s_underline = value.contains(QLatin1String("underline"));   // Krimble 2026-10-24
+        s_underline = value.contains(QLatin1String("underline"));
         s_strike = value.contains(QLatin1String("line-through"));
     } else if (name == QLatin1String("line-height")) {
-        bool ok = false;   // Krimble 2026-10-24: written as 1.2 times the line spacing (see krimbleTextSvg)
+        bool ok = false;
         const qreal number = QString(value).remove(QRegularExpression(QStringLiteral("[a-zA-Z%]+$"))).toDouble(&ok);
         if (ok && number > 0.0) s_lineSpacing = qBound(50, qRound(number / 1.2 * 100.0), 400);
     } else if (name == QLatin1String("fill")) {
         const QColor color(value);
         if (color.isValid()) s_color = color;
     } else if (name == QLatin1String("letter-spacing")) {
-        // Krimble 2026-10-20: tracking
         bool ok = false;
         const qreal number = QString(value).remove(QRegularExpression(QStringLiteral("[a-zA-Z%]+$"))).toDouble(&ok);
         s_tracking = ok ? number : 0.0;
     } else if (name == QLatin1String("inline-size")) {
-        // Krimble 2026-10-20: the width of a text box (see s_boxWidth)
         bool ok = false;
         const qreal number = QString(value).remove(QRegularExpression(QStringLiteral("[a-zA-Z%]+$"))).toDouble(&ok);
         s_boxWidth = (ok && number > 0) ? number : 0.0;
@@ -514,9 +458,9 @@ static void krimbleApplyTextProperty(const QString &name, const QString &rawValu
 
 static bool krimbleReadTextShape(KoSvgTextShape *shape, QString *text)
 {
-    s_boxWidth = 0.0;   // Krimble 2026-10-20: set again below if this text is a box
-    s_tracking = 0.0;   // Krimble 2026-10-20: and the tracking and kerning
-    s_underline = false;   // Krimble 2026-10-24: and the underline, strike-out and line spacing
+    s_boxWidth = 0.0;
+    s_tracking = 0.0;
+    s_underline = false;
     s_strike = false;
     s_lineSpacing = 100;
     s_kern.clear();
@@ -532,7 +476,6 @@ static bool krimbleReadTextShape(KoSvgTextShape *shape, QString *text)
     while (!xml.atEnd()) {
         xml.readNext();
         if (xml.isStartElement()) {
-            // Krimble 2026-10-20: a dx list (kerning) on the text or a line: its values belong to the characters from here on
             if (xml.name() == QLatin1String("text") || xml.name() == QLatin1String("tspan")) {
                 const QString dxText = xml.attributes().value(QStringLiteral("dx")).toString();
                 if (!dxText.isEmpty()) {
@@ -582,11 +525,8 @@ KrimbleTextTool::KrimbleTextTool(KoCanvasBase *canvas)
 {
 }
 
-// Krimble 2026-10-20: George (1.0.39, test list, item 9): "You can't make a paragraph area and have it flow into it." A tap still makes text where it
-// was tapped (one line per typed line); a DRAG draws a text box (a dashed frame while dragging): the text then wraps at the box's width.
 void KrimbleTextTool::paint(QPainter &painter, const KoViewConverter &converter)
 {
-    // Krimble 2026-10-24: the frame and handles of the chosen text
     if (selectedStillThere()) {
         const QRectF frame = (m_handle != NoHandle) ? m_frameNow : selectedFrame();
         const QRectF viewFrame = converter.documentToView(frame).adjusted(-6, -6, 6, 6);
@@ -634,7 +574,6 @@ void KrimbleTextTool::mousePressEvent(KoPointerEvent *event)
     m_pressPoint = event->point;
     m_dragPoint = event->point;
     m_dragging = false;
-    // Krimble 2026-10-24: a press on a handle or inside the frame of the chosen text works on that text (a drag moves or resizes it, a tap opens the window as before)
     m_handle = NoHandle;
     if (selectedStillThere()) {
         const Handle hit = handleAt(event->point);
@@ -649,7 +588,6 @@ void KrimbleTextTool::mousePressEvent(KoPointerEvent *event)
 void KrimbleTextTool::mouseMoveEvent(KoPointerEvent *event)
 {
     if (!(event->buttons() & Qt::LeftButton)) return;
-    // Krimble 2026-10-24: a handle or the frame is being dragged: only the frame follows the finger; the text is changed when the finger is lifted
     if (m_handle != NoHandle) {
         const QRectF before = m_frameNow;
         m_frameNow = frameForDrag(m_handle, m_frameStart, event->point - m_pressPoint);
@@ -670,7 +608,6 @@ void KrimbleTextTool::mouseMoveEvent(KoPointerEvent *event)
 void KrimbleTextTool::mouseReleaseEvent(KoPointerEvent *event)
 {
     event->accept();
-    // Krimble 2026-10-24: a handle or the frame was pressed
     if (m_handle != NoHandle) {
         const Handle handle = m_handle;
         const QRectF from = m_frameStart;
@@ -699,7 +636,6 @@ void KrimbleTextTool::mouseReleaseEvent(KoPointerEvent *event)
     QTimer::singleShot(0, QApplication::instance(), [this, where, box]() { askAndAddText(where, box); });
 }
 
-// ---- Krimble 2026-10-24: the frame of the chosen text ----
 
 void KrimbleTextTool::deactivate()
 {
@@ -840,13 +776,11 @@ void KrimbleTextTool::askAndAddText(const QPointF &where, const QRectF &box)
     }
     QString text;
     if (existing && !krimbleReadTextShape(existing, &text)) existing = nullptr;
-    // Krimble 2026-10-24: the text that was tapped is the chosen one (its frame and handles are drawn); a tap on nothing chooses nothing
     if (m_selected && selectedStillThere()) repaintFrame(selectedFrame());
     m_selected = existing;
     if (m_selected) repaintFrame(selectedFrame());
-    // Krimble 2026-10-20: new text: a box if one was dragged (its width), else no box. Existing text keeps its own (read above).
     if (!existing) s_boxWidth = box.isValid() ? box.width() : 0.0;
-    if (!krimbleAskText(QApplication::activeWindow(), &text, existing != nullptr, canvas()->resourceManager()->foregroundColor().toQColor())) return;   // Krimble 2026-10-24: and the foreground color
+    if (!krimbleAskText(QApplication::activeWindow(), &text, existing != nullptr, canvas()->resourceManager()->foregroundColor().toQColor())) return;
     if (text.trimmed().isEmpty()) return;
 
     if (existing) {
@@ -856,7 +790,7 @@ void KrimbleTextTool::askAndAddText(const QPointF &where, const QRectF &box)
         new SvgTextChangeCommand(existing, krimbleTextSvg(text), QStringLiteral("<defs/>"), editCommand);
         new KoShapeBackgroundCommand(existing, QSharedPointer<KoShapeBackground>(new KoColorBackground(s_color)), editCommand);
         canvas()->addCommand(editCommand);
-        repaintFrame(existing->boundingRect());   // Krimble 2026-10-24: the frame follows the changed text
+        repaintFrame(existing->boundingRect());
         return;
     }
 
@@ -866,8 +800,6 @@ void KrimbleTextTool::askAndAddText(const QPointF &where, const QRectF &box)
     KoProperties *params = new KoProperties();
     params->setProperty("svgText", krimbleTextSvg(text));
     params->setProperty("defs", QStringLiteral("<defs/>"));
-    // Krimble 2026-10-20: in a box, the first line's baseline is one font size below the box's top, and the anchor point is the box's left, middle or
-    // right edge (the text's alignment), so the text sits inside the box that was dragged.
     QPointF origin = where;
     QRectF shapeRect(where, QSizeF(200, 60));
     if (box.isValid() && s_boxWidth > 0.0) {
@@ -884,19 +816,14 @@ void KrimbleTextTool::askAndAddText(const QPointF &where, const QRectF &box)
     shape->setBackground(QSharedPointer<KoShapeBackground>(new KoColorBackground(s_color)));
 
     KUndo2Command *parentCommand = new KUndo2Command();
-    // Krimble 2026-11-07: George: "How do I put two different text frames on a page without them interfering with each other?" and "my solution was to create a new layer." / "let's do
-    // that." Two texts on one vector layer moved together with the Move tool and could both be selected by the arrow (a drag then stretched both). Every new text now gets its own
-    // new vector layer (forceNewLayer = true), and only the new text is selected.
     KoShapeContainer *parent = canvas()->shapeController()->documentBase()->createParentForShapes(QList<KoShape*>({shape}), true, parentCommand);
     KUndo2Command *cmd = canvas()->shapeController()->addShape(shape, parent, parentCommand);
     parentCommand->setText(cmd->text());
     canvas()->addCommand(parentCommand);
-    // Krimble 2026-11-07: only the new text is selected on the canvas (the old selection would stretch or move both with the arrow)
     if (KoSelection *selection = canvas()->shapeManager()->selection()) {
         selection->deselectAll();
         selection->select(shape);
     }
-    // Krimble 2026-10-24: the new text is the chosen one: its frame and handles are drawn
     m_selected = dynamic_cast<KoSvgTextShape*>(shape);
     if (m_selected) repaintFrame(m_selected->boundingRect());
 }
@@ -904,7 +831,7 @@ void KrimbleTextTool::askAndAddText(const QPointF &where, const QRectF &box)
 KrimbleTextToolFactory::KrimbleTextToolFactory()
     : KoToolFactoryBase("KrimbleTextTool")
 {
-    setToolTip(i18n("Krimble Type"));   // Krimble 2026-11-16 (714th): George: "Label one type tool Krimble Type and the other Old Type."
+    setToolTip(i18n("Krimble Type"));
     setIconName(koIconNameCStr("draw-text"));
     setSection(ToolBoxSection::PSOrder);
     setPriority(1);

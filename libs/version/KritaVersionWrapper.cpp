@@ -7,7 +7,6 @@
 
 #include <kritaversion.h>
 #include <kritagitversion.h>
-// KRIMBLE 2026-10-03: generated at every build, see KrimbleBuildStamp.cmake
 #if defined(__has_include)
 #  if __has_include(<krimble_build_stamp.h>)
 #    include <krimble_build_stamp.h>
@@ -20,11 +19,6 @@ QString KritaVersionWrapper::versionString(bool checkGit)
     QString version = kritaVersion;
 
     if (checkGit) {
-        // KRIMBLE 2026-10-03: "1.0.58-beta (Oct3, git abc1234)". The number is a build counter,
-        // one more on every build (see KrimbleBuildStamp.cmake); the date is the day the build
-        // was made. All of it is new on every build, and the git hash is read at build time, unlike KRITA_GIT_SHA1_STRING, which is only refreshed when CMake
-        // reconfigures. versionString(false), the plain version used in saved files and the
-        // resource database, is left exactly as it was ("1.0.0-beta2").
 #ifdef KRIMBLE_BUILD_NUMBER
         QString suffix;
 #  if defined(KRITA_BETA)

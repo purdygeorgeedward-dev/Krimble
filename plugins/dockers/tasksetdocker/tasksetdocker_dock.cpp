@@ -153,22 +153,10 @@ void TasksetDockerDock::actionTriggered(QAction* action)
 {
     if(action && !action->objectName().isEmpty() &&
        !m_blocked && recordButton->isChecked()) {
-        // Krimble: filter-menu actions (krita_filter_<id>) only *open* a
-        // filter's dialog -- the real, parameterized application happens
-        // moments later via KisFilterManager::sigFilterApplied, captured
-        // by filterApplied() below with the user's actual chosen settings.
-        // Recording this trigger too would add a redundant, non-replayable
-        // "open this dialog" step alongside the real one.
         if (action->objectName().startsWith(QLatin1String("krita_filter_"))) {
             return;
         }
 
-        // Krimble: same reasoning for operation-backed actions (Invert
-        // Selection, Grow/Shrink/Border/Feather/Smooth Selection) -- the
-        // trigger only dispatches the operation, and any parameter dialog
-        // it prompts with hasn't been filled in yet at this point. The
-        // real, parameterized step arrives via sigOperationRun and is
-        // recorded by operationRun() below.
         if (KisAction *kisAction = qobject_cast<KisAction*>(action)) {
             if (!kisAction->operationID().isEmpty()) {
                 return;

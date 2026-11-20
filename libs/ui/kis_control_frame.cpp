@@ -331,9 +331,6 @@ void KisControlFrame::createGradientsChooser(KisViewManager * view)
             this, SLOT(updateGradientPreviewOnPopupButton(KoAbstractGradientSP)));
 
 
-    // set the Foreground to Transparent gradient as default on startup
-    // Krimble 2026-11-11: George: "Gradient does not work right. Instead of gradient from one color to another it is always to alpha Transparency." The startup gradient was
-    // Foreground to Transparent (Krita's stock default), so every new gradient faded to transparent. It is now Foreground to Background.
     KisResourceModel resModel(ResourceType::Gradients);
     QVector<KoResourceSP> resources = resModel.resourcesForFilename("Foreground to Background.svg");
 

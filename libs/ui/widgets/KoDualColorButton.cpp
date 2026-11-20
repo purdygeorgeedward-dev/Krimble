@@ -226,12 +226,6 @@ void KoDualColorButton::paintEvent(QPaintEvent *)
         backgroundBrush = Qt::white;
     }
 
-    // qDrawShadeRect( &painter, backgroundRect, palette(), false, 1, 0,
-    //                 isEnabled() ? &backgroundBrush : &defBrush );
-    // qDrawShadeRect( &painter, foregroundRect, palette(), false, 1, 0,
-    //                 isEnabled() ? &foregroundBrush : &defBrush );
-    // Krimble 2026-11-16 (728th): George (build 65): "Foreground and background start as dark gray still instead of white and black." With no image open the button is switched off and both
-    // squares were painted in the panel's own color. They show the real colors always.
     Q_UNUSED(defBrush);
     qDrawShadeRect( &painter, backgroundRect, palette(), false, 1, 0, &backgroundBrush );
     qDrawShadeRect( &painter, foregroundRect, palette(), false, 1, 0, &foregroundBrush );
@@ -276,10 +270,6 @@ void KoDualColorButton::slotColorDialogClosed()
     d->colorDialogState = std::nullopt;
 }
 
-// Krimble 2026-11-11: George: "Did you replace the ugly Krita color picker with Color Lab when the user taps the color wells in the Toolbox?" and "WE BUILT COLOR LAB TO USE IT."
-// A tap on a well no longer opens Krita's "Select a Color" dialog. The Color Lab panel (object name "KrimbleColorStudio", set in krimble_color_studio.h) is told which well was tapped
-// (a dynamic property: an even number is the foreground, an odd number the background; the counter makes every tap a change), and the panel raises itself. If the panel does not
-// exist (the Color Lab docker is removed), the old Krita dialog still opens.
 static bool krimbleOpenColorLab(bool background)
 {
     static int counter = 0;
@@ -295,7 +285,7 @@ static bool krimbleOpenColorLab(bool background)
 
 void KoDualColorButton::openForegroundDialog()
 {
-    if (krimbleOpenColorLab(false)) return;   // Krimble 2026-11-11: Color Lab instead of the Krita dialog
+    if (krimbleOpenColorLab(false)) return;
     d->colorDialogState.emplace();
     d->colorDialogState->selection = Foreground;
     // TODO: fix cyclic connections in a proper way
@@ -309,7 +299,7 @@ void KoDualColorButton::openForegroundDialog()
 
 void KoDualColorButton::openBackgroundDialog()
 {
-    if (krimbleOpenColorLab(true)) return;   // Krimble 2026-11-11: Color Lab instead of the Krita dialog
+    if (krimbleOpenColorLab(true)) return;
     d->colorDialogState.emplace();
     d->colorDialogState->selection = Background;
     // TODO: fix cyclic connections in a proper way

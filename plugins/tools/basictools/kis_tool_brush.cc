@@ -8,8 +8,8 @@
  */
 
 #include "kis_tool_brush.h"
-#include "KrimbleEmbeddedPreset.h"   // Krimble 2026-10-20 (2nd): krimbleSetBrushPreset
-#include <QApplication>   // Krimble 2026-10-20: the user's brush, kept for the whole app
+#include "KrimbleEmbeddedPreset.h"
+#include <QApplication>
 #include <kis_icon.h>
 
 #include <QCheckBox>
@@ -78,22 +78,12 @@ KisToolBrush::~KisToolBrush()
 
 void KisToolBrush::activate(const QSet<KoShape*> &shapes)
 {
-    // Krimble 2026-10-15: George (1.0.36): "Brush tool stops working for no apparent reason." and "If brush is big, stroke does nothing." The
-    // retouch tools (Smudge, Soften, Dodge, Burn) set their own brush (Dodge: white, linear dodge, 4% flow) in their activate(), and nothing gave
-    // the user's brush back, so after using one of them the Brush tool painted with a retouch brush (nearly invisible, or nothing on an empty
-    // layer). The brush, opacity, flow and size that are active when a retouch tool starts are kept here and put back in deactivate(). The
-    // idea comes from a patch of a Codex session (not applied; read as a clue).
-    // if (objectName() == QLatin1String("tool_smudge") || objectName() == QLatin1String("tool_soften")
-    //     || objectName() == QLatin1String("tool_dodge") || objectName() == QLatin1String("tool_burn")) {
-    // Krimble 2026-10-23: those names never existed (the tool manager names a tool after its action id: "KritaShape/KisToolSmudge" ...), so this block never ran; see KisToolPaint::activate.
     const QString krimbleToolName = objectName();
     if (krimbleToolName.endsWith(QLatin1String("KisToolSmudge")) || krimbleToolName.endsWith(QLatin1String("KisToolSoften")) || krimbleToolName.endsWith(QLatin1String("KisToolSharpen")) || krimbleToolName.endsWith(QLatin1String("KisToolHeal"))   /* Krimble 2026-11-13 (task 77) */
         || krimbleToolName.endsWith(QLatin1String("KisToolDodge")) || krimbleToolName.endsWith(QLatin1String("KisToolBurn"))) {
         KisCanvas2 *retouchCanvas = dynamic_cast<KisCanvas2*>(canvas());
         if (retouchCanvas && retouchCanvas->viewManager()) {
             KisCanvasResourceProvider *provider = retouchCanvas->viewManager()->canvasResourceProvider();
-            // Krimble 2026-10-20 (2nd): only the user's own brush is kept. If a retouch brush is already current (this tool started twice without
-            // stopping, or after another retouch tool), the brush kept before stays, so it can never be overwritten by a retouch brush.
             {
                 KisPaintOpPresetSP now = provider->currentPreset();
                 if (now && !now->name().startsWith(QLatin1String("Krimble Retouch"))) {
@@ -103,11 +93,6 @@ void KisToolBrush::activate(const QSet<KoShape*> &shapes)
                     m_savedRetouchSize = provider->size();
                 }
             }
-            // Krimble 2026-10-20: George (1.0.40, test list, items 11 to 13): after Smudge, "Switch to paintbrush and it's the Smudge tool", and the same
-            // with Line and Circle. The give-back in deactivate() below did not reach them (Line and Circle are not brush tools, and the order in which
-            // the tool manager deactivates the old tool and activates the new one is not something to rely on). The user's own brush (not a retouch
-            // brush) is now also kept for the whole app, and every painting tool takes it back when it starts while a retouch brush is current
-            // (KisToolPaint::activate).
             KisPaintOpPresetSP current = provider->currentPreset();
             if (current && !current->name().startsWith(QLatin1String("Krimble Retouch"))) {
                 qApp->setProperty("krimbleUserPreset", QVariant::fromValue(current));
@@ -133,12 +118,11 @@ void KisToolBrush::deactivate()
     disconnect(toggleaction, 0, m_chkAssistant, 0);
 
     KisToolFreehand::deactivate();
-    // Krimble 2026-10-15: give the user's brush back after a retouch tool (see activate()).
     if (m_savedRetouchPreset) {
         KisCanvas2 *retouchCanvas = dynamic_cast<KisCanvas2*>(canvas());
         if (retouchCanvas && retouchCanvas->viewManager()) {
             KisCanvasResourceProvider *provider = retouchCanvas->viewManager()->canvasResourceProvider();
-            krimbleSetBrushPreset(retouchCanvas->viewManager(), m_savedRetouchPreset);   // Krimble 2026-10-20 (2nd): through the brush panel
+            krimbleSetBrushPreset(retouchCanvas->viewManager(), m_savedRetouchPreset);
             provider->setOpacity(m_savedRetouchOpacity);
             provider->setFlow(m_savedRetouchFlow);
             provider->setSize(m_savedRetouchSize);

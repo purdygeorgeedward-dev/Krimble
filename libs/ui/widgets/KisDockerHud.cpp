@@ -40,9 +40,6 @@ struct KisDockerHud::Private
     bool isShown {true};
     bool isConnected {false};
 
-    // Krimble: two-finger drag-to-move, so a stray/hard-to-reach floating
-    // panel can be recovered without needing to precisely grab a small
-    // titlebar drag handle.
     bool twoFingerDragActive {false};
     QPointF lastTouchCentroid;
 };
@@ -53,7 +50,7 @@ KisDockerHud::KisDockerHud(QString borrowerName, QString configId)
 {
     this->setObjectName(configId + "DockerHud");
     this->setAutoFillBackground(true); // so that it's not transparent
-    this->setAttribute(Qt::WA_AcceptTouchEvents); // Krimble: for two-finger drag-to-move
+    this->setAttribute(Qt::WA_AcceptTouchEvents);
 
     m_d->borrowerName = borrowerName;
     m_d->configId = configId;
@@ -294,11 +291,6 @@ void KisDockerHud::hideEvent(QHideEvent *event)
 
 bool KisDockerHud::event(QEvent *event)
 {
-    // Krimble: two-finger drag-to-move for this floating panel, so it can be
-    // recovered/repositioned without needing to precisely grab a small
-    // titlebar handle. Only claims the gesture when exactly two touch points
-    // are active; anything else (a single-finger tap on the combo box or
-    // menu button, three-plus fingers) is left to propagate normally.
     switch (event->type()) {
     case QEvent::TouchBegin:
     case QEvent::TouchUpdate:

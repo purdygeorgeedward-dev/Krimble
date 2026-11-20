@@ -10,11 +10,11 @@
 #include "KoToolBoxDocker_p.h"
 #include "KoToolBox_p.h"
 #include "KoToolBoxScrollArea_p.h"
-#include "KoToolBoxButton_p.h"      // Krimble 2026-11-15 (707th): the raised box for the UNDO button
+#include "KoToolBoxButton_p.h"
 #include "KrimbleToolboxIcons.h"
 #include <QStylePainter>
-#include <QCursor>   // Krimble 2026-11-16 (722nd)
-#include <QSettings>   // Krimble 2026-11-16 (728th)
+#include <QCursor>
+#include <QSettings>
 #include <QStyleOptionToolButton>
 
 #include <QLabel>
@@ -25,14 +25,14 @@
 #include <QActionGroup>
 #include <QVBoxLayout>
 #include <QMainWindow>
-#include <QDebug>   // Krimble 2026-11-07: the KRIMBLE-TOOLBOX log lines
-#include <KisUsageLogger.h>   // Krimble 2026-11-08: the lines are written to krita.log with it
+#include <QDebug>
+#include <KisUsageLogger.h>
 #include <QTimer>
 #include <QApplication>
 #include <QMoveEvent>
 #include <QGuiApplication>
 #include <QScreen>
-#include <QStyle>   // Krimble 2026-10-19: krimbleFitFloatingShape (the scroll bar extent)
+#include <QStyle>
 #include <QEvent>
 #include <QPainter>
 #include <QMouseEvent>
@@ -57,8 +57,6 @@
 #include <kis_image.h>
 #include <kis_icon_utils.h>
 
-// Krimble 2026-11-15 (707th): George (build 63, Raised style): "Raised toolbox skips three icons." The UNDO button is not a tool button, so it had no raised box. It draws the same box
-// (KoToolBoxButton::krimblePaintRaisedBox) under its icon when the Raised style is on, and never the style's "hover" box (there is no hover on a touch screen).
 class KrimbleUndoButton : public QToolButton
 {
 public:
@@ -66,7 +64,7 @@ public:
 protected:
     void paintEvent(QPaintEvent *) override
     {
-        if (KrimbleToolboxIcons::buttonStyle() == 1 && !qApp->property("krimbleNoRaisedButtons").toBool()) {   // Krimble 2026-11-16 (722nd)
+        if (KrimbleToolboxIcons::buttonStyle() == 1 && !qApp->property("krimbleNoRaisedButtons").toBool()) {
             KoToolBoxButton::krimblePaintRaisedBox(this, isDown());
         }
         QStylePainter stylePainter(this);
@@ -77,8 +75,6 @@ protected:
     }
 };
 
-// Krimble 2026-10-11: the toolbox's drag handle (its empty title bar) shows three light horizontal lines, so it is obvious
-// that it is meant to be grabbed.
 class KrimbleToolBoxGrip : public QLabel
 {
 public:
@@ -102,11 +98,6 @@ protected:
     }
 };
 
-// KRIMBLE 2026-10-07: an edge strip of the floating toolbox. Dragging it changes the toolbox's width (right strip) or
-// height (bottom strip). It lives in a margin the toolbox gets while it floats, so it covers none of the tool icons.
-// Krimble 2026-11-18 (750th): George: "It's hard now to get to the long press menu for the toolbox." ... "Unresponsive. I need somewhere to press. Maybe a little space at the top and
-// bottom?" ... "Ok. And a line at the bottom of the toolbox even when it's docked." A strip under the tools, 12 units tall, with one line (2 device pixels, the grip's color) along its bottom
-// edge. It takes no touches itself, so a long press on it opens the toolbox's menu like the handle at the top.
 class KrimbleToolBoxFoot : public QWidget
 {
 public:
@@ -135,8 +126,6 @@ public:
 protected:
     void paintEvent(QPaintEvent *) override
     {
-        // Krimble 2026-10-10: George: no stripe, no dots, no empty margin. The edge is an invisible touch zone now.
-        // The drawing below is kept, not deleted. It is not reached.
         return;
 #if 0
         QPainter p(this);
@@ -186,32 +175,19 @@ private:
 };
 
 KoToolBoxDocker::KoToolBoxDocker(KoToolBox *toolBox)
-    // KRIMBLE 2026-10-02: panel renamed "Toolbox" -> "Tools".
-    // : QDockWidget(i18n("Toolbox"))
-    // : QDockWidget(i18n("Tools"))
-    // Krimble 2026-10-11: called "Toolbox" again (George).
     : QDockWidget(i18n("Toolbox"))
     , m_toolBox(toolBox)
     , m_scrollArea(new KoToolBoxScrollArea(toolBox, this))
 {
-    // Krimble: wrap the tool-button scroll area in a container so a
-    // the industry standard-style foreground/background color swap widget can be added
-    // below it, matching the industry standard's toolbox layout. Kept alongside its
-    // existing home in the classic toolbar (kis_control_frame.cpp) -- both
-    // locations retained per project decision, not a relocation.
     QWidget *toolBoxContainer = new QWidget(this);
     m_containerLayout = new QVBoxLayout(toolBoxContainer);
     m_containerLayout->setContentsMargins(0, 0, 0, 0);
     m_containerLayout->setSpacing(4);
-    // KRIMBLE 2026-10-05: the tool grid no longer takes all the height (it was stretch 1, which pushed the
-    // color wells and the screen mode button to the very bottom of the panel). It keeps its natural height, the
-    // wells follow right under it, and the spare space goes to the stretch after them.
     m_containerLayout->addWidget(m_scrollArea, 0);
-    m_containerLayout->addWidget(new KrimbleToolBoxFoot(toolBoxContainer), 0);   // Krimble 2026-11-18 (750th): room for the long press, and the line at the bottom of the toolbox
+    m_containerLayout->addWidget(new KrimbleToolBoxFoot(toolBoxContainer), 0);
     m_containerLayout->addStretch(1);
     setWidget(toolBoxContainer);
 
-    // KRIMBLE 2026-10-06: snap to whole icon columns, and keep the columns through a screen rotation
     m_snapTimer = new QTimer(this);
     m_snapTimer->setSingleShot(true);
     m_snapTimer->setInterval(250);
@@ -219,26 +195,14 @@ KoToolBoxDocker::KoToolBoxDocker(KoToolBox *toolBox)
     m_restoreTimer = new QTimer(this);
     m_restoreTimer->setSingleShot(true);
     m_restoreTimer->setInterval(300);
-    // Krimble 2026-10-12: George: "Toolbox is too tall. Should not have empty space inside the box." Whenever the toolbox becomes
-    // floating, it is cut down to the height of its tools.
     connect(this, &QDockWidget::topLevelChanged, this, [this](bool floating) {
-        // Krimble 2026-10-23: George (test list "Mercury's Shadow", item 30): "Detaching toolbox goes to one column, then has the dangling empty bottom." The
-        // height was worked out for the width the window had at that moment (the docked width: one column, so a tall pile of tools) and the width was changed
-        // to the chosen columns later, so the tools reflowed into fewer rows and the window kept the taller height. Now width and height are given together,
-        // the height worked out for the width that is going to be used; and once more a moment later, when the layout has settled.
         krimbleLogState(floating ? "topLevelChanged: became floating (before)" : "topLevelChanged: became docked (before)");
         if (floating) {
-            // Krimble 2026-10-23: a toolbox that becomes floating starts as columns (vertical) in Auto, whatever side it came from (see resizeEvent)
             if (m_orientation == Auto) setToolBoxOrientation(Qt::Vertical);
             QTimer::singleShot(350, this, [this]() { krimbleLogState("tear-off: 350 ms, before fitHeightToContents"); fitHeightToContents(true); krimbleLogState("tear-off: 350 ms, after"); });
             QTimer::singleShot(900, this, [this]() { krimbleLogState("tear-off: 900 ms, before fitHeightToContents"); fitHeightToContents(true); krimbleLogState("tear-off: 900 ms, after"); });
             QTimer::singleShot(2000, this, [this]() { krimbleLogState("tear-off: 2 s later"); });
         } else {
-            // Krimble 2026-11-05: George (1.0.45-beta): "Dragged the toolbox to right edge to attach and it exploded from 2 columns to 8 columns including one
-            // empty column. Tear it off again and it's 3 columns." Cause: when the toolbox is dropped on a dock edge the finger is still down while the dock
-            // is resized to the width of the dock area. snapToColumns() takes a width change with a finger down for a drag of the edge (m_userDragged), so
-            // that wide width became the saved number of columns (8), and the next tear-off kept it. For a moment after the drop the finger is ignored and the
-            // saved number of columns (the Columns menu's choice, 2 at first) is put back.
             m_justDocked = true;
             m_userDragged = false;
             QTimer::singleShot(1500, this, [this]() {
@@ -253,16 +217,7 @@ KoToolBoxDocker::KoToolBoxDocker(KoToolBox *toolBox)
     m_edgeRight->hide();
     m_edgeBottom->hide();
     connect(this, &QDockWidget::topLevelChanged, this, &KoToolBoxDocker::setFloatingEdges);
-    // Krimble 2026-11-05: George (1.0.45-beta, screenshots): "There is still a huge unnecessary dead space at the bottom of the toolbox. still. WHY????"
-    // The tool area has stretch 0 and the spacer after it stretch 1 (2026-10-05, so the color wells cling to the tools when the toolbox is docked). A floating
-    // toolbox is made as tall as ALL its tools (fitHeightToContents), but the tool area stays at its own natural, shorter height (it showed 13 rows and the
-    // "more" arrow) and the spacer took the rest: that was the dead space. While the toolbox floats, the tool area gets the spare height instead (stretch 1,
-    // the spacer 0), so all the tools show and nothing is left over; docked, it is as before.
     auto applyContainerStretch = [this](bool floating) {
-        //     if (m_containerLayout->itemAt(i)->spacerItem()) m_containerLayout->setStretch(i, floating ? 0 : 1);
-        // }
-        // Krimble 2026-11-15 (707th): George (build 63): "Toolbox still cuts off halfway down and forces scrolling." Docked, the tool area had stretch 0, so it got only its size hint (about half
-        // the dock's height) and the spacer under it took the rest. Docked too, the tool area takes the spare height and the spacer none (this is the change of 4032149, which the 679th restore undid).
         Q_UNUSED(floating);
         m_containerLayout->setStretchFactor(m_scrollArea, 1);
         for (int i = 0; i < m_containerLayout->count(); ++i) {
@@ -278,7 +233,6 @@ KoToolBoxDocker::KoToolBoxDocker(KoToolBox *toolBox)
         QTimer::singleShot(500, this, [this]() { m_windowResizing = false; });
     });
 
-    // Krimble 2026-10-11: the same label, with three light horizontal lines on it so it is obvious it can be grabbed.
     QLabel *w = new KrimbleToolBoxGrip(" ", this);
     w->setFrameShape(QFrame::StyledPanel);
     w->setFrameShadow(QFrame::Raised);
@@ -292,7 +246,7 @@ KoToolBoxDocker::KoToolBoxDocker(KoToolBox *toolBox)
         font.setPixelSize(qRound(font.pixelSize() * ratio));
     }
     int titleSize = QFontMetrics(font).height();
-    w->setMinimumSize(titleSize, titleSize + 12);   // Krimble 2026-11-18 (750th): the handle is 12 units taller, more room for the long press that opens the toolbox menu
+    w->setMinimumSize(titleSize, titleSize + 12);
     setTitleBarWidget(w);
 
     KConfigGroup cfg =  KSharedConfig::openConfig()->group("KoToolBox");
@@ -344,12 +298,8 @@ void KoToolBoxDocker::setViewManager(KisViewManager *viewManager)
     m_toolBox->setViewManager(viewManager);
     m_viewManager = viewManager;
 
-    // KRIMBLE 2026-10-06: remembered number of columns, applied once at start, and the rotation watcher
     {
         KConfigGroup cfg(KSharedConfig::openConfig(), "krimble");
-        // Krimble 2026-10-09: was default 2. No column count was ever saved (the handle can't be dragged on touch), so every rotation forced 2 columns. Default is now 1.
-        // Krimble 2026-10-10: the most columns is now 40 (was 4), so the toolbox can be stretched as wide as the screen and go horizontal.
-        // Krimble 2026-10-10 (2nd): default is 2 columns (George).
         m_columns = qBound(1, cfg.readEntry("ToolBoxColumns", 2), 40);
         if (m_viewManager) {
             if (QWidget *window = m_viewManager->mainWindowAsQWidget()) {
@@ -360,18 +310,12 @@ void KoToolBoxDocker::setViewManager(KisViewManager *viewManager)
         m_restoreTimer->start(1200);
     }
 
-    // Krimble: construct the color swap widget once a real KisViewManager
-    // (and its canvasResourceProvider) is available -- not possible any
-    // earlier, since the docker only gets a real one here.
     if (!m_dualColorButton && viewManager) {
         const KoColorDisplayRendererInterface *displayRenderer =
             KisDisplayColorConverter::dumbConverterInstance()->displayRendererInterface();
         m_dualColorButton = new KoDualColorButton(viewManager->canvasResourceProvider(), displayRenderer,
                                                     viewManager->mainWindowAsQWidget(), viewManager->mainWindowAsQWidget());
         m_dualColorButton->setFixedSize(28, 28);
-        // KRIMBLE 2026-10-05: inserted right after the tool grid (index 1), before the stretch
-        // Krimble 2026-10-11: the wells and the screen mode button now sit in one box that is part of the tool grid's own
-        // layout: right after the last tool, scrolling with the tools, not stuck to the bottom of the panel (George).
         QWidget *trailingBox = new QWidget(m_toolBox);
         QVBoxLayout *trailingLayout = new QVBoxLayout(trailingBox);
         trailingLayout->setContentsMargins(0, 4, 0, 0);
@@ -379,18 +323,11 @@ void KoToolBoxDocker::setViewManager(KisViewManager *viewManager)
         trailingLayout->addWidget(m_dualColorButton, 0, Qt::AlignHCenter);
         m_toolBox->toolBoxLayout()->setTrailingWidget(trailingBox);
 
-        // Krimble 2026-11-08: George: "I wanted to put the UNDO button in as a tool button in the toolbox to fill that last space." and "Put UNDO in as a standard toolbox icon." The UNDO button is
-        // an icon button (the silhouette icon krita_tool_undo, from George's picture) in the grid of tools, after the last tool, in the space the Rotate tool left. A tap is Undo (the program's
-        // own Edit > Undo action); a long press (the program's long press opens a context menu) offers Redo. The button never grays out (George: "Don't make it gray out.").
-        // Krimble 2026-11-10: George: "What happened to the undo button?" The button never appeared. KisMainWindow calls setViewManager() on the toolbox (KisMainWindow.cpp line 5099)
-        // BEFORE createActions() (line 5121) makes "edit_undo" and "edit_redo", so the lookup below found nothing and the button was skipped with no message. The block now runs one
-        // turn of the event loop later (QTimer::singleShot 0), when the main window's constructor has finished and both actions exist.
-        // {
         QTimer::singleShot(0, this, [this, viewManager]() {
             QAction *undoAction = viewManager->actionCollection()->action("edit_undo");
             QAction *redoAction = viewManager->actionCollection()->action("edit_redo");
             if (undoAction) {
-                QToolButton *undoButton = new KrimbleUndoButton(m_toolBox);   // Krimble 2026-11-15 (707th): in the Raised style it has the box of the tool buttons
+                QToolButton *undoButton = new KrimbleUndoButton(m_toolBox);
                 undoButton->setObjectName(QStringLiteral("krimbleUndoButton"));
                 undoButton->setAutoRaise(true);
                 undoButton->setToolButtonStyle(Qt::ToolButtonIconOnly);
@@ -414,15 +351,7 @@ void KoToolBoxDocker::setViewManager(KisViewManager *viewManager)
         connect(viewManager, &KisViewManager::viewChanged, this, &KoToolBoxDocker::slotUpdateDisplayRenderer);
         slotUpdateDisplayRenderer();
 
-        // Krimble: Screen Mode toggle at the bottom of the toolbox, matching
-        // the industry standard's toolbox layout. Reuses the existing view_show_canvas_only
-        // action (checkable, Tab shortcut) -- no new action needed, just a
-        // toolbox entry point for it. Icon overridden locally to view-fullscreen
-        // since the action's own icon (document-new) is a placeholder; the
-        // action definition itself in kritamenu.action is left untouched.
         QAction *canvasOnlyAction = viewManager->actionCollection()->action("view_show_canvas_only");
-        // Krimble 2026-11-16 (716th): George, about the small page icon under the color wells: "Remove it. I don't think anyone will use it." The Screen Mode button is no longer made
-        // (the block below is kept, switched off). Canvas Only is still in View > Screen Mode.
     }
 }
 
@@ -442,13 +371,6 @@ void KoToolBoxDocker::slotUpdateDisplayRenderer()
 void KoToolBoxDocker::resizeEvent(QResizeEvent *event)
 {
     QDockWidget::resizeEvent(event);
-    // if (m_orientation == Auto) {
-    //     setToolBoxOrientation(width() > height() ? Qt::Horizontal : Qt::Vertical);
-    // }
-    // Krimble 2026-10-23: George (1.0.42), asked what he was doing when "Toolbox got caught in horizontal mode for a minute": "Dragging it." In Auto the layout followed the SHAPE of the
-    // window on every resize (wider than tall = horizontal), and the window changes size all the time while it is dragged or reshaped, so one wide moment turned it horizontal, the
-    // horizontal layout made it wider still, and it stayed so (the 1030 px wide strip of his screenshot). While the toolbox is floating the layout is no longer changed by the
-    // shape; docked, it follows the side it is docked at (top or bottom: horizontal; left or right: vertical).
     if (m_orientation == Auto && !isFloating()) {
         if (m_dockArea == Qt::TopDockWidgetArea || m_dockArea == Qt::BottomDockWidgetArea) {
             setToolBoxOrientation(Qt::Horizontal);
@@ -458,62 +380,33 @@ void KoToolBoxDocker::resizeEvent(QResizeEvent *event)
             setToolBoxOrientation(width() > height() ? Qt::Horizontal : Qt::Vertical);
         }
     }
-    // Krimble 2026-10-10: the foreground/background color wells at the bottom grow with the toolbox width:
-    // one icon wide at 1 column (as before), up to 72 px when the toolbox is wider.
     if (m_dualColorButton && m_scrollArea) {
         const int wellSize = qBound(28, m_scrollArea->viewport()->width() - 8, 72);
         if (m_dualColorButton->width() != wellSize) {
             m_dualColorButton->setFixedSize(wellSize, wellSize);
-            // Krimble 2026-10-11: the wells are part of the tool layout now; tell it they changed size
             if (m_toolBox && m_toolBox->layout()) m_toolBox->layout()->invalidate();
         }
     }
     if (m_edgeRight && m_edgeBottom && isFloating()) {
-        const int e = 10;   // Krimble 2026-10-10: invisible edge zone, 10 px
+        const int e = 10;
         m_edgeRight->setGeometry(width() - e, 0, e, height() - e);
         m_edgeBottom->setGeometry(0, height() - e, width(), e);
         m_edgeRight->raise();
         m_edgeBottom->raise();
     }
-    // KRIMBLE 2026-10-06: when the docked toolbox is resized by hand (not by a rotation, not by us), fit it to a
-    // whole number of icon columns a moment after the resize stops.
-    // Krimble 2026-10-10: only a resize made with a finger or mouse down may change the column count. A rotation has none down.
     if (m_justDocked) {
-        // Krimble 2026-11-05: just dropped on a dock edge: no snapping to the width of the moment
-    //     m_snapTimer->start();
-    // Krimble 2026-11-16 (722nd): George (build 64): "There is a weird visual jitter (periodic jolts) when trying to paint on screen which disrupts the line." A finger that is down was
-    // always taken for a finger dragging the toolbox's edge, also when it was painting on the picture: any small change of the toolbox's size during a stroke started the column snapping
-    // (every 250 ms while the finger stayed down, and a resize of the docks at the end). Only a finger at the toolbox counts as a drag of its edge now (krimbleFingerAtToolbox).
     } else if (m_snapTimer && !m_windowResizing && !m_applying && !isFloating() && QApplication::mouseButtons() != Qt::NoButton) {
         if (krimbleFingerAtToolbox()) m_snapTimer->start();
     } else if (m_restoreTimer && !m_windowResizing && !m_applying && !isFloating() && isVisible() && QApplication::mouseButtons() == Qt::NoButton) {
-        // Krimble 2026-10-10: a width change with no finger down (a workspace or layout restore, a rotation): put the saved
-        // column count back a moment later. Only a drag with a finger or the Columns menu can change the saved count.
         m_restoreTimer->start();
     }
 
-    // Krimble 2026-10-10: keep the tool area exactly as tall as the tools are at this width, so the color wells cling to the
-    // bottom of the tools instead of sitting far below them when the toolbox gets wider (the tool area kept the height it
-    // had at a narrower width). Done a moment later, when the layout has settled. Only for the vertical layout.
-    // Krimble 2026-10-26: George ("Did you fix the toolbox?", about "the whole bottom of the toolbox is blocked from displaying tool icons for no apparent reason. It's
-    // dead space": the tools stop part way down, the scroll arrow shows, and there is empty room under it). The height limit below is worked out ONCE, a moment after a
-    // resize, from the width the tool area has at that moment; when that width was not the final one (the layout settles later: a rotation, the columns snapping) the
-    // limit stayed too low for the tools as they are laid out afterwards, so the tool area was cut short and had to scroll. Now: (1) the limit is never lower than the
-    // height the tools are laid out at now (m_toolBox->height()), and (2) it is worked out again 400 ms and 1.5 s later, when the layout has settled.
     auto krimbleFitToolArea = [this]() {
         if (!m_scrollArea || !m_toolBox || !m_toolBox->layout()) return;
         if (!m_toolBox->layout()->hasHeightForWidth()) {
-            // Krimble 2026-10-18: George (1.0.37): "5. Toolbox has a big empty bottom for no reason." (his screenshot: the toolbox docked at the top, 2 rows
-            // of tools and a tall empty space under them). In the rows layout (docked at the top or the bottom) the toolbox is not taller than its
-            // rows, the title bar and the frame. A floating toolbox in rows is left free.
             if (!isFloating()) {
                 const int rowsHeight = m_toolBox->sizeHint().height();
                 const int frame = m_scrollArea->height() - m_scrollArea->viewport()->height();
-                // Krimble 2026-10-19: George (1.0.39, test list, item 6, screenshot): the docked toolbox, 2 rows of tools, and the same tall empty space
-                // under them. "others" was the toolbox's height minus the tool area's, and that difference INCLUDES the empty space itself (the
-                // stretch under the tools in m_containerLayout), so the cap was as tall as the toolbox already was and never shrank it. Now "others"
-                // is only what is really around the tools: the title bar and frame of the panel (its height minus its contents') and the margins
-                // of the contents' layout.
                 int others = qMax(0, height() - (widget() ? widget()->height() : height()));
                 if (m_containerLayout) {
                     const QMargins cm = m_containerLayout->contentsMargins();
@@ -529,30 +422,26 @@ void KoToolBoxDocker::resizeEvent(QResizeEvent *event)
             }
             return;
         }
-        // Krimble 2026-11-15 (707th): docked in columns (left or right edge) there is no height limit: the tool area is as tall as the dock, so every tool shows (4032149 again). Floating: cut to its tools as before.
         if (!isFloating()) {
             m_scrollArea->setMaximumHeight(QWIDGETSIZE_MAX);
             setMaximumHeight(QWIDGETSIZE_MAX);
             return;
         }
-        const int contentHeight = qMax(m_toolBox->layout()->heightForWidth(m_scrollArea->viewport()->width()), m_toolBox->height());   // Krimble 2026-10-26
+        const int contentHeight = qMax(m_toolBox->layout()->heightForWidth(m_scrollArea->viewport()->width()), m_toolBox->height());
         if (contentHeight > 0) {
             const int frame = m_scrollArea->height() - m_scrollArea->viewport()->height();
             m_scrollArea->setMaximumHeight(contentHeight + frame);
-            // Krimble 2026-10-11: the toolbox itself is never taller than its contents (the tools, the wells and the title bar)
             const int others = qMax(0, height() - m_scrollArea->height());
             setMaximumHeight(contentHeight + frame + others);
         }
     };
     QTimer::singleShot(0, this, krimbleFitToolArea);
-    QTimer::singleShot(400, this, krimbleFitToolArea);     // Krimble 2026-10-26: again when the layout has settled
+    QTimer::singleShot(400, this, krimbleFitToolArea);
     QTimer::singleShot(1500, this, krimbleFitToolArea);
 }
 
 bool KoToolBoxDocker::eventFilter(QObject *watched, QEvent *event)
 {
-    // KRIMBLE 2026-10-06: a resize of the main window (screen rotation) must not change how many columns the
-    // toolbox has: remember that it is happening, and put the width back when it has settled.
     if (event->type() == QEvent::Resize && m_viewManager && watched == m_viewManager->mainWindowAsQWidget()) {
         m_windowResizing = true;
         if (m_snapTimer) m_snapTimer->stop();
@@ -563,9 +452,6 @@ bool KoToolBoxDocker::eventFilter(QObject *watched, QEvent *event)
 
 void KoToolBoxDocker::setFloatingEdges(bool floating)
 {
-    // KRIMBLE 2026-10-07: floating: no corner gadget, a 24 px margin at the right and at the bottom holds the two edge
-    // strips; docked: the margins and the strips go away.
-    // Krimble 2026-10-10: invisible edge zones of 10 px laid over the toolbox's own edge, no margin (was 24 and a margin).
     const int e = 10;
     // The 24 px margin version, kept, not deleted:
     // const bool has = property("krimbleToolBoxEdges").toBool();
@@ -598,7 +484,6 @@ void KoToolBoxDocker::floatingEdgeDrag(const QSize &startSize, const QPoint &del
         // whole icon columns only (1 to 4): the icons plus everything around them
         const int icons = iconWidth();
         const int around = chromeWidth();
-        // Krimble 2026-10-10: cap raised from 4 to 40 columns
         const int columns = qBound(1, qRound(qreal(startSize.width() - around + delta.x()) / icons), 40);
         w = columns * icons + around;
         if (columns != m_columns) {
@@ -643,12 +528,6 @@ int KoToolBoxDocker::chromeWidth() const
 //     QTimer::singleShot(400, this, [this]() { m_applying = false; });
 // }
 
-// Krimble 2026-10-11: the Columns choice always works (George): docked left or right, floating, and docked at the top or
-// bottom. When the tools are laid out in a column (the usual way) the number is the number of columns, and it sets the
-// width. When they are laid out in a row, the number is the number of rows, and it sets the height.
-// Krimble 2026-10-11: QA of 1.0.32: in portrait the docked toolbox stayed hundreds of pixels wider than its columns (one column
-// of tools with a wide empty bar beside it), which left no room to move the strips next to it. Its preferred width is now the
-// width its saved column count needs, so the dock layout starts from the right size.
 QSize KoToolBoxDocker::sizeHint() const
 {
     QSize hint = QDockWidget::sizeHint();
@@ -658,7 +537,6 @@ QSize KoToolBoxDocker::sizeHint() const
     return hint;
 }
 
-// Krimble 2026-10-11: a floating toolbox that is let go partly off the screen bounces back inside it (George).
 void KoToolBoxDocker::moveEvent(QMoveEvent *event)
 {
     QDockWidget::moveEvent(event);
@@ -673,14 +551,6 @@ void KoToolBoxDocker::moveEvent(QMoveEvent *event)
                 m_screenTimer->start();
                 return;
             }
-            // Krimble 2026-10-13 (7th): George: "Get rid of bounces. They're annoying." The toolbox is no longer pushed back after it is moved:
-            // it stays where it is let go. The old rule (pushed back off the top and the sides, 120 px kept on screen) is kept below,
-            // not run.
-            // return;
-            // Krimble 2026-10-14: George (1.0.36): "Bounce toolbox off sides and top. Not bottom. It creates weird anomalous artifacts when it slides
-            // off the side." The rule runs again: pushed back off the sides and the top; the bottom is free, but its title area (36 px) stays on screen.
-            // Krimble 2026-10-17: George (1.0.37): "I would rather the toolbar dock at the edge than bounce." At the left or right edge, or above the
-            // top strip, the toolbox is docked there (krimbleDockAtEdge) and nothing is pushed back; the old sideways and top push-back is off.
             krimbleDockAtEdge();
             if (!isFloating()) return;
             QScreen *screenPtr = screen() ? screen() : QGuiApplication::primaryScreen();
@@ -689,8 +559,6 @@ void KoToolBoxDocker::moveEvent(QMoveEvent *event)
             avail.setTop(avail.top() + 48);        // keep a strip free at the top, as the dialogs do
             QRect g = geometry();
             g.setWidth(qMin(g.width(), avail.width()));
-            // Krimble 2026-10-12: George: "I think the toolbox shouldn't bounce off the bottom. Only the top or sides." The bottom edge is
-            // free; the top edge pushes it back down, and at least 120 px of it must stay on screen.
             if (g.top() > avail.bottom() - 36) g.moveTop(avail.bottom() - 36);
             if (g != geometry()) setGeometry(g);
         });
@@ -698,10 +566,7 @@ void KoToolBoxDocker::moveEvent(QMoveEvent *event)
     m_screenTimer->start();
 }
 
-// Krimble 2026-10-17: George (1.0.37): "I would rather the toolbar dock at the edge than bounce." A floating toolbox that has reached the left or the
-// right edge of the screen (within 4 px), or gone above the top strip, is docked there, as the Dock menu of its long press does, and is no longer
-// pushed back. The bottom edge stays free (its title area, 36 px, stays on screen).
-#if 0   // Krimble 2026-11-06: the first version docked at once; see the delayed one below (the old code is the base of krimbleEdgeArea())
+#if 0
 void KoToolBoxDocker::krimbleDockAtEdge()
 {
     if (!isFloating() || !isVisible()) return;
@@ -717,9 +582,6 @@ void KoToolBoxDocker::krimbleDockAtEdge()
         area = Qt::LeftDockWidgetArea;
     } else if (g.right() >= avail.right() - 4) {
         area = Qt::RightDockWidgetArea;
-    // Krimble 2026-10-19: George (1.0.39): "The toolbox isn't close to an edge and it snaps to one aggressively." It docked at the top as soon
-    // as its top went into the 48 px strip under the screen's top (the menu bar is there, so a move near the menus docked it). Now only when
-    // its top reaches the screen's top (within 4 px), like the sides.
     } else if (g.top() <= avail.top() - 48 + 4) {
         area = Qt::TopDockWidgetArea;
     }
@@ -731,9 +593,6 @@ void KoToolBoxDocker::krimbleDockAtEdge()
 }
 #endif
 
-// Krimble 2026-11-06: which dock edge a floating toolbox is at (the same test as before: within 4 px of the left or right edge, or its top at the screen's
-// top), or NoDockWidgetArea.
-// Krimble 2026-11-16 (728th): the "Dock by Dragging" switch (see KrimbleDockTolerance in KisMainWindow.cpp, the same function).
 static bool krimbleDragDockingOn()
 {
     QVariant v = qApp->property("krimbleDragDocking");
@@ -757,18 +616,13 @@ Qt::DockWidgetArea KoToolBoxDocker::krimbleEdgeArea() const
     return Qt::NoDockWidgetArea;
 }
 
-// Krimble 2026-11-06: George (1.0.45-beta), after the toolbox jumped to the bottom and docked from a long press: "maybe there should be a delay before reattaching,
-// just to make sure that is the users intention." A floating toolbox that has reached a screen edge is docked there only after it has stayed at that edge for
-// 1 s (first 0.8 s) with no finger down. Moving it away, or touching it again, cancels the docking (a counter, m_edgeDockToken, is raised at every call and at every
-// move away, and the timer only acts if it is still the latest). The Dock entries of the long-press menu are deliberate taps and dock at once.
 void KoToolBoxDocker::krimbleDockAtEdge()
 {
     if (!isFloating() || !isVisible()) return;
-    if (!krimbleDragDockingOn()) { ++m_edgeDockToken; return; }   // Krimble 2026-11-16 (728th): "Dock by Dragging" is off: a toolbox left at an edge stays floating there
+    if (!krimbleDragDockingOn()) { ++m_edgeDockToken; return; }
     const Qt::DockWidgetArea area = krimbleEdgeArea();
     const int token = ++m_edgeDockToken;
     if (area == Qt::NoDockWidgetArea) return;
-    // Krimble 2026-11-06 (2nd): George: "Like one second would be enough. Just to be sure." 0.8 s became 1 s.
     QTimer::singleShot(1000, this, [this, token, area]() {
         if (token != m_edgeDockToken || !isFloating() || !isVisible()) return;
         if (QApplication::mouseButtons() != Qt::NoButton) return;     // a finger is down again: the screen timer looks again when it lifts
@@ -776,19 +630,16 @@ void KoToolBoxDocker::krimbleDockAtEdge()
         QMainWindow *mainWindow = qobject_cast<QMainWindow*>(parentWidget());
         if (!mainWindow) return;
         setAllowedAreas(Qt::AllDockWidgetAreas);
-        mainWindow->addDockWidget(area, this, (area == Qt::LeftDockWidgetArea || area == Qt::RightDockWidgetArea) ? Qt::Horizontal : Qt::Vertical);   // Krimble 2026-11-15 (708th): its own column or row (see the Dock menu)
+        mainWindow->addDockWidget(area, this, (area == Qt::LeftDockWidgetArea || area == Qt::RightDockWidgetArea) ? Qt::Horizontal : Qt::Vertical);
         setFloating(false);
         show();
     });
 }
 
-// Krimble 2026-10-12: cuts a floating toolbox (vertical layout, columns) down to the height of its tools, so there is no empty space
-// inside the box: the height of the tools for the current width, plus the title bar and the margins around them.
 void KoToolBoxDocker::fitHeightToContents(bool setWidthToo)
 {
     if (!isFloating() || !isVisible() || !m_toolBox || !m_toolBox->layout() || !m_toolBox->layout()->hasHeightForWidth()) return;
     if (!widget() || !widget()->layout()) return;
-    // Krimble 2026-10-23: with setWidthToo, the height is worked out for the width the window is going to have (the chosen number of columns), not the one it has now
     const int columnsWidth = qMax(1, m_columns) * iconWidth();
     const int toolsHeight = m_toolBox->layout()->heightForWidth(setWidthToo ? columnsWidth : m_scrollArea->viewport()->width());
     if (toolsHeight <= 0) return;
@@ -799,20 +650,9 @@ void KoToolBoxDocker::fitHeightToContents(bool setWidthToo)
     if (QScreen *screenPtr = screen() ? screen() : QGuiApplication::primaryScreen()) {
         target = qMin(target, int(screenPtr->availableGeometry().height() * 0.95));
     }
-    // Krimble 2026-10-18: George (1.0.37): "5. Toolbox has a big empty bottom for no reason. Hard to resize away." The floating toolbox is also never
-    // taller than this: a window cannot be made taller than its maximum height, so the empty space cannot come back (the cut with resize() alone
-    // was overruled by an older, taller size).
     if (target > 0) {
         setMaximumHeight(target);
     }
-    // if (target > 0 && qAbs(height() - target) > 2) {
-    //     m_applying = true;
-    //     resize(width(), target);
-    //     QTimer::singleShot(400, this, [this]() { m_applying = false; });
-    // }
-    // Krimble 2026-11-09: George (1.0.55-beta, krita.log): after a tear-off the toolbox showed 1 column, and picking "2 columns" in the menu snapped it to 2. The log: size 54, chromeWidth 4, iconWidth 26,
-    // columns 2: the wanted width was 2 * 26 + 4 = 56, and a window 2 px too narrow was left alone (the "more than 2 px" test), but the tools need 52 px in the viewport and the viewport was 50, so the
-    // layout wrapped to 1 column. A window whose viewport is narrower than the columns need is now always widened by the shortfall.
     int wantedWidth = setWidthToo ? columnsWidth + chromeWidth() : width();
     const int shortfall = setWidthToo ? columnsWidth - m_scrollArea->viewport()->width() : 0;
     if (shortfall > 0) wantedWidth = qMax(wantedWidth, width() + shortfall);
@@ -823,13 +663,8 @@ void KoToolBoxDocker::fitHeightToContents(bool setWidthToo)
     }
 }
 
-// Krimble 2026-11-07: George (1.0.45-beta): "the number of columns changes if you tear off the attached toolbox. it goes from 2 to a cockeyed 1. then if you try to select 2
-// columns it goes horizontal for no apparent reason." Reading the code did not show the cause (a tear-off runs several timers that set the layout, the width, the height and the
-// saved column count), so every step of it writes one line to krita.log (Help > Show Krimble Log). Lines start with KRIMBLE-TOOLBOX. It changes nothing else.
 void KoToolBoxDocker::krimbleLogState(const char *where) const
 {
-    // qWarning().noquote() << "KRIMBLE-TOOLBOX" << where ... (the lines went to Android's logcat only: the program's Android log handler does not write qWarning into krita.log, so George's log of
-    // 2026-11-07 22:58 had no KRIMBLE-TOOLBOX line at all, not even the start-up ones; 2026-11-08: the lines are written with KisUsageLogger, as every other line of krita.log)
     KisUsageLogger::log(QStringLiteral("KRIMBLE-TOOLBOX %1 | floating %2 | dockArea %3 | orientation setting %4 layout %5 | columns %6 | size %7 x %8 | iconWidth %9 chromeWidth %10 | justDocked %11 applying %12 userDragged %13 | viewport %14 columnsNeed %15")
         .arg(QString::fromLatin1(where))
         .arg(isFloating())
@@ -856,14 +691,12 @@ void KoToolBoxDocker::applyColumns()
             m_applying = true;
             resize(target, height());
             QTimer::singleShot(400, this, [this]() { m_applying = false; });
-            QTimer::singleShot(450, this, [this]() { fitHeightToContents(); });   // Krimble 2026-10-12: the height follows the new columns
+            QTimer::singleShot(450, this, [this]() { fitHeightToContents(); });
         } else {
             const Qt::DockWidgetArea area = mainWindow->dockWidgetArea(this);
             if (area != Qt::LeftDockWidgetArea && area != Qt::RightDockWidgetArea) return;
             m_applying = true;
             mainWindow->resizeDocks({this}, {target}, Qt::Horizontal);
-            // Krimble 2026-10-11: resizeDocks alone did not always take effect in portrait; pin the width for a moment so the
-            // dock layout has to use it, then let go again so a drag can change it.
             setMinimumWidth(target);
             setMaximumWidth(target);
             QTimer::singleShot(250, this, [this]() {
@@ -874,10 +707,6 @@ void KoToolBoxDocker::applyColumns()
         }
     } else {
         const int rowHeight = qMax(1, m_toolBox->minimumSizeHint().height());
-        // Krimble 2026-10-13: George: "If I pick 2 columns it does nothing." That line counted the empty space below the tools as
-        // "chrome" (the tool area is shorter than the dock, the rest is a stretch), so the target height came out the same as the
-        // current, too tall, height and nothing changed. The chrome is now only what really surrounds the tools: the dock's own
-        // frame, the margins around the tool area and the tool area's frame.
         const QMargins containerMargins = widget() && widget()->layout() ? widget()->layout()->contentsMargins() : QMargins();
         const int dockFrame = widget() ? qMax(0, height() - widget()->height()) : 0;
         const int scrollFrame = qMax(0, m_scrollArea->height() - m_scrollArea->viewport()->height());
@@ -893,7 +722,6 @@ void KoToolBoxDocker::applyColumns()
             if (area != Qt::TopDockWidgetArea && area != Qt::BottomDockWidgetArea) return;
             m_applying = true;
             mainWindow->resizeDocks({this}, {target}, Qt::Vertical);
-            // Krimble 2026-10-13: pin the height for a moment so the dock layout has to use it (as is done for the width), then let go.
             setMinimumHeight(target);
             setMaximumHeight(target);
             QTimer::singleShot(250, this, [this]() {
@@ -905,7 +733,6 @@ void KoToolBoxDocker::applyColumns()
     }
 }
 
-// Krimble 2026-11-16 (722nd): is the pointer (the finger) on the toolbox or within 48 units of it? A drag of the toolbox's dock edge is; a finger painting on the picture is not.
 bool KoToolBoxDocker::krimbleFingerAtToolbox() const
 {
     const QPoint p = mapFromGlobal(QCursor::pos());
@@ -915,28 +742,19 @@ bool KoToolBoxDocker::krimbleFingerAtToolbox() const
 void KoToolBoxDocker::snapToColumns()
 {
     if (isFloating() || !isVisible()) return;
-    // Krimble 2026-11-05: right after a drop on a dock edge the width is the dock area's, not a choice of the user (see topLevelChanged above)
     if (m_justDocked) { m_userDragged = false; return; }
-    // Krimble 2026-10-10: never change the saved column count during a rotation or while we are setting the width ourselves.
     if (m_windowResizing || m_applying) return;
     // do not fight a finger that is still down on the separator
     if (QApplication::mouseButtons() != Qt::NoButton) {
-        if (!krimbleFingerAtToolbox()) return;   // Krimble 2026-11-16 (722nd): a finger painting on the picture is not a drag of the toolbox's edge
-        m_userDragged = true;      // Krimble 2026-10-13: someone is dragging the edge: the width that follows is theirs
+        if (!krimbleFingerAtToolbox()) return;
+        m_userDragged = true;
         m_snapTimer->start();
         return;
     }
     const Qt::DockWidgetArea area = m_dockArea;
     if (area != Qt::LeftDockWidgetArea && area != Qt::RightDockWidgetArea) return;
 
-    // Krimble 2026-10-10: cap raised from 4 to 40 columns
     const int columns = qBound(1, qRound(qreal(m_scrollArea->viewport()->width()) / iconWidth()), 40);
-    // Krimble 2026-10-13: George: "Fix snapToColumns behavior. Yes." The saved column count was written from the width the toolbox happened
-    // to have, so when the window could not give it the room (portrait: the toolbox squeezed to one column) the count was overwritten with 1,
-    // and a choice from the Columns menu (2) snapped back to 1 at once. The count is now taken from the width only when someone dragged the
-    // dock's edge; otherwise the saved count stays, and applyColumns() below makes the dock as wide as that count asks, as far as there
-    // is room (and later, when there is more room, in full).
-    // if (columns != m_columns) {
     if (m_userDragged && columns != m_columns) {
         m_columns = columns;
         KConfigGroup cfg(KSharedConfig::openConfig(), "krimble");
@@ -952,18 +770,11 @@ void KoToolBoxDocker::updateToolBoxOrientation(Qt::DockWidgetArea area)
     m_dockArea = area;
     updateLayoutDir();
     if (m_orientation == Auto) {
-        if (area == Qt::TopDockWidgetArea || area == Qt::BottomDockWidgetArea) {        // Krimble 2026-10-23: by the side it is docked at (see resizeEvent)
+        if (area == Qt::TopDockWidgetArea || area == Qt::BottomDockWidgetArea) {
             setToolBoxOrientation(Qt::Horizontal);
         } else if (area == Qt::LeftDockWidgetArea || area == Qt::RightDockWidgetArea) {
             setToolBoxOrientation(Qt::Vertical);
         } else if (!isFloating()) {
-            // else {
-            //     setToolBoxOrientation(width() > height() ? Qt::Horizontal : Qt::Vertical);
-            // }
-            // Krimble 2026-11-13 (task 44): George (krita.log of build 57, "weird toolbox stuff"): at 23:58:05 the toolbox was floated, its window had the default size 640 x 480, and this line made
-            // it HORIZONTAL because that is wider than tall; then it was a 2-row strip in a narrow window (68 x 567, later 114 x 68: only 3 buttons visible). A floating toolbox keeps the
-            // orientation it has (the 2026-10-23 rule in resizeEvent, which this path had missed: it comes from dockLocationChanged with no dock area); only a docked one without a side is
-            // decided by its shape.
             setToolBoxOrientation(width() > height() ? Qt::Horizontal : Qt::Vertical);
         }
     }
@@ -1027,16 +838,11 @@ void KoToolBoxDocker::setToolBoxOrientation(Qt::Orientation orientation)
         setFeatures(features() & ~QDockWidget::DockWidgetVerticalTitleBar);
         m_scrollArea->setOrientation(Qt::Vertical);
     }
-    // Krimble 2026-10-19: George (1.0.39, test list, item 7): "Switching to horizontal in the toolbox menu changes how the icons line up, but not the
-    // shape of the toolbox." A floating toolbox is reshaped to its new layout a moment later, when the layout has settled.
     if (isFloating()) {
         QTimer::singleShot(200, this, [this]() { krimbleFitFloatingShape(); });
     }
 }
 
-// Krimble 2026-10-19: George (1.0.39, test list, item 7). A floating toolbox takes the shape of its layout. Horizontal (rows): as wide as its rows
-// (at most 95% of the screen; beyond that the rows scroll sideways) and as high as the rows, its frame and its title bar (which is at the
-// side in this layout). Vertical (columns): the height is cut to the tools again (fitHeightToContents), keeping the width.
 void KoToolBoxDocker::krimbleFitFloatingShape()
 {
     if (!isFloating() || !isVisible() || !m_toolBox || !m_scrollArea || !widget() || !widget()->layout()) return;
@@ -1088,11 +894,9 @@ void KoToolBoxDocker::contextMenuEvent(QContextMenuEvent *event)
         m_contextMenu->addSection(i18n("Icon Size"));
         m_toolBox->setupIconSizeMenu(m_contextMenu);
 
-        // Krimble 2026-10-30: Full color / Silhouette icons
         m_contextMenu->addSection(i18n("Icon Style"));
         m_toolBox->setupIconStyleMenu(m_contextMenu);
 
-        // Krimble 2026-11-12 (task 40): George: "The user should have the choice between flat looking buttons like in your mockup and raised buttons with thicker bevels like DPaint."
         m_contextMenu->addSection(i18n("Button Style"));
         m_toolBox->setupButtonStyleMenu(m_contextMenu);
 
@@ -1168,8 +972,6 @@ void KoToolBoxDocker::contextMenuEvent(QContextMenuEvent *event)
             break;
         }
 
-        // Krimble 2026-10-09: "Columns" choice. The size handle is hard to grab on touch, so the number of icon columns (1 to 4)
-        // can be picked here. The choice is saved ("krimble/ToolBoxColumns") and kept through a rotation.
         m_contextMenu->addSection(i18n("Columns"));
         QActionGroup *columnsActionGroup = new QActionGroup(m_contextMenu);
         for (int i = 0; i < 4; ++i) {
@@ -1187,7 +989,6 @@ void KoToolBoxDocker::contextMenuEvent(QContextMenuEvent *event)
             });
         }
 
-        // Krimble 2026-10-10: "Dock" section: Dock Left / Right / Top / Bottom and Undock, same as the long-press menu on other panels' title bars.
         m_contextMenu->addSection(i18n("Dock"));
         const struct { QString text; Qt::DockWidgetArea area; } dockEntries[] = {
             {i18n("Dock Left"), Qt::LeftDockWidgetArea},
@@ -1200,19 +1001,9 @@ void KoToolBoxDocker::contextMenuEvent(QContextMenuEvent *event)
             dockAction->setCheckable(true);
             m_dockActions[i] = dockAction;
             const Qt::DockWidgetArea area = dockEntries[i].area;
-            // connect(dockAction, &QAction::triggered, this, [this, area]() {
-            //     if (QMainWindow *mainWindow = qobject_cast<QMainWindow*>(parentWidget())) {
-            //         mainWindow->addDockWidget(area, this);
-            //         show();
-            //     }
-            // Krimble 2026-10-13: George: "Dock right from the long press menu did nothing." The toolbox now starts floating, and
-            // addDockWidget alone leaves a floating panel floating; it has to be told to dock. All areas are allowed first.
             connect(dockAction, &QAction::triggered, this, [this, area]() {
                 if (QMainWindow *mainWindow = qobject_cast<QMainWindow*>(parentWidget())) {
                     setAllowedAreas(Qt::AllDockWidgetAreas);
-                    // Krimble 2026-11-15 (708th): George (build 63): "Dock right causes dock top on toolbox." and "I used the menu and dragged the toolbox and got unpredictable results." The plain
-                    // addDockWidget put the toolbox at the END of that side's stack: on the right, under (or over) the panels that are docked there, as a wide slab. The toolbox now gets its own
-                    // full-height column at the outer end of the left or right side (Qt::Horizontal), and its own row at the top or bottom (Qt::Vertical). The same in the edge timer below.
                     mainWindow->addDockWidget(area, this, (area == Qt::LeftDockWidgetArea || area == Qt::RightDockWidgetArea) ? Qt::Horizontal : Qt::Vertical);
                     if (isFloating()) {
                         setFloating(false);
@@ -1224,7 +1015,6 @@ void KoToolBoxDocker::contextMenuEvent(QContextMenuEvent *event)
         m_dockActions[4] = m_contextMenu->addAction(i18n("Undock"));
         m_dockActions[4]->setCheckable(true);
         connect(m_dockActions[4], &QAction::triggered, this, [this]() { setFloating(true); });
-        // Krimble 2026-11-16 (728th): George (build 65): "Can docking be turned on and off? That seems like a good idea." For every panel and the toolbox (see krimbleDragDockingOn).
         m_dragDockAction = m_contextMenu->addAction(i18n("Dock by Dragging"));
         m_dragDockAction->setCheckable(true);
         connect(m_dragDockAction, &QAction::triggered, this, [](bool on) {
@@ -1233,13 +1023,11 @@ void KoToolBoxDocker::contextMenuEvent(QContextMenuEvent *event)
         });
     }
 
-    if (m_dragDockAction) m_dragDockAction->setChecked(krimbleDragDockingOn());   // Krimble 2026-11-16 (728th)
-    // Krimble 2026-10-09: tick the current column count each time the menu opens
+    if (m_dragDockAction) m_dragDockAction->setChecked(krimbleDragDockingOn());
     for (int i = 0; i < 4; ++i) {
         if (m_columnActions[i]) m_columnActions[i]->setChecked(m_columns == i + 1);
     }
 
-    // Krimble 2026-10-10: tick where the toolbox is now, grey out places it may not go
     {
         QMainWindow *dockMainWindow = qobject_cast<QMainWindow*>(parentWidget());
         const Qt::DockWidgetArea dockCurrent = (dockMainWindow && !isFloating()) ? dockMainWindow->dockWidgetArea(this) : Qt::NoDockWidgetArea;
@@ -1247,7 +1035,7 @@ void KoToolBoxDocker::contextMenuEvent(QContextMenuEvent *event)
         for (int i = 0; i < 4; ++i) {
             if (m_dockActions[i]) {
                 m_dockActions[i]->setChecked(dockCurrent == dockAreas[i]);
-                m_dockActions[i]->setEnabled(true);   // Krimble 2026-10-13: a choice from this menu is always allowed
+                m_dockActions[i]->setEnabled(true);
             }
         }
         if (m_dockActions[4]) m_dockActions[4]->setChecked(isFloating());

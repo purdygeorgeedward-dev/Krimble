@@ -100,9 +100,6 @@ void KisFilterFastColorTransfer::processImpl(KisPaintDeviceSP device,
     double meanL_src = 0., meanA_src = 0., meanB_src = 0.;
     double sigmaL_src = 0., sigmaA_src = 0., sigmaB_src = 0.;
 
-    // Krimble 2026-10-26: George, about a cut-out picture with a transparent background: the statistics counted every pixel of the rectangle, the transparent ones (black)
-    // too, so they were pulled toward black and the match was wrong. Now each pixel counts as much as it is opaque (a weight from its alpha, so a fully transparent pixel
-    // counts nothing and the soft edge of a cut-out counts a little). A picture with no transparent pixel gives exactly the numbers it gave before.
     double totalWeight = 0.;
     {
         KisSequentialConstIteratorProgress srcIt(srcLAB, applyRect, updaterStats);
@@ -134,9 +131,6 @@ void KisFilterFastColorTransfer::processImpl(KisPaintDeviceSP device,
     
     dbgPlugins << totalSize << "" << meanL_src << "" << meanA_src << "" << meanB_src << "" << sigmaL_src << "" << sigmaA_src << "" << sigmaB_src;
 
-    // Krimble: "None" source (matched PS's own documented behavior) uses
-    // the target's own statistics as the reference -- a no-op on its own,
-    // but meaningful combined with Neutralize below.
     const bool hasSource = config->getBool("hasSource", false);
     double meanL_ref = hasSource ? config->getDouble("meanL") : meanL_src;
     double meanA_ref = hasSource ? config->getDouble("meanA") : meanA_src;
@@ -145,10 +139,6 @@ void KisFilterFastColorTransfer::processImpl(KisPaintDeviceSP device,
     double sigmaA_ref = hasSource ? config->getDouble("sigmaA") : sigmaA_src;
     double sigmaB_ref = hasSource ? config->getDouble("sigmaB") : sigmaB_src;
 
-    // Krimble: Neutralize forces the reference's a/b (chroma) means to the
-    // Lab colorspace's neutral/gray point, removing whatever overall color
-    // cast the match would otherwise have introduced -- independent of
-    // whether an external source is in use, matching PS's own checkbox.
     if (config->getBool("neutralize", false)) {
         const double neutralAB = 32768.0; // Krita's lab16 encodes neutral a/b at the midpoint of the unsigned 16-bit range
         meanA_ref = neutralAB;
@@ -159,18 +149,10 @@ void KisFilterFastColorTransfer::processImpl(KisPaintDeviceSP device,
     const double colorIntensityPct = config->getInt("colorIntensity", 100) / 100.0;
     const double fadePct = config->getInt("fade", 0) / 100.0;
 
-    // Krimble: known simplification for this first pass -- useSelectionTarget
-    // and ignoreSelection are read but not yet fully wired: target statistics
-    // above are always computed over the whole applyRect (which is already
-    // selection-bounded by Krita's normal filter-application behavior when a
-    // selection is active, just not selection-*shaped* the way a precise
-    // per-pixel mask would be), and the filter doesn't yet force whole-image
-    // application when a selection exists and Ignore Selection is checked.
 
     // Transfer colors
     dbgPlugins << "Transfer colors";
     {
-        // Krimble 2026-10-26: a picture of one flat color (no spread) divided by zero and gave NaN: then the factor is 1 (the pixel keeps its distance from the mean).
         auto spreadRatio = [](double refSigma, double refMean, double srcSigma, double srcMean) {
             const double num = refSigma - refMean * refMean;
             const double den = srcSigma - srcMean * srcMean;

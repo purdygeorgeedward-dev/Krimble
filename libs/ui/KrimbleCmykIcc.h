@@ -1,10 +1,3 @@
-// Krimble 2026-11-13: George: "Finish the CMYK system." The Custom CMYK profile (KrimbleCmykEngine.h) becomes a real ICC output profile, so everything in the program that takes a profile can use it:
-// Image > Convert Image Color Space (CMYK, pick the profile), soft proofing, saving a CMYK TIFF. The profile is written by hand as an ICC v2.4 file (no library needed):
-//   - A2B0 (and A2B1, A2B2: the same table): CMYK to Lab, a 17 x 17 x 17 x 17 table of the engine's forward model (dot gain, Neugebauer equations) with the black point compensation of the profile;
-//   - B2A0 (and B2A1, B2A2): Lab to CMYK, a 17 x 17 x 17 table of the engine's separation (the GCR / UCR, black generation, black and total ink limits, undercolor addition), found with all the
-//     processor cores while a progress box is shown (it can be cancelled).
-// Both tables are the relative colorimetric mapping the engine already uses between sRGB and the plates (sourceToPaper / paperToSource): toRgb(plates) = A2B, fromRgb(color) = B2A.
-// The file is saved in the program's icc_profiles folder (so it is there at the next start) and added to the color management at once.
 #ifndef KRIMBLECMYKICC_H
 #define KRIMBLECMYKICC_H
 

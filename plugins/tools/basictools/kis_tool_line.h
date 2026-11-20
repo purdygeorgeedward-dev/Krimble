@@ -27,7 +27,7 @@
 class QPoint;
 class KoCanvasBase;
 class QCheckBox;
-class QSpinBox;   // Krimble 2026-10-30: the Thickness setting
+class QSpinBox;
 class QSlider;
 class QTimer;
 class KisPaintingInformationBuilder;
@@ -68,7 +68,7 @@ private Q_SLOTS:
     void setShowGuideline(bool value);
     void setSnapToAssistants(bool value);
     void setSnapEraser(bool value);
-    void setKrimbleThickness(int value);   // Krimble 2026-10-30: the Thickness setting (the current brush's size)
+    void setKrimbleThickness(int value);
     void syncKrimbleThickness();
 
 
@@ -101,7 +101,7 @@ private:
     QCheckBox *m_chkShowGuideline {nullptr};
     QCheckBox *m_chkSnapToAssistants {nullptr};
     QCheckBox *m_chkSnapEraser {nullptr};
-    QSlider *m_krimbleThicknessSlider {nullptr};   // Krimble 2026-10-30
+    QSlider *m_krimbleThicknessSlider {nullptr};
     QSpinBox *m_krimbleThicknessSpin {nullptr};
     QTimer *m_krimbleThicknessTimer {nullptr};
 

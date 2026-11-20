@@ -265,7 +265,6 @@ public:
      */
     void removeSelection();
 
-    /// Krimble: select the entire text content of the current shape.
     void selectAll();
 
     /**

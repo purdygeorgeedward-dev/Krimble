@@ -1,7 +1,5 @@
-// Krimble 2026-11-19 (755th): part of KisMainWindow.cpp, moved here unchanged and included at the same place (George: "Use branching. Prioritize and implement all."). It only
-// compiles as part of KisMainWindow.cpp.
 
-#ifdef Q_OS_ANDROID   // Krimble 2026-11-19 (755th): the Android-only part continues across the split files
+#ifdef Q_OS_ANDROID
 class KrimbleBevelOverlay : public QWidget
 {
 public:
@@ -42,11 +40,7 @@ public:
 protected:
     void paintEvent(QPaintEvent *) override
     {
-        if (qApp->property("krimbleFlatTheme").toBool()) return;   // Krimble 2026-11-15: the theme "Krimble Dark Gray" has no bevels at all
-        // Krimble 2026-11-15: George (build 60, landscape screenshot): "It's the whole bottom edge of the menu bar!!!" Measured on his screenshot: the menu bar's own bottom line is dark (rows 64 to 66), and right under it,
-        // rows 67 to 69 across the whole width, is a near-white line: the top line of a tool bar only about 3 real pixels high (a tool bar with nothing in it, under the menu bar). A tool bar that is
-        // that thin, or has no actions, gets no bevel lines.
-        // Krimble 2026-11-15 (2nd): George: "Image windows are not supposed to get bevels or highlights when maximized." A maximized image window (QMdiSubWindow) is drawn on without any bevel lines.
+        if (qApp->property("krimbleFlatTheme").toBool()) return;
         if (QMdiSubWindow *krimbleSub = qobject_cast<QMdiSubWindow*>(m_target.data())) {
             if (krimbleSub->isMaximized()) return;
         }
@@ -55,25 +49,12 @@ protected:
         }
         QPainter p(this);
         p.setRenderHint(QPainter::Antialiasing, false);
-        // Krimble 2026-11-13: George: "They all need bevels." / "I mean the menu bar." The menu bar's lines are 2 device pixels thick (4 was too much); everything else stays one device pixel.
         const bool menuBarTarget = qobject_cast<QMenuBar*>(m_target.data()) != nullptr;
-        // Krimble 2026-11-14: George: "Just thicker by one pixel." The theme "Krimble Bevel" has its lines one device pixel thicker (2); every other theme stays at 1.
-        // Krimble 2026-11-15: George: "Try 3 just to test next time." (1 and 2 real pixels were not enough on his screen; all themes must have bevels). Every theme: 3 REAL screen pixels. Before: 2 in Krimble Bevel, 1 in the others.
-        // Krimble 2026-11-15: George (build 60, floating toolbox): "it has a fat edge again." The toolbox's edge (the dock named ToolBox) is 2 real screen pixels; everything else stays at 3.
-        // Krimble 2026-11-15 (674th+): George (landscape screenshot, "NO EDGES" with arrows at the toolbox): "Make the bevel edges of the toolbox better." The toolbox's edge is 3 real pixels again, on all four sides in
-        // every case (docked too), with clearer tones (below).
         const bool krimbleToolBoxTarget = m_target && m_target->objectName() == QLatin1String("ToolBox");
         const qreal one = 3.0 / qMax<qreal>(1.0, devicePixelRatioF());
-        // Krimble 2026-11-12 (task 35): George: "Can we reverse bevel on menus so they look recessed?" A menu (popup) gets the lines the other way round: dark on the top and left,
-        // light on the bottom and right (sunken). Panels, tool bars and image windows are not changed (raised).
         const bool recessed = qobject_cast<QMenu*>(m_target.data()) != nullptr;
-        // Krimble 2026-11-15: George: "Menus look like shit with bevels. Just put a black outline around them." A menu (popup, submenus too) has no bevel: a plain black outline, 2 real screen pixels thick.
         if (recessed) {
             const qreal edge = 2.0 / qMax<qreal>(1.0, devicePixelRatioF());
-            // Krimble 2026-11-15 (698th): George: "Remove the outline around menus." The black outline is off (the four fills are kept as comments).
-            // Krimble 2026-11-17 (735th): George (build 66): "Menus have no line around them or beveled edges so they just merge with other menus." The black outline is back (2 real
-            // screen pixels), but a menu that opens from the menu bar has no line along its top, where it meets its name ("Tops of menus still have a line separating them from menu titles").
-            // Submenus and other popups have all four sides.
             p.setPen(Qt::NoPen);
             if (!m_target->property("krimbleBarMenu").toBool()) p.fillRect(QRectF(0, 0, width(), edge), Qt::black);
             p.fillRect(QRectF(0, height() - edge, width(), edge), Qt::black);
@@ -84,7 +65,7 @@ protected:
             // p.fillRect(QRectF(0, height() - edge, width(), edge), Qt::black);
             return;
         }
-#if 0   // Krimble 2026-11-15: the old drawing (four plain rectangles, two tones), kept; replaced by the mitered frame below
+#if 0
         const QColor light = recessed ? QColor(18, 19, 34) : QColor(110, 114, 156);
         const QColor dark = recessed ? QColor(110, 114, 156) : QColor(18, 19, 34);
         const qreal w = width();
@@ -98,23 +79,10 @@ protected:
             p.fillRect(QRectF(w - one, 0, one, h), dark);
         }
 #endif
-        // Krimble 2026-11-15: George: "Plain rectangles is stupid." and his two close-up pictures (docs/bevel-reference/): four edges, each its own tone (top the lightest, left light,
-        // right dark, bottom the darkest), meeting at 45 degree diagonal joins (a staircase of real pixels: no antialiasing). A menu is recessed: the tones are turned round.
-        // A docked panel has its top and bottom edges only (as before), straight, with no joins. The width of an edge is `one` (3 real screen pixels, entry 599).
-        // Krimble 2026-11-15: George (build 60): "There are white lines on the top and bottom of the menu bar for no apparent reason." The menu bar's top line was the near-white top tone, 3 real pixels thick, which
-        // reads as a white stripe on the dark bar; the menu bar's top line is the softer light tone now (the same as its left edge). Panels and the rest keep the near-white top tone.
         const bool krimbleMenuBar = qobject_cast<QMenuBar*>(m_target.data()) != nullptr;
-        // Krimble 2026-11-15 (2nd): George (screenshot with "WHITE LINE" and arrows at the line under the menu bar and the line between the panels): the top lines of the panels are the white ones too. Every raised
-        // top line is the softer light tone now, not only the menu bar's.
         Q_UNUSED(krimbleMenuBar);
-        // Krimble 2026-11-15 (4th): George: "The shading on the bevels needs to be less intense." The four tones are closer to the panel color. Before: top (110, 120, 170), left (140, 150, 196), right (46, 52, 84), bottom (18, 19, 34).
-        // Krimble 2026-11-15 (692nd): George: "Yes" (derive the bevel from each theme's own colors, not fixed blue-gray tones). Every tone is the target's own window color made lighter or darker (same hue), by factors
-        // that reproduce the old blue-gray tones on the old blue-gray window color (#383A53): top 92,100,145 = 170%, toolbox top 250%, left 150% / toolbox 210%, right 90% / toolbox 48%, bottom 60% / toolbox 22%;
-        // recessed: top 30%, left 83%, right 170%, bottom 300%.
         const QColor krimbleBase = m_target ? m_target->palette().color(QPalette::Window) : palette().color(QPalette::Window);
         QColor topTone    = krimbleBase.lighter(recessed ? 30 : 170);
-        // Krimble 2026-11-15 (3rd): George: "There is not supposed to be a hilight on the bottom edge of the menu bar!!!!!" Whatever widget lies right under the menu bar (its top within 12 real pixels of the
-        // menu bar's bottom edge) gets no top line, so nothing lit can sit on the menu bar's lower edge, whichever widget it is.
         if (!qobject_cast<QMenuBar*>(m_target.data()) && !recessed && m_target) {
             if (QMainWindow *krimbleWin = qobject_cast<QMainWindow*>(m_target->window())) {
                 if (QMenuBar *krimbleBar = krimbleWin->menuBar()) {
@@ -123,12 +91,7 @@ protected:
                 }
             }
         }
-        // Krimble 2026-11-15 (3rd): George: "Selected tab still does not connect with its own tab!" Measured on his screenshot: under the selected tab (fill #373952) a 3 px light line (#5D658C) ran across the top of the panel, between the tab and the
-        // panel's title bar (#383A53). A panel in a tab group gets no top line from the overlay: the tab row draws its own line under the unselected tabs, and the selected tab runs into the panel.
-        // Krimble 2026-11-15: George: "Remove all the tab customizations. They are all a failure." Off: tab line suppression
-        // Krimble 2026-11-15 (697th): George: "Please make tabs match their panels and don't put a line between them." Back on: a panel in a tab group gets no top line from the overlay (the tab runs into the panel).
         if (!recessed) { if (QDockWidget *krimbleTabbedDock = qobject_cast<QDockWidget*>(m_target.data())) { if (krimbleDockInTabGroup(krimbleTabbedDock)) topTone = QColor(0, 0, 0, 0); } }
-        // Krimble 2026-11-15 (674th+): the toolbox's own tones: a lit top and left, a dark right and bottom, with a wider gap between light and dark than the other panels have.
         if (krimbleToolBoxTarget && !recessed && topTone.alpha() != 0) topTone = krimbleBase.lighter(250);   // was QColor(150, 160, 208)
         const QColor leftTone   = krimbleBase.lighter(recessed ? 83 : (krimbleToolBoxTarget ? 210 : 150));
         const QColor rightTone  = krimbleBase.lighter(recessed ? 170 : (krimbleToolBoxTarget ? 48 : 90));
@@ -144,16 +107,12 @@ protected:
         if (!allEdges) {
             p.fillRect(QRectF(0, 0, w, t), topTone);
             p.fillRect(QRectF(0, h - t, w, t), bottomTone);
-            // Krimble 2026-11-15 (707th): George (build 63): "The right dock has no hilight line on the left side." A docked panel had only its top and bottom lines. It has the light line down its
-            // left side too (the same tone as a floating panel's left side), joined to the top line with a 45 degree corner.
             p.setBrush(leftTone);
             { QPolygonF poly; poly << QPointF(0, 0) << QPointF(t, t) << QPointF(t, h - t) << QPointF(0, h); p.drawPolygon(poly); }
             return;
         }
         p.setBrush(topTone);
         { QPolygonF poly; poly << QPointF(0, 0) << QPointF(w, 0) << QPointF(w - t, t) << QPointF(t, t); p.drawPolygon(poly); }
-        // Krimble 2026-11-16 (728th): George (build 65): "Shadow on the toolbox is just a black line." The toolbox's right and bottom edges were one flat, nearly black band. They are a
-        // shadow that deepens toward the outer edge now: from a little darker than the toolbox (85 percent) on the inside to the old dark tone at the very edge.
         if (krimbleToolBoxTarget && !recessed) {
             QLinearGradient shade(QPointF(0, h - t), QPointF(0, h));
             shade.setColorAt(0.0, krimbleBase.lighter(85));
@@ -162,8 +121,6 @@ protected:
         } else {
             p.setBrush(bottomTone);
         }
-        // Krimble 2026-11-17 (735th): George (build 66): "Tops of menus still have a line separating them from menu titles." While a menu is open, the menu bar's dark bottom edge is left
-        // out under that menu's name, so the name runs straight into its menu.
         if (QMenuBar *krimbleOpenBar = qobject_cast<QMenuBar*>(m_target.data())) {
             QAction *krimbleOpen = krimbleOpenBar->activeAction();
             if (krimbleOpen && krimbleOpen->menu() && krimbleOpen->menu()->isVisible()) {
@@ -185,14 +142,11 @@ protected:
             p.setBrush(rightTone);
         }
         { QPolygonF poly; poly << QPointF(w, 0) << QPointF(w, h) << QPointF(w - t, h - t) << QPointF(w - t, t); p.drawPolygon(poly); }
-        // Krimble 2026-11-15: George (1.0.59 test, item 4: "No orange K in corner of default layout."): the K is drawn by the menu bar's own paint filter (see KrimbleMenuBarFilter), but in every theme except
-        // Krimble Painted that drawing comes BEFORE the bar paints itself, and since task 57 the flat sheets paint an opaque bar background (#49588c), which covered the K. This overlay lies on top of the bar,
-        // so the K is also drawn here, after the lines, in the same place and size (2 px from the left, centered up and down, as tall as the menu names).
         if (QMenuBar *kBar = qobject_cast<QMenuBar*>(m_target.data())) {
             const QFontMetrics kMetrics(kBar->font());
             const int kSize = qMin(kBar->height() - 4, qMax(14, kMetrics.height()));
             p.setRenderHint(QPainter::SmoothPixmapTransform, true);
-            qApp->windowIcon().paint(&p, QRect(2, (kBar->height() - kBar->property("krimbleBarExtra").toInt() - kSize) / 2, kSize, kSize));   // Krimble 2026-11-16 (722nd): centered on the menu names
+            qApp->windowIcon().paint(&p, QRect(2, (kBar->height() - kBar->property("krimbleBarExtra").toInt() - kSize) / 2, kSize, kSize));
         }
     }
 
@@ -200,39 +154,19 @@ private:
     QPointer<QWidget> m_target;
 };
 
-// Krimble 2026-10-18 (15th): the title text of a panel is hidden when the panel is in a tab group (docked, with other panels tabbed with it); it shows again when it is alone or floating
 static void krimbleRefreshTabTitles(QMainWindow *win)
 {
     Q_FOREACH (QDockWidget *dock, win->findChildren<QDockWidget*>()) {
         KoDockWidgetTitleBar *bar = dynamic_cast<KoDockWidgetTitleBar*>(dock->titleBarWidget());
         if (!bar) continue;
-        // Krimble 2026-11-15: George (build 60, Layers screenshot): "Layers panel has no title." The Layers panel is alone in its place (no tab row over it), but tabifiedDockWidgets() also lists
-        // panels that are closed, so it counted as "in a tab group" and its name was hidden. A panel is in a tab group only if a visible tab with its name is on screen.
-        //     Q_FOREACH (QTabBar *tabBar, win->findChildren<QTabBar*>(QString(), Qt::FindDirectChildrenOnly)) {
-        //         if (!tabBar->isVisible()) continue;
-        //         for (int i = 0; i < tabBar->count(); ++i) {
-        //             if (tabBar->tabText(i) == dock->windowTitle()) { tabbed = true; break; }
-        //         }
-        //         if (tabbed) break;
-        //     }
-        // }
-        // Krimble 2026-11-15 (3rd): George: "Layers menu still appears with NO TITLE." A tab bar with a single tab (a lone panel) no longer counts as a tab group: two or more tabs are needed (krimbleDockInTabGroup).
         const bool tabbed = krimbleDockInTabGroup(dock);
-        // Krimble 2026-11-15: George: "The tab should only be visible when they are docked. Otherwise the tabs are pointless." (item 7, Color Lab double title: the tab, the title bar and the logo all said "Color Lab".)
-        // The Color Lab panel names itself ONCE: by its tab when it is in a tab group, otherwise by its logo. The logo is hidden in a tab group; the title bar's text is always hidden for this panel (its logo or its tab
-        // is the title). Other panels are as before: the title text is hidden when they are in a tab group.
         QWidget *krimbleLogo = dock->findChild<QWidget*>(QStringLiteral("KrimbleStudioLogo"));
-        // Krimble 2026-11-15: run this again the moment a panel is torn off or docked (it only ran at start and on a tab choice, so a torn-off Color Lab kept its title bar text)
         if (!dock->property("krimbleTitleHooked").toBool()) {
             dock->setProperty("krimbleTitleHooked", true);
             QObject::connect(dock, &QDockWidget::topLevelChanged, win, [win](bool) { QTimer::singleShot(0, win, [win]() { krimbleRefreshTabTitles(win); }); });
         }
         bar->setTitleTextHidden(krimbleLogo ? true : tabbed);
-        // Krimble 2026-11-15 (3rd): George: "Color Lab now has no logo!!!!!!" The logo is always shown (it was hidden while the panel was in a tab group, as its name was on the tab).
         if (krimbleLogo && krimbleLogo->isHidden()) krimbleLogo->setVisible(true);
-        // Krimble 2026-11-17 (730th): George's Color Lab wishlist mockup: no title bar over the COLOR LAB band (the band has the float and close buttons now, krimble_color_pages.h).
-        // The title bar is folded away: its buttons and label hidden, no margins, 0 high (tried in real Qt 5.15: the panel's contents then start at the top; a title bar that is only
-        // hidden still takes its room). In a tab group the tab names the panel and can be dragged off as before.
         if (krimbleLogo) {
             Q_FOREACH (QWidget *part, bar->findChildren<QWidget*>(QString(), Qt::FindDirectChildrenOnly)) {
                 if (part->isVisible()) part->hide();
@@ -243,10 +177,6 @@ static void krimbleRefreshTabTitles(QMainWindow *win)
     }
 }
 
-// Krimble 2026-11-12 (task 29): George: "I would like to get rid of the little locks at the top of the panels and use the tabs to detach them." and "Dragging the tab does
-// NOTHING right now. Nothing." Qt's own drag of a dock tab out of its tab row does not happen on his phone (no code of ours blocks it that I could find), so this is our own
-// gesture: press a panel's tab and drag it away from the tab row (further than the tab row is high, up or down) and that panel floats, its title bar under the finger.
-// Dragging along the row (to reorder tabs) is not touched. A panel that is already floating, and a tab that does not match a docked panel, are left alone.
 class KrimbleTabDetachFilter : public QObject
 {
 public:
@@ -301,10 +231,6 @@ private:
 };
 
 
-// Krimble 2026-11-13 (task 56): George: "Tabs still do not tear off a panel. At all. They never did." The filter of 2026-11-12 (task 29) sat on each tab bar and, in a test in real Qt with real
-// mouse events, it does tear a panel off; on the phone it never did, and nothing in krita.log said why. This one sits on the application (it sees every event on its way to any widget, as
-// the other Krimble filters that work on the phone do), reads the mouse events AND the touch events of a tab bar of a panel group, follows the finger with the floating panel, and writes what
-// it sees to krita.log (lines start with KRIMBLE-TABS) so that the next log shows where a drag stops if it still does not work.
 class KrimbleTabTearOff : public QObject
 {
 public:
@@ -315,8 +241,6 @@ public:
         if (!bar) return false;
         QMainWindow *win = qobject_cast<QMainWindow *>(bar->parentWidget());
         if (!win) return false;   // the tab bars of the panel groups are direct children of the main window (the image tabs are not)
-        // Krimble 2026-11-13 (task 75): George: "A tab should have curved corners on top, then inverted curves on the bottom" (his choice "Tab C"): the tab row of the panel groups is drawn here
-        // (a style sheet cannot draw inverted curves).
         if (event->type() == QEvent::Paint && (bar->shape() == QTabBar::RoundedNorth || bar->shape() == QTabBar::TriangularNorth) && bar->count() > 0) {
             paintTabRow(bar);
             return true;
@@ -354,7 +278,7 @@ public:
         if (isPress) {
             m_bar = bar;
             m_tab = bar->tabAt(pos);
-            m_press = pos;   // Krimble 2026-11-13 (task 75): the tab itself can be dragged off too
+            m_press = pos;
             m_taken = false;
             m_dock = nullptr;
             m_maxOut = 0;
@@ -374,10 +298,6 @@ public:
             const int outside = pos.y() < 0 ? -pos.y() : (pos.y() > bar->height() ? pos.y() - bar->height() : 0);
             m_maxOut = qMax(m_maxOut, outside);
             const int limit = qMax(bar->height() / 2, 16);   // half a tab row beyond the row, up or down
-            // if (outside < limit) return false;
-            // Krimble 2026-11-13 (task 75): George: "Tab should be grabbable. So far it has not been." Until now only a drag that left the tab row tore the panel off, so a drag that
-            // started on the tab itself did nothing. Now a mostly vertical drag of more than 0.6 of the row's height from where the finger went down tears it off too (a sideways drag
-            // still moves the tab within its group).
             const int vertical = qAbs(pos.y() - m_press.y());
             const int horizontal = qAbs(pos.x() - m_press.x());
             const int grabLimit = qMax(int(bar->height() * 0.6), 14);
@@ -426,9 +346,6 @@ private:
     // curves); the other tabs are darker and closed off by that line. The colors come from the theme's palette (the panel is the Window color).
     static void paintTabRow(QTabBar *bar)
     {
-        // Krimble 2026-11-13 (task 80): George: "The top of the panel below. And they should have more space between them and have the same curves." Every tab has the same shape: rounded
-        // top corners and the inverted curves at the bottom; the body of a tab is inset by the curve's width on each side, so the tabs have room between them and the curves of
-        // neighbors do not overlap. The tabs that are not selected are darker and sit on the line under the row (the top of the panel below); the selected tab leaves a gap in that line.
         QPainter p(bar);
         p.setRenderHint(QPainter::Antialiasing, true);
         const QPalette pal = bar->palette();
@@ -512,11 +429,6 @@ static void krimbleInstallTabDetach(QMainWindow *win)
     }
 }
 
-// Krimble 2026-11-13: George: "6. BUILD NOW." (panels lay over the canvas instead of shrinking it: "Instead of laying on top of the image, the right side panel forces the image in the main canvas
-// area to zoom waaaay out."). The 546th entry only froze the zoom; the canvas area was still smaller by the panel's width. Here the central widget (the canvas area) keeps the whole width of the
-// window: after the main window's layout has put the panels at the sides and shrunk the central widget, it is stretched back sideways to the window's full width and put behind the panels, which
-// then lie on top of the canvas. The height is left as the layout made it (toolbars and the menu bar above, the status bar below). A panel that floats is not touched. In the settings,
-// krimble/PanelsOverlayCanvas = false turns it off.
 class KrimbleCanvasOverlay : public QObject
 {
 public:
@@ -530,11 +442,6 @@ public:
         if (watched == m_win.data()) {
             if (event->type() == QEvent::Resize || event->type() == QEvent::LayoutRequest || event->type() == QEvent::Show || event->type() == QEvent::ChildAdded) schedule();
         } else if (watched == m_central.data()) {
-            // Krimble 2026-11-16 (722nd): George (build 64): "There is a weird visual jitter (periodic jolts) when trying to paint on screen which disrupts the line. Very bad bug." Every time
-            // the main window lays itself out again (any widget in it asking for a new size: the status bar's memory figure does, again and again while painting), Qt puts the canvas area
-            // back between the panels (narrower, and moved right by the toolbox's width), and it was stretched back to the full width only a moment LATER (a timer), so for that moment the
-            // picture sat in another place under the finger and was drawn there: the jolt, and the break in the line. The canvas area is now put back AT ONCE, inside the very move or
-            // resize that Qt made, before anything is drawn and before the next touch arrives.
             if ((event->type() == QEvent::Resize || event->type() == QEvent::Move) && !m_busy) apply();
         }
         return false;
@@ -560,9 +467,6 @@ private:
         if (!m_win) return;
         track();
         if (!m_central || !m_win->isVisible()) return;
-        // Krimble 2026-11-17 (732nd): off by default. George: the slowdown is the canvas lying under the panels (full-width canvas draws pixels nobody sees, and every
-        // panel repaint forces the canvas under it to be redrawn). The canvas now ends at the panel's edge, as in the industry standard; the zoom freeze (546th) stays.
-        // krimble/PanelsOverlayCanvas = true turns the overlay back on.
         static const bool krimbleOverlayOn = QSettings().value(QStringLiteral("krimble/PanelsOverlayCanvas"), false).toBool();
         if (!krimbleOverlayOn) return;
         const QRect now = m_central->geometry();
@@ -579,10 +483,6 @@ private:
     bool m_busy = false;
 };
 
-// Krimble 2026-11-15: George: "panels should use the theme background." (1.0.59 test items 1, 5, 8, 9, 10: the panels and the toolbox were see-through). The style sheets paint the window and the docks with
-// the rule `QMainWindow, QDockWidget { background: ...; }` (a flat color in the flat themes, a vertical gradient in Krimble Bevel and Krimble Painted), but a docked panel does not draw it itself
-// and its contents are transparent, so with the canvas under the panels (KrimbleCanvasOverlay) the picture showed through. This filter paints that same background (read from the application's
-// style sheet, so every theme and a theme change are followed) into each dock before the dock draws its content. A gradient is spread over the dock's own height and width.
 struct KrimbleDockBackgroundSpec
 {
     bool valid = false;
@@ -659,35 +559,22 @@ public:
 
 static void krimbleInstallBevels(QMainWindow *win)
 {
-    // Krimble 2026-11-12 (task 43): George (the new build, a screenshot of the start screen): "on start the menu bar has nothing to separate it from the rest of the screen. No border. No hilight or shadow. Then it becomes the painted version." The menu bar itself never had the one-pixel lines (only panels, tool bars, menus and image windows had): it gets them now (raised: light top and left, dark bottom and right).
     Q_FOREACH (QMenuBar *menuBar, win->findChildren<QMenuBar*>(QString(), Qt::FindDirectChildrenOnly)) {
         if (!menuBar->findChild<KrimbleBevelOverlay*>(QStringLiteral("krimbleBevelOverlay"), Qt::FindDirectChildrenOnly)) new KrimbleBevelOverlay(menuBar);
     }
     Q_FOREACH (QDockWidget *dock, win->findChildren<QDockWidget*>()) {
         if (!dock->findChild<KrimbleBevelOverlay*>(QStringLiteral("krimbleBevelOverlay"), Qt::FindDirectChildrenOnly)) new KrimbleBevelOverlay(dock);
-        // Krimble 2026-11-15: George (1.0.59 test, items 1, 5, 8, 9, 10: "UI components are transparent", the toolbox "sits on top of the image", Recent Images "writes over the toolbox"): the style sheets make the
-        // children of a dock transparent, and since build 59 the canvas lies under the docks (KrimbleCanvasOverlay), so the image and the Recent Images page showed through every panel and the toolbox.
-        // Every dock now paints its own background (the palette's Window color) before its content.
         if (!dock->findChild<KrimbleDockBackground*>(QStringLiteral("krimbleDockBackground"), Qt::FindDirectChildrenOnly)) new KrimbleDockBackground(dock);
     }
     Q_FOREACH (QToolBar *bar, win->findChildren<QToolBar*>()) {
         if (!bar->findChild<KrimbleBevelOverlay*>(QStringLiteral("krimbleBevelOverlay"), Qt::FindDirectChildrenOnly)) new KrimbleBevelOverlay(bar);
     }
-    // Krimble 2026-10-18 (4th): George (1.0.37, fc126d8): "I don't see any edges." (the one-pixel light and dark lines of menus, finding 11). The first way, the
-    // PE_FrameMenu of the app's style, was never reached: the theme's style sheet draws menus itself. The same overlay as for panels and toolbars is put on every
-    // menu and submenu (light on the top and left edges, dark on the bottom and right, one device pixel).
     Q_FOREACH (QMenu *menu, win->findChildren<QMenu*>()) {
         if (!menu->findChild<KrimbleBevelOverlay*>(QStringLiteral("krimbleBevelOverlay"), Qt::FindDirectChildrenOnly)) new KrimbleBevelOverlay(menu);
     }
-    // Krimble 2026-11-12 (task 28): George: "all windows need bevels!" The floating image windows (QMdiSubWindow) get the same overlay (light top and left, dark bottom and right, one device pixel); they are drawn by the style, not by the style sheet, so the sheet's bevel lines do not reach them.
     Q_FOREACH (QMdiSubWindow *sub, win->findChildren<QMdiSubWindow*>()) {
         if (!sub->findChild<KrimbleBevelOverlay*>(QStringLiteral("krimbleBevelOverlay"), Qt::FindDirectChildrenOnly)) new KrimbleBevelOverlay(sub);
     }
-    // Krimble 2026-10-18 (15th): the double titles of panels in tabs (see krimbleRefreshTabTitles); at once when a tab is chosen, and every 2 s with the lines above
-    // Krimble 2026-11-15: George: "Remove all the tab customizations. They are all a failure." Off: tab titles
-    // if (!s_tabTitlesHooked) {
-    // }
-    // Krimble 2026-11-15 (680th): George: "ColorLab has THREE TITLES." (the tab, the title bar text and the logo). This is back on: it only hides the title bar text of a panel in a tab group (and Color Lab's, whose logo or tab is its title). It paints and moves nothing.
     static bool s_tabTitlesHooked = false;
     if (!s_tabTitlesHooked) {
         s_tabTitlesHooked = true;
@@ -695,4 +582,4 @@ static void krimbleInstallBevels(QMainWindow *win)
     }
     krimbleRefreshTabTitles(win);
 }
-#endif   // Krimble 2026-11-19 (755th): the Android-only part continues across the split files
+#endif

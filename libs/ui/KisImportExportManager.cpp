@@ -12,7 +12,7 @@
 #include <QVBoxLayout>
 #include <QList>
 #include <QApplication>
-#include <QGuiApplication>  // Krimble 2026-10-23: export options window fitted to the screen
+#include <QGuiApplication>
 #include <QScreen>
 #include <QByteArray>
 #include <QPluginLoader>
@@ -20,7 +20,7 @@
 #include <QMessageBox>
 #include <QJsonObject>
 #include <QTextBrowser>
-#include <QScrollArea>   // Krimble 2026-10-20: the export options window
+#include <QScrollArea>
 #include <QCheckBox>
 #include <QSaveFile>
 #include <QGroupBox>
@@ -196,13 +196,6 @@ QStringList KisImportExportManager::supportedMimeTypes(Direction direction)
 
     if (direction == KisImportExportManager::Import) {
         if (m_importMimeTypes.isEmpty()) {
-            // Krimble build fix: plugin .json files still register under
-            // "Krita/FileFilter" (an internal KPluginFactory service-type
-            // identifier, never user-facing -- same category as the XML
-            // namespace and organizationDomain deliberately left alone
-            // during the Krita->Krimble rebrand). This query string got
-            // renamed along with everything else and no longer matched any
-            // plugin, silently breaking every import/export format at once.
             QList<KoJsonTrader::Plugin> list = KoJsonTrader::instance()->query("Krita/FileFilter", "");
             Q_FOREACH(const KoJsonTrader::Plugin &loader, list) {
                 QJsonObject json = loader.metaData().value("MetaData").toObject();
@@ -689,9 +682,6 @@ bool KisImportExportManager::askUserAboutExportConfiguration(
 
             box->addTab(wdgImageSize,i18n("Resize"));
         }
-        // Krimble 2026-10-20: George (1.0.41, screenshot of the JPEG options): "File - Save dialog is super wide for no reason." The window is as wide as the
-        // widest of its pages (Basic, Advanced quality, Metadata), which can be wider than a phone's screen, and a window cannot be made smaller than that.
-        // The tabs are now in a scroll area: the window is as wide as the scroll area asks for (capped), and a wide page scrolls sideways.
         QScrollArea *optionsScroll = new QScrollArea;
         optionsScroll->setWidget(box);
         optionsScroll->setWidgetResizable(true);
@@ -711,9 +701,6 @@ bool KisImportExportManager::askUserAboutExportConfiguration(
         dlg.setButtons(KoDialog::Ok | KoDialog::Cancel);
         dlg.setWindowTitle(mimeUserDescription);
 
-        // Krimble 2026-10-23: George: "the dialog where you set the level of jpeg compression is ENORMOUS, and needs to shrink."
-        // The window opens at the size its contents ask for, but never larger than 90% of the screen's width or
-        // 80% of its height; anything bigger scrolls inside the window (scroll area above).
         if (QScreen *scr = QGuiApplication::primaryScreen()) {
             const QRect avail = scr->availableGeometry();
             dlg.adjustSize();

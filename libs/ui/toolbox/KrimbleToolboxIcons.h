@@ -37,7 +37,7 @@ inline const QHash<QString, QString> &files()
         { QStringLiteral("krita_tool_gradient"),        QStringLiteral("04_01_gradient") },
         { QStringLiteral("krita_tool_color_fill"),      QStringLiteral("04_02_fill") },
         { QStringLiteral("krita_draw_path"),            QStringLiteral("04_03_bezier_curve") },
-        { QStringLiteral("select"),                     QStringLiteral("04_04_shape_select") },   // Krimble 2026-10-30: the arrow is the Select Shapes tool (it has its button again)
+        { QStringLiteral("select"),                     QStringLiteral("04_04_shape_select") },
         // { QStringLiteral("shape_handling"),             QStringLiteral("04_04_shape_select") },   // (the 358th entry put it on Edit Shapes; George: "I think you should have left it.")
         { QStringLiteral("draw-text"),                  QStringLiteral("04_05_text") },
         { QStringLiteral("krita_tool_rectangle"),       QStringLiteral("05_01_rectangle") },
@@ -58,8 +58,6 @@ inline const QHash<QString, QString> &files()
 
 inline bool colorMode()
 {
-    // Krimble 2026-11-04: George: the full color toolbox icons look good large but not small, so the
-    // default is Silhouette (the line icons) again. Full color stays in the toolbox menu (Icon Style).
     return KSharedConfig::openConfig()->group("Krimble").readEntry("ToolboxColorIcons", false);
 }
 
@@ -70,9 +68,6 @@ inline void setColorMode(bool on)
     group.config()->sync();
 }
 
-// Krimble 2026-11-12 (task 40): George: "The user should have the choice between flat looking buttons like in your mockup and raised buttons with thicker bevels like DPaint."
-// The button style of the toolbox: 0 = Flat (no boxes, the icons on the panel: the default), 1 = Raised (each tool in its own box with a thick DPaint-style bevel). Kept in
-// memory after the first read, because the buttons ask on every paint.
 inline int &buttonStyleCache()
 {
     static int style = KSharedConfig::openConfig()->group("Krimble").readEntry("ToolboxButtonStyle", 0);
@@ -92,7 +87,6 @@ inline void setButtonStyle(int style)
     group.config()->sync();
 }
 
-// Krimble 2026-11-15: does the tool have a picture for the Full color style?
 inline bool hasPicture(const QString &iconName)
 {
     const auto it = files().constFind(iconName);

@@ -38,9 +38,6 @@ QVariant TasksetModel::data(const QModelIndex& index, int role) const
             case Qt::DecorationRole:
             {
                 if (step.type == TasksetStep::FilterApplication) {
-                    // Krimble: a generic icon for recorded filter/adjustment
-                    // steps -- individual filters don't reliably have their
-                    // own distinct icon the way toolbox tools do.
                     return KisIconUtils::loadIcon("view-filter");
                 }
                 if (step.type == TasksetStep::OperationRun) {

@@ -7,9 +7,9 @@
 #include "presetdocker_dock.h"
 
 #include <QHBoxLayout>
-#include <QVBoxLayout>   // Krimble 2026-10-30: the new controls
+#include <QVBoxLayout>
 #include <QSlider>
-#include <QLineEdit>   // Krimble 2026-10-30: the current brush's name
+#include <QLineEdit>
 #include <QSpinBox>
 #include <QLabel>
 #include <QTimer>
@@ -32,22 +32,17 @@
 
 
 PresetDockerDock::PresetDockerDock( )
-    // KRIMBLE 2026-10-02: panel renamed from "Brush Presets" to "Brushes".
-    // : QDockWidget(i18nc("@title:window Brush presets chooser panel", "Brush Presets"))
     : QDockWidget(i18nc("@title:window Brush presets chooser panel", "Brushes"))
     , m_canvas(0)
 {
     m_presetChooser = new KisPaintOpPresetsChooserPopup(this);
     m_presetChooser->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
     m_presetChooser->setResponsiveness(true);
-    // Krimble 2026-10-30: George: "replace that panel. it's garbage." The panel was the preset picker and nothing else: no size, opacity or flow. It now has
-    // three touch-sized rows on top (Size, Opacity, Flow: slider and number box) that set the current brush, and the preset picker below them.
     QWidget *panel = new QWidget(this);
     QVBoxLayout *panelLayout = new QVBoxLayout(panel);
     panelLayout->setContentsMargins(6, 6, 6, 6);
     panelLayout->setSpacing(4);
 
-    // Krimble 2026-10-30: George: "the panel should have a text field that displays the current brushes name." A read-only field above the rows.
     {
         QHBoxLayout *nameRow = new QHBoxLayout();
         QLabel *nameLabel = new QLabel(i18n("Brush"), panel);
@@ -95,7 +90,6 @@ PresetDockerDock::PresetDockerDock( )
     m_syncTimer->start();
 }
 
-// Krimble 2026-10-30: the new controls write into the current brush.
 void PresetDockerDock::slotKrimbleSizeChanged(int value)
 {
     if (!m_canvas || !m_canvas->viewManager()) return;
@@ -116,7 +110,6 @@ void PresetDockerDock::slotKrimbleFlowChanged(int value)
     m_canvas->viewManager()->canvasResourceProvider()->setFlow(value / 100.0);
 }
 
-// Krimble 2026-10-30: shows the current brush's size, opacity and flow (not in a number box that is being typed in).
 void PresetDockerDock::slotKrimbleSync()
 {
     if (!m_canvas || !m_canvas->viewManager() || !isVisible()) return;
@@ -124,7 +117,7 @@ void PresetDockerDock::slotKrimbleSync()
     if (!provider) return;
 
     KisPaintOpPresetSP preset = provider->currentPreset();
-    if (m_nameField) {   // Krimble 2026-10-30: the current brush's name
+    if (m_nameField) {
         const QString brushName = preset ? preset->name() : QString();
         if (m_nameField->text() != brushName) {
             m_nameField->setText(brushName);

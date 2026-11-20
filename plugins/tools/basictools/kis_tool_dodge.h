@@ -15,15 +15,6 @@
 
 class KoCanvasBase;
 
-// Krimble: dedicated toolbox entry for the industry standard's Dodge tool. Unlike
-// Smudge/Soften, there is no dedicated bundled preset for this -- instead,
-// on activation this clones the standard default brush preset ("defaultPreset",
-// plugins/paintops/defaultpresets/paintbrush.kpp) and overrides its
-// CompositeOp to COMPOSITE_DODGE (already a real, fully-supported composite
-// op in KoCompositeOpRegistry.h -- Krita's core painter/compositing engine
-// already handles it for any brush, it just had no dedicated toolbox tool).
-// The clone is essential: modifying the shared cached preset in place would
-// corrupt the default brush everywhere else it's used.
 class KisToolDodge : public KisToolBrush
 {
     Q_OBJECT
@@ -33,10 +24,10 @@ public:
     ~KisToolDodge() override;
 
     void activate(const QSet<KoShape*> &shapes) override;
-    void deactivate() override;   // Krimble 2026-10-11: gives the foreground color back
+    void deactivate() override;
 
 private:
-    KoColor m_savedForeground;    // Krimble 2026-10-11: the foreground color before this tool made it white
+    KoColor m_savedForeground;
     bool m_foregroundSaved {false};
 };
 
@@ -49,8 +40,8 @@ public:
         setToolTip(i18n("Dodge Tool"));
         setSection(ToolBoxSection::PSOrder);
         setIconName(koIconNameCStr("krita_tool_dodge"));
-        setShortcut(QKeySequence(Qt::Key_O)); // Krimble: matches the industry standard's actual Dodge shortcut (Shift+O in PS; Krimble tools use unmodified single keys, see other PSOrder factories)
-        setPriority(23); // Krimble: directly after Soften (22).
+        setShortcut(QKeySequence(Qt::Key_O));
+        setPriority(23);
         setToolBoxPriority(123);
         setActivationShapeId(KRITA_TOOL_ACTIVATION_ID);
     }

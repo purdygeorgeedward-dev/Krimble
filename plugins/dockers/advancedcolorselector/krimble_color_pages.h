@@ -10,7 +10,7 @@
 #include <QMouseEvent>
 #include <QSignalBlocker>
 #include <QSpinBox>
-#include <QToolButton>   // Krimble 2026-11-17 (730th)
+#include <QToolButton>
 #include <QDockWidget>
 #include <kis_icon_utils.h>
 #include "krimble_color_paint.h"
@@ -168,13 +168,6 @@ protected:
         const QPointF center(ballR + (width() - 2 * ballR) * t, h / 2);
         QColor ballColor = ballOverride.isValid() ? ballOverride : (trackColor ? trackColor(t) : QColor(Qt::gray));
         ballColor.setAlpha(255);
-        // QRadialGradient ball(center + QPointF(-ballR * 0.25, -ballR * 0.35), ballR * 1.25);
-        // ball.setColorAt(0.0, ballColor.lighter(190));
-        // ball.setColorAt(0.45, ballColor);
-        // ball.setColorAt(1.0, ballColor.darker(165));
-        // p.setPen(QPen(QColor(6, 10, 24, 230), 2.0));
-        // p.setBrush(ball);
-        // Krimble 2026-11-15: George: "Give the new handle to Color Lab." The ball is his ball bearing picture (krimble-ball-bearing.png), drawn last so it is on top of the track.
         p.setRenderHint(QPainter::SmoothPixmapTransform);
         static const QPixmap bearing(QStringLiteral(":/krimble-ball-bearing.png"));
         p.drawPixmap(QRectF(center.x() - ballR, center.y() - ballR, 2 * ballR, 2 * ballR), bearing, QRectF(bearing.rect()));
@@ -776,8 +769,6 @@ private:
     }
 };
 
-// the Color Lab header: a black band the width of the panel with the logo centered (the logo's own background is black, so the picture and the band are one)
-// Krimble 2026-11-20 (757th): three thin grab lines (3 real pixels thick, 9 apart), as the panels' title rows, in a light gray on the black COLOR LAB band
 class KrimbleBandGrabLines : public QWidget
 {
 public:
@@ -796,12 +787,6 @@ class KrimbleColorHeader : public KrimbleColorBase
 {
 public:
     double designHeight() const override { return 100.0; }
-    // Krimble 2026-11-15: George (build 60): "when torn off it is right back to double titles." The panel looks for a widget named KrimbleStudioLogo (KisMainWindow.cpp, krimbleRefreshTabTitles) to know that the
-    // logo is the panel's title; the only widget with that name was in a block that is switched off, so the logo was never found: the tab group showed the tab and the logo, a floating panel the title bar and the logo.
-    // The live logo band takes the name.
-    // Krimble 2026-11-17 (730th): George's Color Lab wishlist mockup (krimble-artwork/mockups/color-lab-wishlist-2026-11-16.jpg): the float and close buttons are at the right end of the
-    // COLOR LAB band, and there is no title bar above it (KisMainWindow.cpp, krimbleRefreshTabTitles, folds the panel's title bar away). The band is also the handle of a floating Color
-    // Lab: drag it to move the panel.
     explicit KrimbleColorHeader(QWidget *parent = nullptr) : KrimbleColorBase(parent)
     {
         setObjectName(QStringLiteral("KrimbleStudioLogo"));
@@ -836,17 +821,14 @@ protected:
         const int y = (height() - side) / 2;
         m_close->setGeometry(width() - right - side, y, side, side);
         m_float->setGeometry(width() - right - 2 * side - gap, y, side, side);
-        // Krimble 2026-11-20 (757th): the grab lines, between the logo (about the left 60% of the band) and the float button, at most 120 real pixels long
         if (!m_lines) { m_lines = new KrimbleBandGrabLines(this); m_lines->setAttribute(Qt::WA_TransparentForMouseEvents); m_lines->show(); }
         {
             const qreal dpr = devicePixelRatioF();
             int l = int(width() * 0.62), r = m_float->x() - qRound(12 * scale());
             const int most = int(120.0 / dpr);
             // if (r - l > most) { const int extra = (r - l) - most; l += extra / 2; r -= extra - extra / 2; }
-            Q_UNUSED(most);   // Krimble 2026-11-20 (758th): the lines fill the space between the logo and the float button
+            Q_UNUSED(most);
             m_lines->setGeometry(l, 0, qMax(0, r - l), height());
-            // m_lines->setVisible(r - l >= 16);
-            // Krimble 2026-11-20 (759th): George: "Make grab area lines invisible on color lab." No lines on the COLOR LAB band; the band is still the grab area (a drag on it moves or tears off the panel).
             m_lines->setVisible(false);
         }
         m_close->setIconSize(QSize(side - 6, side - 6));
@@ -855,8 +837,6 @@ protected:
     void mousePressEvent(QMouseEvent *e) override
     {
         QDockWidget *d = dock();
-        // Krimble 2026-11-20 (757th): George: "layers has two grab areas, color lab has none." The band is Color Lab's grab area, docked or floating: a drag on it tears the panel
-        // off first if it is docked or in a tab group (before, it only moved a floating panel). The grab lines sit between the logo and the buttons (KrimbleBandGrabLines).
         if (e->button() == Qt::LeftButton && d) {
             m_dragFrom = e->globalPos();
             m_dockFrom = d->pos();
@@ -896,8 +876,8 @@ private:
     QPoint m_dragFrom;
     QPoint m_dockFrom;
     bool m_dragging = false;
-    bool m_tornOff = false;   // Krimble 2026-11-20 (757th)
-    QWidget *m_lines = nullptr;   // Krimble 2026-11-20 (757th): the grab lines
+    bool m_tornOff = false;
+    QWidget *m_lines = nullptr;
 protected:
     void paintEvent(QPaintEvent *) override
     {

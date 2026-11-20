@@ -54,8 +54,6 @@
 
 
 CompositionDockerDock::CompositionDockerDock( )
-    // KRIMBLE 2026-10-02: panel renamed "Compositions" -> "Layer Comps".
-    // : QDockWidget(i18n("Compositions"))
     : QDockWidget(i18n("Layer Comps"))
     , m_canvas(0)
 {

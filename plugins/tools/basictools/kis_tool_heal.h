@@ -16,9 +16,6 @@
 class KoCanvasBase;
 class QPushButton;
 
-// Krimble 2026-11-13 (task 77): George: "We need the healing brush." The Healing Brush: Krita's Clone (duplicate) brush with its Healing option on, loaded when the tool starts,
-// the same way Smudge and Soften load their brushes. A phone has no Ctrl-click to pick the source, so the tool has a "Set source" button (and the first tap after the tool starts
-// sets the source): the next tap on the picture is the point to copy from, then painting heals from there (the texture of the source, the color and brightness of the target).
 class KisToolHeal : public KisToolBrush
 {
     Q_OBJECT
@@ -50,7 +47,7 @@ public:
         setSection(ToolBoxSection::PSOrder);
         setIconName(koIconNameCStr("krita_tool_clone_stamp"));
         setPriority(23);
-        setToolBoxPriority(122);   // Krimble 2026-11-16 (722nd): the toolbox order of the build 64 list (was 124): the stamp after the Brush (120), before the Eraser (124)
+        setToolBoxPriority(122);
         setActivationShapeId(KRITA_TOOL_ACTIVATION_ID);
     }
 

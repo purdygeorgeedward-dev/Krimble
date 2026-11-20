@@ -14,11 +14,6 @@
 
 class KoCanvasBase;
 
-// Krimble 2026-10-25: a dedicated Eraser tool in the toolbox (George: "Can we make an eraser?", after "Do we have a way to paint with transparency
-// like a color?"). It is the Brush tool with the eraser switch (the "erase_action" of Krita's brush toolbar, key E there) turned on while the tool
-// is active: the brush's own settings (size, softness, opacity, the brush picked) are used, and what it paints is transparency. It uses the very same
-// switch as the toolbar button, so everything that button does (the saved eraser size and opacity, the blending mode shown) happens here too. The
-// state of the switch before the tool started is put back when the tool stops. Nothing is replaced in the user's brush (unlike the retouch tools).
 class KisToolEraser : public KisToolBrush
 {
     Q_OBJECT
@@ -49,7 +44,7 @@ public:
         setIconName(koIconNameCStr("krita_tool_eraser"));
         // no key: E is the eraser switch of the brush toolbar already (a second user of the key would make it ambiguous)
         setPriority(25);          // after Burn (24)
-        setToolBoxPriority(124);   // Krimble 2026-11-16 (722nd): the toolbox order of the build 64 list (was 123) //  // in the toolbox: after Brush (120), Smudge (121), Soften (122)
+        setToolBoxPriority(124);
         setActivationShapeId(KRITA_TOOL_ACTIVATION_ID);
     }
 

@@ -187,8 +187,6 @@ KisActionRegistry::KisActionRegistry()
     : d(new KisActionRegistry::Private(this))
 {
     KConfigGroup cg = KSharedConfig::openConfig()->group("Shortcut Schemes");
-    // Krimble 2026-11-16 (723rd): the default shortcut scheme's file is industry_standard.shortcuts (renamed; the brand name is gone from the program). A saved choice of the old
-    // file name is read as the new one.
     QString schemeName = cg.readEntry("Current Scheme", "industry_standard");
     if (schemeName == QString(QLatin1String("photo")).append(QLatin1String("shop_compatible"))) schemeName = QStringLiteral("industry_standard");
     QString schemeFileName = KisKShortcutSchemesHelper::schemeFileLocations().value(schemeName);

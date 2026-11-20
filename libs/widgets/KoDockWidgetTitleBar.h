@@ -28,14 +28,12 @@ public:
 public Q_SLOTS:
     void setLocked(bool locked);
 
-    // Krimble 2026-10-18 (15th): hides the title text (the buttons stay); used for a panel that is in a tab group, whose title is already on its tab
     void setTitleTextHidden(bool hidden);
 
 protected:
     void paintEvent(QPaintEvent* event) override; ///< reimplemented from QWidget
     void resizeEvent(QResizeEvent* event) override; ///< reimplemented from QWidget
     void contextMenuEvent(QContextMenuEvent *event) override; ///< Krimble 2026-10-10: Dock Left/Right/Top/Bottom, Undock
-    // Krimble 2026-11-15: drag a docked panel's header to tear it off (item 16, "There is nothing to grab in this dock to tear off this panel.")
     void mousePressEvent(QMouseEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
     void mouseReleaseEvent(QMouseEvent *event) override;

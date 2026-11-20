@@ -77,7 +77,6 @@ QPointF nearestHexCenter(const QPointF &p, qreal size, bool flatTop)
 
 } // namespace
 
-// the settings: the hex grid (group KrimbleHex, written by View > Show > Hex and Hex Size...) and this tool's own options (group KrimbleHexTool)
 __KisToolSelectHexagonLocal::HexSettings __KisToolSelectHexagonLocal::readHexSettings()
 {
     HexSettings s;

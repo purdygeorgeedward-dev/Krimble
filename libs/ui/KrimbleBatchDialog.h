@@ -27,7 +27,6 @@ class KrimbleBatchDialog : public QDialog
 public:
     // pick: asks the user for the pictures (returns their paths); save: puts one finished file (a path in the cache, its mime type and name) where it belongs, true if it worked
     typedef std::function<QStringList()> PickFunction;
-    // folder: the folder in Pictures/Krimble (a script can name it with "folder")
     typedef std::function<bool(const QString &tempPath, const QString &mime, const QString &name, const QString &folder)> SaveFunction;
 
     KrimbleBatchDialog(QWidget *parent, PickFunction pick, SaveFunction save, const QString &whereText);

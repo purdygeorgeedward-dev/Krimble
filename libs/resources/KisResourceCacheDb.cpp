@@ -1948,7 +1948,6 @@ bool KisResourceCacheDb::synchronizeStorage(KisResourceStorageSP storage)
     }
 
     if (!q.first()) {
-        // This is a new storage, the user must have dropped it in the path before restarting Krimble, so add it.
         debugResource << "Adding storage to the database:" << storage;
         if (!addStorage(storage, false)) {
             qWarning() << "Could not add new storage" << storage->name() << "to the database";

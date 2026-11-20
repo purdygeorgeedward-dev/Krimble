@@ -117,7 +117,6 @@ KrimbleBatchDialog::KrimbleBatchDialog(QWidget *parent, PickFunction pick, SaveF
     m_hint->setWordWrap(true);
     formLayout->addWidget(m_hint);
 
-    // Krimble Script (KRIMBLE_SCRIPT.md): the same things, and a few more, written as lines of text
     QFrame *line2 = new QFrame(form);
     line2->setFrameShape(QFrame::HLine);
     line2->setFrameShadow(QFrame::Sunken);

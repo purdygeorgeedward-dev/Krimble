@@ -13,8 +13,8 @@
 #include <KoDockRegistry.h>
 
 #include "kis_color_selector_ng_dock.h"
-#include "krimble_mixer_dock.h"   // Krimble 2026-10-30: the Mixer panel
-#include "krimble_dpaint_dock.h"   // Krimble 2026-11-07: the DPaint panel
+#include "krimble_mixer_dock.h"
+#include "krimble_dpaint_dock.h"
 #include "kis_color_selector_settings.h"
 #include "kis_preference_set_registry.h"
 
@@ -43,15 +43,11 @@ public:
     }
 
     DockPosition defaultDockPosition() const override {
-        // Krimble: start minimized, not auto-docked right -- 4 dockers
-        // shared DockRight and crammed the column into unusable strips (bug 12)
         return DockMinimized;
     }
 };
 
 
-// Krimble 2026-11-08: George: "bring back advance color panel as \"color ring + triangle\"." The classic selector (ring, triangle, shade selectors, color patches) as its own panel,
-// opened from the Window menu like the others.
 class KrimbleRingDockFactory : public KoDockFactoryBase
 {
 public:
@@ -64,7 +60,6 @@ public:
     DockPosition defaultDockPosition() const override { return DockMinimized; }
 };
 
-// Krimble 2026-10-30: the Mixer panel (the mixing pad that was a tab of Color Studio)
 class KrimbleMixerDockFactory : public KoDockFactoryBase
 {
 public:
@@ -77,7 +72,6 @@ public:
     DockPosition defaultDockPosition() const override { return DockMinimized; }   // opened from the Window menu
 };
 
-// Krimble 2026-11-07: the DPaint panel (tools, UNDO / CLR, the color indicator and a 256 color palette, all in the classic gray bevelled look)
 class KrimbleDPaintDockFactory : public KoDockFactoryBase
 {
 public:
@@ -94,10 +88,8 @@ ColorSelectorNgPlugin::ColorSelectorNgPlugin(QObject *parent, const QVariantList
         : QObject(parent)
 {
     KoDockRegistry::instance()->add(new ColorSelectorNgDockFactory());
-    KoDockRegistry::instance()->add(new KrimbleRingDockFactory());   // Krimble 2026-11-08: "Color Ring + Triangle"
-    KoDockRegistry::instance()->add(new KrimbleMixerDockFactory());   // Krimble 2026-10-30
-    // Krimble 2026-11-11: George: "I thought I indicated that the DPaint toolbox was pointless and you commented it out." The DPaint panel (Window > DPaint) is not registered any more, so it is not in
-    // the Window menu and is not built into the panel list; the code (krimble_dpaint_dock.h, the factory above) is kept. To bring it back, remove the two slashes at the start of the line above.
+    KoDockRegistry::instance()->add(new KrimbleRingDockFactory());
+    KoDockRegistry::instance()->add(new KrimbleMixerDockFactory());
 
     KisPreferenceSetRegistry *preferenceSetRegistry = KisPreferenceSetRegistry::instance();
 

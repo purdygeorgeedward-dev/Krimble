@@ -19,7 +19,7 @@
 #include <QComboBox>
 #include <QLabel>
 #include <klocalizedstring.h>
-#include "krimble_fill.h"   // Krimble 2026-10-19: the fill method
+#include "krimble_fill.h"
 
 
 struct KisToolSmartPatchOptionsWidget::Private {
@@ -46,9 +46,6 @@ KisToolSmartPatchOptionsWidget::KisToolSmartPatchOptionsWidget(KisCanvasResource
     m_d->ui = new Ui_KisToolSmartPatchOptionsWidget();
     m_d->ui->setupUi(this);
 
-    // Krimble 2026-10-19: George: "Make the different types options in the tool options panel." The fill method, at the top of the healing brush's
-    // Tool Options. It is saved, and Edit > Fill > Content-Aware... uses the same one. The two settings below it (accuracy, patch radius) are Krita's
-    // and only change the Classic method.
     QLabel *methodLabel = new QLabel(i18n("Fill method:"), this);
     QComboBox *methodBox = new QComboBox(this);
     methodBox->addItem(i18n("Sharp: copies real pixels"), int(KrimbleFill::Sharp));

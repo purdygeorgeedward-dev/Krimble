@@ -17,7 +17,7 @@ class KisColorSelectorNgDock : public QDockWidget, public KoCanvasObserverBase
 {
     Q_OBJECT
 public:
-    explicit KisColorSelectorNgDock(bool classic = false);   // Krimble 2026-11-08: classic = true is the "Color Ring + Triangle" panel
+    explicit KisColorSelectorNgDock(bool classic = false);
     QString observerName() override { return "KisColorSelectorNgDock"; }
     /// reimplemented from KoCanvasObserverBase
     void setCanvas(KoCanvasBase *canvas) override;

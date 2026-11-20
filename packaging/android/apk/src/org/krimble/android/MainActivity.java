@@ -70,8 +70,8 @@ public class MainActivity extends QtActivity {
         SDLAudioManager.nativeSetupJNI();
 
         super.onCreate(savedInstanceState);
-        krimbleDiagAtStart();   // Krimble 2026-10-25: how the previous run ended (see Help > Show Krimble Log...)
-        krimbleMemTrailStart();   // Krimble 2026-10-26: how much memory this run uses, every 30 s (see below)
+        krimbleDiagAtStart();
+        krimbleMemTrailStart();
         Log.i(TAG, "TouchSlop: " + ViewConfiguration.get(this).getScaledTouchSlop());
         Log.i(TAG, "LibsLoaded");
         haveLibsLoaded = true;
@@ -82,13 +82,6 @@ public class MainActivity extends QtActivity {
         installEdgeGestureExclusion();
     }
 
-    // KRIMBLE 2026-10-03: Android's back gesture (swipe in from the left or right screen edge,
-    // about 30 to 40 dp wide, depending on the phone's gesture sensitivity setting) takes any
-    // touch that starts there. Since the toolbox became a single narrow column (16 px icons),
-    // its resize bar sits right inside that zone, and the panels' outer edge is at the other
-    // screen edge, so neither could be grabbed. The system lets an app exclude up to 200 dp of
-    // each edge, so a 64 dp wide strip at the middle of each side is excluded here. Only the part
-    // of an edge inside that strip can be grabbed; the rest still triggers the back gesture.
     private void installEdgeGestureExclusion() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
             return;
@@ -137,7 +130,6 @@ public class MainActivity extends QtActivity {
     protected void onNewIntent (Intent intent) {
         String uri = getUri(intent);
         if (uri != null) {
-            // Krimble 2026-10-25: a missing native function (UnsatisfiedLinkError) must never crash the app again (see krita/main.cc)
             try {
                 JNIWrappers.openFileFromIntent(uri);
             } catch (UnsatisfiedLinkError e) {
@@ -162,7 +154,7 @@ public class MainActivity extends QtActivity {
     public void onPause() {
         super.onPause();
         krimbleForeground = false;
-        krimbleMemSample("pause");   // Krimble 2026-10-26
+        krimbleMemSample("pause");
         // onPause() _is_ called when the app starts. If the native lib
         // isn't loaded, it crashes.
         if (haveLibsLoaded) {
@@ -210,7 +202,7 @@ public class MainActivity extends QtActivity {
         // is killed. This means, for us that the service has been stopped.
 
         Log.i(TAG, "[onDestroy]");
-        krimbleDiagAtDestroy();   // Krimble 2026-10-25: write down that and why Android destroyed the window (the next line kills the whole process)
+        krimbleDiagAtDestroy();
         startServiceGeneric(DocumentSaverService.KILL_PROCESS);
 
         super.onDestroy();
@@ -219,7 +211,6 @@ public class MainActivity extends QtActivity {
     @Override
     public boolean onKeyUp(final int keyCode, final KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
-            // Krimble 2026-10-25: if the native function cannot be found, do not crash on Back (see krita/main.cc)
             boolean mainWindowLoaded = true;
             try {
                 mainWindowLoaded = JNIWrappers.hasMainWindowLoaded();
@@ -293,11 +284,6 @@ public class MainActivity extends QtActivity {
         return s != null && s.toLowerCase().contains("xiaomi");
     }
 
-    // Krimble 2026-10-25: George: "Krimble relaunches constantly on switching ... I want it to stop crashing." When Android destroys the activity, onDestroy() kills the whole process
-    // (it has to: QtActivity cannot be made again in a process that is still alive), so every destroy is a full relaunch with the open picture gone. To learn WHY Android destroys it, onDestroy
-    // writes down whether the activity was finishing (the user went Back) or being changed by a configuration change, and the configuration then and at the start (the difference names what
-    // changed). The next run keeps that as "previousRun"; if onDestroy never ran, Android ended the process without destroying the window (killed, or a crash), and that is written instead.
-    // Help > Show Krimble Log... shows it, with the "Last exit:" lines of the log (what Android says about how the process ended).
     private static final String DIAG_PREFS = "krimble_diag";
 
     private void krimbleDiagAtStart() {
@@ -308,7 +294,7 @@ public class MainActivity extends QtActivity {
                 .putString("previousRun", last != null ? last
                         : "onDestroy did NOT run in the previous run: Android ended the process without destroying the window (killed, or a crash).")
                 .remove("lastDestroy")
-                .putString("prevMemTrail", prefs.getString("memTrail", ""))   // Krimble 2026-10-26: the memory samples of the run that just ended
+                .putString("prevMemTrail", prefs.getString("memTrail", ""))
                 .remove("memTrail")
                 .putString("startConfig", getResources().getConfiguration().toString())
                 .apply();
@@ -330,10 +316,6 @@ public class MainActivity extends QtActivity {
         }
     }
 
-    // Krimble 2026-10-26: George sent the log screen: both of the last two ends of Krimble were "reason 3 (LOW_MEMORY)": Android's low-memory killer ended the process (one while Krimble was
-    // cached in the background, "sits in the background too long"; one while it was in the FOREGROUND, "[OOM KILL] oom", the "crash in the type tool"). Not a crash in the code: Krimble holds
-    // too much memory. To see what holds it, and how much, the app writes a line every 30 seconds (and when it is paused, resumed, or told by Android to trim its memory) into a short trail kept in
-    // the app's preferences (it survives a kill); the next run shows the trail of the run before at the top of Help > Show Krimble Log... (the newest line last).
     private boolean krimbleForeground = false;
     private final android.os.Handler krimbleMemHandler = new android.os.Handler(android.os.Looper.getMainLooper());
     private final Runnable krimbleMemTimer = new Runnable() {
@@ -402,11 +384,6 @@ public class MainActivity extends QtActivity {
         krimbleMemSample("Android asks to trim memory, level " + level);
     }
 
-    // Krimble 2026-10-26: George: "that giant blue droplet in the images is the cursor for text selection. It's huge. I don't know how that happened." and "There must be some trigger that tells
-    // Android the scale for that." Qt's text handle (CursorHandle.java, Qt 5.15) takes the picture from the activity's THEME (textSelectHandle, ...Left, ...Right) and makes its window as big
-    // as the picture's own size (getIntrinsicWidth/Height) at the density of the app's resources: nothing else scales it. This writes down the numbers that decide that, now: the density
-    // the app runs at and the density the system has (if they differ, the app is being scaled), the font scale, and the size of the three droplet pictures. Shown at the top of
-    // Help > Show Krimble Log... with the record of the previous run.
     private String krimbleDisplayDiag() {
         StringBuilder sb = new StringBuilder();
         try {
@@ -437,7 +414,6 @@ public class MainActivity extends QtActivity {
         return sb.toString();
     }
 
-    // called from C++ (Help > Show Krimble Log...)
     public String getLastDestroyRecord() {
         try {
             SharedPreferences p = getSharedPreferences(DIAG_PREFS, MODE_PRIVATE);

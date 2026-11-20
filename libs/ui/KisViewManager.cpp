@@ -236,7 +236,7 @@ public:
     KisInputManager inputManager;
     KisIdleTasksManager idleTasksManager;
     KisTextPropertiesManager textPropertyManager;
-    KisTypeOptionsBar *typeOptionsBar {nullptr};     // KRIMBLE 2026-10-04
+    KisTypeOptionsBar *typeOptionsBar {nullptr};
 
     KisSignalAutoConnectionsStore viewConnections;
     KSelectAction *actionAuthor {nullptr}; // Select action for author profile.
@@ -348,17 +348,14 @@ KisViewManager::KisViewManager(QWidget *parent, KisKActionCollection *_actionCol
     KisConfig cfg(true);
     d->showFloatingMessage = cfg.showCanvasMessages();
     const KoColorSpace *cs = KoColorSpaceRegistry::instance()->rgb8();
-    // Krimble 2026-11-16 (728th): George (build 65): "Foreground and background start as dark gray still instead of white and black." Krimble starts with a white foreground and a black
-    // background every time; the colors of the last session are no longer brought back (they made it start with black on black).
     KoColor foreground(Qt::white, cs);
     d->canvasResourceProvider.setFGColor(foreground);
     KoColor background(Qt::black, cs);
     d->canvasResourceProvider.setBGColor(background);
     d->canvasResourceProvider.setColorHistoryColors(cfg.readKoColors("LastColorHistory"));
     d->textPropertyManager.setCanvasResourceProvider(&d->canvasResourceProvider);
-    // KRIMBLE 2026-10-04: the Type Options toolbar (see KisTypeOptionsBar.h)
     d->typeOptionsBar = new KisTypeOptionsBar(this);
-    new KisBrushColorWells(this);       // KRIMBLE 2026-10-05: color wells for the Brush Options toolbar
+    new KisBrushColorWells(this);
 
     // Initialize the old imagesize plugin
     new ImageSize(this);

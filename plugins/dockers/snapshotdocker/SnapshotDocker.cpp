@@ -78,8 +78,6 @@ SnapshotDocker::SnapshotDocker()
     mainLayout->addLayout(buttonsLayout);
 
     setWidget(widget);
-    // KRIMBLE 2026-10-02: panel renamed "Snapshot Panel" -> "Snapshots".
-    // setWindowTitle(i18n("Snapshot Panel"));
     setWindowTitle(i18n("Snapshots"));
     setEnabled(false);
 }

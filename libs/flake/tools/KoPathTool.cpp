@@ -7,7 +7,7 @@
  * SPDX-License-Identifier: LGPL-2.0-or-later
  */
 
-#include "../KrimbleShapeModeRow.h"   // Krimble 2026-10-30
+#include "../KrimbleShapeModeRow.h"
 #include "KoPathTool.h"
 #include "KoCanvasBase.h"
 #include "KoDocumentResourceManager.h"
@@ -130,7 +130,7 @@ QList<QPointer<QWidget> >  KoPathTool::createOptionWidgets()
     connect(toolOptions, SIGNAL(sigRequestUpdateActions()), this, SLOT(updateActions()));
     updateOptionsWidget();
     toolOptions->setWindowTitle(i18n("Edit Shape"));
-    list.append(krimbleShapeModeRow(true));   // Krimble 2026-10-30: the Whole object / Edit points row (see KrimbleShapeModeRow.h)
+    list.append(krimbleShapeModeRow(true));
     list.append(toolOptions);
 
     return list;

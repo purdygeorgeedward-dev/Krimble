@@ -31,7 +31,7 @@ public Q_SLOTS:
 
 private Q_SLOTS:
     void updateImageThumbnails(const QVector<QImage> &channels, const KoColorSpace *cs);
-    void slotTableClicked(const QModelIndex &index);   // Krimble 2026-11-13: a tap on the name or the thumbnail isolates the channel; with Ctrl it loads it as a selection
+    void slotTableClicked(const QModelIndex &index);
     void slotLoadSelection();
 
 private:

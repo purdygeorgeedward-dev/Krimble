@@ -236,7 +236,7 @@ private:
 
     QScopedPointer<SvgTextToolOptionsManager>m_optionManager;
     QPointer<SvgTextEditor> m_editor;
-    KoSvgTextShape *m_krimbleEditorShape {nullptr};   // Krimble 2026-10-18: the text shape whose editor window was opened by selecting it (Android)
+    KoSvgTextShape *m_krimbleEditorShape {nullptr};
     QPointer<GlyphPaletteDialog> m_glyphPalette;
     QPointer<SvgTextQuickActionBar> m_quickActionBar;
     QPointF m_lastMousePos;
@@ -248,10 +248,6 @@ private:
     QScopedPointer<KisSignalMapper> m_textTypeSignalsMapper;
     QScopedPointer<KisSignalMapper> m_typeSettingMovementMapper;
 
-    // Krimble: triple-tap-to-select-paragraph. Qt synthesizes a double-tap
-    // into a normal mouseDoubleClickEvent (handled already, selects a word),
-    // but has no built-in triple-click concept, so a third tap in quick
-    // succession at roughly the same spot is detected manually here.
     QPointF m_lastDoubleClickPos;
     QElapsedTimer m_lastDoubleClickElapsed;
 

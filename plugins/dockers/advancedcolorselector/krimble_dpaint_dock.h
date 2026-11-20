@@ -33,7 +33,6 @@
 #include <KisViewManager.h>
 #include <kis_canvas2.h>
 
-// Krimble 2026-11-07: the pixel icons of the DPaint panel: 16 x 16, # is a black pixel. Drawn from scratch.
 
 static const char *const krimbleDpIcon_freehand[16] = {
     "................",
@@ -92,23 +91,6 @@ static const char *const krimbleDpIcon_rect[16] = {
     "................"
 };
 
-//     "................",
-//     "................",
-//     "................",
-//     "................",
-//     ".....######.....",
-//     "...##########...",
-//     "..###......###..",
-//     ".##..........##.",
-//     ".##..........##.",
-//     "..###......###..",
-//     "...##########...",
-//     ".....######.....",
-//     "................",
-//     "................",
-//     "................",
-//     "................"
-// Krimble 2026-11-11: a rounder ellipse, 14 wide and 10 tall (about 1.4 to 1), with rounded ends and a line 2 pixels thick, so that it reads as an ellipse and not as a football.
 static const char *const krimbleDpIcon_ellipse[16] = {
     "................",
     "................",
@@ -575,9 +557,6 @@ public:
         column->setContentsMargins(3, 3, 3, 3);
         column->setSpacing(3);
         panel->setStyleSheet(QStringLiteral("QWidget { background: #aaaaaa; }"));   // the gray of the classic toolbox
-        // Krimble 2026-11-11: George (screenshots of the DPaint panel, build 56): "...but look at this..." The panel filled the whole width of the docker, and its two columns of square buttons (and the
-        // 4 column palette) grew with it, so each button was about 190 px across and every pixel of a 16 x 16 icon was a block of about 12 px: huge, chunky icons. The panel is now at most 104 px
-        // wide (two buttons of about 49 px, so a pixel of an icon is 3 px, as in the classic toolbox), at the left of the docker; the rest of the docker is empty.
         panel->setMaximumWidth(104);
 
         // tools, two columns: the tool id and its pixel icon

@@ -134,11 +134,6 @@ KisWdgOptionsPNG::KisWdgOptionsPNG(QWidget *parent)
     setupUi(this);
 
 #ifdef Q_OS_ANDROID
-    // Krimble 2026-10-13: George, about the PNG options window: "This has lots of dead space in it (fat) and it's super wide. I'm sure
-    // on a desktop screen it seems fine, but on small screens it's too much." The window had a column of labels on the left
-    // ("Compression (Lossless):", "Transparent color:") with nothing next to the check boxes, and the slider row was as wide as the
-    // slider's two end labels and its label together. On Android the labels are stacked above their controls and the check boxes
-    // use the full width, so the window is only as wide as its longest line ("Store alpha channel (transparency)").
     {
         QWidget *moved[] = {textLabel1, textLabel3, textLabel4_2, compressionLevel, tryToSaveAsIndexed, interlacing, chkSaveAsHDR,
                             chkSRGB, chkForceSRGB, alpha, chkMetaData, chkAuthor, chkDownsample, label_4, bnTransparencyFillColor};
@@ -157,9 +152,6 @@ KisWdgOptionsPNG::KisWdgOptionsPNG(QWidget *parent)
         }
         gridLayout->addWidget(label_4, row, 0);                   // Transparent color:
         gridLayout->addWidget(bnTransparencyFillColor, row, 1);
-        // Krimble 2026-10-18 (9th): George (1.0.37, c666301; two screenshots): "The PNG save dialog is super wide." The 103rd entry above moved the widgets, but the form also holds a vertical
-        // spacer (row 6) whose design size is 414 x 16 and whose horizontal policy is Minimum, which makes the window at least 414 px wide: a spacer is not a widget and was not moved.
-        // Spacers are made 0 wide.
         for (int i = 0; i < gridLayout->count(); ++i) {
             if (QSpacerItem *spacer = gridLayout->itemAt(i)->spacerItem()) {
                 spacer->changeSize(0, spacer->sizeHint().height(), QSizePolicy::Minimum, QSizePolicy::Expanding);

@@ -26,44 +26,6 @@ KisConfigWidget * KisBrightnessContrastFilter::createConfigurationWidget(QWidget
 
 KoColorTransformation * KisBrightnessContrastFilter::createTransformation(const KoColorSpace* cs, const KisFilterConfigurationSP config) const
 {
-    // NOTE for future development:
-    // This applies the brightness/contrast curve directly on the image's
-    // native color space (matching the industry standard's own Brightness/Contrast
-    // dialog, which is believed to operate in RGB as well - unverified).
-    //
-    // This is now also confirmed at the LittleCMS level: previously,
-    // LcmsColorSpace's createBrightnessContrastAdjustment() built its device
-    // link tagged as cmsSigLabData and chained it between two copies of the
-    // working profile, which made LittleCMS silently do a real RGB -> Lab ->
-    // RGB colorimetric round-trip (subject to rendering intent/gamut
-    // mapping) instead of applying the curve directly to this color space's
-    // own channels. That round-trip was why full black/white couldn't be
-    // reached even at extreme slider values - see KRIMBLE_CHANGES.md
-    // ("Brightness/Contrast not reaching full black/white") and
-    // plugins/color/lcms2engine/LcmsColorSpace.h. Fixed by building the
-    // device link with this color space's own signature instead, so no
-    // color conversion happens and this filter's own 0.0-1.0 clamp (below)
-    // is what actually reaches the output.
-    //
-    // Krita's Levels filter (KisLevelsFilter) declares
-    // setColorSpaceIndependence(TO_LAB16), which looks like it signals an
-    // intent to run lightness adjustments through Lab space instead -
-    // adjusting only the L channel avoids the hue/saturation drift that can
-    // occur when the same nonlinear curve is applied independently to R, G,
-    // and B (a real, established technique, similar to how Darktable
-    // handles tonal adjustments in Lab).
-    //
-    // As of this writing, nothing in the codebase actually reads
-    // colorSpaceIndependence() to perform that conversion - it's set but
-    // never consumed. So even Levels' "lightness mode" runs directly on the
-    // native color space today, not through Lab. TO_LAB16 may be a
-    // half-finished feature from earlier Krita development that never got
-    // wired up.
-    //
-    // A genuine Lab-based version of this filter (convert to Lab, curve the
-    // L channel only, convert back) would likely give better results with
-    // less color shift on strong adjustments, but is a separate, larger
-    // task from this RGB-native implementation.
 
     double brightness = 0.0;
     double contrast = 0.0;

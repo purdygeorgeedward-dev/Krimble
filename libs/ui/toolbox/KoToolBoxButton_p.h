@@ -21,25 +21,23 @@ public:
     void attachAction(QAction *action);
     void setHighlightColor();
     void krimbleRefreshIcon();
-    void krimbleFitIconSize();   // Krimble 2026-11-15 (item 16): the full color pictures fill most of the button
-    // Krimble 2026-11-12 (task 38): George: "I want long press to open a flyout of other buttons. Then a tap selects one or misses and cancels selection." A button of a tool group (Marquee, Lasso, Wand) opens a flyout of the other tools of its group on a long press.
+    void krimbleFitIconSize();
     void krimbleSetLongPress(bool on) { m_krimbleLongPress = on; update(); }
     bool krimbleHasLongPress() const { return m_krimbleLongPress; }
     KoToolAction *krimbleToolAction() const { return m_toolAction; }
-    static void krimblePaintRaisedBox(QWidget *widget, bool down);   // Krimble 2026-11-15 (707th): the Raised style's box, also used by the UNDO button
+    static void krimblePaintRaisedBox(QWidget *widget, bool down);
 
 Q_SIGNALS:
     void krimbleLongPressed();
-   // Krimble 2026-10-30: the icon again after the icon style was changed
 
 protected:
-    void mousePressEvent(QMouseEvent *event) override;     // Krimble 2026-11-12 (task 38): George: "I want long press to open a flyout of other buttons. Then a tap selects one or misses and cancels selection."
+    void mousePressEvent(QMouseEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
     void mouseReleaseEvent(QMouseEvent *event) override;
     void contextMenuEvent(QContextMenuEvent *event) override;
-    void resizeEvent(QResizeEvent *event) override;   // Krimble 2026-11-15: the full color pictures follow the button's size
+    void resizeEvent(QResizeEvent *event) override;
     void showEvent(QShowEvent *event) override;
-    void paintEvent(QPaintEvent *event) override;   // Krimble 2026-11-07: the selected tool drawn like the mockup (deep blue, bright cyan outline, soft glow)
+    void paintEvent(QPaintEvent *event) override;
 
 private:
     void setDataFromToolAction(QAction *action); // Generates tooltips.
@@ -47,9 +45,9 @@ private Q_SLOTS:
     void slotUpdateActionData();
 private:
     KoToolAction *m_toolAction;
-    bool m_krimbleLongPress {false};        // Krimble 2026-11-12 (task 38): George: "I want long press to open a flyout of other buttons. Then a tap selects one or misses and cancels selection."
+    bool m_krimbleLongPress {false};
     bool m_krimbleLongPressFired {false};
-    QSize m_krimbleBaseIconSize;      // Krimble 2026-11-15: the icon size the toolbox gave the button, put back in the Silhouette style
+    QSize m_krimbleBaseIconSize;
     QSize m_krimbleSetIconSize;       // the size set for a full color picture (so a size set by the toolbox afterwards is noticed)
     bool m_krimbleColorFit {false};
     QPoint m_krimblePressPos;

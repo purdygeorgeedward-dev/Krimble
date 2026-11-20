@@ -11,43 +11,12 @@
 #include <filter/kis_filter_category_ids.h>
 #include <filter/kis_filter_configuration.h>
 #include <KoColorSpace.h>
-// Krimble: KoUpdater was only forward-declared; full header needed for
-// progress updates to compile (2026-09-25). See KRIMBLE_CHANGES.md.
 #include <KoUpdater.h>
 #include <kis_paint_device.h>
 #include <kis_processing_information.h>
 #include <KisSequentialIteratorProgress.h>
 #include <KisGlobalResourcesInterface.h>
 
-// Krimble: Vibrance implementation. No equivalent existed in Krita; the
-// underlying algorithm is not Adobe's own (that formula is proprietary
-// and undocumented -- confirmed via web research, no public source
-// reproduces it exactly). This instead uses the well-known open-source
-// "vibrance" shader algorithm originally written by CeeJay.dk, MIT
-// licensed, distributed for over a decade via SweetFX/ReShade/GShade
-// across thousands of games. It is a *different*, simpler
-// implementation of the same general idea (boost muted colors more
-// than already-saturated ones) -- not a byte-for-byte match to any
-// commercial product's internal math.
-//
-// Algorithm, per pixel:
-//   1. luma = 0.212656*R + 0.715158*G + 0.072186*B  (Rec. 709 weights)
-//   2. saturation = max(R,G,B) - min(R,G,B)          (simple 0-1 proxy)
-//   3. each channel is blended toward/away from luma by a factor of
-//      1 + vibrance * (1 - saturation), so the effect is strongest on
-//      already-muted pixels and fades out as saturation approaches 1.
-// Implemented directly on RGB16 (via KoColorSpace::toRgbA16/fromRgbA16,
-// the same pair of colorspace-agnostic conversion functions the
-// existing Match Color filter uses for Lab -- see
-// fastcolortransfer.cpp's use of fromLabA16), rather than a templated
-// per-bit-depth KoColorTransformation registered in the color engine
-// (the pattern kis_hsv_adjustment.cpp uses) -- simpler, and sufficient
-// since vibrance doesn't need to run in a specific working colorspace
-// the way Match Color's Lab statistics do.
-//
-// Pixel channel order confirmed as [Blue, Green, Red, Alpha] for the
-// RGB16 space toRgbA16 converts through -- see KoBgrColorSpaceTraits.h
-// (red_pos=2, green_pos=1, blue_pos=0).
 
 KisVibranceFilter::KisVibranceFilter() : KisFilter(id(), FiltersCategoryAdjustId, i18n("&Vibrance..."))
 {

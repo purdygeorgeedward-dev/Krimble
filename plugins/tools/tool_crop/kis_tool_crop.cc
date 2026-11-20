@@ -10,7 +10,7 @@
  */
 
 #include "kis_tool_crop.h"
-#include <QMainWindow>   // Krimble 2026-11-18 (746th)
+#include <QMainWindow>
 #include <QStatusBar>
 
 
@@ -366,23 +366,12 @@ void KisToolCrop::endPrimaryAction(KoPointerEvent *event)
     setMode(KisTool::HOVER_MODE);
 
     QRectF viewCropRect = pixelToView(m_finalRect.rect());
-    // Krimble: was m_handleSize (44, touch-target sized) -- see m_minimumCropSize
-    // comment in kis_tool_crop.h for why that caused false undos on short strokes.
     const bool haveValidRect =
         viewCropRect.width() > m_minimumCropSize &&
         viewCropRect.height() > m_minimumCropSize;
 
 
     if (!m_haveCropSelection && !haveValidRect) {
-        // Krimble 2026-10-19: George (1.0.39): "If I crop an image the change should be FINAL. The way it is; if you tap the canvas it
-        // undoes the crop. There are too many ways to accidentally undo a crop even if you save the cropped image. That needs a fix."
-        // A tap (no box drawn) right after a crop called tryContinueLastCropAction(), which UNDOES the last crop to let the box be
-        // edited again (an upstream feature). It is no longer called: a tap now only shows a new crop box around the whole picture,
-        // which changes nothing until Crop is chosen. A crop is taken back only by Undo. The old lines:
-        // if (!tryContinueLastCropAction()) {
-        //     m_finalRect.setRectInitial(image()->bounds());
-        //     m_haveCropSelection = true;
-        // }
         m_finalRect.setRectInitial(image()->bounds());
         m_haveCropSelection = true;
     } else if (m_resettingStroke && !haveValidRect) {
@@ -463,13 +452,9 @@ void KisToolCrop::paintOutlineWithHandles(QPainter& gc)
         pen.setCosmetic(true);
         gc.setPen(pen);
         gc.setBrush(m_transparentGrey);
-        // Krimble 2026-10-14: George (1.0.36): "Sizing boxes on the crop tool should be smaller. Grab area is fine but the boxes are too big." The
-        // boxes are drawn at half their size, around the same centers; the grab areas (handlesPath() and the handle rectangles) are unchanged.
         QPainterPath smallHandles;
         Q_FOREACH (const QPolygonF &handlePolygon, handlesPath().toSubpathPolygons()) {
             const QRectF full = handlePolygon.boundingRect();
-            // Krimble 2026-10-19: George (1.0.39): "Also the crop sizing boxes could be a little smaller." Drawn at 40% of the grab size
-            // (was 50%): about 18 px instead of 22. The grab areas are still unchanged.
             QRectF small(0, 0, full.width() * 0.4, full.height() * 0.4);
             small.moveCenter(full.center());
             smallHandles.addRect(small);
@@ -766,7 +751,6 @@ bool KisToolCrop::lockRatio() const
 
 static void krimbleShowSizeInStatusBar(KisCanvas2 *kisCanvas, const QString &text)
 {
-    // Krimble 2026-11-18 (746th): the size of a selection, shape or crop goes in the window's status bar, not in a box on the canvas
     QMainWindow *krimbleWindow = qobject_cast<QMainWindow*>(kisCanvas->viewManager()->mainWindowAsQWidget());
     if (krimbleWindow && krimbleWindow->statusBar()) krimbleWindow->statusBar()->showMessage(QString(text).replace(QLatin1Char('\n'), QStringLiteral("   ")), 1000);
 }
@@ -776,11 +760,6 @@ void KisToolCrop::showSizeOnCanvas()
     KisCanvas2 *kisCanvas =dynamic_cast<KisCanvas2*>(canvas());
     Q_ASSERT(kisCanvas);
     if(m_mouseOnHandleType == 9) {
-        // kisCanvas->viewManager()->showFloatingMessage(i18n("X: %1\nY: %2"
-        //                                                , optionsWidget->intX->text(), optionsWidget->intY->text())
-        //                                                , QIcon(), 1000, KisFloatingMessage::High, Qt::AlignLeft | Qt::TextWordWrap | Qt::AlignVCenter);
-        // Krimble 2026-11-18 (746th): George (a rectangle selection with the size box over it): "I try to select something and a box covers what I'm trying to do just to tell me the pixel
-        // dimensions." No box: the size shows in the status bar at the bottom of the window for a second (Claude's proposal; George: "Perfect").
         krimbleShowSizeInStatusBar(kisCanvas, i18n("X: %1\nY: %2", optionsWidget->intX->text(), optionsWidget->intY->text()));
     }
     else {
@@ -896,9 +875,6 @@ qint32 KisToolCrop::mouseOnHandle(QPointF currentViewPoint)
         return None;
     }
 
-    // Krimble: pad decoupled from the drawn handle size -- see m_handleHitPadding
-    // comment in kis_tool_crop.h. Without this, a near-miss on a touchscreen falls
-    // through to "start a new crop from scratch here" instead of grabbing the handle.
     const qreal pad = m_handleHitPadding;
 
     if (upperLeftHandleRect(borderRect).adjusted(-pad, -pad, pad, pad).contains(currentViewPoint)) {
@@ -1036,14 +1012,6 @@ void KisToolCrop::drawDecorationLine(QPainter *p, DecorationLine *decorLine, con
     p->drawLine(start, end);
 }
 
-// Krimble addition: exposes "Crop" as a real, always-available menu item
-// (Image > Crop) that completes whatever crop rectangle is currently
-// pending on the active Crop tool instance. Previously the only ways to
-// finish a crop were pressing Enter, a button inside the tool options
-// docker, or a canvas right-click context menu -- none reliable on a
-// touch-only device with no keyboard or mouse. crop() itself is already
-// safe to call with nothing pending (it self-guards on an empty rect), so
-// this is a thin wrapper, not new crop logic.
 QList<QAction *> KisToolCropFactory::createActionsImpl()
 {
     QList<QAction *> actions = KoToolFactoryBase::createActionsImpl();

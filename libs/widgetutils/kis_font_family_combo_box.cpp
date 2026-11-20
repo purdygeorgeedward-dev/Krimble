@@ -229,8 +229,6 @@ KisFontComboBoxes::KisFontComboBoxes(QWidget *parent)
     m_styles->setObjectName("stylesComboBox");
     layout->addWidget(m_styles);
     fontFamilyChanged();
-    // KRIMBLE 2026-10-04: "Font", not "Font Family" (George: "It's just fonts.").
-    // m_family->setToolTip(i18n("Font Family"));
     m_family->setToolTip(i18n("Font"));
     m_styles->setToolTip(i18n("Font Style"));
     connect(m_family, SIGNAL(activated(int)), this, SLOT(fontFamilyChanged()));

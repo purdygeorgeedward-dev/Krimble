@@ -52,10 +52,6 @@ void KisMemoryReportButton::paintEvent(QPaintEvent *e)
         painter.drawPrimitive(QStyle::PE_Frame, buttonStyle);
     }
 
-    // Krimble 2026-10-30: George: "Anywhere you have a dialog that uses an accent color like that, use the same orange as the logo." The memory bar starts in Krimble
-    // orange, #FD6001 (it still shades to yellow and then red as the memory fills up, below).
-    // Krimble 2026-11-04: George: the orange is obnoxious; light blue like the selection highlight. The memory bar starts in the
-    // selection blue, #1D7CB2 (it still shades to yellow and then red as the memory fills up, below).
     QColor HL(0x1D, 0x7C, 0xB2);
     QColor mid = QColor(220, 220, 0);
     QColor warn = QColor(220, 0, 0);

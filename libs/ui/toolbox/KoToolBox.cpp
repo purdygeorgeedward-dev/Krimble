@@ -10,8 +10,8 @@
 #include "KoToolBox_p.h"
 #include "KoToolBoxLayout_p.h"
 #include "KoToolBoxButton_p.h"
-#include "KrimbleToolboxIcons.h"   // Krimble 2026-10-30
-#include "KrimbleToolFlyout.h"   // Krimble 2026-11-12 (task 38): George: "I want long press to open a flyout of other buttons. Then a tap selects one or misses and cancels selection."
+#include "KrimbleToolboxIcons.h"
+#include "KrimbleToolFlyout.h"
 #include "kis_assert.h"
 
 #include <QButtonGroup>
@@ -45,18 +45,7 @@ static int buttonSize(int screen)
     KIS_SAFE_ASSERT_RECOVER_RETURN_VALUE(screen < QGuiApplication::screens().size() && screen >= 0, 16);
 
 #ifdef Q_OS_ANDROID
-    // Krimble: the width-bucketed heuristic below is calibrated for desktop
-    // monitor widths at desktop DPI -- a phone's raw pixel width lands it in
-    // one of those buckets with no regard for its much higher DPI, so the
-    // "size" it computes doesn't correspond to a similar physical/visual
-    // size on a phone the way it does on a desktop monitor. Fixed,
-    // deliberately generous default instead, consistent with the touch
-    // targets widened elsewhere this session (crop handles, dock
-    // separators, text-selection handles).
     Q_UNUSED(screen);
-    // KRIMBLE 2026-10-01: default toolbox icon size changed from 32 to 16
-    // (16 x 16), per project direction. Original line kept below.
-    // return 32;
     return 16;
 #else
     QRect rc = QGuiApplication::screens().at(screen)->availableGeometry();
@@ -75,40 +64,17 @@ static int buttonSize(int screen)
 #endif
 }
 
-// Krimble 2026-11-12 (task 38): George: "I want long press to open a flyout of other buttons. Then a tap selects one or misses and cancels selection." The tool groups of the toolbox, each opened by a long press on its button (a flyout of the other tools). The first id is the one shown at the start; later the one used last is shown, in the group's place.
-// Step 1: the Marquee, Lasso and Wand groups. The other groups follow when these are tried on the phone.
 static const QList<QStringList> &krimbleToolGroupIds()
 {
     static const QList<QStringList> groups = {
-        { QStringLiteral("KisToolSelectRectangular"), QStringLiteral("KisToolSelectElliptical"), QStringLiteral("KisToolSelectHexagon") },   // Krimble 2026-11-12 (task 42): Hexagon Selection joins the Marquee flyout
+        { QStringLiteral("KisToolSelectRectangular"), QStringLiteral("KisToolSelectElliptical"), QStringLiteral("KisToolSelectHexagon") },
                                                  // Marquee
         { QStringLiteral("KisToolSelectOutline"), QStringLiteral("KisToolSelectPolygonal"), QStringLiteral("KisToolSelectMagnetic"), QStringLiteral("KisToolSelectPath") },   // Lasso
         { QStringLiteral("KisToolSelectContiguous"), QStringLiteral("KisToolSelectSimilar") },                                              // Wand
-        { QStringLiteral("KritaShape/KisToolRectangle"), QStringLiteral("KritaShape/KisToolEllipse"), QStringLiteral("KritaShape/KisToolPolygonStar"), QStringLiteral("KritaShape/KisToolLine") },   // Krimble 2026-11-13 (task 74): Shapes: the Polygon and Star tool joins Rectangle and Ellipse (and Line) in one flyout (no new button in the toolbox)
-        // Krimble 2026-11-13 (task 76): George: "add all long press flyouts." The other groups, as proposed: Fill, Pen, Transform, Retouch, Sampler and Navigation. A tool that is not in the toolbox is simply not in its flyout.
+        { QStringLiteral("KritaShape/KisToolRectangle"), QStringLiteral("KritaShape/KisToolEllipse"), QStringLiteral("KritaShape/KisToolPolygonStar"), QStringLiteral("KritaShape/KisToolLine") },
         { QStringLiteral("KritaFill/KisToolGradient"), QStringLiteral("KritaFill/KisToolFill"), QStringLiteral("KisToolEncloseAndFill") },                  // Fill
         { QStringLiteral("KisToolPath"), QStringLiteral("KisToolPolyline"), QStringLiteral("KisToolPolygon"), QStringLiteral("KisToolPencil") },           // Pen
         { QStringLiteral("KisToolTransform"), QStringLiteral("KisToolFreeRotate") },                                                                         // Transform
-        // { QStringLiteral("KritaShape/KisToolHeal"), QStringLiteral("KritaShape/KisToolSmartPatch"), QStringLiteral("KritaShape/KisToolSmudge"), QStringLiteral("KritaShape/KisToolSoften") },                                                          // Retouch
-        // Krimble 2026-11-16 (715th): George (the chart of the toolbox): "Smudge and soften should be on their own. The bandaid should be on its own. I don't even know what the stamp is." and
-        // "Make the stamp a flyout from the bandaid." The Retouch group (stamp first, with the bandaid, Smudge and Soften) is two groups now: the bandaid (Smart Patch) with the stamp (Heal) in
-        // its flyout, and Smudge with Soften. A group's button sits at the place of its first tool: the bandaid after the Eyedropper, Smudge after the Brush.
-        // { QStringLiteral("KritaShape/KisToolSmartPatch"), QStringLiteral("KritaShape/KisToolHeal") },                                                        // Healing (the bandaid; the stamp in its flyout)
-        // Krimble 2026-11-16 (717th): George (19 buttons, an odd number): "Separate the stamp tool." The bandaid (Smart Patch) and the stamp (Heal) are in no group: each has its own
-        // button and no flyout. The bandaid stays after the Eyedropper; the stamp is after the Eraser, before the Gradient. 20 buttons with UNDO.
-        // { QStringLiteral("KritaShape/KisToolSmudge"), QStringLiteral("KritaShape/KisToolSoften") },                                                          // Smudge and Soften
-        // { QStringLiteral("KritaSelected/KisToolColorSampler"), QStringLiteral("KritaShape/KisToolMeasure"), QStringLiteral("ToolReferenceImages") },         // Sampler
-        // Krimble 2026-11-16 (722nd): George (build 64): "The visible tools should go in this order from top to bottom: Move, Rectangular selection, Lasso selection, Magic wand, Crop,
-        // Eyedropper, Spot healing tool (bandaid), Paintbrush, Clone stamp, Eraser, Gradient, Blur, Sharpen, Pen, Text, Path select, Shape creator, Hand, Zoom, Transform (uniform scale),
-        // Undo, Foreground and Background colors". The order itself is in the tools' own toolbox places (setToolBoxPriority, the sorting system of the first days). Here: Blur (Soften) is
-        // the shown tool with Smudge in its flyout; Sharpen is a new tool with its own button; Hand and Zoom each have a button (the Navigation group is off); the Assistant, which is not
-        // in his list of visible tools, is in the Eyedropper's flyout with the Ruler and Reference Images.
-        // { QStringLiteral("KritaShape/KisToolSoften"), QStringLiteral("KritaShape/KisToolSmudge") },                                                          // Blur (Smudge in its flyout)
-        // Krimble 2026-11-16 (728th): George (build 65): "Odd number of tools in toolbox makes 2 columns look lopsided. Sharpen should be a flyout of soften/blur. We should never have an odd
-        // number of tools." Sharpen is in Blur's flyout: 19 tool buttons and UNDO, 20 in all.
-        // { QStringLiteral("KritaShape/KisToolSoften"), QStringLiteral("KritaShape/KisToolSharpen"), QStringLiteral("KritaShape/KisToolSmudge") },                // Blur (Sharpen and Smudge in its flyout)
-        // Krimble 2026-11-18 (745th): George: "the smudge tool should be the default for that flyout set, not soften." Smudge is the shown tool, Blur (Soften) and Sharpen in its flyout. The
-        // button stays in the same place (Smudge's toolbox place is 135, between Blur's 134 and Sharpen's 136).
         { QStringLiteral("KritaShape/KisToolSmudge"), QStringLiteral("KritaShape/KisToolSoften"), QStringLiteral("KritaShape/KisToolSharpen") },                // Smudge (Blur and Sharpen in its flyout)
         { QStringLiteral("KritaSelected/KisToolColorSampler"), QStringLiteral("KritaShape/KisToolMeasure"), QStringLiteral("ToolReferenceImages"), QStringLiteral("KisAssistantTool") },   // Sampler
         { QStringLiteral("KrimbleTextTool"), QStringLiteral("SvgTextTool") },                                                                                // Type
@@ -154,7 +120,6 @@ public:
     KoToolBoxLayout *layout {0};
     QButtonGroup *buttonGroup {0};
     QHash<QToolButton*, QString> visibilityCodes;
-    // Krimble 2026-11-12 (task 38): George: "I want long press to open a flyout of other buttons. Then a tap selects one or misses and cancels selection."
     struct KrimbleGroup {
         QList<KoToolBoxButton*> buttons;
         KoToolBoxButton *shown {nullptr};   // the one button of the group that is visible
@@ -246,38 +211,18 @@ void KoToolBox::setViewManager(KisViewManager *viewManager)
 
 void KoToolBox::addButton(KoToolAction *toolAction)
 {
-    // KRIMBLE 2026-10-03: the Select Shapes tool ("InteractionTool") stays registered because
-    // the tool manager needs it as the default tool, but it gets no toolbox button, so the
-    // first button is the Move tool. (An empty toolbox section is skipped by the layout.)
-    //     return;
-    // }
-    // Krimble 2026-10-30: George: "I think you should have left it. Edit shapes can be a toggle or something." The Select Shapes tool has a toolbox button again (his
-    // arrow picture); the Edit Shapes tool ("PathTool") has none: it is the "Edit points" button in the Tool Options of Select Shapes (KrimbleShapeModeRow.h).
     if (toolAction->id() == QLatin1String("PathTool")) {
         return;
     }
-    // Krimble 2026-11-07: George: "I think I have also decided Rotate does not need a separate tool in the toolbox. It's too easy to hit accidentally. better to leave rotate to a mode
-    // change in the tool options for transform." The Free Rotate tool stays registered (its Rotate button in the Tool Options of Transform and Edit > Transform > Rotate start it, and
-    // the Rotate radio button there turns the graphic with one finger too); it has no toolbox button.
     if (toolAction->id() == QLatin1String("KisToolFreeRotate")) {
         return;
     }
 
 #ifdef Q_OS_ANDROID
-    // Krimble 2026-10-26: George, about the six tools under Rotate: "I question their usefulness in mobile." and "When we build the desktop version for Linux, Windows, and
-    // MacOS we will enable those. For mobile, comment them out." So on Android they get no toolbox button (the tools stay registered, and the code is untouched); this block
-    // is only compiled for Android, so a desktop build shows all of them. To bring one back on the phone, delete its line from the list.
     {
         static const QStringList krimbleHiddenOnMobile = {
             QStringLiteral("KritaShape/KisToolLazyBrush"),   // Colorize Mask Editing Tool
             QStringLiteral("KisToolEncloseAndFill"),         // Enclose and Fill Tool
-            // Krimble 2026-10-30: George: "keep ruler and reference images." and "we should have 32 tools." The four tools below have a picture in the new
-            // set of 32 toolbox icons, so they are shown on the phone too: Assistant, Ruler, Reference Images and Path-Based Selection. Only Colorize Mask Editing
-            // and Enclose and Fill stay out (they have no picture, and are commented out of the registry too). The lines are kept as comments.
-            // QStringLiteral("KisAssistantTool"),              // Assistant Tool
-            // QStringLiteral("KritaShape/KisToolMeasure"),     // Ruler Tool
-            // QStringLiteral("ToolReferenceImages"),           // Reference Images Tool
-            // QStringLiteral("KisToolSelectPath"),             // Path-Based Selection Tool
         };
         if (krimbleHiddenOnMobile.contains(toolAction->id())) {
             return;
@@ -301,8 +246,6 @@ void KoToolBox::addButton(KoToolAction *toolAction)
         sectionToBeAddedTo = section;
     }
 
-    // Krimble 2026-10-10: George wants one continuous block of tools, no groups. Every tool goes into the one "main"
-    // section. The old order is kept: the old group (main, dynamic, then by its leading digit) is folded into the priority.
     int groupRank = 12;
     if (sectionToBeAddedTo == QLatin1String("main")) {
         groupRank = 0;
@@ -320,7 +263,6 @@ void KoToolBox::addButton(KoToolAction *toolAction)
         sectionWidget = new Section(this);
         d->addSection(sectionWidget, QStringLiteral("main"));
     }
-    // Krimble 2026-11-12 (task 38): George: "I want long press to open a flyout of other buttons. Then a tap selects one or misses and cancels selection." The tools of a group all take the place of the group's first tool, so the shown one is always in that place.
     int krimblePriority = groupRank * 1000000 + toolAction->toolBoxPriority();
     const int krimbleGroup = krimbleGroupIndexOf(toolAction->id());
     if (krimbleGroup >= 0) {
@@ -343,8 +285,6 @@ void KoToolBox::addButton(KoToolAction *toolAction)
     d->visibilityCodes.insert(button, toolAction->visibilityCode());
 }
 
-// Krimble 2026-11-08: George: "I wanted to put the UNDO button in as a tool button in the toolbox to fill that last space." and "Put UNDO in as a standard toolbox icon." A button that is
-// not a tool goes into the same block as the tools, after them (their priorities are below 13 million), with the size and icon size of a tool button.
 void KoToolBox::addActionButton(QToolButton *button, int priority)
 {
     d->buttons << button;
@@ -365,7 +305,6 @@ void KoToolBox::setActiveTool(KoCanvasController *canvas)
     QString id = KoToolManager::instance()->activeToolId();
     KoToolBoxButton *button = d->buttonsByToolId.value(id);
     if (button) {
-        // Krimble 2026-11-12 (task 38): George: "I want long press to open a flyout of other buttons. Then a tap selects one or misses and cancels selection." A tool of a group that was picked (flyout, shortcut) takes the group's place: it is shown, the one shown before is hidden.
         for (int g = 0; g < d->groups.size(); ++g) {
             Private::KrimbleGroup &group = d->groups[g];
             if (group.buttons.contains(button) && group.shown != button) {
@@ -409,13 +348,11 @@ void KoToolBox::setButtonsVisible(const QList<QString> &codes)
             button->setVisible( codes.contains(code) );
         }
     }
-    // Krimble 2026-11-12 (task 38): George: "I want long press to open a flyout of other buttons. Then a tap selects one or misses and cancels selection."
     krimbleApplyGroups();
     layout()->invalidate();
     update();
 }
 
-// Krimble 2026-11-12 (task 38): George: "I want long press to open a flyout of other buttons. Then a tap selects one or misses and cancels selection." Only the shown button of each group is visible; the others stay hidden (they still exist: the tool manager, the shortcuts and the flyout use them).
 void KoToolBox::krimbleApplyGroups()
 {
     for (int g = 0; g < d->groups.size(); ++g) {
@@ -434,7 +371,6 @@ void KoToolBox::krimbleApplyGroups()
     }
 }
 
-// Krimble 2026-11-12 (task 38): George: "I want long press to open a flyout of other buttons. Then a tap selects one or misses and cancels selection."
 void KoToolBox::krimbleShowFlyout(int groupIndex)
 {
     if (groupIndex < 0 || groupIndex >= d->groups.size()) return;
@@ -597,9 +533,6 @@ void KoToolBox::setupIconSizeMenu(QMenu *menu)
     }
 }
 
-// Krimble 2026-10-30: George: "I want the user to be able to switch between the full color themed toolbox icons and your clear icons." Two items in the toolbox's
-// menu (touch and hold): Full color (the picture icons) and Silhouette (the line icons made for Krimble). The choice is saved and applies at once.
-// Krimble 2026-11-12 (task 40): George: "The user should have the choice between flat looking buttons like in your mockup and raised buttons with thicker bevels like DPaint." Flat (no boxes: the default) or Raised (a box with a thick bevel for each tool).
 void KoToolBox::setupButtonStyleMenu(QMenu *menu)
 {
     QActionGroup *styleGroup = new QActionGroup(menu);
@@ -617,7 +550,7 @@ void KoToolBox::setupButtonStyleMenu(QMenu *menu)
         Q_FOREACH (KoToolBoxButton *button, d->buttonsByToolId) {
             button->update();
         }
-        Q_FOREACH (QToolButton *button, d->buttons) button->update();   // Krimble 2026-11-15 (707th): the UNDO button too
+        Q_FOREACH (QToolButton *button, d->buttons) button->update();
         update();
     };
     connect(flatAction, &QAction::triggered, this, [apply]() { apply(0); });
@@ -629,7 +562,6 @@ void KoToolBox::setupIconStyleMenu(QMenu *menu)
     QActionGroup *styleGroup = new QActionGroup(menu);
     const bool color = KrimbleToolboxIcons::colorMode();
     QAction *colorAction = menu->addAction(i18n("Full color"));
-    // Krimble 2026-10-30: George: "I was going to call them silhouette icons." The style's name is Silhouette (it was Clear).
     QAction *clearAction = menu->addAction(i18n("Silhouette"));
     for (QAction *action : {colorAction, clearAction}) {
         action->setActionGroup(styleGroup);

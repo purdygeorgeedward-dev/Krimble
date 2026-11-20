@@ -4,7 +4,7 @@
  *  SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#include <cmath>   // Krimble 2026-10-23: rotate targets
+#include <cmath>
 #include <QtMath>
 #include "kis_free_transform_strategy.h"
 
@@ -46,7 +46,7 @@ enum StrokeFunction {
     PERSPECTIVE,
     CAMERAHEIGHT,
     ROTATEBOUNDS,
-    KRIMBLENONE    // Krimble 2026-10-30: a touch outside the box does nothing (Scale mode does not rotate)
+    KRIMBLENONE
 };
 }
 
@@ -203,22 +203,6 @@ void KisFreeTransformStrategy::setTransformFunction(const QPointF &mousePos, boo
 {
     Q_UNUSED(shiftModifierActive);
 
-    // Krimble (2026-09-03): Free Transform used to be able to blend into
-    // Perspective behavior via a held modifier (perspectiveModifierActive,
-    // routed through a repurposed alternate-action flag originally meant
-    // for Ctrl+click color sampling in paint tools -- not a purpose-built
-    // gesture). Commented out by design: each transform mode is meant to
-    // be a separate tool, selected explicitly (Edit > Transform >
-    // Perspective, or the tool options panel), never entered implicitly
-    // from inside Free Transform via a held key. `perspectiveModifierActive`
-    // is intentionally unused now; kept as a parameter since the base
-    // class interface (KisSimplifiedActionPolicyStrategy::setTransformFunction)
-    // is shared with the other transform strategies. See KRIMBLE_CHANGES.md
-    // for the full rationale.
-    // if (perspectiveModifierActive && !m_d->transaction.shouldAvoidPerspectiveTransform()) {
-    //     m_d->function = PERSPECTIVE;
-    //     return;
-    // }
     Q_UNUSED(perspectiveModifierActive);
 
     QTransform boundsFullTransform = m_d->boundsTransform * m_d->transform;
@@ -227,34 +211,12 @@ void KisFreeTransformStrategy::setTransformFunction(const QPointF &mousePos, boo
     qreal rotationHandleRadius = KisTransformUtils::effectiveHandleGrabRadius(m_d->converter);
 
 
-       // StrokeFunction defaultFunction = MOVE;
-       // if (transformedPolygon.containsPoint(mousePos, Qt::OddEvenFill))
-       //    defaultFunction = MOVE;
-       // else if (m_d->transaction.boundsRotationAllowed() && altModifierActive)
-       //    defaultFunction = MOVE;
-       // Krimble 2026-10-23: George (1.0.41 test list item 7): "Edit - Free Transform is just scale?" The lines above made every touch
-       // outside the box a Move, so Free Transform could not rotate. Krita's own rule is back: inside the box moves, outside the box
-       // rotates (Alt rotates the bounds, as in Krita).
-       // Krimble 2026-10-30: George: "Remove the rotation functions from the default Transform (Scale) tool." Rotating is the Rotate tool's job
-       // (KisToolFreeRotate). Inside the box still moves; outside the box does nothing, and Alt no longer rotates the bounds. The 2026-10-23 rule is kept below, commented out.
-       // if (transformedPolygon.containsPoint(mousePos, Qt::OddEvenFill))
-       //    defaultFunction = MOVE;
-       // else if (m_d->transaction.boundsRotationAllowed() && altModifierActive)
-       //    defaultFunction = ROTATEBOUNDS;
-       // else
-       //    defaultFunction = ROTATE;
        StrokeFunction defaultFunction = MOVE;
        if (transformedPolygon.containsPoint(mousePos, Qt::OddEvenFill))
           defaultFunction = MOVE;
        else
-          // Krimble 2026-11-06: George: "Transform - scale no longer lets you move the selection. fix it." and "can the scale tool also move the selection now?" The 2026-10-30 rule
-          // above made a touch outside the box do nothing, and on a small box the handles (a grab radius of about 76 px) cover most of the inside, so there was no place left to
-          // drag it. A touch that is not on a handle moves the selection again, inside the box or outside it, as before 2026-10-30 (the 2026-10-23 rule). It still does not rotate.
           defaultFunction = MOVE;
     
-    // Krimble 2026-11-07: the drag mode chosen with the radio buttons in the Tool Options (Position, Rotate, Scale, Shear): George: "Selecting position from the tool options does not
-    // put it in move mode." Position: every touch moves, the handles are not touchable. Rotate: a touch inside the box moves, outside it turns the graphic around the center.
-    // Shear: the four middle handles shear, any other touch moves. Scale (the default): the code below, as before.
     {
         const ToolTransformArgs::FreeGesture gesture = m_d->currentArgs.freeGesture();
         const bool insideBox = transformedPolygon.containsPoint(mousePos, Qt::OddEvenFill);
@@ -295,45 +257,9 @@ void KisFreeTransformStrategy::setTransformFunction(const QPointF &mousePos, boo
                               handleRadius, LEFTSCALE);
     handleChooser.addFunction(m_d->transformedHandles.topLeft,
                               handleRadius, TOPLEFTSCALE);
-    // handleChooser.addFunction(m_d->transformedHandles.rotationCenter,
-    //                           rotationHandleRadius, MOVECENTER);
-    // Krimble 2026-11-06: George: "there is a thing in the middle of the scale areas that moves, but it doesn't move the selection. what is that thing?" It is the pivot (rotation
-    // center) handle, a small circle with a cross. It only moves the point the box rotates around; Scale does not rotate here (2026-10-30), and its large touch radius (about 76 px)
-    // sat over the middle of the box, so a touch there moved the pivot instead of the selection. It does nothing useful now, so it is neither drawn nor touchable, and the
-    // middle of the box moves the selection.
 
     m_d->function = handleChooser.function();
 
-    // Krimble (2026-09-03): the shear-by-proximity blending below was
-    // commented out by design -- each transform mode is meant to be a
-    // separate tool, so Free Transform should never blend into Skew via a
-    // checkbox toggle ("Allow Shear by Dragging" in the tool options), the
-    // same way it can no longer blend into Perspective via a held modifier
-    // (see setTransformFunction() above). Skew is reachable exclusively
-    // through its own menu item (Edit > Transform > Skew, which calls the
-    // separate `shearlayer` action) now. `allowShear()`/`setAllowShear()`
-    // and the "Allow Shear by Dragging" checkbox are left in place in
-    // ToolTransformArgs and the config widget UI rather than deleted, but
-    // this is the code that would have acted on them, so the setting no
-    // longer has any effect. See KRIMBLE_CHANGES.md for the full
-    // rationale.
-    // if (m_d->currentArgs.allowShear() && (m_d->function == ROTATE || m_d->function == MOVE)) {
-    //     QRectF bounds = m_d->bounds;
-    //     QPointF t = boundsFullTransform.inverted().map(mousePos);
-    //
-    //     if (t.x() >= bounds.left() && t.x() <= bounds.right()) {
-    //         if (fabs(t.y() - bounds.top()) <= handleRadius)
-    //             m_d->function = TOPSHEAR;
-    //         if (fabs(t.y() - bounds.bottom()) <= handleRadius)
-    //             m_d->function = BOTTOMSHEAR;
-    //     }
-    //     if (t.y() >= bounds.top() && t.y() <= bounds.bottom()) {
-    //         if (fabs(t.x() - bounds.left()) <= handleRadius)
-    //             m_d->function = LEFTSHEAR;
-    //         if (fabs(t.x() - bounds.right()) <= handleRadius)
-    //             m_d->function = RIGHTSHEAR;
-    //     }
-    // }
 }
 
 bool KisFreeTransformStrategy::shiftModifierIsUsed() const
@@ -375,7 +301,7 @@ QCursor KisFreeTransformStrategy::getCurrentCursor() const
     case ROTATEBOUNDS:
         cursor = m_d->rotateHandlesCursor;
         break;
-    case KRIMBLENONE:   // Krimble 2026-10-30: plain arrow outside the box
+    case KRIMBLENONE:
         break;
     case ROTATE:
         cursor = KisCursor::rotateCursor();
@@ -474,11 +400,6 @@ void KisFreeTransformStrategy::paint(QPainter &gc, const KoColorDisplayRendererI
     handles.addRect(handleRect.translated(topMiddle(m_d->bounds)));
     handles.addRect(handleRect.translated(bottomMiddle(m_d->bounds)));
 
-    // Krimble 2026-11-06: the pivot handle is not drawn (see the comment at its touch test above); the old drawing:
-    // handles.moveTo(rotationCenter - dx);
-    // handles.lineTo(rotationCenter + dx);
-    // handles.moveTo(rotationCenter - dy);
-    // handles.lineTo(rotationCenter + dy);
     Q_UNUSED(rotationCenterRect);
     Q_UNUSED(rX);
     Q_UNUSED(rY);
@@ -499,16 +420,8 @@ void KisFreeTransformStrategy::paint(QPainter &gc, const KoColorDisplayRendererI
     pen[1].setCosmetic(true);
     pen[1].setColor(displayRendererInterface->convertColorToDisplayColorSpace(KoColor(Qt::lightGray, KoColorSpaceRegistry::instance()->rgb8())));
 
-    // Krimble 2026-10-23: George (1.0.41 test list item 7), asked "visible rotate targets just outside the corners?": "Sure." Touching
-    // anywhere outside the box rotates (245th); a curved arrow just outside each corner shows where. They are drawn in screen units, so
-    // they stay the same size at any zoom, and point away from the box's centre. kRotateTargetGap / kRotateTargetRadius are the tuning values.
     {
-        // Krimble 2026-10-23 (2nd): George (1.0.42): "Free Transform works but the corner gadgets are massive overkill. Should just be a little arrow thing, not loops." A short curved
-        // arrow (100 degrees, not 270) at about half the size, nearer the corner.
         const qreal kRotateTargetRadius = KisTransformUtils::handleVisualRadius * 0.9;
-        // Krimble 2026-10-26: George (1.0.44): "In free transform the rotate gadgets are ugly and it's way too likely you will grab the sizing gadget instead of rotate."
-        // A touch within handleRadius + handleGrabPadding (8 + 30 = 38 px, effectiveHandleGrabRadius) of a corner is the size handle. The arrow was drawn 26 px from the
-        // corner, so touching it grabbed the size handle. Now it is drawn beyond that area: the grab radius, plus the arrow's own radius, plus 10 px of clear space.
         const qreal kRotateTargetGap = KisTransformUtils::handleRadius + KisTransformUtils::handleGrabPadding + kRotateTargetRadius + 10.0;
         const QPointF centre = m_d->handlesTransform.map(m_d->bounds.center());
         const QPointF corners[4] = {
@@ -527,7 +440,7 @@ void KisFreeTransformStrategy::paint(QPainter &gc, const KoColorDisplayRendererI
             const qreal r = kRotateTargetRadius;
             // an open arc of 270 degrees, facing away from the box, with an arrowhead at its end
             const qreal facing = std::atan2(-out.y(), out.x()) * 180.0 / M_PI;   // QPainterPath angles are counter-clockwise
-            const qreal start = facing - 50.0;     // Krimble 2026-10-23 (2nd): a short arc
+            const qreal start = facing - 50.0;
             const qreal sweep = 100.0;
             const QRectF circle(c.x() - r, c.y() - r, 2 * r, 2 * r);
             targets.arcMoveTo(circle, start);
@@ -536,7 +449,7 @@ void KisFreeTransformStrategy::paint(QPainter &gc, const KoColorDisplayRendererI
             const QPointF tip(c.x() + r * std::cos(endRad), c.y() - r * std::sin(endRad));
             const QPointF tangent(-std::sin(endRad), -std::cos(endRad));      // direction of travel at the arc's end (counter-clockwise)
             const QPointF normal(std::cos(endRad), -std::sin(endRad));
-            const qreal head = r * 0.8;      // Krimble 2026-10-23 (2nd): a little more head on the shorter arc
+            const qreal head = r * 0.8;
             targets.moveTo(tip - tangent * head + normal * head * 0.6);
             targets.lineTo(tip);
             targets.lineTo(tip - tangent * head - normal * head * 0.6);
@@ -549,10 +462,6 @@ void KisFreeTransformStrategy::paint(QPainter &gc, const KoColorDisplayRendererI
         gc.drawPath(mappedHandles);
     }
 
-    // Krimble 2026-10-26: George (1.0.44) drew on a screenshot what he wants for rotating: "A curve with arrow heads at each end. Thick." (the gadgets had been "almost invisible
-    // thin little lines"). At each corner a thick arc bowed around the corner (the corner is the centre of the arc), 80 degrees long, with an open arrowhead at both ends. It is
-    // drawn beyond the size handle's grab area (handleRadius + handleGrabPadding = 38 px; the arc is 54 px from the corner) so that touching it can never scale. Two strokes: a
-    // dark one under a white one, so it shows on any picture. Sizes are in screen pixels, so they do not change with the zoom.
 
     gc.restore();
 }
@@ -702,13 +611,6 @@ void KisFreeTransformStrategy::continuePrimaryAction(const QPointF &mousePos,
     break;
     case PERSPECTIVE:
     {
-        // Krimble (2026-09-03): unreachable now that Free Transform no
-        // longer sets m_d->function = PERSPECTIVE anywhere (see the
-        // commented-out block in setTransformFunction() above) --
-        // Perspective is a separate tool mode now, not a behavior Free
-        // Transform can blend into. Left in place rather than deleted,
-        // matching this fork's no-silent-deletion convention; see
-        // KRIMBLE_CHANGES.md for the full rationale.
         if (!hasOriginalModifiersSet) {
             m_d->function = CAMERAHEIGHT;
             m_d->clickArgs = m_d->currentArgs;
@@ -736,9 +638,6 @@ void KisFreeTransformStrategy::continuePrimaryAction(const QPointF &mousePos,
     }
     break;
     case CAMERAHEIGHT: {
-        // Krimble (2026-09-03): unreachable along with case PERSPECTIVE
-        // above, for the same reason -- this is only ever entered from
-        // inside that case.
         if (hasOriginalModifiersSet) {
             m_d->function = PERSPECTIVE;
             m_d->clickPos = mousePos;
@@ -961,11 +860,6 @@ void KisFreeTransformStrategy::continuePrimaryAction(const QPointF &mousePos,
         break;
     case TOPSHEAR:
     case BOTTOMSHEAR: {
-        // Krimble (2026-09-03): unreachable now that the shear-by-proximity
-        // blending in setTransformFunction() above is commented out --
-        // Skew is a separate menu-triggered action now, not a Free
-        // Transform behavior. Left in place rather than deleted; see
-        // KRIMBLE_CHANGES.md for the full rationale.
         KisTransformUtils::MatricesPack m(m_d->clickArgs);
 
         QPointF oldStaticPoint = m.finalTransform().map(m_d->clickArgs.originalCenter() + m_d->clickArgs.rotationCenterOffset());
@@ -991,8 +885,6 @@ void KisFreeTransformStrategy::continuePrimaryAction(const QPointF &mousePos,
 
     case LEFTSHEAR:
     case RIGHTSHEAR: {
-        // Krimble (2026-09-03): unreachable along with TOPSHEAR/BOTTOMSHEAR
-        // above, for the same reason.
         KisTransformUtils::MatricesPack m(m_d->clickArgs);
 
         QPointF oldStaticPoint = m.finalTransform().map(m_d->clickArgs.originalCenter() + m_d->clickArgs.rotationCenterOffset());
@@ -1015,7 +907,7 @@ void KisFreeTransformStrategy::continuePrimaryAction(const QPointF &mousePos,
         m_d->currentArgs.setTransformedCenter(m_d->currentArgs.transformedCenter() + oldStaticPoint - newStaticPoint);
         break;
     }
-    case KRIMBLENONE:   // Krimble 2026-10-30: nothing to do
+    case KRIMBLENONE:
         break;
     }
 

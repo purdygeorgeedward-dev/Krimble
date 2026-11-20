@@ -9,9 +9,6 @@
 inline QString krimbleCommonStyleSheet()
 {
     return QStringLiteral(R"KRIMBLE(
-/* Krimble 2026-11-20 (760th): George: "Fix all of that before any build can take place." The rules that thememanager.cpp added after every Krimble theme's sheet (tabs and their
-   page #374165 (722nd, 741st), the menu bar item spacing and its open name (2026-11-15, 735th), the tab scroll arrows (728th), the flat blue selection (757th), the Layers rows
-   (NodeView), the ball bearing slider handle, the image tab bar) moved here unchanged, in the same order. Krimble Dark Gray converts them to gray with the rest of its sheet. */
 QTabWidget::pane { background: #374165; border: none; }
 QTabBar::tab:selected { background: #374165; border-bottom: 1px solid #374165; }
 QMenuBar::item { padding: 1px 9px 4px 9px; }

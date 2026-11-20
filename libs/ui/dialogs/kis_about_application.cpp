@@ -8,13 +8,13 @@
 #include <QPixmap>
 #include <QLabel>
 #include <QVBoxLayout>
-#include <QHBoxLayout>   // Krimble 2026-10-24
+#include <QHBoxLayout>
 #include <QScrollArea>
 #include <QTabWidget>
 #include <QTabBar>
 #include <QFont>
 #include <QApplication>
-#include <QGuiApplication>   // Krimble 2026-10-24
+#include <QGuiApplication>
 #include <QScreen>
 #include "kis_about_application.h"
 
@@ -51,7 +51,6 @@ KisAboutApplication::KisAboutApplication(QWidget *parent)
     KisSplashScreen *splash = new KisSplashScreen(true);
     splash->setWindowFlags(Qt::Widget);
 #ifdef Q_OS_ANDROID
-    // Krimble 2026-10-18: the picture is not wider than 90% of the window this dialog is opened from (George, 1.0.37: "About Krimble text is all over the place").
     if (parent && parent->window()) {
         splash->setMaximumAboutWidth(int(parent->window()->width() * 0.90));
     }
@@ -59,19 +58,12 @@ KisAboutApplication::KisAboutApplication(QWidget *parent)
     splash->displayLinks(true);
 
 #ifdef Q_OS_ANDROID
-    // Krimble 2026-10-18 (2nd): George (1.0.37, fc126d8): "9. About Krimble still sucks." On the phone the About page is built here and not from the
-    // splash widget: the picture is as wide as the window and keeps its shape, the version is written UNDER it (not over the art), and the four links
-    // are one column. (Getting Started, Manual, Scripting API and Scripting School are left out: they pointed at the same web page, or at scripting, which
-    // the Android build does not have.)
     {
         QWidget *page = new QWidget(wdgTab->aboutTab);
         QVBoxLayout *pageLayout = new QVBoxLayout(page);
         pageLayout->setContentsMargins(6, 6, 6, 6);
         const qreal dpr = qApp->devicePixelRatio();
         int pageWidth = 600;
-        // Krimble 2026-10-24: George: "the about dialog is still enormous." Held sideways (the window is wider than tall) the picture alone was 86% of the window's width and
-        // about 420 px high on a screen only 340 px high. Sideways the page is now two columns (the picture and the version on the left, 40% of the width; the links and the
-        // fonts text on the right, scrolling); upright it is one column as before.
         const bool sideways = parent && parent->window() && parent->window()->width() > parent->window()->height();
         if (parent && parent->window()) pageWidth = int(parent->window()->width() * (sideways ? 0.40 : 0.86));
         QPixmap picture(QStringLiteral(":/splash/hd.jpg"));
@@ -97,16 +89,10 @@ KisAboutApplication::KisAboutApplication(QWidget *parent)
             "<p><a href=\"https://krimble.org/\">Krimble Website</a></p>"
             "<p><a href=\"https://krimble.org\">User Community</a></p>"
             "<p><a href=\"https://github.com/purdygeorgeedward-dev/krimble\">Source Code</a></p>"));
-        // Krimble 2026-10-18 (11th): George, on the license of the fonts that come with the app: "A. Put in a link to purdy.design and maybe I'll get some licenses out of it."
-        // (A: as written in the fonts: free for non-commercial use, a paid license from Purdy Design for commercial use.)
         QLabel *fontsLabel = new QLabel(page);
         fontsLabel->setTextFormat(Qt::RichText);
         fontsLabel->setOpenExternalLinks(true);
         fontsLabel->setWordWrap(true);
-        // fontsLabel->setText(QStringLiteral(
-        //     "<p><small>Fonts that come with Krimble (ROBO, Cartoonist Kooky, Cyberspace, Emoticons, Emoticons Outline) &copy; George Edward Purdy, Purdy Design. "
-        //     "Free for non-commercial use. Commercial use needs a license: <a href=\"https://purdy.design\">purdy.design</a></small></p>"));
-        // Krimble 2026-10-18 (189th): 52 open-license font families added; the Purdy Design line now names its own fonts only.
         fontsLabel->setText(QStringLiteral(
             "<p><small>Purdy Design fonts (ROBO, Cartoonist Kooky, Cyberspace, Emoticons, Emoticons Outline) &copy; George Edward Purdy, Purdy Design. "
             "Free for non-commercial use. Commercial use needs a license: <a href=\"https://purdy.design\">purdy.design</a></small></p>"
@@ -209,24 +195,6 @@ KisAboutApplication::KisAboutApplication(QWidget *parent)
         "</body></html>");
     wdgTab->lblKickstarter->setText(sponsors);
 
-    // QString credits = i18n("<html>"
-    //                       "<head/>"
-    //                       "<body>"
-    //                       "<h1 align=\"center\">Thanks To</h1>"
-    //                       "<p>");
-    // Krimble 2026-10-24: George: "The Thanks to... Page needs an update since it's for Krita. I'd like to put Claude and ChatGPT in my Thanks to page." The page now begins with
-    // Claude and ChatGPT, and the list that came with Krita (credits.txt: the artists, brush and icon makers and others whose work Krimble still carries, several of them
-    // CC-BY-SA, which needs their names) follows under its own line.
-    // QString credits = i18n("<html>"
-    //                       "<head/>"
-    //                       "<body>"
-    //                       "<h1 align=\"center\">Thanks To</h1>"
-    //                       "<p align=\"center\"><b>Claude</b> (Anthropic) and <b>ChatGPT</b> (OpenAI)</p>"
-    //                       "<p align=\"center\"><i>The AI assistants that helped design, write and test Krimble.</i></p>"
-    //                       "<p align=\"center\">The <b>Krita</b> team and community, whose work Krimble is built on.</p>"
-    //                       "<p><b>Also, from the Krita project:</b> ");
-    // Krimble 2026-10-24 (2nd): George: "We need to add our thank you list from the readme to the list in the app." The five of the README's THANK YOU section (README.md, with the
-    // logos of thanks-icons/, here as 96 px PNG copies in aboutdata.qrc: thanks-claude.png ...), word for word. If the README's list changes, change this too.
     QString credits = i18n("<html>"
                           "<head/>"
                           "<body>"
@@ -316,8 +284,6 @@ KisAboutApplication::KisAboutApplication(QWidget *parent)
     }
 
     setMainWidget(wdgTab);
-    // Krimble 2026-10-24: George: "the about dialog is still enormous." The window was fixed at exactly the size its contents ask for (the picture, the seven tabs, the text), which
-    // is bigger than a phone's screen, and could not be made smaller. It can be now: it opens at 92% by 90% of the screen and its pages scroll.
     Q_ASSERT(layout());
     if (QScreen *screen = QGuiApplication::primaryScreen()) {
         const QRect available = screen->availableGeometry();

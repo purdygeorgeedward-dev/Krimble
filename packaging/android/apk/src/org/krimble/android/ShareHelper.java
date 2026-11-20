@@ -1,6 +1,3 @@
-// Krimble 2026-10-12: Share (Claude's idea). Saves the picture the app has written into the phone's Pictures/Krimble folder
-// (so it also shows up in the Gallery) and opens Android's share sheet for it: messages, email, social apps, cloud storage.
-// Needs Android 10 or newer (older phones are told so).
 package org.krimble.android;
 
 import android.app.Activity;
@@ -24,8 +21,6 @@ import java.io.OutputStream;
 public class ShareHelper {
     private static final String TAG = "KrimbleShare";
 
-    // Krimble 2026-10-13: Take Photo (Claude's idea; George: "Yes. Go for it."). Makes an empty picture entry in Pictures/Krimble/Camera
-    // for the phone's camera app to write the photo into, and returns its address ("" when that is not possible: it needs Android 10).
     public static String prepareCameraUri() {
         final Activity activity = QtNative.activity();
         if (activity == null || Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
@@ -44,10 +39,6 @@ public class ShareHelper {
         }
     }
 
-    // Krimble 2026-10-15: Take Photo, troubleshooting (George, 1.0.36: the camera opened and the photo was taken, then Krimble said "The file
-    // content://media/external/images/media/1000356140 does not exist." and nothing opened). Copies what the camera wrote to the address of
-    // prepareCameraUri into the app's own cache and returns the path of the copy, which Krimble can open like any file. If it cannot, it returns
-    // "EMPTY" (the camera app saved nothing to that address) or "ERROR: ..." with the reason, so the answer is shown instead of a guess.
     public static String copyCameraPhoto(final String uriString) {
         final Activity activity = QtNative.activity();
         if (activity == null) {
@@ -96,8 +87,6 @@ public class ShareHelper {
         }
     }
 
-    // Krimble 2026-10-12: Batch presets (Claude's idea). Saves one picture into Pictures/Krimble/<folder> through the MediaStore, without
-    // opening the share sheet. Needs Android 10 or newer.
     public static boolean saveToPictures(final String path, final String mime, final String displayName, final String folder) {
         final Activity activity = QtNative.activity();
         if (activity == null || Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {

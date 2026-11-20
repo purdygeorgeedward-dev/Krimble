@@ -73,9 +73,6 @@ KisDlgFilter::KisDlgFilter(KisViewManager *view, KisNodeSP node, KisFilterManage
     d->node = node;
 
 #ifdef Q_OS_ANDROID
-    // KRIMBLE: on Android the window title is not drawn (blank strip at the
-    // top of the dialog), so no filter name was visible. Show the filter name
-    // in a label at the top of the dialog. Updated in setDialogTitle().
     {
         QLabel *titleLabel = new QLabel(this);
         titleLabel->setObjectName(QStringLiteral("krimbleFilterTitleLabel"));
@@ -136,10 +133,6 @@ KisDlgFilter::KisDlgFilter(KisViewManager *view, KisNodeSP node, KisFilterManage
 
     restoreGeometry(KisConfig(true).readEntry("filterdialog/geometry", QByteArray()));
 
-    // KRIMBLE: filter dialogs were wider than the screen on Android (OK and
-    // Cancel unreachable in portrait). If the restored width is more than
-    // half the screen's available width, shrink it to exactly half. Height
-    // is unchanged. The restoreGeometry line above is kept as-is.
     if (QScreen *scr = QGuiApplication::primaryScreen()) {
         const int halfWidth = scr->availableGeometry().width() / 2;
         if (width() > halfWidth) {
@@ -171,7 +164,6 @@ void KisDlgFilter::setDialogTitle(KisFilterSP filter)
 {
     setWindowTitle(filter.isNull() ? i18nc("@title:window", "Filter") : i18nc("@title:window", "Filter: %1", filter->name()));
 #ifdef Q_OS_ANDROID
-    // KRIMBLE: mirror the title into the on-dialog label (see constructor).
     if (QLabel *titleLabel = findChild<QLabel*>(QStringLiteral("krimbleFilterTitleLabel"))) {
         titleLabel->setText(filter.isNull() ? i18nc("@title:window", "Filter") : filter->name());
     }

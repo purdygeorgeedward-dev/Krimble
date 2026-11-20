@@ -1335,8 +1335,6 @@ void KisConfig::setScrollingCheckers(bool sc) const
 
 QColor KisConfig::canvasBorderColor(bool defaultValue) const
 {
-    // Krimble 2026-11-16 (728th): George (build 65): "Make the canvas background darker." The area around the picture was mid gray (128); the default is a dark gray (64). A phone that has
-    // the old default saved (the Preferences window saves it on every OK) gets the new one too; any other saved color is a choice and is kept.
     QColor color(QColor(64, 64, 64));
     if (defaultValue) return color;
     const QColor saved = m_cfg.readEntry("canvasBorderColor", color);
@@ -2119,7 +2117,6 @@ void KisConfig::setToolbarSlider(int sliderNumber, const QString &slider)
 
 int KisConfig::layerThumbnailSize(bool defaultValue) const
 {
-    // Krimble 2026-11-13 (task 61): George: "You know what would be useful? Thumbnails." The layer thumbnails were 20 px by default, the smallest the Thumbnail Size slider of the Layers menu can be (20 to 80): a wide picture was a strip 6 px high. 48 px now.
     return (defaultValue ? 48 : m_cfg.readEntry("layerThumbnailSize", 48));
 }
 
@@ -2535,7 +2532,7 @@ void KisConfig::setZoomSteps(int steps)
 
 int KisConfig::zoomMarginSize(bool defaultValue) const
 {
-    return (defaultValue ? 24 : m_cfg.readEntry("zoomMarginSize", 24));   // Krimble 2026-11-15: George: "fits the display with a little margin around it": 24 real pixels (was 0)
+    return (defaultValue ? 24 : m_cfg.readEntry("zoomMarginSize", 24));
 }
 
 void KisConfig::setZoomMarginSize(int zoomMarginSize)

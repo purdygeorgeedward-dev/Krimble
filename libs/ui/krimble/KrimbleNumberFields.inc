@@ -1,17 +1,5 @@
-// Krimble 2026-11-20 (760th): part of KisApplication.cpp, moved here unchanged and included at the same place (George: "Fix all of that before any build can take place.").
-// It only compiles as part of KisApplication.cpp.
 
 #ifdef Q_OS_ANDROID
-// KRIMBLE 2026-10-04: number fields on the phone (George: "Every time I tap a numeric value ... I get Cut Copy Paste
-// blocking my view. The little up/down selector is too small to tap. I want to be able to long press, then drag up
-// and down to change a numeric value", and "Make the up down arrows decorative but actually do the drag").
-// For every number field (all QSpinBox / QDoubleSpinBox, including the bar-style ones such as "Opacity"):
-//  - A short TAP opens Krimble's own number pad (big buttons). Android's text selection, its handles and its
-//    Cut/Copy/Paste bar are never involved, and what is typed replaces the value.
-//  - LONG PRESS (about a third of a second) and then DRAG UP or DOWN changes the value; a little tip shows the value.
-//    Lift the finger to stop. Dragging up raises the value, dragging down lowers it.
-//  - The tiny up/down arrows stay in place as decoration only; touching them does the same as touching the field.
-// The settings are the constants in KrimbleNumberFields. Other platforms are not touched.
 class KrimbleNumberPad : public QDialog
 {
 public:
@@ -137,7 +125,7 @@ protected:
             return false;
         }
         if (m_replaying) {
-            return false;       // KRIMBLE 2026-10-07: our own replay of a short tap
+            return false;
         }
         QAbstractSpinBox *spin = spinFor(watched);
         if (!spin && m_state == Idle) {
@@ -152,7 +140,7 @@ protected:
             m_spin = spin;
             m_state = Pending;
             m_pressPos = mouse->globalPos();
-            m_pressWidget = qobject_cast<QWidget*>(watched);      // KRIMBLE 2026-10-07: to hand a short tap back to the field
+            m_pressWidget = qobject_cast<QWidget*>(watched);
             m_pressLocal = mouse->pos();
             m_startValue = valueOf(spin);
             m_timer.start();
@@ -166,8 +154,6 @@ protected:
             if (m_state == Pending && (qAbs(d.x()) > TapSlop || qAbs(d.y()) > TapSlop)) {
                 // moved before the long press: not a tap and not a drag, so nothing happens
                 m_timer.stop();
-                // Krimble 2026-11-11: George: "Give me the finger drag." / "percentage selectors should be able to drag left and right with touch. Like opacity in layers panel." A plain number
-                // field (QSpinBox, QDoubleSpinBox) that is moved mostly sideways before the long press is dragged: its value follows the finger. Anything else is cancelled, as before.
                 m_state = sidewaysDrag(d) ? Dragging : Cancelled;
             } else if (m_state == Scrubbing) {
                 const int steps = qRound(double(-d.y()) / MovePixels);
@@ -191,17 +177,8 @@ protected:
             m_state = Idle;
             m_spin = nullptr;
             QToolTip::hideText();
-            if (state == Dragging) QGuiApplication::inputMethod()->hide();   // Krimble 2026-11-11: no on-screen keyboard after a drag
+            if (state == Dragging) QGuiApplication::inputMethod()->hide();
             if (state == Pending && spin2 && pressWidget) {
-                // KRIMBLE 2026-10-07: a short tap no longer opens Krimble's number pad (George: "GIGANTIC NUMERIC
-                // KEYPAD APPEARS!! DO NOT WANT!!"). The tap is handed back to the field, as if it had not been
-                // caught: the press and the release are sent to it again. Old behaviour, kept as a comment:
-                //     if (!spin2) { return; }
-                //     KrimbleNumberPad *pad = new KrimbleNumberPad(spin2, [spin2](double v) {
-                //         if (spin2) { KrimbleNumberFields::setSpinValue(spin2, v); }
-                //     });
-                //     pad->setAttribute(Qt::WA_DeleteOnClose);
-                //     pad->open();
                 QTimer::singleShot(0, this, [this, pressWidget, pressLocal, pressGlobal]() {
                     if (!pressWidget) {
                         return;
@@ -221,7 +198,7 @@ protected:
 
 private:
     // enum State { Idle, Pending, Scrubbing, Cancelled };
-    enum State { Idle, Pending, Scrubbing, Cancelled, Dragging };   // Krimble 2026-11-11: Dragging = a finger dragged sideways on a plain number field
+    enum State { Idle, Pending, Scrubbing, Cancelled, Dragging };
 
     static QAbstractSpinBox *spinFor(QObject *o)
     {
@@ -266,7 +243,6 @@ private:
         if (steps > 500.0) return 5.0;
         return 1.0;
     }
-    // Krimble 2026-11-11: the drag of a plain number field: only QSpinBox and QDoubleSpinBox (the bars have their own dragging), only when the finger moved mostly sideways
     bool sidewaysDrag(const QPoint &d) const
     {
         if (!m_spin || !(qobject_cast<QSpinBox*>(m_spin) || qobject_cast<QDoubleSpinBox*>(m_spin))) return false;
@@ -290,9 +266,9 @@ private:
     }
 
     QPointer<QAbstractSpinBox> m_spin;
-    QPointer<QWidget> m_pressWidget;     // KRIMBLE 2026-10-07
-    QPoint m_pressLocal;                 // KRIMBLE 2026-10-07
-    bool m_replaying {false};            // KRIMBLE 2026-10-07
+    QPointer<QWidget> m_pressWidget;
+    QPoint m_pressLocal;
+    bool m_replaying {false};
     State m_state {Idle};
     QPoint m_pressPos;
     double m_startValue {0.0};

@@ -21,7 +21,6 @@ KisLevelsFilterPlugin::KisLevelsFilterPlugin(QObject *parent, const QVariantList
     : QObject(parent)
 {
     KisFilterRegistry::instance()->add(new KisLevelsFilter());
-    // KRIMBLE 2026-10-02: one-click Auto Tone and Auto Color.
     KisFilterRegistry::instance()->add(new KisAutoToneFilter());
     KisFilterRegistry::instance()->add(new KisAutoColorFilter());
 }

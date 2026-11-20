@@ -9,7 +9,7 @@
 #include "widgets/kis_custom_image_widget.h"
 
 #include <QMimeData>
-#include <QFormLayout>   // Krimble 2026-10-25
+#include <QFormLayout>
 #include <QSlider>
 #include <QApplication>
 #include <QScreen>
@@ -71,36 +71,17 @@ KisCustomImageWidget::KisCustomImageWidget(QWidget* parent, qint32 defWidth, qin
     Q_ASSERT(m_openPane);
 
 #ifdef Q_OS_ANDROID
-    // KRIMBLE 2026-10-02: the width, height and resolution fields, their unit
-    // dropdowns and the Predefined dropdown stretched to fill all available
-    // width, which made the dialog wider than a portrait screen and left large
-    // empty gaps. Cap them (values are in the app's scaled pixels, about 123
-    // before). Only maximums are set, so nothing gets smaller than it needs.
-    // KRIMBLE 2026-10-09: narrowed about 20% (was 90 / 95 / 130)
-    // doubleWidth->setMaximumWidth(90);
-    // doubleHeight->setMaximumWidth(90);
-    // doubleResolution->setMaximumWidth(90);
-    // cmbWidthUnit->setMaximumWidth(95);
-    // cmbHeightUnit->setMaximumWidth(95);
-    // cmbResolutionUnit->setMaximumWidth(95);
-    // cmbPredefined->setMaximumWidth(130);
     doubleWidth->setMaximumWidth(72);
     doubleHeight->setMaximumWidth(72);
     doubleResolution->setMaximumWidth(72);
     cmbWidthUnit->setMaximumWidth(76);
     cmbHeightUnit->setMaximumWidth(76);
     cmbResolutionUnit->setMaximumWidth(76);
-    // Krimble 2026-10-12: but on a portrait screen the New Document window was two screens wide (George's 1.0.34 screenshots), so the
-    // wider list is for a landscape screen only; in portrait it is 104 px again.
     {
         QScreen *screenForWidth = QGuiApplication::primaryScreen();
         const bool narrowScreen = screenForWidth && screenForWidth->availableGeometry().width() < 450;
         cmbPredefined->setMaximumWidth(narrowScreen ? 104 : 170);
     }
-    // Krimble 2026-10-25: George: "The new dialog is too tall. Put Predefined: beside the drop down list instead of above it. Put width, height, and resolution beside the number fields instead of
-    // above them. Put model, depth, and profile beside the selectors instead of above them. Put the Cancel and Create buttons beside each other, not stacked." The narrowing of windows that are wider
-    // than the screen (KisApplication.cpp) put every label above its field and stacked the buttons; these three parts are marked so that it leaves them as designed, and their forms are set to
-    // "label beside field" explicitly.
     grpImage->setProperty("krimbleKeepRows", true);
     colorSpaceSelector->setProperty("krimbleKeepRows", true);
     newDialogConfirmationButtonBox->setProperty("krimbleKeepRows", true);
@@ -580,8 +561,6 @@ void KisCustomImageWidget::changeDocumentInfoLabel()
                          bitSize,
                          KFormat().formatByteSize(layerSize));
     lblDocumentInfo->setText(text);
-    // Krimble 2026-10-12: this long sentence did not wrap, which made the Custom Document page, and so the New Document window,
-    // wider than a phone screen.
     lblDocumentInfo->setWordWrap(true);
 }
 

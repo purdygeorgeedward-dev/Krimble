@@ -55,7 +55,7 @@ KisColorSelectorNgDockerWidget::KisColorSelectorNgDockerWidget(QWidget *parent, 
     m_canvas(0)
 {
     setAutoFillBackground(true);
-    m_classic = classic;   // Krimble 2026-11-08
+    m_classic = classic;
 
     m_colorSelectorContainer = new KisColorSelectorContainer(this);
     m_colorHistoryWidget = new KisColorHistory(this);
@@ -111,11 +111,6 @@ KisColorSelectorNgDockerWidget::KisColorSelectorNgDockerWidget(QWidget *parent, 
     classicLayout->addLayout(m_mainLayout);
     classicLayout->addLayout(m_sidebarLayout);
 
-    // Krimble 2026-10-30: George: "I don't like the classic Krita color docker. It's useless. Comment it out."
-    // The classic selector is no longer shown and the outer tab bar is gone. The classic objects are still
-    // constructed (hidden inside classicPanel) so the history/common-colors popups and the settings code keep valid pointers.
-    // Krimble 2026-11-08: George: "bring back advance color panel as \"color ring + triangle\"." The classic selector is the whole content of the second panel, "Color Ring + Triangle";
-    // the Color panel keeps the Color Studio only (as on 2026-10-30).
     if (m_classic) {
         classicPanel->show();
         m_widgetLayout->addWidget(classicPanel);
@@ -125,16 +120,11 @@ KisColorSelectorNgDockerWidget::KisColorSelectorNgDockerWidget(QWidget *parent, 
     QScrollArea *studioScroll = new QScrollArea(this);
     studioScroll->setWidgetResizable(true);
     studioScroll->setFrameShape(QFrame::NoFrame);
-    // Krimble 2026-11-13 (task 71): George: "The ColorLab when moved to the right in the dock should hide behind the edge instead of shrinking, just as the image on the canvas should not zoom out when the docked panels move." The panel can be made narrower than the Color Lab's card (the dock may be moved toward the right edge): the card keeps its size (330 px at least) and the part that does not fit is
-    // hidden behind the edge, with no scroll bar, instead of the whole card shrinking.
     studioScroll->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     m_krimbleStudio->setMinimumWidth(330);
-    m_krimbleStudio->setMaximumWidth(384);   // Krimble 2026-11-15 (707th): George: "Color Lab still MAGNIFIES TO GIANT SIZE." Never wider than the phone in portrait; in a wider panel it stays at the left (see MaxWidth in krimble_color_paint.h)
+    m_krimbleStudio->setMaximumWidth(384);
     studioScroll->setAlignment(Qt::AlignLeft | Qt::AlignTop);
     studioScroll->setWidget(m_krimbleStudio);
-    // Krimble 2026-11-17 (742nd): George: "Plus color lab slides the logo up into nowhere and then you have to use a scrollbar to get it back. That should never happen." and "THE COLOR LAB
-    // LOGO SHOULD ALWAYS HAVE BEEN PINNED." The COLOR LAB band (logo, float and close buttons) is taken out of the scrolling part and pinned above it, in a holder as wide as the scrolling
-    // part (330 to 384) with the same margins it had inside it. Only the tabs and the pages under it scroll.
     {
         QWidget *krimbleColumn = new QWidget(this);
         QVBoxLayout *krimbleColumnLayout = new QVBoxLayout(krimbleColumn);
@@ -145,8 +135,6 @@ KisColorSelectorNgDockerWidget::KisColorSelectorNgDockerWidget(QWidget *parent, 
             const QMargins studioMargins = studioLayout ? studioLayout->contentsMargins() : QMargins(3, 3, 3, 3);
             if (studioLayout) studioLayout->removeWidget(krimbleBand);
             QWidget *bandHolder = new QWidget(krimbleColumn);
-            // Krimble 2026-11-18 (747th): George: "I tried resizing the color lab panel and it hid the close gadget on the upper right corner." and "The buttons should move with the window edge."
-            // The band is as wide as the panel, whatever its width; the float and close buttons sit at its right end (KrimbleColorHeader::resizeEvent), so they follow the panel's edge.
             krimbleBand->setMinimumWidth(0);
             QHBoxLayout *bandLayout = new QHBoxLayout(bandHolder);
             bandLayout->setContentsMargins(studioMargins.left(), studioMargins.top(), studioMargins.right(), 0);
@@ -156,7 +144,7 @@ KisColorSelectorNgDockerWidget::KisColorSelectorNgDockerWidget(QWidget *parent, 
             bandLayout->addWidget(krimbleBand);
             krimbleBand->show();
             if (studioLayout) { QMargins m = studioMargins; m.setTop(qMax(0, studioLayout->spacing())); studioLayout->setContentsMargins(m); }
-            krimbleColumnLayout->addWidget(bandHolder);   // Krimble 2026-11-18 (747th): the full width of the panel
+            krimbleColumnLayout->addWidget(bandHolder);
         }
         studioScroll->setParent(krimbleColumn);
         krimbleColumnLayout->addWidget(studioScroll, 1);
@@ -198,14 +186,14 @@ void KisColorSelectorNgDockerWidget::unsetCanvas()
     m_commonColorsWidget->unsetCanvas();
     m_colorHistoryWidget->unsetCanvas();
     m_colorSelectorContainer->unsetCanvas();
-    if (m_krimbleStudio) m_krimbleStudio->setCanvas(nullptr);   // Krimble 2026-11-08: none in the "Color Ring + Triangle" panel
+    if (m_krimbleStudio) m_krimbleStudio->setCanvas(nullptr);
 }
 
 void KisColorSelectorNgDockerWidget::setCanvas(KisCanvas2 *canvas)
 {
     if (m_canvas) {
         m_canvas->disconnect(this);
-        if (!m_classic) {   // Krimble 2026-11-08: the two panels must not both own these actions; the Color panel does
+        if (!m_classic) {
         KisKActionCollection *ac = m_canvas->viewManager()->actionCollection();
         ac->takeAction(ac->action("show_color_history"));
         ac->takeAction(ac->action("show_common_colors"));
@@ -217,7 +205,7 @@ void KisColorSelectorNgDockerWidget::setCanvas(KisCanvas2 *canvas)
     m_commonColorsWidget->setCanvas(canvas);
     m_colorHistoryWidget->setCanvas(canvas);
     m_colorSelectorContainer->setCanvas(canvas);
-    if (m_krimbleStudio) m_krimbleStudio->setCanvas(canvas);   // Krimble 2026-11-08
+    if (m_krimbleStudio) m_krimbleStudio->setCanvas(canvas);
 
     if (m_canvas && m_canvas->viewManager() && !m_classic) {
         KisKActionCollection* actionCollection = canvas->viewManager()->actionCollection();

@@ -251,9 +251,6 @@ SliderSettings sliderSetting(SLIDER_TYPE type) {
 }
 
 KisHSVAdjustmentFilter::KisHSVAdjustmentFilter()
-        // KRIMBLE: menu text renamed from "&HSV Adjustment..." to match the
-        // industry-standard "Hue/Saturation" name - original kept below.
-        // : KisColorTransformationFilter(id(), FiltersCategoryAdjustId, i18n("&HSV Adjustment..."))
         : KisColorTransformationFilter(id(), FiltersCategoryAdjustId, i18n("&Hue/Saturation..."))
 {
     setShortcut(QKeySequence(Qt::CTRL | Qt::Key_U));

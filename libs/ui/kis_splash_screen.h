@@ -32,7 +32,6 @@ public:
 
     void show();
     void displayLinks(bool show);
-    // Krimble 2026-10-18: the widest the picture of the About page may be (logical px); 0: 80% of the screen as before
     void setMaximumAboutWidth(int width) { m_maxAboutWidth = width; }
     void displayRecentFiles(bool show);
 
@@ -62,7 +61,7 @@ private:
     QSvgWidget *m_brandingSvg;
     QSvgWidget *m_bannerSvg;
     QLabel *m_loadingTextLabel;
-    QLabel *m_versionLabel;   // Krimble 2026-11-04: the version number, bottom left (it was in the loading text at the top)
+    QLabel *m_versionLabel;
     QLabel *m_artCreditsLabel;
     QString m_versionHtml;
 };

@@ -36,7 +36,7 @@
 #include <kis_global.h>
 #include <canvas/kis_canvas2.h>
 #include <KisViewManager.h>
-#include <QTimer>              // Krimble 2026-10-23: Puppet Warp hint
+#include <QTimer>
 #include <KoCanvasController.h>
 #include <KoToolManager.h>
 #include <kis_canvas2.h>
@@ -1277,7 +1277,6 @@ void KisToolTransform::slotUiChangedConfig(bool needsPreviewRecalculation)
 
 void KisToolTransform::krimbleRefreshHandles()
 {
-    // Krimble 2026-11-11: slotUiChangedConfig(true) without its paint mode check (see KisToolFreeRotate::rotateByDegrees)
     if (!m_strokeId) return;
     currentStrategy()->externalConfigChanged();
     if (m_currentArgs.mode() == ToolTransformArgs::LIQUIFY) {
@@ -1295,12 +1294,6 @@ void KisToolTransform::slotApplyTransform()
 
 void KisToolTransform::slotResetTransform(ToolTransformArgs::TransformMode mode)
 {
-    // Krimble 2026-10-19: George (1.0.39, test list, item 4): "Switching from one mode to another in transform loses any progress made."
-    // Asked whether a mode change should apply the work done so far (the industry-standard way), he said: "Yes, want mode change apply."
-    // Upstream, a mode button reset the transform to a blank start for the new mode and the unapplied work was thrown away. Now, when
-    // the mode really changes and the current transform is not empty, the transform done so far is APPLIED (endStroke, one undo step)
-    // and a new transform starts in the new mode on the result (startStroke with forceReset, so the step just applied is not reopened).
-    // The Reset button (same mode) and an empty transform still go through the upstream code below, unchanged.
     if (m_strokeId && !m_transaction.rootNodes().isEmpty()
             && m_transaction.currentConfig()->mode() != mode
             && !m_currentArgs.isIdentity()) {
@@ -1552,17 +1545,6 @@ QList<QAction *> KisToolTransformFactory::createActionsImpl()
 
 void KisToolTransformFactory::activateSubtool(KisToolTransform::TransformToolMode mode)
 {
-    // Krimble (reverted 2026-09-03, see KRIMBLE_CHANGES.md): an earlier
-    // change here made `mode` a no-op, on the reasoning that mode should
-    // only change via the tool options panel's own button row, never via
-    // an action/menu item bypassing it. That was explicitly reversed by
-    // project direction: each transform mode (Free Transform, Perspective,
-    // Warp, Cage, Liquify, Mesh) is meant to be a separate tool, selected
-    // by explicit menu choice -- this was the original design intent, not
-    // a new requirement. Restoring the original mode-switching behavior so
-    // the menu items in Edit > Transform / Filter > Liquify actually
-    // select the mode they're labeled with, whether or not the Transform
-    // tool is already active.
     KoToolManager *toolManager = KoToolManager::instance();
 
     KoCanvasController *canvasController = toolManager->activeCanvasController();
@@ -1600,9 +1582,6 @@ void KisToolTransformFactory::activateSubtoolWarp()
 void KisToolTransformFactory::activateSubtoolCage()
 {
     activateSubtool(KisToolTransform::CageTransformMode);
-    // Krimble 2026-10-23: George (1.0.41 test list item 6): "Edit - Puppet Warp opens poly select tool? No explanation?" It is the cage
-    // transform: you first draw a shape around the part to bend (which looks like the polygon selection), then drag its points. A
-    // floating message says so each time Puppet Warp is started from the menu.
     QTimer::singleShot(400, []() {
         KoCanvasController *controller = KoToolManager::instance()->activeCanvasController();
         KisCanvas2 *kisCanvas = controller ? dynamic_cast<KisCanvas2*>(controller->canvas()) : nullptr;
@@ -1623,7 +1602,6 @@ void KisToolTransformFactory::activateSubtoolMesh()
     activateSubtool(KisToolTransform::MeshTransformMode);
 }
 
-// ---- Krimble 2026-10-18: the Free Rotate tool (see kis_tool_transform.h) ----
 #include <QTouchEvent>
 #include <QtMath>
 #include <QWidget>
@@ -1651,7 +1629,6 @@ protected:
                 qreal turn = angle - m_lastAngle;
                 while (turn > 180.0) turn -= 360.0;
                 while (turn < -180.0) turn += 360.0;
-                // Krimble 2026-10-18 (2nd): the turn is given to the tool, which sets the angle (in radians), refreshes the preview and shows the angle
                 m_tool->rotateByDegrees(turn);
             }
             m_lastAngle = angle;
@@ -1675,20 +1652,9 @@ KisToolFreeRotate::KisToolFreeRotate(KoCanvasBase *canvas)
 
 void KisToolFreeRotate::rotateByDegrees(double degrees)
 {
-    // Krimble 2026-10-18 (2nd): George (1.0.37, c666301): "15. Rotate is just a redundant copy of the transform tool. It scales, but does not rotate." The first version
-    // (152nd entry) gave the angle to setRotateZ(), which only stores the number: it does not redraw the preview, and the angle is in radians (the tool's own widget
-    // gives it kisDegreesToRadians(...)), not degrees. The angle is now kept in radians, given to setRotateZ(), and the tool's own refresh (slotUiChangedConfig, a private
-    // slot, called by name) redraws the preview. The angle is shown on the canvas (a floating message), which also shows that two fingers are seen.
     m_rotationRadians += kisDegreesToRadians(degrees);
     setRotateZ(m_rotationRadians);
-    // Krimble 2026-11-11: George: "The transform tool with the rotate selected in the Tool Options rotates the graphic without the gadgets." slotUiChangedConfig starts with
-    // "if (mode() == KisTool::PAINT_MODE) return;", and the dial of this tool turns the picture while a finger is down, which IS paint mode, so the handles and the outline were never
-    // told about the new angle (the picture turned through requestImageRecalculation() below, which does not look at the mode). krimbleRefreshHandles() does the same work without that check.
     krimbleRefreshHandles();
-    // Krimble 2026-10-19: George (1.0.39): "Rotate doesn't show rotation in realtime. It shows numbers." slotUiChangedConfig only redraws the
-    // box and outline; the turned PICTURE (the preview inside the layer stack, the default preview style) is made by a job sent to the stroke,
-    // which the Transform tool's own drags ask for through requestImageRecalculation() (a public slot; it does nothing in the overlay preview
-    // style, where the outline refresh above is enough). It is now asked for on every turn, so the layer turns under the finger.
     requestImageRecalculation();
     if (KisCanvas2 *kisCanvas = dynamic_cast<KisCanvas2*>(canvas())) {
         if (kisCanvas->viewManager()) {
@@ -1709,8 +1675,6 @@ double KisToolFreeRotate::pointerAngle(KoPointerEvent *event) const
 
 void KisToolFreeRotate::beginPrimaryAction(KoPointerEvent *event)
 {
-    // Krimble 2026-10-18 (6th): the Transform tool's handling (which would move or scale, depending on where the finger is) is not called: the finger is a dial around the center.
-    // Krimble 2026-10-30: the dial is only used in the Free (Rotate) mode. In Perspective, Warp, Cage, Liquify and Mesh this tool works as the Transform tool.
     if (transformMode() != FreeTransformMode) {
         KisToolTransform::beginPrimaryAction(event);
         return;
@@ -1726,7 +1690,6 @@ void KisToolFreeRotate::beginPrimaryAction(KoPointerEvent *event)
 
 void KisToolFreeRotate::continuePrimaryAction(KoPointerEvent *event)
 {
-    // Krimble 2026-10-30: see beginPrimaryAction
     if (transformMode() != FreeTransformMode) {
         KisToolTransform::continuePrimaryAction(event);
         return;
@@ -1742,7 +1705,6 @@ void KisToolFreeRotate::continuePrimaryAction(KoPointerEvent *event)
 
 void KisToolFreeRotate::endPrimaryAction(KoPointerEvent *event)
 {
-    // Krimble 2026-10-30: see beginPrimaryAction
     if (transformMode() != FreeTransformMode) {
         KisToolTransform::endPrimaryAction(event);
         return;
@@ -1750,8 +1712,6 @@ void KisToolFreeRotate::endPrimaryAction(KoPointerEvent *event)
     Q_UNUSED(event);
     m_dragging = false;
     setMode(KisTool::HOVER_MODE);
-    // Krimble 2026-10-19: the turn is recorded when the finger lifts, as the Transform tool's own drags are (commitChanges, through the
-    // private slot slotEditingFinished, called by name), so Undo during the transform and the option widget's numbers follow it.
     QMetaObject::invokeMethod(this, "slotEditingFinished", Qt::DirectConnection);
     updateOptionWidget();
 }
@@ -1760,10 +1720,6 @@ void KisToolFreeRotate::activate(const QSet<KoShape*> &shapes)
 {
     KisToolTransform::activate(shapes);
     m_rotationRadians = 0.0;
-    // Krimble 2026-10-18 (6th): George (1.0.38): "Two fingers is reserved for zoom. It's a conflict." and "We need to make rotate work with one finger." The two-finger filter is not installed
-    // any more (two fingers zoom and pan the canvas, as everywhere); one finger turns the layer (beginPrimaryAction and the others below).
-    //     m_touchFilter = new KrimbleRotateTouchFilter(canvas()->canvasWidget(), this);
-    // }
 }
 
 void KisToolFreeRotate::deactivate()
