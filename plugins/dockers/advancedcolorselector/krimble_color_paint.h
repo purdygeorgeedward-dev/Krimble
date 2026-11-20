@@ -231,11 +231,6 @@ public:
             p.drawRoundedRect(rect.adjusted(-i * 1.1 * s, -i * 1.1 * s, i * 1.1 * s, i * 1.1 * s), radius + i * s, radius + i * s);
         }
         const QRectF b = rect.adjusted(0.5, 0.5, -0.5, -0.5);
-        QLinearGradient g(0, b.top(), 0, b.bottom());
-        g.setColorAt(0.0, QColor("#1196d8"));
-        g.setColorAt(0.12, QColor("#0a78bb"));
-        g.setColorAt(0.55, QColor("#073d6b"));
-        g.setColorAt(1.0, QColor("#074a85"));
         p.setPen(Qt::NoPen);
         p.setBrush(QColor("#0b87dd"));   // Krimble 2026-11-20 (757th): George: "Make the other selections plain blue like menus. No gradients." One flat blue, #0b87dd, as the menus.
         p.drawRoundedRect(b, radius, radius);

@@ -49,7 +49,6 @@
 #include <kis_icon.h>
 #include <kis_config_notifier.h>
 #include "KrimbleVisualStyle.h"
-#include "KrimbleVisualStyleNov10.h"   // Krimble 2026-11-12 (task 31): the Nov 10 sheet (the default theme)
 #include "KrimbleCommonStyle.h"   // Krimble 2026-11-20 (756th): size and spacing rules shared by every Krimble theme
 #include "KrimbleVisualStylePainted.h"   // Krimble 2026-11-11: the painted sheet, for the theme "Krimble Painted"   // Krimble 2026-11-04: krimbleVisualStyleSheet(), re-applied after the theme palette
 
@@ -372,74 +371,8 @@ void ThemeManager::slotChangePalette()
     // the panel's own color (the rule of the 697th above is more specific). (2) A selected row of a list and a selected row of a menu have the design's selection gradient (#1196D8 at the top
     // edge, #0A78BB, #073D6B in the middle, #074A85 at the bottom: the gradient of the lit buttons), square, no outline. The Layers panel keeps its own rows (NodeView: its rule comes after this one and wins). In "Krimble Dark
     // Gray" (no blue anywhere) both are the grays of the same brightness.
-    if (!krimbleSheet.isEmpty()) {
-        const QString krimbleTabsAndSelection = QStringLiteral(
-            // "\nQTabWidget::pane { background: #364064; border: none; }\n"
-            // "QTabBar::tab:selected { background: #364064; border-bottom: 1px solid #364064; }\n"
-            // Krimble 2026-11-17 (741st): George (Color Lab screenshot, HSV 226/45/40, RGB 55/65/101, HEX #374165): "In painted theme make the selected tab the color values in this color lab image."
-            // The selected tab and its page area are #374165 (were #364064).
-            "\nQTabWidget::pane { background: #374165; border: none; }\n"
-            "QTabBar::tab:selected { background: #374165; border-bottom: 1px solid #374165; }\n"
-            // Krimble 2026-11-16 (728th): George (build 65): "Would like a couple more lines under the menu titles before getting down to the shadow." 3 more units under the text of every
-            // menu bar name (was padding: 1px 9px). The name's box stays the full height of the bar, so an open menu meets its name (see placeK in KisMainWindow.cpp).
-            "QMenuBar::item { padding: 1px 9px 4px 9px; }\n"
-            // Krimble 2026-11-16 (728th): George (build 65): "The little pointer gadgets beside the file tabs are too thin. Double the width." The two scroll arrows at the end of a row of
-            // tabs: 32 units each (Qt's own size is 16). The width in the rule is for the two together (tried in real Qt 5.15: 32 gives 16 each, 64 gives 32 each).
-            "QTabBar::scroller { width: 64px; }\n"
-            "QAbstractItemView::item:selected, QMenu::item:selected { color: #ffffff; border-radius: 0px;"
-            " background: #0b87dd; }\n"
-            // Krimble 2026-11-17 (729th): George: "Can the selected item in menu have a glow line around it?" ... "Yes, let's try it." A bright light blue line (#7fdcff, the outline
-            // of the lit toolbox buttons) around the selected menu item. Every item has the same 1 unit border, clear, so the text does not move when an item is selected. (A soft,
-            // blurred glow is not possible in a Qt menu: a line is.)
-            // "QMenu::item { border: 1px solid transparent; }\n"
-            // Krimble 2026-11-17 (735th): George (build 66): "Go back to simple blue hilight for menu selections. The glow is too much." The light-blue line (729th) is off, and the selected row of a
-            // menu is one flat blue (#0b87dd, the blue of the open menu's name in the menu bar), no gradient, no outline. Lists keep the gradient of the rule above.
-            // "QMenu::item { border: none; }\n"
-            // "QMenu::item:selected { border: none; background: #0b87dd; }\n"
-            // Krimble 2026-11-18 (745th): George: "I think the vertical spacing on the text in the menus is way too tight." ... "And fix the painted theme." A rule for every menu item (the
-            // 729th's border, then the 735th's "border: none") makes the style sheet size each item itself, with no room above and below the text; before the 729th the items were sized by
-            // Krimble's own style, with room. Only the selected item has a rule now, its flat blue, as before the 729th.
-            "QMenu::item:selected { background: #0b87dd; }\n"
-            // Krimble 2026-11-17 (735th): George (build 66): "Tops of menus still have a line separating them from menu titles." The open menu's name in the menu bar had a light line along its
-            // bottom (the recessed look below, 2026-11-15), right where the menu starts. No line at the bottom of the name now (the menu bar's own bottom edge under it is left out too, see KrimbleBevelOverlay).
-            "QMenuBar::item:selected, QMenuBar::item:pressed { border-bottom: none; }\n");
-        krimbleSheet = krimbleSheet + (theme == QStringLiteral("Krimble Dark Gray") ? krimbleGraySheet(krimbleTabsAndSelection) : krimbleTabsAndSelection);
-    }
-    // Krimble 2026-11-15 (item 16 and the Layers panel): George: "In the layers panel I think the regular layers should be mid tones like a gray and the selected layer should be lighter. The glowing
-    // layer doesn't work." Every layer row is a mid gray (#5D6272) with white text; the selected row is lighter (#8E93A6) with dark text, flat, no glow. Same in every theme (the rule comes after the
-    // theme's own sheet and names the Layers panel's list, NodeView, so it wins over the general QAbstractItemView rule). The colors are mine; George gave none.
-    // Krimble 2026-11-15 (699th): George: "Can the layers use warm greys instead of cold grays?" Rows #6B6863 (was the cold #5D6272), selected row #A39D94 (was #8E93A6) with a warm near-black text #1B1915 (was #0E1020).
-    // old: "\nNodeView::item { background: #5d6272; color: #ffffff; border: none; }\nNodeView::item:selected { background: #8e93a6; color: #0e1020; border: none; border-radius: 0px; }\n"
-    // Krimble 2026-11-16 (728th): George (build 65): "Change the layer colors back. Give me the selection effect blue for the selected layer and make the other layers dark and match the theme." The rows are painted by the
-    // Layers panel itself (NodeDelegate.cpp: the list's dark color, the blue selection gradient for the selected layer); this rule only keeps the style sheet from painting anything of its own under or over them.
-    if (!krimbleSheet.isEmpty()) krimbleSheet = (krimbleSheet + QStringLiteral("\nNodeView::item { background: transparent; color: #f1f4fc; border: none; }\nNodeView::item:selected { background: transparent; color: #ffffff; border: none; border-radius: 0px; }\n"));
-    // Krimble 2026-11-15: George (Smart Compression dialog; his picture of a steel ball bearing): "This is a ball bearing. It should be tiny, shiny, and on the top layer when it's a control gadget." Only QuickAdjust had the
-    // ball; every other slider (export dialogs, filters) had the sheet's flat 13 px handle, which the slider's short row clipped into a gray block. Every slider handle is now the steel ball (10 style units, about 32 real
-    // pixels, with the same sky/horizon/bounce gradient as QuickAdjust), and the slider row is tall enough (14 units) that the ball is never cut off, so it shows above the groove. QuickAdjust keeps its own sheet.
-    if (!krimbleSheet.isEmpty()) krimbleSheet = (krimbleSheet + QStringLiteral(
-        "\nQSlider:horizontal { min-height: 14px; }\n"
-        // "QSlider::handle:horizontal { width: 10px; height: 10px; margin: -5px 0; border: 1px solid #141822; border-radius: 5px;"
-        // " background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #f4f7fc, stop:0.30 #c9d0de, stop:0.46 #4a5164, stop:0.56 #262b38, stop:0.78 #7f889c, stop:1 #c3cad8); }\n"
-        // Krimble 2026-11-15 (2nd): George: "No. I gave you an instruction. Use my graphic." The handle is his ball bearing picture itself (krimble-ball-bearing.png, cut round from his picture), stretched to the handle box.
-        // "QSlider::handle:horizontal { width: 10px; height: 10px; margin: -5px 0; border: none; background: transparent; border-image: url(:/krimble-ball-bearing.png) 0 0 0 0 stretch stretch; }\n"
-        // Krimble 2026-11-16 (722nd): George (build 64): "My ball bearing needs to be redesigned for the smaller size. ... Should probably be darker, like a little more shadow. Can it have a small cast shadow via alpha channel transparency?" krimble-ball-bearing-small.png: his picture made darker (shaded away from the light) with a soft cast shadow in the transparent margin; the handle box is 12 units so the ball itself stays about 10.
-        "QSlider::handle:horizontal { width: 12px; height: 12px; margin: -6px 0; border: none; background: transparent; border-image: url(:/krimble-ball-bearing-small.png) 0 0 0 0 stretch stretch; }\n"));
-    // Krimble 2026-11-15 (697th): George (screenshots of the Layers, Text Properties and Tool Options tabs): "Please make tabs match their panels and don't put a line between them." The selected tab of a panel
-    // group (the tab bars of the main window) has the panel's own color (palette(window)), no bottom edge, and the bar draws no base line under the tabs. (The overlay's light top line on a panel in a tab group is
-    // off too, see KrimbleBevelOverlay.) The unselected tabs are as they were. This is one rule set for the tabs of the panel groups only, not a return of the tab shapes removed on 2026-11-15.
-    if (!krimbleSheet.isEmpty()) krimbleSheet = (krimbleSheet + QStringLiteral(
-        "\nQMainWindow > QTabBar { qproperty-drawBase: 0; }\n"
-        "QMainWindow > QTabBar::tab:selected { background: palette(window); border-bottom: 1px solid palette(window); }\n"));
-    // Krimble 2026-11-15: George: "A selected menu item should be shaded to look recessed. They don't need to glow." The selected row of a menu is no longer the bright blue: it is darker than the menu, with a dark top and left edge and a
-    // light bottom and right edge, like the recessed menus' bevel (an inset). Every menu item has a transparent 1 px border so the text does not move when a row is selected. Same in every theme with a sheet.
-    if (!krimbleSheet.isEmpty()) krimbleSheet = (krimbleSheet + QStringLiteral(
-        // "\nQMenu::item { border: 1px solid transparent; }\n"
-        // "QMenu::item:selected { background: #0f1424; border-top: 1px solid #04060d; border-left: 1px solid #04060d;"
-        // " border-bottom: 1px solid rgba(255, 255, 255, 60); border-right: 1px solid rgba(255, 255, 255, 60); }\n"
-        // Krimble 2026-11-15 (2nd): George: "Menu title still lights up blue despite asking for it to be recessed. Instead the menu selections get recessed instead of lighting up blue. The opposite of what I wanted." I had it the wrong way round:
-        // the menu BAR's selected name (the title of the open menu) is the recessed one (a darker fill with a dark top and left edge and a light bottom and right edge); the rows inside a menu light up with the sheet's own highlight again.
-        "\nQMenuBar::item:selected, QMenuBar::item:pressed { background: rgba(0, 0, 0, 120); border-top: 1px solid rgba(0, 0, 0, 210); border-left: 1px solid rgba(0, 0, 0, 210);"
-        " border-right: 1px solid rgba(255, 255, 255, 70); border-radius: 0px; }\n"));   // Krimble 2026-11-17 (735th): no light bottom line (it lay between the name and its open menu); was " border-bottom: 1px solid rgba(255, 255, 255, 70);" before the right edge
+    // Krimble 2026-11-20 (760th): the rules added here after every Krimble theme's sheet (tabs, menu bar, selection, Layers rows, slider handle, image tab bar) moved unchanged to
+    // KrimbleCommonStyle.h, added at the end with the other shared rules (krimbleCommonStyleSheet()).
     // Krimble 2026-11-15 (2nd): George: "make the base screen (not the toolbox, menubar, or panels) darker for some kind of contrast." The base screen, the area behind the image windows and the welcome page, is the theme's window color 35 percent darker.
     if (!krimbleSheet.isEmpty()) {
         const QString baseColor = qApp->palette().color(QPalette::Window).darker(135).name();

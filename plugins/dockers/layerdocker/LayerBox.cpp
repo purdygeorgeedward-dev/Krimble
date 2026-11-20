@@ -203,64 +203,6 @@ private:
     QTimer m_timer;
 };
 
-// Krimble 2026-11-19 (754th): George: "The same spaces that were odd empty spots should be grab pads." (the empty space left of the blending mode box in Layers) Three lines, 8 real pixels
-// thick and 24 apart, in the toolbox handle's color; dragging it moves the panel, and tears it off if it is docked or in a tab group.
-class KrimbleLayersGrabPad : public QWidget
-{
-public:
-    explicit KrimbleLayersGrabPad(QWidget *parent) : QWidget(parent)
-    {
-        setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-        setMinimumWidth(24);
-    }
-protected:
-    void paintEvent(QPaintEvent *) override
-    {
-        QPainter p(this);
-        const qreal dpr = devicePixelRatioF();
-        const qreal thick = 8.0 / dpr;
-        const qreal gap = 24.0 / dpr;
-        QColor c = palette().color(QPalette::WindowText);
-        c.setAlpha(150);
-        const qreal mid = height() / 2.0;
-        const qreal left = 4, right = width() - 12;
-        if (right - left < 12) return;
-        for (int i = -1; i <= 1; ++i) p.fillRect(QRectF(left, mid + i * gap - thick / 2, right - left, thick), c);
-    }
-    void mousePressEvent(QMouseEvent *e) override
-    {
-        m_dock = nullptr;
-        for (QWidget *w = parentWidget(); w; w = w->parentWidget()) {
-            if (QDockWidget *dw = qobject_cast<QDockWidget*>(w)) { m_dock = dw; break; }
-        }
-        m_pressGlobal = e->globalPos();
-        m_dragging = false;
-        e->accept();
-    }
-    void mouseMoveEvent(QMouseEvent *e) override
-    {
-        if (!m_dock) return;
-        if (!m_dragging) {
-            if ((e->globalPos() - m_pressGlobal).manhattanLength() < 12) return;
-            m_dragging = true;
-            if (!m_dock->isFloating()) {
-                const QSize keep = m_dock->size();
-                m_dock->setFloating(true);
-                m_dock->resize(keep);
-            }
-            m_offset = m_pressGlobal - m_dock->frameGeometry().topLeft();
-            if (!m_dock->frameGeometry().contains(m_pressGlobal)) m_offset = QPoint(m_dock->width() / 4, 20);
-        }
-        m_dock->move(e->globalPos() - m_offset);
-        e->accept();
-    }
-    void mouseReleaseEvent(QMouseEvent *e) override { m_dragging = false; e->accept(); }
-private:
-    QPointer<QDockWidget> m_dock;
-    QPoint m_pressGlobal;
-    QPoint m_offset;
-    bool m_dragging = false;
-};
 
 class KrimbleLayerButtonsFilter : public QObject
 {

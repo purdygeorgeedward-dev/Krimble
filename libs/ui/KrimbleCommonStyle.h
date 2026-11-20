@@ -9,6 +9,27 @@
 inline QString krimbleCommonStyleSheet()
 {
     return QStringLiteral(R"KRIMBLE(
+/* Krimble 2026-11-20 (760th): George: "Fix all of that before any build can take place." The rules that thememanager.cpp added after every Krimble theme's sheet (tabs and their
+   page #374165 (722nd, 741st), the menu bar item spacing and its open name (2026-11-15, 735th), the tab scroll arrows (728th), the flat blue selection (757th), the Layers rows
+   (NodeView), the ball bearing slider handle, the image tab bar) moved here unchanged, in the same order. Krimble Dark Gray converts them to gray with the rest of its sheet. */
+QTabWidget::pane { background: #374165; border: none; }
+QTabBar::tab:selected { background: #374165; border-bottom: 1px solid #374165; }
+QMenuBar::item { padding: 1px 9px 4px 9px; }
+QTabBar::scroller { width: 64px; }
+QAbstractItemView::item:selected, QMenu::item:selected { color: #ffffff; border-radius: 0px; background: #0b87dd; }
+QMenu::item:selected { background: #0b87dd; }
+QMenuBar::item:selected, QMenuBar::item:pressed { border-bottom: none; }
+NodeView::item { background: transparent; color: #f1f4fc; border: none; }
+NodeView::item:selected { background: transparent; color: #ffffff; border: none; border-radius: 0px; }
+
+QSlider:horizontal { min-height: 14px; }
+QSlider::handle:horizontal { width: 12px; height: 12px; margin: -6px 0; border: none; background: transparent; border-image: url(:/krimble-ball-bearing-small.png) 0 0 0 0 stretch stretch; }
+
+QMainWindow > QTabBar { qproperty-drawBase: 0; }
+QMainWindow > QTabBar::tab:selected { background: palette(window); border-bottom: 1px solid palette(window); }
+
+QMenuBar::item:selected, QMenuBar::item:pressed { background: rgba(0, 0, 0, 120); border-top: 1px solid rgba(0, 0, 0, 210); border-left: 1px solid rgba(0, 0, 0, 210); border-right: 1px solid rgba(255, 255, 255, 70); border-radius: 0px; }
+
 /* Menus: about one blank line of room under the last item and 12 units at the right (738th, 745th: the last item was cut off and long names ran past the right side). */
 QMenu {
     padding-bottom: 16px;

@@ -137,11 +137,6 @@ void NodeDelegate::paint(QPainter *p, const QStyleOptionViewItem &o, const QMode
             // layer's row is the design's blue selection gradient (the theme's highlight color in Krimble Dark Gray and in the themes that are not Krimble's). White names on both.
             if (krimbleSel) {
                 if (qApp->property("krimbleSelectionGradient").toBool()) {
-                    QLinearGradient glow(option.rect.topLeft(), option.rect.bottomLeft());
-                    glow.setColorAt(0.0, QColor(0x11, 0x96, 0xd8));
-                    glow.setColorAt(0.10, QColor(0x0a, 0x78, 0xbb));
-                    glow.setColorAt(0.5, QColor(0x07, 0x3d, 0x6b));
-                    glow.setColorAt(1.0, QColor(0x07, 0x4a, 0x85));
                     p->fillRect(option.rect, QColor(0x0b, 0x87, 0xdd));   // Krimble 2026-11-20 (757th): George: "Make the other selections plain blue like menus. No gradients." One flat blue, #0b87dd, as the menus.
                 } else {
                     p->fillRect(option.rect, option.palette.color(QPalette::Active, QPalette::Highlight));
