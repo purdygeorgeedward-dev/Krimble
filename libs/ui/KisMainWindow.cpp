@@ -266,6 +266,28 @@
 #include "krimble/KrimbleFileAndHelpExtras.inc"
 #include "krimble/KrimblePanelsAndLayout.inc"
 #include "krimble/KrimbleBevelsAndTabs.inc"
+
+static void krimbleInstallMenuBarFilter(QMenuBar *bar)
+{
+    if (!bar || bar->property("krimbleCornerGuard").toBool()) return;
+    bar->setProperty("krimbleCornerGuard", true);
+    KrimbleMenuBarFilter *kFilter = new KrimbleMenuBarFilter(bar);
+    bar->installEventFilter(kFilter);
+    KrimbleMenuBarFilter::hideSettingsMenu(bar);
+    Q_FOREACH (QWidget *child, bar->findChildren<QWidget *>()) {
+        if (QByteArray(child->metaObject()->className()).endsWith("ControlLabel")) {
+            KrimbleMenuBarFilter::adopt(child, bar);
+            child->installEventFilter(kFilter);
+        }
+    }
+    if (QWidget *corner = bar->cornerWidget(Qt::TopLeftCorner)) {
+        if (QByteArray(corner->metaObject()->className()).endsWith("ControlLabel")) {
+            KrimbleMenuBarFilter::adopt(corner, bar);
+            corner->installEventFilter(kFilter);
+        }
+    }
+    KrimbleMenuBarFilter::schedulePlaceK(bar);
+}
 #include "krimble/KrimbleHexGrid.inc"
 #include "krimble/KrimbleGlowAndDocking.inc"
 class ToolDockerFactory : public KoDockFactoryBase
@@ -682,6 +704,7 @@ KisMainWindow::KisMainWindow(QUuid uuid)
         installEventFilter(rightPanelsFilter);
         d->mdiArea->installEventFilter(rightPanelsFilter);     // the canvas area: its edge is where the sliver sits
     }
+    krimbleInstallMenuBarFilter(menuBar());
 #ifdef Q_OS_ANDROID
     qApp->installEventFilter(new KrimbleEdgeCollapseFilter(this));
     Q_FOREACH (int delay, QList<int>({300, 1000, 2000})) QTimer::singleShot(delay, this, [this]() { menuBar()->update(); });
@@ -1225,26 +1248,7 @@ void KisMainWindow::showView(KisView *imageView, QMdiSubWindow *subwin)
         imageView->setSubWindow(subwin);
         subwin->setAttribute(Qt::WA_DeleteOnClose, true);
         connect(subwin, SIGNAL(destroyed()), SLOT(updateWindowMenu()));
-        if (QMenuBar *bar = menuBar()) {
-            if (!bar->property("krimbleCornerGuard").toBool()) {
-                bar->setProperty("krimbleCornerGuard", true);
-                KrimbleMenuBarFilter *kFilter = new KrimbleMenuBarFilter(bar);
-                bar->installEventFilter(kFilter);
-                KrimbleMenuBarFilter::hideSettingsMenu(bar);   // 2026-11-07
-                Q_FOREACH (QWidget *child, bar->findChildren<QWidget *>()) {
-                    if (QByteArray(child->metaObject()->className()).endsWith("ControlLabel")) {
-                        KrimbleMenuBarFilter::adopt(child, bar);
-                        child->installEventFilter(kFilter);
-                    }
-                }
-                if (QWidget *corner = bar->cornerWidget(Qt::TopLeftCorner)) {
-                    if (QByteArray(corner->metaObject()->className()).endsWith("ControlLabel")) {
-                        KrimbleMenuBarFilter::adopt(corner, bar);
-                        corner->installEventFilter(kFilter);
-                    }
-                }
-            }
-        }
+        krimbleInstallMenuBarFilter(menuBar());
 
         KisConfig cfg(true);
         // subwin->setOption(QMdiSubWindow::RubberBandMove, cfg.readEntry<int>("mdi_rubberband", cfg.useOpenGL()));
