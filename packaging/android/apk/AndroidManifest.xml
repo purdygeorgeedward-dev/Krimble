@@ -2,6 +2,7 @@
 <manifest package="org.krimble" xmlns:android="http://schemas.android.com/apk/res/android" android:installLocation="auto">
 
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
 
     <application android:hardwareAccelerated="true"
                  android:name="org.qtproject.qt5.android.bindings.QtApplication"
@@ -139,6 +140,13 @@
         </activity>
 
         <activity android:name="org.qtproject.qt5.android.bindings.QtActivity" />
+
+        <service android:name=".android.KeepAliveService"
+            android:foregroundServiceType="specialUse"
+            android:exported="false">
+            <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Keeps the open image editor running while the user switches to another app, so Android does not end it and the user does not have to restart it." />
+        </service>
 
         <service android:name=".android.DocumentSaverService"
             android:foregroundServiceType="shortService"

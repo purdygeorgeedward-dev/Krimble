@@ -203,6 +203,7 @@ public class MainActivity extends QtActivity {
 
         Log.i(TAG, "[onDestroy]");
         krimbleDiagAtDestroy();
+        stopService(new Intent(this, KeepAliveService.class));
         startServiceGeneric(DocumentSaverService.KILL_PROCESS);
 
         super.onDestroy();
@@ -376,6 +377,12 @@ public class MainActivity extends QtActivity {
         super.onResume();
         krimbleForeground = true;
         krimbleMemSample("resume");
+        try {
+            Intent keepAlive = new Intent(this, KeepAliveService.class);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) startForegroundService(keepAlive); else startService(keepAlive);
+        } catch (Exception e) {
+            Log.w(TAG, "KeepAliveService not started: " + e);
+        }
     }
 
     @Override
