@@ -186,28 +186,16 @@ KisOpenPane::KisOpenPane(QWidget *parent, const QStringList& mimeFilter, const Q
     // width; longer names are elided. The cap is larger than the list's natural
     // width on a landscape screen, so landscape is unaffected.
     if (QScreen *scr = QGuiApplication::primaryScreen()) {
-        // d->m_sectionList->setMaximumWidth(int(scr->availableGeometry().width() * 0.22));
-        // d->m_sectionList->setMaximumWidth(int(scr->availableGeometry().width() * 0.20));   // Krimble 2026-10-12: thinner
         // Krimble 2026-10-12 (2nd): George's 1.0.34 screenshots: "That column of colored icons in the dialog is still too wide" (it
         // was about half the screen). In portrait the list is exactly 22% of the screen's width, whatever it would like to be; in
         // landscape the old cap stays.
         const int screenWidth = scr->availableGeometry().width();
         if (screenWidth < 450) {
             d->m_sectionList->setMinimumWidth(0);
-            // d->m_sectionList->setFixedWidth(int(screenWidth * 0.22));
-            // d->m_sectionList->setFixedWidth(int(screenWidth * 0.34));   // Krimble 2026-10-14: portrait (the screenshots): 34% too, not 22%
-            // d->m_sectionList->setFixedWidth(int(screenWidth * 0.42));      // Krimble 2026-10-18: 42%, so that the 96 px icons and their names fit
-            // d->m_sectionList->setFixedWidth(int(screenWidth * 0.46));      // Krimble 2026-10-18 (2nd): 46%, for the 112 px icons
-            // d->m_sectionList->setFixedWidth(int(screenWidth * 0.36));         // Krimble 2026-10-19: 36%, for the 80 px icons (George, 1.0.39: column too wide)
-            // d->m_sectionList->setFixedWidth(int(screenWidth * 0.30));         // Krimble 2026-10-30: 30%, for the 64 px icons (George: the icons are too big for tiny screens)
             d->m_sectionList->setFixedWidth(int(screenWidth * 0.26));         // Krimble 2026-11-13 (task 48): George (build 57): "The New dialog is huge and has conflicting hues like dissonant notes." 26% for the 44 px icons
         } else {
-            // d->m_sectionList->setMaximumWidth(int(screenWidth * 0.20));
             // Krimble 2026-10-14: George (1.0.36): "The new icons are way too small on the new file ... dialogs. Column area for them is too narrow
             // on one dialog." and "Need big icons. Small screen." The list is 34% of the screen wide, so the icons and their names are not cut.
-            // d->m_sectionList->setMaximumWidth(int(screenWidth * 0.34));
-            // d->m_sectionList->setMaximumWidth(int(screenWidth * 0.28));   // Krimble 2026-10-19: George (1.0.39): "The column housing them is too wide."
-            // d->m_sectionList->setMinimumWidth(int(screenWidth * 0.20));   // Krimble 2026-10-18: wide enough for the 96 px icons
             // Krimble 2026-11-13 (task 48): George (build 57): "The New dialog is huge and has conflicting hues like dissonant notes." On a wide screen (landscape: 733 logical px on this phone) the column was 28% = 205 px with 64 px icons; 18% at most, 14% at least, for the 44 px icons.
             d->m_sectionList->setMaximumWidth(int(screenWidth * 0.18));
             d->m_sectionList->setMinimumWidth(int(screenWidth * 0.14));
@@ -223,7 +211,6 @@ KisOpenPane::KisOpenPane(QWidget *parent, const QStringList& mimeFilter, const Q
 
     m_mimeFilter = mimeFilter;
 
-    // QStyledItemDelegate* delegate = new QStyledItemDelegate(d->m_sectionList);
     // Krimble 2026-10-12: on Android the left list shows the text under the icon, centered and wrapped, so the list can be thin.
     QStyledItemDelegate* delegate = new KrimbleIconAboveTextDelegate(d->m_sectionList);
     d->m_sectionList->setItemDelegate(delegate);
@@ -231,19 +218,14 @@ KisOpenPane::KisOpenPane(QWidget *parent, const QStringList& mimeFilter, const Q
     // Krimble 2026-10-18 (3rd): George (1.0.37, c666301): "1. File - New dialog still has tiny icons. It must be hard coded somewhere." It was: KisOpenPaneBase.ui gives the
     // list (m_sectionList) an iconSize of 48 x 48, and a list draws its icons at that size whatever the size of the picture (so the 64, 96 and 112 px pictures of the 150th
     // entry were drawn at 48 logical px). The list's icon size is now 112 x 112, the size of the pictures.
-    // d->m_sectionList->setIconSize(QSize(112, 112));
     // Krimble 2026-10-19: George (1.0.39, test list, item 5): "New dialog icons are too big. The column housing them is too wide." (1.0.39 was
     // the first build where the list really drew them at the picture's size; before, it drew 48 px whatever the picture.) 112 -> 80.
-    // d->m_sectionList->setIconSize(QSize(80, 80));
     // Krimble 2026-10-23: George (test list "Mercury's Shadow"): "Make clipboard icon smaller, camera icon larger." The list draws a picture at its own size when
     // it is smaller than this, so the list is 96 and the pictures are 48 (clipboard), 64 (custom document), 80 (templates) and 96 (the camera).
-    // d->m_sectionList->setIconSize(QSize(96, 96));
     // Krimble 2026-10-30: George: "The icons in the New file and Preferences menus are too big for tiny screens. I should have designed something small and simple
     // to go there." The list's icon size is 64 now (the Preferences icons were made 44 on this branch). A picture smaller than 64 is still drawn at its own
     // size, a larger one (the 80 and 96 px pictures) is drawn at 64. The size is George's to say: it went 112, 80, 96 before, on his feedback.
-    // d->m_sectionList->setIconSize(QSize(64, 64));
     // Krimble 2026-11-13 (task 48): George (build 57): "The New dialog is huge and has conflicting hues like dissonant notes." 44 px, the size of the Preferences list's icons (a picture smaller than that is drawn at its own size).
-    // d->m_sectionList->setIconSize(QSize(44, 44));
     // Krimble 2026-11-15 (item 13): George: "adjust size of icons slightly." 140 -> 169 real pixels (44 -> 53 of the layouts' own units, one unit is 3.19 real pixels on this phone).
     d->m_sectionList->setIconSize(QSize(53, 53));
 #endif
@@ -421,7 +403,6 @@ void KisOpenPane::addCustomDocumentWidget(QWidget *widget, const QString& title,
     pageScroll->setWidgetResizable(true);
     pageScroll->setFrameShape(QFrame::NoFrame);
     pageScroll->setWidget(widget);
-    // paneWidget = pageScroll;
     // Krimble 2026-11-07: George: "in the New dialog it is a huge pain in the ass that the cancel button is hidden by default. why is there a giant description area pushing it down? why
     // isn't the most important part, the two buttons in the lower right hand corner, visible and shielded from disappearing? this is a major priority." The OK and Cancel buttons were
     // the last row of the page, inside the scroll area, so on a phone a tall page pushed them out of sight. They are taken out of the page and put under the scroll area: only the
@@ -487,24 +468,16 @@ QTreeWidgetItem* KisOpenPane::addPane(const QString &title, const QString &untra
 
     // resizes icons so they are a bit smaller
     QIcon icon = KisIconUtils::loadIcon(iconName);
-    // QPixmap iconPixmap = icon.pixmap(32, 32);
     // Krimble 2026-10-13: a 32 x 32 pixel picture was stretched to the size it is shown at (about 108 px on a phone), which made the
     // pictures soft. The picture is now made at the screen's real resolution and told its logical size, so it stays sharp.
     const qreal dpr = qMax<qreal>(1.0, qApp->devicePixelRatio());
-    // QPixmap iconPixmap = icon.pixmap(QSize(qRound(32 * dpr), qRound(32 * dpr)));
     // Krimble 2026-10-17: George (1.0.37): "6. New full color icons are still too small. Should be 2x larger. Both in Prefs and New dialog." 64 logical px.
-    // QPixmap iconPixmap = icon.pixmap(QSize(qRound(64 * dpr), qRound(64 * dpr)));
     // Krimble 2026-10-18: George (1.0.37): "3. New dialog icons need to be bigger still." 64 -> 96 logical px.
-    // QPixmap iconPixmap = icon.pixmap(QSize(qRound(96 * dpr), qRound(96 * dpr)));
     // Krimble 2026-10-18 (2nd): George (1.0.37, fc126d8): "1. I still want bigger icons in File - New dialog. They are small." 96 -> 112 logical px.
-    // QPixmap iconPixmap = icon.pixmap(QSize(qRound(112 * dpr), qRound(112 * dpr)));
     // Krimble 2026-10-18 (4th): George (1.0.38): "New dialog top 2 icons are just a little too big now." These two (Custom Document, Create from Clipboard) are the icons of the theme, which fill
     // their whole square; the template pictures below them have room around them and look smaller at the same size. 112 -> 88 logical px for these two (the template pictures stay as they are).
-    // QPixmap iconPixmap = icon.pixmap(QSize(qRound(88 * dpr), qRound(88 * dpr)));
     // Krimble 2026-10-19: George (1.0.39): "New dialog icons are too big." 88 -> 64 logical px (same ratio to the 80 px template pictures as 88 to 112).
-    // QPixmap iconPixmap = icon.pixmap(QSize(qRound(64 * dpr), qRound(64 * dpr)));
     // Krimble 2026-10-23: the clipboard picture is smaller (48 logical px; the custom document picture stays 64)
-    // const int topIconSize = untranslatedName.contains(QLatin1String("clipboard"), Qt::CaseInsensitive) ? 48 : 64;
     const int topIconSize = untranslatedName.contains(QLatin1String("clipboard"), Qt::CaseInsensitive) ? 53 : 64;   // Krimble 2026-11-15 (item 13): the clipboard picture was 48, below the list's new 53, so it would have been drawn smaller than the custom document one
     QPixmap iconPixmap = icon.pixmap(QSize(qRound(topIconSize * dpr), qRound(topIconSize * dpr)));
     iconPixmap.setDevicePixelRatio(dpr);
@@ -523,17 +496,11 @@ QTreeWidgetItem* KisOpenPane::addPane(const QString &title, const QString &untra
 
     int id = d->m_widgetStack->addWidget(widget);
 
-    // int iconSize = 32;
     // Krimble 2026-10-13 (2nd): George (1.0.35): "In New dialog the first two icons are nice and big, the rest are too small. Why?" The
     // first two (Custom Document, Create from Clipboard) are made at the screen's real resolution (the other addPane above); these section
     // pictures (Animation, Comic, Design, DSLR, Texture) were cut down to 32 x 32 real pixels, about a third of the size. They are made
     // the same way now: 32 logical px times the screen's pixel ratio, and told their logical size.
     const qreal dpr = qMax<qreal>(1.0, qApp->devicePixelRatio());
-    // const int iconSize = qRound(32 * dpr);
-    // const int iconSize = qRound(64 * dpr);   // Krimble 2026-10-17: twice as big (see above)
-    // const int iconSize = qRound(96 * dpr);      // Krimble 2026-10-18: 96 logical px (see above)
-    // const int iconSize = qRound(112 * dpr);     // Krimble 2026-10-18 (2nd): 112 logical px (see above)
-    // const int iconSize = qRound(80 * dpr);         // Krimble 2026-10-19: George (1.0.39): "New dialog icons are too big." 112 -> 80 logical px
     // Krimble 2026-10-23: George: "camera icon larger": the camera (the DSLR templates) is drawn at 96 logical px, the other pictures stay 80
     const bool isCamera = title.contains(QLatin1String("DSLR"), Qt::CaseInsensitive) || untranslatedName.contains(QLatin1String("DSLR"), Qt::CaseInsensitive);
     const int iconSize = qRound((isCamera ? 96 : 80) * dpr);
@@ -545,7 +512,6 @@ QTreeWidgetItem* KisOpenPane::addPane(const QString &title, const QString &untra
     if (!icon.isNull()) {
         QImage image = icon.toImage();
 
-        // if (!image.isNull() && ((image.width() > iconSize) || (image.height() > iconSize))) {
         // Krimble 2026-10-18 (2nd): the pictures are 256 px; they were only ever made smaller, so a bigger size changed nothing. Scaled to the size either way.
         if (!image.isNull() && ((image.width() != iconSize) || (image.height() != iconSize))) {
             image = image.scaled(iconSize, iconSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);

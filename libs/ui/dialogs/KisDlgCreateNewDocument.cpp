@@ -37,7 +37,6 @@ KisDlgCreateNewDocument::KisDlgCreateNewDocument(QWidget* parent)
     // Without a copied picture, the saved default size is used as before.
     KisClipboard *krimbleClipboard = KisClipboard::instance();
     // (Krimble 2026-10-12 (2nd): George: this should be a preference. Edit > Preferences > General > Pasting; on by default.)
-    // if (krimbleClipboard && krimbleClipboard->hasClip()) {
     if (cfg.readEntry<int>("krimble_new_from_clipboard_size", 1) != 0 && krimbleClipboard && krimbleClipboard->hasClip()) {
         const QSize clipSize = krimbleClipboard->clipSize();
         if (clipSize.isValid() && clipSize.width() > 0 && clipSize.height() > 0) {

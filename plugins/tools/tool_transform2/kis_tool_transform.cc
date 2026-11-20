@@ -1681,7 +1681,6 @@ void KisToolFreeRotate::rotateByDegrees(double degrees)
     // slot, called by name) redraws the preview. The angle is shown on the canvas (a floating message), which also shows that two fingers are seen.
     m_rotationRadians += kisDegreesToRadians(degrees);
     setRotateZ(m_rotationRadians);
-    // QMetaObject::invokeMethod(this, "slotUiChangedConfig", Qt::DirectConnection, Q_ARG(bool, true));
     // Krimble 2026-11-11: George: "The transform tool with the rotate selected in the Tool Options rotates the graphic without the gadgets." slotUiChangedConfig starts with
     // "if (mode() == KisTool::PAINT_MODE) return;", and the dial of this tool turns the picture while a finger is down, which IS paint mode, so the handles and the outline were never
     // told about the new angle (the picture turned through requestImageRecalculation() below, which does not look at the mode). krimbleRefreshHandles() does the same work without that check.
@@ -1763,7 +1762,6 @@ void KisToolFreeRotate::activate(const QSet<KoShape*> &shapes)
     m_rotationRadians = 0.0;
     // Krimble 2026-10-18 (6th): George (1.0.38): "Two fingers is reserved for zoom. It's a conflict." and "We need to make rotate work with one finger." The two-finger filter is not installed
     // any more (two fingers zoom and pan the canvas, as everywhere); one finger turns the layer (beginPrimaryAction and the others below).
-    // if (!m_touchFilter && canvas() && canvas()->canvasWidget()) {
     //     m_touchFilter = new KrimbleRotateTouchFilter(canvas()->canvasWidget(), this);
     // }
 }

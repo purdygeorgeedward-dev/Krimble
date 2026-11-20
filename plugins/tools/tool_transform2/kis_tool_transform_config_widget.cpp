@@ -353,8 +353,6 @@ KisToolTransformConfigWidget::KisToolTransformConfigWidget(TransformTransactionP
     //                                                           cageButton, liquifyButton, meshButton})) {
     Q_FOREACH (QToolButton *modeButton, QList<QToolButton*>({freeTransformButton, m_krimbleRotateButton, perspectiveTransformButton, warpButton,
                                                               cageButton, liquifyButton, meshButton})) {   // Krimble 2026-10-30: plus Rotate
-        // modeButton->setIconSize(QSize(28, 28));
-        // modeButton->setMinimumHeight(40);
         // Krimble 2026-10-20: George (1.0.40): "Transform tool mode buttons are HUGE now. Please reduce." 28 -> 20 px icons, 40 -> 30 px height.
         modeButton->setIconSize(QSize(20, 20));
         modeButton->setMinimumHeight(30);

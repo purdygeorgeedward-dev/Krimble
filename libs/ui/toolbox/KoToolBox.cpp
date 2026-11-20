@@ -249,7 +249,6 @@ void KoToolBox::addButton(KoToolAction *toolAction)
     // KRIMBLE 2026-10-03: the Select Shapes tool ("InteractionTool") stays registered because
     // the tool manager needs it as the default tool, but it gets no toolbox button, so the
     // first button is the Move tool. (An empty toolbox section is skipped by the layout.)
-    // if (toolAction->id() == QLatin1String("InteractionTool")) {
     //     return;
     // }
     // Krimble 2026-10-30: George: "I think you should have left it. Edit shapes can be a toggle or something." The Select Shapes tool has a toolbox button again (his
@@ -321,7 +320,6 @@ void KoToolBox::addButton(KoToolAction *toolAction)
         sectionWidget = new Section(this);
         d->addSection(sectionWidget, QStringLiteral("main"));
     }
-    // sectionWidget->addButton(button, groupRank * 1000000 + toolAction->toolBoxPriority());
     // Krimble 2026-11-12 (task 38): George: "I want long press to open a flyout of other buttons. Then a tap selects one or misses and cancels selection." The tools of a group all take the place of the group's first tool, so the shown one is always in that place.
     int krimblePriority = groupRank * 1000000 + toolAction->toolBoxPriority();
     const int krimbleGroup = krimbleGroupIndexOf(toolAction->id());
@@ -631,7 +629,6 @@ void KoToolBox::setupIconStyleMenu(QMenu *menu)
     QActionGroup *styleGroup = new QActionGroup(menu);
     const bool color = KrimbleToolboxIcons::colorMode();
     QAction *colorAction = menu->addAction(i18n("Full color"));
-    // QAction *clearAction = menu->addAction(i18n("Clear"));
     // Krimble 2026-10-30: George: "I was going to call them silhouette icons." The style's name is Silhouette (it was Clear).
     QAction *clearAction = menu->addAction(i18n("Silhouette"));
     for (QAction *action : {colorAction, clearAction}) {

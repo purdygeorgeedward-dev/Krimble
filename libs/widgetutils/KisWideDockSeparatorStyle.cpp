@@ -39,11 +39,8 @@ int KisWideDockSeparatorStyle::pixelMetric(PixelMetric metric, const QStyleOptio
 #endif
     if (metric == QStyle::PM_DockWidgetSeparatorExtent) {
         // Krimble 2026-10-10: on Android at least 20 px (the same touch size as the dialog edges), so a finger can grab it.
-        // return QProxyStyle::pixelMetric(metric, option, widget) * 2;
 #ifdef Q_OS_ANDROID
         // Krimble 2026-10-10 (3rd): 14 (was 20): each strip is about 32 device pixels narrower, which gives the toolbox room to widen.
-        // return qMax(QProxyStyle::pixelMetric(metric, option, widget) * 2, 20);
-        // return qMax(QProxyStyle::pixelMetric(metric, option, widget) * 2, 14);
         // Krimble 2026-10-12: George: no "UI fat" along the edge. The strip is the base style's own thin one again; the touch
         // zone is made by an invisible grab area inside each panel instead (KrimbleDockEdgeGrab in KisMainWindow.cpp).
         return QProxyStyle::pixelMetric(metric, option, widget);
@@ -57,8 +54,6 @@ int KisWideDockSeparatorStyle::pixelMetric(PixelMetric metric, const QStyleOptio
     // both what is drawn around it and the zone a finger can grab to resize it, and the base style makes it only a few pixels wide.
     // On Android it is at least 12 logical px (about 40 on the screen), the same idea as the 20 px edges of the dialogs.
     if (metric == QStyle::PM_MdiSubWindowFrameWidth) {
-        // return qMax(QProxyStyle::pixelMetric(metric, option, widget), 12);
-        // return qMax(QProxyStyle::pixelMetric(metric, option, widget), 14);
         return qMax(QProxyStyle::pixelMetric(metric, option, widget), 16);   // Krimble 2026-10-17 (2nd): "Try just one more pixel? Or 2?" 14 -> 16. Before: 14 // Krimble 2026-10-17: "Try a small change first." 12 -> 14
     }
 #endif
@@ -190,8 +185,6 @@ void KisWideDockSeparatorStyle::drawControl(ControlElement element, const QStyle
                 painter->setPen(Qt::NoPen);
                 // Krimble 2026-10-10 (2nd): each line is exactly one device pixel thick (the 2 logical pixel lines were about 5).
                 const qreal px = 1.0 / painter->device()->devicePixelRatioF();
-                // painter->fillRect(QRect(r.left() + 6, y - 1, r.width() - 12, 2), QColor(0, 0, 0));
-                // painter->fillRect(QRect(r.left() + 6, y + 1, r.width() - 12, 2), QColor(255, 255, 255, 110));
                 painter->fillRect(QRectF(r.left() + 6, y - px, r.width() - 12, px), QColor(0, 0, 0));
                 painter->fillRect(QRectF(r.left() + 6, y, r.width() - 12, px), QColor(255, 255, 255, 110));
                 painter->restore();
@@ -217,7 +210,6 @@ QSize KisWideDockSeparatorStyle::sizeFromContents(ContentsType type, const QStyl
         if (const QStyleOptionMenuItem *menuItem = qstyleoption_cast<const QStyleOptionMenuItem *>(option)) {
             if (menuItem->menuItemType == QStyleOptionMenuItem::Separator && menuItem->text.isEmpty()) {
                 QSize s = QProxyStyle::sizeFromContents(type, option, size, widget);
-                // s.setHeight(qMax(s.height(), 8));
                 s.setHeight(qMax(s.height(), 6));   // Krimble 2026-10-10 (2nd): slot 6 (was 8) for the 1 pixel lines
                 return s;
             }
@@ -226,7 +218,6 @@ QSize KisWideDockSeparatorStyle::sizeFromContents(ContentsType type, const QStyl
             const int tab = plain.text.indexOf(QLatin1Char('\t'));
             if (tab >= 0) plain.text = plain.text.left(tab);
             plain.tabWidth = 0;
-            // return QProxyStyle::sizeFromContents(type, &plain, size, widget);
             // Krimble 2026-10-12: George: "Menus are still too wide." The width of an item is at most its text plus 60 px (the
             // check/icon margin on the left and the arrow on the right), however much the base style adds.
             QSize base = QProxyStyle::sizeFromContents(type, &plain, size, widget);

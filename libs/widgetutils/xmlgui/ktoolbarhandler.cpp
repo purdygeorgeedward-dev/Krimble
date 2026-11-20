@@ -256,7 +256,6 @@ void ToolBarHandler::setupActions()
     actionCollection()->readSettings(); // #233712
 
     // Krimble 2026-10-10: not plugged into the View menu any more; the Toolbars submenu is in the Window menu.
-    // plugActionList(QLatin1String(actionListName), d->actions);
 
     d->connectToActionContainers();
 }

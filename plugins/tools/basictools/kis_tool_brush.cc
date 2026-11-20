@@ -92,10 +92,6 @@ void KisToolBrush::activate(const QSet<KoShape*> &shapes)
         KisCanvas2 *retouchCanvas = dynamic_cast<KisCanvas2*>(canvas());
         if (retouchCanvas && retouchCanvas->viewManager()) {
             KisCanvasResourceProvider *provider = retouchCanvas->viewManager()->canvasResourceProvider();
-            // m_savedRetouchPreset = provider->currentPreset();
-            // m_savedRetouchOpacity = provider->opacity();
-            // m_savedRetouchFlow = provider->flow();
-            // m_savedRetouchSize = provider->size();
             // Krimble 2026-10-20 (2nd): only the user's own brush is kept. If a retouch brush is already current (this tool started twice without
             // stopping, or after another retouch tool), the brush kept before stays, so it can never be overwritten by a retouch brush.
             {
@@ -142,7 +138,6 @@ void KisToolBrush::deactivate()
         KisCanvas2 *retouchCanvas = dynamic_cast<KisCanvas2*>(canvas());
         if (retouchCanvas && retouchCanvas->viewManager()) {
             KisCanvasResourceProvider *provider = retouchCanvas->viewManager()->canvasResourceProvider();
-            // provider->setPaintOpPreset(m_savedRetouchPreset);
             krimbleSetBrushPreset(retouchCanvas->viewManager(), m_savedRetouchPreset);   // Krimble 2026-10-20 (2nd): through the brush panel
             provider->setOpacity(m_savedRetouchOpacity);
             provider->setFlow(m_savedRetouchFlow);

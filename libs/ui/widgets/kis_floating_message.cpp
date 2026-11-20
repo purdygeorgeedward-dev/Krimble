@@ -132,7 +132,6 @@ void KisFloatingMessage::showMessage()
 
     QWidget::setVisible(true);
     m_fadeTimeLine.stop();
-    // m_timer.start(m_timeout);
     // Krimble 2026-10-24: George: "sometimes the UI puts messages on screen that are unnecessary or last too long." A message asked to stay 4.5 s (the usual) now stays as long as it
     // takes to read it: 0.9 s plus 45 ms for each character, between 1.4 and 3.2 s, unless it asks for less. High priority messages (the ones that matter, errors and warnings)
     // keep the time they asked for.
@@ -166,7 +165,6 @@ QRect KisFloatingMessage::determineMetrics( const int M )
     const QSize image = m_icon.isNull() ? QSize(0, 0) : minImageSize;
     QRect geom = parentWidget()->geometry();
     QPoint p(geom.width() / 2 + geom.left(), geom.height() / 2 + geom.top());
-    // QScreen *s = qApp->screenAt(p);
     // Krimble 2026-10-15: George (1.0.36): "Healing Brush message window is needlessly super wide." The point p is local to the parent window, not a
     // position on the screen, so the wrong screen could be found; the parent's own screen is used. (Idea from a Codex patch, read as a clue.)
     QScreen *s = parentWidget() ? parentWidget()->screen() : qApp->screenAt(p);
@@ -222,8 +220,6 @@ QRect KisFloatingMessage::determineMetrics( const int M )
 
     if (parentWidget() && m_showOverParent) {
         screen = parentWidget()->geometry();
-        // screen.setTopLeft(parentWidget()->mapToGlobal(QPoint(MARGIN, MARGIN + 50)));
-        // newPos = screen.topLeft();
         // Krimble 2026-11-07: George: "there are lots of little reports that appear on screen to tell you something is done or whatever. Do they have to appear right in my way? Can't they
         // appear at bottom left?" They were at the top left of the canvas, over the picture. Now the bottom left of the canvas, 20 px from the left edge and 50 px above the bottom
         // edge (room for the horizontal scroll bar), whatever their height (taller messages grow upward).
@@ -232,7 +228,6 @@ QRect KisFloatingMessage::determineMetrics( const int M )
     }
     else {
         // move to the right
-        // newPos.rx() = screen.width() - MARGIN - newSize.width();
         // Krimble 2026-11-07: bottom left of the screen when the message has no parent window (see above)
         newPos.rx() = MARGIN;
         newPos.ry() = screen.height() - MARGIN - 50 - newSize.height();

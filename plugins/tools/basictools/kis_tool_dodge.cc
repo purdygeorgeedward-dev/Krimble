@@ -61,7 +61,6 @@ void KisToolDodge::activate(const QSet<KoShape*> &shapes)
         return;
     }
 
-    // dodgePreset->settings()->setProperty("CompositeOp", COMPOSITE_DODGE);
     // Krimble 2026-10-11 (QA of 1.0.32): the color dodge op with the foreground color made a faint line
     // (dodge) or an instant black one (burn) on a white canvas. The industry standard's tool lightens what is already there, a little at
     // a time. The linear op does that: with a white brush each dab moves the pixel a small step toward
@@ -72,7 +71,6 @@ void KisToolDodge::activate(const QSet<KoShape*> &shapes)
     // Krimble 2026-10-18 (12th): George (1.0.37, c666301): "17. Dodge and burn appear to default to black or white crayons." and, asked what he sees: "One drag makes solid white." Every dab
     // adds a step (flow 4% is about 10 of 255 levels at the center of the dab) and the dabs of a drag overlap many times (a pixel is under about a dozen of them), so one pass
     // reached solid white. A dab is now 5 times weaker (flow 0.8%, about 2 levels): one pass is a gentle change and passes build up. The flow can still be changed in the Tool Options.
-    // dodgePreset->settings()->setPaintOpFlow(0.04);
     dodgePreset->settings()->setPaintOpFlow(0.008);
     // Krimble 2026-10-18 (13th): George: "It should start with a larger brush size too." The brush of this tool starts at 80 px (the default brush is small, which is right for painting
     // but not for lightening or darkening areas). The size can be changed in the Tool Options; it starts at 80 again the next time the tool is chosen.
@@ -90,7 +88,6 @@ void KisToolDodge::activate(const QSet<KoShape*> &shapes)
         m_foregroundSaved = true;
     }
     provider->setFGColor(KoColor(Qt::white, m_savedForeground.colorSpace()));
-    // provider->setPaintOpPreset(dodgePreset);
     krimbleSetBrushPreset(canvas2->viewManager(), dodgePreset);   // Krimble 2026-10-20 (2nd): through the brush panel
 }
 

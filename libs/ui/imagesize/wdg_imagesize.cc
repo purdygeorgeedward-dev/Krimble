@@ -235,9 +235,6 @@ WdgImageSize::WdgImageSize(QWidget *parent, int width, int height, double resolu
 
     // Krimble 2026-11-12: the two size groups below made all five number fields as wide as the widest of them, and all three unit boxes as wide as the widest (the "wasted space" George marked in the
     // Image Size screenshots); krimbleCompactImageSizeWidgets() sizes each field and box to what it needs, so they are not used (the code is kept):
-    // KisSizeGroup *spinboxesGroup = new KisSizeGroup(this);
-    // spinboxesGroup->addWidget(m_page->pixelWidthDouble);
-    // spinboxesGroup->addWidget(m_page->pixelHeightDouble);
     // spinboxesGroup->addWidget(m_page->printWidth);
     // spinboxesGroup->addWidget(m_page->printHeight);
     // spinboxesGroup->addWidget(m_page->printResolution);

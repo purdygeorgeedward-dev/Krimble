@@ -243,8 +243,6 @@ public:
     KrimblePageListDelegate(QAbstractItemDelegate *original, QObject *parent) : QStyledItemDelegate(parent), m_original(original) {}
     QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const override
     {
-        // if (m_original) return m_original->sizeHint(option, index);
-        // return QStyledItemDelegate::sizeHint(option, index);
         // Krimble 2026-11-16 (728th): George (build 65, Preferences screenshot): "Canvas input settings selection overlaps onto the keyboard title area." The row's size came from the list's
         // own delegate, but this delegate draws the name in bold under a picture of its own size, so a name could reach below its row, into the next one, and the next row's highlight
         // covered it. The row is at least as tall as what paint() below draws: 5, the picture, 4, the name (bold, wrapped to the row's width), 6.
@@ -275,11 +273,9 @@ public:
         QStyle *style = opt.widget ? opt.widget->style() : QApplication::style();
         // Krimble 2026-11-15 (690th): George: "The hilight still tints the icon when selected. Fix it. Again." The style (style sheet) draw of the row may lay its highlight over the picture, so the row is filled
         // here directly: opaque highlight color under the picture, nothing drawn after the picture. (the old style call is kept, commented out)
-        // style->drawPrimitive(QStyle::PE_PanelItemViewItem, &back, painter, opt.widget);
         Q_UNUSED(style);
         painter->save();
         painter->setCompositionMode(QPainter::CompositionMode_Source);
-        // if (selected) painter->fillRect(opt.rect, QColor(opt.palette.color(QPalette::Active, QPalette::Highlight).rgb()));
         // Krimble 2026-11-16 (728th): the design's selection gradient in the Krimble themes with blue selections (as the other lists and the menus have since the 722nd), the theme's
         // highlight color elsewhere. Still under the picture, opaque.
         if (selected) {
@@ -296,7 +292,6 @@ public:
         }
         painter->restore();
         // the picture, as it is, centered at the top of the row
-        // const int side = qMax(16, qMin(opt.decorationSize.width(), opt.rect.width() - 8));
         // Krimble 2026-11-15 (706th): the picture has the size the list's own delegate uses (the style's PM_IconViewIconSize, about 85 units on George's phone in build 63), so the list looks as it does now, only
         // without the tint. (decorationSize is the view's small list icon size, which that delegate never used.)
         const int side = qMax(16, qMin((opt.widget ? opt.widget->style() : QApplication::style())->pixelMetric(QStyle::PM_IconViewIconSize), opt.rect.width() - 8));
@@ -308,8 +303,6 @@ public:
         const QRect iconRect(opt.rect.left() + (opt.rect.width() - side) / 2, opt.rect.top() + 5, side, side);   // 706th: 5 from the top, as the list's own delegate
         if (!icon.isNull()) {
             // Krimble 2026-11-15 (690th): the picture is drawn from a plain pixmap (Normal mode, no Selected tint) with source-over
-            // const qreal dpr = painter->device() ? painter->device()->devicePixelRatioF() : 1.0;
-            // QPixmap pix = icon.pixmap(QSize(side, side), dpr, QIcon::Normal, QIcon::Off);
             // Krimble 2026-11-15 (702nd): build 63 failed here: QIcon::pixmap(QSize, qreal, ...) exists only in Qt 6. Qt 5 form: with AA_UseHighDpiPixmaps (main.cc) the pixmap comes at the screen's density.
             QPixmap pix = icon.pixmap(QSize(side, side), QIcon::Normal, QIcon::Off);
             const QSizeF logical = QSizeF(pix.size()) / pix.devicePixelRatio();
@@ -385,7 +378,6 @@ class KrimbleResizeGrip : public QWidget
 public:
     explicit KrimbleResizeGrip(QWidget *dialog) : QWidget(dialog)
     {
-        // setFixedSize(44, 44);
         setFixedSize(26, 26);   // Krimble 2026-10-12: smaller, and the dialog gets a strip for it below the buttons (it covered the Create button)
         setCursor(Qt::SizeFDiagCursor);
         setAttribute(Qt::WA_NoSystemBackground);
@@ -539,7 +531,6 @@ static void krimbleNarrowDialogLayouts(QDialog *dialog)
     QScreen *screen = dialog->screen() ? dialog->screen() : QGuiApplication::primaryScreen();
     if (!screen) return;
     const int available = screen->availableGeometry().width();
-    // if (!dialog->layout() || dialog->minimumSizeHint().width() <= available) return;
     if (!dialog->layout() || krimbleDialogMinWidth(dialog) <= available) return;   // Krimble 2026-10-23: the contents' width for windows with a scroll area
     dialog->setProperty("krimbleNarrowed", true);
     // Krimble 2026-10-25: George: "How do we change global rules? That's a dumb rule." (labels above their fields, and the Cancel and Create buttons one above the other). Since 2026-10-23 the main
@@ -569,7 +560,6 @@ static void krimbleNarrowDialogLayouts(QDialog *dialog)
         if (splitter->orientation() == Qt::Horizontal) splitter->setOrientation(Qt::Vertical);
     }
     dialog->layout()->invalidate();
-    // if (dialog->minimumSizeHint().width() > available) {
     if (krimbleDialogMinWidth(dialog) > available) {   // Krimble 2026-10-23
         Q_FOREACH (QHBoxLayout *row, dialog->findChildren<QHBoxLayout*>()) {
             if (!stackLabelsAndRows || krimbleKeepsRows(row)) continue;   // Krimble 2026-10-25: the Cancel and Create buttons (and every other row) stay side by side in a window that scrolls
@@ -761,7 +751,6 @@ public:
         if (g.width() > avail.width()) g.setWidth(avail.width());
         g.moveLeft(qBound(avail.left(), g.left(), avail.right() - g.width() + 1));
         if (g.top() < avail.top()) g.moveTop(avail.top());
-        // if (g.top() > avail.bottom() - 120) g.moveTop(avail.bottom() - 120);
         if (g.top() > avail.bottom() - 36) g.moveTop(avail.bottom() - 36);   // Krimble 2026-10-14: the title area (36 px) stays on screen
         if (g != original) window->setGeometry(g);
     }
@@ -859,7 +848,6 @@ protected:
         switch (event->type()) {
         case QEvent::Show:
         case QEvent::Resize: {
-            // if (QDialog *dialog = qobject_cast<QDialog*>(watched)) {      // Krimble 2026-10-11: floating panels too
             if (QWidget *dialog = qobject_cast<QWidget*>(watched)) {
                 // Krimble 2026-10-12: a long label that does not wrap makes the whole dialog as wide as the label (the JPEG export
                 // dialog was about three screens wide because of two long sentences). Long labels in dialogs now wrap.
@@ -901,7 +889,6 @@ protected:
                             }
                             if (QLatin1String(pageList->metaObject()->className()) == QLatin1String("KPageListView")) {
                                 if (QScreen *pageScreen = QGuiApplication::primaryScreen()) {
-                                    // const int cap = int(pageScreen->availableGeometry().width() * 0.24);
                                     // Krimble 2026-11-15 (item 11): George: "Just render it full size." The keyboard picture is 480 real pixels wide; the column is wide enough for it (486 real pixels with
                                     // its 3 px at each side), or 24% of the screen, whichever is wider.
                                     const qreal keyboardDpr = qMax<qreal>(1.0, pageScreen->devicePixelRatio());
@@ -1032,18 +1019,13 @@ private:
                 // (as long as part of it is reachable).
                 // Krimble 2026-10-13 (7th): George: "Get rid of bounces. They're annoying." After a two-finger drag nothing is moved any
                 // more: every window and panel, the toolbox included, stays exactly where the fingers let go. The old rules are kept:
-                // QDockWidget *movedDock = qobject_cast<QDockWidget*>(moved.data());
-                // if (movedDock && movedDock->objectName() == QLatin1String("ToolBox")) {
                 //     keepOnScreenSidesAndTop(moved);   // the toolbox was pushed back off the top and the sides
-                // } else {
                 //     keepReachable(moved);             // other windows: at least 160 px had to stay on screen
                 // }
-                // Q_UNUSED(moved);
                 // Krimble 2026-10-14: George (1.0.36): "Bounce toolbox off sides and top. Not bottom." Only the toolbox, after a two-finger drag;
                 // every other window and panel still stays where it is let go.
                 QDockWidget *movedDock = qobject_cast<QDockWidget*>(moved.data());
                 if (movedDock && movedDock->objectName() == QLatin1String("ToolBox")) {
-                    // keepOnScreenSidesAndTop(moved);
                     // Krimble 2026-10-17: George (1.0.37): "I would rather the toolbar dock at the edge than bounce." At an edge the toolbox docks.
                     QMetaObject::invokeMethod(movedDock, "krimbleDockAtEdge");
                 }
@@ -1226,7 +1208,6 @@ protected:
             if (m_state == Pending && (qAbs(d.x()) > TapSlop || qAbs(d.y()) > TapSlop)) {
                 // moved before the long press: not a tap and not a drag, so nothing happens
                 m_timer.stop();
-                // m_state = Cancelled;
                 // Krimble 2026-11-11: George: "Give me the finger drag." / "percentage selectors should be able to drag left and right with touch. Like opacity in layers panel." A plain number
                 // field (QSpinBox, QDoubleSpinBox) that is moved mostly sideways before the long press is dragged: its value follows the finger. Anything else is cancelled, as before.
                 m_state = sidewaysDrag(d) ? Dragging : Cancelled;
@@ -1257,14 +1238,12 @@ protected:
                 // KRIMBLE 2026-10-07: a short tap no longer opens Krimble's number pad (George: "GIGANTIC NUMERIC
                 // KEYPAD APPEARS!! DO NOT WANT!!"). The tap is handed back to the field, as if it had not been
                 // caught: the press and the release are sent to it again. Old behaviour, kept as a comment:
-                // QTimer::singleShot(0, this, [spin2]() {
                 //     if (!spin2) { return; }
                 //     KrimbleNumberPad *pad = new KrimbleNumberPad(spin2, [spin2](double v) {
                 //         if (spin2) { KrimbleNumberFields::setSpinValue(spin2, v); }
                 //     });
                 //     pad->setAttribute(Qt::WA_DeleteOnClose);
                 //     pad->open();
-                // });
                 QTimer::singleShot(0, this, [this, pressWidget, pressLocal, pressGlobal]() {
                     if (!pressWidget) {
                         return;
@@ -1685,7 +1664,6 @@ static void krimbleLoadBundledFonts()
     int loaded = 0;
     Q_FOREACH (const QString &path, files) {
         const int qtId = QFontDatabase::addApplicationFont(path);
-        // const bool engineOk = KoFontRegistry::instance()->addFontFilePathToRegistry(path);   // private: compile error in the 1.0.38 build
         const bool engineOk = KoFontRegistry::instance()->addBundledFontFile(path);
         if (qtId >= 0 || engineOk) ++loaded;
         else qWarning() << "Krimble: font could not be loaded:" << path;
@@ -1783,7 +1761,6 @@ bool KisApplication::start(const KisApplicationArguments &args)
     KConfigGroup group(KSharedConfig::openConfig(), "theme");
 #ifndef Q_OS_HAIKU
     Digikam::ThemeManager themeManager;
-    // themeManager.setCurrentTheme(group.readEntry("Theme", "Krimble dark"));
     themeManager.setCurrentTheme(group.readEntry("Theme", "Krimble Blue-Gray"));   // Krimble 2026-11-12 (task 27): the default theme
 #endif
 

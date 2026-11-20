@@ -1027,7 +1027,6 @@ void KisKEditToolBarWidgetPrivate::setupLayout()
     m_inactiveList = new ToolBarListWidget(m_widget);
     m_inactiveList->setDragEnabled(true);
     m_inactiveList->setActiveList(false);
-    // m_inactiveList->setMinimumSize(180, 250);
     m_inactiveList->setMinimumSize(narrow ? 100 : 130, narrow ? 80 : 150);   // Krimble 2026-10-24: smaller
     m_inactiveList->setDropIndicatorShown(false); // #165663
     inactive_label->setBuddy(m_inactiveList);
@@ -1056,7 +1055,6 @@ void KisKEditToolBarWidgetPrivate::setupLayout()
     m_activeList->setDragEnabled(true);
     m_activeList->setActiveList(true);
     // With Qt-4.1 only setting MiniumWidth results in a 0-width icon column ...
-    // m_activeList->setMinimumSize(m_inactiveList->minimumWidth(), 100);
     m_activeList->setMinimumSize(m_inactiveList->minimumWidth(), narrow ? 80 : 100);   // Krimble 2026-10-24
     active_label->setBuddy(m_activeList);
 
@@ -1154,9 +1152,6 @@ void KisKEditToolBarWidgetPrivate::setupLayout()
     active_layout->addWidget(m_activeList, 1);
     active_layout->addWidget(m_changeIconAction);
 
-    // list_layout->addLayout(inactive_layout);
-    // list_layout->addLayout(button_layout);
-    // list_layout->addLayout(active_layout);
     QVBoxLayout *stacked_layout = new QVBoxLayout();   // Krimble 2026-10-24: used on a narrow or upright screen
     if (!narrow) {
         list_layout->addLayout(inactive_layout);

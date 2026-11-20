@@ -78,7 +78,6 @@ KoColorTransformation* KisDesaturateFilter::createTransformation(const KoColorSp
 KisFilterConfigurationSP KisDesaturateFilter::defaultConfiguration(KisResourcesInterfaceSP resourcesInterface) const
 {
     KisFilterConfigurationSP config = factoryConfiguration(resourcesInterface);
-    // config->setProperty("type", 0);
     config->setProperty("type", 5);   // Krimble 2026-11-18 (744th): S to 0 in HSV (gray at V, the brightest channel)
     return config;
 }

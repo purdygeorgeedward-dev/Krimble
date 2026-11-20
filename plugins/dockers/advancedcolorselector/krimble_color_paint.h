@@ -22,11 +22,7 @@ public:
     explicit KrimbleColorBase(QWidget *parent = nullptr) : QWidget(parent) {}
     virtual double designHeight() const = 0;
     bool hasHeightForWidth() const override { return true; }
-    // int heightForWidth(int w) const override { return qRound(w * designHeight() / DW); }
-    // qreal scale() const { return width() / DW; }
     // Krimble 2026-11-13 (task 71): George: "The ColorLab when moved to the right in the dock should hide behind the edge instead of shrinking, just as the image on the canvas should not zoom out when the docked panels move."
-    // int heightForWidth(int w) const override { return qRound(qMax<double>(w, MinWidth) * designHeight() / DW); }
-    // qreal scale() const { return qMax<qreal>(width(), MinWidth) / DW; }
     // Krimble 2026-11-15 (707th): George (build 63, Color Lab docked at the top or in a wide dock, drawn 2.5 times its size): "Color Lab still MAGNIFIES TO GIANT SIZE." The card was drawn at
     // width / 1178 with no upper limit, so a panel as wide as the screen in landscape (832) made everything 2.5 times larger. A panel wider than MaxWidth (384, the phone's width in portrait) no
     // longer makes the card larger: it keeps that size at the left and the rest of the panel is empty.
@@ -251,13 +247,6 @@ public:
     static void paintColorBox(QPainter &p, const QRectF &rect, const QColor &c, qreal radius, qreal s, bool glow)
     {
         // Krimble 2026-11-13 (task 53): George: "In the ColorLab panel the left color well had a weird blue box around it. Remove that. No color crap around the color wells. no glow." The preview boxes (the wells of the pages) have no glow and no outline now; swatch cells (glow false) keep their outline.
-        if (false && glow) {
-            for (int i = 9; i >= 1; --i) {
-                p.setPen(QPen(QColor(40, 190, 255, 26 + (9 - i) * 8), 2.2));
-                p.setBrush(Qt::NoBrush);
-                p.drawRoundedRect(rect.adjusted(-i * 1.3 * s, -i * 1.3 * s, i * 1.3 * s, i * 1.3 * s), radius + i * s, radius + i * s);
-            }
-        }
         const QRectF b = rect.adjusted(0.5, 0.5, -0.5, -0.5);
         p.setPen(Qt::NoPen);
         p.setBrush(c);
@@ -267,7 +256,6 @@ public:
             p.setPen(QPen(QColor("#e6ecfa"), qMax<qreal>(2.0, 3.0 * s)));
             p.drawRoundedRect(b, radius, radius);
         }
-        // p.setPen(QPen(glow ? QColor("#6fe3ff") : QColor("#e6ecfa"), qMax<qreal>(2.0, 3.0 * s)));
         // p.drawRoundedRect(b, radius, radius);
     }
     // the icon pictures (colored, from krimble_color_icons.h) are drawn at the mockup's own size times the scale

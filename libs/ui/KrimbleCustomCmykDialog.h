@@ -208,7 +208,6 @@ inline void krimbleShowCustomCmykDialog(QWidget *parent)
     KrimbleCmykProfile profile = KrimbleCmykProfiles::current();
     QDialog dialog(parent);
     dialog.setWindowTitle(QStringLiteral("Custom CMYK"));
-    // dialog.resize(520, 700);
     // Krimble 2026-11-11: George's screenshot (build 56) showed the dialog wider than his phone: the ink colors box, the dot gain percent and the Gray Ramp were cut off at the right edge, with a horizontal
     // scroll bar. The dialog is now no wider than the screen (and no taller), and has no horizontal scroll bar.
     {
@@ -292,9 +291,7 @@ inline void krimbleShowCustomCmykDialog(QWidget *parent)
     ucaAmount->setRange(0, 100);
     ucaAmount->setSuffix(QStringLiteral(" %"));
     sepGrid->addWidget(ucaAmount, 4, 1);
-    // sepGrid->addWidget(new QLabel(QStringLiteral("Gray Ramp:"), sepBox), 0, 2, Qt::AlignHCenter);
     // KrimbleGrayRampGraph *ramp = new KrimbleGrayRampGraph(sepBox);
-    // sepGrid->addWidget(ramp, 1, 2, 4, 1);
     // Krimble 2026-11-11: the Gray Ramp is under the settings, across the width (it was a third column at the right, which was too wide for a phone).
     sepGrid->addWidget(new QLabel(QStringLiteral("Gray Ramp:"), sepBox), 5, 0, 1, 2);
     KrimbleGrayRampGraph *ramp = new KrimbleGrayRampGraph(sepBox);
@@ -302,7 +299,6 @@ inline void krimbleShowCustomCmykDialog(QWidget *parent)
     sepGrid->addWidget(ramp, 6, 0, 1, 2);
     lay->addWidget(sepBox);
 
-    // QCheckBox *bpc = new QCheckBox(QStringLiteral("Use Black Point Compensation"), content);
     QCheckBox *bpc = new QCheckBox(QStringLiteral("Black Point Compensation"), content);   // Krimble 2026-11-11: shorter, for a phone
     // the labels may wrap onto two lines, so that no label forces the dialog wider than the screen
     Q_FOREACH (QLabel *label, content->findChildren<QLabel *>()) label->setWordWrap(true);
@@ -317,8 +313,6 @@ inline void krimbleShowCustomCmykDialog(QWidget *parent)
     buttonRow->addWidget(saveButton);
     buttonRow->addStretch(1);
     QDialogButtonBox *buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, &dialog);
-    // buttonRow->addWidget(buttons);
-    // outer->addLayout(buttonRow);
     // Krimble 2026-11-11: four buttons in one row were wider than a phone. Load and Save are one row, Cancel and OK the one under it.
     QHBoxLayout *okRow = new QHBoxLayout;
     okRow->addStretch(1);

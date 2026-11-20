@@ -35,8 +35,6 @@ public:
         // the buttons of this panel have less padding, so a row of four fits a docked panel (3 px above and below, 5 px at the sides)
         panel->setStyleSheet(QStringLiteral("QPushButton { padding: 3px 5px; }"));
         auto *mixLayout = new QVBoxLayout(panel);
-        // mixLayout->setContentsMargins(5, 5, 5, 5);
-        // mixLayout->setSpacing(4);
         mixLayout->setContentsMargins(3, 3, 3, 3);   // Krimble 2026-11-06 (3rd): George: "more and more unnecessary negative space": 3 px margins, 2 px between the parts (were 5 and 4)
         mixLayout->setSpacing(2);
 
@@ -55,9 +53,6 @@ public:
         mixLayout->addLayout(mixTools);
 
         m_pad = new KrimbleMixingPad(panel);
-        // mixLayout->addWidget(new QLabel(tr("Oil Bristle  \u2022  paint and blend colors"), panel));
-        // mixLayout->addWidget(new QLabel(tr("Soft Round  \u2022  paint and blend colors"), panel));   // Krimble 2026-11-06: the default brush is a soft round brush now
-        // mixLayout->addWidget(new QLabel(tr("Mixing & Brush Test Pad  \u2022  soft round brush"), panel));
         {
             auto *title = new QLabel(tr("Mixing & Brush Test Pad"), panel);   // Krimble 2026-11-06 (2nd): the mockup's title; it may shrink (clip) in a narrow panel
             title->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
@@ -90,8 +85,6 @@ public:
             line->addWidget(slider, 1);
             auto *number = new QSpinBox(panel);
             number->setRange(1, 100);
-            // number->setFixedWidth(62);   // the same width in both rows, so the sliders end at the same place
-            // number->setFixedHeight(20);
             number->setFixedWidth(76);   // Krimble 2026-11-08: the fields of the style sheet have padding and a frame now (the Color panel's boxes showed one digit at 46 px): "100%" needs about 76 px; the same in both rows
             number->setFixedHeight(24);
             if (row == 1) number->setSuffix(QStringLiteral("%"));
@@ -108,16 +101,13 @@ public:
         auto *undoButton = new QPushButton(tr("Undo"), panel);
         auto *redoButton = new QPushButton(tr("Redo"), panel);
         auto *clearButton = new QPushButton(tr("Clear"), panel);
-        // auto *addMixed = new QPushButton(tr("+ Palette"), panel);
         auto *addMixed = new QPushButton(tr("+ Color"), panel);   // Krimble 2026-11-06 (2nd): shorter (was "+ Palette"); it adds the foreground color to the palette
         for (QPushButton *button : {undoButton, redoButton, clearButton, addMixed}) {
-            // button->setMinimumHeight(38);
             button->setMinimumHeight(30);
             button->setMinimumWidth(0);
             padActions->addWidget(button);
         }
         mixLayout->addLayout(padActions);
-        // setWidget(panel);
         // Krimble 2026-11-05: George (Mixer screenshots): in a small panel the Size and Opacity row sat on top of the pad. The panel is inside a scroll
         // area now, so a panel smaller than its contents scrolls (the contents keep their own minimum size).
         {
@@ -151,11 +141,6 @@ public:
             const QColor current = m_canvas->resourceManager()->foregroundColor().toQColor();
             if (!current.isValid()) return;
             // QSettings settings;
-            // QStringList items = settings.value(QStringLiteral("Krimble/ColorStudioSwatches")).toStringList();
-            // const QString name = current.name(QColor::HexRgb);
-            // if (!items.contains(name)) items << name;
-            // while (items.size() > 24) items.removeFirst();
-            // settings.setValue(QStringLiteral("Krimble/ColorStudioSwatches"), items);
             KrimblePaletteStore::addColor(current);   // Krimble 2026-11-08: the color joins the ACTIVE palette (a GPL file); the Color panel shows it within a moment
         });
         // Sample: the sampled color becomes the foreground color

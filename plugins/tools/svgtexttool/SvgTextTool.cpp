@@ -495,7 +495,6 @@ KoSvgTextProperties SvgTextTool::propertiesForNewText() const
         KisAllResourcesModel *model = KisResourceModelProvider::resourceModel(ResourceType::CssStyles);
         QVector<KoResourceSP> res = model->resourcesForName(presetName);
         // Krimble 2026-10-15: a removed style preset must not dereference an empty list (idea from a Codex patch, read as a clue)
-        // if (res.first()) {
         if (!res.isEmpty() && res.first()) {
             KoCssStylePresetSP style = res.first().staticCast<KoCssStylePreset>();
             qreal dpi = 72;

@@ -121,10 +121,7 @@ KisColorSelectorNgDockerWidget::KisColorSelectorNgDockerWidget(QWidget *parent, 
         m_widgetLayout->addWidget(classicPanel);
     } else {
     classicPanel->hide();
-    // QTabWidget *colorTabs = new QTabWidget(this);
-    // m_krimbleStudio = new KrimbleColorStudio(colorTabs);
     m_krimbleStudio = new KrimbleColorStudio(this);
-    // QScrollArea *studioScroll = new QScrollArea(colorTabs);
     QScrollArea *studioScroll = new QScrollArea(this);
     studioScroll->setWidgetResizable(true);
     studioScroll->setFrameShape(QFrame::NoFrame);
@@ -135,10 +132,6 @@ KisColorSelectorNgDockerWidget::KisColorSelectorNgDockerWidget(QWidget *parent, 
     m_krimbleStudio->setMaximumWidth(384);   // Krimble 2026-11-15 (707th): George: "Color Lab still MAGNIFIES TO GIANT SIZE." Never wider than the phone in portrait; in a wider panel it stays at the left (see MaxWidth in krimble_color_paint.h)
     studioScroll->setAlignment(Qt::AlignLeft | Qt::AlignTop);
     studioScroll->setWidget(m_krimbleStudio);
-    // colorTabs->addTab(studioScroll, tr("Picker"));
-    // colorTabs->addTab(classicPanel, tr("Classic"));
-    // m_widgetLayout->addWidget(colorTabs);
-    // m_widgetLayout->addWidget(studioScroll);
     // Krimble 2026-11-17 (742nd): George: "Plus color lab slides the logo up into nowhere and then you have to use a scrollbar to get it back. That should never happen." and "THE COLOR LAB
     // LOGO SHOULD ALWAYS HAVE BEEN PINNED." The COLOR LAB band (logo, float and close buttons) is taken out of the scrolling part and pinned above it, in a holder as wide as the scrolling
     // part (330 to 384) with the same margins it had inside it. Only the tabs and the pages under it scroll.
@@ -152,8 +145,6 @@ KisColorSelectorNgDockerWidget::KisColorSelectorNgDockerWidget(QWidget *parent, 
             const QMargins studioMargins = studioLayout ? studioLayout->contentsMargins() : QMargins(3, 3, 3, 3);
             if (studioLayout) studioLayout->removeWidget(krimbleBand);
             QWidget *bandHolder = new QWidget(krimbleColumn);
-            // bandHolder->setMinimumWidth(330);
-            // bandHolder->setMaximumWidth(384);
             // Krimble 2026-11-18 (747th): George: "I tried resizing the color lab panel and it hid the close gadget on the upper right corner." and "The buttons should move with the window edge."
             // The band is as wide as the panel, whatever its width; the float and close buttons sit at its right end (KrimbleColorHeader::resizeEvent), so they follow the panel's edge.
             krimbleBand->setMinimumWidth(0);
@@ -165,7 +156,6 @@ KisColorSelectorNgDockerWidget::KisColorSelectorNgDockerWidget(QWidget *parent, 
             bandLayout->addWidget(krimbleBand);
             krimbleBand->show();
             if (studioLayout) { QMargins m = studioMargins; m.setTop(qMax(0, studioLayout->spacing())); studioLayout->setContentsMargins(m); }
-            // krimbleColumnLayout->addWidget(bandHolder, 0, Qt::AlignLeft | Qt::AlignTop);
             krimbleColumnLayout->addWidget(bandHolder);   // Krimble 2026-11-18 (747th): the full width of the panel
         }
         studioScroll->setParent(krimbleColumn);

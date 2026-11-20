@@ -1741,7 +1741,6 @@ bool inpaintStandardV2(uint8_t *pixels, const uint8_t *holeIn, int w, int h, int
         qRemeasure(L, tab, r, T);
         for (int it = 0; it < emIters; ++it) {
             if (lv == levels - 1) pSetConfidence(L, 0.15f + 0.6f * float(it) / float(emIters));
-            // qMatch(L, tab, r, 2, T, seed);
             // Krimble 2026-10-20: George (1.0.40): "Content-Aware fill does nothing now." A big hole took about 20 s or more (one core, a PC) with no sign of
             // work. At full size: one PatchMatch pass per round instead of two, and no new transforms tried (those of the smaller sizes are kept).
             if (lv == 0) qMatch(L, tab, r, 1, T, seed, false);
@@ -2421,7 +2420,6 @@ bool inpaint(uint8_t *pixels, const uint8_t *holeIn, int w, int h, int channels,
         }
         std::mt19937 rng(seed + unsigned(lv));
         if (lv == levels - 1) {
-            // rPeel(L);   // Krimble 2026-10-23: the average start is kept for the case that the ring fill finds nothing (see rRingFill)
             std::vector<int16_t> ringX, ringY;
             rPeel(L);                                                   // a first guess for every pixel, replaced where the ring fill finds a match
             rRingFill(L, tab, r, seed + unsigned(lv), T, ringX, ringY);

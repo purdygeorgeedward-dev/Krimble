@@ -50,7 +50,6 @@ void KisToolSoften::activate(const QSet<KoShape*> &shapes)
     // if (matches.isEmpty()) {
     //     return;
     // }
-    // KisPaintOpPresetSP softenPreset = matches.first().dynamicCast<KisPaintOpPreset>();
     KisPaintOpPresetSP softenPreset = krimbleLoadEmbeddedPreset(QStringLiteral("filter"));
     if (softenPreset) {
         // Krimble 2026-10-20: George (1.0.40, test list, item 9): "Soften needs to default to a bigger brush size." The built-in filter preset is
@@ -58,7 +57,6 @@ void KisToolSoften::activate(const QSet<KoShape*> &shapes)
         if (softenPreset->settings()) {
             softenPreset->settings()->setPaintOpSize(100.0);
         }
-        // canvas2->viewManager()->canvasResourceProvider()->setPaintOpPreset(softenPreset);
         krimbleSetBrushPreset(canvas2->viewManager(), softenPreset);   // Krimble 2026-10-20 (2nd): through the brush panel
     }
 }

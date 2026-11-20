@@ -577,12 +577,10 @@ KisImportExportErrorCode KisJPEGConverter::buildFile(QIODevice *io, KisPaintLaye
 
         jpeg_create_compress(&cinfo);
         // Initialize output stream
-        // KisJPEGDestination::setDestination(&cinfo, io);
         KisJPEGDestination::setDestination(&cinfo, krimbleSmart ? static_cast<QIODevice *>(&smartBuffer) : io);   // Krimble 2026-11-12 (task 24a): SmartCompression level and protected area.
 
         cinfo.image_width = width;  // image width and height, in pixels
         cinfo.image_height = height;
-        // cinfo.input_components = cs->colorChannelCount(); // number of color channels per pixel */
         cinfo.input_components = krimbleGray ? 1 : cs->colorChannelCount();   // Krimble 2026-11-12 (task 24c): George: "Do SmartCompression now" (part c: a picture that is all gray is saved as a one-channel gray JPEG).
         cinfo.in_color_space = color_type;   // colorspace of input image
 
@@ -712,12 +710,7 @@ KisImportExportErrorCode KisJPEGConverter::buildFile(QIODevice *io, KisPaintLaye
 
 
         // Krimble 2026-11-12 (task 24c): George: "Do SmartCompression now" (part c: a picture that is all gray is saved as a one-channel gray JPEG). The picture is made earlier now (see above). The old lines:
-        // KisPaintDeviceSP dev = new KisPaintDevice(layer->colorSpace());
-        // KoColor c(options.transparencyFillColor, layer->colorSpace());
-        // dev->fill(QRect(0, 0, width, height), c);
-        // KisPainter gc(dev);
         // gc.bitBlt(QPoint(0, 0), layer->paintDevice(), QRect(0, 0, width, height));
-        // gc.end();
 
 
         // if (options.saveProfile) {
@@ -748,7 +741,6 @@ KisImportExportErrorCode KisJPEGConverter::buildFile(QIODevice *io, KisPaintLaye
                 } else {
                     do {
                         const quint8 *d = it->oldRawData();
-                        // *(dst++) = d[0];
                         *(dst++) = krimbleLuma ? quint8((299 * d[2] + 587 * d[1] + 114 * d[0]) / 1000) : d[0];   // Krimble 2026-11-13 (task 49): George (build 57): "SmartCompression logo is too big. Too much explanation in the panel. Doesn't look like XAT. Jpeg save dialog is enormous."
 
                     } while (it->nextPixel());

@@ -20,7 +20,6 @@
 KisColorSelectorNgDock::KisColorSelectorNgDock(bool classic)
     : QDockWidget()
 {
-    // m_colorSelectorNgWidget = new KisColorSelectorNgDockerWidget(this);
     m_colorSelectorNgWidget = new KisColorSelectorNgDockerWidget(this, classic);   // Krimble 2026-11-08
 
     setWidget(m_colorSelectorNgWidget);
@@ -58,12 +57,7 @@ KisColorSelectorNgDock::KisColorSelectorNgDock(bool classic)
     connect(this, &QDockWidget::topLevelChanged, this, krimbleApplyHeightCap);
 
     // KRIMBLE: renamed from "Advanced Color Selector" - original kept below.
-    // setWindowTitle(i18n("Advanced Color Selector"));
     // KRIMBLE 2026-10-02: panel renamed again, "Color Selector" -> "Color".
-    // setWindowTitle(i18n("Color Selector"));
-    // setWindowTitle(i18n("Color"));
-    // setWindowTitle(classic ? i18n("Color Ring + Triangle") : i18n("Color"));   // Krimble 2026-11-08: George: "bring back advance color panel as \"color ring + triangle\"."
-    // setWindowTitle(classic ? i18n("HSV Triangle Color Picker") : i18n("Color"));   // Krimble 2026-11-08: George: "Sorry. Call the ring and triangle \"HSV Triangle Color Picker.\""
     setWindowTitle(classic ? i18n("HSV Triangle Color Picker") : i18n("Color Lab"));   // Krimble 2026-11-08: George: "Change Color to \"Color Lab\" and I will make a logo."
 }
 

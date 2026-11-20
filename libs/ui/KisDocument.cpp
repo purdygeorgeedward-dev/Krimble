@@ -2034,7 +2034,6 @@ bool KisDocument::openPath(const QString &_path, OpenFlags flags)
 
 bool KisDocument::openFile()
 {
-    //dbgUI <<"for" << localFilePath();
     if (!QFile::exists(localFilePath()) && !fileBatchMode()) {
         QMessageBox::critical(qApp->activeWindow(), i18nc("@title:window", "Krimble"), i18n("File %1 does not exist.", localFilePath()));
         return false;

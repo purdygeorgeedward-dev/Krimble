@@ -91,7 +91,6 @@ KisDelayedSaveDialog::KisDelayedSaveDialog(KisImageSP image, Type type, int busy
 
     m_d->image->compositeProgressProxy()->addProxy(ui->progressBar);
 
-    // resize(sizeHint());
     // Krimble 2026-10-18 (3rd): never wider than the limit set above (the size hint can be, with a long message).
     resize(qMin(sizeHint().width(), maximumWidth()), sizeHint().height());
 }

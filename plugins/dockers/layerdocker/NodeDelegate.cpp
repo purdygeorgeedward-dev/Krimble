@@ -127,11 +127,9 @@ void NodeDelegate::paint(QPainter *p, const QStyleOptionViewItem &o, const QMode
         // shows the old saturated blue), so the row is painted here, over whatever the style drew: mid gray #5D6272 for a layer, lighter #8E93A6 for the selected one, with dark text on it. Flat, no outline, no glow.
         {
             const bool krimbleSel = option.state & QStyle::State_Selected;
-            // p->fillRect(option.rect, krimbleSel ? QColor(0x8e, 0x93, 0xa6) : QColor(0x5d, 0x62, 0x72));
             // if (krimbleSel) {
             //     option.palette.setColor(QPalette::HighlightedText, QColor(0x0e, 0x10, 0x20));
             //     option.palette.setColor(QPalette::Text, QColor(0x0e, 0x10, 0x20));
-            // } else {
             //     option.palette.setColor(QPalette::Text, QColor(0xff, 0xff, 0xff));
             // }
             // Krimble 2026-11-16 (728th): George (build 65): "Change the layer colors back. Give me the selection effect blue for the selected layer and make the other layers dark and match

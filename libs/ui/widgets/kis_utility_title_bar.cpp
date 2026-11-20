@@ -39,13 +39,11 @@ KisUtilityTitleBar::KisUtilityTitleBar(QLabel *title, QWidget *parent)
     d->lockButton->setIcon(kisIcon("docker_lock_a"));
     connect(d->lockButton, SIGNAL(toggled(bool)), SLOT(setLocked(bool) ));
     // Krimble 2026-11-12: George: "I would like to get rid of the little locks at the top of the panels" and "I never got that, never used it for that. I see panels as very fluid."
-    // d->lockButton->setVisible(true);
     d->lockButton->setVisible(false);
     d->lockButton->setToolTip(i18nc("@info:tooltip", "Lock Docker"));
     d->lockButton->setStyleSheet("border: 0");
     d->lockButton->setFixedSize(QSize(22,22));
 
-    // d->mainLayout->addWidget(d->lockButton);   // Krimble 2026-11-12: no lock button (see above)
 
     // Set up title..
     d->mainLayout->addWidget(title);

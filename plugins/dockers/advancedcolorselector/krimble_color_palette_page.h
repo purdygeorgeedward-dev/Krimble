@@ -391,7 +391,6 @@ private:
         if (m_selected < 0 || m_selected >= m_pal.colors.size()) return;
         QColor opaque = c;
         opaque.setAlpha(255);
-        // m_pal.colors[m_selected] = opaque;
         m_pal.replace(m_selected, opaque);   // 2026-11-08: through the palette: a CMYK palette keeps the plates (made from this color)
         KrimblePaletteStore::save(m_pal);
         m_signature = KrimblePaletteStore::signature();

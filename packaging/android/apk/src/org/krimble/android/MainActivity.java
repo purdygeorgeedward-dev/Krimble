@@ -440,8 +440,6 @@ public class MainActivity extends QtActivity {
     // called from C++ (Help > Show Krimble Log...)
     public String getLastDestroyRecord() {
         try {
-            // return getSharedPreferences(DIAG_PREFS, MODE_PRIVATE).getString("previousRun", "");
-            // return getSharedPreferences(DIAG_PREFS, MODE_PRIVATE).getString("previousRun", "") + "\n\n" + krimbleDisplayDiag();
             SharedPreferences p = getSharedPreferences(DIAG_PREFS, MODE_PRIVATE);
             return p.getString("previousRun", "") + "\n\nMemory of the previous run, newest last (fg = in front, bg = in the background):\n" + p.getString("prevMemTrail", "(none)")
                     + "\n\n" + krimbleDisplayDiag();

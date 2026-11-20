@@ -38,7 +38,6 @@ public:
     KisToolSoftenFactory()
         : KisToolPaintFactoryBase("KritaShape/KisToolSoften")
     {
-        // setToolTip(i18n("Soften Tool"));
         setToolTip(i18n("Blur"));   // Krimble 2026-11-16 (722nd): George's list of the toolbox calls it Blur
         setSection(ToolBoxSection::PSOrder);
         setIconName(koIconNameCStr("krita_tool_soften"));

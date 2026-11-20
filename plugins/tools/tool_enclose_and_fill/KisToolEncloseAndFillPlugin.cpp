@@ -20,7 +20,6 @@ KisToolEncloseAndFillPlugin::KisToolEncloseAndFillPlugin(QObject *parent, const 
     // Krimble 2026-10-30: George: "The four tools you listed are supposed to be commented out." (Dodge, Burn, Colorize Mask Editing and Enclose and Fill: the four tools
     // with no new graphic; Dodge and Burn were commented out on 2026-10-20.) Not registered, so the Enclose and Fill tool is not in the toolbox; its code stays.
     // The old comment here said: "Krimble 1.0.45-beta: Enclose and Fill excluded from toolbox."
-    // KoToolRegistry::instance()->add(new KisToolEncloseAndFillFactory());
 }
 
 KisToolEncloseAndFillPlugin::~KisToolEncloseAndFillPlugin()

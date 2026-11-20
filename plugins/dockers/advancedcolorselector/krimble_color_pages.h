@@ -174,10 +174,6 @@ protected:
         // ball.setColorAt(1.0, ballColor.darker(165));
         // p.setPen(QPen(QColor(6, 10, 24, 230), 2.0));
         // p.setBrush(ball);
-        // p.drawEllipse(center, ballR, ballR);
-        // p.setPen(QPen(QColor(235, 240, 255, 200), 1.6));
-        // p.setBrush(Qt::NoBrush);
-        // p.drawEllipse(center, ballR - 1.6, ballR - 1.6);
         // Krimble 2026-11-15: George: "Give the new handle to Color Lab." The ball is his ball bearing picture (krimble-ball-bearing.png), drawn last so it is on top of the track.
         p.setRenderHint(QPainter::SmoothPixmapTransform);
         static const QPixmap bearing(QStringLiteral(":/krimble-ball-bearing.png"));
@@ -785,11 +781,9 @@ class KrimbleColorHeader : public KrimbleColorBase
 {
 public:
     double designHeight() const override { return 100.0; }
-    // explicit KrimbleColorHeader(QWidget *parent = nullptr) : KrimbleColorBase(parent) {}
     // Krimble 2026-11-15: George (build 60): "when torn off it is right back to double titles." The panel looks for a widget named KrimbleStudioLogo (KisMainWindow.cpp, krimbleRefreshTabTitles) to know that the
     // logo is the panel's title; the only widget with that name was in a block that is switched off, so the logo was never found: the tab group showed the tab and the logo, a floating panel the title bar and the logo.
     // The live logo band takes the name.
-    // explicit KrimbleColorHeader(QWidget *parent = nullptr) : KrimbleColorBase(parent) { setObjectName(QStringLiteral("KrimbleStudioLogo")); }
     // Krimble 2026-11-17 (730th): George's Color Lab wishlist mockup (krimble-artwork/mockups/color-lab-wishlist-2026-11-16.jpg): the float and close buttons are at the right end of the
     // COLOR LAB band, and there is no title bar above it (KisMainWindow.cpp, krimbleRefreshTabTitles, folds the panel's title bar away). The band is also the handle of a floating Color
     // Lab: drag it to move the panel.

@@ -95,7 +95,6 @@ void KoDialogPrivate::queuedLayoutUpdate()
     }
 
     if (mMainWidget) {
-        // mTopLayout->addWidget(mMainWidget, 10);
 #ifdef Q_OS_ANDROID
         // Krimble 2026-10-23: George (test list "Mercury's Shadow", items 9, 15, 19 and his screenshots of Image Size, Image Properties, Split Image, File Info): "too wide."
         // A window cannot be made smaller than its contents' minimum width (the narrowing in KisApplication.cpp makes the contents narrower but cannot always get below the
@@ -533,8 +532,6 @@ void KoDialog::showEvent(QShowEvent *e)
 // border on Android). Margin is intentionally generous, matching the
 // pattern used for the crop tool's handle hit-test padding.
 namespace {
-    // const int kResizeMargin = 20;
-    // const int kResizeMargin = 24;
     const int kResizeMargin = 26;   // Krimble 2026-10-17 (2nd): "Try just one more pixel? Or 2?" 24 -> 26. Before: 24 // Krimble 2026-10-17: George (1.0.37): "It's also sometimes still hard to grab edges for resize." "Try a small change first." 20 -> 24
 
     enum ResizeEdgeFlag {

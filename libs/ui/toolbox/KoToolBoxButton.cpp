@@ -37,7 +37,6 @@ KoToolBoxButton::KoToolBoxButton(KoToolAction *toolAction, QWidget *parent)
     // ensure same L&F
     setCheckable(true);
     setAutoRaise(true);
-    // setIcon(kisIcon(m_toolAction->iconName()));
     // Krimble 2026-10-30: the Full color or the Clear style (see KrimbleToolboxIcons.h)
     setIcon(KrimbleToolboxIcons::icon(m_toolAction->iconName()));
 
@@ -48,8 +47,6 @@ KoToolBoxButton::KoToolBoxButton(KoToolAction *toolAction, QWidget *parent)
 
     // Krimble 2026-11-12 (task 38): George: "I want long press to open a flyout of other buttons. Then a tap selects one or misses and cancels selection." The long press: a timer started by a press, stopped by a release or a move away; when it runs out (and the button is still held) the flyout is asked for.
     m_krimbleTimer.setSingleShot(true);
-    // m_krimbleTimer.setInterval(450);
-    // m_krimbleTimer.setInterval(400);   // Krimble 2026-11-16 (718th): George: "How long is the flyout delay." (450 ms) "Make it 400 Ms."
     m_krimbleTimer.setInterval(250);   // Krimble 2026-11-16 (722nd): George (build 64): "Try 250ms delay on flyouts." "Make it 400 Ms."
     connect(&m_krimbleTimer, &QTimer::timeout, this, [this]() {
         if (!m_krimbleLongPress || !isDown()) return;
@@ -154,8 +151,6 @@ void KoToolBoxButton::setHighlightColor()
     // Krimble 2026-11-06: George: "Light blue areas are selected areas" (the mockups: the selected tool of the Mixer's tool strip, the selected tab, the selected color well). A
     // selected tool in the toolbox is drawn like the mockup's selected tool: the dark panel color inside and a 2 px light blue (#38C6FF) outline with rounded corners. The old
     // version below filled the button with the theme's highlight color.
-    // QPalette p = qApp->palette();
-    // if (isChecked()) {
     //     QPalette palette_highlight(p);
     //     QColor c = p.color(QPalette::Highlight);
     //     palette_highlight.setColor(QPalette::Button, c);
@@ -166,7 +161,6 @@ void KoToolBoxButton::setHighlightColor()
     // }
     setPalette(qApp->palette());
     if (isChecked()) {
-        // setStyleSheet(QStringLiteral("QToolButton { border: 2px solid #38c6ff; border-radius: 6px; background-color: #151a33; }"));   // first version: dark inside, George: "It's not just the outline. It's the shading."
         // setStyleSheet(QStringLiteral("QToolButton { border: 2px solid #3bbcf5; border-radius: 6px;"
         //                              " background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #0585ce, stop:0.25 #016cac, stop:0.5 #015c96, stop:0.75 #01548c, stop:1 #0165a5); }"));   // sampled from the Mixer mockup
         // Krimble 2026-11-06 (2nd): George: "I don't want an outline around the gradient icon in the toolbox." The same blue gradient, no outline.
@@ -191,7 +185,6 @@ void KoToolBoxButton::setDataFromToolAction(QAction *action)
         setToolTip(m_toolAction->toolTip());
         return;
     }
-    // setToolTip(action->toolTip());
     // Krimble 2026-11-08: George: "Does it have to say \"Tool\" after every tool?" The word is left off the tool tip ("Freehand Brush Tool" is "Freehand Brush").
     {
         QString tip = action->toolTip();
@@ -245,7 +238,6 @@ void KoToolBoxButton::krimblePaintRaisedBox(QWidget *widget, bool down)
     QPainter box(widget);
     box.setRenderHint(QPainter::Antialiasing, false);
     const QRect r = widget->rect().adjusted(1, 1, -1, -1);
-    // const QColor face = qApp->palette().color(QPalette::Window).lighter(150);
     // Krimble 2026-11-16 (722nd): a light theme (Breeze Light): a face made lighter is white on white, and white edges do not show. There the face is a little darker than the panel and the
     // light edges are stronger, so the box reads as raised on a light panel too.
     const QColor krimbleWindow = qApp->palette().color(QPalette::Window);
@@ -282,77 +274,16 @@ void KoToolBoxButton::paintEvent(QPaintEvent *event)
     // in its own hue: top white 100%, left white 45%, right black 33%, bottom black 58% (measured from the picture: #FEFDFD, #9EACD4, #3E4866, #272C43 over a face of #5E6B91). A button held down has the
     // sides the other way round. The four corners are 45 degree joins, drawn without smoothing so they step like the picture. No outline, no color.
     // Krimble 2026-11-15 (707th): the box is drawn by krimblePaintRaisedBox() now (the same code, moved, so the UNDO button can use it); the block below is kept, switched off.
-    // if (KrimbleToolboxIcons::buttonStyle() == 1 && !isChecked() && !qApp->property("krimbleFlatTheme").toBool()) {
     if (KrimbleToolboxIcons::buttonStyle() == 1 && !isChecked() && !qApp->property("krimbleNoRaisedButtons").toBool()) {   // Krimble 2026-11-16 (722nd): in every theme but Krimble Dark Gray (see thememanager.cpp)
         krimblePaintRaisedBox(this, isDown());
     }
-    if (false && KrimbleToolboxIcons::buttonStyle() == 1 && !isChecked() && !qApp->property("krimbleFlatTheme").toBool()) {   // Krimble 2026-11-15: no raised bevel in the theme "Krimble Dark Gray"
-        QPainter box(this);
-        box.setRenderHint(QPainter::Antialiasing, false);
-        const QRect r = rect().adjusted(1, 1, -1, -1);
-        const QColor face = qApp->palette().color(QPalette::Window).lighter(150);
-        const bool down = isDown();
-        const int t = qMax(2, qRound(qMin(r.width(), r.height()) * 0.075));
-        box.fillRect(r, face);
-        // const QColor topTone    = down ? QColor(0, 0, 0, 148)       : QColor(255, 255, 255, 255);
-        // const QColor leftTone   = down ? QColor(0, 0, 0, 84)        : QColor(255, 255, 255, 115);
-        // const QColor rightTone  = down ? QColor(255, 255, 255, 115) : QColor(0, 0, 0, 84);
-        // const QColor bottomTone = down ? QColor(255, 255, 255, 255) : QColor(0, 0, 0, 148);
-        // Krimble 2026-11-15 (2nd): George: "The shading on the bevels needs to be less intense." The four opacities are about 60% of what they were (top 255, left 115, right 84, bottom 148).
-        // const QColor topTone    = down ? QColor(0, 0, 0, 90)        : QColor(255, 255, 255, 150);
-        // const QColor leftTone   = down ? QColor(0, 0, 0, 55)        : QColor(255, 255, 255, 70);
-        // const QColor rightTone  = down ? QColor(255, 255, 255, 70)  : QColor(0, 0, 0, 55);
-        // const QColor bottomTone = down ? QColor(255, 255, 255, 150) : QColor(0, 0, 0, 90);
-        // Krimble 2026-11-15: George: "Hilight on raised toolbox icons is too bright." The white of the highlight edges is about 57% of what it was (top 150 to 85, left 70 to 40).
-        const QColor topTone    = down ? QColor(0, 0, 0, 90)        : QColor(255, 255, 255, 85);
-        const QColor leftTone   = down ? QColor(0, 0, 0, 55)        : QColor(255, 255, 255, 40);
-        const QColor rightTone  = down ? QColor(255, 255, 255, 40)  : QColor(0, 0, 0, 55);
-        const QColor bottomTone = down ? QColor(255, 255, 255, 85)  : QColor(0, 0, 0, 90);
-        box.setPen(Qt::NoPen);
-        QPolygon poly;
-        poly.clear(); poly << r.topLeft() << r.topRight() << QPoint(r.right() - t, r.top() + t) << QPoint(r.left() + t, r.top() + t);
-        box.setBrush(topTone); box.drawPolygon(poly);
-        poly.clear(); poly << r.topLeft() << QPoint(r.left() + t, r.top() + t) << QPoint(r.left() + t, r.bottom() - t) << r.bottomLeft();
-        box.setBrush(leftTone); box.drawPolygon(poly);
-        poly.clear(); poly << r.topRight() << r.bottomRight() << QPoint(r.right() - t, r.bottom() - t) << QPoint(r.right() - t, r.top() + t);
-        box.setBrush(rightTone); box.drawPolygon(poly);
-        poly.clear(); poly << r.bottomLeft() << QPoint(r.left() + t, r.bottom() - t) << QPoint(r.right() - t, r.bottom() - t) << r.bottomRight();
-        box.setBrush(bottomTone); box.drawPolygon(poly);
-    }
     // The first version of the Raised style (near-white and near-black sides, a near-black outline), not used any more:
-    if (false && KrimbleToolboxIcons::buttonStyle() == 1 && !isChecked()) {
-        QPainter box(this);
-        const QRect r = rect().adjusted(1, 1, -1, -1);
-        // const QColor face = qApp->palette().color(QPalette::Button).lighter(112);
-        // const QColor light = face.lighter(210);
-        // const QColor dark = face.darker(380);
-        // Krimble 2026-11-13 (task 57): George (build 57 screenshots): "\"Raised\" buttons are DARKER? WHY? The hilight is also not white or very light. Huge mistake." and "At startup I saw this big blah. Nothing to differentiate it from the other UI elements but a line." A raised button is LIGHTER than the panel it sits on (the face came from the Button color, which is darker than the panel in the dark themes, so the buttons looked sunk), with a
-        // near-white highlight at the top and left and a near-black shadow at the bottom and right (rendered next to the old look in real Qt: the new one reads as raised at once).
-        const QColor face = qApp->palette().color(QPalette::Window).lighter(150);
-        const QColor light(238, 243, 255);
-        const QColor dark(8, 10, 24);
-        const bool down = isDown();
-        const int t = qMax(2, qRound(qMin(r.width(), r.height()) * 0.075));
-        box.fillRect(r, QColor(4, 5, 14));                        // the outline
-        const QRect in = r.adjusted(1, 1, -1, -1);
-        box.fillRect(in, face);
-        QPolygon topLeft;
-        topLeft << in.topLeft() << in.topRight() << QPoint(in.right() - t, in.top() + t) << QPoint(in.left() + t, in.top() + t) << QPoint(in.left() + t, in.bottom() - t) << in.bottomLeft();
-        QPolygon bottomRight;
-        bottomRight << in.bottomRight() << in.bottomLeft() << QPoint(in.left() + t, in.bottom() - t) << QPoint(in.right() - t, in.bottom() - t) << QPoint(in.right() - t, in.top() + t) << in.topRight();
-        box.setPen(Qt::NoPen);
-        box.setBrush(down ? dark : light);
-        box.drawPolygon(topLeft);
-        box.setBrush(down ? light : dark);
-        box.drawPolygon(bottomRight);
-    }
     if (isChecked()) {
         QPainter painter(this);
         painter.setRenderHint(QPainter::Antialiasing, true);
         const qreal s = qMin(width(), height());
         const QRectF base = QRectF(rect()).adjusted(s * 0.12, s * 0.12, -s * 0.12, -s * 0.12);
         const qreal bw = base.width();
-        // const qreal r = bw * 0.115;
         // Krimble 2026-11-11: George: "Can't a square without rounded corners still glow? Try square selection with corners in toolbox." The selected tool is a square with sharp corners (radius 0) and
         // still glows: the glow, the fill, the inner blue band and the outline are all drawn with square corners.
         const qreal r = 0.0;
@@ -361,19 +292,14 @@ void KoToolBoxButton::paintEvent(QPaintEvent *event)
         const int glowSteps = 18;
         for (int i = glowSteps; i >= 1; --i) {
             const qreal t = qreal(i) / glowSteps;
-            // const qreal w = bw * 0.10 * t;
-            // const qreal alpha = 255 * qExp(-2.9 * t);
             // Krimble 2026-11-11: George (of the zoomed Pan tool): "The hand (Pan tool) example shows too much glow." The outer glow reaches half as far (5 percent of the width, was 10) and is weaker.
             // Krimble 2026-11-12 (task 37, second part): George: "That before image was fine. The one I didn't like was much bigger, had way thicker sides." The 2026-11-11 thickness is back; only the sharp corners (miter join) of this task stay.
-            // const qreal w = bw * 0.05 * t;
             // Krimble 2026-11-12 (task 37): George: "I previously asked for thinner glow edges (especially in toolbox) and no rounded corners in the toolbox glow." The outer glow reaches 3 percent of the width (was 5).
-            // const qreal w = bw * 0.03 * t;   // the thinner try of task 37 (not wanted)
             const qreal w = bw * 0.05 * t;
             const qreal alpha = 255 * 0.6 * qExp(-3.4 * t);
             painter.setPen(QPen(QBrush(krimbleSelConical(centre, krimbleSelGlow, [alpha](qreal v) { return QColor(28, 128, 235, qMin(255, int(alpha * (0.25 + 0.9 * v)))); })), qMax<qreal>(1.0, bw * 0.012)));
             krimbleMiterPen(painter);   // task 37: a pen's corners are cut off (bevel join) unless it says miter; that is what looked rounded
             painter.setBrush(Qt::NoBrush);
-            // painter.drawRoundedRect(base.adjusted(-w, -w, w, w), r + w, r + w);
             painter.drawRoundedRect(base.adjusted(-w, -w, w, w), r, r);   // Krimble 2026-11-11: sharp corners on the glow too
         }
         // the fill, darker in the middle
@@ -396,22 +322,16 @@ void KoToolBoxButton::paintEvent(QPaintEvent *event)
         const int innerSteps = 24;
         for (int k = 1; k <= innerSteps; ++k) {
             const qreal t = qreal(k) / innerSteps;
-            // const qreal d = bw * 0.115 * t;
-            // const qreal alpha = 255 * qExp(-3.4 * t);
             // Krimble 2026-11-11: the vivid blue band inside the edge is about half as wide (6 percent of the width, was 11.5) and fades faster.
-            // const qreal d = bw * 0.06 * t;
             // task 37: the vivid blue band inside the edge is 3.5 percent of the width (was 6).
-            // const qreal d = bw * 0.035 * t;   // the thinner try of task 37 (not wanted)
             const qreal d = bw * 0.06 * t;
             const qreal alpha = 255 * qExp(-4.5 * t);
             painter.setPen(QPen(QBrush(krimbleSelConical(centre, krimbleSelOutline, [alpha](qreal v) { return QColor(36, 150, 248, qMax(0, qMin(255, int(alpha * (0.8 + 0.9 * (v - 0.55)))))); })), qMax<qreal>(1.0, bw * 0.011)));
             krimbleMiterPen(painter);   // task 37
             painter.setBrush(Qt::NoBrush);
-            // painter.drawRoundedRect(base.adjusted(d, d, -d, -d), qMax<qreal>(1, r - d), qMax<qreal>(1, r - d));
             painter.drawRoundedRect(base.adjusted(d, d, -d, -d), r, r);   // Krimble 2026-11-11: sharp corners
         }
         // the outline: a soft halo under a thin bright core, light cyan where it is bright
-        // painter.setPen(QPen(QBrush(krimbleSelConical(centre, krimbleSelOutline, [](qreal v) { return QColor(80, 200, 255, qMin(255, int(255 * v))); })), qMax<qreal>(4.0, bw * 0.034)));
         // Krimble 2026-11-11: the soft halo under the bright core is thinner (2.2 percent of the width, at least 3 px; was 3.4 percent, at least 4 px).
         painter.setPen(QPen(QBrush(krimbleSelConical(centre, krimbleSelOutline, [](qreal v) { return QColor(80, 200, 255, qMin(255, int(255 * v))); })), qMax<qreal>(3.0, bw * 0.022)));
         // qMax<qreal>(2.0, bw * 0.014)));   // the thinner try of task 37 (not wanted)
@@ -433,7 +353,6 @@ void KoToolBoxButton::paintEvent(QPaintEvent *event)
         painter.setBrush(shadow);
         painter.drawEllipse(centre, s * 0.30, s * 0.30);
     }
-    // QToolButton::paintEvent(event);
     // Krimble 2026-11-15 (707th): George (build 63, Raised style): "Raised toolbox skips three icons." (the Stamp and the Gradient buttons were dark boxes with no bevel.) A long press opens the
     // flyout, a popup, so the button never gets the "finger left" event and stays marked as under the pointer; the style then paints its dark "hover" box over the raised box, for good. There is no
     // hover on a touch screen: the button is painted as QToolButton does it, without the under-the-pointer state.

@@ -113,7 +113,6 @@ void KisTypeOptionsBar::updateVisibility()
     // type toolbar would just be ghosted when type is inactive." The buttons stay in the bar and are ghosted (disabled) while the Type tool is not
     // active, so the bar is never empty; it is shown when the Type tool is chosen, and not hidden again by this code.
     Q_FOREACH (QWidgetAction *action, m_actions) {
-        // action->setVisible(show);
         action->setVisible(true);
         action->setEnabled(show);
         if (QWidget *actionWidget = action->defaultWidget()) {

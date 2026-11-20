@@ -390,10 +390,7 @@ GeneralTab::GeneralTab(QWidget *_parent, const char *_name)
     }
 
     // KRIMBLE 2026-10-04: tabs again (Subwindows as the default was tried and undone the same day).
-    // m_cmbMDIType->setCurrentIndex(cfg.readEntry<int>("mdi_viewmode", (int)QMdiArea::SubWindowView));
-    // m_cmbMDIType->setCurrentIndex(cfg.readEntry<int>("mdi_viewmode", (int)QMdiArea::TabbedView));
     // Krimble 2026-10-11: floating windows are the default again.
-    // m_cmbMDIType->setCurrentIndex(cfg.readEntry<int>("mdi_viewmode", (int)QMdiArea::SubWindowView));
     m_cmbMDIType->setCurrentIndex(cfg.readEntry<int>("mdi_viewmode", (int)QMdiArea::TabbedView));   // Krimble 2026-11-16 (724th): tabs are the default again
     enableSubWindowOptions(m_cmbMDIType->currentIndex());
     connect(m_cmbMDIType, SIGNAL(currentIndexChanged(int)), SLOT(enableSubWindowOptions(int)));
@@ -406,7 +403,6 @@ GeneralTab::GeneralTab(QWidget *_parent, const char *_name)
     KoColor mdiColor = KoColor::fromXML(xml);
     m_mdiColor->setColor(mdiColor);
 
-    // m_chkRubberBand->setChecked(cfg.readEntry<int>("mdi_rubberband", cfg.useOpenGL()));
     // Krimble 2026-10-11: on Android the picture is shown while a floating window is dragged (the default is "no outline only").
 #ifdef Q_OS_ANDROID
     m_chkRubberBand->setChecked(cfg.readEntry<int>("mdi_rubberband", 0));
@@ -2790,7 +2786,6 @@ public:
         QStyle *style = opt.widget ? opt.widget->style() : QApplication::style();
         style->drawPrimitive(QStyle::PE_PanelItemViewItem, &opt, p, opt.widget);
         const bool selected = opt.state & QStyle::State_Selected;
-        // const QSize isz = option.decorationSize;
         const QSize isz(option.decorationSize.width(), iconHeight(option, index));   // Krimble 2026-11-13 (task 45): George: "Preferences keyboard is never big enough, but column is too wide and selection area is darkening the selected icon. Yuck. What happened to bright blue background for selection?"
         // Krimble 2026-11-07: George: "The new keyboard icon in Prefs is chopped in half." The icon is drawn in the whole width of the list item (a wide picture, the whole keyboard, now fits, a square one is as large as before: QIcon::paint keeps the picture's shape inside the box).
         // index.data(Qt::DecorationRole).value<QIcon>().paint(p, QRect(opt.rect.x() + (opt.rect.width() - isz.width()) / 2, opt.rect.y() + pad, isz.width(), isz.height()), Qt::AlignCenter, selected ? QIcon::Selected : QIcon::Normal);
@@ -3000,10 +2995,8 @@ KisDlgPreferences::KisDlgPreferences(QWidget* parent, const char* name)
         if (QListView *navList = findChild<QListView*>()) {
             if (navList->model() && navList->model()->rowCount() == m_pages.size()) {
                 const int shortSide = qMin(screenSize.width(), screenSize.height());
-                // navList->setItemDelegate(new KrimblePrefsListDelegate(int(shortSide * 0.20), navList));
                 // Krimble 2026-11-08: George: "Keyboard icon in Prefs is too small." A whole keyboard is 2.6 times wider than tall, so its height is what the list item's width allows: the
                 // items were 20% of the screen's short side wide (the keyboard 52 logical px wide and 20 px tall on this phone); 28% now (the keyboard about 1.6 times larger, whole).
-                // navList->setItemDelegate(new KrimblePrefsListDelegate(int(shortSide * 0.28), navList));
                 // Krimble 2026-11-13 (task 45): George: "Preferences keyboard is never big enough, but column is too wide and selection area is darkening the selected icon. Yuck. What happened to bright blue background for selection?" 24 percent now (it was 28): the keyboard fills the item's width, so the column can be narrower and the keyboard is still larger than before.
                 navList->setItemDelegate(new KrimblePrefsListDelegate(int(shortSide * 0.24), navList));
                 navList->setUniformItemSizes(false);

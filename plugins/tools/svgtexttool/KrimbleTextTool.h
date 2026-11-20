@@ -41,7 +41,6 @@ private:
     void applyFrameChange(Handle handle, const QRectF &from, const QRectF &to);
     void repaintFrame(const QRectF &frame);
 
-    // void askAndAddText(const QPointF &where);
     void askAndAddText(const QPointF &where, const QRectF &box = QRectF());   // Krimble 2026-10-20: box = a dragged text box (or none)
 
     // Krimble 2026-10-20: dragging a text box

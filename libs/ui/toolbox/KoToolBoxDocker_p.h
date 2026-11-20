@@ -76,7 +76,6 @@ private:
     Q_INVOKABLE void krimbleDockAtEdge();   // Krimble 2026-10-17: docks a floating toolbox that has reached the left, right or top edge of the screen
     Qt::DockWidgetArea krimbleEdgeArea() const;   // Krimble 2026-11-06: the dock edge the floating toolbox is at, or NoDockWidgetArea
     int m_edgeDockToken {0};                      // Krimble 2026-11-06: raised at every check; the 1 s delay before docking at an edge only acts if it is still the latest
-    // void fitHeightToContents();   // Krimble 2026-10-12: a floating toolbox is only as tall as its tools
     void fitHeightToContents(bool setWidthToo = false);   // Krimble 2026-10-12: a floating toolbox is only as tall as its tools (2026-10-23: and, when asked, as wide as its columns)
     void krimbleFitFloatingShape();   // Krimble 2026-10-19: a floating toolbox takes the shape of its layout (rows or columns)
 public:
@@ -100,9 +99,7 @@ private:
     Qt::LayoutDirection m_layoutDir {Qt::LayoutDirectionAuto};
     Orientation m_orientation {Auto};
     // Krimble 2026-10-09: default is 1 column (was 2), so a screen rotation never changes the column count.
-    // int m_columns {2};                 // Krimble: the number of icon columns the user wants (2 = the default look)
     // Krimble 2026-10-10 (2nd): default is 2 columns (George).
-    // int m_columns {1};                 // Krimble: the number of icon columns the user wants (1 = the default look)
     int m_columns {2};                 // Krimble: the number of icon columns the user wants (2 = the default look)
     QTimer *m_snapTimer {nullptr};     // Krimble: runs a moment after a resize of the docked toolbox stops
     QTimer *m_restoreTimer {nullptr};  // Krimble: runs a moment after the main window stops resizing (rotation)

@@ -46,7 +46,6 @@ public:
             QToolButton *row = new QToolButton(this);
             row->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
             row->setIcon(member->icon());
-            // row->setIconSize(member->iconSize() * 3 / 2);
             // Krimble 2026-11-13 (task 46): George: "The flyouts do not match the size of the icons in the toolbar. This is bad. Should be next to the tool you long press and [the] same size." A row's picture is the toolbox's own icon size (it was 1.5 times larger) and its height is the toolbox button's height, the text is smaller.
             row->setIconSize(member->iconSize());
             row->setText(name);
@@ -74,7 +73,6 @@ public:
         int x = topRight.x();
         if (x + width() > avail.right()) x = topLeft.x() - width();
         x = qBound(avail.left(), x, qMax(avail.left(), avail.right() - width()));
-        // int y = qBound(avail.top(), topLeft.y(), qMax(avail.top(), avail.bottom() - height()));
         // Krimble 2026-11-12 (task 38): George: "Why isn't the flyout next to the tool?" (the mockup of a tall flyout was moved up and ended far from the button). A flyout that does not fit below the button's top now grows UPWARD from the button's bottom edge, so the button is still beside it; only if it does not fit there either is it moved onto the screen.
         int y = topLeft.y();
         if (y + height() > avail.bottom()) y = topLeft.y() + button->height() - height();

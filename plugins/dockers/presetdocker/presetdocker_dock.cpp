@@ -40,7 +40,6 @@ PresetDockerDock::PresetDockerDock( )
     m_presetChooser = new KisPaintOpPresetsChooserPopup(this);
     m_presetChooser->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
     m_presetChooser->setResponsiveness(true);
-    // setWidget(m_presetChooser);
     // Krimble 2026-10-30: George: "replace that panel. it's garbage." The panel was the preset picker and nothing else: no size, opacity or flow. It now has
     // three touch-sized rows on top (Size, Opacity, Flow: slider and number box) that set the current brush, and the preset picker below them.
     QWidget *panel = new QWidget(this);

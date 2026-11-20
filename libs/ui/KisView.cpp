@@ -242,7 +242,6 @@ KisView::KisView(KisDocument *document, KisViewManager *viewManager, QWidget *pa
 
     d->canvasController.setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
     d->canvasController.setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
-    // d->canvasController.setCanvas(&d->canvas);
     krimbleHookToolMemory();   // Krimble 2026-11-13: remembers the selected tool (see above)
     s_krimbleAttaching = true;
     d->canvasController.setCanvas(&d->canvas);
@@ -387,7 +386,6 @@ void KisView::setViewManager(KisViewManager *view)
 
     d->viewManager->updateGUI();
 
-    // KoToolManager::instance()->switchToolRequested("PanTool");
     // Krimble 2026-11-13: the first view of the session starts with the Pan tool; a later view keeps the tool that was selected (see s_krimbleLastTool)
     KoToolManager::instance()->switchToolRequested(s_krimbleLastTool.isEmpty() ? QStringLiteral("PanTool") : s_krimbleLastTool);
 }

@@ -64,7 +64,6 @@ KoDockWidgetTitleBar::KoDockWidgetTitleBar(QDockWidget* dockWidget)
     d->lockButton->setIcon(d->lockIcon);
     connect(d->lockButton, SIGNAL(toggled(bool)), SLOT(setLocked(bool)));
     // Krimble 2026-11-12: George: "I would like to get rid of the little locks at the top of the panels" and "I never got that, never used it for that. I see panels as very fluid." The lock button is kept as an object (the code below uses it) but is never shown and is not in the layout.
-    // d->lockButton->setVisible(true);
     d->lockButton->setVisible(false);
     d->lockButton->setToolTip(i18nc("@info:tooltip", "Lock Docker"));
     d->lockButton->setStyleSheet("border: 0");
@@ -78,7 +77,6 @@ KoDockWidgetTitleBar::KoDockWidgetTitleBar(QDockWidget* dockWidget)
     QHBoxLayout *layout = new QHBoxLayout(this);
     layout->setContentsMargins(2, 0, 2, 0);
     layout->setSpacing(SPACING);
-    // layout->addWidget(d->lockButton);   // Krimble 2026-11-12: no lock button (see above)
     layout->addWidget(d->titleLabel, 1);
     layout->addWidget(d->floatButton);
     layout->addWidget(d->closeButton);
@@ -99,7 +97,6 @@ void KoDockWidgetTitleBar::setTitleTextHidden(bool hidden)
 {
     // Krimble 2026-10-18 (15th): George (1.0.37, c666301; screenshots of the Color and Tool Options panels in tabs): "8. Double titles in panels look weird. Fix?" A panel in a tab
     // group shows its name on its tab and again in its own title bar. The title bar keeps its buttons (lock, float, close); only the text is hidden.
-    // d->titleLabel->setVisible(!hidden);
     // Krimble 2026-10-20: George (1.0.40, screenshots of the Color and Layers panels): "Gadgets on the panels should be on the far right." The label
     // is the part of the title bar that takes all the spare room (stretch 1), which pushes the float and close buttons to the right edge. Hiding the
     // label took that room away, and the lock, float and close buttons were spread evenly across the bar. The label now stays (it keeps its room) and
@@ -148,27 +145,6 @@ void KoDockWidgetTitleBar::paintEvent(QPaintEvent*)
     // grouped panels), so its header draws one: a tab with rounded top corners behind the panel's name. Dragging it tears the panel off (mousePressEvent and the following). A panel in a tab group
     // (title text hidden) keeps Qt's tabs; a floating panel keeps its own title bar.
     // Krimble 2026-11-15: George: "Remove all the tab customizations." and "super buggy and twitchy now": the tab drawn behind a docked panel's name is off (the condition below is never true).
-    if (false && !q->isFloating() && !d->titleTextHidden && d->titleLabel) {
-        const qreal dpr = devicePixelRatioF();
-        const int radius = qRound(8 * dpr);
-        const int textW = d->titleLabel->fontMetrics().horizontalAdvance(q->windowTitle());
-        const int padX = qRound(12 * dpr);
-        const QRect lab = d->titleLabel->geometry();
-        const int tabW = qMin(lab.width() + 2 * padX, textW + 2 * padX);
-        const QRect tab(qMax(0, lab.left() - padX), qRound(2 * dpr), tabW, height() - qRound(2 * dpr));
-        QPainterPath path;
-        path.moveTo(tab.left(), tab.bottom() + 1);
-        path.lineTo(tab.left(), tab.top() + radius);
-        path.quadTo(tab.left(), tab.top(), tab.left() + radius, tab.top());
-        path.lineTo(tab.right() - radius, tab.top());
-        path.quadTo(tab.right(), tab.top(), tab.right(), tab.top() + radius);
-        path.lineTo(tab.right(), tab.bottom() + 1);
-        path.closeSubpath();
-        p.setRenderHint(QPainter::Antialiasing, true);
-        p.fillPath(path, palette().color(QPalette::Window).lighter(140));
-        p.setPen(palette().color(QPalette::Mid));
-        p.drawPath(path);
-    }
 
     // Krimble 2026-10-15: George (1.0.36): "I can't tell where one panel ends and the next begins when they stack. They need a light line at the top
     // and a dark line at the bottom." A docked panel's top edge gets a light line, and just above it a dark line: that dark line is the bottom
@@ -176,12 +152,6 @@ void KoDockWidgetTitleBar::paintEvent(QPaintEvent*)
     // bottom. The last panel of a column has no panel below it, so its bottom has no dark line. Floating panels are not changed.
     // Krimble 2026-10-17: George (1.0.37): "Giant mega lines again for bevels instead of one pixel." These 3 px lines are off; the one-pixel lines
     // are drawn by KrimbleBevelOverlay (KisMainWindow.cpp) on panels and toolbars.
-    if (false && !q->isFloating()) {
-        const qreal dpr = devicePixelRatioF();
-        const int line = qMax(2, qRound(dpr));          // about 1 logical px each
-        p.fillRect(QRect(0, 0, width(), line), QColor(18, 19, 34));                 // dark (the bottom of the panel above)
-        p.fillRect(QRect(0, line, width(), line), QColor(110, 114, 156));           // light (the top of this panel)
-    }
 
     // Krimble 2026-11-19 (754th): George: "Create a grab pad with lines so people know where to grab these since the tab grab has never worked." ... "Make it bigger. This is for phone
     // touchscreens." ... "The same spaces that were odd empty spots should be grab pads." The empty part of the title row (after the title, if it shows, up to the first button) carries three
@@ -212,7 +182,6 @@ void KoDockWidgetTitleBar::resizeEvent(QResizeEvent*)
     if (q->isFloating() || (width() < (d->closeButton->width() + d->floatButton->width() + d->lockButton->width()) + 32)) {
         d->lockButton->setVisible(false);
     } else {
-        // d->lockButton->setVisible(true);   // Krimble 2026-11-12: no lock button
         d->lockButton->setVisible(false);
     }
 }
@@ -275,7 +244,6 @@ void KoDockWidgetTitleBar::Private::featuresChanged(QDockWidget::DockWidgetFeatu
 
 void KoDockWidgetTitleBar::Private::dockWidgetTitleChanged(const QString &title)
 {
-    // titleLabel->setText(title);
     titleLabel->setText(titleTextHidden ? QString() : title);   // Krimble 2026-10-20: stays empty while the title text is hidden
 }
 
@@ -351,7 +319,6 @@ void KoDockWidgetTitleBar::contextMenuEvent(QContextMenuEvent *event)
         QAction *action = menu.addAction(entry.text);
         action->setCheckable(true);
         action->setChecked(current == entry.area);
-        // action->setEnabled(dock->allowedAreas() & entry.area);
         // Krimble 2026-10-13: George: "Dock right from the long press menu did nothing." A floating panel's allowed areas may be
         // none or only some (floating panels are allowed in no area, or in the sides the finger was near while dragging), so the
         // choices were greyed out or ignored. A choice from this menu is always allowed.

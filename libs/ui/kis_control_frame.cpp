@@ -335,7 +335,6 @@ void KisControlFrame::createGradientsChooser(KisViewManager * view)
     // Krimble 2026-11-11: George: "Gradient does not work right. Instead of gradient from one color to another it is always to alpha Transparency." The startup gradient was
     // Foreground to Transparent (Krita's stock default), so every new gradient faded to transparent. It is now Foreground to Background.
     KisResourceModel resModel(ResourceType::Gradients);
-    // QVector<KoResourceSP> resources = resModel.resourcesForFilename("Foreground to Transparent.svg");
     QVector<KoResourceSP> resources = resModel.resourcesForFilename("Foreground to Background.svg");
 
     if (resources.size() > 0) {

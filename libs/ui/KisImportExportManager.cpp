@@ -689,7 +689,6 @@ bool KisImportExportManager::askUserAboutExportConfiguration(
 
             box->addTab(wdgImageSize,i18n("Resize"));
         }
-        // layout->addWidget(box);
         // Krimble 2026-10-20: George (1.0.41, screenshot of the JPEG options): "File - Save dialog is super wide for no reason." The window is as wide as the
         // widest of its pages (Basic, Advanced quality, Metadata), which can be wider than a phone's screen, and a window cannot be made smaller than that.
         // The tabs are now in a scroll area: the window is as wide as the scroll area asks for (capped), and a wide page scrolls sideways.

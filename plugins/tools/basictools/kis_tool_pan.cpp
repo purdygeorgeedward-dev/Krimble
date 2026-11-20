@@ -78,7 +78,6 @@ bool KisToolPan::wantsAutoScroll() const
 KisToolPanFactory::KisToolPanFactory()
     : KoToolFactoryBase("PanTool")
 {
-    // setToolTip(i18n("Hand Tool"));
     // Krimble 2026-11-08: George: "The Hand is really the Pan tool. Only the icon is a hand." and "Does it have to say 'Tool' after every tool?"
     setToolTip(i18n("Pan"));
     setSection(ToolBoxSection::PSOrder);

@@ -47,7 +47,6 @@ public:
 
     KUndo2Command* paint() override {
         KisTransaction transaction(m_imageDev);
-        // patchImage(m_imageDev, m_maskDev, m_patchRadius, m_accuracy, m_selection);
         // Krimble 2026-10-19: the method chosen in the Tool Options (Sharp, Smooth or Classic, see krimble_fill.h); Classic, or a job Krimble's engines cannot
         // take, uses Krita's own fill as before. The healing brush paints its own mask, so the picture's bounds come from the layer.
         if (!KrimbleFill::fill(m_imageDev, m_maskDev, m_imageDev->defaultBounds()->bounds(), KrimbleFill::savedMethod())) {

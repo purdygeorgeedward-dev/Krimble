@@ -28,7 +28,6 @@ class KisColorSelectorNgDockerWidget : public QWidget
 {
 Q_OBJECT
 public:
-    // explicit KisColorSelectorNgDockerWidget(QWidget *parent = 0);
     // Krimble 2026-11-08: George: "bring back advance color panel as \"color ring + triangle\"." With classic = true the widget shows the classic selector (ring, triangle, shade
     // selectors, color patches) and no Color Studio; it is the "Color Ring + Triangle" panel.
     explicit KisColorSelectorNgDockerWidget(QWidget *parent = 0, bool classic = false);

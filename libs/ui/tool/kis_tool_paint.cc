@@ -183,7 +183,6 @@ void KisToolPaint::activate(const QSet<KoShape*> &shapes)
             KisPaintOpPresetSP userPreset = saved.isValid() ? saved.value<KisPaintOpPresetSP>() : KisPaintOpPresetSP();
             if (userPreset) {
                 KisCanvasResourceProvider *provider = kisCanvas->viewManager()->canvasResourceProvider();
-                // provider->setPaintOpPreset(userPreset);
                 // Krimble 2026-10-20 (2nd): through the brush panel, which keeps its widget and preset maps in step (see KrimbleEmbeddedPreset.h)
                 if (KisPaintopBox *box = kisCanvas->viewManager()->paintOpBox()) box->resourceSelected(userPreset);
                 if (provider->currentPreset() != userPreset) provider->setPaintOpPreset(userPreset);

@@ -69,7 +69,6 @@ KisAboutApplication::KisAboutApplication(QWidget *parent)
         pageLayout->setContentsMargins(6, 6, 6, 6);
         const qreal dpr = qApp->devicePixelRatio();
         int pageWidth = 600;
-        // if (parent && parent->window()) pageWidth = int(parent->window()->width() * 0.86);
         // Krimble 2026-10-24: George: "the about dialog is still enormous." Held sideways (the window is wider than tall) the picture alone was 86% of the window's width and
         // about 420 px high on a screen only 340 px high. Sideways the page is now two columns (the picture and the version on the left, 40% of the width; the links and the
         // fonts text on the right, scrolling); upright it is one column as before.
@@ -258,7 +257,6 @@ KisAboutApplication::KisAboutApplication(QWidget *parent)
         }
         credits.chop(2);
     }
-    // credits.append(i18n(".</p><p><i>For supporting Krimble development with advice, icons, brush sets and more.</i></p></body></html>"));
     credits.append(i18n(".</p><p><i>For advice, icons, brush sets and more, which Krimble carries on.</i></p></body></html>"));
 
     wdgTab->lblCredits->setText(credits);
@@ -318,9 +316,6 @@ KisAboutApplication::KisAboutApplication(QWidget *parent)
     }
 
     setMainWidget(wdgTab);
-    // setMinimumSize(sizeHint());
-    // Q_ASSERT(layout());
-    // layout()->setSizeConstraint(QLayout::SetFixedSize);
     // Krimble 2026-10-24: George: "the about dialog is still enormous." The window was fixed at exactly the size its contents ask for (the picture, the seven tabs, the text), which
     // is bigger than a phone's screen, and could not be made smaller. It can be now: it opens at 92% by 90% of the screen and its pages scroll.
     Q_ASSERT(layout());

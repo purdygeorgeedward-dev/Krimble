@@ -51,7 +51,6 @@ void KisToolSmudge::activate(const QSet<KoShape*> &shapes)
     // if (matches.isEmpty()) {
     //     return;
     // }
-    // KisPaintOpPresetSP smudgePreset = matches.first().dynamicCast<KisPaintOpPreset>();
     KisPaintOpPresetSP smudgePreset = krimbleLoadEmbeddedPreset(QStringLiteral("colorsmudge"));
     if (smudgePreset) {
         // Krimble 2026-10-15: George (1.0.36): "The smudge tool is just a brush instead of modifying image with smudges. That's not what it's
@@ -63,7 +62,6 @@ void KisToolSmudge::activate(const QSet<KoShape*> &shapes)
             smudgePreset->settings()->setProperty("ColorRateValue", 0.0);
             smudgePreset->settings()->setProperty("PressureColorRate", false);
         }
-        // canvas2->viewManager()->canvasResourceProvider()->setPaintOpPreset(smudgePreset);
         krimbleSetBrushPreset(canvas2->viewManager(), smudgePreset);   // Krimble 2026-10-20 (2nd): through the brush panel (see KrimbleEmbeddedPreset.h)
     }
 }
