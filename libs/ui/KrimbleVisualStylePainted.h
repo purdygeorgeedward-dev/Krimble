@@ -303,9 +303,7 @@ QMenu {
     color: #eef1fa;
     border: none;   /* Krimble 2026-11-15 (698th): no outline around menus (was 1px solid #3d4967) */
     background: #192138;   /* Krimble 2026-11-06 (3rd): flat (was a #2e354e to #212639 gradient) */
-    /* Krimble 2026-11-18 (745th): George: "And fix the painted theme." The 738th's room at the bottom (about one blank line) and right of every menu, which went only into the other themes' sheet. */
-    padding-bottom: 16px;
-    padding-right: 12px;
+    /* Krimble 2026-11-20 (756th): the room at the bottom and right of menus (738th, 745th) is in KrimbleCommonStyle.h, shared by every Krimble theme. */
 }
 QMenu::item:selected {
     /* Krimble 2026-11-13 (task 60): George: "The selected item in the menu should not have a gradient. It should just be solid light blue, the brightest out of the range it currently uses." Solid, the lightest stop of the gradient that was here (the other stops were #0867b8, #0652ad and #05429d):

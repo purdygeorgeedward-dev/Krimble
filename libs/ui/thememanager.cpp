@@ -50,6 +50,7 @@
 #include <kis_config_notifier.h>
 #include "KrimbleVisualStyle.h"
 #include "KrimbleVisualStyleNov10.h"   // Krimble 2026-11-12 (task 31): the Nov 10 sheet (the default theme)
+#include "KrimbleCommonStyle.h"   // Krimble 2026-11-20 (756th): size and spacing rules shared by every Krimble theme
 #include "KrimbleVisualStylePainted.h"   // Krimble 2026-11-11: the painted sheet, for the theme "Krimble Painted"   // Krimble 2026-11-04: krimbleVisualStyleSheet(), re-applied after the theme palette
 
 #ifdef __APPLE__
@@ -447,6 +448,7 @@ void ThemeManager::slotChangePalette()
         const QString recentColor = qApp->palette().color(QPalette::Window).darker(200).name();
         krimbleSheet = (krimbleSheet + QStringLiteral("\nKisWelcomePageWidget QListView#recentDocumentsListView { background: %1; border: 1px solid %2; }\n").arg(recentColor, baseColor));
     }
+    if (!krimbleSheet.isEmpty()) krimbleSheet += krimbleCommonStyleSheet();   // Krimble 2026-11-20 (756th): shared size and spacing, after the theme's own rules
     qApp->setStyleSheet(krimbleSheet);   // 696th: the one and only call
     // Krimble 2026-11-15 (693rd): George (screenshot, Breeze Light): "Breeze light has a dark menu bar." (and dark navy panels, a blue Opacity bar). Switching from a Krimble theme to one with no style sheet left widgets
     // that were polished under the old sheet (menu bar, panels) with its colors. Every widget is unpolished and polished again after the sheet and palette are set, so each shows the new theme.

@@ -289,6 +289,15 @@ public:
     bool eventFilter(QObject *watched, QEvent *event) override
     {
         Q_UNUSED(watched);
+        // Krimble 2026-11-20 (756th): a press is passed up from widget to parent, and this app-wide filter saw it once per step, looking up the panels every time. It now
+        // handles each press and each release once (the same event object with the same time stamp is skipped).
+        if (event->type() == QEvent::MouseButtonPress || event->type() == QEvent::MouseButtonRelease) {
+            const ulong stamp = static_cast<QMouseEvent*>(event)->timestamp();
+            const bool press = event->type() == QEvent::MouseButtonPress;
+            if (stamp != 0 && stamp == (press ? m_lastPress : m_lastRelease) && event == m_lastEvent) return false;   // the same event, passed up to a parent
+            (press ? m_lastPress : m_lastRelease) = stamp;
+            m_lastEvent = event;
+        }
         if (event->type() == QEvent::MouseButtonPress) {
             const int x = static_cast<QMouseEvent*>(event)->globalPos().x();
             m_armed = false;
@@ -317,6 +326,9 @@ public:
 private:
     QMainWindow *m_win;
     bool m_armed {false};
+    ulong m_lastPress {0};     // Krimble 2026-11-20 (756th)
+    ulong m_lastRelease {0};
+    const QEvent *m_lastEvent {nullptr};
 };
 #endif
 
