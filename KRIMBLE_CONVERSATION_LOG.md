@@ -200,3 +200,4 @@ What was lost: the screenshots George sent during the day were not saved anywher
 - **03:59:** "But bold is another face in the same family unless you intend to modify how fonts are displayed."
 - **04:01:** "72 is already documented as a release." (build 72 run kept; the question is closed)
 - **04:02:** "What happens in Wesnoth stays in Wesnoth. It doesn't affect a build." (Wesnoth fire frames taken off the Krimble list)
+- **04:05:** "We already replaced those with Apple Aqua, didn't we?" **04:06:** "Demo all."

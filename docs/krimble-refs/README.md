@@ -27,3 +27,4 @@ Files named YYYY-MM-DD_HHMM_<id>.jpg, by the time each was sent (MST).
 | 2026-11-21_0350_test-save-as-narrow.png | Nov 21, 2026 03:50 MST | Qt test of 785th: the Save As type list sized to the widest type, the long "All supported formats" row cut with "..." |
 | 2026-11-21_0435_test-lens-flare-cpp.png | Nov 21, 2026 04:35 MST | The C++ lens flare (KrimbleLensFlare.h) rendered on desktop: Zoom, Prime, Cinematic, Starburst; matches prototype v1 |
 | 2026-11-21_0500_test-lightsabers.png | Nov 21, 2026 05:00 MST | Test of the Lightsaber blade math (blue, red, green; Screen blending) |
+| 2026-11-21_0410_demo-highlights-before-now-aqua.png | Nov 21, 2026 04:10 MST | Demo of the elements 780 changed: before 780 (cyan / dull highlight), now (flat selection blue), Aqua |
