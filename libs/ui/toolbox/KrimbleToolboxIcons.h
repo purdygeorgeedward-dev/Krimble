@@ -119,7 +119,8 @@ inline int &iconStyleCache()
     return style;
 }
 
-inline int iconStyle() { return iconStyleCache(); }
+// the Color style was removed ("Remove the color option completely"): a saved Color choice shows White
+inline int iconStyle() { return iconStyleCache() == Color ? int(White) : iconStyleCache(); }
 
 inline void setIconStyle(int style)
 {

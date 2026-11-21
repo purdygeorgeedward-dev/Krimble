@@ -19,7 +19,7 @@ Krimble is a graphics editor for Android phones and tablets, made from Krita and
 - The two healing tools have a button each: the **bandaid** and the **stamp** (tap **Set source**, then paint: it copies the texture from the source spot).
 - **Blur** and **Sharpen** are brushes: they soften or sharpen only where you brush.
 - **UNDO** is the last button: tap it to undo, press and hold it for Redo.
-- **The toolbox menu:** press and hold the toolbox's handle (the bar with three lines). It has **Compact**, **Icon Size**, **Icon Style** (White, Black, Grayscale, Color, or Classic: black line art for shape tools and gray shaded art for object tools), **Button Style** (Flat or Raised, on a Panel background, Light gray or White), **Layout**, **Orientation**, **Columns**, and **Dock**.
+- **The toolbox menu:** press and hold the toolbox's handle (the bar with three lines). It has **Compact**, **Icon Size**, **Icon Style** (White, Black, Grayscale, or Classic: black line art for shape tools and gray shaded art for object tools), **Button Style** (Flat or Raised, on a Panel background, Light gray or White), **Layout**, **Orientation**, **Columns**, and **Dock**.
 - **Docking:** in the toolbox menu, **Dock Left**, **Dock Right**, **Dock Top** and **Dock Bottom** put the toolbox on that side of the screen, and **Undock** makes it float. On the left or right it is a column as tall as the screen; at the top or bottom it is a row. A floating toolbox can also be dragged by its handle to an edge of the screen and let go there. **Dock by Dragging**, in the same menu, turns that off for the toolbox and every panel: they then stay wherever they are let go.
 - **Columns** sets how many columns an upright toolbox uses, so that more tools fit.
 

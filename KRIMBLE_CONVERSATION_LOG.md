@@ -235,3 +235,4 @@ What was lost: the screenshots George sent during the day were not saved anywher
 - **04:49:** "Ok. You obviously don't get it. Put the silhouettes side by side with the color icons."
 - **04:52:** (labeled toolbar again) "Put the ones from the Ps graphic beside them."
 - **04:52:** "The color ones look awful. We should have flushed them the first time I rejected them."
+- **04:54:** "Remove the color option completely and build."

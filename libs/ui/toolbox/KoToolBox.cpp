@@ -608,7 +608,7 @@ void KoToolBox::setupIconStyleMenu(QMenu *menu)
         {i18n("White"), KrimbleToolboxIcons::White},
         {i18n("Black"), KrimbleToolboxIcons::Black},
         {i18n("Grayscale"), KrimbleToolboxIcons::Grayscale},
-        {i18n("Color"), KrimbleToolboxIcons::Color},
+        // {i18n("Color"), KrimbleToolboxIcons::Color},   // removed: "Remove the color option completely"
         {i18n("Classic"), KrimbleToolboxIcons::Classic},
     };
     for (const Choice &choice : choices) {
