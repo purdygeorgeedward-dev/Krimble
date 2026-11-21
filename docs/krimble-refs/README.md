@@ -32,3 +32,5 @@ Files named YYYY-MM-DD_HHMM_<id>.jpg, by the time each was sent (MST).
 | 2026-11-21_0428_ps-toolbox-map.jpg | Nov 21, 2026 04:28 MST | Industry-standard toolbox map with every tool named |
 | 2026-11-21_0428_ps-toolbox-bottom-quickmask-screenmode.jpg | Nov 21, 2026 04:28 MST | Industry-standard toolbox bottom: color swatches, then Quick Mask (left) and Screen Mode (right) with very simple icons. "We can make what Ps has." |
 | 2026-11-21_0440_test-quickmask-screenmode-icons.png | Nov 21, 2026 04:40 MST | The Quick Mask and Screen Mode icons as drawn by the code (794th) |
+| 2026-11-21_0436_ps-toolbar-labeled-grayscale-icons.jpg | Nov 21, 2026 04:36 MST | Labeled industry-standard toolbar (older version: Paint Bucket, Blur, Quick Mask) with black-and-white (grayscale) icons; wanted as a third icon option |
+| 2026-11-21_0450_preview-toolbox-icons-color-vs-black-and-white.png | Nov 21, 2026 04:50 MST | The 32 picture icons in Full color (left) and the new Black and white style (right, 795th) |

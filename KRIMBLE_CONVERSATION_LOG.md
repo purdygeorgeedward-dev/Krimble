@@ -215,3 +215,4 @@ What was lost: the screenshots George sent during the day were not saved anywher
 - **04:28:** (two toolbox pictures) "The two bottom gadgets in the Ps toolbox are QuickMask on the left and Screen mode toggle on the right. They use very simple icons. What we had before was ugly and useless. We can make what Ps has."
 - **04:30:** "The quickmask icon is a horizontal rectangle with a circle in it and the mode toggle is two windows stacked for some reason." (matches the 794th icons)
 - **04:31:** "It's basically just two more buttons."
+- **04:36:** (labeled toolbar picture) "It looks like they're using a paint bucket instead of a gradient box, and they have soften instead of smudge in that image. I wonder what is standard in current version. Let me check... It's hard to keep pace with them. I would really like to have black and white versions of the icons like in this picture instead of color. Maybe we could add black and white as a third option?"

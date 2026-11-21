@@ -561,22 +561,25 @@ void KoToolBox::setupIconStyleMenu(QMenu *menu)
 {
     QActionGroup *styleGroup = new QActionGroup(menu);
     const bool color = KrimbleToolboxIcons::colorMode();
+    const bool gray = KrimbleToolboxIcons::grayMode();
     QAction *colorAction = menu->addAction(i18n("Full color"));
+    QAction *grayAction = menu->addAction(i18n("Black and white"));
     QAction *clearAction = menu->addAction(i18n("Silhouette"));
-    for (QAction *action : {colorAction, clearAction}) {
+    for (QAction *action : {colorAction, grayAction, clearAction}) {
         action->setActionGroup(styleGroup);
         action->setCheckable(true);
     }
-    colorAction->setChecked(color);
+    colorAction->setChecked(color && !gray);
+    grayAction->setChecked(gray);
     clearAction->setChecked(!color);
-    auto apply = [this](bool useColor) {
-        KrimbleToolboxIcons::setColorMode(useColor);
+    auto refresh = [this]() {
         Q_FOREACH (KoToolBoxButton *button, d->buttonsByToolId) {
             button->krimbleRefreshIcon();
         }
     };
-    connect(colorAction, &QAction::triggered, this, [apply]() { apply(true); });
-    connect(clearAction, &QAction::triggered, this, [apply]() { apply(false); });
+    connect(colorAction, &QAction::triggered, this, [refresh]() { KrimbleToolboxIcons::setColorMode(true); refresh(); });
+    connect(grayAction, &QAction::triggered, this, [refresh]() { KrimbleToolboxIcons::setGrayMode(); refresh(); });
+    connect(clearAction, &QAction::triggered, this, [refresh]() { KrimbleToolboxIcons::setColorMode(false); refresh(); });
 }
 
 KoToolBoxLayout *KoToolBox::toolBoxLayout() const

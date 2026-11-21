@@ -8,6 +8,8 @@
 
 #include <QHash>
 #include <QIcon>
+#include <QImage>
+#include <QPixmap>
 #include <QString>
 #include <QStringList>
 #include <KSharedConfig>
@@ -56,16 +58,53 @@ inline const QHash<QString, QString> &files()
     return table;
 }
 
+// A third style, Black and white: the picture icons in shades of gray. The key Krimble/ToolboxGrayIcons is on for it
+// (with ToolboxColorIcons on, since it uses the pictures).
 inline bool colorMode()
 {
     return KSharedConfig::openConfig()->group("Krimble").readEntry("ToolboxColorIcons", false);
+}
+
+inline bool grayMode()
+{
+    return colorMode() && KSharedConfig::openConfig()->group("Krimble").readEntry("ToolboxGrayIcons", false);
 }
 
 inline void setColorMode(bool on)
 {
     KConfigGroup group = KSharedConfig::openConfig()->group("Krimble");
     group.writeEntry("ToolboxColorIcons", on);
+    group.writeEntry("ToolboxGrayIcons", false);
     group.config()->sync();
+}
+
+inline void setGrayMode()
+{
+    KConfigGroup group = KSharedConfig::openConfig()->group("Krimble");
+    group.writeEntry("ToolboxColorIcons", true);
+    group.writeEntry("ToolboxGrayIcons", true);
+    group.config()->sync();
+}
+
+// a picture in shades of gray (the same light and dark, the transparency kept)
+inline QIcon grayIcon(const QIcon &source)
+{
+    QIcon gray;
+    QList<QSize> sizes = source.availableSizes();
+    if (sizes.isEmpty()) sizes << QSize(128, 128);
+    for (const QSize &size : sizes) {
+        QImage image = source.pixmap(size).toImage().convertToFormat(QImage::Format_ARGB32);
+        for (int y = 0; y < image.height(); ++y) {
+            QRgb *line = reinterpret_cast<QRgb*>(image.scanLine(y));
+            for (int x = 0; x < image.width(); ++x) {
+                const QRgb c = line[x];
+                const int g = (qRed(c) * 2126 + qGreen(c) * 7152 + qBlue(c) * 722) / 10000;
+                line[x] = qRgba(g, g, g, qAlpha(c));
+            }
+        }
+        gray.addPixmap(QPixmap::fromImage(image));
+    }
+    return gray;
 }
 
 inline int &buttonStyleCache()
@@ -101,7 +140,8 @@ inline QIcon icon(const QString &iconName)
         const auto it = files().constFind(iconName);
         if (it != files().constEnd()) {
             const QIcon picture(QStringLiteral(":/krimble-toolbox/") + it.value() + QStringLiteral(".png"));
-            if (!picture.isNull()) return picture;
+            // if (!picture.isNull()) return picture;
+            if (!picture.isNull()) return grayMode() ? grayIcon(picture) : picture;
         }
     }
     return kisIcon(iconName);
