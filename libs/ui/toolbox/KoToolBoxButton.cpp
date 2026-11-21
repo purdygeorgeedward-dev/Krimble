@@ -28,6 +28,7 @@
 #include <QKeySequence>
 #include <KoIcon.h>
 #include "KrimbleToolboxIcons.h"
+#include "KrimbleAquaPaint.h"
 
 KoToolBoxButton::KoToolBoxButton(KoToolAction *toolAction, QWidget *parent)
     : QToolButton(parent)
@@ -224,7 +225,8 @@ void KoToolBoxButton::paintEvent(QPaintEvent *event)
     if (isChecked()) {
         QPainter painter(this);
         const qreal s = qMin(width(), height());
-        painter.fillRect(QRectF(rect()).adjusted(s * 0.12, s * 0.12, -s * 0.12, -s * 0.12), QColor("#0b87dd"));   // flat, the blue of the menu selection
+        // painter.fillRect(QRectF(rect()).adjusted(s * 0.12, s * 0.12, -s * 0.12, -s * 0.12), QColor("#0b87dd"));   // flat, the blue of the menu selection
+        krimblePaintAqua(painter, QRectF(rect()).adjusted(s * 0.12, s * 0.12, -s * 0.12, -s * 0.12), s * 0.07);   // the Aqua-style selection
     }
     // if (isChecked()) {
     //     QPainter painter(this);

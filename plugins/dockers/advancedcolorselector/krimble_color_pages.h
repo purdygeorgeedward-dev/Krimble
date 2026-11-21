@@ -780,7 +780,12 @@ protected:
         QPainter p(this);
         const qreal dpr = devicePixelRatioF();
         const qreal thick = 3.0 / dpr, gap = 9.0 / dpr, mid = height() / 2.0;
-        for (int i = -1; i <= 1; ++i) p.fillRect(QRectF(0, mid + i * gap - thick / 2, width(), thick), QColor(150, 158, 190));
+        // for (int i = -1; i <= 1; ++i) p.fillRect(QRectF(0, mid + i * gap - thick / 2, width(), thick), QColor(150, 158, 190));
+        // the same grip lines as the panel title rows (3 real px lines on a 9 real px pitch, the title-row color), as many as fit the band, up to nine
+        const int n = qBound(1, int((height() * dpr * 0.8 - 3.0) / 9.0) + 1, 9);
+        QColor c = palette().color(QPalette::WindowText);
+        c.setAlpha(150);
+        for (int i = 0; i < n; ++i) p.fillRect(QRectF(0, mid + (i - (n - 1) / 2.0) * gap - thick / 2, width(), thick), c);
     }
 };
 
@@ -825,12 +830,20 @@ protected:
         if (!m_lines) { m_lines = new KrimbleBandGrabLines(this); m_lines->setAttribute(Qt::WA_TransparentForMouseEvents); m_lines->show(); }
         {
             const qreal dpr = devicePixelRatioF();
-            int l = int(width() * 0.62), r = m_float->x() - qRound(12 * scale());
-            const int most = int(120.0 / dpr);
+            // int l = int(width() * 0.62), r = m_float->x() - qRound(12 * scale());
+            // const int most = int(120.0 / dpr);
             // if (r - l > most) { const int extra = (r - l) - most; l += extra / 2; r -= extra - extra / 2; }
-            Q_UNUSED(most);
+            // Q_UNUSED(most);
+            // m_lines->setGeometry(l, 0, qMax(0, r - l), height());
+            // m_lines->setVisible(false);
+            // grip lines on the black part of the logo band, centered between the end of the letters and the float button
+            // The logo is drawn h = 1.2 x the band height tall, w = h x 900 / 211 wide, from x = 24 units - 0.0514 w; its letters end at 851 / 900 of the picture.
+            const qreal lh = height() * 1.2, lw = lh * 900.0 / 211.0;
+            const int lettersEnd = qRound(24 * scale() - 0.0514 * lw + lw * 851.0 / 900.0);
+            const int margin = qRound(24.0 / dpr);
+            const int l = lettersEnd + margin, r = m_float->x() - margin;
             m_lines->setGeometry(l, 0, qMax(0, r - l), height());
-            m_lines->setVisible(false);
+            m_lines->setVisible(r - l >= qRound(48.0 / dpr));
         }
         m_close->setIconSize(QSize(side - 6, side - 6));
         m_float->setIconSize(QSize(side - 6, side - 6));

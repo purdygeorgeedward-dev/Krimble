@@ -13,6 +13,7 @@
 #include <QFontMetricsF>
 #include "krimble_color_symbols.h"
 #include "krimble_color_icons.h"
+#include "KrimbleAquaPaint.h"
 
 // sets a widget's own style sheet only when it changes (setting one, even the same text, makes Qt restyle the widget)
 inline void krimbleSetSheet(QWidget *w, const QString &sheet)
@@ -227,18 +228,21 @@ public:
     // the look of a selected item: a deep blue fill, a bright cyan outline and a glow (measured in the mockups' selected buttons and tabs)
     static void paintSelected(QPainter &p, const QRectF &rect, qreal radius, qreal s)
     {
-        for (int i = 6; i >= 1; --i) {
-            p.setPen(QPen(QColor(11, 135, 221, 20 + (6 - i) * 9), 2.0));
-            p.setBrush(Qt::NoBrush);
-            p.drawRoundedRect(rect.adjusted(-i * 1.1 * s, -i * 1.1 * s, i * 1.1 * s, i * 1.1 * s), radius + i * s, radius + i * s);
-        }
-        const QRectF b = rect.adjusted(0.5, 0.5, -0.5, -0.5);
-        p.setPen(Qt::NoPen);
-        p.setBrush(QColor("#0b87dd"));
-        p.drawRoundedRect(b, radius, radius);
-        p.setBrush(Qt::NoBrush);
-        p.setPen(QPen(QColor("#0b87dd"), 2.4 * qMax<qreal>(0.5, s * 2)));
-        p.drawRoundedRect(b, radius, radius);
+        // the Aqua-style selection, the same as the toolbox and every checked button
+        Q_UNUSED(s);
+        krimblePaintAqua(p, rect.adjusted(0.5, 0.5, -0.5, -0.5), radius);
+        // for (int i = 6; i >= 1; --i) {
+        //     p.setPen(QPen(QColor(11, 135, 221, 20 + (6 - i) * 9), 2.0));
+        //     p.setBrush(Qt::NoBrush);
+        //     p.drawRoundedRect(rect.adjusted(-i * 1.1 * s, -i * 1.1 * s, i * 1.1 * s, i * 1.1 * s), radius + i * s, radius + i * s);
+        // }
+        // const QRectF b = rect.adjusted(0.5, 0.5, -0.5, -0.5);
+        // p.setPen(Qt::NoPen);
+        // p.setBrush(QColor("#0b87dd"));
+        // p.drawRoundedRect(b, radius, radius);
+        // p.setBrush(Qt::NoBrush);
+        // p.setPen(QPen(QColor("#0b87dd"), 2.4 * qMax<qreal>(0.5, s * 2)));
+        // p.drawRoundedRect(b, radius, radius);
     }
     // a pill that keeps the color and the glow of the item it shows (the preview boxes): a colored rounded square with the cyan outline and its glow
     static void paintColorBox(QPainter &p, const QRectF &rect, const QColor &c, qreal radius, qreal s, bool glow)

@@ -263,6 +263,7 @@
 #include "krimble/KrimbleMenus.inc"
 #include "krimble/KrimbleDockEdges.inc"
 #include "kis_zoom_manager.h"
+#include <KoGroupButton.h>
 #include "krimble/KrimbleMenuBarAndQuickAdjust.inc"
 #include "krimble/KrimbleFileAndHelpExtras.inc"
 #include "krimble/KrimblePanelsAndLayout.inc"

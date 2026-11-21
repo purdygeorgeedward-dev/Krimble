@@ -23,6 +23,9 @@ public:
         if (!button || !button->isCheckable() || button->property("krimbleGlowHooked").toBool()) return;
         if (!qobject_cast<QToolButton*>(button) && !qobject_cast<QPushButton*>(button)) return;   // not check boxes or radio buttons
         if (QByteArray(button->metaObject()->className()) == "KoToolBoxButton") return;   // the toolbox selection is flat, no glow
+        if (KoGroupButton *grouped = qobject_cast<KoGroupButton*>(button)) {
+            if (grouped->groupPosition() != KoGroupButton::NoGroup) return;   // it paints the Aqua-style selection itself
+        }
         button->setProperty("krimbleGlowHooked", true);
         QObject::connect(button, &QAbstractButton::toggled, button, [button](bool on) { krimbleSetButtonGlow(button, on); });
         krimbleSetButtonGlow(button, button->isChecked());

@@ -173,3 +173,4 @@ What was lost: the screenshots George sent during the day were not saved anywher
 - **23:12:** "It's amazing. I didn't know you could do that." (Aqua-style gradient demo approved; where it goes not said yet)
 - **23:13:** "Try all the places we had a glowy hilight before."
 - **23:14:** "If you can do that the whole UI could look amazing."
+- **23:17:** "Yes. All of it yes." (781st Color Lab grip lines, 782nd Aqua selection)
