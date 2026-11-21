@@ -84,9 +84,9 @@ Emoji (as plain black shapes) can be used in text.
 
 Select the part you want to remove (with any selection tool), then choose **Edit > Fill > Content-Aware...**. Krimble fills the hole from the picture around it. It works best on plain or repeating backgrounds; on very busy pictures the fill can look soft.
 
-## Lens Flare (coming)
+## Lens Flare
 
-**Filter > Render > Lens Flare...** adds the flare a bright light makes in a camera lens. Choose a type: **Zoom lens** (fine rays, a rainbow ring and a trail of colored ghosts), **Prime lens** (a tighter ring, fewer ghosts), **Cinematic** (a blue horizontal streak with oval ghosts) or **Starburst** (long spikes). Touch the picture where the light should be and drag: the flare follows your finger and the ghosts move across the center of the picture. When you let go, the full flare is drawn. **Brightness**, **Rays**, **Ghosts**, **Ring** and **Color** change its look. The flare only brightens the picture; it never darkens it.
+**Filter > Render > Lens Flare...** adds the flare a bright light makes in a camera lens. Choose a **Type**: **Zoom lens** (fine rays, a rainbow ring and a trail of colored ghosts), **Prime lens** (a tighter ring, fewer ghosts), **Cinematic** (a blue horizontal streak with oval ghosts) or **Starburst** (long spikes). **Light across** and **Light down** place the light (in percent of the picture's width and height); the ghosts line up through the center of the picture on the other side, as in a real lens. **Brightness**, **Rays**, **Ghosts**, **Ring** and **Color (cool to warm)** change its look. The preview shows the result as you move the sliders. The flare only brightens the picture; it never darkens it. Coming: dragging the light around on the picture with a finger.
 
 ## Hex maps and stars
 

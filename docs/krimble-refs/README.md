@@ -25,3 +25,4 @@ Files named YYYY-MM-DD_HHMM_<id>.jpg, by the time each was sent (MST).
 | 2026-11-20_2327_demo-lens-flares-v1.png | Nov 20, 2026 23:27 MST | First lens flare prototype from scratch: Zoom lens, Prime lens, Cinematic (anamorphic), Starburst. Code: lens_flare_prototype_v1.py |
 | 2026-11-21_0340_test-auto-tone-contrast-color.png | Nov 21, 2026 03:40 MST | Test of the new Auto Tone, Auto Contrast and Auto Color math (Python copy of KrimbleAutoAdjust.h) on a dulled picture with a color cast |
 | 2026-11-21_0350_test-save-as-narrow.png | Nov 21, 2026 03:50 MST | Qt test of 785th: the Save As type list sized to the widest type, the long "All supported formats" row cut with "..." |
+| 2026-11-21_0435_test-lens-flare-cpp.png | Nov 21, 2026 04:35 MST | The C++ lens flare (KrimbleLensFlare.h) rendered on desktop: Zoom, Prime, Cinematic, Starburst; matches prototype v1 |

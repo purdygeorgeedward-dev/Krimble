@@ -148,7 +148,7 @@ Recent and active work includes:
 - **Hexagon Selection** ⬢ and **Polygon and Star** ⭐ tools, with a hex grid overlay
 - **Auto Crop** ✂️ in the Image menu
 - **Long press flyouts** in the toolbox: hold a tool to reach the rest of its group (Marquee, Lasso, Wand, Shapes, Fill and more)
-- **Lens Flare** ✨ (in development): Filter > Render > Lens Flare..., four flare types made from scratch (Zoom lens, Prime lens, Cinematic anamorphic, Starburst). Put a finger on the light and drag it: the flare rearranges live, with its ghosts swinging across the center like a real lens. Sliders for brightness, rays, ghosts, ring and color.
+- **Lens Flare** ✨: Filter > Render > Lens Flare..., four flare types made from scratch (Zoom lens, Prime lens, Cinematic anamorphic, Starburst), with sliders for where the light is, brightness, rays, ghosts, ring and color, and a live preview. Dragging the light around on the picture with a finger is in development.
 - additional restoration and editing tools
 
 Some of these are already implemented; others are still in development.
