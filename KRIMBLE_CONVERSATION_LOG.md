@@ -179,3 +179,4 @@ What was lost: the screenshots George sent during the day were not saved anywher
 - **23:21:** "I was going to ask if we could figure out how to build an all-in-one gadget that does what the bottom of the Photoshop toolbox does, but it seems like a lot." "Did you put any planning into lens flares?"
 - **23:23:** "We already have the foreground and background color swatches. I meant the gadgets below that. We had something clunky there before. Quickmask and screen modes never sat right." "Yes, try to make lens flare effects."
 - **23:25:** "Nice. What parameters do they use? Are they shaders or vectors?"
+- **23:26:** "So they just put it where they want it in an image? Can we rearrange it in realtime as they drag it around in the image?"
