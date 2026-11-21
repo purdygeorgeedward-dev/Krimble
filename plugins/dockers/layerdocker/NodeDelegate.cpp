@@ -132,7 +132,8 @@ void NodeDelegate::paint(QPainter *p, const QStyleOptionViewItem &o, const QMode
                 // } else {
                 //     p->fillRect(option.rect, option.palette.color(QPalette::Active, QPalette::Highlight));
                 // }
-                krimblePaintAqua(*p, QRectF(option.rect), 0.0);   // the Aqua-style selection on the selected layer row
+                // krimblePaintAqua(*p, QRectF(option.rect), 0.0);   // the Aqua-style selection on the selected layer row
+                p->fillRect(option.rect, QColor(0x0b, 0x87, 0xdd));   // flat selection blue: Aqua is for buttons, not selections ("it shouldn't be used on the layers")
                 option.palette.setColor(QPalette::HighlightedText, QColor(0xff, 0xff, 0xff));
                 option.palette.setColor(QPalette::Text, QColor(0xff, 0xff, 0xff));
             } else {

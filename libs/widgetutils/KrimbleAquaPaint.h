@@ -46,8 +46,11 @@ inline void krimblePaintAqua(QPainter &p, const QRectF &r, qreal radius, const Q
     g.setColorAt(0.00, krimbleAquaMix(base, black, 0.30));
     g.setColorAt(0.12, krimbleAquaMix(base, black, 0.12));
     g.setColorAt(0.50, krimbleAquaMix(base, black, 0.05));
-    g.setColorAt(0.85, krimbleAquaMix(base, white, 0.35));
-    g.setColorAt(1.00, krimbleAquaMix(base, white, 0.50));
+    // g.setColorAt(0.85, krimbleAquaMix(base, white, 0.35));
+    // g.setColorAt(1.00, krimbleAquaMix(base, white, 0.50));
+    // darker ("too light ... White disappears over it")
+    g.setColorAt(0.85, krimbleAquaMix(base, white, 0.14));
+    g.setColorAt(1.00, krimbleAquaMix(base, white, 0.24));
     p.fillPath(body, g);
 
     p.setClipPath(body);
@@ -56,8 +59,10 @@ inline void krimblePaintAqua(QPainter &p, const QRectF &r, qreal radius, const Q
     {
         QRadialGradient glow(QPointF(0, 0), 1.0);
         const QColor c = krimbleAquaMix(base, white, 0.75);
-        glow.setColorAt(0.0, QColor(c.red(), c.green(), c.blue(), 140));
-        glow.setColorAt(0.5, QColor(c.red(), c.green(), c.blue(), 50));
+        // glow.setColorAt(0.0, QColor(c.red(), c.green(), c.blue(), 140));
+        // glow.setColorAt(0.5, QColor(c.red(), c.green(), c.blue(), 50));
+        glow.setColorAt(0.0, QColor(c.red(), c.green(), c.blue(), 85));
+        glow.setColorAt(0.5, QColor(c.red(), c.green(), c.blue(), 28));
         glow.setColorAt(1.0, QColor(c.red(), c.green(), c.blue(), 0));
         QTransform t;
         t.translate(r.center().x(), r.top() + r.height() * 1.02);
@@ -84,8 +89,10 @@ inline void krimblePaintAqua(QPainter &p, const QRectF &r, qreal radius, const Q
         QPainterPath gloss;
         gloss.addRoundedRect(gr, gRadius, gRadius);
         QLinearGradient gg(gr.topLeft(), gr.bottomLeft());
-        gg.setColorAt(0.0, QColor(255, 255, 255, 217));
-        gg.setColorAt(1.0, QColor(255, 255, 255, 31));
+        // gg.setColorAt(0.0, QColor(255, 255, 255, 217));
+        // gg.setColorAt(1.0, QColor(255, 255, 255, 31));
+        gg.setColorAt(0.0, QColor(255, 255, 255, 150));
+        gg.setColorAt(1.0, QColor(255, 255, 255, 16));
         p.fillPath(gloss, gg);
     }
     p.restore();

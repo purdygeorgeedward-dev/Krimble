@@ -7886,3 +7886,16 @@ Built as 71.
 - "QuickAdjust looks great, but use my larger logo instead of the tiny Krimble one.": the QuickAdjust window shows dark_krimble-quickadjust-logo.png,
   left aligned, up to 600 real pixels wide (was the small Krimble | QuickAdjust banner).
 - Not changed: "Change Image - Image Rotation to just Rotate." is in krita5.xmlgui line 305, which George edits himself.
+
+## 806 — Aqua only on buttons, darker; selections flat blue; OK and Create in Aqua (2026-11-21, not built)
+- "I like the new aqua effect but it's too light and it shouldn't be used on the layers. Big areas look bad. White disappears over it." /
+  "Instead of selections, just use new aqua style on buttons, not selections. Keep selections that flat pretty blue."
+- Darker Aqua: the painted Aqua's lower half is lighter by 14-24% (was 35-50%), its bottom glow and top gloss are fainter; the style-sheet Aqua
+  gradient is darker to match (#06538a, #8fc2e6, #1a7fc8, #0872bd, #2a8fd4, #45a0dd).
+- Flat #0b87dd for selections: the selected layer row, list and tree rows, menu and menu bar highlights, the Color Lab history row, its check mark
+  and the chosen palette swatch's outline.
+- Aqua stays on buttons: the selected tool, checked buttons, tabs and model buttons in Color Lab, check boxes, progress bars, slider fill.
+- "Save As... dialog looks nice, but OK button looks bad. No aqua style?" / "File - New looks great except for the create button.": the default
+  button of a dialog (OK, Create) is drawn in Aqua.
+- Files: KrimbleAquaPaint.h, KrimbleVisualStyle.h, KrimbleVisualStylePainted.h, KrimbleCommonStyle.h, NodeDelegate.cpp, krimble_color_history.h,
+  krimble_color_palette_page.h.

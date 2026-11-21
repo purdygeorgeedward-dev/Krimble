@@ -326,7 +326,8 @@ protected:
                 if (row.bottom() < 88 * s || row.top() > 1024 * s) continue;
                 const KrimbleHistoryEntry &e = m_entries[shown_rows[v]];
                 const bool current = !selectedDone && e.color == shown && e.alpha == alpha;
-                if (current) { selectedDone = true; paintSelected(p, row, 12 * s, s); }
+                // if (current) { selectedDone = true; paintSelected(p, row, 12 * s, s); }
+                if (current) { selectedDone = true; p.save(); p.setRenderHint(QPainter::Antialiasing, true); p.setPen(Qt::NoPen); p.setBrush(QColor(0x0b, 0x87, 0xdd)); p.drawRoundedRect(row, 12 * s, 12 * s); p.restore(); }   // a selection: flat blue
                 else paintGroup(p, row, 12 * s);
                 paintColorBox(p, QRectF(row.left() + 9 * s, row.top() + 8 * s, 59 * s, row.height() - 16 * s), e.color, 10 * s, s, false);
                 p.setPen(QColor("#f4f6fc"));
@@ -448,7 +449,8 @@ private:
         paintField(p, box, 8 * s);
         if (!on) return;
         // p.setPen(QPen(QColor("#0b87dd"), qMax<qreal>(2.5, 4.5 * s), Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
-        p.setPen(QPen(krimbleAquaRimBrush(box), qMax<qreal>(2.5, 4.5 * s), Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));   // Aqua tick
+        // p.setPen(QPen(krimbleAquaRimBrush(box), qMax<qreal>(2.5, 4.5 * s), Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));   // Aqua tic
+        p.setPen(QPen(QColor(0x0b, 0x87, 0xdd), qMax<qreal>(2.5, 4.5 * s), Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));   // a selection mark: flat bluek
         p.setBrush(Qt::NoBrush);
         QPainterPath tick;
         tick.moveTo(box.left() + box.width() * 0.22, box.top() + box.height() * 0.54);

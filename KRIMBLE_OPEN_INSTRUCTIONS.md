@@ -34,6 +34,7 @@ Last updated: 2026-11-21 03:42 MST.
 
 ## 2026-11-21 15:39 — New tool concept: multi-point gradient (not started)
 "User taps screen ti create control points and the tool creates a web of lines between those nodes and fills it in with a gradient based on colors selected by the user."
-(A mesh of triangles between the tapped points, each point carrying its own color, blended across each triangle.)
+15:42: "The multi-point gradient would create either linear ._._._._. or 3d gradients (many island nodes) and gratients form between the nodes in different directions. Each would exist as a vector object with control points the user can move and reposition at will."
+(Two kinds: a chain of nodes (linear), or free island nodes blended across a mesh between them. A vector object; nodes stay movable.)
 
 ## 2026-11-21 15:37 — Test 1.0.73 list (in progress; see KRIMBLE_CONVERSATION_LOG.md for his words)

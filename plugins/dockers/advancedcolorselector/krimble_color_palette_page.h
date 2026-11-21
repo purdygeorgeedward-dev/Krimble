@@ -289,7 +289,8 @@ protected:
                 if (i == m_selected) {
                     p.setBrush(Qt::NoBrush);
                     // p.setPen(QPen(QColor("#0b87dd"), qMax<qreal>(2.0, 3.2 * s)));
-                    p.setPen(QPen(krimbleAquaRimBrush(cell), qMax<qreal>(2.0, 3.2 * s)));   // Aqua rim on the chosen swatch
+                    // p.setPen(QPen(krimbleAquaRimBrush(cell), qMax<qreal>(2.0, 3.2 * s)));   // Aqua rim on the chosen swatch
+                    p.setPen(QPen(QColor(0x0b, 0x87, 0xdd), qMax<qreal>(2.0, 3.2 * s)));   // the chosen swatch: flat selection blue
                     p.drawRoundedRect(cell.adjusted(-1, -1, 1, 1), 4 * s, 4 * s);
                 }
             }
