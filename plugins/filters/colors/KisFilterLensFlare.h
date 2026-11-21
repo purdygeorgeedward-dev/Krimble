@@ -11,6 +11,7 @@
 #include <klocalizedstring.h>
 #include <filter/kis_filter.h>
 #include <kis_config_widget.h>
+#include <QPointer>
 
 class KisSliderSpinBox;
 class QComboBox;
@@ -45,8 +46,15 @@ public:
 
     void setConfiguration(const KisPropertiesConfigurationSP config) override;
     KisPropertiesConfigurationSP configuration() const override;
+    void setView(KisViewManager *view) override;   // to follow a finger dragged on the picture
+
+protected:
+    bool eventFilter(QObject *watched, QEvent *event) override;
 
 private:
+    bool moveLightTo(const QPointF &widgetPoint);
+    KisViewManager *m_view {nullptr};
+    QPointer<QWidget> m_canvasWidget;
     QComboBox *m_type;
     KisSliderSpinBox *m_x;
     KisSliderSpinBox *m_y;

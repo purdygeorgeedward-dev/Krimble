@@ -24,6 +24,13 @@
 #include <kis_default_bounds_base.h>
 #include <kis_slider_spin_box.h>
 #include <KoUpdater.h>
+#include <QEvent>
+#include <QMouseEvent>
+#include <QTouchEvent>
+#include <KisViewManager.h>
+#include <canvas/kis_canvas2.h>
+#include <canvas/kis_coordinates_converter.h>
+#include <kis_image.h>
 
 KisFilterLensFlare::KisFilterLensFlare()
     : KisFilter(id(), FiltersCategoryRenderId, i18n("&Lens Flare..."))
@@ -197,4 +204,66 @@ KisPropertiesConfigurationSP KisWdgLensFlare::configuration() const
     config->setProperty("ring", m_ring->value());
     config->setProperty("warmth", m_warmth->value());
     return config;
+}
+
+void KisWdgLensFlare::setView(KisViewManager *view)
+{
+    m_view = view;
+    if (m_canvasWidget) m_canvasWidget->removeEventFilter(this);
+    m_canvasWidget = nullptr;
+    if (view && view->canvasBase() && view->canvasBase()->canvasWidget()) {
+        m_canvasWidget = view->canvasBase()->canvasWidget();
+        m_canvasWidget->installEventFilter(this);
+        m_canvasWidget->setAttribute(Qt::WA_AcceptTouchEvents, true);
+    }
+}
+
+// the light follows a finger (or the mouse) on the picture while this window is open; the preview updates as it moves
+bool KisWdgLensFlare::moveLightTo(const QPointF &widgetPoint)
+{
+    if (!m_view || !m_view->canvasBase() || !m_view->image()) return false;
+    const KisCoordinatesConverter *converter = m_view->canvasBase()->coordinatesConverter();
+    if (!converter) return false;
+    const QPointF imagePoint = converter->viewportToImage(converter->widgetToViewport(widgetPoint));
+    const QRect bounds = m_view->image()->bounds();
+    if (bounds.isEmpty()) return false;
+    const int x = qBound(0, qRound((imagePoint.x() - bounds.left()) * 100.0 / bounds.width()), 100);
+    const int y = qBound(0, qRound((imagePoint.y() - bounds.top()) * 100.0 / bounds.height()), 100);
+    if (m_x->value() != x || m_y->value() != y) {
+        m_x->blockSignals(true);
+        m_x->setValue(x);
+        m_x->blockSignals(false);
+        m_y->setValue(y);   // one signal for both: one preview
+    }
+    return true;
+}
+
+bool KisWdgLensFlare::eventFilter(QObject *watched, QEvent *event)
+{
+    if (watched != m_canvasWidget || !isVisible()) return KisConfigWidget::eventFilter(watched, event);
+    switch (event->type()) {
+    case QEvent::MouseButtonPress:
+    case QEvent::MouseMove: {
+        QMouseEvent *mouse = static_cast<QMouseEvent*>(event);
+        if (event->type() == QEvent::MouseMove && !(mouse->buttons() & Qt::LeftButton)) break;
+        if (mouse->source() != Qt::MouseEventNotSynthesized) return true;   // the touch events below handle the finger
+        return moveLightTo(mouse->localPos());
+    }
+    case QEvent::MouseButtonRelease:
+        return true;
+    case QEvent::TouchBegin:
+    case QEvent::TouchUpdate: {
+        QTouchEvent *touch = static_cast<QTouchEvent*>(event);
+        if (touch->touchPoints().size() != 1) break;   // two fingers still pan and zoom
+        event->accept();
+        moveLightTo(touch->touchPoints().first().pos());
+        return true;
+    }
+    case QEvent::TouchEnd:
+        if (static_cast<QTouchEvent*>(event)->touchPoints().size() == 1) { event->accept(); return true; }
+        break;
+    default:
+        break;
+    }
+    return KisConfigWidget::eventFilter(watched, event);
 }
