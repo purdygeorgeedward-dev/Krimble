@@ -261,3 +261,7 @@ What was lost: the screenshots George sent during the day were not saved anywher
 - **11:47:** "Why extra?" / "Yes" (renamed to 09_01_dodge.png and 09_02_burn.png)
 - **11:49:** "We should make the photorealistic icon set." (change 802)
 - **11:50:** "These will only be useful to people with giant screens if at all."
+- **11:51:** "I am looking forward to having lens flares."
+- **11:51:** "I'm so pleased. We are leaping ahead of Krita development!"
+- **11:53:** "There may be a handful of people who have been using Krita like I did on phones as a substitute for Photoshop. For these people and for the GIMPshop people Krimble will be a godsend. They are going to be so happy!"
+- **11:54:** "Industry standard professional photo editing tools in the palm of your hand." (saved in PLAY_STORE_LISTING.md)
