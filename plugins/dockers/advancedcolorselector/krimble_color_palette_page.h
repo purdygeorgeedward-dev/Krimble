@@ -112,7 +112,7 @@ public:
             const QRect w = whole.toAlignedRect();
             box->setGeometry(w.left(), w.top(), w.width() - arrowW, w.height());
             box->setFont(f);
-            krimbleSetSheet(box, QStringLiteral("QSpinBox { background: transparent; border: none; padding: 0px 0px 0px %1px; color: #f4f6fc; selection-background-color: #1196d8; }"
+            krimbleSetSheet(box, QStringLiteral("QSpinBox { background: transparent; border: none; padding: 0px 0px 0px %1px; color: #f4f6fc; selection-background-color: #0b87dd; }"
                                               "QSpinBox QLineEdit { background: transparent; border: none; padding: 0px; }"
                                               "QSpinBox::up-button, QSpinBox::down-button { width: 0px; height: 0px; border: none; }").arg(qRound(padUnits * s)));
             up->setGeometry(w.right() - arrowW + 1, w.top(), arrowW, w.height() / 2);
@@ -125,7 +125,7 @@ public:
         for (int i = 0; i < 4; ++i) place(cmykBox[i], m_cmykUp[i], m_cmykDown[i], r(45 + 80 * i, 839, 60, 34), 16, 4);
         hex->setGeometry(r(165, 751, 148, 39).toAlignedRect());
         hex->setFont(f);
-        krimbleSetSheet(hex, QStringLiteral("QLineEdit { background: transparent; border: none; padding: 0px 0px 0px %1px; color: #f4f6fc; selection-background-color: #1196d8; }").arg(qRound(12 * s)));
+        krimbleSetSheet(hex, QStringLiteral("QLineEdit { background: transparent; border: none; padding: 0px 0px 0px %1px; color: #f4f6fc; selection-background-color: #0b87dd; }").arg(qRound(12 * s)));
         copy->setGeometry(r(313, 751, 41, 39).toAlignedRect());
     }
 
@@ -288,7 +288,7 @@ protected:
                 p.drawRoundedRect(cell, 3 * s, 3 * s);
                 if (i == m_selected) {
                     p.setBrush(Qt::NoBrush);
-                    p.setPen(QPen(QColor("#6fe3ff"), qMax<qreal>(2.0, 3.2 * s)));
+                    p.setPen(QPen(QColor("#0b87dd"), qMax<qreal>(2.0, 3.2 * s)));
                     p.drawRoundedRect(cell.adjusted(-1, -1, 1, 1), 4 * s, 4 * s);
                 }
             }

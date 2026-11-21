@@ -177,13 +177,13 @@ public:
         f = fittedFont(f, QStringLiteral("Group consecutive duplicates"), 286 * s);
         hex->setGeometry(r(195, 87, 133, 38).toAlignedRect());
         hex->setFont(f);
-        krimbleSetSheet(hex, QStringLiteral("QLineEdit { background: transparent; border: none; padding: 0px 0px 0px %1px; color: #f4f6fc; selection-background-color: #1196d8; }").arg(qRound(14 * s)));
+        krimbleSetSheet(hex, QStringLiteral("QLineEdit { background: transparent; border: none; padding: 0px 0px 0px %1px; color: #f4f6fc; selection-background-color: #0b87dd; }").arg(qRound(14 * s)));
         copy->setGeometry(r(328, 87, 38, 38).toAlignedRect());
         const QRect whole = r(255.6, 758, 107, 39).toAlignedRect();
         const int arrowW = qRound(38 * s);
         limitBox->setGeometry(whole.left(), whole.top(), whole.width() - arrowW, whole.height());
         limitBox->setFont(f);
-        krimbleSetSheet(limitBox, QStringLiteral("QSpinBox { background: transparent; border: none; padding: 0px 0px 0px %1px; color: #f4f6fc; selection-background-color: #1196d8; }"
+        krimbleSetSheet(limitBox, QStringLiteral("QSpinBox { background: transparent; border: none; padding: 0px 0px 0px %1px; color: #f4f6fc; selection-background-color: #0b87dd; }"
                                                "QSpinBox QLineEdit { background: transparent; border: none; padding: 0px; }"
                                                "QSpinBox::up-button, QSpinBox::down-button { width: 0px; height: 0px; border: none; }").arg(qRound(12 * s)));
         m_limitUp->setGeometry(whole.right() - arrowW + 1, whole.top(), arrowW, whole.height() / 2);
@@ -447,7 +447,7 @@ private:
     {
         paintField(p, box, 8 * s);
         if (!on) return;
-        p.setPen(QPen(QColor("#35d8f8"), qMax<qreal>(2.5, 4.5 * s), Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+        p.setPen(QPen(QColor("#0b87dd"), qMax<qreal>(2.5, 4.5 * s), Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
         p.setBrush(Qt::NoBrush);
         QPainterPath tick;
         tick.moveTo(box.left() + box.width() * 0.22, box.top() + box.height() * 0.54);

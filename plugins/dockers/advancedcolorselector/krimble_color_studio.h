@@ -1145,7 +1145,7 @@ private:
     }
     static QString swatchSheet(const QColor &color, bool selected) {
         return selected
-            ? QStringLiteral("background:%1;border:2px solid #35d8f8;border-radius:0px;").arg(color.name())
+            ? QStringLiteral("background:%1;border:2px solid #0b87dd;border-radius:0px;").arg(color.name())
             : QStringLiteral("background:%1;border:none;border-right:1px solid #000000;border-bottom:1px solid #000000;border-radius:0px;").arg(color.name());
     }
     void rebuildSwatches() {

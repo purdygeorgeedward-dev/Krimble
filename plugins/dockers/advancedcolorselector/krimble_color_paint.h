@@ -228,7 +228,7 @@ public:
     static void paintSelected(QPainter &p, const QRectF &rect, qreal radius, qreal s)
     {
         for (int i = 6; i >= 1; --i) {
-            p.setPen(QPen(QColor(40, 190, 255, 20 + (6 - i) * 9), 2.0));
+            p.setPen(QPen(QColor(11, 135, 221, 20 + (6 - i) * 9), 2.0));
             p.setBrush(Qt::NoBrush);
             p.drawRoundedRect(rect.adjusted(-i * 1.1 * s, -i * 1.1 * s, i * 1.1 * s, i * 1.1 * s), radius + i * s, radius + i * s);
         }
@@ -237,7 +237,7 @@ public:
         p.setBrush(QColor("#0b87dd"));
         p.drawRoundedRect(b, radius, radius);
         p.setBrush(Qt::NoBrush);
-        p.setPen(QPen(QColor("#6fe3ff"), 2.4 * qMax<qreal>(0.5, s * 2)));
+        p.setPen(QPen(QColor("#0b87dd"), 2.4 * qMax<qreal>(0.5, s * 2)));
         p.drawRoundedRect(b, radius, radius);
     }
     // a pill that keeps the color and the glow of the item it shows (the preview boxes): a colored rounded square with the cyan outline and its glow

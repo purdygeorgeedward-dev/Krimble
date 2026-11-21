@@ -5,7 +5,7 @@ static void krimbleSetButtonGlow(QAbstractButton *button, bool on)
     if (on) {
         if (button->graphicsEffect()) return;       // it has an effect already (this one, or another that is not ours)
         QGraphicsDropShadowEffect *glow = new QGraphicsDropShadowEffect(button);
-        glow->setColor(QColor(56, 198, 255, 230));  // the blue of the selected tab and checked button
+        glow->setColor(QColor(11, 135, 221, 230));  // the selection blue (#0b87dd)
         glow->setBlurRadius(18);
         glow->setOffset(0, 0);
         button->setGraphicsEffect(glow);

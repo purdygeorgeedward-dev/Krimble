@@ -53,17 +53,17 @@ QPushButton, QDialog QToolButton {
     background: #3e4b78;
 }
 QPushButton:hover, QDialog QToolButton:hover {
-    border-color: #3bd5f7;
+    border-color: #0b87dd;
     background: #3e4b78;
 }
 QPushButton:pressed, QDialog QToolButton:pressed,
 QPushButton:checked, QDialog QToolButton:checked {
-    border: 2px solid #3bd5f7;
+    border: 2px solid #0b87dd;
     /* background: #1d7cb2; */
     background: #0b87dd;}
 QPushButton:default {
     color: white;
-    border: 2px solid #3bd5f7;
+    border: 2px solid #0b87dd;
     /* background: #1d7cb2; */
     background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #0a89cd, stop:0.3 #085892, stop:0.6 #07497e, stop:1 #044a9c);}
 QPushButton:disabled, QDialog QToolButton:disabled {
@@ -114,7 +114,7 @@ QComboBox {
     background: #141926;
 }
 QLineEdit:focus, QSpinBox:focus, QDoubleSpinBox:focus, QComboBox:focus {
-    border: 1px solid #3bd5f7;
+    border: 1px solid #0b87dd;
 }
 QAbstractItemView::item:selected {
     color: white;
@@ -152,7 +152,7 @@ QCheckBox::indicator {
 }
 QCheckBox::indicator:checked {
     image: url(:/krimble-checkmark.svg);
-    border: 2px solid #3bd5f7;
+    border: 2px solid #0b87dd;
     /* background: #1d7cb2; */
     background: #0b87dd;}
 QMenuBar {
@@ -237,7 +237,7 @@ QProgressBar::chunk {
 }
 QToolTip {
     color: #eef1fa;
-    border: 1px solid #3bd5f7;
+    border: 1px solid #0b87dd;
     background: #232a42;
 }
 QWidget#krimbleStudioCard {
