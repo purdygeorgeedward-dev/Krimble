@@ -7862,7 +7862,7 @@ Built as 71.
 
 ## 802 — Photorealistic toolbox icon style (2026-11-21, not built)
 - Icon Style menu: a fifth choice, Photorealistic ("We should make the photorealistic icon set."). IconStyle Photorealistic = 5.
-- 33 pictures at 240 px (Gradient added 12:25; Text, Line, Edit Path Nodes and Undo added 12:40; no aura, George's transparency kept as delivered) in krita/pics/krimble-toolbox-photo (1.7 MB, qrc prefix /krimble-toolbox-photo), cut from the full-size set in
+- 35 pictures at full resolution, George's files unchanged (12:52: "leave them at FULL RESOLUTION. NO SCALING DOWN"; earlier copies were 240 px) (Gradient added 12:25; Text, Line, Edit Path Nodes and Undo added 12:40; no aura, George's transparency kept as delivered) in krita/pics/krimble-toolbox-photo (44 MB, qrc prefix /krimble-toolbox-photo), the same files as
   docs/krimble-icon-sets/photorealistic. Every tool has a photo (Free Rotate and Assistant added 12:46); a tool without one would be drawn as in Classic.
 - Undo, Quick Mask and Screen Mode show their photos (metal arrow, mask, TV) in this style; their drawn icons come back in the others.
 - Files: KrimbleToolboxIcons.h (photoIcon, hasPhoto, refreshGadget(s)), KoToolBox.cpp, KoToolBoxButton.cpp, KoToolBoxDocker.cpp, krita/CMakeLists.txt.

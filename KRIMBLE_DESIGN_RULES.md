@@ -6,3 +6,5 @@
 - **No rounded corners on color wells or swatches** (the foreground and background wells, the recent colors, the palette swatches and their empty places). (George, 2026-11-09: "Why are the color wells rounded at the corners? You know I hate that.") Square corners, as in the mockup's palette and recent colors.
 
 - **The shadow is the outer edge. Nothing is drawn outside a panel's shadow, ever** — no gaps, stripes, separators or background showing through. The shadow itself may be moved a little farther out, but nothing goes beyond it. (George, 2026-11-20: "We do not draw any more content outside the shadow area. EVER. THE SHADOW IS THE OUTER EDGE." and "maybe the shadow can be moved a little farther out, but NOTHING SHOULD BE DRAWN OUTSIDE THE SHADOW.")
+
+- (2026-11-21) George's images go in at FULL RESOLUTION with his own alpha channel untouched: "Just leave my alpha channel transparency alone!!" / "And leave them at FULL RESOLUTION. NO SCALING DOWN LIKE I TOLD YOU BEFORE WITH WESNOTH." No auras, glows, scaling or re-cropping of his pictures.

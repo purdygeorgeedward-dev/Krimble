@@ -282,3 +282,4 @@ What was lost: the screenshots George sent during the day were not saved anywher
 - **12:49:** "What do they look like on black or white?"
 - **12:51:** "The glow makes them look very artificial."
 - **12:52:** "Just leave my alpha channel transparency alone!!" (aura removed from Line and Text; app copies are only cropped and scaled)
+- **12:52:** "And leave them at FULL RESOLUTION. NO SCALING DOWN LIKE I TOLD YOU BEFORE WITH WESNOTH." (app copies replaced with his full-resolution files; rule added to KRIMBLE_DESIGN_RULES.md)
