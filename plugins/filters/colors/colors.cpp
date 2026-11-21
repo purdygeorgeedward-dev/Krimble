@@ -14,6 +14,7 @@
 #include "KisFilterFastColorOverlay.h"
 #include "KisFilterPhotoFilter.h"
 #include "KisFilterLensFlare.h"
+#include "KisFilterLightsaber.h"
 #include <filter/kis_filter_registry.h>
 
 K_PLUGIN_FACTORY_WITH_JSON(KritaExtensionsColorsFactory, "kritaextensioncolorsfilters.json", registerPlugin<KritaExtensionsColors>();)
@@ -28,6 +29,7 @@ KritaExtensionsColors::KritaExtensionsColors(QObject *parent, const QVariantList
     manager->add(new KisFilterFastColorOverlay());
     manager->add(new KisFilterPhotoFilter());
     manager->add(new KisFilterLensFlare());
+    manager->add(new KisFilterLightsaber());
 
 }
 

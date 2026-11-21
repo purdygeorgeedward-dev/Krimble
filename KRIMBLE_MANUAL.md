@@ -110,6 +110,7 @@ Turn the phone sideways and everything rearranges for the wide screen.
 - **Image > Upscale...**: makes a picture 2, 3 or 4 times larger.
 - **Filter** menu: Blur, Sharpen, Stylize and others.
 - **Filter > Render > Lens Flare...**: adds a camera lens flare: choose the type, drag the light on the picture with a finger (or use Light across and Light down), and set brightness, rays, ghosts, ring and color.
+- **Filter > Render > Lightsaber...**: draws a glowing energy blade; drag either end on the picture with a finger, and set its color, width, glow and brightness.
 
 ---
 

@@ -149,6 +149,7 @@ Recent and active work includes:
 - **Auto Crop** ✂️ in the Image menu
 - **Long press flyouts** in the toolbox: hold a tool to reach the rest of its group (Marquee, Lasso, Wand, Shapes, Fill and more)
 - **Lens Flare** ✨: Filter > Render > Lens Flare..., four flare types made from scratch (Zoom lens, Prime lens, Cinematic anamorphic, Starburst), with a live preview. Put a finger on the picture and drag: the light follows and the ghosts swing across the center like a real lens. Sliders for brightness, rays, ghosts, ring and color.
+- **Lightsaber** ⚔️: Filter > Render > Lightsaber..., a glowing energy blade made from scratch: a white-hot core with a colored glow (Blue, Green, Red, Purple, Yellow, White or any color). Drag a finger on the picture to move either end of the blade; sliders for blade width, glow and brightness.
 - additional restoration and editing tools
 
 Some of these are already implemented; others are still in development.

@@ -20,6 +20,10 @@ Krimble is open source software made with the assistance of Claude and ChatGPT.
 
 - New: Filter > Render > Lens Flare..., four flare types made from scratch (Zoom lens, Prime lens, Cinematic, Starburst). Drag a finger on the picture to move the light; sliders for brightness, rays, ghosts, ring and color.
 
+**Lightsaber**
+
+- New: Filter > Render > Lightsaber..., a glowing energy blade made from scratch in six colors or any color. Drag a finger on the picture to move either end; sliders for width, glow and brightness.
+
 **Selections**
 
 - The selected toolbox button, the selected button in button rows (such as Mode and Action in Tool Options), every selected item in Color Lab, and every other checked button now have a glossy Aqua-style blue highlight in place of the glow. The dull blue-green highlight on the Mode and Action buttons is gone.

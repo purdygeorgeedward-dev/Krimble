@@ -88,6 +88,10 @@ Select the part you want to remove (with any selection tool), then choose **Edit
 
 **Filter > Render > Lens Flare...** adds the flare a bright light makes in a camera lens. Choose a **Type**: **Zoom lens** (fine rays, a rainbow ring and a trail of colored ghosts), **Prime lens** (a tighter ring, fewer ghosts), **Cinematic** (a blue horizontal streak with oval ghosts) or **Starburst** (long spikes). While the window is open, **touch the picture and drag**: the light follows your finger (two fingers still move and zoom the picture). **Light across** and **Light down** show where the light is (in percent of the picture's width and height) and can set it too; the ghosts line up through the center of the picture on the other side, as in a real lens. **Brightness**, **Rays**, **Ghosts**, **Ring** and **Color (cool to warm)** change its look. The preview shows the result as you move the sliders. The flare only brightens the picture; it never darkens it.
 
+## Lightsaber
+
+**Filter > Render > Lightsaber...** draws a glowing energy blade: a white-hot core inside a colored glow. Pick the **Blade** color (Blue, Green, Red, Purple, Yellow, White, or **Other color** with the **Color** button). While the window is open, **touch the picture and drag**: the end of the blade nearer your finger follows it (two fingers still move and zoom the picture). **Hilt end** and **Tip** (across and down, in percent) show and set the two ends. **Blade width**, **Glow** and **Brightness** change its look. It only brightens the picture, so it looks best over darker areas; use it on a new layer filled with black and set that layer to Screen to keep it separate.
+
 ## Hex maps and stars
 
 - **View > Show > Hex** draws a pattern of hexagons over the picture, for making hex maps. It follows the zoom and is not part of the picture. **Hex Size...** sets the size of a hexagon (center to corner, in pixels), **Hex Lines...** sets the lines, and **Lock Hex Settings** keeps them from being changed by accident.
