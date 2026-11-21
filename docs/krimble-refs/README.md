@@ -43,3 +43,4 @@ Files named YYYY-MM-DD_HHMM_<id>.jpg, by the time each was sent (MST).
 | 2026-11-21_0545_demo-silhouettes-in-color.png | Nov 21, 2026 05:45 MST | Demo: the picture icons (top) and the silhouette line icons drawn in each picture's main color (bottom) |
 | 2026-11-21_0550_demo-white-lines-over-color.png | Nov 21, 2026 05:50 MST | Demo: white silhouette lines laid over the color pictures (not used) |
 | 2026-11-21_0550_demo-color-mix-white-lines-for-line-tools.png | Nov 21, 2026 05:50 MST | Demo: Color set mixed like Classic: white silhouette lines for the shape and line tools, color pictures for the object tools |
+| 2026-11-21_0552_demo-color-mix-no-orange.png | Nov 21, 2026 05:52 MST | Demo: color mix with no orange: Healing, Brush and Smudge also as white lines ("The bright orange has to go.") |

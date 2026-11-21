@@ -231,3 +231,4 @@ What was lost: the screenshots George sent during the day were not saved anywher
 - **04:47:** "Like the silhouettes."
 - **04:47:** "Why do you keep showing me outlines?"
 - **04:48:** "No. Just white lines."
+- **04:48:** "The bright orange has to go. Ugh"
