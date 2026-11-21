@@ -8,6 +8,9 @@
 
 #include <QHash>
 #include <QIcon>
+#include <QFile>
+#include <QToolButton>
+#include <QWidget>
 #include <QPainter>
 #include <QColor>
 #include <QImage>
@@ -90,7 +93,10 @@ inline const QHash<QString, QString> &files()
 
 // Icon styles: White (the silhouette icons as they are), Black (the silhouettes drawn in black), Grayscale (the picture icons
 // in shades of gray), Color (the picture icons). Key Krimble/ToolboxIconStyle; an older setting (ToolboxColorIcons / ToolboxGrayIcons) is read once.
-enum IconStyle { White = 0, Color = 1, Black = 2, Grayscale = 3, Classic = 4 };
+// enum IconStyle { White = 0, Color = 1, Black = 2, Grayscale = 3, Classic = 4 };
+// Photorealistic: George's photo pictures (krita/pics/krimble-toolbox-photo, full size in docs/krimble-icon-sets/photorealistic);
+// a tool without one is drawn as in Classic.
+enum IconStyle { White = 0, Color = 1, Black = 2, Grayscale = 3, Classic = 4, Photorealistic = 5 };
 
 // Classic: as in the classic industry-standard toolbar (docs/krimble-refs/2026-11-21_0436_ps-toolbar-labeled-grayscale-icons.jpg),
 // tools that are shapes and lines are black line art (the silhouettes in black); tools that are objects are shaded gray art
@@ -112,7 +118,7 @@ inline int &iconStyleCache()
 {
     static int style = [] {
         KConfigGroup group = KSharedConfig::openConfig()->group("Krimble");
-        if (group.hasKey("ToolboxIconStyle")) return qBound(0, group.readEntry("ToolboxIconStyle", 0), 4);
+        if (group.hasKey("ToolboxIconStyle")) return qBound(0, group.readEntry("ToolboxIconStyle", 0), 5);
         if (group.readEntry("ToolboxGrayIcons", false)) return int(Black);
         return group.readEntry("ToolboxColorIcons", false) ? int(Color) : int(White);
     }();
@@ -124,14 +130,15 @@ inline int iconStyle() { return iconStyleCache() == Color ? int(White) : iconSty
 
 inline void setIconStyle(int style)
 {
-    iconStyleCache() = qBound(0, style, 4);
+    iconStyleCache() = qBound(0, style, 5);
     KConfigGroup group = KSharedConfig::openConfig()->group("Krimble");
     group.writeEntry("ToolboxIconStyle", iconStyleCache());
     group.config()->sync();
 }
 
 // the picture icons are shown in Color and Grayscale
-inline bool colorMode() { return iconStyle() == Color || iconStyle() == Grayscale || iconStyle() == Classic; }
+// inline bool colorMode() { return iconStyle() == Color || iconStyle() == Grayscale || iconStyle() == Classic; }
+inline bool colorMode() { return iconStyle() == Color || iconStyle() == Grayscale || iconStyle() == Classic || iconStyle() == Photorealistic; }
 inline bool grayMode() { return iconStyle() == Black; }   // (name kept: the Black style)
 inline void setColorMode(bool on) { setIconStyle(on ? Color : White); }
 inline void setGrayMode() { setIconStyle(Black); }
@@ -235,6 +242,19 @@ inline QColor lightGrayFace()
     return buttonFace() == 2 ? QColor(250, 250, 252) : QColor(198, 198, 202);
 }
 
+// the photorealistic picture for a tool (or a toolbox button such as "08_02_quick_mask"), or a null icon
+inline QIcon photoIcon(const QString &fileName)
+{
+    if (fileName.isEmpty()) return QIcon();
+    const QString path = QStringLiteral(":/krimble-toolbox-photo/") + fileName + QStringLiteral(".png");
+    return QFile::exists(path) ? QIcon(path) : QIcon();
+}
+
+inline bool hasPhoto(const QString &iconName)
+{
+    return !photoIcon(files().value(iconName)).isNull();
+}
+
 inline bool hasPicture(const QString &iconName)
 {
     const auto it = files().constFind(iconName);
@@ -290,7 +310,12 @@ inline QIcon icon(const QString &iconName)
 
 inline QIcon plainIcon(const QString &iconName)
 {
-    if (iconStyle() == Classic) {
+    if (iconStyle() == Photorealistic) {
+        const QIcon photo = photoIcon(files().value(iconName));
+        if (!photo.isNull()) return photo;
+    }
+    // if (iconStyle() == Classic) {
+    if (iconStyle() == Classic || iconStyle() == Photorealistic) {   // a tool with no photo is drawn as in Classic
         if (classicLineArt(iconName) || !hasPicture(iconName)) return blackIcon(kisIcon(iconName));
         return grayIcon(QIcon(QStringLiteral(":/krimble-toolbox/") + files().value(iconName) + QStringLiteral(".png")));
     }
@@ -308,6 +333,22 @@ inline QIcon plainIcon(const QString &iconName)
         }
     }
     return kisIcon(iconName);
+}
+
+// Quick Mask and Screen Mode: the photo in the Photorealistic style, their own drawn icon otherwise
+// (kept in the button's "krimbleDrawnIcon" property when the button is made)
+inline void refreshGadget(QToolButton *button, const QString &photoName)
+{
+    if (!button) return;
+    const QIcon photo = iconStyle() == Photorealistic ? photoIcon(photoName) : QIcon();
+    button->setIcon(!photo.isNull() ? photo : button->property("krimbleDrawnIcon").value<QIcon>());
+}
+
+inline void refreshGadgets(QWidget *top)
+{
+    if (!top) return;
+    refreshGadget(top->findChild<QToolButton *>(QStringLiteral("krimbleQuickMaskButton")), QStringLiteral("08_02_quick_mask"));
+    refreshGadget(top->findChild<QToolButton *>(QStringLiteral("krimbleScreenModeButton")), QStringLiteral("08_03_screen_mode"));
 }
 
 } // namespace KrimbleToolboxIcons

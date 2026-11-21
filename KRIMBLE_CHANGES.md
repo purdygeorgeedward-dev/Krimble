@@ -7859,3 +7859,10 @@ Built as 71.
 - Toolbox Button Style menu: a fourth background, Dark gray (78,78,84). Key Krimble/ToolboxButtonFace now 0 to 3.
 - With the White icon style, icons are drawn black when the background is Light gray or White ("White should only appear on dark backgrounds."). Changing the background refreshes the icons.
 - Files: KrimbleToolboxIcons.h (customFace(), lightGray() now light faces only), KoToolBox.cpp, KoToolBoxButton.cpp, KoToolBoxDocker.cpp.
+
+## 802 — Photorealistic toolbox icon style (2026-11-21, not built)
+- Icon Style menu: a fifth choice, Photorealistic ("We should make the photorealistic icon set."). IconStyle Photorealistic = 5.
+- 28 pictures at 240 px in krita/pics/krimble-toolbox-photo (1.7 MB, qrc prefix /krimble-toolbox-photo), cut from the full-size set in
+  docs/krimble-icon-sets/photorealistic. Tools without a photo (Gradient, Text, Line, Free Rotate, Assistant, Edit Path Nodes) are drawn as in Classic.
+- Quick Mask and Screen Mode show their photos (mask, TV) in this style; their drawn icons come back in the others.
+- Files: KrimbleToolboxIcons.h (photoIcon, hasPhoto, refreshGadget(s)), KoToolBox.cpp, KoToolBoxButton.cpp, KoToolBoxDocker.cpp, krita/CMakeLists.txt.

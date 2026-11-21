@@ -612,6 +612,7 @@ void KoToolBox::setupIconStyleMenu(QMenu *menu)
         {i18n("Grayscale"), KrimbleToolboxIcons::Grayscale},
         // {i18n("Color"), KrimbleToolboxIcons::Color},   // removed: "Remove the color option completely"
         {i18n("Classic"), KrimbleToolboxIcons::Classic},
+        {i18n("Photorealistic"), KrimbleToolboxIcons::Photorealistic},
     };
     for (const Choice &choice : choices) {
         QAction *action = menu->addAction(choice.name);
@@ -622,6 +623,7 @@ void KoToolBox::setupIconStyleMenu(QMenu *menu)
         connect(action, &QAction::triggered, this, [this, style]() {
             KrimbleToolboxIcons::setIconStyle(style);
             Q_FOREACH (KoToolBoxButton *button, d->buttonsByToolId) button->krimbleRefreshIcon();
+            KrimbleToolboxIcons::refreshGadgets(window());   // Quick Mask and Screen Mode have photos too
         });
     }
 }
