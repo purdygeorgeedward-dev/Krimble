@@ -136,3 +136,33 @@ George says he talked to Claude (in an earlier session; the text of that talk is
 - **11:06Z (Nov 20):** Make grab area lines invisible on color lab. (759th)
 - **11:16Z (Nov 20):** Fix all of that before any build can take place. (760th)
 - **11:19Z (Nov 20):** Yes. Delete the inline notes. (761st)
+
+## Session of 2026-11-20, 04:19 MST to 23:05 MST (times in MST; "~" = time not kept, the chat was compressed and only a summary survived)
+
+What was lost: the screenshots George sent during the day were not saved anywhere until 22:51 MST. They were recovered from the session's upload folder at 23:01 and are now in `docs/krimble-refs/`. From now on every image goes there as it arrives.
+
+- **~ day:** For the hundredth time: THE ORANGE K IS RIGHT ON TOP OF THE FILE MENU TITLE. FIX IT. (screenshots TOO FAR / TOO CLOSE) "Lock it into a specific pixel distance for both before and after file open." "Let's try 90." (767th+)
+- **10:01:** Color Lab is easy to grab but won't reattach. Brighter blue toolbox selection, flat like the menu: "The glowy thing doesnt look professional." Swatches up to 256 with resizing. New document window size on launch based on the screen. "I have another image loaded at tiny size again."
+- **~:** "I don't want these little report boxes any more. Report these stats on the status bar."
+- **~:** "Why is there a gray stripe outside the shadow????" "It is NOT pointing at the glowing selection." "There should not be a gray stripe there. Ask questions if you're not sure about something." RULE: "We do not draw any more content outside the shadow area. EVER. THE SHADOW IS THE OUTER EDGE." "Now, maybe the shadow can be moved a little farther out, but NOTHING SHOULD BE DRAWN OUTSIDE THE SHADOW."
+- **~:** Toolbox bevel: "They need to be thicker. The hilight area and shadow area should be the same number of pixels thick." "As it is the shadow just looks like a black line and that is no good." "The raised buttons came out pretty good. Why the difference?" "Demo for me." "Let's try the raised button style. Didn't the old Photoshop have black lines between the buttons?"
+- **~:** K on image windows: "Yeah. Too far from the corner." "Yes. Pin them to the corner." (screenshot) "I'm trying to show you what looks right."
+- **~:** "Build it." / "Everything goes into the build." / "Stop. No build." / RULE: "I told you everything goes into the build. Don't start a build until all the changes are written. Ever." / "Get rid of that stripe. Fix the hilights. All of it. Everything."
+- **~:** Resets: "You have to find a solution to the constant resets. DATA LOSS IS NOT THE PROBLEM!!!!!!! THE PROBLEM IS WASTED TIME RESTARTING AND FRUSTRATION WITH HAVING NO CONTROL OVER THE APP!!!" "Stopping in the middle of a workflow is extremely frustrating." "The app is generally running better after the efficiency edits. But the app still restarts." (KeepAliveService pushed; still open: memory use, needs a log screenshot after a reset)
+- **~:** Release notes: "I need to do the .71 release first." "a lot of the notes you write about these releases are inaccurate or omit major issues. You don't get my bug lists until afterward. I think these should reflect my actual issues with the code instead of your assumptions."
+- **~:** Layers: "The check mark is too close to the eye." "After that's fixed build."
+- **19:43:** "Just stop the build. There are more issues." Issues with screenshots: grips like his mockup; grips in the black part of the Color Lab logo; menus squeeze on Fill; magenta move box; Wesnoth fire frames alignment and Krita's animation tools; "I have the Layers menu title repositioned. See graphic."
+- **~:** "Aqua has to go. Replace with selection blue."
+- **~:** "You need to make the grips bigger to match my illustration and move the Layers panel title like I showed you." ".72 does not feature these changes." "I have had so many discussions with you about edits. I know you cannot retain these memories."
+- **21:48:** "Soon we will have a release candidate. Then an aba and a testing release. Then two weeks of testing and a release on the Play Store."
+- **21:49:** "Bright aqua outlines? You mean the glow effect?" "The glow effect is more cyan I think."
+- **22:47:** "Listen. Don't worry about those. Just the one I identified." "I was wrong about lens flares. I just saw a high quality one on civitai and realize we need them." (reference image saved)
+- **22:49:** "You have to make a set of lens flare effects from scratch. And light sabres." "None of those boxes you named were the problems I showed you."
+- **22:50:** "What do you mean except the glow? What about the color lab colors? What are you doing??"
+- **22:51:** "I use images to clarify what I want and you lose the images and do random things? No bueno." RULE: "Save everything I send you."
+- **22:52:** (16 screenshots) "What was I trying to say with each of these images?"
+- **23:00:** Ball bearing image: grips not done as instructed. Recent Images area too small, tiny scroll bars. Circled aqua: "I previously asked for that specific dull aqua color in the theme to be changed and you didn't do it." Grips and Layers window title: "you're ignoring my instructions." Save As: "still massively wide... All I wanted was for it to be taller... I don't want it to be wide." Fill submenu: "turns menus miniature and it looks so tiny itself as a submenu. It's ridiculous." "Are you getting any of this at all?"
+- **23:01:** "Why didn't you keep my mockup???"
+- **23:02:** "These are important development instructions. This is how real development gets done. Art departments sketch things out and use Photoshop and other tools to communicate."
+- **23:03:** "I want the same grip lines on the black part of the Color Lab logo so I can grab it. Make it look nice and centered on the banner, and don't touch the letters."
+- **23:05:** RULE: "Keep lists of these instructions. Keep a summary of every chat at the very least, if not the whole chat." "You're not properly tracking my side of this." RULE: "don't mention my name in the release documents."
