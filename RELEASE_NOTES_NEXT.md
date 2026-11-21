@@ -36,8 +36,8 @@ Krimble is open source software made with the assistance of Claude and ChatGPT.
 
 **Toolbox**
 
-- A third icon style, **Black and white**: the silhouette icons drawn in black, made for the Light gray buttons (press and hold the toolbox handle: Icon Style).
-- A **Light gray** switch for the toolbox buttons (press and hold the toolbox handle: Button Style), with Flat or Raised.
+- Four toolbox icon styles: **White**, **Black**, **Grayscale** and **Color**; and three button backgrounds: **Panel background**, **Light gray** and **White**, each Flat or Raised (press and hold the toolbox handle: Icon Style, Button Style).
+- The eyedropper icon is a little bigger.
 - Two buttons under the color swatches, as in the industry-standard toolbox: **Quick Mask** (paint the selection as a mask: white selects, black deselects) and **Screen Mode** (the picture only; the X brings the panels back).
 
 **Panels and menus**

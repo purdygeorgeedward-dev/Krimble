@@ -218,3 +218,7 @@ What was lost: the screenshots George sent during the day were not saved anywher
 - **04:36:** (labeled toolbar picture) "It looks like they're using a paint bucket instead of a gradient box, and they have soften instead of smudge in that image. I wonder what is standard in current version. Let me check... It's hard to keep pace with them. I would really like to have black and white versions of the icons like in this picture instead of color. Maybe we could add black and white as a third option?"
 - **04:38:** "Can we have a switch to light gray buttons? Like the raised effect switch?"
 - **04:39:** "See, the problem with those black and white icons is they're just the color ones desaturated. I'd like to see the silhouettes in black."
+- **04:41:** "We could have white, black, grayscale, and color icons the user can select, and optional light gray or white button backgrounds."
+- **04:42:** "Our eyedropper could be a little bigger."
+- **04:42:** "Our"
+- **04:43:** "It looks like the Ps image uses a combination of grayscale art and black line art for the buttons."

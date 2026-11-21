@@ -555,19 +555,25 @@ void KoToolBox::setupButtonStyleMenu(QMenu *menu)
     };
     connect(flatAction, &QAction::triggered, this, [apply]() { apply(0); });
     connect(raisedAction, &QAction::triggered, this, [apply]() { apply(1); });
-    // the Light gray switch, on its own beside Flat and Raised: it works with either
+    // the button background, on its own beside Flat and Raised: it works with either
     menu->addSeparator();
-    QAction *grayAction = menu->addAction(i18n("Light gray"));
-    grayAction->setCheckable(true);
-    grayAction->setChecked(KrimbleToolboxIcons::lightGray());
-    connect(grayAction, &QAction::toggled, this, [this](bool on) {
-        KrimbleToolboxIcons::setLightGray(on);
-        Q_FOREACH (KoToolBoxButton *button, d->buttonsByToolId) button->update();
-        Q_FOREACH (QToolButton *button, d->buttons) button->update();
-        update();
-    });
+    QActionGroup *faceGroup = new QActionGroup(menu);
+    const QStringList faces = {i18n("Panel background"), i18n("Light gray"), i18n("White")};
+    for (int face = 0; face < faces.size(); ++face) {
+        QAction *action = menu->addAction(faces[face]);
+        action->setActionGroup(faceGroup);
+        action->setCheckable(true);
+        action->setChecked(KrimbleToolboxIcons::buttonFace() == face);
+        connect(action, &QAction::triggered, this, [this, face]() {
+            KrimbleToolboxIcons::setButtonFace(face);
+            Q_FOREACH (KoToolBoxButton *button, d->buttonsByToolId) button->update();
+            Q_FOREACH (QToolButton *button, d->buttons) button->update();
+            update();
+        });
+    }
 }
 
+/*
 void KoToolBox::setupIconStyleMenu(QMenu *menu)
 {
     QActionGroup *styleGroup = new QActionGroup(menu);
@@ -591,6 +597,30 @@ void KoToolBox::setupIconStyleMenu(QMenu *menu)
     connect(colorAction, &QAction::triggered, this, [refresh]() { KrimbleToolboxIcons::setColorMode(true); refresh(); });
     connect(grayAction, &QAction::triggered, this, [refresh]() { KrimbleToolboxIcons::setGrayMode(); refresh(); });
     connect(clearAction, &QAction::triggered, this, [refresh]() { KrimbleToolboxIcons::setColorMode(false); refresh(); });
+}
+*/
+
+void KoToolBox::setupIconStyleMenu(QMenu *menu)
+{
+    QActionGroup *styleGroup = new QActionGroup(menu);
+    struct Choice { QString name; int style; };
+    const QList<Choice> choices = {
+        {i18n("White"), KrimbleToolboxIcons::White},
+        {i18n("Black"), KrimbleToolboxIcons::Black},
+        {i18n("Grayscale"), KrimbleToolboxIcons::Grayscale},
+        {i18n("Color"), KrimbleToolboxIcons::Color},
+    };
+    for (const Choice &choice : choices) {
+        QAction *action = menu->addAction(choice.name);
+        action->setActionGroup(styleGroup);
+        action->setCheckable(true);
+        action->setChecked(KrimbleToolboxIcons::iconStyle() == choice.style);
+        const int style = choice.style;
+        connect(action, &QAction::triggered, this, [this, style]() {
+            KrimbleToolboxIcons::setIconStyle(style);
+            Q_FOREACH (KoToolBoxButton *button, d->buttonsByToolId) button->krimbleRefreshIcon();
+        });
+    }
 }
 
 KoToolBoxLayout *KoToolBox::toolBoxLayout() const

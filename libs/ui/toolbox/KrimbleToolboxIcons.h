@@ -8,6 +8,7 @@
 
 #include <QHash>
 #include <QIcon>
+#include <QPainter>
 #include <QColor>
 #include <QImage>
 #include <QPixmap>
@@ -59,33 +60,64 @@ inline const QHash<QString, QString> &files()
     return table;
 }
 
-// A third style, Black and white: the silhouette icons drawn in black. The key Krimble/ToolboxGrayIcons is on for it
-// (ToolboxColorIcons is on with it; grayMode() is checked first).
-inline bool colorMode()
+// // A third style, Black and white: the silhouette icons drawn in black. The key Krimble/ToolboxGrayIcons is on for it
+// // (ToolboxColorIcons is on with it; grayMode() is checked first).
+// inline bool colorMode()
+// {
+//     return KSharedConfig::openConfig()->group("Krimble").readEntry("ToolboxColorIcons", false);
+// }
+
+// inline bool grayMode()
+// {
+//     return colorMode() && KSharedConfig::openConfig()->group("Krimble").readEntry("ToolboxGrayIcons", false);
+// }
+
+// inline void setColorMode(bool on)
+// {
+//     KConfigGroup group = KSharedConfig::openConfig()->group("Krimble");
+//     group.writeEntry("ToolboxColorIcons", on);
+//     group.writeEntry("ToolboxGrayIcons", false);
+//     group.config()->sync();
+// }
+
+// inline void setGrayMode()
+// {
+//     KConfigGroup group = KSharedConfig::openConfig()->group("Krimble");
+//     group.writeEntry("ToolboxColorIcons", true);
+//     group.writeEntry("ToolboxGrayIcons", true);
+//     group.config()->sync();
+// }
+
+// Icon styles: White (the silhouette icons as they are), Black (the silhouettes drawn in black), Grayscale (the picture icons
+// in shades of gray), Color (the picture icons). Key Krimble/ToolboxIconStyle; an older setting (ToolboxColorIcons / ToolboxGrayIcons) is read once.
+enum IconStyle { White = 0, Color = 1, Black = 2, Grayscale = 3 };
+
+inline int &iconStyleCache()
 {
-    return KSharedConfig::openConfig()->group("Krimble").readEntry("ToolboxColorIcons", false);
+    static int style = [] {
+        KConfigGroup group = KSharedConfig::openConfig()->group("Krimble");
+        if (group.hasKey("ToolboxIconStyle")) return qBound(0, group.readEntry("ToolboxIconStyle", 0), 3);
+        if (group.readEntry("ToolboxGrayIcons", false)) return int(Black);
+        return group.readEntry("ToolboxColorIcons", false) ? int(Color) : int(White);
+    }();
+    return style;
 }
 
-inline bool grayMode()
-{
-    return colorMode() && KSharedConfig::openConfig()->group("Krimble").readEntry("ToolboxGrayIcons", false);
-}
+inline int iconStyle() { return iconStyleCache(); }
 
-inline void setColorMode(bool on)
+inline void setIconStyle(int style)
 {
+    iconStyleCache() = qBound(0, style, 3);
     KConfigGroup group = KSharedConfig::openConfig()->group("Krimble");
-    group.writeEntry("ToolboxColorIcons", on);
-    group.writeEntry("ToolboxGrayIcons", false);
+    group.writeEntry("ToolboxIconStyle", iconStyleCache());
     group.config()->sync();
 }
 
-inline void setGrayMode()
-{
-    KConfigGroup group = KSharedConfig::openConfig()->group("Krimble");
-    group.writeEntry("ToolboxColorIcons", true);
-    group.writeEntry("ToolboxGrayIcons", true);
-    group.config()->sync();
-}
+// the picture icons are shown in Color and Grayscale
+inline bool colorMode() { return iconStyle() == Color || iconStyle() == Grayscale; }
+inline bool grayMode() { return iconStyle() == Black; }   // (name kept: the Black style)
+inline void setColorMode(bool on) { setIconStyle(on ? Color : White); }
+inline void setGrayMode() { setIconStyle(Black); }
 
 // a picture in shades of gray (the same light and dark, the transparency kept)
 inline QIcon grayIcon(const QIcon &source)
@@ -128,6 +160,7 @@ inline void setButtonStyle(int style)
 }
 
 // The Light gray switch: the toolbox buttons get a light gray face (flat or raised), like the classic light gray toolbox. Key Krimble/ToolboxLightGray.
+/*
 inline bool &lightGrayCache()
 {
     static bool on = KSharedConfig::openConfig()->group("Krimble").readEntry("ToolboxLightGray", false);
@@ -150,6 +183,35 @@ inline void setLightGray(bool on)
 inline QColor lightGrayFace()
 {
     return QColor(198, 198, 202);
+}
+*/
+// Button background: 0 = the panel's own (default), 1 = light gray, 2 = white. Key Krimble/ToolboxButtonFace (the older ToolboxLightGray is read once).
+inline int &buttonFaceCache()
+{
+    static int face = [] {
+        KConfigGroup group = KSharedConfig::openConfig()->group("Krimble");
+        if (group.hasKey("ToolboxButtonFace")) return qBound(0, group.readEntry("ToolboxButtonFace", 0), 2);
+        return group.readEntry("ToolboxLightGray", false) ? 1 : 0;
+    }();
+    return face;
+}
+
+inline int buttonFace() { return buttonFaceCache(); }
+
+inline void setButtonFace(int face)
+{
+    buttonFaceCache() = qBound(0, face, 2);
+    KConfigGroup group = KSharedConfig::openConfig()->group("Krimble");
+    group.writeEntry("ToolboxButtonFace", buttonFaceCache());
+    group.config()->sync();
+}
+
+inline bool lightGray() { return buttonFace() != 0; }   // a light background (light gray or white)
+inline void setLightGray(bool on) { setButtonFace(on ? 1 : 0); }
+
+inline QColor lightGrayFace()
+{
+    return buttonFace() == 2 ? QColor(250, 250, 252) : QColor(198, 198, 202);
 }
 
 inline bool hasPicture(const QString &iconName)
@@ -177,15 +239,44 @@ inline QIcon blackIcon(const QIcon &source)
     return black;
 }
 
+// an icon drawn larger in its square (the picture grows by 'factor' around the middle; what passes the edge is cut)
+inline QIcon enlargedIcon(const QIcon &source, qreal factor)
+{
+    QIcon bigger;
+    QList<QSize> sizes = source.availableSizes();
+    if (sizes.isEmpty()) sizes << QSize(32, 32) << QSize(64, 64) << QSize(128, 128);
+    for (const QSize &size : sizes) {
+        const QSize big(qRound(size.width() * factor), qRound(size.height() * factor));
+        const QPixmap large = source.pixmap(big).scaled(big, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+        QPixmap pm(size);
+        pm.fill(Qt::transparent);
+        QPainter p(&pm);
+        p.drawPixmap((size.width() - large.width()) / 2, (size.height() - large.height()) / 2, large);
+        p.end();
+        bigger.addPixmap(pm);
+    }
+    return bigger;
+}
+
+inline QIcon plainIcon(const QString &iconName);
+
 inline QIcon icon(const QString &iconName)
 {
+    // the eyedropper is drawn small in its square: it is shown 20% larger ("Our eyedropper could be a little bigger.")
+    if (iconName == QLatin1String("krita_tool_color_sampler")) return enlargedIcon(plainIcon(iconName), 1.2);
+    return plainIcon(iconName);
+}
+
+inline QIcon plainIcon(const QString &iconName)
+{
+
     // Black and white: the silhouettes in black ("the problem with those black and white icons is they're just the color ones desaturated. I'd like to see the silhouettes in black.")
     if (grayMode()) return blackIcon(kisIcon(iconName));
     if (colorMode()) {
         const auto it = files().constFind(iconName);
         if (it != files().constEnd()) {
             const QIcon picture(QStringLiteral(":/krimble-toolbox/") + it.value() + QStringLiteral(".png"));
-            if (!picture.isNull()) return picture;
+            if (!picture.isNull()) return iconStyle() == Grayscale ? grayIcon(picture) : picture;
         }
     }
     return kisIcon(iconName);
