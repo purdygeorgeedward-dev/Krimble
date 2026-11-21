@@ -36,7 +36,7 @@ Krimble is open source software made with the assistance of Claude and ChatGPT.
 
 **Toolbox**
 
-- A third icon style, **Black and white**: the picture icons in shades of gray (long-press the toolbox for Full color, Black and white or Silhouette).
+- A third icon style, **Black and white**: the picture icons in shades of gray (press and hold the toolbox handle: Icon Style).
 - Two buttons under the color swatches, as in the industry-standard toolbox: **Quick Mask** (paint the selection as a mask: white selects, black deselects) and **Screen Mode** (the picture only; the X brings the panels back).
 
 **Panels and menus**
