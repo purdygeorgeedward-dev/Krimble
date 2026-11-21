@@ -262,6 +262,7 @@
 #include "krimble/KrimbleDockHelpers.inc"
 #include "krimble/KrimbleMenus.inc"
 #include "krimble/KrimbleDockEdges.inc"
+#include "kis_zoom_manager.h"
 #include "krimble/KrimbleMenuBarAndQuickAdjust.inc"
 #include "krimble/KrimbleFileAndHelpExtras.inc"
 #include "krimble/KrimblePanelsAndLayout.inc"
@@ -1249,12 +1250,22 @@ void KisMainWindow::showView(KisView *imageView, QMdiSubWindow *subwin)
         subwin->setAttribute(Qt::WA_DeleteOnClose, true);
         connect(subwin, SIGNAL(destroyed()), SLOT(updateWindowMenu()));
         krimbleInstallMenuBarFilter(menuBar());
+        {
+            // an image opens fitted to the image area once the window and panels have their sizes (it sometimes opened at a tiny zoom,
+            // fitted to the size the area had while it was being laid out)
+            QPointer<KisView> krimbleFitView(imageView);
+            QTimer::singleShot(1000, this, [krimbleFitView]() {
+                if (krimbleFitView && krimbleFitView->zoomManager()) krimbleFitView->zoomManager()->slotZoomToFit();
+            });
+        }
+#ifdef Q_OS_ANDROID
         if (QTabBar *krimbleTabs = d->findTabBarHACK()) {
             if (!krimbleTabs->property("krimbleTabK").toBool()) {
                 krimbleTabs->setProperty("krimbleTabK", true);
                 new KrimbleTabKFilter(krimbleTabs);
             }
         }
+#endif
 
         KisConfig cfg(true);
         // subwin->setOption(QMdiSubWindow::RubberBandMove, cfg.readEntry<int>("mdi_rubberband", cfg.useOpenGL()));
