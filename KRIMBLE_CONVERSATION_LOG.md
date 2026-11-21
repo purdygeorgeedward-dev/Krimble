@@ -211,3 +211,4 @@ What was lost: the screenshots George sent during the day were not saved anywher
 - **04:22:** "We have a full toolbox. Otherwise we could add an interface connector for Perchance."
 - **04:23:** "We already built it."
 - **04:24:** "http://perchance.org/imagine-it and perchance.org/image-donkey are built and working."
+- **04:25:** "Just use one or the other. It's just a url." (connector uses perchance.org/image-donkey, kept as a setting so the address can change)
