@@ -65,4 +65,6 @@ The app copies of Text and Line have a soft light aura so the black shows on dar
 
 | 07_02_edit_path_nodes.png | 32. Edit Path Nodes (pen drawing a blue path with nodes, received 12:38; on white, cut out for the app copy; replaces the dashed square) |
 
-Still missing: 28 Free Rotate, 29 Assistant.
+| 06_04_assistant_tool.png | 29. Assistant Tool (glass drawing board with guides, compass and set square; received 12:40) |
+
+Still missing: 28 Free Rotate.

@@ -274,3 +274,4 @@ What was lost: the screenshots George sent during the day were not saved anywher
 - **12:38:** (image: pen drawing a blue path with nodes) saved as candidate_pen_with_path_nodes.png
 - **12:39:** "Just the line and the t so they don't disappear." (aura removed from Edit Path Nodes)
 - **12:40:** "Edit Path Nodes" (the pen picture replaces the dashed square for Edit Path Nodes)
+- **12:40:** (image: glass drawing board with guides, compass, set square) "Assistant"
