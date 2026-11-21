@@ -20,14 +20,18 @@
         <file>04_02_fill.png</file>
         <file>04_03_bezier_curve.png</file>
         <file>04_04_shape_select.png</file>
+        <file>04_05_text.png</file>
         <file>05_01_rectangle.png</file>
         <file>05_02_ellipse.png</file>
+        <file>05_03_line.png</file>
         <file>05_04_polygon.png</file>
         <file>05_05_pan.png</file>
         <file>06_01_zoom.png</file>
         <file>06_02_transform.png</file>
         <file>06_05_measure.png</file>
         <file>07_01_reference_images.png</file>
+        <file>07_02_edit_path_nodes.png</file>
+        <file>08_01_undo.png</file>
         <file>08_02_quick_mask.png</file>
         <file>08_03_screen_mode.png</file>
     </qresource>

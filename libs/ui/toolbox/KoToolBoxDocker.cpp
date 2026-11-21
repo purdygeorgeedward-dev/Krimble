@@ -436,7 +436,9 @@ void KoToolBoxDocker::setViewManager(KisViewManager *viewManager)
                 undoButton->setObjectName(QStringLiteral("krimbleUndoButton"));
                 undoButton->setAutoRaise(true);
                 undoButton->setToolButtonStyle(Qt::ToolButtonIconOnly);
-                undoButton->setIcon(KisIconUtils::loadIcon("krita_tool_undo"));
+                // undoButton->setIcon(KisIconUtils::loadIcon("krita_tool_undo"));
+                undoButton->setProperty("krimbleDrawnIcon", KisIconUtils::loadIcon("krita_tool_undo"));
+                KrimbleToolboxIcons::refreshGadget(undoButton, QStringLiteral("08_01_undo"));
                 undoButton->setToolTip(i18n("Undo (long press for Redo)"));
                 connect(undoButton, &QToolButton::clicked, undoAction, &QAction::trigger);
                 if (redoAction) {

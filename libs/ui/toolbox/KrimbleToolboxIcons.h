@@ -347,6 +347,7 @@ inline void refreshGadget(QToolButton *button, const QString &photoName)
 inline void refreshGadgets(QWidget *top)
 {
     if (!top) return;
+    refreshGadget(top->findChild<QToolButton *>(QStringLiteral("krimbleUndoButton")), QStringLiteral("08_01_undo"));
     refreshGadget(top->findChild<QToolButton *>(QStringLiteral("krimbleQuickMaskButton")), QStringLiteral("08_02_quick_mask"));
     refreshGadget(top->findChild<QToolButton *>(QStringLiteral("krimbleScreenModeButton")), QStringLiteral("08_03_screen_mode"));
 }
