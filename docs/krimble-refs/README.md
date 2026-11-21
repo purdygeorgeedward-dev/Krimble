@@ -48,3 +48,4 @@ Files named YYYY-MM-DD_HHMM_<id>.jpg, by the time each was sent (MST).
 | 2026-11-21_0600_silhouette-color-and-classic-ps-icons.png | Nov 21, 2026 06:00 MST | Each toolbox tool three ways: white silhouette, color picture, and the classic industry-standard icon cut from his labeled toolbar picture ("none" where that toolbar has no matching tool) |
 - 2026-11-21_0910_demo-button-types.png — every icon style on every button face (Panel/Light gray/White, flat/raised), brush selected in Aqua; source button_types_demo.cpp
 - 2026-11-21_0916_demo-button-types-real-bevel.png — same grid with the app's real Raised bevel, Dark gray added, White icons black on light backgrounds
+- 2026-11-21_0919_tool-list-with-icons.png — numbered list of the 35 toolbox buttons with the standard icons, for a new icon set

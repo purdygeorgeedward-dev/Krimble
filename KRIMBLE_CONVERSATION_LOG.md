@@ -242,3 +242,6 @@ What was lost: the screenshots George sent during the day were not saved anywher
 - **09:12:** "White should only appear on dark backgrounds. Our standard is gray isn't it? Gray on blue? Something like that?"
 - **09:13:** "We should also offer a darker gray background I guess."
 - **09:14:** "In those shots the raised effect is almost nothing" (the first demo drew a 2 px line; redrawn with the app's real bevel)
+- **09:15:** "I'm going to make another set of icons with Chatty. Make me a list of all the tools."
+- **09:16:** "Can you take out the blue things and just do the numbered list?"
+- **09:17:** "With standard icons next to them on the left."
