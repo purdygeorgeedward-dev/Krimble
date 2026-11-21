@@ -245,3 +245,9 @@ What was lost: the screenshots George sent during the day were not saved anywher
 - **09:15:** "I'm going to make another set of icons with Chatty. Make me a list of all the tools."
 - **09:16:** "Can you take out the blue things and just do the numbered list?"
 - **09:17:** "With standard icons next to them on the left."
+- **09:36:** "I need a photorealistic horseshoe magnet."
+- **09:37:** "I forgot you could do that."
+- **09:42:** "I'm in the app right now for stability."
+- **09:43:** "I still would like to figure out how to give you the option to output to other graphics engines, but Perchance is ideal because it's free."
+- **11:25:** "Let's definitely add those capabilities do we can try different methods for various projects. It will make a great addition to the repo too." (Claude-Perchance v0.4.0, commit 7777609: Pollinations and AI Horde)
+- **11:27:** "Did you already add the two bottom tools to the toolbox?" (yes, change 794, in 1.0.73; build 73 finished: success)
