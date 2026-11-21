@@ -147,10 +147,14 @@ void KoDockWidgetTitleBar::paintEvent(QPaintEvent*)
     {
         const qreal dpr = devicePixelRatioF();
         int left = 12;
-        if (d->titleLabel && d->titleLabel->isVisible() && !d->titleTextHidden) left = d->titleLabel->geometry().left() + d->titleLabel->fontMetrics().horizontalAdvance(q->windowTitle()) + 16;
+        // if (d->titleLabel && d->titleLabel->isVisible() && !d->titleTextHidden) left = d->titleLabel->geometry().left() + d->titleLabel->fontMetrics().horizontalAdvance(q->windowTitle()) + 16;
+        // gaps measured from the mockup (docs/krimble-refs/2026-11-20_1943_MOCKUP-grips-and-layers-title.jpg): 36 real px after the title, 70 real px before the float button
+        const qreal gapDpr = qMax<qreal>(1.0, devicePixelRatioF());
+        if (d->titleLabel && d->titleLabel->isVisible() && !d->titleTextHidden) left = d->titleLabel->geometry().left() + d->titleLabel->fontMetrics().horizontalAdvance(q->windowTitle()) + qRound(36.0 / gapDpr);
         int right = width() - 12;
         Q_FOREACH (QAbstractButton *b, QList<QAbstractButton*>() << d->floatButton << d->closeButton << d->lockButton) {
-            if (b && b->isVisible()) right = qMin(right, b->geometry().left() - 12);
+            // if (b && b->isVisible()) right = qMin(right, b->geometry().left() - 12);
+            if (b && b->isVisible()) right = qMin(right, b->geometry().left() - qRound(70.0 / gapDpr));
         }
         if (right - left >= 24) {
             const qreal thick = 3.0 / dpr;
