@@ -59,8 +59,8 @@ inline const QHash<QString, QString> &files()
     return table;
 }
 
-// A third style, Black and white: the picture icons in shades of gray. The key Krimble/ToolboxGrayIcons is on for it
-// (with ToolboxColorIcons on, since it uses the pictures).
+// A third style, Black and white: the silhouette icons drawn in black. The key Krimble/ToolboxGrayIcons is on for it
+// (ToolboxColorIcons is on with it; grayMode() is checked first).
 inline bool colorMode()
 {
     return KSharedConfig::openConfig()->group("Krimble").readEntry("ToolboxColorIcons", false);
@@ -160,14 +160,32 @@ inline bool hasPicture(const QString &iconName)
 }
 
 // the icon for a tool: the picture icon in the Full color style (when the tool has one), the program's own icon otherwise
+// the silhouette icon drawn in black (its shape and transparency kept): the Black and white style
+inline QIcon blackIcon(const QIcon &source)
+{
+    QIcon black;
+    QList<QSize> sizes = source.availableSizes();
+    if (sizes.isEmpty()) sizes << QSize(32, 32) << QSize(64, 64) << QSize(128, 128);
+    for (const QSize &size : sizes) {
+        QImage image = source.pixmap(size).toImage().convertToFormat(QImage::Format_ARGB32);
+        for (int y = 0; y < image.height(); ++y) {
+            QRgb *line = reinterpret_cast<QRgb*>(image.scanLine(y));
+            for (int x = 0; x < image.width(); ++x) line[x] = qRgba(24, 24, 28, qAlpha(line[x]));
+        }
+        black.addPixmap(QPixmap::fromImage(image));
+    }
+    return black;
+}
+
 inline QIcon icon(const QString &iconName)
 {
+    // Black and white: the silhouettes in black ("the problem with those black and white icons is they're just the color ones desaturated. I'd like to see the silhouettes in black.")
+    if (grayMode()) return blackIcon(kisIcon(iconName));
     if (colorMode()) {
         const auto it = files().constFind(iconName);
         if (it != files().constEnd()) {
             const QIcon picture(QStringLiteral(":/krimble-toolbox/") + it.value() + QStringLiteral(".png"));
-            // if (!picture.isNull()) return picture;
-            if (!picture.isNull()) return grayMode() ? grayIcon(picture) : picture;
+            if (!picture.isNull()) return picture;
         }
     }
     return kisIcon(iconName);
