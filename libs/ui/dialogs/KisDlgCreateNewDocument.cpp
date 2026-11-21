@@ -27,6 +27,22 @@ KisDlgCreateNewDocument::KisDlgCreateNewDocument(QWidget* parent)
 
     int w = cfg.defImageWidth();
     int h = cfg.defImageHeight();
+#ifdef Q_OS_ANDROID
+    {
+        // the first New of each run: the size of the phone's screen in real pixels, the way the phone is held; after that the last size used
+        static bool krimbleFirstNewThisRun = true;
+        if (krimbleFirstNewThisRun) {
+            krimbleFirstNewThisRun = false;
+            if (QScreen *screen = QGuiApplication::primaryScreen()) {
+                const QSize real = screen->geometry().size() * screen->devicePixelRatio();
+                if (real.width() > 0 && real.height() > 0) {
+                    w = real.width();
+                    h = real.height();
+                }
+            }
+        }
+    }
+#endif
     const double resolution = cfg.defImageResolution();
     const QString colorModel = cfg.defColorModel();
     const QString colorDepth = cfg.defaultColorDepth();
