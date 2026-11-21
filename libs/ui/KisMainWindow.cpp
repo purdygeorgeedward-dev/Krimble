@@ -339,6 +339,14 @@ public:
         welcomeScroller->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
         welcomeScroller->setWidget(welcomePage);
         welcomeScroller->setWidgetResizable(true);
+#ifdef Q_OS_ANDROID
+        {
+            // Krimble: finger-sized scroll bars (48 real px) on the Recent Images page, in place of the thin default ones
+            const qreal dpr = qMax<qreal>(1.0, qApp->devicePixelRatio());
+            const int bar = qCeil(48.0 / dpr);
+            welcomeScroller->setStyleSheet(QStringLiteral("QScrollBar:vertical { width: %1px; } QScrollBar:horizontal { height: %1px; }").arg(bar));
+        }
+#endif
 
         widgetStack->addWidget(welcomeScroller);
         widgetStack->addWidget(mdiArea);

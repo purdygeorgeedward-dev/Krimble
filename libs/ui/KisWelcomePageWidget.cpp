@@ -33,6 +33,7 @@
 #include <QListWidgetItem>
 #include <QMenu>
 #include <QScrollBar>
+#include <QtMath>
 #include <QLayout>
 #include <QSpacerItem>
 #include <QStackedWidget>
@@ -419,7 +420,15 @@ void KisWelcomePageWidget::slotUpdateThemeColors()
     widgetCenter->hide();
     widgetRight->hide();
 
-    recentDocumentsListView->setIconSize(QSize(88, 88));
+    // recentDocumentsListView->setIconSize(QSize(88, 88));
+    recentDocumentsListView->setIconSize(QSize(140, 140));   // bigger thumbnails
+    {
+        // finger-sized scroll bars (48 real px) on the recent pictures, in place of the thin default ones
+        const qreal dpr = qMax<qreal>(1.0, devicePixelRatioF());
+        const int bar = qCeil(48.0 / dpr);
+        recentDocumentsListView->setStyleSheet(blendedStyle + QStringLiteral("\nQScrollBar:vertical { width: %1px; } QScrollBar:horizontal { height: %1px; }").arg(bar));
+        recentDocumentsListView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);   // the pictures wrap: they never need a sideways bar
+    }
     recentDocumentsListView->setResizeMode(QListView::Adjust);
     recentDocumentsListView->setWrapping(true);
     recentDocumentsListView->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -1011,14 +1020,18 @@ void KisWelcomePageWidget::slotUpdateDonationState()
         qWarning("KisWelcomePageWidget::slotUpdateDonationState: android donations is null");
     }
 
-    if(pageVisible) {
-        stkSupport->setCurrentWidget(pageVisible);
-        wdgAndroidSupportBanner->hide();
-        stkSupport->show();
-    } else {
-        stkSupport->hide();
-        wdgAndroidSupportBanner->show();
-    }
+    // if(pageVisible) {
+    //     stkSupport->setCurrentWidget(pageVisible);
+    //     wdgAndroidSupportBanner->hide();
+    //     stkSupport->show();
+    // } else {
+    //     stkSupport->hide();
+    //     wdgAndroidSupportBanner->show();
+    // }
+    // Krimble: no supporter page or banner under Recent Images: the space goes to the recent pictures
+    Q_UNUSED(pageVisible);
+    stkSupport->hide();
+    wdgAndroidSupportBanner->hide();
 
     supporterBadge->setVisible(badgeVisible);
 }
