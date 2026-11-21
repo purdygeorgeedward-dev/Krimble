@@ -64,4 +64,6 @@ toolbox (08_01 Undo, 08_02 Quick Mask, 08_03 Screen Mode). `09_xx` = future tool
 
 The app copies of Text, Line and Edit Path Nodes have a soft light aura so the black shows on dark buttons.
 
+| candidate_pen_with_path_nodes.png | pen drawing a blue path with nodes (received 12:38; Bezier Curve or Edit Path Nodes, to be decided) |
+
 Still missing: 28 Free Rotate, 29 Assistant.
