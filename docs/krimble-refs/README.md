@@ -54,3 +54,5 @@ Files named YYYY-MM-DD_HHMM_<id>.jpg, by the time each was sent (MST).
 - 2026-11-21_1245_glow-background-sample.png — George's Free Rotate picture on a dark teal glow: the sample for the Glow button background
 - 2026-11-21_1255_demo-photorealistic-on-glow.png — the whole photo set on Glow buttons, brush selected in Aqua
 - 2026-11-21_1300_demo-photorealistic-on-black-and-white.png — the photo set on plain black and plain white
+- 2026-11-21_1537_test73-*.jpg — build 1.0.73 test screenshots (toolbox, Save As, Tool Options, smudge title overlap, flyout menu, eyedropper missing)
+- 2026-11-21_1537_metal-line.png, 2026-11-21_1537_metal-T-on-black.jpg — new metal Line and Text pictures (T has a black background, no transparency)
