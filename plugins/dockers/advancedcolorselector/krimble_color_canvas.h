@@ -28,8 +28,20 @@
 class KrimbleColorCanvas : public KrimbleColorBase
 {
 public:
-    static constexpr double DH = 1100.0;   // the card's height
-    double designHeight() const override { return DH; }
+    static constexpr double DH = 1100.0;   // the card's height with 4 palette rows
+    static constexpr double PaletteRowH = 51.5;   // one palette row (206 units for 4 rows)
+    int extraPaletteRows = 0;   // rows added under the 4 when the panel is taller (up to 14 rows of 19: 266 swatches)
+    double extraH() const { return extraPaletteRows * PaletteRowH; }
+    int visibleRows() const { return 4 + extraPaletteRows; }
+    void setExtraPaletteRows(int n)
+    {
+        n = qBound(0, n, 10);
+        if (n == extraPaletteRows) return;
+        extraPaletteRows = n;
+        updateGeometry();
+        relayout();
+    }
+    double designHeight() const override { return DH + extraH(); }
 
     // the parts the color studio hands over (all children of this canvas)
     QWidget *square = nullptr;
@@ -57,7 +69,7 @@ public:
     int paletteScroll = 0;                // the first visible row
     void setPaletteScroll(int row)
     {
-        const int maxRow = qMax(0, paletteRowCount() - 4);
+        const int maxRow = qMax(0, paletteRowCount() - visibleRows());
         row = qBound(0, row, maxRow);
         if (row == paletteScroll) return;
         paletteScroll = row;
@@ -187,12 +199,12 @@ public:
         duplicate->setGeometry(r(944, 764, 50, 56).toAlignedRect());
         more->setGeometry(r(1097, 761, 59, 64).toAlignedRect());
         paletteUp->setGeometry(r(1116, 846, 39, 37).toAlignedRect());
-        paletteDown->setGeometry(r(1116, 1026, 39, 37).toAlignedRect());
-        paletteScroll = qBound(0, paletteScroll, qMax(0, paletteRowCount() - 4));
+        paletteDown->setGeometry(r(1116, 1026 + extraH(), 39, 37).toAlignedRect());
+        paletteScroll = qBound(0, paletteScroll, qMax(0, paletteRowCount() - visibleRows()));
         trash->setGeometry(r(1018, 764, 56, 56).toAlignedRect());
         if (recentCells) layoutCells(*recentCells, 10, 1, QRectF(428, 663, 658, 55), 7.0, 0.0);
         // if (paletteCells) layoutCells(*paletteCells, 19, 4, QRectF(29, 850, 1070, 206), 3.5, 4.2);
-        if (paletteCells) layoutCells(*paletteCells, 19, 4, QRectF(29, 850, 1070, 206), 3.5, 4.2, paletteScroll);
+        if (paletteCells) layoutCells(*paletteCells, 19, visibleRows(), QRectF(29, 850, 1070, 206 + extraH()), 3.5, 4.2, paletteScroll);
         update();
     }
 
@@ -214,10 +226,10 @@ protected:
 
         // the card: a smooth gradient (measured #283248, #242A3F, #1B2235), a dark outline and a light line along the top that fades toward both ends
         {
-            const QRectF card(0.5, 0.5, width() - 1.0, DH * s - 1.0);
+            const QRectF card(0.5, 0.5, width() - 1.0, designHeight() * s - 1.0);
             QPainterPath path;
             path.addRoundedRect(card, 22 * s, 22 * s);
-            QLinearGradient g(0, 0, 0, DH * s);
+            QLinearGradient g(0, 0, 0, designHeight() * s);
             g.setColorAt(0.0, QColor("#283248"));
             g.setColorAt(0.5, QColor("#242a3f"));
             g.setColorAt(1.0, QColor("#1b2235"));
@@ -334,16 +346,16 @@ protected:
         drawSymbol(p, QStringLiteral("duplicate"), r(944, 764, 50, 56).center(), 1.0);
         paintButton(p, r(1097, 761, 59, 64), 11 * s);
         drawSymbol(p, QStringLiteral("more"), r(1097, 761, 59, 64).center(), 1.0);
-        paintWell(p, r(24, 843, 1081, 220), 10 * s);
+        paintWell(p, r(24, 843, 1081, 220 + extraH()), 10 * s);
         // paintEmptyCells(p, paletteCells, 19, 4, QRectF(29, 850, 1070, 206), 3.5, 4.2, QColor("#0f1325"), 3 * s, paletteScroll);
-        paintEmptyCells(p, paletteCells, 19, 4, QRectF(29, 850, 1070, 206), 3.5, 4.2, QColor("#0f1325"), 0, paletteScroll);   // 2026-11-09: square corners
+        paintEmptyCells(p, paletteCells, 19, visibleRows(), QRectF(29, 850, 1070, 206 + extraH()), 3.5, 4.2, QColor("#0f1325"), 0, paletteScroll);   // 2026-11-09: square corners
         // the scroll bar of the palette (the mockup's: up and down arrows and a thumb), measured: 39 units wide beside the well
         {
-            paintWell(p, r(1116, 846, 39, 217), 8 * s);
+            paintWell(p, r(1116, 846, 39, 217 + extraH()), 8 * s);
             paintButton(p, r(1116, 846, 39, 37), 8 * s);
-            paintButton(p, r(1116, 1026, 39, 37), 8 * s);
+            paintButton(p, r(1116, 1026 + extraH(), 39, 37), 8 * s);
             drawSymbol(p, QStringLiteral("scroll_up"), r(1116, 846, 39, 37).center(), 0.9);
-            drawSymbol(p, QStringLiteral("scroll_down"), r(1116, 1026, 39, 37).center(), 0.9);
+            drawSymbol(p, QStringLiteral("scroll_down"), r(1116, 1026 + extraH(), 39, 37).center(), 0.9);
             const QRectF thumb = paletteThumb();
             QLinearGradient tg(0, thumb.top(), 0, thumb.bottom());
             tg.setColorAt(0.0, QColor("#59679a"));
@@ -358,17 +370,17 @@ protected:
     QRectF paletteThumb() const
     {
         const int rows = paletteRowCount();
-        const double trackTop = 886, trackH = 137;
-        const double ratio = rows > 4 ? 4.0 / rows : 1.0;
+        const double trackTop = 886, trackH = 137 + extraH();
+        const double ratio = rows > visibleRows() ? double(visibleRows()) / rows : 1.0;
         const double thumbH = qMax(30.0, trackH * ratio);
-        const int maxRow = qMax(0, rows - 4);
+        const int maxRow = qMax(0, rows - visibleRows());
         const double y = trackTop + (trackH - thumbH) * (maxRow > 0 ? double(paletteScroll) / maxRow : 0.0);
         return r(1119, y, 33, thumbH);
     }
     void wheelEvent(QWheelEvent *e) override
     {
         if (topPage > 2) { QWidget::wheelEvent(e); return; }
-        if (r(24, 843, 1135, 220).contains(QPointF(e->pos()))) {
+        if (r(24, 843, 1135, 220 + extraH()).contains(QPointF(e->pos()))) {
             setPaletteScroll(paletteScroll - (e->angleDelta().y() > 0 ? 1 : -1));
             e->accept();
             return;
@@ -377,11 +389,11 @@ protected:
     }
     void mousePressEvent(QMouseEvent *e) override
     {
-        const QRectF track = r(1116, 883, 39, 143);
+        const QRectF track = r(1116, 883, 39, 143 + extraH());
         if (track.contains(QPointF(e->pos()))) {
             const QRectF thumb = paletteThumb();
             if (thumb.contains(QPointF(e->pos()))) { m_thumbDrag = true; m_thumbGrab = e->pos().y() - thumb.top(); }
-            else setPaletteScroll(paletteScroll + (e->pos().y() < thumb.top() ? -4 : 4));
+            else setPaletteScroll(paletteScroll + (e->pos().y() < thumb.top() ? -visibleRows() : visibleRows()));
             return;
         }
         QWidget::mousePressEvent(e);
@@ -390,9 +402,9 @@ protected:
     {
         if (!m_thumbDrag) { QWidget::mouseMoveEvent(e); return; }
         const int rows = paletteRowCount();
-        const int maxRow = qMax(0, rows - 4);
-        const double trackTop = 886 * scale(), trackH = 137 * scale();
-        const double thumbH = qMax(30.0 * scale(), trackH * (rows > 4 ? 4.0 / rows : 1.0));
+        const int maxRow = qMax(0, rows - visibleRows());
+        const double trackTop = 886 * scale(), trackH = (137 + extraH()) * scale();
+        const double thumbH = qMax(30.0 * scale(), trackH * (rows > visibleRows() ? double(visibleRows()) / rows : 1.0));
         const double span = qMax(1.0, trackH - thumbH);
         setPaletteScroll(qRound(maxRow * qBound(0.0, (e->pos().y() - m_thumbGrab - trackTop) / span, 1.0)));
     }

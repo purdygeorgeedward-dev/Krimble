@@ -31,6 +31,7 @@
 #include <QFrame>
 #include <QPointer>
 #include <QTabWidget>
+#include <QScrollArea>
 #include <QStack>
 #include <QComboBox>
 #include <QTabletEvent>
@@ -914,7 +915,41 @@ public:
             select(color.toQColor(), false);
         }
     }
+protected:
+    // When the panel is taller than the picker needs, the palette under it gets more rows (up to 14 rows of 19),
+    // and fewer again when the panel gets shorter. The panel's scroll area decides how much room there is.
+    void showEvent(QShowEvent *event) override {
+        QWidget::showEvent(event);
+        if (!m_paletteRoomWatched) {
+            for (QWidget *w = parentWidget(); w; w = w->parentWidget()) {
+                if (QScrollArea *scroll = qobject_cast<QScrollArea *>(w)) {
+                    scroll->viewport()->installEventFilter(this);
+                    m_paletteRoomView = scroll->viewport();
+                    m_paletteRoomWatched = true;
+                    break;
+                }
+            }
+        }
+        QTimer::singleShot(0, this, [this]() { fitPaletteRows(); });
+    }
+    bool eventFilter(QObject *watched, QEvent *event) override {
+        if (watched == m_paletteRoomView && event->type() == QEvent::Resize) {
+            QTimer::singleShot(0, this, [this]() { fitPaletteRows(); });
+        }
+        return QWidget::eventFilter(watched, event);
+    }
 private:
+    QPointer<QWidget> m_paletteRoomView;
+    bool m_paletteRoomWatched = false;
+    void fitPaletteRows() {
+        if (!m_ui || !m_paletteRoomView || !m_ui->isVisible()) return;
+        const qreal s = m_ui->scale();
+        if (s <= 0) return;
+        const int bottomMargin = layout() ? layout()->contentsMargins().bottom() : 0;
+        const double room = m_paletteRoomView->height() - m_ui->y() - bottomMargin - KrimbleColorCanvas::DH * s;
+        const int rows = room > 0 ? int(room / (KrimbleColorCanvas::PaletteRowH * s)) : 0;
+        m_ui->setExtraPaletteRows(rows);
+    }
     void select(QColor c,bool commit=true) {
         if(!c.isValid()) return;
         c.setAlpha(255);
