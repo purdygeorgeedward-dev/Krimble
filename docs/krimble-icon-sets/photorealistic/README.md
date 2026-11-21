@@ -26,7 +26,7 @@ toolbox (08_01 Undo, 08_02 Quick Mask, 08_03 Screen Mode). `extra_` = pictures w
 | 07_01_reference_images.png | 31. Reference Images (pushpin) |
 | 08_02_quick_mask.png | 34. Quick Mask (mask) |
 | 08_03_screen_mode.png | 35. Screen Mode (TV) |
-| extra_dodge.png | darkroom dodging tool (no slot) |
+| extra_dodge.png | Dodge (darkroom dodging tool), for a future Dodge and Burn tool |
 | extra_lens_flare.png | lens flare (no slot) |
 
 ## Received 2026-11-21 11:34 (second set, 13 new; 7 repeats of the first set skipped)

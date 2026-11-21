@@ -256,3 +256,4 @@ What was lost: the screenshots George sent during the day were not saved anywher
 - **11:31:** "Ok skip webp. We already have export and import filters for it. The rest is non-essential."
 - **11:32:** (20 images) "First set..." (saved to docs/krimble-icon-sets/photorealistic/)
 - **11:34:** (20 images, 7 repeats) "Second set. Actually you know what these are fo" (13 new saved to docs/krimble-icon-sets/photorealistic/)
+- **11:35:** "That is indeed a darkroom Dodge tool for when we actually figure out how to do real dodge and burn effects."
