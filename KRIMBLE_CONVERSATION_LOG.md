@@ -166,3 +166,4 @@ What was lost: the screenshots George sent during the day were not saved anywher
 - **23:02:** "These are important development instructions. This is how real development gets done. Art departments sketch things out and use Photoshop and other tools to communicate."
 - **23:03:** "I want the same grip lines on the black part of the Color Lab logo so I can grab it. Make it look nice and centered on the banner, and don't touch the letters."
 - **23:05:** RULE: "Keep lists of these instructions. Keep a summary of every chat at the very least, if not the whole chat." "You're not properly tracking my side of this." RULE: "don't mention my name in the release documents."
+- **23:06:** "Yes." (name taken out of the release notes) "Also try putting a mild gradient in the glue area. Not too intense. Make it nice."
