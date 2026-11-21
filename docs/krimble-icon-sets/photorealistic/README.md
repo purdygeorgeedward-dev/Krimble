@@ -45,6 +45,6 @@ toolbox (08_01 Undo, 08_02 Quick Mask, 08_03 Screen Mode). `extra_` = pictures w
 | 04_02_fill.png | 17. Fill (paint bucket) |
 | 05_05_pan.png | 25. Pan (open hand) |
 | 06_05_measure.png | 30. Measure (set square) |
-| extra_hand_pinch.png | pinching hand (no slot yet) |
+| extra_burn.png | Burn (pinching hand), for a future Dodge and Burn tool |
 
 Still missing: 16 Gradient, 20 Text, 23 Line, 28 Free Rotate, 29 Assistant, 32 Edit Path Nodes, 33 Undo.
