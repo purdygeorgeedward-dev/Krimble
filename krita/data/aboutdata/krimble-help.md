@@ -84,6 +84,10 @@ Emoji (as plain black shapes) can be used in text.
 
 Select the part you want to remove (with any selection tool), then choose **Edit > Fill > Content-Aware...**. Krimble fills the hole from the picture around it. It works best on plain or repeating backgrounds; on very busy pictures the fill can look soft.
 
+## Lens Flare (coming)
+
+**Filter > Render > Lens Flare...** adds the flare a bright light makes in a camera lens. Choose a type: **Zoom lens** (fine rays, a rainbow ring and a trail of colored ghosts), **Prime lens** (a tighter ring, fewer ghosts), **Cinematic** (a blue horizontal streak with oval ghosts) or **Starburst** (long spikes). Touch the picture where the light should be and drag: the flare follows your finger and the ghosts move across the center of the picture. When you let go, the full flare is drawn. **Brightness**, **Rays**, **Ghosts**, **Ring** and **Color** change its look. The flare only brightens the picture; it never darkens it.
+
 ## Hex maps and stars
 
 - **View > Show > Hex** draws a pattern of hexagons over the picture, for making hex maps. It follows the zoom and is not part of the picture. **Hex Size...** sets the size of a hexagon (center to corner, in pixels), **Hex Lines...** sets the lines, and **Lock Hex Settings** keeps them from being changed by accident.

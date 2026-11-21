@@ -109,6 +109,7 @@ Turn the phone sideways and everything rearranges for the wide screen.
 - **Image > Image Rotation**: turn or flip the whole picture.
 - **Image > Upscale...**: makes a picture 2, 3 or 4 times larger.
 - **Filter** menu: Blur, Sharpen, Stylize and others.
+- **Filter > Render > Lens Flare...** (coming): places a camera lens flare. Drag the light with your finger; the flare follows live.
 
 ---
 

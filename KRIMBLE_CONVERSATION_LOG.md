@@ -181,3 +181,5 @@ What was lost: the screenshots George sent during the day were not saved anywher
 - **23:25:** "Nice. What parameters do they use? Are they shaders or vectors?"
 - **23:26:** "So they just put it where they want it in an image? Can we rearrange it in realtime as they drag it around in the image?"
 - **23:27:** "Be sure to document this in the readme and the help file and the user manual."
+- **23:28:** "Please get the features up to date in the readme. We have accomplished a lot."
+- **23:28:** "Yes." (lens flare text added to README, help file and manual)
