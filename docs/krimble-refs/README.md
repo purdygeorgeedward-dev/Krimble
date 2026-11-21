@@ -53,3 +53,4 @@ Files named YYYY-MM-DD_HHMM_<id>.jpg, by the time each was sent (MST).
 - 2026-11-21_1153_demo-photorealistic-icons-at-button-sizes.png — the photorealistic set at 48, 72 and 120 px buttons
 - 2026-11-21_1245_glow-background-sample.png — George's Free Rotate picture on a dark teal glow: the sample for the Glow button background
 - 2026-11-21_1255_demo-photorealistic-on-glow.png — the whole photo set on Glow buttons, brush selected in Aqua
+- 2026-11-21_1300_demo-photorealistic-on-black-and-white.png — the photo set on plain black and plain white

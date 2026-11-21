@@ -278,3 +278,5 @@ What was lost: the screenshots George sent during the day were not saved anywher
 - **12:45:** (3 Free Rotate pictures) "Should we make pretty little backgrounds for these in the buttons?"
 - **12:46:** "Let's add that as a standard option, the pretty background." (change 803, Glow)
 - **12:46:** "Arrows over the photo." (Free Rotate = arrows over the painting; set complete)
+- **12:47:** "Is anything else missing?" (no)
+- **12:49:** "What do they look like on black or white?"
