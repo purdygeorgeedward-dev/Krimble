@@ -151,9 +151,26 @@ Recent and active work includes:
 - **Lens Flare** ✨: Filter > Render > Lens Flare..., four flare types made from scratch (Zoom lens, Prime lens, Cinematic anamorphic, Starburst), with a live preview. Put a finger on the picture and drag: the light follows and the ghosts swing across the center like a real lens. Sliders for brightness, rays, ghosts, ring and color.
 - **Lightsaber** ⚔️: Filter > Render > Lightsaber..., a glowing energy blade made from scratch: a white-hot core with a colored glow (Blue, Green, Red, Purple, Yellow, White or any color). Drag a finger on the picture to move either end of the blade; sliders for blade width, glow and brightness.
 - **Auto Tone, Auto Contrast, Auto Color** 🪄: one-tap fixes built on curves worked out from the picture (open, published methods); **Curves** has an **Auto** button that puts those curves in the window to adjust by hand
+- **Aqua-style selections** 💎: selected tools, buttons, menu items, list rows, layers, progress bars and Color Lab items have a glossy, multi-layered blue highlight
+- **Industry-standard Edit menu** ✂️: Copy Merged, Paste Into, Paste as New Image (sized to what you copied), Fill (Foreground, Background, Pattern, Content-Aware), Stroke, Puppet Warp, Free Transform, Copy and Paste Layer Style, Sample Color
+- **Desaturate** ⚫: one tap, no dialog
+- **Photo Filter** 📷: warm, cool and colored lens filters
+- **Indexed Color with retro palettes** 👾: Image > Mode > Indexed Color..., with Macintosh 8-bit, VGA, CGA, EGA, Windows, Commodore 64, Game Boy, Amiga Workbench and Grayscale palettes
+- **Color Lab palettes** 🎨: named palettes you can save, import and export (GIMP palette format), the Krimble 256 palette, a History tab, up to 256 swatches when the panel is taller, and grip lines on its logo band to move it
+- **Free Rotate** 🔄: turn the picture with two fingers
+- **Take Photo and Share** 📤: File > Take Photo... brings a camera photo in; File > Share... sends the picture to another app as JPG or PNG
+- **Hex Lines, Hex Pattern and Star** ⬢: line thickness, color and opacity for the hex overlay, hexagons drawn into the picture on a vector layer, and stars on a new vector layer
+- **Steel ball bearing slider handles** ⚙️
+- **Status bar reports** 📏: sizes and positions show in the status bar, not in boxes over your work
+- **Stays open in the background** 🔋: Android no longer closes Krimble while you switch apps (a small "Krimble is open" notice shows)
+- **New pictures fit the screen** 📱: the first New picture is the size of your screen, and opened pictures fit the window
+- **Panels you can grab** ✋: grip lines on panel titles to tear panels off and dock them again
+- **Panel layouts** 🗂️: Stack Panels, a saved startup layout for portrait and for landscape, Reset Layout, Close All Toolbars
+- **Rotation and Zoom gadgets** 🎛️: off by default, in the View menu
+- **Krimble Log** 🧾: Help > Show Krimble Log... shows what happened, for reporting problems
 - additional restoration and editing tools
 
-Some of these are already implemented; others are still in development.
+Everything in this list is built, except where it says in development.
 
 ---
 
@@ -190,7 +207,7 @@ Krimble has already completed a massive amount of work. The detailed engineering
 - Finish the text-selection **magnifier/loupe** for precise cursor placement.
 - Extend two-finger movement selectively to additional floating windows where useful.
 - Decide how replayable **Actions** should target layers across different documents.
-- Complete and test planned **Upscaling**, **Vibrance**, and additional restoration/editing tools.
+- Complete and test additional restoration and editing tools.
 - Build and validate distribution targets.
 - **Animation and game sprites** (proposed): animated GIF and WebP, frame tags, sprite sheets, game-engine export. See the roadmap (`KRIMBLE_ROADMAP.md`).
 
