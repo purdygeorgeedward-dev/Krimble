@@ -73,7 +73,7 @@ protected:
     {
         if (KrimbleToolboxIcons::buttonStyle() == 1 && !qApp->property("krimbleNoRaisedButtons").toBool()) {
             KoToolBoxButton::krimblePaintRaisedBox(this, isDown());
-        } else if (KrimbleToolboxIcons::lightGray()) {
+        } else if (KrimbleToolboxIcons::customFace()) {
             QPainter face(this);
             face.fillRect(rect().adjusted(1, 1, -1, -1), KrimbleToolboxIcons::lightGrayFace());
         }

@@ -198,7 +198,7 @@ void KoToolBoxButton::krimblePaintRaisedBox(QWidget *widget, bool down)
     // const bool krimbleLight = krimbleWindow.lightness() > 150;
     // const QColor face = krimbleLight ? krimbleWindow.darker(108) : krimbleWindow.lighter(150);
     const bool krimbleLight = KrimbleToolboxIcons::lightGray() || krimbleWindow.lightness() > 150;   // the Light gray switch gives the light face
-    const QColor face = KrimbleToolboxIcons::lightGray() ? KrimbleToolboxIcons::lightGrayFace()
+    const QColor face = KrimbleToolboxIcons::customFace() ? KrimbleToolboxIcons::lightGrayFace()
                       : (krimbleLight ? krimbleWindow.darker(108) : krimbleWindow.lighter(150));
     const int t = qMax(2, qRound(qMin(r.width(), r.height()) * 0.075));
     box.fillRect(r, face);
@@ -224,7 +224,7 @@ void KoToolBoxButton::paintEvent(QPaintEvent *event)
 {
     if (KrimbleToolboxIcons::buttonStyle() == 1 && !isChecked() && !qApp->property("krimbleNoRaisedButtons").toBool()) {
         krimblePaintRaisedBox(this, isDown());
-    } else if (KrimbleToolboxIcons::lightGray() && !isChecked()) {
+    } else if (KrimbleToolboxIcons::customFace() && !isChecked()) {
         QPainter face(this);
         face.fillRect(rect().adjusted(1, 1, -1, -1), KrimbleToolboxIcons::lightGrayFace());   // Light gray, flat
     }

@@ -239,3 +239,6 @@ What was lost: the screenshots George sent during the day were not saved anywher
 - **05:06:** "Yes. It's .73 now."
 - **09:08:** "Are we building?"
 - **09:09:** "Show me what the different button types look like."
+- **09:12:** "White should only appear on dark backgrounds. Our standard is gray isn't it? Gray on blue? Something like that?"
+- **09:13:** "We should also offer a darker gray background I guess."
+- **09:14:** "In those shots the raised effect is almost nothing" (the first demo drew a 2 px line; redrawn with the app's real bevel)

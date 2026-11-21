@@ -202,12 +202,12 @@ inline QColor lightGrayFace()
     return QColor(198, 198, 202);
 }
 */
-// Button background: 0 = the panel's own (default), 1 = light gray, 2 = white. Key Krimble/ToolboxButtonFace (the older ToolboxLightGray is read once).
+// Button background: 0 = the panel's own (default), 1 = light gray, 2 = white, 3 = dark gray. Key Krimble/ToolboxButtonFace (the older ToolboxLightGray is read once).
 inline int &buttonFaceCache()
 {
     static int face = [] {
         KConfigGroup group = KSharedConfig::openConfig()->group("Krimble");
-        if (group.hasKey("ToolboxButtonFace")) return qBound(0, group.readEntry("ToolboxButtonFace", 0), 2);
+        if (group.hasKey("ToolboxButtonFace")) return qBound(0, group.readEntry("ToolboxButtonFace", 0), 3);
         return group.readEntry("ToolboxLightGray", false) ? 1 : 0;
     }();
     return face;
@@ -217,17 +217,21 @@ inline int buttonFace() { return buttonFaceCache(); }
 
 inline void setButtonFace(int face)
 {
-    buttonFaceCache() = qBound(0, face, 2);
+    buttonFaceCache() = qBound(0, face, 3);
     KConfigGroup group = KSharedConfig::openConfig()->group("Krimble");
     group.writeEntry("ToolboxButtonFace", buttonFaceCache());
     group.config()->sync();
 }
 
-inline bool lightGray() { return buttonFace() != 0; }   // a light background (light gray or white)
+// inline bool lightGray() { return buttonFace() != 0; }   // a light background (light gray or white)
+inline bool customFace() { return buttonFace() != 0; }   // a background of its own (light gray, white or dark gray)
+inline bool lightGray() { return buttonFace() == 1 || buttonFace() == 2; }   // a light background (light gray or white)
 inline void setLightGray(bool on) { setButtonFace(on ? 1 : 0); }
 
 inline QColor lightGrayFace()
 {
+    // return buttonFace() == 2 ? QColor(250, 250, 252) : QColor(198, 198, 202);
+    if (buttonFace() == 3) return QColor(78, 78, 84);
     return buttonFace() == 2 ? QColor(250, 250, 252) : QColor(198, 198, 202);
 }
 
@@ -290,6 +294,9 @@ inline QIcon plainIcon(const QString &iconName)
         if (classicLineArt(iconName) || !hasPicture(iconName)) return blackIcon(kisIcon(iconName));
         return grayIcon(QIcon(QStringLiteral(":/krimble-toolbox/") + files().value(iconName) + QStringLiteral(".png")));
     }
+
+    // White icons are only shown on a dark background: on light gray or white they are drawn in black ("White should only appear on dark backgrounds.")
+    if (iconStyle() == White && lightGray()) return blackIcon(kisIcon(iconName));
 
     // Black and white: the silhouettes in black ("the problem with those black and white icons is they're just the color ones desaturated. I'd like to see the silhouettes in black.")
     if (grayMode()) return blackIcon(kisIcon(iconName));

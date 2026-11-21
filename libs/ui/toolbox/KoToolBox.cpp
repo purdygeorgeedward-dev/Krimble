@@ -558,7 +558,8 @@ void KoToolBox::setupButtonStyleMenu(QMenu *menu)
     // the button background, on its own beside Flat and Raised: it works with either
     menu->addSeparator();
     QActionGroup *faceGroup = new QActionGroup(menu);
-    const QStringList faces = {i18n("Panel background"), i18n("Light gray"), i18n("White")};
+    // const QStringList faces = {i18n("Panel background"), i18n("Light gray"), i18n("White")};
+    const QStringList faces = {i18n("Panel background"), i18n("Light gray"), i18n("White"), i18n("Dark gray")};
     for (int face = 0; face < faces.size(); ++face) {
         QAction *action = menu->addAction(faces[face]);
         action->setActionGroup(faceGroup);
@@ -566,6 +567,7 @@ void KoToolBox::setupButtonStyleMenu(QMenu *menu)
         action->setChecked(KrimbleToolboxIcons::buttonFace() == face);
         connect(action, &QAction::triggered, this, [this, face]() {
             KrimbleToolboxIcons::setButtonFace(face);
+            Q_FOREACH (KoToolBoxButton *button, d->buttonsByToolId) button->krimbleRefreshIcon();   // White icons turn black on a light background
             Q_FOREACH (KoToolBoxButton *button, d->buttonsByToolId) button->update();
             Q_FOREACH (QToolButton *button, d->buttons) button->update();
             update();
