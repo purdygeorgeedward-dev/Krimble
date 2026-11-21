@@ -3,6 +3,7 @@
 // pixels converted to the card's 1178 design units (the card of each mockup scaled to the same width), see color_pages_measurements.md. Both pages are drawn at the same scale as
 // the Picker page (krimble_color_paint.h) and share its bottom part (the foreground and background colors, recent colors, the palette).
 #pragma once
+#include <QCoreApplication>
 #include <functional>
 #include <QApplication>
 #include <QClipboard>
@@ -860,6 +861,11 @@ protected:
         }
         if (m_dragging && d && d->isFloating() && m_tornOff && (e->buttons() & Qt::LeftButton)) {
             d->move(m_dockFrom + (e->globalPos() - m_dragFrom));
+            // the panel's docking helper (KrimbleDockTolerance, on the panel) sees this drag as if the panel's own title row moved it,
+            // so a drag to the window's edge docks Color Lab again
+            QMouseEvent moved(QEvent::MouseMove, d->mapFromGlobal(e->globalPos()), e->globalPos(), Qt::NoButton, e->buttons(), e->modifiers());
+            QCoreApplication::sendEvent(d, &moved);
+            m_moved = true;
             e->accept();
             return;
         }
@@ -867,7 +873,13 @@ protected:
     }
     void mouseReleaseEvent(QMouseEvent *e) override
     {
+        QDockWidget *d = dock();
+        if (m_dragging && m_moved && d && d->isFloating()) {
+            QMouseEvent released(QEvent::MouseButtonRelease, d->mapFromGlobal(e->globalPos()), e->globalPos(), Qt::LeftButton, Qt::NoButton, e->modifiers());
+            QCoreApplication::sendEvent(d, &released);
+        }
         m_dragging = false;
+        m_moved = false;
         KrimbleColorBase::mouseReleaseEvent(e);
     }
 private:
@@ -877,6 +889,7 @@ private:
     QPoint m_dockFrom;
     bool m_dragging = false;
     bool m_tornOff = false;
+    bool m_moved = false;
     QWidget *m_lines = nullptr;
 protected:
     void paintEvent(QPaintEvent *) override
