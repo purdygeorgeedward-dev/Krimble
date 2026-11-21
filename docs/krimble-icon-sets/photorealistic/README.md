@@ -51,7 +51,7 @@ toolbox (08_01 Undo, 08_02 Quick Mask, 08_03 Screen Mode). `09_xx` = future tool
 
 | File | Tool |
 |---|---|
-| 04_01_gradient.png | 16. Gradient (teal, square; the other three were not kept) |
+| 04_01_gradient.png | 16. Gradient (blue to cyan to violet, square; replaced the teal one at 12:56) |
 
 ## Received 2026-11-21 12:37 (4 images)
 

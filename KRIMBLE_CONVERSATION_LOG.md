@@ -284,3 +284,4 @@ What was lost: the screenshots George sent during the day were not saved anywher
 - **12:52:** "Just leave my alpha channel transparency alone!!" (aura removed from Line and Text; app copies are only cropped and scaled)
 - **12:52:** "And leave them at FULL RESOLUTION. NO SCALING DOWN LIKE I TOLD YOU BEFORE WITH WESNOTH." (app copies replaced with his full-resolution files; rule added to KRIMBLE_DESIGN_RULES.md)
 - **12:55:** (2 images) transparent versions of Edit Path Nodes and Undo; used as delivered in the set and the app
+- **12:56:** (image: square blue/cyan/violet gradient) new Gradient picture, replaces the teal one
