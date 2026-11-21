@@ -268,3 +268,4 @@ What was lost: the screenshots George sent during the day were not saved anywher
 - **11:56:** "Where do I get the APK?"
 - **12:09:** "Need the release notes, tag, and target in the release." (this session cannot create releases; notes in RELEASE_NOTES_1.0.73-beta.md)
 - **12:12:** (4 images) "Gradients." (saved as 04_01_gradient_* in docs/krimble-icon-sets/photorealistic/)
+- **12:25:** "The square on I guess. Don't save all those. It's a waste." (kept the square one as 04_01_gradient.png, removed the other three, added to the app set)

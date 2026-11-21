@@ -47,13 +47,10 @@ toolbox (08_01 Undo, 08_02 Quick Mask, 08_03 Screen Mode). `09_xx` = future tool
 | 06_05_measure.png | 30. Measure (set square) |
 | 09_02_burn.png | Burn (pinching hand), for a future Dodge and Burn tool |
 
-## Received 2026-11-21 12:12 (gradients, 4 images)
+## Received 2026-11-21 12:12 (gradients)
 
 | File | Tool |
 |---|---|
-| 04_01_gradient_blue_horizon.png | 16. Gradient (blue, bright horizon line, wide) |
-| 04_01_gradient_teal_horizon.png | 16. Gradient (teal, wide) |
-| 04_01_gradient_teal_square.png | 16. Gradient (teal, square) |
-| 04_01_gradient_blue_glow.png | 16. Gradient (blue glow, wide) |
+| 04_01_gradient.png | 16. Gradient (teal, square; the other three were not kept) |
 
 Still missing: 20 Text, 23 Line, 28 Free Rotate, 29 Assistant, 32 Edit Path Nodes, 33 Undo.
