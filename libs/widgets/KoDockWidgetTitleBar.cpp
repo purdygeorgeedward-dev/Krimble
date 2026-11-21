@@ -105,7 +105,16 @@ void KoDockWidgetTitleBar::setTitleTextHidden(bool hidden)
     d->titleTextHidden = hidden;
     QDockWidget *dock = qobject_cast<QDockWidget*>(parentWidget());
     d->titleLabel->setVisible(true);
-    d->titleLabel->setText(hidden || !dock ? QString() : dock->windowTitle());
+    // d->titleLabel->setText(hidden || !dock ? QString() : dock->windowTitle());
+    d->titleLabel->setText(!d->titleOverride.isEmpty() ? d->titleOverride : (hidden || !dock ? QString() : dock->windowTitle()));
+    update();
+}
+
+void KoDockWidgetTitleBar::setTitleOverride(const QString &text)
+{
+    if (d->titleOverride == text) return;
+    d->titleOverride = text;
+    setTitleTextHidden(d->titleTextHidden);
 }
 
 void KoDockWidgetTitleBar::paintEvent(QPaintEvent*)
@@ -150,7 +159,9 @@ void KoDockWidgetTitleBar::paintEvent(QPaintEvent*)
         // if (d->titleLabel && d->titleLabel->isVisible() && !d->titleTextHidden) left = d->titleLabel->geometry().left() + d->titleLabel->fontMetrics().horizontalAdvance(q->windowTitle()) + 16;
         // gaps measured from the mockup (docs/krimble-refs/2026-11-20_1943_MOCKUP-grips-and-layers-title.jpg): 36 real px after the title, 70 real px before the float button
         const qreal gapDpr = qMax<qreal>(1.0, devicePixelRatioF());
-        if (d->titleLabel && d->titleLabel->isVisible() && !d->titleTextHidden) left = d->titleLabel->geometry().left() + d->titleLabel->fontMetrics().horizontalAdvance(q->windowTitle()) + qRound(36.0 / gapDpr);
+        // if (d->titleLabel && d->titleLabel->isVisible() && !d->titleTextHidden) left = d->titleLabel->geometry().left() + d->titleLabel->fontMetrics().horizontalAdvance(q->windowTitle()) + qRound(36.0 / gapDpr);
+        // the grip starts after whatever title the row shows (the dock's own, or the tool's name in Tool Options): "Tool options title overlaps onto grab area."
+        if (d->titleLabel && d->titleLabel->isVisible() && !d->titleLabel->text().isEmpty()) left = d->titleLabel->geometry().left() + d->titleLabel->fontMetrics().horizontalAdvance(d->titleLabel->text()) + qRound(36.0 / gapDpr);
         int right = width() - 12;
         Q_FOREACH (QAbstractButton *b, QList<QAbstractButton*>() << d->floatButton << d->closeButton << d->lockButton) {
             // if (b && b->isVisible()) right = qMin(right, b->geometry().left() - 12);
@@ -237,7 +248,8 @@ void KoDockWidgetTitleBar::Private::featuresChanged(QDockWidget::DockWidgetFeatu
 
 void KoDockWidgetTitleBar::Private::dockWidgetTitleChanged(const QString &title)
 {
-    titleLabel->setText(titleTextHidden ? QString() : title);
+    // titleLabel->setText(titleTextHidden ? QString() : title);
+    titleLabel->setText(!titleOverride.isEmpty() ? titleOverride : (titleTextHidden ? QString() : title));
 }
 
 

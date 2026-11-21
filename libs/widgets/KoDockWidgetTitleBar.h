@@ -30,6 +30,10 @@ public Q_SLOTS:
 
     void setTitleTextHidden(bool hidden);
 
+    /// Krimble: a title shown in the title row in place of the dock's own (the Tool Options docker shows the tool's name),
+    /// also when the dock's title is hidden because it sits in a tab group; an empty text goes back to the dock's own title
+    void setTitleOverride(const QString &text);
+
 protected:
     void paintEvent(QPaintEvent* event) override; ///< reimplemented from QWidget
     void resizeEvent(QResizeEvent* event) override; ///< reimplemented from QWidget

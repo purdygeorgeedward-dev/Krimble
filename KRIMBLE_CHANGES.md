@@ -7899,3 +7899,10 @@ Built as 71.
   button of a dialog (OK, Create) is drawn in Aqua.
 - Files: KrimbleAquaPaint.h, KrimbleVisualStyle.h, KrimbleVisualStylePainted.h, KrimbleCommonStyle.h, NodeDelegate.cpp, krimble_color_history.h,
   krimble_color_palette_page.h.
+
+## 807 — Toolbox lip and fewer grip lines; Tool Options name in the title row (2026-11-21, not built)
+- "Add a lip area at the top of the toolbox and lose a few lines of the grab.": an empty lip of 18 real pixels at the top of the toolbox grip,
+  then six lines (was nine, no lip). KoToolBoxDocker.cpp.
+- "Tool options title overlaps onto grab area.": the tool's name (Smudge, Warp, ...) was a separate label at the top of the panel, under the grip.
+  It is now shown in the title row itself and the grip starts after it, as in Layers. KoDockWidgetTitleBar::setTitleOverride; KoToolDocker.cpp
+  (the old label stays, hidden); the Transform tool's mode names go to the title row too (kis_tool_transform_config_widget.cpp).

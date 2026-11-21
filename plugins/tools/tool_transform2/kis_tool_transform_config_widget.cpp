@@ -4,6 +4,7 @@
  *  SPDX-License-Identifier: GPL-2.0-or-later
  */
 
+#include <QDockWidget>
 #include <QLabel>
 #include <QVector3D>
 #include "kis_tool_transform_config_widget.h"
@@ -577,7 +578,17 @@ static void krimbleShowTransformTitle(QWidget *from, const ToolTransformArgs &co
     default: return;
     }
     if (QWidget *window = from->window()) {
-        if (QLabel *label = window->findChild<QLabel *>(QStringLiteral("krimbleToolOptionsName"))) label->setText(title);
+        // if (QLabel *label = window->findChild<QLabel *>(QStringLiteral("krimbleToolOptionsName"))) label->setText(title);
+        if (QLabel *label = window->findChild<QLabel *>(QStringLiteral("krimbleToolOptionsName"))) {
+            label->setText(title);
+            // the name is shown in the Tool Options title row (the label itself is hidden)
+            for (QWidget *w = label->parentWidget(); w; w = w->parentWidget()) {
+                if (QDockWidget *dock = qobject_cast<QDockWidget *>(w)) {
+                    if (dock->titleBarWidget()) QMetaObject::invokeMethod(dock->titleBarWidget(), "setTitleOverride", Q_ARG(QString, title));
+                    break;
+                }
+            }
+        }
     }
 }
 

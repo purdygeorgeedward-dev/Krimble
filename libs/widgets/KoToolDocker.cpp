@@ -18,6 +18,8 @@
 #include <QBoxLayout>
 #include <QGridLayout>
 #include <QLabel>
+#include <QTimer>
+#include "KoDockWidgetTitleBar.h"
 #include <QScrollArea>
 #include <QScroller>
 
@@ -57,7 +59,10 @@ public:
         }
         if (name.endsWith(QLatin1String(" Tool"))) name.chop(5);
         toolNameLabel->setText(name);
-        toolNameLabel->setVisible(!name.isEmpty());
+        // toolNameLabel->setVisible(!name.isEmpty());
+        // the name goes in the title row, before the grip ("Tool options title overlaps onto grab area."); the label stays, hidden
+        toolNameLabel->setVisible(false);
+        if (KoDockWidgetTitleBar *bar = dynamic_cast<KoDockWidgetTitleBar *>(q->titleBarWidget())) bar->setTitleOverride(name);
     }
     KoToolDocker *q {nullptr};
     Qt::DockWidgetArea dockingArea {Qt::NoDockWidgetArea};
@@ -193,6 +198,7 @@ KoToolDocker::KoToolDocker(QWidget *parent)
     d->housekeeperMainLayout->insertWidget(0, d->toolNameLabel);
     d->updateToolName();
     connect(KoToolManager::instance(), &KoToolManager::changedTool, this, [this](KoCanvasController *) { d->updateToolName(); });
+    QTimer::singleShot(0, this, [this]() { d->updateToolName(); });   // the title row is given to the docker after it is made
 
     d->hiderWidget = new QWidget();
     d->hiderWidget->setVisible(false);

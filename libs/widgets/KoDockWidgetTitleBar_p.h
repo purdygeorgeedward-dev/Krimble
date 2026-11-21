@@ -39,6 +39,7 @@ public:
     QAbstractButton* lockButton {nullptr};
     KSqueezedTextLabel* titleLabel {nullptr};
     bool titleTextHidden {false};
+    QString titleOverride;   // Krimble: see setTitleOverride()
     bool locked {false};
     bool pressed {false};
     bool dragging {false};

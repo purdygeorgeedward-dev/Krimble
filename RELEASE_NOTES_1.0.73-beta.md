@@ -48,6 +48,11 @@ Krimble is open source software made with the assistance of Claude and ChatGPT.
 - Highlighting Fill in the Edit menu no longer squeezes the menu.
 - The magenta box drawn by the Move tool is gone.
 
-**Known issues**
+**Known issues** (found in testing this build)
 
-- To be added from testing.
+- The first image opened can show upside down and blurry until the view is moved.
+- The Aqua highlight is too light, and it is also used on selections (layers, lists, menus), where white text is hard to read.
+- The eyedropper icon is missing from the toolbox.
+- In Tool Options, the tool's name overlaps the grab area.
+- The OK button in Save As and the Create button in File > New are not in the Aqua style.
+- The app still restarts when switching away and back.

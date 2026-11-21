@@ -35,6 +35,7 @@
 #include <QStyle>
 #include <QEvent>
 #include <QPainter>
+#include <QtMath>
 #include <QMouseEvent>
 #include <QPaintEvent>
 
@@ -108,8 +109,15 @@ protected:
         //     const qreal y = height() / 2.0 + i * (gap + thick) - thick / 2.0;
         //     p.fillRect(QRectF((width() - length) / 2.0, y, length, thick), c);
         // }
-        for (int i = -4; i <= 4; ++i) {   // nine lines across the whole width
-            const qreal y = height() / 2.0 + i * (gap + thick) - thick / 2.0;
+        // for (int i = -4; i <= 4; ++i) {   // nine lines across the whole width
+        //     const qreal y = height() / 2.0 + i * (gap + thick) - thick / 2.0;
+        //     p.fillRect(QRectF(0, y, width(), thick), c);
+        // }
+        // an empty lip at the top, then six lines across the whole width ("Add a lip area at the top of the toolbox and lose a few lines of the grab.")
+        const qreal lip = 18.0 / dpr;
+        const qreal mid = lip + (height() - lip) / 2.0;
+        for (int i = 0; i < 6; ++i) {
+            const qreal y = mid + (i - 2.5) * (gap + thick) - thick / 2.0;
             p.fillRect(QRectF(0, y, width(), thick), c);
         }
     }
@@ -263,7 +271,8 @@ KoToolBoxDocker::KoToolBoxDocker(KoToolBox *toolBox)
         font.setPixelSize(qRound(font.pixelSize() * ratio));
     }
     int titleSize = QFontMetrics(font).height();
-    w->setMinimumSize(titleSize, titleSize + 12);
+    // w->setMinimumSize(titleSize, titleSize + 12);
+    w->setMinimumSize(titleSize, titleSize + 12 + qCeil(18.0 / qMax<qreal>(1.0, qApp->devicePixelRatio())));   // room for the lip
     setTitleBarWidget(w);
 
     KConfigGroup cfg =  KSharedConfig::openConfig()->group("KoToolBox");
