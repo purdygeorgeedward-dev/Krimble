@@ -18,7 +18,7 @@ Krimble is open source software made with the assistance of Claude and ChatGPT.
 
 **Lens Flare**
 
-- New: Filter > Render > Lens Flare..., four flare types made from scratch (Zoom lens, Prime lens, Cinematic, Starburst), Drag a finger on the picture to move the light; sliders for brightness, rays, ghosts, ring and color.
+- New: Filter > Render > Lens Flare..., four flare types made from scratch (Zoom lens, Prime lens, Cinematic, Starburst). Drag a finger on the picture to move the light; sliders for brightness, rays, ghosts, ring and color.
 
 **Selections**
 
