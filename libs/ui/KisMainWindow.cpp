@@ -16,6 +16,7 @@
 #include <KoConfig.h>
 
 // qt includes
+#include <QKeyEvent>
 #include <QApplication>
 #include <QByteArray>
 #include <QCloseEvent>
@@ -2045,6 +2046,38 @@ void KisMainWindow::redo()
     if (activeView()) {
         activeView()->document()->undoStack()->redo();
     }
+}
+
+// Krimble (1.0.73 test, "It relaunched on switch again"): the log showed Android asked Krimble to finish (onDestroy, isFinishing=true)
+// right after it went to the background, and Krita then ends its own process when its window closes. On Android, a Back press
+// that nothing in the window uses makes Qt close the window, which quits the app. A Back press that reaches the main window now
+// moves Krimble to the background (as Home does) and leaves it running.
+void KisMainWindow::keyPressEvent(QKeyEvent *e)
+{
+#ifdef Q_OS_ANDROID
+    if (e->key() == Qt::Key_Back) {
+        e->accept();
+        return;
+    }
+#endif
+    KXmlGuiWindow::keyPressEvent(e);
+}
+
+void KisMainWindow::keyReleaseEvent(QKeyEvent *e)
+{
+#ifdef Q_OS_ANDROID
+    if (e->key() == Qt::Key_Back) {
+        e->accept();
+        QAndroidJniObject activity = QtAndroid::androidActivity();
+        if (activity.isValid()) {
+            QAndroidJniEnvironment env;
+            activity.callMethod<jboolean>("moveTaskToBack", "(Z)Z", jboolean(true));
+            if (env->ExceptionCheck()) env->ExceptionClear();
+        }
+        return;
+    }
+#endif
+    KXmlGuiWindow::keyReleaseEvent(e);
 }
 
 void KisMainWindow::closeEvent(QCloseEvent *e)

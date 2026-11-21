@@ -7906,3 +7906,14 @@ Built as 71.
 - "Tool options title overlaps onto grab area.": the tool's name (Smudge, Warp, ...) was a separate label at the top of the panel, under the grip.
   It is now shown in the title row itself and the grip starts after it, as in Layers. KoDockWidgetTitleBar::setTitleOverride; KoToolDocker.cpp
   (the old label stays, hidden); the Transform tool's mode names go to the title row too (kis_tool_transform_config_widget.cpp).
+
+## 808 — Back no longer quits Krimble; every push button in Aqua (2026-11-21, not built)
+- "It relaunched on switch again. No difference." His log (docs/krimble-refs/2026-11-21_1600_krimble-log-relaunch.txt): at 15:33:54, just after
+  going to the background, Android called onDestroy with isFinishing=true, then Krita's own DocumentSaverService ended the process (signal 9,
+  while the keep-alive service was running). Not a memory kill: Krimble was finished. On Android, a Back press that nothing in the window uses
+  makes Qt close the window, which quits the app. KisMainWindow::keyPressEvent/keyReleaseEvent (Android): a Back press that reaches the main
+  window is taken and Krimble is moved to the background (Activity.moveTaskToBack), as Home does. Dialogs and menus still close with Back.
+  The earlier 12:07 restart was Samsung's own ("stop org.krimble due to SPEG", while cached in the background).
+- "The copy button in the show Krimble log window doesn't have the new aqua theme. It seems like it was applied randomly.": every push button
+  (Copy, OK, Cancel and the rest) is drawn in Aqua, a darker Aqua while pressed; disabled buttons stay gray. KrimbleVisualStyle.h,
+  KrimbleVisualStylePainted.h.

@@ -57,4 +57,4 @@ Screenshots: docs/krimble-refs/2026-11-21_1537_test73-*.jpg
 | 15 | For George: krita5.xmlgui line 305. |
 | 16 | Fixed, 805: toolbox 22 by default. |
 | 17 | Fixed, 804: black Undo; Classic removed. |
-| 18 | Open. The keep-alive service (774th, in 72 and 73) did not stop it; needs the "Last exit" line from Help > Show Krimble log after a relaunch. |
+| 18 | Fixed, 808 (to confirm in testing): the log showed Krimble was finished (isFinishing=true), most likely by Back; Back now sends Krimble to the background. |

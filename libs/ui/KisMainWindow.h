@@ -436,6 +436,9 @@ private Q_SLOTS:
 protected:
 
     void closeEvent(QCloseEvent * e) override;
+    // Krimble: the Back button sends Krimble to the background instead of closing it (Android)
+    void keyPressEvent(QKeyEvent *e) override;
+    void keyReleaseEvent(QKeyEvent *e) override;
     void resizeEvent(QResizeEvent * e) override;
     void showEvent(QShowEvent *event) override;
 

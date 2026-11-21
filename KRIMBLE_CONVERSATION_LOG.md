@@ -289,3 +289,5 @@ What was lost: the screenshots George sent during the day were not saved anywher
 - **15:39:** "New tool concept: multi-point gradient. User taps screen ti create control points and the tool creates a web of lines between those nodes and fills it in with a gradient based on colors selected by the user."
 - **15:42:** "The multi-point gradient would create either linear ._._._._. or 3d gradients (many island nodes) and gratients form between the nodes in different directions. Each would exist as a vector object with control points the user can move and reposition at will."
 - **15:45:** "Remember to keep all my bug lists in a file. They need to be added to their respective releases." (KRIMBLE_BUG_LISTS.md; 1.0.73 Known issues filled in)
+- **15:49:** "Try to edit 1.0.73-beta" (refused: releases cannot be edited from this session)
+- **16:00:** (Krimble log attached) "The copy button in the show Krimble log window doesn't have the new aqua theme. It seems like it was applied randomly."
