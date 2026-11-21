@@ -22,3 +22,4 @@ Files named YYYY-MM-DD_HHMM_<id>.jpg, by the time each was sent (MST).
 | 2026-11-20_2312_APPROVED-aqua-gradient-demo.png | Nov 20, 2026 23:12 MST | Claude's Aqua-style gradient demo in selection blue (toolbox button, pill, menu highlight). Approved: "It's amazing." Recipe in /tmp/aqua_demo.py copied to docs/krimble-refs/aqua_demo.py |
 | 2026-11-20_2318_preview-aqua-on-toolbox-and-tool-options.png | Nov 20, 2026 23:18 MST | Claude's preview: the Aqua-style selection on the toolbox button and the Mode/Action buttons (drawn on batch-16) |
 | 2026-11-20_2320_test-aqua-checked-buttons.png | Nov 20, 2026 23:20 MST | Qt test of 783rd: checked tool button, unchecked, checked push button |
+| 2026-11-20_2327_demo-lens-flares-v1.png | Nov 20, 2026 23:27 MST | First lens flare prototype from scratch: Zoom lens, Prime lens, Cinematic (anamorphic), Starburst. Code: lens_flare_prototype_v1.py |

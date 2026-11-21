@@ -18,7 +18,7 @@ Last updated: 2026-11-20 23:20 MST.
 | Nov 20 | Recent Images area too small, tiny scroll bars | batch-02, batch-15 | open |
 | Nov 20 | Aqua-style gradient (Mac OS Aqua) on every place that had the glowy highlight | 2026-11-20_2311_macos-aqua-gradient-reference.png, 2026-11-20_2312_APPROVED-aqua-gradient-demo.png | 782nd and 783rd pushed (toolbox, button rows, Color Lab, every other checked button), not in a build |
 | Nov 20 | Lens flare effects made from scratch (starburst, rays, colored ghosts) | 2026-11-20_2247_lens-flare-reference.png | open, needs a plan |
-| Nov 20 | Idea, not asked for yet: an all-in-one gadget like the bottom of the industry-standard toolbox ("seems like a lot") | | idea |
+| Nov 20 | Idea, not asked for yet: an all-in-one gadget for the controls BELOW the color swatches at the bottom of the toolbox (quick mask, screen modes: "We had something clunky there before. Quickmask and screen modes never sat right.") | | idea |
 | Nov 20 | Lightsabers (from scratch) | | open, needs a plan |
 | Nov 20 | Constant resets (app killed by Android) | | KeepAliveService pushed; memory use open; needs a Krimble log screenshot after a reset |
 | Nov 20 | Release notes with no mention of his name | | open: existing notes name him (1.0.59 to 1.0.64, 1.0.66, template) |
