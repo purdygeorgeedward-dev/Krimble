@@ -194,3 +194,5 @@ What was lost: the screenshots George sent during the day were not saved anywher
 - **03:41:** "Those releases say \"George\" in them?"
 - **03:42:** "The one with my full name is fine. Not the colloquial ones with my first name."
 - **03:42:** "Instead you could write \"This build was installed and tested.\" Don't put my name in those."
+- **03:43:** "I'll fix those. You work on that list." (he edits the GitHub release text himself)
+- **03:43:** "Don't wait to perform tasks in the list. Get the work done." (work the open list without stopping for approval of each change)

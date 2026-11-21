@@ -188,11 +188,24 @@ public:
         if (rows <= 0) return;
         const int frame = 2 * list->frameWidth();
         const int wantListH = list->sizeHintForRow(0) * rows + frame;
-        const int wantListW = list->sizeHintForColumn(0) + frame + list->verticalScrollBar()->sizeHint().width() + 8;
+        // const int wantListW = list->sizeHintForColumn(0) + frame + list->verticalScrollBar()->sizeHint().width() + 8;
+        // the width of the widest type, not counting the "All supported formats" row (its list of every extension
+        // made the window almost as wide as the screen); that row is cut off with "..." at the right
+        int widest = 0;
+        for (int row = 0; row < rows; ++row) {
+            const QString text = list->model()->index(row, 0).data().toString();
+            if (text.startsWith(QLatin1String("All supported"))) continue;
+            widest = qMax(widest, list->fontMetrics().horizontalAdvance(text) + 24);
+        }
+        const int wantListW = widest + frame + list->verticalScrollBar()->sizeHint().width() + 8;
+        list->setTextElideMode(Qt::ElideRight);
+        list->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        list->setWordWrap(false);
         const int extraH = qMax(0, dialog->height() - list->height());   // the label, the buttons, the margins
         const int extraW = qMax(0, dialog->width() - list->width());
         const int h = qMin(wantListH + extraH, int(avail.height() * 0.98));
-        const int w = qMin(qMax(240, wantListW + extraW), int(avail.width() * 0.95));
+        // const int w = qMin(qMax(240, wantListW + extraW), int(avail.width() * 0.95));
+        const int w = qMin(qMax(240, wantListW + extraW), int(avail.width() * 0.60));   // never wide: at most 60% of the screen
         if (qAbs(h - dialog->height()) > 2 || qAbs(w - dialog->width()) > 2) {
             dialog->resize(w, h);
             dialog->move(avail.left() + (avail.width() - w) / 2, avail.top() + (avail.height() - h) / 2);
