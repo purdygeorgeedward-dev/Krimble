@@ -40,3 +40,4 @@ Files named YYYY-MM-DD_HHMM_<id>.jpg, by the time each was sent (MST).
 | 2026-11-21_0530_preview-classic-icons.png | Nov 21, 2026 05:30 MST | Classic icon style (799th) on Light gray raised buttons: black line art for shape tools, grayscale art for object tools (the blank tile is Free Rotate, whose icon lives in another folder than this preview read; it shows in the app) |
 | 2026-11-21_0535_demo-color-icons-with-lines.png | Nov 21, 2026 05:35 MST | Demo: the color picture icons as they are, with a dark outline, and with an outline plus inner ink lines. REJECTED: "Nobody wants outlines." |
 | 2026-11-21_0540_demo-color-icons-with-silhouette-lines.png | Nov 21, 2026 05:40 MST | Demo: the color pictures (top) with the black silhouette lines laid over them (bottom) |
+| 2026-11-21_0545_demo-silhouettes-in-color.png | Nov 21, 2026 05:45 MST | Demo: the picture icons (top) and the silhouette line icons drawn in each picture's main color (bottom) |
