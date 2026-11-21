@@ -210,3 +210,4 @@ What was lost: the screenshots George sent during the day were not saved anywher
 - **04:21:** "I just saw an image of the Ps toolbox with a 🍌 banana icon in it." (answered: Nano Banana, Google's Gemini image model, in Generative Fill)
 - **04:22:** "We have a full toolbox. Otherwise we could add an interface connector for Perchance."
 - **04:23:** "We already built it."
+- **04:24:** "http://perchance.org/imagine-it and perchance.org/image-donkey are built and working."
