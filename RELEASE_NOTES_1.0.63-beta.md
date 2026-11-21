@@ -9,7 +9,7 @@ Krimble is open source software made with the assistance of Claude and ChatGPT.
 
 **Version numbers:** this is build 63. The last release was 1.0.58 beta.
 
-**Do not install this build.** George tested it; the faults are listed under Known issues at the end.
+**Do not install this build.** Tested on device; the faults are listed under Known issues at the end.
 
 **Themes**
 
@@ -36,7 +36,7 @@ Krimble is open source software made with the assistance of Claude and ChatGPT.
 
 **Known issues**
 
-George installed this build and tested it.
+Tested on device.
 
 - The toolbox did not dock normally; docking by menu or by dragging gave unpredictable results, and Dock Right could put it at the top.
 - The docked toolbox was cut off halfway down and had to be scrolled.

@@ -28,7 +28,7 @@ The format of every release body (checked by: python3 tools/ci/check_release_nam
 - "**NEW IN 1.0.N BETA**" has the same N as the file name, and a blank line after it;
 - the "**Version numbers:**" line names the build and the last release;
 - every section name is a line in bold, with a blank line after it and before it;
-- bullets are plain sentences (George's words are not rewritten; a bold lead-in is allowed, not required);
+- bullets are plain sentences (the tester's words are not rewritten; a bold lead-in is allowed, not required);
 - no "#" headings, no "---" rules, no tables.
 Delete this comment before posting. Tag v1.0.N-beta, title "Krimble v1.0.N-beta", pre-release.
 -->

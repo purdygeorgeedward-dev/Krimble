@@ -9,7 +9,7 @@ Krimble is open source software made with the assistance of Claude and ChatGPT.
 
 **Version numbers:** this is build 62. The last release was 1.0.58 beta.
 
-**Do not install this build.** George tested it; the faults are listed under Known issues at the end.
+**Do not install this build.** Tested on device; the faults are listed under Known issues at the end.
 
 **Themes**
 
@@ -37,7 +37,7 @@ Krimble is open source software made with the assistance of Claude and ChatGPT.
 
 **Known issues**
 
-George installed this build and tested it.
+Tested on device.
 
 - After switching themes the theme would not change again; Krimble Blue-Gray would not load (an old saved Krita theme name), and switching was slow.
 - The File menu was still too close to the K.

@@ -45,7 +45,7 @@ Krimble is open source software made with the assistance of Claude and ChatGPT.
 
 **Known issues**
 
-George installed this build and tested it. Most of what the lists above promise did not work.
+Tested on device. Most of what the lists above promise did not work.
 
 - The toolbox docks as a giant column and scrolls, and its edge is fat.
 - The selected layer still looks wrong.
@@ -56,7 +56,7 @@ George installed this build and tested it. Most of what the lists above promise 
 - Raised toolbox buttons and the dock tab drag are new and were not working.
 - Submenus can still overlap their parent menu.
 
-<!-- Krimble 2026-11-15: the Known issues list before George's test results (kept):
+<!-- Krimble 2026-11-15: the Known issues list before the test results (kept):
 Known issues (old list)
 
 - Raised toolbox buttons and the dock tab drag are new and need testing on the phone.
