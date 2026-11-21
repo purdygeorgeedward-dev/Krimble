@@ -14,3 +14,7 @@ Name: YYYY-MM-DD_HHMM_short-description.ext (Mountain Time)
 | batch-06 | | Save As dialog massively wide; he only wanted it TALLER, not wider. Must not be wide |
 | batch-07, 08 | | Edit > Fill: highlighting Fill makes the menu go miniature/squashed; the Fill submenu itself looks tiny |
 | batch-09, 11-14, 16 | | (not yet explained) |
+
+## Earlier uploads from Nov 20, 2026 (recovered from the session's upload folder at 23:02)
+Files named YYYY-MM-DD_HHMM_<id>.jpg, by the time each was sent (MST).
+- **2026-11-20_1943_MOCKUP-grips-and-layers-title.jpg** — George's mockup: toolbox grip is a tall block of many thin lines across the full width; the Layers title sits at the top-left with a tall block of grip lines after it, filling to the float/close buttons.
