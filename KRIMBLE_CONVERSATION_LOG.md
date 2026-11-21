@@ -204,3 +204,5 @@ What was lost: the screenshots George sent during the day were not saved anywher
 - **04:08:** "Progress bars should have been the same glow+afterglow effect we use on percentages, but the new AppleOS Aqua is so beautiful we should use it anywhere we can. Let's do that."
 - **04:16:** "Okay. What still needs work?"
 - **04:16:** "I haven't seen many front kills." (front-of-screen memory kills are rare; the resets were mostly background kills, which the keep-alive covers)
+- **04:18:** "Where is the QuickAdjust logo I made before?"
+  (Answer: the graphics are in krita/pics/svg/: dark_krimble-quickadjust-logo.png, -banner.png, -banner2.png; banner2 is the one the Quick Adjust panel shows. The "waiting for his graphic" item on the list was stale and is removed.)
