@@ -77,12 +77,16 @@ inline void forEachPixel16(KisPaintDeviceSP device, const QRect &rect, const KoC
     }
 }
 
-inline void apply(KisPaintDeviceSP device, const QRect &rect, Mode mode, KoUpdater *progress)
+// The curve of each channel (R, G, B): y = ((x - black) / (white - black)) ^ power, clipped to 0..1.
+struct Curves { qreal black[3] = {0, 0, 0}; qreal white[3] = {1, 1, 1}; qreal power[3] = {1, 1, 1}; bool valid = false; };
+
+inline Curves computeCurves(KisPaintDeviceSP device, const QRect &rect, Mode mode)
 {
+    Curves result;
     const KoColorSpace *cs = device->colorSpace();
-    if (cs->colorModelId() != RGBAColorModelID) return;
+    if (cs->colorModelId() != RGBAColorModelID) return result;
     const KoColorSpace *cs16 = KoColorSpaceRegistry::instance()->colorSpace(RGBAColorModelID.id(), Integer16BitsColorDepthID.id(), cs->profile());
-    if (!cs16) return;
+    if (!cs16) return result;
 
     // 1. histograms
     QVector<quint64> hist[3] = {QVector<quint64>(Bins, 0), QVector<quint64>(Bins, 0), QVector<quint64>(Bins, 0)};
@@ -100,10 +104,10 @@ inline void apply(KisPaintDeviceSP device, const QRect &rect, Mode mode, KoUpdat
         lumSum[0][l] += fr; lumSum[1][l] += fg; lumSum[2][l] += fb;
         total++;
     });
-    if (total == 0) return;
+    if (total == 0) return result;
 
     // 2. black and white point of each channel
-    qreal black[3], white[3], power[3] = {1.0, 1.0, 1.0};
+    qreal *black = result.black, *white = result.white, *power = result.power;
     for (int c = 0; c < 3; ++c) {
         if (mode == Contrast) {
             black[c] = lowCut(histAll, total * 3, 0.001);
@@ -163,6 +167,21 @@ inline void apply(KisPaintDeviceSP device, const QRect &rect, Mode mode, KoUpdat
             }
         }
     }
+
+    result.valid = true;
+    return result;
+}
+
+inline void apply(KisPaintDeviceSP device, const QRect &rect, Mode mode, KoUpdater *progress)
+{
+    const KoColorSpace *cs = device->colorSpace();
+    if (cs->colorModelId() != RGBAColorModelID) return;
+    const KoColorSpace *cs16 = KoColorSpaceRegistry::instance()->colorSpace(RGBAColorModelID.id(), Integer16BitsColorDepthID.id(), cs->profile());
+    if (!cs16) return;
+    const Curves curves = computeCurves(device, rect, mode);
+    if (!curves.valid) return;
+    const qreal *black = curves.black, *white = curves.white, *power = curves.power;
+    auto mapped = [&](int c, qreal v) { return qBound(0.0, (v - black[c]) / (white[c] - black[c]), 1.0); };
 
     // 4. the curves
     QVector<quint16> lut[3];

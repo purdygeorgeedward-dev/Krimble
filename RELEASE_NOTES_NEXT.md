@@ -15,6 +15,7 @@ Krimble is open source software made with the assistance of Claude and ChatGPT.
 - **Auto Tone** stretches red, green and blue each on its own, from the darkest 0.1% to the lightest 0.1%. This fixes washed-out pictures and can remove a color cast.
 - **Auto Contrast** stretches red, green and blue together by the same amount: more contrast, no change of color.
 - **Auto Color** finds the darkest and lightest colors in the picture and makes them true black and white, makes near-gray midtones truly gray without changing the overall brightness, and then gently lifts dull colors while leaving brightness and hue alone.
+- **Curves** has an **Auto** button beside Reset: it puts the Auto Color curves in the window, to adjust by hand before OK.
 
 **Lens Flare**
 
