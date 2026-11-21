@@ -57,8 +57,8 @@ toolbox (08_01 Undo, 08_02 Quick Mask, 08_03 Screen Mode). `09_xx` = future tool
 
 | File | Tool |
 |---|---|
-| 04_05_text.png | 20. Text |
-| 05_03_line.png | 23. Line |
+| 04_05_text.png | 20. Text (metal T, received 16:06; replaces the black T) |
+| 05_03_line.png | 23. Line (metal rod with ball ends, received 15:37; replaces the black line) |
 | 08_01_undo.png | 33. Undo (on white; cut out for the app copy) |
 
 The app copies keep George's own transparency: no aura or glow is added ("Just leave my alpha channel transparency alone!!"). They are George's files at full resolution, unchanged ("And leave them at FULL RESOLUTION. NO SCALING DOWN"). Undo and Edit Path Nodes were replaced at 12:55 with George's own transparent versions.

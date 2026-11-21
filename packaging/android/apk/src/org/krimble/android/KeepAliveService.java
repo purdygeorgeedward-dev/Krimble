@@ -26,6 +26,9 @@ public class KeepAliveService extends Service {
     private static final String CHANNEL_ID = "org.krimble.android.open";
     private static final int NOTIFICATION_ID = 7;
 
+    // what happened when it was last asked to start (shown in Help > Show Krimble Log...)
+    static volatile String status = "never asked to start in this run";
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -59,8 +62,10 @@ public class KeepAliveService extends Service {
                 startForeground(NOTIFICATION_ID, notification());
             }
             Log.i(TAG, "Krimble kept in the foreground");
+            status = "running since " + new java.text.SimpleDateFormat("HH:mm:ss", java.util.Locale.US).format(new java.util.Date());
         } catch (Exception e) {
             Log.w(TAG, "Could not keep Krimble in the foreground: " + e);
+            status = "FAILED to start: " + e;
             stopSelf();
         }
         return START_NOT_STICKY;

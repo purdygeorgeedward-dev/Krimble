@@ -382,6 +382,7 @@ public class MainActivity extends QtActivity {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) startForegroundService(keepAlive); else startService(keepAlive);
         } catch (Exception e) {
             Log.w(TAG, "KeepAliveService not started: " + e);
+            KeepAliveService.status = "NOT STARTED (refused by Android): " + e;
         }
     }
 
@@ -421,10 +422,33 @@ public class MainActivity extends QtActivity {
         return sb.toString();
     }
 
+    // whether the keep-alive service is running now, and what happened when it was asked to start
+    private String krimbleKeepAliveDiag() {
+        String running = "unknown";
+        try {
+            ActivityManager am = getSystemService(ActivityManager.class);
+            running = "no";
+            for (ActivityManager.RunningServiceInfo info : am.getRunningServices(50)) {
+                if (info.service.getClassName().equals(KeepAliveService.class.getName())) {
+                    running = info.foreground ? "yes, in the foreground" : "yes, but not in the foreground";
+                }
+            }
+        } catch (Exception e) {
+            running = "unknown (" + e + ")";
+        }
+        boolean notificationsAllowed = true;
+        try {
+            notificationsAllowed = getSystemService(android.app.NotificationManager.class).areNotificationsEnabled();
+        } catch (Exception e) {
+        }
+        return "Keep-alive service: running now: " + running + "; last start: " + KeepAliveService.status
+                + "; notifications allowed for Krimble: " + (notificationsAllowed ? "yes" : "no (the \"Krimble is open\" notice is hidden)");
+    }
+
     public String getLastDestroyRecord() {
         try {
             SharedPreferences p = getSharedPreferences(DIAG_PREFS, MODE_PRIVATE);
-            return p.getString("previousRun", "") + "\n\nMemory of the previous run, newest last (fg = in front, bg = in the background):\n" + p.getString("prevMemTrail", "(none)")
+            return krimbleKeepAliveDiag() + "\n\n" + p.getString("previousRun", "") + "\n\nMemory of the previous run, newest last (fg = in front, bg = in the background):\n" + p.getString("prevMemTrail", "(none)")
                     + "\n\n" + krimbleDisplayDiag();
         } catch (Exception e) {
             return "";

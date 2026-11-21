@@ -291,3 +291,4 @@ What was lost: the screenshots George sent during the day were not saved anywher
 - **15:45:** "Remember to keep all my bug lists in a file. They need to be added to their respective releases." (KRIMBLE_BUG_LISTS.md; 1.0.73 Known issues filled in)
 - **15:49:** "Try to edit 1.0.73-beta" (refused: releases cannot be edited from this session)
 - **16:00:** (Krimble log attached) "The copy button in the show Krimble log window doesn't have the new aqua theme. It seems like it was applied randomly."
+- **16:06:** (image: transparent metal T) "I don't think the service is starting. I don't know why this version of the T was not in my pic list, but here it is." (T and the metal line now in the photo set; keep-alive status added to the log)

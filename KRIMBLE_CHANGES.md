@@ -7917,3 +7917,10 @@ Built as 71.
 - "The copy button in the show Krimble log window doesn't have the new aqua theme. It seems like it was applied randomly.": every push button
   (Copy, OK, Cancel and the rest) is drawn in Aqua, a darker Aqua while pressed; disabled buttons stay gray. KrimbleVisualStyle.h,
   KrimbleVisualStylePainted.h.
+
+## 809 — Keep-alive service status in the Krimble log; metal T and Line photos (2026-11-21, not built)
+- "I don't think the service is starting.": Help > Show Krimble Log... now shows a first line "Keep-alive service: running now: yes/no; last start:
+  running since HH:MM:SS / FAILED to start: (reason) / NOT STARTED (refused by Android): (reason); notifications allowed for Krimble: yes/no".
+  The "Krimble is open" notice is hidden when Krimble may not show notifications (Android 13 and later ask for that separately), so a missing
+  notice alone does not say the service is off. MainActivity.java (krimbleKeepAliveDiag), KeepAliveService.java (status).
+- Photorealistic set: his metal T (transparent, 16:06) and metal line (15:37) replace the black T and black line, as delivered, full size.
