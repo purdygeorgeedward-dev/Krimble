@@ -26,5 +26,4 @@ Last updated: 2026-11-21 03:42 MST.
 | Oct 23 (test list 50) | Restyle part of a text (one word bold, one letter another color) | | NOT DONE |
 | Oct 30 (test list B24) | Quick Adjust logo: "not drawn in code. I will provide a graphic." | | waiting for his graphic |
 | Oct 23 to Nov 1 | 52 test-list items marked DONE by Claude (KRIMBLE_TEST_LIST_2026-10-23.md); only one has his confirmation | | treat as untested until he says they work |
-| Nov 20 | Wesnoth fire frames alignment | | offered; waiting for the PNG |
 | Nov 20 | Release plan: release candidate, then an aab and a testing release, two weeks of testing, then the Play Store | | plan |
