@@ -2,7 +2,7 @@
 
 George's instructions that are not finished yet, in his words, with the reference image where there is one (`docs/krimble-refs/`).
 Release notes are written from this list and from his test results, not from assumptions. Move a line to "Done" only when it is in a build and he has not reported it again.
-Last updated: 2026-11-20 23:18 MST.
+Last updated: 2026-11-20 23:20 MST.
 
 ## Open
 
@@ -16,7 +16,7 @@ Last updated: 2026-11-20 23:18 MST.
 | Nov 20 | Save As dialog: taller only, NOT wide | batch-06 | open |
 | Nov 20 | Edit > Fill: highlighting Fill makes the menu miniature; the Fill submenu looks tiny | batch-07, batch-08, 2026-11-20_1943_9e68dea9, _ea45659b | 777th pushed (squeeze), not in a build; submenu size open |
 | Nov 20 | Recent Images area too small, tiny scroll bars | batch-02, batch-15 | open |
-| Nov 20 | Aqua-style gradient (Mac OS Aqua) on every place that had the glowy highlight | 2026-11-20_2311_macos-aqua-gradient-reference.png, 2026-11-20_2312_APPROVED-aqua-gradient-demo.png | 782nd pushed (toolbox, button rows, Color Lab), not in a build; other checked buttons still to do |
+| Nov 20 | Aqua-style gradient (Mac OS Aqua) on every place that had the glowy highlight | 2026-11-20_2311_macos-aqua-gradient-reference.png, 2026-11-20_2312_APPROVED-aqua-gradient-demo.png | 782nd and 783rd pushed (toolbox, button rows, Color Lab, every other checked button), not in a build |
 | Nov 20 | Lens flare effects made from scratch (starburst, rays, colored ghosts) | 2026-11-20_2247_lens-flare-reference.png | open, needs a plan |
 | Nov 20 | Lightsabers (from scratch) | | open, needs a plan |
 | Nov 20 | Constant resets (app killed by Android) | | KeepAliveService pushed; memory use open; needs a Krimble log screenshot after a reset |

@@ -14,6 +14,7 @@ static void krimbleSetButtonGlow(QAbstractButton *button, bool on)
     }
 }
 
+/*
 class KrimbleGlowFilter : public QObject
 {
 public:
@@ -34,6 +35,84 @@ public:
     {
         if (event->type() == QEvent::Polish) {
             if (QAbstractButton *button = qobject_cast<QAbstractButton*>(watched)) hook(button);
+        }
+        return false;
+    }
+};
+
+*/
+// a checked button draws the Aqua-style selection (KrimbleAquaPaint.h) under its icon and text, in place of the halo glow
+static bool krimbleAquaButtonEligible(QAbstractButton *button)
+{
+    if (!button || !button->isCheckable() || !button->isChecked()) return false;
+    if (QToolButton *tool = qobject_cast<QToolButton*>(button)) {
+        if (tool->menu() && tool->popupMode() == QToolButton::MenuButtonPopup) return false;   // keeps its own look (the menu arrow part)
+        return true;
+    }
+    return qobject_cast<QPushButton*>(button) != nullptr;
+}
+
+static void krimblePaintAquaButton(QAbstractButton *button)
+{
+    QPainter p(button);
+    const QRectF r = QRectF(button->rect()).adjusted(1, 1, -1, -1);
+    krimblePaintAqua(p, r, qMin(r.width(), r.height()) * 0.10);
+    if (QToolButton *tool = qobject_cast<QToolButton*>(button)) {
+        QStyleOptionToolButton opt;
+        opt.initFrom(tool);
+        opt.rect = tool->rect();
+        opt.icon = tool->icon();
+        opt.iconSize = tool->iconSize();
+        opt.text = tool->text();
+        opt.toolButtonStyle = tool->toolButtonStyle();
+        opt.font = tool->font();
+        opt.arrowType = tool->arrowType();
+        if (opt.arrowType != Qt::NoArrow) opt.features |= QStyleOptionToolButton::Arrow;
+        opt.state |= QStyle::State_On;
+        opt.palette.setColor(QPalette::ButtonText, Qt::white);
+        tool->style()->drawControl(QStyle::CE_ToolButtonLabel, &opt, &p, tool);
+    } else if (QPushButton *push = qobject_cast<QPushButton*>(button)) {
+        QStyleOptionButton opt;
+        opt.initFrom(push);
+        opt.text = push->text();
+        opt.icon = push->icon();
+        opt.iconSize = push->iconSize();
+        opt.state |= QStyle::State_On;
+        opt.palette.setColor(QPalette::ButtonText, Qt::white);
+        push->style()->drawControl(QStyle::CE_PushButtonLabel, &opt, &p, push);
+    }
+}
+
+class KrimbleGlowFilter : public QObject
+{
+public:
+    explicit KrimbleGlowFilter(QObject *parent) : QObject(parent) {}
+    void hook(QAbstractButton *button)
+    {
+        if (!button || !button->isCheckable() || button->property("krimbleGlowHooked").toBool()) return;
+        if (!qobject_cast<QToolButton*>(button) && !qobject_cast<QPushButton*>(button)) return;   // not check boxes or radio buttons
+        if (QByteArray(button->metaObject()->className()) == "KoToolBoxButton") return;   // the toolbox selection is flat, no glow
+        if (KoGroupButton *grouped = qobject_cast<KoGroupButton*>(button)) {
+            if (grouped->groupPosition() != KoGroupButton::NoGroup) return;   // it paints the Aqua-style selection itself
+        }
+        button->setProperty("krimbleGlowHooked", true);
+        // QObject::connect(button, &QAbstractButton::toggled, button, [button](bool on) { krimbleSetButtonGlow(button, on); });
+        // krimbleSetButtonGlow(button, button->isChecked());
+        krimbleSetButtonGlow(button, false);   // a halo from before is taken off
+        QObject::connect(button, &QAbstractButton::toggled, button, [button](bool) { button->update(); });
+        button->update();
+    }
+    bool eventFilter(QObject *watched, QEvent *event) override
+    {
+        if (event->type() == QEvent::Polish) {
+            if (QAbstractButton *button = qobject_cast<QAbstractButton*>(watched)) hook(button);
+        }
+        if (event->type() == QEvent::Paint) {
+            QAbstractButton *button = qobject_cast<QAbstractButton*>(watched);
+            if (button && button->property("krimbleGlowHooked").toBool() && krimbleAquaButtonEligible(button)) {
+                krimblePaintAquaButton(button);
+                return true;   // the button's own checked background is not drawn
+            }
         }
         return false;
     }

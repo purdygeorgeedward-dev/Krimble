@@ -264,6 +264,10 @@
 #include "krimble/KrimbleDockEdges.inc"
 #include "kis_zoom_manager.h"
 #include <KoGroupButton.h>
+#include <QStyleOptionToolButton>
+#include <QStyleOptionButton>
+#include <QToolButton>
+#include "KrimbleAquaPaint.h"
 #include "krimble/KrimbleMenuBarAndQuickAdjust.inc"
 #include "krimble/KrimbleFileAndHelpExtras.inc"
 #include "krimble/KrimblePanelsAndLayout.inc"
