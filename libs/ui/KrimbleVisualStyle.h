@@ -176,7 +176,7 @@ QMenu {
     border: none;    background: #232a42;
 }
 QMenu::item:selected {
-    border: none;
+    /* border: none; */
     /* background: #1d7cb2; */
     background: #0b87dd;
 }
