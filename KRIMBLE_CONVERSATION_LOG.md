@@ -170,3 +170,4 @@ What was lost: the screenshots George sent during the day were not saved anywher
 - **23:06:** "Blue not glue." (the gradient is for a blue area)
 - **23:07:** "Show me a gradient effect on a button." (demo sent: flat / mild / a bit more)
 - **23:11:** (Mac OS Aqua button image) "When I said "aqua" before I was talking about that ugly seaweed blue green. But mac os Aqua was beautiful. Can you match this gradient effect? Is that asking too much? It's a complicated multi point gradient."
+- **23:12:** "It's amazing. I didn't know you could do that." (Aqua-style gradient demo approved; where it goes not said yet)

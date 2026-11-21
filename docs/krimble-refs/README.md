@@ -19,3 +19,4 @@ Name: YYYY-MM-DD_HHMM_short-description.ext (Mountain Time)
 Files named YYYY-MM-DD_HHMM_<id>.jpg, by the time each was sent (MST).
 - **2026-11-20_1943_MOCKUP-grips-and-layers-title.jpg** — George's mockup: toolbox grip is a tall block of many thin lines across the full width; the Layers title sits at the top-left with a tall block of grip lines after it, filling to the float/close buttons.
 | 2026-11-20_2311_macos-aqua-gradient-reference.png | Nov 20, 2026 23:11 MST | Mac OS Aqua button: the multi-point gradient George wants matched ("mac os Aqua was beautiful"). Not the "ugly seaweed blue green" aqua he wanted removed. |
+| 2026-11-20_2312_APPROVED-aqua-gradient-demo.png | Nov 20, 2026 23:12 MST | Claude's Aqua-style gradient demo in selection blue (toolbox button, pill, menu highlight). Approved: "It's amazing." Recipe in /tmp/aqua_demo.py copied to docs/krimble-refs/aqua_demo.py |
