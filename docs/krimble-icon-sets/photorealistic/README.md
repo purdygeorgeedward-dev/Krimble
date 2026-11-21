@@ -62,7 +62,7 @@ toolbox (08_01 Undo, 08_02 Quick Mask, 08_03 Screen Mode). `09_xx` = future tool
 | 07_02_edit_path_nodes.png | 32. Edit Path Nodes |
 | 08_01_undo.png | 33. Undo (on white; cut out for the app copy) |
 
-The app copies of Text, Line and Edit Path Nodes have a soft light aura so the black shows on dark buttons.
+The app copies of Text and Line have a soft light aura so the black shows on dark buttons.
 
 | candidate_pen_with_path_nodes.png | pen drawing a blue path with nodes (received 12:38; Bezier Curve or Edit Path Nodes, to be decided) |
 
