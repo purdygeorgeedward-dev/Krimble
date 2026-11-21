@@ -183,3 +183,6 @@ What was lost: the screenshots George sent during the day were not saved anywher
 - **23:27:** "Be sure to document this in the readme and the help file and the user manual."
 - **23:28:** "Please get the features up to date in the readme. We have accomplished a lot."
 - **23:28:** "Yes." (lens flare text added to README, help file and manual)
+- **23:29:** "Make sure all the new features (the ones not in Krita) are mentioned in the readme."
+- **23:30:** "Do we have customizable vector based hex map overlays now? You can set line thickness and color?"
+- **23:31:** "I don't think we ever fixed auto tone or auto color, any of that stuff."

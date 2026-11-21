@@ -17,6 +17,7 @@ Last updated: 2026-11-20 23:20 MST.
 | Nov 20 | Edit > Fill: highlighting Fill makes the menu miniature; the Fill submenu looks tiny | batch-07, batch-08, 2026-11-20_1943_9e68dea9, _ea45659b | 777th pushed (squeeze), not in a build; submenu size open |
 | Nov 20 | Recent Images area too small, tiny scroll bars | batch-02, batch-15 | open |
 | Nov 20 | Aqua-style gradient (Mac OS Aqua) on every place that had the glowy highlight | 2026-11-20_2311_macos-aqua-gradient-reference.png, 2026-11-20_2312_APPROVED-aqua-gradient-demo.png | 782nd and 783rd pushed (toolbox, button rows, Color Lab, every other checked button), not in a build |
+| Oct 23 / Oct 26 | Auto Tone, Auto Contrast, Auto Color: "These should be based on curve profiles." Auto Color "should default to sweetening the colour saturation without changing the overall tone". Nov 20: "I don't think we ever fixed auto tone or auto color, any of that stuff." | | only the histogram bug was fixed (309th); the curve-profile behavior was never done; waiting for what "curve profiles" means |
 | Nov 20 | Lens flare effects made from scratch (starburst, rays, colored ghosts) | 2026-11-20_2247_lens-flare-reference.png | open, needs a plan |
 | Nov 20 | Idea, not asked for yet: an all-in-one gadget for the controls BELOW the color swatches at the bottom of the toolbox (quick mask, screen modes: "We had something clunky there before. Quickmask and screen modes never sat right.") | | idea |
 | Nov 20 | Lightsabers (from scratch) | | open, needs a plan |
