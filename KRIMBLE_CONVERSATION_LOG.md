@@ -196,3 +196,5 @@ What was lost: the screenshots George sent during the day were not saved anywher
 - **03:42:** "Instead you could write \"This build was installed and tested.\" Don't put my name in those."
 - **03:43:** "I'll fix those. You work on that list." (he edits the GitHub release text himself)
 - **03:43:** "Don't wait to perform tasks in the list. Get the work done." (work the open list without stopping for approval of each change)
+- **03:58:** "Styles are just fonts, right?"
+- **03:59:** "But bold is another face in the same family unless you intend to modify how fonts are displayed."
