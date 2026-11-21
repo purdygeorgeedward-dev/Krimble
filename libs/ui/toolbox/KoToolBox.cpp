@@ -46,7 +46,8 @@ static int buttonSize(int screen)
 
 #ifdef Q_OS_ANDROID
     Q_UNUSED(screen);
-    return 16;
+    // return 16;
+    return 22;   // "Default the toolbox size to 22 x 22."
 #else
     QRect rc = QGuiApplication::screens().at(screen)->availableGeometry();
     if (rc.width() <= 1024) {
@@ -75,7 +76,8 @@ static const QList<QStringList> &krimbleToolGroupIds()
         { QStringLiteral("KritaFill/KisToolGradient"), QStringLiteral("KritaFill/KisToolFill"), QStringLiteral("KisToolEncloseAndFill") },                  // Fill
         { QStringLiteral("KisToolPath"), QStringLiteral("KisToolPolyline"), QStringLiteral("KisToolPolygon"), QStringLiteral("KisToolPencil") },           // Pen
         { QStringLiteral("KisToolTransform"), QStringLiteral("KisToolFreeRotate") },                                                                         // Transform
-        { QStringLiteral("KritaShape/KisToolSmudge"), QStringLiteral("KritaShape/KisToolSoften"), QStringLiteral("KritaShape/KisToolSharpen") },                // Smudge (Blur and Sharpen in its flyout)
+        // { QStringLiteral("KritaShape/KisToolSmudge"), QStringLiteral("KritaShape/KisToolSoften"), QStringLiteral("KritaShape/KisToolSharpen") },             // Smudge (Blur and Sharpen in its flyout)
+        { QStringLiteral("KritaShape/KisToolSoften"), QStringLiteral("KritaShape/KisToolSmudge"), QStringLiteral("KritaShape/KisToolSharpen") },                // Soften first ("Make soften tool the default instead of smudge."), Smudge and Sharpen in its flyout
         { QStringLiteral("KritaSelected/KisToolColorSampler"), QStringLiteral("KritaShape/KisToolMeasure"), QStringLiteral("ToolReferenceImages"), QStringLiteral("KisAssistantTool") },   // Sampler
         { QStringLiteral("KrimbleTextTool"), QStringLiteral("SvgTextTool") },                                                                                // Type
         // { QStringLiteral("PanTool"), QStringLiteral("ZoomTool") },                                                                                           // Navigation (722nd: each has its own button)

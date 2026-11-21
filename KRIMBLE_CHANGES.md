@@ -7878,3 +7878,11 @@ Built as 71.
   work the same way now (KrimbleRecolorIconEngine); the old fixed-size versions are kept as *FixedSizes.
 - "Make UNDO black for black toolbox style.": Undo, Quick Mask and Screen Mode are drawn black in the Black style and on Light gray or White buttons.
 - "Lose the \"classic\" version. It's not great.": Classic is out of the Icon Style menu; anyone who had it sees Grayscale.
+
+## 805 — Test 1.0.73 fixes: Soften first, toolbox 22, File nearer the K, large QuickAdjust logo (2026-11-21, not built)
+- "Make soften tool the default instead of smudge.": the Smudge group now leads with Soften (Blur); Smudge and Sharpen are in its flyout.
+- "Default the toolbox size to 22 x 22.": the Android default toolbox icon size is 22 (was 16). A size already chosen in the toolbox menu is kept.
+- "File menu title could be a few pixels closer to the K.": the gap after the K is 70 real pixels (was 90).
+- "QuickAdjust looks great, but use my larger logo instead of the tiny Krimble one.": the QuickAdjust window shows dark_krimble-quickadjust-logo.png,
+  left aligned, up to 600 real pixels wide (was the small Krimble | QuickAdjust banner).
+- Not changed: "Change Image - Image Rotation to just Rotate." is in krita5.xmlgui line 305, which George edits himself.

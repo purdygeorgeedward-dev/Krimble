@@ -362,7 +362,8 @@ public:
         QString title = first->text();
         title.remove(QLatin1Char('&'));
         const int textInset = qMax(0, (item.width() - QFontMetrics(bar->font()).horizontalAdvance(title)) / 2);
-        const int textStart = 2 + krimbleKSize + qRound(90.0 / qMax<qreal>(1.0, bar->devicePixelRatioF()));   // the K's right edge plus 90 real screen pixels
+        // const int textStart = 2 + krimbleKSize + qRound(90.0 / qMax<qreal>(1.0, bar->devicePixelRatioF()));   // the K's right edge plus 90 real screen pixels
+        const int textStart = 2 + krimbleKSize + qRound(70.0 / qMax<qreal>(1.0, bar->devicePixelRatioF()));   // 70 real pixels: "File menu title could be a few pixels closer to the K."
         const int cur = bar->property("krimblePadLeft").toInt();
         const int want = qBound(0, cur + (textStart - textInset) - item.left(), 200);
         if (want != cur) {
@@ -773,7 +774,9 @@ static void krimbleShowQuickAdjustDialog(KisMainWindow *win)
         QHBoxLayout *logoRow = new QHBoxLayout;
         {
             const qreal bannerDpr = qMax<qreal>(1.0, dialog->devicePixelRatioF());
-            logoRow->addWidget(new KrimbleLogoLabel(QStringLiteral(":/dark_krimble-quickadjust-banner2.png"), QStringLiteral("Krimble QuickAdjust"), dialog, qRound(520 / bannerDpr)), 1);
+            // logoRow->addWidget(new KrimbleLogoLabel(QStringLiteral(":/dark_krimble-quickadjust-banner2.png"), QStringLiteral("Krimble QuickAdjust"), dialog, qRound(520 / bannerDpr)), 1);
+            // his large QuickAdjust logo ("use my larger logo instead of the tiny Krimble one"), left aligned
+            logoRow->addWidget(new KrimbleLogoLabel(QStringLiteral(":/dark_krimble-quickadjust-logo.png"), QStringLiteral("QuickAdjust"), dialog, qRound(600 / bannerDpr)), 1);
             logoRow->addStretch(0);
         }
         layout->addLayout(logoRow);
