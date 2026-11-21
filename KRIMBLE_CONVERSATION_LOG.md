@@ -265,3 +265,5 @@ What was lost: the screenshots George sent during the day were not saved anywher
 - **11:51:** "I'm so pleased. We are leaping ahead of Krita development!"
 - **11:53:** "There may be a handful of people who have been using Krita like I did on phones as a substitute for Photoshop. For these people and for the GIMPshop people Krimble will be a godsend. They are going to be so happy!"
 - **11:54:** "Industry standard professional photo editing tools in the palm of your hand." (saved in PLAY_STORE_LISTING.md)
+- **11:56:** "Where do I get the APK?"
+- **12:09:** "Need the release notes, tag, and target in the release." (this session cannot create releases; notes in RELEASE_NOTES_1.0.73-beta.md)
