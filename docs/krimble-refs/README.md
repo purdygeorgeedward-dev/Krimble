@@ -34,3 +34,4 @@ Files named YYYY-MM-DD_HHMM_<id>.jpg, by the time each was sent (MST).
 | 2026-11-21_0440_test-quickmask-screenmode-icons.png | Nov 21, 2026 04:40 MST | The Quick Mask and Screen Mode icons as drawn by the code (794th) |
 | 2026-11-21_0436_ps-toolbar-labeled-grayscale-icons.jpg | Nov 21, 2026 04:36 MST | Labeled industry-standard toolbar (older version: Paint Bucket, Blur, Quick Mask) with black-and-white (grayscale) icons; wanted as a third icon option |
 | 2026-11-21_0450_preview-toolbox-icons-color-vs-black-and-white.png | Nov 21, 2026 04:50 MST | The 32 picture icons in Full color (left) and the new Black and white style (right, 795th) |
+| 2026-11-21_0500_preview-light-gray-buttons.png | Nov 21, 2026 05:00 MST | Preview of the Light gray switch (796th) with Black and white icons: flat (top) and raised (bottom) |

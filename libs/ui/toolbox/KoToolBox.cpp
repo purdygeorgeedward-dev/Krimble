@@ -555,6 +555,17 @@ void KoToolBox::setupButtonStyleMenu(QMenu *menu)
     };
     connect(flatAction, &QAction::triggered, this, [apply]() { apply(0); });
     connect(raisedAction, &QAction::triggered, this, [apply]() { apply(1); });
+    // the Light gray switch, on its own beside Flat and Raised: it works with either
+    menu->addSeparator();
+    QAction *grayAction = menu->addAction(i18n("Light gray"));
+    grayAction->setCheckable(true);
+    grayAction->setChecked(KrimbleToolboxIcons::lightGray());
+    connect(grayAction, &QAction::toggled, this, [this](bool on) {
+        KrimbleToolboxIcons::setLightGray(on);
+        Q_FOREACH (KoToolBoxButton *button, d->buttonsByToolId) button->update();
+        Q_FOREACH (QToolButton *button, d->buttons) button->update();
+        update();
+    });
 }
 
 void KoToolBox::setupIconStyleMenu(QMenu *menu)

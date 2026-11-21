@@ -8,6 +8,7 @@
 
 #include <QHash>
 #include <QIcon>
+#include <QColor>
 #include <QImage>
 #include <QPixmap>
 #include <QString>
@@ -124,6 +125,31 @@ inline void setButtonStyle(int style)
     KConfigGroup group = KSharedConfig::openConfig()->group("Krimble");
     group.writeEntry("ToolboxButtonStyle", style);
     group.config()->sync();
+}
+
+// The Light gray switch: the toolbox buttons get a light gray face (flat or raised), like the classic light gray toolbox. Key Krimble/ToolboxLightGray.
+inline bool &lightGrayCache()
+{
+    static bool on = KSharedConfig::openConfig()->group("Krimble").readEntry("ToolboxLightGray", false);
+    return on;
+}
+
+inline bool lightGray()
+{
+    return lightGrayCache();
+}
+
+inline void setLightGray(bool on)
+{
+    lightGrayCache() = on;
+    KConfigGroup group = KSharedConfig::openConfig()->group("Krimble");
+    group.writeEntry("ToolboxLightGray", on);
+    group.config()->sync();
+}
+
+inline QColor lightGrayFace()
+{
+    return QColor(198, 198, 202);
 }
 
 inline bool hasPicture(const QString &iconName)

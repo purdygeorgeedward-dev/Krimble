@@ -73,6 +73,9 @@ protected:
     {
         if (KrimbleToolboxIcons::buttonStyle() == 1 && !qApp->property("krimbleNoRaisedButtons").toBool()) {
             KoToolBoxButton::krimblePaintRaisedBox(this, isDown());
+        } else if (KrimbleToolboxIcons::lightGray()) {
+            QPainter face(this);
+            face.fillRect(rect().adjusted(1, 1, -1, -1), KrimbleToolboxIcons::lightGrayFace());
         }
         QStylePainter stylePainter(this);
         QStyleOptionToolButton opt;
