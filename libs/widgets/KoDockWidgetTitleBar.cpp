@@ -23,6 +23,8 @@
 #include <QContextMenuEvent>
 #include <QHBoxLayout>
 #include <QLabel>
+#include <QtMath>
+#include <QApplication>
 #include <QStyle>
 #include <QStylePainter>
 #include <QStyleOptionFrame>
@@ -74,7 +76,13 @@ KoDockWidgetTitleBar::KoDockWidgetTitleBar(QDockWidget* dockWidget)
     d->titleLabel->setText(dockWidget->windowTitle());
 
     QHBoxLayout *layout = new QHBoxLayout(this);
-    layout->setContentsMargins(2, 0, 2, 0);
+    // layout->setContentsMargins(2, 0, 2, 0);
+    {
+        // the title 28 real pixels in from the left; the row tall enough for nine grab lines (9 lines on a 9 pixel pitch, 13 above and below)
+        const qreal dpr = qMax<qreal>(1.0, qApp->devicePixelRatio());
+        layout->setContentsMargins(2 + qRound(28.0 / dpr), 0, 2, 0);
+        setMinimumHeight(qCeil(101.0 / dpr));
+    }
     layout->setSpacing(SPACING);
     layout->addWidget(d->titleLabel, 1);
     layout->addWidget(d->floatButton);
@@ -150,7 +158,8 @@ void KoDockWidgetTitleBar::paintEvent(QPaintEvent*)
             QColor c = palette().color(QPalette::WindowText);
             c.setAlpha(150);
             const qreal mid = height() / 2.0;
-            for (int i = -1; i <= 1; ++i) p.fillRect(QRectF(left, mid + i * gap - thick / 2, right - left, thick), c);
+            // for (int i = -1; i <= 1; ++i) p.fillRect(QRectF(left, mid + i * gap - thick / 2, right - left, thick), c);
+            for (int i = -4; i <= 4; ++i) p.fillRect(QRectF(left, mid + i * gap - thick / 2, right - left, thick), c);   // nine lines
         }
     }
 }

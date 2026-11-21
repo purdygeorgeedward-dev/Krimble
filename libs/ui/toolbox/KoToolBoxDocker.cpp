@@ -87,13 +87,17 @@ protected:
         const qreal dpr = devicePixelRatioF();
         const qreal thick = 2.0 / dpr;    // 2 device pixels
         const qreal gap = 6.0 / dpr;      // 6 device pixels between the lines
-        const qreal length = width() * 0.45;
+        // const qreal length = width() * 0.45;
         QColor c = palette().color(QPalette::WindowText);
         c.setAlpha(150);
         p.setPen(Qt::NoPen);
-        for (int i = -1; i <= 1; ++i) {
+        // for (int i = -1; i <= 1; ++i) {
+        //     const qreal y = height() / 2.0 + i * (gap + thick) - thick / 2.0;
+        //     p.fillRect(QRectF((width() - length) / 2.0, y, length, thick), c);
+        // }
+        for (int i = -4; i <= 4; ++i) {   // nine lines across the whole width
             const qreal y = height() / 2.0 + i * (gap + thick) - thick / 2.0;
-            p.fillRect(QRectF((width() - length) / 2.0, y, length, thick), c);
+            p.fillRect(QRectF(0, y, width(), thick), c);
         }
     }
 };
