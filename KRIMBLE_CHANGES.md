@@ -7871,3 +7871,10 @@ Built as 71.
 - Button Style menu: a fifth background, Glow ("Let's add that as a standard option, the pretty background."): a rounded dark navy tile lit
   from the middle with teal, matched to docs/krimble-refs/2026-11-21_1245_glow-background-sample.png. Works with every icon style, Flat or Raised.
 - Key Krimble/ToolboxButtonFace = 4. KrimbleToolboxIcons::paintGlowTile, glowFace(); KoToolBoxButton.cpp, KoToolBoxDocker.cpp (Undo), KoToolBox.cpp.
+
+## 804 — Test 1.0.73 fixes: eyedropper, black Undo, Classic removed (2026-11-21, not built)
+- Eyedropper "disappeared": its 20% enlargement made fixed 32/64/128 px copies, which came out tiny on the phone's high-density screen.
+  It is now drawn by an icon engine at whatever size the button asks for (KrimbleEnlargedIconEngine). The black and gray versions of icons
+  work the same way now (KrimbleRecolorIconEngine); the old fixed-size versions are kept as *FixedSizes.
+- "Make UNDO black for black toolbox style.": Undo, Quick Mask and Screen Mode are drawn black in the Black style and on Light gray or White buttons.
+- "Lose the \"classic\" version. It's not great.": Classic is out of the Icon Style menu; anyone who had it sees Grayscale.

@@ -8,6 +8,7 @@
 
 #include <QHash>
 #include <QIcon>
+#include <QIconEngine>
 #include <QFile>
 #include <QToolButton>
 #include <QWidget>
@@ -128,7 +129,14 @@ inline int &iconStyleCache()
 }
 
 // the Color style was removed ("Remove the color option completely"): a saved Color choice shows White
-inline int iconStyle() { return iconStyleCache() == Color ? int(White) : iconStyleCache(); }
+// inline int iconStyle() { return iconStyleCache() == Color ? int(White) : iconStyleCache(); }
+// Color and Classic were removed ("Remove the color option completely"; "Lose the \"classic\" version. It's not great."): Color shows as White, Classic as Grayscale
+inline int iconStyle()
+{
+    if (iconStyleCache() == Color) return int(White);
+    if (iconStyleCache() == Classic) return int(Grayscale);
+    return iconStyleCache();
+}
 
 inline void setIconStyle(int style)
 {
@@ -145,8 +153,53 @@ inline bool grayMode() { return iconStyle() == Black; }   // (name kept: the Bla
 inline void setColorMode(bool on) { setIconStyle(on ? Color : White); }
 inline void setGrayMode() { setIconStyle(Black); }
 
+// recolors another icon at whatever size is asked for: 0 = black silhouette, 1 = shades of gray
+// (fixed-size copies can come out tiny on the phone's high-density screen)
+class KrimbleRecolorIconEngine : public QIconEngine
+{
+public:
+    KrimbleRecolorIconEngine(const QIcon &source, int kind) : m_source(source), m_kind(kind) {}
+    QPixmap pixmap(const QSize &size, QIcon::Mode mode, QIcon::State state) override
+    {
+        QImage image = m_source.pixmap(size, mode, state).toImage().convertToFormat(QImage::Format_ARGB32);
+        if (image.isNull()) return QPixmap();
+        if (image.size() != size) image = image.scaled(size, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+        for (int y = 0; y < image.height(); ++y) {
+            QRgb *line = reinterpret_cast<QRgb*>(image.scanLine(y));
+            for (int x = 0; x < image.width(); ++x) {
+                const QRgb c = line[x];
+                if (m_kind == 0) {
+                    line[x] = qRgba(24, 24, 28, qAlpha(c));
+                } else {
+                    const int g = (qRed(c) * 2126 + qGreen(c) * 7152 + qBlue(c) * 722) / 10000;
+                    line[x] = qRgba(g, g, g, qAlpha(c));
+                }
+            }
+        }
+        return QPixmap::fromImage(image);
+    }
+    void paint(QPainter *painter, const QRect &rect, QIcon::Mode mode, QIcon::State state) override
+    {
+        const qreal dpr = painter->device() ? painter->device()->devicePixelRatioF() : 1.0;
+        const QPixmap pm = pixmap(rect.size() * dpr, mode, state);
+        if (pm.isNull()) return;
+        const QSizeF shown(pm.width() / dpr, pm.height() / dpr);
+        painter->save();
+        painter->setRenderHint(QPainter::SmoothPixmapTransform, true);
+        painter->drawPixmap(QRectF(rect.center().x() + 1 - shown.width() / 2.0, rect.center().y() + 1 - shown.height() / 2.0, shown.width(), shown.height()), pm, QRectF(pm.rect()));
+        painter->restore();
+    }
+    QIconEngine *clone() const override { return new KrimbleRecolorIconEngine(m_source, m_kind); }
+private:
+    QIcon m_source;
+    int m_kind;
+};
+
 // a picture in shades of gray (the same light and dark, the transparency kept)
-inline QIcon grayIcon(const QIcon &source)
+inline QIcon grayIcon(const QIcon &source) { return QIcon(new KrimbleRecolorIconEngine(source, 1)); }
+
+// the earlier version, fixed-size copies
+inline QIcon grayIconFixedSizes(const QIcon &source)
 {
     QIcon gray;
     QList<QSize> sizes = source.availableSizes();
@@ -289,7 +342,10 @@ inline bool hasPicture(const QString &iconName)
 
 // the icon for a tool: the picture icon in the Full color style (when the tool has one), the program's own icon otherwise
 // the silhouette icon drawn in black (its shape and transparency kept): the Black and white style
-inline QIcon blackIcon(const QIcon &source)
+inline QIcon blackIcon(const QIcon &source) { return QIcon(new KrimbleRecolorIconEngine(source, 0)); }
+
+// the earlier version, fixed-size copies
+inline QIcon blackIconFixedSizes(const QIcon &source)
 {
     QIcon black;
     QList<QSize> sizes = source.availableSizes();
@@ -305,8 +361,49 @@ inline QIcon blackIcon(const QIcon &source)
     return black;
 }
 
-// an icon drawn larger in its square (the picture grows by 'factor' around the middle; what passes the edge is cut)
+// draws another icon larger in its square, at whatever size is asked for (fixed-size copies came out tiny on the
+// phone's high-density screen: the eyedropper "disappeared" in 1.0.73)
+class KrimbleEnlargedIconEngine : public QIconEngine
+{
+public:
+    KrimbleEnlargedIconEngine(const QIcon &source, qreal factor) : m_source(source), m_factor(factor) {}
+    void paint(QPainter *painter, const QRect &rect, QIcon::Mode mode, QIcon::State state) override
+    {
+        const QSize big(qRound(rect.width() * m_factor), qRound(rect.height() * m_factor));
+        const qreal dpr = painter->device() ? painter->device()->devicePixelRatioF() : 1.0;
+        QPixmap large = m_source.pixmap(big * dpr, mode, state);
+        if (large.isNull()) return;
+        large = large.scaled(big * dpr, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+        const QSizeF shown(large.width() / dpr, large.height() / dpr);
+        const QRectF target(rect.center().x() + 1 - shown.width() / 2.0, rect.center().y() + 1 - shown.height() / 2.0, shown.width(), shown.height());
+        painter->save();
+        painter->setClipRect(rect);
+        painter->setRenderHint(QPainter::SmoothPixmapTransform, true);
+        painter->drawPixmap(target, large, QRectF(large.rect()));
+        painter->restore();
+    }
+    QPixmap pixmap(const QSize &size, QIcon::Mode mode, QIcon::State state) override
+    {
+        QPixmap pm(size);
+        pm.fill(Qt::transparent);
+        QPainter p(&pm);
+        paint(&p, QRect(QPoint(0, 0), size), mode, state);
+        p.end();
+        return pm;
+    }
+    QIconEngine *clone() const override { return new KrimbleEnlargedIconEngine(m_source, m_factor); }
+private:
+    QIcon m_source;
+    qreal m_factor;
+};
+
 inline QIcon enlargedIcon(const QIcon &source, qreal factor)
+{
+    return QIcon(new KrimbleEnlargedIconEngine(source, factor));
+}
+
+// the earlier version: fixed-size copies (too small on the phone)
+inline QIcon enlargedIconFixedSizes(const QIcon &source, qreal factor)
 {
     QIcon bigger;
     QList<QSize> sizes = source.availableSizes();
@@ -366,7 +463,11 @@ inline void refreshGadget(QToolButton *button, const QString &photoName)
 {
     if (!button) return;
     const QIcon photo = iconStyle() == Photorealistic ? photoIcon(photoName) : QIcon();
-    button->setIcon(!photo.isNull() ? photo : button->property("krimbleDrawnIcon").value<QIcon>());
+    // button->setIcon(!photo.isNull() ? photo : button->property("krimbleDrawnIcon").value<QIcon>());
+    // in the Black style (and on light gray or white buttons) they are drawn black like the tools ("Make UNDO black for black toolbox style.")
+    const QIcon drawn = button->property("krimbleDrawnIcon").value<QIcon>();
+    const bool black = iconStyle() == Black || lightGray();
+    button->setIcon(!photo.isNull() ? photo : (black ? blackIcon(drawn) : drawn));
 }
 
 inline void refreshGadgets(QWidget *top)

@@ -31,3 +31,9 @@ Last updated: 2026-11-21 03:42 MST.
 | Oct 23 (test list 50) | Restyle part of a text (one word bold, one letter another color) | | NOT DONE |
 | Oct 23 to Nov 1 | 52 test-list items marked DONE by Claude (KRIMBLE_TEST_LIST_2026-10-23.md); only one has his confirmation | | treat as untested until he says they work |
 | Nov 20 | Release plan: release candidate, then an aab and a testing release, two weeks of testing, then the Play Store | | plan |
+
+## 2026-11-21 15:39 — New tool concept: multi-point gradient (not started)
+"User taps screen ti create control points and the tool creates a web of lines between those nodes and fills it in with a gradient based on colors selected by the user."
+(A mesh of triangles between the tapped points, each point carrying its own color, blended across each triangle.)
+
+## 2026-11-21 15:37 — Test 1.0.73 list (in progress; see KRIMBLE_CONVERSATION_LOG.md for his words)
