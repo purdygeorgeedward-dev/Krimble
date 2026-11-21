@@ -202,3 +202,4 @@ What was lost: the screenshots George sent during the day were not saved anywher
 - **04:02:** "What happens in Wesnoth stays in Wesnoth. It doesn't affect a build." (Wesnoth fire frames taken off the Krimble list)
 - **04:05:** "We already replaced those with Apple Aqua, didn't we?" **04:06:** "Demo all."
 - **04:08:** "Progress bars should have been the same glow+afterglow effect we use on percentages, but the new AppleOS Aqua is so beautiful we should use it anywhere we can. Let's do that."
+- **04:16:** "Okay. What still needs work?"
