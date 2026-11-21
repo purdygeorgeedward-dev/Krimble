@@ -186,3 +186,4 @@ What was lost: the screenshots George sent during the day were not saved anywher
 - **23:29:** "Make sure all the new features (the ones not in Krita) are mentioned in the readme."
 - **23:30:** "Do we have customizable vector based hex map overlays now? You can set line thickness and color?"
 - **23:31:** "I don't think we ever fixed auto tone or auto color, any of that stuff."
+- **23:32:** "You don't understand curves yet?"
