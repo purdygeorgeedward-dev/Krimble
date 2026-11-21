@@ -40,3 +40,21 @@ Screenshots: docs/krimble-refs/2026-11-21_1537_test73-*.jpg
 **2026-11-16T16:21Z:** New bugs 1.0.64-beta: (14 items: jolts while painting; window buttons too high; K too close to File with no image; Polygon and Star icon; themes: raised buttons in the white theme, tab color (saved #364064), selection gradient also in menus; taller menu bar; remove the QuickAdjust toolbar; Hand as the start tool; the toolbox order; a default brush; ball bearing darker with a cast shadow; status bar size cut off in portrait; File Info General icon; 250 ms flyouts.) "Almost everything is perfect. Very few issues left to fix."
 
 **2026-11-16T21:39Z:** (the list again, plus) 15. Krita previously had tabs at the top for the open image files so you could select them. Now it doesn't for some reason. I didn't ask for that to be removed. Please restore it. 16. There are stability issues. Even just doing a simple operation like a fill can crash the app. I have been forced to use 1.0.58 due to severe stability issues with the new build. if these issues persist I will be forced to roll back to 1.0.58 and start over on revisions. Please make a list of all revisions requested/attempted in subsequent versions and formulate the best implementation if a rollback is performed.
+
+## Status of the 1.0.73 list (Nov 21, 2026)
+
+| # | Status |
+|---|---|
+| 1 | Open. Nothing in 72 → 73 changed how the canvas is drawn; needs more detail (how the image was opened). |
+| 2, 11 | Fixed, 806: Aqua darker and only on buttons; selections flat #0b87dd. |
+| 3 | Fixed, 804: eyedropper drawn at any size. |
+| 4 | Fixed, 807: lip at the top, six lines. |
+| 6 | Fixed, 807: tool name in the title row, grip after it. |
+| 7 | Fixed, 805: Soften first. |
+| 9 | Fixed, 805: 70 real px after the K. |
+| 10, 13 | Fixed, 806: OK and Create in Aqua. |
+| 14 | Fixed, 805: large QuickAdjust logo. |
+| 15 | For George: krita5.xmlgui line 305. |
+| 16 | Fixed, 805: toolbox 22 by default. |
+| 17 | Fixed, 804: black Undo; Classic removed. |
+| 18 | Open. The keep-alive service (774th, in 72 and 73) did not stop it; needs the "Last exit" line from Help > Show Krimble log after a relaunch. |
