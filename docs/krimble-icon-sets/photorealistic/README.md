@@ -29,5 +29,22 @@ toolbox (08_01 Undo, 08_02 Quick Mask, 08_03 Screen Mode). `extra_` = pictures w
 | extra_dodge.png | darkroom dodging tool (no slot) |
 | extra_lens_flare.png | lens flare (no slot) |
 
-Still missing: 2–7 (selections), 10 Color Sampler, 13 Smudge, 16 Gradient, 17 Fill, 20 Text, 23 Line,
-25 Pan, 28 Free Rotate, 29 Assistant, 30 Measure, 32 Edit Path Nodes, 33 Undo.
+## Received 2026-11-21 11:34 (second set, 13 new; 7 repeats of the first set skipped)
+
+| File | Tool |
+|---|---|
+| 01_02_rectangular_select.png | 2. Rectangular Select (square marquee sign) |
+| 01_03_elliptical_select.png | 3. Elliptical Select (round marquee sign) |
+| 01_04_freehand_select.png | 4. Freehand Select (rope lasso) |
+| 01_05_polygonal_select.png | 5. Polygonal Select (knotted rope pentagon) |
+| 02_01_magnetic_select.png | 6. Magnetic Select (magnet, front) |
+| 02_01_magnetic_select_angled.png | 6. Magnetic Select (magnet, angled) |
+| 02_02_contiguous_select.png | 7. Contiguous Select (magic wand) |
+| 02_05_color_sampler.png | 10. Color Sampler (dropper) |
+| 03_03_touch_gesture.png | 13. Smudge (pointing finger) |
+| 04_02_fill.png | 17. Fill (paint bucket) |
+| 05_05_pan.png | 25. Pan (open hand) |
+| 06_05_measure.png | 30. Measure (set square) |
+| extra_hand_pinch.png | pinching hand (no slot yet) |
+
+Still missing: 16 Gradient, 20 Text, 23 Line, 28 Free Rotate, 29 Assistant, 32 Edit Path Nodes, 33 Undo.

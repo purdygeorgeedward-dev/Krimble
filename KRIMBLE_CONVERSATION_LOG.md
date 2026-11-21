@@ -255,3 +255,4 @@ What was lost: the screenshots George sent during the day were not saved anywher
 - **11:30:** "PNG is fine. Should we add native webp support to Krimble and convert all the PNG files?"
 - **11:31:** "Ok skip webp. We already have export and import filters for it. The rest is non-essential."
 - **11:32:** (20 images) "First set..." (saved to docs/krimble-icon-sets/photorealistic/)
+- **11:34:** (20 images, 7 repeats) "Second set. Actually you know what these are fo" (13 new saved to docs/krimble-icon-sets/photorealistic/)
