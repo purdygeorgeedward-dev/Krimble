@@ -198,3 +198,4 @@ What was lost: the screenshots George sent during the day were not saved anywher
 - **03:43:** "Don't wait to perform tasks in the list. Get the work done." (work the open list without stopping for approval of each change)
 - **03:58:** "Styles are just fonts, right?"
 - **03:59:** "But bold is another face in the same family unless you intend to modify how fonts are displayed."
+- **04:01:** "72 is already documented as a release." (build 72 run kept; the question is closed)
