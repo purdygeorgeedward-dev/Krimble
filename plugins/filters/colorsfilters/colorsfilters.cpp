@@ -7,6 +7,8 @@
  */
 
 #include "colorsfilters.h"
+#include "../levelfilter/KrimbleAutoAdjust.h"
+#include <KoColorModelStandardIds.h>
 
 
 #include <math.h>
@@ -94,6 +96,12 @@ void KisAutoContrast::processImpl(KisPaintDeviceSP device,
 {
     Q_ASSERT(device != 0);
     Q_UNUSED(config);
+    // Krimble: on an RGB picture, one stretch for R, G and B together (KrimbleAutoAdjust): more contrast, no color shift.
+    // Other color models keep the Lab code below.
+    if (device->colorSpace()->colorModelId() == RGBAColorModelID) {
+        KrimbleAutoAdjust::apply(device, applyRect, KrimbleAutoAdjust::Contrast, progressUpdater);
+        return;
+    }
     // initialize
     KoHistogramProducer *producer = new KoGenericLabHistogramProducer();
     KisHistogram histogram(device, applyRect, producer, LINEAR);

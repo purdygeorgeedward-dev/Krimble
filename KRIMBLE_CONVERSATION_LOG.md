@@ -188,3 +188,5 @@ What was lost: the screenshots George sent during the day were not saved anywher
 - **23:31:** "I don't think we ever fixed auto tone or auto color, any of that stuff."
 - **23:32:** "You don't understand curves yet?"
 - **23:33:** "Research these features online. Look for open functional algorithms."
+- **Nov 21 03:34:** "Yes" (build Auto Tone, Auto Contrast, Auto Color from the researched algorithms)
+- **03:34:** "And document this in the release notes." (RELEASE_NOTES_NEXT.md started)
