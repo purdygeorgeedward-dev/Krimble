@@ -34,6 +34,10 @@ Krimble is open source software made with the assistance of Claude and ChatGPT.
 
 - Grip lines on the black part of the Color Lab logo band, centered between the letters and the buttons, for grabbing and moving the panel.
 
+**Toolbox**
+
+- Two buttons under the color swatches, as in the industry-standard toolbox: **Quick Mask** (paint the selection as a mask: white selects, black deselects) and **Screen Mode** (the picture only; the X brings the panels back).
+
 **Panels and menus**
 
 - The Save As file-type window is taller only, no longer almost as wide as the screen.

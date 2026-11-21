@@ -84,6 +84,10 @@ Emoji (as plain black shapes) can be used in text.
 
 Select the part you want to remove (with any selection tool), then choose **Edit > Fill > Content-Aware...**. Krimble fills the hole from the picture around it. It works best on plain or repeating backgrounds; on very busy pictures the fill can look soft.
 
+## Quick Mask and Screen Mode
+
+The two buttons under the color swatches at the bottom of the toolbox. **Quick Mask** (a rectangle with a circle): tap it and the selection becomes a mask you paint with any brush: white selects, black deselects, gray selects partly. With nothing selected it starts empty, so you paint the selection in. Tap it again to go back to the marching ants. **Screen Mode** (two screens): shows the picture only, with the panels hidden; tap the X to bring them back.
+
 ## Lens Flare
 
 **Filter > Render > Lens Flare...** adds the flare a bright light makes in a camera lens. Choose a **Type**: **Zoom lens** (fine rays, a rainbow ring and a trail of colored ghosts), **Prime lens** (a tighter ring, fewer ghosts), **Cinematic** (a blue horizontal streak with oval ghosts) or **Starburst** (long spikes). While the window is open, **touch the picture and drag**: the light follows your finger (two fingers still move and zoom the picture). **Light across** and **Light down** show where the light is (in percent of the picture's width and height) and can set it too; the ghosts line up through the center of the picture on the other side, as in a real lens. **Brightness**, **Rays**, **Ghosts**, **Ring** and **Color (cool to warm)** change its look. The preview shows the result as you move the sliders. The flare only brightens the picture; it never darkens it.

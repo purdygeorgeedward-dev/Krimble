@@ -212,3 +212,4 @@ What was lost: the screenshots George sent during the day were not saved anywher
 - **04:23:** "We already built it."
 - **04:24:** "http://perchance.org/imagine-it and perchance.org/image-donkey are built and working."
 - **04:25:** "Just use one or the other. It's just a url." (connector uses perchance.org/image-donkey, kept as a setting so the address can change)
+- **04:28:** (two toolbox pictures) "The two bottom gadgets in the Ps toolbox are QuickMask on the left and Screen mode toggle on the right. They use very simple icons. What we had before was ugly and useless. We can make what Ps has."

@@ -43,6 +43,13 @@
 #include <kactioncollection.h>
 #include <QWidget>
 #include <QToolButton>
+#include <QHBoxLayout>
+#include <QPointer>
+#include <QSignalBlocker>
+#include <kis_image.h>
+#include <kis_group_layer.h>
+#include <kis_selection_mask.h>
+#include <kis_node_manager.h>
 
 #include <klocalizedstring.h>
 #include <kconfiggroup.h>
@@ -297,6 +304,36 @@ void KoToolBoxDocker::unsetCanvas()
 {
 }
 
+// Krimble: the two simple gadget icons, drawn in code in the toolbox icon color.
+// Quick Mask: a rectangle with a circle in it. Screen Mode: a screen with a second, smaller screen behind it.
+static QIcon krimbleGadgetIcon(bool quickMask)
+{
+    QIcon icon;
+    for (int size : {28, 56, 84}) {
+        QPixmap pm(size, size);
+        pm.fill(Qt::transparent);
+        QPainter p(&pm);
+        p.setRenderHint(QPainter::Antialiasing, true);
+        const qreal u = size / 28.0;
+        const QColor c(225, 228, 240);
+        p.setPen(QPen(c, 2.0 * u));
+        p.setBrush(Qt::NoBrush);
+        if (quickMask) {
+            p.drawRect(QRectF(3 * u, 6 * u, 22 * u, 16 * u));
+            p.setBrush(c);
+            p.setPen(Qt::NoPen);
+            p.drawEllipse(QPointF(14 * u, 14 * u), 4.5 * u, 4.5 * u);
+        } else {
+            p.drawRect(QRectF(9 * u, 4 * u, 16 * u, 12 * u));
+            p.setBrush(QColor(56, 62, 96));
+            p.drawRect(QRectF(3 * u, 10 * u, 16 * u, 12 * u));
+        }
+        p.end();
+        icon.addPixmap(pm);
+    }
+    return icon;
+}
+
 void KoToolBoxDocker::setViewManager(KisViewManager *viewManager)
 {
     m_toolBox->setViewManager(viewManager);
@@ -325,6 +362,63 @@ void KoToolBoxDocker::setViewManager(KisViewManager *viewManager)
         trailingLayout->setContentsMargins(0, 4, 0, 0);
         trailingLayout->setSpacing(4);
         trailingLayout->addWidget(m_dualColorButton, 0, Qt::AlignHCenter);
+        {
+            // Krimble: the two gadgets under the color swatches, as in the industry-standard toolbox
+            // (docs/krimble-refs/2026-11-21_0428_ps-toolbox-bottom-quickmask-screenmode.jpg): Quick Mask on the left,
+            // Screen Mode on the right, with very simple icons.
+            QHBoxLayout *gadgets = new QHBoxLayout();
+            gadgets->setContentsMargins(0, 4, 0, 0);
+            gadgets->setSpacing(4);
+            QToolButton *quickMask = new QToolButton(trailingBox);
+            quickMask->setObjectName(QStringLiteral("krimbleQuickMaskButton"));
+            quickMask->setAutoRaise(true);
+            quickMask->setCheckable(true);
+            quickMask->setIcon(krimbleGadgetIcon(true));
+            quickMask->setIconSize(QSize(28, 28));
+            quickMask->setToolTip(i18n("Quick Mask: paint the selection"));
+            QToolButton *screenMode = new QToolButton(trailingBox);
+            screenMode->setObjectName(QStringLiteral("krimbleScreenModeButton"));
+            screenMode->setAutoRaise(true);
+            screenMode->setIcon(krimbleGadgetIcon(false));
+            screenMode->setIconSize(QSize(28, 28));
+            screenMode->setToolTip(i18n("Screen Mode: the picture only (tap the X to come back)"));
+            gadgets->addWidget(quickMask, 0, Qt::AlignHCenter);
+            gadgets->addWidget(screenMode, 0, Qt::AlignHCenter);
+            trailingLayout->addLayout(gadgets);
+
+            QPointer<KisViewManager> vm = viewManager;
+            connect(quickMask, &QToolButton::toggled, this, [vm, quickMask](bool on) {
+                if (!vm) return;
+                QAction *show = vm->actionCollection()->action(QStringLiteral("show-global-selection-mask"));
+                if (!show) return;
+                KisImageWSP image = vm->image();
+                if (on && image && !image->globalSelection()) {
+                    // nothing selected yet: start from an empty selection, painted in from nothing
+                    if (QAction *all = vm->actionCollection()->action(QStringLiteral("select_all"))) all->trigger();
+                    if (QAction *inv = vm->actionCollection()->action(QStringLiteral("invert_selection"))) inv->trigger();
+                }
+                if (show->isChecked() != on) show->trigger();
+                if (on) {
+                    QTimer::singleShot(200, quickMask, [vm]() {
+                        if (!vm || !vm->image() || !vm->nodeManager()) return;
+                        KisSelectionMaskSP mask = vm->image()->rootLayer()->selectionMask();
+                        if (mask) vm->nodeManager()->slotNonUiActivatedNode(mask);   // paint on the mask: white selects, black deselects
+                    });
+                }
+            });
+            if (QAction *show = viewManager->actionCollection()->action(QStringLiteral("show-global-selection-mask"))) {
+                quickMask->setChecked(show->isChecked());
+                connect(show, &QAction::toggled, quickMask, [quickMask](bool on) {
+                    if (quickMask->isChecked() == on) return;
+                    QSignalBlocker block(quickMask);
+                    quickMask->setChecked(on);   // stays in step when the mask is shown or hidden from a menu
+                });
+            }
+            connect(screenMode, &QToolButton::clicked, this, [vm]() {
+                if (!vm) return;
+                if (QAction *canvasOnly = vm->actionCollection()->action(QStringLiteral("view_show_canvas_only"))) canvasOnly->trigger();
+            });
+        }
         m_toolBox->toolBoxLayout()->setTrailingWidget(trailingBox);
 
         QTimer::singleShot(0, this, [this, viewManager]() {

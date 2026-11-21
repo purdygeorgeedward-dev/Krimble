@@ -29,3 +29,6 @@ Files named YYYY-MM-DD_HHMM_<id>.jpg, by the time each was sent (MST).
 | 2026-11-21_0500_test-lightsabers.png | Nov 21, 2026 05:00 MST | Test of the Lightsaber blade math (blue, red, green; Screen blending) |
 | 2026-11-21_0410_demo-highlights-before-now-aqua.png | Nov 21, 2026 04:10 MST | Demo of the elements 780 changed: before 780 (cyan / dull highlight), now (flat selection blue), Aqua |
 | 2026-11-21_0425_test-aqua-everywhere.png | Nov 21, 2026 04:25 MST | Qt test of 793rd: Aqua on the focused field, check box, progress bar, list selection, slider fill and menu highlight with the real Krimble style sheets |
+| 2026-11-21_0428_ps-toolbox-map.jpg | Nov 21, 2026 04:28 MST | Industry-standard toolbox map with every tool named |
+| 2026-11-21_0428_ps-toolbox-bottom-quickmask-screenmode.jpg | Nov 21, 2026 04:28 MST | Industry-standard toolbox bottom: color swatches, then Quick Mask (left) and Screen Mode (right) with very simple icons. "We can make what Ps has." |
+| 2026-11-21_0440_test-quickmask-screenmode-icons.png | Nov 21, 2026 04:40 MST | The Quick Mask and Screen Mode icons as drawn by the code (794th) |

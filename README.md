@@ -166,6 +166,7 @@ Recent and active work includes:
 - **New pictures fit the screen** 📱: the first New picture is the size of your screen, and opened pictures fit the window
 - **Panels you can grab** ✋: grip lines on panel titles to tear panels off and dock them again
 - **Panel layouts** 🗂️: Stack Panels, a saved startup layout for portrait and for landscape, Reset Layout, Close All Toolbars
+- **Quick Mask and Screen Mode** 🎭: two simple buttons under the color swatches, as in the industry-standard toolbox: paint a selection as a mask, or show the picture only
 - **Rotation and Zoom gadgets** 🎛️: off by default, in the View menu
 - **Krimble Log** 🧾: Help > Show Krimble Log... shows what happened, for reporting problems
 - additional restoration and editing tools
