@@ -430,14 +430,16 @@ void KisToolMove::activate(const QSet<KoShape*> &shapes)
 void KisToolMove::paint(QPainter& gc, const KoViewConverter &converter)
 {
     Q_UNUSED(converter);
+    Q_UNUSED(gc);
 
-    if (m_strokeId && !m_handlesRect.isEmpty() && !m_currentlyUsingSelection) {
-        QPainterPath handles;
-        handles.addRect(m_handlesRect.translated(currentOffset()));
-
-        QPainterPath path = pixelToView(handles);
-        paintToolOutline(&gc, path);
-    }
+    // no box is drawn around what is being moved
+    // if (m_strokeId && !m_handlesRect.isEmpty() && !m_currentlyUsingSelection) {
+    //     QPainterPath handles;
+    //     handles.addRect(m_handlesRect.translated(currentOffset()));
+    //
+    //     QPainterPath path = pixelToView(handles);
+    //     paintToolOutline(&gc, path);
+    // }
 }
 
 void KisToolMove::deactivate()
