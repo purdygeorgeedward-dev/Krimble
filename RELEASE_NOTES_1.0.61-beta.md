@@ -9,7 +9,7 @@ Krimble is open source software made with the assistance of Claude and ChatGPT.
 
 **Version numbers:** this is build 61. The last release was 1.0.58 beta.
 
-**Do not install this build.** Tested on device; the faults are listed under Known issues at the end.
+**Do not install this build.** This build was installed and tested; the faults are listed under Known issues at the end.
 
 **Toolbox**
 
@@ -46,7 +46,7 @@ Krimble is open source software made with the assistance of Claude and ChatGPT.
 
 **Known issues**
 
-Tested on device.
+This build was installed and tested.
 
 - The menu title still lights up blue instead of being recessed, and the menu rows got the recess instead: the opposite of what was asked.
 - The recent files list is still covered by the toolbox; the base screen needs to be darker.

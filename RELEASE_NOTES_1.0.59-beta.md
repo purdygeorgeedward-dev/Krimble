@@ -49,7 +49,7 @@ Krimble is open source software made with the assistance of Claude and ChatGPT.
 
 **Known issues**
 
-Tested on device. Everything new failed except Hexagon Selection.
+This build was installed and tested. Everything new failed except Hexagon Selection.
 
 - The first screen has no bevels, and Recent Images draws over the toolbox. Foreground and background color are both gray.
 - Tapping the black and white default colors button in the toolbox does nothing, and then the toolbox vanishes.

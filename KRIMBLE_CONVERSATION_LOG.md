@@ -193,3 +193,4 @@ What was lost: the screenshots George sent during the day were not saved anywher
 - **03:38:** "Go over the list again so I can see if anything else got ignored and treated as if it was done."
 - **03:41:** "Those releases say \"George\" in them?"
 - **03:42:** "The one with my full name is fine. Not the colloquial ones with my first name."
+- **03:42:** "Instead you could write \"This build was installed and tested.\" Don't put my name in those."

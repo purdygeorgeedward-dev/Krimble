@@ -45,7 +45,7 @@ Krimble is open source software made with the assistance of Claude and ChatGPT.
 
 **Known issues**
 
-Tested on device. Most of what the lists above promise did not work.
+This build was installed and tested. Most of what the lists above promise did not work.
 
 - The toolbox docks as a giant column and scrolls, and its edge is fat.
 - The selected layer still looks wrong.
