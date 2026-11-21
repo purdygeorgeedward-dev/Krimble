@@ -258,3 +258,4 @@ What was lost: the screenshots George sent during the day were not saved anywher
 - **11:34:** (20 images, 7 repeats) "Second set. Actually you know what these are fo" (13 new saved to docs/krimble-icon-sets/photorealistic/)
 - **11:35:** "That is indeed a darkroom Dodge tool for when we actually figure out how to do real dodge and burn effects."
 - **11:39:** "The pinching hand is the burn tool." (renamed extra_hand_pinch.png to extra_burn.png)
+- **11:47:** "Why extra?" / "Yes" (renamed to 09_01_dodge.png and 09_02_burn.png)

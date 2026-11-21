@@ -2,7 +2,7 @@
 
 Not used in the app; kept as a finished set. PNG with transparent backgrounds, full resolution as delivered.
 Names follow the toolbox picture set (`krita/pics/krimble-toolbox-color/`). `08_xx` = the buttons under the
-toolbox (08_01 Undo, 08_02 Quick Mask, 08_03 Screen Mode). `extra_` = pictures with no toolbox slot.
+toolbox (08_01 Undo, 08_02 Quick Mask, 08_03 Screen Mode). `09_xx` = future tools (09_01 Dodge, 09_02 Burn). `extra_` = pictures with no toolbox slot.
 
 ## Received 2026-11-21 11:32 (first set, 20 images)
 
@@ -26,7 +26,7 @@ toolbox (08_01 Undo, 08_02 Quick Mask, 08_03 Screen Mode). `extra_` = pictures w
 | 07_01_reference_images.png | 31. Reference Images (pushpin) |
 | 08_02_quick_mask.png | 34. Quick Mask (mask) |
 | 08_03_screen_mode.png | 35. Screen Mode (TV) |
-| extra_dodge.png | Dodge (darkroom dodging tool), for a future Dodge and Burn tool |
+| 09_01_dodge.png | Dodge (darkroom dodging tool), for a future Dodge and Burn tool |
 | extra_lens_flare.png | lens flare (no slot) |
 
 ## Received 2026-11-21 11:34 (second set, 13 new; 7 repeats of the first set skipped)
@@ -45,6 +45,6 @@ toolbox (08_01 Undo, 08_02 Quick Mask, 08_03 Screen Mode). `extra_` = pictures w
 | 04_02_fill.png | 17. Fill (paint bucket) |
 | 05_05_pan.png | 25. Pan (open hand) |
 | 06_05_measure.png | 30. Measure (set square) |
-| extra_burn.png | Burn (pinching hand), for a future Dodge and Burn tool |
+| 09_02_burn.png | Burn (pinching hand), for a future Dodge and Burn tool |
 
 Still missing: 16 Gradient, 20 Text, 23 Line, 28 Free Rotate, 29 Assistant, 32 Edit Path Nodes, 33 Undo.
