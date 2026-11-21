@@ -238,3 +238,4 @@ What was lost: the screenshots George sent during the day were not saved anywher
 - **04:54:** "Remove the color option completely and build."
 - **05:06:** "Yes. It's .73 now."
 - **09:08:** "Are we building?"
+- **09:09:** "Show me what the different button types look like."
