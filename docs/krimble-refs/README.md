@@ -45,3 +45,4 @@ Files named YYYY-MM-DD_HHMM_<id>.jpg, by the time each was sent (MST).
 | 2026-11-21_0550_demo-color-mix-white-lines-for-line-tools.png | Nov 21, 2026 05:50 MST | Demo: Color set mixed like Classic: white silhouette lines for the shape and line tools, color pictures for the object tools |
 | 2026-11-21_0552_demo-color-mix-no-orange.png | Nov 21, 2026 05:52 MST | Demo: color mix with no orange: Healing, Brush and Smudge also as white lines ("The bright orange has to go.") |
 | 2026-11-21_0555_silhouettes-beside-color-icons.png | Nov 21, 2026 05:55 MST | Every toolbox tool: the white silhouette icon (left) beside the color picture icon (right) |
+| 2026-11-21_0600_silhouette-color-and-classic-ps-icons.png | Nov 21, 2026 06:00 MST | Each toolbox tool three ways: white silhouette, color picture, and the classic industry-standard icon cut from his labeled toolbar picture ("none" where that toolbar has no matching tool) |
