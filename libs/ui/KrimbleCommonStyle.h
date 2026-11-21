@@ -13,9 +13,9 @@ QTabWidget::pane { background: #374165; border: none; }
 QTabBar::tab:selected { background: #374165; border-bottom: 1px solid #374165; }
 QMenuBar::item { padding: 1px 9px 4px 9px; }
 QTabBar::scroller { width: 64px; }
-QAbstractItemView::item:selected { color: #ffffff; border-radius: 0px; background: #0b87dd; }
+QAbstractItemView::item:selected { color: #ffffff; border-radius: 0px; /* background: #0b87dd; */ background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #085f9b, stop:0.05 #dae9f3, stop:0.49 #278fd7, stop:0.5 #0a80d2, stop:0.85 #60b1e9, stop:1 #85c3ee); }
 /* Menu items: color and background only. A border or border-radius here gives the hovered item its own (smaller) size, and the menu squeezed when Fill opened its submenu. */
-QMenu::item:selected { color: #ffffff; background: #0b87dd; }
+QMenu::item:selected { color: #ffffff; /* background: #0b87dd; */ background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #085f9b, stop:0.05 #dae9f3, stop:0.49 #278fd7, stop:0.5 #0a80d2, stop:0.85 #60b1e9, stop:1 #85c3ee); }
 QMenuBar::item:selected, QMenuBar::item:pressed { border-bottom: none; }
 NodeView::item { background: transparent; color: #f1f4fc; border: none; }
 NodeView::item:selected { background: transparent; color: #ffffff; border: none; border-radius: 0px; }

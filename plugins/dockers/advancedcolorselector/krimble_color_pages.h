@@ -798,7 +798,8 @@ public:
         setObjectName(QStringLiteral("KrimbleStudioLogo"));
         const QString look = QStringLiteral(
             "QToolButton { background: #3a4470; border: 1px solid #6a78b0; border-radius: 2px; padding: 2px; }"
-            "QToolButton:pressed { background: #0b87dd; }");
+            // "QToolButton:pressed { background: #0b87dd; }");
+            "QToolButton:pressed { background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #085f9b, stop:0.05 #dae9f3, stop:0.49 #278fd7, stop:0.5 #0a80d2, stop:0.85 #60b1e9, stop:1 #85c3ee); }");
         m_float = new QToolButton(this);
         m_float->setIcon(KisIconUtils::loadIcon(QStringLiteral("docker_float")));
         m_float->setStyleSheet(look);

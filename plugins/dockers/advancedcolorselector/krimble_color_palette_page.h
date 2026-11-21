@@ -288,7 +288,8 @@ protected:
                 p.drawRoundedRect(cell, 3 * s, 3 * s);
                 if (i == m_selected) {
                     p.setBrush(Qt::NoBrush);
-                    p.setPen(QPen(QColor("#0b87dd"), qMax<qreal>(2.0, 3.2 * s)));
+                    // p.setPen(QPen(QColor("#0b87dd"), qMax<qreal>(2.0, 3.2 * s)));
+                    p.setPen(QPen(krimbleAquaRimBrush(cell), qMax<qreal>(2.0, 3.2 * s)));   // Aqua rim on the chosen swatch
                     p.drawRoundedRect(cell.adjusted(-1, -1, 1, 1), 4 * s, 4 * s);
                 }
             }

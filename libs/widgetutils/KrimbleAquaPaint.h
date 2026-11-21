@@ -19,6 +19,16 @@ inline QColor krimbleAquaMix(const QColor &c, const QColor &to, qreal a, int alp
                   qRound(c.blue() + (to.blue() - c.blue()) * a), alpha);
 }
 
+// A glossy Aqua rim for outlines: light at the top, the selection blue in the middle, deep at the bottom.
+inline QBrush krimbleAquaRimBrush(const QRectF &r)
+{
+    QLinearGradient g(r.topLeft(), r.bottomLeft());
+    g.setColorAt(0.0, QColor(0x9b, 0xd6, 0xff));
+    g.setColorAt(0.5, QColor(0x0b, 0x87, 0xdd));
+    g.setColorAt(1.0, QColor(0x07, 0x5a, 0x96));
+    return QBrush(g);
+}
+
 inline void krimblePaintAqua(QPainter &p, const QRectF &r, qreal radius, const QColor &base = QColor(11, 135, 221))
 {
     if (r.width() < 2 || r.height() < 2) return;

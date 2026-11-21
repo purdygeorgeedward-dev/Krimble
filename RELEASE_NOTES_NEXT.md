@@ -28,6 +28,7 @@ Krimble is open source software made with the assistance of Claude and ChatGPT.
 **Selections**
 
 - The selected toolbox button, the selected button in button rows (such as Mode and Action in Tool Options), every selected item in Color Lab, and every other checked button now have a glossy Aqua-style blue highlight in place of the glow. The dull blue-green highlight on the Mode and Action buttons is gone.
+- The same Aqua look is on menu highlights, list selections, the selected layer row, progress bars, slider fills and checked check boxes, and as a glossy rim on focused fields and buttons.
 
 **Color Lab**
 

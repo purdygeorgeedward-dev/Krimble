@@ -5,6 +5,7 @@
 
   SPDX-License-Identifier: LGPL-2.0-or-later
 */
+#include "KrimbleAquaPaint.h"
 #include "kis_config.h"
 #include "NodeDelegate.h"
 #include "kis_node_model.h"
@@ -126,11 +127,12 @@ void NodeDelegate::paint(QPainter *p, const QStyleOptionViewItem &o, const QMode
         {
             const bool krimbleSel = option.state & QStyle::State_Selected;
             if (krimbleSel) {
-                if (qApp->property("krimbleSelectionGradient").toBool()) {
-                    p->fillRect(option.rect, QColor(0x0b, 0x87, 0xdd));
-                } else {
-                    p->fillRect(option.rect, option.palette.color(QPalette::Active, QPalette::Highlight));
-                }
+                // if (qApp->property("krimbleSelectionGradient").toBool()) {
+                //     p->fillRect(option.rect, QColor(0x0b, 0x87, 0xdd));
+                // } else {
+                //     p->fillRect(option.rect, option.palette.color(QPalette::Active, QPalette::Highlight));
+                // }
+                krimblePaintAqua(*p, QRectF(option.rect), 0.0);   // the Aqua-style selection on the selected layer row
                 option.palette.setColor(QPalette::HighlightedText, QColor(0xff, 0xff, 0xff));
                 option.palette.setColor(QPalette::Text, QColor(0xff, 0xff, 0xff));
             } else {

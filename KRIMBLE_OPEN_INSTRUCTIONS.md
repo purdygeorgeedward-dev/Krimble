@@ -12,7 +12,7 @@ Last updated: 2026-11-21 03:42 MST.
 | Nov 20 | Layers panel title positioned like the mockup | same mockup | 779th + 788th pushed, checked against the mockup by measurement; not in a build |
 | Nov 20 | Same grip lines on the black part of the Color Lab logo band, centered, letters untouched | batch-09 | 781st pushed, not in a build |
 | Nov 20 | The dull aqua in the theme (selected Mode/Action buttons in Tool Options) changed; he asked before and it was not done | batch-03 (circled), batch-04 | 782nd: replaced by the Aqua-style selection; pushed, not in a build |
-| Nov 20 | "Just the one I identified": the other aqua changes in 780th were not asked for | batch-03 | open: put back what 780th changed beyond the circled aqua? (asked, not answered) |
+| Nov 20 | "Just the one I identified": the other aqua changes in 780th were not asked for | batch-03 | settled Nov 21 04:08: "use it anywhere we can": 793rd made those elements Aqua; pushed, not in a build |
 | Nov 20 | Save As dialog: taller only, NOT wide | batch-06 | 785th pushed, not in a build |
 | Nov 20 | Edit > Fill: highlighting Fill makes the menu miniature; the Fill submenu looks tiny | batch-07, batch-08, 2026-11-20_1943_9e68dea9, _ea45659b | 777th (squeeze) and 786th (submenu room and row height) pushed, not in a build |
 | Nov 20 | Recent Images area too small, tiny scroll bars | batch-02, batch-15 | 787th pushed, not in a build |

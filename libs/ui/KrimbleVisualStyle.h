@@ -53,17 +53,17 @@ QPushButton, QDialog QToolButton {
     background: #3e4b78;
 }
 QPushButton:hover, QDialog QToolButton:hover {
-    border-color: #0b87dd;
+    /* border-color: #0b87dd; */ border-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #9bd6ff, stop:0.5 #0b87dd, stop:1 #075a96);
     background: #3e4b78;
 }
 QPushButton:pressed, QDialog QToolButton:pressed,
 QPushButton:checked, QDialog QToolButton:checked {
-    border: 2px solid #0b87dd;
+    border: 2px solid #0b87dd; border-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #9bd6ff, stop:0.5 #0b87dd, stop:1 #075a96);
     /* background: #1d7cb2; */
-    background: #0b87dd;}
+    /* background: #0b87dd; */ background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #085f9b, stop:0.05 #dae9f3, stop:0.49 #278fd7, stop:0.5 #0a80d2, stop:0.85 #60b1e9, stop:1 #85c3ee);}
 QPushButton:default {
     color: white;
-    border: 2px solid #0b87dd;
+    border: 2px solid #0b87dd; border-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #9bd6ff, stop:0.5 #0b87dd, stop:1 #075a96);
     /* background: #1d7cb2; */
     background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #0a89cd, stop:0.3 #085892, stop:0.6 #07497e, stop:1 #044a9c);}
 QPushButton:disabled, QDialog QToolButton:disabled {
@@ -114,11 +114,11 @@ QComboBox {
     background: #141926;
 }
 QLineEdit:focus, QSpinBox:focus, QDoubleSpinBox:focus, QComboBox:focus {
-    border: 1px solid #0b87dd;
+    border: 1px solid #0b87dd; border-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #9bd6ff, stop:0.5 #0b87dd, stop:1 #075a96);
 }
 QAbstractItemView::item:selected {
     color: white;
-    background: #0b87dd;
+    /* background: #0b87dd; */ background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #085f9b, stop:0.05 #dae9f3, stop:0.49 #278fd7, stop:0.5 #0a80d2, stop:0.85 #60b1e9, stop:1 #85c3ee);
     border: none;
     border-radius: 0px;
 }
@@ -132,7 +132,7 @@ QSlider::sub-page:horizontal {
     height: 5px;
     border: none;
     border-radius: 2px;
-    background: #0b87dd;
+    /* background: #0b87dd; */ background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #085f9b, stop:0.05 #dae9f3, stop:0.49 #278fd7, stop:0.5 #0a80d2, stop:0.85 #60b1e9, stop:1 #85c3ee);
 }
 QSlider::handle:horizontal {
     width: 18px;
@@ -152,9 +152,9 @@ QCheckBox::indicator {
 }
 QCheckBox::indicator:checked {
     image: url(:/krimble-checkmark.svg);
-    border: 2px solid #0b87dd;
+    border: 2px solid #0b87dd; border-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #9bd6ff, stop:0.5 #0b87dd, stop:1 #075a96);
     /* background: #1d7cb2; */
-    background: #0b87dd;}
+    /* background: #0b87dd; */ background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #085f9b, stop:0.05 #dae9f3, stop:0.49 #278fd7, stop:0.5 #0a80d2, stop:0.85 #60b1e9, stop:1 #85c3ee);}
 QMenuBar {
     color: #f1f4fc;
     background: #3e4b78;
@@ -170,7 +170,7 @@ QMenuBar::item:selected {
     border: none;
     border-radius: 0px;
     /* background: #1d7cb2; */
-    background: #0b87dd;}
+    /* background: #0b87dd; */ background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #085f9b, stop:0.05 #dae9f3, stop:0.49 #278fd7, stop:0.5 #0a80d2, stop:0.85 #60b1e9, stop:1 #85c3ee);}
 QMenu {
     color: #eef1fa;
     border: none;    background: #232a42;
@@ -178,7 +178,7 @@ QMenu {
 QMenu::item:selected {
     /* border: none; */
     /* background: #1d7cb2; */
-    background: #0b87dd;
+    /* background: #0b87dd; */ background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #085f9b, stop:0.05 #dae9f3, stop:0.49 #278fd7, stop:0.5 #0a80d2, stop:0.85 #60b1e9, stop:1 #85c3ee);
 }
 QMenu::separator {
     height: 0px;
@@ -233,11 +233,11 @@ QProgressBar {
 }
 QProgressBar::chunk {
     border-radius: 0px;
-    background: #0b87dd;
+    /* background: #0b87dd; */ background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #085f9b, stop:0.05 #dae9f3, stop:0.49 #278fd7, stop:0.5 #0a80d2, stop:0.85 #60b1e9, stop:1 #85c3ee);
 }
 QToolTip {
     color: #eef1fa;
-    border: 1px solid #0b87dd;
+    border: 1px solid #0b87dd; border-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #9bd6ff, stop:0.5 #0b87dd, stop:1 #075a96);
     background: #232a42;
 }
 QWidget#krimbleStudioCard {

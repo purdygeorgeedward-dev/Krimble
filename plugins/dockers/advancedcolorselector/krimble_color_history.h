@@ -447,7 +447,8 @@ private:
     {
         paintField(p, box, 8 * s);
         if (!on) return;
-        p.setPen(QPen(QColor("#0b87dd"), qMax<qreal>(2.5, 4.5 * s), Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+        // p.setPen(QPen(QColor("#0b87dd"), qMax<qreal>(2.5, 4.5 * s), Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+        p.setPen(QPen(krimbleAquaRimBrush(box), qMax<qreal>(2.5, 4.5 * s), Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));   // Aqua tick
         p.setBrush(Qt::NoBrush);
         QPainterPath tick;
         tick.moveTo(box.left() + box.width() * 0.22, box.top() + box.height() * 0.54);
