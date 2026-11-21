@@ -18,3 +18,4 @@ Name: YYYY-MM-DD_HHMM_short-description.ext (Mountain Time)
 ## Earlier uploads from Nov 20, 2026 (recovered from the session's upload folder at 23:02)
 Files named YYYY-MM-DD_HHMM_<id>.jpg, by the time each was sent (MST).
 - **2026-11-20_1943_MOCKUP-grips-and-layers-title.jpg** — George's mockup: toolbox grip is a tall block of many thin lines across the full width; the Layers title sits at the top-left with a tall block of grip lines after it, filling to the float/close buttons.
+| 2026-11-20_2311_macos-aqua-gradient-reference.png | Nov 20, 2026 23:11 MST | Mac OS Aqua button: the multi-point gradient George wants matched ("mac os Aqua was beautiful"). Not the "ugly seaweed blue green" aqua he wanted removed. |
