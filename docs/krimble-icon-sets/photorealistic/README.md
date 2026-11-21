@@ -67,4 +67,6 @@ The app copies of Text and Line have a soft light aura so the black shows on dar
 
 | 06_04_assistant_tool.png | 29. Assistant Tool (glass drawing board with guides, compass and set square; received 12:40) |
 
-Still missing: 28 Free Rotate.
+| 06_03_transform_rotate.png | 28. Free Rotate (blue arrows over a painting; received 12:45) |
+
+The set is complete.

@@ -275,3 +275,6 @@ What was lost: the screenshots George sent during the day were not saved anywher
 - **12:39:** "Just the line and the t so they don't disappear." (aura removed from Edit Path Nodes)
 - **12:40:** "Edit Path Nodes" (the pen picture replaces the dashed square for Edit Path Nodes)
 - **12:40:** (image: glass drawing board with guides, compass, set square) "Assistant"
+- **12:45:** (3 Free Rotate pictures) "Should we make pretty little backgrounds for these in the buttons?"
+- **12:46:** "Let's add that as a standard option, the pretty background." (change 803, Glow)
+- **12:46:** "Arrows over the photo." (Free Rotate = arrows over the painting; set complete)

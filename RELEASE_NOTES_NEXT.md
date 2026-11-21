@@ -12,7 +12,7 @@ Krimble is open source software made with the assistance of Claude and ChatGPT.
 **Toolbox**
 
 - **Photorealistic** icon style: photographic pictures for the tools, Quick Mask (a mask) and Screen Mode (a TV). Tools without a photo are drawn in the Classic style.
-- A fourth button background, **Dark gray**.
+- Two more button backgrounds: **Dark gray**, and **Glow** (a dark tile lit with a soft teal glow, made to go with the Photorealistic icons).
 - White icons are only shown on dark backgrounds: with the Light gray or White background they are drawn in black.
 
 **Known issues**

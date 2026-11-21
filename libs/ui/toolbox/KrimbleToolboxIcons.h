@@ -12,6 +12,8 @@
 #include <QToolButton>
 #include <QWidget>
 #include <QPainter>
+#include <QPainterPath>
+#include <QRadialGradient>
 #include <QColor>
 #include <QImage>
 #include <QPixmap>
@@ -209,12 +211,13 @@ inline QColor lightGrayFace()
     return QColor(198, 198, 202);
 }
 */
-// Button background: 0 = the panel's own (default), 1 = light gray, 2 = white, 3 = dark gray. Key Krimble/ToolboxButtonFace (the older ToolboxLightGray is read once).
+// Button background: 0 = the panel's own (default), 1 = light gray, 2 = white, 3 = dark gray, 4 = glow (a dark tile with a teal glow,
+// docs/krimble-refs/2026-11-21_1245_glow-background-sample.png: "Let's add that as a standard option, the pretty background."). Key Krimble/ToolboxButtonFace (the older ToolboxLightGray is read once).
 inline int &buttonFaceCache()
 {
     static int face = [] {
         KConfigGroup group = KSharedConfig::openConfig()->group("Krimble");
-        if (group.hasKey("ToolboxButtonFace")) return qBound(0, group.readEntry("ToolboxButtonFace", 0), 3);
+        if (group.hasKey("ToolboxButtonFace")) return qBound(0, group.readEntry("ToolboxButtonFace", 0), 4);
         return group.readEntry("ToolboxLightGray", false) ? 1 : 0;
     }();
     return face;
@@ -224,7 +227,7 @@ inline int buttonFace() { return buttonFaceCache(); }
 
 inline void setButtonFace(int face)
 {
-    buttonFaceCache() = qBound(0, face, 3);
+    buttonFaceCache() = qBound(0, face, 4);
     KConfigGroup group = KSharedConfig::openConfig()->group("Krimble");
     group.writeEntry("ToolboxButtonFace", buttonFaceCache());
     group.config()->sync();
@@ -239,7 +242,29 @@ inline QColor lightGrayFace()
 {
     // return buttonFace() == 2 ? QColor(250, 250, 252) : QColor(198, 198, 202);
     if (buttonFace() == 3) return QColor(78, 78, 84);
+    if (buttonFace() == 4) return QColor(4, 30, 44);   // the glow tile's average, for anything that needs one color
     return buttonFace() == 2 ? QColor(250, 250, 252) : QColor(198, 198, 202);
+}
+
+inline bool glowFace() { return buttonFace() == 4; }
+
+// the Glow background: a dark navy tile, lit from the middle with teal, rounded a little
+inline void paintGlowTile(QPainter &p, const QRectF &r)
+{
+    p.save();
+    p.setRenderHint(QPainter::Antialiasing, true);
+    const qreal radius = qMin(r.width(), r.height()) * 0.10;
+    QPainterPath tile;
+    tile.addRoundedRect(r, radius, radius);
+    QRadialGradient glow(QPointF(r.center().x(), r.top() + r.height() * 0.62), qMax(r.width(), r.height()) * 0.72);
+    glow.setColorAt(0.00, QColor(28, 118, 142));
+    glow.setColorAt(0.35, QColor(10, 72, 96));
+    glow.setColorAt(0.75, QColor(2, 36, 54));
+    glow.setColorAt(1.00, QColor(1, 12, 24));
+    p.fillPath(tile, glow);
+    p.setPen(QPen(QColor(90, 190, 215, 70), qMax<qreal>(1.0, r.width() * 0.012)));
+    p.drawPath(tile);
+    p.restore();
 }
 
 // the photorealistic picture for a tool (or a toolbox button such as "08_02_quick_mask"), or a null icon

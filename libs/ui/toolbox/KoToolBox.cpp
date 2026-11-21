@@ -559,7 +559,8 @@ void KoToolBox::setupButtonStyleMenu(QMenu *menu)
     menu->addSeparator();
     QActionGroup *faceGroup = new QActionGroup(menu);
     // const QStringList faces = {i18n("Panel background"), i18n("Light gray"), i18n("White")};
-    const QStringList faces = {i18n("Panel background"), i18n("Light gray"), i18n("White"), i18n("Dark gray")};
+    // const QStringList faces = {i18n("Panel background"), i18n("Light gray"), i18n("White"), i18n("Dark gray")};
+    const QStringList faces = {i18n("Panel background"), i18n("Light gray"), i18n("White"), i18n("Dark gray"), i18n("Glow")};
     for (int face = 0; face < faces.size(); ++face) {
         QAction *action = menu->addAction(faces[face]);
         action->setActionGroup(faceGroup);

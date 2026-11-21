@@ -203,7 +203,9 @@ void KoToolBoxButton::krimblePaintRaisedBox(QWidget *widget, bool down)
     const QColor face = KrimbleToolboxIcons::customFace() ? KrimbleToolboxIcons::lightGrayFace()
                       : (krimbleLight ? krimbleWindow.darker(108) : krimbleWindow.lighter(150));
     const int t = qMax(2, qRound(qMin(r.width(), r.height()) * 0.075));
-    box.fillRect(r, face);
+    // box.fillRect(r, face);
+    if (KrimbleToolboxIcons::glowFace()) KrimbleToolboxIcons::paintGlowTile(box, QRectF(r));   // Glow, raised: the bevel is drawn over the tile
+    else box.fillRect(r, face);
     const int hiTop = krimbleLight ? 255 : 85;
     const int hiLeft = krimbleLight ? 170 : 40;
     const QColor topTone    = down ? QColor(0, 0, 0, 90)            : QColor(255, 255, 255, hiTop);
@@ -226,6 +228,9 @@ void KoToolBoxButton::paintEvent(QPaintEvent *event)
 {
     if (KrimbleToolboxIcons::buttonStyle() == 1 && !isChecked() && !qApp->property("krimbleNoRaisedButtons").toBool()) {
         krimblePaintRaisedBox(this, isDown());
+    } else if (KrimbleToolboxIcons::glowFace() && !isChecked()) {
+        QPainter face(this);
+        KrimbleToolboxIcons::paintGlowTile(face, QRectF(rect()).adjusted(2, 2, -2, -2));   // Glow, flat
     } else if (KrimbleToolboxIcons::customFace() && !isChecked()) {
         QPainter face(this);
         face.fillRect(rect().adjusted(1, 1, -1, -1), KrimbleToolboxIcons::lightGrayFace());   // Light gray, flat

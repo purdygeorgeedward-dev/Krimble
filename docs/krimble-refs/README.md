@@ -51,3 +51,5 @@ Files named YYYY-MM-DD_HHMM_<id>.jpg, by the time each was sent (MST).
 - 2026-11-21_0919_tool-list-with-icons.png — numbered list of the 35 toolbox buttons with the standard icons, for a new icon set
 - Photorealistic icon set (2026-11-21 11:32, 20 images): stored in docs/krimble-icon-sets/photorealistic/ (see its README)
 - 2026-11-21_1153_demo-photorealistic-icons-at-button-sizes.png — the photorealistic set at 48, 72 and 120 px buttons
+- 2026-11-21_1245_glow-background-sample.png — George's Free Rotate picture on a dark teal glow: the sample for the Glow button background
+- 2026-11-21_1255_demo-photorealistic-on-glow.png — the whole photo set on Glow buttons, brush selected in Aqua
