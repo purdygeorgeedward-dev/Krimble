@@ -86,7 +86,7 @@ Turn the phone sideways and everything rearranges for the wide screen.
 - **Dock Left / Right / Top / Bottom** puts it on that side. **Undock** makes it float; drag it by the handle.
 - **Dock by Dragging** (on or off): when off, the toolbox and the panels stay wherever you let them go and never snap to an edge.
 - **Columns** sets how many columns it uses.
-- **Icon Size**, **Icon Style** (White, Black, Grayscale or Color) and **Button Style** (Flat or Raised, on a Panel background, Light gray or White) change its look.
+- **Icon Size**, **Icon Style** (White, Black, Grayscale, Color, or Classic: black line art for shape tools and gray shaded art for object tools) and **Button Style** (Flat or Raised, on a Panel background, Light gray or White) change its look.
 
 ---
 

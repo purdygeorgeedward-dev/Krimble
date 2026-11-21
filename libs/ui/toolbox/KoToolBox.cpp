@@ -609,6 +609,7 @@ void KoToolBox::setupIconStyleMenu(QMenu *menu)
         {i18n("Black"), KrimbleToolboxIcons::Black},
         {i18n("Grayscale"), KrimbleToolboxIcons::Grayscale},
         {i18n("Color"), KrimbleToolboxIcons::Color},
+        {i18n("Classic"), KrimbleToolboxIcons::Classic},
     };
     for (const Choice &choice : choices) {
         QAction *action = menu->addAction(choice.name);

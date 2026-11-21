@@ -90,13 +90,29 @@ inline const QHash<QString, QString> &files()
 
 // Icon styles: White (the silhouette icons as they are), Black (the silhouettes drawn in black), Grayscale (the picture icons
 // in shades of gray), Color (the picture icons). Key Krimble/ToolboxIconStyle; an older setting (ToolboxColorIcons / ToolboxGrayIcons) is read once.
-enum IconStyle { White = 0, Color = 1, Black = 2, Grayscale = 3 };
+enum IconStyle { White = 0, Color = 1, Black = 2, Grayscale = 3, Classic = 4 };
+
+// Classic: as in the classic industry-standard toolbar (docs/krimble-refs/2026-11-21_0436_ps-toolbar-labeled-grayscale-icons.jpg),
+// tools that are shapes and lines are black line art (the silhouettes in black); tools that are objects are shaded gray art
+// (the picture icons in grayscale).
+inline bool classicLineArt(const QString &iconName)
+{
+    static const QStringList lineArt = {
+        QStringLiteral("krita_tool_move"), QStringLiteral("tool_rect_selection"), QStringLiteral("tool_elliptical_selection"),
+        QStringLiteral("tool_outline_selection"), QStringLiteral("tool_polygonal_selection"), QStringLiteral("tool_magnetic_selection"),
+        QStringLiteral("tool_contiguous_selection"), QStringLiteral("tool_similar_selection"), QStringLiteral("tool_crop"),
+        QStringLiteral("krita_draw_path"), QStringLiteral("select"), QStringLiteral("draw-text"), QStringLiteral("krita_tool_line"),
+        QStringLiteral("tool_pan"), QStringLiteral("krita_tool_transform"), QStringLiteral("krimble-free-rotate"),
+        QStringLiteral("krita_tool_assistant"), QStringLiteral("krita_tool_measure"), QStringLiteral("tool_path_selection")
+    };
+    return lineArt.contains(iconName);
+}
 
 inline int &iconStyleCache()
 {
     static int style = [] {
         KConfigGroup group = KSharedConfig::openConfig()->group("Krimble");
-        if (group.hasKey("ToolboxIconStyle")) return qBound(0, group.readEntry("ToolboxIconStyle", 0), 3);
+        if (group.hasKey("ToolboxIconStyle")) return qBound(0, group.readEntry("ToolboxIconStyle", 0), 4);
         if (group.readEntry("ToolboxGrayIcons", false)) return int(Black);
         return group.readEntry("ToolboxColorIcons", false) ? int(Color) : int(White);
     }();
@@ -107,14 +123,14 @@ inline int iconStyle() { return iconStyleCache(); }
 
 inline void setIconStyle(int style)
 {
-    iconStyleCache() = qBound(0, style, 3);
+    iconStyleCache() = qBound(0, style, 4);
     KConfigGroup group = KSharedConfig::openConfig()->group("Krimble");
     group.writeEntry("ToolboxIconStyle", iconStyleCache());
     group.config()->sync();
 }
 
 // the picture icons are shown in Color and Grayscale
-inline bool colorMode() { return iconStyle() == Color || iconStyle() == Grayscale; }
+inline bool colorMode() { return iconStyle() == Color || iconStyle() == Grayscale || iconStyle() == Classic; }
 inline bool grayMode() { return iconStyle() == Black; }   // (name kept: the Black style)
 inline void setColorMode(bool on) { setIconStyle(on ? Color : White); }
 inline void setGrayMode() { setIconStyle(Black); }
@@ -269,6 +285,10 @@ inline QIcon icon(const QString &iconName)
 
 inline QIcon plainIcon(const QString &iconName)
 {
+    if (iconStyle() == Classic) {
+        if (classicLineArt(iconName) || !hasPicture(iconName)) return blackIcon(kisIcon(iconName));
+        return grayIcon(QIcon(QStringLiteral(":/krimble-toolbox/") + files().value(iconName) + QStringLiteral(".png")));
+    }
 
     // Black and white: the silhouettes in black ("the problem with those black and white icons is they're just the color ones desaturated. I'd like to see the silhouettes in black.")
     if (grayMode()) return blackIcon(kisIcon(iconName));

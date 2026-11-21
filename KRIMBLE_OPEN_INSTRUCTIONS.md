@@ -24,6 +24,7 @@ Last updated: 2026-11-21 03:42 MST.
 | Nov 21 | Black and white toolbox icons as a third style: the silhouettes in black ("I'd like to see the silhouettes in black.") | 2026-11-21_0436_ps-toolbar-labeled-grayscale-icons.jpg, 2026-11-21_0510_preview-black-silhouettes-light-gray.png | 795th + 797th pushed, not in a build |
 | Nov 21 | A switch for light gray toolbox buttons, like the Raised switch | 2026-11-21_0500_preview-light-gray-buttons.png | 796th pushed, not in a build |
 | Nov 21 | White, black, grayscale and color icons; light gray or white button backgrounds; a bigger eyedropper | 2026-11-21_0520_preview-icon-styles-and-button-backgrounds.png | 798th pushed, not in a build |
+| Nov 21 | Classic icon style: black line art for shape tools, grayscale art for object tools, like the classic toolbar | 2026-11-21_0436_ps-toolbar-labeled-grayscale-icons.jpg, 2026-11-21_0530_preview-classic-icons.png | 799th pushed, not in a build |
 | Nov 20 | Lightsabers (from scratch) | 2026-11-21_0500_test-lightsabers.png | 791st: Filter > Render > Lightsaber, finger drag; pushed, not in a build |
 | Nov 20 | Constant resets (app killed by Android) | | KeepAliveService pushed (background kills); front kills rare per George (Nov 21 04:16): watch after the next build, Krimble log screenshot if one happens |
 | Nov 20 | Release notes with no mention of his name | | repo notes done (5d8c6a34); GitHub release text of 1.0.59 to 1.0.63 and 1.0.66 still says "George" (to edit on GitHub by hand). 1.0.41 (full name in About credit) stays: "The one with my full name is fine." |

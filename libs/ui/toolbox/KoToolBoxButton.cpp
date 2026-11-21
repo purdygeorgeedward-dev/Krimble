@@ -103,7 +103,8 @@ void KoToolBoxButton::krimbleRefreshIcon()
 void KoToolBoxButton::krimbleFitIconSize()
 {
     if (!m_toolAction) return;
-    const bool picture = KrimbleToolboxIcons::colorMode() && !KrimbleToolboxIcons::grayMode() && KrimbleToolboxIcons::hasPicture(m_toolAction->iconName());
+    const bool picture = KrimbleToolboxIcons::colorMode() && !KrimbleToolboxIcons::grayMode() && KrimbleToolboxIcons::hasPicture(m_toolAction->iconName())
+        && !(KrimbleToolboxIcons::iconStyle() == KrimbleToolboxIcons::Classic && KrimbleToolboxIcons::classicLineArt(m_toolAction->iconName()));
     if (picture) {
         const int side = qMin(width(), height());
         if (side < 8) return;   // not laid out yet; resizeEvent comes later
