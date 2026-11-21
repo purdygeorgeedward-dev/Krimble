@@ -22,7 +22,7 @@ Last updated: 2026-11-21 03:42 MST.
 | Nov 20 | Idea, not asked for yet: an all-in-one gadget for the controls BELOW the color swatches at the bottom of the toolbox (quick mask, screen modes: "We had something clunky there before. Quickmask and screen modes never sat right.") | | idea |
 | Nov 20 | Lightsabers (from scratch) | | open, needs a plan |
 | Nov 20 | Constant resets (app killed by Android) | | KeepAliveService pushed; memory use open; needs a Krimble log screenshot after a reset |
-| Nov 20 | Release notes with no mention of his name | | repo notes done (5d8c6a34); the GitHub release text of 1.0.41, 1.0.59 to 1.0.63 and 1.0.66 still names him (needs editing on GitHub by hand) |
+| Nov 20 | Release notes with no mention of his name | | repo notes done (5d8c6a34); GitHub release text of 1.0.59 to 1.0.63 and 1.0.66 still says "George" (to edit on GitHub by hand). 1.0.41 (full name in About credit) stays: "The one with my full name is fine." |
 | Oct 23 (test list 50) | Restyle part of a text (one word bold, one letter another color) | | NOT DONE |
 | Oct 30 (test list B24) | Quick Adjust logo: "not drawn in code. I will provide a graphic." | | waiting for his graphic |
 | Oct 23 to Nov 1 | 52 test-list items marked DONE by Claude (KRIMBLE_TEST_LIST_2026-10-23.md); only one has his confirmation | | treat as untested until he says they work |

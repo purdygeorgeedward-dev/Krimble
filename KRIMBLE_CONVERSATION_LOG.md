@@ -191,3 +191,5 @@ What was lost: the screenshots George sent during the day were not saved anywher
 - **Nov 21 03:34:** "Yes" (build Auto Tone, Auto Contrast, Auto Color from the researched algorithms)
 - **03:34:** "And document this in the release notes." (RELEASE_NOTES_NEXT.md started)
 - **03:38:** "Go over the list again so I can see if anything else got ignored and treated as if it was done."
+- **03:41:** "Those releases say \"George\" in them?"
+- **03:42:** "The one with my full name is fine. Not the colloquial ones with my first name."
