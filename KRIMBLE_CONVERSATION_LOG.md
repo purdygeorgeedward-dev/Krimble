@@ -176,3 +176,4 @@ What was lost: the screenshots George sent during the day were not saved anywher
 - **23:17:** "Yes. All of it yes." (781st Color Lab grip lines, 782nd Aqua selection)
 - **23:18:** "Yes." (do the remaining checked buttons: Transform tool modes, checked dialog buttons)
 - **23:20:** "Yes" (783rd committed)
+- **23:21:** "I was going to ask if we could figure out how to build an all-in-one gadget that does what the bottom of the Photoshop toolbox does, but it seems like a lot." "Did you put any planning into lens flares?"
