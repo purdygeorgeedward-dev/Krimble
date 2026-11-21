@@ -41,3 +41,5 @@ Files named YYYY-MM-DD_HHMM_<id>.jpg, by the time each was sent (MST).
 | 2026-11-21_0535_demo-color-icons-with-lines.png | Nov 21, 2026 05:35 MST | Demo: the color picture icons as they are, with a dark outline, and with an outline plus inner ink lines. REJECTED: "Nobody wants outlines." |
 | 2026-11-21_0540_demo-color-icons-with-silhouette-lines.png | Nov 21, 2026 05:40 MST | Demo: the color pictures (top) with the black silhouette lines laid over them (bottom) |
 | 2026-11-21_0545_demo-silhouettes-in-color.png | Nov 21, 2026 05:45 MST | Demo: the picture icons (top) and the silhouette line icons drawn in each picture's main color (bottom) |
+| 2026-11-21_0550_demo-white-lines-over-color.png | Nov 21, 2026 05:50 MST | Demo: white silhouette lines laid over the color pictures (not used) |
+| 2026-11-21_0550_demo-color-mix-white-lines-for-line-tools.png | Nov 21, 2026 05:50 MST | Demo: Color set mixed like Classic: white silhouette lines for the shape and line tools, color pictures for the object tools |
