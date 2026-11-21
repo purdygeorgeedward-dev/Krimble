@@ -141,7 +141,8 @@ int KisNodeViewColorScheme::indentation() const
 
 int KisNodeViewColorScheme::selectedButtonColumnWidth() const
 {
-    return visibilityColumnWidth();
+    // return visibilityColumnWidth();
+    return visibilityColumnWidth() + 14;   // a 14 unit gap (dead to taps) between the eye and the check box, see NodeDelegate
 }
 
 QRect KisNodeViewColorScheme::relVisibilityRect() const

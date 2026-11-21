@@ -1069,7 +1069,8 @@ void NodeDelegate::drawSelectedButton(QPainter *p, const QStyleOptionViewItem &o
     QStyleOptionButton buttonOption;
 
     KisNodeViewColorScheme scm;
-    QRect rect = option.rect;
+    // QRect rect = option.rect;
+    QRect rect = option.rect.adjusted(14, 0, 0, 0);   // the left 14 units of the column are the gap after the eye (kis_node_view_color_scheme.cpp)
 
     // adjust the icon to not touch the borders
     rect = kisGrowRect(rect, -(scm.thumbnailMargin() + scm.border()));
@@ -1177,7 +1178,8 @@ bool NodeDelegate::editorEvent(QEvent *event, QAbstractItemModel *model, const Q
             }
             return false;
         } else if (index.column() == NodeView::SELECTED_COL) {
-            if (leftButton && option.rect.contains(mouseEvent->pos())) {
+            // if (leftButton && option.rect.contains(mouseEvent->pos())) {
+            if (leftButton && option.rect.adjusted(14, 0, 0, 0).contains(mouseEvent->pos())) {   // a tap in the gap after the eye does nothing
                 changeSelectionAndCurrentIndex(index);
                 return true;
             }
