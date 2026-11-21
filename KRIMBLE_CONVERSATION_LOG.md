@@ -280,3 +280,5 @@ What was lost: the screenshots George sent during the day were not saved anywher
 - **12:46:** "Arrows over the photo." (Free Rotate = arrows over the painting; set complete)
 - **12:47:** "Is anything else missing?" (no)
 - **12:49:** "What do they look like on black or white?"
+- **12:51:** "The glow makes them look very artificial."
+- **12:52:** "Just leave my alpha channel transparency alone!!" (aura removed from Line and Text; app copies are only cropped and scaled)
