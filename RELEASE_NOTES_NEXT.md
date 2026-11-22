@@ -19,6 +19,10 @@ Krimble is open source software made with the assistance of Claude and ChatGPT.
 
 - **A. I. Image gen** opens the free Image Donkey image generator in the browser. Save the picture there and open it in Krimble.
 
+**Gradient editor**
+
+- Steadier by touch: a new color stop is added only by a clean tap, a stop moves only on a deliberate drag, and the handles are easier to grab.
+
 **Known issues**
 
 - (from the test results)

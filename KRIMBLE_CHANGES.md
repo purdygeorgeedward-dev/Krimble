@@ -7939,3 +7939,12 @@ Built as 71.
 - "Change Image - Image Rotation to just Rotate." (1.0.73 test list, item 15) / "You have permission to make the changes to the menu for Rotate."
 - krita/krita5.xmlgui, the ImageRotation menu: `<text>Image &amp;Rotation</text>` → `<text>&amp;Rotate</text>`. Only that line; nothing else in
   the file changed. (The Free Rotate addition already finds the submenu by either name, 810.)
+
+## 812 — Gradient editor: steady touch editing (2026-11-21, not built)
+- "Can you adjust the timings so it's stable?" (about the gradient editor's color-stop bar, after "In touchscreen how does it work?").
+- KisStopGradientSlider (the bar of stop handles in the gradient editor):
+  - a new stop is added only by a clean tap: when the finger lifts without having moved (it was added the moment the finger touched down, so a
+    grab that just missed a handle made a new stop);
+  - a stop starts to slide only after the finger has moved 36 real pixels (a tap that wobbles a little no longer nudges it);
+  - each handle can be grabbed within 48 real pixels (Android), was the width of a small handle.
+  Removing a stop by dragging it off the bar, double-tap for its color and the Delete stop button work as before.

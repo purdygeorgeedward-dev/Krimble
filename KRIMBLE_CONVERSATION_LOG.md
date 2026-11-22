@@ -311,3 +311,5 @@ What was lost: the screenshots George sent during the day were not saved anywher
 - **17:43:** "Ok. Let's put those two features on the definite dev list. Virtual screens and voice control of the app." (KRIMBLE_DEV_LIST.md)
 - **17:44:** "Rate all the proposed features for difficulty."
 - **17:45:** "I haven't looked at the gradient editor yet."
+- **17:46:** "In touchscreen how does it work?"
+- **17:47:** "Can you adjust the timings so it's stable?" (change 812, gradient stop bar)
