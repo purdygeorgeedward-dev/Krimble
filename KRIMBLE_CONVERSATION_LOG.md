@@ -321,3 +321,6 @@ What was lost: the screenshots George sent during the day were not saved anywher
 - **20:31:** "Of course. Chatty did something stupid and random as usual."
 - **20:33:** "Okay. Glad you fixed it."
 - **20:39–20:43:** "The reloads are slow. That's part of why I was trying to slim down." / "I tried removing most of the patterns but later you came back and told me I didn't ask for that and you put them back." / "Are any of the patterns those classic zip-a-tone dot patterns?" / "Does anyone use patterns?" / "Manga artists use zip-a-tone. Some American artists use duoshade paper." / "Yes. Trim it" (change 815)
+- **21:02:** "Anything else we can do?"
+- **21:03:** "We should hold back the photorealistic high resolution buttons." (change 816)
+- **21:03:** "I don't see a demand for them."

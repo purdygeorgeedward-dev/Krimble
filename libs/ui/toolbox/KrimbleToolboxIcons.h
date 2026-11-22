@@ -135,6 +135,9 @@ inline int iconStyle()
 {
     if (iconStyleCache() == Color) return int(White);
     if (iconStyleCache() == Classic) return int(Grayscale);
+    // Photorealistic is held back (its pictures are not in the app): anyone who picked it sees White
+    static const bool photosInApp = QFile::exists(QStringLiteral(":/krimble-toolbox-photo/01_01_move.png"));
+    if (iconStyleCache() == Photorealistic && !photosInApp) return int(White);
     return iconStyleCache();
 }
 

@@ -7977,3 +7977,11 @@ Built as 71.
   Duoshade's dark tone). The other 107 lines are commented out; the files stay in the repository. No code needs the others (only a test and two
   comments name them). Zip-A-Tone for manga is the Screentone fill layer, which does not use pattern files.
 - Patterns inside the resource bundles are not changed.
+
+## 816 — Photorealistic icons held back from the app (2026-11-21, not built)
+- "We should hold back the photorealistic high resolution buttons." (after the startup-time talk)
+- krita/CMakeLists.txt: the krimble-toolbox-photo.qrc line is commented out, so the 35 full-resolution pictures (about 44 MB) are not in the app.
+  The files stay in the repository (krita/pics/krimble-toolbox-photo and docs/krimble-icon-sets/photorealistic).
+- KoToolBox.cpp: Photorealistic is commented out of the Icon Style menu. KrimbleToolboxIcons.h: anyone who had picked it sees White while the
+  pictures are not in the app. Undo, Quick Mask and Screen Mode already fall back to their drawn icons when a photo is missing.
+- To bring it back: uncomment the qrc line and the menu line.

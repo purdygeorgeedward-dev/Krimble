@@ -615,7 +615,7 @@ void KoToolBox::setupIconStyleMenu(QMenu *menu)
         {i18n("Grayscale"), KrimbleToolboxIcons::Grayscale},
         // {i18n("Color"), KrimbleToolboxIcons::Color},   // removed: "Remove the color option completely"
         // {i18n("Classic"), KrimbleToolboxIcons::Classic},   // removed: "Lose the \"classic\" version. It's not great."
-        {i18n("Photorealistic"), KrimbleToolboxIcons::Photorealistic},
+        // {i18n("Photorealistic"), KrimbleToolboxIcons::Photorealistic},   // held back: the pictures are not in the app ("We should hold back the photorealistic high resolution buttons.")
     };
     for (const Choice &choice : choices) {
         QAction *action = menu->addAction(choice.name);

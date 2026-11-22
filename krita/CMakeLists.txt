@@ -121,7 +121,7 @@ set(krita_QRCS
     ${CMAKE_SOURCE_DIR}/krita/pics/tool_transform/tool-transform-icons.qrc
     ${CMAKE_SOURCE_DIR}/krita/pics/svg/svg-icons.qrc
     ${CMAKE_SOURCE_DIR}/krita/pics/krimble-toolbox-color/krimble-toolbox-color.qrc
-    ${CMAKE_SOURCE_DIR}/krita/pics/krimble-toolbox-photo/krimble-toolbox-photo.qrc
+#    ${CMAKE_SOURCE_DIR}/krita/pics/krimble-toolbox-photo/krimble-toolbox-photo.qrc   # held back (816th): "We should hold back the photorealistic high resolution buttons."
     ${CMAKE_SOURCE_DIR}/libs/flake/flake.qrc
     ${CMAKE_SOURCE_DIR}/libs/widgets/kritawidgets.qrc
     ${CMAKE_SOURCE_DIR}/pics/icons.qrc
