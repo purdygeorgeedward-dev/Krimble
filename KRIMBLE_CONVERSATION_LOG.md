@@ -122,3 +122,4 @@ A record of the project owner's requests, decisions and test findings, kept so a
 - 13:11 (testing build 74): twelve issues, eight screenshots; see KRIMBLE_BUG_LISTS.md, 1.0.74.
 - 14:19 to 14:37: item 4 is the thin glistening edges on blue buttons. Tool Options: the tab says Tool Options, with a line inside naming the tool. Demos asked for; chosen: rounder Aqua corners (no transparency), no glistening style, toolbox selection filling the whole tile, the Tool Options layout. Confirmed and pushed (834).
 - 14:40: permission granted to edit krita5.xmlgui for the top-level Panels menu (835).
+- 14:42: all panel-related menu items go in the new Panels menu (836).

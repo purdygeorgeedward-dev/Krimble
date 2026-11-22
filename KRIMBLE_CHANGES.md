@@ -8102,3 +8102,7 @@ Built as 71.
 ## 2026-11-22 (835th) — Panels is a top-level menu, before Window
 
 **2026-11-22, 14:50 (MST), branch `krimble-cleanup`.** 1.0.74 list item 10: "Please move Panels menu to a top level menu before Window. I use it way too often to bury it in a submenu." / "Permission granted." (for krita5.xmlgui). `krita5.xmlgui`: `<Action name="settings_dockers_menu"/>` in the menu bar just before `window`, so the Panels list (the existing KActionMenu, "&Panels") is its own menu. `KisMainWindow.cpp`: the Window menu no longer adds it (line commented out); the other panel items (Toggle Panels, Detach/Attach, Hide Right Panels, Hide All Panels, Stack Panels) stay in Window. XML checked with xmllint. Not built.
+
+## 2026-11-22 (836th) — Every panel command is in the Panels menu
+
+**2026-11-22, 14:58 (MST), branch `krimble-cleanup`.** "Yes. All panel related menu items in the new Panel menu please." `KisMainWindow.cpp`: the Panels menu (menu bar, before Window) lists the panels, then a divider and Toggle Panels, Detach Panel, Attach Panel(s), Hide/Show Right Panels, Hide/Show All Panels and Stack Panels. They are added each time the menu opens (so Hide/Show All says what it will do). The Window menu no longer has them (lines commented out). A forward declaration of `krimbleStackPanels` was added before the constructor. Syntax check: only the 3 checker errors that were there before. Not built.
