@@ -7,7 +7,7 @@ Krimble is open source software made with the assistance of Claude and ChatGPT.
 
 **NEW IN 1.0.59 BETA**
 
-**Version numbers:** this is build 59. The last release was 1.0.58 beta.
+**Version numbers:** this is build 59. The last stable release was 1.0.58 beta. You can try the more recent one, but I don't recommend it..
 
 **Do not install this build.** It has many faults, listed under Known issues at the end.
 
@@ -49,7 +49,7 @@ Krimble is open source software made with the assistance of Claude and ChatGPT.
 
 **Known issues**
 
-This build was installed and tested. Everything new failed except Hexagon Selection.
+Installed and tested. Everything new failed except Hexagon Selection.
 
 - The first screen has no bevels, and Recent Images draws over the toolbox. Foreground and background color are both gray.
 - Tapping the black and white default colors button in the toolbox does nothing, and then the toolbox vanishes.
@@ -67,7 +67,7 @@ This build was installed and tested. Everything new failed except Hexagon Select
 - The toolbox ends awkwardly at the bottom and scrolls instead of expanding when docked.
 - The Smart Patch flyout has an empty icon and no labels for the other icons.
 
-<!-- Krimble 2026-11-15: the Known issues list before the test results (kept):
+<!-- Krimble 2026-11-15: the Known issues list before George's test results (kept):
 Known issues (old list)
 
 - The Healing Brush icon is a placeholder.

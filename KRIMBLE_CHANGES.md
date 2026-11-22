@@ -8069,5 +8069,11 @@ Built as 71.
 - Build 74: krimbleBuildNumber 74 (build.gradle), started by dispatch at 03:09 MST, run 45011029189, commit 775e32cd (KRIMBLE_BUILD_LOG.md).
 - RELEASE_NOTES_1.0.74-beta.md written (821 to 828 and the 801 to 820 fixes); RELEASE_NOTES_NEXT.md points to it.
 - KRIMBLE_BUG_LISTS.md: George's test reports filed for builds 62 to 73 in his words, from the conversation log and the change log (62, 63, 66, 67, 68, 69, 71, 72 were missing; 64 and 65 were cut short; the 69-or-70 list is 70, per the 757th; tonight's 1.0.73 findings added).
-- Release notes: his findings added under Known issues for 64, 65, 66, 68, 69, 70 and 73 (they held only Claude's findings or a few of his); RELEASE_NOTES_1.0.71-beta.md and 1.0.72-beta.md written (there were none). 62, 63 and 67 already carried his findings. 55 to 61: their notes were written from his reports on Nov 15-16; the exact wording was not kept.
+- Release notes: his findings added under Known issues for 64, 65, 66, 68, 69, 70 and 73 (they held only Claude's findings or a few of his); RELEASE_NOTES_1.0.71-beta.md and 1.0.72-beta.md written (wrong: the repository had no files for them, but George had posted notes on GitHub for every release; corrected in the 830th). 62, 63 and 67 already carried his findings. 55 to 61: their notes were written from his reports on Nov 15-16; the exact wording was not kept.
 - 590th: second correction. The arrow-on-open fix was in two steps, the 722nd (new canvas starts with the Hand, Nov 16) and the 590th (Pan only for the first picture).
+
+## 830 — The published release notes copied into the repository; the repository notes follow them (2026-11-22, 09:45 MST)
+- George: "I had release notes posted for ALL previous releases. What do you mean they didn't exist?" He was right: GitHub has posted notes for all 35 releases (v1.0.29-beta to v1.0.73-beta), including 71 and 72. Claude had looked only at the repository's RELEASE_NOTES files.
+- docs/releases/<tag>.md: an exact copy of every posted release text (read through the GitHub API; GitHub stays the original).
+- RELEASE_NOTES_1.0.55 to 1.0.73: each is now the posted text (where George had edited his releases, his edits win), followed by "Found in testing this build" with the findings from KRIMBLE_BUG_LISTS.md that the posted text does not already have. 71 and 72 are rebuilt this way (the versions written in the 829th are replaced).
+- The new "Found in testing" parts are not on GitHub; releases can only be edited by George (this session is refused).

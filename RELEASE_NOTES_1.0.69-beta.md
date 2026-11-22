@@ -7,6 +7,8 @@ Krimble is open source software made with the assistance of Claude and ChatGPT.
 
 **NEW IN 1.0.69 BETA**
 
+**Version numbers:** this is build 69. The last release was 1.0.68 beta.
+
 **Painting**
 
 - The default brush, b) Basic-5 Size Opacity, is back (it was missing since Nov 15, which gave scratchy lines).

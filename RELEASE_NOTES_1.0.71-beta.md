@@ -7,15 +7,39 @@ Krimble is open source software made with the assistance of Claude and ChatGPT.
 
 **NEW IN 1.0.71 BETA**
 
-(Written Nov 22, 2026, from the build log and the change log; this build's notes were not kept in the repository before.)
+**Selections**
 
-- One shared style sheet for spacing and sizes in every Krimble theme.
-- Unused files removed and code split into smaller parts; a pass to make the app run more efficiently.
-- A softer toolbox shadow; scroll bars 18 units wide; a shorter status bar.
+- Every selection is one flat blue, the same as the menus: list rows, tabs, the selected layer, checked buttons, the New and Preferences lists and the selected Color Lab tab.
+- Menus, tabs and lists are all the same hue.
+
+**Toolbox**
+
+- Tools at the right edge of the toolbox are easy to tap again (the edge grab area no longer reaches over them).
+- The shadow on the right and bottom of the toolbox is one line thicker.
+
+**Panels**
+
+- Grab lines in the title rows are thin and fill the empty part of the row.
+- The COLOR LAB band is Color Lab's grab area, docked or floating, with no lines drawn on it.
+- Layers has one grab area (its title row), and its top rows keep their full height so they no longer squeeze together or overlap.
+
+**Screen**
+
+- Scrollbars are a little thicker.
+- The status bar is a little shorter.
+
+**Under the hood**
+
+- Faster: dragging panels, the Color Lab number boxes and swatches, and Color History do less work.
+- Styling shared by all Krimble themes is kept in one place.
+- Unused files and code removed, the change notes inside the code removed, and more of the code split into smaller files. Nothing changes in how the app works.
 
 **Known issues**
 
-This build was installed and tested.
+- Panels have thin margins.
+- Krimble often restarts after switching to another app.
+
+Found in testing this build:
 
 - The orange K was right on top of the File menu title.
 - Color Lab was easy to grab but would not dock again.
