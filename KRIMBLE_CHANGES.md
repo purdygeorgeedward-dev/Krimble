@@ -7924,3 +7924,10 @@ Built as 71.
   The "Krimble is open" notice is hidden when Krimble may not show notifications (Android 13 and later ask for that separately), so a missing
   notice alone does not say the service is off. MainActivity.java (krimbleKeepAliveDiag), KeepAliveService.java (status).
 - Photorealistic set: his metal T (transparent, 16:06) and metal line (15:37) replace the black T and black line, as delivered, full size.
+
+## 810 — Image > Generate Image (Image Donkey)... (2026-11-21, not built)
+- "I thought we added a link to Image Donkey?" (it had only been logged as an idea on Nov 21 at 04:25) / "Add it now and document it." / "Image menu".
+- Image menu, under Quick Adjust: **Generate Image (Image Donkey)...** opens perchance.org/image-donkey in the browser. The address is a setting
+  (krimblerc, [Krimble] ImageDonkeyUrl, written with the default the first time it is used), so it can point elsewhere. KrimblePanelsAndLayout.inc.
+- The Free Rotate addition to the rotation submenu now finds it as "Image Rotation" or "Rotate" (George is renaming it in krita5.xmlgui).
+- Documented in README.md, krimble-help.md, KRIMBLE_MANUAL.md and RELEASE_NOTES_NEXT.md.

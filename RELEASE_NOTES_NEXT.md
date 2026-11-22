@@ -15,6 +15,10 @@ Krimble is open source software made with the assistance of Claude and ChatGPT.
 - Two more button backgrounds: **Dark gray**, and **Glow** (a dark tile lit with a soft teal glow, made to go with the Photorealistic icons).
 - White icons are only shown on dark backgrounds: with the Light gray or White background they are drawn in black.
 
+**Image menu**
+
+- **Generate Image (Image Donkey)...** opens the free Image Donkey image generator in the browser. Save the picture there and open it in Krimble.
+
 **Known issues**
 
 - (from the test results)

@@ -111,6 +111,7 @@ Turn the phone sideways and everything rearranges for the wide screen.
 - **Filter** menu: Blur, Sharpen, Stylize and others.
 - **Quick Mask** and **Screen Mode**: the two buttons under the color swatches in the toolbox. Quick Mask turns the selection into a mask you paint (white selects, black deselects); Screen Mode shows the picture only (the X brings the panels back).
 - **Filter > Render > Lens Flare...**: adds a camera lens flare: choose the type, drag the light on the picture with a finger (or use Light across and Light down), and set brightness, rays, ghosts, ring and color.
+- **Image > Generate Image (Image Donkey)...**: opens the free Image Donkey image generator (perchance.org/image-donkey) in the browser; save the picture there and open it with File > Open. The address is a setting (krimblerc, `[Krimble] ImageDonkeyUrl`).
 - **Filter > Render > Lightsaber...**: draws a glowing energy blade; drag either end on the picture with a finger, and set its color, width, glow and brightness.
 
 ---

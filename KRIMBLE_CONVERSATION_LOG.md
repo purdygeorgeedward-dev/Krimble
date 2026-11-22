@@ -292,3 +292,5 @@ What was lost: the screenshots George sent during the day were not saved anywher
 - **15:49:** "Try to edit 1.0.73-beta" (refused: releases cannot be edited from this session)
 - **16:00:** (Krimble log attached) "The copy button in the show Krimble log window doesn't have the new aqua theme. It seems like it was applied randomly."
 - **16:06:** (image: transparent metal T) "I don't think the service is starting. I don't know why this version of the T was not in my pic list, but here it is." (T and the metal line now in the photo set; keep-alive status added to the log)
+- **17:06:** "I thought we added a link to Image Donkey?"
+- **17:07:** "Add it now and document it." / "Image menu" (change 810)
