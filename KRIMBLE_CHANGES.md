@@ -7931,3 +7931,5 @@ Built as 71.
   (krimblerc, [Krimble] ImageDonkeyUrl, written with the default the first time it is used), so it can point elsewhere. KrimblePanelsAndLayout.inc.
 - The Free Rotate addition to the rotation submenu now finds it as "Image Rotation" or "Rotate" (George is renaming it in krita5.xmlgui).
 - Documented in README.md, krimble-help.md, KRIMBLE_MANUAL.md and RELEASE_NOTES_NEXT.md.
+- 17:08, "Actually, file has much fewer items. Put it in File as \"A. I. Image generation\".": it is now **File > A. I. Image generation**, next to
+  Take Photo (KrimbleFileAndHelpExtras.inc); the Image menu entry is commented out. Docs updated.

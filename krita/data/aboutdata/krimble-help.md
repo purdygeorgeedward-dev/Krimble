@@ -88,9 +88,9 @@ Select the part you want to remove (with any selection tool), then choose **Edit
 
 The two buttons under the color swatches at the bottom of the toolbox. **Quick Mask** (a rectangle with a circle): tap it and the selection becomes a mask you paint with any brush: white selects, black deselects, gray selects partly. With nothing selected it starts empty, so you paint the selection in. Tap it again to go back to the marching ants. **Screen Mode** (two screens): shows the picture only, with the panels hidden; tap the X to bring them back.
 
-## Generate Image (Image Donkey)
+## A. I. Image generation
 
-**Image > Generate Image (Image Donkey)...** opens the free Image Donkey image generator (perchance.org/image-donkey) in your browser. Describe the picture you want and generate it there, save it to your phone, then open it in Krimble with **File > Open**. The address is kept as a setting (`ImageDonkeyUrl` in the `[Krimble]` group of krimblerc), so it can be changed to another generator.
+**File > A. I. Image generation** opens the free Image Donkey image generator (perchance.org/image-donkey) in your browser. Describe the picture you want and generate it there, save it to your phone, then open it in Krimble with **File > Open**. The address is kept as a setting (`ImageDonkeyUrl` in the `[Krimble]` group of krimblerc), so it can be changed to another generator.
 
 ## Lens Flare
 
