@@ -26,7 +26,7 @@ Last updated: 2026-11-21 03:42 MST.
 | Nov 21 | White, black, grayscale icons (color removed 800th: "Remove the color option completely"); light gray or white button backgrounds; a bigger eyedropper | 2026-11-21_0520_preview-icon-styles-and-button-backgrounds.png | 798th pushed, not in a build |
 | Nov 21 | Classic icon style: black line art for shape tools, grayscale art for object tools, like the classic toolbar | 2026-11-21_0436_ps-toolbar-labeled-grayscale-icons.jpg, 2026-11-21_0530_preview-classic-icons.png | 799th pushed, not in a build |
 | Nov 20 | Lightsabers (from scratch) | 2026-11-21_0500_test-lightsabers.png | 791st: Filter > Render > Lightsaber, finger drag; pushed, not in a build |
-| Nov 20 | Constant resets (app killed by Android) | | KeepAliveService pushed (background kills); front kills rare per George (Nov 21 04:16): watch after the next build, Krimble log screenshot if one happens |
+| Nov 20 | Constant resets (app killed by Android) | | Don'tCrash (KeepAliveService) pushed (background kills); front kills rare per George (Nov 21 04:16): watch after the next build, Krimble log screenshot if one happens |
 | Nov 20 | Release notes with no mention of his name | | repo notes done (5d8c6a34); GitHub release text of 1.0.59 to 1.0.63 and 1.0.66 still says "George" (to edit on GitHub by hand). 1.0.41 (full name in About credit) stays: "The one with my full name is fine." |
 | Oct 23 (test list 50) | Restyle part of a text (one word bold, one letter another color) | | NOT DONE |
 | Oct 23 to Nov 1 | 52 test-list items marked DONE by Claude (KRIMBLE_TEST_LIST_2026-10-23.md); only one has his confirmation | | treat as untested until he says they work |

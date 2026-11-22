@@ -441,8 +441,9 @@ public class MainActivity extends QtActivity {
             notificationsAllowed = getSystemService(android.app.NotificationManager.class).areNotificationsEnabled();
         } catch (Exception e) {
         }
-        return "Keep-alive service: running now: " + running + "; last start: " + KeepAliveService.status
-                + "; notifications allowed for Krimble: " + (notificationsAllowed ? "yes" : "no (the \"Krimble is open\" notice is hidden)");
+        // return "Keep-alive service: running now: "
+        return "Don'tCrash: running now: " + running + "; last start: " + KeepAliveService.status
+                + "; notifications allowed for Krimble: " + (notificationsAllowed ? "yes" : "no (the \"Don'tCrash\" notice is hidden)");
     }
 
     public String getLastDestroyRecord() {

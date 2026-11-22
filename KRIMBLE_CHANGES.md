@@ -8085,3 +8085,7 @@ Built as 71.
 ## 2026-11-22 (832nd) — Roadmap: effects pack with custom shaders
 
 **2026-11-22, 10:08 (MST), branch `krimble-cleanup`.** "I want to develop all of those." / "Could we use available information to develop our own custom shaders" / "Can we set a custom seed?" / "Yes." KRIMBLE_ROADMAP.md, definite dev list item 3: the effects pack (Eye Candy-style equivalents, lightsabers, text effect presets, live editable effects), custom shaders, the shared foundation, Seed on every random effect, order simplest first. Conversation log updated. Text only; no code.
+
+## 2026-11-22 (833rd) — The keep-alive service is named Don'tCrash
+
+**2026-11-22, 10:12 (MST), branch `krimble-cleanup`.** "I meant the keep alive service, but I would call it Don'tCrash." / "Yes plz" (to using the name in the docs, the log line and the notification). `KeepAliveService.java`: notification channel and title "Don'tCrash", text "Keeps Krimble open in the background" (old strings commented out). `MainActivity.java`: the Krimble log's first line starts "Don'tCrash: running now: ..." (old line commented out). README feature line, KRIMBLE_OPEN_INSTRUCTIONS and RELEASE_NOTES_NEXT use the name. Class and file names are unchanged (internal). Earlier change entries and posted release notes keep their wording. The Java was not compiled here. Pushed, not built.

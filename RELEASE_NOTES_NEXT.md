@@ -43,3 +43,7 @@ Krimble is open source software made with the assistance of Claude and ChatGPT.
 **Known issues**
 
 - (from the test results)
+
+**Changes after 1.0.74**
+
+- The background keep-alive feature is now called **Don'tCrash**. Its notice reads "Don'tCrash: Keeps Krimble open in the background", and the first line of Help > Show Krimble Log... reports Don'tCrash's status.

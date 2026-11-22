@@ -33,7 +33,8 @@ public class KeepAliveService extends Service {
     public void onCreate() {
         super.onCreate();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, "Krimble is open", NotificationManager.IMPORTANCE_MIN);
+            // NotificationChannel channel = new NotificationChannel(CHANNEL_ID, "Krimble is open", NotificationManager.IMPORTANCE_MIN);
+            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, "Don'tCrash", NotificationManager.IMPORTANCE_MIN);
             channel.setShowBadge(false);
             getSystemService(NotificationManager.class).createNotificationChannel(channel);
         }
@@ -46,7 +47,9 @@ public class KeepAliveService extends Service {
         Notification.Builder builder = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
                 ? new Notification.Builder(this, CHANNEL_ID)
                 : new Notification.Builder(this);
-        return builder.setContentTitle("Krimble is open")
+        // return builder.setContentTitle("Krimble is open")
+        return builder.setContentTitle("Don'tCrash")
+                .setContentText("Keeps Krimble open in the background")
                 .setSmallIcon(R.drawable.ic_save_notification)
                 .setContentIntent(openPending)
                 .setOngoing(true)

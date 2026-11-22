@@ -163,7 +163,7 @@ Recent and active work includes:
 - **Hex Lines, Hex Pattern and Star** ⬢: line thickness, color and opacity for the hex overlay, hexagons drawn into the picture on a vector layer, and stars on a new vector layer
 - **Steel ball bearing slider handles** ⚙️
 - **Status bar reports** 📏: sizes and positions show in the status bar, not in boxes over your work
-- **Stays open in the background** 🔋: Android no longer closes Krimble while you switch apps (a small "Krimble is open" notice shows)
+- **Don'tCrash** 🔋: Android no longer closes Krimble while you switch apps (a small "Don'tCrash" notice shows)
 - **New pictures fit the screen** 📱: the first New picture is the size of your screen, and opened pictures fit the window
 - **Panels you can grab** ✋: grip lines on panel titles to tear panels off and dock them again
 - **Panel layouts** 🗂️: Stack Panels, a saved startup layout for portrait and for landscape, Reset Layout, Close All Toolbars
