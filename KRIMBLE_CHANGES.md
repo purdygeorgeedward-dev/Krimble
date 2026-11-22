@@ -8098,3 +8098,7 @@ Built as 71.
 - **Toolbox selection** (item 2): the Aqua fills the whole tile (was inset 12% each side), corner radius 0.18 (`KoToolBoxButton.cpp`).
 - **Tool Options** (item 9): the title is "Tool Options" again; the tool name, with the Transform mode ("Transform – Scale"), is the bold line at the top of the panel (`KoToolDocker.cpp`: label shown, no title override, color from the palette so the light theme reads; `kis_tool_transform_config_widget.cpp`: no title override).
 - Checked: the real-code preview of the dialog matches the approved "Fixed"; syntax check clean on all changed files (KisMainWindow.cpp shows the same 3 checker errors as before the change). Not built.
+
+## 2026-11-22 (835th) — Panels is a top-level menu, before Window
+
+**2026-11-22, 14:50 (MST), branch `krimble-cleanup`.** 1.0.74 list item 10: "Please move Panels menu to a top level menu before Window. I use it way too often to bury it in a submenu." / "Permission granted." (for krita5.xmlgui). `krita5.xmlgui`: `<Action name="settings_dockers_menu"/>` in the menu bar just before `window`, so the Panels list (the existing KActionMenu, "&Panels") is its own menu. `KisMainWindow.cpp`: the Window menu no longer adds it (line commented out); the other panel items (Toggle Panels, Detach/Attach, Hide Right Panels, Hide All Panels, Stack Panels) stay in Window. XML checked with xmllint. Not built.

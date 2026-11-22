@@ -18,7 +18,7 @@ Release notes take their Known issues from here. Newest first. The status of eac
 11. Images loaded blurry and upside down (or mirrored) again.
 12. Badly chosen buttons in various places.
 
-Status (Nov 22, 14:45): 2, 3, 4, 9, 12 fixed in the 834th (not built). Waiting: 1, 5, 6, 7, 8, 10 (krita5.xmlgui permission asked), 11.
+Status (Nov 22, 14:50): 2, 3, 4, 9, 12 fixed in the 834th; 10 in the 835th (not built). Waiting: 1, 5, 6, 7, 8, 11.
 
 ## 1.0.73-beta (tested Nov 21, 2026)
 
