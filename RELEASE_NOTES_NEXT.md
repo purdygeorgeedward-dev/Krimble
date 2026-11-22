@@ -50,4 +50,4 @@ Krimble is open source software made with the assistance of Claude and ChatGPT.
 - Buttons: rounder Aqua corners; the thin glistening edges are gone (buttons that are not selected are plain raised buttons).
 - The selected tool's highlight fills the whole toolbox button.
 - The Tool Options panel's title says Tool Options again; the tool (and the Transform mode) is named on the first line inside the panel.
-- **Panels** is its own menu in the menu bar, before Window, with every panel command in it (Toggle Panels, Detach and Attach, Hide Right Panels, Hide All Panels, Stack Panels).
+- **Panels** is its own menu in the menu bar, before Window: every panel command at the top (Toggle Panels, Detach and Attach, Hide Right Panels, Hide All Panels, Stack Panels), then the list of panels.

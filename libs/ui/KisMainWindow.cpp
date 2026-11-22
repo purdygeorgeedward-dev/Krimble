@@ -598,7 +598,7 @@ KisMainWindow::KisMainWindow(QUuid uuid)
         d->dockWidgetMenu->addAction(dockwidgetActions[title]);
     }
 
-    // Panels menu (in the menu bar): the list of panels, then every panel command, which used to be in the Window menu.
+    // Panels menu (in the menu bar): every panel command (they used to be in the Window menu), a divider, then the list of panels.
     // The commands are added fresh each time it opens, so Hide/Show All Panels says what it will do.
     {
         QMenu *panelsMenu = d->dockWidgetMenu->menu();
@@ -609,15 +609,19 @@ KisMainWindow::KisMainWindow(QUuid uuid)
                 if (extra->parent() == panelsMenu) extra->deleteLater();
             }
             auto mark = [](QAction *a) { a->setProperty("krimblePanelsExtra", true); return a; };
-            mark(panelsMenu->addSeparator());
+            // the commands go at the top, then a divider, then the list of panels
+            QAction *firstPanel = panelsMenu->actions().isEmpty() ? nullptr : panelsMenu->actions().first();
             const char *names[] = {"view_toggledockers", "settings_detach_panel_menu", "settings_attach_panel_menu", "settings_toggle_right_panels"};
             for (const char *name : names) {
-                if (QAction *action = actionCollection()->action(QLatin1String(name))) panelsMenu->addAction(mark(action));
+                if (QAction *action = actionCollection()->action(QLatin1String(name))) panelsMenu->insertAction(firstPanel, mark(action));
             }
-            QAction *hideAllPanels = mark(panelsMenu->addAction(d->toggleDockers->isChecked() ? i18n("Hide All Panels") : i18n("Show All Panels")));
+            QAction *hideAllPanels = mark(new QAction(d->toggleDockers->isChecked() ? i18n("Hide All Panels") : i18n("Show All Panels"), panelsMenu));
+            panelsMenu->insertAction(firstPanel, hideAllPanels);
             connect(hideAllPanels, &QAction::triggered, this, [this]() { d->toggleDockers->setChecked(!d->toggleDockers->isChecked()); });
-            QAction *stackPanelsAction = mark(panelsMenu->addAction(i18n("Stack Panels")));
+            QAction *stackPanelsAction = mark(new QAction(i18n("Stack Panels"), panelsMenu));
+            panelsMenu->insertAction(firstPanel, stackPanelsAction);
             connect(stackPanelsAction, &QAction::triggered, this, [this]() { krimbleStackPanels(this); });
+            if (firstPanel) mark(panelsMenu->insertSeparator(firstPanel));
         });
     }
 

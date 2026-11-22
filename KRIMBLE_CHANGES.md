@@ -8106,3 +8106,7 @@ Built as 71.
 ## 2026-11-22 (836th) — Every panel command is in the Panels menu
 
 **2026-11-22, 14:58 (MST), branch `krimble-cleanup`.** "Yes. All panel related menu items in the new Panel menu please." `KisMainWindow.cpp`: the Panels menu (menu bar, before Window) lists the panels, then a divider and Toggle Panels, Detach Panel, Attach Panel(s), Hide/Show Right Panels, Hide/Show All Panels and Stack Panels. They are added each time the menu opens (so Hide/Show All says what it will do). The Window menu no longer has them (lines commented out). A forward declaration of `krimbleStackPanels` was added before the constructor. Syntax check: only the 3 checker errors that were there before. Not built.
+
+## 2026-11-22 (837th) — Panels menu: commands at the top, then a divider
+
+**2026-11-22, 15:02 (MST), branch `krimble-cleanup`.** "Did you put the toggle commands at the top or bottom?" / "Top and then a separator." `KisMainWindow.cpp`: the panel commands are inserted before the first panel in the list, followed by a divider, then the panels. Syntax check: the same 3 old checker errors only. Not built.
