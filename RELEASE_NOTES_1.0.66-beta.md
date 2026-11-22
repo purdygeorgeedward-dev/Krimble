@@ -49,3 +49,14 @@ Krimble is open source software made with the assistance of Claude and ChatGPT.
 
 - Layers once snapped into a column for no known reason. With "Dock by Dragging" off, a drag can't cause it.
 - Crashes, including one on a simple fill, were reported in earlier builds; the cause was not found.
+
+Found in testing this build:
+
+- The bottoms of menus were cut off.
+- A line still separated each open menu from its title.
+- The Layers top row jumbled its icons at small sizes.
+- A small gadget overlapped the + button at the bottom of Layers.
+- The Layers opacity bar ran to the edge with no margin.
+- Menus had no outline or bevel, so they merged with each other.
+- The "No options" text in Tool Options (Pan tool) sat too close to the left edge.
+- Menu selections had too much glow; a simple blue highlight was wanted.

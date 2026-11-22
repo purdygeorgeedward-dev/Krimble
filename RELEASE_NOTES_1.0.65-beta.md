@@ -51,3 +51,21 @@ Krimble is open source software made with the assistance of Claude and ChatGPT.
 - The toolbox shadow is a black line.
 - Foreground and background start dark gray.
 - Crashes, including one on a simple fill; cause not found.
+
+Found in testing this build:
+
+- The menu bar's extra shadow lines disappeared, and a menu showed detached from its title.
+- An odd number of tools made the two toolbox columns lopsided; Sharpen should be in the Soften/Blur flyout.
+- The healing brush icon looked like a stamp.
+- The toolbox would not stay docked at the bottom; it snapped to the side. Docking should be switchable on and off.
+- Canvas Input settings: the selection overlapped the keyboard title area.
+- File > New: the selection covered the icon.
+- Recent images should be a bigger scrolling area with smaller previews.
+- The Layers panel was a mess: black bars at the bottom, a useless search field, layer colors; the selected layer should be the selection blue and the others dark.
+- The canvas background should be darker.
+- The edge of the right panel was hard to move again.
+- Save As was far too wide (more height was wanted, not width), and it did not remember a size the user set.
+- Layers snapped into a column for no reason.
+- OK did not close Quick Adjust.
+- The little arrow buttons beside the image tabs were too thin.
+- Some features were noticeably slower, and many files opened zoomed far out.

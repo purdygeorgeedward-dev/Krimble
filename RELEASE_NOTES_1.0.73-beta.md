@@ -56,3 +56,10 @@ Krimble is open source software made with the assistance of Claude and ChatGPT.
 - In Tool Options, the tool's name overlaps the grab area.
 - The OK button in Save As and the Create button in File > New are not in the Aqua style.
 - The app still restarts when switching away and back.
+- Long-pressing Transform showed only one row with the tool tip text, as a big Aqua bar.
+- In Tool Options, "Tool Options" and the tool name were stacked on top of each other, and the name did not follow the Transform mode.
+- Tool names used the word "Free" (Free Transform, Free Rotate).
+- The Transform radio buttons (Position, Rotate, Scale, Shear) were hard to understand.
+- The Aqua highlight's dark sides were too wide on large buttons; the Rotate icon was too small.
+- The percentage on progress bars sat in the top left corner.
+- There was no light theme.

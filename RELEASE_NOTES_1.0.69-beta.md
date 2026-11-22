@@ -48,3 +48,8 @@ Krimble is open source software made with the assistance of Claude and ChatGPT.
 
 - Panels have thin margins.
 - Krimble often restarts after switching to another app.
+
+Found in testing this build:
+
+- The layer type slider came back at the top of Layers, where it had been moved away from.
+- The tabs slid sideways and sprang back instead of tearing a panel off; grab pads were wanted in the empty spots.

@@ -25,3 +25,12 @@ Krimble is open source software made with the assistance of Claude and ChatGPT.
 
 - Panels have thin margins.
 - Krimble often restarts after switching to another app.
+
+Found in testing this build:
+
+- Selecting toolbox tools was much harder.
+- The grab areas looked bad: clunky big weird lines.
+- The Layers menu was still a mess.
+- Layers had two grab areas and Color Lab had none.
+- Other selections should be plain blue like the menus, with no gradients.
+- Menus were a jumble of different hues; they should all be the same hue.

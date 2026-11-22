@@ -36,3 +36,22 @@ Krimble is open source software made with the assistance of Claude and ChatGPT.
 
 - The Panels submenu of the Window menu was unresponsive in build 60; its cause is not found.
 - The right dock vanished once when the Layers tab was tapped (build 62); not reproduced.
+
+Found in testing this build:
+
+- Jolts while painting.
+- The image window buttons sat too high.
+- With no image open, the K was too close to File.
+- The Polygon and Star tool had no icon.
+- Themes: raised buttons were missing in the light theme; the tab color was wrong; the selection gradient also showed in menus.
+- The menu bar should be taller.
+- The Quick Adjust toolbar should be removed.
+- A new canvas started with the arrow tool instead of Pan.
+- The toolbox order was wrong.
+- There was no usable default brush.
+- The slider ball bearing should be darker with a cast shadow.
+- The status bar's size display was cut off in portrait.
+- File Info > General had the wrong icon.
+- Toolbox flyouts opened too slowly (250 ms wanted).
+- The tabs for open images were gone (floating windows had become the default).
+- Crashes, even on a simple fill.
