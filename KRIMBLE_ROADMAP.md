@@ -2,6 +2,38 @@
 
 Status: **planning only** — not started. Captured here so they don't stay stuck in chat.
 
+## Definite dev list (George, 2026-11-21 17:43: "Let's put those two features on the definite dev list. Virtual screens and voice control of the app.")
+
+After the Play Store release. Not started.
+
+### 1. Virtual screens
+- "Put different images and/or panels on different virtual screens and flip back and forth between them."
+- **No more than 3** screens ("No more than 3."). Each screen remembers one image and its own panel layout (which panels are open, where, and the zoom).
+- Switched with **dots** ("Dots make sense."), e.g. in the status bar. **No three-finger swipe** ("I don't think 3 finger swipes will catch on.").
+- Builds on what exists: image tabs (several open images) and Krita's workspaces (saved panel layouts). Weak spots to make solid first: restoring
+  panel layouts without wrong sizes, and memory with several large images open (Krimble uses about 525–636 MB with one image).
+- Estimate: about a week.
+
+### 2. Voice control
+- "Could we add voice control to the app? Activate tools, open and close files, that kind of thing?"
+- A microphone button (no always-on listening); Android's speech recognizer turns speech into text; Krimble matches it against the names of its
+  actions and tools (the same list the menus and toolbox are built from), plus a short list of everyday names ("eyedropper" → Color Sampler,
+  "magic wand" → Contiguous Select, "bigger brush"). A short note on screen shows what was heard and what was done.
+- "If necessary we could do voice profiling.": first step is learning from corrections (tap the right command when one is misheard; Krimble
+  remembers what it heard → that command; kept on the phone). A recorded voice profile only if that is not enough.
+- Needs the microphone permission; recognition may use Google's servers (mobile data) on some phones, on the phone itself on newer ones.
+- Estimate: about a week, plus a day for learning from corrections.
+
+## Back burner (George, 2026-11-21 17:36: "Let's put these complicated things on the back burner.")
+- d4 (tetrahedron) color picker with 3D rotation: four corners hue, white, black and a chosen fourth color (mid-gray by default). About 4 days.
+  (George's earlier 3D color picker was "a complex polyhedron of colors", made in another app.) A color sphere was also considered ("a NURBS sphere ... that's a hassle").
+- Gradients: multi-color gradients with a large vertical preview in the editor (small: the editor exists); a gradient along a curve with the color
+  points on the curve (new tool, weeks); a freeform mesh gradient with nodes anywhere (builds on Krita's SVG mesh gradients, 1–3 weeks).
+- Bump map and normal map work: "I think editing/painting those maps requires a 3d interface." A 3D preview panel with live lighting (weeks); painting
+  directly on a 3D model (months). Existing parts: Height to Normal Map and Phong Bumpmap filters, the Tangent Normal brush.
+- True dual-screen (image on a monitor, controls on the phone): Qt 5 draws into one Android window; needs a separate display window fed by Krimble. Weeks.
+- Multi-point gradient tool (15:39 / 15:42): tapped control points, linear chains or free island nodes, as a vector object with movable nodes.
+
 ## George's priorities (2026-10-26, answering the "wish we could do it" list)
 
 - **AI upscaling: a separate app is a MUST** ("I think a separate upscaler is a must."). The "Krimble Upscaler" app, not a feature inside Krimble. Not started.
