@@ -7948,3 +7948,10 @@ Built as 71.
   - a stop starts to slide only after the finger has moved 36 real pixels (a tap that wobbles a little no longer nudges it);
   - each handle can be grabbed within 48 real pixels (Android), was the width of a small handle.
   Removing a stop by dragging it off the bar, double-tap for its color and the Delete stop button work as before.
+
+## 813 — Gradient editor: large vertical preview box (2026-11-21, not built)
+- "I want a linear preview in the editor where it shows a large box with a vertical image of the selected gradient." (17:29) / "Can you make me that nice preview box?" (17:48)
+- KisStopGradientEditor.cpp (KrimbleGradientPreviewBox): in the full gradient editor, under the name and buttons and above the stop bar, a square
+  box (at least 420 real pixels tall, as large as the window allows) shows the gradient running top to bottom, one color per real pixel row,
+  over a checkerboard so transparency shows; square corners and a thin black edge. It updates while stops are moved, added or recolored.
+  Hidden in the small (compact) editor inside Tool Options.

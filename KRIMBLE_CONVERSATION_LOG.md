@@ -313,3 +313,4 @@ What was lost: the screenshots George sent during the day were not saved anywher
 - **17:45:** "I haven't looked at the gradient editor yet."
 - **17:46:** "In touchscreen how does it work?"
 - **17:47:** "Can you adjust the timings so it's stable?" (change 812, gradient stop bar)
+- **17:48:** "Can you make me that nice preview box? Did we already make the color mixing pad? Does it work?" (change 813)

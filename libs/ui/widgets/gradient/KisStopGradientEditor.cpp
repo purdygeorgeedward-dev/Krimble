@@ -26,6 +26,60 @@
 #include <KoCanvasResourcesInterface.h>
 
 #include "KisStopGradientEditor.h"
+#include <QBoxLayout>
+#include <QApplication>
+#include <functional>
+
+// Krimble: a large box showing the gradient being edited, running top to bottom ("I want a linear preview in the editor where it shows
+// a large box with a vertical image of the selected gradient." / "Can you make me that nice preview box?"). Transparency shows over a
+// checkerboard. Square corners, as for color wells.
+class KrimbleGradientPreviewBox : public QWidget
+{
+public:
+    KrimbleGradientPreviewBox(std::function<KoStopGradientSP()> gradient, QWidget *parent) : QWidget(parent), m_gradient(gradient)
+    {
+        setObjectName(QStringLiteral("krimbleGradientPreviewBox"));
+        const qreal dpr = qMax<qreal>(1.0, qApp->devicePixelRatio());
+        setMinimumHeight(qRound(420.0 / dpr));   // 420 real pixels tall at least
+        setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    }
+protected:
+    void paintEvent(QPaintEvent *) override
+    {
+        QPainter p(this);
+        const qreal dpr = devicePixelRatioF();
+        const int margin = qRound(12.0 / qMax<qreal>(1.0, dpr));
+        const int side = qMin(width() - 2 * margin, height() - 2 * margin);
+        if (side < 8) return;
+        const QRect box((width() - side) / 2, (height() - side) / 2, side, side);   // a square box in the middle
+        // checkerboard
+        const int cell = qMax(4, qRound(24.0 / qMax<qreal>(1.0, dpr)));
+        for (int y = box.top(); y <= box.bottom(); y += cell) {
+            for (int x = box.left(); x <= box.right(); x += cell) {
+                const bool dark = (((x - box.left()) / cell) + ((y - box.top()) / cell)) % 2;
+                p.fillRect(QRect(x, y, qMin(cell, box.right() - x + 1), qMin(cell, box.bottom() - y + 1)), dark ? QColor(150, 150, 150) : QColor(205, 205, 205));
+            }
+        }
+        // the gradient, top to bottom, one color per real pixel row
+        KoStopGradientSP gradient = m_gradient ? m_gradient() : KoStopGradientSP();
+        if (gradient) {
+            const int rows = qMax(2, qRound(side * dpr));
+            QImage strip(1, rows, QImage::Format_ARGB32_Premultiplied);
+            KoColor color(gradient->colorSpace());
+            for (int i = 0; i < rows; ++i) {
+                gradient->colorAt(color, qreal(i) / (rows - 1));
+                strip.setPixel(0, i, qPremultiply(color.toQColor().rgba()));
+            }
+            p.setRenderHint(QPainter::SmoothPixmapTransform, true);
+            p.drawImage(box, strip);
+        }
+        p.setPen(QPen(QColor(0, 0, 0), 1));
+        p.setBrush(Qt::NoBrush);
+        p.drawRect(box.adjusted(0, 0, -1, -1));
+    }
+private:
+    std::function<KoStopGradientSP()> m_gradient;
+};
 
 KisStopGradientEditor::KisStopGradientEditor(QWidget *parent)
     : QWidget(parent),
@@ -117,6 +171,14 @@ KisStopGradientEditor::KisStopGradientEditor(QWidget *parent)
     connect(stopEditor, SIGNAL(opacityChanged(qreal)), this, SLOT(opacityChanged(qreal)));
     connect(stopEditor, SIGNAL(positionChanged(qreal)), this, SLOT(positionChanged(qreal)));
 
+    {
+        // the preview box, under the name and buttons, above the stop bar
+        KrimbleGradientPreviewBox *preview = new KrimbleGradientPreviewBox([this]() { return m_gradient; }, this);
+        if (QBoxLayout *top = qobject_cast<QBoxLayout *>(layout())) top->insertWidget(qMin(2, top->count()), preview, 1);
+        connect(gradientSlider, &KisStopGradientSlider::updateRequested, preview, [preview]() { preview->update(); });
+        connect(this, &KisStopGradientEditor::sigGradientChanged, preview, [preview]() { preview->update(); });
+    }
+
     setCompactMode(false);
 
     setGradient(0);
@@ -140,6 +202,7 @@ void KisStopGradientEditor::setCompactMode(bool value)
     buttonsContainer->setVisible(!value);
     stopEditorContainer->setVisible(!value);
     compactModeButtonsContainer->setVisible(value);
+    if (QWidget *preview = findChild<QWidget *>(QStringLiteral("krimbleGradientPreviewBox"))) preview->setVisible(!value);   // the full editor only
 }
 
 void KisStopGradientEditor::setGradient(KoStopGradientSP gradient)

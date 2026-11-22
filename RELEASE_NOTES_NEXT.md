@@ -21,6 +21,7 @@ Krimble is open source software made with the assistance of Claude and ChatGPT.
 
 **Gradient editor**
 
+- A large preview box shows the gradient running top to bottom as you edit it.
 - Steadier by touch: a new color stop is added only by a clean tap, a stop moves only on a deliberate drag, and the handles are easier to grab.
 
 **Known issues**
