@@ -8001,3 +8001,11 @@ Built as 71.
 - krita/data/profiles/CMakeLists.txt: `add_subdirectory(ycbcr-icc-profiles)` commented out (1.4 MB of BT.601/709/2020 YCbCr profiles, read
   at every start). No code names these files (the "bt709" strings in kis_config.cc are display-surface settings). The elle sRGB profiles,
   cmyk.icm and scRGB stay. Files stay in the repository.
+
+## 820 — Splash PNGs deleted (2026-11-21, not built)
+- "Remove the PNG versions." (after "How many splash images and how big are they?") krita/data/splash/logo_splash.png and
+  logo_splash_holidays.png (about 2.4 MB each) are deleted from the repository; they were not packaged since Oct 2 (the JPGs are) and stay
+  in the git history. The JPGs, the splash code and which image shows when are not changed.
+- splash-android.qrc and splash.qrc: the commented-out original lines that named the PNGs are taken out of the comments (CMake reads the qrc
+  as plain text and would still look for the deleted files, the trap noted for banner.svg); the comments say what they were. Both files are
+  still valid XML.

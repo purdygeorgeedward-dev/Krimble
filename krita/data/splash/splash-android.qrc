@@ -9,11 +9,10 @@
              element naming it; it is not repeated here, because CMake reads this list with a plain text search and would
              still see it inside a comment (the build then stops: no rule to make that file). -->
         <!-- KRIMBLE 2026-10-02: splash images are now JPG (about 380 KB each instead of
-             about 2 MB each) and the PNGs are no longer packaged. The PNG files stay in
-             the repository. Original lines:
-        <file alias="hd.png">logo_splash.png</file>
-        <file alias="holiday.png">logo_splash_holidays.png</file>
-        -->
+             about 2 MB each) and the PNGs are no longer packaged.
+             KRIMBLE 2026-11-21 (820th): the two PNG files are deleted from the repository ("Remove the PNG versions."); the original
+             lines that named them are taken out of this comment, because CMake reads this file as plain text and would still look
+             for them (see the banner.svg note above). They named the main and holiday PNGs with the aliases hd.png and holiday.png. -->
         <!-- KRIMBLE 2026-10-19: new main splash art by George (made in Krimble; fixes the color balance and the on-screen UI
              of the old one). Same size (1536 x 1024) and same file names; the JPG is quality 88 from his PNG. -->
         <file alias="hd.jpg">logo_splash.jpg</file>

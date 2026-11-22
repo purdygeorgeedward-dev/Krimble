@@ -8,11 +8,10 @@
         <!-- KRIMBLE 2026-10-06: the Krita wordmark (banner.svg) is removed from the source. The old entry was a file
              element naming it; it is not repeated here, because CMake reads this list with a plain text search and would
              still see it inside a comment (the build then stops: no rule to make that file). -->
-        <!-- KRIMBLE 2026-10-02: splash images are now JPG; the PNGs are no longer
-             packaged (they stay in the repository). Original lines:
-        <file alias="0.png">logo_splash.png</file>
-        <file alias="1.png">logo_splash_holidays.png</file>
-        -->
+        <!-- KRIMBLE 2026-10-02: splash images are now JPG; the PNGs are no longer packaged.
+             KRIMBLE 2026-11-21 (820th): the two PNG files are deleted from the repository ("Remove the PNG versions."); the original
+             lines that named them are taken out of this comment, because CMake reads this file as plain text and would still look
+             for them (see the banner.svg note above). They named the main and holiday PNGs with the aliases 0.png and 1.png. -->
         <file alias="0.jpg">logo_splash.jpg</file>
         <file alias="1.jpg">logo_splash_holidays.jpg</file>
     </qresource>
