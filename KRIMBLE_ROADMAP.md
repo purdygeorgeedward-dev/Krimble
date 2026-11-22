@@ -24,6 +24,24 @@ After the Play Store release. Not started.
 - Needs the microphone permission; recognition may use Google's servers (mobile data) on some phones, on the phone itself on newer ones.
 - Estimate: about a week, plus a day for learning from corrections.
 
+### 3. Effects pack with custom shaders (Eye Candy-style equivalents)
+Requested 2026-11-22, 09:55–10:05 (MST): develop all of these, with custom shaders written from scratch. Planned; not started.
+- **Shaders:** written for Krimble, not copied (most Shadertoy shaders are licensed for non-commercial use only). Openly licensed building blocks
+  (e.g. Ashima/Gustavson simplex noise, MIT) and published math (distance fields, normal maps, refraction, reflection maps, lighting) may be used.
+- **Shared foundation first:** run a shader on an offscreen image through the GPU the canvas already uses (OpenGL ES); process large images in
+  tiles (phone GPUs limit texture size); copy the result back into the layer on Apply; a large live preview panel; a CPU fallback for phones
+  without a usable GPU.
+- **Every effect:** a large live preview, two or three sliders, presets, and a **Seed** (number field plus a dice button) for anything random;
+  the same seed gives the same result; presets and live effects store their seed.
+- **Effects, simplest first:**
+  1. Gradient Glow (several colors), Perspective Shadow (drag a point on the canvas), Textures (wood, marble, stone, brick, rust, reptile skin,
+     diamond plate; seamless, procedural, no added files), Lightsabers (a stroke becomes a glowing core and halo).
+  2. Bevel Boss (button, round, flat, carved; lit), Chrome (reflection maps), Corona (flares around edges; pairs with the planned lens flares),
+     Glass (raised, refracting, tinted).
+  3. Water Drops (random beads with refraction), Fire, Smoke and Lightning (procedural, from the selection's edges).
+- **Also:** text effect presets (one tap applies Chrome, Fire, Glass and so on to a type layer, which stays editable); live, editable effects
+  (each stays an object with movable handles, like the planned multi-point gradient).
+
 ## Back burner (George, 2026-11-21 17:36: "Let's put these complicated things on the back burner.")
 - d4 (tetrahedron) color picker with 3D rotation: four corners hue, white, black and a chosen fourth color (mid-gray by default). About 4 days.
   (George's earlier 3D color picker was "a complex polyhedron of colors", made in another app.) A color sphere was also considered ("a NURBS sphere ... that's a hassle").

@@ -8081,3 +8081,7 @@ Built as 71.
 ## 2026-11-22 (831st) — Owner's quoted comments reworded in the docs
 
 **2026-11-22, 09:35 (MST), branch `krimble-cleanup`.** "Reword all my comments and remove anything inappropriate please." / "If it's not swearing or crazy it's okay." KRIMBLE_CONVERSATION_LOG.md and KRIMBLE_BUG_LISTS.md rewritten as plain statements of each request, decision and finding (times and change numbers kept). In the other docs: swearing, insults, remarks aimed at Claude and all-caps shouting reworded; leftover brand-name mentions in quotes changed to "the industry standard". App and log messages quoted exactly are unchanged. Posted release copies in docs/releases/ are unchanged (they match GitHub). Text only.
+
+## 2026-11-22 (832nd) — Roadmap: effects pack with custom shaders
+
+**2026-11-22, 10:08 (MST), branch `krimble-cleanup`.** "I want to develop all of those." / "Could we use available information to develop our own custom shaders" / "Can we set a custom seed?" / "Yes." KRIMBLE_ROADMAP.md, definite dev list item 3: the effects pack (Eye Candy-style equivalents, lightsabers, text effect presets, live editable effects), custom shaders, the shared foundation, Seed on every random effect, order simplest first. Conversation log updated. Text only; no code.
