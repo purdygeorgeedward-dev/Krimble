@@ -318,3 +318,5 @@ What was lost: the screenshots George sent during the day were not saved anywher
 - **20:28:** "The problem before was the brush was crap. It really didn't work."
 - **20:29:** "Just use the built in Krita brush engine. They put most of their efforts into it. Why make up your own crapola brush engine???" (change 814)
 - **20:30:** "Okay, if they already had a scratch pad, why did we even try to build one instead of using theirs?"
+- **20:31:** "Of course. Chatty did something stupid and random as usual."
+- **20:33:** "Okay. Glad you fixed it."
