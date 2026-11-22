@@ -118,3 +118,5 @@ A record of the project owner's requests, decisions and test findings, kept so a
 - 09:26 to 09:31: the APK link. Release notes had been posted on GitHub for every release (830: copied into docs/releases/). Reword all quoted comments and remove anything inappropriate, keeping the ideas.
 - 09:55 to 10:05: develop Eye Candy-style equivalents (Glass, Chrome, Bevel Boss, Gradient Glow, Perspective Shadow, Fire, Smoke and Lightning, Water Drops, Corona, Textures), plus lightsabers, text effect presets and live editable effects. Use custom shaders written from scratch, with a Seed setting. Put it on the roadmap (832).
 - 10:09 to 10:10: the keep-alive service is to be called Don'tCrash, in the docs, the log line and the notification (833).
+- 10:13 to 10:17: Don'tCrash is named after the Front 242 song. Lanczos upscaling is already good.
+- 13:11 (testing build 74): twelve issues, eight screenshots; see KRIMBLE_BUG_LISTS.md, 1.0.74.

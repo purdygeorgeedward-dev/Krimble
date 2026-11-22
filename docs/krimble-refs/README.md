@@ -76,3 +76,11 @@ Files named YYYY-MM-DD_HHMM_<id>.jpg, by the time each was sent (MST).
 - previews/2026-11-22_0500_tab-row-darker-row-lighter-unselected.png — the tab row as set: row behind twice as dark as the panel, unselected tab a little darker than the selected one
 - previews/2026-11-22_0515_preview-krimble-light.png — the new Krimble Light theme from the code as pushed (real-code preview)
 - previews/2026-11-22_0523_krimble-light-lavender-vs-neutral.png — Krimble Light: lavender (left, turned down: "That looks lavendar.") and the neutral gray chosen (right)
+| 2026-11-22_030216_tiny-selection.jpg | Nov 22, 2026 03:02 MST | 1.0.74 bug list (Nov 22, 13:11) |
+| 2026-11-22_125634_text-dialog-bad.jpg | Nov 22, 2026 12:56 MST | 1.0.74 bug list (Nov 22, 13:11) |
+| 2026-11-22_124122_canvas-size-edges.jpg | Nov 22, 2026 12:41 MST | 1.0.74 bug list (Nov 22, 13:11) |
+| 2026-11-22_123634_jpeg-options-bad-edges.jpg | Nov 22, 2026 12:36 MST | 1.0.74 bug list (Nov 22, 13:11) |
+| 2026-11-22_130501_blurry-load-1.jpg | Nov 22, 2026 13:05 MST | 1.0.74 bug list (Nov 22, 13:11) |
+| 2026-11-22_130459_blurry-load-2.jpg | Nov 22, 2026 13:04 MST | 1.0.74 bug list (Nov 22, 13:11) |
+| 2026-11-22_130454_blurry-load-3.jpg | Nov 22, 2026 13:04 MST | 1.0.74 bug list (Nov 22, 13:11) |
+| 2026-11-22_130449_blurry-load-mirrored.jpg | Nov 22, 2026 13:04 MST | 1.0.74 bug list (Nov 22, 13:11) |

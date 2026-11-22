@@ -3,6 +3,21 @@
 Every bug list from testing a build, filed under the build it was found in, reworded as plain issue statements.
 Release notes take their Known issues from here. Newest first. The status of each fix is in KRIMBLE_CHANGES.md.
 
+## 1.0.74-beta (tested Nov 22, 2026; screenshots docs/krimble-refs/2026-11-22_12*, _13*, _030216*)
+
+1. Opening a new file does not keep the selected tool. Pan is the default only at program launch; on file open the current tool stays.
+2. The selected-tool highlight is too small and barely covers the icon; it should fill the whole button square.
+3. The Aqua buttons look very good. Wanted: experimental previews that look more transparent, one with a slightly darker darkest blue edge, and slightly rounder corners.
+4. Odd edges on dialogs (Text, Canvas Size, JPEG options); see the screenshots.
+5. The Screen Mode and Quick Mask icons should look more like the industry-standard ones.
+6. Make Quick Adjust slightly smaller.
+7. Versions of Times New Roman, Helvetica/Arial and Courier are required fonts.
+8. Docking Tool Options stacked it instead of joining the tabs, and it could not be found afterwards.
+9. The Tool Options panel title must say "Tool Options", not only the tool's name.
+10. Move Panels to a top-level menu before Window; it is used too often to sit in a submenu.
+11. Images loaded blurry and upside down (or mirrored) again.
+12. Badly chosen buttons in various places.
+
 ## 1.0.73-beta (tested Nov 21, 2026)
 
 1. The first image loaded showed upside down and very blurry; it returned to normal after some handling.
