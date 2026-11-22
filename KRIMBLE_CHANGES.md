@@ -7989,3 +7989,8 @@ Built as 71.
 ## 817 — Glow button background dropped (2026-11-21, not built)
 - "Glow background is dropped." KoToolBox.cpp: Glow is out of the Button Style menu (the old line is commented out). KrimbleToolboxIcons.h:
   buttonFace() shows the panel background to anyone who had picked Glow. paintGlowTile and the code that draws it stay, unused.
+
+## 818 — Animation templates not installed (2026-11-21, not built)
+- "Animation could be restored later, but you are right. Remove the animation templates." krita/data/templates/CMakeLists.txt:
+  `add_subdirectory( animation )` commented out (6.7 MB of File > New templates; the Animation panel is not built). The files stay in the
+  repository; uncommenting the line brings them back.

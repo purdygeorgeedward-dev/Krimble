@@ -325,3 +325,5 @@ What was lost: the screenshots George sent during the day were not saved anywher
 - **21:03:** "We should hold back the photorealistic high resolution buttons." (change 816)
 - **21:03:** "I don't see a demand for them."
 - **21:04:** "Glow background is dropped." (change 817)
+- **21:05:** "Any other bloat?"
+- **21:07:** "Animation could be restored later, but you are right. Remove the animation templates." (change 818)
