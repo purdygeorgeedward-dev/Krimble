@@ -298,3 +298,4 @@ What was lost: the screenshots George sent during the day were not saved anywher
 - **17:09:** "Maybe shorten it to gen instead of generation since that will stretch out the menu." (now "A. I. Image gen")
 - **17:09:** "If you can touch the xmlgui file, how can you add it?"
 - **17:10:** "You have permission to make the changes to the menu for Rotate." (change 811, krita5.xmlgui line 305 only)
+- **17:14:** "Where is the target?" / 17:15 "Ugh" / "Yes" (tag push and API tag creation both refused by the proxy; pushed branch release-1.0.73 at e2c14ad2 for the release Target)
