@@ -51,3 +51,4 @@ Krimble is open source software made with the assistance of Claude and ChatGPT.
 - The selected tool's highlight fills the whole toolbox button.
 - The Tool Options panel's title says Tool Options again; the tool (and the Transform mode) is named on the first line inside the panel.
 - **Panels** is its own menu in the menu bar, before Window: every panel command at the top (Toggle Panels, Detach and Attach, Hide Right Panels, Hide All Panels, Stack Panels), then the list of panels.
+- **Comic brushes:** HB Pencil, Blue Pencil (non-photo blue, sets its color when chosen), Technical Pen (one width at any pressure) and Brush Pen (tapered, pressure-sized).

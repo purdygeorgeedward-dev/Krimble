@@ -124,3 +124,4 @@ A record of the project owner's requests, decisions and test findings, kept so a
 - 14:40: permission granted to edit krita5.xmlgui for the top-level Panels menu (835).
 - 14:42: all panel-related menu items go in the new Panels menu (836).
 - 14:44: panel commands at the top of the Panels menu, then a divider (837).
+- 15:02 to 15:06: comic brushes modeled on his tools (HB lead, Rapidograph, PITT brush pens) plus a non-photo blue pencil (838). Also wants an art marker for colorists (classic Design and Prismacolor markers).

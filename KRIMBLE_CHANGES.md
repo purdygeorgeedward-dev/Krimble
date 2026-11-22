@@ -8110,3 +8110,13 @@ Built as 71.
 ## 2026-11-22 (837th) — Panels menu: commands at the top, then a divider
 
 **2026-11-22, 15:02 (MST), branch `krimble-cleanup`.** "Did you put the toggle commands at the top or bottom?" / "Top and then a separator." `KisMainWindow.cpp`: the panel commands are inserted before the first panel in the list, followed by a divider, then the panels. Syntax check: the same 3 old checker errors only. Not built.
+
+## 2026-11-22 (838th) — Comic brushes: HB Pencil, Blue Pencil (non-photo), Technical Pen, Brush Pen
+
+**2026-11-22, 15:10 (MST), branch `krimble-cleanup`.** George: "I always used an HB lead for penciling on Bristol board. My pens of choice were either Rapid-o-graph technical pens or the PITT pens from Faber-Castell, especially brush pens." / "Build some perfect brushes to simulate these professional tools. Add them to the brush set." / Blue Pencil: "Yes. Good idea." / "Non-repro blue pencils are a frequent choice for comic book artists."
+Four presets in `krita/data/paintoppresets`, made from the shipped Pencil-2 and Fineliner presets by `tools/brushgen/gen.py` (rerun it to change them), installed by its CMakeLists.txt:
+- **c)_Pencil_HB:** small soft graphite tip (gauss, 4 px) with Pencil-2's grain scatter and sharpness; opacity builds with pressure and never reaches full black (0.85, like HB); size 55–100% with pressure; the installed paper pattern (03_default-paper, subtract) shows most at light pressure.
+- **c)_Pencil_Blue_Non-Photo:** the same pencil; choosing it sets the foreground color to non-photo blue #A4DDED (`KisPaintopBox::resourceSelected`).
+- **d)_Ink_Technical_Pen:** 3 px hard antialiased round, full opacity, the same width at any pressure.
+- **d)_Ink_Brush_Pen:** 16 px hard round, full opacity, size from pressure on a concave curve (thin lines come easily; strokes taper in and out).
+Smoothing is a tool setting, not part of a preset (Weighted is suggested for the pens). Thumbnails are drawn samples. Syntax check of kis_paintop_box.cc clean; presets' XML parsed. Not built, not tried on a device.
