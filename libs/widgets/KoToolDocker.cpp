@@ -58,6 +58,13 @@ public:
             }
         }
         if (name.endsWith(QLatin1String(" Tool"))) name.chop(5);
+        // Transform and its Rotate mode: "Transform \u2013 <mode>" (the mode in use is the qApp property krimbleTransformMode, set by the Transform options)
+        if (id == QLatin1String("KisToolTransform") || id == QLatin1String("KisToolFreeRotate")) {
+            QString mode = id == QLatin1String("KisToolFreeRotate") ? QStringLiteral("rotate") : qApp->property("krimbleTransformMode").toString();
+            if (mode.isEmpty() || (mode == QLatin1String("rotate") && id != QLatin1String("KisToolFreeRotate"))) mode = QStringLiteral("scale");
+            mode[0] = mode[0].toUpper();
+            name = i18n("Transform") + QString::fromUtf8(" \u2013 ") + mode;
+        }
         toolNameLabel->setText(name);
         // toolNameLabel->setVisible(!name.isEmpty());
         // the name goes in the title row, before the grip ("Tool options title overlaps onto grab area."); the label stays, hidden

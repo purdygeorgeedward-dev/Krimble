@@ -333,6 +333,15 @@ void ThemeManager::slotChangePalette()
             "\nQSlider::sub-page:horizontal { background: none; border: none; border-image: url(%2) 0 0 0 0 stretch; }"
             "\nQProgressBar::chunk { background: none; border: none; border-image: url(%2) 0 0 0 0 stretch; }\n").arg(aquaSquare, aquaWide);
     }
+    if (!krimbleSheet.isEmpty()) {
+        // the panel tab rows: the whole row behind the tabs is darker than the panel; an unselected tab is halfway between the
+        // selected tab (the panel's color) and that darker row (the curved tab shapes stay off)
+        const QColor panel = qApp->palette().color(QPalette::Window);
+        const QColor behind = panel.darker(145);
+        const QColor unselected((panel.red() + behind.red()) / 2, (panel.green() + behind.green()) / 2, (panel.blue() + behind.blue()) / 2);
+        krimbleSheet += QStringLiteral("\nQMainWindow > QTabBar { background: %1; }\nQMainWindow > QTabBar::tab:!selected { background: %2; }\n")
+                            .arg(behind.name(), unselected.name());
+    }
     qApp->setStyleSheet(krimbleSheet);   // 696th: the one and only call
 #endif
     KisConfigNotifier::instance()->notifyColorThemeChanged(filename);

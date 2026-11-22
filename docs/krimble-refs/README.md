@@ -69,3 +69,6 @@ Files named YYYY-MM-DD_HHMM_<id>.jpg, by the time each was sent (MST).
 - previews/2026-11-22_0320_* — renders from the code as pushed (Aqua with the shaped shine; the mode row at 28 with the new Rotate icon)
 - previews/2026-11-22_0332_APPROVED-aqua-bottom-corners-middle.png — dark bottom corners; the middle row was chosen ("The middle one.")
 - previews/2026-11-22_0335_preview-aqua-with-bottom-corners.png — render from the code as pushed
+- 2026-11-22_0234_MESS-is-the-circled-title.jpg — "The mess is the circled text": "Tool Options" and "Free Rotate" stacked on top of each other
+- previews/2026-11-22_0433_panels-now-next-proposed.png — panel types as they render (build 73 screenshots), the next build, and the proposals ("it looks like you have a handle on it")
+- previews/2026-11-22_0450_preview-tab-row-three-shades.png — tab row from the code as pushed: dark row, unselected tab halfway, selected tab the panel color (real Qt render)

@@ -370,6 +370,7 @@ KisToolTransformConfigWidget::KisToolTransformConfigWidget(TransformTransactionP
     freeShearRadioButton->hide();
     aspectButton->hide();
     lblTransformType->setText(i18n("Scale"));   // was "Free Transform" (no "Free" in any name)
+    lblTransformType->hide();   // the mode name is in the title row ("Transform \u2013 Scale"); here it only repeated it
     qApp->installEventFilter(this);
 
     Q_FOREACH (QToolButton *modeButton, QList<QToolButton*>({freeTransformButton, m_krimbleStretchButton, m_krimbleRotateButton, m_krimbleShearButton, perspectiveTransformButton, warpButton,
@@ -595,9 +596,13 @@ static int s_krimbleFreeKind = 0;   // Scale (0, uniform: the default), Stretch 
 
 static void krimbleShowTransformTitle(QWidget *from, const ToolTransformArgs &config)
 {
-    if (!from || KoToolManager::instance()->activeToolId() != QLatin1String("KisToolTransform")) return;
+    // if (!from || KoToolManager::instance()->activeToolId() != QLatin1String("KisToolTransform")) return;
+    if (!from) return;
+    const QString activeId = KoToolManager::instance()->activeToolId();
+    if (activeId != QLatin1String("KisToolTransform") && activeId != QLatin1String("KisToolFreeRotate")) return;
     QString title;
-    switch (config.mode()) {
+    if (activeId == QLatin1String("KisToolFreeRotate")) title = QObject::tr("Rotate");
+    else switch (config.mode()) {
     case ToolTransformArgs::FREE_TRANSFORM:
         switch (config.freeGesture()) {
         case ToolTransformArgs::GestureMove: title = QObject::tr("Position"); break;
@@ -614,6 +619,7 @@ static void krimbleShowTransformTitle(QWidget *from, const ToolTransformArgs &co
     case ToolTransformArgs::MESH: title = QObject::tr("Mesh"); break;
     default: return;
     }
+    title = QObject::tr("Transform") + QString::fromUtf8(" \u2013 ") + title;   // one line: the tool, then the mode ("Transform \u2013 Shear")
     if (QWidget *window = from->window()) {
         // if (QLabel *label = window->findChild<QLabel *>(QStringLiteral("krimbleToolOptionsName"))) label->setText(title);
         if (QLabel *label = window->findChild<QLabel *>(QStringLiteral("krimbleToolOptionsName"))) {
