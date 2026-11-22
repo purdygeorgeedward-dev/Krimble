@@ -53,3 +53,8 @@ Krimble is open source software made with the assistance of Claude and ChatGPT.
 - **Panels** is its own menu in the menu bar, before Window: every panel command at the top (Toggle Panels, Detach and Attach, Hide Right Panels, Hide All Panels, Stack Panels), then the list of panels.
 - **Comic brushes:** HB Pencil, Blue Pencil (non-photo blue, sets its color when chosen), Technical Pen (one width at any pressure) and Brush Pen (tapered, pressure-sized).
 - **Art Marker:** flat, even marker tone with a soft bled edge and a chisel tip; a second stroke over the first deepens the color.
+- A new image keeps the tool you are using (Pan only when Krimble starts).
+- Quick Adjust is a little smaller.
+- New fonts: Liberation Serif, Sans and Mono, with the same letter widths as Times New Roman, Arial/Helvetica and Courier New. Files that ask for those fonts use them.
+- A panel docked again joins the tabs on its side instead of stacking.
+- A newly opened image is redrawn once it is fitted, which should stop it showing blurry or turned around.

@@ -18,7 +18,7 @@ Release notes take their Known issues from here. Newest first. The status of eac
 11. Images loaded blurry and upside down (or mirrored) again.
 12. Badly chosen buttons in various places.
 
-Status (Nov 22, 14:50): 2, 3, 4, 9, 12 fixed in the 834th; 10 in the 835th (not built). Waiting: 1, 5, 6, 7, 8, 11.
+Status (Nov 22, 15:45): 2, 3, 4, 9, 12 fixed in the 834th; 10 in the 835th to 837th; 1, 6, 7, 8 and 11 (a mitigation) in the 840th (not built). Waiting: 5 (drafts shown).
 
 ## 1.0.73-beta (tested Nov 21, 2026)
 

@@ -20,6 +20,9 @@ file(GLOB KRIMBLE_OPEN_FONTS ${CMAKE_CURRENT_SOURCE_DIR}/open/*.ttf)
 # To bring one back, remove its name from the pattern below.
 # Krimble 2026-11-15 (672nd): George: "DELETE!!!!!!!!" The nine families and their license files are deleted from the repository too (they stay in the git history); the line below now matches nothing.
 list(FILTER KRIMBLE_OPEN_FONTS EXCLUDE REGEX "/open/(Lato|NotoEmoji|Inter|EBGaramond|SourceSans3|Saira|Tinos|IBMPlexMono|CrimsonPro)[-.]")
+# Krimble 2026-11-22: Liberation Serif/Sans/Mono added (item 7: Times New Roman, Helvetica/Arial, Courier). Arimo and Cousine are the same designs
+# as Liberation Sans and Liberation Mono, so they are left out of the install (the files stay).
+list(FILTER KRIMBLE_OPEN_FONTS EXCLUDE REGEX "/open/(Arimo|Cousine)[-.]")
 install( FILES ${KRIMBLE_OPEN_FONTS} DESTINATION ${KDE_INSTALL_DATADIR}/krita/fonts)
 install( FILES open/readme.md DESTINATION ${KDE_INSTALL_DATADIR}/krita/fonts/licenses RENAME readme-open-fonts.md)
 install( DIRECTORY open/licenses/ DESTINATION ${KDE_INSTALL_DATADIR}/krita/fonts/licenses)

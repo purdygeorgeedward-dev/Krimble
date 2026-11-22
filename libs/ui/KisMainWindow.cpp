@@ -1299,6 +1299,12 @@ void KisMainWindow::showView(KisView *imageView, QMdiSubWindow *subwin)
             QPointer<KisView> krimbleFitView(imageView);
             QTimer::singleShot(1000, this, [krimbleFitView]() {
                 if (krimbleFitView && krimbleFitView->zoomManager()) krimbleFitView->zoomManager()->slotZoomToFit();
+                // the image's screen copy is rebuilt from the image itself once it is fitted: the first image sometimes showed blurry and
+                // turned around (upside down or mirrored) until it was touched (1.0.73 list item 1, 1.0.74 list item 11)
+                if (krimbleFitView && krimbleFitView->canvasBase()) {
+                    krimbleFitView->canvasBase()->refetchDataFromImage();
+                    krimbleFitView->canvasBase()->updateCanvas();
+                }
             });
         }
 #ifdef Q_OS_ANDROID
@@ -3121,6 +3127,29 @@ QDockWidget* KisMainWindow::createDockWidget(KoDockFactoryBase* factory)
         }
         connect(dockWidget, &QDockWidget::topLevelChanged, this, [this, dockWidget](bool floating) {
             dockWidget->setAllowedAreas(Qt::AllDockWidgetAreas);
+
+            // A panel docked again after the user floated it joins the tabs of the panel already on that side, and comes to the front
+            // ("Tried to dock tool options and it stacked instead of joining the tabs. I couldn't find it." 1.0.74 list, item 8).
+            if (floating) {
+                dockWidget->setProperty("krimbleWasFloated", true);
+            } else if (dockWidget->property("krimbleWasFloated").toBool() && isVisible()
+                       && dockWidget->objectName() != QLatin1String("ToolBox") && !dockWidget->property("krimbleAttaching").toBool()) {
+                dockWidget->setProperty("krimbleWasFloated", false);
+                QTimer::singleShot(0, this, [this, dockWidget]() {
+                    if (dockWidget->isFloating()) return;
+                    const Qt::DockWidgetArea area = dockWidgetArea(dockWidget);
+                    QDockWidget *target = nullptr;
+                    Q_FOREACH (QDockWidget *other, findChildren<QDockWidget*>()) {
+                        if (other == dockWidget || other->isFloating() || !other->isVisible()) continue;
+                        if (other->objectName() == QLatin1String("ToolBox") || dockWidgetArea(other) != area) continue;
+                        if (tabifiedDockWidgets(other).contains(dockWidget)) { target = nullptr; break; }   // already in that tab group
+                        if (!target) target = other;
+                    }
+                    if (target) tabifyDockWidget(target, dockWidget);
+                    dockWidget->show();
+                    dockWidget->raise();
+                });
+            }
 
             if (false && !floating && dockWidget->isVisible() && !dockWidget->property("krimbleAttaching").toBool()) {
                 const QVariant floatingCenter = dockWidget->property("krimbleFloatingCenter");

@@ -659,6 +659,13 @@ static void krimbleLoadBundledFonts()
         else qWarning() << "Krimble: font could not be loaded:" << path;
     }
     qInfo() << "Krimble: bundled fonts found:" << files.size() << "loaded:" << loaded;
+    // files that ask for the classic fonts get the bundled look-alikes (same letter widths)
+    QFont::insertSubstitutions(QStringLiteral("Times New Roman"), QStringList() << QStringLiteral("Liberation Serif"));
+    QFont::insertSubstitutions(QStringLiteral("Times"), QStringList() << QStringLiteral("Liberation Serif"));
+    QFont::insertSubstitutions(QStringLiteral("Arial"), QStringList() << QStringLiteral("Liberation Sans"));
+    QFont::insertSubstitutions(QStringLiteral("Helvetica"), QStringList() << QStringLiteral("Liberation Sans"));
+    QFont::insertSubstitutions(QStringLiteral("Courier New"), QStringList() << QStringLiteral("Liberation Mono"));
+    QFont::insertSubstitutions(QStringLiteral("Courier"), QStringList() << QStringLiteral("Liberation Mono"));
 }
 
 static void krimbleResetToolOptionsIfWanted()

@@ -13,7 +13,7 @@ Added 2026-10-18. 53 families (Noto Emoji added 2026-10-24), picked by George Ed
 | Alfa Slab One | OFL 1.1 | as published |
 | Anton | OFL 1.1 | Latin subset |
 | Archivo Black | OFL 1.1 | Latin subset |
-| Arimo | OFL 1.1 | Latin subset |
+| Arimo | OFL 1.1 | Latin subset (not installed since Nov 22, 2026: the same design ships as Liberation Sans) |
 | Bangers | OFL 1.1 | Latin subset |
 | Bebas Neue | OFL 1.1 | Latin subset |
 | Caveat | OFL 1.1 | Latin subset |
@@ -21,7 +21,7 @@ Added 2026-10-18. 53 families (Noto Emoji added 2026-10-24), picked by George Ed
 | Cinzel Decorative | OFL 1.1 | as published |
 | Comic Neue | OFL 1.1 | Latin subset |
 | Comic Relief | OFL 1.1 | Latin subset |
-| Cousine | OFL 1.1 | Latin subset |
+| Cousine | OFL 1.1 | Latin subset (not installed since Nov 22, 2026: the same design ships as Liberation Mono) |
 | Creepster | OFL 1.1 | as published |
 | Crimson Pro | OFL 1.1 | Latin subset |
 | Dancing Script | OFL 1.1 | as published |
@@ -64,3 +64,9 @@ Added 2026-10-18. 53 families (Noto Emoji added 2026-10-24), picked by George Ed
 | Noto Emoji | OFL 1.1 | as published (the monochrome emoji outlines; used by the Type tool for emoji, 2026-10-24) |
 
 (Last updated 2026-10-18.)
+
+## Added Nov 22, 2026
+
+| Liberation Serif, Liberation Sans, Liberation Mono (2.1.5) | OFL 1.1 | Regular, Bold, Italic, Bold Italic; same letter widths as Times New Roman, Arial/Helvetica and Courier New. License: licenses/Liberation-OFL.txt |
+
+George (1.0.74 list, item 7): "We absolutely must have some version of Times New Roman, Helvetica/Arial, and Courier. These are absolutely necessary fonts. Make it happen."

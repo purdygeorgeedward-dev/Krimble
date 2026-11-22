@@ -210,6 +210,7 @@ static void krimbleHookToolMemory()
         if (s_krimbleAttaching) return;
         const QString id = KoToolManager::instance()->activeToolId();
         if (!id.isEmpty()) s_krimbleLastTool = id;
+        if (!id.isEmpty()) qApp->setProperty("krimbleLastToolId", id);   // read by KoToolManager when a new canvas is attached
     });
 }
 

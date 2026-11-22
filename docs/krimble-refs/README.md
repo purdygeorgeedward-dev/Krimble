@@ -89,3 +89,4 @@ Files named YYYY-MM-DD_HHMM_<id>.jpg, by the time each was sent (MST).
 | 2026-11-22_14xx_preview-toolbox_bigger.png | Nov 22, 2026 14:27 MST | Claude's preview (real code) for the 1.0.74 list |
 | 2026-11-22_14xx_preview-aqua_variants.png | Nov 22, 2026 14:27 MST | Claude's preview (real code) for the 1.0.74 list |
 | 2026-11-22_14xx_preview-tooloptions.png | Nov 22, 2026 14:27 MST | Claude's preview (real code) for the 1.0.74 list |
+| 2026-11-22_15xx_preview-quickmask-screenmode-drafts.png | Nov 22, 2026 15:40 MST | Claude's draft (item 5), waiting for approval |
