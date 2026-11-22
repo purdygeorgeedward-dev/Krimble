@@ -37,6 +37,15 @@ Last updated: 2026-11-21 03:42 MST.
 15:42: "The multi-point gradient would create either linear ._._._._. or 3d gradients (many island nodes) and gratients form between the nodes in different directions. Each would exist as a vector object with control points the user can move and reposition at will."
 (Two kinds: a chain of nodes (linear), or free island nodes blended across a mesh between them. A vector object; nodes stay movable.)
 
+## 2026-11-21 17:38 — Virtual screens (back burner, after the Play Store release)
+"Put different images and/or panels on different virtual screens and flip back and forth between them." / "No more than 3. Dots make sense. I don't think 3 finger swipes will catch on."
+(Up to 3 screens, each one image plus its own panel layout; switched with dots, no three-finger swipe.)
+
+## 2026-11-21 17:41 — Voice control (idea, asked about)
+"Could we add voice control to the app? Activate tools, open and close files, that kind of thing?"
+
+## 2026-11-21 17:36 — Back burner: "Let's put these complicated things on the back burner." (d4 color picker, color sphere, 3D map tools, curve and mesh gradients, true dual-screen)
+
 ## 2026-11-21 17:29 — Gradients (three features) and 3D map tools (not started)
 "Photoshop has complex gradients with multiple colors at different points on a line. I want that too, and I want a linear preview in the editor where it shows a large box with a vertical image of the selected gradient."
 "1. Gradient on a curve with the points of the gradient plotted on the curve to control how it renders, 2. A 3D mesh based gradient map where the gradients flow from node to node in a freeform way."

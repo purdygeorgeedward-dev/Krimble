@@ -305,3 +305,5 @@ What was lost: the screenshots George sent during the day were not saved anywher
 - **17:33:** "Why a render? A d4 is the simplest shape." / "What 3d attempt?"
 - **17:34:** "That's because I did it without you in another app." (the earlier 3D attempt was his, outside Krimble)
 - **17:34:** "It was a complex polyhedron of colors."
+- **17:35–17:39:** "I was tempted to make a NURBS sphere, but that's a hassle." / "Let's put these complicated things on the back burner. Is there any way this could use a multi-screen setup?" / "How about virtual screens? Put different images and/or panels on different virtual screens and flip back and forth between them." / "It sounds like a really good idea. What do you think?"
+- **17:41:** "No more than 3. Dots make sense. I don't think 3 finger swipes will catch on. Could we add voice control to the app? Activate tools, open and close files, that kind of thing?"
