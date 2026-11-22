@@ -7985,3 +7985,7 @@ Built as 71.
 - KoToolBox.cpp: Photorealistic is commented out of the Icon Style menu. KrimbleToolboxIcons.h: anyone who had picked it sees White while the
   pictures are not in the app. Undo, Quick Mask and Screen Mode already fall back to their drawn icons when a photo is missing.
 - To bring it back: uncomment the qrc line and the menu line.
+
+## 817 — Glow button background dropped (2026-11-21, not built)
+- "Glow background is dropped." KoToolBox.cpp: Glow is out of the Button Style menu (the old line is commented out). KrimbleToolboxIcons.h:
+  buttonFace() shows the panel background to anyone who had picked Glow. paintGlowTile and the code that draws it stay, unused.

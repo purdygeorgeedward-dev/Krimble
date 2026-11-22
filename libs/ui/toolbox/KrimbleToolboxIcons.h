@@ -279,7 +279,9 @@ inline int &buttonFaceCache()
     return face;
 }
 
-inline int buttonFace() { return buttonFaceCache(); }
+// inline int buttonFace() { return buttonFaceCache(); }
+// Glow (4) is dropped ("Glow background is dropped."): anyone who had picked it sees the panel background
+inline int buttonFace() { return buttonFaceCache() == 4 ? 0 : buttonFaceCache(); }
 
 inline void setButtonFace(int face)
 {

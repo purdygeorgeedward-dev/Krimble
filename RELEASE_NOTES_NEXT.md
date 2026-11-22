@@ -11,7 +11,7 @@ Krimble is open source software made with the assistance of Claude and ChatGPT.
 
 **Toolbox**
 
-- Two more button backgrounds: **Dark gray**, and **Glow** (a dark tile lit with a soft teal glow).
+- A fourth button background, **Dark gray**.
 - White icons are only shown on dark backgrounds: with the Light gray or White background they are drawn in black.
 
 **File menu**
