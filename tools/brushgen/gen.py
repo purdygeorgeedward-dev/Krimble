@@ -66,3 +66,20 @@ x=rename(ink,'d)_Ink_Brush_Pen'); x=brushdef(x,16,1,1,0.05,1)
 x=setp(x,'PressureSize','true'); x=setp(x,'SizeUseSameCurve','true'); x=setp(x,'SizeSensor',sensor('0,0;0.3,0.08;0.7,0.5;1,1;'))
 x=setp(x,'PressureOpacity','false'); save('d)_Ink_Brush_Pen',x,thumb('brush',(0,0,0)))
 print('ok')
+# Art Marker (Nov 22, 15:08): a high-bleed design marker. Wash mode, so one stroke is a flat even tone and only a new stroke darkens it;
+# see-through (55%); soft bled edge; broad chisel tip turned by the drawing direction; no paper grain; size and opacity ignore pressure.
+x=rename(ink,'e)_Marker_Art'); 
+bd='<Brush autoSpacingCoeff="0.8" density="1" BrushVersion="2" type="auto_brush" spacing="0.05" useAutoSpacing="1" randomness="0" angle="0"> <MaskGenerator ratio="0.35" hfade="0.8" spikes="2" vfade="0.8" diameter="30" type="circle" id="default" antialiasEdges="1"/> </Brush> '
+x=setp(x,'brush_definition',bd)
+x=setp(x,'PaintOpAction','2'); x=setp(x,'PressureSize','false'); x=setp(x,'PressureOpacity','false'); x=setp(x,'OpacityUseCurve','false'); x=setp(x,'OpacityValue','0.55')
+x=setp(x,'PressureRotation','true'); x=setp(x,'RotationSensor','<!DOCTYPE params> <params fanCornersEnabled="0" lockedAngleMode="0" id="drawingangle" fanCornersStep="30" angleOffset="0"> <curve>0,0;1,1;</curve> </params> ')
+x=setp(x,'RotationUseCurve','true'); x=setp(x,'RotationValue','1')
+def marker_thumb():
+    S=200; base=Image.new('RGB',(S,S),'white'); col=(235,110,50)
+    for y0,y1 in [(70,130),(120,60)]:   # two strokes; where they cross, the tone deepens
+        lay=Image.new('L',(S,S),0); d=ImageDraw.Draw(lay)
+        d.line((25,y0,175,y1),fill=255,width=26); lay=lay.filter(ImageFilter.GaussianBlur(1.6)).point(lambda v:int(v*0.55))
+        base=Image.composite(Image.new('RGB',(S,S),col),base,lay) if False else Image.composite(Image.composite(Image.new('RGB',(S,S),col),base,Image.new('L',(S,S),255)),base,lay)
+    return base
+save('e)_Marker_Art',x,marker_thumb())
+print('marker ok')

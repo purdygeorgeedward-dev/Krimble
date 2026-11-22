@@ -8120,3 +8120,7 @@ Four presets in `krita/data/paintoppresets`, made from the shipped Pencil-2 and 
 - **d)_Ink_Technical_Pen:** 3 px hard antialiased round, full opacity, the same width at any pressure.
 - **d)_Ink_Brush_Pen:** 16 px hard round, full opacity, size from pressure on a concave curve (thin lines come easily; strokes taper in and out).
 Smoothing is a tool setting, not part of a preset (Weighted is suggested for the pens). Thumbnails are drawn samples. Syntax check of kis_paintop_box.cc clean; presets' XML parsed. Not built, not tried on a device.
+
+## 2026-11-22 (839th) — Art Marker brush
+
+**2026-11-22, 15:20 (MST), branch `krimble-cleanup`.** "A good art marker for colorists is a good idea too. I miss the old classic Design markers and the Prismacolors..." / "Design markers were special. They were a high bleed marker that made perfect uniform flat tones." / "Ok" (to the plan). New preset **e)_Marker_Art** (`tools/brushgen/gen.py`, installed by the presets' CMakeLists.txt): wash mode (one stroke is a flat, even tone; only a new stroke over it darkens), 55% opacity, soft bled edge (fade 0.8), broad chisel tip (30 px, ratio 0.35) turned by the drawing direction, no paper grain, size and opacity not tied to pressure. XML parsed. Not built, not tried on a device.
