@@ -76,6 +76,24 @@ QPushButton, QPushButton:hover {
 QPushButton:pressed {
     background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #043d66, stop:0.05 #5f9fcc, stop:0.49 #12639e, stop:0.5 #065b96, stop:0.85 #1c70ab, stop:1 #2f80b8);
 }
+/* Nov 22: no glistening edges. The real Aqua is painted in code; a push button it does not paint (an unselected toggle, a color button) is a plain raised button. These rules come after the old Aqua rules above and win over them. */
+QPushButton, QPushButton:hover, QPushButton:default {
+    color: #f1f4fc;
+    border: 1px solid #6071a9;
+    border-top: 1px solid #8292c4;
+    border-left: 1px solid #8292c4;
+    border-bottom: 1px solid #000000;
+    border-right: 1px solid #000000;
+    background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #434f75, stop:1 #262e4b);
+}
+QPushButton:checked {
+    border: 1px solid #075a96;
+    background: #0b87dd;
+}
+QPushButton:pressed {
+    border: 1px solid #000000;
+    background: #262e4b;
+}
 QPushButton:disabled, QDialog QToolButton:disabled {
     color: #7a8199;
     border-color: #2b334a;

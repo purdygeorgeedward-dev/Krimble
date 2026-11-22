@@ -84,3 +84,8 @@ Files named YYYY-MM-DD_HHMM_<id>.jpg, by the time each was sent (MST).
 | 2026-11-22_130459_blurry-load-2.jpg | Nov 22, 2026 13:04 MST | 1.0.74 bug list (Nov 22, 13:11) |
 | 2026-11-22_130454_blurry-load-3.jpg | Nov 22, 2026 13:04 MST | 1.0.74 bug list (Nov 22, 13:11) |
 | 2026-11-22_130449_blurry-load-mirrored.jpg | Nov 22, 2026 13:04 MST | 1.0.74 bug list (Nov 22, 13:11) |
+| 2026-11-22_14xx_preview-edges_demo.png | Nov 22, 2026 14:27 MST | Claude's preview (real code) for the 1.0.74 list |
+| 2026-11-22_14xx_preview-toolbox_selection.png | Nov 22, 2026 14:27 MST | Claude's preview (real code) for the 1.0.74 list |
+| 2026-11-22_14xx_preview-toolbox_bigger.png | Nov 22, 2026 14:27 MST | Claude's preview (real code) for the 1.0.74 list |
+| 2026-11-22_14xx_preview-aqua_variants.png | Nov 22, 2026 14:27 MST | Claude's preview (real code) for the 1.0.74 list |
+| 2026-11-22_14xx_preview-tooloptions.png | Nov 22, 2026 14:27 MST | Claude's preview (real code) for the 1.0.74 list |

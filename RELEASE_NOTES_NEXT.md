@@ -47,3 +47,6 @@ Krimble is open source software made with the assistance of Claude and ChatGPT.
 **Changes after 1.0.74**
 
 - The background keep-alive feature is now called **Don'tCrash**. Its notice reads "Don'tCrash: Keeps Krimble open in the background", and the first line of Help > Show Krimble Log... reports Don'tCrash's status.
+- Buttons: rounder Aqua corners; the thin glistening edges are gone (buttons that are not selected are plain raised buttons).
+- The selected tool's highlight fills the whole toolbox button.
+- The Tool Options panel's title says Tool Options again; the tool (and the Transform mode) is named on the first line inside the panel.

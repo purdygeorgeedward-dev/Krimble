@@ -120,3 +120,4 @@ A record of the project owner's requests, decisions and test findings, kept so a
 - 10:09 to 10:10: the keep-alive service is to be called Don'tCrash, in the docs, the log line and the notification (833).
 - 10:13 to 10:17: Don'tCrash is named after the Front 242 song. Lanczos upscaling is already good.
 - 13:11 (testing build 74): twelve issues, eight screenshots; see KRIMBLE_BUG_LISTS.md, 1.0.74.
+- 14:19 to 14:37: item 4 is the thin glistening edges on blue buttons. Tool Options: the tab says Tool Options, with a line inside naming the tool. Demos asked for; chosen: rounder Aqua corners (no transparency), no glistening style, toolbox selection filling the whole tile, the Tool Options layout. Confirmed and pushed (834).

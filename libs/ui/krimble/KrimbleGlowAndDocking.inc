@@ -63,7 +63,8 @@ static void krimblePaintAquaButton(QAbstractButton *button)
     QPainter p(button);
     const QRectF r = QRectF(button->rect()).adjusted(1, 1, -1, -1);
     // krimblePaintAqua(p, r, qMin(r.width(), r.height()) * 0.10);
-    krimblePaintAqua(p, r, qMin(r.width(), r.height()) * 0.10, button->isDown() ? QColor(11, 135, 221).darker(135) : QColor(11, 135, 221));   // a little darker while pressed
+    // krimblePaintAqua(p, r, qMin(r.width(), r.height()) * 0.10, button->isDown() ? QColor(11, 135, 221).darker(135) : QColor(11, 135, 221));
+    krimblePaintAqua(p, r, qMin(r.width(), r.height()) * 0.22, button->isDown() ? QColor(11, 135, 221).darker(135) : QColor(11, 135, 221));   // a little darker while pressed
     if (QToolButton *tool = qobject_cast<QToolButton*>(button)) {
         QStyleOptionToolButton opt;
         opt.initFrom(tool);
@@ -122,6 +123,7 @@ public:
         }
         if (event->type() == QEvent::Paint) {
             QAbstractButton *button = qobject_cast<QAbstractButton*>(watched);
+            if (button && !button->property("krimbleGlowHooked").toBool()) hook(button);   // a button made after the window still gets the Aqua (not the style sheet look)
             if (button && button->property("krimbleGlowHooked").toBool() && krimbleAquaButtonEligible(button)) {
                 krimblePaintAquaButton(button);
                 return true;   // the button's own checked background is not drawn

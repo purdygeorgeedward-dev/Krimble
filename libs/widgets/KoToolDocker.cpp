@@ -68,8 +68,11 @@ public:
         toolNameLabel->setText(name);
         // toolNameLabel->setVisible(!name.isEmpty());
         // the name goes in the title row, before the grip ("Tool options title overlaps onto grab area."); the label stays, hidden
-        toolNameLabel->setVisible(false);
-        if (KoDockWidgetTitleBar *bar = dynamic_cast<KoDockWidgetTitleBar *>(q->titleBarWidget())) bar->setTitleOverride(name);
+        // toolNameLabel->setVisible(false);
+        // if (KoDockWidgetTitleBar *bar = dynamic_cast<KoDockWidgetTitleBar *>(q->titleBarWidget())) bar->setTitleOverride(name);
+        // the title says "Tool Options"; the tool (and the Transform mode) is one line at the top of the panel
+        toolNameLabel->setVisible(!name.isEmpty());
+        if (KoDockWidgetTitleBar *bar = dynamic_cast<KoDockWidgetTitleBar *>(q->titleBarWidget())) bar->setTitleOverride(QString());
     }
     KoToolDocker *q {nullptr};
     Qt::DockWidgetArea dockingArea {Qt::NoDockWidgetArea};
@@ -201,7 +204,7 @@ KoToolDocker::KoToolDocker(QWidget *parent)
         nameFont.setBold(true);
         d->toolNameLabel->setFont(nameFont);
     }
-    d->toolNameLabel->setStyleSheet(QStringLiteral("QLabel#krimbleToolOptionsName { color: #ffffff; padding: 3px 6px; border-bottom: 1px solid #343c57; }"));
+    d->toolNameLabel->setStyleSheet(QStringLiteral("QLabel#krimbleToolOptionsName { color: palette(window-text); padding: 3px 6px; border-bottom: 1px solid #343c57; }"));
     d->housekeeperMainLayout->insertWidget(0, d->toolNameLabel);
     d->updateToolName();
     connect(KoToolManager::instance(), &KoToolManager::changedTool, this, [this](KoCanvasController *) { d->updateToolName(); });

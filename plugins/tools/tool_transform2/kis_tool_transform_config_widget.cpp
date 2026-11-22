@@ -627,7 +627,8 @@ static void krimbleShowTransformTitle(QWidget *from, const ToolTransformArgs &co
             // the name is shown in the Tool Options title row (the label itself is hidden)
             for (QWidget *w = label->parentWidget(); w; w = w->parentWidget()) {
                 if (QDockWidget *dock = qobject_cast<QDockWidget *>(w)) {
-                    if (dock->titleBarWidget()) QMetaObject::invokeMethod(dock->titleBarWidget(), "setTitleOverride", Q_ARG(QString, title));
+                    // if (dock->titleBarWidget()) QMetaObject::invokeMethod(dock->titleBarWidget(), "setTitleOverride", Q_ARG(QString, title));
+                    if (dock->titleBarWidget()) QMetaObject::invokeMethod(dock->titleBarWidget(), "setTitleOverride", Q_ARG(QString, QString()));   // the title stays "Tool Options"; the label line shows the mode
                     break;
                 }
             }
