@@ -7934,3 +7934,8 @@ Built as 71.
 - 17:08, "Actually, file has much fewer items. Put it in File as \"A. I. Image generation\".": it is now **File > A. I. Image generation**, next to
   Take Photo (KrimbleFileAndHelpExtras.inc); the Image menu entry is commented out. Docs updated.
 - 17:09, "Maybe shorten it to gen instead of generation since that will stretch out the menu.": the menu item reads **A. I. Image gen**. Docs updated.
+
+## 811 — Image > Image Rotation renamed Rotate (2026-11-21, not built)
+- "Change Image - Image Rotation to just Rotate." (1.0.73 test list, item 15) / "You have permission to make the changes to the menu for Rotate."
+- krita/krita5.xmlgui, the ImageRotation menu: `<text>Image &amp;Rotation</text>` → `<text>&amp;Rotate</text>`. Only that line; nothing else in
+  the file changed. (The Free Rotate addition already finds the submenu by either name, 810.)

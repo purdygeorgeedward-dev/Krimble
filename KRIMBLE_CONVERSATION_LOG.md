@@ -296,3 +296,5 @@ What was lost: the screenshots George sent during the day were not saved anywher
 - **17:07:** "Add it now and document it." / "Image menu" (change 810)
 - **17:08:** "Actually, file has much fewer items. Put it in File as \"A. I. Image generation\"." (moved to File)
 - **17:09:** "Maybe shorten it to gen instead of generation since that will stretch out the menu." (now "A. I. Image gen")
+- **17:09:** "If you can touch the xmlgui file, how can you add it?"
+- **17:10:** "You have permission to make the changes to the menu for Rotate." (change 811, krita5.xmlgui line 305 only)
