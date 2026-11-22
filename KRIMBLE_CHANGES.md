@@ -8048,3 +8048,14 @@ Built as 71.
 - thememanager.cpp: "The unselected tab should be darker than the selected tab, but lighter than the dark area behind the tabs, so make it the halfway point between the two shades." The panel tab rows (QMainWindow > QTabBar) get a background 1.45 times darker than the panel, across the whole row (checked in real Qt: the tab bar spans the panel width); an unselected tab is halfway between that and the panel color; the selected tab stays the panel color. The curved tab shapes stay off (Nov 15 decision; "I meant the curved shapes").
 - KRIMBLE_DESIGN_RULES.md: the Pan rule reworded to George's words (first load only; new images keep the tool), the no-overlapping-text rule, the three-shade tab row rule, and the circle rule.
 - Syntax check: no errors. Not built.
+
+## 826 — Tab rows: darker row, lighter unselected tab (2026-11-22, not built)
+- George (looking at the 825 tab row): "Your visual demo is super dark." / "The background area should be darker and the unselected tab can be lighter. Why all the different versions?" / "Push everything we set up."
+- thememanager.cpp: the row behind the panel tabs is twice as dark as the panel (was 1.45 times); an unselected tab is 1.12 times darker than the panel (was halfway). The 825 values are in comments. Demo: docs/krimble-refs/previews/2026-11-22_0500_tab-row-darker-row-lighter-unselected.png.
+
+## 827 — Krimble Light theme (2026-11-22, not built)
+- George: "Don't we have any light themes any more????" (the only one, Krita bright, went out with the Krita themes on Nov 15) / "Yes, the word Krita is a curse." / "I think we should have at least one light theme since not everyone is a goth like me." / "Sure. Add that."
+- krita/data/themes/KrimbleLight.colors (new; installed by krita/data/themes/CMakeLists.txt): light blue-gray panels (206,210,225), near-white views (244,245,250), dark text (28,31,46), the selection blue #0b87dd.
+- thememanager.cpp: krimbleLightSheet() makes the Krimble sheet light. Saturated blues (selection, Aqua) stay; black edge lines become a mid gray; the dark wells (text boxes, lists, drop-downs) become near white; panels, faces and bevel edges are raised by the same amount so the bevels keep their direction; light text becomes dark. Text on blue (Aqua push buttons, selected rows and menu items) stays white. The common sheet is made light the same way. Not flat (bevels on), like Blue-Gray.
+- Preview (real-code): docs/krimble-refs/previews/2026-11-22_0515_preview-krimble-light.png.
+- Not covered and not checked: Krimble's own drawn parts with fixed dark colors (toolbox button faces, Color Lab, Layers rows, the menu bar bevels, the Mixer); they may stay dark in this theme until they are made to follow it. Not built.

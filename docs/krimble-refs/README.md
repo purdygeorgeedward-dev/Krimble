@@ -72,3 +72,6 @@ Files named YYYY-MM-DD_HHMM_<id>.jpg, by the time each was sent (MST).
 - 2026-11-22_0234_MESS-is-the-circled-title.jpg — "The mess is the circled text": "Tool Options" and "Free Rotate" stacked on top of each other
 - previews/2026-11-22_0433_panels-now-next-proposed.png — panel types as they render (build 73 screenshots), the next build, and the proposals ("it looks like you have a handle on it")
 - previews/2026-11-22_0450_preview-tab-row-three-shades.png — tab row from the code as pushed: dark row, unselected tab halfway, selected tab the panel color (real Qt render)
+- 2026-11-22_0302_screen-looks-normal-build73.jpg — George's screen in build 73 ("It looks normal."); its toolbox background measures 56,58,83, the same as the demos
+- previews/2026-11-22_0500_tab-row-darker-row-lighter-unselected.png — the tab row as set: row behind twice as dark as the panel, unselected tab a little darker than the selected one
+- previews/2026-11-22_0515_preview-krimble-light.png — the new Krimble Light theme from the code as pushed (real-code preview)

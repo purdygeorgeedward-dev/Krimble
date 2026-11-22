@@ -14,6 +14,7 @@ install(FILES
 KrimbleBlueGray.colors
 KrimbleDarkGray.colors   # Krimble 2026-11-15: the theme "Krimble Dark Gray" (flat, no bevels)
 KrimblePainted.colors
+KrimbleLight.colors      # Krimble 2026-11-22: the light theme
  ${schemefiles} DESTINATION ${KDE_INSTALL_DATADIR}/color-schemes
 )
 

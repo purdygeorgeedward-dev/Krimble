@@ -200,6 +200,43 @@ static QString krimbleGraySheet(const QString &sheet)
     return out;
 }
 
+// Krimble Light: the Krimble sheet made light. Saturated blues (the selection blue, Aqua) stay. Dark colors (backgrounds, edges, shadows)
+// are raised by the same amount, so a raised edge stays lighter than its face and a shadow stays darker (the bevels keep their direction);
+// light text becomes dark text.
+static QString krimbleLightSheet(const QString &sheet)
+{
+    static const QRegularExpression colorRx(QStringLiteral("#[0-9a-fA-F]{6}\\b"));
+    QString out;
+    out.reserve(sheet.size());
+    int last = 0;
+    QRegularExpressionMatchIterator it = colorRx.globalMatch(sheet);
+    while (it.hasNext()) {
+        const QRegularExpressionMatch m = it.next();
+        out += sheet.mid(last, m.capturedStart() - last);
+        const QColor c(m.captured());
+        int h = 0, sat = 0, v = 0;
+        c.getHsv(&h, &sat, &v);
+        if (h >= 180 && h <= 260 && sat > 140 && v > 90) {
+            out += m.captured();   // the blues of selections and Aqua
+        } else {
+            int nv;
+            if (v <= 12) nv = 120;                         // black edge lines: a mid gray line
+            else if (v < 60) nv = 247;                     // the dark wells (text boxes, lists, drop-downs): near white
+            else if (v < 150) nv = qMin(250, v + 140);     // panels, faces and bevel edges: lighter, in the same order
+            else nv = qMax(20, 275 - v);                   // light text and light details: dark
+            out += QColor::fromHsv(229, qMin(sat, 40), nv).name();
+        }
+        last = m.capturedEnd();
+    }
+    out += sheet.mid(last);
+    out.replace(QRegularExpression(QStringLiteral("color:\\s*white\\b")), QStringLiteral("color: #1c1f2e"));   // named white text: dark
+    // text on the blue (Aqua buttons, checked buttons) stays white
+    out += QStringLiteral("\nQPushButton, QPushButton:hover, QPushButton:pressed, QPushButton:default, QPushButton:checked { color: #ffffff; }"
+                          "\nQPushButton:disabled { color: #7a7f95; }"
+                          "\nQAbstractItemView::item:selected, QMenu::item:selected { color: #ffffff; }\n");
+    return out;
+}
+
 void ThemeManager::setCurrentTheme(const QString& name)
 {
     d->currentThemeName = (name == QStringLiteral("Krimble dark") || name == QStringLiteral("Krimble Blue") || name.contains(QStringLiteral("Krita"), Qt::CaseInsensitive)) ? QStringLiteral("Krimble Blue-Gray") : name;
@@ -292,6 +329,8 @@ void ThemeManager::slotChangePalette()
         krimbleSheet = (krimbleRecolorSheet(krimbleVisualStyleSheet(), 236, 33));
     } else if (theme == QStringLiteral("Krimble Dark Gray")) {
         krimbleSheet = (krimbleGraySheet(krimbleVisualStyleSheet()));
+    } else if (theme == QStringLiteral("Krimble Light")) {
+        krimbleSheet = (krimbleLightSheet(krimbleVisualStyleSheet()));
     } else if (theme == QStringLiteral("Krimble Painted")) {
         krimbleSheet = (krimblePaintedStyleSheet() + QStringLiteral(
             "\nQScrollBar:vertical { background: #03050a; width: 18px; margin: 0px; border: 1px solid #000000; }\n"
@@ -310,7 +349,8 @@ void ThemeManager::slotChangePalette()
         const QString recentColor = qApp->palette().color(QPalette::Window).darker(200).name();
         krimbleSheet = (krimbleSheet + QStringLiteral("\nKisWelcomePageWidget QListView#recentDocumentsListView { background: %1; border: 1px solid %2; }\n").arg(recentColor, baseColor));
     }
-    if (!krimbleSheet.isEmpty()) krimbleSheet += krimbleCommonStyleSheet();
+    // if (!krimbleSheet.isEmpty()) krimbleSheet += krimbleCommonStyleSheet();
+    if (!krimbleSheet.isEmpty()) krimbleSheet += (theme == QStringLiteral("Krimble Light") ? krimbleLightSheet(krimbleCommonStyleSheet()) : krimbleCommonStyleSheet());
     if (theme == QStringLiteral("Krimble Blue-Gray")) krimbleSheet = krimbleRecolorSheet(krimbleSheet, 236, 33);
     else if (theme == QStringLiteral("Krimble Dark Gray")) krimbleSheet = krimbleGraySheet(krimbleSheet);
     if (!krimbleSheet.isEmpty()) {
@@ -334,11 +374,13 @@ void ThemeManager::slotChangePalette()
             "\nQProgressBar::chunk { background: none; border: none; border-image: url(%2) 0 0 0 0 stretch; }\n").arg(aquaSquare, aquaWide);
     }
     if (!krimbleSheet.isEmpty()) {
-        // the panel tab rows: the whole row behind the tabs is darker than the panel; an unselected tab is halfway between the
-        // selected tab (the panel's color) and that darker row (the curved tab shapes stay off)
+        // the panel tab rows: the whole row behind the tabs is much darker than the panel; an unselected tab is a little darker than
+        // the selected tab (the panel's color); the curved tab shapes stay off
         const QColor panel = qApp->palette().color(QPalette::Window);
-        const QColor behind = panel.darker(145);
-        const QColor unselected((panel.red() + behind.red()) / 2, (panel.green() + behind.green()) / 2, (panel.blue() + behind.blue()) / 2);
+        // const QColor behind = panel.darker(145);
+        // const QColor unselected((panel.red() + behind.red()) / 2, (panel.green() + behind.green()) / 2, (panel.blue() + behind.blue()) / 2);
+        const QColor behind = panel.darker(200);       // the row behind the tabs: twice as dark as the panel
+        const QColor unselected = panel.darker(112);   // an unselected tab: a little darker than the selected one
         krimbleSheet += QStringLiteral("\nQMainWindow > QTabBar { background: %1; }\nQMainWindow > QTabBar::tab:!selected { background: %2; }\n")
                             .arg(behind.name(), unselected.name());
     }
