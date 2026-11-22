@@ -59,3 +59,8 @@ Files named YYYY-MM-DD_HHMM_<id>.jpg, by the time each was sent (MST).
 - 2026-11-21_1545_demo-aqua-darker-and-flat-selection.png — Aqua before and after darkening, and the flat selection blue for layers
 - 2026-11-21_1600_krimble-log-relaunch.txt — George's Krimble log after a relaunch (onDestroy isFinishing=true at 15:33:54)
 - 2026-11-21_1610_test-all-push-buttons-aqua.png — Copy, OK, Cancel in Aqua, Disabled gray (desktop Qt test)
+- 2026-11-22_0054_test-transform-flyout-tooltip-bar.jpg — build 73: long press on Transform showed one row (the tooltip text) as a big aqua bar
+- 2026-11-22_0128_NO-FREE-transform-label.jpg — "NO FREE": the "Free Transform" label in Transform's Tool Options
+- 2026-11-22_0128_transform-shear-radio-buttons.jpg — Transform Tool Options with the Position/Rotate/Scale/Shear radio buttons
+- 2026-11-22_0128_MESS-and-ICONS-mesh-mode.jpg — "MESS" (Mesh mode gadget on the picture, to be confirmed) and "ICONS" (the mode icons); title "Free Rotate" circled
+- previews/2026-11-22_* — renders from the real-code preview program (one aqua, the nine-mode flyout and mode row, the build-73 check against the phone)

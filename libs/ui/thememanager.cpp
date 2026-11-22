@@ -34,6 +34,9 @@
 #include <QDebug>
 #include <QAction>
 #include <QMessageBox>
+#include <QStandardPaths>
+#include <QDir>
+#include <QImage>
 
 // KDE includes
 
@@ -49,6 +52,7 @@
 #include <kis_icon.h>
 #include <kis_config_notifier.h>
 #include "KrimbleVisualStyle.h"
+#include "KrimbleAquaPaint.h"
 #include "KrimbleCommonStyle.h"
 #include "KrimbleVisualStylePainted.h"
 
@@ -309,6 +313,26 @@ void ThemeManager::slotChangePalette()
     if (!krimbleSheet.isEmpty()) krimbleSheet += krimbleCommonStyleSheet();
     if (theme == QStringLiteral("Krimble Blue-Gray")) krimbleSheet = krimbleRecolorSheet(krimbleSheet, 236, 33);
     else if (theme == QStringLiteral("Krimble Dark Gray")) krimbleSheet = krimbleGraySheet(krimbleSheet);
+    if (!krimbleSheet.isEmpty()) {
+        // one Aqua: the check box, the slider fill and the progress bar use the painted Aqua of the checked tool button
+        // (KrimbleAquaPaint.h), drawn once into pictures, because a style sheet cannot draw it
+        const QString aquaDir = QStandardPaths::writableLocation(QStandardPaths::CacheLocation);
+        QDir().mkpath(aquaDir);
+        const QString aquaSquare = aquaDir + QStringLiteral("/krimble-aqua-square.png");
+        const QString aquaWide = aquaDir + QStringLiteral("/krimble-aqua-wide.png");
+        QImage square(48, 48, QImage::Format_ARGB32_Premultiplied);
+        square.fill(Qt::transparent);
+        { QPainter p(&square); krimblePaintAqua(p, QRectF(1, 1, 46, 46), 5); }
+        square.save(aquaSquare);
+        QImage wide(192, 24, QImage::Format_ARGB32_Premultiplied);
+        wide.fill(Qt::transparent);
+        { QPainter p(&wide); krimblePaintAqua(p, QRectF(0, 0, 192, 24), 3); }
+        wide.save(aquaWide);
+        krimbleSheet += QStringLiteral(
+            "\nQCheckBox::indicator:checked { background: none; border: none; border-image: url(%1) 0 0 0 0 stretch; }"
+            "\nQSlider::sub-page:horizontal { background: none; border: none; border-image: url(%2) 0 0 0 0 stretch; }"
+            "\nQProgressBar::chunk { background: none; border: none; border-image: url(%2) 0 0 0 0 stretch; }\n").arg(aquaSquare, aquaWide);
+    }
     qApp->setStyleSheet(krimbleSheet);   // 696th: the one and only call
 #endif
     KisConfigNotifier::instance()->notifyColorThemeChanged(filename);

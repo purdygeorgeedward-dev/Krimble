@@ -10,6 +10,10 @@
         <file>dark_krimble-share.svg</file>
         <file>dark_krimble-free-rotate.svg</file>
         <file>light_krimble-free-rotate.svg</file>
+        <file>dark_krimble-transform-stretch.svg</file>
+        <file>light_krimble-transform-stretch.svg</file>
+        <file>dark_krimble-transform-shear.svg</file>
+        <file>light_krimble-transform-shear.svg</file>
         <file>light_krimble-share.svg</file>
         <file>dark_krimble-new-document.png</file>
         <file>dark_krimble-quickadjust-logo.png</file>

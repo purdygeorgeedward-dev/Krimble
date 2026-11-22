@@ -44,7 +44,13 @@ public:
 // a checked button draws the Aqua-style selection (KrimbleAquaPaint.h) under its icon and text, in place of the halo glow
 static bool krimbleAquaButtonEligible(QAbstractButton *button)
 {
-    if (!button || !button->isCheckable() || !button->isChecked()) return false;
+    // if (!button || !button->isCheckable() || !button->isChecked()) return false;
+    if (!button) return false;
+    // one Aqua: every plain push button (OK, Cancel, Create, Copy...) is painted like the checked tool button
+    if (QPushButton *push = qobject_cast<QPushButton*>(button)) {
+        if (!push->isCheckable() || push->isChecked()) return push->isEnabled() && !push->isFlat();
+    }
+    if (!button->isCheckable() || !button->isChecked()) return false;
     if (QToolButton *tool = qobject_cast<QToolButton*>(button)) {
         if (tool->menu() && tool->popupMode() == QToolButton::MenuButtonPopup) return false;   // keeps its own look (the menu arrow part)
         return true;
@@ -56,7 +62,8 @@ static void krimblePaintAquaButton(QAbstractButton *button)
 {
     QPainter p(button);
     const QRectF r = QRectF(button->rect()).adjusted(1, 1, -1, -1);
-    krimblePaintAqua(p, r, qMin(r.width(), r.height()) * 0.10);
+    // krimblePaintAqua(p, r, qMin(r.width(), r.height()) * 0.10);
+    krimblePaintAqua(p, r, qMin(r.width(), r.height()) * 0.10, button->isDown() ? QColor(11, 135, 221).darker(135) : QColor(11, 135, 221));   // a little darker while pressed
     if (QToolButton *tool = qobject_cast<QToolButton*>(button)) {
         QStyleOptionToolButton opt;
         opt.initFrom(tool);
@@ -89,7 +96,13 @@ public:
     explicit KrimbleGlowFilter(QObject *parent) : QObject(parent) {}
     void hook(QAbstractButton *button)
     {
-        if (!button || !button->isCheckable() || button->property("krimbleGlowHooked").toBool()) return;
+        // if (!button || !button->isCheckable() || button->property("krimbleGlowHooked").toBool()) return;
+        if (!button || button->property("krimbleGlowHooked").toBool()) return;
+        if (!button->isCheckable() && !qobject_cast<QPushButton*>(button)) return;   // plain push buttons get the Aqua too
+        if (QPushButton *push = qobject_cast<QPushButton*>(button)) {
+            // only Qt's own push button: subclasses (color buttons and the like) and buttons with their own style sheet keep their look
+            if (QByteArray(push->metaObject()->className()) != "QPushButton" || !push->styleSheet().isEmpty()) return;
+        }
         if (!qobject_cast<QToolButton*>(button) && !qobject_cast<QPushButton*>(button)) return;   // not check boxes or radio buttons
         if (QByteArray(button->metaObject()->className()) == "KoToolBoxButton") return;   // the toolbox selection is flat, no glow
         if (KoGroupButton *grouped = qobject_cast<KoGroupButton*>(button)) {

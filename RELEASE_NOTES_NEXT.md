@@ -31,6 +31,15 @@ Krimble is open source software made with the assistance of Claude and ChatGPT.
 
 - Five patterns come with the app instead of 114 (paper, dots, a diagonal hatch, a crosshatch and a grid). For Zip-A-Tone dots and lines, use the Screentone fill layer.
 
+**Transform**
+
+- Each Transform mode is its own button: Scale (keeps proportions, the default), Stretch, Rotate, Shear, Perspective, Warp, Cage, Liquify and Mesh, in Tool Options and in the Transform button's long-press menu. The toolbox button shows the mode in use.
+- No more "Free" in names: Free Transform is Scale, Free Rotate is Rotate.
+
+**Look**
+
+- One Aqua look for buttons, check boxes, slider fills and progress bars.
+
 **Known issues**
 
 - (from the test results)

@@ -10,6 +10,8 @@
 #include "kis_tool_transform_config_widget.h"
 #include <QToolButton>
 #include <QTimer>
+#include <QApplication>
+#include <QDynamicPropertyChangeEvent>
 #include <KoToolManager.h>
 
 #include <kis_icon.h>
@@ -342,7 +344,35 @@ KisToolTransformConfigWidget::KisToolTransformConfigWidget(TransformTransactionP
     horizontalLayout_3->insertWidget(1, m_krimbleRotateButton);
     connect(m_krimbleRotateButton, SIGNAL(clicked(bool)), this, SLOT(slotKrimbleRotateButtonClicked(bool)));
 
-    Q_FOREACH (QToolButton *modeButton, QList<QToolButton*>({freeTransformButton, m_krimbleRotateButton, perspectiveTransformButton, warpButton,
+    // Stretch (the non-uniform scale) and Shear are mode buttons of their own, like Warp (George, 2026-11-22: "each mode is a different tool");
+    // the order is Scale, Stretch, Rotate, Shear, Perspective, Warp, Cage, Liquify, Mesh
+    auto krimbleModeButton = [this](const QString &name) {
+        QToolButton *button = new QToolButton(freeTransformButton->parentWidget());
+        button->setCheckable(true);
+        button->setAutoExclusive(true);
+        button->setAutoRaise(freeTransformButton->autoRaise());
+        button->setSizePolicy(freeTransformButton->sizePolicy());
+        button->setToolTip(name);
+        return button;
+    };
+    m_krimbleStretchButton = krimbleModeButton(i18n("Stretch"));
+    m_krimbleShearButton = krimbleModeButton(i18n("Shear"));
+    horizontalLayout_3->insertWidget(1, m_krimbleStretchButton);   // after Scale (Rotate moves to the third place)
+    horizontalLayout_3->insertWidget(3, m_krimbleShearButton);     // after Rotate
+    connect(m_krimbleStretchButton, SIGNAL(clicked(bool)), this, SLOT(slotKrimbleStretchButtonClicked(bool)));
+    connect(m_krimbleShearButton, SIGNAL(clicked(bool)), this, SLOT(slotKrimbleShearButtonClicked(bool)));
+
+    // the Position, Rotate, Scale and Shear radio buttons are hidden: each is a mode button now (Position is the Move tool, and a drag inside the box in every mode);
+    // the keep-aspect chain is hidden too: Scale keeps the proportions, Stretch does not
+    freeMoveRadioButton->hide();
+    freeRotationRadioButton->hide();
+    freeScaleRadioButton->hide();
+    freeShearRadioButton->hide();
+    aspectButton->hide();
+    lblTransformType->setText(i18n("Scale"));   // was "Free Transform" (no "Free" in any name)
+    qApp->installEventFilter(this);
+
+    Q_FOREACH (QToolButton *modeButton, QList<QToolButton*>({freeTransformButton, m_krimbleStretchButton, m_krimbleRotateButton, m_krimbleShearButton, perspectiveTransformButton, warpButton,
                                                               cageButton, liquifyButton, meshButton})) {
         modeButton->setIconSize(QSize(20, 20));
         modeButton->setMinimumHeight(30);
@@ -365,6 +395,8 @@ void KisToolTransformConfigWidget::slotUpdateIcons()
 {
     freeTransformButton->setIcon(KisIconUtils::loadIcon("transform_icons_main"));
     if (m_krimbleRotateButton) m_krimbleRotateButton->setIcon(KisIconUtils::loadIcon("krimble-free-rotate"));
+    if (m_krimbleStretchButton) m_krimbleStretchButton->setIcon(KisIconUtils::loadIcon("krimble-transform-stretch"));
+    if (m_krimbleShearButton) m_krimbleShearButton->setIcon(KisIconUtils::loadIcon("krimble-transform-shear"));
     warpButton->setIcon(KisIconUtils::loadIcon("transform_icons_warp"));
     cageButton->setIcon(KisIconUtils::loadIcon("transform_icons_cage"));
     perspectiveTransformButton->setIcon(KisIconUtils::loadIcon("transform_icons_perspective"));
@@ -557,6 +589,8 @@ void KisToolTransformConfigWidget::liquifyReverseDirectionChanged(bool value)
     notifyConfigChanged(false);
 }
 
+static int s_krimbleFreeKind = 0;   // Scale (0, uniform: the default), Stretch (1, non-uniform) or Shear (2)
+
 static void krimbleShowTransformTitle(QWidget *from, const ToolTransformArgs &config)
 {
     if (!from || KoToolManager::instance()->activeToolId() != QLatin1String("KisToolTransform")) return;
@@ -567,7 +601,8 @@ static void krimbleShowTransformTitle(QWidget *from, const ToolTransformArgs &co
         case ToolTransformArgs::GestureMove: title = QObject::tr("Position"); break;
         case ToolTransformArgs::GestureRotate: title = QObject::tr("Rotate"); break;
         case ToolTransformArgs::GestureShear: title = QObject::tr("Shear"); break;
-        default: title = QObject::tr("Scale"); break;
+        // default: title = QObject::tr("Scale"); break;
+        default: title = s_krimbleFreeKind == 1 ? QObject::tr("Stretch") : QObject::tr("Scale"); break;
         }
         break;
     case ToolTransformArgs::WARP: title = QObject::tr("Warp"); break;
@@ -596,6 +631,7 @@ void KisToolTransformConfigWidget::updateConfig(const ToolTransformArgs &config)
 {
     blockUiSlots();
     krimbleShowTransformTitle(this, config);
+    krimblePublishMode(config);
  
     if (config.mode() == ToolTransformArgs::FREE_TRANSFORM ||
         config.mode() == ToolTransformArgs::PERSPECTIVE_4POINT) {
@@ -608,9 +644,22 @@ void KisToolTransformConfigWidget::updateConfig(const ToolTransformArgs &config)
 
         if (freeTransformIsActive)
         {
-            freeTransformButton->setChecked(true);
+            // freeTransformButton->setChecked(true);
+            // if (m_krimbleRotateButton && KoToolManager::instance()->activeToolId() == QLatin1String("KisToolFreeRotate")) {
+            //     m_krimbleRotateButton->setChecked(true);
+            // }
             if (m_krimbleRotateButton && KoToolManager::instance()->activeToolId() == QLatin1String("KisToolFreeRotate")) {
                 m_krimbleRotateButton->setChecked(true);
+            } else {
+                // the chosen one of Scale, Stretch and Shear stays chosen for every new transform (a new transform starts as Scale)
+                if (m_transaction && m_transaction->currentConfig()) {
+                    ToolTransformArgs *current = m_transaction->currentConfig();
+                    current->setFreeGesture(s_krimbleFreeKind == 2 ? ToolTransformArgs::GestureShear : ToolTransformArgs::GestureScale);
+                    current->setKeepAspectRatio(s_krimbleFreeKind == 0);
+                }
+                if (s_krimbleFreeKind == 1 && m_krimbleStretchButton) m_krimbleStretchButton->setChecked(true);
+                else if (s_krimbleFreeKind == 2 && m_krimbleShearButton) m_krimbleShearButton->setChecked(true);
+                else freeTransformButton->setChecked(true);
             }
         }
         else
@@ -886,6 +935,35 @@ void KisToolTransformConfigWidget::slotKrimbleRotateButtonClicked(bool value)
 void KisToolTransformConfigWidget::slotSetFreeTransformModeButtonClicked(bool value)
 {
     if (!value) return;
+    krimbleSetFreeKind(0);   // Scale
+}
+
+void KisToolTransformConfigWidget::slotKrimbleStretchButtonClicked(bool value)
+{
+    if (!value) return;
+    krimbleSetFreeKind(1);
+}
+
+void KisToolTransformConfigWidget::slotKrimbleShearButtonClicked(bool value)
+{
+    if (!value) return;
+    krimbleSetFreeKind(2);
+}
+
+void KisToolTransformConfigWidget::krimbleSetFreeKind(int kind)
+{
+    s_krimbleFreeKind = kind;
+    // already the free transform in the Transform tool: change the gesture only (the picture is not reset)
+    if (KoToolManager::instance()->activeToolId() == QLatin1String("KisToolTransform")
+            && m_transaction && m_transaction->currentConfig()
+            && m_transaction->currentConfig()->mode() == ToolTransformArgs::FREE_TRANSFORM) {
+        ToolTransformArgs *config = m_transaction->currentConfig();
+        config->setFreeGesture(kind == 2 ? ToolTransformArgs::GestureShear : ToolTransformArgs::GestureScale);
+        config->setKeepAspectRatio(kind == 0);
+        updateConfig(*config);
+        notifyConfigChanged();
+        return;
+    }
 
     if (KoToolManager::instance()->activeToolId() == QLatin1String("KisToolFreeRotate")) {
         QTimer::singleShot(0, []() { KoToolManager::instance()->switchToolRequested(QStringLiteral("KisToolTransform")); });
@@ -1491,4 +1569,66 @@ void KisToolTransformConfigWidget::slotPreviewChanged(int index)
      */
     Q_EMIT sigUpdateGlobalConfig();
     Q_EMIT sigRestartAndContinueTransform();
+}
+
+
+// Krimble: the mode in use, for the toolbox's Transform button (its picture) and its flyout (the row in use)
+void KisToolTransformConfigWidget::krimblePublishMode(const ToolTransformArgs &config)
+{
+    QString key;
+    if (KoToolManager::instance()->activeToolId() == QLatin1String("KisToolFreeRotate")) key = QStringLiteral("rotate");
+    else if (KoToolManager::instance()->activeToolId() != QLatin1String("KisToolTransform")) return;
+    else {
+        switch (config.mode()) {
+        case ToolTransformArgs::FREE_TRANSFORM: key = s_krimbleFreeKind == 1 ? QStringLiteral("stretch") : (s_krimbleFreeKind == 2 ? QStringLiteral("shear") : QStringLiteral("scale")); break;
+        case ToolTransformArgs::PERSPECTIVE_4POINT: key = QStringLiteral("perspective"); break;
+        case ToolTransformArgs::WARP: key = QStringLiteral("warp"); break;
+        case ToolTransformArgs::CAGE: key = QStringLiteral("cage"); break;
+        case ToolTransformArgs::LIQUIFY: key = QStringLiteral("liquify"); break;
+        case ToolTransformArgs::MESH: key = QStringLiteral("mesh"); break;
+        default: return;
+        }
+    }
+    static const QMap<QString, QString> names = {
+        { QStringLiteral("scale"), i18n("Scale") }, { QStringLiteral("stretch"), i18n("Stretch") }, { QStringLiteral("rotate"), i18n("Rotate") },
+        { QStringLiteral("shear"), i18n("Shear") }, { QStringLiteral("perspective"), i18n("Perspective") }, { QStringLiteral("warp"), i18n("Warp") },
+        { QStringLiteral("cage"), i18n("Cage") }, { QStringLiteral("liquify"), i18n("Liquify") }, { QStringLiteral("mesh"), i18n("Mesh") } };
+    lblTransformType->setText(names.value(key));
+    if (qApp->property("krimbleTransformMode").toString() != key) qApp->setProperty("krimbleTransformMode", key);
+}
+
+// a mode chosen in the toolbox flyout: the button of that mode is pressed, as if tapped here
+void KisToolTransformConfigWidget::krimbleApplyModeRequest()
+{
+    if (!isVisible()) return;   // only the Tool Options that are on screen (the Transform and the Rotate tool each have their own)
+    const QString key = qApp->property("krimbleTransformModeRequest").toString();
+    if (key.isEmpty()) return;
+    qApp->setProperty("krimbleTransformModeRequest", QString());
+    if (qApp->property("krimbleTransformMode").toString() == key) return;   // already in that mode: nothing is reset
+    QToolButton *button = nullptr;
+    if (key == QLatin1String("scale")) button = freeTransformButton;
+    else if (key == QLatin1String("stretch")) button = m_krimbleStretchButton;
+    else if (key == QLatin1String("rotate")) button = m_krimbleRotateButton;
+    else if (key == QLatin1String("shear")) button = m_krimbleShearButton;
+    else if (key == QLatin1String("perspective")) button = perspectiveTransformButton;
+    else if (key == QLatin1String("warp")) button = warpButton;
+    else if (key == QLatin1String("cage")) button = cageButton;
+    else if (key == QLatin1String("liquify")) button = liquifyButton;
+    else if (key == QLatin1String("mesh")) button = meshButton;
+    if (button) button->click();
+}
+
+bool KisToolTransformConfigWidget::eventFilter(QObject *watched, QEvent *event)
+{
+    if (watched == qApp && event->type() == QEvent::DynamicPropertyChange
+            && static_cast<QDynamicPropertyChangeEvent*>(event)->propertyName() == "krimbleTransformModeRequest") {
+        QTimer::singleShot(0, this, [this]() { krimbleApplyModeRequest(); });
+    }
+    return QWidget::eventFilter(watched, event);
+}
+
+void KisToolTransformConfigWidget::showEvent(QShowEvent *event)
+{
+    QWidget::showEvent(event);
+    QTimer::singleShot(0, this, [this]() { krimbleApplyModeRequest(); });
 }

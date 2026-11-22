@@ -25,6 +25,8 @@ public:
     void krimbleSetLongPress(bool on) { m_krimbleLongPress = on; update(); }
     bool krimbleHasLongPress() const { return m_krimbleLongPress; }
     KoToolAction *krimbleToolAction() const { return m_toolAction; }
+    // a picture other than the tool's own (the Transform button shows the Transform mode in use); empty: the tool's own
+    void krimbleSetIconOverride(const QString &iconName) { if (m_krimbleIconOverride == iconName) return; m_krimbleIconOverride = iconName; krimbleRefreshIcon(); }
     static void krimblePaintRaisedBox(QWidget *widget, bool down);
 
 Q_SIGNALS:
@@ -46,6 +48,7 @@ private Q_SLOTS:
 private:
     KoToolAction *m_toolAction;
     bool m_krimbleLongPress {false};
+    QString m_krimbleIconOverride;
     bool m_krimbleLongPressFired {false};
     QSize m_krimbleBaseIconSize;
     QSize m_krimbleSetIconSize;       // the size set for a full color picture (so a size set by the toolbox afterwards is noticed)
