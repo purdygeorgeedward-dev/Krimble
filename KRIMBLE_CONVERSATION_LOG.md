@@ -327,3 +327,5 @@ What was lost: the screenshots George sent during the day were not saved anywher
 - **21:04:** "Glow background is dropped." (change 817)
 - **21:05:** "Any other bloat?"
 - **21:07:** "Animation could be restored later, but you are right. Remove the animation templates." (change 818)
+- **21:07:** "How many splash images and how big are they?" (answered; untouched)
+- **21:08:** "Cut 4 and 5 above." (change 819: storyboard templates, YCbCr profiles)

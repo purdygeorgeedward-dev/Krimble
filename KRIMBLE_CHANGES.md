@@ -7994,3 +7994,10 @@ Built as 71.
 - "Animation could be restored later, but you are right. Remove the animation templates." krita/data/templates/CMakeLists.txt:
   `add_subdirectory( animation )` commented out (6.7 MB of File > New templates; the Animation panel is not built). The files stay in the
   repository; uncommenting the line brings them back.
+
+## 819 — YCbCr color profiles and storyboard templates not installed (2026-11-21, not built)
+- "Cut 4 and 5 above." (from the bloat list: 4 storyboard templates, 5 YCbCr color profiles)
+- krita/data/CMakeLists.txt: `add_subdirectory( storyboard_templates )` commented out (480 KB; the Storyboard panel is not built).
+- krita/data/profiles/CMakeLists.txt: `add_subdirectory(ycbcr-icc-profiles)` commented out (1.4 MB of BT.601/709/2020 YCbCr profiles, read
+  at every start). No code names these files (the "bt709" strings in kis_config.cc are display-surface settings). The elle sRGB profiles,
+  cmyk.icm and scRGB stay. Files stay in the repository.
