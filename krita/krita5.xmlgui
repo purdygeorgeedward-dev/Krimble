@@ -302,7 +302,7 @@ xsi:schemaLocation="http://www.kde.org/standards/kxmlgui/1.0  http://www.kde.org
                      <Separator/>
                      
     <Menu name="ImageRotation">
-        <text>        <text>Image &amp;Rotation</text>amp;Rotate</text>
+        <text>&amp;Rotate</text>
         
         <Action name="rotateimage">
             <text>Arbitrary...</text>
