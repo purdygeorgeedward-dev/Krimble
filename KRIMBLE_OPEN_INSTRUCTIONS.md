@@ -40,7 +40,7 @@ Last updated: 2026-11-21 03:42 MST.
 ## 2026-11-21 17:29 — Gradients (three features) and 3D map tools (not started)
 "Photoshop has complex gradients with multiple colors at different points on a line. I want that too, and I want a linear preview in the editor where it shows a large box with a vertical image of the selected gradient."
 "1. Gradient on a curve with the points of the gradient plotted on the curve to control how it renders, 2. A 3D mesh based gradient map where the gradients flow from node to node in a freeform way."
-"how hard would it be to add a bump map editing tool and a normal map editing tool for 3d work?"
+"how hard would it be to add a bump map editing tool and a normal map editing tool for 3d work?" / 17:31 "I think editing/painting those maps requires a 3d interface."
 (Already in the code base: multi-stop gradients and their editor (KisStopGradientEditor), SVG mesh gradients for vector shapes (SvgMeshGradient, KoMeshGradientBackground), the Height to Normal Map and Phong Bumpmap filters, the Tangent Normal brush.)
 
 ## 2026-11-21 15:37 — Test 1.0.73 list (in progress; see KRIMBLE_CONVERSATION_LOG.md for his words)
