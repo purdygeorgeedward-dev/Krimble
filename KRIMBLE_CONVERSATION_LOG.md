@@ -1,364 +1,118 @@
-# Krimble conversation log (George's messages)
+# Krimble conversation log
 
-Kept so a compressed session never loses what he said. Newest at the end. Times are UTC. Claude's replies are summarized in KRIMBLE_CHANGES.md and KRIMBLE_WORKLOG.md.
+A record of the project owner's requests, decisions and test findings, kept so a compressed session never loses them. Reworded as plain statements (Nov 22, 2026: "Reword all my comments and remove anything inappropriate... Just get the ideas across."). Newest at the end. Claude's work is in KRIMBLE_CHANGES.md and KRIMBLE_WORKLOG.md; test findings per build are in KRIMBLE_BUG_LISTS.md.
 
-## Session of 2026-11-15 (messages in the part of the session that is still on disk; earlier parts were compressed)
+## Nov 15, 2026 (times UTC)
 
-- **2026-11-15T21:55:57Z:** Push the new theme.
-- **2026-11-15T21:57Z:** No theme should have the word Krita in it from now on. Not in the filename or in the file.
-- **2026-11-15T21:57Z:** Remove all the tab customizations. They are all a failure.
-- **2026-11-15T21:59:08Z:** Delete krimbleblue.
-- **2026-11-15T22:00:04Z:** Did you remove fonts and brushes and other bloat earlier or did you leave it?
-- **2026-11-15T22:00:31Z:** Earlier did we not discuss removing bloat??????????????
-- **2026-11-15T22:00:56Z:** Ugh!!!! I hate this!!!!
-- **2026-11-15T22:01:22Z:** WHY DONT YOU EVER KEEP ANY CONVERSATIONS???????
-- **2026-11-15T22:02:34Z:** I talked to you about how slow the app starts. We talked about removing unnecessary stuff. WHY DONT YOU KEEP BETTER NOTES?????? KEEP DETAILED NOTES AND TRANSCRIPTS ON THE REPO!!!!
+- Push the new theme. No theme may have "Krita" in its name or file. Remove all the tab customizations (they did not work). Delete Krimble Blue.
+- Asked whether the earlier plan to remove fonts, brushes and other unneeded material had been done; it had not, and the earlier conversation was not on record.
+- Rule: keep detailed notes and transcripts in the repository. Every session adds the requests and decisions to this file; every push gets dated notes in KRIMBLE_CHANGES.md and KRIMBLE_WORKLOG.md.
+- Open topic: the app starts slowly; unneeded content should be removed (sizes then: bundles 36 MB, fonts 24 MB, patterns 7.6 MB, presets 2.1 MB). What counts as unneeded is decided by the owner.
+- Earlier the same day (from the session summary): slider handles use the ball bearing picture everywhere; recent colors keep their order; dimmer raised toolbox highlight; Donate button in Krimble orange (#FD6001); a compact Quick Adjust; a darker scroll bar track in the Painted theme; remove the Krita themes; a new Krimble Dark Gray theme (flat, warm grays, square corners); the selected menu title looks pressed in and menu rows light up; Recent Images clear of the toolbox on a darker base; menus start further right of the K; Color Lab keeps its logo; Layers needs a title; the toolbox shows two columns in portrait.
+- Working rules: build only on "BUILD"; a push is not a build; failed builds are deleted and their number reused; short replies; no multiple-choice menus; one step at a time; offers, not orders; no unrequested theories; never call something done unless it is in the repository; comment out code rather than delete it; dated notes for every change and push.
+- 22:03 to 22:08: keep about five brushes and delete the rest (Claude may choose which); remove the biggest fonts except Montserrat; delete the bundles; keep the templates. Make the recent files area darker than the interface so it stands out.
+- 22:11 to 22:13: improve the toolbox bevel edges; menu titles should look pressed in when selected, not glow. The release comments and tags of the last few builds were deleted; their notes should be rebuilt to record the problems in those builds.
+- 22:27: build 1.0.62.
+- 23:05: restore the earlier toolbox docking behavior and status bar height.
+- 23:15 to 24:10 (testing build 62): see KRIMBLE_BUG_LISTS.md, 1.0.62. Also: the whole resources folder should not have been deleted; derive bevel colors from each theme ("Yes"); the earlier theme name had "Krita" in it and was changed because Krimble is not Krita.
+- 24:15: build 1.0.63.
 
-## Standing rule (2026-11-15, 15:02 MST)
-George: "KEEP DETAILED NOTES AND TRANSCRIPTS ON THE REPO!!!!" Every session appends his messages and the decisions to this file, and every push gets dated notes in `KRIMBLE_CHANGES.md` and `KRIMBLE_WORKLOG.md`.
+## Nov 16, 2026 (times UTC)
 
-## Open topic recorded 2026-11-15, 15:02 MST: slow app start and unnecessary stuff
-George says he talked to Claude (in an earlier session; the text of that talk is not on disk and was not found) about how slowly the app starts and about removing unnecessary stuff. Nothing was removed. What the repo has in `krita/data`: `bundles` 36 MB, `fonts` 24 MB, `patterns` 7.6 MB, `paintoppresets` 2.1 MB, `gradients` 76 KB, `brushes` 12 KB. What counts as unnecessary is to be decided by George; nothing is cut until he says.
+- 00:16: review all recent commits for errors.
+- 00:29 to 00:30: the last several builds have no release comments; 1.0.59 and 1.0.60 are missing (releases cannot be created from this session).
+- 02:10 (testing build 63): ten faults; see KRIMBLE_BUG_LISTS.md, 1.0.63. Fixes asked for keep not reaching the builds.
+- 03:39: asked why an earlier fix never ran (its class-name test never matched; fixed in the 706th).
+- 03:40 to 03:56: fix these issues and push; docking the toolbox by menu or by dragging gives unpredictable results; work independently, resolve the issues and document everything (a new access token was given).
+- 04:11: build.
+- 12:37 to 12:38: tag and document; save all release documentation in the project documents; write an accurate help file.
+- 13:28 to 13:41 (toolbox review): Smudge and Soften on their own; the healing brush on its own; the purpose of the stamp is unclear; label the two Type tools Krimble Type and Old Type; make the stamp a flyout of the healing brush, then separate it; remove the gadget under the color wells; flyout delay 400 ms; push all changes to master. Several changes had been made without approval.
+- 13:42 to 13:47: write a simple beginner's manual. It should not focus on painting: Krimble is a graphics editor, not a paint app. Do not mention the industry-standard brand or Adobe (Adobe RGB is fine). Remove every mention of the brand. Push and build.
+- 14:30: hold the build; a bug list for 1.0.64 follows.
+- 16:21 to 21:39 (testing build 64): see KRIMBLE_BUG_LISTS.md, 1.0.64. Also: a toolbox sorting system was the first request, because Pan should be the default tool; that is why Krita was being edited for mobile in the first place. The jolt may be linked to a theme redraw.
+- 21:46: build.
 
-## Earlier in the 2026-11-15 session (from the compression summary; his words as recorded there)
-- Slider handles are his ball-bearing picture, on every slider including Color Lab. Recent colors must not reorder on reselect. Raised toolbox highlight dimmer. Donate button Krimble orange (#FD6001). QuickAdjust tiny, one line per row. Painted theme scroll bar: darker track. Remove the Krita themes. New theme Krimble Dark Gray (flat, no bevels, orange selection, squared corners, warm grays). Menu bar title recessed; menu rows light up. Recent Images clear of the toolbox; darker base screen. Menus start further right of the orange K. Color Lab keeps its logo. Layers panel needs a title. Toolbox has 2 columns in portrait but 1 in landscape (cause unknown). Crash when picking Krimble Blue-Gray (cause unknown). Optional 4-sided 3D color triangle: "It's more important to get a functional build."
-- Rules: build only when he says "BUILD"; a push is not a build; failed builds are deleted and the number reused; terse replies; no multiple-choice menus; one step at a time; offers, not orders; no unprompted theories; never claim done unless it is in the repo; comment out, never delete; dated notes for every change and push.
-- **2026-11-15T22:03Z:** I said before we don't need more than about 5 brushes. Delete the others.
-- **2026-11-15T22:04Z:** You pick. I don't care.
-- **2026-11-15T22:05Z:** This app is sick with bloat. Remove the biggest fonts except Montserrat. You don't remember deleting 9 font families?
-- **2026-11-15T22:06Z:** DELETE!!!!!!!!
-- **2026-11-15T22:06Z:** Now delete bundles.
-- **2026-11-15T22:08Z:** Templates for what? / No. Leave those. Fix this. Make the area where recent files live darker than the UI components so they stand out.
-- **2026-11-15T22:11Z:** (15 screenshots) Make the bevel edges of the toolbox better.
-- **2026-11-15T22:12Z:** Make sure menu titles recede when selected, not glow.
-- **2026-11-15T22:13Z:** Do you still have the comments and tags for the last few builds? I deleted them. / I definitely don't want those APKs, although I have them. / No. I think the notes need to be constructed about the many failures in those builds.
-- **2026-11-15T22:27Z:** Build the new fixes. 1.0.62
-- **2026-11-15T23:05Z:** Restore previous docking behavior for toolbox and previous status bar height
-- **2026-11-15T23:15Z:** (screenshot, build 62) ColorLab has THREE TITLES.
-- **2026-11-15T23:20Z:** It's super buggy and twitchy now. / The tabs work better, but titles are weird now. / Nothing wants to dock right now. / I thought the whole point of this build was to implement all new changes. Why didn't you do that? / No. You're way off. / When it started the file menu was still too close to the K. Somehow I changed themes. Now it refuses to change themes. / Also put a separator before change language in window menu.
-- **2026-11-15T23:29Z:** I got a message about not having any resource bundles.
-- **2026-11-15T23:30Z:** I didn't want you to delete the whole folder before.
-- **2026-11-15T23:32Z:** (welcome page screenshot) The k too close.
-- **2026-11-15T23:33Z:** (screenshot) Disaster. Complete mess. / I loaded an image.
-- **2026-11-15T23:38Z:** QuickAdjust size is better, but the ball bearings are too big. (Also: roll back to 1.0.58 is a temptation, not an instruction yet.)
-- **2026-11-15T23:39Z:** And I can't see the numbers any more. They have no space.
-- **2026-11-15T23:40Z:** And the preview toggle button is too big to fit in between the buttons now. Shrink it
-- **2026-11-15T23:41Z:** But put it in the space on the bottom.
-- **2026-11-15T23:45Z:** (screenshot) Preferences. The hilight still tints the icon when selected. Fix it. Again.
-- **2026-11-15T23:44Z:** (screenshot) Breeze dark theme has blue lines added?
-- **2026-11-15T23:46Z:** Yes (derive bevel colors from each theme)
-- **2026-11-15T23:50Z:** (screenshot) Breeze light has a dark menu bar.
-- **2026-11-15T23:52Z:** (screenshot) There are still weird black things at the bottom of the layers panel.
-- **2026-11-15T23:55Z:** It was called Krita something before, but we changed it because this is not Krita. (re: Krimble blue gray won't load)
-- **2026-11-15T23:58Z:** Ok it finally switched. There was a long delay
-- **2026-11-15T23:59Z:** (3 screenshots) Please make tabs match their panels and don't put a line between them.
-- **2026-11-15T24:00Z:** Remove the outline around menus.
-- **2026-11-15T24:05Z:** I tapped the layer tab and the whole right dock vanished. Then I rotated and it came back. Twitchy. / Can the layers use warm greys instead of cold grays?
-- **2026-11-15T24:10Z:** (screenshot) It looks like menus are a little too high.
-- **2026-11-15T24:15Z:** Let's build 1.0.63. / All pushes in?
-- **2026-11-16T00:16Z:** Analyze all the recent commits for errors.
-- **2026-11-16T00:29Z:** There are no comments about the last several builds.
-- **2026-11-16T00:30Z:** 1.0.59 and 1.0.60 are still missing. (GitHub releases: this session may not create releases, HTTP 403)
-- **2026-11-16T02:10Z:** Ten faults after build 63 (toolbox docking, right dock highlight line, Window menu, toolbox cut off, K too close, Color Lab giant, Preferences tint, dock right gives dock top, stamp icon with nameless tools, raised toolbox skips three icons). "Version numbers mean nothing because you never fix what I ask you to fix."
-- **2026-11-16T03:39Z:** "my fix has never run, in any build." WHY? (answer: exact class-name test never matched the namespaced class; 706th)
-- **2026-11-16T03:40Z:** Fix these issues and push.
-- **2026-11-16T03:54Z:** I tried different ways. I used the menu and dragged the toolbox and got unpredictable results.
-- **2026-11-16T03:55Z:** If I give you a PAT can you try to update the release docs?
-- **2026-11-16T03:56Z:** Work independently to resolve issues and document everything. (new PAT given)
-- **2026-11-16T04:11Z:** Build
-- **2026-11-16T12:37Z:** Tag and document.
-- **2026-11-16T12:38Z:** Save all documentation from releases in your project documents. Construct accurate help file for app.
-- **2026-11-16T13:28Z:** Did we finally get rid of the stamp icon and make the flyout better?
-- **2026-11-16T13:29Z:** Show me the toolbox.
-- **2026-11-16T13:34Z:** Smudge and soften should be on their own. The bandaid should be on its own. I don't even know what the stamp is. Why are there two Type tools? A lot of these changes are never approved.
-- **2026-11-16T13:36Z:** Label one type tool Krimble Type and the other Old Type.
-- **2026-11-16T13:36Z:** Make the stamp a flyout from the bandaid.
-- **2026-11-16T13:37Z:** What is that gadget at the bottom under the color wells in the toolbox?
-- **2026-11-16T13:38Z:** Remove it. I don't think anyone will use it.
-- **2026-11-16T13:38Z:** Are there an even number of tools or odd now?
-- **2026-11-16T13:39Z:** Separate the stamp tool.
-- **2026-11-16T13:40Z:** The flyouts already cleaned up the UI a lot. How long is the flyout delay.
-- **2026-11-16T13:40Z:** Make it 400 Ms.
-- **2026-11-16T13:41Z:** Push all changes to master.
-- **2026-11-16T13:42Z:** Can you write a simple Krimble manual? Basic introduction and documentation for beginners?
-- **2026-11-16T13:44Z:** Manual should not focus on painting. Krimble is not a paint app.
-- **2026-11-16T13:45Z:** Krimble is a graphics editor like the industry standard (although we should avoid mentioning the industry standard or Adobe).
-- **2026-11-16T13:46Z:** Remove ANY AND ALL MENTIONS OF [the brand name]!!!!!!
-- **2026-11-16T13:47Z:** Adobe RGB is fine.
-- **2026-11-16T13:47Z:** Push and build.
-- **2026-11-16T14:30Z:** Belay the build. I have a bug list from 1.0.64-beta.
-- **2026-11-16T16:21Z:** New bugs 1.0.64-beta: (14 items: jolts while painting; window buttons too high; K too close to File with no image; Polygon and Star icon; themes: raised buttons in the white theme, tab color (saved #364064), selection gradient also in menus; taller menu bar; remove the QuickAdjust toolbar; Hand as the start tool; the toolbox order; a default brush; ball bearing darker with a cast shadow; status bar size cut off in portrait; File Info General icon; 250 ms flyouts.) "Almost everything is perfect. Very few issues left to fix."
-- **2026-11-16T16:23Z:** There should already be a sorting assignment system in place for the toolbox. It was the first thing I asked for because I wanted pan/hand to be the default. It was why I started editing Krita for mobile in the first place.
-- **2026-11-16T16:28Z:** The jolt may be some kind of reset or redraw linked to the theme. I don't know.
-- **2026-11-16T21:39Z:** (the list again, plus) 15. Krita previously had tabs at the top for the open image files so you could select them. Now it doesn't for some reason. I didn't ask for that to be removed. Please restore it. 16. There are stability issues. Even just doing a simple operation like a fill can crash the app. I have been forced to use 1.0.58 due to severe stability issues with the new build. if these issues persist I will be forced to roll back to 1.0.58 and start over on revisions. Please make a list of all revisions requested/attempted in subsequent versions and formulate the best implementation if a rollback is performed.
-- **2026-11-16T21:46Z:** Build.
-- **2026-11-17T01:03Z:** File menu title is still too close to the orange K. Shadow on the toolbox is just a black line. Would like a couple more lines under the menu titles before getting down to the shadow. Foreground and background start as dark gray still instead of white and black. Odd number of tools in toolbox makes 2 columns look lopsided. Sharpen should be a flyout of soften/blur. We should never have an odd number of tools. I thought the icon was the stamp tool, but it's the healing brush. I don't get it. It's a form of stamp tool, right? I tried to leave the toolbox at the bottom, out of the way, but it snapped to the side. Not sure how to set that. Can docking be turned on and off? That seems like a good idea. Extra shadow lines on menubar disappeared. Menu appeared detached from title. No good. That was a decision before. The menu connects to the title without overlap and not separated. Canvas input settings selection overlaps onto the keyboard title area. New dialog selection maps over the icon. Recent images should be a bigger scrolling area with smaller preview images to choose from. Layers panel is a mess. It still has the black things at the bottom. The search field is a mess. Get rid of the search. It's useless. Change the layer colors back. Give me the selection effect blue for the selected layer and make the other layers dark and match the theme. Make the canvas background darker. It's hard to move the edge of the right hand pane again. So sick of the same issues coming back. Save As... dialog is WAY TOO WIDE. I ASKED FOR MORE HEIGHT, NOT MORE WIDTH. Resizing Save As... window does not set the size for next time it is invoked. When the dimensions of a window are resized by user, they should be that size and position when invoked again. Layers did super weird snap into a column for no reason. Madness. OK does not close QuickAdjust. It's probably blocked by the sizing gadget. The little pointer gadgets beside the file tabs are too thin. Double the width. Wishlist version of ColorLab as mockup image attached.
-- **2026-11-17T03:03Z:** Continue
-- **2026-11-17T03:13Z:** How are we doing?
-- **2026-11-17T10:11Z:** Can the selected item in menu have a glow line around it?
-- **2026-11-17T10:12Z:** Yes, let's try it. After that return to the list.
-- **2026-11-17T10:22Z:** Continue.
-- **2026-11-17T11:36Z:** You could just make the corner grip on QuickAdjust smaller and a little outside of the corner and invisible and scoot the button a little to the left. Then both functions would work.
+## Nov 17, 2026 (times UTC)
 
-## 2026-11-17 session (Opus 5.5), George's words (times UTC)
-- **11:29Z:** I believe the crashes may be dealt with, but there is a noticable slowdown in some features and I wasn't expecting that after trying to remove bloat from the app. Theorize.
-- **11:30Z:** Look at the repo and compare to your theories.
-- **11:39Z:** I think it's that canvas effect. / **11:40Z:** Yes. That's the correct solution. (732nd: canvas no longer under the panels)
-- **11:41Z:** I also notice a lot of files are opening zoomed way out so they look tiny on load. Can we fix that? What's the default zoom level on new files when they open? (733rd)
-- **11:44Z:** But why? The whole problem I had before was that the canvas would shrink and the image would get tiny when the side panels opened.
-- **11:45Z:** Ok. Let's build it and see.
-- **11:49Z–12:56Z:** Release notes and tags: "If I give you a PAT can you try to update the release documentation and tag?", "I can handle the apk.", "It used to work fine. What changed?", "I don't want to fold different releases notes into one. They should all be separate. I'll go back and create empty placeholders and we will reconstruct the notes." (tags and releases are refused for this session since Nov 15; George makes them by hand; release-1.0.59-beta to release-1.0.67-beta branches are the targets)
-- **15:03Z:** I need to download the apk for .66 beta. (build 66 had failed on a compile error; 734th fixed it; built)
-- **17:36Z:** New issues: Bottoms of menus are chopped off. Tops of menus still have a line separating them from menu titles. Layers menu is a mess at small sizes. The icons jumble. There is a miniature gadget overlapping on the + sign at bottom of layers. Layers opacity bar goes all the way to the edge with no margin. Bad. Menus have no line around them or beveled edges so they just merge with other menus. Text in the tool options for Pan tool are too close to the edge. Go back to simple blue hilight for menu selections. The glow is too much. (735th)
-- **18:28Z:** It's not the name of the tool. It's where it says no options. (736th) / **18:29Z:** 5. Why not just ask, chatbot? It's the left margin. (737th) / **18:30Z:** Build it. (build 67)
-- **20:11Z:** Same short menus. Same line dividing menus from titles. Same orange K too close to the File menu. No changes. / Can't you just add a blank line at the bottom of the menus? (738th)
-- **20:13Z:** Can't grab panels to tear them off. No handles. / There is nothing to grab. / **20:16Z:** Can't grab the edge of the side panel either. (open)
-- **20:17Z:** There is an ugly extra line on the right side of the toolbox and the left side of the side panel. It does nothing but ruin my day. Remove it (739th)
-- **20:18Z:** If it's a grab area, it's not big enough and should also be invisible as previously discussed. Make a note of this. Save notes. (740th; rule written in KRIMBLE_CHANGES.md)
-- **20:24Z:** In painted theme make the selected tab the color values in this color lab image. (Color Lab showing #374165; 741st)
-- **00:53Z (Nov 18):** Plus color lab slides the logo up into nowhere and then you have to use a scrollbar to get it back. That should never happen. / DUH. It should always have been pinned. / THE COLOR LAB LOGO SHOULD ALWAYS HAVE BEEN PINNED. (742nd) / Keep your answers really really short because I won't read long answers. Like cut all the fat off your answers.
-- **00:56Z (Nov 18):** The top of layers should always have had a minimum height. (743rd)
-- **00:21Z–00:28Z (Nov 19):** Desaturate dialog: "Can that dialog." S to 0 in HSV, instant (744th). Menu text vertical spacing too tight (proposal: about 9 real pixels more above and below; not answered yet).
-- **00:29Z (Nov 19):** And fix the painted theme. I had no idea themes changed spacing. Also, the smudge tool should be the default for that flyout set, not soften. (745th)
-- **00:52Z (Nov 19):** I try to select something and a box covers what I'm trying to do just to tell me the pixel dimensions. I thought we had moved that thing. / Perfect. (746th)
-- **00:54Z (Nov 19):** I tried resizing the color lab panel and it hid the close gadget on the upper right corner. / The buttons should move with the window edge. (747th)
-- **00:57Z (Nov 19):** The layers panel looks weird. I tried to hit the plus to add a layer and instead got a menu. Why??? / Yes. (748th)
-- **00:58Z (Nov 19):** All those extra buttons are just a mess. The empty space looks bad and the sloppy symbol positions look bad. Just get rid of them. (749th)
-- **01:01Z–01:03Z (Nov 19):** It's hard now to get to the long press menu for the toolbox... Unresponsive. I need somewhere to press. Maybe a little space at the top and bottom? / Ok. And a line at the bottom of the toolbox even when it's docked. (750th)
-- **04:01Z (Nov 19):** I guess so. I want to change the gray theme that has the orange selections. They should all have the plain blue selections. (751st)
-- **04:24Z (Nov 19):** Did we ever get a decent default brush set up like before? ... Find out what it was before. / Just restore or recreate that brush. (752nd)
-- **18:39Z:** Now the goddamned layer type slider is back. I don't want that there!!!!!! / We moved that for a reason, and it wasn't to make room for the stupid extra tools. (753rd)
-- **18:43Z–18:57Z:** grab pad request, mockups, "Make it bigger", "The same spaces that were odd empty spots should be grab pads.", "Yes", "Instead the tabs just slide to the side and spring back into place." (754th)
-- **06:52Z (Nov 20):** Use branching. Prioritize and implement all. (755th, branch krimble-cleanup)
-- **10:22Z (Nov 20):** Do the other steps next. (756th, branch krimble-cleanup)
-- **10:57Z (Nov 20):** 1. Much harder to just select toolbox tools. 2. grab areas look bad... 6. Menus are still a jumble of different hues. Make them match. Same hue. (757th)
-- **11:04Z (Nov 20):** Grab lines should not go all the way to the top edge, but they should fill up the area... / In the layers panel reserve an area for those top sections so they don't get squeezed and overlap at all. (758th)
-- **11:06Z (Nov 20):** Make grab area lines invisible on color lab. (759th)
-- **11:16Z (Nov 20):** Fix all of that before any build can take place. (760th)
-- **11:19Z (Nov 20):** Yes. Delete the inline notes. (761st)
+- 01:03 (testing build 65): see KRIMBLE_BUG_LISTS.md, 1.0.65.
+- 03:03 to 10:22: continue; try a glow line around the selected menu item, then return to the list.
+- 11:36: Quick Adjust: make its corner grip smaller, slightly outside the corner and invisible, and move the button a little left, so both work.
+- 11:29 to 11:45: the crashes seem fixed but some features are slower; the canvas extending under the panels is the likely cause, and removing it is the right fix (732nd). Many files open zoomed far out (733rd); the earlier problem was the canvas shrinking when side panels open. Build it to test.
+- 11:49 to 12:56: release notes and tags. The owner handles the APK. Each release keeps its own notes; empty placeholders will be made and the notes rebuilt. (Tags and releases are refused for this session; the owner makes them; release branches are the targets.)
+- 15:03: the 1.0.66 APK was needed (build 66 had failed to compile; fixed in the 734th).
+- 17:36 to 18:30 (testing build 66): see KRIMBLE_BUG_LISTS.md, 1.0.66. The margin problem is the "No options" text's left margin. Build 67.
+- 20:11 to 20:24 (testing build 67): see KRIMBLE_BUG_LISTS.md, 1.0.67. Rule written: grab areas are invisible and big enough for a finger.
 
-## Session of 2026-11-20, 04:19 MST to 23:05 MST (times in MST; "~" = time not kept, the chat was compressed and only a summary survived)
+## Nov 18 to 19, 2026 (times UTC)
 
-What was lost: the screenshots George sent during the day were not saved anywhere until 22:51 MST. They were recovered from the session's upload folder at 23:01 and are now in `docs/krimble-refs/`. From now on every image goes there as it arrives.
+- Testing build 68: see KRIMBLE_BUG_LISTS.md, 1.0.68. Also: keep answers very short.
+- Desaturate should set saturation to 0 at once (HSV), with no window (744th).
+- 18:39 to 18:57 (testing build 69): see KRIMBLE_BUG_LISTS.md, 1.0.69.
 
-- **~ day:** For the hundredth time: THE ORANGE K IS RIGHT ON TOP OF THE FILE MENU TITLE. FIX IT. (screenshots TOO FAR / TOO CLOSE) "Lock it into a specific pixel distance for both before and after file open." "Let's try 90." (767th+)
-- **10:01:** Color Lab is easy to grab but won't reattach. Brighter blue toolbox selection, flat like the menu: "The glowy thing doesnt look professional." Swatches up to 256 with resizing. New document window size on launch based on the screen. "I have another image loaded at tiny size again."
-- **~:** "I don't want these little report boxes any more. Report these stats on the status bar."
-- **~:** "Why is there a gray stripe outside the shadow????" "It is NOT pointing at the glowing selection." "There should not be a gray stripe there. Ask questions if you're not sure about something." RULE: "We do not draw any more content outside the shadow area. EVER. THE SHADOW IS THE OUTER EDGE." "Now, maybe the shadow can be moved a little farther out, but NOTHING SHOULD BE DRAWN OUTSIDE THE SHADOW."
-- **~:** Toolbox bevel: "They need to be thicker. The hilight area and shadow area should be the same number of pixels thick." "As it is the shadow just looks like a black line and that is no good." "The raised buttons came out pretty good. Why the difference?" "Demo for me." "Let's try the raised button style. Didn't the old Photoshop have black lines between the buttons?"
-- **~:** K on image windows: "Yeah. Too far from the corner." "Yes. Pin them to the corner." (screenshot) "I'm trying to show you what looks right."
-- **~:** "Build it." / "Everything goes into the build." / "Stop. No build." / RULE: "I told you everything goes into the build. Don't start a build until all the changes are written. Ever." / "Get rid of that stripe. Fix the hilights. All of it. Everything."
-- **~:** Resets: "You have to find a solution to the constant resets. DATA LOSS IS NOT THE PROBLEM!!!!!!! THE PROBLEM IS WASTED TIME RESTARTING AND FRUSTRATION WITH HAVING NO CONTROL OVER THE APP!!!" "Stopping in the middle of a workflow is extremely frustrating." "The app is generally running better after the efficiency edits. But the app still restarts." (KeepAliveService pushed; still open: memory use, needs a log screenshot after a reset)
-- **~:** Release notes: "I need to do the .71 release first." "a lot of the notes you write about these releases are inaccurate or omit major issues. You don't get my bug lists until afterward. I think these should reflect my actual issues with the code instead of your assumptions."
-- **~:** Layers: "The check mark is too close to the eye." "After that's fixed build."
-- **19:43:** "Just stop the build. There are more issues." Issues with screenshots: grips like his mockup; grips in the black part of the Color Lab logo; menus squeeze on Fill; magenta move box; Wesnoth fire frames alignment and Krita's animation tools; "I have the Layers menu title repositioned. See graphic."
-- **~:** "Aqua has to go. Replace with selection blue."
-- **~:** "You need to make the grips bigger to match my illustration and move the Layers panel title like I showed you." ".72 does not feature these changes." "I have had so many discussions with you about edits. I know you cannot retain these memories."
-- **21:48:** "Soon we will have a release candidate. Then an aba and a testing release. Then two weeks of testing and a release on the Play Store."
-- **21:49:** "Bright aqua outlines? You mean the glow effect?" "The glow effect is more cyan I think."
-- **22:47:** "Listen. Don't worry about those. Just the one I identified." "I was wrong about lens flares. I just saw a high quality one on civitai and realize we need them." (reference image saved)
-- **22:49:** "You have to make a set of lens flare effects from scratch. And light sabres." "None of those boxes you named were the problems I showed you."
-- **22:50:** "What do you mean except the glow? What about the color lab colors? What are you doing??"
-- **22:51:** "I use images to clarify what I want and you lose the images and do random things? No bueno." RULE: "Save everything I send you."
-- **22:52:** (16 screenshots) "What was I trying to say with each of these images?"
-- **23:00:** Ball bearing image: grips not done as instructed. Recent Images area too small, tiny scroll bars. Circled aqua: "I previously asked for that specific dull aqua color in the theme to be changed and you didn't do it." Grips and Layers window title: "you're ignoring my instructions." Save As: "still massively wide... All I wanted was for it to be taller... I don't want it to be wide." Fill submenu: "turns menus miniature and it looks so tiny itself as a submenu. It's ridiculous." "Are you getting any of this at all?"
-- **23:01:** "Why didn't you keep my mockup???"
-- **23:02:** "These are important development instructions. This is how real development gets done. Art departments sketch things out and use Photoshop and other tools to communicate."
-- **23:03:** "I want the same grip lines on the black part of the Color Lab logo so I can grab it. Make it look nice and centered on the banner, and don't touch the letters."
-- **23:05:** RULE: "Keep lists of these instructions. Keep a summary of every chat at the very least, if not the whole chat." "You're not properly tracking my side of this." RULE: "don't mention my name in the release documents."
-- **23:06:** "Yes." (name taken out of the release notes) "Also try putting a mild gradient in the glue area. Not too intense. Make it nice."
-- **23:06:** "Blue not glue." (the gradient is for a blue area)
-- **23:07:** "Show me a gradient effect on a button." (demo sent: flat / mild / a bit more)
-- **23:11:** (Mac OS Aqua button image) "When I said "aqua" before I was talking about that ugly seaweed blue green. But mac os Aqua was beautiful. Can you match this gradient effect? Is that asking too much? It's a complicated multi point gradient."
-- **23:12:** "It's amazing. I didn't know you could do that." (Aqua-style gradient demo approved; where it goes not said yet)
-- **23:13:** "Try all the places we had a glowy hilight before."
-- **23:14:** "If you can do that the whole UI could look amazing."
-- **23:17:** "Yes. All of it yes." (781st Color Lab grip lines, 782nd Aqua selection)
-- **23:18:** "Yes." (do the remaining checked buttons: Transform tool modes, checked dialog buttons)
-- **23:20:** "Yes" (783rd committed)
-- **23:21:** "I was going to ask if we could figure out how to build an all-in-one gadget that does what the bottom of the Photoshop toolbox does, but it seems like a lot." "Did you put any planning into lens flares?"
-- **23:23:** "We already have the foreground and background color swatches. I meant the gadgets below that. We had something clunky there before. Quickmask and screen modes never sat right." "Yes, try to make lens flare effects."
-- **23:25:** "Nice. What parameters do they use? Are they shaders or vectors?"
-- **23:26:** "So they just put it where they want it in an image? Can we rearrange it in realtime as they drag it around in the image?"
-- **23:27:** "Be sure to document this in the readme and the help file and the user manual."
-- **23:28:** "Please get the features up to date in the readme. We have accomplished a lot."
-- **23:28:** "Yes." (lens flare text added to README, help file and manual)
-- **23:29:** "Make sure all the new features (the ones not in Krita) are mentioned in the readme."
-- **23:30:** "Do we have customizable vector based hex map overlays now? You can set line thickness and color?"
-- **23:31:** "I don't think we ever fixed auto tone or auto color, any of that stuff."
-- **23:32:** "You don't understand curves yet?"
-- **23:33:** "Research these features online. Look for open functional algorithms."
-- **Nov 21 03:34:** "Yes" (build Auto Tone, Auto Contrast, Auto Color from the researched algorithms)
-- **03:34:** "And document this in the release notes." (RELEASE_NOTES_NEXT.md started)
-- **03:38:** "Go over the list again so I can see if anything else got ignored and treated as if it was done."
-- **03:41:** "Those releases say \"George\" in them?"
-- **03:42:** "The one with my full name is fine. Not the colloquial ones with my first name."
-- **03:42:** "Instead you could write \"This build was installed and tested.\" Don't put my name in those."
-- **03:43:** "I'll fix those. You work on that list." (he edits the GitHub release text himself)
-- **03:43:** "Don't wait to perform tasks in the list. Get the work done." (work the open list without stopping for approval of each change)
-- **03:58:** "Styles are just fonts, right?"
-- **03:59:** "But bold is another face in the same family unless you intend to modify how fonts are displayed."
-- **04:01:** "72 is already documented as a release." (build 72 run kept; the question is closed)
-- **04:02:** "What happens in Wesnoth stays in Wesnoth. It doesn't affect a build." (Wesnoth fire frames taken off the Krimble list)
-- **04:05:** "We already replaced those with Apple Aqua, didn't we?" **04:06:** "Demo all."
-- **04:08:** "Progress bars should have been the same glow+afterglow effect we use on percentages, but the new AppleOS Aqua is so beautiful we should use it anywhere we can. Let's do that."
-- **04:16:** "Okay. What still needs work?"
-- **04:16:** "I haven't seen many front kills." (front-of-screen memory kills are rare; the resets were mostly background kills, which the keep-alive covers)
-- **04:18:** "Where is the QuickAdjust logo I made before?"
-  (Answer: the graphics are in krita/pics/svg/: dark_krimble-quickadjust-logo.png, -banner.png, -banner2.png; banner2 is the one the Quick Adjust panel shows. The "waiting for his graphic" item on the list was stale and is removed.)
-- **04:18:** "Ok"
-- **04:21:** "I just saw an image of the Ps toolbox with a 🍌 banana icon in it." (answered: Nano Banana, Google's Gemini image model, in Generative Fill)
-- **04:22:** "We have a full toolbox. Otherwise we could add an interface connector for Perchance."
-- **04:23:** "We already built it."
-- **04:24:** "http://perchance.org/imagine-it and perchance.org/image-donkey are built and working."
-- **04:25:** "Just use one or the other. It's just a url." (connector uses perchance.org/image-donkey, kept as a setting so the address can change)
-- **04:28:** (two toolbox pictures) "The two bottom gadgets in the Ps toolbox are QuickMask on the left and Screen mode toggle on the right. They use very simple icons. What we had before was ugly and useless. We can make what Ps has."
-- **04:30:** "The quickmask icon is a horizontal rectangle with a circle in it and the mode toggle is two windows stacked for some reason." (matches the 794th icons)
-- **04:31:** "It's basically just two more buttons."
-- **04:36:** (labeled toolbar picture) "It looks like they're using a paint bucket instead of a gradient box, and they have soften instead of smudge in that image. I wonder what is standard in current version. Let me check... It's hard to keep pace with them. I would really like to have black and white versions of the icons like in this picture instead of color. Maybe we could add black and white as a third option?"
-- **04:38:** "Can we have a switch to light gray buttons? Like the raised effect switch?"
-- **04:39:** "See, the problem with those black and white icons is they're just the color ones desaturated. I'd like to see the silhouettes in black."
-- **04:41:** "We could have white, black, grayscale, and color icons the user can select, and optional light gray or white button backgrounds."
-- **04:42:** "Our eyedropper could be a little bigger."
-- **04:42:** "Our"
-- **04:43:** "It looks like the Ps image uses a combination of grayscale art and black line art for the buttons."
-- **04:43:** (same labeled toolbar picture, already saved as 2026-11-21_0436_ps-toolbar-labeled-grayscale-icons.jpg) "You see what I mean?"
-- **04:44:** "Yes" (add the Classic icon style)
-- **04:44:** "It's not a ton of graphics, so it doesn't hurt the app to have options, right?"
-- **04:45:** "I think that combination is smarter. The ChatGPT generated color ones would look stronger with a few simple lines in it like the silhouettes."
-- **04:47:** "Nobody wants outlines. Why even show that?"
-- **04:47:** "I said LINES. JUST LINES."
-- **04:47:** "Like the silhouettes."
-- **04:47:** "Why do you keep showing me outlines?"
-- **04:48:** "No. Just white lines."
-- **04:48:** "The bright orange has to go. Ugh"
-- **04:49:** "Ok. You obviously don't get it. Put the silhouettes side by side with the color icons."
-- **04:52:** (labeled toolbar again) "Put the ones from the Ps graphic beside them."
-- **04:52:** "The color ones look awful. We should have flushed them the first time I rejected them."
-- **04:54:** "Remove the color option completely and build."
-- **05:06:** "Yes. It's .73 now."
-- **09:08:** "Are we building?"
-- **09:09:** "Show me what the different button types look like."
-- **09:12:** "White should only appear on dark backgrounds. Our standard is gray isn't it? Gray on blue? Something like that?"
-- **09:13:** "We should also offer a darker gray background I guess."
-- **09:14:** "In those shots the raised effect is almost nothing" (the first demo drew a 2 px line; redrawn with the app's real bevel)
-- **09:15:** "I'm going to make another set of icons with Chatty. Make me a list of all the tools."
-- **09:16:** "Can you take out the blue things and just do the numbered list?"
-- **09:17:** "With standard icons next to them on the left."
-- **09:36:** "I need a photorealistic horseshoe magnet."
-- **09:37:** "I forgot you could do that."
-- **09:42:** "I'm in the app right now for stability."
-- **09:43:** "I still would like to figure out how to give you the option to output to other graphics engines, but Perchance is ideal because it's free."
-- **11:25:** "Let's definitely add those capabilities do we can try different methods for various projects. It will make a great addition to the repo too." (Claude-Perchance v0.4.0, commit 7777609: Pollinations and AI Horde)
-- **11:27:** "Did you already add the two bottom tools to the toolbox?" (yes, change 794, in 1.0.73; build 73 finished: success)
-- **11:29:** "I have a bunch of photorealistic images for tool icons now. I want you to store them as a photorealistic set..."
-- **11:30:** "PNG is fine. Should we add native webp support to Krimble and convert all the PNG files?"
-- **11:31:** "Ok skip webp. We already have export and import filters for it. The rest is non-essential."
-- **11:32:** (20 images) "First set..." (saved to docs/krimble-icon-sets/photorealistic/)
-- **11:34:** (20 images, 7 repeats) "Second set. Actually you know what these are fo" (13 new saved to docs/krimble-icon-sets/photorealistic/)
-- **11:35:** "That is indeed a darkroom Dodge tool for when we actually figure out how to do real dodge and burn effects."
-- **11:39:** "The pinching hand is the burn tool." (renamed extra_hand_pinch.png to extra_burn.png)
-- **11:47:** "Why extra?" / "Yes" (renamed to 09_01_dodge.png and 09_02_burn.png)
-- **11:49:** "We should make the photorealistic icon set." (change 802)
-- **11:50:** "These will only be useful to people with giant screens if at all."
-- **11:51:** "I am looking forward to having lens flares."
-- **11:51:** "I'm so pleased. We are leaping ahead of Krita development!"
-- **11:53:** "There may be a handful of people who have been using Krita like I did on phones as a substitute for Photoshop. For these people and for the GIMPshop people Krimble will be a godsend. They are going to be so happy!"
-- **11:54:** "Industry standard professional photo editing tools in the palm of your hand." (saved in PLAY_STORE_LISTING.md)
-- **11:56:** "Where do I get the APK?"
-- **12:09:** "Need the release notes, tag, and target in the release." (this session cannot create releases; notes in RELEASE_NOTES_1.0.73-beta.md)
-- **12:12:** (4 images) "Gradients." (saved as 04_01_gradient_* in docs/krimble-icon-sets/photorealistic/)
-- **12:25:** "The square on I guess. Don't save all those. It's a waste." (kept the square one as 04_01_gradient.png, removed the other three, added to the app set)
-- **12:37:** (4 images) "I couldn't see these. I should have given them an aura." (Undo, Line, Text, Edit Path Nodes; app copies get a light aura, Undo cut out)
-- **12:38:** "What does assistant do?"
-- **12:38:** (image: pen drawing a blue path with nodes) saved as candidate_pen_with_path_nodes.png
-- **12:39:** "Just the line and the t so they don't disappear." (aura removed from Edit Path Nodes)
-- **12:40:** "Edit Path Nodes" (the pen picture replaces the dashed square for Edit Path Nodes)
-- **12:40:** (image: glass drawing board with guides, compass, set square) "Assistant"
-- **12:45:** (3 Free Rotate pictures) "Should we make pretty little backgrounds for these in the buttons?"
-- **12:46:** "Let's add that as a standard option, the pretty background." (change 803, Glow)
-- **12:46:** "Arrows over the photo." (Free Rotate = arrows over the painting; set complete)
-- **12:47:** "Is anything else missing?" (no)
-- **12:49:** "What do they look like on black or white?"
-- **12:51:** "The glow makes them look very artificial."
-- **12:52:** "Just leave my alpha channel transparency alone!!" (aura removed from Line and Text; app copies are only cropped and scaled)
-- **12:52:** "And leave them at FULL RESOLUTION. NO SCALING DOWN LIKE I TOLD YOU BEFORE WITH WESNOTH." (app copies replaced with his full-resolution files; rule added to KRIMBLE_DESIGN_RULES.md)
-- **12:55:** (2 images) transparent versions of Edit Path Nodes and Undo; used as delivered in the set and the app
-- **12:56:** (image: square blue/cyan/violet gradient) new Gradient picture, replaces the teal one
-- **15:37:** (7 images: metal line, test screenshots, metal T on black, gradient) "Okay, testing... 1. For some reason the first image I loaded was upside down and super blurry! After messing with it somehow it went back to normal. Something you tried to change backfired badly. 2. I like the new aqua effect but it's too light and it shouldn't be used on the layers. Big areas look bad. White disappears over it. 3. New toolbox buttons look nice, but the eyedropper disappeared. 4. New grab areas are good. Add a lip area at the top of the toolbox and lose a few lines of the grab. 5. Color Lab extended color wells look fantastic. 6. Tool options title overlaps onto grab area. 7. Make soften tool the default instead of smudge. 8. Opacity slider still looks awesome. 9. File menu title could be a few pixels closer to the K. 10. Save As... dialog looks nice, but OK button looks bad. No aqua style? 11. Instead of selections, just use new aqua style on buttons, not selections. Keep selections that flat pretty blue. 12. Preferences looks great. 13. File - New looks great except for the create button. Again, buttons need the new style. 14. QuickAdjust looks great, but use my larger logo instead of the tiny Krimble one. 15. Change Image - Image Rotation to just Rotate. 16. Default the toolbox size to 22 x 22. 17. Make UNDO black for black toolbox style. Lose the "classic" version. It's not great. 18. It relaunched on switch again. No difference."
-- **15:39:** "New tool concept: multi-point gradient. User taps screen ti create control points and the tool creates a web of lines between those nodes and fills it in with a gradient based on colors selected by the user."
-- **15:42:** "The multi-point gradient would create either linear ._._._._. or 3d gradients (many island nodes) and gratients form between the nodes in different directions. Each would exist as a vector object with control points the user can move and reposition at will."
-- **15:45:** "Remember to keep all my bug lists in a file. They need to be added to their respective releases." (KRIMBLE_BUG_LISTS.md; 1.0.73 Known issues filled in)
-- **15:49:** "Try to edit 1.0.73-beta" (refused: releases cannot be edited from this session)
-- **16:00:** (Krimble log attached) "The copy button in the show Krimble log window doesn't have the new aqua theme. It seems like it was applied randomly."
-- **16:06:** (image: transparent metal T) "I don't think the service is starting. I don't know why this version of the T was not in my pic list, but here it is." (T and the metal line now in the photo set; keep-alive status added to the log)
-- **17:06:** "I thought we added a link to Image Donkey?"
-- **17:07:** "Add it now and document it." / "Image menu" (change 810)
-- **17:08:** "Actually, file has much fewer items. Put it in File as \"A. I. Image generation\"." (moved to File)
-- **17:09:** "Maybe shorten it to gen instead of generation since that will stretch out the menu." (now "A. I. Image gen")
-- **17:09:** "If you can touch the xmlgui file, how can you add it?"
-- **17:10:** "You have permission to make the changes to the menu for Rotate." (change 811, krita5.xmlgui line 305 only)
-- **17:14:** "Where is the target?" / 17:15 "Ugh" / "Yes" (tag push and API tag creation both refused by the proxy; pushed branch release-1.0.73 at e2c14ad2 for the release Target)
-- **17:29:** "I know that on the surface of it the idea of a multi-point gradient is not new. Photoshop has complex gradients with multiple colors at different points on a line. I want that too, and I want a linear preview in the editor where it shows a large box with a vertical image of the selected gradient. However, I'm also proposing two other features. 1. Gradient on a curve with the points of the gradient plotted on the curve to control how it renders, 2. A 3D mesh based gradient map where the gradients flow from node to node in a freeform way. Also, how hard would it be to add a bump map editing tool and a normal map editing tool for 3d work?"
-- **17:31:** "I think editing/painting those maps requires a 3d interface."
-- **17:31:** "How long to build that d4 shaped color triangle with 3d rotation?"
-- **17:33:** "Why a render? A d4 is the simplest shape." / "What 3d attempt?"
-- **17:34:** "That's because I did it without you in another app." (the earlier 3D attempt was his, outside Krimble)
-- **17:34:** "It was a complex polyhedron of colors."
-- **17:35–17:39:** "I was tempted to make a NURBS sphere, but that's a hassle." / "Let's put these complicated things on the back burner. Is there any way this could use a multi-screen setup?" / "How about virtual screens? Put different images and/or panels on different virtual screens and flip back and forth between them." / "It sounds like a really good idea. What do you think?"
-- **17:41:** "No more than 3. Dots make sense. I don't think 3 finger swipes will catch on. Could we add voice control to the app? Activate tools, open and close files, that kind of thing?"
-- **17:42:** "If necessary we could do voice profiling."
-- **17:43:** "Ok. Let's put those two features on the definite dev list. Virtual screens and voice control of the app." (KRIMBLE_DEV_LIST.md)
-- **17:44:** "Rate all the proposed features for difficulty."
-- **17:45:** "I haven't looked at the gradient editor yet."
-- **17:46:** "In touchscreen how does it work?"
-- **17:47:** "Can you adjust the timings so it's stable?" (change 812, gradient stop bar)
-- **17:48:** "Can you make me that nice preview box? Did we already make the color mixing pad? Does it work?" (change 813)
-- **20:27:** "I haven't really used it since then. It's more of a painters tool. The Krita fans should like it." (the Mixer panel)
-- **20:28:** "The problem before was the brush was crap. It really didn't work."
-- **20:29:** "Just use the built in Krita brush engine. They put most of their efforts into it. Why make up your own crapola brush engine???" (change 814)
-- **20:30:** "Okay, if they already had a scratch pad, why did we even try to build one instead of using theirs?"
-- **20:31:** "Of course. Chatty did something stupid and random as usual."
-- **20:33:** "Okay. Glad you fixed it."
-- **20:39–20:43:** "The reloads are slow. That's part of why I was trying to slim down." / "I tried removing most of the patterns but later you came back and told me I didn't ask for that and you put them back." / "Are any of the patterns those classic zip-a-tone dot patterns?" / "Does anyone use patterns?" / "Manga artists use zip-a-tone. Some American artists use duoshade paper." / "Yes. Trim it" (change 815)
-- **21:02:** "Anything else we can do?"
-- **21:03:** "We should hold back the photorealistic high resolution buttons." (change 816)
-- **21:03:** "I don't see a demand for them."
-- **21:04:** "Glow background is dropped." (change 817)
-- **21:05:** "Any other bloat?"
-- **21:07:** "Animation could be restored later, but you are right. Remove the animation templates." (change 818)
-- **21:07:** "How many splash images and how big are they?" (answered; untouched)
-- **21:08:** "Cut 4 and 5 above." (change 819: storyboard templates, YCbCr profiles)
-- **21:09:** "Remove the PNG versions." (820: splash PNGs deleted)
-- **21:10:** "Wait. If the PNG files are not going into the app, don't delete them." (820 undone: PNGs restored, unchanged)
+## Nov 20, 2026 (times UTC, then MST)
 
-## 2026-11-21 21:13 – 2026-11-22 02:00 (MST)
-- **21:13:** "Just please for God's sake slow down." (rule: say back what was understood, wait for confirmation before any action)
-- **21:14:** "I need to know what you did with the buttons and the new aqua. List where each is used. What is a plain blue selection? What buttons are affected? I feel like it has all been implemented in completely random ways."
-- **21:16:** "Plus your preview images DO NOT LOOK LIKE THE ACTUAL APP when these changes are implemented and that is important." / "I need perfect versions that look exactly like they will look in the app." / "Yes. That." (the real-code preview program: Krimble's style sheets, palette and Aqua code, Qt 5.15, Fusion, Roboto, scale 3; checked against the build-73 Save As screenshot)
-- **00:54:** (screenshot) "Transform still doesn't work the way it should. It has the little indicator to show that it has a flyout, so I long press and get this." / "Why would the UI promise other options and instead just tell you what the tool is?"
-- **00:56–00:59:** "First of all, I said before there's no reason to add the word "free" to any tool. It means nothing." / "Second, this is not the rotate tool. It's the scale tool." / "There is no reason for this button to do what it does on long press." / "Flyout to what??? What flies out???" / "First, stop calling it free rotate. It communicates nothing"
-- **00:59–01:01:** "Second, there was confusion before because we talked about making a rotate tool with the intention of rotating a selection, and instead just rotated the view." / "So we have to be careful about our terminology and intentions with these tools."
-- **01:04:** "The transform tool in the toolbox should only lead to versions of the transform tool, i. e. Not a non-transformative tool, not an explanation or tooltip, not a banana or anything else. There are several different versions of the Transform tool which are accessible from the Tool Options panel and each has a symbol. We could make a button for each of those and the flyout could offer those and it would make sense. Rotate and all the others. Not whatever crapola you put there in this version for no good reason."
-- **01:07:** "We had worked a lot of this stuff out before and I find it incredibly alarming that things keep happening behind the scenes to undo these decisions that were previously made and progress we made before. Another example is when we inexplicably reverted from defaulting to the Pan tool on a fresh open WHICH WAS THE WHOLE REASON I STARTED EDITING KRITA IN THE FIRST PLACE. MAKE A NOTE IF THIS SO IT NEVER GETS FORGOTTEN AGAIN." (KRIMBLE_DESIGN_RULES.md)
-- **01:08:** "Important changes made to this user interface should never be undone simply because you forgot that we changed it and you decided to go back to the Krita defaults." (KRIMBLE_DESIGN_RULES.md)
-- **01:09–01:11:** "We already fixed that bug a few days ago. If you don't have a note of that you are not documenting the changes well." / "That was not the bug. It was changing it to the arrow tool on open instead of Pan when it was supposed to be Pan." / "Correct the errors." (590th entry corrected, 76085a4a)
-- **01:12–01:13:** "Make a tool button for each mode of Transform. Default to Scale, and the Scale default is Uniform Scale." / "This way the flyout, if it's all different modes if Transform, is actually useful and not just a blue tooltip for no reason."
-- **01:28:** (three screenshots: NO FREE, the radio buttons, MESS / ICONS) "There are built in icons. You see them in the tool options." / "What is "Square"?" / "Scale"
-- **01:31–01:45:** "What are the radio buttons in the tool options for?" / "This was negated in a later decision that made rotate a separate tool." / "Never mind. I stated that incorrectly. These are all different Transform modes." / "But the radio buttons are counter-intuitive and I don't think they actually work." / "Wait. Like I said before slow down" / "I'm using this as a place to think things out and you often take these thoughts as an immediate call to action. Give me a minute." / "The radio buttons were there because the default was a multi-modal transform tool ... But I changed it to scale and furthermore just uniform scale because 90% of phone users only want that." / "And even in desktop I found that annoying. I think it changed depending on which corner you selected. It was a moronic interface design." / "Yeah. It sucked. So we decided a system where each mode is a different tool, just like how warp is a different tool. They really are all different tools. It's easier that way." / "So Rotate, Shear, etc. are each a tool for transformation of the selection." / "Okay. So we add more icons and do away with the radio buttons, yes? The icons will be in the toolbox flyout but also in the tool options for the broad category of Transform." / "How about another icon for non-uniform scale?" / "Position is already a tool." / "Position is also a built in function of all the transform modes." / "But the move tool already does that anyway." / "So can you make these buttons and put them in both places? Do you think they should all be in the flyout?"
-- **01:46–01:52:** "Non-Uniform Scale isnt punchy enough for you?" / "Stretch is shorter. Use stretch." / "Stretch should be two boxes, one tall and one wide." / "Shear is a leaning box. Like italics" / "Shear should lean more and be slightly thinner. I could probably draw you a stretch icon." / "Yeah, the thinner one is better on shear." / "Try another go at the stretch icon." / "Align them at bottom side by side. Made the one on the right fat." / "Second one." / "Middle if the render."
-- **01:53–01:58:** "Did you build the new demo tool for theme styles?" / "Show me the new aqua in the new tool." / "The tool button looks best." / "But are those real representations of the UI or is it going to be different in the actual UI again?" / "Let's try it in the next build and see." / "Yes. Make all changes before the next build starts." (changes 821, 822)
-- **01:59:** "In my images I identified a mess. What was the mess?" (open: the Mesh gadget on the picture, awaiting confirmation)
-- **02:00:** "Also, where it says show handles and lock handles, what will that look like in the next build?" (checked: the painted Aqua with the white check mark)
-- **02:08:** "The dark side areas on the aqua are too prominent and not curved enough on larger areas. The arrowheads on the rotate tool are not prominent enough and the box is too small, the whole icon too small"
-- **02:11:** "No. I'm not asking you to lighten anything. On the larger areas the sides are too wide. No. The outer corners are not the problem. It's the shape inside the aqua area. On rotate, not "bolder" arrowheads, BIGGER." / "Demo"
-- **02:13–02:14:** "Why is the 60% in the corner?" / "Yeah, that 60% is annoying."
-- **02:15:** (two pictures of rotate arrows) "Can't you make better arrows?"
-- **02:16–02:27:** "The aqua is way too plain now. The curve at the sides should be more like a heart shape." / "No to the arrows eating the box. Find a happy medium." / "More arrowhead. Then just the arrows around a dot will work." / "The warp of the arrowhead is turning into a mess." / "At small sizes that's hard to read. Lose the dot and clarify the arrows." / "It's just too damned small." / "Fill up that area it has assigned to it" / "The buttons need to render bigger in the tool options." / "Your demo images before were unreasonably small examples." / "Those look good now. I don't even need to go get a magnifying glass to see them now." / "Well, the top curve in a heart is big and it narrows at the bottom, right?" / "That is the opposite of what I asked for" / "No. That's a blunt instrument. Not what I was looking for. I wanted to shape the hilight." / "Yes! That!" (change 823)
-- **02:28–02:32:** "Add another dark corner curve at the bottom to match the top corners. Let me see how that looks." / "A bit more." / "More" / "No. It seems to be affecting the center instead of the corners." / "The middle one." (change 824)
-- **02:33–02:42:** "The mess is the circled text. Do you know why I circle things?" / "Just don't jam them together like that! It's a shit show!" / (screenshot) / "Nobody writes lines on top of each other like that. It's a mess." / "You said you needed to create icons. I was showing you we already have icons." / "Either way, don't let text rows overlap like that. Ever." / "The name of the tool is Transform. Under that should be the name of the mode, such as shear or stretch or scale. It should match the selected icon." / "Illustrate your point." / "I couldn't figure out why the text at the right was there in the first place." / "Couldn't it just say Transform - Mesh and change whatever goes after Transform, or is that eating into the grip area?" / "I'm still trying to figure out what you just said." / "Yes. With grip and tab."
-- **02:44–02:55:** "Okay. By the way, what happened to "The background empty area behind the tabs is supposed to be darker" as a rule?" / "Yes." / "By the way, the Pan tool should only be the default tool on first system load. New image loads should keep the current tool selection. Was that clear?" / "1. I meant the curved shapes. Plus we could never get the tab to be the grip no matter what we tried. 2. What? Show me that change. How does that affect Transform in Tool Options? 3. Again there is a lack of clarity and suddenly more communication becomes necessary. DIAGRAM PANELS OF DIFFERENT TYPES AS THEY RENDER INCLUDING THE TABS AND THE GRIPS. DIAGRAM PROPOSED CHANGES." / "The unselected tab should be darker than the selected tab, but lighter than the dark area behind the tabs, so make it the halfway point between the two shades. Otherwise it looks like you have a handle on it" (change 825)
-- **02:57–03:05:** "Your visual demo is super dark." / "The background area should be darker and the unselected tab can be lighter. Why all the different versions?" / "Is our interface really that dark? Is that the "Super Dark" theme? My screen doesn't look like that." / "Don't we have any light themes any more????" / (screenshot) "Yes, the word Krita is a curse. Here is my screen. It looks normal." / "I think we should have at least one light theme since not everyone is a goth like me." / "Sure. Add that." / "Push everything we set up." / "Does the typical mac theme look dark or light these days?" (changes 826, 827)
-- **03:07:** "That looks lavendar." / "Yes." (change 828: neutral light gray)
-- **03:08:** "1. Build, 2. Write the documentation, 3. Tag, target, url for APK to me, 4. Go through and make sure MY notes for the various builds are in the documentation for the builds, not just your notes." (build 74 started 03:09; 829)
-- **09:29:** "I had release notes posted for ALL previous releases. What do you mean they didn't exist?" (830th: posted notes copied into docs/releases/, repository notes follow them) / **09:28:** "Check my words. Make sure there's nothing weird or crazy in them." (rough words listed; waiting on his choice)
+- 06:52 UTC: use branching; prioritize and implement everything (755th, branch krimble-cleanup). 10:22: do the remaining steps (756th).
+- 10:57 UTC (testing build 70): see KRIMBLE_BUG_LISTS.md, 1.0.70.
+- 11:04 to 11:19 UTC: grab lines should not reach the top edge but fill the area; reserve room for the Layers top rows so they never squeeze or overlap; no grab lines drawn on Color Lab; fix all of it before any build; delete the change notes inside the code.
+- During the day (MST, testing build 71): see KRIMBLE_BUG_LISTS.md, 1.0.71. Also:
+  - Rule: nothing is drawn outside a panel's shadow; the shadow is the outer edge (it may move a little outward).
+  - Ask questions when unsure.
+  - A demo of the raised-button style for the toolbox; the old industry-standard toolbox had black lines between buttons.
+  - Everything goes into a build. Rule: do not start a build until all the changes are written.
+  - Restarts: find a solution; the problem is lost time and lack of control, not lost data.
+  - Release notes: the .71 release comes first. Notes should reflect the actual test findings, which arrive after each build, not assumptions.
+- 19:43 to 23:05 MST (testing build 72): see KRIMBLE_BUG_LISTS.md, 1.0.72. Also:
+  - Stop the build; there are more issues.
+  - Replace the dull blue-green highlight with the selection blue (only the one identified).
+  - The plan: a release candidate, then an app bundle and a testing release, two weeks of testing, then the Play Store.
+  - Lens flares are wanted (a high-quality example was seen); make a set of lens flare effects and lightsabers from scratch.
+  - Rule: save every image sent, so instructions given by picture are not lost. Mockups are development instructions, as an art department would provide.
+  - Keep lists of these instructions and a summary of every chat. Do not use the owner's name in release documents.
+  - A mild gradient in the blue area; demo a gradient on a button.
+  - "Aqua" had meant the dull blue-green; macOS Aqua is the look wanted. The Aqua-style multi-point gradient demo was approved; try it everywhere a glowing highlight was used.
+  - An all-in-one gadget like the bottom of the industry-standard toolbox would be a lot of work. Quick Mask and screen mode buttons never sat right. Try making lens flare effects; they should be movable live on the image.
+  - Document new features in the README, help file and manual; mention every feature that Krita does not have.
+  - Asked about vector hex map overlays with line thickness and color; Auto Tone and Auto Color were never fixed; research open algorithms for them.
+
+## Nov 21, 2026 (MST)
+
+- 03:34: build Auto Tone, Auto Contrast and Auto Color from the researched methods, and record it in the release notes.
+- 03:38 to 03:43: review the open list for anything treated as done that was not. Releases should say "This build was installed and tested." instead of a first name; the full name in the About credit is fine. The owner edits the GitHub release text; Claude works through the list without waiting for approval of each item.
+- 03:58 to 03:59: styles are separate faces of a font family unless display is changed.
+- 04:01 to 04:02: 72 is already a documented release. Wesnoth work does not affect Krimble builds.
+- 04:05 to 04:08: Aqua should be used anywhere it fits, including progress bars.
+- 04:16 to 04:18: front-of-screen restarts are rare. The Quick Adjust logo graphics are in krita/pics/svg.
+- 04:21 to 04:25: an image generator connector: the owner's Perchance generators (perchance.org/image-donkey, perchance.org/imagine-it) are built and working; use one address, kept as a setting.
+- 04:28 to 04:31: add Quick Mask (a rectangle with a circle) and Screen Mode (two stacked windows) buttons at the bottom of the toolbox, simple like the industry standard.
+- 04:36 to 04:54: icon styles. Black-and-white icons should be black silhouettes, not desaturated color icons. Options for white, black, grayscale and color icons, and light gray or white button backgrounds. The eyedropper could be bigger. The industry-standard toolbox mixes grayscale art with black line art; add a Classic style (lines only, no outlines). The color icons look poor; remove the color option completely and build. Build 1.0.73.
+- 09:08 to 09:17: show the button types. White icons only on dark backgrounds; the standard is gray on blue; add a darker gray background; the raised effect was too faint in the demo. A numbered tool list with standard icons, for making new icons.
+- 09:36 to 09:43: a photorealistic horseshoe magnet. Other graphics engines are of interest, though Perchance is ideal because it is free.
+- 11:25: add the other engines to Claude-Perchance (Pollinations and AI Horde, v0.4.0).
+- 11:27 to 11:54: store the photorealistic tool icons as a set (PNG, no WebP conversion; WebP import and export already exist). Dodge is the darkroom dodge tool; the pinching hand is Burn. Make the photorealistic icon set; it suits large screens. Looking forward to lens flares; Krimble may help people who used Krita on phones as an industry-standard substitute. Store-listing line: "Industry standard professional photo editing tools in the palm of your hand."
+- 11:56 to 12:09: where to get the APK; the release needs notes, tag and target.
+- 12:12 to 12:56: gradient icon: keep only the square one. Undo, Line, Text and Edit Path Nodes pictures; the pen with nodes is Edit Path Nodes; the drawing board is the Assistant. Arrows over the photo for Rotate. A standard option for a decorative button background (Glow). The glow looks artificial. Rule: leave the owner's alpha channel untouched and keep images at full resolution, no scaling down. Transparent Edit Path Nodes and Undo; a new square gradient.
+- 15:37 (testing build 73): see KRIMBLE_BUG_LISTS.md, 1.0.73.
+- 15:39 to 15:42: new tool concept, a multi-point gradient: tap to place control points; the tool fills between them with a gradient from chosen colors, linear or in many directions; each is a vector object whose points can be moved.
+- 15:45: keep all bug lists in a file and add them to their releases (KRIMBLE_BUG_LISTS.md).
+- 15:49: edit the 1.0.73 release (not possible from this session).
+- 16:00 to 16:06: the Copy button in the log window does not have the new Aqua style; the keep-alive service may not be starting. A transparent metal T for the icon set.
+- 17:06 to 17:10: add the Image Donkey link: in the File menu, as "A. I. Image gen". Permission given to rename Image Rotation to Rotate in krita5.xmlgui.
+- 17:14: the release target (branch release-1.0.73).
+- 17:29 to 17:43: gradient ideas: multi-color gradients with a large vertical preview in the editor; a gradient along a curve; a 3D mesh gradient map; bump and normal map editing (needs a 3D interface). A d4-shaped color picker with 3D rotation. Put the complicated items on the back burner. Virtual screens (images or panels on up to three screens, switched with dots) and voice control of the app (tools, opening and closing files; voice profiling if needed) go on the definite development list.
+- 17:44 to 17:48: rate the proposed features for difficulty; steadier touch timing in the gradient editor; the large gradient preview box; check the color mixing pad.
+- 20:27 to 20:33: the Mixer is a painter's tool worth keeping; it should use Krita's own brush engine and scratch pad instead of a custom one.
+- 20:39 to 21:10: reloads are slow, which is why slimming down matters. The earlier pattern cut was undone by mistake. Manga artists use Zip-A-Tone and some American artists use Duoshade paper; trim the patterns. Hold back the photorealistic icons from the app. Drop the Glow background. Remove the animation templates (they can return later), the storyboard templates and the YCbCr profiles. Keep the splash PNG files.
+
+## Nov 21 to 22, 2026 (MST)
+
+- 21:13: slow down. Rule: before any action, say back what was understood and wait for confirmation.
+- 21:14 to 21:17: list where the buttons' Aqua and the plain blue selection are used; the implementation looks inconsistent. Preview images must look exactly like the app; a real-code preview tool was built and checked against a phone screenshot.
+- 00:54 to 01:01 (testing build 73): the Transform flyout shows only its own tool tip; no tool name gets the word "Free"; the button's icon is the Scale tool; Rotate is meant to rotate the selection's pixels, not the view; be careful with terminology and intentions.
+- 01:04 to 01:13: the Transform flyout should offer only Transform modes, each with its Tool Options symbol. Decisions already made must not be undone behind the scenes. Rule: Pan is the default on first load (the original reason for the project); never revert it. Never go back to a Krita default over a Krimble change. The arrow-tool-on-open fix was already made and must be documented correctly. Make a button for each Transform mode; default Scale, uniform.
+- 01:28 to 01:52: the mode icons already exist in Tool Options. The Position/Rotate/Scale/Shear radio buttons were for a multi-purpose transform and are confusing; each mode becomes its own tool, like Warp. Position is not needed (the Move tool and every mode already move). Add Stretch (non-uniform scale: two boxes, one tall, one wide, bottoms aligned) and Shear (a box leaning like italics, thinner, leaning more). Put them in the flyout and in Tool Options. This chat is also a place to think aloud; not every thought is a request.
+- 01:53 to 02:00: show the Aqua in the preview tool; the tool-button Aqua looks best; use it in the next build. Make all changes before the next build (821, 822).
+- 02:08 to 02:32: Aqua: on large buttons the sides are too wide; shape the highlight (round top corners, sides curving inward, narrower at the bottom); add dark curved corners at the bottom (the middle strength). Rotate icon: bigger arrowheads, arrows only, filling the icon area. The Tool Options mode buttons should be bigger. Center the progress bar percentage. Demo images should be shown large enough to judge (823, 824).
+- 02:33 to 02:55: the circled text was the problem: "Tool Options" and the tool name stacked together. Rule: text rows never overlap. Title: "Transform – <mode>" on one line. Diagram the panel types with tabs and grips, and the proposals. The empty area behind the tabs should be darker than the panel and the unselected tabs (the curved tab shapes stay off). Pan is the default only on first load; new images keep the current tool (825).
+- 02:57 to 03:07: the row behind the tabs darker, the unselected tab lighter; one version at a time, not many. The interface is not "super dark"; the screenshot looks normal. At least one light theme is wanted, without Krita in its name; make it neutral gray, not lavender (826 to 828). Asked whether macOS defaults to light or dark.
+- 03:08: build; write the documentation; tag, target and APK link; make sure the test findings for each build are in that build's documentation (829).
+- 09:26 to 09:31: the APK link. Release notes had been posted on GitHub for every release (830: copied into docs/releases/). Reword all quoted comments and remove anything inappropriate, keeping the ideas.

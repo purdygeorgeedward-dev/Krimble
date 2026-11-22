@@ -1,133 +1,184 @@
 # Krimble bug lists
 
-Every bug list George sends after testing a build, in his words, filed under the build it was found in.
-Release notes take their Known issues from here ("Remember to keep all my bug lists in a file. They need to be added to their respective releases." — Nov 21, 2026 15:45).
-Newest first. Status of each fix is in KRIMBLE_CHANGES.md.
+Every bug list from testing a build, filed under the build it was found in, reworded as plain issue statements.
+Release notes take their Known issues from here. Newest first. The status of each fix is in KRIMBLE_CHANGES.md.
 
-## 1.0.73-beta (list sent Nov 21, 2026, 15:37 MST)
+## 1.0.73-beta (tested Nov 21, 2026)
 
-1. For some reason the first image I loaded was upside down and super blurry! After messing with it somehow it went back to normal. Something you tried to change backfired badly.
-2. I like the new aqua effect but it's too light and it shouldn't be used on the layers. Big areas look bad. White disappears over it.
-3. New toolbox buttons look nice, but the eyedropper disappeared.
-4. New grab areas are good. Add a lip area at the top of the toolbox and lose a few lines of the grab.
-5. Color Lab extended color wells look fantastic.
-6. Tool options title overlaps onto grab area.
-7. Make soften tool the default instead of smudge.
-8. Opacity slider still looks awesome.
-9. File menu title could be a few pixels closer to the K.
-10. Save As... dialog looks nice, but OK button looks bad. No aqua style?
-11. Instead of selections, just use new aqua style on buttons, not selections. Keep selections that flat pretty blue.
-12. Preferences looks great.
-13. File - New looks great except for the create button. Again, buttons need the new style.
-14. QuickAdjust looks great, but use my larger logo instead of the tiny Krimble one.
-15. Change Image - Image Rotation to just Rotate.
-16. Default the toolbox size to 22 x 22.
-17. Make UNDO black for black toolbox style. Lose the "classic" version. It's not great.
-18. It relaunched on switch again. No difference.
+1. The first image loaded showed upside down and very blurry; it returned to normal after some handling.
+2. The new Aqua effect is too light and should not be used on layers; on large areas it looks poor and white text disappears on it.
+3. The new toolbox buttons look good, but the eyedropper icon is missing.
+4. The new grab areas are good. Add a lip at the top of the toolbox and use fewer grip lines.
+5. The extended Color Lab color wells look very good.
+6. The Tool Options title overlaps the grab area.
+7. Make Soften the default tool of its group instead of Smudge.
+8. The opacity slider looks good.
+9. The File menu title could sit a few pixels closer to the K.
+10. Save As looks good, but its OK button should have the Aqua style.
+11. Use the Aqua style on buttons only; keep selections the flat blue.
+12. Preferences looks good.
+13. File > New looks good, but its Create button needs the Aqua style.
+14. Quick Adjust looks good; use the larger logo instead of the small Krimble one.
+15. Rename Image > Image Rotation to Rotate.
+16. Make the default toolbox icon size 22 x 22.
+17. Make Undo black in the Black icon style; remove the Classic icon style.
+18. Krimble still restarted after switching apps.
 
 Screenshots: docs/krimble-refs/2026-11-21_1537_test73-*.jpg
 
-**More from testing 1.0.73 (Nov 22, 2026, 00:54 to 02:46 MST; screenshots docs/krimble-refs/2026-11-22_*):**
-- (screenshot) "Transform still doesn't work the way it should. It has the little indicator to show that it has a flyout, so I long press and get this." (one row with the tool tip text, as a big Aqua bar) / "Why would the UI promise other options and instead just tell you what the tool is?"
-- "there's no reason to add the word "free" to any tool. It means nothing." / "stop calling it free rotate. It communicates nothing"
-- "The transform tool in the toolbox should only lead to versions of the transform tool, i. e. Not a non-transformative tool, not an explanation or tooltip, not a banana or anything else."
-- "But the radio buttons are counter-intuitive and I don't think they actually work."
-- (screenshot, circled) "The mess is the circled text." "Tool Options" and "Free Rotate" stacked on top of each other: "Nobody writes lines on top of each other like that. It's a mess." The title also said Free Rotate while Mesh was selected.
-- "The dark side areas on the aqua are too prominent and not curved enough on larger areas. The arrowheads on the rotate tool are not prominent enough and the box is too small, the whole icon too small"
-- "Why is the 60% in the corner?" (progress bar text)
-- The empty area behind the panel tabs was not darker than the panel.
-- No light theme ("Don't we have any light themes any more????").
+**More from testing 1.0.73 (Nov 22, 2026; screenshots docs/krimble-refs/2026-11-22_*):**
+- Long-pressing Transform shows the flyout indicator's promise of options, but opens only one row with the tool tip text, as a large Aqua bar.
+- No tool name should contain the word "Free" (Free Transform, Free Rotate).
+- The Transform button's flyout should hold only Transform modes, not other tools or tool tips.
+- The Transform radio buttons (Position, Rotate, Scale, Shear) are hard to understand and may not work.
+- In Tool Options, "Tool Options" and the tool name are stacked on top of each other; the title also said Free Rotate while Mesh was selected.
+- The Aqua highlight's dark sides are too wide and not curved enough on large buttons; the Rotate icon's arrowheads and box are too small.
+- The percentage on progress bars sits in the top left corner.
+- The empty area behind the panel tabs is not darker than the panel.
+- There is no light theme.
+
 All of these are addressed in 821 to 828 (1.0.74).
 
-## 1.0.72-beta (Nov 20, 2026, 19:43 to 23:05 MST; screenshots in docs/krimble-refs/2026-11-20_*)
+## 1.0.72-beta (tested Nov 20, 2026; screenshots docs/krimble-refs/2026-11-20_*)
 
-- 19:43: "Just stop the build. There are more issues." Grips like his mockup; grips in the black part of the Color Lab logo; menus squeeze on Fill; magenta move box; "I have the Layers menu title repositioned. See graphic."
-- "You need to make the grips bigger to match my illustration and move the Layers panel title like I showed you." ".72 does not feature these changes."
-- 23:00: Ball bearing image: grips not done as instructed. Recent Images area too small, tiny scroll bars. Circled aqua: "I previously asked for that specific dull aqua color in the theme to be changed and you didn't do it." Grips and Layers window title: "you're ignoring my instructions." Save As: "still massively wide... All I wanted was for it to be taller... I don't want it to be wide." Fill submenu: "turns menus miniature and it looks so tiny itself as a submenu. It's ridiculous."
-- 23:03: "I want the same grip lines on the black part of the Color Lab logo so I can grab it. Make it look nice and centered on the banner, and don't touch the letters."
+- The grips should match the mockup and be bigger, and the black part of the Color Lab banner should have grip lines (centered, letters untouched).
+- The Layers panel title should be placed as in the mockup.
+- Menus squeeze together when Fill opens its submenu, and the submenu itself is very small.
+- A magenta box shows around the Move tool's frame.
+- The Recent Images area is too small, with tiny scroll bars.
+- The dull blue-green highlight in the theme was still there.
+- Save As is still much too wide; it should be taller, not wider.
 
-## 1.0.71-beta (Nov 20, 2026, during the day, MST; the chat was compressed, so some times were not kept)
+## 1.0.71-beta (tested Nov 20, 2026)
 
-- "For the hundredth time: THE ORANGE K IS RIGHT ON TOP OF THE FILE MENU TITLE. FIX IT." "Lock it into a specific pixel distance for both before and after file open."
-- 10:01: Color Lab is easy to grab but won't reattach. Brighter blue toolbox selection, flat like the menu: "The glowy thing doesnt look professional." Swatches up to 256 with resizing. New document window size on launch based on the screen. "I have another image loaded at tiny size again."
-- "I don't want these little report boxes any more. Report these stats on the status bar."
-- "Why is there a gray stripe outside the shadow????" RULE: "We do not draw any more content outside the shadow area. EVER. THE SHADOW IS THE OUTER EDGE."
-- Toolbox bevel: "They need to be thicker. The hilight area and shadow area should be the same number of pixels thick." "As it is the shadow just looks like a black line and that is no good."
-- K on image windows: "Yeah. Too far from the corner." "Yes. Pin them to the corner."
-- Resets: "You have to find a solution to the constant resets. DATA LOSS IS NOT THE PROBLEM!!!!!!! THE PROBLEM IS WASTED TIME RESTARTING AND FRUSTRATION WITH HAVING NO CONTROL OVER THE APP!!!" "The app is generally running better after the efficiency edits. But the app still restarts."
-- Layers: "The check mark is too close to the eye."
+- The orange K sits on top of the File menu title; the gap should be a fixed distance with or without an image open.
+- Color Lab is easy to grab but will not dock again.
+- The toolbox selection should be a brighter, flat blue like the menus, without the glow.
+- Swatches should go up to 256 and resize. The New document window should start at a size based on the screen. Images still open at a tiny size.
+- Small report boxes on the canvas should go; their information belongs on the status bar.
+- A gray stripe shows outside the shadow. Rule: nothing is drawn outside a panel's shadow.
+- The toolbox bevel should be thicker, with highlight and shadow the same thickness; the shadow looks like a plain black line.
+- The K on image windows is too far from the corner; pin it to the corner.
+- Krimble still restarts when switching apps. Data loss is not the main concern; the lost time and the interrupted work are. The app runs better after the efficiency changes.
+- In Layers, the check mark is too close to the eye.
 
-## 1.0.70-beta (list sent Nov 20, 2026, 10:57Z; the 757th entry names it "branch build 70")
+## 1.0.70-beta (tested Nov 20, 2026)
 
-**10:57Z (Nov 20):** "1. Much harder to just select toolbox tools. 2. grab areas look bad. Clunky big weird lines. 3. Layers menu still a mess. 4. layers has two grab areas, color lab has none. 5. Make the other selections plain blue like menus. No gradients. 6. Menus are still a jumble of different hues. Make them match. Same hue." (757th)
+1. Selecting toolbox tools is much harder.
+2. The grab areas look clumsy, with big lines.
+3. The Layers top row is still disorganized.
+4. Layers has two grab areas and Color Lab has none.
+5. Other selections should be plain blue like the menus, with no gradients.
+6. Menus use several different hues; they should all use the same hue.
 
-## 1.0.69-beta (Nov 19, 2026, 18:39Z to 18:57Z)
+## 1.0.69-beta (tested Nov 19, 2026)
 
-- "Now the goddamned layer type slider is back. I don't want that there!!!!!! / We moved that for a reason, and it wasn't to make room for the stupid extra tools." (753rd)
-- Grab pads: "Make it bigger", "The same spaces that were odd empty spots should be grab pads.", "Instead the tabs just slide to the side and spring back into place." (754th)
+- The layer type slider is back at the top of Layers; it was moved away on purpose and should stay away.
+- Grab pads should be bigger and fill the empty spots; the tabs slide sideways and spring back instead of tearing a panel off.
 
-## 1.0.68-beta (Nov 18 00:53Z to Nov 19 04:24Z)
+## 1.0.68-beta (tested Nov 18 to 19, 2026)
 
-- "Plus color lab slides the logo up into nowhere and then you have to use a scrollbar to get it back. That should never happen." / "THE COLOR LAB LOGO SHOULD ALWAYS HAVE BEEN PINNED." (742nd)
-- "The top of layers should always have had a minimum height." (743rd)
-- Desaturate dialog: "Can that dialog." Menu text vertical spacing too tight. (744th)
-- "And fix the painted theme. I had no idea themes changed spacing. Also, the smudge tool should be the default for that flyout set, not soften." (745th)
-- "I try to select something and a box covers what I'm trying to do just to tell me the pixel dimensions. I thought we had moved that thing." (746th)
-- "I tried resizing the color lab panel and it hid the close gadget on the upper right corner." / "The buttons should move with the window edge." (747th)
-- "The layers panel looks weird. I tried to hit the plus to add a layer and instead got a menu. Why???" (748th) / "All those extra buttons are just a mess. The empty space looks bad and the sloppy symbol positions look bad. Just get rid of them." (749th)
-- "It's hard now to get to the long press menu for the toolbox... Unresponsive. I need somewhere to press. Maybe a little space at the top and bottom?" / "And a line at the bottom of the toolbox even when it's docked." (750th)
-- "I want to change the gray theme that has the orange selections. They should all have the plain blue selections." (751st)
-- "Did we ever get a decent default brush set up like before? ... Just restore or recreate that brush." (752nd)
+- Color Lab's logo slides up out of sight and needs the scroll bar to come back; it should always stay pinned.
+- The top of Layers needs a minimum height.
+- Desaturate should not open a window. Menu text is spaced too tightly.
+- The Painted theme changes spacing; Smudge should lead its flyout group (later changed to Soften in 1.0.74).
+- A box with the pixel size covers the area being selected.
+- Resizing Color Lab hides its close button; the buttons should follow the window edge.
+- Tapping + in Layers opens a menu instead of adding a layer; the extra Layers buttons are disorganized and should go.
+- The toolbox's long-press menu is hard to reach; add some space at the top and bottom, and a line at the bottom of the docked toolbox.
+- The gray theme has orange selections; all themes should use the plain blue.
+- The good default brush from earlier builds should be restored.
 
-## 1.0.67-beta (Nov 17, 2026, 20:11Z to 20:24Z)
+## 1.0.67-beta (tested Nov 17, 2026)
 
-- "Same short menus. Same line dividing menus from titles. Same orange K too close to the File menu. No changes." / "Can't you just add a blank line at the bottom of the menus?" (738th)
-- "Can't grab panels to tear them off. No handles." / "There is nothing to grab." / "Can't grab the edge of the side panel either."
-- "There is an ugly extra line on the right side of the toolbox and the left side of the side panel. It does nothing but ruin my day. Remove it" (739th)
-- "If it's a grab area, it's not big enough and should also be invisible as previously discussed. Make a note of this." (740th)
-- "In painted theme make the selected tab the color values in this color lab image." (741st)
+- Menus are still cut short, still have a line between them and their titles, and the orange K is still too close to File. A blank line at the bottom of menus would help.
+- Panels cannot be torn off; there is nothing to grab, and the side panel's edge cannot be grabbed.
+- An extra line on the right of the toolbox and the left of the side panel serves no purpose; remove it.
+- Grab areas must be big enough for a finger and invisible.
+- In the Painted theme, the selected tab should use the colors from the supplied Color Lab image.
 
-## 1.0.66-beta (Nov 17, 2026, 17:36Z and 18:28Z)
+## 1.0.66-beta (tested Nov 17, 2026)
 
-- "Bottoms of menus are chopped off. Tops of menus still have a line separating them from menu titles. Layers menu is a mess at small sizes. The icons jumble. There is a miniature gadget overlapping on the + sign at bottom of layers. Layers opacity bar goes all the way to the edge with no margin. Bad. Menus have no line around them or beveled edges so they just merge with other menus. Text in the tool options for Pan tool are too close to the edge. Go back to simple blue hilight for menu selections. The glow is too much." (735th)
-- "It's not the name of the tool. It's where it says no options." / "5. Why not just ask, chatbot? It's the left margin." (736th, 737th)
+- The bottoms of menus are cut off, and a line still separates menus from their titles.
+- The Layers top row jumbles its icons at small sizes, a small gadget overlaps the + button, and the opacity bar has no margin.
+- Menus have no outline or bevel, so they merge with each other.
+- The "No options" text in Tool Options (Pan tool) is too close to the left edge.
+- Menu selections should go back to a simple blue highlight; the glow is too strong.
 
-## 1.0.65-beta (list sent Nov 17, 2026, 01:03Z)
+## 1.0.65-beta (tested Nov 16 to 17, 2026)
 
-**2026-11-17T01:03Z:** File menu title is still too close to the orange K. Shadow on the toolbox is just a black line. Would like a couple more lines under the menu titles before getting down to the shadow. Foreground and background start as dark gray still instead of white and black. Odd number of tools in toolbox makes 2 columns look lopsided. Sharpen should be a flyout of soften/blur. We should never have an odd number of tools. I thought the icon was the stamp tool, but it's the healing brush. I don't get it. It's a form of stamp tool, right? I tried to leave the toolbox at the bottom, out of the way, but it snapped to the side. Not sure how to set that. Can docking be turned on and off? That seems like a good idea. Extra shadow lines on menubar disappeared. Menu appeared detached from title. No good. That was a decision before. The menu connects to the title without overlap and not separated. Canvas input settings selection overlaps onto the keyboard title area. New dialog selection maps over the icon. Recent images should be a bigger scrolling area with smaller preview images to choose from. Layers panel is a mess. It still has the black things at the bottom. The search field is a mess. Get rid of the search. It's useless. Change the layer colors back. Give me the selection effect blue for the selected layer and make the other layers dark and match the theme. Make the canvas background darker. It's hard to move the edge of the right hand pane again. So sick of the same issues coming back. Save As... dialog is WAY TOO WIDE. I ASKED FOR MORE HEIGHT, NOT MORE WIDTH. Resizing Save As... window does not set the size for next time it is invoked. When the dimensions of a window are resized by user, they should be that size and position when invoked again. Layers did super weird snap into a column for no reason. Madness. OK does not close QuickAdjust. It's probably blocked by the sizing gadget. The little pointer gadgets beside the file tabs are too thin. Double the width. Wishlist version of ColorLab as mockup image attached.
+- The File menu title is still too close to the orange K.
+- The toolbox shadow is just a black line.
+- A little more space is wanted under the menu titles before the shadow.
+- Foreground and background start dark gray instead of white and black.
+- An odd number of tools makes the two toolbox columns lopsided; there should always be an even number. Sharpen should be in the Soften/Blur flyout.
+- The healing brush icon looks like a stamp.
+- The toolbox will not stay docked at the bottom; it snaps to the side. Docking should be switchable on and off.
+- The extra shadow lines on the menu bar disappeared, and a menu appeared detached from its title (the earlier decision was that a menu joins its title with no overlap and no gap).
+- Canvas Input settings: the selection overlaps the keyboard title area.
+- File > New: the selection covers the icon.
+- Recent images should be a bigger scrolling area with smaller previews.
+- Layers: black bars at the bottom; remove the search field; the selected layer should be the selection blue and the others dark, matching the theme.
+- The canvas background should be darker.
+- The edge of the right panel is hard to move again; the same issues keep returning.
+- Save As is much too wide (more height was wanted, not width), and it does not remember a size set by the user. Windows should reopen at the size and position the user left them.
+- Layers snapped into a column for no reason.
+- OK does not close Quick Adjust, probably blocked by the sizing gadget.
+- The small arrow buttons beside the image tabs are too thin; double their width.
+- A wish-list Color Lab mockup was supplied.
+- The crashes seem fixed, but some features are noticeably slower; many files open zoomed far out.
 
-**2026-11-17T11:29Z:** "I believe the crashes may be dealt with, but there is a noticable slowdown in some features and I wasn't expecting that after trying to remove bloat from the app." **11:41Z:** "I also notice a lot of files are opening zoomed way out so they look tiny on load."
+## 1.0.64-beta (tested Nov 16, 2026)
 
-## 1.0.64-beta (list sent Nov 16, 2026, 16:21Z and 21:39Z)
+1. Jolts while painting (serious).
+2. The image window buttons sit too high.
+3. With no image open, the K is too close to File.
+4. The Polygon and Star tool has no icon.
+5. Themes: raised buttons are missing in the light theme; the tab color should be #364064; the selection gradient also shows in menus.
+6. The menu bar should be taller.
+7. Remove the Quick Adjust toolbar.
+8. A new canvas should start with Pan (it started with the arrow).
+9. The toolbox order should follow the supplied list.
+10. A usable default brush is needed.
+11. The slider ball bearing should be darker, with a cast shadow.
+12. The status bar's size display is cut off in portrait.
+13. File Info > General needs the supplied icon.
+14. Flyouts should open after 250 ms.
+15. The tabs for open images are gone; restore them.
+16. Crashes, even on a simple fill. If stability does not improve, roll back to 1.0.58; prepare a list of every change made since then and how to redo it on that base.
 
-Items 1 to 14 as recorded in the 722nd entry (the exact wording of the list was not kept): 1 jolts while painting ("Very bad bug"); 2 image window buttons too high; 3 K too close to File with no image; 4 Polygon and Star icon missing; 5 themes: raised buttons in the light theme, tab color (his saved #364064), selection gradient also in menus; 6 taller menu bar; 7 remove the Quick Adjust toolbar; 8 and 9 a new canvas should start with the Hand (it started with the arrow), and the toolbox order; 10 a default brush; 11 the ball bearing darker with a cast shadow; 12 the status bar size cut off in portrait; 13 File Info General icon; 14 flyouts at 250 ms.
+Also (looking at the toolbox): Smudge and Soften should be on their own, and the healing brush on its own; the stamp is unclear; there are two Type tools (label them Krimble Type and Old Type); make the stamp a flyout of the healing brush, then separate it; remove the gadget under the color wells; flyout delay 400 ms (later 250 ms).
 
-**2026-11-16T13:28Z to 13:40Z** (looking at the toolbox): "Smudge and soften should be on their own. The bandaid should be on its own. I don't even know what the stamp is. Why are there two Type tools? A lot of these changes are never approved." / "Label one type tool Krimble Type and the other Old Type." / "Make the stamp a flyout from the bandaid." / "What is that gadget at the bottom under the color wells in the toolbox?" / "Remove it. I don't think anyone will use it." / "Separate the stamp tool." / "Make it 400 Ms."
+## 1.0.63-beta (tested Nov 16, 2026; 18 screenshots)
 
-**2026-11-16T16:21Z:** New bugs 1.0.64-beta: (14 items: jolts while painting; window buttons too high; K too close to File with no image; Polygon and Star icon; themes: raised buttons in the white theme, tab color (saved #364064), selection gradient also in menus; taller menu bar; remove the QuickAdjust toolbar; Hand as the start tool; the toolbox order; a default brush; ball bearing darker with a cast shadow; status bar size cut off in portrait; File Info General icon; 250 ms flyouts.) "Almost everything is perfect. Very few issues left to fix."
+1. The toolbox does not dock normally; docking by menu or by dragging gives unpredictable results.
+2. The right dock has no highlight line on its left side.
+3. The Window menu does not respond.
+4. The toolbox is cut off halfway down and has to be scrolled.
+5. The K starts out too close to File and corrects itself later.
+6. Color Lab grows to a giant size.
+7. The Preferences selection still tints the icons.
+8. Dock Right puts the panel at the top.
+9. The stamp icon leads to tools with no names.
+10. The raised toolbox style skips three icons.
 
-**2026-11-16T21:39Z:** (the list again, plus) 15. Krita previously had tabs at the top for the open image files so you could select them. Now it doesn't for some reason. I didn't ask for that to be removed. Please restore it. 16. There are stability issues. Even just doing a simple operation like a fill can crash the app. I have been forced to use 1.0.58 due to severe stability issues with the new build. if these issues persist I will be forced to roll back to 1.0.58 and start over on revisions. Please make a list of all revisions requested/attempted in subsequent versions and formulate the best implementation if a rollback is performed.
+## 1.0.62-beta (tested Nov 15, 2026)
 
-## 1.0.63-beta (Nov 16, 2026, 02:10Z; 18 screenshots)
+- Color Lab shows three titles.
+- The app is unstable and jumpy; the tabs work better but the titles look wrong; panels will not dock.
+- The File menu is still too close to the K; after a theme change, the theme would not change again. Add a separator before Change Language in the Window menu.
+- A message says there are no resource bundles (the whole folder should not have been deleted).
+- After loading an image the layout is badly broken.
+- Quick Adjust: the size is better, but the ball bearings are too big, the numbers have no room, and the Preview switch is too big; move it to the space at the bottom.
+- Preferences: the highlight still tints the selected icon.
+- Breeze Dark has added blue lines; Breeze Light has a dark menu bar.
+- Black bars remain at the bottom of the Layers panel.
+- Krimble Blue-Gray would not load (an old Krita theme name was saved); switching themes was slow.
+- Tabs should match their panels with no line between them; remove the outline around menus.
+- Tapping the Layers tab made the whole right dock vanish until the phone was rotated. Layers should use warm grays.
+- Menus open a little too high.
 
-Ten faults (as recorded): 1 toolbox docking; 2 "The right dock has no hilight line on the left side."; 3 Window menu; 4 "Toolbox still cuts off halfway down and forces scrolling."; 5 "K still starts out too close then corrects later."; 6 "Color Lab still MAGNIFIES TO GIANT SIZE."; 7 "Preferences selection still tints icons."; 8 Dock right gives dock top; 9 "Unwanted stamp icon still leads to nameless tools."; 10 "Raised toolbox skips three icons." "Version numbers mean nothing because you never fix what I ask you to fix." 03:54Z: "I tried different ways. I used the menu and dragged the toolbox and got unpredictable results."
-
-## 1.0.62-beta (Nov 15, 2026, 23:15Z to 24:10Z)
-
-- (screenshot) "ColorLab has THREE TITLES."
-- "It's super buggy and twitchy now." / "The tabs work better, but titles are weird now." / "Nothing wants to dock right now." / "When it started the file menu was still too close to the K. Somehow I changed themes. Now it refuses to change themes." / "Also put a separator before change language in window menu."
-- "I got a message about not having any resource bundles." / "I didn't want you to delete the whole folder before."
-- (welcome page) "The k too close." / (after loading an image) "Disaster. Complete mess."
-- "QuickAdjust size is better, but the ball bearings are too big." / "And I can't see the numbers any more. They have no space." / "And the preview toggle button is too big to fit in between the buttons now. Shrink it" / "But put it in the space on the bottom."
-- (Preferences) "The hilight still tints the icon when selected. Fix it. Again."
-- "Breeze dark theme has blue lines added?" / "Breeze light has a dark menu bar."
-- "There are still weird black things at the bottom of the layers panel."
-- Krimble Blue-Gray would not load: "It was called Krita something before, but we changed it because this is not Krita." / "Ok it finally switched. There was a long delay"
-- "Please make tabs match their panels and don't put a line between them." / "Remove the outline around menus."
-- "I tapped the layer tab and the whole right dock vanished. Then I rotated and it came back. Twitchy." / "Can the layers use warm greys instead of cold grays?"
-- "It looks like menus are a little too high."
-
-Builds 55 to 61: their release notes carry the faults found in testing (written Nov 15-16 from his reports, "the notes need to be constructed about the many failures in those builds"); the exact wording of those reports was not kept.
+Builds 55 to 61: their release notes carry the faults found in testing; the original reports were not kept word for word.
 
 ## Status of the 1.0.73 list (Nov 21, 2026)
 
@@ -137,12 +188,12 @@ Builds 55 to 61: their release notes carry the faults found in testing (written 
 | 2, 11 | Fixed, 806: Aqua darker and only on buttons; selections flat #0b87dd. |
 | 3 | Fixed, 804: eyedropper drawn at any size. |
 | 4 | Fixed, 807: lip at the top, six lines. |
-| 6 | Fixed, 807: tool name in the title row, grip after it. |
+| 6 | Fixed, 807 and 825: the tool name in the title row on one line, grip after it. |
 | 7 | Fixed, 805: Soften first. |
 | 9 | Fixed, 805: 70 real px after the K. |
-| 10, 13 | Fixed, 806: OK and Create in Aqua. |
-| 14 | Fixed, 805: large QuickAdjust logo. |
-| 15 | Fixed, 811 (with his permission): krita5.xmlgui, Image Rotation → Rotate. |
+| 10, 13 | Fixed, 806 and 821: OK and Create in Aqua. |
+| 14 | Fixed, 805: large Quick Adjust logo. |
+| 15 | Fixed, 811 (with permission): krita5.xmlgui, Image Rotation → Rotate. |
 | 16 | Fixed, 805: toolbox 22 by default. |
 | 17 | Fixed, 804: black Undo; Classic removed. |
-| 18 | Fixed, 808 (to confirm in testing): the log showed Krimble was finished (isFinishing=true), most likely by Back; Back now sends Krimble to the background. |
+| 18 | Fixed, 808 (to confirm in testing): Back now sends Krimble to the background instead of closing it. |

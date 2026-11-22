@@ -97,7 +97,7 @@ I am a lifelong professional artist trained across traditional media and digital
 
 ---
 
-## WHAT KRIMBLE CHANGES 🪄
+## What krimble changes 🪄
 
 Krimble already includes many changes to make the app more usable and familiar on mobile:
 
@@ -200,7 +200,7 @@ Artificial Intelligence is like a brilliant child. Children make mistakes. That'
 </a>
 </div>
 
-## DEVELOPMENT ROADMAP 🗺️
+## Development roadmap 🗺️
 
 Krimble has already completed a massive amount of work. The detailed engineering log is preserved, but documented elsewhere so the README remains readable.
 

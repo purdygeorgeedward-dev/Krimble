@@ -66,7 +66,7 @@ Also on the branch from ChatGPT (reviewed 2026-10-30, not changed): the app-wide
 | 341 | Color panel: one page; **SV square painted with gradients**, grows both ways | Color panel | the classic widgets are hidden, not removed |
 | 342 | **Mixer** panel (its own dock, `KrimbleMixer`, header only) | Window menu | a new dock registration: check it appears and opens |
 
-Not in the branch yet: the 32 icons wired to the toolbox (see `packaging/android/TOOLBOX-ICON-COVERAGE.md`).
+Not in the branch yet: the 32 icons wired to the toolbox (see `packaging/android/Toolbox-icon-coverage.md`).
 
 ### Also on the branch (entries 344 and 345, written 2026-10-30, 2:40 PM MT)
 | Entry | What | Where to look on the phone | Risk |
