@@ -301,3 +301,6 @@ What was lost: the screenshots George sent during the day were not saved anywher
 - **17:14:** "Where is the target?" / 17:15 "Ugh" / "Yes" (tag push and API tag creation both refused by the proxy; pushed branch release-1.0.73 at e2c14ad2 for the release Target)
 - **17:29:** "I know that on the surface of it the idea of a multi-point gradient is not new. Photoshop has complex gradients with multiple colors at different points on a line. I want that too, and I want a linear preview in the editor where it shows a large box with a vertical image of the selected gradient. However, I'm also proposing two other features. 1. Gradient on a curve with the points of the gradient plotted on the curve to control how it renders, 2. A 3D mesh based gradient map where the gradients flow from node to node in a freeform way. Also, how hard would it be to add a bump map editing tool and a normal map editing tool for 3d work?"
 - **17:31:** "I think editing/painting those maps requires a 3d interface."
+- **17:31:** "How long to build that d4 shaped color triangle with 3d rotation?"
+- **17:33:** "Why a render? A d4 is the simplest shape." / "What 3d attempt?"
+- **17:34:** "That's because I did it without you in another app." (the earlier 3D attempt was his, outside Krimble)
