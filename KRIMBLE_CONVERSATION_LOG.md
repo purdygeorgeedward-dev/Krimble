@@ -304,3 +304,4 @@ What was lost: the screenshots George sent during the day were not saved anywher
 - **17:31:** "How long to build that d4 shaped color triangle with 3d rotation?"
 - **17:33:** "Why a render? A d4 is the simplest shape." / "What 3d attempt?"
 - **17:34:** "That's because I did it without you in another app." (the earlier 3D attempt was his, outside Krimble)
+- **17:34:** "It was a complex polyhedron of colors."
