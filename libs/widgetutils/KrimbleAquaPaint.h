@@ -95,6 +95,27 @@ inline void krimblePaintAqua(QPainter &p, const QRectF &r, qreal radius, const Q
     //     gg.setColorAt(1.0, QColor(255, 255, 255, 16));
     //     p.fillPath(gloss, gg);
     // }
+    // 3b. dark curved corners at the bottom: only the two corners, each the wedge outside a round curve (like the shine's top corners)
+    {
+        const qreal h = r.height();
+        const qreal c = qMin(0.30 * h, r.width() / 2.0);
+        const QColor d = krimbleAquaMix(base, black, 0.50);
+        for (int side = 0; side < 2; ++side) {
+            const qreal x = side == 0 ? r.left() : r.right() - c;
+            const QRectF sq(x, r.bottom() - c, c, c);
+            const QPointF centre(side == 0 ? r.left() + c : r.right() - c, r.bottom() - c);
+            QPainterPath wedge;
+            wedge.addRect(sq);
+            QPainterPath round;
+            round.addEllipse(centre, c, c);
+            wedge = wedge.subtracted(round).intersected(body);
+            QRadialGradient rg(side == 0 ? QPointF(r.left(), r.bottom()) : QPointF(r.right(), r.bottom()), c);
+            rg.setColorAt(0.0, QColor(d.red(), d.green(), d.blue(), 230));
+            rg.setColorAt(1.0, QColor(d.red(), d.green(), d.blue(), 230 / 3));
+            p.fillPath(wedge, rg);
+        }
+    }
+
     // 4. the gloss over the top half: rounded top corners, its sides curving inward as it goes down, so its bottom edge is narrower
     //    the sizes come from the height, so a wide button keeps narrow sides
     {

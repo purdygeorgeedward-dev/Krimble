@@ -67,3 +67,5 @@ Files named YYYY-MM-DD_HHMM_<id>.jpg, by the time each was sent (MST).
 - 2026-11-22_0215_rotate-arrows-reference*.png — George's pictures of the Rotate arrows he wants (thick, tapered, big barbed heads)
 - previews/2026-11-22_0312_APPROVED-aqua-shine-shape.png — the approved shine shape ("Yes! That!")
 - previews/2026-11-22_0320_* — renders from the code as pushed (Aqua with the shaped shine; the mode row at 28 with the new Rotate icon)
+- previews/2026-11-22_0332_APPROVED-aqua-bottom-corners-middle.png — dark bottom corners; the middle row was chosen ("The middle one.")
+- previews/2026-11-22_0335_preview-aqua-with-bottom-corners.png — render from the code as pushed

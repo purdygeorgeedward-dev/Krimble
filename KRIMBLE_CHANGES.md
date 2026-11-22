@@ -8034,3 +8034,8 @@ Built as 71.
 - Progress bars (KrimbleVisualStyle.h, KrimbleVisualStylePainted.h): "Why is the 60% in the corner?" / "Yeah, that 60% is annoying." text-align: center (the style sheet had put the text in the top left corner).
 - Inline change quotes added in code comments for 821/822 were taken out (changes are documented here only).
 - Syntax check: no errors. Previews: docs/krimble-refs/previews/2026-11-22_0320_*. Not built.
+
+## 824 — Aqua: dark curved bottom corners matching the shine's top corners (2026-11-22, not built)
+- "Add another dark corner curve at the bottom to match the top corners. Let me see how that looks." / "A bit more." / "More" / "No. It seems to be affecting the center instead of the corners." / "The middle one."
+- KrimbleAquaPaint.h: before the shine, each bottom corner gets a dark wedge outside a round curve (radius 0.30 of the height, at most half the width), darkest in the corner and fading inward. Only the two corners are touched. The first demos (darkening the bottom half around a mirrored shine) reached into the center and were turned down.
+- Preview: docs/krimble-refs/previews/2026-11-22_0335_preview-aqua-with-bottom-corners.png. Not built.
