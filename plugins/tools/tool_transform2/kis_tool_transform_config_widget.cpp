@@ -344,7 +344,7 @@ KisToolTransformConfigWidget::KisToolTransformConfigWidget(TransformTransactionP
     horizontalLayout_3->insertWidget(1, m_krimbleRotateButton);
     connect(m_krimbleRotateButton, SIGNAL(clicked(bool)), this, SLOT(slotKrimbleRotateButtonClicked(bool)));
 
-    // Stretch (the non-uniform scale) and Shear are mode buttons of their own, like Warp (George, 2026-11-22: "each mode is a different tool");
+    // Stretch (the non-uniform scale) and Shear are mode buttons of their own, like Warp;
     // the order is Scale, Stretch, Rotate, Shear, Perspective, Warp, Cage, Liquify, Mesh
     auto krimbleModeButton = [this](const QString &name) {
         QToolButton *button = new QToolButton(freeTransformButton->parentWidget());
@@ -374,8 +374,10 @@ KisToolTransformConfigWidget::KisToolTransformConfigWidget(TransformTransactionP
 
     Q_FOREACH (QToolButton *modeButton, QList<QToolButton*>({freeTransformButton, m_krimbleStretchButton, m_krimbleRotateButton, m_krimbleShearButton, perspectiveTransformButton, warpButton,
                                                               cageButton, liquifyButton, meshButton})) {
-        modeButton->setIconSize(QSize(20, 20));
-        modeButton->setMinimumHeight(30);
+        // modeButton->setIconSize(QSize(20, 20));
+        // modeButton->setMinimumHeight(30);
+        modeButton->setIconSize(QSize(28, 28));
+        modeButton->setMinimumHeight(38);
         modeButton->setStyleSheet(QStringLiteral(
             "QToolButton { padding: 4px; border-radius: 6px; }"
             "QToolButton:checked { background-color: palette(highlight); color: palette(highlighted-text); }"));

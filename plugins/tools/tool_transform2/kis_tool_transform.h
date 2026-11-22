@@ -438,7 +438,7 @@ public:
     KisToolFreeRotateFactory()
             : KisToolPaintFactoryBase("KisToolFreeRotate") {
         // setToolTip(i18n("Free Rotate"));
-        setToolTip(i18n("Rotate"));   // no "Free" in any name (George, 2026-11-22)
+        setToolTip(i18n("Rotate"));
         setSection(ToolBoxSection::PSOrder);
         setToolBoxPriority(241);
         setIconName(koIconNameCStr("krimble-free-rotate"));

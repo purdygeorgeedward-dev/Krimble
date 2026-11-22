@@ -64,3 +64,6 @@ Files named YYYY-MM-DD_HHMM_<id>.jpg, by the time each was sent (MST).
 - 2026-11-22_0128_transform-shear-radio-buttons.jpg — Transform Tool Options with the Position/Rotate/Scale/Shear radio buttons
 - 2026-11-22_0128_MESS-and-ICONS-mesh-mode.jpg — "MESS" (Mesh mode gadget on the picture, to be confirmed) and "ICONS" (the mode icons); title "Free Rotate" circled
 - previews/2026-11-22_* — renders from the real-code preview program (one aqua, the nine-mode flyout and mode row, the build-73 check against the phone)
+- 2026-11-22_0215_rotate-arrows-reference*.png — George's pictures of the Rotate arrows he wants (thick, tapered, big barbed heads)
+- previews/2026-11-22_0312_APPROVED-aqua-shine-shape.png — the approved shine shape ("Yes! That!")
+- previews/2026-11-22_0320_* — renders from the code as pushed (Aqua with the shaped shine; the mode row at 28 with the new Rotate icon)

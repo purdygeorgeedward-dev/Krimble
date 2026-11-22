@@ -82,17 +82,40 @@ inline void krimblePaintAqua(QPainter &p, const QRectF &r, qreal radius, const Q
         p.setPen(Qt::NoPen);
     }
 
-    // 4. the gloss over the top half
+    // // 4. the gloss over the top half
+    // {
+    //     const QRectF gr(r.left() + r.width() * 0.07, r.top() + r.height() * 0.05, r.width() * 0.86, r.height() * 0.45);
+    //     const qreal gRadius = qMin(radius * 0.85, gr.height() / 2.0);
+    //     QPainterPath gloss;
+    //     gloss.addRoundedRect(gr, gRadius, gRadius);
+    //     QLinearGradient gg(gr.topLeft(), gr.bottomLeft());
+    //     // gg.setColorAt(0.0, QColor(255, 255, 255, 217));
+    //     // gg.setColorAt(1.0, QColor(255, 255, 255, 31));
+    //     gg.setColorAt(0.0, QColor(255, 255, 255, 150));
+    //     gg.setColorAt(1.0, QColor(255, 255, 255, 16));
+    //     p.fillPath(gloss, gg);
+    // }
+    // 4. the gloss over the top half: rounded top corners, its sides curving inward as it goes down, so its bottom edge is narrower
+    //    the sizes come from the height, so a wide button keeps narrow sides
     {
-        const QRectF gr(r.left() + r.width() * 0.07, r.top() + r.height() * 0.05, r.width() * 0.86, r.height() * 0.45);
-        const qreal gRadius = qMin(radius * 0.85, gr.height() / 2.0);
+        const qreal h = r.height();
+        const qreal inset = qMin(r.width(), h) * 0.08;
+        const qreal gt = r.top() + h * 0.05, gb = r.top() + h * 0.50;
+        const qreal L = r.left() + inset, R = r.right() - inset;
+        const qreal sh = qMin(0.16 * h, (R - L) / 2.0);        // the rounded top corner
+        const qreal narrow = qMin(0.38 * h, (R - L) / 4.0);    // how far each side comes in at the bottom
         QPainterPath gloss;
-        gloss.addRoundedRect(gr, gRadius, gRadius);
-        QLinearGradient gg(gr.topLeft(), gr.bottomLeft());
-        // gg.setColorAt(0.0, QColor(255, 255, 255, 217));
-        // gg.setColorAt(1.0, QColor(255, 255, 255, 31));
+        gloss.moveTo(L + sh, gt);
+        gloss.lineTo(R - sh, gt);
+        gloss.cubicTo(R - sh * 0.35, gt, R, gt + sh * 0.25, R, gt + sh * 0.65);
+        gloss.cubicTo(R, gt + (gb - gt) * 0.85, R - narrow * 0.6, gb, R - narrow - sh * 0.4, gb);
+        gloss.lineTo(L + narrow + sh * 0.4, gb);
+        gloss.cubicTo(L + narrow * 0.6, gb, L, gt + (gb - gt) * 0.85, L, gt + sh * 0.65);
+        gloss.cubicTo(L, gt + sh * 0.25, L + sh * 0.35, gt, L + sh, gt);
+        gloss.closeSubpath();
+        QLinearGradient gg(QPointF(0, gt), QPointF(0, gb));
         gg.setColorAt(0.0, QColor(255, 255, 255, 150));
-        gg.setColorAt(1.0, QColor(255, 255, 255, 16));
+        gg.setColorAt(1.0, QColor(255, 255, 255, 60));   // visible to its bottom edge, so the shape shows
         p.fillPath(gloss, gg);
     }
     p.restore();

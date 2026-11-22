@@ -236,6 +236,7 @@ QHeaderView::section {
 }
 QProgressBar {
     color: white;
+    text-align: center;   /* the percentage in the middle (it sat in the top left corner) */
     border: 1px solid #000000;
     border-radius: 0px;
     background: #141926;

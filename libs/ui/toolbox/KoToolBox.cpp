@@ -377,7 +377,7 @@ void KoToolBox::krimbleApplyGroups()
     }
 }
 
-// The Transform modes, each a tool of its own for the user (George, 2026-11-22: "each mode is a different tool, just like how warp is a different tool"):
+// The Transform modes, each a tool of its own for the user:
 // key (the Transform Tool Options understand it), name, picture. Scale is uniform; Stretch is the non-uniform scale.
 struct KrimbleTransformMode { const char *key; const char *name; const char *icon; };
 static const QList<KrimbleTransformMode> &krimbleTransformModes()
@@ -418,7 +418,6 @@ void KoToolBox::krimbleShowFlyout(int groupIndex)
     Private::KrimbleGroup &group = d->groups[groupIndex];
     if (!group.shown) return;
     // the Transform button: its flyout offers the Transform modes, not other tools
-    // (George: "The transform tool in the toolbox should only lead to versions of the transform tool")
     if (krimbleToolGroupIds().at(groupIndex).first() == QLatin1String("KisToolTransform")) {
         const QString activeId = KoToolManager::instance()->activeToolId();
         QString current = qApp->property("krimbleTransformMode").toString();

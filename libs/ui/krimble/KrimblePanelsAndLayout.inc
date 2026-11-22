@@ -496,7 +496,7 @@ static void krimbleInstallImageExtras(KisMainWindow *win)
                 QObject::connect(rotation, &QMenu::aboutToShow, win, [win, rotation]() {
                     if (rotation->findChild<QAction*>(QStringLiteral("krimbleFreeRotate"))) return;
                     // QAction *freeRotate = new QAction(i18n("Free Rotate"), rotation);
-                    QAction *freeRotate = new QAction(i18n("Rotate"), rotation);   // no "Free" (George, 2026-11-22)
+                    QAction *freeRotate = new QAction(i18n("Rotate"), rotation);
                     freeRotate->setObjectName(QStringLiteral("krimbleFreeRotate"));
                     QObject::connect(freeRotate, &QAction::triggered, win, [win]() {
                         KisViewManager *view = win->viewManager();
