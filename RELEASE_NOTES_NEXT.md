@@ -24,6 +24,10 @@ Krimble is open source software made with the assistance of Claude and ChatGPT.
 - A large preview box shows the gradient running top to bottom as you edit it.
 - Steadier by touch: a new color stop is added only by a clean tap, a stop moves only on a deliberate drag, and the handles are easier to grab.
 
+**Mixer**
+
+- The mixing pad now paints with Krimble's real brush engine and your current brush, so mixing brushes really blend colors on it. Paint, Move, Sample, Clear and + Color.
+
 **Known issues**
 
 - (from the test results)

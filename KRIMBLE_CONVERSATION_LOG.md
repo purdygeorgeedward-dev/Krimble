@@ -315,3 +315,6 @@ What was lost: the screenshots George sent during the day were not saved anywher
 - **17:47:** "Can you adjust the timings so it's stable?" (change 812, gradient stop bar)
 - **17:48:** "Can you make me that nice preview box? Did we already make the color mixing pad? Does it work?" (change 813)
 - **20:27:** "I haven't really used it since then. It's more of a painters tool. The Krita fans should like it." (the Mixer panel)
+- **20:28:** "The problem before was the brush was crap. It really didn't work."
+- **20:29:** "Just use the built in Krita brush engine. They put most of their efforts into it. Why make up your own crapola brush engine???" (change 814)
+- **20:30:** "Okay, if they already had a scratch pad, why did we even try to build one instead of using theirs?"

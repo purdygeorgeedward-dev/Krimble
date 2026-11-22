@@ -15,6 +15,10 @@
 #include <KoCanvasResourceProvider.h>
 
 #include "krimble_color_studio.h"
+#include <kis_scratch_pad.h>
+#include <kis_canvas2.h>
+#include <KisViewManager.h>
+#include <kis_canvas_resource_provider.h>
 
 class KrimbleMixerDock : public QDockWidget, public KoCanvasObserverBase
 {
@@ -54,7 +58,16 @@ public:
             title->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
             mixLayout->addWidget(title);
         }
-        mixLayout->addWidget(m_pad, 1);
+        // mixLayout->addWidget(m_pad, 1);
+        // The pad now paints with Krita's own brush engine and the current brush preset (Krita's scratch pad, the one in the brush editor):
+        // "Just use the built in Krita brush engine. They put most of their efforts into it." The home-made pad is kept, hidden.
+        mixLayout->addWidget(m_pad, 0);
+        m_pad->hide();
+        m_realPadHolder = new QWidget(panel);
+        m_realPadLayout = new QVBoxLayout(m_realPadHolder);
+        m_realPadLayout->setContentsMargins(0, 0, 0, 0);
+        m_realPadHolder->setMinimumHeight(qRound(600.0 / qMax<qreal>(1.0, qApp->devicePixelRatio())));
+        mixLayout->addWidget(m_realPadHolder, 1);
 
         // auto *brushControls = new QHBoxLayout;
         // brushControls->addWidget(new QLabel(tr("Size"), panel));
@@ -91,6 +104,8 @@ public:
             connect(number, qOverload<int>(&QSpinBox::valueChanged), slider, &QSlider::setValue);
             (row == 0 ? brushSize : brushOpacity) = number;
             mixLayout->addLayout(line);
+            // the real brush uses the current preset's own size and opacity (set in Tool Options or the brush editor): these rows are hidden
+            name->hide(); slider->hide(); number->hide();
         }
 
         auto *padActions = new QHBoxLayout;
@@ -112,23 +127,31 @@ public:
             setWidget(scroll);
         }
 
+        // Paint, Move (pan the pad), Sample. Erase is now Move: the real pad erases with the brush's own eraser mode.
+        eraseButton->setText(tr("Move"));
         connect(paintButton, &QPushButton::clicked, this, [=]() {
             paintButton->setChecked(true); eraseButton->setChecked(false);
             sampleButton->setChecked(false); m_pad->setEraser(false);
+            if (m_realPad) m_realPad->setModeType(QStringLiteral("painting"));
         });
         connect(eraseButton, &QPushButton::clicked, this, [=]() {
             paintButton->setChecked(false); eraseButton->setChecked(true);
             sampleButton->setChecked(false); m_pad->setEraser(true);
+            if (m_realPad) m_realPad->setModeType(QStringLiteral("panning"));
         });
         connect(sampleButton, &QPushButton::clicked, this, [=]() {
             paintButton->setChecked(false); eraseButton->setChecked(false);
             sampleButton->setChecked(true); m_pad->setSampling(true);
+            if (m_realPad) m_realPad->setModeType(QStringLiteral("colorsampling"));
         });
         connect(brushSize, qOverload<int>(&QSpinBox::valueChanged), m_pad, &KrimbleMixingPad::setBrushSize);
         connect(brushOpacity, qOverload<int>(&QSpinBox::valueChanged), m_pad, &KrimbleMixingPad::setOpacity);
         connect(undoButton, &QPushButton::clicked, m_pad, &KrimbleMixingPad::undo);
         connect(redoButton, &QPushButton::clicked, m_pad, &KrimbleMixingPad::redo);
         connect(clearButton, &QPushButton::clicked, m_pad, &KrimbleMixingPad::clearPad);
+        // Krita's scratch pad has no undo of its own: Undo and Redo are hidden; Clear wipes the real pad to white
+        undoButton->hide(); redoButton->hide();
+        connect(clearButton, &QPushButton::clicked, this, [this]() { if (m_realPad) m_realPad->fillDefault(); });
         // + Palette: the foreground color joins the Color panel's saved swatches (the same saved list; the Color panel shows it within a moment)
         connect(addMixed, &QPushButton::clicked, this, [this]() {
             if (!m_canvas) return;
@@ -157,6 +180,15 @@ public:
     {
         setEnabled(canvas != nullptr);
         m_canvas = dynamic_cast<KisCanvas2*>(canvas);
+        // the real pad is made the first time there is a view: it needs the view's brush and color resources
+        if (m_canvas && !m_realPad && m_canvas->viewManager() && m_canvas->viewManager()->canvasResourceProvider()) {
+            m_realPad = new KisScratchPad(m_realPadHolder);
+            m_realPad->setupScratchPad(m_canvas->viewManager()->canvasResourceProvider(), Qt::white);
+            m_realPad->setModeManually(true);
+            m_realPad->setModeType(QStringLiteral("painting"));
+            m_realPad->setMinimumSize(50, 50);
+            m_realPadLayout->addWidget(m_realPad);
+        }
         if (m_canvas && m_canvas->resourceManager()) {
             const QColor foreground = m_canvas->resourceManager()->foregroundColor().toQColor();
             if (foreground.isValid()) m_pad->setColor(foreground);
@@ -168,4 +200,7 @@ private:
     QPointer<KisCanvas2> m_canvas;
     KrimbleMixingPad *m_pad = nullptr;
     QTimer m_syncTimer;
+    QWidget *m_realPadHolder = nullptr;
+    QVBoxLayout *m_realPadLayout = nullptr;
+    QPointer<KisScratchPad> m_realPad;   // Krita's own scratch pad: the real brush engine
 };

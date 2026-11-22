@@ -7955,3 +7955,15 @@ Built as 71.
   box (at least 420 real pixels tall, as large as the window allows) shows the gradient running top to bottom, one color per real pixel row,
   over a checkerboard so transparency shows; square corners and a thin black edge. It updates while stops are moved, added or recolored.
   Hidden in the small (compact) editor inside Tool Options.
+
+## 814 — Mixer paints with Krita's real brush engine (2026-11-21, not built)
+- "The problem before was the brush was crap. It really didn't work." / "Just use the built in Krita brush engine. They put most of their efforts
+  into it. Why make up your own crapola brush engine???"
+- krimble_mixer_dock.h: the pad is now Krita's own scratch pad (KisScratchPad, the one in the brush editor), made the first time a view exists
+  with the view's brush and color resources. It paints with the current brush preset through Krita's brush engine, so Krita's color-smudge and
+  mixing brushes really mix on it. White to start.
+- Buttons: Paint; Move (pans the pad; was Erase: the real pad erases with the brush's own eraser mode); Sample (the color under the finger
+  becomes the foreground color); Clear (back to white); + Color. Undo and Redo are hidden (Krita's scratch pad has no undo). The Size and Opacity
+  rows are hidden: the brush's own size and opacity apply, set in Tool Options or the brush editor.
+- The home-made pad (KrimbleMixingPad, from the ChatGPT-designed Color Studio, moved into its own panel on Oct 30 without checking for Krita's
+  scratch pad) is kept in the code, hidden.
