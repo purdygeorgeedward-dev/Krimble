@@ -8059,3 +8059,7 @@ Built as 71.
 - thememanager.cpp: krimbleLightSheet() makes the Krimble sheet light. Saturated blues (selection, Aqua) stay; black edge lines become a mid gray; the dark wells (text boxes, lists, drop-downs) become near white; panels, faces and bevel edges are raised by the same amount so the bevels keep their direction; light text becomes dark. Text on blue (Aqua push buttons, selected rows and menu items) stays white. The common sheet is made light the same way. Not flat (bevels on), like Blue-Gray.
 - Preview (real-code): docs/krimble-refs/previews/2026-11-22_0515_preview-krimble-light.png.
 - Not covered and not checked: Krimble's own drawn parts with fixed dark colors (toolbox button faces, Color Lab, Layers rows, the menu bar bevels, the Mixer); they may stay dark in this theme until they are made to follow it. Not built.
+
+## 828 — Krimble Light: neutral gray instead of lavender (2026-11-22, not built)
+- George: "That looks lavendar." / "Yes." (to the neutral version, docs/krimble-refs/previews/2026-11-22_0523_krimble-light-lavender-vs-neutral.png)
+- thememanager.cpp krimbleLightSheet(): the made-light colors use hue 215 with at most 10/255 saturation (was hue 229, up to 40/255). KrimbleLight.colors: neutral light grays (window 214,216,220; views 248,248,250; text 30,32,36). Not built.

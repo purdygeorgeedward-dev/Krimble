@@ -75,3 +75,4 @@ Files named YYYY-MM-DD_HHMM_<id>.jpg, by the time each was sent (MST).
 - 2026-11-22_0302_screen-looks-normal-build73.jpg — George's screen in build 73 ("It looks normal."); its toolbox background measures 56,58,83, the same as the demos
 - previews/2026-11-22_0500_tab-row-darker-row-lighter-unselected.png — the tab row as set: row behind twice as dark as the panel, unselected tab a little darker than the selected one
 - previews/2026-11-22_0515_preview-krimble-light.png — the new Krimble Light theme from the code as pushed (real-code preview)
+- previews/2026-11-22_0523_krimble-light-lavender-vs-neutral.png — Krimble Light: lavender (left, turned down: "That looks lavendar.") and the neutral gray chosen (right)

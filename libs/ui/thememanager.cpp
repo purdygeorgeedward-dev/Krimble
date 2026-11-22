@@ -224,7 +224,8 @@ static QString krimbleLightSheet(const QString &sheet)
             else if (v < 60) nv = 247;                     // the dark wells (text boxes, lists, drop-downs): near white
             else if (v < 150) nv = qMin(250, v + 140);     // panels, faces and bevel edges: lighter, in the same order
             else nv = qMax(20, 275 - v);                   // light text and light details: dark
-            out += QColor::fromHsv(229, qMin(sat, 40), nv).name();
+            // out += QColor::fromHsv(229, qMin(sat, 40), nv).name();
+            out += QColor::fromHsv(215, qMin(sat, 10), nv).name();   // a neutral gray with a faint cool tint (229 / 40 looked lavender)
         }
         last = m.capturedEnd();
     }
