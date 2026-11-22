@@ -309,3 +309,5 @@ What was lost: the screenshots George sent during the day were not saved anywher
 - **17:41:** "No more than 3. Dots make sense. I don't think 3 finger swipes will catch on. Could we add voice control to the app? Activate tools, open and close files, that kind of thing?"
 - **17:42:** "If necessary we could do voice profiling."
 - **17:43:** "Ok. Let's put those two features on the definite dev list. Virtual screens and voice control of the app." (KRIMBLE_DEV_LIST.md)
+- **17:44:** "Rate all the proposed features for difficulty."
+- **17:45:** "I haven't looked at the gradient editor yet."
