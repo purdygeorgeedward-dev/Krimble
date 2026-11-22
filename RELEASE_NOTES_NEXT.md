@@ -17,7 +17,7 @@ Krimble is open source software made with the assistance of Claude and ChatGPT.
 
 **File menu**
 
-- **A. I. Image generation** opens the free Image Donkey image generator in the browser. Save the picture there and open it in Krimble.
+- **A. I. Image gen** opens the free Image Donkey image generator in the browser. Save the picture there and open it in Krimble.
 
 **Known issues**
 

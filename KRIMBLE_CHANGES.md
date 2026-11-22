@@ -7933,3 +7933,4 @@ Built as 71.
 - Documented in README.md, krimble-help.md, KRIMBLE_MANUAL.md and RELEASE_NOTES_NEXT.md.
 - 17:08, "Actually, file has much fewer items. Put it in File as \"A. I. Image generation\".": it is now **File > A. I. Image generation**, next to
   Take Photo (KrimbleFileAndHelpExtras.inc); the Image menu entry is commented out. Docs updated.
+- 17:09, "Maybe shorten it to gen instead of generation since that will stretch out the menu.": the menu item reads **A. I. Image gen**. Docs updated.

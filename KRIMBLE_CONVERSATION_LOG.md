@@ -295,3 +295,4 @@ What was lost: the screenshots George sent during the day were not saved anywher
 - **17:06:** "I thought we added a link to Image Donkey?"
 - **17:07:** "Add it now and document it." / "Image menu" (change 810)
 - **17:08:** "Actually, file has much fewer items. Put it in File as \"A. I. Image generation\"." (moved to File)
+- **17:09:** "Maybe shorten it to gen instead of generation since that will stretch out the menu." (now "A. I. Image gen")
