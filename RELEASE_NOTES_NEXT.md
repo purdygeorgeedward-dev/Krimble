@@ -28,6 +28,10 @@ Krimble is open source software made with the assistance of Claude and ChatGPT.
 
 - The mixing pad now paints with Krimble's real brush engine and your current brush, so mixing brushes really blend colors on it. Paint, Move, Sample, Clear and + Color.
 
+**Faster start**
+
+- Five patterns come with the app instead of 114 (paper, dots, a diagonal hatch, a crosshatch and a grid). For Zip-A-Tone dots and lines, use the Screentone fill layer.
+
 **Known issues**
 
 - (from the test results)

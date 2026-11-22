@@ -7967,3 +7967,13 @@ Built as 71.
   rows are hidden: the brush's own size and opacity apply, set in Tool Options or the brush editor.
 - The home-made pad (KrimbleMixingPad, from the ChatGPT-designed Color Studio, moved into its own panel on Oct 30 without checking for Krita's
   scratch pad) is kept in the code, hidden.
+
+## 815 — Five patterns again (startup time) (2026-11-21, not built)
+- "I tried removing most of the patterns but later you came back and told me I didn't ask for that and you put them back." He had asked
+  ("5 patterns. No more.", Nov 15, 607th); the 724th (Nov 16) restored all of them, wrongly calling the cut "not asked for" and an unproven
+  suspect in the crashes of builds 60 to 64. / "Yes. Trim it"
+- krita/data/patterns/CMakeLists.txt installs five: Grid01.pat (default of the Pattern Overlay layer style), 03_default-paper.png (paper texture
+  for brushes), 24-dynamic-screentone-B.png (dots), Stripes06.pat (diagonal hatch: Duoshade's light tone), 09_drawed_crosshatched.png (crosshatch:
+  Duoshade's dark tone). The other 107 lines are commented out; the files stay in the repository. No code needs the others (only a test and two
+  comments name them). Zip-A-Tone for manga is the Screentone fill layer, which does not use pattern files.
+- Patterns inside the resource bundles are not changed.
