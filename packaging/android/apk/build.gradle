@@ -287,7 +287,8 @@ android {
     // def krimbleBuildNumber = 71   // 2026-11-20 (branch krimble-cleanup; George: "Build it.")
     // def krimbleBuildNumber = 72   (2026-11-20)
     // def krimbleBuildNumber = 73   (2026-11-21)
-    def krimbleBuildNumber = 74   // 2026-11-22 (branch krimble-cleanup; "Build")
+    // def krimbleBuildNumber = 74   (2026-11-22)
+    def krimbleBuildNumber = 75   // 2026-11-22 (branch krimble-cleanup; "Push all and Build.")
     // (counter-file reading, replaced by the hand-set number above)
     // def krimbleBuildNumber = 0
     // try {

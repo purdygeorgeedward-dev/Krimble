@@ -127,3 +127,4 @@ A record of the project owner's requests, decisions and test findings, kept so a
 - 15:02 to 15:06: comic brushes modeled on his tools (HB lead, Rapidograph, PITT brush pens) plus a non-photo blue pencil (838). Also wants an art marker for colorists (classic Design and Prismacolor markers).
 - 15:07 to 15:08: Art Marker modeled on classic Design markers: high bleed, flat uniform tones (839).
 - 15:09 to 15:18: cel paint is liquid cel vinyl (even, plastic-looking, need not meet the lines); Pantone and cel palettes; Newtype covers as a color source. The rest of the 1.0.74 list was not done; fix all that can be fixed (840).
+- 16:27: push all and build (841, build 75).

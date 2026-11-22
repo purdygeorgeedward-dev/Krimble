@@ -8135,3 +8135,7 @@ Smoothing is a tool setting, not part of a preset (Weighted is suggested for the
 - **Item 11, images opening blurry and turned around:** cause not found here (it looks like the screen copy of the image is stale when the image first shows). After the fit-on-open (1 s), the canvas now rebuilds its screen copy from the image (`refetchDataFromImage()` and `updateCanvas()`). Needs testing on the phone.
 - **Item 5:** drafts only (docs/krimble-refs/2026-11-22_15xx_preview-quickmask-screenmode-drafts.png), not applied.
 Syntax check: KoToolManager.cpp, KisView.cpp clean; KisMainWindow.cpp only the 3 old checker errors; KisApplication.cpp cannot be checked here (missing FreeType headers in the checker). Not built.
+
+## 2026-11-22 (841st) — Build 75
+
+**2026-11-22, 16:30 (MST), branch `krimble-cleanup`.** "Push all and Build." Build number 74 → 75 (`packaging/android/apk/build.gradle`), build log row added, build started by dispatch (label 1.0.75-beta). Item 5 (Quick Mask and Screen Mode icons) is not in it: the drafts were not approved yet.
