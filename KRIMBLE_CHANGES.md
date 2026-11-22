@@ -8001,3 +8001,9 @@ Built as 71.
 - krita/data/profiles/CMakeLists.txt: `add_subdirectory(ycbcr-icc-profiles)` commented out (1.4 MB of BT.601/709/2020 YCbCr profiles, read
   at every start). No code names these files (the "bt709" strings in kis_config.cc are display-surface settings). The elle sRGB profiles,
   cmyk.icm and scRGB stay. Files stay in the repository.
+
+## 820 — Splash PNGs deleted, then restored (2026-11-21)
+- 21:09 "Remove the PNG versions.": krita/data/splash/logo_splash.png and logo_splash_holidays.png were deleted (751eb641), with their names
+  taken out of the qrc comments.
+- 21:10 "Wait. If the PNG files are not going into the app, don't delete them.": undone (2c5823d9). The PNGs and both qrc files are exactly as
+  before. They are not packaged (only the JPGs go into the app), so they cost the app nothing. Net change: none.
