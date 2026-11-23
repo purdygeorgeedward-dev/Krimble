@@ -139,3 +139,4 @@ Files named YYYY-MM-DD_HHMM_<id>.jpg, by the time each was sent (MST).
 | 2026-11-23_1237_glassmorphism-reference-chatty.png | Nov 23, 2026 12:37 MST | Reference made by Chatty (ChatGPT) of what a glassmorphism Krimble could look like: dark blue frosted panels with bright top rims and rounded corners over colored bokeh, View menu open in two columns |
 | 2026-11-23_0940_first-image-opened-tiny.jpg | Nov 23, 2026 09:40 MST | George's screenshot of build 76: "First image opened tiny." (1024 x 1024 JPG shown about 26 px wide; right panels hidden) |
 | 2026-11-23_0941_first-image-later.jpg | Nov 23, 2026 09:41 MST | George's screenshot of build 76, same image 13 s later: larger, at the top left, not fitted |
+| 2026-11-23_1024_layers-plus-does-nothing.jpg | Nov 23, 2026 10:24 MST | George: "Here it is doing nothing." Layers panel (portrait), one layer listed, + pressed; status bar shows 12.0 MiB (was 4.0 MiB at 09:40) |
