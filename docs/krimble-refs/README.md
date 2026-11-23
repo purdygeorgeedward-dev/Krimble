@@ -140,3 +140,7 @@ Files named YYYY-MM-DD_HHMM_<id>.jpg, by the time each was sent (MST).
 | 2026-11-23_0940_first-image-opened-tiny.jpg | Nov 23, 2026 09:40 MST | George's screenshot of build 76: "First image opened tiny." (1024 x 1024 JPG shown about 26 px wide; right panels hidden) |
 | 2026-11-23_0941_first-image-later.jpg | Nov 23, 2026 09:41 MST | George's screenshot of build 76, same image 13 s later: larger, at the top left, not fitted |
 | 2026-11-23_1024_layers-plus-does-nothing.jpg | Nov 23, 2026 10:24 MST | George: "Here it is doing nothing." Layers panel (portrait), one layer listed, + pressed; status bar shows 12.0 MiB (was 4.0 MiB at 09:40) |
+| 2026-11-23_1318_build77-cyber-image-menu.jpg | Nov 23, 2026 13:18 MST | George's screenshot of build 77 (cyber-image-menu): "New themes didn't work." |
+| 2026-11-23_1318_build77-cyber-panels-menu.jpg | Nov 23, 2026 13:18 MST | George's screenshot of build 77 (cyber-panels-menu): "New themes didn't work." |
+| 2026-11-23_1318_build77-cyber-main.jpg | Nov 23, 2026 13:18 MST | George's screenshot of build 77 (cyber-main): "New themes didn't work." |
+| 2026-11-23_1318_build77-glass-main.jpg | Nov 23, 2026 13:18 MST | George's screenshot of build 77 (glass-main): "New themes didn't work." |
