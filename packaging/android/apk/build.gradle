@@ -295,7 +295,8 @@ android {
     // def krimbleBuildNumber = 73   (2026-11-21)
     // def krimbleBuildNumber = 74   (2026-11-22)
     // def krimbleBuildNumber = 75   // 2026-11-23 (run 45158674034, commit 972169d1)
-    def krimbleBuildNumber = 76   // 2026-11-23 (George: "Prepare all this for .76 please."); not built yet
+    // def krimbleBuildNumber = 76
+def krimbleBuildNumber = 77   // cyber-theme branch: Cyber and Glass themes test build   // 2026-11-23 (George: "Prepare all this for .76 please."); not built yet
     // (counter-file reading, replaced by the hand-set number above)
     // def krimbleBuildNumber = 0
     // try {
