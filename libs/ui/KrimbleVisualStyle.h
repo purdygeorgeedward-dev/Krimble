@@ -120,7 +120,7 @@ QLineEdit, QSpinBox, QDoubleSpinBox {
     color: #f0f3ff;
     selection-background-color: #0b87dd;
     border: 1px solid #000000;
-    border-radius: 5px;
+    /* border-radius: 5px; */ border-radius: 0px;   /* 872nd: square corners, the sunken bevel meets cleanly ("That's better.") */
     /* task 28: sunken edge (light #3b456b bottom and right) */
     border-bottom: 1px solid #3b456b;
     border-right: 1px solid #3b456b;
@@ -131,7 +131,7 @@ QComboBox {
     color: #f0f3ff;
     selection-background-color: #0b87dd;
     border: 1px solid #000000;
-    border-radius: 4px;
+    /* border-radius: 4px; */ border-radius: 0px;   /* 872nd: square corners, the sunken bevel meets cleanly ("That's better.") */
     /* task 28: sunken edge (light #3b456b bottom and right) */
     border-bottom: 1px solid #3b456b;
     border-right: 1px solid #3b456b;
