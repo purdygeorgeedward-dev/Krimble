@@ -32,12 +32,17 @@ QMenuBar::item:selected, QMenuBar::item:pressed { background: rgba(0, 0, 0, 120)
 /* Krimble 2026-11-22: padding-bottom alone did nothing: Qt takes a menu's top and bottom room from padding-top (checked with the Preview Tool:
    padding-bottom 16px with padding-top 6px gave 6 at both ends). So both are set. "Menus still have very short bottoms." */
 /* QMenu { padding-bottom: 16px; padding-right: 12px; } */
-QMenu {
+/* QMenu {
     padding-top: 10px;
     padding-bottom: 10px;
     padding-right: 12px;
-}
+} */
 /* Krimble 2026-11-22: a visible edge on every menu, so a submenu no longer disappears into the menu under it ("Submenus still have no edges and disappear into menus.") */
-QMenu { border: 1px solid #8a93b8; }
+/* QMenu { border: 1px solid #8a93b8; } */
+/* Krimble 2026-11-23 (865th): menus back the way they were in build 74. George: "I never asked for a bunch of space inside the menus or white outlines around the menus. Remove those turds immediately." */
+QMenu {
+    padding-bottom: 16px;
+    padding-right: 12px;
+}
 )KRIMBLE");
 }
