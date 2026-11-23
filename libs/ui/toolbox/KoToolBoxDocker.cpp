@@ -446,7 +446,8 @@ void KoToolBoxDocker::setViewManager(KisViewManager *viewManager)
             // quickMask->setIcon(krimbleGadgetIcon(true));
             quickMask->setProperty("krimbleDrawnIcon", krimbleGadgetIcon(true));
             KrimbleToolboxIcons::refreshGadget(quickMask, QStringLiteral("08_02_quick_mask"));
-            quickMask->setIconSize(QSize(28, 28));
+            // quickMask->setIconSize(QSize(28, 28));
+            quickMask->setIconSize(QSize(22, 22));   // 870th: George, 2026-11-23: "too big. They get too close to the edges." / "Those two smaller icons are better."
             quickMask->setToolTip(i18n("Quick Mask: paint the selection"));
             QToolButton *screenMode = new QToolButton(trailingBox);
             screenMode->setObjectName(QStringLiteral("krimbleScreenModeButton"));
@@ -454,7 +455,8 @@ void KoToolBoxDocker::setViewManager(KisViewManager *viewManager)
             // screenMode->setIcon(krimbleGadgetIcon(false));
             screenMode->setProperty("krimbleDrawnIcon", krimbleGadgetIcon(false));
             KrimbleToolboxIcons::refreshGadget(screenMode, QStringLiteral("08_03_screen_mode"));
-            screenMode->setIconSize(QSize(28, 28));
+            // screenMode->setIconSize(QSize(28, 28));
+            screenMode->setIconSize(QSize(22, 22));   // 870th: George, 2026-11-23: "too big. They get too close to the edges." / "Those two smaller icons are better."
             screenMode->setToolTip(i18n("Screen Mode: the picture only (tap the X to come back)"));
             gadgets->addWidget(quickMask, 0, Qt::AlignHCenter);
             gadgets->addWidget(screenMode, 0, Qt::AlignHCenter);
