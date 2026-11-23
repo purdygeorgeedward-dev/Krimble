@@ -72,7 +72,10 @@ public:
         // if (KoDockWidgetTitleBar *bar = dynamic_cast<KoDockWidgetTitleBar *>(q->titleBarWidget())) bar->setTitleOverride(name);
         // the title says "Tool Options"; the tool (and the Transform mode) is one line at the top of the panel
         toolNameLabel->setVisible(!name.isEmpty());
-        if (KoDockWidgetTitleBar *bar = dynamic_cast<KoDockWidgetTitleBar *>(q->titleBarWidget())) bar->setTitleOverride(QString());
+        if (KoDockWidgetTitleBar *bar = dynamic_cast<KoDockWidgetTitleBar *>(q->titleBarWidget())) {
+            bar->setTitleOverride(QString());
+            bar->update();   // the grip starts after the tool name, so it is redrawn when the name changes
+        }
     }
     KoToolDocker *q {nullptr};
     Qt::DockWidgetArea dockingArea {Qt::NoDockWidgetArea};

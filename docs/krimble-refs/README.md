@@ -93,3 +93,4 @@ Files named YYYY-MM-DD_HHMM_<id>.jpg, by the time each was sent (MST).
 | 2026-11-22_1757_toolbox-grip-bevel.png | Nov 22, 2026 17:57 MST | Toolbox grip as a raised bevel, edge to edge, five lines (Preview Tool, real class) |
 | 2026-11-22_1800_panel-grip-6-lines.png | Nov 22, 2026 18:00 MST | Panel title bar grip with six lines (Preview Tool, real KoDockWidgetTitleBar) |
 | 2026-11-22_1910_quickmask-screenmode-applied.png | Nov 22, 2026 19:10 MST | Quick Mask and Screen Mode icons as applied (item 5), rendered from krimbleGadgetIcon |
+| 2026-11-22_1926_tooloptions-grip-after-name.png | Nov 22, 2026 19:26 MST | Real KoDockWidgetTitleBar with a tool name label: the grip starts after the bold name (850th). The harness also shows the name sitting into the title row, as on the phone. |

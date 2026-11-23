@@ -162,6 +162,17 @@ void KoDockWidgetTitleBar::paintEvent(QPaintEvent*)
         // if (d->titleLabel && d->titleLabel->isVisible() && !d->titleTextHidden) left = d->titleLabel->geometry().left() + d->titleLabel->fontMetrics().horizontalAdvance(q->windowTitle()) + qRound(36.0 / gapDpr);
         // the grip starts after whatever title the row shows (the dock's own, or the tool's name in Tool Options): "Tool options title overlaps onto grab area."
         if (d->titleLabel && d->titleLabel->isVisible() && !d->titleLabel->text().isEmpty()) left = d->titleLabel->geometry().left() + d->titleLabel->fontMetrics().horizontalAdvance(d->titleLabel->text()) + qRound(36.0 / gapDpr);
+        // Tool Options: the tool's name (krimbleToolOptionsName, in the panel) shows under this row on the phone; the grip starts after it
+        // (George, 2026-11-22: "First move the grips over and out of the way." / "Now they're on top of the title.")
+        if (q) {
+            if (QLabel *toolName = q->findChild<QLabel*>(QStringLiteral("krimbleToolOptionsName"))) {
+                if (toolName->isVisible() && !toolName->text().isEmpty()) {
+                    const int nameLeft = toolName->mapTo(q, QPoint(0, 0)).x() - mapTo(q, QPoint(0, 0)).x();
+                    const int nameRight = nameLeft + toolName->contentsRect().left() + 6 + toolName->fontMetrics().horizontalAdvance(toolName->text());
+                    left = qMax(left, nameRight + qRound(36.0 / gapDpr));
+                }
+            }
+        }
         int right = width() - 12;
         Q_FOREACH (QAbstractButton *b, QList<QAbstractButton*>() << d->floatButton << d->closeButton << d->lockButton) {
             // if (b && b->isVisible()) right = qMin(right, b->geometry().left() - 12);
