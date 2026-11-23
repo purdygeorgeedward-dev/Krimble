@@ -639,6 +639,23 @@ void KoToolManager::Private::switchCanvasData(CanvasData *cd)
     canvasData = cd;
     inputDevice = canvasData->inputDevice;
 
+    // Krimble 2026-11-22: one tool for the whole program. Krita keeps a tool per image, so going to another image (or coming back from the
+    // file picker, which can activate another image for a moment) brought that image's old tool back, and it was then remembered as "the
+    // tool in use": new images opened with the Healing Brush (George: "This is a major bug."). An image that becomes active now takes
+    // the tool the user chose last.
+    if (canvasData->activeTool) {
+        const QString krimbleWanted = qApp->property("krimbleLastToolId").toString();
+        if (!krimbleWanted.isEmpty() && canvasData->activeToolId != krimbleWanted) {
+            if (KoToolBase *wantedTool = canvasData->allTools.value(krimbleWanted)) {
+                canvasData->mostRecentTools.prepend(canvasData->activeTool);
+                canvasData->mostRecentTools.removeOne(wantedTool);
+                canvasData->activeTool = wantedTool;
+                canvasData->activeToolId = krimbleWanted;
+                canvasData->activationShapeId = wantedTool->factory()->activationShapeId();
+            }
+        }
+    }
+
     if (canvasData->activeTool) {
         connectActiveTool();
         postSwitchTool();

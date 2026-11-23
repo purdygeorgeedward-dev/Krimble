@@ -53,3 +53,4 @@ Last updated: 2026-11-21 03:42 MST.
 (Already in the code base: multi-stop gradients and their editor (KisStopGradientEditor), SVG mesh gradients for vector shapes (SvgMeshGradient, KoMeshGradientBackground), the Height to Normal Map and Phong Bumpmap filters, the Tangent Normal brush.)
 
 ## 2026-11-21 15:37 — Test 1.0.73 list (in progress; see KRIMBLE_CONVERSATION_LOG.md for his words)
+- **Before every push of C++ (2026-11-22):** run the syntax check twice, plain and in Android mode: `KRIMBLE_CHECK_FLAGS="-DQ_OS_ANDROID -Itools/syntax-check/android-stubs" python3 tools/syntax-check/syntax_check.py <file>`. UI changes are rendered with the Preview Tool before they are shown or pushed.
