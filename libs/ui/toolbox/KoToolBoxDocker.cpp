@@ -109,9 +109,10 @@ protected:
         p.drawRect(r);
         // classic raised bevel: light on top and left, dark on bottom and right, 1 px each
         p.setBrush(Qt::NoBrush);
-        p.setPen(QPen(QColor(255, 255, 255, 150), 1.0));
-        p.drawLine(QPointF(0.5, height() - 1.0), QPointF(0.5, 0.5));
-        p.drawLine(QPointF(0.5, 0.5), QPointF(width() - 1.0, 0.5));
+        // Krimble 2026-11-23 (866th): the white top and left bevel lines are off. George: "The giant white line at the top and top left of the toolbar has to go."
+        // p.setPen(QPen(QColor(255, 255, 255, 150), 1.0));
+        // p.drawLine(QPointF(0.5, height() - 1.0), QPointF(0.5, 0.5));
+        // p.drawLine(QPointF(0.5, 0.5), QPointF(width() - 1.0, 0.5));
         p.setPen(QPen(QColor(0, 0, 0, 150), 1.0));
         p.drawLine(QPointF(width() - 0.5, 0.5), QPointF(width() - 0.5, height() - 0.5));
         p.drawLine(QPointF(width() - 0.5, height() - 0.5), QPointF(0.5, height() - 0.5));
