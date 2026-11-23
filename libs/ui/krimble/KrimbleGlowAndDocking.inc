@@ -147,6 +147,9 @@ public:
                     menu->installEventFilter(new KrimbleMenuColumnDividers(menu));
                     // Krimble Cyber (cyber-theme branch): see-through menus; the theme's border image draws their shape
                     if (qApp->property("krimbleSeeThroughMenus").toBool()) menu->setAttribute(Qt::WA_TranslucentBackground);   // Cyber and Glass
+                    // Krimble 2026-11-23: room under the last item, bottom only (George: "The menus are chopped off short at the bottom
+                    // again."). Qt ignores padding-bottom on menus (tested in desktop Qt 5.15); the menu's own bottom margin works.
+                    menu->setContentsMargins(0, 0, 0, 16);
                 }
             }
         }

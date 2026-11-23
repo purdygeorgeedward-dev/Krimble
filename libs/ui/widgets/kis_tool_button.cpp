@@ -21,7 +21,9 @@ void KisToolButton::mousePressEvent(QMouseEvent *e)
     initStyleOption(&opt);
     QRect popupr = style()->subControlRect(QStyle::CC_ToolButton, &opt,
                                            QStyle::SC_ToolButtonMenu, this);
-    if (popupr.isValid() && !popupr.contains(e->pos())) {
+    // if (popupr.isValid() && !popupr.contains(e->pos())) {
+    // Krimble 2026-11-23: a button without a menu is a plain button everywhere (the Layers + had a dead strip where its menu used to be)
+    if (!menu() || (popupr.isValid() && !popupr.contains(e->pos()))) {
         QToolButton::mousePressEvent(e);
     } else {
         m_tabletContact = true;

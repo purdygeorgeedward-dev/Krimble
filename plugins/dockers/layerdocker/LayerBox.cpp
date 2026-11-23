@@ -168,7 +168,8 @@ qint32 LayerBox::convertOpacityToInt(qreal opacity)
 class KrimbleLongPressOpen : public QObject
 {
 public:
-    explicit KrimbleLongPressOpen(QComboBox *combo, int delayMs = 500) : QObject(combo), m_combo(combo)
+    // explicit KrimbleLongPressOpen(QComboBox *combo, int delayMs = 500) : QObject(combo), m_combo(combo)
+    explicit KrimbleLongPressOpen(QComboBox *combo, int delayMs = 400) : QObject(combo), m_combo(combo)   // Krimble 2026-11-23: 400 ms (George: "Set it to 400ms.")
     {
         combo->installEventFilter(this);
         m_timer.setSingleShot(true);
