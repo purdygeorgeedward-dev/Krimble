@@ -144,3 +144,4 @@ Files named YYYY-MM-DD_HHMM_<id>.jpg, by the time each was sent (MST).
 | 2026-11-23_1318_build77-cyber-panels-menu.jpg | Nov 23, 2026 13:18 MST | George's screenshot of build 77 (cyber-panels-menu): "New themes didn't work." |
 | 2026-11-23_1318_build77-cyber-main.jpg | Nov 23, 2026 13:18 MST | George's screenshot of build 77 (cyber-main): "New themes didn't work." |
 | 2026-11-23_1318_build77-glass-main.jpg | Nov 23, 2026 13:18 MST | George's screenshot of build 77 (glass-main): "New themes didn't work." |
+| 2026-11-23_1421_light-theme-eyedropper-gray.jpg | Nov 23, 2026 14:21 MST | George, build 76 or 77 in Krimble Light: "In the Krimble light theme the eyedropper is greyed out. The selection blue is not very bright." (Crop tool selected) |
