@@ -321,6 +321,21 @@ void KoToolBoxButton::paintEvent(QPaintEvent *event)
         QStyleOptionToolButton opt;
         initStyleOption(&opt);
         if (!isDown()) opt.state &= ~QStyle::State_MouseOver;
+        // Krimble 2026-11-23: in the light theme the selected tool's icon is white on the selection blue (George: "#0B87DD is a good
+        // selection blue if the tool icon turns white on select in the toolbox. Can we do that in light theme?" / "Better. Yes.")
+        if (isChecked() && qApp->palette().color(QPalette::Window).lightness() > 160 && !opt.icon.isNull()) {
+            const qreal dpr = devicePixelRatioF();
+            QPixmap white(opt.iconSize * dpr);
+            white.fill(Qt::transparent);
+            {
+                QPainter wp(&white);
+                opt.icon.paint(&wp, QRect(QPoint(0, 0), white.size()));
+                wp.setCompositionMode(QPainter::CompositionMode_SourceIn);
+                wp.fillRect(white.rect(), Qt::white);
+            }
+            white.setDevicePixelRatio(dpr);
+            opt.icon = QIcon(white);
+        }
         stylePainter.drawComplexControl(QStyle::CC_ToolButton, opt);
     }
     if (m_krimbleLongPress) {
