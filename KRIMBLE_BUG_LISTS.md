@@ -114,6 +114,23 @@ All of these are addressed in 821 to 828 (1.0.74).
 - Grab areas must be big enough for a finger and invisible.
 - In the Painted theme, the selected tab should use the colors from the supplied Color Lab image.
 
+## 1.0.75-beta (tested Nov 23, 2026)
+
+His words, as reported on the installed 1.0.75 (run 45158674034, 972169d1):
+- "Bad build." (App not installed; fixed by freeing storage on the phone)
+- "The aqua turns into a ugly gray turd on button down now. ... The aqua looks faded and unsaturated."
+- "The menus look horrible now. All are outlined." / "The menus suddenly have big margins all around."
+- "Quick Adjust is still tiny as F due to the previous misunderstanding."
+- "The giant white line at the top and top left of the toolbar has to go."
+- "Need vertical dividers for menus that expand wide."
+- "Gadgets are creeping into menu title areas and too far from the corner." (portrait)
+- "Color Lab was perfect before and now it's ruined."
+- "And the ugly edges I asked you to remove are back." (shaded blue edges, broken corners on a drop-down)
+- "Where is the grab area to drag out the size of the toolbox?" / "I can't grab it at all."
+- "the new icons at the bottom of the toolbox are too big. They get too close to the edges."
+- "There is still a dividing line between the menu title and the menu."
+Fixed for 1.0.76: menus (865, 874), toolbox grip edge (866), Color Lab (867), Quick Mask and Screen Mode icons (870), blue edges and corners (871, 872), column dividers (868). Still open: gray on press, Quick Adjust window width, window buttons in portrait, toolbox grab strip.
+
 ## 1.0.66-beta (tested Nov 17, 2026)
 
 - The bottoms of menus are cut off, and a line still separates menus from their titles.
