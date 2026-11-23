@@ -108,5 +108,6 @@ QDockWidget > QWidget { background-color: rgba(255, 255, 255, 30); background-im
                         border: 1px solid rgba(255, 255, 255, 50); border-top: 1px solid rgba(255, 255, 255, 140); border-left: 1px solid rgba(255, 255, 255, 90); }
 QDockWidget > KoDockWidgetTitleBar { background-image: none; border: none; }
 QDockWidget#ColorSelectorNg > QWidget, QDockWidget#ToolBox > QWidget { background-image: none; border: none; }
+QDockWidget#ToolBox QWidget, QDockWidget#ColorSelectorNg QWidget { background-image: none; }
 )KRIMBLEGLASS").arg(mist, back);
 }

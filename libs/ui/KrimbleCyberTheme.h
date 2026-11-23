@@ -164,5 +164,7 @@ KisMainWindow, QMdiArea, KisWelcomePageWidget { background-color: #000000; backg
 QDockWidget > QWidget { background-color: rgba(6, 30, 70, 150); background-image: url(%3); }
 QDockWidget > KoDockWidgetTitleBar { background-image: none; }
 QDockWidget#ColorSelectorNg > QWidget, QDockWidget#ToolBox > QWidget { background-image: none; }
+/* build 77 showed the scanlines in the toolbox anyway: nothing inside the toolbox or Color Lab gets them */
+QDockWidget#ToolBox QWidget, QDockWidget#ColorSelectorNg QWidget { background-image: none; }
 )KRIMBLECYBER").arg(menuFrame, rowFrame, scan, back);
 }

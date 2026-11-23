@@ -417,7 +417,11 @@ protected:
                 kPainter.setRenderHint(QPainter::SmoothPixmapTransform, true);
                 qApp->windowIcon().paint(&kPainter, QRect(2, (kBar->height() - kBar->property("krimbleBarExtra").toInt() - kSize) / 2, kSize, kSize));
             };
-            if (!qApp->property("krimblePaintedTheme").toBool()) {
+            // if (!qApp->property("krimblePaintedTheme").toBool()) {
+            // Cyber and Glass are built on Painted, but their menu bar comes from their own sheet: this painted bar covered it (build 77:
+            // "New themes didn't work.")
+            if (!qApp->property("krimblePaintedTheme").toBool() || qApp->property("krimbleCyberTheme").toBool()
+                || qApp->property("krimbleGlassTheme").toBool() || qApp->property("krimbleSeeThroughMenus").toBool()) {
                 drawK();
                 return false;
             }
