@@ -303,8 +303,7 @@ KoToolBoxDocker::KoToolBoxDocker(KoToolBox *toolBox)
     }
     int titleSize = QFontMetrics(font).height();
     // w->setMinimumSize(titleSize, titleSize + 12);
-    // w->setMinimumSize(titleSize, titleSize + 12 + qCeil(18.0 / qMax<qreal>(1.0, qApp->devicePixelRatio())));   // room for the lip
-    w->setMinimumSize(titleSize, titleSize + 12);   // the bevel grip has no lip (2026-11-22)
+    w->setMinimumSize(titleSize, titleSize + 12 + qCeil(18.0 / qMax<qreal>(1.0, qApp->devicePixelRatio())));   // room for the lip
     setTitleBarWidget(w);
 
     KConfigGroup cfg =  KSharedConfig::openConfig()->group("KoToolBox");
