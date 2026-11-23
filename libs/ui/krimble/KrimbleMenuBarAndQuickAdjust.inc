@@ -781,7 +781,9 @@ static void krimbleShowQuickAdjustDialog(KisMainWindow *win)
             const qreal bannerDpr = qMax<qreal>(1.0, dialog->devicePixelRatioF());
             // logoRow->addWidget(new KrimbleLogoLabel(QStringLiteral(":/dark_krimble-quickadjust-banner2.png"), QStringLiteral("Krimble QuickAdjust"), dialog, qRound(520 / bannerDpr)), 1);
             // his large QuickAdjust logo ("use my larger logo instead of the tiny Krimble one"), left aligned
-            logoRow->addWidget(new KrimbleLogoLabel(QStringLiteral(":/dark_krimble-quickadjust-logo.png"), QStringLiteral("QuickAdjust"), dialog, qRound(600 / bannerDpr)), 1);
+            // logoRow->addWidget(new KrimbleLogoLabel(QStringLiteral(":/dark_krimble-quickadjust-logo.png"), QStringLiteral("QuickAdjust"), dialog, qRound(600 / bannerDpr)), 1);
+            // George, 2026-11-22: "60% of current size." (600 real px wide -> 360)
+            logoRow->addWidget(new KrimbleLogoLabel(QStringLiteral(":/dark_krimble-quickadjust-logo.png"), QStringLiteral("QuickAdjust"), dialog, qRound(360 / bannerDpr)), 1);
             logoRow->addStretch(0);
         }
         layout->addLayout(logoRow);
