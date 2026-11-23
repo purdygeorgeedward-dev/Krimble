@@ -612,14 +612,29 @@ static void krimbleInstallLayerExtras(KisMainWindow *win)
 class KrimbleClosePopupsOnResizeFilter : public QObject
 {
 public:
-    explicit KrimbleClosePopupsOnResizeFilter(QMainWindow *win) : QObject(win), m_win(win), m_landscape(krimbleIsLandscape(win)) {}
+    explicit KrimbleClosePopupsOnResizeFilter(QMainWindow *win) : QObject(win), m_win(win), m_landscape(krimbleIsLandscape(win)), m_screenLandscape(screenIsLandscape()) {}
+    // the screen itself, not the window: the window's size can change for a moment without the phone being turned
+    static bool screenIsLandscape()
+    {
+        QScreen *screen = QGuiApplication::primaryScreen();
+        return screen && screen->size().width() > screen->size().height();
+    }
     bool eventFilter(QObject *watched, QEvent *event) override
     {
         if (watched == m_win && event->type() == QEvent::Resize) {
             if (krimbleIsLandscape(m_win) != m_landscape) {
                 m_landscape = krimbleIsLandscape(m_win);
                 QMainWindow *win = m_win;
-                QTimer::singleShot(500, win, [win]() { krimbleRestoreSavedLayout(win); });
+                // QTimer::singleShot(500, win, [win]() { krimbleRestoreSavedLayout(win); });
+                // Krimble 2026-11-22: closed panels came back (George: Layers "kept reopening... triggered by opening new image files").
+                // This was the only code that reopens panels: it put the saved layout back whenever the window's shape flipped, and the
+                // window's shape can flip for a moment when the app comes back from the file picker. Now only a real turn of the screen counts.
+                if (screenIsLandscape() != m_screenLandscape && qApp->applicationState() == Qt::ApplicationActive) {
+                    m_screenLandscape = screenIsLandscape();
+                    QTimer::singleShot(500, win, [win]() { krimbleRestoreSavedLayout(win); });
+                } else {
+                    qWarning() << "Krimble: window shape changed without the screen being turned; the saved layout is not put back";
+                }
             }
             while (QWidget *popup = QApplication::activePopupWidget()) {
                 popup->close();
@@ -638,6 +653,7 @@ public:
 private:
     QMainWindow *m_win;
     bool m_landscape;
+    bool m_screenLandscape {false};
 };
 #endif
 
