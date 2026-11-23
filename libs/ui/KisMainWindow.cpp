@@ -1270,6 +1270,57 @@ void KisMainWindow::notifyChildViewDestroyed(KisView *view)
 }
 
 
+// Krimble 2026-11-22: the images that are open are remembered, so that after Android ends Krimble in the background (the restarts) the
+// next start opens them again. George: "The problem is wasted time restarting"; "Do them all in order as needed."
+// The list follows the open documents: closing an image takes it off, so a normal quit (which closes them all) leaves it empty.
+static bool s_krimbleQuitting = false;   // after File > Quit nothing is opened again at the next start
+static void krimbleSaveOpenList()
+{
+    if (s_krimbleQuitting) return;
+    QStringList paths;
+    Q_FOREACH (QPointer<KisDocument> doc, KisPart::instance()->documents()) {
+        if (doc && !doc->path().isEmpty() && !paths.contains(doc->path())) paths << doc->path();
+    }
+    KConfigGroup g = KSharedConfig::openConfig()->group("KrimbleSession");
+    g.writeEntry("openFiles", paths);
+    g.sync();
+}
+
+static void krimbleInstallReopen(KisMainWindow *win)
+{
+    static bool installed = false;
+    if (installed) return;
+    installed = true;
+    // 2 seconds after the start: nothing open means a plain start, so the images of the last run are opened again
+    QTimer::singleShot(2000, win, [win]() {
+        KConfigGroup g = KSharedConfig::openConfig()->group("KrimbleSession");
+        const QStringList paths = g.readEntry("openFiles", QStringList());
+        const bool nothingOpen = KisPart::instance()->documents().isEmpty();
+        // the list is emptied before opening: an image that ends Krimble while loading is not tried again at every start
+        g.writeEntry("openFiles", QStringList());
+        g.sync();
+        if (nothingOpen) {
+            Q_FOREACH (const QString &path, paths) {
+                qWarning() << "Krimble: opening again after a restart:" << path;
+                win->openDocument(path, KisMainWindow::None);
+            }
+        }
+        krimbleSaveOpenList();
+        QObject::connect(KisPart::instance(), &KisPart::sigDocumentAdded, win, [win](KisDocument *) { QTimer::singleShot(0, win, []() { krimbleSaveOpenList(); }); });
+        QObject::connect(KisPart::instance(), &KisPart::sigDocumentRemoved, win, [win](const QString &) { QTimer::singleShot(0, win, []() { krimbleSaveOpenList(); }); });
+        QObject::connect(qApp, &QCoreApplication::aboutToQuit, qApp, []() {
+            s_krimbleQuitting = true;
+            KConfigGroup quitGroup = KSharedConfig::openConfig()->group("KrimbleSession");
+            quitGroup.writeEntry("openFiles", QStringList());
+            quitGroup.sync();
+        });
+        // when Krimble goes to the background, the list is written once more (a Save As changes a path)
+        QObject::connect(qApp, &QGuiApplication::applicationStateChanged, win, [](Qt::ApplicationState state) {
+            if (state != Qt::ApplicationActive) krimbleSaveOpenList();
+        });
+    });
+}
+
 // Krimble 2026-11-22: a newly opened image is fitted again each time its canvas gets bigger in its first seconds, until the user touches it.
 // (Every new file opened as a miniature: the one fit at 1 second could run while the canvas still had a small, unfinished size.)
 class KrimbleFitOnOpen : public QObject
@@ -3961,6 +4012,7 @@ void KisMainWindow::configChanged()
 #endif
     new KrimbleCanvasOverlay(this);
     krimbleInstallBevels(this);
+    krimbleInstallReopen(this);
     d->actionManager()->updateGUI();
 
     QString s = cfg.getMDIBackgroundColor();

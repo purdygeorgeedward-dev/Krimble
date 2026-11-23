@@ -384,6 +384,44 @@ public class MainActivity extends QtActivity {
             Log.w(TAG, "KeepAliveService not started: " + e);
             KeepAliveService.status = "NOT STARTED (refused by Android): " + e;
         }
+        krimbleAskBatteryOnce();
+    }
+
+    // Krimble 2026-11-22: George: "I keep installing Krimble and I don't remember to set it to unrestricted battery use."
+    // Once per install (the flag is cleared with the app's data), a few seconds after the start, Android's own question
+    // "Let app always run in background?" is shown. Allow sets Krimble to unrestricted battery use.
+    private boolean krimbleBatteryAsked = false;
+    private boolean krimbleBatteryUnrestricted() {
+        try {
+            android.os.PowerManager pm = (android.os.PowerManager) getSystemService(POWER_SERVICE);
+            return Build.VERSION.SDK_INT < Build.VERSION_CODES.M || (pm != null && pm.isIgnoringBatteryOptimizations(getPackageName()));
+        } catch (Exception e) {
+            return false;
+        }
+    }
+    private void krimbleAskBatteryOnce() {
+        if (krimbleBatteryAsked || Build.VERSION.SDK_INT < Build.VERSION_CODES.M) return;
+        krimbleBatteryAsked = true;
+        try {
+            final SharedPreferences prefs = getSharedPreferences(DIAG_PREFS, MODE_PRIVATE);
+            if (prefs.getBoolean("batteryAsked", false) || krimbleBatteryUnrestricted()) return;
+            new android.os.Handler(getMainLooper()).postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        if (isFinishing() || krimbleBatteryUnrestricted()) return;
+                        prefs.edit().putBoolean("batteryAsked", true).apply();
+                        Intent ask = new Intent(android.provider.Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS,
+                                                Uri.parse("package:" + getPackageName()));
+                        startActivity(ask);
+                    } catch (Exception e) {
+                        Log.w(TAG, "Battery question not shown: " + e);
+                    }
+                }
+            }, 6000);
+        } catch (Exception e) {
+            Log.w(TAG, "Battery question not shown: " + e);
+        }
     }
 
     @Override
@@ -442,7 +480,7 @@ public class MainActivity extends QtActivity {
         } catch (Exception e) {
         }
         // return "Keep-alive service: running now: "
-        return "Don'tCrash: running now: " + running + "; last start: " + KeepAliveService.status
+        return "Don'tCrash: running now: " + running + "; battery unrestricted: " + (krimbleBatteryUnrestricted() ? "yes" : "NO") + "; last start: " + KeepAliveService.status
                 + "; notifications allowed for Krimble: " + (notificationsAllowed ? "yes" : "no (the \"Don'tCrash\" notice is hidden)");
     }
 
