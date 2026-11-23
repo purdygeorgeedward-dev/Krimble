@@ -296,6 +296,7 @@ static void krimbleInstallMenuBarFilter(QMenuBar *bar)
     KrimbleMenuBarFilter::schedulePlaceK(bar);
 }
 #include "krimble/KrimbleHexGrid.inc"
+#include "krimble/KrimbleMenuColumnDividers.h"   // 868th, 875th
 #include "krimble/KrimbleGlowAndDocking.inc"
 class ToolDockerFactory : public KoDockFactoryBase
 {

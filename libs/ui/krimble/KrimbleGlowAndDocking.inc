@@ -140,6 +140,13 @@ public:
     {
         if (event->type() == QEvent::Polish) {
             if (QAbstractButton *button = qobject_cast<QAbstractButton*>(watched)) hook(button);
+            // 868th, 875th: column lines and the cast shadow on every menu (KrimbleMenuColumnDividers.h)
+            if (QMenu *menu = qobject_cast<QMenu*>(watched)) {
+                if (!menu->property("krimbleMenuDecor").toBool()) {
+                    menu->setProperty("krimbleMenuDecor", true);
+                    menu->installEventFilter(new KrimbleMenuColumnDividers(menu));
+                }
+            }
         }
         // once per widget: Polish comes once, when a widget is first shown; buttons made before the filter was installed are hooked by
         // krimbleInstallSelectionGlow. From the 840th to the 860th every paint of every widget in the app was looked at here.
