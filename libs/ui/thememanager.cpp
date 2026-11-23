@@ -381,7 +381,8 @@ void ThemeManager::slotChangePalette()
         // const QColor behind = panel.darker(145);
         // const QColor unselected((panel.red() + behind.red()) / 2, (panel.green() + behind.green()) / 2, (panel.blue() + behind.blue()) / 2);
         const QColor behind = panel.darker(200);       // the row behind the tabs: twice as dark as the panel
-        const QColor unselected = panel.darker(112);   // an unselected tab: a little darker than the selected one
+        // const QColor unselected = panel.darker(112);   // an unselected tab: a little darker than the selected one
+        const QColor unselected = panel.darker(120);   // Krimble 2026-11-23: 20% darker (George: "slightly darker", "Try 20%")
         krimbleSheet += QStringLiteral("\nQMainWindow > QTabBar { background: %1; }\nQMainWindow > QTabBar::tab:!selected { background: %2; }\n")
                             .arg(behind.name(), unselected.name());
     }
