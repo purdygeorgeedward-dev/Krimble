@@ -298,17 +298,17 @@ Krimble is free and open source, but development still takes time and resources.
 
 If Krimble is useful to you, voluntary support helps fund continued development, testing, infrastructure, artwork, and future distribution.
 
-(I am currently indigent and living in a halfway house in El Paso, Texas. All development is being done on a Samsung Galaxy smartphone.)
+(I am currently indigent and living in a halfway house in El Paso, Texas. All development is being done on a Samsung Galaxy A26 5G smartphone. I use Claude for coding and ChatGPT for graphics, both by paid subscription. I am fueled by coffee ☕ and pizza 🍕 and ice cream 🍦, but I also need clothing, new shoes, meds, dental work, and other stuff. Any help would be very much appreciated.)
 
 ### [Support Krimble on Buy Me a Coffee ☕](https://www.buymeacoffee.com/GeorgeEdwardPurdy)
 
-You can also help by testing, reporting issues, improving documentation, contributing code, or simply sharing the project with others.
+You can help by testing, reporting issues, and by using Krimble to make cool stuff, or just by sharing Krimble with others.
 
 ---
 
 ## Upstream Krita resources
 
-Krimble is forked from Krita and continues to benefit from upstream Krita development.
+Krimble is forked from Krita and continues to benefit from upstream Krita development. They solved hundreds of problems before I got here.
 
 - [Krita User Manual](https://docs.krita.org/en/user_manual.html)
 - [Krita build instructions](https://docs.krita.org/en/untranslatable_pages/building_krita.html)
