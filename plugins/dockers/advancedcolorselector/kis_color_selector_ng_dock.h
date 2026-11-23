@@ -22,8 +22,15 @@ public:
     /// reimplemented from KoCanvasObserverBase
     void setCanvas(KoCanvasBase *canvas) override;
     void unsetCanvas() override;
+protected:
+    void resizeEvent(QResizeEvent *event) override;
 private:
     KisColorSelectorNgDockerWidget *m_colorSelectorNgWidget;
+    // Krimble 2026-11-23: torn-off Color Lab: snaps to its content, which is also its largest size; smallest = the fewest palette rows
+    void krimbleFitFloating(bool snap);
+    bool m_krimbleFitting = false;
+    QSize m_krimbleDockedMin;
+    QSize m_krimbleDockedMax;
 };
 
 
