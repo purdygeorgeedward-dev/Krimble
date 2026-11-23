@@ -1279,6 +1279,8 @@ public:
     {
         canvasWidget->installEventFilter(this);
         QTimer::singleShot(4000, this, [this]() { deleteLater(); });   // after 4 seconds the user's zoom is left alone
+        QTimer::singleShot(1500, this, [this]() { nudge(); });
+        QTimer::singleShot(3000, this, [this]() { nudge(); });
     }
     void fit()
     {
@@ -1288,6 +1290,20 @@ public:
             m_view->canvasBase()->refetchDataFromImage();
             m_view->canvasBase()->updateCanvas();
         }
+        nudge();
+    }
+    // Krimble 2026-11-22: the image opened blurry and turned around, and George: dragging or zooming "fixes itself after". Redraw calls
+    // do not help on Android after the window is hidden and shown at open (Krita's own slotFlashWindowHack, already in Krimble). So the
+    // canvas is moved one pixel and back, the way a finger would move it.
+    void nudge()
+    {
+        if (!m_view || !m_view->canvasController() || m_nudging) return;
+        m_nudging = true;
+        m_view->canvasController()->pan(QPoint(1, 0));
+        QTimer::singleShot(60, this, [this]() {
+            if (m_view && m_view->canvasController()) m_view->canvasController()->pan(QPoint(-1, 0));
+            m_nudging = false;
+        });
     }
 protected:
     bool eventFilter(QObject *watched, QEvent *event) override
@@ -1317,6 +1333,7 @@ protected:
     }
 private:
     QPointer<KisView> m_view;
+    bool m_nudging {false};
 };
 
 void KisMainWindow::showView(KisView *imageView, QMdiSubWindow *subwin)
