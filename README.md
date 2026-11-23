@@ -267,7 +267,7 @@ Krimble has already completed a massive amount of work. The detailed engineering
 
 5. Removed the hardcoded “Artwork by: Tyson Tan” splash credit from the Krimble-specific splash.
 
-6. Removed a leftover invented legal-entity reference and replaced it with: **“The Krimble Project is committed to preserving Krimble as free software.”**
+6. Removed a leftover invented legal-entity reference and removed the sentence it added.
 
 7. Removed references to a popular graphics application that had been inserted into the README by an AI tool.
 
@@ -316,7 +316,7 @@ Krimble exists because of these. They are not connected to Krimble and have not 
 
 ## SUPPORT KRIMBLE! ☕
 
-Krimble is free and open source, but development still takes time and resources.
+Krimble is open source software, but development still takes time and resources.
 
 If Krimble is useful to you, voluntary support helps fund continued development, testing, infrastructure, artwork, and future distribution.
 
