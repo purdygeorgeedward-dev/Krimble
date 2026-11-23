@@ -457,8 +457,8 @@ public:
     {
         QVBoxLayout *layout = new QVBoxLayout(content);
         layout->setContentsMargins(4, 4, 4, 4);
-        // layout->setSpacing(5);
-        layout->setSpacing(3);   // slightly smaller (item 6)
+        layout->setSpacing(5);
+        // layout->setSpacing(3);   // item 6 misread: George meant only the logo
         QHBoxLayout *options = new QHBoxLayout;
         options->addWidget(new KrimbleLogoLabel(QStringLiteral(":/dark_krimble-quickadjust-sliders.png"), i18n("Adjustments"), content, 34));
         options->addStretch();
@@ -756,8 +756,9 @@ static void krimbleShowQuickAdjustDialog(KisMainWindow *win)
     {
         QFont smaller = dialog->font();
         // "Make QuickAdjust menu slightly smaller." (1.0.74 list, item 6): text 90%
-        if (smaller.pointSizeF() > 0) smaller.setPointSizeF(smaller.pointSizeF() * 0.9);
-        else if (smaller.pixelSize() > 0) smaller.setPixelSize(qMax(8, qRound(smaller.pixelSize() * 0.9)));
+        // item 6 misread (George, 2026-11-22: "I meant the logo, not the panel."): the text stays full size
+        // if (smaller.pointSizeF() > 0) smaller.setPointSizeF(smaller.pointSizeF() * 0.9);
+        // else if (smaller.pixelSize() > 0) smaller.setPixelSize(qMax(8, qRound(smaller.pixelSize() * 0.9)));
         dialog->setFont(smaller);
     }
     dialog->setStyleSheet(QStringLiteral(
@@ -840,8 +841,8 @@ static void krimbleShowQuickAdjustDialog(KisMainWindow *win)
     QObject::connect(dialog, &QDialog::rejected, dialog, [adjust]() { adjust->removeCreatedLayers(); });
     if (QScreen *scr = QGuiApplication::primaryScreen()) {
         const QRect avail = scr->availableGeometry();
-        // const int width = qMax(dialog->minimumSizeHint().width(), qMin(dialog->sizeHint().width(), int(avail.width() * 0.72)));
-        const int width = qMax(dialog->minimumSizeHint().width(), qMin(dialog->sizeHint().width(), int(avail.width() * 0.64)));   // slightly smaller (item 6)
+        const int width = qMax(dialog->minimumSizeHint().width(), qMin(dialog->sizeHint().width(), int(avail.width() * 0.72)));
+        // const int width = qMax(dialog->minimumSizeHint().width(), qMin(dialog->sizeHint().width(), int(avail.width() * 0.64)));   // item 6 misread
         const int contentHeight = dialog->layout()->hasHeightForWidth() ? dialog->layout()->heightForWidth(width) : dialog->sizeHint().height();
         const int height = qMin(contentHeight, int(avail.height() * 0.90));
         dialog->resize(width, height);
