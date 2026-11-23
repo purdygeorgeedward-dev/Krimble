@@ -145,6 +145,8 @@ public:
                 if (!menu->property("krimbleMenuDecor").toBool()) {
                     menu->setProperty("krimbleMenuDecor", true);
                     menu->installEventFilter(new KrimbleMenuColumnDividers(menu));
+                    // Krimble Cyber (cyber-theme branch): see-through menus; the theme's border image draws their shape
+                    if (qApp->property("krimbleCyberTheme").toBool()) menu->setAttribute(Qt::WA_TranslucentBackground);
                 }
             }
         }

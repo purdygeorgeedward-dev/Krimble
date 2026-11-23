@@ -45,6 +45,7 @@ Added 2026-10-18. 53 families (Noto Emoji added 2026-10-24), picked by George Ed
 | Montserrat | OFL 1.1 | Latin subset |
 | Open Sans | OFL 1.1 | Latin subset |
 | Orbitron | OFL 1.1 | as published |
+| Rajdhani (Medium, SemiBold) | OFL 1.1 | as published; added 2026-11-23 for the Krimble Cyber theme |
 | Oswald | OFL 1.1 | Latin subset |
 | Pacifico | OFL 1.1 | Latin subset |
 | Patrick Hand | OFL 1.1 | Latin subset |

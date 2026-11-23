@@ -23,6 +23,7 @@
 #include <QPainter>
 #include <QPointer>
 #include <QWidget>
+#include <QApplication>
 #include <QtMath>
 #include <climits>
 #include <cmath>
@@ -99,6 +100,7 @@ private:
     void showShadow(QMenu *menu)
     {
         if (!menu->isVisible()) return;
+        if (qApp->property("krimbleCyberTheme").toBool()) return;   // Krimble Cyber: its menus are see-through with their own glow
         if (!m_shadow) m_shadow = new KrimbleMenuShadowWindow();
         m_shadow->follow(menu);
         if (!m_shadow->isVisible()) {
@@ -134,7 +136,7 @@ private:
         p.setPen(Qt::NoPen);
         // 876th: a barely visible light line down the menu's left edge only, not around it.
         // George: "On the left edge of the menu add a barely perceptible light edge. Just barely and only the left edge. Not all around."
-        p.fillRect(QRectF(0, 0, 1.0, menu->height()), QColor(255, 255, 255, 18));
+        if (!qApp->property("krimbleCyberTheme").toBool()) p.fillRect(QRectF(0, 0, 1.0, menu->height()), QColor(255, 255, 255, 18));
         const qreal thick = 1.0;   // one unit, like the lines of the menu's horizontal separator
         QMap<int, int>::const_iterator previous = columns.constBegin();
         for (QMap<int, int>::const_iterator it = columns.constBegin() + 1; it != columns.constEnd(); ++it, ++previous) {
