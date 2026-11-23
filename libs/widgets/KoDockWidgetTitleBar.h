@@ -33,6 +33,9 @@ public Q_SLOTS:
     /// Krimble: a title shown in the title row in place of the dock's own (the Tool Options docker shows the tool's name),
     /// also when the dock's title is hidden because it sits in a tab group; an empty text goes back to the dock's own title
     void setTitleOverride(const QString &text);
+    /// Krimble 2026-11-22: a text for the title row while the panel's own title is hidden (the panel is in a tab group and the tab
+    /// already names it). Tool Options puts the tool's name here, so it sits in the title row with the grip after it, like "Layers".
+    void setTabbedTitle(const QString &text);
 
 protected:
     void paintEvent(QPaintEvent* event) override; ///< reimplemented from QWidget

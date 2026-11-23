@@ -40,6 +40,9 @@ public:
     KSqueezedTextLabel* titleLabel {nullptr};
     bool titleTextHidden {false};
     QString titleOverride;   // Krimble: see setTitleOverride()
+    QString tabbedTitle;     // Krimble: see setTabbedTitle()
+    // what the title row shows: the override; or, when the panel's own title is hidden (it is in a tab group), the tabbed title; or the panel's title
+    QString shownTitle(const QString &title) const { return !titleOverride.isEmpty() ? titleOverride : (titleTextHidden ? tabbedTitle : title); }
     bool locked {false};
     bool pressed {false};
     bool dragging {false};

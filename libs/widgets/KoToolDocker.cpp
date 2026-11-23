@@ -77,6 +77,7 @@ public:
         toolNameLabel->setVisible(!name.isEmpty());
         if (KoDockWidgetTitleBar *bar = dynamic_cast<KoDockWidgetTitleBar *>(q->titleBarWidget())) {
             bar->setTitleOverride(QString());
+            bar->setTabbedTitle(name);   // in a tab group the tool's name sits in the title row, the grip after it
             bar->update();   // the grip starts after the tool name, so it is redrawn when the name changes
         }
     }

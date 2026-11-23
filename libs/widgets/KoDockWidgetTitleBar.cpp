@@ -109,8 +109,22 @@ void KoDockWidgetTitleBar::setTitleTextHidden(bool hidden)
     QDockWidget *dock = qobject_cast<QDockWidget*>(parentWidget());
     d->titleLabel->setVisible(true);
     // d->titleLabel->setText(hidden || !dock ? QString() : dock->windowTitle());
-    d->titleLabel->setText(!d->titleOverride.isEmpty() ? d->titleOverride : (hidden || !dock ? QString() : dock->windowTitle()));
+    // d->titleLabel->setText(!d->titleOverride.isEmpty() ? d->titleOverride : (hidden || !dock ? QString() : dock->windowTitle()));
+    d->titleLabel->setText(d->shownTitle(dock ? dock->windowTitle() : QString()));
+    // Tool Options: while the tool's name is in this row, the line with the name inside the panel is not shown (no second copy)
+    if (dock) {
+        if (QLabel *toolName = dock->findChild<QLabel*>(QStringLiteral("krimbleToolOptionsName"))) {
+            const bool nameInRow = hidden && !d->tabbedTitle.isEmpty() && d->titleOverride.isEmpty();
+            toolName->setVisible(!nameInRow && !toolName->text().isEmpty());
+        }
+    }
     update();
+}
+
+void KoDockWidgetTitleBar::setTabbedTitle(const QString &text)
+{
+    d->tabbedTitle = text;
+    setTitleTextHidden(d->titleTextHidden);
 }
 
 void KoDockWidgetTitleBar::setTitleOverride(const QString &text)
@@ -266,7 +280,8 @@ void KoDockWidgetTitleBar::Private::featuresChanged(QDockWidget::DockWidgetFeatu
 void KoDockWidgetTitleBar::Private::dockWidgetTitleChanged(const QString &title)
 {
     // titleLabel->setText(titleTextHidden ? QString() : title);
-    titleLabel->setText(!titleOverride.isEmpty() ? titleOverride : (titleTextHidden ? QString() : title));
+    // titleLabel->setText(!titleOverride.isEmpty() ? titleOverride : (titleTextHidden ? QString() : title));
+    titleLabel->setText(shownTitle(title));
 }
 
 
