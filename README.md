@@ -178,7 +178,7 @@ Artificial Intelligence is like a brilliant child. Children make mistakes. That'
 </a>
 </div>
 
-## DEVELOPMENT ROADMAP 🗺️
+## DEVELOPMENT ROADMAP
 
 Krimble has already completed a massive amount of work. The detailed engineering log is preserved, but documented elsewhere so the README remains readable.
 
@@ -194,7 +194,7 @@ Krimble has already completed a massive amount of work. The detailed engineering
 <details>
 <summary><strong>Completed and implemented work — 35 major roadmap items</strong></summary>
 
-1. **Default tool changed to Pan/Hand.** Also fixed a separate path that forced Brush whenever a pixel layer was selected. 
+1. **Default tool on start changed to Pan/Hand.** Also fixed a separate path that forced Brush whenever a pixel layer was selected. 
 2. **Smaller splash image** for mobile screens. 
 3. **Selective two-finger movement** implemented for `KisDockerHud`, with touch-event handling designed not to interfere with ordinary single-finger controls.
 4. **Tools menu removed** to make Settings easier to reach.
@@ -245,7 +245,7 @@ Krimble has already completed a massive amount of work. The detailed engineering
 
 5. Removed the hardcoded “Artwork by: Tyson Tan” splash credit from the Krimble-specific splash.
 
-6. Removed a leftover invented legal-entity reference and replaced it with: **“The Krimble Project is committed to preserving Krimble as free software.”**
+6. Removed a leftover invented legal-entity reference and replaced it with: **“The Krimble Project is committed to preserving Krimble as open source software.”**
 
 7. Removed references to a popular graphics application that had been inserted into the README by an AI tool.
 
@@ -294,11 +294,11 @@ Krimble exists because of these. They are not connected to Krimble and have not 
 
 ## SUPPORT KRIMBLE! ☕
 
-Krimble is free and open source, but development still takes time and resources.
+Krimble is open source, but development still takes time and resources.
 
 If Krimble is useful to you, voluntary support helps fund continued development, testing, infrastructure, artwork, and future distribution.
 
-(I am currently indigent and living in a halfway house in El Paso, Texas. All development is being done on a Samsung Galaxy A26 5G smartphone. I use Claude for coding and ChatGPT for graphics, both by paid subscription. I am fueled by coffee ☕ and pizza 🍕 and ice cream 🍦, but I also need clothing, new shoes, meds, dental work, and other stuff. Any help would be very much appreciated.)
+(I am currently indigent and living in a halfway house in El Paso, Texas. All development is being done on a Samsung Galaxy A26 5G smartphone. I use Claude for coding and ChatGPT for graphics, both by paid subscription. I am fueled by coffee ☕, but I also need clothing, new shoes, meds, dental work, and other stuff. Any help would be very much appreciated.)
 
 ### [Support Krimble on Buy Me a Coffee ☕](https://www.buymeacoffee.com/GeorgeEdwardPurdy)
 
