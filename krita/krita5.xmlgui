@@ -149,7 +149,7 @@ xsi:schemaLocation="http://www.kde.org/standards/kxmlgui/1.0  http://www.kde.org
         <text>Puppet Warp</text>
     </Action>
     <Action name="KisToolTransformFree">
-        <text>Free Transform</text>
+        <text>Transform Scale</text>
     </Action>
 
     <Menu name="EditTransform">

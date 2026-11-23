@@ -128,7 +128,7 @@ KisToolTransform::KisToolTransform(KoCanvasBase * canvas)
     liquifyAction = new KisAction(i18nc("Liquify Transform Tab Label", "Liquify"));
     meshAction = new KisAction(i18nc("Mesh Transform Tab Label", "Mesh"));
     cageAction = new KisAction(i18nc("Cage Transform Tab Label", "Cage"));
-    freeTransformAction = new KisAction(i18nc("Free Transform Tab Label", "Free"));
+    freeTransformAction = new KisAction(i18nc("Free Transform Tab Label", "Scale"));
     perspectiveAction = new KisAction(i18nc("Perspective Transform Tab Label", "Perspective"));
 
     // extra actions for free transform that are in the tool options

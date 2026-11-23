@@ -133,10 +133,10 @@
              </sizepolicy>
             </property>
             <property name="toolTip">
-             <string>Free</string>
+             <string>Scale</string>
             </property>
             <property name="text">
-             <string>Free Transform</string>
+             <string>Scale</string>
             </property>
             <property name="checkable">
              <bool>true</bool>
@@ -301,7 +301,7 @@
         </sizepolicy>
        </property>
        <property name="text">
-        <string>Free Transform</string>
+        <string>Scale</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
