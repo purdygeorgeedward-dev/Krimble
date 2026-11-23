@@ -17,6 +17,7 @@ KrimblePainted.colors
 KrimbleLight.colors      # Krimble 2026-11-22: the light theme
 KrimbleCyber.colors      # Krimble 2026-11-23 (cyber-theme branch): the cyber theme
 KrimbleGlass.colors      # Krimble 2026-11-23 (cyber-theme branch): the glass theme
+KrimbleGlass2.colors     # Krimble 2026-11-23 (cyber-theme branch): Glass 2, after the glassmorphism reference
  ${schemefiles} DESTINATION ${KDE_INSTALL_DATADIR}/color-schemes
 )
 
