@@ -109,5 +109,9 @@ QDockWidget > QWidget { background-color: rgba(255, 255, 255, 30); background-im
 QDockWidget > KoDockWidgetTitleBar { background-image: none; border: none; }
 QDockWidget#ColorSelectorNg > QWidget, QDockWidget#ToolBox > QWidget { background-image: none; border: none; }
 QDockWidget#ToolBox QWidget, QDockWidget#ColorSelectorNg QWidget { background-image: none; }
+/* build 77: the docked panels kept the Painted gradient behind them, so they did not look see-through; now the window background shows
+   through them. The toolbox and Color Lab keep the Painted gradient. */
+QDockWidget { background: transparent; }
+QDockWidget#ToolBox, QDockWidget#ColorSelectorNg { background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #374267, stop:1 #181f34); }
 )KRIMBLEGLASS").arg(mist, back);
 }

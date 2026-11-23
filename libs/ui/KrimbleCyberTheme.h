@@ -145,7 +145,9 @@ inline QString krimbleCyberStyleSheet()
     const QString rowFrame = dir + QStringLiteral("/krimble-cyber-row.png");
     const QString scan = dir + QStringLiteral("/krimble-cyber-scan.png");
     const QString back = dir + QStringLiteral("/krimble-cyber-back.png");
-    krimbleCyberMenuFrame(QColor(6, 30, 70, 215), QColor(56, 225, 255, 90), 14, 3).save(menuFrame);
+    // krimbleCyberMenuFrame(QColor(6, 30, 70, 215), QColor(56, 225, 255, 90), 14, 3).save(menuFrame);
+    // build 77: text behind a menu showed through too much to read the menu; the menu is less see-through
+    krimbleCyberMenuFrame(QColor(6, 30, 70, 238), QColor(56, 225, 255, 90), 14, 3).save(menuFrame);
     krimbleCyberFrame(QColor(56, 225, 255, 70), QColor(0, 0, 0, 0), 8, 0).save(rowFrame);
     krimbleCyberScanlines().save(scan);
     if (!QFile::exists(back)) krimbleCyberBackground(QSize(1560, 720)).save(back);
@@ -166,5 +168,9 @@ QDockWidget > KoDockWidgetTitleBar { background-image: none; }
 QDockWidget#ColorSelectorNg > QWidget, QDockWidget#ToolBox > QWidget { background-image: none; }
 /* build 77 showed the scanlines in the toolbox anyway: nothing inside the toolbox or Color Lab gets them */
 QDockWidget#ToolBox QWidget, QDockWidget#ColorSelectorNg QWidget { background-image: none; }
+/* build 77: the docked panels kept the Painted gradient behind them, so they did not look see-through; now the window background shows
+   through them. The toolbox and Color Lab keep the Painted gradient. */
+QDockWidget { background: transparent; }
+QDockWidget#ToolBox, QDockWidget#ColorSelectorNg { background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #374267, stop:1 #181f34); }
 )KRIMBLECYBER").arg(menuFrame, rowFrame, scan, back);
 }
