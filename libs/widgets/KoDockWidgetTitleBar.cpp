@@ -84,7 +84,10 @@ KoDockWidgetTitleBar::KoDockWidgetTitleBar(QDockWidget* dockWidget)
         setMinimumHeight(qCeil(101.0 / dpr));
         // the panel lays its content out from the size hint, not the minimum height: without this the first line of the panel (the tool name in Tool Options)
         // started under this row (George, 2026-11-22: "Get them off each other.")
-        layout->addStrut(qCeil(101.0 / dpr));
+        // layout->addStrut(qCeil(101.0 / dpr));
+        // Krimble 2026-11-23 (867th): never for Color Lab. Its logo band takes the place of this row (the row is set to height 0), and the strut
+        // kept a whole empty row above the band (George: "Color Lab was perfect before and now it's ruined." / "NEVER LET ANYTHING MESS IT UP AGAIN.")
+        if (!dockWidget->inherits("KisColorSelectorNgDock")) layout->addStrut(qCeil(101.0 / dpr));
     }
     layout->setSpacing(SPACING);
     layout->addWidget(d->titleLabel, 1);
