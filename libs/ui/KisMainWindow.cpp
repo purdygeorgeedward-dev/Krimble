@@ -4315,10 +4315,14 @@ void KisMainWindow::createActions()
 
 #ifdef Q_OS_ANDROID
     d->showDonationManagementDialog = actionManager->createAction("manage_donations");
-    connect(d->showDonationManagementDialog,
-            &QAction::triggered,
-            this,
-            &KisMainWindow::slotShowDonationManagementDialog);
+    // connect(d->showDonationManagementDialog,
+    //         &QAction::triggered,
+    //         this,
+    //         &KisMainWindow::slotShowDonationManagementDialog);
+    // Krimble 2026-11-23: Help > Support Krimble... opens the Buy Me a Coffee page (George: "Help - support Krimble should go to the Buy me a Coffee page.")
+    connect(d->showDonationManagementDialog, &QAction::triggered, this, []() {
+        QDesktopServices::openUrl(QUrl(QStringLiteral("https://www.buymeacoffee.com/GeorgeEdwardPurdy")));
+    });
 
     KisAndroidDonations *androidDonations = KisAndroidDonations::instance();
     if (androidDonations) {
