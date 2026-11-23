@@ -147,3 +147,11 @@ Files named YYYY-MM-DD_HHMM_<id>.jpg, by the time each was sent (MST).
 | 2026-11-23_1421_light-theme-eyedropper-gray.jpg | Nov 23, 2026 14:21 MST | George, build 76 or 77 in Krimble Light: "In the Krimble light theme the eyedropper is greyed out. The selection blue is not very bright." (Crop tool selected) |
 | 2026-11-23_1424_light-theme-layers-portrait.jpg | Nov 23, 2026 14:24 MST | George, Krimble Light, portrait, Layers panel with two layers (sent with no text, right after asking for a raised selected tab) |
 | 2026-11-23_1446_brighter-selection-blue.jpg | Nov 23, 2026 14:46 MST | George, Krimble Light: "Brighter blue for selections (toolbox, menus)"; arrows point at the bright end of the Opacity bar (sampled 70,211,254 = #46d3fe; current selection #0b87dd) |
+| 2026-11-23_1603_colorlab-issues-1.jpg | Nov 23, 2026 16:03 MST | George: "I have some serious ColorLab issues. What's wrong with these pictures?" (picture 1 of 8) |
+| 2026-11-23_1603_colorlab-issues-2.jpg | Nov 23, 2026 16:03 MST | George: "I have some serious ColorLab issues. What's wrong with these pictures?" (picture 2 of 8) |
+| 2026-11-23_1603_colorlab-issues-3.jpg | Nov 23, 2026 16:03 MST | George: "I have some serious ColorLab issues. What's wrong with these pictures?" (picture 3 of 8) |
+| 2026-11-23_1603_colorlab-issues-4.jpg | Nov 23, 2026 16:03 MST | George: "I have some serious ColorLab issues. What's wrong with these pictures?" (picture 4 of 8) |
+| 2026-11-23_1603_colorlab-issues-5.jpg | Nov 23, 2026 16:03 MST | George: "I have some serious ColorLab issues. What's wrong with these pictures?" (picture 5 of 8) |
+| 2026-11-23_1603_colorlab-issues-6.jpg | Nov 23, 2026 16:03 MST | George: "I have some serious ColorLab issues. What's wrong with these pictures?" (picture 6 of 8) |
+| 2026-11-23_1603_colorlab-issues-7.jpg | Nov 23, 2026 16:03 MST | George: "I have some serious ColorLab issues. What's wrong with these pictures?" (picture 7 of 8) |
+| 2026-11-23_1603_colorlab-issues-8.jpg | Nov 23, 2026 16:03 MST | George: "I have some serious ColorLab issues. What's wrong with these pictures?" (picture 8 of 8) |
