@@ -385,6 +385,15 @@ void ThemeManager::slotChangePalette()
         const QColor unselected = panel.darker(120);   // Krimble 2026-11-23: 20% darker (George: "slightly darker", "Try 20%")
         krimbleSheet += QStringLiteral("\nQMainWindow > QTabBar { background: %1; }\nQMainWindow > QTabBar::tab:!selected { background: %2; }\n")
                             .arg(behind.name(), unselected.name());
+        // Krimble 2026-11-23: Krimble Light only: the selected panel tab is raised (white top and left edges), the unselected tabs are flat and darker,
+        // and the selected tab casts a shadow on the tab beside it (George: "the selected tab looks pushed in", "Not black.",
+        // "Make unselected a little darker.", "Darker and outside the tab instead of inside it", "That's better.")
+        if (theme == QStringLiteral("Krimble Light")) {
+            krimbleSheet += QStringLiteral("\nQMainWindow > QTabBar::tab:!selected { background: %2; border: 2px solid %2; border-bottom: none; }\n"
+                                           "QMainWindow > QTabBar::tab:selected { border-top: 2px solid #ffffff; border-left: 2px solid #ffffff; border-right: none; border-bottom: none; }\n"
+                                           "QMainWindow > QTabBar::tab:previous-selected { border-left: 4px solid %1; }\n")
+                                .arg(panel.darker(170).name(), panel.darker(130).name());
+        }
     }
     qApp->setStyleSheet(krimbleSheet);   // 696th: the one and only call
 #endif
