@@ -915,6 +915,16 @@ public:
             select(color.toQColor(), false);
         }
     }
+    // Krimble 2026-11-23: the height the panel's scroll area needs to show the card with this many palette rows under the first 4
+    // (0 = the fewest rows, 10 = all of them), at the card's present width; -1 if it can't tell yet. Used by the torn-off Color Lab's size limits.
+    int krimbleNeededViewHeight(int extraRows) const {
+        if (!m_ui) return -1;
+        const qreal s = m_ui->scale();
+        if (s <= 0) return -1;
+        const int bottomMargin = layout() ? layout()->contentsMargins().bottom() : 0;
+        return int(std::ceil(m_ui->y() + bottomMargin + (KrimbleColorCanvas::DH + extraRows * KrimbleColorCanvas::PaletteRowH) * s)) + 1;
+    }
+    QWidget *krimbleRoomView() const { return m_paletteRoomView; }
 protected:
     // When the panel is taller than the picker needs, the palette under it gets more rows (up to 14 rows of 19),
     // and fewer again when the panel gets shorter. The panel's scroll area decides how much room there is.

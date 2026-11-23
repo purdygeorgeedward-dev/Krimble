@@ -13,6 +13,7 @@
 #include <QTabWidget>
 #include <QScrollArea>
 #include "krimble_color_studio.h"
+#include <QScrollBar>
 
 #include <kconfig.h>
 #include <kconfiggroup.h>
@@ -125,6 +126,11 @@ KisColorSelectorNgDockerWidget::KisColorSelectorNgDockerWidget(QWidget *parent, 
     m_krimbleStudio->setMaximumWidth(384);
     studioScroll->setAlignment(Qt::AlignLeft | Qt::AlignTop);
     studioScroll->setWidget(m_krimbleStudio);
+    // Krimble 2026-11-23: the content always starts at the left edge: a narrow window cuts off the right side, never the left
+    // (George: "You just can't let ColorLab chop off the left edge of its own window.")
+    connect(studioScroll->horizontalScrollBar(), &QScrollBar::valueChanged, studioScroll, [studioScroll](int v) {
+        if (v != 0) studioScroll->horizontalScrollBar()->setValue(0);
+    });
     {
         QWidget *krimbleColumn = new QWidget(this);
         QVBoxLayout *krimbleColumnLayout = new QVBoxLayout(krimbleColumn);
