@@ -128,3 +128,4 @@ A record of the project owner's requests, decisions and test findings, kept so a
 - 15:07 to 15:08: Art Marker modeled on classic Design markers: high bleed, flat uniform tones (839).
 - 15:09 to 15:18: cel paint is liquid cel vinyl (even, plastic-looking, need not meet the lines); Pantone and cel palettes; Newtype covers as a color source. The rest of the 1.0.74 list was not done; fix all that can be fixed (840).
 - 16:27: push all and build (841, build 75).
+- 2026-11-22 17:26 to 19:06: "free" removed from Krimble's description (open source, not a promise of free); Free Transform renamed Transform Scale, the Free mode Scale; toolbox grip a raised bevel with five lines; panel grips six lines; all UI demos made with the Preview Tool; build 75 would not install until space was freed on the phone; "Fix everything first", then "The icons. Yes. Push."

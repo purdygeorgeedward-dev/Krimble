@@ -8139,3 +8139,11 @@ Syntax check: KoToolManager.cpp, KisView.cpp clean; KisMainWindow.cpp only the 3
 ## 2026-11-22 (841st) — Build 75
 
 **2026-11-22, 16:30 (MST), branch `krimble-cleanup`.** "Push all and Build." Build number 74 → 75 (`packaging/android/apk/build.gradle`), build log row added, build started by dispatch (label 1.0.75-beta). Item 5 (Quick Mask and Screen Mode icons) is not in it: the drafts were not approved yet.
+
+**2026-11-22, 17:27 to 19:10 (MST), 842nd to 846th, branch `krimble-cleanup`.**
+- **842nd (07f56696):** "free software" commitment removed. George: "It's open source, but I'm not committed to making it free." About page line "committed to preserving Krimble as free software" deleted; README and the old release notes say "open source software".
+- **843rd (c8cebf66):** Edit > Free Transform is **Transform Scale**; the Transform tool's "Free" mode button is **Scale** ("Free transform ... which is misleading").
+- **844th (37ab0f52):** toolbox grip is a raised bevel, edge to edge, flush with the top, five lines inside.
+- **845th (43161d5e):** panel grips have six lines (were nine). Rule added: all UI demos are made with the Preview Tool.
+- **846th:** (1) Quick Mask and Screen Mode icons: the item 5 drafts, approved ("The icons. Yes. Push."): Quick Mask is a gray-filled frame with a dotted circle; Screen Mode is two windows with title bars. (2) Toolbox grip minimum height no longer reserves the old 18 px lip. (3) Build workflow: the signature check never ran (the `build-tools/*/apksigner` glob matched several folders; "Unsupported command", step still green, since at least build 74); it now uses the newest build-tools and fails the build if the APK does not verify. (4) With no label given, the APK name takes the number from build.gradle instead of the fixed 1.0.71-beta.
+- **Build 75 install:** run 45086690229 (dfd8f184) gave "App not installed" on the phone. The packaging log is identical to build 74's; George freed space on the phone and the install worked as an update. Cause: low storage on the phone, not the build.

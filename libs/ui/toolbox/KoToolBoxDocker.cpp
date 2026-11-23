@@ -303,7 +303,8 @@ KoToolBoxDocker::KoToolBoxDocker(KoToolBox *toolBox)
     }
     int titleSize = QFontMetrics(font).height();
     // w->setMinimumSize(titleSize, titleSize + 12);
-    w->setMinimumSize(titleSize, titleSize + 12 + qCeil(18.0 / qMax<qreal>(1.0, qApp->devicePixelRatio())));   // room for the lip
+    // w->setMinimumSize(titleSize, titleSize + 12 + qCeil(18.0 / qMax<qreal>(1.0, qApp->devicePixelRatio())));   // room for the lip
+    w->setMinimumSize(titleSize, titleSize + 12);   // the bevel grip has no lip (2026-11-22)
     setTitleBarWidget(w);
 
     KConfigGroup cfg =  KSharedConfig::openConfig()->group("KoToolBox");
@@ -362,17 +363,40 @@ static QIcon krimbleGadgetIcon(bool quickMask)
         p.setRenderHint(QPainter::Antialiasing, true);
         const qreal u = size / 28.0;
         const QColor c(225, 228, 240);
-        p.setPen(QPen(c, 2.0 * u));
-        p.setBrush(Qt::NoBrush);
+        // Previous icons (794th), kept for reference:
+        // p.setPen(QPen(c, 2.0 * u));
+        // p.setBrush(Qt::NoBrush);
+        // if (quickMask) {
+        //     p.drawRect(QRectF(3 * u, 6 * u, 22 * u, 16 * u));
+        //     p.setBrush(c);
+        //     p.setPen(Qt::NoPen);
+        //     p.drawEllipse(QPointF(14 * u, 14 * u), 4.5 * u, 4.5 * u);
+        // } else {
+        //     p.drawRect(QRectF(9 * u, 4 * u, 16 * u, 12 * u));
+        //     p.setBrush(QColor(56, 62, 96));
+        //     p.drawRect(QRectF(3 * u, 10 * u, 16 * u, 12 * u));
+        // }
+        // 2026-11-22 drafts approved (George: "The icons. Yes. Push."):
         if (quickMask) {
+            // a gray-filled frame with a dotted circle: the mask over the picture, the selection as marching ants
+            p.setPen(QPen(c, 1.6 * u));
+            p.setBrush(QColor(c.red(), c.green(), c.blue(), 60));
             p.drawRect(QRectF(3 * u, 6 * u, 22 * u, 16 * u));
-            p.setBrush(c);
-            p.setPen(Qt::NoPen);
-            p.drawEllipse(QPointF(14 * u, 14 * u), 4.5 * u, 4.5 * u);
-        } else {
-            p.drawRect(QRectF(9 * u, 4 * u, 16 * u, 12 * u));
+            QPen dots(c, 1.4 * u);
+            dots.setDashPattern({0.9, 0.9});
+            dots.setCapStyle(Qt::FlatCap);
+            p.setPen(dots);
             p.setBrush(QColor(56, 62, 96));
-            p.drawRect(QRectF(3 * u, 10 * u, 16 * u, 12 * u));
+            p.drawEllipse(QPointF(14 * u, 14 * u), 5.2 * u, 5.2 * u);
+        } else {
+            // two windows, each with a title bar; the front one covers the back one
+            p.setPen(QPen(c, 1.6 * u));
+            p.setBrush(Qt::NoBrush);
+            p.drawRect(QRectF(10 * u, 4 * u, 15 * u, 11 * u));
+            p.fillRect(QRectF(10 * u, 4 * u, 15 * u, 2.6 * u), c);
+            p.setBrush(QColor(56, 62, 96));
+            p.drawRect(QRectF(3 * u, 10 * u, 15 * u, 11 * u));
+            p.fillRect(QRectF(3 * u, 10 * u, 15 * u, 2.6 * u), c);
         }
         p.end();
         icon.addPixmap(pm);

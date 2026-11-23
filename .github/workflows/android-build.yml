@@ -214,7 +214,12 @@ jobs:
       - name: Verify signature and name the APK
         run: |
           APK=$(ls "$HOME"/kwd/krita/_packaging/*.apk | head -n 1)
-          "$ANDROID_HOME"/build-tools/*/apksigner verify --verbose "$APK" | head -n 8
+          # "$ANDROID_HOME"/build-tools/*/apksigner verify --verbose "$APK" | head -n 8
+          # Krimble 2026-11-22: the glob matched several build-tools folders, so the first apksigner got the second one's path as its command
+          # ("Unsupported command") and nothing was checked. Use the newest build-tools only, and fail the build if the APK does not verify.
+          SIGNER=$(ls -d "$ANDROID_HOME"/build-tools/*/ | sort -V | tail -n 1)apksigner
+          "$SIGNER" verify --verbose --print-certs "$APK" > "$RUNNER_TEMP/verify.txt"   # stops the build if the APK does not verify
+          head -n 12 "$RUNNER_TEMP/verify.txt"
           # KRIMBLE 2026-11-11 (build 56): was 1.0.55-beta: NAME="Krimble-${{ inputs.beta || '1.0.55-beta' }}-$(TZ=America/Denver date +%b%d-%H%M).apk"
           # KRIMBLE 2026-11-13: George: the 59 APK says .56 inside: the fallback label of the file name was still 1.0.56-beta (a run started by a push has no input): NAME="Krimble-${{ inputs.beta || '1.0.56-beta' }}-$(TZ=America/Denver date +%b%d-%H%M).apk"
           # NAME="Krimble-${{ inputs.beta || '1.0.59-beta' }}-$(TZ=America/Denver date +%b%d-%H%M).apk"   # KRIMBLE 2026-11-15 (build 60): was 59
@@ -227,7 +232,12 @@ jobs:
           # NAME="Krimble-${{ inputs.beta || '1.0.67-beta' }}-$(TZ=America/Denver date +%b%d-%H%M).apk"   # Krimble 2026-11-17: build 67 is built
           # NAME="Krimble-${{ inputs.beta || '1.0.68-beta' }}-$(TZ=America/Denver date +%b%d-%H%M).apk"   # Krimble 2026-11-19: build 68 is built
           # NAME="Krimble-${{ inputs.beta || '1.0.69-beta' }}-$(TZ=America/Denver date +%b%d-%H%M).apk"   # Krimble 2026-11-20: build 69 is built
-          NAME="Krimble-${{ inputs.beta || '1.0.71-beta' }}-$(TZ=America/Denver date +%b%d-%H%M).apk"
+          # NAME="Krimble-${{ inputs.beta || '1.0.71-beta' }}-$(TZ=America/Denver date +%b%d-%H%M).apk"
+          # Krimble 2026-11-22: with no label given, the number comes from build.gradle instead of a fixed old label
+          GRADLE_NUM=$(grep -E '^\s*def\s+krimbleBuildNumber\s*=' packaging/android/apk/build.gradle | grep -oE '[0-9]+' | head -n 1)
+          LABEL="${{ inputs.beta }}"
+          if [ -z "$LABEL" ]; then LABEL="1.0.${GRADLE_NUM}-beta"; fi
+          NAME="Krimble-${LABEL}-$(TZ=America/Denver date +%b%d-%H%M).apk"
           mkdir -p out && cp "$APK" "out/$NAME"
           ls -l out
 
