@@ -29,9 +29,15 @@ QMainWindow > QTabBar::tab:selected { background: palette(window); border-bottom
 QMenuBar::item:selected, QMenuBar::item:pressed { background: rgba(0, 0, 0, 120); border-top: 1px solid rgba(0, 0, 0, 210); border-left: 1px solid rgba(0, 0, 0, 210); border-right: 1px solid rgba(255, 255, 255, 70); border-radius: 0px; }
 
 /* Menus: about one blank line of room under the last item and 12 units at the right (738th, 745th: the last item was cut off and long names ran past the right side). */
+/* Krimble 2026-11-22: padding-bottom alone did nothing: Qt takes a menu's top and bottom room from padding-top (checked with the Preview Tool:
+   padding-bottom 16px with padding-top 6px gave 6 at both ends). So both are set. "Menus still have very short bottoms." */
+/* QMenu { padding-bottom: 16px; padding-right: 12px; } */
 QMenu {
-    padding-bottom: 16px;
+    padding-top: 10px;
+    padding-bottom: 10px;
     padding-right: 12px;
 }
+/* Krimble 2026-11-22: a visible edge on every menu, so a submenu no longer disappears into the menu under it ("Submenus still have no edges and disappear into menus.") */
+QMenu { border: 1px solid #8a93b8; }
 )KRIMBLE");
 }

@@ -242,7 +242,9 @@ void KoToolBoxButton::paintEvent(QPaintEvent *event)
         const qreal s = qMin(width(), height());
         // painter.fillRect(QRectF(rect()).adjusted(s * 0.12, s * 0.12, -s * 0.12, -s * 0.12), QColor("#0b87dd"));   // flat, the blue of the menu selection
         // krimblePaintAqua(painter, QRectF(rect()).adjusted(s * 0.12, s * 0.12, -s * 0.12, -s * 0.12), s * 0.07);   // the Aqua-style selection
-        krimblePaintAqua(painter, QRectF(rect()), s * 0.18);   // the Aqua-style selection fills the whole tile, rounder corners
+        // krimblePaintAqua(painter, QRectF(rect()), s * 0.18);   // the Aqua-style selection fills the whole tile, rounder corners
+        // George 2026-11-22: "I probably went too far making it big. Maybe shave off a bit." 5% of the tile off each side
+        krimblePaintAqua(painter, QRectF(rect()).adjusted(s * 0.05, s * 0.05, -s * 0.05, -s * 0.05), s * 0.16);
     }
     // if (isChecked()) {
     //     QPainter painter(this);

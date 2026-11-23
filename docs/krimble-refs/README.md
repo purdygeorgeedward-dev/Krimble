@@ -95,3 +95,6 @@ Files named YYYY-MM-DD_HHMM_<id>.jpg, by the time each was sent (MST).
 | 2026-11-22_1910_quickmask-screenmode-applied.png | Nov 22, 2026 19:10 MST | Quick Mask and Screen Mode icons as applied (item 5), rendered from krimbleGadgetIcon |
 | 2026-11-22_1926_tooloptions-grip-after-name.png | Nov 22, 2026 19:26 MST | Real KoDockWidgetTitleBar with a tool name label: the grip starts after the bold name (850th). The harness also shows the name sitting into the title row, as on the phone. |
 | 2026-11-22_1930_tooloptions-name-below-grip.png | Nov 22, 2026 19:30 MST | Tool Options fixed (851st): real KoDockWidgetTitleBar, title hidden as when tabbed; grip row on top, tool name below it. The "X/Y" line is a stand-in for the tool's options. |
+| 2026-11-22_2005_tooloptions-margins-greyed-snap.png | Nov 22, 2026 20:05 MST | Tool Options with 28 real px left margin, 12 right, tool name aligned with the options, Magnetism greyed until Snap to Assistants is checked (852nd). Real title bar; the option rows are stand-ins. |
+| 2026-11-22_2005_menu-edge-and-bottom.png | Nov 22, 2026 20:05 MST | Menu and submenu with the real theme sheet: 1 px light edge, 10 px room at top and bottom (852nd) |
+| 2026-11-22_2005_toolbox-aqua-before-after.png | Nov 22, 2026 20:05 MST | Toolbox Aqua selection: before (whole tile) and after (5% off each side) (852nd) |

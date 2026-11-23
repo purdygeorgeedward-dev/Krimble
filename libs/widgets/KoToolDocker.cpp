@@ -22,6 +22,9 @@
 #include "KoDockWidgetTitleBar.h"
 #include <QScrollArea>
 #include <QScroller>
+#include <QPointer>
+#include <QAbstractScrollArea>
+#include <KisKineticScroller.h>
 
 class Q_DECL_HIDDEN KoToolDocker::Private
 {
@@ -187,6 +190,46 @@ public:
 
 };
 
+// Krimble 2026-11-22: sliders in Tool Options could not be dragged with a finger (George: "Can't move this tiny little \"magnetism\" control."):
+// the panel's finger scrolling took the drag. While a finger or the mouse is down on a slider, the panel does not scroll.
+class KrimbleSliderScrollGuard : public QObject
+{
+public:
+    KrimbleSliderScrollGuard(QAbstractScrollArea *area, QObject *parent) : QObject(parent), m_area(area) {}
+    void watch(QWidget *root)
+    {
+        if (!root) return;
+        Q_FOREACH (QWidget *w, root->findChildren<QWidget *>()) {
+            if ((w->inherits("KisAbstractSliderSpinBox") || w->inherits("QAbstractSlider")) && !w->property("krimbleScrollGuard").toBool()) {
+                w->setProperty("krimbleScrollGuard", true);
+                w->installEventFilter(this);
+            }
+        }
+    }
+protected:
+    bool eventFilter(QObject *, QEvent *event) override
+    {
+        if (!m_area) return false;
+        switch (event->type()) {
+        case QEvent::MouseButtonPress:
+        case QEvent::TouchBegin:
+            if (QScroller::hasScroller(m_area)) QScroller::scroller(m_area)->stop();
+            QScroller::ungrabGesture(m_area);
+            break;
+        case QEvent::MouseButtonRelease:
+        case QEvent::TouchEnd:
+        case QEvent::TouchCancel:
+            QTimer::singleShot(0, this, [this]() { if (m_area) QScroller::grabGesture(m_area, KisKineticScroller::getConfiguredGestureType()); });
+            break;
+        default:
+            break;
+        }
+        return false;
+    }
+private:
+    QPointer<QAbstractScrollArea> m_area;
+};
+
 KoToolDocker::KoToolDocker(QWidget *parent)
     : QDockWidget(i18n("Tool Options"), parent),
       d(new Private(this))
@@ -195,7 +238,11 @@ KoToolDocker::KoToolDocker(QWidget *parent)
 
     d->housekeeperWidget = new QWidget();
     d->housekeeperLayout = new QGridLayout;
-    d->housekeeperLayout->setContentsMargins(4,4,4,0);
+    // d->housekeeperLayout->setContentsMargins(4,4,4,0);
+    // Krimble 2026-11-22: 28 real px on the left like the panel titles, 12 on the right (the options touched the panel's edges)
+    const qreal krimbleMarginDpr = qMax<qreal>(1.0, qApp->devicePixelRatio());
+    const int krimbleLeft = qRound(28.0 / krimbleMarginDpr), krimbleRight = qRound(12.0 / krimbleMarginDpr);
+    d->housekeeperLayout->setContentsMargins(krimbleLeft, 4, krimbleRight, 0);
     d->housekeeperLayout->setSizeConstraint(QLayout::SetMinAndMaxSize);
     d->housekeeperMainLayout =
         new QBoxLayout(QBoxLayout::TopToBottom, d->housekeeperWidget);
@@ -211,7 +258,9 @@ KoToolDocker::KoToolDocker(QWidget *parent)
         nameFont.setBold(true);
         d->toolNameLabel->setFont(nameFont);
     }
-    d->toolNameLabel->setStyleSheet(QStringLiteral("QLabel#krimbleToolOptionsName { color: palette(window-text); padding: 3px 6px; border-bottom: 1px solid #343c57; }"));
+    d->toolNameLabel->setStyleSheet(QStringLiteral("QLabel#krimbleToolOptionsName { color: palette(window-text); padding: 3px 0px; border-bottom: 1px solid #343c57; }"));
+    d->toolNameLabel->setContentsMargins(krimbleLeft, 0, krimbleRight, 0);   // the tool name lines up with the options under it
+    d->toolNameLabel->setIndent(0);   // a label with a border otherwise indents its text by half an "x"
     d->housekeeperMainLayout->insertWidget(0, d->toolNameLabel);
     d->updateToolName();
     connect(KoToolManager::instance(), &KoToolManager::changedTool, this, [this](KoCanvasController *) { d->updateToolName(); });
@@ -247,6 +296,11 @@ bool KoToolDocker::hasOptionWidget()
 void KoToolDocker::setOptionWidgets(const QList<QPointer<QWidget> > &optionWidgetList)
 {
     d->recreateLayout(optionWidgetList);
+    if (d->scrollArea) {
+        KrimbleSliderScrollGuard *guard = d->scrollArea->findChild<KrimbleSliderScrollGuard *>(QString(), Qt::FindDirectChildrenOnly);
+        if (!guard) guard = new KrimbleSliderScrollGuard(d->scrollArea, d->scrollArea);
+        guard->watch(d->housekeeperWidget);
+    }
 }
 
 void KoToolDocker::slotScrollerStateChange(QScroller::State state)

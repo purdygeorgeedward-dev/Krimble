@@ -1270,6 +1270,55 @@ void KisMainWindow::notifyChildViewDestroyed(KisView *view)
 }
 
 
+// Krimble 2026-11-22: a newly opened image is fitted again each time its canvas gets bigger in its first seconds, until the user touches it.
+// (Every new file opened as a miniature: the one fit at 1 second could run while the canvas still had a small, unfinished size.)
+class KrimbleFitOnOpen : public QObject
+{
+public:
+    KrimbleFitOnOpen(KisView *view, QWidget *canvasWidget) : QObject(canvasWidget), m_view(view)
+    {
+        canvasWidget->installEventFilter(this);
+        QTimer::singleShot(4000, this, [this]() { deleteLater(); });   // after 4 seconds the user's zoom is left alone
+    }
+    void fit()
+    {
+        if (!m_view || !m_view->zoomManager()) return;
+        m_view->zoomManager()->slotZoomToFit();
+        if (m_view->canvasBase()) {
+            m_view->canvasBase()->refetchDataFromImage();
+            m_view->canvasBase()->updateCanvas();
+        }
+    }
+protected:
+    bool eventFilter(QObject *watched, QEvent *event) override
+    {
+        switch (event->type()) {
+        case QEvent::Resize: {
+            QResizeEvent *re = static_cast<QResizeEvent *>(event);
+            if (!re->size().isEmpty() && (re->size().width() > re->oldSize().width() || re->size().height() > re->oldSize().height())) {
+                QTimer::singleShot(0, this, [this]() { fit(); });
+            }
+            break;
+        }
+        case QEvent::Show:
+            QTimer::singleShot(0, this, [this]() { fit(); });
+            break;
+        case QEvent::MouseButtonPress:
+        case QEvent::TouchBegin:
+        case QEvent::TabletPress:
+        case QEvent::Wheel:
+            watched->removeEventFilter(this);   // the user is working: no more automatic fitting
+            deleteLater();
+            break;
+        default:
+            break;
+        }
+        return false;
+    }
+private:
+    QPointer<KisView> m_view;
+};
+
 void KisMainWindow::showView(KisView *imageView, QMdiSubWindow *subwin)
 {
     if (imageView && activeView() != imageView) {
@@ -1297,6 +1346,9 @@ void KisMainWindow::showView(KisView *imageView, QMdiSubWindow *subwin)
             // an image opens fitted to the image area once the window and panels have their sizes (it sometimes opened at a tiny zoom,
             // fitted to the size the area had while it was being laid out)
             QPointer<KisView> krimbleFitView(imageView);
+            if (imageView->canvasBase() && imageView->canvasBase()->canvasWidget()) {
+                new KrimbleFitOnOpen(imageView, imageView->canvasBase()->canvasWidget());
+            }
             QTimer::singleShot(1000, this, [krimbleFitView]() {
                 if (krimbleFitView && krimbleFitView->zoomManager()) krimbleFitView->zoomManager()->slotZoomToFit();
                 // the image's screen copy is rebuilt from the image itself once it is fitted: the first image sometimes showed blurry and
@@ -3064,8 +3116,14 @@ QDockWidget* KisMainWindow::createDockWidget(KoDockFactoryBase* factory)
             }
             dockWidget->setFeatures(QDockWidget::NoDockWidgetFeatures);
         }
-        if (dockWidget->widget() && dockWidget->widget()->layout())
-            dockWidget->widget()->layout()->setContentsMargins(1, 1, 1, 1);
+        // if (dockWidget->widget() && dockWidget->widget()->layout())
+        //     dockWidget->widget()->layout()->setContentsMargins(1, 1, 1, 1);
+        // Krimble 2026-11-22: panel content had no margin, it touched the panel's left edge (George: "All the panels start their internal
+        // content right as the left edge with no margin at all."). 28 real px on the left, the same as the panel titles; 12 on the right.
+        if (dockWidget->widget() && dockWidget->widget()->layout()) {
+            const qreal marginDpr = qMax<qreal>(1.0, qApp->devicePixelRatio());
+            dockWidget->widget()->layout()->setContentsMargins(qRound(28.0 / marginDpr), 1, qRound(12.0 / marginDpr), 1);
+        }
 
         Qt::DockWidgetArea side = Qt::RightDockWidgetArea;
         bool visible = true;

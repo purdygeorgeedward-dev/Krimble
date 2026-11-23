@@ -622,19 +622,26 @@ QWidget * KisToolBrush::createOptionWidget()
     addOptionWidgetOption(m_chkSnapEraser, snapEraserLabel);
 
     // set the assistant snapping options to hidden by default and toggle their visibility based off snapping checkbox
-    m_sliderMagnetism->setVisible(false);
-    m_chkOnlyOneAssistant->setVisible(false);
-    m_chkSnapEraser->setVisible(false);
-    magnetismLabel->setVisible(false);
-    snapSingleLabel->setVisible(false);
-    snapEraserLabel->setVisible(false);
+    // Krimble 2026-11-22: the panel jumped when Snap to Assistants was checked (the rows below it appeared). The rows always show and are
+    // greyed out until it is checked, so nothing moves (George: "The panel shifts around when the check box is checked.").
+    // m_sliderMagnetism->setVisible(false);
+    // m_chkOnlyOneAssistant->setVisible(false);
+    // m_chkSnapEraser->setVisible(false);
+    // magnetismLabel->setVisible(false);
+    // snapSingleLabel->setVisible(false);
+    // snapEraserLabel->setVisible(false);
 
-    connect(m_chkAssistant, SIGNAL(toggled(bool)), m_sliderMagnetism, SLOT(setVisible(bool)));
-    connect(m_chkAssistant, SIGNAL(toggled(bool)), m_chkOnlyOneAssistant, SLOT(setVisible(bool)));
-    connect(m_chkAssistant, SIGNAL(toggled(bool)), m_chkSnapEraser, SLOT(setVisible(bool)));
-    connect(m_chkAssistant, SIGNAL(toggled(bool)), magnetismLabel, SLOT(setVisible(bool)));
-    connect(m_chkAssistant, SIGNAL(toggled(bool)), snapSingleLabel, SLOT(setVisible(bool)));
-    connect(m_chkAssistant, SIGNAL(toggled(bool)), snapEraserLabel, SLOT(setVisible(bool)));
+    // connect(m_chkAssistant, SIGNAL(toggled(bool)), m_sliderMagnetism, SLOT(setVisible(bool)));
+    // connect(m_chkAssistant, SIGNAL(toggled(bool)), m_chkOnlyOneAssistant, SLOT(setVisible(bool)));
+    // connect(m_chkAssistant, SIGNAL(toggled(bool)), m_chkSnapEraser, SLOT(setVisible(bool)));
+    // connect(m_chkAssistant, SIGNAL(toggled(bool)), magnetismLabel, SLOT(setVisible(bool)));
+    // connect(m_chkAssistant, SIGNAL(toggled(bool)), snapSingleLabel, SLOT(setVisible(bool)));
+    // connect(m_chkAssistant, SIGNAL(toggled(bool)), snapEraserLabel, SLOT(setVisible(bool)));
+    const bool krimbleSnapOn = m_chkAssistant->isChecked();
+    Q_FOREACH (QWidget *row, QList<QWidget *>() << m_sliderMagnetism << m_chkOnlyOneAssistant << m_chkSnapEraser << magnetismLabel << snapSingleLabel << snapEraserLabel) {
+        row->setEnabled(krimbleSnapOn);
+        connect(m_chkAssistant, SIGNAL(toggled(bool)), row, SLOT(setEnabled(bool)));
+    }
 
     KisConfig cfg(true);
 
