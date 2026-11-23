@@ -8193,3 +8193,9 @@ Syntax check: KoToolManager.cpp, KisView.cpp clean; KisMainWindow.cpp only the 3
 - The tool put-back after opening an image (852nd) is removed: it undid a tool picked in the first 1.5 s. The real cause is fixed by the one-tool change of the 854th.
 - The slider guard gives the finger-scroll gesture back only if the panel had it (finger scrolling can be off in the settings).
 - Checked before the build: syntax of every C++ file changed since build 75's first run (plain and Android mode), XML, workflow file, build number 75 (George chose to put tonight's changes into 75: "This gives us an opportunity to put those recent changes into the .75 build").
+
+**2026-11-23, 04:25 to 04:40 (MST), read-only look at speed and size, nothing changed.** George: "Examine it and report back anything obvious."
+- **Krimble, every 8 seconds for as long as the app runs:** `grabTimer` (KisMainWindow.cpp, about line 758) re-runs nine install passes (dock edge grabs, menu shortcut stripping twice, canvas-only exit, minimum widths, bevels, hex menus, selection glow), each walking the window's widgets. Every 2 s for the first 30 s, then every 8 s, forever; 0.5 s after each image switch.
+- **Krimble, every paint of every widget:** the Aqua/glow filter is installed on the whole app and since the 840th looks at every Paint event (it was Polish only before).
+- **Krita base:** 24 panels are built and created at start whether Krimble shows them or not. Panels with background work (Overview, Channels, Histogram) only do it while shown, so hidden ones cost start time and memory, not speed.
+- **APK, obvious waste:** `assets/doc` (4.1 MB) is third-party library documentation (for example zlib's crc-doc PDF, 0.7 MB); libcrypto is packed twice (`libcrypto.so` and `libcrypto_1_1.so`, 1.17 MB each); the comics templates carry their `.source` .kra files (3.3 MB); the QtQuick "Imagine" style plugin (0.7 MB).
