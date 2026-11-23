@@ -323,6 +323,8 @@ static void krimbleResetLayout(QMainWindow *win)
     KConfigGroup g = KSharedConfig::openConfig()->group("KrimbleLayouts");
     g.deleteEntry("portrait");
     g.deleteEntry("landscape");
+    g.deleteEntry("portrait_last");
+    g.deleteEntry("landscape_last");
     g.sync();
     const QByteArray def = g.readEntry("default", QByteArray());
     if (!def.isEmpty()) {
@@ -631,7 +633,22 @@ public:
                 // window's shape can flip for a moment when the app comes back from the file picker. Now only a real turn of the screen counts.
                 if (screenIsLandscape() != m_screenLandscape && qApp->applicationState() == Qt::ApplicationActive) {
                     m_screenLandscape = screenIsLandscape();
-                    QTimer::singleShot(500, win, [win]() { krimbleRestoreSavedLayout(win); });
+                    // QTimer::singleShot(500, win, [win]() { krimbleRestoreSavedLayout(win); });
+                    // Krimble 2026-11-22: each direction remembers its panels as they were last left (George: "Do them all in order as needed.").
+                    // The layout of the direction being left is kept; the new direction gets its own last layout of this run, or, the first
+                    // time it is turned to in this run, the saved startup layout.
+                    {
+                        KConfigGroup g = KSharedConfig::openConfig()->group("KrimbleLayouts");
+                        g.writeEntry(m_screenLandscape ? "portrait_last" : "landscape_last", win->saveState().toBase64());
+                        g.sync();
+                    }
+                    const bool toLandscape = m_screenLandscape;
+                    QTimer::singleShot(500, win, [win, toLandscape]() {
+                        KConfigGroup g = KSharedConfig::openConfig()->group("KrimbleLayouts");
+                        const QByteArray last = g.readEntry(toLandscape ? "landscape_last" : "portrait_last", QByteArray());
+                        if (!last.isEmpty()) win->restoreState(QByteArray::fromBase64(last));
+                        else krimbleRestoreSavedLayout(win);
+                    });
                 } else {
                     qWarning() << "Krimble: window shape changed without the screen being turned; the saved layout is not put back";
                 }

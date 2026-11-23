@@ -889,6 +889,10 @@ KisMainWindow::KisMainWindow(QUuid uuid)
                 layoutGroup.writeEntry("default", saveState().toBase64());
                 layoutGroup.sync();
             }
+            // a new run starts from the saved startup layouts: the "last left" layouts of the run before are dropped
+            layoutGroup.deleteEntry("portrait_last");
+            layoutGroup.deleteEntry("landscape_last");
+            layoutGroup.sync();
             krimbleRestoreSavedLayout(this);
             krimbleInstallLayerExtras(this);
             krimbleInstallViewExtras(this);
