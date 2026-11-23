@@ -602,7 +602,10 @@ void KoToolManager::Private::postSwitchTool()
             layout->addItem(new QSpacerItem(1, 1, QSizePolicy::Minimum, QSizePolicy::Expanding));
             canvasData->dummyToolWidget = toolWidget;
         }
-        canvasData->dummyToolLabel->setText(i18n("Active tool: %1", title));
+        // canvasData->dummyToolLabel->setText(i18n("Active tool: %1", title));
+        // Krimble: the tool name is already the first line of Tool Options (Krimble Type showed its name twice)
+        Q_UNUSED(title);
+        canvasData->dummyToolLabel->setText(i18n("No options"));
         optionWidgetList.append(toolWidget);
     }
 

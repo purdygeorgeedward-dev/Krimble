@@ -82,6 +82,9 @@ KoDockWidgetTitleBar::KoDockWidgetTitleBar(QDockWidget* dockWidget)
         const qreal dpr = qMax<qreal>(1.0, qApp->devicePixelRatio());
         layout->setContentsMargins(2 + qRound(28.0 / dpr), 0, 2, 0);
         setMinimumHeight(qCeil(101.0 / dpr));
+        // the panel lays its content out from the size hint, not the minimum height: without this the first line of the panel (the tool name in Tool Options)
+        // started under this row (George, 2026-11-22: "Get them off each other.")
+        layout->addStrut(qCeil(101.0 / dpr));
     }
     layout->setSpacing(SPACING);
     layout->addWidget(d->titleLabel, 1);
@@ -166,7 +169,8 @@ void KoDockWidgetTitleBar::paintEvent(QPaintEvent*)
         // (George, 2026-11-22: "First move the grips over and out of the way." / "Now they're on top of the title.")
         if (q) {
             if (QLabel *toolName = q->findChild<QLabel*>(QStringLiteral("krimbleToolOptionsName"))) {
-                if (toolName->isVisible() && !toolName->text().isEmpty()) {
+                const int nameTop = toolName->mapTo(q, QPoint(0, 0)).y() - mapTo(q, QPoint(0, 0)).y();
+                if (toolName->isVisible() && !toolName->text().isEmpty() && nameTop < height()) {   // only while the name reaches into this row
                     const int nameLeft = toolName->mapTo(q, QPoint(0, 0)).x() - mapTo(q, QPoint(0, 0)).x();
                     const int nameRight = nameLeft + toolName->contentsRect().left() + 6 + toolName->fontMetrics().horizontalAdvance(toolName->text());
                     left = qMax(left, nameRight + qRound(36.0 / gapDpr));

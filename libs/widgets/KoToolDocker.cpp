@@ -117,7 +117,9 @@ public:
                 if (widget.isNull() || widget->objectName().isEmpty()) {
                     continue;
                 }
-                if (!widget->windowTitle().isEmpty()) {
+                // if (!widget->windowTitle().isEmpty()) {
+                // the tool name is already the first line of the panel: no second copy of it (Crop showed "Crop" twice)
+                if (!widget->windowTitle().isEmpty() && !(toolNameLabel && widget->windowTitle() == toolNameLabel->text())) {
                     housekeeperLayout->addWidget(
                         l = new QLabel(widget->windowTitle()),
                         0,
@@ -150,7 +152,9 @@ public:
                 if (widget.isNull() || widget->objectName().isEmpty()) {
                     continue;
                 }
-                if (!widget->windowTitle().isEmpty()) {
+                // if (!widget->windowTitle().isEmpty()) {
+                // the tool name is already the first line of the panel: no second copy of it (Crop showed "Crop" twice)
+                if (!widget->windowTitle().isEmpty() && !(toolNameLabel && widget->windowTitle() == toolNameLabel->text())) {
                     housekeeperLayout->addWidget(
                         l = new QLabel(widget->windowTitle()),
                         cnt++,
