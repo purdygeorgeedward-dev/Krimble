@@ -17,6 +17,9 @@ QAbstractItemView::item:selected { color: #ffffff; border-radius: 0px; /* backgr
 /* Menu items: color and background only. A border or border-radius here gives the hovered item its own (smaller) size, and the menu squeezed when Fill opened its submenu. */
 QMenu::item:selected { color: #ffffff; /* background: #0b87dd; */ background: #0b87dd; }
 QMenuBar::item:selected, QMenuBar::item:pressed { border-bottom: none; }
+/* Krimble 2026-11-23 (874th): no strip of menu bar under an open title. The themes give each title a 1px margin, which left a band of bar color between the pressed title and its menu.
+   George: "There is still a dividing line between the menu title and the menu. Remove that." Rule: menus touch their title areas with no dividing lines, ever. */
+QMenuBar::item { margin-bottom: 0px; }
 NodeView::item { background: transparent; color: #f1f4fc; border: none; }
 NodeView::item:selected { background: transparent; color: #ffffff; border: none; border-radius: 0px; }
 
