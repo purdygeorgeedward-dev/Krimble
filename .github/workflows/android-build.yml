@@ -220,6 +220,11 @@ jobs:
           SIGNER=$(ls -d "$ANDROID_HOME"/build-tools/*/ | sort -V | tail -n 1)apksigner
           "$SIGNER" verify --verbose --print-certs "$APK" > "$RUNNER_TEMP/verify.txt"   # stops the build if the APK does not verify
           head -n 12 "$RUNNER_TEMP/verify.txt"
+          # Krimble 2026-11-22: what is big in the APK (the 40 biggest files by packed size, then the total by top folder), to find what can come out
+          echo "== The 40 biggest files in the APK (packed bytes, name) =="
+          unzip -lv "$APK" | awk 'NR>3 && $8 != "" {print $3, $8}' | sort -n -r | head -n 40 || true
+          echo "== Packed bytes by top folder =="
+          unzip -lv "$APK" | awk 'NR>3 && $8 != "" {split($8, a, "/"); t[a[1] "/" a[2]] += $3} END {for (k in t) print t[k], k}' | sort -n -r | head -n 25 || true
           # KRIMBLE 2026-11-11 (build 56): was 1.0.55-beta: NAME="Krimble-${{ inputs.beta || '1.0.55-beta' }}-$(TZ=America/Denver date +%b%d-%H%M).apk"
           # KRIMBLE 2026-11-13: George: the 59 APK says .56 inside: the fallback label of the file name was still 1.0.56-beta (a run started by a push has no input): NAME="Krimble-${{ inputs.beta || '1.0.56-beta' }}-$(TZ=America/Denver date +%b%d-%H%M).apk"
           # NAME="Krimble-${{ inputs.beta || '1.0.59-beta' }}-$(TZ=America/Denver date +%b%d-%H%M).apk"   # KRIMBLE 2026-11-15 (build 60): was 59
