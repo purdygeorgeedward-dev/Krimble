@@ -214,13 +214,17 @@ protected:
         switch (event->type()) {
         case QEvent::MouseButtonPress:
         case QEvent::TouchBegin:
-            if (QScroller::hasScroller(m_area)) QScroller::scroller(m_area)->stop();
-            QScroller::ungrabGesture(m_area);
+            m_hadGesture = QScroller::hasScroller(m_area);
+            if (m_hadGesture) {
+                QScroller::scroller(m_area)->stop();
+                QScroller::ungrabGesture(m_area);
+            }
             break;
         case QEvent::MouseButtonRelease:
         case QEvent::TouchEnd:
         case QEvent::TouchCancel:
-            QTimer::singleShot(0, this, [this]() { if (m_area) QScroller::grabGesture(m_area, KisKineticScroller::getConfiguredGestureType()); });
+            // the gesture is given back only if the panel had it (finger scrolling can be off in the settings)
+            if (m_hadGesture) QTimer::singleShot(0, this, [this]() { if (m_area) QScroller::grabGesture(m_area, KisKineticScroller::getConfiguredGestureType()); });
             break;
         default:
             break;
@@ -229,6 +233,7 @@ protected:
     }
 private:
     QPointer<QAbstractScrollArea> m_area;
+    bool m_hadGesture {false};
 };
 
 KoToolDocker::KoToolDocker(QWidget *parent)

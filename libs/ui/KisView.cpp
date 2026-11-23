@@ -201,14 +201,15 @@ public:
 
 static QString s_krimbleLastTool;
 static bool s_krimbleAttaching = false;
-static bool s_krimbleOpening = false;   // set while a new image is being opened: tool changes then are not the user's choice
+// static bool s_krimbleOpening = false;   // removed 2026-11-23 with the put-back
 static bool s_krimbleToolHooked = false;
 static void krimbleHookToolMemory()
 {
     if (s_krimbleToolHooked) return;
     s_krimbleToolHooked = true;
     QObject::connect(KoToolManager::instance(), &KoToolManager::changedTool, qApp, [](KoCanvasController *) {
-        if (s_krimbleAttaching || s_krimbleOpening) return;
+        // if (s_krimbleAttaching || s_krimbleOpening) return;
+        if (s_krimbleAttaching) return;
         const QString id = KoToolManager::instance()->activeToolId();
         if (!id.isEmpty()) s_krimbleLastTool = id;
         if (!id.isEmpty()) qApp->setProperty("krimbleLastToolId", id);   // read by KoToolManager when a new canvas is attached
@@ -391,24 +392,26 @@ void KisView::setViewManager(KisViewManager *view)
     d->viewManager->updateGUI();
 
     KoToolManager::instance()->switchToolRequested(s_krimbleLastTool.isEmpty() ? QStringLiteral("PanTool") : s_krimbleLastTool);
-    // Krimble 2026-11-22: new images opened with the Healing Brush (stamp) instead of the tool in use (George: "This is a major bug.").
-    // Whatever switches the tool while the image is still being set up, the tool chosen before the image opened is put back once it is
-    // ready, and changes in that time are not remembered as the user's tool. The log names the tool that was found, to find the cause.
-    {
-        const QString wanted = s_krimbleLastTool.isEmpty() ? QStringLiteral("PanTool") : s_krimbleLastTool;
-        s_krimbleOpening = true;
-        auto restore = [wanted](bool last) {
-            const QString now = KoToolManager::instance()->activeToolId();
-            if (now != wanted) {
-                qWarning() << "Krimble: tool on open was" << now << "- putting back" << wanted;
-                KoToolManager::instance()->switchToolRequested(wanted);
-            }
-            if (last) s_krimbleOpening = false;
-        };
-        QTimer::singleShot(0, this, [restore]() { restore(false); });
-        QTimer::singleShot(600, this, [restore]() { restore(false); });
-        QTimer::singleShot(1500, qApp, [restore]() { restore(true); });   // qApp: the flag is cleared even if this view is closed first
-    }
+    // Krimble 2026-11-23: removed. The put-back undid a tool picked in the first 1.5 s after opening; the real cause (a tool per image)
+    // is fixed in KoToolManager::Private::switchCanvasData (854th).
+    // // Krimble 2026-11-22: new images opened with the Healing Brush (stamp) instead of the tool in use (George: "This is a major bug.").
+    // // Whatever switches the tool while the image is still being set up, the tool chosen before the image opened is put back once it is
+    // // ready, and changes in that time are not remembered as the user's tool. The log names the tool that was found, to find the cause.
+    // {
+    //     const QString wanted = s_krimbleLastTool.isEmpty() ? QStringLiteral("PanTool") : s_krimbleLastTool;
+    //     s_krimbleOpening = true;
+    //     auto restore = [wanted](bool last) {
+    //         const QString now = KoToolManager::instance()->activeToolId();
+    //         if (now != wanted) {
+    //             qWarning() << "Krimble: tool on open was" << now << "- putting back" << wanted;
+    //             KoToolManager::instance()->switchToolRequested(wanted);
+    //         }
+    //         if (last) s_krimbleOpening = false;
+    //     };
+    //     QTimer::singleShot(0, this, [restore]() { restore(false); });
+    //     QTimer::singleShot(600, this, [restore]() { restore(false); });
+    //     QTimer::singleShot(1500, qApp, [restore]() { restore(true); });   // qApp: the flag is cleared even if this view is closed first
+    // }
 }
 
 KisViewManager* KisView::viewManager() const
