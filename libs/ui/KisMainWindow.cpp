@@ -3198,7 +3198,10 @@ QDockWidget* KisMainWindow::createDockWidget(KoDockFactoryBase* factory)
         // Krimble 2026-11-22: panel content had no margin, it touched the panel's left edge (George: "All the panels start their internal
         // content right as the left edge with no margin at all."). 28 real px on the left, the same as the panel titles; 12 on the right.
         // the toolbox is left out: its tool icons fill it edge to edge (George 2026-11-23: "we don't want a toolbox with a big margin")
-        if (dockWidget->widget() && dockWidget->widget()->layout() && dockWidget->objectName() != QLatin1String("ToolBox")) {
+        // Color Lab (ColorSelectorNg) is left out too: its band and color areas are built to run edge to edge (George 2026-11-23:
+        // "Color Lab didn't need a margin added."). Margins are case by case (KRIMBLE_DECISIONS.md).
+        if (dockWidget->widget() && dockWidget->widget()->layout()
+            && dockWidget->objectName() != QLatin1String("ToolBox") && dockWidget->objectName() != QLatin1String("ColorSelectorNg")) {
             const qreal marginDpr = qMax<qreal>(1.0, qApp->devicePixelRatio());
             dockWidget->widget()->layout()->setContentsMargins(qRound(28.0 / marginDpr), 1, qRound(12.0 / marginDpr), 1);
         }

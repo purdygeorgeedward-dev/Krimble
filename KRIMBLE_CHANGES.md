@@ -8206,3 +8206,4 @@ Syntax check: KoToolManager.cpp, KisView.cpp clean; KisMainWindow.cpp only the 3
 - **APK:** `share/doc` (third-party library documentation, 4.1 MB) is not copied into the APK; the Qt Quick Controls 2 "Imagine" style plugin (0.7 MB, never selected or imported) is left out.
 - **Correction:** the comics templates' `.source` files (3.3 MB) are **not** waste: `.source` holds the template images themselves (`KisTemplateCreateDia`); they stay. **libcrypto** (packed twice) stays for now: build 76 prints which libraries ask for `libcrypto.so` and which for `libcrypto_1_1.so`, so the unused copy can be removed safely.
 - Build number 76 in build.gradle.
+- **862nd (for 76):** Color Lab (`ColorSelectorNg`) is left out of the panel margins, like the toolbox. It had got 28/12 real px from the 852nd (its own layout margins are 0, and `createDockWidget` set them after). George: "Color Lab didn't need a margin added. Did it get one?"
