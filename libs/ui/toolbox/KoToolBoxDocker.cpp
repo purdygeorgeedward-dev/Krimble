@@ -94,33 +94,64 @@ class KrimbleToolBoxGrip : public QLabel
 public:
     KrimbleToolBoxGrip(const QString &text, QWidget *parent) : QLabel(text, parent) {}
 protected:
-    void paintEvent(QPaintEvent *event) override
+    // Raised bevel strip, edge to edge, flush with the top of the toolbox, five lines inside (Claude 2026-11-22, George: "Apply it.").
+    void paintEvent(QPaintEvent *) override
     {
-        QLabel::paintEvent(event);
         QPainter p(this);
-        const qreal dpr = devicePixelRatioF();
-        const qreal thick = 2.0 / dpr;    // 2 device pixels
-        const qreal gap = 6.0 / dpr;      // 6 device pixels between the lines
-        // const qreal length = width() * 0.45;
-        QColor c = palette().color(QPalette::WindowText);
-        c.setAlpha(150);
+        p.setRenderHint(QPainter::Antialiasing, true);
+        const QRectF r(0, 0, width(), height());
+        QColor base = palette().color(QPalette::Window).lighter(118);
+        QLinearGradient g(r.topLeft(), r.bottomLeft());
+        g.setColorAt(0, base.lighter(106));
+        g.setColorAt(1, base.darker(104));
         p.setPen(Qt::NoPen);
-        // for (int i = -1; i <= 1; ++i) {
-        //     const qreal y = height() / 2.0 + i * (gap + thick) - thick / 2.0;
-        //     p.fillRect(QRectF((width() - length) / 2.0, y, length, thick), c);
-        // }
-        // for (int i = -4; i <= 4; ++i) {   // nine lines across the whole width
-        //     const qreal y = height() / 2.0 + i * (gap + thick) - thick / 2.0;
-        //     p.fillRect(QRectF(0, y, width(), thick), c);
-        // }
-        // an empty lip at the top, then six lines across the whole width ("Add a lip area at the top of the toolbox and lose a few lines of the grab.")
-        const qreal lip = 18.0 / dpr;
-        const qreal mid = lip + (height() - lip) / 2.0;
-        for (int i = 0; i < 6; ++i) {
-            const qreal y = mid + (i - 2.5) * (gap + thick) - thick / 2.0;
-            p.fillRect(QRectF(0, y, width(), thick), c);
-        }
+        p.setBrush(g);
+        p.drawRect(r);
+        // classic raised bevel: light on top and left, dark on bottom and right, 1 px each
+        p.setBrush(Qt::NoBrush);
+        p.setPen(QPen(QColor(255, 255, 255, 150), 1.0));
+        p.drawLine(QPointF(0.5, height() - 1.0), QPointF(0.5, 0.5));
+        p.drawLine(QPointF(0.5, 0.5), QPointF(width() - 1.0, 0.5));
+        p.setPen(QPen(QColor(0, 0, 0, 150), 1.0));
+        p.drawLine(QPointF(width() - 0.5, 0.5), QPointF(width() - 0.5, height() - 0.5));
+        p.drawLine(QPointF(width() - 0.5, height() - 0.5), QPointF(0.5, height() - 0.5));
+        // five lines inside
+        QColor line = palette().color(QPalette::WindowText);
+        line.setAlpha(160);
+        p.setPen(Qt::NoPen);
+        p.setBrush(line);
+        const qreal cy = height() / 2.0, gap = 3.0;
+        for (int i = -2; i <= 2; ++i)
+            p.drawRect(QRectF(18, cy + i * gap - 0.5, width() - 36, 1.0));
     }
+    // Previous paint (six lines under a lip), kept for reference:
+//     void paintEvent(QPaintEvent *event) override
+//     {
+//         QLabel::paintEvent(event);
+//         QPainter p(this);
+//         const qreal dpr = devicePixelRatioF();
+//         const qreal thick = 2.0 / dpr;    // 2 device pixels
+//         const qreal gap = 6.0 / dpr;      // 6 device pixels between the lines
+//         // const qreal length = width() * 0.45;
+//         QColor c = palette().color(QPalette::WindowText);
+//         c.setAlpha(150);
+//         p.setPen(Qt::NoPen);
+//         // for (int i = -1; i <= 1; ++i) {
+//         //     const qreal y = height() / 2.0 + i * (gap + thick) - thick / 2.0;
+//         //     p.fillRect(QRectF((width() - length) / 2.0, y, length, thick), c);
+//         // }
+//         // for (int i = -4; i <= 4; ++i) {   // nine lines across the whole width
+//         //     const qreal y = height() / 2.0 + i * (gap + thick) - thick / 2.0;
+//         //     p.fillRect(QRectF(0, y, width(), thick), c);
+//         // }
+//         // an empty lip at the top, then six lines across the whole width ("Add a lip area at the top of the toolbox and lose a few lines of the grab.")
+//         const qreal lip = 18.0 / dpr;
+//         const qreal mid = lip + (height() - lip) / 2.0;
+//         for (int i = 0; i < 6; ++i) {
+//             const qreal y = mid + (i - 2.5) * (gap + thick) - thick / 2.0;
+//             p.fillRect(QRectF(0, y, width(), thick), c);
+//         }
+//     }
 };
 
 class KrimbleToolBoxFoot : public QWidget
