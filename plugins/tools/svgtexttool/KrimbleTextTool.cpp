@@ -42,6 +42,7 @@
 #include <QTextDocument>
 #include <QPixmap>
 #include <QFontDatabase>
+#include <KisApplication.h>
 #include <QComboBox>
 #include <QStringListModel>
 #include <QGuiApplication>
@@ -189,6 +190,7 @@ static bool krimbleAskText(QWidget *parent, QString *text, bool editing = false)
     {
         const QStringList hiddenPrefixes = {QStringLiteral("Noto"), QStringLiteral("SEC"), QStringLiteral("New SEC"),
                                             QStringLiteral("Samsung"), QStringLiteral("AndroidClock")};
+        krimbleEnsureBundledFonts();
         QStringList families = QFontDatabase().families();
         families.removeDuplicates();
         families.sort(Qt::CaseInsensitive);
@@ -636,6 +638,12 @@ void KrimbleTextTool::mouseReleaseEvent(KoPointerEvent *event)
     QTimer::singleShot(0, QApplication::instance(), [this, where, box]() { askAndAddText(where, box); });
 }
 
+
+void KrimbleTextTool::activate(const QSet<KoShape *> &shapes)
+{
+    krimbleEnsureBundledFonts();   // the bundled fonts are loaded the first time a text tool is chosen
+    KoToolBase::activate(shapes);
+}
 
 void KrimbleTextTool::deactivate()
 {

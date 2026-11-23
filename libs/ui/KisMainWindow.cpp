@@ -1751,6 +1751,12 @@ KisView *KisMainWindow::activeView() const
 
 bool KisMainWindow::openDocument(const QString &path, OpenFlags flags)
 {
+    {
+        // Krimble 2026-11-23: a file that can hold text layers gets the bundled fonts before it is read, so its text is laid out with them
+        static const QStringList krimbleTextFormats = {QStringLiteral("kra"), QStringLiteral("krz"), QStringLiteral("ora"), QStringLiteral("psd"),
+                                                       QStringLiteral("svg"), QStringLiteral("svgz"), QStringLiteral("pdf"), QStringLiteral("tif"), QStringLiteral("tiff")};
+        if (krimbleTextFormats.contains(QFileInfo(path).suffix().toLower())) krimbleEnsureBundledFonts();
+    }
     ScopedWidgetDisabler disabler(d->welcomePage->dropFrameBorder);
     QApplication::processEvents(); // make UI more responsive
 
