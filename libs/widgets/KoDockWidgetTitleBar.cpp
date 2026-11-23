@@ -174,7 +174,9 @@ void KoDockWidgetTitleBar::paintEvent(QPaintEvent*)
             c.setAlpha(150);
             const qreal mid = height() / 2.0;
             // for (int i = -1; i <= 1; ++i) p.fillRect(QRectF(left, mid + i * gap - thick / 2, right - left, thick), c);
-            for (int i = -4; i <= 4; ++i) p.fillRect(QRectF(left, mid + i * gap - thick / 2, right - left, thick), c);   // nine lines
+            // six lines (George, 2026-11-22: "The 6 line grip is nicer.")
+            for (int i = 0; i < 6; ++i) p.fillRect(QRectF(left, mid + (i - 2.5) * gap - thick / 2, right - left, thick), c);
+            // for (int i = -4; i <= 4; ++i) p.fillRect(QRectF(left, mid + i * gap - thick / 2, right - left, thick), c);   // nine lines
         }
     }
 }
