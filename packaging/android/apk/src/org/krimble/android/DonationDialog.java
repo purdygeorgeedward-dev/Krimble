@@ -270,8 +270,10 @@ public class DonationDialog {
         // the splash screen, it may show or hide some elements
         // depending on if the application is still starting up or not.
         Button headerButton = getHeaderButton();
-        boolean showHeaderButton = mPage == PAGE_SPLASH && mProductDetails != null
-                && !mAnyProductsOwned && !mFirstStartup;
+        // boolean showHeaderButton = mPage == PAGE_SPLASH && mProductDetails != null
+        //         && !mAnyProductsOwned && !mFirstStartup;
+        // Krimble 2026-11-23: no supporter button on the startup splash (George: "get rid of the Show support options pink banner on load")
+        boolean showHeaderButton = false;
         headerButton.setEnabled(showHeaderButton);
         setViewGone(headerButton, !showHeaderButton);
 
