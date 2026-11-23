@@ -54,23 +54,23 @@ QPushButton, QDialog QToolButton {
     background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #434f75, stop:1 #262e4b);
 }
 QPushButton:hover, QDialog QToolButton:hover {
-    /* border-color: #0b87dd; */ border-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #9bd6ff, stop:0.5 #0b87dd, stop:1 #075a96);
+    /* border-color: #0b87dd; */ /* border-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #9bd6ff, stop:0.5 #0b87dd, stop:1 #075a96); */ border-color: #0b87dd;
     background: #2f3852;
 }
 QPushButton:pressed, QDialog QToolButton:pressed,
 QPushButton:checked, QDialog QToolButton:checked {
-    border: 2px solid #0b87dd; border-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #9bd6ff, stop:0.5 #0b87dd, stop:1 #075a96);
+    border: 2px solid #0b87dd; /* border-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #9bd6ff, stop:0.5 #0b87dd, stop:1 #075a96); */ border-color: #0b87dd;
     /* background: #0b87dd; */ background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #06538a, stop:0.05 #8fc2e6, stop:0.49 #1a7fc8, stop:0.5 #0872bd, stop:0.85 #2a8fd4, stop:1 #45a0dd);
 }
 QPushButton:default {
     color: white;
-    border: 2px solid #0b87dd; border-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #9bd6ff, stop:0.5 #0b87dd, stop:1 #075a96);
+    border: 2px solid #0b87dd; /* border-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #9bd6ff, stop:0.5 #0b87dd, stop:1 #075a96); */ border-color: #0b87dd;
     /* background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #0a89cd, stop:0.3 #085892, stop:0.6 #07497e, stop:1 #044a9c); */ background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #06538a, stop:0.05 #8fc2e6, stop:0.49 #1a7fc8, stop:0.5 #0872bd, stop:0.85 #2a8fd4, stop:1 #45a0dd);  /* OK, Create: "buttons need the new style" */
 }
 /* every push button in Aqua, so it is the same everywhere ("The copy button in the show Krimble log window doesn't have the new aqua theme. It seems like it was applied randomly.") */
 QPushButton, QPushButton:hover {
     color: #ffffff;
-    border: 1px solid #075a96; border-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #9bd6ff, stop:0.5 #0b87dd, stop:1 #075a96);
+    border: 1px solid #075a96; /* border-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #9bd6ff, stop:0.5 #0b87dd, stop:1 #075a96); */ border-color: #0b87dd;
     background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #06538a, stop:0.05 #8fc2e6, stop:0.49 #1a7fc8, stop:0.5 #0872bd, stop:0.85 #2a8fd4, stop:1 #45a0dd);
 }
 QPushButton:pressed {
@@ -146,7 +146,7 @@ QComboBox {
     background: #272f46;
 }
 QLineEdit:focus, QSpinBox:focus, QDoubleSpinBox:focus, QComboBox:focus {
-    border: 1px solid #0b87dd; border-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #9bd6ff, stop:0.5 #0b87dd, stop:1 #075a96);
+    border: 1px solid #0b87dd; /* border-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #9bd6ff, stop:0.5 #0b87dd, stop:1 #075a96); */ border-color: #0b87dd;
 }
 QAbstractItemView::item:selected {
     color: white;
@@ -187,7 +187,7 @@ QCheckBox::indicator {
 }
 QCheckBox::indicator:checked {
     image: url(:/krimble-checkmark.svg);
-    border: 2px solid #0b87dd; border-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #9bd6ff, stop:0.5 #0b87dd, stop:1 #075a96);
+    border: 2px solid #0b87dd; /* border-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #9bd6ff, stop:0.5 #0b87dd, stop:1 #075a96); */ border-color: #0b87dd;
     background: #14233f;
 }
 QMenuBar {
@@ -273,7 +273,7 @@ QProgressBar::chunk {
 }
 QToolTip {
     color: #eef1fa;
-    border: 1px solid #0b87dd; border-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #9bd6ff, stop:0.5 #0b87dd, stop:1 #075a96);
+    border: 1px solid #0b87dd; /* border-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #9bd6ff, stop:0.5 #0b87dd, stop:1 #075a96); */ border-color: #0b87dd;
     background: #192138;
 }
 QWidget#krimbleStudioCard {
