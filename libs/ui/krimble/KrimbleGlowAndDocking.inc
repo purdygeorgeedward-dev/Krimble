@@ -91,10 +91,29 @@ static void krimblePaintAquaButton(QAbstractButton *button)
     }
 }
 
+// Krimble 2026-11-23: paints the Aqua on the buttons it is installed on. One is installed on each hooked button, so the work is per button,
+// not a look at every paint of every widget in the app (George: "Change this back to once per widget.").
+class KrimbleAquaButtonPainter : public QObject
+{
+public:
+    explicit KrimbleAquaButtonPainter(QObject *parent) : QObject(parent) {}
+    bool eventFilter(QObject *watched, QEvent *event) override
+    {
+        if (event->type() == QEvent::Paint) {
+            QAbstractButton *button = static_cast<QAbstractButton*>(watched);
+            if (krimbleAquaButtonEligible(button)) {
+                krimblePaintAquaButton(button);
+                return true;   // the button's own checked background is not drawn
+            }
+        }
+        return false;
+    }
+};
+
 class KrimbleGlowFilter : public QObject
 {
 public:
-    explicit KrimbleGlowFilter(QObject *parent) : QObject(parent) {}
+    explicit KrimbleGlowFilter(QObject *parent) : QObject(parent), m_painter(new KrimbleAquaButtonPainter(this)) {}
     void hook(QAbstractButton *button)
     {
         // if (!button || !button->isCheckable() || button->property("krimbleGlowHooked").toBool()) return;
@@ -114,6 +133,7 @@ public:
         // krimbleSetButtonGlow(button, button->isChecked());
         krimbleSetButtonGlow(button, false);   // a halo from before is taken off
         QObject::connect(button, &QAbstractButton::toggled, button, [button](bool) { button->update(); });
+        button->installEventFilter(m_painter);   // this button's paints only
         button->update();
     }
     bool eventFilter(QObject *watched, QEvent *event) override
@@ -121,16 +141,12 @@ public:
         if (event->type() == QEvent::Polish) {
             if (QAbstractButton *button = qobject_cast<QAbstractButton*>(watched)) hook(button);
         }
-        if (event->type() == QEvent::Paint) {
-            QAbstractButton *button = qobject_cast<QAbstractButton*>(watched);
-            if (button && !button->property("krimbleGlowHooked").toBool()) hook(button);   // a button made after the window still gets the Aqua (not the style sheet look)
-            if (button && button->property("krimbleGlowHooked").toBool() && krimbleAquaButtonEligible(button)) {
-                krimblePaintAquaButton(button);
-                return true;   // the button's own checked background is not drawn
-            }
-        }
+        // once per widget: Polish comes once, when a widget is first shown; buttons made before the filter was installed are hooked by
+        // krimbleInstallSelectionGlow. From the 840th to the 860th every paint of every widget in the app was looked at here.
         return false;
     }
+private:
+    KrimbleAquaButtonPainter *m_painter;
 };
 
 static void krimbleInstallSelectionGlow(KisMainWindow *win)

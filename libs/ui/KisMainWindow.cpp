@@ -759,7 +759,12 @@ KisMainWindow::KisMainWindow(QUuid uuid)
         connect(grabTimer, &QTimer::timeout, this, [this, grabTimer]() {
             static QElapsedTimer passClock;
             if (!passClock.isValid()) passClock.start();
-            grabTimer->setInterval(passClock.elapsed() < 30000 ? 2000 : 8000);
+            // grabTimer->setInterval(passClock.elapsed() < 30000 ? 2000 : 8000);
+            // Krimble 2026-11-23: it ran every 8 s for as long as the app ran, walking the whole window each time (George: "When should it shut
+            // off? Fix that ASAP."). Now: every 2 s for the first 30 s after start, then it stops; after that, one pass half a second after
+            // each image switch (the timer is single-shot from then on, so activeViewChanged's start(500) runs it once).
+            if (passClock.elapsed() < 30000) grabTimer->setInterval(2000);
+            else grabTimer->setSingleShot(true);
             krimbleInstallDockEdgeGrabs(this);
             Q_FOREACH (QAction *top, menuBar()->actions()) krimbleHideMenuShortcuts(top->menu(), 0);
             krimbleInstallMenuShortcutStripping(this);

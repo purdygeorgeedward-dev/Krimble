@@ -223,6 +223,9 @@ jobs:
           # Krimble 2026-11-22: what is big in the APK (the 40 biggest files by packed size, then the total by top folder), to find what can come out
           echo "== The 40 biggest files in the APK (packed bytes, name) =="
           unzip -lv "$APK" | awk 'NR>3 && $8 != "" {print $3, $8}' | sort -n -r | head -n 40 || true
+          # Krimble 2026-11-23: libcrypto is packed twice (libcrypto.so and libcrypto_1_1.so); which name each library asks for decides which can go
+          echo "== Libraries that ask for libcrypto or libssl =="
+          ( mkdir -p "$RUNNER_TEMP/apklibs" && cd "$RUNNER_TEMP/apklibs" && unzip -q -o "$APK" 'lib/*' && for f in lib/*/*.so; do n=$(readelf -d "$f" 2>/dev/null | grep -o 'Shared library: \[lib\(crypto\|ssl\)[^]]*\]' | tr '\n' ' '); [ -n "$n" ] && echo "$f: $n"; done ) || true
           echo "== Packed bytes by top folder =="
           unzip -lv "$APK" | awk 'NR>3 && $8 != "" {split($8, a, "/"); t[a[1] "/" a[2]] += $3} END {for (k in t) print t[k], k}' | sort -n -r | head -n 25 || true
           # KRIMBLE 2026-11-11 (build 56): was 1.0.55-beta: NAME="Krimble-${{ inputs.beta || '1.0.55-beta' }}-$(TZ=America/Denver date +%b%d-%H%M).apk"

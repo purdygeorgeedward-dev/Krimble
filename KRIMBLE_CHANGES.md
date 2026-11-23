@@ -8199,3 +8199,10 @@ Syntax check: KoToolManager.cpp, KisView.cpp clean; KisMainWindow.cpp only the 3
 - **Krimble, every paint of every widget:** the Aqua/glow filter is installed on the whole app and since the 840th looks at every Paint event (it was Polish only before).
 - **Krita base:** 24 panels are built and created at start whether Krimble shows them or not. Panels with background work (Overview, Channels, Histogram) only do it while shown, so hidden ones cost start time and memory, not speed.
 - **APK, obvious waste:** `assets/doc` (4.1 MB) is third-party library documentation (for example zlib's crc-doc PDF, 0.7 MB); libcrypto is packed twice (`libcrypto.so` and `libcrypto_1_1.so`, 1.17 MB each); the comics templates carry their `.source` .kra files (3.3 MB); the QtQuick "Imagine" style plugin (0.7 MB).
+
+**2026-11-23, 04:33 to 04:55 (MST), 861st, branch `krimble-cleanup`, for build 76 (not built).** George: "1. When should it shut off? Fix that ASAP. 2. Change this back to once per widget. ... Remove all the obvious waste for the next build. ... Prepare all this for .76 please."
+- **Window pass timer:** every 2 s for the first 30 s after start, then it stops (it ran every 8 s for as long as the app ran). After that, one pass half a second after each image switch.
+- **Aqua buttons:** the app-wide filter looks at Polish only (once per widget); each hooked button gets its own painter filter (`KrimbleAquaButtonPainter`). No look at every paint of every widget any more.
+- **APK:** `share/doc` (third-party library documentation, 4.1 MB) is not copied into the APK; the Qt Quick Controls 2 "Imagine" style plugin (0.7 MB, never selected or imported) is left out.
+- **Correction:** the comics templates' `.source` files (3.3 MB) are **not** waste: `.source` holds the template images themselves (`KisTemplateCreateDia`); they stay. **libcrypto** (packed twice) stays for now: build 76 prints which libraries ask for `libcrypto.so` and which for `libcrypto_1_1.so`, so the unused copy can be removed safely.
+- Build number 76 in build.gradle.
