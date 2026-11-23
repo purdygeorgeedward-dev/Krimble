@@ -10,7 +10,7 @@
  * - menus are open at the top, so an open menu joins its title with no line
  * - the selected menu title is lit from below: one glow picture behind whichever title is selected
  * - selected menu rows are soft blue (rounded rows would change Qt's spacing of every row)
- * - a window background of colored bokeh lights over dark blue
+ * - a window background of soft colored haze over dark blue
  * - Color Lab and the toolbox are left out of the panel look (Color Lab is protected; the toolbox keeps its own look)
  * The pictures are drawn once into the cache folder, like the Aqua pictures.
  */
@@ -51,22 +51,35 @@ inline QImage krimbleGlass2Pane(bool openTop)
     } else {
         shape.addRoundedRect(QRectF(0.5, 0.5, S - 1, S - 1), R, R);
     }
+    // QLinearGradient fill(0, 0, 0, S);
+    // fill.setColorAt(0, QColor(70, 90, 150, 175));
+    // fill.setColorAt(1, QColor(30, 40, 80, 165));
+    // George: "It doesn't look much like the mockups at all." Lighter frost, like the reference: pale blue at the top, deeper blue below
     QLinearGradient fill(0, 0, 0, S);
-    fill.setColorAt(0, QColor(70, 90, 150, 175));
-    fill.setColorAt(1, QColor(30, 40, 80, 165));
+    fill.setColorAt(0, QColor(120, 140, 210, 150));
+    fill.setColorAt(0.5, QColor(70, 86, 160, 135));
+    fill.setColorAt(1, QColor(50, 60, 125, 140));
     p.fillPath(shape, fill);
+    if (!openTop) {
+        // a soft glossy band just inside the top rim
+        QLinearGradient gloss(0, 0, 0, S * 0.35);
+        gloss.setColorAt(0, QColor(255, 255, 255, 55));
+        gloss.setColorAt(1, QColor(255, 255, 255, 0));
+        p.save(); p.setClipPath(shape); p.fillRect(QRectF(0, 0, S, S * 0.35), gloss); p.restore();
+    }
     // the rim: bright at the top, fading to faint down the sides and along the bottom
     QLinearGradient rim(0, 0, 0, S);
-    rim.setColorAt(0, QColor(255, 255, 255, openTop ? 60 : 210));
-    rim.setColorAt(0.35, QColor(200, 220, 255, 70));
-    rim.setColorAt(1, QColor(160, 190, 255, 40));
+    rim.setColorAt(0, QColor(255, 255, 255, openTop ? 90 : 240));
+    rim.setColorAt(0.4, QColor(210, 225, 255, 110));
+    rim.setColorAt(1, QColor(170, 195, 255, 70));
     QPainterPath edge = shape;
     if (openTop) {
         edge = QPainterPath();
         edge.moveTo(0.75, 0); edge.lineTo(0.75, S - R); edge.quadTo(0.75, S - 0.75, R, S - 0.75); edge.lineTo(S - R, S - 0.75); edge.quadTo(S - 0.75, S - 0.75, S - 0.75, S - R); edge.lineTo(S - 0.75, 0);
     }
     p.setBrush(Qt::NoBrush);
-    p.setPen(QPen(QBrush(rim), 1.5));
+    // p.setPen(QPen(QBrush(rim), 1.5));
+    p.setPen(QPen(QBrush(rim), 4.0));   // the picture is shrunk about 4 times on the screen: this is about one unit wide there
     p.drawPath(edge);
     return im;
 }
@@ -97,37 +110,36 @@ inline QImage krimbleGlass2TitleGlow()
     return im;
 }
 
-// colored bokeh lights over dark blue
+// soft colored haze over dark blue, like the reference picture ("Those balls have to go.")
 inline QImage krimbleGlass2Background(QSize s)
 {
     QImage im(s, QImage::Format_ARGB32_Premultiplied);
     QLinearGradient base(0, 0, 0, s.height());
-    base.setColorAt(0, QColor(18, 22, 52));
-    base.setColorAt(1, QColor(10, 12, 30));
-    {
-        QPainter p(&im);
-        p.fillRect(im.rect(), base);
-    }
-    QImage lights(s, QImage::Format_ARGB32_Premultiplied);
-    lights.fill(Qt::transparent);
-    QPainter p(&lights);
+    base.setColorAt(0, QColor(20, 24, 58));
+    base.setColorAt(1, QColor(12, 14, 36));
+    QPainter p(&im);
     p.setRenderHint(QPainter::Antialiasing);
+    p.fillRect(im.rect(), base);
     p.setPen(Qt::NoPen);
-    QRandomGenerator rg(23);
-    const QColor tints[] = {QColor(120, 90, 255), QColor(80, 150, 255), QColor(255, 120, 200), QColor(255, 170, 90), QColor(90, 210, 255)};
-    const qreal k = s.width() / 1560.0;   // lights sized for a phone screen (the picture is not scaled to the window)
-    for (int i = 0; i < 70; ++i) {
-        QColor c = tints[rg.bounded(5)];
-        c.setAlpha(40 + rg.bounded(90));
-        const qreal r = (8 + rg.bounded(40)) * k;
-        p.setBrush(c);
-        p.drawEllipse(QPointF(rg.bounded(s.width()), rg.bounded(s.height())), r, r);
+    struct Haze { qreal x, y, rx, ry; QColor c; };
+    const Haze hazes[] = {Haze{0.08, 0.85, 0.35, 0.5, QColor(120, 70, 220, 150)}, Haze{0.35, 0.25, 0.3, 0.45, QColor(60, 110, 230, 120)},
+                          Haze{0.62, 0.9, 0.35, 0.4, QColor(220, 90, 170, 110)}, Haze{0.88, 0.35, 0.3, 0.5, QColor(90, 150, 255, 120)},
+                          Haze{0.5, 0.55, 0.25, 0.3, QColor(255, 150, 90, 70)}};
+    for (const Haze &h : hazes) {
+        const QPointF c(h.x * s.width(), h.y * s.height());
+        QRadialGradient g(c, h.rx * s.width());
+        QColor col = h.c;
+        g.setColorAt(0, col);
+        col.setAlpha(0);
+        g.setColorAt(1, col);
+        p.save();
+        p.translate(c); p.scale(1.0, h.ry * s.height() / (h.rx * s.width())); p.translate(-c);
+        p.setBrush(g);
+        p.drawEllipse(c, h.rx * s.width(), h.rx * s.width());
+        p.restore();
     }
     p.end();
-    QPainter o(&im);
-    o.setCompositionMode(QPainter::CompositionMode_Plus);
-    o.drawImage(0, 0, krimbleGlass2Blur(lights, 3));
-    return im;
+    return krimbleGlass2Blur(im, 3);
 }
 
 // draws the theme's pictures into the cache folder and returns the sheet that uses them
@@ -147,7 +159,7 @@ inline QString krimbleGlass2StyleSheet()
     return QStringLiteral(R"KRIMBLEGLASS2(
 /* Krimble Glass 2 */
 QMainWindow, QMdiArea, KisWelcomePageWidget { background-color: #0e1230; background-image: url(%4); background-position: center; }
-QMenuBar { background: rgba(40, 52, 100, 150); border: none; }
+QMenuBar { background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 rgba(120, 140, 210, 150), stop:1 rgba(60, 74, 140, 140)); border: none; }
 QMenuBar::item { background: transparent; color: #ffffff; border: none; }
 QMenuBar::item:selected, QMenuBar::item:pressed { background: transparent; color: #ffffff; border: none;
         border-image: url(%3) 18 18 0 18 stretch; }
