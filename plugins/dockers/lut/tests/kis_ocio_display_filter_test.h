@@ -16,4 +16,4 @@ private Q_SLOTS:
     void test();
 };
 
-#endif /* __KIS_OCIO_DISPLAY_FILTER_TEST_H */
+#endif

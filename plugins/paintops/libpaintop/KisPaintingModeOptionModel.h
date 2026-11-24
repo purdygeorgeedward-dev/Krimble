@@ -32,4 +32,4 @@ public:
     LAGER_QT_READER(ButtonGroupState, paintingModeState);
 };
 
-#endif // KISPAINTINGMODEOPTIONMODEL_H
+#endif

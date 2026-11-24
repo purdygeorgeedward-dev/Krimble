@@ -11,7 +11,6 @@
 #include <QMimeData>
 #include <QMouseEvent>
 
-
 #include "kis_global.h"
 #include "kis_debug.h"
 #include "krita_container_utils.h"
@@ -89,8 +88,8 @@ void KisColorLabelButton::paintEvent(QPaintEvent *event)
             painter.drawRect(rect.adjusted(0, 0, -1, -1));
         }
         painter.fillRect(interiorRect,
-                         !isEnabled() || m_d->selectionVis == Outline || isChecked() 
-                            ? fillColor 
+                         !isEnabled() || m_d->selectionVis == Outline || isChecked()
+                            ? fillColor
                             : styleOption.palette.window().color());
         painter.drawRect(interiorRect.adjusted(0, 0, -1, -1));
 
@@ -323,7 +322,6 @@ bool KisColorLabelMouseDragFilter::eventFilter(QObject *obj, QEvent *event)
         QMouseEvent* mouseEvent = static_cast<QMouseEvent*>(event);
         QAbstractButton* startingButton = static_cast<QAbstractButton*>(obj);
 
-        //If we never left, toggle the original button.
         if( currentState == WaitingForDragLeave ) {
             if ( startingButton->group() && (mouseEvent->modifiers() & Qt::SHIFT)) {
                 KisColorLabelFilterGroup* const group = static_cast<KisColorLabelFilterGroup*>(startingButton->group());

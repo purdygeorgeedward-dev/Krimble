@@ -34,7 +34,6 @@ void KisRandomGenerator2DTest::twoSeeds()
     twoSeeds(154349154349LL, 847895847895LL);
 }
 
-
 void KisRandomGenerator2DTest::twoCalls(quint64 seed)
 {
     KisRandomGenerator2D rand1(seed);
@@ -69,7 +68,6 @@ void KisRandomGenerator2DTest::testConstantness(quint64 seed)
     }
 }
 
-
 void KisRandomGenerator2DTest::testConstantness()
 {
     testConstantness(50);
@@ -103,7 +101,6 @@ void KisRandomGenerator2DTest::testEvolution()
             }
         }
     }
-    // XXX: too many pixels are similar too close together?
     QVERIFY(counter == 0);
 }
 

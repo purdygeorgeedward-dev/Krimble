@@ -15,9 +15,6 @@ class KisViewManager;
 #include "kis_types.h"
 #include "ui_wdgfilternodecreation.h"
 
-/**
- * Create a new adjustment layer.
- */
 class KisDlgAdjustmentLayer : public KoDialog
 {
 
@@ -25,17 +22,6 @@ class KisDlgAdjustmentLayer : public KoDialog
 
 public:
 
-    /**
-     * Create a new adjustment layer dialog
-     *
-     * @param node the name of the adjustment node
-     * @param nfi filter interface
-     * @param paintDevice the paint device that is used as source for the preview
-     * @param layerName the name of the layer
-     * @param caption the caption for the dialog -- create or properties
-     * @param view the view manager
-     * @param parent the widget parent of this dialog
-     */
     KisDlgAdjustmentLayer(KisNodeSP node,
                           KisNodeFilterInterface* nfi,
                           KisPaintDeviceSP paintDevice,

@@ -8,7 +8,6 @@
 
 #include <simpletest.h>
 
-
 #include <KoColorSpace.h>
 #include <KoColorSpaceRegistry.h>
 

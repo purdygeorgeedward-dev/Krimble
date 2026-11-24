@@ -33,10 +33,6 @@ import java.io.OutputStream;
 import java.util.HashSet;
 import java.util.Set;
 
-/**
- * Copies the default configurations from assets to INTERNAL_STORAGE
- * on first run of the app.
- */
 class ConfigsManager {
 
     private final String LOG_TAG = "krita.ConfigsManager";
@@ -75,9 +71,6 @@ class ConfigsManager {
             return;
         }
 
-        // Copying assets can take quite a while, so we show a spinner dialog
-        // during it. The functions relating to that are all synchronized,
-        // which means they take a mutex so that we don't end up with a race.
         setAssetsCopied(false);
         QtNative.activity().runOnUiThread(() -> {
             try {
@@ -111,14 +104,10 @@ class ConfigsManager {
     }
 
     private synchronized void setAssetsCopied(boolean assetsCopied) {
-        // Don't remove this function, it exists because it's synchronized! We
-        // have to take a lock to avoid races with the UI thread.
         mAssetsCopied = assetsCopied;
     }
 
     private synchronized void showDialog() {
-        // We might already be done copying the assets. This function is
-        // synchronized!
         if (!mAssetsCopied) {
             ProgressBar progressBar = new ProgressBar(mActivity);
             progressBar.setPadding(100, 100, 100, 100);
@@ -128,8 +117,6 @@ class ConfigsManager {
                 .setView(progressBar)
                 .create();
 
-            // This dialog usually appears and disappears very quickly, so
-            // having animations looks pretty wonky. Turn those off.
             Window window = mAlertDialog.getWindow();
             if (window != null) {
                 window.setWindowAnimations(0);
@@ -137,8 +124,6 @@ class ConfigsManager {
 
             mAlertDialog.show();
 
-            // By default, the alert dialog is full-width. This clamps the
-            // dialog bounds to the spinner so that it looks sensible.
             window = mAlertDialog.getWindow();
             if (window != null) {
                 window.setLayout(WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT);
@@ -148,8 +133,6 @@ class ConfigsManager {
     }
 
     private synchronized void dismissDialog() {
-        // We may not have a dialog if we copied stuff fast enough. Again, note
-        // this function is synchronized!
         if (mAlertDialog != null) {
             mAlertDialog.dismiss();
             mAlertDialog = null;
@@ -168,7 +151,6 @@ class ConfigsManager {
             if (assets == null) {
                 return;
             }
-            // no assets inside, so a file
             if (assets.length == 0) {
                 copyFile(path);
                 handledPaths.add(path);
@@ -188,12 +170,6 @@ class ConfigsManager {
         }
     }
 
-    /**
-     * Asset manager API doesn't like trailing `/` at the end and
-     * some other things so we need this for proper path
-     * @param args file names or directories
-     * @return sanitized path
-     */
     private String toPath(String... args) {
         try {
             StringBuilder result = new StringBuilder();
@@ -209,7 +185,6 @@ class ConfigsManager {
                 }
             }
 
-            // if last character is '/', then delete it
             if (result.length() != 0 && result.charAt(result.length() - 1) == '/') {
                 result.deleteCharAt(result.length() - 1);
             }
@@ -229,7 +204,6 @@ class ConfigsManager {
 
             String fileSavePath = toPath(mStorageDir, "/share/", name);
 
-            // use the same directory structure
             File base = new File(basePath(fileSavePath));
             if (!base.exists()) {
                 base.mkdirs();
@@ -253,12 +227,6 @@ class ConfigsManager {
         }
     }
 
-    /**
-     * Returns base path for example, in /data/foo it would
-     * return /data
-     * @param path to be sanitized
-     * @return base path
-     */
     private String basePath(String path) {
         for (int i = path.length() - 1; i >= 0; --i) {
             if (path.charAt(i) == '/') {

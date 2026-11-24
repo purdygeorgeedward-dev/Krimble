@@ -7,13 +7,11 @@
 #ifndef _KIS_ROUNDMARKEROP_H_
 #define _KIS_ROUNDMARKEROP_H_
 
-
 #include <kis_paintop.h>
 #include <kis_types.h>
 #include <KisStandardOptions.h>
 #include <KisSpacingOption.h>
 #include "KisRoundMarkerOpOptionData.h"
-
 
 class QPointF;
 class KisPaintOpSettings;
@@ -44,4 +42,4 @@ private:
     KisRoundMarkerOpOptionData   m_markerOption;
 };
 
-#endif // _KIS_ROUNDMARKEROP_H_
+#endif

@@ -11,11 +11,6 @@
 #include <KoProgressProxy.h>
 #include "kritawidgetutils_export.h"
 
-/**
- * KoProgressBar is a thin wrapper around QProgressBar that also implements
- * the abstract base class KoProgressProxy. Use this class, not QProgressBar
- * to pass to KoProgressUpdater.
- */
 class KRITAWIDGETUTILS_EXPORT KoProgressBar : public QProgressBar, public KoProgressProxy
 {
     Q_OBJECT

@@ -6,13 +6,11 @@
 
 #include "KoResourceUpdateMediator.h"
 
-
 struct KoResourceUpdateMediator::Private
 {
     Private(int _key) : key(_key) {}
     int key;
 };
-
 
 KoResourceUpdateMediator::KoResourceUpdateMediator(int key)
     : m_d(new Private(key))

@@ -66,19 +66,16 @@
 using namespace KisBrushModel;
 using namespace KisWidgetConnectionUtils;
 
-/// The resource item delegate for rendering the resource preview
 class KisBrushDelegate : public QAbstractItemDelegate
 {
 public:
     KisBrushDelegate(KisResourceMetaDataModel *metaDataModel,
-                     QObject * parent = 0) 
-        : QAbstractItemDelegate(parent) 
+                     QObject * parent = 0)
+        : QAbstractItemDelegate(parent)
         , m_metaDataModel(metaDataModel)
     {}
     ~KisBrushDelegate() override {}
-    /// reimplemented
     void paint(QPainter *, const QStyleOptionViewItem &, const QModelIndex &) const override;
-    /// reimplemented
     QSize sizeHint(const QStyleOptionViewItem & option, const QModelIndex &) const override {
         return option.decorationSize;
     }
@@ -207,7 +204,7 @@ KisPredefinedBrushChooser::KisPredefinedBrushChooser(int maxBrushSize,
     m_itemChooser->setSynced(true);
     m_itemChooser->setMinimumWidth(100);
     m_itemChooser->setMinimumHeight(150);
-    m_itemChooser->showImportExportBtns(false); // turn the import and delete buttons since we want control over them
+    m_itemChooser->showImportExportBtns(false);
 
     presetsLayout->addWidget(m_itemChooser);
 
@@ -217,7 +214,6 @@ KisPredefinedBrushChooser::KisPredefinedBrushChooser(int maxBrushSize,
             this, &KisPredefinedBrushChooser::slotBrushPropertyChanged);
 
     slotBrushPropertyChanged(m_d->model->resourceSignature());
-
 
     addPresetButton->setIcon(KisIconUtils::loadIcon("list-add"));
     deleteBrushTipButton->setIcon(KisIconUtils::loadIcon("edit-delete"));
@@ -315,7 +311,6 @@ void KisPredefinedBrushChooser::slotOpenStampBrush()
     QDialog::DialogCode result = (QDialog::DialogCode)m_stampBrushWidget->exec();
 
     if(result) {
-        // noop
     }
 }
 void KisPredefinedBrushChooser::slotOpenClipboardBrush()
@@ -330,7 +325,6 @@ void KisPredefinedBrushChooser::slotOpenClipboardBrush()
     QDialog::DialogCode result = (QDialog::DialogCode)m_clipboardBrushWidget->exec();
 
     if(result) {
-        // noop
     }
 }
 
@@ -347,7 +341,6 @@ void KisPredefinedBrushChooser::slotBrushSelected(KoResourceSP resource)
     predefinedBrushData.scale = 1.0;
     predefinedBrushData.application = KisPredefinedBrushModel::effectiveBrushApplication(predefinedBrushData, m_d->model->m_supportsHSLBrushTips.get());
 
-    // TODO: check what happens when we add a new brush
     if (this->preserveBrushPresetSettings->isChecked()) {
         commonBrushData.spacing = m_d->model->spacing();
         commonBrushData.useAutoSpacing = m_d->model->useAutoSpacing();
@@ -397,8 +390,6 @@ lager::reader<bool> KisPredefinedBrushChooser::lightnessModeEnabled() const
 }
 
 void KisPredefinedBrushChooser::slotImportNewBrushResource() {
-    // reflects m_itemChooser->slotButtonClicked(KisResourceItemChooser::Button_Import)
-    // but adds the .abr files support, as it was in Krita 4
     QStringList mimeTypes = KisResourceLoaderRegistry::instance()->mimeTypes(ResourceType::Brushes);
     QString abrMimeType = "image/x-adobe-brushlibrary";
     mimeTypes.append(abrMimeType);

@@ -10,7 +10,6 @@
 #include "kis_default_bounds.h"
 #include "KisImageResolutionProxy.h"
 
-
 KisLayerStyleKnockoutBlower::KisLayerStyleKnockoutBlower()
 {
 }

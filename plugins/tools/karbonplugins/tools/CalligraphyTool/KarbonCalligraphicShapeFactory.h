@@ -11,16 +11,13 @@
 
 class KoShape;
 
-/// Factory for ellipse shapes
 class KarbonCalligraphicShapeFactory : public KoShapeFactoryBase
 {
 public:
-    /// constructor
     KarbonCalligraphicShapeFactory();
     ~KarbonCalligraphicShapeFactory() override;
     KoShape *createDefaultShape(KoDocumentResourceManager *documentResources = 0) const override;
     bool supports(const QDomElement &e, KoShapeLoadingContext &context) const override;
-    //virtual QList<KoShapeConfigWidgetBase*> createShapeOptionPanels();
 };
 
-#endif // KARBONCALLIGRAPHICSHAPEFACTORY_H
+#endif

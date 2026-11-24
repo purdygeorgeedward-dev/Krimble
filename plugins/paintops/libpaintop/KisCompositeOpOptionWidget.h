@@ -10,7 +10,6 @@
 #include <KisCompositeOpOptionData.h>
 #include <lager/cursor.hpp>
 
-
 class PAINTOP_EXPORT KisCompositeOpOptionWidget : public KisPaintOpOption
 {
 public:
@@ -30,4 +29,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif // KISCOMPOSITEOPOPTIONWIDGET_H
+#endif

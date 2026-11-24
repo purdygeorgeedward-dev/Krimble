@@ -12,7 +12,6 @@
 #include <QRegularExpression>
 #include <KisPortingUtils.h>
 
-
 namespace KritaUtils {
 
 QString resolveAbsoluteFilePath(const QString &baseDir, const QString &fileName)
@@ -41,14 +40,6 @@ QString deduplicateFileName(const QString &fileName,
     QString baseName = fileInfo.baseName();
     QString completeSuffix = fileInfo.completeSuffix();
 
-    /**
-     * Search for the separator around the leftmost dot in the filename
-     * and try to reuse its counter.
-     *
-     * The design choice is that there cannot be any dots to the left
-     * from the separator. Separator itself can have dots, but it cannot
-     * be a part of the file extension.
-     */
     QRegularExpression rex(QString("^([^.]+)%1\\d+(\\.(.+))?$").arg(separator));
     auto match = rex.match(proposedFileName);
 

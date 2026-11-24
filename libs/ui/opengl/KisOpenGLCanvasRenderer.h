@@ -36,10 +36,6 @@ class KisOptimizedBrushOutline;
 #endif
 
 #endif
-/**
- * KisOpenGLCanvasRenderer is the class that shows the actual image using OpenGL
- *
- */
 class KisOpenGLCanvasRenderer
         : private GLFunctions
 {
@@ -59,9 +55,6 @@ public:
     void resizeGL(int width, int height);
     void initializeGL();
 
-    /**
-     * Paint only the canvas background and image tiles.
-     */
     void paintCanvasOnly(const QRect &canvasImageDirtyRect, const QRect &viewportUpdateRect = QRect());
 
 private:
@@ -142,4 +135,4 @@ protected:
     virtual GLenum internalTextureFormat() const = 0;
 };
 
-#endif // KIS_OPENGL_CANVAS_RENDERER_H
+#endif

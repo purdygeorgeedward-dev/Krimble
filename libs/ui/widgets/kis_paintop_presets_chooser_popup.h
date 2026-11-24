@@ -21,7 +21,7 @@ class KRITAUI_EXPORT KisPaintOpPresetsChooserPopup : public QWidget
 public:
     KisPaintOpPresetsChooserPopup(QWidget * parent = 0);
     ~KisPaintOpPresetsChooserPopup() override;
-    
+
     void updateViewSettings();
     void setResponsiveness(bool value);
 public Q_SLOTS:
@@ -31,17 +31,17 @@ public Q_SLOTS:
 Q_SIGNALS:
     void resourceSelected(KoResourceSP resource);
     void resourceClicked(KoResourceSP resource);
-    
+
 private Q_SLOTS:
     void slotThumbnailMode();
     void slotDetailMode();
     void slotUpdateMenu();
     void paintEvent(QPaintEvent *) override;
-   
+
 private:
 
     struct Private;
     Private * const m_d;
 };
 
-#endif // KIS_PAINTOP_PRESETS_CHOOSER_POPUP_H
+#endif

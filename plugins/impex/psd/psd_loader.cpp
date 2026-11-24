@@ -58,7 +58,6 @@
 #include "KisImageBarrierLock.h"
 #include "KisImportUserFeedbackInterface.h"
 
-
 PSDLoader::PSDLoader(KisDocument *doc, KisImportUserFeedbackInterface *feedbackInterface)
     : m_image(0)
     , m_doc(doc)
@@ -73,7 +72,6 @@ PSDLoader::~PSDLoader()
 
 KisImportExportErrorCode PSDLoader::decode(QIODevice &io)
 {
-    // open the file
 
     dbgFile << "pos:" << io.pos();
 
@@ -108,10 +106,6 @@ KisImportExportErrorCode PSDLoader::decode(QIODevice &io)
     }
     dbgFile << "Read layer/mask section. " << layerSection.nLayers << "layers. pos:" << io.pos();
 
-    // Done reading, except possibly for the image data block, which is only relevant if there
-    // are no layers.
-
-    // Get the right colorspace
     QPair<QString, QString> colorSpaceId = psd_colormode_to_colormodelid(header.colormode,
                                                                          header.channelDepth);
     if (colorSpaceId.first.isNull()) {
@@ -119,7 +113,6 @@ KisImportExportErrorCode PSDLoader::decode(QIODevice &io)
         return ImportExportCodes::FormatColorSpaceUnsupported;
     }
 
-    // Get the icc profile from the image resource section
     const KoColorProfile* profile = 0;
     if (resourceSection.resources.contains(PSDImageResourceSection::ICC_PROFILE)) {
         ICC_PROFILE_1039 *iccProfileData = dynamic_cast<ICC_PROFILE_1039*>(resourceSection.resources[PSDImageResourceSection::ICC_PROFILE]->resource);
@@ -132,13 +125,11 @@ KisImportExportErrorCode PSDLoader::decode(QIODevice &io)
         }
     }
 
-    // Create the colorspace
     const KoColorSpace* cs = KoColorSpaceRegistry::instance()->colorSpace(colorSpaceId.first, colorSpaceId.second, profile);
     if (!cs) {
         return ImportExportCodes::FormatColorSpaceUnsupported;
     }
 
-    // Creating the KisImage
     QFile *file = dynamic_cast<QFile *>(&io);
     QString name = file ? file->fileName() : "Imported";
     m_image = new KisImage(m_doc->createUndoStore(),  header.width, header.height, cs, name);
@@ -146,14 +137,11 @@ KisImportExportErrorCode PSDLoader::decode(QIODevice &io)
 
     KisImageBarrierLock lock(m_image);
 
-    // set the correct resolution
     if (resourceSection.resources.contains(PSDImageResourceSection::RESN_INFO)) {
         RESN_INFO_1005 *resInfo = dynamic_cast<RESN_INFO_1005*>(resourceSection.resources[PSDImageResourceSection::RESN_INFO]->resource);
         if (resInfo) {
-            // check resolution size is not zero
             if (resInfo->hRes * resInfo->vRes > 0)
                 m_image->setResolution(POINT_TO_INCH(resInfo->hRes), POINT_TO_INCH(resInfo->vRes));
-            // let's skip the unit for now; we can only set that on the KisDocument, and krita doesn't use it.
             delete resourceSection.resources.take(PSDImageResourceSection::RESN_INFO);
         }
     }
@@ -173,20 +161,16 @@ KisImportExportErrorCode PSDLoader::decode(QIODevice &io)
         }
     }
 
-    // Preserve all the annotations
     Q_FOREACH (PSDResourceBlock *resourceBlock, resourceSection.resources.values()) {
         m_image->addAnnotation(resourceBlock);
     }
 
-    // Preserve the duotone colormode block for saving back to psd
     if (header.colormode == DuoTone) {
         KisAnnotationSP annotation = new KisAnnotation("DuotoneColormodeBlock",
                                                        i18n("Duotone Colormode Block"),
                                                        colorModeBlock.data);
         m_image->addAnnotation(annotation);
     }
-
-    // Load embedded patterns early for fill layers.
 
     const QVector<QDomDocument> &embeddedPatterns =
         layerSection.globalInfoSection.embeddedPatterns;
@@ -211,10 +195,6 @@ KisImportExportErrorCode PSDLoader::decode(QIODevice &io)
         }
     }
 
-    // Read the projection into our single layer. Since we only read the projection when
-    // we have just one layer, we don't need to later on apply the alpha channel of the
-    // first layer to the projection if the number of layers is negative/
-    // See https://www.adobe.com/devnet-apps/photoshop/fileformatashtml/#50577409_16000.
     if (layerSection.nLayers == 0) {
         dbgFile << "Position" << io.pos() << "Going to read the projection into the first layer, which PS calls 'Background'";
 
@@ -225,21 +205,12 @@ KisImportExportErrorCode PSDLoader::decode(QIODevice &io)
 
         m_image->addNode(layer, m_image->rootLayer());
 
-        // Only one layer, the background layer, so we're done.
         return ImportExportCodes::OK;
     }
-
-    // More than one layer, so now construct the Krita image from the info we read.
 
     QStack<KisGroupLayerSP> groupStack;
     groupStack.push(m_image->rootLayer());
 
-    /**
-     * PSD has a weird "optimization": if a group layer has only one
-     * child layer, it omits it's 'psd_bounding_divider' section. So
-     * fi you ever see an unbalanced layers group in PSD, most
-     * probably, it is just a single layered group.
-     */
     KisNodeSP lastAddedLayer;
 
     typedef QPair<QDomDocument, KisLayerSP> LayerStyleMapping;
@@ -265,7 +236,6 @@ KisImportExportErrorCode PSDLoader::decode(QIODevice &io)
         }
     }
 
-    // read the channels for the various layers
     for(int i = 0; i < layerSection.nLayers; ++i) {
 
         PSDLayerRecord* layerRecord = layerSection.layers.at(i);
@@ -304,9 +274,6 @@ KisImportExportErrorCode PSDLoader::decode(QIODevice &io)
 
                 QString compositeOp = psd_blendmode_to_composite_op(layerRecord->infoBlocks.sectionDividerBlendMode);
 
-                // Krita doesn't support pass-through blend
-                // mode. Instead it is just a property of a group
-                // layer, so flip it
                 if (compositeOp == COMPOSITE_PASS_THROUGH) {
                     compositeOp = COMPOSITE_OVER;
                     groupLayer->setPassThroughMode(true);
@@ -316,15 +283,6 @@ KisImportExportErrorCode PSDLoader::decode(QIODevice &io)
 
                 newLayer = groupLayer;
             } else {
-                /**
-                 * In some files saved by PS CS6 the group layer sections seem
-                 * to be unbalanced.  I don't know why it happens because the
-                 * reporter didn't provide us an example file. So here we just
-                 * check if the new layer was created, and if not, skip the
-                 * initialization of masks.
-                 *
-                 * See bug: 357559
-                 */
 
                 warnKrita << "WARNING: Provided PSD has unbalanced group "
                           << "layer markers. Some masks and/or layers can "
@@ -384,7 +342,6 @@ KisImportExportErrorCode PSDLoader::decode(QIODevice &io)
                             double l = size.height() / totalHeight * 100.0;
 
                             if (data.isStar) {
-                                // 100% is a normal polygon.
                                 a = cos(kisDegreesToRadians(angle)) * ((data.originPolyStarRatio*0.01) * l);
                                 props.setProperty("baseRadius", a);
                             }
@@ -449,7 +406,6 @@ KisImportExportErrorCode PSDLoader::decode(QIODevice &io)
                 if (vectorMask) {
                     KisShapeLayerSP shapeLayer = new KisShapeLayer(m_doc->shapeController(), m_image, layerRecord->layerName, layerRecord->opacity);
 
-
                     if (!layerRecord->infoBlocks.vectorStroke.isNull()) {
                         KoShapeStrokeSP stroke(new KoShapeStroke());
                         psd_vector_stroke_data data;
@@ -491,7 +447,6 @@ KisImportExportErrorCode PSDLoader::decode(QIODevice &io)
                     layer = genlayer;
                 }
 
-
             } else if (!layerRecord->infoBlocks.textData.isNull() && convertTextToShape) {
                 KisShapeLayerSP textLayer = new KisShapeLayer(m_doc->shapeController(), m_image, layerRecord->layerName, layerRecord->opacity);
                 KisAslCallbackObjectCatcher catcher;
@@ -505,11 +460,8 @@ KisImportExportErrorCode PSDLoader::decode(QIODevice &io)
 
                 QString svg;
                 QString styles;
-                // This is to align inlinesize appropriately.
                 bool offsetByAscent = false;
                 QPointF offset1;
-                // PSD text layers have all their coordinates in pixels, and because fonts can be very precise-unit sensitive,
-                // we want to ensure all values are scaled appropriately.
 
                 QTransform scaleToPt = QTransform::fromScale(m_image->xRes(), m_image->yRes()).inverted();
                 bool res = converter.convertPSDTextEngineDataToSVG(text.engineData,
@@ -661,7 +613,6 @@ KisImportExportErrorCode PSDLoader::buildImage(QIODevice &io)
     return decode(io);
 }
 
-
 KisImageSP PSDLoader::image()
 {
     return m_image;
@@ -671,5 +622,4 @@ void PSDLoader::cancel()
 {
     m_stop = true;
 }
-
 

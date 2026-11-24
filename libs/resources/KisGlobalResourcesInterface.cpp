@@ -14,7 +14,6 @@
 #include <QBasicMutex>
 #include <QMutexLocker>
 
-
 namespace {
 class GlobalResourcesSource : public KisResourcesInterface::ResourceSourceAdapter
 {
@@ -54,7 +53,6 @@ private:
 
 KisResourcesInterfaceSP KisGlobalResourcesInterface::instance()
 {
-    // TODO: implement general macro like Q_GLOBAL_STATIC()
 
     static QBasicAtomicInt guard = Q_BASIC_ATOMIC_INITIALIZER(QtGlobalStatic::Uninitialized);
     static KisResourcesInterfaceSP d;

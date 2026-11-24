@@ -17,12 +17,10 @@
 
 #include <memory>
 
-
 class KisStrokeJob;
 class KisSavedMacroCommand;
 class KisStrokeUndoFacade;
 class KisStrokesQueueMutatedJobInterface;
-
 
 class KRITAIMAGE_EXPORT KisStrokeStrategyUndoCommandBased : public KisRunnableBasedStrokeStrategy
 {
@@ -42,7 +40,6 @@ public:
     private:
         KisRunnableStrokeJobsInterface *m_mutatedJobsInterface;
     };
-
 
     class KRITAIMAGE_EXPORT Data : public KisStrokeJobData {
     public:
@@ -91,36 +88,10 @@ public:
     void cancelStrokeCallback() override;
     void doStrokeCallback(KisStrokeJobData *data) override;
 
-    /**
-     * Set extra data that will be assigned to the command
-     * representing this action. Using extra data has the following
-     * restrictions:
-     *
-     * 1) The \p data must be set *before* the stroke has been started.
-     *    Setting the \p data after the stroke has been started with
-     *    image->startStroke(strokeId) leads to an undefined behaviour.
-     *
-     * 2) \p data becomes owned by the strategy/command right after
-     *    setting it. Don't try to change it afterwards.
-     */
     void setCommandExtraData(KUndo2CommandExtraData *data);
 
-    /**
-     * Sets the id of this action. Will be used for merging the undo commands
-     *
-     * The \p value must be set *before* the stroke has been started.
-     * Setting the \p value after the stroke has been started with
-     * image->startStroke(strokeId) leads to an undefined behaviour.
-     */
     void setMacroId(int value);
 
-    /**
-     * The undo-command-based is a low-level strategy, so it allows
-     * changing its wraparound mode status.
-     *
-     * WARNING: the switch must be called *before* the stroke has been
-     * started! Otherwise the mode will not be activated.
-     */
     using KisStrokeStrategy::setSupportsWrapAroundMode;
 
     void setUsedWhileUndoRedo(bool value);
@@ -135,9 +106,6 @@ protected:
 
     KisStrokeStrategyUndoCommandBased(const KisStrokeStrategyUndoCommandBased &rhs);
 
-    /**
-     * @brief Applies some modifications (e.g. assigning extra data) to the toplevel command
-     */
     virtual void postProcessToplevelCommand(KUndo2Command *command);
 
     KisStrokeUndoFacade* undoFacade() const;
@@ -154,9 +122,8 @@ private:
     std::unique_ptr<KUndo2CommandExtraData> m_commandExtraData;
     int m_macroId;
 
-    // protects done commands only
     QMutex m_mutex;
     KisSavedMacroCommand *m_macroCommand {nullptr};
 };
 
-#endif /* __KIS_STROKE_STRATEGY_UNDO_COMMAND_BASED_H */
+#endif

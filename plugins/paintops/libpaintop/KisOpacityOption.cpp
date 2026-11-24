@@ -10,7 +10,6 @@
 #include <kis_node.h>
 #include <kis_indirect_painting_support.h>
 
-
 KisOpacityOption::KisOpacityOption(const KisPropertiesConfiguration *setting, KisNodeSP currentNode)
     : BaseClass(setting)
 {

@@ -12,12 +12,6 @@
 #include <QByteArray>
 
 #include "kritacolor_export.h"
-/**
- * @brief The KisColorManager class can be used as a cross-platform way to get the
- * display profile associated with a device.
- *
- * TODO: support other devices than monitors
- */
 class KRITACOLOR_EXPORT KisColorManager : public QObject
 {
     Q_OBJECT
@@ -33,13 +27,10 @@ public:
         scanner
     };
 
-    /// Return the user-visible name for the given device
     QString deviceName(const QString &id);
 
-    /// Return a list of device id's for the specified type
     QStringList devices(DeviceType type = screen) const;
 
-    /// Return the icc profile for the given device and index (if a device has more than one profile)
     QByteArray displayProfile(const QString &device, int profile = 0) const;
 
     static KisColorManager *instance();
@@ -59,4 +50,4 @@ private:
     const Private *const d;
 };
 
-#endif // KIS_COLOR_MANAGER_H
+#endif

@@ -25,7 +25,6 @@ public:
 class BrightnessContrast
 {
 public:
-    // brightness and contrast expected to be in the range [-1, 1]
     BrightnessContrast(qreal brightness, qreal contrast);
     qreal operator()(qreal x) const;
 private:
@@ -35,7 +34,6 @@ private:
 class Threshold
 {
 public:
-    // threshold value expected to be in the range [0, 1]
     Threshold(qreal threshold);
     qreal operator()(qreal x) const;
 private:

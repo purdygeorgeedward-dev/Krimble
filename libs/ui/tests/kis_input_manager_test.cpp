@@ -15,7 +15,6 @@
 #include "input/kis_abstract_input_action.h"
 #include "input/kis_shortcut_matcher.h"
 
-
 void KisInputManagerTest::testSingleActionShortcut()
 {
     KisSingleActionShortcut s(0,0);
@@ -75,7 +74,7 @@ struct TestingAction : public KisAbstractInputAction
         m_endNonNull = false;
     }
 
-    bool supportsHiResInputEvents(int /*shortcut*/) const override {
+    bool supportsHiResInputEvents(int ) const override {
         return m_isHighResolution;
     }
 
@@ -119,7 +118,6 @@ void KisInputManagerTest::testKeyEvents()
 
     TestingAction *a = new TestingAction();
 
-
     m.addShortcut(
         createKeyShortcut(a, 10,
                           QSet<Qt::Key>() << Qt::Key_Shift,
@@ -142,19 +140,15 @@ void KisInputManagerTest::testKeyEvents()
 
     QCOMPARE(a->m_beginIndex, -1);
 
-    // Test event with random values
     QMouseEvent mouseEvent(QEvent::MouseMove, QPoint(),
                            Qt::LeftButton, Qt::NoButton, Qt::NoModifier);
 
-    // Press Ctrl+Shift
     QVERIFY(!m.keyPressed(Qt::Key_Shift));
     QCOMPARE(a->m_beginIndex, -1);
 
     QVERIFY(!m.keyPressed(Qt::Key_Control));
     QCOMPARE(a->m_beginIndex, -1);
 
-
-    // Complete Ctrl+Shift+Enter shortcut
     QVERIFY(m.keyPressed(Qt::Key_Enter));
     QCOMPARE(a->m_beginIndex, 11);
     QCOMPARE(a->m_ended, true);
@@ -162,20 +156,14 @@ void KisInputManagerTest::testKeyEvents()
     QCOMPARE(a->m_endNonNull, false);
     a->reset();
 
-
-    // Pressing mouse buttons is disabled since Enter is pressed
     QVERIFY(!m.buttonPressed(Qt::LeftButton, &mouseEvent));
     QCOMPARE(a->m_beginIndex, -1);
     QVERIFY(!m.buttonReleased(Qt::LeftButton, &mouseEvent));
     QCOMPARE(a->m_beginIndex, -1);
 
-
-    // Release Enter, so the system should be ready for new shortcuts
     QVERIFY(!m.keyReleased(Qt::Key_Enter));
     QCOMPARE(a->m_beginIndex, -1);
 
-
-    // Complete Ctrl+Shift+LB shortcut
     QVERIFY(m.buttonPressed(Qt::LeftButton, &mouseEvent));
     QCOMPARE(a->m_beginIndex, 13);
     QCOMPARE(a->m_ended, false);
@@ -190,16 +178,12 @@ void KisInputManagerTest::testKeyEvents()
     QCOMPARE(a->m_endNonNull, true);
     a->reset();
 
-
-    // There is no Ctrl+Shift+RB shortcut
     QVERIFY(!m.buttonPressed(Qt::RightButton, &mouseEvent));
     QCOMPARE(a->m_beginIndex, -1);
 
     QVERIFY(!m.buttonReleased(Qt::RightButton, &mouseEvent));
     QCOMPARE(a->m_beginIndex, -1);
 
-
-    // Check that Ctrl+Shift+Enter is still enabled
     QVERIFY(m.keyPressed(Qt::Key_Enter));
     QCOMPARE(a->m_beginIndex, 11);
     QCOMPARE(a->m_ended, true);
@@ -207,7 +191,6 @@ void KisInputManagerTest::testKeyEvents()
     QCOMPARE(a->m_endNonNull, false);
     a->reset();
 
-    // Check autorepeat
     QVERIFY(m.autoRepeatedKeyPressed(Qt::Key_Enter));
     QCOMPARE(a->m_beginIndex, 11);
     QCOMPARE(a->m_ended, true);
@@ -218,21 +201,15 @@ void KisInputManagerTest::testKeyEvents()
     QVERIFY(!m.keyReleased(Qt::Key_Enter));
     QCOMPARE(a->m_beginIndex, -1);
 
-
-    // Release Ctrl
     QVERIFY(!m.keyReleased(Qt::Key_Control));
     QCOMPARE(a->m_beginIndex, -1);
 
-
-    // There is no Shift+LB shortcut
     QVERIFY(!m.buttonPressed(Qt::LeftButton, &mouseEvent));
     QCOMPARE(a->m_beginIndex, -1);
 
     QVERIFY(!m.buttonReleased(Qt::LeftButton, &mouseEvent));
     QCOMPARE(a->m_beginIndex, -1);
 
-
-    // But there *is* Shift+RB shortcut
     QVERIFY(m.buttonPressed(Qt::RightButton, &mouseEvent));
     QCOMPARE(a->m_beginIndex, 12);
     QCOMPARE(a->m_ended, false);
@@ -247,8 +224,6 @@ void KisInputManagerTest::testKeyEvents()
     QCOMPARE(a->m_endNonNull, true);
     a->reset();
 
-
-    // Check that Shift+Enter still works
     QVERIFY(m.keyPressed(Qt::Key_Enter));
     QCOMPARE(a->m_beginIndex, 10);
     QCOMPARE(a->m_ended, true);
@@ -271,34 +246,28 @@ void KisInputManagerTest::testReleaseUnnecessaryModifiers()
                              QSet<Qt::Key>() << Qt::Key_Shift << Qt::Key_Control,
                              Qt::LeftButton));
 
-    // Test event with random values
     QMouseEvent mouseEvent(QEvent::MouseMove, QPoint(),
                            Qt::LeftButton, Qt::NoButton, Qt::NoModifier);
 
-    // Press Ctrl+Shift
     QVERIFY(!m.keyPressed(Qt::Key_Shift));
     QCOMPARE(a->m_beginIndex, -1);
 
     QVERIFY(!m.keyPressed(Qt::Key_Control));
     QCOMPARE(a->m_beginIndex, -1);
 
-    // Complete Ctrl+Shift+LB shortcut
     QVERIFY(m.buttonPressed(Qt::LeftButton, &mouseEvent));
     QCOMPARE(a->m_beginIndex, 13);
     QCOMPARE(a->m_ended, false);
     a->reset();
 
-    // Release Ctrl
     QVERIFY(!m.keyReleased(Qt::Key_Control));
     QCOMPARE(a->m_beginIndex, -1);
     QCOMPARE(a->m_ended, false);
 
-    // Release Shift
     QVERIFY(!m.keyReleased(Qt::Key_Shift));
     QCOMPARE(a->m_beginIndex, -1);
     QCOMPARE(a->m_ended, false);
 
-    // Release LB, now it should end
     QVERIFY(m.buttonReleased(Qt::LeftButton, &mouseEvent));
     QCOMPARE(a->m_beginIndex, -1);
     QCOMPARE(a->m_ended, true);
@@ -319,12 +288,9 @@ void KisInputManagerTest::testMouseMoves()
                              QSet<Qt::Key>() << Qt::Key_Shift << Qt::Key_Control,
                              Qt::LeftButton));
 
-    // Test event with random values
     QMouseEvent mouseEvent(QEvent::MouseMove, QPoint(),
                            Qt::LeftButton, Qt::NoButton, Qt::NoModifier);
 
-
-    // Press Ctrl+Shift
     QVERIFY(!m.keyPressed(Qt::Key_Shift));
     QCOMPARE(a->m_beginIndex, -1);
 
@@ -334,7 +300,6 @@ void KisInputManagerTest::testMouseMoves()
     QVERIFY(!m.pointerMoved(&mouseEvent));
     QCOMPARE(a->m_gotInput, false);
 
-    // Complete Ctrl+Shift+LB shortcut
     QVERIFY(m.buttonPressed(Qt::LeftButton, &mouseEvent));
     QCOMPARE(a->m_beginIndex, 13);
     QCOMPARE(a->m_ended, false);
@@ -345,18 +310,15 @@ void KisInputManagerTest::testMouseMoves()
     QCOMPARE(a->m_gotInput, true);
     a->reset();
 
-    // Release Ctrl
     QVERIFY(!m.keyReleased(Qt::Key_Control));
     QCOMPARE(a->m_beginIndex, -1);
     QCOMPARE(a->m_ended, false);
     QCOMPARE(a->m_gotInput, false);
 
-    // Release Shift
     QVERIFY(!m.keyReleased(Qt::Key_Shift));
     QCOMPARE(a->m_beginIndex, -1);
     QCOMPARE(a->m_ended, false);
 
-    // Release LB, now it should end
     QVERIFY(m.buttonReleased(Qt::LeftButton, &mouseEvent));
     QCOMPARE(a->m_beginIndex, -1);
     QCOMPARE(a->m_ended, true);

@@ -28,7 +28,7 @@ void KisTileCompressorsTest::doRoundTrip(KisAbstractTileCompressor *compressor)
 
     KoStoreFake fakeStore;
     KisFakePaintDeviceWriter writer(&fakeStore);
-    
+
     bool retval = compressor->writeTile(tile11, writer);
     Q_ASSERT(retval);
     tile11 = 0;
@@ -55,15 +55,9 @@ void KisTileCompressorsTest::doLowLevelRoundTrip(KisAbstractTileCompressor *comp
     quint8 oddPixel1 = 128;
     quint8 oddPixel2 = 129;
 
-    /**
-     * A small hack to acquire a standalone tile data.
-     * globalTileDataStore is not exported out of kritaimage.so,
-     * so we get it from the data manager
-     */
     KisTiledDataManager dm(pixelSize, &oddPixel1);
     KisTileSP tile = dm.getTile(0, 0, true);
     tile->lockForWrite();
-
 
     KisTileData *td = tile->tileData();
     QVERIFY(memoryIsFilled(oddPixel1, td->data(), TILESIZE));
@@ -73,7 +67,6 @@ void KisTileCompressorsTest::doLowLevelRoundTrip(KisAbstractTileCompressor *comp
     qint32 bytesWritten;
     compressor->compressTileData(td, buffer, bufferSize, bytesWritten);
     dbgKrita << ppVar(bytesWritten);
-
 
     memset(td->data(), oddPixel2, TILESIZE);
     QVERIFY(memoryIsFilled(oddPixel2, td->data(), TILESIZE));
@@ -98,15 +91,9 @@ void KisTileCompressorsTest::doLowLevelRoundTripIncompressible(KisAbstractTileCo
 
     QByteArray incompressibleArray = file.readAll();
 
-    /**
-     * A small hack to acquire a standalone tile data.
-     * globalTileDataStore is not exported out of kritaimage.so,
-     * so we get it from the data manager
-     */
     KisTiledDataManager dm(pixelSize, &oddPixel1);
     KisTileSP tile = dm.getTile(0, 0, true);
     tile->lockForWrite();
-
 
     KisTileData *td = tile->tileData();
     QVERIFY(memoryIsFilled(oddPixel1, td->data(), TILESIZE));
@@ -119,7 +106,6 @@ void KisTileCompressorsTest::doLowLevelRoundTripIncompressible(KisAbstractTileCo
     qint32 bytesWritten;
     compressor->compressTileData(td, buffer, bufferSize, bytesWritten);
     dbgKrita << ppVar(bytesWritten);
-
 
     memset(td->data(), oddPixel2, TILESIZE);
     QVERIFY(memoryIsFilled(oddPixel2, td->data(), TILESIZE));
@@ -166,7 +152,6 @@ void KisTileCompressorsTest::testLowLevelRoundTripIncompressible2()
     doLowLevelRoundTripIncompressible(compressor);
     delete compressor;
 }
-
 
 SIMPLE_TEST_MAIN(KisTileCompressorsTest)
 

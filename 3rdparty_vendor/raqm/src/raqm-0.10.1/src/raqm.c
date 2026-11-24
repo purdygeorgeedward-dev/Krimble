@@ -40,108 +40,6 @@
 
 #include "raqm.h"
 
-/**
- * SECTION:raqm
- * @title: Raqm
- * @short_description: A library for complex text layout
- * @include: raqm.h
- *
- * Raqm is a light weight text layout library with strong emphasis on
- * supporting languages and writing systems that require complex text layout.
- *
- * The main object in Raqm API is #raqm_t, it stores all the states of the
- * input text, its properties, and the output of the layout process.
- *
- * To start, you create a #raqm_t object, add text and font(s) to it, run the
- * layout process, and finally query about the output. For example:
- *
- * |[<!-- language="C" -->
- * #include "raqm.h"
- *
- * int
- * main (int argc, char *argv[])
- * {
- *     const char *fontfile;
- *     const char *text;
- *     const char *direction;
- *     const char *language;
- *     int ret = 1;
- *
- *     FT_Library library = NULL;
- *     FT_Face face = NULL;
- *
- *     if (argc < 5)
- *     {
- *         printf ("Usage: %s FONT_FILE TEXT DIRECTION LANG\n", argv[0]);
- *         return 1;
- *     }
- *
- *     fontfile =  argv[1];
- *     text = argv[2];
- *     direction = argv[3];
- *     language = argv[4];
- *
- *     if (FT_Init_FreeType (&library) == 0)
- *     {
- *       if (FT_New_Face (library, fontfile, 0, &face) == 0)
- *       {
- *         if (FT_Set_Char_Size (face, face->units_per_EM, 0, 0, 0) == 0)
- *         {
- *           raqm_t *rq = raqm_create ();
- *           if (rq != NULL)
- *           {
- *             raqm_direction_t dir = RAQM_DIRECTION_DEFAULT;
- *
- *             if (strcmp (direction, "r") == 0)
- *               dir = RAQM_DIRECTION_RTL;
- *             else if (strcmp (direction, "l") == 0)
- *               dir = RAQM_DIRECTION_LTR;
- *
- *             if (raqm_set_text_utf8 (rq, text, strlen (text)) &&
- *                 raqm_set_freetype_face (rq, face) &&
- *                 raqm_set_par_direction (rq, dir) &&
- *                 raqm_set_language (rq, language, 0, strlen (text)) &&
- *                 raqm_layout (rq))
- *             {
- *               size_t count, i;
- *               raqm_glyph_t *glyphs = raqm_get_glyphs (rq, &count);
- *
- *               ret = !(glyphs != NULL || count == 0);
- *
- *               printf("glyph count: %zu\n", count);
- *               for (i = 0; i < count; i++)
- *               {
- *                   printf ("gid#%d off: (%d, %d) adv: (%d, %d) idx: %d\n",
- *                           glyphs[i].index,
- *                           glyphs[i].x_offset,
- *                           glyphs[i].y_offset,
- *                           glyphs[i].x_advance,
- *                           glyphs[i].y_advance,
- *                           glyphs[i].cluster);
- *               }
- *             }
- *
- *             raqm_destroy (rq);
- *           }
- *         }
- *
- *         FT_Done_Face (face);
- *       }
- *
- *       FT_Done_FreeType (library);
- *     }
- *
- *     return ret;
- * }
- * ]|
- * To compile this example:
- * |[<prompt>
- * cc -o test test.c `pkg-config --libs --cflags raqm`
- * ]|
- */
-
-/* For enabling debug mode */
-/*#define RAQM_DEBUG 1*/
 #ifdef RAQM_DEBUG
 #define RAQM_DBG(...) fprintf (stderr, __VA_ARGS__)
 #else
@@ -271,11 +169,9 @@ _raqm_compare_text_info (_raqm_text_info a,
   if (a.script != b.script)
     return false;
 
-  /* Spacing shouldn't break runs, so we don't compare them here. */
-
   if (b.arbitrary_break == true)
     return false;
-  
+
   return true;
 }
 
@@ -297,7 +193,6 @@ _raqm_alloc_text(raqm_t *rq,
                  bool    need_utf8,
                  bool    need_utf16)
 {
-  /* Allocate contiguous memory block for texts and text_info */
   size_t mem_size = (sizeof (uint32_t) + sizeof (_raqm_text_info)) * len;
   if (need_utf8)
     mem_size += sizeof (char) * len;
@@ -366,19 +261,6 @@ _raqm_free_runs (raqm_run_t *runs)
   }
 }
 
-/**
- * raqm_create:
- *
- * Creates a new #raqm_t with all its internal states initialized to their
- * defaults.
- *
- * Return value:
- * A newly allocated #raqm_t with a reference count of 1. The initial reference
- * count should be released with raqm_destroy() when you are done using the
- * #raqm_t. Returns `NULL` in case of error.
- *
- * Since: 0.1
- */
 raqm_t *
 raqm_create (void)
 {
@@ -414,18 +296,6 @@ raqm_create (void)
   return rq;
 }
 
-/**
- * raqm_reference:
- * @rq: a #raqm_t.
- *
- * Increases the reference count on @rq by one. This prevents @rq from being
- * destroyed until a matching call to raqm_destroy() is made.
- *
- * Return value:
- * The referenced #raqm_t.
- *
- * Since: 0.1
- */
 raqm_t *
 raqm_reference (raqm_t *rq)
 {
@@ -435,16 +305,6 @@ raqm_reference (raqm_t *rq)
   return rq;
 }
 
-/**
- * raqm_destroy:
- * @rq: a #raqm_t.
- *
- * Decreases the reference count on @rq by one. If the result is zero, then @rq
- * and all associated resources are freed.
- * See raqm_reference().
- *
- * Since: 0.1
- */
 void
 raqm_destroy (raqm_t *rq)
 {
@@ -460,15 +320,6 @@ raqm_destroy (raqm_t *rq)
   free (rq);
 }
 
-/**
- * raqm_clear_contents:
- * @rq: a #raqm_t.
- *
- * Clears internal state of previously used raqm_t object, making it ready
- * for reuse and keeping some of allocated memory to increase performance.
- *
- * Since: 0.9
- */
 void
 raqm_clear_contents (raqm_t *rq)
 {
@@ -477,7 +328,6 @@ raqm_clear_contents (raqm_t *rq)
 
   _raqm_release_text_info (rq);
 
-  /* Return allocated runs to the pool, keep hb buffers for reuse */
   raqm_run_t *run = rq->runs;
   while (run)
   {
@@ -505,22 +355,6 @@ raqm_clear_contents (raqm_t *rq)
   rq->resolved_dir = RAQM_DIRECTION_DEFAULT;
 }
 
-/**
- * raqm_set_text:
- * @rq: a #raqm_t.
- * @text: a UTF-32 encoded text string.
- * @len: the length of @text.
- *
- * Adds @text to @rq to be used for layout. It must be a valid UTF-32 text, any
- * invalid character will be replaced with U+FFFD. The text should typically
- * represent a full paragraph, since doing the layout of chunks of text
- * separately can give improper output.
- *
- * Return value:
- * `true` if no errors happened, `false` otherwise.
- *
- * Since: 0.1
- */
 bool
 raqm_set_text (raqm_t         *rq,
                const uint32_t *text,
@@ -529,11 +363,9 @@ raqm_set_text (raqm_t         *rq,
   if (!rq || !text)
     return false;
 
-  /* Call raqm_clear_contents to reuse this raqm_t */
   if (rq->text_len)
     return false;
 
-  /* Empty string, don’t fail but do nothing */
   if (!len)
     return true;
 
@@ -611,7 +443,6 @@ _raqm_get_utf16_codepoint (const void *str,
     }
     else
     {
-      /* A single high surrogate, this is an error. */
       *out_codepoint = s[0];
       s += 1;
     }
@@ -641,19 +472,6 @@ _raqm_u16_to_u32 (const uint16_t *text, size_t len, uint32_t *unicode)
   return (out_utf32 - unicode);
 }
 
-/**
- * raqm_set_text_utf8:
- * @rq: a #raqm_t.
- * @text: a UTF-8 encoded text string.
- * @len: the length of @text in UTF-8 bytes.
- *
- * Same as raqm_set_text(), but for text encoded in UTF-8 encoding.
- *
- * Return value:
- * `true` if no errors happened, `false` otherwise.
- *
- * Since: 0.1
- */
 bool
 raqm_set_text_utf8 (raqm_t     *rq,
                     const char *text,
@@ -662,11 +480,9 @@ raqm_set_text_utf8 (raqm_t     *rq,
   if (!rq || !text)
     return false;
 
-  /* Call raqm_clear_contents to reuse this raqm_t */
   if (rq->text_len)
     return false;
 
-  /* Empty string, don’t fail but do nothing */
   if (!len)
     return true;
 
@@ -680,19 +496,6 @@ raqm_set_text_utf8 (raqm_t     *rq,
   return true;
 }
 
-/**
- * raqm_set_text_utf16:
- * @rq: a #raqm_t.
- * @text: a UTF-16 encoded text string.
- * @len: the length of @text in UTF-16 shorts.
- *
- * Same as raqm_set_text(), but for text encoded in UTF-16 encoding.
- *
- * Return value:
- * `true` if no errors happened, `false` otherwise.
- *
- * Since: 0.10
- */
 bool
 raqm_set_text_utf16 (raqm_t     *rq,
                     const uint16_t *text,
@@ -701,11 +504,9 @@ raqm_set_text_utf16 (raqm_t     *rq,
   if (!rq || !text)
     return false;
 
-  /* Call raqm_clear_contents to reuse this raqm_t */
   if (rq->text_len)
     return false;
 
-  /* Empty string, don’t fail but do nothing */
   if (!len)
     return true;
 
@@ -718,36 +519,6 @@ raqm_set_text_utf16 (raqm_t     *rq,
 
   return true;
 }
-/**
- * raqm_set_par_direction:
- * @rq: a #raqm_t.
- * @dir: the direction of the paragraph.
- *
- * Sets the paragraph direction, also known as block direction in CSS. For
- * horizontal text, this controls the overall direction in the Unicode
- * Bidirectional Algorithm, so when the text is mainly right-to-left (with or
- * without some left-to-right) text, then the base direction should be set to
- * #RAQM_DIRECTION_RTL and vice versa.
- *
- * The default is #RAQM_DIRECTION_DEFAULT, which determines the paragraph
- * direction based on the first character with strong bidi type (see [rule
- * P2](https://unicode.org/reports/tr9/#P2) in Unicode Bidirectional Algorithm),
- * which can be good enough for many cases but has problems when a mainly
- * right-to-left paragraph starts with a left-to-right character and vice versa
- * as the detected paragraph direction will be the wrong one, or when text does
- * not contain any characters with string bidi types (e.g. only punctuation or
- * numbers) as this will default to left-to-right paragraph direction.
- *
- * For vertical, top-to-bottom text, #RAQM_DIRECTION_TTB should be used. Raqm,
- * however, provides limited vertical text support and does not handle rotated
- * horizontal text in vertical text, instead everything is treated as vertical
- * text.
- *
- * Return value:
- * `true` if no errors happened, `false` otherwise.
- *
- * Since: 0.1
- */
 bool
 raqm_set_par_direction (raqm_t          *rq,
                         raqm_direction_t dir)
@@ -760,30 +531,6 @@ raqm_set_par_direction (raqm_t          *rq,
   return true;
 }
 
-/**
- * raqm_set_language:
- * @rq: a #raqm_t.
- * @lang: a BCP47 language code.
- * @start: index of first character that should use @face.
- * @len: number of characters using @face.
- *
- * Sets a [BCP47 language
- * code](https://www.w3.org/International/articles/language-tags/) to be used
- * for @len-number of characters staring at @start.  The @start and @len are
- * input string array indices (i.e. counting bytes in UTF-8 and scaler values
- * in UTF-32).
- *
- * This method can be used repeatedly to set different languages for different
- * parts of the text.
- *
- * Return value:
- * `true` if no errors happened, `false` otherwise.
- *
- * Stability:
- * Unstable
- *
- * Since: 0.2
- */
 bool
 raqm_set_language (raqm_t       *rq,
                    const char   *lang,
@@ -843,28 +590,6 @@ _raqm_add_font_feature (raqm_t       *rq,
   return true;
 }
 
-/**
- * raqm_add_font_feature:
- * @rq: a #raqm_t.
- * @feature: (transfer none): a font feature string.
- * @len: length of @feature, -1 for `NULL`-terminated.
- *
- * Adds a font feature to be used by the #raqm_t during text layout. This is
- * usually used to turn on optional font features that are not enabled by
- * default, for example `dlig` or `ss01`, but can be also used to turn off
- * default font features.
- *
- * @feature is string representing a single font feature, in the syntax
- * understood by hb_feature_from_string().
- *
- * This function can be called repeatedly, new features will be appended to the
- * end of the features list and can potentially override previous features.
- *
- * Return value:
- * `true` if parsing @feature succeeded, `false` otherwise.
- *
- * Since: 0.1
- */
 bool
 raqm_add_font_feature (raqm_t     *rq,
                        const char *feature,
@@ -925,20 +650,6 @@ _raqm_set_freetype_face (raqm_t *rq,
   return true;
 }
 
-/**
- * raqm_set_freetype_face:
- * @rq: a #raqm_t.
- * @face: an #FT_Face.
- *
- * Sets an #FT_Face to be used for all characters in @rq.
- *
- * See also raqm_set_freetype_face_range().
- *
- * Return value:
- * `true` if no errors happened, `false` otherwise.
- *
- * Since: 0.1
- */
 bool
 raqm_set_freetype_face (raqm_t *rq,
                         FT_Face face)
@@ -946,30 +657,6 @@ raqm_set_freetype_face (raqm_t *rq,
   return _raqm_set_freetype_face (rq, face, 0, rq->text_len);
 }
 
-/**
- * raqm_set_freetype_face_range:
- * @rq: a #raqm_t.
- * @face: an #FT_Face.
- * @start: index of first character that should use @face from the input string.
- * @len: number of elements using @face.
- *
- * Sets an #FT_Face to be used for @len-number of characters staring at @start.
- * The @start and @len are input string array indices, counting elements
- * according to the underlying encoding. @start must always be aligned to the
- * start of an encoded codepoint, and @len must always end at a codepoint's
- * final element.
- *
- * This method can be used repeatedly to set different faces for different
- * parts of the text. It is the responsibility of the client to make sure that
- * face ranges cover the whole text, and is properly aligned.
- *
- * See also raqm_set_freetype_face().
- *
- * Return value:
- * `true` if no errors happened, `false` otherwise.
- *
- * Since: 0.1
- */
 bool
 raqm_set_freetype_face_range (raqm_t *rq,
                               FT_Face face,
@@ -1014,22 +701,6 @@ _raqm_set_freetype_load_flags (raqm_t *rq,
   return true;
 }
 
-/**
- * raqm_set_freetype_load_flags:
- * @rq: a #raqm_t.
- * @flags: FreeType load flags.
- *
- * Sets the load flags passed to FreeType when loading glyphs, should be the
- * same flags used by the client when rendering FreeType glyphs.
- *
- * This requires version of HarfBuzz that has hb_ft_font_set_load_flags(), for
- * older version the flags will be ignored.
- *
- * Return value:
- * `true` if no errors happened, `false` otherwise.
- *
- * Since: 0.3
- */
 bool
 raqm_set_freetype_load_flags (raqm_t *rq,
                               int     flags)
@@ -1037,33 +708,6 @@ raqm_set_freetype_load_flags (raqm_t *rq,
   return _raqm_set_freetype_load_flags(rq, flags, 0, rq->text_len);
 }
 
-/**
- * raqm_set_freetype_load_flags_range:
- * @rq: a #raqm_t.
- * @flags: FreeType load flags.
- * @start: index of first character that should use @flags.
- * @len: number of characters using @flags.
- *
- * Sets the load flags passed to FreeType when loading glyphs for @len-number
- * of characters staring at @start. Flags should be the same as used by the
- * client when rendering corresponding FreeType glyphs. The @start and @len
- * are input string array indices (i.e. counting bytes in UTF-8 and scaler
- * values in UTF-32).
- *
- * This method can be used repeatedly to set different flags for different
- * parts of the text. It is the responsibility of the client to make sure that
- * flag ranges cover the whole text.
- *
- * This requires version of HarfBuzz that has hb_ft_font_set_load_flags(), for
- * older version the flags will be ignored.
- *
- * See also raqm_set_freetype_load_flags().
- *
- * Return value:
- * `true` if no errors happened, `false` otherwise.
- *
- * Since: 0.9
- */
 bool
 raqm_set_freetype_load_flags_range (raqm_t *rq,
                                     int     flags,
@@ -1115,14 +759,13 @@ _raqm_set_spacing (raqm_t *rq,
       {
         if (_raqm_allowed_grapheme_boundary (rq->text[i], rq->text[i+1]))
         {
-          /* CSS word seperators, word spacing is only applied on these.*/
-          if (rq->text[i] == 0x0020  || /* Space */
-              rq->text[i] == 0x00A0  || /* No Break Space */
-              rq->text[i] == 0x1361  || /* Ethiopic Word Space */
-              rq->text[i] == 0x10100 || /* Aegean Word Seperator Line */
-              rq->text[i] == 0x10101 || /* Aegean Word Seperator Dot */
-              rq->text[i] == 0x1039F || /* Ugaric Word Divider */
-              rq->text[i] == 0x1091F)   /* Phoenician Word Separator */
+          if (rq->text[i] == 0x0020  ||
+              rq->text[i] == 0x00A0  ||
+              rq->text[i] == 0x1361  ||
+              rq->text[i] == 0x10100 ||
+              rq->text[i] == 0x10101 ||
+              rq->text[i] == 0x1039F ||
+              rq->text[i] == 0x1091F)
           {
             rq->text_info[i].spacing_after = spacing;
           }
@@ -1138,29 +781,6 @@ _raqm_set_spacing (raqm_t *rq,
   return true;
 }
 
-/**
- * raqm_set_letter_spacing_range:
- * @rq: a #raqm_t.
- * @spacing: amount of spacing in Freetype Font Units (26.6 format).
- * @start: index of first character that should use @spacing.
- * @len: number of characters using @spacing.
- *
- * Set the letter spacing or tracking for a given range, the value
- * will be added onto the advance and offset for RTL, and the advance for
- * other directions. Letter spacing will be applied between characters, so
- * the last character will not have spacing applied after it.
- * Note that not all scripts have a letter-spacing tradition,
- * for example, Arabic does not, while Devanagari does.
- *
- * This will also add “disable `liga`, `clig`, `hlig`, `dlig`, and `calt`” font
- * features to the internal features list, so call this function after setting
- * the font features for best spacing results.
- *
- * Return value:
- * `true` if no errors happened, `false` otherwise.
- *
- * Since: 0.10
- */
 bool
 raqm_set_letter_spacing_range(raqm_t *rq,
                               int    spacing,
@@ -1195,24 +815,6 @@ raqm_set_letter_spacing_range(raqm_t *rq,
   return _raqm_set_spacing (rq, spacing, false, start, end);
 }
 
-/**
- * raqm_set_word_spacing_range:
- * @rq: a #raqm_t.
- * @spacing: amount of spacing in Freetype Font Units (26.6 format).
- * @start: index of first character that should use @spacing.
- * @len: number of characters using @spacing.
- *
- * Set the word spacing for a given range. Word spacing will only be applied to
- * 'word separator' characters, such as 'space', 'no break space' and
- * Ethiopic word separator'.
- * The value will be added onto the advance and offset for RTL, and the advance
- * for other directions.
- *
- * Return value:
- * `true` if no errors happened, `false` otherwise.
- *
- * Since: 0.10
- */
 bool
 raqm_set_word_spacing_range(raqm_t *rq,
                             int    spacing,
@@ -1233,24 +835,6 @@ raqm_set_word_spacing_range(raqm_t *rq,
   return _raqm_set_spacing (rq, spacing, true, start, end);
 }
 
-/**
- * raqm_set_invisible_glyph:
- * @rq: a #raqm_t.
- * @gid: glyph id to use for invisible glyphs.
- *
- * Sets the glyph id to be used for invisible glyhphs.
- *
- * If @gid is negative, invisible glyphs will be suppressed from the output.
- *
- * If @gid is zero, invisible glyphs will be rendered as space.
- *
- * If @gid is a positive number, it will be used for invisible glyphs.
- *
- * Return value:
- * `true` if no errors happened, `false` otherwise.
- *
- * Since: 0.6
- */
 bool
 raqm_set_invisible_glyph (raqm_t *rq,
                           int gid)
@@ -1262,23 +846,6 @@ raqm_set_invisible_glyph (raqm_t *rq,
   return true;
 }
 
-/**
- * raqm_set_arbitrary_run_break:
- * @rq: a #raqm_t.
- * @index: index at which to initiate a run break.
- * @break_run: whether to initiate a run break.
- * 
- * Sometimes runs should be split for arbitrary spec-related
- * reasons, such as the SVG 1.1 text chunk concept.
- * 
- * Setting the arbitrary break to true will ensure that opentype
- * features like ligatures are not formed across the boundary
- * indicated by this break.
- * 
- * TODO: also have this break bidi-reordering runs.
- * 
- * Since: Replace Me
- */
 bool
 raqm_set_arbitrary_run_break (raqm_t *rq,
                               size_t index,
@@ -1288,18 +855,18 @@ raqm_set_arbitrary_run_break (raqm_t *rq,
     return false;
   if (!rq->text_len)
     return true;
-  
+
   index = _raqm_encoding_to_u32_index (rq, index);
-  
+
   if (index >= rq->text_len)
     return false;
 
   if (!rq->text_info)
     return false;
-  
+
   rq->text_info[index].arbitrary_break = break_run;
-  
-  return true; 
+
+  return true;
 }
 
 static bool
@@ -1308,19 +875,6 @@ _raqm_itemize (raqm_t *rq);
 static bool
 _raqm_shape (raqm_t *rq);
 
-/**
- * raqm_layout:
- * @rq: a #raqm_t.
- *
- * Run the text layout process on @rq. This is the main Raqm function where the
- * Unicode Bidirectional Text algorithm will be applied to the text in @rq,
- * text shaping, and any other part of the layout process.
- *
- * Return value:
- * `true` if the layout process was successful, `false` otherwise.
- *
- * Since: 0.1
- */
 bool
 raqm_layout (raqm_t *rq)
 {
@@ -1354,21 +908,6 @@ _raqm_u32_to_u8_index (raqm_t   *rq,
 static uint32_t
 _raqm_u32_to_u16_index (raqm_t   *rq,
                        uint32_t  index);
-/**
- * raqm_get_glyphs:
- * @rq: a #raqm_t.
- * @length: (out): output array length.
- *
- * Gets the final result of Raqm layout process, an array of #raqm_glyph_t
- * containing the glyph indices in the font, their positions and other possible
- * information.
- *
- * Return value: (transfer none):
- * An array of #raqm_glyph_t, or `NULL` in case of error. This is owned by @rq
- * and must not be freed.
- *
- * Since: 0.1
- */
 raqm_glyph_t *
 raqm_get_glyphs (raqm_t *rq,
                  size_t *length)
@@ -1461,18 +1000,6 @@ raqm_get_glyphs (raqm_t *rq,
   return rq->glyphs;
 }
 
-/**
- * raqm_get_par_resolved_direction:
- * @rq: a #raqm_t.
- *
- * Gets the resolved direction of the paragraph;
- *
- * Return value:
- * The #raqm_direction_t specifying the resolved direction of text,
- * or #RAQM_DIRECTION_DEFAULT if raqm_layout() has not been called on @rq.
- *
- * Since: 0.8
- */
 raqm_direction_t
 raqm_get_par_resolved_direction (raqm_t *rq)
 {
@@ -1482,20 +1009,6 @@ raqm_get_par_resolved_direction (raqm_t *rq)
   return rq->resolved_dir;
 }
 
-/**
- * raqm_get_direction_at_index:
- * @rq: a #raqm_t.
- * @index: (in): character index.
- *
- * Gets the resolved direction of the character at specified index;
- *
- * Return value:
- * The #raqm_direction_t specifying the resolved direction of text at the
- * specified index, or #RAQM_DIRECTION_DEFAULT if raqm_layout() has not been
- * called on @rq.
- *
- * Since: 0.8
- */
 raqm_direction_t
 raqm_get_direction_at_index (raqm_t *rq,
                              size_t index)
@@ -1569,12 +1082,10 @@ _raqm_bidi_itemize (raqm_t *rq, size_t *run_count)
   else if (rq->base_dir == RAQM_DIRECTION_LTR)
     base_level = 0;
 
-  /* paragraph */
   bidi = SBAlgorithmCreate (&input);
   par = SBAlgorithmCreateParagraph (bidi, 0, INT32_MAX, base_level);
   par_len = SBParagraphGetLength (par);
 
-  /* lines */
   line = SBParagraphCreateLine (par, 0, par_len);
   *run_count = SBLineGetRunCount (line);
 
@@ -1620,9 +1131,7 @@ static _raqm_bidi_run *
 _raqm_reorder_runs (const FriBidiCharType *types,
                     const size_t len,
                     const FriBidiParType base_dir,
-                    /* input and output */
                     FriBidiLevel *levels,
-                    /* output */
                     size_t *run_count)
 {
   FriBidiLevel level;
@@ -1642,17 +1151,12 @@ _raqm_reorder_runs (const FriBidiCharType *types,
   assert (types);
   assert (levels);
 
-  /* L1. Reset the embedding levels of some chars:
-     4. any sequence of white space characters at the end of the line. */
   for (int i = len - 1;
        i >= 0 && FRIBIDI_IS_EXPLICIT_OR_BN_OR_WS (types[i]); i--)
   {
     levels[i] = FRIBIDI_DIR_TO_LEVEL (base_dir);
   }
 
-  /* Find max_level of the line.  We don't reuse the paragraph
-   * max_level, both for a cleaner API, and that the line max_level
-   * may be far less than paragraph max_level. */
   for (int i = len - 1; i >= 0; i--)
   {
     if (levels[i] > max_level)
@@ -1684,7 +1188,6 @@ _raqm_reorder_runs (const FriBidiCharType *types,
     run_index++;
   }
 
-  /* L2. Reorder. */
   for (level = max_level; level > 0; level--)
   {
     for (int i = count - 1; i >= 0; i--)
@@ -1740,7 +1243,6 @@ _raqm_bidi_itemize (raqm_t *rq, size_t *run_count)
   if (max_level == 0)
     goto done;
 
-  /* Get the number of bidi runs */
   runs = _raqm_reorder_runs (types, rq->text_len, par_type, levels, run_count);
 
 done:
@@ -1780,7 +1282,6 @@ _raqm_itemize (raqm_t *rq)
 
   if (rq->base_dir == RAQM_DIRECTION_TTB)
   {
-    /* Treat every thing as LTR in vertical text */
     run_count = 1;
     rq->resolved_dir = RAQM_DIRECTION_TTB;
     runs = malloc (sizeof (_raqm_bidi_run));
@@ -1926,7 +1427,6 @@ done:
   return ok;
 }
 
-/* Stack to handle script detection */
 typedef struct
 {
   size_t       capacity;
@@ -1935,19 +1435,18 @@ typedef struct
   hb_script_t *script;
 } _raqm_stack_t;
 
-/* Special paired characters for script detection */
 static size_t paired_len = 34;
 static const uint32_t paired_chars[] =
 {
-  0x0028, 0x0029, /* ascii paired punctuation */
+  0x0028, 0x0029,
   0x003c, 0x003e,
   0x005b, 0x005d,
   0x007b, 0x007d,
-  0x00ab, 0x00bb, /* guillemets */
-  0x2018, 0x2019, /* general punctuation */
+  0x00ab, 0x00bb,
+  0x2018, 0x2019,
   0x201c, 0x201d,
   0x2039, 0x203a,
-  0x3008, 0x3009, /* chinese paired punctuation */
+  0x3008, 0x3009,
   0x300a, 0x300b,
   0x300c, 0x300d,
   0x300e, 0x300f,
@@ -1966,7 +1465,6 @@ _raqm_stack_free (_raqm_stack_t *stack)
   free (stack);
 }
 
-/* Stack handling functions */
 static _raqm_stack_t *
 _raqm_stack_new (size_t max)
 {
@@ -2015,7 +1513,7 @@ _raqm_stack_top (_raqm_stack_t *stack)
   if (!stack->size)
   {
     RAQM_DBG ("Stack is Empty\n");
-    return HB_SCRIPT_INVALID; /* XXX: check this */
+    return HB_SCRIPT_INVALID;
   }
 
   return stack->script[stack->size];
@@ -2069,20 +1567,12 @@ _raqm_unicode_script (hb_codepoint_t u)
 
   unicode_funcs = hb_unicode_funcs_get_default ();
 
-  /* Make combining marks inherit the script of their bases, regardless of
-   * their own script.
-   */
   if (hb_unicode_general_category (unicode_funcs, u) == HB_UNICODE_GENERAL_CATEGORY_NON_SPACING_MARK)
     return HB_SCRIPT_INHERITED;
 
   return hb_unicode_script (unicode_funcs, u);
 }
 
-/* Resolve the script for each character in the input string, if the character
- * script is common or inherited it takes the script of the character before it
- * except paired characters which we try to make them use the same script. We
- * then split the BiDi runs, if necessary, on script boundaries.
- */
 static bool
 _raqm_resolve_scripts (raqm_t *rq)
 {
@@ -2117,16 +1607,12 @@ _raqm_resolve_scripts (raqm_t *rq)
       {
         if (IS_OPEN (pair_index))
         {
-          /* is a paired character */
           rq->text_info[i].script = last_script;
           last_set_index = i;
           _raqm_stack_push (stack, rq->text_info[i].script, pair_index);
         }
         else
         {
-          /* is a close paired character */
-          /* find matching opening (by getting the last even index for current
-           * odd index) */
           while (!STACK_IS_EMPTY (stack) &&
                  stack->pair_index[stack->size] != (pair_index & ~1))
           {
@@ -2167,10 +1653,6 @@ _raqm_resolve_scripts (raqm_t *rq)
     }
   }
 
-  /* Loop backwards and change any remaining Common or Inherit characters to
-   * take the script if the next character.
-   * https://github.com/HOST-Oman/libraqm/issues/95
-   */
   for (int i = rq->text_len - 2; i >= 0;  --i)
   {
     if (rq->text_info[i].script == HB_SCRIPT_INHERITED ||
@@ -2284,7 +1766,6 @@ _raqm_shape (raqm_t *rq)
   return true;
 }
 
-/* Count equivalent UTF-8 bytes in codepoint */
 static size_t
 _raqm_count_codepoint_utf8_bytes (uint32_t chr)
 {
@@ -2298,7 +1779,6 @@ _raqm_count_codepoint_utf8_bytes (uint32_t chr)
     return 4;
 }
 
-/* Convert index from UTF-32 to UTF-8 */
 static uint32_t
 _raqm_u32_to_u8_index (raqm_t   *rq,
                        uint32_t  index)
@@ -2311,7 +1791,6 @@ _raqm_u32_to_u8_index (raqm_t   *rq,
   return length;
 }
 
-/* Convert index from UTF-8 to UTF-32 */
 static size_t
 _raqm_u8_to_u32_index (raqm_t   *rq,
                        size_t  index)
@@ -2340,7 +1819,6 @@ _raqm_u8_to_u32_index (raqm_t   *rq,
   return length;
 }
 
-/* Count equivalent UTF-16 short in codepoint */
 static size_t
 _raqm_count_codepoint_utf16_short (uint32_t chr)
 {
@@ -2350,7 +1828,6 @@ _raqm_count_codepoint_utf16_short (uint32_t chr)
     return 1;
 }
 
-/* Convert index from UTF-32 to UTF-16 */
 static uint32_t
 _raqm_u32_to_u16_index (raqm_t   *rq,
                        uint32_t  index)
@@ -2363,7 +1840,6 @@ _raqm_u32_to_u16_index (raqm_t   *rq,
   return length;
 }
 
-/* Convert index from UTF-16 to UTF-32 */
 static size_t
 _raqm_u16_to_u32_index (raqm_t   *rq,
                        size_t  index)
@@ -2402,29 +1878,12 @@ _raqm_encoding_to_u32_index (raqm_t *rq,
 static bool
 _raqm_in_hangul_syllable (hb_codepoint_t ch);
 
-/**
- * raqm_index_to_position:
- * @rq: a #raqm_t.
- * @index: (inout): character index.
- * @x: (out): output x position.
- * @y: (out): output y position.
- *
- * Calculates the cursor position after the character at @index. If the character
- * is right-to-left, then the cursor will be at the left of it, whereas if the
- * character is left-to-right, then the cursor will be at the right of it.
- *
- * Return value:
- * `true` if the process was successful, `false` otherwise.
- *
- * Since: 0.2
- */
 bool
 raqm_index_to_position (raqm_t *rq,
                         size_t *index,
                         int *x,
                         int *y)
 {
-  /* We don't currently support multiline, so y is always 0 */
   *y = 0;
   *x = 0;
 
@@ -2495,22 +1954,6 @@ found:
   return true;
 }
 
-/**
- * raqm_position_to_index:
- * @rq: a #raqm_t.
- * @x: x position.
- * @y: y position.
- * @index: (out): output character index.
- *
- * Returns the @index of the character at @x and @y position within text.
- * If the position is outside the text, the last character is chosen as
- * @index.
- *
- * Return value:
- * `true` if the process was successful, `false` in case of error.
- *
- * Since: 0.2
- */
 bool
 raqm_position_to_index (raqm_t *rq,
                         int x,
@@ -2523,7 +1966,7 @@ raqm_position_to_index (raqm_t *rq,
   if (rq == NULL)
     return false;
 
-  if (x < 0) /* Get leftmost index */
+  if (x < 0)
   {
     if (rq->resolved_dir == RAQM_DIRECTION_RTL)
       *index = rq->text_len;
@@ -2597,7 +2040,6 @@ raqm_position_to_index (raqm_t *rq,
     }
   }
 
-  /* Get rightmost index*/
   if (rq->resolved_dir == RAQM_DIRECTION_RTL)
     *index = 0;
   else
@@ -2640,24 +2082,23 @@ _raqm_allowed_grapheme_boundary (hb_codepoint_t l_char,
   r_grapheme = _raqm_get_grapheme_break (r_char, r_category);
 
   if (l_grapheme == RAQM_GRAPHEM_CR && r_grapheme == RAQM_GRAPHEM_LF)
-    return false; /*Do not break between a CR and LF GB3*/
+    return false;
   if (l_grapheme == RAQM_GRAPHEM_CONTROL || l_grapheme == RAQM_GRAPHEM_CR ||
       l_grapheme == RAQM_GRAPHEM_LF || r_grapheme == RAQM_GRAPHEM_CONTROL ||
       r_grapheme == RAQM_GRAPHEM_CR || r_grapheme == RAQM_GRAPHEM_LF)
-    return true; /*Break before and after CONTROL GB4, GB5*/
+    return true;
   if (r_grapheme == RAQM_GRAPHEM_HANGUL_SYLLABLE)
-    return false; /*Do not break Hangul syllable sequences. GB6, GB7, GB8*/
+    return false;
   if (l_grapheme == RAQM_GRAPHEM_REGIONAL_INDICATOR &&
       r_grapheme == RAQM_GRAPHEM_REGIONAL_INDICATOR)
-    return false; /*Do not break between regional indicator symbols. GB8a*/
+    return false;
   if (r_grapheme == RAQM_GRAPHEM_EXTEND)
-    return false; /*Do not break before extending characters. GB9*/
-  /*Do not break before SpacingMarks, or after Prepend characters.GB9a, GB9b*/
+    return false;
   if (l_grapheme == RAQM_GRAPHEM_PREPEND)
     return false;
   if (r_grapheme == RAQM_GRAPHEM_SPACING_MARK)
     return false;
-  return true; /*Otherwise, break everywhere. GB1, GB2, GB10*/
+  return true;
 }
 
 static _raqm_grapheme_t
@@ -2702,7 +2143,7 @@ _raqm_get_grapheme_break (hb_codepoint_t ch,
           ch != 0x1083 && (ch < 0x1087 || ch > 0x108C) && ch != 0x108F &&
           (ch < 0x109A || ch > 0x109C) && ch != 0x1A61 && ch != 0x1A63 &&
           ch != 0x1A64 && ch != 0xAA7B && ch != 0xAA70 && ch != 0x11720 &&
-          ch != 0x11721) /**/
+          ch != 0x11721)
         gb_type = RAQM_GRAPHEM_SPACING_MARK;
 
       else if (ch == 0x09BE || ch == 0x09D7 ||
@@ -2741,16 +2182,6 @@ _raqm_in_hangul_syllable (hb_codepoint_t ch)
   return false;
 }
 
-/**
- * raqm_version:
- * @major: (out): Library major version component.
- * @minor: (out): Library minor version component.
- * @micro: (out): Library micro version component.
- *
- * Returns library version as three integer components.
- *
- * Since: 0.7
- **/
 void
 raqm_version (unsigned int *major,
               unsigned int *minor,
@@ -2761,35 +2192,12 @@ raqm_version (unsigned int *major,
   *micro = RAQM_VERSION_MICRO;
 }
 
-/**
- * raqm_version_string:
- *
- * Returns library version as a string with three components.
- *
- * Return value: library version string.
- *
- * Since: 0.7
- **/
 const char *
 raqm_version_string (void)
 {
   return RAQM_VERSION_STRING;
 }
 
-/**
- * raqm_version_atleast:
- * @major: Library major version component.
- * @minor: Library minor version component.
- * @micro: Library micro version component.
- *
- * Checks if library version is less than or equal the specified version.
- *
- * Return value:
- * `true` if library version is less than or equal the specified version,
- * `false` otherwise.
- *
- * Since: 0.7
- **/
 bool
 raqm_version_atleast (unsigned int major,
                       unsigned int minor,
@@ -2798,49 +2206,3 @@ raqm_version_atleast (unsigned int major,
   return RAQM_VERSION_ATLEAST (major, minor, micro);
 }
 
-/**
- * RAQM_VERSION_ATLEAST:
- * @major: Library major version component.
- * @minor: Library minor version component.
- * @micro: Library micro version component.
- *
- * Checks if library version is less than or equal the specified version.
- *
- * Return value:
- * `true` if library version is less than or equal the specified version,
- * `false` otherwise.
- *
- * Since: 0.7
- **/
-
-/**
- * RAQM_VERSION_STRING:
- *
- * Library version as a string with three components.
- *
- * Since: 0.7
- **/
-
-/**
- * RAQM_VERSION_MAJOR:
- *
- * Library major version component.
- *
- * Since: 0.7
- **/
-
-/**
- * RAQM_VERSION_MINOR:
- *
- * Library minor version component.
- *
- * Since: 0.7
- **/
-
-/**
- * RAQM_VERSION_MICRO:
- *
- * Library micro version component.
- *
- * Since: 0.7
- **/

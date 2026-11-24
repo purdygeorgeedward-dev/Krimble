@@ -8,7 +8,6 @@
 #ifndef IMAGESHAPE_PLUGIN_H
 #define IMAGESHAPE_PLUGIN_H
 
-// Qt
 #include <QObject>
 #include <QVariantList>
 

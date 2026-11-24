@@ -14,19 +14,6 @@
 class KoColorProfile;
 struct KoColorProfileQuery;
 
-/**
- * A KoColorSpaceEngine is a class use to create color conversion
- * transformation between color spaces, for which all profiles can
- * output to all profiles.
- *
- * Typically, when you have an ICC color space and color profile, you
- * can convert to any other ICC color space and color profile. While
- * creating a KoColorTransformationFactory for each of this transformation
- * is possible, the number of links will make the Color Conversion explode
- * System. KoColorSpaceEngine provides a virtual node in the Color
- * Conversion System that can convert to any other node supported by the
- * engine.
- */
 class KRITAPIGMENT_EXPORT KoColorSpaceEngine : public KoColorConversionTransformationAbstractFactory
 {
 public:
@@ -36,18 +23,9 @@ public:
     const QString& name() const;
     virtual const KoColorProfile* addProfile(const QString &filename) = 0;
     virtual const KoColorProfile* addProfile(const QByteArray &data) = 0;
-    /**
-     * @brief getProfile
-     * This tries to generate a profile with the given characteristics and add it to the registry.
-     * @param query -- a KoColorProfileQuery to generate a profile for.
-     * @return a profile that matches these characteristics.
-     */
     virtual const KoColorProfile* getProfile(const KoColorProfileQuery &query) = 0;
     virtual void removeProfile(const QString &filename) = 0;
 
-    /**
-     * \return true if the color space can be converted via this engine
-     */
     virtual bool supportsColorSpace(const QString& colorModelId, const QString& colorDepthId, const KoColorProfile *profile) const;
 
 private:

@@ -26,4 +26,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif // KISSHARPNESSOPTIONWIDGET_H
+#endif

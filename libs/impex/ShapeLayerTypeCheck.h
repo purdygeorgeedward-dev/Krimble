@@ -7,7 +7,6 @@
 #ifndef SHAPELAYERTYPECHECK_H
 #define SHAPELAYERTYPECHECK_H
 
-
 #include "KisExportCheckRegistry.h"
 #include <KoID.h>
 #include <klocalizedstring.h>
@@ -45,7 +44,6 @@ public:
         return visitAll(layer);
     }
 
-
     bool visit(KisAdjustmentLayer *) override {return true;}
 
     bool visit(KisExternalLayer * layer) override {
@@ -69,13 +67,10 @@ public:
 
     bool visit(KisColorizeMask *) override {return true;}
 
-
-
 private:
     bool check(QList<KoShape*> shapes) {
         Q_FOREACH(KoShape* shape, shapes) {
             if (KoShapeGroup *group = dynamic_cast<KoShapeGroup*>(shape)) {
-                // ShapeGroups have no id...
                 if (m_shapeId == "KoShapeGroup") {
                     m_count ++;
                 }
@@ -101,7 +96,6 @@ private:
     const QString m_pathShapeId;
 
 };
-
 
 class ShapeLayerTypeCheck : public KisExportCheckBase
 {
@@ -129,7 +123,7 @@ public:
         return (v.count() > 0);
     }
 
-    Level check(KisImageSP /*image*/) const override
+    Level check(KisImageSP ) const override
     {
         return m_level;
     }
@@ -165,4 +159,4 @@ public:
     const QString m_shapeId;
     const QString m_pathShapeId;
 };
-#endif // SHAPELAYERTYPECHECK_H
+#endif

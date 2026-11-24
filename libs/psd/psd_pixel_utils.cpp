@@ -30,7 +30,6 @@ namespace PsdPixelUtils
 {
 template<class Traits>
 typename Traits::channels_type convertByteOrder(typename Traits::channels_type value);
-// default implementation is undefined for every color space should be added manually
 
 template<>
 inline quint8 convertByteOrder<AlphaU8Traits>(quint8 value)
@@ -305,7 +304,6 @@ QMap<quint16, QByteArray> fetchChannelsBytes(QIODevice &io, QVector<ChannelInfo 
     QMap<quint16, QByteArray> channelBytes;
 
     Q_FOREACH (ChannelInfo *channelInfo, channelInfoRecords) {
-        // user supplied masks are ignored here
         if (!processMasks && channelInfo->channelId < -1)
             continue;
 
@@ -394,8 +392,6 @@ void readCommon(KisPaintDeviceSP dev,
                 it->nextPixel();
             }
 
-            /// don't write-access the row right after the
-            /// the end of the read area
             if (i < layerRect.height() - 1) {
                 it->nextRow();
             }
@@ -494,7 +490,6 @@ void writeChannelDataRLEImpl(QIODevice &io,
 
     const bool externalRleBlock = rleBlockOffset >= 0;
 
-    // the start of RLE sizes block
     const qint64 channelRLESizePos = externalRleBlock ? rleBlockOffset : io.pos();
 
     {
@@ -505,9 +500,7 @@ void writeChannelDataRLEImpl(QIODevice &io,
             io.seek(rleBlockOffset);
         }
 
-        // write zero's for the channel lengths block
         for (int i = 0; i < rc.height(); ++i) {
-            // XXX: choose size for PSB!
             const quint16 fakeRLEBLockSize = 0;
             SAFE_WRITE_EX(byteOrder, io, fakeRLEBLockSize);
         }
@@ -572,8 +565,6 @@ void writeChannelDataRLE(QIODevice &io,
 template<psd_byte_order byteOrder = psd_byte_order::psdBigEndian>
 inline void preparePixelForWrite(quint8 *dataPlane, int numPixels, int channelSize, int channelId, psd_color_mode colorMode)
 {
-    // if the bitdepth > 8, place the bytes in the right order
-    // if cmyk, invert the pixel value
     if (channelSize == 1) {
         if (channelId >= 0 && (colorMode == CMYK || colorMode == CMYK64)) {
             for (int i = 0; i < numPixels; ++i) {
@@ -620,7 +611,6 @@ void writePixelDataCommonImpl(QIODevice &io,
                               QVector<ChannelWritingInfo> &writingInfoList,
                               psd_compression_type compressionType)
 {
-    // Empty rects must be processed separately on a higher level!
     KIS_ASSERT_RECOVER_RETURN(!rc.isEmpty());
 
     QVector<quint8 *> tmp = dev->readPlanarBytes(rc.x() - dev->x(), rc.y() - dev->y(), rc.width(), rc.height());
@@ -628,7 +618,7 @@ void writePixelDataCommonImpl(QIODevice &io,
 
     QVector<quint8 *> planes;
 
-    { // prepare 'planes' array
+    {
 
         quint8 *alphaPlanePtr = 0;
 
@@ -656,7 +646,6 @@ void writePixelDataCommonImpl(QIODevice &io,
             }
         }
 
-        // now planes are holding pointers to quint8 arrays
         tmp.clear();
     }
 
@@ -664,15 +653,12 @@ void writePixelDataCommonImpl(QIODevice &io,
 
     const int numPixels = rc.width() * rc.height();
 
-    // write down the planes
-
     try {
         for (int i = 0; i < writingInfoList.size(); i++) {
             const ChannelWritingInfo &info = writingInfoList[i];
 
             dbgFile << "\tWriting channel" << i << "psd channel id" << info.channelId;
 
-            // WARNING: Pixel data is ALWAYS in big endian!!!
             preparePixelForWrite<psd_byte_order::psdBigEndian>(planes[i], numPixels, channelSize, info.channelId, colorMode);
 
             dbgFile << "\t\tchannel start" << ppVar(io.pos()) << ", compression type" << compressionType;

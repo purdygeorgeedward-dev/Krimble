@@ -84,7 +84,6 @@ void LocaleHandler::setBcp47Tag(const QString &newBcp47Tag)
         return;
     d->locale = KoWritingSystemUtils::parseBcp47Locale(newBcp47Tag);
 
-
     d->favorites->addCode(language());
     emit bcp47TagChanged();
     emit languageChanged();
@@ -251,7 +250,7 @@ struct FavoriteLocaleModel::Private {
             locales.append(code);
         }
         favorites = locales;
-        locales.insert(0, ""); // Add empty locale...
+        locales.insert(0, "");
     }
 
     QStringList locales;
@@ -360,5 +359,4 @@ bool LanguagesFilterModel::filterAcceptsRow(int source_row, const QModelIndex &s
 
     return (name.contains(filterRegularExpression()) || code.contains(filterRegularExpression()));
 }
-
 

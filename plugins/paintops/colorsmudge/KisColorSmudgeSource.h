@@ -54,5 +54,4 @@ private:
     KisOverlayPaintDeviceWrapper &m_overlayDevice;
 };
 
-
-#endif //KRITA_KISCOLORSMUDGESOURCE_H
+#endif

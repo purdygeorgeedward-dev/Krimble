@@ -58,12 +58,10 @@ void fromDoubleCheckNullF(quint8* data, int channelpos, double v, bool *isNull)
     *isNull = value < std::numeric_limits<T>::epsilon();
 }
 
-
 void KisMathToolbox::transformToFR(KisPaintDeviceSP src, KisFloatRepresentation* fr, const QRect& rect)
 {
     qint32 depth = src->colorSpace()->colorChannelCount();
     QList<KoChannelInfo *> cis = src->colorSpace()->channels();
-    // remove non-color channels
     for (qint32 c = 0; c < cis.count(); ++c) {
         if (cis[c]->channelType() != KoChannelInfo::COLOR)
             cis.removeAt(c--);
@@ -126,7 +124,6 @@ void KisMathToolbox::transformFromFR(KisPaintDeviceSP dst, KisFloatRepresentatio
 {
     qint32 depth = dst->colorSpace()->colorChannelCount();
     QList<KoChannelInfo *> cis = dst->colorSpace()->channels();
-    // remove non-color channels
     for (qint32 c = 0; c < cis.count(); ++c) {
         if (cis[c]->channelType() != KoChannelInfo::COLOR)
             cis.removeAt(c--);

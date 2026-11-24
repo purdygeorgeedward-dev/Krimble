@@ -15,4 +15,4 @@ struct KoClipMaskApplicatorFactoryImpl {
     static KoClipMaskApplicatorBase* create();
 };
 
-#endif // KOCLIPMASKAPPLICATORFACTORYIMPL_H
+#endif

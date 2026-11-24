@@ -3,7 +3,7 @@
  *
  * SPDX-FileCopyrightText: 2016 Spencer Brown <sbrown655@gmail.com>
  * SPDX-FileCopyrightText: 2020 Deif Lou <ginoba@gmail.com>
- * 
+ *
  *  SPDX-License-Identifier: GPL-2.0-or-later
  */
 
@@ -16,7 +16,6 @@
 #include <KoColorSpaceRegistry.h>
 #include <KoAbstractGradient.h>
 #include <KoStopGradient.h>
-
 
 class KisGradientMapFilterConfiguration;
 typedef KisPinnedSharedPtr<KisGradientMapFilterConfiguration> KisGradientMapFilterConfigurationSP;
@@ -34,17 +33,17 @@ public:
     KisGradientMapFilterConfiguration(KisResourcesInterfaceSP resourcesInterface);
     KisGradientMapFilterConfiguration(qint32 version, KisResourcesInterfaceSP resourcesInterface);
     KisGradientMapFilterConfiguration(const KisGradientMapFilterConfiguration &rhs);
-    
+
     virtual KisFilterConfigurationSP clone() const override;
 
     QList<KoResourceLoadResult> linkedResources(KisResourcesInterfaceSP globalResourcesInterface) const override;
     QList<KoResourceLoadResult> embeddedResources(KisResourcesInterfaceSP globalResourcesInterface) const override;
-    
+
     static inline QString defaultName()
     {
         return "gradientmap";
     }
-    
+
     static constexpr qint32 defaultVersion()
     {
         return 2;

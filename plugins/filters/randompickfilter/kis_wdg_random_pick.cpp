@@ -8,7 +8,6 @@
 
 #include "kis_wdg_random_pick.h"
 
-
 #include <QLayout>
 
 #include <filter/kis_filter_configuration.h>
@@ -16,7 +15,7 @@
 
 #include "ui_wdgrandompickoptions.h"
 
-KisWdgRandomPick::KisWdgRandomPick(KisFilter* /*nfilter*/, QWidget* parent)
+KisWdgRandomPick::KisWdgRandomPick(KisFilter* , QWidget* parent)
         : KisConfigWidget(parent)
 {
     m_widget = new Ui_WdgRandomPickOptions();
@@ -49,7 +48,6 @@ void KisWdgRandomPick::setConfiguration(const KisPropertiesConfigurationSP confi
     }
 }
 
-
 KisPropertiesConfigurationSP KisWdgRandomPick::configuration() const
 {
     KisFilterConfigurationSP config = new KisFilterConfiguration("randompick", 1, KisGlobalResourcesInterface::instance());
@@ -61,5 +59,4 @@ KisPropertiesConfigurationSP KisWdgRandomPick::configuration() const
     config->setProperty("seedThreshold", m_seedThreshold);
     return config;
 }
-
 

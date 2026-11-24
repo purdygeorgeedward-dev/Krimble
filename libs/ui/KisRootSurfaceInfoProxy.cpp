@@ -15,13 +15,11 @@
 #include <KisSRGBSurfaceColorSpaceManager.h>
 #include <surfacecolormanagement/KisSurfaceColorimetry.h>
 
-
 KisRootSurfaceInfoProxy::KisRootSurfaceInfoProxy(QWidget *watched, QObject *parent)
     : KisRootSurfaceTrackerBase(watched, parent)
 {
     KIS_SAFE_ASSERT_RECOVER_RETURN(KisPlatformPluginInterfaceFactory::instance()->surfaceColorManagedByOS());
     m_rootSurfaceProfile = KoColorSpaceRegistry::instance()->p709SRGBProfile();
-    // WARNING: we potentially call virtual functions here!
     initialize();
 }
 

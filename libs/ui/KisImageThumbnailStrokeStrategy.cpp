@@ -20,7 +20,6 @@
 const qreal oversample = 2.;
 const int thumbnailTileDim = 128;
 
-
 KisImageThumbnailStrokeStrategyBase::
 KisImageThumbnailStrokeStrategyBase(KisPaintDeviceSP device,
                                     const QRect& rect,
@@ -65,8 +64,6 @@ void KisImageThumbnailStrokeStrategyBase::initStrokeCallback()
     QVector<QRect> tileRects = KritaUtils::splitRectIntoPatches(QRect(QPoint(0, 0), m_thumbnailOversampledSize), QSize(thumbnailTileDim, thumbnailTileDim));
     Q_FOREACH (const QRect &rc, tileRects) {
         addJobConcurrent(jobs, [this, tileRect = rc] () {
-            //we aren't going to use oversample capability of createThumbnailDevice because it recomputes exact bounds for each small patch, which is
-            //slow. We'll handle scaling separately.
             KisPaintDeviceSP thumbnailTile = m_device->createThumbnailDeviceOversampled(m_thumbnailOversampledSize.width(), m_thumbnailOversampledSize.height(), 1, m_device->defaultBounds()->bounds(), tileRect);
             KisPainter::copyAreaOptimized(tileRect.topLeft(), thumbnailTile, m_thumbnailDevice, tileRect);
         });

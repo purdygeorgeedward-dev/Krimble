@@ -60,10 +60,6 @@ QString KisResourceCacheDb::lastError()
     return s_lastError;
 }
 
-// use in WHERE QSqlQuery clauses
-// because if the string is null, the query will also have null there
-// and every comparison with null is false, so the query won't find anything
-// (especially important for storage location where empty string is common)
 QString changeToEmptyIfNull(QString s)
 {
     return s.isNull() ? QString("") : s;
@@ -141,9 +137,6 @@ QSqlError runUpdateScript(const QString &script, const QString &message)
 
 QSqlError createDatabase(const QString &location)
 {
-    // NOTE: if the id's of Unknown and Memory in the database
-    //       will change, and that will break the queries that
-    //       remove Unknown and Memory storages on start-up.
     KisResourceCacheDb::storageTypes = QStringList {
         KisResourceStorage::storageTypeToUntranslatedString(KisResourceStorage::StorageType(1)),
         KisResourceStorage::storageTypeToUntranslatedString(KisResourceStorage::StorageType(2)),
@@ -184,10 +177,8 @@ QSqlError createDatabase(const QString &location)
         db = QSqlDatabase::database();
     }
 
-    // will be filled correctly later
     QVersionNumber oldSchemaVersionNumber;
     QVersionNumber newSchemaVersionNumber = QVersionNumber::fromString(KisResourceCacheDb::databaseVersion);
-
 
     QStringList tables = QStringList() << "version_information"
                                        << "storage_types"
@@ -202,7 +193,6 @@ QSqlError createDatabase(const QString &location)
                                        << "tag_translations";
 
     QStringList dbTables;
-    // Verify whether we should recreate the database
     {
         bool allTablesPresent = true;
         dbTables = db.tables();
@@ -219,7 +209,6 @@ QSqlError createDatabase(const QString &location)
         int creationDate = 0;
 
         if (dbTables.contains("version_information")) {
-            // Verify the version number
 
             {
                 QSqlQuery q(
@@ -275,7 +264,7 @@ QSqlError createDatabase(const QString &location)
                     if (from14to15) {
                         QSqlError error = runUpdateScript(
                             "ALTER TABLE  resource_tags\n"
-                            "ADD   COLUMN active INTEGER NOT NULL DEFAULT 1", 
+                            "ADD   COLUMN active INTEGER NOT NULL DEFAULT 1",
                             "Update resource tags table (add \'active\' column)");
                         if (error.type() != QSqlError::NoError) {
                             success = false;
@@ -368,8 +357,6 @@ QSqlError createDatabase(const QString &location)
                                 .arg(kritaVersion)
                                 .arg(QDateTime::fromSecsSinceEpoch(creationDate).toString()));
 
-            /// initialization is completed, transaction is over,
-            /// now enable the foreign_keys constraint if necessary
             KisResourceCacheDb::synchronizeForeignKeysState();
 
             return QSqlError();
@@ -382,7 +369,6 @@ QSqlError createDatabase(const QString &location)
 
     KisDatabaseTransactionLock transactionLock(QSqlDatabase::database());
 
-    // Create tables
     Q_FOREACH(const QString &table, tables) {
         QSqlError error =
             runUpdateScriptFile(":/create_" + table + ".sql", QString("Create table %1").arg(table));
@@ -392,7 +378,6 @@ QSqlError createDatabase(const QString &location)
     }
 
     {
-        // metadata table constraints were updated in version 0.0.18
         QSqlError error = runUpdateScriptFile(":/0_0_18_0002_update_metadata_table_constraints.sql",
                                               "Update metadata table constraints");
 
@@ -401,16 +386,12 @@ QSqlError createDatabase(const QString &location)
         }
     }
 
-    // Create indexes
     QStringList indexes;
 
-    // these indexes came in version 0.0.16
     indexes << "storages" << "versioned_resources" << "tags" << "resources" << "tag_translations" << "resource_tags";
 
-    // this index came in version 0.0.17
     indexes << "resources_signature";
 
-    // this index came in version 0.0.18
     indexes << "metadata_key";
 
     Q_FOREACH(const QString &index, indexes) {
@@ -421,7 +402,6 @@ QSqlError createDatabase(const QString &location)
         }
     }
 
-    // Fill lookup tables
     {
         QFile f(":/fill_storage_types.sql");
         if (f.open(QFile::ReadOnly)) {
@@ -470,8 +450,6 @@ QSqlError createDatabase(const QString &location)
 
     transactionLock.commit();
 
-    /// initialization is completed, transaction is over,
-    /// now enable the foreign_keys constraint if necessary
     KisResourceCacheDb::synchronizeForeignKeysState();
 
     return QSqlError();
@@ -500,7 +478,6 @@ bool KisResourceCacheDb::initialize(const QString &location)
         break;
     }
 
-    // Delete all storages that are no longer known to the resource locator (including the memory storages)
     deleteTemporaryResources();
 
     return s_valid;
@@ -579,7 +556,6 @@ QVector<int> KisResourceCacheDb::resourcesForStorage(const QString &resourceType
 
 int KisResourceCacheDb::resourceIdForResource(const QString &resourceFileName, const QString &resourceType, const QString &storageLocation)
 {
-    //qDebug() << "resourceIdForResource" << resourceName << resourceFileName << resourceType << storageLocation;
 
     QSqlQuery q;
 
@@ -609,19 +585,17 @@ int KisResourceCacheDb::resourceIdForResource(const QString &resourceFileName, c
         return q.value(0).toInt();
     }
 
-    // couldn't be found in the `resources` table, but can still be in versioned_resources
-
     if (!q.prepare("SELECT versioned_resources.resource_id\n"
                    "FROM   resources\n"
                    ",      resource_types\n"
                    ",      versioned_resources\n"
                    ",      storages\n"
-                   "WHERE  resources.resource_type_id = resource_types.id\n"    // join resources and resource_types by resource id
-                   "AND    versioned_resources.resource_id = resources.id\n"    // join versioned_resources and resources by resource id
-                   "AND    storages.id = versioned_resources.storage_id\n"      // join storages and versioned_resources by storage id
-                   "AND    storages.location = :storage_location\n"             // storage location must be the same as asked for
-                   "AND    resource_types.name = :resource_type\n"              // resource type must be the same as asked for
-                   "AND    versioned_resources.filename = :filename\n")) {      // filename must be the same as asked for
+                   "WHERE  resources.resource_type_id = resource_types.id\n"
+                   "AND    versioned_resources.resource_id = resources.id\n"
+                   "AND    storages.id = versioned_resources.storage_id\n"
+                   "AND    storages.location = :storage_location\n"
+                   "AND    resource_types.name = :resource_type\n"
+                   "AND    versioned_resources.filename = :filename\n")) {
         qWarning() << "Could not read and prepare resourceIdForResource (in versioned resources)" << q.lastError();
         return -1;
     }
@@ -639,8 +613,6 @@ int KisResourceCacheDb::resourceIdForResource(const QString &resourceFileName, c
         return q.value(0).toInt();
     }
 
-    // commenting out, because otherwise it spams the console on every new resource in the local resources folder
-    // qWarning() << "Could not find resource" << resourceName << resourceFileName << resourceType << storageLocation;
     return -1;
 
 }
@@ -684,7 +656,6 @@ bool KisResourceCacheDb::addResourceVersion(int resourceId, QDateTime timestamp,
 {
     bool r = false;
 
-
     r = addResourceVersionImpl(resourceId, timestamp, storage, resource);
 
     if (!r) return r;
@@ -697,13 +668,6 @@ bool KisResourceCacheDb::addResourceVersion(int resourceId, QDateTime timestamp,
 bool KisResourceCacheDb::addResourceVersionImpl(int resourceId, QDateTime timestamp, KisResourceStorageSP storage, KoResourceSP resource)
 {
     bool r = false;
-
-    // Create the new version. The resource is expected to have an updated version number, or
-    // this will fail on the unique index on resource_id, storage_id and version.
-    //
-    // This function **only** adds to the versioned_resources table.
-    // The resources table should be updated by the caller manually using
-    // updateResourceTableForResourceIfNeeded()
 
     Q_ASSERT(resource->version() >= 0);
 
@@ -746,10 +710,6 @@ bool KisResourceCacheDb::addResourceVersionImpl(int resourceId, QDateTime timest
 bool KisResourceCacheDb::removeResourceVersionImpl(int resourceId, int version, KisResourceStorageSP storage)
 {
     bool r = false;
-
-    // Remove a version of the resource. This function **only** removes data from
-    // the versioned_resources table. The resources table should be updated by
-    // the caller manually using updateResourceTableForResourceIfNeeded()
 
     QSqlQuery q;
     r = q.prepare("DELETE FROM versioned_resources \n"
@@ -1002,11 +962,11 @@ bool KisResourceCacheDb::getResourceIdFromFilename(QString filename, QString res
     bool r = q.prepare("SELECT resources.id FROM resources\n"
                        ", resource_types\n"
                        ", storages\n"
-                       "WHERE resources.filename = :filename\n" // bind to filename
-                       "AND resource_types.id = resources.resource_type_id\n"  // join resources_types + resources
-                       "AND resource_types.name = :resourceType\n" // bind to resource type
-                       "AND resources.storage_id = storages.id\n" // join resources + storages
-                       "AND storages.location = :storageLocation"); // bind to storage location
+                       "WHERE resources.filename = :filename\n"
+                       "AND resource_types.id = resources.resource_type_id\n"
+                       "AND resource_types.name = :resourceType\n"
+                       "AND resources.storage_id = storages.id\n"
+                       "AND storages.location = :storageLocation");
 
     if (!r) {
         qWarning() << "Could not prepare getResourceIdFromFilename statement" << q.lastError() << q.executedQuery();
@@ -1039,18 +999,17 @@ bool KisResourceCacheDb::getResourceIdFromVersionedFilename(QString filename, QS
                        ", resources\n"
                        ", resource_types\n"
                        ", storages\n"
-                       "WHERE versioned_resources.filename = :filename\n" // bind to filename
-                       "AND resources.id = versioned_resources.resource_id\n" // join resources + versioned_resources
-                       "AND resource_types.id = resources.resource_type_id\n"  // join resources_types + resources
-                       "AND resource_types.name = :resourceType\n" // bind to resource type
-                       "AND resources.storage_id = storages.id\n" // join resources + storages
-                       "AND storages.location = :storageLocation"); // bind to storage location
+                       "WHERE versioned_resources.filename = :filename\n"
+                       "AND resources.id = versioned_resources.resource_id\n"
+                       "AND resource_types.id = resources.resource_type_id\n"
+                       "AND resource_types.name = :resourceType\n"
+                       "AND resources.storage_id = storages.id\n"
+                       "AND storages.location = :storageLocation");
 
     if (!r) {
         qWarning() << "Could not prepare getResourceIdFromVersionedFilename statement" << q.lastError() << q.executedQuery();
         return r;
     }
-
 
     q.bindValue(":filename", filename);
     q.bindValue(":resourceType", resourceType);
@@ -1108,12 +1067,10 @@ bool KisResourceCacheDb::addResource(KisResourceStorageSP storage, QDateTime tim
 
     if (!resource || !resource->valid()) {
         qWarning() << "KisResourceCacheDb::addResource: The resource is not valid:" << resource->filename();
-        // We don't care about invalid resources and will just ignore them.
         return true;
     }
     bool temporary = (storage->type() == KisResourceStorage::StorageType::Memory);
 
-    // Check whether it already exists
     int resourceId = resourceIdForResource(resource->filename(), resourceType, KisResourceLocator::instance()->makeStorageLocationRelative(storage->location()));
     if (resourceId > -1) {
         return true;
@@ -1164,7 +1121,6 @@ bool KisResourceCacheDb::addResource(KisResourceStorageSP storage, QDateTime tim
         QByteArray ctx = translationContext.toUtf8();
         QString translatedName = i18nc(ctx, resource->name().toUtf8());
         if (translatedName == resource->name()) {
-            // Try using the file name without the file extension, and replaces '_' with spaces.
             QString altName = QFileInfo(resource->filename()).completeBaseName().replace('_', ' ');
             QString altTranslatedName = i18nc(ctx, altName.toUtf8());
             if (altName != altTranslatedName) {
@@ -1213,7 +1169,6 @@ bool KisResourceCacheDb::addResource(KisResourceStorageSP storage, QDateTime tim
     }
 
     return true;
-
 
 }
 
@@ -1280,7 +1235,6 @@ bool KisResourceCacheDb::setResourceActive(int resourceId, bool active)
 
 bool KisResourceCacheDb::tagResource(const QString &resourceFileName, KisTagSP tag, const QString &resourceType)
 {
-    // Get tag id
     int tagId {-1};
     {
         QFile f(":/select_tag.sql");
@@ -1307,8 +1261,6 @@ bool KisResourceCacheDb::tagResource(const QString &resourceFileName, KisTagSP t
         }
     }
 
-
-    // Get resource id
     QSqlQuery q;
     bool r = q.prepare("SELECT resources.id\n"
                        "FROM   resources\n"
@@ -1328,7 +1280,6 @@ bool KisResourceCacheDb::tagResource(const QString &resourceFileName, KisTagSP t
         qWarning() << "Could not execute tagResource statement" << q.boundValues() << q.lastError();
         return false;
     }
-
 
     while (q.next()) {
 
@@ -1439,11 +1390,9 @@ bool KisResourceCacheDb::linkTagToStorage(const QString &url, const QString &res
     return true;
 }
 
-
 bool KisResourceCacheDb::addTag(const QString &resourceType, const QString storageLocation, KisTagSP tag)
 {
     if (hasTag(tag->url(), resourceType)) {
-        // Check whether this storage is already registered for this tag
         QSqlQuery q;
         if (!q.prepare("SELECT storages.location\n"
                        "FROM   tags_storages\n"
@@ -1468,7 +1417,6 @@ bool KisResourceCacheDb::addTag(const QString &resourceType, const QString stora
             qWarning() << "Could not execute tags_storages query" << q.boundValues() << q.lastError();
         }
 
-        // If this tag is not yet linked to the storage, link it
         if (!q.first()) {
             return linkTagToStorage(tag->url(), resourceType, storageLocation);
         }
@@ -1478,7 +1426,6 @@ bool KisResourceCacheDb::addTag(const QString &resourceType, const QString stora
 
     int tagId;
 
-    // Insert the tag
     {
         QSqlQuery q;
         if (!q.prepare("INSERT INTO tags\n"
@@ -1547,7 +1494,6 @@ bool KisResourceCacheDb::addTag(const QString &resourceType, const QString stora
 
     }
 
-
     linkTagToStorage(tag->url(), resourceType, storageLocation);
 
     return true;
@@ -1580,7 +1526,6 @@ bool KisResourceCacheDb::addTags(KisResourceStorageSP storage, QString resourceT
 
 bool KisResourceCacheDb::registerStorageType(const KisResourceStorage::StorageType storageType)
 {
-    // Check whether the type already exists
     const QString name = KisResourceStorage::storageTypeToUntranslatedString(storageType);
 
     {
@@ -1602,7 +1547,6 @@ bool KisResourceCacheDb::registerStorageType(const KisResourceStorage::StorageTy
             return true;
         }
     }
-    // if not, add it
     QFile f(":/fill_storage_types.sql");
     if (f.open(QFile::ReadOnly)) {
         QString sql = f.readAll();
@@ -1642,7 +1586,6 @@ bool KisResourceCacheDb::addStorage(KisResourceStorageSP storage, bool preinstal
         }
     }
 
-    // Insert the storage;
     {
         QSqlQuery q;
 
@@ -1693,7 +1636,6 @@ bool KisResourceCacheDb::addStorage(KisResourceStorageSP storage, bool preinstal
         }
     }
 
-    // Insert the metadata
     {
         QStringList keys = storage->metaDataKeys();
         if (keys.size() > 0 && storage->storageId() >= 0) {
@@ -1733,7 +1675,6 @@ bool KisResourceCacheDb::addStorageTags(KisResourceStorageSP storage)
 
 bool KisResourceCacheDb::deleteStorage(QString location)
 {
-    // location is already relative
 
     try {
         KisDatabaseTransactionLock transactionLock(QSqlDatabase::database());
@@ -1783,18 +1724,6 @@ bool KisResourceCacheDb::deleteStorage(QString location)
             loader.exec();
         }
 
-        /**
-         * Remove only the storage-unique tags
-         *
-         * We should first get the list of storage-unique tags, and then remove
-         * **all** the links between this storage and (any) tags, including the
-         * shared ones. The unique tags will be removed, but shared will only
-         * decrease their reference counter.
-         *
-         * NOTE: we cannot use temporary tables here, since our models may
-         * have queries open at the moment, which means we will not be able
-         * to remove these temporary tables
-         */
         QVariantList uniqueTagIdsToDelete;
         {
             auto [unique, shared] = tagsForStorage(ResourceType::PaintOpPresets, location);
@@ -1904,7 +1833,6 @@ struct ResourceVersion : public boost::less_than_comparable<ResourceVersion>
         }
     };
 
-
 };
 
 [[maybe_unused]]
@@ -1932,7 +1860,6 @@ bool KisResourceCacheDb::synchronizeStorage(KisResourceStorageSP storage)
 
     bool success = true;
 
-    // Find the storage in the database
     QSqlQuery q;
     if (!q.prepare("SELECT id\n"
                    ",      timestamp\n"
@@ -1958,22 +1885,11 @@ bool KisResourceCacheDb::synchronizeStorage(KisResourceStorageSP storage)
 
     storage->setStorageId(q.value("id").toInt());
 
-    /// Start the transaction that will add all the resources
     QSqlDatabase::database().transaction();
-
-    /// We compare resource versions one-by-one because the storage may have multiple
-    /// versions of them
 
     Q_FOREACH(const QString &resourceType, KisResourceLoaderRegistry::instance()->resourceTypes()) {
 
-        /// Firstly, fetch information about the existing resources
-        /// in the storage
-
         QVector<ResourceVersion> resourcesInStorage;
-
-        /// A fake resourceId to group resources which are not yet present
-        /// in the database. This value is always negative, therefore it
-        /// cannot overlap with normal ids.
 
         int nextInexistentResourceId = std::numeric_limits<int>::min();
 
@@ -1990,11 +1906,7 @@ bool KisResourceCacheDb::synchronizeStorage(KisResourceStorageSP storage)
             while (verIt->hasNext()) {
                 verIt->next();
 
-                // verIt->url() contains paths like "brushes/ink.png" or "brushes/subfolder/splash.png".
-                // we need to cut off the first part and get "ink.png" in the first case,
-                // but "subfolder/splash.png" in the second case in order for subfolders to work
-                // so it cannot just use QFileInfo(verIt->url()).fileName() here.
-                QString path = QDir::fromNativeSeparators(verIt->url()); // make sure it uses Unix separators
+                QString path = QDir::fromNativeSeparators(verIt->url());
                 int folderEndIdx = path.indexOf("/");
                 QString properFilenameWithSubfolders = path.right(path.length() - folderEndIdx - 1);
                 int id = resourceIdForResource(properFilenameWithSubfolders,
@@ -2005,7 +1917,6 @@ bool KisResourceCacheDb::synchronizeStorage(KisResourceStorageSP storage)
                 item.url = verIt->url();
                 item.version = verIt->guessedVersion();
 
-                // we use lower precision than the normal QDateTime
                 item.timestamp = QDateTime::fromSecsSinceEpoch(verIt->lastModified().toSecsSinceEpoch());
 
                 item.resourceId = id;
@@ -2017,10 +1928,6 @@ bool KisResourceCacheDb::synchronizeStorage(KisResourceStorageSP storage)
                 resourcesInStorage.append(item);
             }
 
-            /// Assign the detected resource id to all the versions of
-            /// this resource (if they are not present in the database).
-            /// If no id has been detected, then a fake one will be assigned.
-
             for (int i = firstResourceVersionPosition; i < resourcesInStorage.size(); i++) {
                 if (resourcesInStorage[i].resourceId < 0) {
                     resourcesInStorage[i].resourceId = detectedResourceId;
@@ -2029,9 +1936,6 @@ bool KisResourceCacheDb::synchronizeStorage(KisResourceStorageSP storage)
 
             nextInexistentResourceId++;
         }
-
-
-        /// Secondly, fetch the resources present in the database
 
         QVector<ResourceVersion> resourcesInDatabase;
 
@@ -2079,10 +1983,6 @@ bool KisResourceCacheDb::synchronizeStorage(KisResourceStorageSP storage)
 
         auto itB = resourcesInDatabase.begin();
         auto endB = resourcesInDatabase.end();
-
-        /// The head of itA array contains some resources with fake
-        /// (negative) resourceId. These resources are obviously new
-        /// resources and should be added to the cache database.
 
         while (itA != endA) {
             if (itA->resourceId >= 0) break;
@@ -2136,19 +2036,9 @@ bool KisResourceCacheDb::synchronizeStorage(KisResourceStorageSP storage)
             itA = nextResource;
         }
 
-        /// Now both arrays are sorted in resourceId/version/timestamp
-        /// order. It lets us easily find the resources that are unique
-        /// to the storage or database. If *itA < *itB, then the resource
-        /// is present in the storage only and should be added to the
-        /// database. If *itA > *itB, then the resource is present in
-        /// the database only and should be removed (because it has been
-        /// removed from the storage);
-
         while (itA != endA || itB != endB) {
             if ((itA != endA && itB != endB && *itA < *itB) ||
                     itB == endB) {
-
-                // add a version to the database
 
                 KoResourceSP res = storage->resource(itA->url);
                 if (res) {
@@ -2165,23 +2055,16 @@ bool KisResourceCacheDb::synchronizeStorage(KisResourceStorageSP storage)
             } else if ((itA != endA && itB != endB && *itA > *itB) ||
                        itA == endA) {
 
-                // remove a version from the database
                 const bool result = removeResourceVersionImpl(itB->resourceId, itB->version, storage);
                 KIS_SAFE_ASSERT_RECOVER_NOOP(result);
                 resourceIdForUpdate.insert(itB->resourceId);
                 ++itB;
 
             } else {
-                // resources are equal, just skip them
                 ++itA;
                 ++itB;
             }
         }
-
-
-        /// In the main loop we modified the versioned_resource table only,
-        /// now we should update the head resources table with the latest
-        /// version of the resource (and upload the thumbnail as well)
 
         for (auto it = resourceIdForUpdate.begin(); it != resourceIdForUpdate.end(); ++it) {
             updateResourceTableForResourceIfNeeded(*it, resourceType, storage);
@@ -2199,9 +2082,6 @@ void KisResourceCacheDb::deleteTemporaryResources()
     try {
         KisDatabaseTransactionLock transactionLock(QSqlDatabase::database());
 
-        /**
-         * Remove all temporary resources
-         */
         {
             KisSqlQueryLoader loader(
                 "inline://delete_metadata_for_resources_in_memory_storages",
@@ -2268,10 +2148,6 @@ void KisResourceCacheDb::deleteTemporaryResources()
                                      KisSqlQueryLoader::single_statement_mode);
             loader.exec();
         }
-
-        /**
-         * Remove all temporary storages
-         */
 
         {
             KisSqlQueryLoader loader("inline://delete_metadata_for_temporary_storages",
@@ -2377,7 +2253,6 @@ void KisResourceCacheDb::synchronizeForeignKeysState()
 
 bool KisResourceCacheDb::registerResourceType(const QString &resourceType)
 {
-    // Check whether the type already exists
     {
         QSqlQuery q;
         if (!q.prepare("SELECT count(*)\n"
@@ -2397,7 +2272,6 @@ bool KisResourceCacheDb::registerResourceType(const QString &resourceType)
             return true;
         }
     }
-    // if not, add it
     QFile f(":/fill_resource_types.sql");
     if (f.open(QFile::ReadOnly)) {
         QString sql = f.readAll();
@@ -2442,7 +2316,7 @@ QMap<QString, QVariant> KisResourceCacheDb::metaDataForId(int id, const QString 
         if (!ba.isEmpty()) {
             QDataStream ds(QByteArray::fromBase64(ba));
             QVariant value;
-            ds.setVersion(QDataStream::Qt_5_15); // so Qt6 can read metatypes written by Qt5
+            ds.setVersion(QDataStream::Qt_5_15);
             ds >> value;
             map[key] = value;
         }
@@ -2508,7 +2382,7 @@ bool KisResourceCacheDb::addMetaDataForId(const QMap<QString, QVariant> map, int
         if (!v.isNull() && v.isValid()) {
             QByteArray ba;
             QDataStream ds(&ba, QIODevice::WriteOnly);
-            ds.setVersion(QDataStream::Qt_5_15); // so Qt6 can write metatypes readable by Qt5
+            ds.setVersion(QDataStream::Qt_5_15);
             ds << v;
             ba = ba.toBase64();
             q.bindValue(":value", QString::fromLatin1(ba));

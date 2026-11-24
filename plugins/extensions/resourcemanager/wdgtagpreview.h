@@ -25,7 +25,6 @@ class WdgTagPreview : public QWidget
 {
     Q_OBJECT
 
-
 Q_SIGNALS:
     void tagsAdded(KisTagSP tagSP);
     void tagsRemoved(KisTagSP tagSP);
@@ -48,4 +47,4 @@ private:
     KoResourceBundleSP m_bundle;
 };
 
-#endif // WDGTAGPREVIEW_H
+#endif

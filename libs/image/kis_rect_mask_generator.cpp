@@ -8,7 +8,6 @@
 
 #include <cmath>
 
-
 #include <QDomDocument>
 
 #include "KoMultiArchBuildSupport.h"
@@ -16,7 +15,6 @@
 #include "kis_fast_math.h"
 #include "kis_rect_mask_generator.h"
 #include "kis_rect_mask_generator_p.h"
-
 
 #include "kis_brush_mask_applicator_factories.h"
 #include "kis_brush_mask_applicator_base.h"
@@ -28,7 +26,6 @@ KisRectangleMaskGenerator::KisRectangleMaskGenerator(qreal radius, qreal ratio, 
 {
     setScale(1.0, 1.0);
 
-    // store the variable locally to allow vector implementation read it easily
     d->copyOfAntialiasEdges = antialiasEdges;
     d->applicator.reset(createOptimizedClass<MaskApplicatorFactory<KisRectangleMaskGenerator>>(this));
 }
@@ -90,8 +87,8 @@ void KisRectangleMaskGenerator::setMaskScalarApplicator()
 quint8 KisRectangleMaskGenerator::valueAt(qreal x, qreal y) const
 {
     if (isEmpty()) return 255;
-    qreal xr = qAbs(x /*- m_xcenter*/);
-    qreal yr = qAbs(y /*- m_ycenter*/);
+    qreal xr = qAbs(x );
+    qreal yr = qAbs(y );
     fixRotation(xr, yr);
 
     xr = qAbs(xr);

@@ -31,5 +31,5 @@ private Q_SLOTS:
 
 };
 
-#endif /* KIS_ASYNC_MERGER_TEST_H */
+#endif
 

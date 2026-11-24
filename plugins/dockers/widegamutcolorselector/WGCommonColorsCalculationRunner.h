@@ -24,11 +24,9 @@ public:
     WGCommonColorsCalculationRunner(KisImageSP image, int numberOfColors,
                                        QSharedPointer<QVector<KoColor>> colorStore);
 
-
     void run() override;
     void extractColors();
     QList<QRgb> getColors();
-
 
 Q_SIGNALS:
     void sigDone();
@@ -39,4 +37,4 @@ private:
     QSharedPointer<QVector<KoColor>> m_commonColors;
 };
 
-#endif // WGCOMMONCOLORSCALCULATIONRUNNER_H
+#endif

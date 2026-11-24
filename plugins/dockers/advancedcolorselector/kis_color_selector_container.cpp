@@ -67,7 +67,6 @@ KisColorSelectorContainer::KisColorSelectorContainer(QWidget *parent) :
     connect(this, SIGNAL(settingsChanged()), this,                   SLOT(updateSettings()));
     connect(this, SIGNAL(settingsChanged()), m_minimalShadeSelector, SLOT(updateSettings()));
 
-
     m_colorSelAction = KisActionRegistry::instance()->makeQAction("show_color_selector", this);
     connect(m_colorSelAction, SIGNAL(triggered()), m_colorSelector, SLOT(showPopup()), Qt::UniqueConnection);
 
@@ -122,9 +121,7 @@ void KisColorSelectorContainer::setCanvas(KisCanvas2* canvas)
     m_myPaintShadeSelector->setCanvas(canvas);
     m_minimalShadeSelector->setCanvas(canvas);
 
-
     m_colorSelector->hasAtLeastOneDocument(doesAtLeastOneDocumentExist());
-
 
     if (m_canvas && m_canvas->viewManager()) {
 
@@ -178,8 +175,6 @@ void KisColorSelectorContainer::updateSettings()
     else
         newShadeSelector = 0;
 
-
-
     if(m_shadeSelector!=newShadeSelector && m_shadeSelector!=0) {
         m_shadeSelector->hide();
     }
@@ -189,20 +184,18 @@ void KisColorSelectorContainer::updateSettings()
         m_shadeSelector->show();
 }
 
-
 void KisColorSelectorContainer::resizeEvent(QResizeEvent * e)
 {
     if(m_shadeSelector!=0) {
-        int minimumHeightForBothWidgets = m_colorSelector->minimumHeight()+m_shadeSelector->minimumHeight()+30; //+30 for the buttons (temporarily)
+        int minimumHeightForBothWidgets = m_colorSelector->minimumHeight()+m_shadeSelector->minimumHeight()+30;
 
-        if(height()<minimumHeightForBothWidgets && m_onDockerResizeSetting== 1) {  // 1 option is hide shade selector
+        if(height()<minimumHeightForBothWidgets && m_onDockerResizeSetting== 1) {
             m_shadeSelector->hide();
         }
         else {
             m_shadeSelector->show();
         }
 
-        // m_onDockerResizeSetting==0 is allow horizontal layout
         if(height() < width() && m_onDockerResizeSetting==0 && m_shadeSelector!=m_minimalShadeSelector) {
             m_widgetLayout->setDirection(QBoxLayout::LeftToRight);
         }

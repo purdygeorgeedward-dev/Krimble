@@ -1,5 +1,3 @@
-// Tests Krimble Script: every command, the errors, and that every built-in recipe written as a script means the same as the recipe.
-// Build and run: tools/batch-bench/build_script_test.sh
 #include "KrimbleBatch.h"
 #include <QCoreApplication>
 #include <QPainter>
@@ -23,7 +21,6 @@ static QString errorOf(const QString &text) { Program p; QString e; return parse
 int main(int argc, char **argv)
 {
     QCoreApplication app(argc, argv);
-    // a 400 x 200 test picture: left half red, right half blue, with a transparent top-left corner
     QImage pic(400, 200, QImage::Format_ARGB32);
     pic.fill(QColor(255, 0, 0, 255));
     { QPainter p(&pic); p.fillRect(200, 0, 200, 200, QColor(0, 0, 255)); p.setCompositionMode(QPainter::CompositionMode_Clear); p.fillRect(0, 0, 40, 40, Qt::transparent); }

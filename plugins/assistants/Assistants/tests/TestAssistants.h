@@ -12,7 +12,6 @@
 
 #include "kis_painting_assistant.h"
 
-
 class TestAssistants : public QObject
 {
     Q_OBJECT
@@ -22,4 +21,4 @@ private Q_SLOTS:
 
 };
 
-#endif /* __TEST_ASSISTANTS_H */
+#endif

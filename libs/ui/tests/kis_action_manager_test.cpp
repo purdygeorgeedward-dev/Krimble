@@ -5,7 +5,6 @@
  *  SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-
 #include "kis_action_manager_test.h"
 #include <kis_debug.h>
 
@@ -40,7 +39,7 @@ void KisActionManagerTest::testUpdateGUI()
     KisAction* action2 = new KisAction("dummy", this);
     action2->setActivationFlags(KisAction::ACTIVE_SHAPE_LAYER);
     view->viewManager()->actionManager()->addAction("dummy", action2);
-    
+
     view->viewManager()->actionManager()->updateGUI();
     QVERIFY(!action->isEnabled());
     QVERIFY(!action2->isEnabled());
@@ -80,16 +79,10 @@ void KisActionManagerTest::testCondition()
     view->viewManager()->actionManager()->updateGUI();
     QVERIFY(action->isEnabled());
 
-    // visible
-//     paintLayer1->setVisible(false);
-//     view->viewManager()->actionManager()->updateGUI();
-//     QVERIFY(!action->isEnabled());
-
     paintLayer1->setVisible(true);
     view->viewManager()->actionManager()->updateGUI();
     QVERIFY(action->isEnabled());
 
-    // locked
     paintLayer1->setUserLocked(true);
     view->viewManager()->actionManager()->updateGUI();
     QVERIFY(!action->isEnabled());
@@ -118,6 +111,5 @@ void KisActionManagerTest::testTakeAction()
     view->viewManager()->actionManager()->takeAction(action);
     QVERIFY(view->viewManager()->actionManager()->actionByName("dummy") == 0);
 }
-
 
 KISTEST_MAIN(KisActionManagerTest)

@@ -28,8 +28,7 @@ auto effectiveFilterStateLens = lager::lenses::getset(
         return y;
     });
 
-} // namespace
-
+}
 
 KisFilterOptionModel::KisFilterOptionModel(lager::cursor<KisFilterOptionData> _optionData)
     : optionData(_optionData)
@@ -49,6 +48,4 @@ KisFilterOptionData KisFilterOptionModel::bakedOptionData() const
 
     return data;
 }
-
-
 

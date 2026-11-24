@@ -22,4 +22,4 @@ private:
     QPainter *m_painter;
 };
 
-#endif // KISQPAINTERSTATESAVER_H
+#endif

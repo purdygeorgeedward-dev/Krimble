@@ -54,8 +54,6 @@
 #define PROGRAM_VERTEX_ATTRIBUTE 0
 #define PROGRAM_TEXCOORD_ATTRIBUTE 1
 
-// These buffers are used only for painting checkers,
-// so we can keep the number really low
 static constexpr int NumberOfBuffers = 2;
 
 struct KisOpenGLCanvasRenderer::Private
@@ -92,13 +90,11 @@ public:
     bool wrapAroundMode{false};
     WrapAroundAxis wrapAroundModeAxis{WRAPAROUND_BOTH};
 
-    // Stores a quad for drawing the canvas
     QOpenGLVertexArrayObject quadVAO;
 
     KisOpenGLBufferCircularStorage checkersVertexBuffer;
     KisOpenGLBufferCircularStorage checkersTextureVertexBuffer;
 
-    // Stores data for drawing tool outlines
     QOpenGLVertexArrayObject outlineVAO;
     QOpenGLBuffer lineVertexBuffer;
     QVector<QVector3D> lineVerticesStagingBuffer = {};
@@ -157,7 +153,6 @@ KisOpenGLCanvasRenderer::KisOpenGLCanvasRenderer(CanvasBridge *canvasBridge,
                                                         config.intent,
                                                         config.conversionFlags);
 
-
     setDisplayFilterImpl(displayFilter, true);
 }
 
@@ -215,8 +210,6 @@ void KisOpenGLCanvasRenderer::setDisplayFilterImpl(QSharedPointer<KisDisplayFilt
 
 void KisOpenGLCanvasRenderer::notifyImageColorSpaceChanged(const KoColorSpace *cs)
 {
-    // FIXME: on color space change the data is refetched multiple
-    //        times by different actors!
 
     if (d->openGLImageTextures->setImageColorSpace(cs)) {
         canvas()->startUpdateInPatches(canvas()->image()->bounds());
@@ -255,7 +248,6 @@ void KisOpenGLCanvasRenderer::initializeGL()
 
     initializeShaders();
 
-    // If we support OpenGL 3.0, then prepare our VAOs and VBOs for drawing
     if (KisOpenGL::supportsVAO()) {
         d->quadVAO.create();
         d->quadVAO.bind();
@@ -266,14 +258,11 @@ void KisOpenGLCanvasRenderer::initializeGL()
         d->checkersVertexBuffer.allocate(NumberOfBuffers, 6 * 3 * sizeof(float));
         d->checkersTextureVertexBuffer.allocate(NumberOfBuffers, 6 * 2 * sizeof(float));
 
-        // Create the outline buffer, this buffer will store the outlines of
-        // tools and will frequently change data
         d->outlineVAO.create();
         d->outlineVAO.bind();
 
         glEnableVertexAttribArray(PROGRAM_VERTEX_ATTRIBUTE);
 
-        // The outline buffer has a StreamDraw usage pattern, because it changes constantly
         d->lineVertexBuffer.create();
         d->lineVertexBuffer.setUsagePattern(QOpenGLBuffer::StreamDraw);
         d->lineVertexBuffer.bind();
@@ -283,9 +272,6 @@ void KisOpenGLCanvasRenderer::initializeGL()
     d->canvasInitialized = true;
 }
 
-/**
- * Loads all shaders and reports compilation problems
- */
 void KisOpenGLCanvasRenderer::initializeShaders()
 {
     KIS_SAFE_ASSERT_RECOVER_RETURN(!d->canvasInitialized);
@@ -322,16 +308,11 @@ void KisOpenGLCanvasRenderer::initializeDisplayShader()
     }
 }
 
-/**
- * Displays a message box telling the user that
- * shader compilation failed and turns off OpenGL.
- */
 void KisOpenGLCanvasRenderer::reportFailedShaderCompilation(const QString &context)
 {
     KisConfig cfg(false);
 
     qDebug() << "Shader Compilation Failure: " << context;
-    // TODO: Should do something else when using QtQuick2
     QMessageBox::critical(qApp->activeWindow(), i18nc("@title:window", "Krimble"),
                           i18n("Krimble could not initialize the OpenGL canvas:\n\n%1\n\n Krimble will disable OpenGL and close now.", context),
                           QMessageBox::Close);
@@ -343,18 +324,9 @@ void KisOpenGLCanvasRenderer::reportFailedShaderCompilation(const QString &conte
 void KisOpenGLCanvasRenderer::resizeGL(int width, int height)
 {
     {
-        // just a sanity check!
-        //
-        // This is how QOpenGLCanvas sets the FBO and the viewport size. If
-        // devicePixelRatioF() is non-integral, the result is truncated.
-        // *Correction*: The FBO size is actually rounded, but the glViewport call
-        // uses integer truncation and that's what really matters.
         int viewportWidth = static_cast<int>(width * devicePixelRatioF());
         int viewportHeight = static_cast<int>(height * devicePixelRatioF());
 
-        // We expect the size to be adjusted in the converter at the higher
-        // level of hierarchy. It happens in KisCanvasControllerWidget, which
-        // then explicitly resizes the canvas widget.
         KIS_SAFE_ASSERT_RECOVER_NOOP(QSize(viewportWidth, viewportHeight) == coordinatesConverter()->viewportDevicePixelSize());
     }
 
@@ -402,14 +374,10 @@ void KisOpenGLCanvasRenderer::paintToolOutline(const KisOptimizedBrushOutline &p
 
     const QSizeF &widgetSize = d->pixelAlignedWidgetSize;
 
-    // setup the mvp transformation
     QMatrix4x4 projectionMatrix;
     projectionMatrix.setToIdentity();
-    // FIXME: It may be better to have the projection in device pixel, but
-    //       this requires introducing a new coordinate system.
     projectionMatrix.ortho(0, widgetSize.width(), widgetSize.height(), 0, NEAR_VAL, FAR_VAL);
 
-    // Set view/projection matrices
     QMatrix4x4 modelMatrix(coordinatesConverter()->flakeToWidgetTransform());
     modelMatrix.optimize();
     modelMatrix = projectionMatrix * modelMatrix;
@@ -423,24 +391,18 @@ void KisOpenGLCanvasRenderer::paintToolOutline(const KisOptimizedBrushOutline &p
     glBlendFuncSeparate(GL_ONE, GL_SRC_COLOR, GL_ZERO, GL_ONE);
     glBlendEquationSeparate(GL_FUNC_SUBTRACT, GL_FUNC_ADD);
 
-
     if (!viewportUpdateRect.isEmpty()) {
         const QRect deviceUpdateRect = widgetToSurface(viewportUpdateRect).toAlignedRect();
         glScissor(deviceUpdateRect.x(), deviceUpdateRect.y(), deviceUpdateRect.width(), deviceUpdateRect.height());
         glEnable(GL_SCISSOR_TEST);
     }
 
-    // Paint the tool outline
     if (KisOpenGL::supportsVAO()) {
         d->outlineVAO.bind();
         d->lineVertexBuffer.bind();
     }
 
-
     if (thickness > 1) {
-        // Because glLineWidth is not supported on all versions of OpenGL (or rather,
-        // is limited to 1, as returned by GL_ALIASED_LINE_WIDTH_RANGE),
-        // we'll instead generate mitered-triangles.
 
         const qreal halfWidth = (thickness * 0.5) / devicePixelRatioF();
         const qreal miterLimit = (5 * thickness) / devicePixelRatioF();
@@ -471,7 +433,6 @@ void KisOpenGLCanvasRenderer::paintToolOutline(const KisOptimizedBrushOutline &p
                 QPointF c3 = p2 - (normal * halfWidth);
                 QPointF c4 = p2 + (normal * halfWidth);
 
-                // Add miter
                 if (adjustFirst) {
                     QPointF pPrev = i >= 2 ?
                         QPointF(polygon.at(i-2)) :
@@ -531,7 +492,6 @@ void KisOpenGLCanvasRenderer::paintToolOutline(const KisOptimizedBrushOutline &p
             glDrawArrays(GL_TRIANGLES, 0, triangleCount * 3);
         }
     } else {
-        // Convert every disjointed subpath to a polygon and draw that polygon
         for (auto it = path.begin(); it != path.end(); ++it) {
             const QPolygonF& polygon = *it;
 
@@ -558,8 +518,6 @@ void KisOpenGLCanvasRenderer::paintToolOutline(const KisOptimizedBrushOutline &p
                 d->solidColorShader->enableAttributeArray(PROGRAM_VERTEX_ATTRIBUTE);
                 d->solidColorShader->setAttributeArray(PROGRAM_VERTEX_ATTRIBUTE, d->lineVerticesStagingBuffer.constData());
             }
-
-
 
             glDrawArrays(GL_LINE_STRIP, 0, verticesCount);
         }
@@ -589,8 +547,6 @@ void KisOpenGLCanvasRenderer::setLodResetInProgress(bool value)
 void KisOpenGLCanvasRenderer::drawBackground(const QRect &updateRect)
 {
     Q_UNUSED(updateRect);
-
-    // Draw the border (that is, clear the whole widget to the border color)
 
     QColor bgColor = colorToDisplaySpace(borderColor());
     glClearColor(bgColor.redF(), bgColor.greenF(), bgColor.blueF(), 1.0);
@@ -629,7 +585,6 @@ void KisOpenGLCanvasRenderer::drawCheckers(const QRect &updateRect)
         }
     }
 
-    // TODO: check if it works correctly
     if (!canvas()->renderingLimit().isEmpty()) {
         const QRect vrect = converter->imageToViewport(canvas()->renderingLimit()).toAlignedRect();
         viewportRect &= vrect;
@@ -648,11 +603,8 @@ void KisOpenGLCanvasRenderer::drawCheckers(const QRect &updateRect)
 
     QMatrix4x4 projectionMatrix;
     projectionMatrix.setToIdentity();
-    // FIXME: It may be better to have the projection in device pixel, but
-    //       this requires introducing a new coordinate system.
     projectionMatrix.ortho(0, widgetSize.width(), widgetSize.height(), 0, NEAR_VAL, FAR_VAL);
 
-    // Set view/projection matrices
     QMatrix4x4 modelMatrix(modelTransform);
     modelMatrix.optimize();
     modelMatrix = projectionMatrix * modelMatrix;
@@ -661,7 +613,6 @@ void KisOpenGLCanvasRenderer::drawCheckers(const QRect &updateRect)
     QMatrix4x4 textureMatrix(textureTransform);
     d->checkerShader->setUniformValue(d->checkerShader->location(Uniform::TextureMatrix), textureMatrix);
 
-    //Setup the geometry for rendering
     if (KisOpenGL::supportsVAO()) {
         KisPaintingTweaks::rectToVertices(d->vertices, modelRect);
         QOpenGLBuffer *vertexBuf = d->checkersVertexBuffer.getNextBuffer();
@@ -669,7 +620,6 @@ void KisOpenGLCanvasRenderer::drawCheckers(const QRect &updateRect)
         vertexBuf->bind();
         vertexBuf->write(0, d->vertices, 3 * 6 * sizeof(float));
         glVertexAttribPointer(PROGRAM_VERTEX_ATTRIBUTE, 3, GL_FLOAT, GL_FALSE, 0, 0);
-
 
         KisPaintingTweaks::rectToTexCoords(d->texCoords, textureRect);
         QOpenGLBuffer *vertexTextureBuf = d->checkersTextureVertexBuffer.getNextBuffer();
@@ -688,7 +638,6 @@ void KisOpenGLCanvasRenderer::drawCheckers(const QRect &updateRect)
         d->checkerShader->setAttributeArray(PROGRAM_TEXCOORD_ATTRIBUTE, d->texCoords);
     }
 
-    // render checkers
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, d->openGLImageTextures->checkerTexture());
 
@@ -709,11 +658,8 @@ void KisOpenGLCanvasRenderer::drawGrid(const QRect &updateRect)
 
     QMatrix4x4 projectionMatrix;
     projectionMatrix.setToIdentity();
-    // FIXME: It may be better to have the projection in device pixel, but
-    //       this requires introducing a new coordinate system.
     projectionMatrix.ortho(0, widgetSize.width(), widgetSize.height(), 0, NEAR_VAL, FAR_VAL);
 
-    // Set view/projection matrices
     QMatrix4x4 modelMatrix(coordinatesConverter()->imageToWidgetTransform());
     modelMatrix.optimize();
     modelMatrix = projectionMatrix * modelMatrix;
@@ -816,8 +762,6 @@ void KisOpenGLCanvasRenderer::drawImage(const QRect &updateRect)
     QRect wr = widgetRectInImagePixels.toAlignedRect();
 
     if (!d->wrapAroundMode) {
-        // if we don't want to paint wrapping images, just limit the
-        // processing area, and the code will handle all the rest
         wr &= ir;
     }
     else if (d->wrapAroundModeAxis == WRAPAROUND_HORIZONTAL) {
@@ -878,8 +822,6 @@ void KisOpenGLCanvasRenderer::drawImageTiles(int firstCol, int lastCol, int firs
 
     QMatrix4x4 projectionMatrix;
     projectionMatrix.setToIdentity();
-    // FIXME: It may be better to have the projection in device pixel, but
-    //       this requires introducing a new coordinate system.
     projectionMatrix.ortho(0, widgetSize.width(), widgetSize.height(), 0, NEAR_VAL, FAR_VAL);
 
     QTransform modelTransform = converter->imageToWidgetTransform();
@@ -892,7 +834,6 @@ void KisOpenGLCanvasRenderer::drawImageTiles(int firstCol, int lastCol, int firs
         modelTransform = wrapAroundTranslate * modelTransform;
     }
 
-    // Set view/projection matrices
     QMatrix4x4 modelMatrix(modelTransform);
     modelMatrix.optimize();
     modelMatrix = projectionMatrix * modelMatrix;
@@ -911,7 +852,6 @@ void KisOpenGLCanvasRenderer::drawImageTiles(int firstCol, int lastCol, int firs
                 continue;
             }
 
-            //Setup the geometry for rendering
             if (KisOpenGL::supportsVAO()) {
                 const int tileIndex = d->openGLImageTextures->getTextureBufferIndexCR(col, row);
 
@@ -939,8 +879,6 @@ void KisOpenGLCanvasRenderer::drawImageTiles(int firstCol, int lastCol, int firs
 
             glActiveTexture(GL_TEXTURE0);
 
-            // switching uniform is a rather expensive operation on macOS, so we change it only
-            // when it is really needed
             const int currentLodPlane = tile->bindToActiveTexture(d->lodSwitchInProgress);
             if (d->displayShader->location(Uniform::FixedLodLevel) >= 0 &&
                 (lastTileLodPlane < 0 || lastTileLodPlane != currentLodPlane)) {
@@ -1039,7 +977,6 @@ QRectF KisOpenGLCanvasRenderer::surfaceToWidget(const QRectF &rc)
                   rc.height() / ratio);
 }
 
-
 void KisOpenGLCanvasRenderer::renderCanvasGL(const QRect &updateRect)
 {
     if ((d->displayFilter && d->displayFilter->updateShader()) ||
@@ -1047,7 +984,7 @@ void KisOpenGLCanvasRenderer::renderCanvasGL(const QRect &updateRect)
 
         KIS_SAFE_ASSERT_RECOVER_NOOP(d->canvasInitialized);
 
-        d->canvasInitialized = false; // TODO: check if actually needed?
+        d->canvasInitialized = false;
         initializeDisplayShader();
         d->canvasInitialized = true;
     }
@@ -1102,7 +1039,6 @@ void KisOpenGLCanvasRenderer::channelSelectionChanged(const QBitArray &channelFl
     d->openGLImageTextures->setChannelFlags(channelFlags);
 }
 
-
 void KisOpenGLCanvasRenderer::finishResizingImage(qint32 w, qint32 h)
 {
     if (d->canvasInitialized) {
@@ -1119,10 +1055,8 @@ KisUpdateInfoSP KisOpenGLCanvasRenderer::startUpdateCanvasProjection(const QRect
     return d->openGLImageTextures->updateCache(rc, d->openGLImageTextures->image());
 }
 
-
 QRect KisOpenGLCanvasRenderer::updateCanvasProjection(KisUpdateInfoSP info)
 {
-    // See KisQPainterCanvas::updateCanvasProjection for more info
     bool isOpenGLUpdateInfo = dynamic_cast<KisOpenGLUpdateInfo*>(info.data());
     if (isOpenGLUpdateInfo) {
         d->openGLImageTextures->recalculateCache(info, d->lodSwitchInProgress);

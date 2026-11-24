@@ -16,10 +16,6 @@
 #include <QPolygonF>
 
 struct Q_DECL_HIDDEN KoColorSpace::Private {
-    /**
-     * Returns the thread-local conversion cache. If it doesn't exist
-     * yet, it is created. If it is currently too small, it is resized.
-     */
     struct ThreadLocalCache {
         QVector<quint8> * get(quint32 size)
         {
@@ -38,7 +34,6 @@ struct Q_DECL_HIDDEN KoColorSpace::Private {
         QThreadStorage<QVector<quint8>*> m_cache;
     };
 
-
     QString id;
     quint32 idNumber;
     QString name;
@@ -55,7 +50,7 @@ struct Q_DECL_HIDDEN KoColorSpace::Private {
     mutable KoColorConversionTransformation* transfoFromRGBA16;
     mutable KoColorConversionTransformation* transfoToLABA16;
     mutable KoColorConversionTransformation* transfoFromLABA16;
-    
+
     QPolygonF gamutXYY;
     QPolygonF TRCXYY;
     QVector <KoColorimetryUtils::xyY> colorants;

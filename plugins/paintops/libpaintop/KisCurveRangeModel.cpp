@@ -11,7 +11,7 @@
 using LabelsState = std::tuple<QString, int>;
 
 namespace {
-QString calcMinLabelWithFactory(const QString &sensorId) 
+QString calcMinLabelWithFactory(const QString &sensorId)
 {
     KisDynamicSensorFactory *factory =
             KisDynamicSensorFactoryRegistry::instance()->get(sensorId);
@@ -21,7 +21,7 @@ QString calcMinLabelWithFactory(const QString &sensorId)
     return factory->minimumLabel();
 }
 
-QString calcMaxLabelWithFactory(const QString &activeSensorId, const int length) 
+QString calcMaxLabelWithFactory(const QString &activeSensorId, const int length)
 {
     KisDynamicSensorFactory *factory =
             KisDynamicSensorFactoryRegistry::instance()->get(activeSensorId);
@@ -40,7 +40,6 @@ QString calcValueSuffixWithFactory(const QString &activeSensorId)
 
     return factory->valueSuffix();
 }
-
 
 }
 

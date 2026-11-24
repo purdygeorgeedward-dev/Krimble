@@ -118,32 +118,24 @@ bool KisShortcutConfiguration::unserialize(const QString &serialized)
     if (!serialized.startsWith('{'))
         return false;
 
-    //Parse the serialized data and apply it to the current shortcut
     QString remainder = serialized;
 
-    //Remove brackets
     remainder.remove('{').remove('}');
 
-    //Split the remainder by ;
     QStringList parts = remainder.split(';');
 
     if (parts.size() < 6)
-        return false; //Invalid input, abort
+        return false;
 
-    //First entry in the list is the mode
     d->mode = parts.at(0).toUInt(nullptr, 16);
 
-    //Second entry is the shortcut type
     d->type = static_cast<ShortcutType>(parts.at(1).toInt(nullptr, 16));
 
     if (d->type == UnknownType) {
-        //Reject input that would set this shortcut to "Unknown"
         return false;
     }
 
 #ifdef Q_OS_MACOS
-    // On MacOS, the GestureType gestures aren't handled. But! MacOSGestureType gestures are handled as
-    // GestureTypes. Confusing? Yes, but this is done only here (and when serializing).
     if (d->type == GestureType) {
         return false;
     }
@@ -151,17 +143,13 @@ bool KisShortcutConfiguration::unserialize(const QString &serialized)
         d->type = GestureType;
     }
 #else
-    // only macOS platform handles these gestures
     if (d->type == MacOSGestureType) {
         return false;
     }
 #endif
 
-    //Third entry is the list of keys
     QString serializedKeys = parts.at(2);
-    //Remove brackets
     serializedKeys.remove('[').remove(']');
-    //Split by , and add each entry as a key
     QStringList keylist = serializedKeys.split(',');
     Q_FOREACH(QString key, keylist) {
         if (!key.isEmpty()) {
@@ -169,7 +157,6 @@ bool KisShortcutConfiguration::unserialize(const QString &serialized)
         }
     }
 
-    //Fourth entry is the button mask
     d->buttons = static_cast<Qt::MouseButtons>(parts.at(3).toInt(nullptr, 16));
     d->wheel = static_cast<MouseWheelMovement>(parts.at(4).toUInt(nullptr, 16));
     d->gesture = static_cast<GestureAction>(parts.at(5).toUInt(nullptr, 16));
@@ -339,7 +326,6 @@ QString KisShortcutConfiguration::buttonsToText(Qt::MouseButtons buttons)
         text.append(i18nc("Mouse Task Button", "Task"));
     }
 
-// Qt supports up to ExtraButton24 so include those
 #define EXTRA_BUTTON(z, n, _)\
     if (buttons & Qt::ExtraButton##n) { \
         if (buttonCount++ > 0) { text.append(sep); } \
@@ -367,15 +353,13 @@ QString KisShortcutConfiguration::keysToText(const QList<Qt::Key> &keys)
 
     Q_FOREACH (Qt::Key key, keys) {
 #if defined(Q_OS_MAC)
-        // This works for modifier keys on macOS but not other platforms.
-        // They are shown with symbols, so no translation or separators needed.
         output.append(QKeySequence(key).toString(QKeySequence::NativeText));
 #else
         if (output.size() > 0) {
             output.append(i18nc("Separator in the list of keys for shortcut", " + "));
         }
 
-        switch (key) { //Because QKeySequence fails for Ctrl, Alt, Shift and Meta
+        switch (key) {
         case Qt::Key_Control:
             output.append(i18nc("Ctrl key", "Ctrl"));
             break;

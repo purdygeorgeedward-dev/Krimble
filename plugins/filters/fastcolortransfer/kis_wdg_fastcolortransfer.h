@@ -15,15 +15,6 @@
 class Ui_WdgFastColorTransfer;
 class KisDocument;
 
-/**
- * Krimble: reworked into the industry standard's Match Color dialog shape -- pick a
- * source from currently open documents (not a file loaded from disk, which
- * is what this used to require), a layer within it (or Merged), selection-
- * scoping checkboxes, Neutralize, and Luminance/Color Intensity/Fade
- * sliders. The underlying statistical color-transfer math is unchanged
- * (see fastcolortransfer.cpp) -- this only changes how the reference
- * statistics get gathered and how strongly the result gets applied.
- */
 class KisWdgFastColorTransfer : public KisConfigWidget
 {
     Q_OBJECT

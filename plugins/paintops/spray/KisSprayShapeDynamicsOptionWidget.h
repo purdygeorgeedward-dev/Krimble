@@ -29,4 +29,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif // KIS_SPRAY_SHAPE_DYNAMICS_OPTION_WIDGET_H
+#endif

@@ -14,7 +14,6 @@
 
 #include <kstandardguiitem.h>
 
-
 struct KisDlgConfigureBrushHud::Private
 {
     KisPaintOpPresetSP preset;

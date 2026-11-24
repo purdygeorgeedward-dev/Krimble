@@ -4,7 +4,6 @@
  *  SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-
 #ifndef KISGAMUTMASKCHOOSER_H
 #define KISGAMUTMASKCHOOSER_H
 
@@ -24,8 +23,8 @@ public:
     ~KisGamutMaskChooser() override;
 
     enum ViewMode {
-        THUMBNAIL, // Shows thumbnails
-        DETAIL  // Shows thumbnails with text next to it
+        THUMBNAIL,
+        DETAIL
     };
 
     void setCurrentResource(KoResourceSP resource);
@@ -49,4 +48,4 @@ private:
     ViewMode m_mode;
 };
 
-#endif // KISGAMUTMASKCHOOSER_H
+#endif

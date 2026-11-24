@@ -155,7 +155,7 @@ void KisStatusBar::setView(QPointer<KisView> imageView)
 
     if (imageView) {
         m_imageView = imageView;
-        m_canvasAngleSelector->setVisible(KisConfig(true).readEntry<int>("krimble_show_rotation_gadget", 0) != 0);   // George: hidden by default
+        m_canvasAngleSelector->setVisible(KisConfig(true).readEntry<int>("krimble_show_rotation_gadget", 0) != 0);
         connect(m_imageView, SIGNAL(sigColorSpaceChanged(const KoColorSpace*)),
                 this, SLOT(updateStatusBarProfileLabel()));
         connect(m_imageView, SIGNAL(sigProfileChanged(const KoColorProfile*)),
@@ -224,7 +224,6 @@ void KisStatusBar::showAllStatusBarItems()
     }
 }
 
-
 void KisStatusBar::imageSizeChanged()
 {
     updateMemoryStatus();
@@ -261,7 +260,7 @@ void KisStatusBar::updateSelectionIcon()
         icon = KisIconUtils::loadIcon("selection-mode_invisible");
     } else if (m_viewManager->selectionManager()->showSelectionAsMask()) {
         icon = KisIconUtils::loadIcon("selection-mode_mask");
-    } else /* if (!m_view->selectionManager()->showSelectionAsMask()) */ {
+    } else {
         icon = KisIconUtils::loadIcon("selection-mode_ants");
     }
     m_selectionStatus->setIcon(icon);
@@ -282,7 +281,6 @@ QVector<KisNodeSP> fetchLayersWithSlowThumbnailGeneration(KisImageSP image)
     return result;
 }
 }
-
 
 void KisStatusBar::updateMemoryStatus()
 {
@@ -342,7 +340,6 @@ void KisStatusBar::updateMemoryStatus()
                       "\n\nWARNING:\tOut of memory! Swapping has been started.\n"
                       "\t\tPlease configure more RAM for Krita in Settings dialog");
         longStats += suffix;
-
 
     }
 
@@ -409,7 +406,6 @@ void KisStatusBar::slotCanvasRotationChanged()
     const qreal angleDiff = qAbs(m_canvasAngleSelector->angle()) -
                             qAbs(canvas->rotationAngle());
 
-    // Only update the UI if the angle difference is big enough. This improves the performance.
     if (qAbs(angleDiff) >= 0.01) {
         KisSignalsBlocker l(m_canvasAngleSelector);
         m_canvasAngleSelector->setAngle(canvas->rotationAngle());

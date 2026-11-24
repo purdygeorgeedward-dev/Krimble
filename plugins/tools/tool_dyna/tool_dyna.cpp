@@ -23,11 +23,9 @@
 #include <kis_types.h>
 #include <KoToolRegistry.h>
 
-
 #include "kis_tool_dyna.h"
 
 K_PLUGIN_FACTORY_WITH_JSON(ToolDynaFactory, "kritatooldyna.json", registerPlugin<ToolDyna>();)
-
 
 ToolDyna::ToolDyna(QObject *parent, const QVariantList &)
         : QObject(parent)

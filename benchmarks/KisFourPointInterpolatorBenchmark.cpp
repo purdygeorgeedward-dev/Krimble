@@ -9,15 +9,9 @@
 
 #include <simpletest.h>
 
-
 #include "kis_four_point_interpolator_backward.h"
 #include "kis_four_point_interpolator_forward.h"
 #include "kis_debug.h"
-
-
-//#define _CALCULATE_POINTS_OUTSIDE_POLYGON
-
-
 
 void KisFourPointInterpolatorBenchmark::testForwardInterpolator()
 {
@@ -50,8 +44,6 @@ void KisFourPointInterpolatorBenchmark::testForwardInterpolator()
         }
     }
 }
-
-
 
 void KisFourPointInterpolatorBenchmark::testBackwardInterpolatorXShear()
 {
@@ -121,7 +113,6 @@ void KisFourPointInterpolatorBenchmark::testBackwardInterpolatorXYShear()
     dst << QPointF(140, 120);
     dst << QPointF(20, 100);
 
-
     KisFourPointInterpolatorBackward interp(src, dst);
 
     QBENCHMARK {
@@ -160,7 +151,6 @@ void KisFourPointInterpolatorBenchmark::testBackwardInterpolatorRoundTrip()
                 QPointF fwdPt = f.map(pt);
                 QPointF bwdPt = b.map(fwdPt);
 
-                //dbgKrita << "R:" << ppVar(pt) << ppVar(fwdPt) << ppVar(bwdPt) << (bwdPt - pt);
                 qreal length = (bwdPt - pt).manhattanLength() < 1e-3;
                 Q_UNUSED(length);
             }
@@ -189,18 +179,15 @@ void KisFourPointInterpolatorBenchmark::testBackwardInterpolatorUnevenlyShearedT
 
     QBENCHMARK {
 
-        // polygon points
         for (int i = 0; i < src.length(); i++) {
             QPointF pt = src[i];
             QPointF fwdPt = f.map(pt);
             QPointF bwdPt = b.map(fwdPt);
 
-            //dbgKrita << "R:" << ppVar(pt) << ppVar(fwdPt) << ppVar(bwdPt) << (bwdPt - pt);
             qreal length = (bwdPt - pt).manhattanLength() < 1e-3;
             Q_UNUSED(length);
         }
 
-        // points from within polygons
         QRectF srcBounds = src.boundingRect();
         for (int x = srcBounds.left(); x <= srcBounds.right(); x++) {
             for (int y = srcBounds.top(); y <= srcBounds.bottom(); y++) {
@@ -209,22 +196,18 @@ void KisFourPointInterpolatorBenchmark::testBackwardInterpolatorUnevenlyShearedT
                 QPointF fwdPt = f.map(pt);
                 QPointF bwdPt = b.map(fwdPt);
 
-                //dbgKrita << "R:" << ppVar(pt) << ppVar(fwdPt) << ppVar(bwdPt) << (bwdPt - pt);
                 qreal length = (bwdPt - pt).manhattanLength() < 1e-3;
                 Q_UNUSED(length);
             }
         }
 
 #ifdef _CALCULATE_POINTS_OUTSIDE_POLYGON
-        // points from outside of the polygons
         for (int y = 0; y <= 100; y += 1) {
             for (int x = 0; x <= 100; x += 1) {
                 QPointF pt(x, y);
                 QPointF fwdPt = f.map(pt);
                 QPointF bwdPt = b.map(fwdPt);
 
-                //dbgKrita << "R:" << ppVar(pt) << ppVar(fwdPt) << ppVar(bwdPt) << (bwdPt - pt);
-                //DBGVERIFY(((bwdPt - pt).manhattanLength() < 1e-3), (QString(pt).append(fwdPt).append(bwdPt)));
                 qreal length = (bwdPt - pt).manhattanLength() < 1e-3;
                 Q_UNUSED(length);
             }
@@ -234,8 +217,6 @@ void KisFourPointInterpolatorBenchmark::testBackwardInterpolatorUnevenlyShearedT
     }
 
 }
-
-
 
 void KisFourPointInterpolatorBenchmark::testBackwardInterpolatorFoldedTetragon()
 {
@@ -258,18 +239,15 @@ void KisFourPointInterpolatorBenchmark::testBackwardInterpolatorFoldedTetragon()
 
     QBENCHMARK {
 
-        // polygon points
         for (int i = 0; i < src.length(); i++) {
             QPointF pt = src[i];
             QPointF fwdPt = f.map(pt);
             QPointF bwdPt = b.map(fwdPt);
 
-            //dbgKrita << "R:" << ppVar(pt) << ppVar(fwdPt) << ppVar(bwdPt) << (bwdPt - pt);
             qreal length = (bwdPt - pt).manhattanLength() < 1e-3;
             Q_UNUSED(length);
         }
 
-        // points from within polygons
         QRectF srcBounds = src.boundingRect();
         for (int x = srcBounds.left(); x <= srcBounds.right(); x++) {
             for (int y = srcBounds.top(); y <= srcBounds.bottom(); y++) {
@@ -278,21 +256,18 @@ void KisFourPointInterpolatorBenchmark::testBackwardInterpolatorFoldedTetragon()
                 QPointF fwdPt = f.map(pt);
                 QPointF bwdPt = b.map(fwdPt);
 
-                //dbgKrita << "R:" << ppVar(pt) << ppVar(fwdPt) << ppVar(bwdPt) << (bwdPt - pt);
                 qreal length = (bwdPt - pt).manhattanLength() < 1e-3;
                 Q_UNUSED(length);
             }
         }
 
 #ifdef _CALCULATE_POINTS_OUTSIDE_POLYGON
-        // points from outside of the polygons
         for (int y = 0; y <= 100; y += 1) {
             for (int x = 0; x <= 100; x += 1) {
                 QPointF pt(x, y);
                 QPointF fwdPt = f.map(pt);
                 QPointF bwdPt = b.map(fwdPt);
 
-                //dbgKrita << "R:" << ppVar(pt) << ppVar(fwdPt) << ppVar(bwdPt) << (bwdPt - pt);
                 if ((bwdPt - pt).manhattanLength() >= 1e-3) {
                     qCritical() << ppVar(pt) << ppVar(fwdPt) << ppVar(bwdPt) << (bwdPt - pt);
                 }

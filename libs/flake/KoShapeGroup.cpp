@@ -48,7 +48,6 @@ public:
     void childChanged(KoShape *shape, KoShape::ChangeType type) override
     {
         SimpleShapeContainerModel::childChanged(shape, type);
-        //debugFlake << type;
         switch (type) {
         case KoShape::PositionChanged:
         case KoShape::RotationChanged:
@@ -66,7 +65,7 @@ public:
         }
     }
 
-private: // members
+private:
     KoShapeGroup * m_group;
 };
 
@@ -102,12 +101,6 @@ KoShapeGroup::KoShapeGroup(const KoShapeGroup &rhs)
 
 KoShapeGroup::~KoShapeGroup()
 {
-    /**
-     * HACK alert: model will use KoShapeGroup::invalidateSizeCache(), which uses
-     * KoShapeGroup's d-pointer. We have to manually remove child shapes from the
-     * model in the destructor of KoShapeGroup as the instance d is no longer accessible
-     * since ~KoShapeGroup() is executed
-     */
     model()->deleteOwnedShapes();
 }
 

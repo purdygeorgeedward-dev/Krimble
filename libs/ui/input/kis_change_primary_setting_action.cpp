@@ -18,7 +18,6 @@
 
 #include "kis_cursor.h"
 
-
 KisChangePrimarySettingAction::KisChangePrimarySettingAction()
     : KisAbstractInputAction("Change Primary Setting")
 {

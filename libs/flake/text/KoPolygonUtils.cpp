@@ -10,7 +10,6 @@
 #include <QList>
 
 namespace boost { namespace polygon {
-    // QPoint wrapper
     template <>
     struct geometry_concept<QPoint> {
         typedef point_concept type;
@@ -44,7 +43,6 @@ namespace boost { namespace polygon {
         }
     };
 
-    // QPolygon wrapper
     template <>
     struct geometry_concept<QPolygon>{ typedef polygon_concept type; };
 
@@ -89,8 +87,6 @@ namespace boost { namespace polygon {
 } }
 
 typedef std::vector<QPolygon> PolygonSet;
-
-
 
 QPolygon KoPolygonUtils::offsetPolygon(const QPolygon &polygon, int offset, bool rounded, int circleSegments)
 {

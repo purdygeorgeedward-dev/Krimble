@@ -31,4 +31,4 @@ public:
 
 };
 
-#endif // FONTVARIANTNUMERICMODEL_H
+#endif

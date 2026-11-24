@@ -27,7 +27,6 @@ size_t qHash(const ThumbnailCacheKey &key) {
     return result;
 }
 
-
 class KisPaintDeviceCache
 {
 public:
@@ -70,12 +69,6 @@ public:
         bool result = m_exactBoundsCache.tryGetValue(bounds, m_paintDevice->defaultBounds()->wrapAroundMode());
 
         if (!result) {
-            /**
-             * The calculation of the exact bounds might be too slow
-             * in some special cases, e.g. for an empty canvas of 7k
-             * by 6k.  So we just always return extent, when the exact
-             * bounds is not available.
-             */
             bounds = m_paintDevice->extent();
         }
 
@@ -175,4 +168,4 @@ private:
     QAtomicInt m_sequenceNumber;
 };
 
-#endif /* __KIS_PAINT_DEVICE_CACHE_H */
+#endif

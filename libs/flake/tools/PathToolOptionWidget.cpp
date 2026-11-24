@@ -121,7 +121,6 @@ void PathToolOptionWidget::setCurrentShape(KoPathShape *pathShape)
                     layout = new QVBoxLayout(widget.wdgShapeProperties);
                 }
 
-
                 KIS_ASSERT_RECOVER_RETURN(widget.wdgShapeProperties->layout());
                 layout->addWidget(m_currentPanel);
                 connect(m_currentPanel, SIGNAL(propertyChanged()), SLOT(slotShapePropertyChanged()));

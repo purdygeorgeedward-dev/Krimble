@@ -10,7 +10,6 @@
 #include "../levelfilter/KrimbleAutoAdjust.h"
 #include <KoColorModelStandardIds.h>
 
-
 #include <math.h>
 
 #include <stdlib.h>
@@ -46,7 +45,6 @@
 #include <KoCompositeOp.h>
 #include <KisSequentialIteratorProgress.h>
 
-
 #include "kis_hsv_adjustment_filter.h"
 #include "kis_perchannel_filter.h"
 #include "kis_cross_channel_filter.h"
@@ -76,10 +74,6 @@ ColorsFilters::~ColorsFilters()
 {
 }
 
-
-//==================================================================
-
-
 KisAutoContrast::KisAutoContrast() : KisFilter(id(), FiltersCategoryAdjustId, i18n("&Auto Contrast"))
 {
     setSupportsPainting(false);
@@ -96,13 +90,10 @@ void KisAutoContrast::processImpl(KisPaintDeviceSP device,
 {
     Q_ASSERT(device != 0);
     Q_UNUSED(config);
-    // Krimble: on an RGB picture, one stretch for R, G and B together (KrimbleAutoAdjust): more contrast, no color shift.
-    // Other color models keep the Lab code below.
     if (device->colorSpace()->colorModelId() == RGBAColorModelID) {
         KrimbleAutoAdjust::apply(device, applyRect, KrimbleAutoAdjust::Contrast, progressUpdater);
         return;
     }
-    // initialize
     KoHistogramProducer *producer = new KoGenericLabHistogramProducer();
     KisHistogram histogram(device, applyRect, producer, LINEAR);
     int minvalue = int(255 * histogram.calculations().getMin() + 0.5);
@@ -134,7 +125,6 @@ void KisAutoContrast::processImpl(KisPaintDeviceSP device,
         }
         binnum--;
     }
-    // build the transferfunction
     int diff = maxvalue - minvalue;
 
     QScopedArrayPointer<quint16> transfer(new quint16[256]);
@@ -156,7 +146,6 @@ void KisAutoContrast::processImpl(KisPaintDeviceSP device,
         for (int i = maxvalue; i < 256; i++)
             transfer[i] = 0xFFFF;
     }
-    // apply
     QScopedPointer<KoColorTransformation> adj(device->colorSpace()->createBrightnessContrastAdjustment(transfer.data()));
     KIS_SAFE_ASSERT_RECOVER_RETURN(adj);
 
@@ -165,7 +154,6 @@ void KisAutoContrast::processImpl(KisPaintDeviceSP device,
     quint32 npix = it.nConseqPixels();
     while(it.nextPixels(npix)) {
 
-        // adjust
         npix = it.nConseqPixels();
         adj->transform(it.oldRawData(), it.rawData(), npix);
     }

@@ -14,7 +14,6 @@ SurfaceDescription WaylandSurfaceDescription::toSurfaceDescription() const
 {
     KisSurfaceColorimetry::SurfaceDescription description;
 
-    // Map transfer function
     if (this->tfNamed) {
         switch (*this->tfNamed) {
         case QtWayland::wp_color_manager_v1::transfer_function_bt1886:
@@ -61,7 +60,6 @@ SurfaceDescription WaylandSurfaceDescription::toSurfaceDescription() const
         description.colorSpace.transferFunction = *this->tfGamma;
     }
 
-    // Map primaries
     if (this->namedContainer) {
         switch (*this->namedContainer) {
         case QtWayland::wp_color_manager_v1::primaries_srgb:
@@ -99,12 +97,10 @@ SurfaceDescription WaylandSurfaceDescription::toSurfaceDescription() const
         description.colorSpace.primaries = this->container->toColorimetry();
     }
 
-    // Map luminance
     if (this->luminances) {
         description.colorSpace.luminance = this->luminances;
     }
 
-    // Map mastering info
     if (this->target || this->masteringLuminance) {
         KisSurfaceColorimetry::MasteringInfo masteringInfo;
 
@@ -318,16 +314,11 @@ QtWayland::wp_color_manager_v1::render_intent renderIntentKritaToWayland(KisSurf
         return QtWayland::wp_color_manager_v1::render_intent::render_intent_relative_bpc;
     default:
         Q_ASSERT(false && "Unknown RenderIntent value");
-        return QtWayland::wp_color_manager_v1::render_intent::render_intent_perceptual; // Default fallback
+        return QtWayland::wp_color_manager_v1::render_intent::render_intent_perceptual;
     }
 }
 
-} // namespace KisSurfaceColorimetry
-
-/**
- * The operators for the members of QtWayland::wp_color_manager_v1 are
- * placed **outside** the KisSurfaceColorimetry namespace
- */
+}
 
 QDebug operator<<(QDebug debug, QtWayland::wp_color_manager_v1::primaries p)
 {
@@ -481,4 +472,3 @@ QDebug operator<<(QDebug debug, QtWayland::wp_color_manager_v1::transfer_functio
     return debug;
 }
 
-/* KISSURFACECOLORIMETRY_H */

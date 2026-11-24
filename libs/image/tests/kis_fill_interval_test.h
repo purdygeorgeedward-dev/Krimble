@@ -16,4 +16,4 @@ private Q_SLOTS:
     void testIsValid();
 };
 
-#endif /* __KIS_FILL_INTERVAL_TEST_H */
+#endif

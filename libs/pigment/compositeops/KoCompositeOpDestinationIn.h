@@ -10,11 +10,6 @@
 
 #include "KoCompositeOpBase.h"
 
-/**
- *  Generic implementation of the Destination-in composite op, based off the behind composite op.
- *  This is necessary for Open Raster support.
- *  https://www.w3.org/TR/compositing-1/
- */
 template<class CS_Traits>
 class KoCompositeOpDestinationIn : public KoCompositeOpBase<CS_Traits, KoCompositeOpDestinationIn<CS_Traits> >
 {
@@ -47,4 +42,4 @@ public:
     }
 };
 
-#endif  // _KOCOMPOSITEOPDESTINATIONIN_H_
+#endif

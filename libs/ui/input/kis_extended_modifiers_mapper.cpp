@@ -16,7 +16,7 @@
 
 #include "kis_extended_modifiers_mapper_osx.h"
 
-#endif /* Q_OS_MACOS */
+#endif
 
 #ifdef Q_OS_WIN
 
@@ -26,7 +26,6 @@
 
 #include "krita_container_utils.h"
 #include "kis_config.h"
-
 
 QVector<Qt::Key> queryPressedKeysWin()
 {
@@ -68,7 +67,7 @@ QVector<Qt::Key> queryPressedKeysWin()
     return result;
 }
 
-#endif /* Q_OS_WIN */
+#endif
 
 struct KisExtendedModifiersMapper::Private
 {

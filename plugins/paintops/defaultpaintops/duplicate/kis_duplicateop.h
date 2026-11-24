@@ -23,15 +23,12 @@
 #include <KisSizeOptionWidget.h>
 #include <KisDuplicateOptionData.h>
 
-
 #include "kis_duplicateop_settings.h"
 
 class KisPaintInformation;
 
-
 class QPointF;
 class KisPainter;
-
 
 class KisDuplicateOp : public KisBrushBasedPaintOp
 {
@@ -66,4 +63,4 @@ private:
     KisRotationOption m_rotationOption;
 };
 
-#endif // KIS_DUPLICATEOP_H_
+#endif

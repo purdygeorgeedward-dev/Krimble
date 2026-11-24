@@ -22,7 +22,6 @@
 #include "commands_new/kis_switch_current_time_command.h"
 #include "kis_layer_utils.h"
 
-
 struct KisImageAnimationInterface::Private
 {
     Private()
@@ -91,7 +90,6 @@ private:
     int m_currentTime;
     int m_currentUITime;
 };
-
 
 KisImageAnimationInterface::KisImageAnimationInterface(KisImage *image)
     : QObject(image),
@@ -276,7 +274,6 @@ void KisImageAnimationInterface::switchCurrentTimeAsync(int frameId, SwitchTimeA
 
     KisSwitchTimeStrokeStrategy::SharedTokenSP token = m_d->switchToken.toStrongRef();
 
-    // Handle switching frame to new time..
     if (!token || !token->tryResetDestinationTime(frameId, needsRegeneration)) {
 
         if (!sameFrame) {
@@ -305,8 +302,6 @@ void KisImageAnimationInterface::switchCurrentTimeAsync(int frameId, SwitchTimeA
     if (!needsRegeneration) {
         sigFrameRegenerationSkipped(frameId);
     }
-
-
 
     m_d->setCurrentUITime(frameId);
     Q_EMIT sigUiTimeChanged(frameId);
@@ -359,12 +354,12 @@ void KisImageAnimationInterface::notifyFrameRegenerated()
 }
 
 bool KisImageAnimationInterface::requiresOnionSkinRendering() {
-    
+
     KisNodeSP onionskinned = KisLayerUtils::recursiveFindNode(m_d->image->root(), [](KisNodeSP p) {
         bool onionSkinProp = p->nodeProperties().boolProperty("onionskin", false);
         return onionSkinProp;
     });
-    
+
     return onionskinned != nullptr;
 }
 
@@ -386,13 +381,11 @@ void KisImageAnimationInterface::notifyNodeChanged(const KisNode *node,
 {
     if (externalFrameActive() || m_d->frameInvalidationBlocked) return;
 
-    // even overlay selection masks are not rendered in the cache
     if (node->inherits("KisSelectionMask")) return;
 
     QSet<int> affectedTimes;
     affectedTimes << m_d->currentTime();
 
-    // We need to also invalidate ranges that contain cloned keyframe data.
     if (recursive) {
         QSet<int> clonedTimes;
         const int time = m_d->currentTime();
@@ -414,7 +407,6 @@ void KisImageAnimationInterface::notifyNodeChanged(const KisNode *node,
             invalidateRange = KisTimeSpan::calculateNodeAffectedFrames(node, time);
         }
 
-        // we compress the updated rect (atm, no one uses it anyway)
         QRect unitedRect;
         Q_FOREACH (const QRect &rc, rects) {
             unitedRect |= rc;

@@ -8,8 +8,6 @@
 #include <QPainter>
 #include <QEvent>
 
-
-
 KoResetBgFgColours::KoResetBgFgColours(KisCanvasResourceProvider *canvasResourceProvider,
                                      const KoColorDisplayRendererInterface *displayRenderer,
                                      QWidget *parent, QWidget *dialogParent)
@@ -19,7 +17,6 @@ KoResetBgFgColours::KoResetBgFgColours(KisCanvasResourceProvider *canvasResource
     backgroundRect = QRect( 7, 14, 14, 14);
     resetColours = true;
 }
-
 
 void KoResetBgFgColours::paint_icons(QPainter &painter)
 {

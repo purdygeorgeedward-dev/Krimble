@@ -30,4 +30,4 @@ public:
     LAGER_QT_CURSOR(double, mixValue);
 };
 
-#endif // KIS_TANGENTTILT_OPTION_MODEL_H
+#endif

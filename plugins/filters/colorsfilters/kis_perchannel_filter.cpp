@@ -50,14 +50,9 @@ KisPerChannelConfigWidget::KisPerChannelConfigWidget(QWidget * parent, KisPaintD
 {
     init();
 
-    // These are not used by this filter,
-    // but the dialog is shared with KisCrossChannelFilter
     m_page->lblDriverChannel->hide();
     m_page->cmbDriverChannel->hide();
 
-    // Krimble: an Auto button beside Reset. It works out a curve for red, green and blue from the picture
-    // (the same as Image > Auto Color, without its saturation lift: KrimbleAutoAdjust.h) and puts the curves here,
-    // so they can be adjusted by hand before OK.
     if (m_page->resetButton && m_page->resetButton->parentWidget()) {
         QPushButton *autoButton = new QPushButton(i18n("Auto"), m_page->resetButton->parentWidget());
         autoButton->setObjectName(QStringLiteral("krimbleCurvesAuto"));
@@ -110,7 +105,6 @@ KisPerChannelConfigWidget::~KisPerChannelConfigWidget()
 #define pwr2(p) (1<<p)
 void KisPerChannelConfigWidget::updateChannelControls()
 {
-    // Getting range accepted by channel
     VirtualChannelInfo &currentVChannel = m_virtualChannels[m_activeVChannel];
 
     KoChannelInfo::enumChannelValueType valueType = currentVChannel.valueType();
@@ -138,17 +132,13 @@ void KisPerChannelConfigWidget::updateChannelControls()
     case KoChannelInfo::FLOAT32:
     case KoChannelInfo::FLOAT64:
     default:
-        //Hack Alert: should be changed to float
         if (m_dev->colorSpace()->colorModelId() == LABAColorModelID || m_dev->colorSpace()->colorModelId() == CMYKAColorModelID) {
             if (m_dev->colorSpace()->channelCount() > m_activeVChannel) {
                 const QList<KoChannelInfo*> channels = m_dev->colorSpace()->channels();
                 min = channels[m_activeVChannel]->getUIMin();
                 max = channels[m_activeVChannel]->getUIMax();
             } else {
-                // it must be "Hue", "Saturation" or other "channel" that isn't actually accessible in the color space
                 min = 0;
-                // specific number apparently doesn't matter,
-                // if there is 255, it will work just fine, too
                 max = 100;
             }
         } else {
@@ -161,7 +151,6 @@ void KisPerChannelConfigWidget::updateChannelControls()
     m_curveControlsManager.reset(new KisCurveWidgetControlsManagerInt(m_page->curveWidget,
                                                                       m_page->intIn, m_page->intOut, min, max, min, max));
 }
-
 
 KisPropertiesConfigurationSP KisPerChannelConfigWidget::configuration() const
 {
@@ -208,8 +197,6 @@ KisCubicCurve KisPerChannelFilterConfiguration::getDefaultCurve()
     return KisCubicCurve();
 }
 
-// KisPerChannelFilter
-
 KisPerChannelFilter::KisPerChannelFilter() : KisMultiChannelFilter(id(), i18n("&Color Adjustment curves..."))
 {
     setShortcut(QKeySequence(Qt::CTRL | Qt::Key_M));
@@ -228,7 +215,7 @@ KisFilterConfigurationSP  KisPerChannelFilter::factoryConfiguration(KisResources
 KoColorTransformation* KisPerChannelFilter::createTransformation(const KoColorSpace* cs, const KisFilterConfigurationSP config) const
 {
     const KisPerChannelFilterConfiguration* configBC =
-        dynamic_cast<const KisPerChannelFilterConfiguration*>(config.data()); // Somehow, this shouldn't happen
+        dynamic_cast<const KisPerChannelFilterConfiguration*>(config.data());
     Q_ASSERT(configBC);
 
     QList<bool> isIdentityList;

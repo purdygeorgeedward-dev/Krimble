@@ -32,7 +32,6 @@
 #include <commands/kis_image_layer_move_command.h>
 #include <kis_processing_applicator.h>
 
-
 #include <KoProperties.h>
 #include <KoStore.h>
 #include <KoColorProfile.h>
@@ -58,7 +57,6 @@ KisNodeSP safeCopyNode(KisNodeSP node, bool detachClones = true) {
 }
 }
 
-
 KisMimeData::KisMimeData(QList<KisNodeSP> nodes, KisImageSP image, bool forceCopy)
     : QMimeData()
     , m_nodes(nodes)
@@ -80,10 +78,6 @@ KisDisplayConfig KisMimeData::displayConfigForMimePastes()
 
     if (KisPlatformPluginInterfaceFactory::instance()->surfaceColorManagedByOS() ||
         KisOpenGLModeProber::instance()->useHDRMode()) {
-        /**
-         * When the surface is managed, we just put the data in sRGB mode, because
-         * the compositor expects untagged data to be sRGB.
-         */
         result.profile = KoColorSpaceRegistry::instance()->p709SRGBProfile();
     } else {
         KisConfig cfg(true);
@@ -165,10 +159,6 @@ KisDocument *createDocument(QList<KisNodeSP> nodes, KisImageSP srcImage, const Q
 
         Q_FOREACH (KisNodeSP node, nodes) {
             KisNodeSP clonedNode = safeCopyNode(node);
-            /// HACK ALERT: here we just initialize parent image link
-            ///             and skip initializing shapeController!
-            ///             Ideally, we should call initializeExternalNode()
-            ///             instead.
             image->addNode(clonedNode);
             KIS_SAFE_ASSERT_RECOVER(clonedNode->image() == KisImageWSP(image)) {
                 clonedNode->setImage(image);
@@ -186,8 +176,6 @@ QByteArray serializeToByteArray(QList<KisNodeSP> nodes, KisImageSP srcImage, con
     QScopedPointer<KisDocument> doc(createDocument(nodes, srcImage, copiedBounds));
     QByteArray result = doc->serializeToNativeByteArray();
 
-    // avoid a sanity check failure caused by the fact that the image outlives
-    // the document (and it does)
     doc->setCurrentImage(0);
 
     return result;
@@ -198,15 +186,7 @@ QVariant KisMimeData::retrieveData(const QString &mimetype, QVariant::Type prefe
 QVariant KisMimeData::retrieveData(const QString &mimetype, QMetaType preferredType) const
 #endif
 {
-    /**
-     * HACK ALERT:
-     *
-     * Sometimes Qt requests the data *after* destruction of Krita,
-     * we cannot load the nodes in that case, because we need signals
-     * and timers. So we just skip serializing.
-     */
     if (!QApplication::instance()) return QVariant();
-
 
     Q_ASSERT(m_nodes.size() > 0);
 
@@ -256,7 +236,6 @@ void KisMimeData::initializeExternalNode(KisNodeSP *node,
 {
     KisShapeLayer *shapeLayer = dynamic_cast<KisShapeLayer*>(node->data());
     if (shapeLayer) {
-        // attach the layer to a new shape controller
         KisShapeLayer *shapeLayer2 = new KisShapeLayer(*shapeLayer, shapeController);
 
         if (srcImage
@@ -276,13 +255,12 @@ void KisMimeData::initializeExternalNode(KisNodeSP *node,
 QList<KisNodeSP> KisMimeData::tryLoadInternalNodes(const QMimeData *data,
                                                    KisImageSP image,
                                                    KisShapeController *shapeController,
-                                                   bool /* IN-OUT */ &copyNode)
+                                                   bool &copyNode)
 {
     QList<KisNodeSP> nodes;
     bool forceCopy = false;
     KisImageSP sourceImage;
 
-    // Qt 4.7 and Qt 5.5 way
     const KisMimeData *mimedata = qobject_cast<const KisMimeData*>(data);
     if (mimedata) {
         nodes = mimedata->nodes();
@@ -290,7 +268,6 @@ QList<KisNodeSP> KisMimeData::tryLoadInternalNodes(const QMimeData *data,
         sourceImage = mimedata->m_image;
     }
 
-    // Qt 4.8 way
     if (nodes.isEmpty() && data->hasFormat("application/x-krita-node-internal-pointer")) {
         QByteArray nodeXml = data->data("application/x-krita-node-internal-pointer");
 
@@ -461,14 +438,10 @@ KisNodeList KisMimeData::loadNodesFast(
         KisMimeData::tryLoadInternalNodes(data,
                                           image,
                                           shapeController,
-                                          copyNode /* IN-OUT */);
+                                          copyNode );
 
     if (nodes.isEmpty()) {
         nodes = KisMimeData::loadNonNativeNodes(data, image);
-        /**
-         * Don't try to move a node originating from another image,
-         * just copy it.
-         */
         copyNode = true;
     }
 
@@ -501,7 +474,7 @@ bool KisMimeData::insertMimeLayers(const QMimeData *data,
                                    QPointF offset,
                                    KisProcessingApplicator *applicator)
 {
-    QList<KisNodeSP> nodes = loadNodesFast(data, image, shapeController, copyNode /* IN-OUT */);
+    QList<KisNodeSP> nodes = loadNodesFast(data, image, shapeController, copyNode );
 
     if (changeOffset) {
         Q_FOREACH (KisNodeSP node, nodes) {
@@ -563,11 +536,6 @@ bool KisMimeData::insertMimeLayers(const QMimeData *data,
                      }) != nodes.end();
 
     if (hasDelayedNodes) {
-        /**
-         * We have the node juggler running, so it will delay the update of the
-         * generator layers that might be included into the paste. To avoid
-         * that we should forcefully to make it stop
-         */
         image->requestStrokeEnd();
     }
 

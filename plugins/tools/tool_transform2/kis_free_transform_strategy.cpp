@@ -25,7 +25,6 @@
 #include "kis_free_transform_strategy_gsl_helpers.h"
 #include "kis_algebra_2d.h"
 
-
 namespace {
 enum StrokeFunction {
     ROTATE = 0,
@@ -78,15 +77,10 @@ struct KisFreeTransformStrategy::Private
 
     KisFreeTransformStrategy *q;
 
-    /// standard members ///
-
     const KisCoordinatesConverter *converter;
 
-    //////
     ToolTransformArgs &currentArgs;
-    //////
     TransformTransactionProperties &transaction;
-
 
     QTransform thumbToImageTransform;
     QImage originalImage;
@@ -95,8 +89,6 @@ struct KisFreeTransformStrategy::Private
     QPointF paintingOffset;
 
     QTransform handlesTransform;
-
-    /// custom members ///
 
     StrokeFunction function {MOVE};
 
@@ -116,11 +108,11 @@ struct KisFreeTransformStrategy::Private
     HandlePoints transformedHandles;
 
     QRectF bounds;
-    QTransform boundsTransform; // Transforms bounds into original image space (rotates by boundsRotation)
+    QTransform boundsTransform;
 
     QTransform transform;
 
-    QCursor scaleCursors[8]; // cursors for the 8 directions
+    QCursor scaleCursors[8];
     QPixmap shearCursorPixmap;
     QCursor rotateHandlesCursor;
 
@@ -181,7 +173,6 @@ void KisFreeTransformStrategy::Private::recalculateBounds()
     }
 }
 
-
 void KisFreeTransformStrategy::Private::recalculateTransformedHandles()
 {
     QTransform boundsFullTransform = boundsTransform * transform;
@@ -210,13 +201,12 @@ void KisFreeTransformStrategy::setTransformFunction(const QPointF &mousePos, boo
     qreal handleRadius = KisTransformUtils::effectiveHandleGrabRadius(m_d->converter);
     qreal rotationHandleRadius = KisTransformUtils::effectiveHandleGrabRadius(m_d->converter);
 
-
        StrokeFunction defaultFunction = MOVE;
        if (transformedPolygon.containsPoint(mousePos, Qt::OddEvenFill))
           defaultFunction = MOVE;
        else
           defaultFunction = MOVE;
-    
+
     {
         const ToolTransformArgs::FreeGesture gesture = m_d->currentArgs.freeGesture();
         const bool insideBox = transformedPolygon.containsPoint(mousePos, Qt::OddEvenFill);
@@ -307,7 +297,6 @@ QCursor KisFreeTransformStrategy::getCurrentCursor() const
         cursor = KisCursor::rotateCursor();
         break;
     case PERSPECTIVE:
-        //TODO: find another cursor for perspective
         cursor = KisCursor::rotateCursor();
         break;
     case CAMERAHEIGHT:
@@ -367,8 +356,6 @@ void KisFreeTransformStrategy::paint(QPainter &gc, const KoColorDisplayRendererI
 
     gc.restore();
 
-    // Draw Handles
-
     QRectF handleRect =
         KisTransformUtils::handleRect(KisTransformUtils::handleVisualRadius,
                                       m_d->handlesTransform,
@@ -410,7 +397,6 @@ void KisFreeTransformStrategy::paint(QPainter &gc, const KoColorDisplayRendererI
         gc.setOpacity(0.1);
     }
 
-    //gc.setTransform(m_d->handlesTransform, true); <-- don't do like this!
     QPainterPath mappedHandles = m_d->handlesTransform.map(handles);
 
     QPen pen[2];
@@ -438,8 +424,7 @@ void KisFreeTransformStrategy::paint(QPainter &gc, const KoColorDisplayRendererI
             out /= len;
             const QPointF c = corner + out * kRotateTargetGap;
             const qreal r = kRotateTargetRadius;
-            // an open arc of 270 degrees, facing away from the box, with an arrowhead at its end
-            const qreal facing = std::atan2(-out.y(), out.x()) * 180.0 / M_PI;   // QPainterPath angles are counter-clockwise
+            const qreal facing = std::atan2(-out.y(), out.x()) * 180.0 / M_PI;
             const qreal start = facing - 50.0;
             const qreal sweep = 100.0;
             const QRectF circle(c.x() - r, c.y() - r, 2 * r, 2 * r);
@@ -447,7 +432,7 @@ void KisFreeTransformStrategy::paint(QPainter &gc, const KoColorDisplayRendererI
             targets.arcTo(circle, start, sweep);
             const qreal endRad = (start + sweep) * M_PI / 180.0;
             const QPointF tip(c.x() + r * std::cos(endRad), c.y() - r * std::sin(endRad));
-            const QPointF tangent(-std::sin(endRad), -std::cos(endRad));      // direction of travel at the arc's end (counter-clockwise)
+            const QPointF tangent(-std::sin(endRad), -std::cos(endRad));
             const QPointF normal(std::cos(endRad), -std::sin(endRad));
             const qreal head = r * 0.8;
             targets.moveTo(tip - tangent * head + normal * head * 0.6);
@@ -461,7 +446,6 @@ void KisFreeTransformStrategy::paint(QPainter &gc, const KoColorDisplayRendererI
         gc.setPen(pen[i]);
         gc.drawPath(mappedHandles);
     }
-
 
     gc.restore();
 }
@@ -496,10 +480,6 @@ void KisFreeTransformStrategy::continuePrimaryAction(const QPointF &mousePos,
                                                      bool altModifierActive,
                                                      bool hasOriginalModifiersSet)
 {
-    // Note: "shiftModifierActive" just tells us if the shift key is being pressed
-    // Note: "altModifierActive" just tells us if the alt key is being pressed
-    // Note: "hasOriginalModifiersSet" tells if the set of modifiers that triggered
-    //       the whole action is still pressed in the original form
 
     m_d->isTransforming = true;
     const QPointF anchorPoint = m_d->clickArgs.originalCenter() + m_d->clickArgs.rotationCenterOffset();
@@ -542,12 +522,9 @@ void KisFreeTransformStrategy::continuePrimaryAction(const QPointF &mousePos,
 
         const qreal theta = a2 - a1;
         m_d->currentArgs.setBoundsRotation(m_d->clickArgs.boundsRotation() + theta);
-        
-        // Find new scale/shear/rotation for the rotated bounds
+
         QTransform newBR; newBR.rotateRadians(m_d->currentArgs.boundsRotation());
         QTransform clickZ; clickZ.rotateRadians(m_d->clickArgs.aZ());
-        // newM.BRI * newM.SC * newM.S * newZ = clickM.BRI * clickM.SC * clickM.S * clickZ
-        // newM.SC * newM.S * newZ = newM.BR * clickM.BRI * clickM.SC * clickM.S * clickZ
         QTransform desired = newBR * clickM.BRI * clickM.SC * clickM.S * clickZ;
         KisAlgebra2D::DecomposedMatrix dm(desired);
         if (dm.isValid()) {
@@ -558,13 +535,6 @@ void KisFreeTransformStrategy::continuePrimaryAction(const QPointF &mousePos,
             m_d->currentArgs.setAZ(kisDegreesToRadians(dm.angle));
         }
 
-        // Snap with shift key
-        // if (shiftModifierActive) {
-        //     const qreal angle = m_d->currentArgs.boundsRotation();
-        //     const qreal snapAngle = M_PI_4 / 6.0; // 7.5 degrees
-        //     qint32 angleIndex = static_cast<qint32>((angle / snapAngle) + 0.5);
-        //     m_d->currentArgs.setBoundsRotation(angleIndex * snapAngle);
-        // }
     }
     break;
     case ROTATE:
@@ -579,15 +549,10 @@ void KisFreeTransformStrategy::continuePrimaryAction(const QPointF &mousePos,
         const qreal a1 = atan2(clickMouseImagePos.y(), clickMouseImagePos.x());
         const qreal a2 = atan2(mouseImagePosClickSpace.y(), mouseImagePosClickSpace.x());
 
-        /**
-         * We use determinant of `clickM.SC` instead of `clickT` to be able to catch
-         * the case when the image is flipped by 0x or 0y perspective rotations.
-         */
         const qreal theta = KisAlgebra2D::signZZ(clickM.SC.determinant()) * (a2 - a1);
 
-        // Snap with shift key
         if (shiftModifierActive) {
-            const qreal snapAngle = M_PI_4 / 6.0; // 7.5 degrees
+            const qreal snapAngle = M_PI_4 / 6.0;
             qint32 thetaIndex = static_cast<qint32>((theta / snapAngle) + 0.5);
             m_d->currentArgs.setAZ(thetaIndex * snapAngle);
         }
@@ -647,7 +612,6 @@ void KisFreeTransformStrategy::continuePrimaryAction(const QPointF &mousePos,
         qreal dy = mousePos.y() - m_d->clickPos.y();
         m_d->clickPos = mousePos;
 
-        // normalize distance from extremes 0 (close) to 1 (far)
         qreal currentHeight = m_d->currentArgs.cameraPos().z();
         qreal currentHeightScaled = (currentHeight - 10150.0) / 9850.0;
         qreal heightDelta = -(currentHeightScaled * currentHeightScaled) + 1.001;
@@ -655,7 +619,6 @@ void KisFreeTransformStrategy::continuePrimaryAction(const QPointF &mousePos,
         const qreal sensitivityFactor = 0.02;
         qreal scaledDy = dy / sensitivityFactor;
 
-        // Multiply normalized distance by mouse movement to calculate new camera height to add.
         heightDelta = heightDelta * scaledDy;
         qreal newHeight = currentHeight + heightDelta;
 
@@ -687,7 +650,6 @@ void KisFreeTransformStrategy::continuePrimaryAction(const QPointF &mousePos,
 
         const QPointF targetMovingPointInView = staticPointInView + projNormVector * projLength;
 
-        // override scale static point if it is locked
         if ((m_d->clickArgs.transformAroundRotationCenter() ^ altModifierActive) &&
             !qFuzzyCompare(anchorPoint.y(), movingPoint.y())) {
 
@@ -740,7 +702,6 @@ void KisFreeTransformStrategy::continuePrimaryAction(const QPointF &mousePos,
 
         const QPointF targetMovingPointInView = staticPointInView + projNormVector * projLength;
 
-        // override scale static point if it is locked
         if ((m_d->currentArgs.transformAroundRotationCenter() ^ altModifierActive) &&
             !qFuzzyCompare(anchorPoint.x(), movingPoint.x())) {
 
@@ -789,7 +750,6 @@ void KisFreeTransformStrategy::continuePrimaryAction(const QPointF &mousePos,
             movingPoint = m_d->boundsTransform.map(m_d->bounds.bottomLeft());
         }
 
-        // override scale static point if it is locked
         if ((m_d->currentArgs.transformAroundRotationCenter() ^ altModifierActive) &&
             !(qFuzzyCompare(anchorPoint.x(), movingPoint.x()) ||
               qFuzzyCompare(anchorPoint.y(), movingPoint.y()))) {
@@ -869,12 +829,10 @@ void KisFreeTransformStrategy::continuePrimaryAction(const QPointF &mousePos,
 
         qreal sign = m_d->function == BOTTOMSHEAR ? 1.0 : -1.0;
 
-        // get the dx pixels corresponding to the current shearX factor
-        qreal dx = sign * m_d->clickArgs.shearX() * m_d->clickArgs.scaleY() * (m_d->bounds.height() / 2.0); // get the dx pixels corresponding to the current shearX factor
+        qreal dx = sign * m_d->clickArgs.shearX() * m_d->clickArgs.scaleY() * (m_d->bounds.height() / 2.0);
         dx += diff.x();
 
-        // calculate the new shearX factor
-        m_d->currentArgs.setShearX(sign * dx / m_d->currentArgs.scaleY() / (m_d->bounds.height() / 2.0)); // calculate the new shearX factor
+        m_d->currentArgs.setShearX(sign * dx / m_d->currentArgs.scaleY() / (m_d->bounds.height() / 2.0));
 
         KisTransformUtils::MatricesPack currentM(m_d->currentArgs);
         QTransform t = currentM.finalTransform();
@@ -894,11 +852,9 @@ void KisFreeTransformStrategy::continuePrimaryAction(const QPointF &mousePos,
 
         qreal sign = m_d->function == RIGHTSHEAR ? 1.0 : -1.0;
 
-        // get the dx pixels corresponding to the current shearX factor
         qreal dy = sign *  m_d->clickArgs.shearY() * m_d->clickArgs.scaleX() * (m_d->bounds.width() / 2.0);
         dy += diff.y();
 
-        // calculate the new shearY factor
         m_d->currentArgs.setShearY(sign * dy / m_d->clickArgs.scaleX() / (m_d->bounds.width() / 2.0));
 
         KisTransformUtils::MatricesPack currentM(m_d->currentArgs);
@@ -932,10 +888,6 @@ void KisFreeTransformStrategy::Private::recalculateTransformations()
     KisTransformUtils::MatricesPack m(currentArgs);
     QTransform sanityCheckMatrix = m.TS * m.SC * m.S * m.projectedP;
 
-    /**
-     * The center of the original image should still
-     * stay the origin of CS
-     */
     KIS_ASSERT_RECOVER_NOOP(sanityCheckMatrix.map(currentArgs.originalCenter()).manhattanLength() < 1e-4);
 
     transform = m.finalTransform();
@@ -949,10 +901,8 @@ void KisFreeTransformStrategy::Private::recalculateTransformations()
     paintingTransform = tl.inverted() * q->thumbToImageTransform() * tl * transform * viewScaleTransform;
     paintingOffset = transaction.originalTopLeft();
 
-    // check whether image is too big to be displayed or not
     imageTooBig = KisTransformUtils::checkImageTooBig(transaction.originalRect(), m, currentArgs.cameraPos().z());
 
-    // recalculate cached handles position
     recalculateTransformedHandles();
 
     Q_EMIT q->requestShowImageTooBig(imageTooBig);

@@ -9,7 +9,6 @@
 class QIODevice;
 class QUuid;
 
-
 #include <psd.h>
 
 #include "kis_types.h"
@@ -18,14 +17,6 @@ class QUuid;
 class KisPSDLayerStyle;
 typedef QSharedPointer<KisPSDLayerStyle> KisPSDLayerStyleSP;
 
-
-/**
- * @brief The KisPSDLayerStyle class implements loading, saving and applying
- * the PSD layer effects.
- *
- * See https://www.tonton-pixel.com/Photoshop%20Additional%20File%20Formats/styles-file-format.html
- *
- */
 class KRITAIMAGE_EXPORT KisPSDLayerStyle : public KoResource
 {
 
@@ -57,9 +48,6 @@ public:
         return QPair<QString, QString>(ResourceType::LayerStyles, "");
     }
 
-    /**
-     * \return true if all the styles are disabled
-     */
     bool isEmpty() const;
 
     bool isEnabled() const;
@@ -89,35 +77,18 @@ public:
     psd_layer_effects_stroke* stroke();
     psd_layer_effects_bevel_emboss* bevelAndEmboss();
 
-
-    /**
-     * @return resource interface that is used by KisPSDLayerStyle object for
-     * loading linked resources
-     */
     KisResourcesInterfaceSP resourcesInterface() const;
 
-    /**
-     * Set resource interface that will be used by KisPSDLayerStyle object for
-     * loading linked resources
-     */
     void setResourcesInterface(KisResourcesInterfaceSP resourcesInterface);
 
-    /**
-     * \see KisRequiredResourcesOperators::hasLocalResourcesSnapshot
-     */
     bool hasLocalResourcesSnapshot() const;
 
-    /**
-     * \see KisRequiredResourcesOperators::cloneWithResourcesSnapshot
-     */
     KisPSDLayerStyleSP cloneWithResourcesSnapshot(KisResourcesInterfaceSP globalResourcesInterface, KoCanvasResourcesInterfaceSP canvasResourcesInterface) const;
 
     QList<KoResourceLoadResult> linkedResources(KisResourcesInterfaceSP globalResourcesInterface) const override;
 
     QList<KoResourceLoadResult> sideLoadedResources(KisResourcesInterfaceSP globalResourcesInterface) const override;
     void clearSideLoadedResources() override;
-
-
 
     QList<int> requiredCanvasResources() const override;
 
@@ -131,4 +102,4 @@ private:
     Private * const d;
 };
 
-#endif // KIS_PSD_LAYER_STYLE_H
+#endif

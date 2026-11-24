@@ -10,14 +10,6 @@
 #include <QFont>
 #include <QScopedPointer>
 
-/**
- * SvgTextLabel makes it possible to paint a KoSvgTextShape as a QML item.
- * It will position and scale the text centered in the bounds of the items.
- * 
- * This is nowhere near as fast as a regular Text item, as Qt has a glyph
- * cache, while Krita's system paints paths directly.
- */
-
 class SvgTextLabel : public QQuickPaintedItem
 {
     Q_OBJECT
@@ -120,20 +112,13 @@ Q_SIGNALS:
 
     void minimumRectChanged();
 protected:
-    /**
-     * @brief componentComplete
-     * called when all properties have been set.
-     * used to avoid relayout being called time and time again when the properties change.
-     */
     void componentComplete() override;
 private Q_SLOTS:
     void updateShape();
 private:
 
-
-
     struct Private;
     const QScopedPointer<Private> d;
 };
 
-#endif // SVGTEXTLABEL_H
+#endif

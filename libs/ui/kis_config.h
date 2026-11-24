@@ -30,17 +30,11 @@ class QSurfaceFormat;
 class KRITAUI_EXPORT KisConfig
 {
 public:
-    /**
-     * @brief KisConfig create a kisconfig object
-     * @param readOnly if true, there will be no call to sync when the object is deleted.
-     *  Any KisConfig object created in a thread must be read-only.
-     */
     KisConfig(bool readOnly);
 
     ~KisConfig();
 
 public Q_SLOTS:
-    /// Log the most interesting settings to the usage log
     void logImportantSettings() const;
 public:
 
@@ -54,7 +48,6 @@ public:
     void setTouchPainting(TouchPainting value) const;
     bool disableTouchOnCanvas() const;
 
-    // XXX Unused?
     bool useProjections(bool defaultValue = false) const;
     void setUseProjections(bool useProj) const;
 
@@ -84,31 +77,13 @@ public:
 
     bool useDefaultColorSpace(bool defaultvalue = false) const;
     void setUseDefaultColorSpace(bool value) const;
-    /**
-     * @return the id of the default color model used for creating new images.
-     */
     QString defColorModel(bool defaultValue = false) const;
-    /**
-     * set the id of the default color model used for creating new images.
-     */
     void defColorModel(const QString & model) const;
 
-    /**
-     * @return the id of the default color depth used for creating new images.
-     */
     QString defaultColorDepth(bool defaultValue = false) const;
-    /**
-     * set the id of the default color depth used for creating new images.
-     */
     void setDefaultColorDepth(const QString & depth) const;
 
-    /**
-     * @return the id of the default color profile used for creating new images.
-     */
     QString defColorProfile(bool defaultValue = false) const;
-    /**
-     * set the id of the default color profile used for creating new images.
-     */
     void defColorProfile(const QString & depth) const;
 
     CursorStyle newCursorStyle(bool defaultValue = false) const;
@@ -159,14 +134,6 @@ public:
     bool colorSamplerPreviewCircleExtraCirclesEnabled(bool defaultValue = false) const;
     void setColorSamplerPreviewCircleExtraCirclesEnabled(bool enabled);
 
-    /**
-     * Controls if the canvas should have a separate color managed surface.
-     * Even though the surface can be created on any platform the proper
-     * color management support for it may be not present
-     * (currently supported on Wayland only). To check if the current
-     * platform supports surface management mode, test if
-     * KisMainWindow::managedSurfaceProfile() is not null.
-     */
     bool enableCanvasSurfaceColorSpaceManagement(bool defaultValue = false) const;
     void setEnableCanvasSurfaceColorSpaceManagement(bool value);
 
@@ -178,11 +145,6 @@ public:
         Unmanaged
     };
 
-    /**
-     * The user-selected mode for the canvas color management mode. The value
-     * is meaningful when the operating system supports managed surfaces mode
-     * and if the canvas has native surface under it.
-     */
     CanvasSurfaceMode canvasSurfaceColorSpaceManagementMode(bool defaultValue = false) const;
     void setCanvasSurfaceColorSpaceManagementMode(CanvasSurfaceMode value);
 
@@ -200,16 +162,12 @@ public:
 
     CanvasSurfaceBitDepthMode effectiveCanvasSurfaceBitDepthMode(const QSurfaceFormat &format) const;
 
-    /// get the profile the user has selected for the given screen
     QString monitorProfile(int screen) const;
     void setMonitorProfile(int screen, const QString & monitorProfile, bool override) const;
 
     QString monitorForScreen(int screen, const QString &defaultMonitor, bool defaultValue = true) const;
     void setMonitorForScreen(int screen, const QString& monitor);
 
-    /// Get the actual profile to be used for the given screen, which is
-    /// either the screen profile set by the color management system or
-    /// the custom monitor profile set by the user, depending on the configuration
     const KoColorProfile *displayProfile(int screen) const;
 
     const QString getScreenStringIdentfier(int screenNo) const;
@@ -406,7 +364,6 @@ public:
     bool showFilterGalleryLayerMaskDialog(bool defaultValue = false) const;
     void setShowFilterGalleryLayerMaskDialog(bool showFilterGallery) const;
 
-    // OPENGL_SUCCESS, TRY_OPENGL, OPENGL_NOT_TRIED, OPENGL_FAILED
     QString canvasState(bool defaultValue = false) const;
     void setCanvasState(const QString& state) const;
 
@@ -456,7 +413,6 @@ public:
 
     int presetIconSize(bool defaultValue = false) const;
     void setPresetIconSize(const int value) const;
-
 
     bool firstRun(bool defaultValue = false) const;
     void setFirstRun(const bool firstRun) const;
@@ -546,13 +502,11 @@ public:
     QString toolbarSlider(int sliderNumber, bool defaultValue = false) const;
     void setToolbarSlider(int sliderNumber, const QString &slider);
 
-
     int layerThumbnailSize(bool defaultValue = false) const;
     void setLayerThumbnailSize(int size);
 
     int layerTreeIndentation(bool defaultValue = false) const;
     void setLayerTreeIndentation(int percentage);
-
 
     bool sliderLabels(bool defaultValue = false) const;
     void setSliderLabels(bool enabled);
@@ -725,7 +679,7 @@ public:
 
     bool autoZoomTimelineToPlaybackRange(bool defaultValue = false) const;
     void setAutoZoomTimelineToPlaybackRange(bool value);
-    
+
     QString ffmpegLocation(bool defaultValue = false) const;
     void setFFMpegLocation(const QString& value);
 
@@ -755,7 +709,7 @@ public:
 
     bool showBrushHud(bool defaultValue = false) const;
     void setShowBrushHud(bool value);
-    
+
     bool showPaletteBottomBar(bool defaultValue = false) const;
     void setShowPaletteBottomBar(bool value);
 
@@ -770,10 +724,10 @@ public:
 
     bool autoSmoothBezierCurves(bool defaultValue = false) const;
     void setAutoSmoothBezierCurves(bool value);
-    
+
     bool activateTransformToolAfterPaste(bool defaultValue = false) const;
     void setActivateTransformToolAfterPaste(bool value);
-    
+
     bool zoomHorizontal(bool defaultValue = false) const;
     void setZoomHorizontal(bool value);
 
@@ -850,7 +804,7 @@ public:
     void setUseLayerSelectionCheckbox(bool value);
 
     enum AssistantsDrawMode {
-        ASSISTANTS_DRAW_MODE_DIRECT = 0,             // no caching, draw directly on canvas
+        ASSISTANTS_DRAW_MODE_DIRECT = 0,
         ASSISTANTS_DRAW_MODE_PIXMAP_CACHE = 1,
         ASSISTANTS_DRAW_MODE_LARGE_PIXMAP_CACHE = 2,
     };
@@ -860,12 +814,6 @@ public:
     bool longPressEnabled(bool defaultValue = false) const;
     void setLongPressEnabled(bool value);
 
-    /**
-     * The timeout for the layer thumbnail generation after which
-     * the thumbnail algorithm will be switched to an imprecise one.
-     *
-     * Measured in milliseconds.
-     */
     int layerThumbnailGenerationTimeout(bool defaultValue = false) const;
     void setLayerThumbnailGenerationTimeout(int value);
 
@@ -889,8 +837,6 @@ public:
         return m_cfg.readEntry(name, defaultValue);
     }
 
-
-    /// get the profile the color management system has stored for the given screen
     static const KoColorProfile* getScreenProfile(int screen);
 
 private:
@@ -905,7 +851,7 @@ private:
 Q_DECLARE_METATYPE(KisConfig::CanvasSurfaceMode)
 Q_DECLARE_METATYPE(KisConfig::CanvasSurfaceBitDepthMode)
 
-#endif // KIS_CONFIG_H_
+#endif
 
 KRITAUI_EXPORT
 QDebug operator<<(QDebug debug, const KisConfig::CanvasSurfaceMode &mode);

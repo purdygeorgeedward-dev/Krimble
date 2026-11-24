@@ -32,8 +32,6 @@
 #include "kis_ls_utils.h"
 #include "kis_multiple_projection.h"
 
-
-
 KisLsOverlayFilter::KisLsOverlayFilter(Mode mode)
     : KisLayerStyleFilter(KoID("lsoverlay", i18n("Overlay (style)"))),
       m_mode(mode)

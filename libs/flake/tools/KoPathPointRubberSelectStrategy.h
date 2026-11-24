@@ -12,9 +12,6 @@
 
 class KoPathTool;
 
-/**
- * @brief Strategy to rubber select points of a path shape
- */
 class KoPathPointRubberSelectStrategy : public KoShapeRubberSelectStrategy
 {
 public:
@@ -26,9 +23,8 @@ public:
     void cancelInteraction() override;
 
 private:
-    /// pointer to the path tool
     KoPathTool *m_tool;
     Q_DECLARE_PRIVATE(KoShapeRubberSelectStrategy)
 };
 
-#endif /* KOPATHPOINTRUBBERSELECTSTRATEGY_H */
+#endif

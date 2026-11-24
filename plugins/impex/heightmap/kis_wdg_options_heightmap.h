@@ -36,4 +36,4 @@ private:
     bool m_exportMode;
 };
 
-#endif // _KIS_WDG_OPTIONS_HEIGHTMAP_H_
+#endif

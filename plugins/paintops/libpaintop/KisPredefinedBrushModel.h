@@ -19,7 +19,6 @@
 using namespace KisBrushModel;
 using namespace KisWidgetConnectionUtils;
 
-
 class KisPredefinedBrushModel : public QObject
 {
     Q_OBJECT
@@ -29,14 +28,12 @@ public:
                             lager::cursor<qreal> commonBrushSizeData,
                             bool supportsHSLBrushTips);
 
-    // the state must be declared **before** any cursors or readers
     lager::cursor<CommonData> m_commonData;
     lager::cursor<PredefinedBrushData> m_predefinedBrushData;
     lager::constant<bool> m_supportsHSLBrushTips;
     lager::cursor<qreal> m_commonBrushSizeData;
 
     lager::cursor<PredefinedBrushData> m_effectivePredefinedData;
-
 
     LAGER_QT_CURSOR(KoResourceSignature, resourceSignature);
     LAGER_QT_CURSOR(QSize, baseSize);
@@ -66,4 +63,4 @@ public:
     static void  setEffectiveBrushSize(PredefinedBrushData &predefinedData, qreal value);
 };
 
-#endif // KISPREDEFINEDBRUSHMODEL_H
+#endif

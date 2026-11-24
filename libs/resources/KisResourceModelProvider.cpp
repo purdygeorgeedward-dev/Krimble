@@ -56,7 +56,6 @@ KisAllTagsModel *KisResourceModelProvider::tagModel(const QString &resourceType)
     return s_instance->d->tagModels[resourceType];
 }
 
-
 KisAllTagResourceModel *KisResourceModelProvider::tagResourceModel(const QString &resourceType)
 {
     if (!s_instance->d->tagResourceModels.contains(resourceType)) {
@@ -77,9 +76,6 @@ void KisResourceModelProvider::testingResetAllModels()
         it.value()->resetQuery();
     }
 
-    /// NOTE: we just remove the entire metadata model when we want to reset it,
-    /// please refactor it when the metadata model becomes a QObject and will get
-    /// any kind of connection to outer world.
     s_instance->d->metaDataModel = std::nullopt;
 }
 
@@ -95,9 +91,6 @@ void KisResourceModelProvider::testingCloseAllQueries()
         it.value()->closeQuery();
     }
 
-    /// NOTE: we just remove the entire metadata model when we want to reset it,
-    /// please refactor it when the metadata model becomes a QObject and will get
-    /// any kind of connection to outer world.
     s_instance->d->metaDataModel = std::nullopt;
 }
 

@@ -9,7 +9,6 @@
 
 #include <simpletest.h>
 
-
 class KisLiquifyTransformWorkerBenchmark : public QObject
 {
 public:
@@ -24,7 +23,6 @@ public:
         MovePointsOutsideOfTheGrid,
     };
 
-
     Q_OBJECT
 private Q_SLOTS:
 
@@ -35,7 +33,6 @@ private Q_SLOTS:
 
     void testPointsScaleBuildUp();
     void testPointsScaleWash();
-
 
     void testPointsRotateBuildUp();
     void testPointsRotateWash();
@@ -51,7 +48,6 @@ private Q_SLOTS:
 
     void testRenderingMask_data();
     void testRenderingMask();
-
 
     void testCopyConstructor();
     void testMovePointsOutsideOfTheGrid();

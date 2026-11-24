@@ -7,7 +7,6 @@
 
 #include "kis_zoom_manager.h"
 
-
 #include <QGridLayout>
 
 #include <kactioncollection.h>
@@ -35,9 +34,6 @@
 #include "kis_guides_manager.h"
 #include <kis_config_notifier.h>
 
-
-// A delay longer than 80 ms is needed for a visibly smoother canvas updates
-// (due to the canvas getting affected by the frequent ruler updates).
 static constexpr int guiUpdateDelay = 160;
 
 KisZoomManager::KisZoomManager(QPointer<KisView> view, KoZoomHandler * zoomHandler,
@@ -75,7 +71,6 @@ void KisZoomManager::setup(KisKActionCollection * actionCollection)
     connect(m_canvasController->proxyObject, &KoCanvasControllerProxyObject::zoomStateChanged, m_zoomAction, &KoZoomAction::slotZoomStateChanged);
     m_zoomAction->slotZoomStateChanged(m_canvasController->zoomState());
 
-    // Put the canvascontroller in a layout so it resizes with us
     QGridLayout * layout = new QGridLayout(m_view);
     layout->setSpacing(0);
     layout->setContentsMargins(0, 0, 0, 0);
@@ -85,13 +80,12 @@ void KisZoomManager::setup(KisKActionCollection * actionCollection)
     m_horizontalRuler = new KoRuler(m_view, Qt::Horizontal, m_zoomHandler);
     m_horizontalRuler->setShowMousePosition(true);
     m_horizontalRuler->createGuideToolConnection(m_view->canvasBase());
-    m_horizontalRuler->setVisible(false); // this prevents the rulers from flashing on to off when a new document is created
+    m_horizontalRuler->setVisible(false);
 
     m_verticalRuler = new KoRuler(m_view, Qt::Vertical, m_zoomHandler);
     m_verticalRuler->setShowMousePosition(true);
     m_verticalRuler->createGuideToolConnection(m_view->canvasBase());
     m_verticalRuler->setVisible(false);
-
 
     QAction *rulerAction = actionCollection->action("ruler_pixel_multiple2");
     if (m_view->document()->guidesConfig().rulersMultiple2()) {
@@ -248,8 +242,6 @@ void KisZoomManager::slotUpdateGuiAfterZoomChange()
     const qreal zoomValue = m_view->canvasBase()->coordinatesConverter()->zoom();
     const qreal humanZoom = zoomValue * 100.0;
 
-    // XXX: KOMVC -- this is very irritating in MDI mode
-
     if (m_view->viewManager()) {
         m_view->viewManager()->
                 showFloatingZoomMessage(
@@ -279,7 +271,6 @@ void KisZoomManager::slotUpdateGuiAfterDocumentRectChanged()
 
     applyRulersUnit(m_horizontalRuler->unit());
 
-    // A bit weird conversion: convert the widget rect as if it were unrotated
     const QRectF documentRect = m_view->canvasBase()->coordinatesConverter()->flakeToDocument(widgetRect);
     const QSize documentSize = documentRect.toAlignedRect().size();
 
@@ -357,5 +348,4 @@ void KisZoomManager::slotConfigChanged()
         }
     }
 }
-
 

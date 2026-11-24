@@ -12,7 +12,6 @@
 
 class KisUndoAdapter;
 
-
 class KRITAIMAGE_EXPORT KisSelectionBasedProcessingHelper
 {
 public:
@@ -25,11 +24,9 @@ public:
     KUndo2Command *createInitCommand();
     KUndo2Command *createInitCommand(Functor func);
 
-
     void transformPaintDevice(KisPaintDeviceSP device, KisUndoAdapter *undoAdapter);
 
     void transformPaintDevice(KisPaintDeviceSP device, KisUndoAdapter *undoAdapter, Functor func);
-
 
 private:
     KisSelectionSP m_selection;
@@ -37,4 +34,4 @@ private:
     Functor m_func;
 };
 
-#endif // KISSELECTIONBASEDPROCESSINGHELPER_H
+#endif

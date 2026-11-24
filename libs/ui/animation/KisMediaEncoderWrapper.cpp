@@ -47,7 +47,6 @@ bool KisMediaEncoderRunnable::Frame::readImage(QImage &outImage) const
 {
     QImageReader reader(m_path);
     if (reader.read(&outImage)) {
-        // Should be non-null on success, but we'll guard against mayhem.
         if (outImage.isNull() || outImage.size().isEmpty()) {
             warnFile.nospace() << "Got null image reading frame from file '" << m_path << "'";
             return false;
@@ -57,7 +56,6 @@ bool KisMediaEncoderRunnable::Frame::readImage(QImage &outImage) const
     } else {
         warnFile.nospace() << "Error " << reader.error() << " reading frame from file '" << m_path
                            << "': " << reader.errorString();
-        // Again, should be null anyway, but let's be extra sure.
         outImage = QImage();
         return false;
     }
@@ -100,14 +98,9 @@ bool KisMediaEncoderRunnable::nextFrame(Frame &outFrame)
         }
 
         if (instances != 0) {
-            // GIF must spin through the input frames twice, once to generate a
-            // palette and then again to actually render the animated image. It
-            // sets the multiplier to 0.5 so that the progress bar shows values
-            // that make sense for the user, rather than reaching 100% halfway.
             m_outputFrameNo += double(instances) * m_outputFrameNoMultiplier;
             Q_EMIT sigProgressUpdated(int(m_outputFrameNo));
 
-            // If we're on the last frame, we can append the linger time.
             if (fileIndex == lastIndex && m_needsLingerAfter) {
                 m_needsLingerAfter = false;
                 instances += qMax(0, m_settings.lastFrameSec) * m_settings.outputFps;

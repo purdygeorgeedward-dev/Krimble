@@ -7,9 +7,7 @@
 #ifndef KOBACKGROUNDCOLOUR_H
 #define KOBACKGROUNDCOLOUR_H
 
-
 #include <KoDualColorButton.h>
-
 
 class KisCanvas2;
 

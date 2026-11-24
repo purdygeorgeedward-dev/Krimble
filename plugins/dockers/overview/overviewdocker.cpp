@@ -44,9 +44,7 @@ public:
     }
 private:
 
-
 };
-
 
 OverviewDockerPlugin::OverviewDockerPlugin(QObject *parent, const QVariantList &)
     : QObject(parent)

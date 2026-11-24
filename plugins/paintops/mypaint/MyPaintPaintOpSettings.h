@@ -15,7 +15,6 @@
 #include <kis_outline_generation_policy.h>
 #include "MyPaintPaintOpSettingsWidget.h"
 
-
 class KisMyPaintOpSettings : public KisOutlineGenerationPolicy<KisPaintOpSettings>
 {
 public:

@@ -127,13 +127,7 @@ void NodeDelegate::paint(QPainter *p, const QStyleOptionViewItem &o, const QMode
         {
             const bool krimbleSel = option.state & QStyle::State_Selected;
             if (krimbleSel) {
-                // if (qApp->property("krimbleSelectionGradient").toBool()) {
-                //     p->fillRect(option.rect, QColor(0x0b, 0x87, 0xdd));
-                // } else {
-                //     p->fillRect(option.rect, option.palette.color(QPalette::Active, QPalette::Highlight));
-                // }
-                // krimblePaintAqua(*p, QRectF(option.rect), 0.0);   // the Aqua-style selection on the selected layer row
-                p->fillRect(option.rect, QColor(0x0b, 0x87, 0xdd));   // flat selection blue: Aqua is for buttons, not selections ("it shouldn't be used on the layers")
+                p->fillRect(option.rect, QColor(0x0b, 0x87, 0xdd));
                 option.palette.setColor(QPalette::HighlightedText, QColor(0xff, 0xff, 0xff));
                 option.palette.setColor(QPalette::Text, QColor(0xff, 0xff, 0xff));
             } else {
@@ -152,12 +146,12 @@ void NodeDelegate::paint(QPainter *p, const QStyleOptionViewItem &o, const QMode
         if (index.column() == NodeView::SELECTED_COL) {
             drawSelectedButton(p, o, index, style);
         } else if (index.column() == NodeView::VISIBILITY_COL) {
-            drawVisibilityIcon(p, option, index); // TODO hide when dragging
+            drawVisibilityIcon(p, option, index);
         } else {
             p->setFont(option.font);
             drawColorLabel(p, option, index);
             drawThumbnail(p, option, index);
-            drawText(p, option, index); // BUG: Creating group moves things around (RTL-layout alignment)
+            drawText(p, option, index);
             drawIcons(p, option, index);
             drawDecoration(p, option, index);
             drawExpandButton(p, option, index);
@@ -177,7 +171,6 @@ void NodeDelegate::drawBranches(QPainter *p, const QStyleOptionViewItem &option,
 
     QModelIndex tmp = index.parent();
 
-    // there is no indentation if we have no parent group, so don't draw a branch
     if (!tmp.isValid()) return;
 
     const KisNodeViewColorScheme &scm = *KisNodeViewColorScheme::instance();
@@ -194,8 +187,6 @@ void NodeDelegate::drawBranches(QPainter *p, const QStyleOptionViewItem &option,
         qApp->palette().color(QPalette::Text);
     color = KisPaintingTweaks::blendColors(color, bgColor, 0.9);
 
-    // TODO: if we are a mask type, use dotted lines for the branch style
-    // p->setPen(QPen(p->pen().color(), 2, Qt::DashLine, Qt::RoundCap, Qt::RoundJoin));
     p->setPen(QPen(color, 0, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
 
     QPoint p2 = base - QPoint(rtlNum*(qMin(d->view->indentation(), scm.iconSize())/2), 0);
@@ -203,17 +194,14 @@ void NodeDelegate::drawBranches(QPainter *p, const QStyleOptionViewItem &option,
     p->drawLine(base, p2);
     p->drawLine(base, p3);
 
-    // draw parent lines (keep drawing until x position is less than 0
     QPoint parentBase1 = base + QPoint(branchSpacing, 0);
     QPoint parentBase2 = p3 + QPoint(branchSpacing, 0);
 
-    // indent lines needs to be very subtle to avoid making the docker busy looking
-    color = KisPaintingTweaks::blendColors(color, bgColor, 0.9); // makes it a little lighter than L lines
+    color = KisPaintingTweaks::blendColors(color, bgColor, 0.9);
     p->setPen(QPen(color, 0, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
 
-
     int levelRowIndex = tmp.row();
-    tmp = tmp.parent(); // Ignore the first group as it was already painted
+    tmp = tmp.parent();
 
     while (tmp.isValid()) {
         bool moreSiblings = index.model()->rowCount(tmp) > (levelRowIndex + 1);
@@ -267,17 +255,10 @@ void NodeDelegate::drawFrame(QPainter *p, const QStyleOptionViewItem &option, co
         bottomRightPoint = iconsRectR.bottomRight();
     }
 
-    // bottom running horizontal line
     p->drawLine(bottomLeftPoint.x(), bottomY,
                 bottomRightPoint.x(), bottomY);
 
-    // icons' lines are drawn by drawIcons
-
-    //// For debugging purposes only
     p->setPen(Qt::blue);
-    //KritaUtils::renderExactRect(p, iconsRectR);
-    //KritaUtils::renderExactRect(p, textRect(option, index));
-    //KritaUtils::renderExactRect(p, visibilityRect);
 
     p->setPen(oldPen);
 }
@@ -288,9 +269,7 @@ QRect NodeDelegate::thumbnailClickRect(const QStyleOptionViewItem &option, const
 
     QRect rc = d->thumbnailGeometry;
 
-    // Move to current index
     rc.moveTop(option.rect.topLeft().y());
-    // Move to correct location.
     if (option.direction == Qt::RightToLeft) {
         rc.moveRight(option.rect.right());
     } else {
@@ -300,23 +279,20 @@ QRect NodeDelegate::thumbnailClickRect(const QStyleOptionViewItem &option, const
     return rc;
 }
 
-
 static const char *krimbleBadgeKind(const KisNodeSP &node)
 {
     if (!node) return nullptr;
     if (node->inherits("KisGroupLayer")) return "group";
-    if (node->inherits("KisShapeLayer")) return "shape";          // vector layers and text (a text layer is a vector layer)
-    if (node->inherits("KisAdjustmentLayer")) return "adjust";    // filter layers
+    if (node->inherits("KisShapeLayer")) return "shape";
+    if (node->inherits("KisAdjustmentLayer")) return "adjust";
     if (node->inherits("KisCloneLayer")) return "clone";
     if (node->inherits("KisFileLayer")) return "file";
     if (node->inherits("KisGeneratorLayer")) return "generator";
     if (node->inherits("KisTransparencyMask") || node->inherits("KisFilterMask") || node->inherits("KisTransformMask")
         || node->inherits("KisSelectionMask") || node->inherits("KisColorizeMask")) return "mask";
-    return nullptr;   // KisPaintLayer and anything else: no badge
+    return nullptr;
 }
 
-// A rounded blue square in the lower right corner of the thumbnail with a white symbol: a folder (group), a square (vector), a half filled circle (filter), two squares (clone),
-// a page (file), a G (generator), a circle in a square (mask).
 static void krimbleDrawBadge(QPainter *p, const QRect &thumb, const char *kind)
 {
     if (!kind) return;
@@ -382,7 +358,7 @@ void NodeDelegate::drawThumbnail(QPainter *p, const QStyleOptionViewItem &option
     const qreal devicePixelRatio = p->device()->devicePixelRatioF();
     const int thumbSizeHighRes = d->thumbnailSize*devicePixelRatio;
 
-    const qreal oldOpacity = p->opacity(); // remember previous opacity
+    const qreal oldOpacity = p->opacity();
 
     QImage img = index.data(int(KisNodeModel::BeginThumbnailRole) + thumbSizeHighRes).value<QImage>();
     img.setDevicePixelRatio(devicePixelRatio);
@@ -391,7 +367,6 @@ void NodeDelegate::drawThumbnail(QPainter *p, const QStyleOptionViewItem &option
     }
 
     QRect fitRect = thumbnailClickRect(option, index);
-    // Shrink to icon rect
     fitRect = kisGrowRect(fitRect, -(scm.thumbnailMargin()+scm.border()));
 
     QPoint offset;
@@ -405,7 +380,7 @@ void NodeDelegate::drawThumbnail(QPainter *p, const QStyleOptionViewItem &option
     p->fillRect(imageRectLowRes.translated(offset), brush);
 
     p->drawImage(offset, img);
-    p->setOpacity(oldOpacity); // restore old opacity
+    p->setOpacity(oldOpacity);
 
     QRect borderRect = kisGrowRect(imageRectLowRes, 1).translated(offset);
     KritaUtils::renderExactRect(p, borderRect, scm.gridColor(option, d->view));
@@ -432,9 +407,7 @@ QRect NodeDelegate::iconsRect(const QStyleOptionViewItem &option, const QModelIn
         (propCount + 1) * scm.border();
 
     QRect fitRect = QRect(0, 0, iconsWidth, d->rowHeight - scm.border());
-    // Move to current index
     fitRect.moveTop(option.rect.topLeft().y());
-    // Move to correct location.
     if (option.direction == Qt::RightToLeft) {
         fitRect.moveLeft(option.rect.topLeft().x());
     } else {
@@ -449,9 +422,9 @@ QRect NodeDelegate::textRect(const QStyleOptionViewItem &option, const QModelInd
     KisNodeViewColorScheme scm;
 
     static QFont f;
-    static int minbearing = 1337 + 666; //can be 0 or negative, 2003 is less likely
+    static int minbearing = 1337 + 666;
     if (minbearing == 2003 || f != option.font) {
-        f = option.font; //getting your bearings can be expensive, so we cache them
+        f = option.font;
         minbearing = option.fontMetrics.minLeftBearing() + option.fontMetrics.minRightBearing();
     }
 
@@ -473,7 +446,7 @@ void NodeDelegate::drawText(QPainter *p, const QStyleOptionViewItem &option, con
                                                       -scm.textMargin(), 0);
 
     QPen oldPen = p->pen();
-    const qreal oldOpacity = p->opacity(); // remember previous opacity
+    const qreal oldOpacity = p->opacity();
 
     p->setPen(option.palette.color(QPalette::Active,QPalette::Text ));
 
@@ -494,22 +467,18 @@ void NodeDelegate::drawText(QPainter *p, const QStyleOptionViewItem &option, con
         } else {
             bool useOneLine = cfg.useInlineLayerInfoText();
             if (!useOneLine) {
-                // check whether there is enough space for two lines
                 const int textHeight = p->fontMetrics().height();
                 useOneLine = rc.height() < textHeight*2;
             }
 
             const int rectCenter = rc.height()/2;
             const int nameWidth = p->fontMetrics().horizontalAdvance(elided);
-            // draw the layer name
             if (!useOneLine) {
-                // enforce Qt::TextSingleLine because we are adding a line below it
                 p->drawText(rc.adjusted(0, 0, 0, -rectCenter), Qt::AlignLeft | Qt::AlignBottom | Qt::TextSingleLine, elided);
             }
             else {
                 p->drawText(rc.adjusted(0, 0, 0, 0), Qt::AlignLeft | Qt::AlignVCenter, elided);
             }
-            // draw the info-text
             p->save();
             QFont layerInfoTextFont = p->font();
             layerInfoTextFont.setBold(false);
@@ -529,7 +498,7 @@ void NodeDelegate::drawText(QPainter *p, const QStyleOptionViewItem &option, con
         }
     }
 
-    p->setPen(oldPen); // restore pen settings
+    p->setPen(oldPen);
     p->setOpacity(oldOpacity);
 }
 
@@ -550,7 +519,6 @@ QList<OptionalProperty> NodeDelegate::Private::rightmostProperties(const KisBase
                 it->id != KisLayerPropertiesIcons::colorOverlay.id()) continue;
 
         if (it->id == KisLayerPropertiesIcons::visible.id()) {
-            // noop...
         } else if (it->id == KisLayerPropertiesIcons::locked.id()) {
             list[0] = OptionalProperty(&(*it));
         } else if (it->id == KisLayerPropertiesIcons::inheritAlpha.id()) {
@@ -628,15 +596,13 @@ void NodeDelegate::Private::toggleProperty(KisBaseNode::PropertyList &props, con
     QModelIndex root(view->rootIndex());
 
     if (clickedProperty->id == KisLayerPropertiesIcons::colorOverlay.id()) {
-        // Open the properties dialog for the layer's fast color overlay mask.
-        view->model()->setData(index, QVariant() /* unused */, KisNodeModel::LayerColorOverlayPropertiesRole);
+        view->model()->setData(index, QVariant() , KisNodeModel::LayerColorOverlayPropertiesRole);
 
     } else if ((modifier & Qt::ShiftModifier) == Qt::ShiftModifier && clickedProperty->canHaveStasis) {
         bool mode = true;
 
         OptionalProperty prop = findProperty(props, clickedProperty);
 
-        // XXX: Change to use NodeProperty
         int position = shiftClickedIndexes.indexOf(index);
 
         StasisOperation record = (!prop->isInStasis)? StasisOperation::Record :
@@ -647,8 +613,8 @@ void NodeDelegate::Private::toggleProperty(KisBaseNode::PropertyList &props, con
 
         QList<QModelIndex> items;
         if (modifier == (Qt::ControlModifier | Qt::ShiftModifier)) {
-            mode = false; // inverted mode
-            items.insert(0, index); // important!
+            mode = false;
+            items.insert(0, index);
             getSiblingsIndex(items, index);
         } else {
             getParentsIndex(items, index);
@@ -657,10 +623,6 @@ void NodeDelegate::Private::toggleProperty(KisBaseNode::PropertyList &props, con
         togglePropertyRecursive(root, clickedProperty, items, record, mode);
 
     } else {
-        // If we have properties in stasis, we need to cancel stasis to avoid overriding
-        // values in stasis.
-        // IMPORTANT -- we also need to check the first row of nodes to determine
-        // if a stasis is currently active in some cases.
         const bool hasPropInStasis = (shiftClickedIndexes.count() > 0 || checkImmediateStasis(root, clickedProperty));
         if (clickedProperty->canHaveStasis && hasPropInStasis) {
             shiftClickedIndexes.clear();
@@ -686,7 +648,6 @@ void NodeDelegate::Private::togglePropertyRecursive(const QModelIndex &root, con
     for (int i = 0; i < rowCount; i++) {
         QModelIndex idx = view->model()->index(i, 0, root);
 
-        // The entire property list has to be altered because model->setData cannot set individual properties
         KisBaseNode::PropertyList props = idx.data(KisNodeModel::PropertiesRole).value<KisBaseNode::PropertyList>();
         OptionalProperty prop = findProperty(props, clickedProperty);
 
@@ -697,13 +658,13 @@ void NodeDelegate::Private::togglePropertyRecursive(const QModelIndex &root, con
         }
         if (record == StasisOperation::Review || record ==  StasisOperation::Record) {
             prop->isInStasis = true;
-            if(mode) { //include mode
+            if(mode) {
                 prop->state = (items.contains(idx)) ? QVariant(true) : QVariant(false);
-            } else { // exclude
+            } else {
                 prop->state = (!items.contains(idx))? prop->state :
                               (items.at(0) == idx)? QVariant(true) : QVariant(false);
             }
-        } else { // restore
+        } else {
             prop->state = QVariant(prop->stateInStasis);
             prop->isInStasis = false;
         }
@@ -721,9 +682,8 @@ bool NodeDelegate::Private::stasisIsDirty(const QModelIndex &root, const Optiona
     bool result = false;
 
     for (int i = 0; i < rowCount; i++) {
-        if (result) break; // return on first find
+        if (result) break;
         QModelIndex idx = view->model()->index(i, 0, root);
-        // The entire property list has to be altered because model->setData cannot set individual properties
         KisBaseNode::PropertyList props = idx.data(KisNodeModel::PropertiesRole).value<KisBaseNode::PropertyList>();
         OptionalProperty prop = findProperty(props, clickedProperty);
 
@@ -733,7 +693,6 @@ bool NodeDelegate::Private::stasisIsDirty(const QModelIndex &root, const Optiona
         } else {
             off = true;
         }
-        // stop if both states exist
         if (on && off) {
             return true;
         }
@@ -750,7 +709,6 @@ void NodeDelegate::Private::resetPropertyStateRecursive(const QModelIndex &root,
 
     for (int i = 0; i < rowCount; i++) {
         QModelIndex idx = view->model()->index(i, 0, root);
-        // The entire property list has to be altered because model->setData cannot set individual properties
         KisBaseNode::PropertyList props = idx.data(KisNodeModel::PropertiesRole).value<KisBaseNode::PropertyList>();
         OptionalProperty prop = findProperty(props, clickedProperty);
 
@@ -812,7 +770,6 @@ void NodeDelegate::Private::getChildrenIndex(QList<QModelIndex> &items, const QM
 {
     qint32 childs = view->model()->rowCount(index);
     QModelIndex child;
-    // STEP 1: Go.
     for (quint16 i = 0; i < childs; ++i) {
         child = view->model()->index(i, 0, index);
         items.append(child);
@@ -824,7 +781,6 @@ void NodeDelegate::Private::getSiblingsIndex(QList<QModelIndex> &items, const QM
 {
     qint32 numberOfLeaves = view->model()->rowCount(index.parent());
     QModelIndex item;
-    // STEP 1: Go.
     for (quint16 i = 0; i < numberOfLeaves; ++i) {
         item = view->model()->index(i, 0, index.parent());
         if (item != index) {
@@ -832,7 +788,6 @@ void NodeDelegate::Private::getSiblingsIndex(QList<QModelIndex> &items, const QM
         }
     }
 }
-
 
 void NodeDelegate::drawIcons(QPainter *p, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
@@ -859,7 +814,7 @@ void NodeDelegate::drawIcons(QPainter *p, const QStyleOptionViewItem &option, co
             QIcon icon = prop->state.toBool() ? prop->onIcon : prop->offIcon;
             bool fullColor = prop->state.toBool() && option.state & QStyle::State_Enabled;
 
-            const qreal oldOpacity = p->opacity(); // remember previous opacity
+            const qreal oldOpacity = p->opacity();
             if (fullColor) {
                 p->setOpacity(1.0);
             } else {
@@ -867,7 +822,6 @@ void NodeDelegate::drawIcons(QPainter *p, const QStyleOptionViewItem &option, co
             }
 
             if (prop->id == KisLayerPropertiesIcons::colorOverlay.id()) {
-                // Parent layer can show its color overlay mask color here.
                 QRect colorRect(x, y, scm.iconSize(), scm.iconSize());
                 colorRect = colorRect.marginsRemoved(QMargins(2, 1, 2, 1));
                 p->fillRect(colorRect, index.data(KisNodeModel::LayerColorOverlayColorRole).value<QColor>());
@@ -875,15 +829,12 @@ void NodeDelegate::drawIcons(QPainter *p, const QStyleOptionViewItem &option, co
             } else {
                 p->drawPixmap(x, y, icon.pixmap(scm.iconSize(), QIcon::Normal));
             }
-            p->setOpacity(oldOpacity); // restore old opacity
+            p->setOpacity(oldOpacity);
         }
         x += scm.iconSize() + scm.iconMargin();
 
         x += scm.border();
     }
-
-    // Draw a color preview "icon" for some types of filter masks,
-    // but especially for KisFilterFastColorOverlay.
 
     if (index.data(KisNodeModel::FilterMaskColorRole).isNull() == false) {
         if (!(option.state & QStyle::State_Enabled)) {
@@ -909,9 +860,7 @@ QRect NodeDelegate::visibilityClickRect(const QStyleOptionViewItem &option, cons
     QRect rc = scm.relVisibilityRect();
     rc.setHeight(d->rowHeight);
 
-    // Move to current index
     rc.moveCenter(option.rect.center());
-    // Move to correct location.
     if (option.direction == Qt::RightToLeft) {
         rc.moveRight(option.rect.right());
     } else {
@@ -928,10 +877,8 @@ QRect NodeDelegate::decorationClickRect(const QStyleOptionViewItem &option, cons
 
     QRect rc = scm.relDecorationRect();
 
-    // Move to current index
     rc.moveTop(option.rect.topLeft().y());
     rc.setHeight(d->rowHeight);
-    // Move to correct location.
     if (option.direction == Qt::RightToLeft) {
         rc.moveRight(option.rect.right() - d->thumbnailGeometry.width());
     } else {
@@ -950,12 +897,10 @@ void NodeDelegate::drawVisibilityIcon(QPainter *p, const QStyleOptionViewItem &o
     if (!prop) return;
 
     QRect fitRect = visibilityClickRect(option, index);
-    // Shrink to icon rect
     fitRect = kisGrowRect(fitRect, -(scm.visibilityMargin() + scm.border()));
 
     QIcon icon = prop->state.toBool() ? prop->onIcon : prop->offIcon;
 
-    // if we are not showing the layer, make the icon slightly transparent like other inactive icons
     const qreal oldOpacity = p->opacity();
 
     if (!prop->state.toBool()) {
@@ -978,11 +923,6 @@ void NodeDelegate::drawVisibilityIcon(QPainter *p, const QStyleOptionViewItem &o
 
     p->setOpacity(oldOpacity);
 
-    //// For debugging purposes only
-// //     // p->save();
-// //     // p->setPen(Qt::blue);
-// //     // KritaUtils::renderExactRect(p, visibilityClickRect(option, index));
-// //     // p->restore();
 }
 
 void NodeDelegate::drawDecoration(QPainter *p, const QStyleOptionViewItem &option, const QModelIndex &index) const
@@ -997,10 +937,9 @@ void NodeDelegate::drawDecoration(QPainter *p, const QStyleOptionViewItem &optio
 
         QRect rc = decorationClickRect(option, index);
 
-        // Shrink to icon rect
         rc = kisGrowRect(rc, -(scm.decorationMargin()+scm.border()));
 
-        const qreal oldOpacity = p->opacity(); // remember previous opacity
+        const qreal oldOpacity = p->opacity();
 
         if (!(option.state & QStyle::State_Enabled)) {
             p->setOpacity(0.35);
@@ -1008,7 +947,7 @@ void NodeDelegate::drawDecoration(QPainter *p, const QStyleOptionViewItem &optio
 
         p->drawPixmap(rc.topLeft()-QPoint(0, 1), pixmap);
 
-        p->setOpacity(oldOpacity); // restore old opacity
+        p->setOpacity(oldOpacity);
     }
 }
 
@@ -1019,9 +958,6 @@ void NodeDelegate::drawExpandButton(QPainter *p, const QStyleOptionViewItem &opt
 
     QRect rc = decorationClickRect(option, index);
 
-    // Move to current index
-//     rc.moveTop(option.rect.topLeft().y());
-    // Shrink to icon rect
     rc = kisGrowRect(rc, -(scm.decorationMargin()+scm.border()));
 
     if (!(option.state & QStyle::State_Children)) return;
@@ -1049,7 +985,7 @@ void NodeDelegate::drawAnimatedDecoration(QPainter *p, const QStyleOptionViewIte
 
     if ((option.state & QStyle::State_Children)) return;
 
-    const qreal oldOpacity = p->opacity(); // remember previous opacity
+    const qreal oldOpacity = p->opacity();
 
     if (!(option.state & QStyle::State_Enabled)) {
         p->setOpacity(0.35);
@@ -1072,13 +1008,9 @@ void NodeDelegate::drawSelectedButton(QPainter *p, const QStyleOptionViewItem &o
     QStyleOptionButton buttonOption;
 
     KisNodeViewColorScheme scm;
-    // QRect rect = option.rect;
-    QRect rect = option.rect.adjusted(14, 0, 0, 0);   // the left 14 units of the column are the gap after the eye (kis_node_view_color_scheme.cpp)
+    QRect rect = option.rect.adjusted(14, 0, 0, 0);
 
-    // adjust the icon to not touch the borders
     rect = kisGrowRect(rect, -(scm.thumbnailMargin() + scm.border()));
-    // Make the rect a square so the check mark is not distorted. also center
-    // it horizontally and vertically with respect to the whole area rect
     constexpr qint32 maximumAllowedSideLength = 48;
     const qint32 minimumSideLength = qMin(rect.width(), rect.height());
     const qint32 sideLength = qMin(minimumSideLength, maximumAllowedSideLength);
@@ -1089,8 +1021,6 @@ void NodeDelegate::drawSelectedButton(QPainter *p, const QStyleOptionViewItem &o
 
     buttonOption.rect = rect;
 
-    // Update palette colors to make the check box more readable over the base
-    // color
     const QColor prevBaseColor = buttonOption.palette.base().color();
     const qint32 windowLightness = buttonOption.palette.window().color().lightness();
     const qint32 baseLightness = prevBaseColor.lightness();
@@ -1099,7 +1029,6 @@ void NodeDelegate::drawSelectedButton(QPainter *p, const QStyleOptionViewItem &o
     buttonOption.palette.setColor(QPalette::Window, prevBaseColor);
     buttonOption.palette.setColor(QPalette::Base, newBaseColor);
 
-    // check if the current index exists in the selected rows.
     buttonOption.state.setFlag((d->view->selectionModel()->isRowSelected(index.row(), index.parent())
                                     ? QStyle::State_On
                                     : QStyle::State_Off));
@@ -1130,7 +1059,6 @@ NodeDelegate::Private::propForMousePos(const QModelIndex &index, const QPoint &m
     const int clickedIcon = xPos / iconWidth;
     const int distToBorder = qMin(xPos % iconWidth, iconWidth - xPos % iconWidth);
 
-
     if (clickedIcon >= 0 &&
         clickedIcon < numProps &&
         realProps[clickedIcon] &&
@@ -1144,9 +1072,7 @@ NodeDelegate::Private::propForMousePos(const QModelIndex &index, const QPoint &m
 
 bool NodeDelegate::editorEvent(QEvent *event, QAbstractItemModel *model, const QStyleOptionViewItem &option, const QModelIndex &index)
 {
-    //Explicitly handle mouse release events
     if (event->type() == QEvent::MouseButtonRelease &&index.flags() & Qt::ItemIsEnabled)  {
-        //For some reason qt5 doesn't give us which button was released, From my testing i couldn't get a release event on rmb, so we assume that it's lmb
         QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
         auto clickedProperty = d->propForMousePos(index, mouseEvent->pos(), option);
         if (!clickedProperty && mouseEvent->modifiers() == Qt::ControlModifier) {
@@ -1154,7 +1080,6 @@ bool NodeDelegate::editorEvent(QEvent *event, QAbstractItemModel *model, const Q
             return true;
         }
 
-        //We only need this event for ctrl clicks, so we just return here
         return false;
     }
 
@@ -1181,8 +1106,7 @@ bool NodeDelegate::editorEvent(QEvent *event, QAbstractItemModel *model, const Q
             }
             return false;
         } else if (index.column() == NodeView::SELECTED_COL) {
-            // if (leftButton && option.rect.contains(mouseEvent->pos())) {
-            if (leftButton && option.rect.adjusted(14, 0, 0, 0).contains(mouseEvent->pos())) {   // a tap in the gap after the eye does nothing
+            if (leftButton && option.rect.adjusted(14, 0, 0, 0).contains(mouseEvent->pos())) {
                 changeSelectionAndCurrentIndex(index);
                 return true;
             }
@@ -1234,10 +1158,10 @@ bool NodeDelegate::editorEvent(QEvent *event, QAbstractItemModel *model, const Q
                 } else {
                     d->view->setCurrentIndex(index);
                 }
-                return hasCorrectModifier; //If not here then the item is !expanded when reaching return false;
+                return hasCorrectModifier;
 
             } else if (filterColorClicked) {
-                model->setData(index, QVariant() /* unused */, KisNodeModel::FilterMaskPropertiesRole);
+                model->setData(index, QVariant() , KisNodeModel::FilterMaskPropertiesRole);
                 return true;
 
             } else {
@@ -1285,8 +1209,6 @@ void NodeDelegate::changeSelectionAndCurrentIndex(const QModelIndex &index)
     QItemSelectionModel *selectionModel = d->view->selectionModel();
     const bool wasSelected = selectionModel->isRowSelected(index.row(), index.parent());
 
-    // if only one item is selected and that too is us then in that case we don't do anything to
-    // the selection.
     if (selectionModel->selectedIndexes().size() == 1
         && selectionModel->isRowSelected(index.row(), index.parent())) {
         selectionModel->select(index, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
@@ -1298,7 +1220,6 @@ void NodeDelegate::changeSelectionAndCurrentIndex(const QModelIndex &index)
         return a.row() == b.row() && a.parent() == b.parent();
     };
 
-    // in this condition we move the current index to the best guessed previous one.
     if (wasSelected && belongToSameRow(selectionModel->currentIndex(), index)) {
         selectionModel->setCurrentIndex(selectionModel->selectedRows().last(), QItemSelectionModel::NoUpdate);
     }
@@ -1306,12 +1227,10 @@ void NodeDelegate::changeSelectionAndCurrentIndex(const QModelIndex &index)
 
 QWidget *NodeDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem&, const QModelIndex &index) const
 {
-    // #400357 do not override QAbstractItemDelegate::setEditorData to update editor's text
-    // because replacing the text while user type is confusing
     const QString &text = index.data(Qt::DisplayRole).toString();
     d->edit = new QLineEdit(text, parent);
     d->edit->setFocusPolicy(Qt::StrongFocus);
-    d->edit->installEventFilter(const_cast<NodeDelegate*>(this)); //hack?
+    d->edit->installEventFilter(const_cast<NodeDelegate*>(this));
     return d->edit;
 }
 
@@ -1334,10 +1253,6 @@ void NodeDelegate::toggleSolo(const QModelIndex &index) {
     OptionalProperty visibilityProperty = d->findVisibilityProperty(props);
     d->toggleProperty(props, visibilityProperty, Qt::ShiftModifier, index);
 }
-
-
-// PROTECTED
-
 
 bool NodeDelegate::eventFilter(QObject *object, QEvent *event)
 {
@@ -1408,10 +1323,6 @@ bool NodeDelegate::eventFilter(QObject *object, QEvent *event)
     return QAbstractItemDelegate::eventFilter(object, event);
 }
 
-
-// PRIVATE
-
-
 QStyleOptionViewItem NodeDelegate::getOptions(const QStyleOptionViewItem &o, const QModelIndex &index)
 {
     QStyleOptionViewItem option = o;
@@ -1437,9 +1348,6 @@ void NodeDelegate::drawProgressBar(QPainter *p, const QStyleOptionViewItem &opti
 {
     QVariant value = index.data(KisNodeModel::ProgressRole);
     if (!value.isNull() && (value.toInt() >= 0 && value.toInt() <= 100)) {
-
-        /// The progress bar will display under the layer name area. The bars have accurate data, so we
-        /// probably don't need to also show the actual number for % complete
 
         KisNodeViewColorScheme scm;
 
@@ -1478,7 +1386,6 @@ void NodeDelegate::slotConfigChanged()
 {
     KisConfig cfg(true);
     const int oldHeight = d->rowHeight;
-    // cache values that require a config lookup and get used frequently
     d->thumbnailSize = KisNodeViewColorScheme::instance()->thumbnailSize();
     d->thumbnailGeometry = KisNodeViewColorScheme::instance()->relThumbnailRect();
     d->rowHeight = KisNodeViewColorScheme::instance()->rowHeight();
@@ -1486,7 +1393,6 @@ void NodeDelegate::slotConfigChanged()
     const QColor newCheckersColor1 = cfg.checkersColor1();
     const QColor newCheckersColor2 = cfg.checkersColor2();
 
-    // generate the checker backdrop for thumbnails
     const int step = d->thumbnailSize / 6;
     if ((d->checkers.width() != 2 * step) ||
         (d->checkersColor1 != newCheckersColor1) ||
@@ -1504,7 +1410,6 @@ void NodeDelegate::slotConfigChanged()
     }
 
     if (d->rowHeight != oldHeight) {
-        // QAbstractItemView/QTreeView don't even look at the index and redo the whole layout...
         Q_EMIT sizeHintChanged(QModelIndex());
     }
 }
@@ -1524,7 +1429,7 @@ void NodeDelegate::slotResetState(){
         KisBaseNode::PropertyList props = firstChild.data(KisNodeModel::PropertiesRole).value<KisBaseNode::PropertyList>();
 
         OptionalProperty visibilityProperty = d->findVisibilityProperty(props);
-        if(d->stasisIsDirty(root, visibilityProperty)){ // clean inStasis if mixed!
+        if(d->stasisIsDirty(root, visibilityProperty)){
             d->resetPropertyStateRecursive(root, visibilityProperty);
         }
     }
@@ -1535,16 +1440,11 @@ QRect NodeDelegate::filterColorClickRect(const QStyleOptionViewItem &option, con
     KisNodeViewColorScheme scm;
     const QRect icons = iconsRect(option, index);
 
-    // Filter masks have two unused properties/icons,
-    // and we can use that space to draw the filter's selected color.
-
     QRect rc;
     const int dx = scm.iconSize() + scm.iconMargin();
     if (option.direction == Qt::RightToLeft) {
-        // The free space is at the beginning on the left.
         rc.setRect(0, 0, icons.width() - dx, icons.height());
     } else {
-        // The free space is at the end on the right.
         rc.setRect(dx, 0, icons.width() - dx, icons.height());
     }
     rc = rc.marginsRemoved(QMargins(8, 10, 8, 10));

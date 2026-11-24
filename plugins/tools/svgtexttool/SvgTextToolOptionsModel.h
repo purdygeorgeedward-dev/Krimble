@@ -37,4 +37,4 @@ private:
     QString m_configName;
 };
 
-#endif // SVGTEXTTOOLOPTIONSMODEL_H
+#endif

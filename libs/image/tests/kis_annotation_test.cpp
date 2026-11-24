@@ -16,5 +16,4 @@ void KisAnnotationTest::testCreation()
     KisAnnotation test(s,s,b);
 }
 
-
 SIMPLE_TEST_MAIN(KisAnnotationTest)

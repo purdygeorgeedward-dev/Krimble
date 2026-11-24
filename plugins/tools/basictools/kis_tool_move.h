@@ -25,7 +25,6 @@
 
 #include "kis_canvas2.h"
 
-
 class KoCanvasBase;
 class MoveToolOptionsWidget;
 class KisDocument;
@@ -38,14 +37,6 @@ public:
     KisToolMove(KoCanvasBase * canvas);
     ~KisToolMove() override;
 
-    /**
-     * @brief wantsAutoScroll
-     * reimplemented from KoToolBase
-     * there's an issue where autoscrolling with this tool never makes the
-     * stroke end, so we return false here so that users don't get stuck with
-     * the tool. See bug 362659
-     * @return false
-     */
     bool wantsAutoScroll() const override {
         return false;
     }
@@ -130,7 +121,6 @@ private:
     bool tryEndPreviousStroke(const KisNodeList &nodes);
     void requestHandlesRectUpdate();
 
-
 private Q_SLOTS:
     void endStroke();
     void slotTrackerChangedConfig(KisToolChangesTrackerDataSP state);
@@ -147,8 +137,8 @@ private Q_SLOTS:
 private:
 
     MoveToolOptionsWidget* m_optionsWidget {0};
-    QPoint m_dragStart; ///< Point where current cursor dragging began
-    QPoint m_accumulatedOffset; ///< Total offset including multiple clicks, up/down/left/right keys, etc. added together
+    QPoint m_dragStart;
+    QPoint m_accumulatedOffset;
 
     KisStrokeId m_strokeId;
 
@@ -172,7 +162,6 @@ private:
 
     KisAsynchronousStrokeUpdateHelper m_asyncUpdateHelper;
 };
-
 
 class KisToolMoveFactory : public KisToolPaintFactoryBase
 {
@@ -198,5 +187,5 @@ public:
     QList<QAction *> createActionsImpl() override;
 };
 
-#endif // KIS_TOOL_MOVE_H_
+#endif
 

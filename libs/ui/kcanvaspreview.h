@@ -58,5 +58,4 @@ protected:
     bool m_yOffsetLocked {false};
 };
 
-
-#endif /* KCANVASPREVIEW_H */
+#endif

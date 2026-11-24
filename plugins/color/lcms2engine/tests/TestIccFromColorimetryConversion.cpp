@@ -19,7 +19,6 @@
 
 #include <kis_debug.h>
 
-
 void TestIccFromColorimetryConversion::testRequestConstruction_data()
 {
     QTest::addColumn<KisSurfaceColorimetry::ColorSpace>("colorSpace");
@@ -96,8 +95,6 @@ void TestIccFromColorimetryConversion::testRequestConstruction_data()
         << TRC_UNSPECIFIED
         << 0.0;
 
-    // any pq-space that is not bt2020pq is considered unsupported
-
     QTest::newRow("srgb-pq")
         << makeCS(NamedPrimaries::primaries_srgb, NamedTransferFunction::transfer_function_st2084_pq)
         << false
@@ -145,9 +142,9 @@ void TestIccFromColorimetryConversion::testRequestConstructionCustomPrimaries()
     colorSpace.primaries = Colorimetry::BT709;
     colorSpace.transferFunction = NamedTransferFunction::transfer_function_srgb;
     const QVector<KoColorimetryUtils::xy> expectedColorants = {
-        {0.64, 0.33}, // red
-        {0.30, 0.60}, // green
-        {0.15, 0.06}, // blue
+        {0.64, 0.33},
+        {0.30, 0.60},
+        {0.15, 0.06},
     };
 
     KoColorimetryUtils::xy expectedWp = {0.3127, 0.3290};
@@ -193,7 +190,6 @@ void TestIccFromColorimetryConversion::testRequestConstructionCustomGamma_data()
     QTest::newRow("g2.4") << 2.4 << true << TRC_GAMMA_2_4;
     QTest::newRow("g2.8") << 2.8 << true << TRC_ITU_R_BT_470_6_SYSTEM_B_G;
 
-    // we support only a predefined set of gamma exponents
     QTest::newRow("g1.6") << 1.6 << false << TRC_UNSPECIFIED;
 }
 
@@ -234,7 +230,6 @@ void TestIccFromColorimetryConversion::testProfileConstruction()
     QFETCH(TransferCharacteristics, expectedTransferFunction);
     QFETCH(double, expectedReferenceWhite);
 
-    // skip inherited invalid requests
     if (!isValid) return;
 
     auto request = KisSurfaceColorimetry::colorSpaceToRequest(colorSpace);

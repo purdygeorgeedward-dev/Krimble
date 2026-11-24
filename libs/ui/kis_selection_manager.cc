@@ -77,7 +77,6 @@
 #include "kis_action.h"
 #include "kis_action_manager.h"
 #include "operations/kis_operation_configuration.h"
-//new
 #include "kis_node_query_path.h"
 #include "kis_tool_shape.h"
 #include "kis_config_notifier.h"
@@ -209,7 +208,6 @@ void KisSelectionManager::setup(KisActionManager* actionManager)
     connect(KisConfigNotifier::instance(), SIGNAL(configChanged()), SLOT(configChanged()));
 }
 
-
 void KisSelectionManager::setView(QPointer<KisView>imageView)
 {
     if (m_imageView && m_imageView->canvasBase()) {
@@ -242,7 +240,6 @@ void KisSelectionManager::setView(QPointer<KisView>imageView)
 
     }
 }
-
 
 void KisSelectionManager::clipboardDataChanged()
 {
@@ -299,10 +296,6 @@ bool KisSelectionManager::canReselectDeactivatedSelection()
     KisLayerSP layer = m_view->activeLayer();
 
     if (layer) {
-        /**
-         * If we have an active selection mask, then
-         * no reselection is possible
-         */
         if (layer->selectionMask()) return false;
 
         KoProperties properties;
@@ -331,9 +324,6 @@ void KisSelectionManager::updateGUI()
     KisLayerSP activeLayer = m_view->activeLayer();
     KisImageWSP image = activeLayer ? activeLayer->image() : 0;
 
-    // FIXME: how about pasting shapes?
-    // TODO: check if these manual update actually work and not
-    //       overridden by KisActionManager
     m_pasteNew->setEnabled(havePixelsInClipboard);
     m_pasteAsReference->setEnabled(haveDevice);
 
@@ -443,7 +433,6 @@ void KisSelectionManager::reselect()
     KisReselectActionFactory factory;
     factory.run(m_view);
 }
-
 
 #include <KoToolManager.h>
 #include <KoInteractionTool.h>
@@ -705,7 +694,6 @@ void KisSelectionManager::slotStrokeSelection()
     }
     delete dlg;
 
-
 }
 
 #include "KisImageBarrierLock.h"
@@ -722,7 +710,6 @@ void KisSelectionManager::selectOpaqueOnNode(KisNodeSP node, SelectionAction act
     KUndo2MagicString actionName;
     KisPixelSelectionSP tmpSel = KisPixelSelectionSP(new KisPixelSelection());
     KisCanvas2 *canvas = m_view->canvasBase();
-
 
     {
         KisImageBarrierLock lock(image);
@@ -746,9 +733,6 @@ void KisSelectionManager::selectOpaqueOnNode(KisNodeSP node, SelectionAction act
 
         KIS_ASSERT_RECOVER_RETURN(canvas);
 
-        /**
-         * If there is nothing selected, just create a new selection
-         */
         if (!canvas->imageView()->selection()) {
             action = SELECTION_REPLACE;
         }

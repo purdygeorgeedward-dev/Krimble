@@ -38,4 +38,4 @@ private:
     bool m_isReady {false};
 };
 
-#endif /* KISWAYLANDOUTPUTCOLORINFO_H */
+#endif

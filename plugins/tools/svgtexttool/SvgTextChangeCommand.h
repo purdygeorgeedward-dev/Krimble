@@ -20,9 +20,7 @@ public:
                          KUndo2Command *parent = 0);
     virtual ~SvgTextChangeCommand();
 
-    /// redo the command
     void redo() override;
-    /// revert the actions done in redo
     void undo() override;
 
 private:
@@ -33,4 +31,4 @@ private:
     QString m_oldDefs;
 };
 
-#endif /* CHANGETEXTNGDATACOMMAND_H */
+#endif

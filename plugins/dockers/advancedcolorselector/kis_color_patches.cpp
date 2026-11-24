@@ -126,7 +126,6 @@ void KisColorPatches::updateSettings()
         boxLayout->setDirection(layoutDirection);
     }
 
-
     if (isPopup()) {
         if (m_direction == Vertical) {
             setMinimumWidth(m_colorPatchesView->width());
@@ -144,7 +143,6 @@ void KisColorPatches::updateSettings()
     setPopupBehaviour(false, false);
     update();
 }
-
 
 void KisColorPatches::setColors(const QList<KoColor> &colors)
 {

@@ -10,11 +10,9 @@
 
 #include "KoToolFactoryBase.h"
 
-/// Factory for the KoZoomTool
 class KoZoomToolFactory : public KoToolFactoryBase
 {
 public:
-    /// constructor
     KoZoomToolFactory();
 
     KoToolBase *createTool(KoCanvasBase *canvas) override;

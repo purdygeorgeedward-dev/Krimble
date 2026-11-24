@@ -22,7 +22,6 @@
 
 #include "kis_asl_layer_style_serializer.h"
 
-
 struct Q_DECL_HIDDEN KisPSDLayerStyle::Private
 {
     Private(KisResourcesInterfaceSP _resourcesInterface)
@@ -336,12 +335,6 @@ KisPSDLayerStyleSP KisPSDLayerStyle::cloneWithResourcesSnapshot(KisResourcesInte
 {
     KisPSDLayerStyleSP style = KisRequiredResourcesOperators::cloneWithResourcesSnapshot<KisPSDLayerStyleSP>(this, globalResourcesInterface);
 
-    /**
-     * Passing null into cloneWithResourcesSnapshot() means that we expect all the
-     * canvas resources to be backed into the style. That is exactly what we expect
-     * when loading the styles saved in the layers.
-     */
-
     if (!requiredCanvasResources().isEmpty() && !canvasResourcesInterface) {
         qWarning() << "KisPSDLayerStyle::cloneWithResourcesSnapshot: layer style"
                    << name() << "is expected to have all the canvas resources"
@@ -357,12 +350,6 @@ KisPSDLayerStyleSP KisPSDLayerStyle::cloneWithResourcesSnapshot(KisResourcesInte
 
         auto bakeGradient = [canvasResourcesInterface, localResourcesSnapshot] (KoAbstractGradientSP gradient) {
             if (gradient && !gradient->requiredCanvasResources().isEmpty()) {
-
-                /**
-                 * Since we haven't cloned the required resources when putting them
-                 * into the local storage (which is rather questionable), we need to
-                 * clone the gradients explicitly before modification.
-                 */
 
                 KoAbstractGradientSP clonedGradient =
                     gradient->cloneAndBakeVariableColors(canvasResourcesInterface);
@@ -399,9 +386,6 @@ QList<KoResourceLoadResult> KisPSDLayerStyle::sideLoadedResources(KisResourcesIn
     Q_FOREACH(const KoEmbeddedResource &resource, d->sideLoadedResources) {
         KoResourceSignature sig = resource.signature();
 
-        /**
-         * Do not load the existing resources. There is no use for it.
-         */
         if (!globalResourcesInterface->source(sig.type)
                 .exactMatch(sig.md5sum, sig.filename, sig.name)) {
 

@@ -43,7 +43,6 @@ Channel::~Channel()
     delete d;
 }
 
-
 bool Channel::operator==(const Channel &other) const
 {
     return (d->node == other.d->node
@@ -54,7 +53,6 @@ bool Channel::operator!=(const Channel &other) const
 {
     return !(operator==(other));
 }
-
 
 bool Channel::visible() const
 {
@@ -234,7 +232,4 @@ void Channel::setPixelData(QByteArray value, const QRect &rect)
         }
     }
 }
-
-
-
 

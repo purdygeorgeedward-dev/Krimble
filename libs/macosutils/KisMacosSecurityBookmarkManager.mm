@@ -30,7 +30,6 @@
 
 #include "KisMacosEntitlements.h"
 
-
 #if ! __has_feature(objc_arc)
 #error "Enable ARC to compile this file"
 #endif
@@ -101,10 +100,6 @@ void KisMacosSecurityBookmarkManager::createBookmarkFromPath(const QString &path
         refurl = [NSURL URLWithString:refpathEscaped];
     }
 
-    // working with paths as strings
-    // this assumes user used NSOpenPanel on the path itself
-
-    // Create bookmark
     NSData *bookmark = [url bookmarkDataWithOptions: options includingResourceValuesForKeys: nil relativeToURL: refurl error:&err];
     NSString *bookmarkString = [bookmark base64EncodedStringWithOptions: NSDataBase64Encoding64CharacterLineLength];
     NSLog(@" path: %@\n err: %@", pathEscaped, err);
@@ -113,11 +108,9 @@ void KisMacosSecurityBookmarkManager::createBookmarkFromPath(const QString &path
         [url startAccessingSecurityScopedResource];
 
         QString base64Data = QString::fromNSString(bookmarkString);
-        // write to file
         const QString configPath = QStandardPaths::writableLocation(QStandardPaths::GenericConfigLocation);
         QSettings kritarc(configPath + QStringLiteral("/securitybookmarkrc"), QSettings::NativeFormat);
 
-        // get array current size
         int size = kritarc.beginReadArray(securityBookmarkTypeToString(type));
         kritarc.endArray();
 
@@ -127,7 +120,6 @@ void KisMacosSecurityBookmarkManager::createBookmarkFromPath(const QString &path
         kritarc.setValue("base64", base64Data);
         kritarc.endArray();
 
-        // Finally add to hashmap
         m_d->securedFiles[path] = base64Data;
     }
 
@@ -160,7 +152,6 @@ QUrl KisMacosSecurityBookmarkManager::decodeBookmarkToURL(QString encodedPath) {
 
     NSError *err = nil;
 
-    // Resolve the decoded bookmark data into a security-scoped URL.
     NSURL *url =[NSURL URLByResolvingBookmarkData: decodedBookmark options: NSURLBookmarkResolutionWithSecurityScope relativeToURL: nil bookmarkDataIsStale: nil error:&err];
     return QUrl::fromNSURL(url);
 }
@@ -192,7 +183,6 @@ bool KisMacosSecurityBookmarkManager::requestAccessToDir(const QString &path)
     [alert setAlertStyle:NSAlertStyleInformational];
     [alert setMessageText:[NSString stringWithFormat:@"The file %@ is located in a directory where the application has no permission, please give the permission to the container folder or a higher one to allow krita to save temporary backups next to your file", [nsStdPath lastPathComponent]]];
     [alert runModal];
-
 
     NSOpenPanel *panel = [NSOpenPanel openPanel];
     panel.canChooseFiles = false;
@@ -238,8 +228,6 @@ void KisMacosSecurityBookmarkManager::addBookmarkAndCheckParentDir(const QUrl &u
     const QString path = url.toDisplayString(QUrl::None);
     qDebug() << "1 inserting to sandbox" << url << path;
     if (!parentDirHasPermissions(path)) {
-        // we can't force the user to select a directory in particular
-        // we add the bookmark even if the file root directory was selected
         createBookmarkFromPath(path, QString());
 
         requestAccessToDir(path);
@@ -248,7 +236,6 @@ void KisMacosSecurityBookmarkManager::addBookmarkAndCheckParentDir(const QUrl &u
 
 void KisMacosSecurityBookmarkManager::slotCreateBookmark(const QString &path)
 {
-    // necessary convert to get proper location
     QUrl url = QUrl::fromLocalFile(path);
     QString pathString = url.toDisplayString();
     if (!m_d->securedFiles.contains(pathString)) {

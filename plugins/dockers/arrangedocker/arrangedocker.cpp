@@ -44,9 +44,7 @@ public:
     }
 private:
 
-
 };
-
 
 ArrangeDockerPlugin::ArrangeDockerPlugin(QObject *parent, const QVariantList &)
     : QObject(parent)

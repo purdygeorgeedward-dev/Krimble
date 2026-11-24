@@ -30,7 +30,6 @@ struct KisSmudgeOverlayModeOptionWidget::Private
     lager::reader<KisPaintopLodLimitations> lodLimitations;
 };
 
-
 KisSmudgeOverlayModeOptionWidget::KisSmudgeOverlayModeOptionWidget(lager::cursor<KisSmudgeOverlayModeOptionData> optionData,
                                                                    lager::reader<bool> overlayModeAllowed)
     : KisPaintOpOption(i18n("Overlay Mode"),
@@ -51,13 +50,11 @@ KisSmudgeOverlayModeOptionWidget::KisSmudgeOverlayModeOptionWidget(lager::cursor
 
     label->setAlignment(Qt::AlignVCenter | Qt::AlignHCenter);
 
-
     QLabel *disabledWarningLabel = new QLabel(
         i18n("Disabled: overlay mode is not supported in Lightness mode of the brush"),
         page);
 
     disabledWarningLabel->setAlignment(Qt::AlignVCenter | Qt::AlignHCenter);
-
 
     QVBoxLayout *layout = new QVBoxLayout(page);
     layout->addWidget(disabledWarningLabel);

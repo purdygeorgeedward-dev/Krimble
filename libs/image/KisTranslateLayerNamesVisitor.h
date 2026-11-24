@@ -11,11 +11,6 @@
 
 #include <kritaimage_export.h>
 
-
-/**
- * @brief KisTranslateLayerNamesVisitor::KisTranslateLayerNamesVisitor translates layer names
- * from templates.
- */
 class KRITAIMAGE_EXPORT KisTranslateLayerNamesVisitor : public KisNodeVisitor
 {
 public:
@@ -56,4 +51,4 @@ private:
     QMap<QString, QString> m_dictionary;
 };
 
-#endif // KISTRANSLATELAYERNAMESVISITOR_H
+#endif

@@ -18,28 +18,12 @@ class KisViewManager;
 
 #include "kis_types.h"
 
-/**
- * Create a new adjustment layer.
- */
 class KisDlgAdjLayerProps : public KoDialog
 {
     Q_OBJECT
 
 public:
 
-    /**
-     * Create a new adjustment layer dialog
-     *
-     * @param node the node
-     * @param nfi the node filter interface
-     * @param paintDevice the painting device
-     * @param view the view manager
-     * @param configuration filter configuration
-     * @param layerName the name of the adjustment layer
-     * @param caption the caption for the dialog -- create or properties
-     * @param parent the widget parent of this dialog
-     * @param name the QObject name, if any
-     */
     KisDlgAdjLayerProps(KisNodeSP node,
                         KisNodeFilterInterface *nfi,
                         KisPaintDeviceSP paintDevice,
@@ -68,4 +52,4 @@ private:
     KisNodeFilterInterface *m_nodeFilterInterface;
 };
 
-#endif // KIS_DLG_ADJ_LAYER_PROPS_H
+#endif

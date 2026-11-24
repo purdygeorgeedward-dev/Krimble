@@ -30,21 +30,14 @@ namespace {
 
 typedef KisSharedPtr<KisGapMap> KisGapMapSP;
 
-/**
- * A work item for the gap closing fill.
- * Can work as a seed point and as a next queued pixel to continue the fill.
- */
 struct CloseGapFillPoint
 {
     int x;
     int y;
 
-    quint32 distance;   ///< previous pixel's (usually) distance from the nearest lineart gap
-    bool allowExpand;   ///< whether the fill at this pixel can "expand", that is fill pixels with greater distance
+    quint32 distance;
+    bool allowExpand;
 
-    // Used with the priority queue.
-    // Use the "greater" operator to place the smallest element on top.
-    // std::make_tuple instead of std::tie because we need to negate allowExpand.
     friend bool operator>(const CloseGapFillPoint& a, const CloseGapFillPoint& b) {
         return std::make_tuple(!a.allowExpand, a.distance, a.y, a.x) >
                std::make_tuple(!b.allowExpand, b.distance, b.y, b.x);
@@ -166,7 +159,7 @@ public:
     {
         Q_UNUSED(x);
         Q_UNUSED(y);
-        
+
         return m_baseSelectionPolicy.opacityFromDifference(difference);
     }
 
@@ -192,7 +185,7 @@ public:
         if (*maskPtr == MIN_SELECTED) {
             return MIN_SELECTED;
         }
-        
+
         return m_baseSelectionPolicy.opacityFromDifference(difference);
     }
 
@@ -225,9 +218,6 @@ public:
     {}
 
     ALWAYS_INLINE quint8 opacityFromDifference(quint8 difference, int x, int y) {
-        // TODO: either threshold should always be null, or there should be a special
-        //       case for *pixelPtr == 0, which is different from all the other groups,
-        //       whatever the threshold is
         Q_UNUSED(x);
         Q_UNUSED(y);
         return KisColorSelectionPolicies::HardSelectionPolicy::opacityFromDifference(difference);
@@ -251,10 +241,8 @@ public:
     {
         Q_UNUSED(opacity);
 
-        // erase the scribble
         *dstPtr = 0;
 
-        // write group index into the map
         m_groupMapIt->moveTo(x, y);
         qint32 *groupMapPtr = reinterpret_cast<qint32*>(m_groupMapIt->rawData());
 
@@ -272,7 +260,7 @@ private:
     KisRandomAccessorSP m_groupMapIt;
 };
 
-} // anonymous namespace
+}
 
 struct Q_DECL_HIDDEN KisScanlineFill::Private
 {
@@ -286,21 +274,15 @@ struct Q_DECL_HIDDEN KisScanlineFill::Private
     KisFillIntervalMap backwardMap;
     QStack<KisFillInterval> forwardStack;
 
-    int closeGap;           ///< try to close gaps up to this size in pixels
-    KisGapMapSP gapMapSp;   ///< maintains the distance and opacity maps required for the algorithm
+    int closeGap;
+    KisGapMapSP gapMapSp;
 
     QRect fillExtent;
 
-    // The priority queue is required to correctly handle the fill "expansion" case
-    // (starting in a corner and filling towards open areas, where distance is DISTANCE_INFINITE).
-    // Holds the next pixel to consider for filling, among with the contextual information.
     template<class T> using GreaterPriorityQueue = std::priority_queue<T, std::vector<T>, std::greater<T>>;
     GreaterPriorityQueue<CloseGapFillPoint> closeGapQueue;
 
-    // Gap closing flood fill must check the currently filled selection in order to finish.
-    // Otherwise, it would attempt to fill the same pixels in an infinite loop.
     KisRandomAccessorSP filledSelectionIterator;
-
 
     inline void swapDirection() {
         rowIncrement *= -1;
@@ -312,7 +294,6 @@ struct Q_DECL_HIDDEN KisScanlineFill::Private
         backwardMap.clear();
     }
 };
-
 
 KisScanlineFill::KisScanlineFill(KisPaintDeviceSP device, const QPoint &startPoint, const QRect &boundingRect)
     : m_d(new Private)
@@ -352,19 +333,6 @@ QRect KisScanlineFill::fillExtent() const
     return m_d->fillExtent;
 }
 
-
-/**
- * Used with the scanline fill algorithm.
- *
- * Determine if the (x, y) pixel is near a gap (i.e., has non-INFINITE distance).
- * All gap pixels are pushed onto the gap closing fill queue, while the scanline
- * fill proceeds with regular pixels.
- *
- * @param allowExpand is only true for the initial gap closing seed.
- *
- * @returns true if a gap closing pixel was pushed; the scanline fill must not
- * fill this pixel.
- */
 bool KisScanlineFill::tryPushingCloseGapSeed(int x, int y, bool allowExpand)
 {
     bool pushed = false;
@@ -425,7 +393,7 @@ void KisScanlineFill::extendedPass(KisFillInterval *currentInterval, int srcRow,
         x += columnIncrement;
 
         pixelAccessPolicy.m_srcIt->moveTo(x, srcRow);
-        quint8 *pixelPtr = const_cast<quint8*>(pixelAccessPolicy.m_srcIt->rawDataConst()); // TODO: avoid doing const_cast
+        quint8 *pixelPtr = const_cast<quint8*>(pixelAccessPolicy.m_srcIt->rawDataConst());
         const quint8 difference = differencePolicy.difference(pixelPtr);
         const quint8 opacity = selectionPolicy.opacityFromDifference(difference, x, srcRow);
         const bool stopOnGap = tryPushingCloseGapSeed(x, srcRow, false);
@@ -472,8 +440,6 @@ void KisScanlineFill::processLine(KisFillInterval interval, const int rowIncreme
     const int pixelSize = m_d->device->pixelSize();
 
     while(x <= lastX) {
-        // a bit of optimization for not calling slow random accessor
-        // methods too often
         if (numPixelsLeft <= 0) {
             pixelAccessPolicy.m_srcIt->moveTo(x, row);
             numPixelsLeft = pixelAccessPolicy.m_srcIt->numContiguousColumns(x) - 1;
@@ -536,7 +502,6 @@ KisFillInterval KisScanlineFill::closeGapPass(DifferencePolicy &differencePolicy
         const CloseGapFillPoint p = m_d->closeGapQueue.top();
         m_d->closeGapQueue.pop();
 
-        // KisGapMap enforces x/y start at (0, 0).
         if ((p.x < 0) || (p.x >= m_d->boundingRect.width()) || (p.y < 0) || (p.y >= m_d->boundingRect.height())) {
             continue;
         }
@@ -546,10 +511,7 @@ KisFillInterval KisScanlineFill::closeGapPass(DifferencePolicy &differencePolicy
         const quint8 difference = differencePolicy.difference(pixelPtr);
         const quint8 opacity = selectionPolicy.opacityFromDifference(difference, p.x, p.y);
 
-        // The initial pixel (before the fill) is non-opaque, so we try to fill it.
         if (opacity) {
-            // However, check if it has already been filled during the ongoing operation.
-            // If the test below is true, then the pixel is already in the selection.
             m_d->filledSelectionIterator->moveTo(p.x, p.y);
             if (*m_d->filledSelectionIterator->rawDataConst() == opacity) {
                 continue;
@@ -560,35 +522,18 @@ KisFillInterval KisScanlineFill::closeGapPass(DifferencePolicy &differencePolicy
             const bool allowExpand = p.allowExpand && (distance >= previousDistance);
             const float relativeDiff = static_cast<float>(distance) / previousDistance;
 
-            // This ratio determines whether the fill can spread to pixels with
-            // a different gap distance compared to the previous pixel.
-            //
-            // <1.0 is a pixel closer to a gap, or more in a corner of lineart.
-            // =1.0 is the same distance.
-            // >1.0 is a pixel that is farther from a gap, or away from tight corners.
-            //
-            // At high gap sizes, the distance map can vary slightly and the fill could
-            // leave out empty pixels. To prevent that, we allow spilling to a more distant
-            // pixels as well, up to a given tolerance. If the value is too high,
-            // the fill will spill too much.
-
             static constexpr float SpreadTolerance = 1.3f;
 
             if ((relativeDiff < SpreadTolerance) || allowExpand) {
                 if (distance == KisGapMap::DISTANCE_INFINITE) {
-                    // Only return one interval at a time. Otherwise, just skip this pixel.
                     if (!interval.isValid()) {
                         interval.start = p.x;
                         interval.end = p.x;
                         interval.row = p.y;
                     }
-                    // We still continue the loop, to process all the pixels we can fill.
                 } else {
                     pixelAccessPolicy.fillPixel(pixelPtr, opacity, p.x, p.y);
                     m_d->fillExtent = m_d->fillExtent.united(QRect(p.x, p.y, 1, 1));
-
-                    // Forward the context information to the next pixels.
-                    // Spread the fill in four directions: up, down, left, right.
 
                     CloseGapFillPoint next;
                     next.distance = distance;
@@ -614,7 +559,6 @@ KisFillInterval KisScanlineFill::closeGapPass(DifferencePolicy &differencePolicy
         }
     }
 
-    // If valid, the scanline fill will take over next.
     return interval;
 }
 
@@ -641,14 +585,10 @@ void KisScanlineFill::runImpl(DifferencePolicy &differencePolicy,
 #endif
 
     if (gapSize > 0) {
-        // We need to reuse the complex policies used by this class and only provide the final
-        // "projection" of opacity for the distance map calculation.
         auto opacityFunc = [&](KisPaintDevice* devicePtr, const QRect& rect) {
             return fillOpacity(differencePolicy, selectionPolicy, pixelAccessPolicy, devicePtr, rect);
         };
 
-        // Prime the resources. The computations are made lazily, when distance at a pixel is requested.
-        // Resources are freed automatically when the object is destroyed, that is together with the KisScanlineFill object.
         m_d->gapMapSp = KisGapMapSP(new KisGapMap(gapSize, m_d->boundingRect, opacityFunc));
     }
 
@@ -656,28 +596,16 @@ void KisScanlineFill::runImpl(DifferencePolicy &differencePolicy,
 
     KisFillInterval startInterval(m_d->startPoint.x(), m_d->startPoint.x(), m_d->startPoint.y());
 
-    // Decide if we should start with a scanline fill or a gap closing fill.
     if (!tryPushingCloseGapSeed(startInterval.start, startInterval.row, true)) {
         m_d->forwardStack.push(startInterval);
     }
 
-    // The outer loop is to continue scanline filling after a gap closing fill.
     do {
-        /**
-         * In the end of the first pass we should add an interval
-         * containing the starting pixel, but directed into the opposite
-         * direction. We cannot do it in the very beginning because the
-         * intervals are offset by 1 pixel during every swap operation.
-         */
         bool firstPass = true;
 
 #if MEASURE_FILL_TIME
         timerScanlineFill.start();
 #endif
-
-        // The scanline fill can only fill the pixels that are "in the open",
-        // that is have DISTANCE_INFINITE. Gap pixels will be pushed to
-        // the gap closing fill's queue.
 
         while (!m_d->forwardStack.isEmpty()) {
             while (!m_d->forwardStack.isEmpty()) {
@@ -704,10 +632,6 @@ void KisScanlineFill::runImpl(DifferencePolicy &differencePolicy,
         totalScanlineFillNanos += timerScanlineFill.nsecsElapsed();
         timerGapClosingFill.start();
 #endif
-
-        // Perform a gap closing pass. This pass can in turn feed the scanline fill's
-        // forward stack. It can only fiill pixels with distance < DISTANCE_INFINITE.
-        // This way, both passes complement each other to complete the fill.
 
         if (!m_d->closeGapQueue.empty()) {
             startInterval = closeGapPass(differencePolicy, selectionPolicy, pixelAccessPolicy);
@@ -793,7 +717,7 @@ void KisScanlineFill::fillUntilColor(const KoColor &originalFillColor, const KoC
     fillColor.convertTo(m_d->device->colorSpace());
 
     using namespace KisColorSelectionPolicies;
-    
+
     SelectionPolicy<SelectAllUntilColorHardSelectionPolicy> sp(SelectAllUntilColorHardSelectionPolicy(m_d->threshold));
     FillWithColorPixelAccessPolicy pap(m_d->device, fillColor);
 
@@ -852,7 +776,7 @@ void KisScanlineFill::fillSelection(KisPixelSelectionSP pixelSelection, KisPaint
         selectDifferencePolicyAndRun<OptimizedDifferencePolicy, SlowDifferencePolicy>
                                     (srcColor, sp, pap);
     } else {
-        MaskedSelectionPolicy<SoftSelectionPolicy> 
+        MaskedSelectionPolicy<SoftSelectionPolicy>
             sp(SoftSelectionPolicy(m_d->threshold, softness), boundarySelection);
         selectDifferencePolicyAndRun<OptimizedDifferencePolicy, SlowDifferencePolicy>
                                     (srcColor, sp, pap);
@@ -866,7 +790,7 @@ void KisScanlineFill::fillSelection(KisPixelSelectionSP pixelSelection)
     const int softness = 100 - m_d->opacitySpread;
 
     using namespace KisColorSelectionPolicies;
-    
+
     CopyToSelectionPixelAccessPolicy pap(m_d->device, pixelSelection);
 
     if (m_d->closeGap > 0) {
@@ -892,7 +816,7 @@ void KisScanlineFill::fillSelectionUntilColor(KisPixelSelectionSP pixelSelection
     const int softness = 100 - m_d->opacitySpread;
 
     using namespace KisColorSelectionPolicies;
-    
+
     CopyToSelectionPixelAccessPolicy pap(m_d->device, pixelSelection);
 
     if (m_d->closeGap > 0) {
@@ -905,7 +829,7 @@ void KisScanlineFill::fillSelectionUntilColor(KisPixelSelectionSP pixelSelection
         selectDifferencePolicyAndRun<OptimizedDifferencePolicy, SlowDifferencePolicy>
                                     (srcColor, sp, pap);
     } else {
-        MaskedSelectionPolicy<SelectAllUntilColorSoftSelectionPolicy> 
+        MaskedSelectionPolicy<SelectAllUntilColorSoftSelectionPolicy>
             sp(SelectAllUntilColorSoftSelectionPolicy(m_d->threshold, softness), boundarySelection);
         selectDifferencePolicyAndRun<OptimizedDifferencePolicy, SlowDifferencePolicy>
                                     (srcColor, sp, pap);
@@ -920,7 +844,7 @@ void KisScanlineFill::fillSelectionUntilColor(KisPixelSelectionSP pixelSelection
     const int softness = 100 - m_d->opacitySpread;
 
     using namespace KisColorSelectionPolicies;
-    
+
     CopyToSelectionPixelAccessPolicy pap(m_d->device, pixelSelection);
 
     if (m_d->closeGap > 0) {
@@ -933,7 +857,7 @@ void KisScanlineFill::fillSelectionUntilColor(KisPixelSelectionSP pixelSelection
         selectDifferencePolicyAndRun<OptimizedDifferencePolicy, SlowDifferencePolicy>
                                     (srcColor, sp, pap);
     } else {
-        SelectionPolicy<SelectAllUntilColorSoftSelectionPolicy> 
+        SelectionPolicy<SelectAllUntilColorSoftSelectionPolicy>
             sp(SelectAllUntilColorSoftSelectionPolicy(m_d->threshold, softness));
         selectDifferencePolicyAndRun<OptimizedDifferencePolicy, SlowDifferencePolicy>
                                     (srcColor, sp, pap);
@@ -948,7 +872,7 @@ void KisScanlineFill::fillSelectionUntilColorOrTransparent(KisPixelSelectionSP p
     const int softness = 100 - m_d->opacitySpread;
 
     using namespace KisColorSelectionPolicies;
-    
+
     CopyToSelectionPixelAccessPolicy pap(m_d->device, pixelSelection);
 
     if (m_d->closeGap > 0) {
@@ -962,7 +886,7 @@ void KisScanlineFill::fillSelectionUntilColorOrTransparent(KisPixelSelectionSP p
                                      SlowColorOrTransparentDifferencePolicy>
                                     (srcColor, sp, pap);
     } else {
-        MaskedSelectionPolicy<SelectAllUntilColorSoftSelectionPolicy> 
+        MaskedSelectionPolicy<SelectAllUntilColorSoftSelectionPolicy>
             sp(SelectAllUntilColorSoftSelectionPolicy(m_d->threshold, softness), boundarySelection);
         selectDifferencePolicyAndRun<OptimizedColorOrTransparentDifferencePolicy,
                                      SlowColorOrTransparentDifferencePolicy>
@@ -978,7 +902,7 @@ void KisScanlineFill::fillSelectionUntilColorOrTransparent(KisPixelSelectionSP p
     const int softness = 100 - m_d->opacitySpread;
 
     using namespace KisColorSelectionPolicies;
-    
+
     CopyToSelectionPixelAccessPolicy pap(m_d->device, pixelSelection);
 
     if (m_d->closeGap > 0) {
@@ -992,7 +916,7 @@ void KisScanlineFill::fillSelectionUntilColorOrTransparent(KisPixelSelectionSP p
                                      SlowColorOrTransparentDifferencePolicy>
                                     (srcColor, sp, pap);
     } else {
-        SelectionPolicy<SelectAllUntilColorSoftSelectionPolicy> 
+        SelectionPolicy<SelectAllUntilColorSoftSelectionPolicy>
             sp(SelectAllUntilColorSoftSelectionPolicy(m_d->threshold, softness));
         selectDifferencePolicyAndRun<OptimizedColorOrTransparentDifferencePolicy,
                                      SlowColorOrTransparentDifferencePolicy>
@@ -1006,7 +930,7 @@ void KisScanlineFill::clearNonZeroComponent()
     KoColor srcColor = KoColor::createTransparent(m_d->device->colorSpace());
 
     using namespace KisColorSelectionPolicies;
-    
+
     FillWithColorPixelAccessPolicy pap(m_d->device, srcColor);
     SelectionPolicy<HardSelectionPolicy> sp(HardSelectionPolicy(m_d->threshold));
 
@@ -1048,14 +972,6 @@ void KisScanlineFill::fillContiguousGroup(KisPaintDeviceSP groupMapDevice, qint3
     runImpl(dp, sp, pap);
 }
 
-/**
- * This opacity-only fill is used by KisGapMap.
- *
- * Using the same policies as the main fill, load the opacity values for
- * a rect of the main filled region. The rect typically corresponds to
- * a tile of an opacity map maintained by KisGapMap, and is loaded on-demand
- * during an ongoing runImpl() loop.
- */
 template <typename DifferencePolicy, typename SelectionPolicy, typename PixelAccessPolicy>
 bool KisScanlineFill::fillOpacity(DifferencePolicy &differencePolicy,
                                   SelectionPolicy &selectionPolicy,
@@ -1064,7 +980,6 @@ bool KisScanlineFill::fillOpacity(DifferencePolicy &differencePolicy,
                                   const QRect& rect) const
 {
 #if 0
-    // These asserts affect the performance.
     KIS_SAFE_ASSERT_RECOVER_RETURN((m_d->boundingRect.left() == 0) && (m_d->boundingRect.top() == 0) &&
                "FATAL: The fill bounds must start at (0,0)");
     KIS_SAFE_ASSERT_RECOVER_RETURN(m_d->boundingRect.contains(rect) &&
@@ -1075,7 +990,6 @@ bool KisScanlineFill::fillOpacity(DifferencePolicy &differencePolicy,
     const int pixelSize = m_d->device->pixelSize();
     bool hasOpaquePixels = false;
 
-    // We are relying on the knowledge of KisGapMap's paint device data organization.
     constexpr int OpacityOffset = 2;
 
     for (int y = rect.top(); y <= rect.bottom(); ++y) {

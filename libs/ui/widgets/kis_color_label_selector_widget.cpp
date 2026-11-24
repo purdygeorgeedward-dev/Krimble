@@ -212,7 +212,7 @@ void KisColorLabelSelectorWidget::setMouseDragEnabled(bool enabled)
 
 KisColorLabelSelectorWidget::SelectionIndicationType KisColorLabelSelectorWidget::selectionIndicationType() const
 {
-    return 
+    return
         static_cast<SelectionIndicationType>(
             qobject_cast<KisColorLabelButton*>(
                 m_d->colorButtonGroup->button(0)
@@ -245,7 +245,6 @@ void KisColorLabelSelectorWidget::setButtonSize(int size)
     }
     update();
 }
-
 
 struct KisColorLabelSelectorWidgetMenuWrapper::Private
 {
@@ -305,7 +304,6 @@ int KisColorLabelSelectorWidgetMenuWrapper::calculateMenuOffset() const
     if (hasWideItems) {
         QStyleOption opt;
         opt.initFrom(this);
-        // some copy-pasted code from QFusionStyle style
         const int hMargin = style()->pixelMetric(QStyle::PM_MenuHMargin, &opt, this);
         const int iconSize = style()->pixelMetric(QStyle::PM_SmallIconSize, &opt, this);
         menuOffset = (hMargin + iconSize + 6);

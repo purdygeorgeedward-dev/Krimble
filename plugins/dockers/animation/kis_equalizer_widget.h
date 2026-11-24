@@ -11,9 +11,7 @@
 #include <QWidget>
 #include <QMap>
 
-
 #include "kritaanimationdocker_export.h"
-
 
 class KRITAANIMATIONDOCKER_EXPORT KisEqualizerWidget : public QWidget
 {
@@ -52,4 +50,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif /* __KIS_EQUALIZER_WIDGET_H */
+#endif

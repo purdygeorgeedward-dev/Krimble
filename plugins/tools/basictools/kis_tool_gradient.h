@@ -26,7 +26,6 @@
 #include <kconfig.h>
 #include <kconfiggroup.h>
 
-
 class QLabel;
 class QPoint;
 class QWidget;
@@ -65,7 +64,7 @@ protected Q_SLOTS:
 private Q_SLOTS:
 
     void areaDone(const QRect & rc) {
-        currentNode()->setDirty(rc); // Starts computing the projection for the area we've done.
+        currentNode()->setDirty(rc);
 
     }
 
@@ -120,5 +119,5 @@ public:
 
 };
 
-#endif //KIS_TOOL_GRADIENT_H_
+#endif
 

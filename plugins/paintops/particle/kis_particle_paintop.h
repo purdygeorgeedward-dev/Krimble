@@ -47,4 +47,4 @@ private:
     bool m_first;
 };
 
-#endif // KIS_PARTICLE_PAINTOP_H_
+#endif

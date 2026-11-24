@@ -38,4 +38,4 @@ private:
     KisPaintLayerSP layer6;
 };
 
-#endif /* __KIS_NODE_JUGGLER_COMPRESSED_TEST_H */
+#endif

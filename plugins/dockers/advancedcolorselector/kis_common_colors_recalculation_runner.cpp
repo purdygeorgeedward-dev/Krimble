@@ -105,15 +105,6 @@ public:
     }
 
 private:
-//    unsigned char divPos(ColorAxis axis) const
-//    {
-//        QList<unsigned char> values;
-//        for(int i=0;i<m_colors.size(); i++) {
-//            values.append(m_colors.at(i)[axis]);
-//        }
-//        std::sort(values.begin(), values.end());
-//        return values.at(values.size()*4/5);
-//    }
     unsigned char divPos(ColorAxis axis) const
     {
         short min=m_colors.at(0)[axis];
@@ -157,7 +148,6 @@ QList<KoColor> KisCommonColorsRecalculationRunner::extractColors()
         VBox newBox = boxes[biggestBox].divide();
         boxes.append(newBox);
     }
-
 
     while (boxes.size()<m_numColors && colors.size()>m_numColors) {
         int biggestBox=-1;

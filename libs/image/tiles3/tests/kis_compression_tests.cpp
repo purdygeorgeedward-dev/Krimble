@@ -14,14 +14,11 @@
 #include <kis_debug.h>
 
 #define TEST_FILE "tile.png"
-//#define TEST_FILE "hakonepa.png"
-
 
 void PRINT_COMPRESSION(const QString &title, quint32 src, quint32 dst) {
 
     dbgKrita << title << dst << "/" << src << "\t|" << double(dst)/src;
 }
-
 
 void KisCompressionTests::roundTrip(KisAbstractCompression *compression)
 {

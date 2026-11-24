@@ -10,10 +10,6 @@
 #include "kis_filter.h"
 #include "kritaimage_export.h"
 
-/**
- * This is a base class for filters that implement a filter for
- * KoColorTransformationFactory based filters.
- */
 class KRITAIMAGE_EXPORT KisColorTransformationFilter : public KisFilter
 {
 public:
@@ -24,9 +20,6 @@ public:
                              const KisFilterConfigurationSP config,
                              KoUpdater* progressUpdater
                              ) const override;
-    /**
-     * Create the color transformation that will be applied on the device.
-     */
     virtual KoColorTransformation* createTransformation(const KoColorSpace* cs, const KisFilterConfigurationSP config) const = 0;
 
     KisFilterConfigurationSP factoryConfiguration(KisResourcesInterfaceSP resourcesInterface) const override;

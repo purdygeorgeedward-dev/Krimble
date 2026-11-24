@@ -43,7 +43,7 @@ void KisAnimatedOpacityProperty::set(const quint8 value) {
             KIS_ASSERT(key);
         }
 
-        const int translatedOldValue = key->value() * 255 / 100; //0..100 -> 0..255
+        const int translatedOldValue = key->value() * 255 / 100;
 
         if (translatedOldValue == value) {
             return;
@@ -61,7 +61,7 @@ void KisAnimatedOpacityProperty::set(const quint8 value) {
     }
 
     m_props->setProperty("opacity", valueToAssign);
-    KIS_ASSERT(valueToAssign == value); //Sanity check.
+    KIS_ASSERT(valueToAssign == value);
     Q_EMIT changed(valueToAssign);
 }
 
@@ -109,9 +109,6 @@ void KisAnimatedOpacityProperty::slotKeyChanged(const KisKeyframeChannel*, int t
 
 void KisAnimatedOpacityProperty::slotKeyRemoval(const KisKeyframeChannel*, int )
 {
-    //Key removed is the last one, we should let everyone know that we'll be
-    //reverting to the previous opacity value.
-    //This will either be the last keyframe value or the last cached value assignment.
     if (m_channel && m_channel->keyframeCount() == 0) {
         Q_EMIT changed(m_props->intProperty("opacity", 255));
     } else {

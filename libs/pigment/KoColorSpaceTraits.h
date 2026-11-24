@@ -19,52 +19,24 @@ const int MAX_CHANNELS_TYPE_SIZE = sizeof(double);
 const int MAX_CHANNELS_NB = 5;
 const int MAX_PIXEL_SIZE = MAX_CHANNELS_NB * MAX_CHANNELS_TYPE_SIZE;
 
-/**
- * This class is the base class to define the main characteristics of a colorspace
- * which inherits KoColorSpaceAbstract.
- *
- * - _channels_type_ is the type of the value use for each channel, for example quint8 for 8bits per channel
- *                   color spaces, or quint16 for 16bits integer per channel, float for 32bits per channel
- *                   floating point color spaces
- * - _channels_nb_ is the total number of channels in an image (for example RGB is 3 but RGBA is four)
- * - _alpha_pos_ is the position of the alpha channel among the channels, if there is no alpha channel,
- *               then _alpha_pos_ is set to -1
- *
- * For instance a colorspace of three color channels and alpha channel in 16bits,
- * will be defined as KoColorSpaceTrait\<quint16, 4, 3\>. The same without the alpha
- * channel is KoColorSpaceTrait\<quint16,3,-1\>
- *
- */
 template<typename _channels_type_, int _channels_nb_, int _alpha_pos_>
 struct KoColorSpaceTrait {
 
     static_assert(sizeof(_channels_type_) <= MAX_CHANNELS_TYPE_SIZE, "MAX_CHANNELS_TYPE_SIZE too small");
     static_assert(_channels_nb_ <= MAX_CHANNELS_NB, "MAX_CHANNELS_NB too small");
 
-    /// the type of the value of the channels of this color space
     typedef _channels_type_ channels_type;
 
-    /// the number of channels in this color space
     static const quint32 channels_nb = _channels_nb_;
 
-    /// the position of the alpha channel in the channels of the pixel (or -1 if no alpha
-    /// channel.
     static const qint32 alpha_pos = _alpha_pos_;
 
-    /// the number of bit for each channel
     static const int depth = KoColorSpaceMathsTraits<_channels_type_>::bits;
 
-    /// the associated math class
     typedef KoColorSpaceMathsTraits<_channels_type_> math_trait;
 
-    /**
-     * @return the size in byte of one pixel
-     */
     static const quint32 pixelSize = channels_nb * sizeof(channels_type);
 
-    /**
-     * @return the value of the alpha channel for this pixel in the 0..255 range
-     */
     inline static quint8 opacityU8(const quint8 * U8_pixel) {
         if (alpha_pos < 0) return OPACITY_OPAQUE_U8;
         channels_type c = nativeArray(U8_pixel)[alpha_pos];
@@ -77,9 +49,6 @@ struct KoColorSpaceTrait {
         return  KoColorSpaceMaths<channels_type, qreal>::scaleToA(c);
     }
 
-    /**
-     * Set the alpha channel for this pixel from a value in the 0..255 range
-     */
     inline static void setOpacity(quint8 * pixels, quint8 alpha, qint32 nPixels) {
         if (alpha_pos < 0) return;
         qint32 psize = pixelSize;
@@ -98,9 +67,6 @@ struct KoColorSpaceTrait {
         }
     }
 
-    /**
-     * Copy alpha channel of all pixels in src to dst
-     */
     inline static void copyOpacityU8(quint8* src, quint8* dst, qint32 nPixels) {
         if (alpha_pos < 0) return;
         qint32 psize = pixelSize;
@@ -110,23 +76,14 @@ struct KoColorSpaceTrait {
         }
     }
 
-    /**
-     * Convenient function for transforming a quint8* array in a pointer of the native channels type
-     */
     inline static const channels_type* nativeArray(const quint8 * a) {
         return reinterpret_cast<const channels_type*>(a);
     }
 
-    /**
-     * Convenient function for transforming a quint8* array in a pointer of the native channels type
-     */
     inline static channels_type* nativeArray(quint8 * a) {
         return reinterpret_cast< channels_type*>(a);
     }
 
-    /**
-     * Allocate nPixels pixels for this colorspace.
-     */
     inline static quint8* allocate(quint32 nPixels) {
         return new quint8[ nPixels * pixelSize ];
     }
@@ -273,7 +230,6 @@ struct KoColorSpaceTrait {
             *(nativeArray(pixels) + alpha_pos) = valpha;
         }
     }
-
 
     inline static void fillGrayBrushWithColor(quint8 *pixels, const QRgb *brush, quint8 *brushColor, qint32 nPixels) {
         if (alpha_pos >= 0) {

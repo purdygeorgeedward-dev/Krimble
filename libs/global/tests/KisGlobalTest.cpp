@@ -94,20 +94,15 @@ void KisGlobalTest::testDeduplicateFileName_data()
                                       << QStringList{"foo_xx.xx_0.tar.gz"}
                                       << "foo_xx.xx_1.tar.gz";
 
-    /// we look for a separator **only** around the leftmost dot,
-    /// all other dots are discarded
     QTest::newRow("name_with_a_dot_separator_with_a_dot") << "foo.bar_xx.xx_0.tar.gz"
                                       << "_xx.xx_"
                                       << QStringList{"foo.bar_xx.xx_0.tar.gz"}
                                       << "foo_xx.xx_0.bar_xx.xx_0.tar.gz";
 
-    /// we look for a separator **only** around the leftmost dot,
-    /// all other dots are discarded
     QTest::newRow("name_with_a_dot_separator_without_a_dot") << "foo.bar_xxxx_0.tar.gz"
                                       << "_xxxx_"
                                       << QStringList{"foo.bar_xxxx_0.tar.gz"}
                                       << "foo_xxxx_0.bar_xxxx_0.tar.gz";
-
 
 }
 

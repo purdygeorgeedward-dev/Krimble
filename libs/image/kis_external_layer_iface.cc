@@ -6,7 +6,6 @@
 
 #include "kis_external_layer_iface.h"
 
-// This is a Key function, this will create a strong symbol
 void KisExternalLayer::resetCache(const KoColorSpace *colorSpace)
 {
     Q_UNUSED(colorSpace);

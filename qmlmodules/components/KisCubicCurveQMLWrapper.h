@@ -15,7 +15,7 @@ class KisCubicCurveQml : public QObject
 {
     Q_OBJECT
     QML_NAMED_ELEMENT(KisCubicCurve)
-    
+
     Q_PROPERTY(QList<KisCubicCurvePoint> points READ points WRITE setPoints NOTIFY pointsChanged)
     Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
 

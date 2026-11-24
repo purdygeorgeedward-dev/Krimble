@@ -65,13 +65,10 @@ bool verifyTestFrame(int frameSeed, const KisFrameDataSerializer::Frame &frame)
     return true;
 }
 
-
-
 void KisFrameSerializerTest::testFrameDataSerialization()
 {
     KisTextureTileInfoPoolRegistry poolRegistry;
     KisTextureTileInfoPoolSP pool = poolRegistry.getPool(maxTileSize, maxTileSize);
-
 
     KisFrameDataSerializer serializer;
 
@@ -81,8 +78,6 @@ void KisFrameSerializerTest::testFrameDataSerialization()
     int testFrameId1 = -1;
     int testFrameId2 = -1;
     int testFrameId3 = -1;
-
-
 
     testFrameId1 = serializer.saveFrame(testFrame1);
     QCOMPARE(serializer.hasFrame(testFrameId1), true);
@@ -123,7 +118,6 @@ void KisFrameSerializerTest::testFrameDataSerialization()
 
 void randomizeFrame(KisFrameDataSerializer::Frame &frame, qreal portion)
 {
-    // randomly reset 50% of the pixels
     KisRandomSource rnd(1);
     for (KisFrameDataSerializer::FrameTile &tile : frame.frameTiles) {
         const int numPixels = tile.rect.width() * tile.rect.height();
@@ -158,7 +152,6 @@ void KisFrameSerializerTest::testFrameUniquenessEstimation()
     result = KisFrameDataSerializer::estimateFrameUniqueness(testFrame1, testFrame3, 0.1);
     QVERIFY(!result);
 
-    // randomly reset 50% of the pixels
     randomizeFrame(testFrame2, 0.5);
 
     result = KisFrameDataSerializer::estimateFrameUniqueness(testFrame1, testFrame2, 0.01);
@@ -182,7 +175,6 @@ void KisFrameSerializerTest::testFrameArithmetics()
     QVERIFY(!!result);
     QVERIFY(*result >= 0.15);
     QVERIFY(*result <= 0.25);
-
 
     {
         KisFrameDataSerializer::Frame testFrame3 = generateTestFrame(2, pool);

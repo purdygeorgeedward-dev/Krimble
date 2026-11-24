@@ -28,7 +28,7 @@ struct KisVisualColorSelectorShape::Private
     bool imagesNeedUpdate { true };
     bool alphaNeedsUpdate { true };
     bool acceptTabletEvents { false };
-    QPointF currentCoordinates; // somewhat redundant?
+    QPointF currentCoordinates;
     QPointF dragStart;
     QVector4D currentChannelValues;
     Dimensions dimension;
@@ -51,8 +51,6 @@ KisVisualColorSelectorShape::KisVisualColorSelectorShape(KisVisualColorSelector 
         m_d->channelMask |= 1 << channel2;
     }
     this->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    // Color selectors don't have context menus. Setting this prevents any
-    // long-presses from delaying inputs, see KisLongPressEventFilter.cpp.
     setContextMenuPolicy(Qt::PreventContextMenu);
 }
 
@@ -70,7 +68,6 @@ void KisVisualColorSelectorShape::setCursorPosition(QPointF position, bool signa
     if (newPos != m_d->currentCoordinates)
     {
         m_d->currentCoordinates = newPos;
-        // for internal consistency, because we have a bit of redundancy here
         m_d->currentChannelValues[m_d->channel1] = newPos.x();
         if (m_d->dimension == Dimensions::twodimensional){
             m_d->currentChannelValues[m_d->channel2] = newPos.y();
@@ -84,7 +81,6 @@ void KisVisualColorSelectorShape::setCursorPosition(QPointF position, bool signa
 
 void KisVisualColorSelectorShape::setChannelValues(QVector4D channelValues, quint32 channelFlags)
 {
-    //qDebug() << this  << "setChannelValues";
     m_d->currentChannelValues = channelValues;
     bool setCursor = channelFlags & m_d->channelMask;
     if (setCursor) {
@@ -92,7 +88,6 @@ void KisVisualColorSelectorShape::setChannelValues(QVector4D channelValues, quin
                                           qBound(0.f, channelValues[m_d->channel2], 1.f));
     }
     else {
-        // for internal consistency, because we have a bit of redundancy here
         m_d->currentChannelValues[m_d->channel1] = m_d->currentCoordinates.x();
         if (m_d->dimension == Dimensions::twodimensional){
             m_d->currentChannelValues[m_d->channel2] = m_d->currentCoordinates.y();
@@ -121,14 +116,12 @@ bool KisVisualColorSelectorShape::supportsGamutMask() const
 
 void KisVisualColorSelectorShape::forceImageUpdate()
 {
-    //qDebug() << this  << "forceImageUpdate";
     m_d->alphaNeedsUpdate = true;
     m_d->imagesNeedUpdate = true;
 }
 
 void KisVisualColorSelectorShape::updateGamutMask()
 {
-    // Nothing to do if gamut masks not supported
 }
 
 QColor KisVisualColorSelectorShape::getColorFromConverter(KoColor c)
@@ -153,12 +146,8 @@ KisVisualColorModel *KisVisualColorSelectorShape::selectorModel() const
 
 const QImage& KisVisualColorSelectorShape::getImageMap()
 {
-    //qDebug() << this  << ">>>>>>>>> getImageMap()" << m_d->imagesNeedUpdate;
 
     if (m_d->imagesNeedUpdate) {
-        // NOTE: pure static backgrounds are currently somewhat implicitly handled,
-        // it would be nicer to avoid re-checking and overwriting m_d->gradient.
-        // But QImage's implicit data sharing allows all this mindless by-value stuff...
         m_d->gradient = compositeBackground();
         m_d->imagesNeedUpdate = false;
     }
@@ -171,10 +160,8 @@ QImage KisVisualColorSelectorShape::convertImageMap(const quint8 *rawColor, quin
     Q_ASSERT(bufferSize == imgSize.width() * imgSize.height() * colorSpace->pixelSize());
     const KoColorDisplayRendererInterface *renderer = colorSelector()->displayRenderer();
 
-    // Convert the buffer to a qimage
     QImage image = renderer->toQImage(colorSpace, rawColor, imgSize, colorSelector()->proofColors());
 
-    // safeguard:
     if (image.isNull())
     {
         image = QImage(width(), height(), QImage::Format_ARGB32);
@@ -189,8 +176,6 @@ QImage KisVisualColorSelectorShape::renderBackground(const QVector4D &channelVal
     const KisVisualColorModel *selector = selectorModel();
     Q_ASSERT(selector);
 
-    // Hi-DPI aware rendering requires that we determine the device pixel dimension;
-    // actual widget size in device pixels is not accessible unfortunately, it might be 1px smaller...
     const qreal deviceDivider = 1.0 / devicePixelRatioF();
     const int deviceWidth = qCeil(width() * devicePixelRatioF());
     const int deviceHeight = qCeil(height() * devicePixelRatioF());
@@ -219,8 +204,6 @@ QImage KisVisualColorSelectorShape::renderBackground(const QVector4D &channelVal
                 memcpy(dataPtr, c.data(), pixelSize);
             }
             else {
-                // need to write a color with non-zero alpha, otherwise the display converter
-                // will for some arcane reason crop the final QImage and screw rendering
                 memcpy(dataPtr, filler.data(), pixelSize);
             }
             dataPtr += pixelSize;
@@ -231,7 +214,6 @@ QImage KisVisualColorSelectorShape::renderBackground(const QVector4D &channelVal
 
     if (!alpha.isNull()) {
         QPainter painter(&image);
-        // transfer alphaMask to Alpha channel
         painter.setCompositionMode(QPainter::CompositionMode_DestinationIn);
         painter.drawImage(0, 0, alpha);
     }
@@ -241,9 +223,6 @@ QImage KisVisualColorSelectorShape::renderBackground(const QVector4D &channelVal
 
 QImage KisVisualColorSelectorShape::compositeBackground() const
 {
-    // Shapes are expect to return a valid alpha mask or a valid
-    // static alpha mask. If they provide both, the rendered backgrounds
-    // get composited.
     if (m_d->alphaNeedsUpdate) {
         QImage staticAlpha = renderStaticAlphaMask();
         if (!staticAlpha.isNull()) {
@@ -269,7 +248,6 @@ QImage KisVisualColorSelectorShape::compositeBackground() const
     QImage bgImage = renderBackground(m_d->currentChannelValues, m_d->alphaMask);
     if (!m_d->staticBackground.isNull()) {
         QPainter painter(&bgImage);
-        // composite static and dynamic background parts
         painter.setCompositionMode(QPainter::CompositionMode_DestinationOver);
         painter.drawImage(0, 0, m_d->staticBackground);
     }
@@ -326,8 +304,6 @@ void KisVisualColorSelectorShape::mouseReleaseEvent(QMouseEvent *e)
 
 void KisVisualColorSelectorShape::tabletEvent(QTabletEvent* event)
 {
-    // only accept tablet events that are associated to "left" button
-    // NOTE: QTabletEvent does not have a windowPos() equivalent, but we don't need it
     if (m_d->acceptTabletEvents &&
         (event->button() == Qt::LeftButton || (event->buttons() & Qt::LeftButton)))
     {
@@ -386,7 +362,6 @@ void KisVisualColorSelectorShape::resizeEvent(QResizeEvent *)
 
 void KisVisualColorSelectorShape::drawGamutMask(QPainter &painter)
 {
-    // Nothing to do if gamut masks not supported
     Q_UNUSED(painter);
 }
 

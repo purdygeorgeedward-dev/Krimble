@@ -27,7 +27,7 @@ KisPNGImport::~KisPNGImport()
 {
 }
 
-KisImportExportErrorCode KisPNGImport::convert(KisDocument *document, QIODevice *io,  KisPropertiesConfigurationSP /*configuration*/)
+KisImportExportErrorCode KisPNGImport::convert(KisDocument *document, QIODevice *io,  KisPropertiesConfigurationSP )
 {
     KisPNGConverter ib(document, batchMode());
     KisImportExportErrorCode res = ib.buildImage(io);

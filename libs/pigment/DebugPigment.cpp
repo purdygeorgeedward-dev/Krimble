@@ -11,4 +11,3 @@ const QLoggingCategory &PIGMENT_log() \
     return category;
 }
 
-

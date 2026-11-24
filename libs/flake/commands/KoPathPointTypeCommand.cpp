@@ -62,12 +62,10 @@ void KoPathPointTypeCommand::redo()
             KoPathPointIndex prevIndex;
             KoPathPointIndex nextIndex;
             KoPathShape * path = it->m_pointData.pathShape;
-            // get previous path node
             if (pointIndex.second > 0)
                 prevIndex = KoPathPointIndex(pointIndex.first, pointIndex.second - 1);
             else if (pointIndex.second == 0 && path->isClosedSubpath(pointIndex.first))
                 prevIndex = KoPathPointIndex(pointIndex.first, path->subpathPointCount(pointIndex.first) - 1);
-            // get next node
             if (pointIndex.second < path->subpathPointCount(pointIndex.first) - 1)
                 nextIndex = KoPathPointIndex(pointIndex.first, pointIndex.second + 1);
             else if (pointIndex.second < path->subpathPointCount(pointIndex.first) - 1
@@ -100,18 +98,13 @@ void KoPathPointTypeCommand::redo()
             properties &= ~KoPathPoint::IsSmooth;
             properties |= KoPathPoint::IsSymmetric;
 
-            // calculate vector from node point to first control point and normalize it
             QPointF directionC1 = point->controlPoint1() - point->point();
             qreal dirLengthC1 = sqrt(directionC1.x() * directionC1.x() + directionC1.y() * directionC1.y());
             directionC1 /= dirLengthC1;
-            // calculate vector from node point to second control point and normalize it
             QPointF directionC2 = point->controlPoint2() - point->point();
             qreal dirLengthC2 = sqrt(directionC2.x() * directionC2.x() + directionC2.y() * directionC2.y());
             directionC2 /= dirLengthC2;
-            // calculate the average distance of the control points to the node point
             qreal averageLength = 0.5 * (dirLengthC1 + dirLengthC2);
-            // compute position of the control points so that they lie on a line going through the node point
-            // the new distance of the control points is the average distance to the node point
             point->setControlPoint1(point->point() + 0.5 * averageLength * (directionC1 - directionC2));
             point->setControlPoint2(point->point() + 0.5 * averageLength * (directionC2 - directionC1));
             point->setProperties(properties);
@@ -137,24 +130,6 @@ void KoPathPointTypeCommand::undo()
     KUndo2Command::undo();
     repaint(false);
 
-    /*
-    QList<PointData>::iterator it(m_oldPointData.begin());
-    for (; it != m_oldPointData.end(); ++it)
-    {
-        KoPathShape *pathShape = it->m_pointData.pathShape;
-        KoPathPoint *point = pathShape->pointByIndex(it->m_pointData.pointIndex);
-
-        point->setProperties(it->m_oldProperties);
-        if (it->m_hadControlPoint1)
-            point->setControlPoint1(pathShape->documentToShape(it->m_oldControlPoint1));
-        else
-            point->removeControlPoint1();
-        if (it->m_hadControlPoint2)
-            point->setControlPoint2(pathShape->documentToShape(it->m_oldControlPoint2));
-        else
-            point->removeControlPoint2();
-    }
-    */
     undoChanges(m_oldPointData);
     undoChanges(m_additionalPointData);
 
@@ -168,16 +143,12 @@ void KoPathPointTypeCommand::makeCubicPointSmooth(KoPathPoint *point)
     properties &= ~KoPathPoint::IsSymmetric;
     properties |= KoPathPoint::IsSmooth;
 
-    // calculate vector from node point to first control point and normalize it
     QPointF directionC1 = point->controlPoint1() - point->point();
     qreal dirLengthC1 = sqrt(directionC1.x() * directionC1.x() + directionC1.y() * directionC1.y());
     directionC1 /= dirLengthC1;
-    // calculate vector from node point to second control point and normalize it
     QPointF directionC2 = point->controlPoint2() - point->point();
     qreal dirLengthC2 = sqrt(directionC2.x() * directionC2.x() + directionC2.y() * directionC2.y());
     directionC2 /= dirLengthC2;
-    // compute position of the control points so that they lie on a line going through the node point
-    // the new distance of the control points is the average distance to the node point
     point->setControlPoint1(point->point() + 0.5 * dirLengthC1 * (directionC1 - directionC2));
     point->setControlPoint2(point->point() + 0.5 * dirLengthC2 * (directionC2 - directionC1));
 

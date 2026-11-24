@@ -14,7 +14,6 @@
 
 struct psd_layer_effects_stroke;
 
-
 class KRITAIMAGE_EXPORT KisLsStrokeFilter : public KisLayerStyleFilter
 {
 public:

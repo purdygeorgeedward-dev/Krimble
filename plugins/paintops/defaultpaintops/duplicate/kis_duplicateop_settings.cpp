@@ -87,7 +87,6 @@ bool KisDuplicateOpSettings::mouseReleaseEvent()
     return ignoreEvent;
 }
 
-
 KisNodeWSP KisDuplicateOpSettings::sourceNode() const
 {
     return m_sourceNode;
@@ -99,8 +98,6 @@ void KisDuplicateOpSettings::activate()
 
 void KisDuplicateOpSettings::fromXML(const QDomElement& elt)
 {
-    // First, call the parent class fromXML to make sure all the
-    // properties are saved to the map
     KisPaintOpSettings::fromXML(elt);
 
     m_offset.setX(KisDomUtils::toDouble(elt.attribute("OffsetX", "0.0")));
@@ -110,13 +107,11 @@ void KisDuplicateOpSettings::fromXML(const QDomElement& elt)
 
 void KisDuplicateOpSettings::toXML(QDomDocument& doc, QDomElement& rootElt) const
 {
-    // Then call the parent class fromXML
     KisPropertiesConfiguration::toXML(doc, rootElt);
 
     rootElt.setAttribute("OffsetX", QString::number(m_offset.x()));
     rootElt.setAttribute("OffsetY", QString::number(m_offset.y()));
 }
-
 
 KisPaintOpSettingsSP KisDuplicateOpSettings::clone() const
 {
@@ -142,14 +137,13 @@ KisOptimizedBrushOutline KisDuplicateOpSettings::brushOutline(const KisPaintInfo
         forcedMode.forceCircle = true;
     }
 
-    // clone tool should always show an outline
     path = KisBrushBasedPaintOpSettings::brushOutlineImpl(info, forcedMode, alignForZoom, 1.0);
 
     KisOptimizedBrushOutline copy(path);
     QRectF rect2 = copy.boundingRect();
-    bool shouldStayInOrigin = m_isOffsetNotUptodate // the clone brush right now waits for first stroke with a new origin, so stays at origin point
-            || !getBool(DUPLICATE_MOVE_SOURCE_POINT) // the brush always use the same source point, so stays at origin point
-            || (!m_duringPaintingStroke && getBool(DUPLICATE_RESET_SOURCE_POINT)); // during the stroke, with reset Origin selected, outline should stay at origin point
+    bool shouldStayInOrigin = m_isOffsetNotUptodate
+            || !getBool(DUPLICATE_MOVE_SOURCE_POINT)
+            || (!m_duringPaintingStroke && getBool(DUPLICATE_RESET_SOURCE_POINT));
 
     if (shouldStayInOrigin) {
         copy.translate(m_position - info.pos());
@@ -177,13 +171,11 @@ KisOptimizedBrushOutline KisDuplicateOpSettings::brushOutline(const KisPaintInfo
     return path;
 }
 
-
 #include <brushengine/kis_uniform_paintop_property.h>
 #include "kis_paintop_preset.h"
 #include "KisPaintOpPresetUpdateProxy.h"
 #include "kis_standard_uniform_properties_factory.h"
 #include <KisDuplicateOptionData.h>
-
 
 QList<KisUniformPaintOpPropertySP> KisDuplicateOpSettings::uniformProperties(KisPaintOpSettingsSP settings, QPointer<KisPaintOpPresetUpdateProxy> updateProxy)
 {
@@ -241,5 +233,4 @@ QList<KisUniformPaintOpPropertySP> KisDuplicateOpSettings::uniformProperties(Kis
 
     return KisPaintOpSettings::uniformProperties(settings, updateProxy) + props;
 }
-
 

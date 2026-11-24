@@ -33,7 +33,6 @@ class QTimer;
 class KisPaintingInformationBuilder;
 class KisToolLineHelper;
 
-
 class KisToolLine : public KisToolShape
 {
     Q_OBJECT
@@ -71,7 +70,6 @@ private Q_SLOTS:
     void setKrimbleThickness(int value);
     void syncKrimbleThickness();
 
-
 private:
     void paintLine(QPainter& gc, const QRect& rc);
     QPointF straightLine(QPointF point);
@@ -87,14 +85,13 @@ private:
 private:
     bool m_showGuideline {true};
 
-    QPointF m_startPoint; // start point to use when painting (after the line was snapped to assistant already)
+    QPointF m_startPoint;
     QPointF m_endPoint;
-    QPointF m_originalStartPoint; // original starting point (to use when searching for suitable assistant)
+    QPointF m_originalStartPoint;
     QPointF m_lastUpdatedPoint;
 
     bool m_strokeIsRunning {false};
     bool m_altInitiallyHeld {false};
-
 
     QCheckBox *m_chkUseSensors {nullptr};
     QCheckBox *m_chkShowPreview {nullptr};
@@ -113,7 +110,6 @@ private:
     KConfigGroup configGroup;
 };
 
-
 class KisToolLineFactory : public KisToolPaintFactoryBase
 {
 
@@ -122,7 +118,6 @@ public:
     KisToolLineFactory()
             : KisToolPaintFactoryBase("KritaShape/KisToolLine") {
         setToolTip(i18n("Line Tool"));
-        // Temporarily
         setSection(ToolBoxSection::PSOrder);
         setActivationShapeId(KRITA_TOOL_ACTIVATION_ID);
         setPriority(1);
@@ -138,7 +133,4 @@ public:
 
 };
 
-
-
-
-#endif //KIS_TOOL_LINE_H_
+#endif

@@ -12,4 +12,4 @@ namespace KisConvexHull
     KRITAIMAGE_EXPORT QPolygon findConvexHullSelectionLike(KisPaintDeviceSP device);
 }
 
-#endif /* __KIS_CONVEX_HULL_H */
+#endif

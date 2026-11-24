@@ -53,4 +53,4 @@ protected:
     bool m_arrayMode;
 };
 
-#endif /* __KIS_ASL_OBJECT_CATCHER_H */
+#endif

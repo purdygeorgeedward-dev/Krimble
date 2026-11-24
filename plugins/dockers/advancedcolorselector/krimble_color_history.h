@@ -1,7 +1,4 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
-// Krimble 2026-11-08: the History page of the Color panel, from the History mockup (George: "make the new tabs work just like the mockups"). Every color that becomes the foreground
-// color is recorded with the tool that was active and the time; the list shows them (newest first) with a pin to keep a color in the Pinned Colors, the options group duplicates, show
-// the tool and show the time, a limit, and Save History as Palette and Clear History. Measured in the mockup (the card scaled to 1178 units wide, 1062 tall).
 #pragma once
 #include <functional>
 #include <QDateTime>
@@ -89,7 +86,6 @@ public:
         QSettings().setValue(k, v);
     }
     static QHash<QString, QVariant> &cache() { static QHash<QString, QVariant> c; return c; }
-    // record a color that became the foreground color (a color equal to the newest entry only updates its time when duplicates are grouped)
     static void add(const QColor &c, int alpha, const QString &tool, const QDateTime &when = QDateTime::currentDateTime())
     {
         QVector<KrimbleHistoryEntry> list = load();
@@ -112,7 +108,6 @@ public:
     }
 };
 
-// the name of the tool for the list ("KritaShape/KisToolBrush" is "Brush")
 inline QString krimbleToolName(const QString &id)
 {
     if (id.contains(QLatin1String("Brush"), Qt::CaseInsensitive)) return QStringLiteral("Brush");
@@ -128,8 +123,8 @@ class KrimbleHistoryPage : public KrimbleColorBase
 {
 public:
     KrimbleColorState *state = nullptr;
-    std::function<void(const QColor &)> onColor;      // a color chosen here becomes the foreground color
-    std::function<void()> onPaletteChanged;           // a palette was made from the history
+    std::function<void(const QColor &)> onColor;
+    std::function<void()> onPaletteChanged;
     QLineEdit *hex = nullptr;
     QToolButton *copy = nullptr;
     QSpinBox *limitBox = nullptr;
@@ -202,7 +197,6 @@ protected:
         QPainter p(this);
         p.setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform | QPainter::TextAntialiasing);
         const qreal s = scale();
-        // the card
         {
             const QRectF card(0.5, 0.5, width() - 1.0, designHeight() * s - 1.0);
             QPainterPath path;
@@ -224,14 +218,13 @@ protected:
         }
         QFont f = font();
         f.setPixelSize(qMax(8, qRound(33 * s)));
-        f = fittedFont(f, QStringLiteral("Group consecutive duplicates"), 286 * s);   // 2026-11-08: the left column's text is one size (measured: that text is 286 units wide)
+        f = fittedFont(f, QStringLiteral("Group consecutive duplicates"), 286 * s);
         p.setFont(f);
         const QColor label("#d9deee");
         const QColor shown = state ? state->color : QColor("#459ad3");
         const int alpha = state ? state->alpha : 255;
         QFont large = font();
-        large.setPixelSize(qMax(8, qRound(60 * s)));   // the start of every fit below: the fit makes it smaller, to the width measured in the mockup
-        // ---- the left group
+        large.setPixelSize(qMax(8, qRound(60 * s)));
         paintGroup(p, r(9, 13, 372, 1031), 14 * s);
         p.setPen(label);
         p.setFont(fittedFont(large, tr("Current Color"), 179 * s));
@@ -298,7 +291,6 @@ protected:
             p.setPen(QColor("#f1f4fc"));
             p.drawText(QRectF(b.left() + 72 * s, b.top(), b.width() - 76 * s, b.height()), Qt::AlignLeft | Qt::AlignVCenter, tr(buttonTexts[i]));
         }
-        // ---- the right group: the title, the filter, the list or grid
         paintGroup(p, r(392, 13, 786, 1031), 14 * s);
         p.setPen(label);
         p.setFont(fittedFont(large, tr("Color History (42)"), 226 * s));
@@ -315,7 +307,6 @@ protected:
         drawSymbol(p, QStringLiteral("grid"), r(1069.5, 46, 0, 0).topLeft(), 0.8);
         if (m_gridView) paintSelected(p, r(1106, 21, 53, 50), 10 * s, s); else paintButton(p, r(1106, 21, 53, 50), 10 * s);
         drawIcon(p, QStringLiteral("list"), r(1132.5, 46, 0, 0).topLeft(), 0.9);
-        // the list
         p.save();
         p.setClipRect(r(396, 88, 770, 936));
         const QVector<int> shown_rows = visibleRows();
@@ -326,15 +317,14 @@ protected:
                 if (row.bottom() < 88 * s || row.top() > 1024 * s) continue;
                 const KrimbleHistoryEntry &e = m_entries[shown_rows[v]];
                 const bool current = !selectedDone && e.color == shown && e.alpha == alpha;
-                // if (current) { selectedDone = true; paintSelected(p, row, 12 * s, s); }
-                if (current) { selectedDone = true; p.save(); p.setRenderHint(QPainter::Antialiasing, true); p.setPen(Qt::NoPen); p.setBrush(QColor(0x0b, 0x87, 0xdd)); p.drawRoundedRect(row, 12 * s, 12 * s); p.restore(); }   // a selection: flat blue
+                if (current) { selectedDone = true; p.save(); p.setRenderHint(QPainter::Antialiasing, true); p.setPen(Qt::NoPen); p.setBrush(QColor(0x0b, 0x87, 0xdd)); p.drawRoundedRect(row, 12 * s, 12 * s); p.restore(); }
                 else paintGroup(p, row, 12 * s);
                 paintColorBox(p, QRectF(row.left() + 9 * s, row.top() + 8 * s, 59 * s, row.height() - 16 * s), e.color, 10 * s, s, false);
                 p.setPen(QColor("#f4f6fc"));
-                QFont big = fittedFont(large, QStringLiteral("#F035BE"), 99 * s);   // measured: 99 units wide
+                QFont big = fittedFont(large, QStringLiteral("#F035BE"), 99 * s);
                 p.setFont(big);
                 p.drawText(QRectF(row.left() + 90 * s, row.top(), 140 * s, row.height()), Qt::AlignLeft | Qt::AlignVCenter, e.color.name(QColor::HexRgb).toUpper());
-                QFont small = fittedFont(large, QStringLiteral("HSL: 316\u00B0, 86%, 57%"), 186 * s);   // measured: 186 units wide
+                QFont small = fittedFont(large, QStringLiteral("HSL: 316\u00B0, 86%, 57%"), 186 * s);
                 p.setFont(small);
                 p.setPen(QColor("#d9deee"));
                 p.drawText(QRectF(row.left() + 228 * s, row.top() + 6 * s, 220 * s, row.height() / 2 - 6 * s), Qt::AlignLeft | Qt::AlignVCenter,
@@ -365,7 +355,6 @@ protected:
             }
         }
         p.restore();
-        // the scroll bar at the right of the list
         {
             const double total = contentHeight();
             const double viewH = 930;
@@ -413,7 +402,6 @@ protected:
     }
     void mouseDoubleClickEvent(QMouseEvent *e) override
     {
-        // a double tap on a pinned color unpins it
         for (int i = 0; i < m_pinned.size(); ++i)
             if (pinnedRect(i).contains(e->pos())) {
                 m_pinned.removeAt(i);
@@ -448,9 +436,7 @@ private:
     {
         paintField(p, box, 8 * s);
         if (!on) return;
-        // p.setPen(QPen(QColor("#0b87dd"), qMax<qreal>(2.5, 4.5 * s), Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
-        // p.setPen(QPen(krimbleAquaRimBrush(box), qMax<qreal>(2.5, 4.5 * s), Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));   // Aqua tic
-        p.setPen(QPen(QColor(0x0b, 0x87, 0xdd), qMax<qreal>(2.5, 4.5 * s), Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));   // a selection mark: flat bluek
+        p.setPen(QPen(QColor(0x0b, 0x87, 0xdd), qMax<qreal>(2.5, 4.5 * s), Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
         p.setBrush(Qt::NoBrush);
         QPainterPath tick;
         tick.moveTo(box.left() + box.width() * 0.22, box.top() + box.height() * 0.54);
@@ -460,7 +446,6 @@ private:
     }
     void click(const QPoint &pos)
     {
-        // the options
         static const char *keys[3] = {"group", "source", "time"};
         for (int i = 0; i < 3; ++i)
             if (checkRect(i).adjusted(-4, -6, 280 * scale(), 6).contains(pos)) {
@@ -473,18 +458,14 @@ private:
             update();
             return;
         }
-        // the pinned colors
         for (int i = 0; i < m_pinned.size(); ++i)
             if (pinnedRect(i).contains(pos)) { if (onColor) onColor(m_pinned[i]); return; }
-        // the three buttons
         if (buttonRect(0).contains(pos)) { pinCurrent(); return; }
         if (buttonRect(1).contains(pos)) { saveAsPalette(); return; }
         if (buttonRect(2).contains(pos)) { clearHistory(); return; }
-        // the filter and the view buttons
         if (r(820, 23, 186, 48).contains(pos)) { chooseFilter(pos); return; }
         if (r(1043, 21, 53, 50).contains(pos)) { m_gridView = true; clampScroll(); update(); return; }
         if (r(1106, 21, 53, 50).contains(pos)) { m_gridView = false; clampScroll(); update(); return; }
-        // the list: a tap on the pin toggles it, a tap elsewhere in a row sets the color
         if (!listArea().contains(pos)) return;
         const QVector<int> rows = visibleRows();
         for (int v = 0; v < rows.size(); ++v) {

@@ -15,7 +15,6 @@
 #include <kis_debug.h>
 #include <kis_algebra_2d.h>
 
-
 struct KoBakedShapeRenderer {
     KoBakedShapeRenderer(const QPainterPath &dstShapeOutline, const QTransform &dstShapeTransform,
                        const QTransform &bakedTransform,
@@ -38,7 +37,6 @@ struct KoBakedShapeRenderer {
             m_relativeToShape = KisAlgebra2D::mapToRect(dstShapeBoundingRect);
             relativeToBakedShape = KisAlgebra2D::mapToRect(bakedShapeBoundingRect);
         }
-
 
         m_referenceRectUser =
             referenceIsObb ?
@@ -101,7 +99,6 @@ struct KoBakedShapeRenderer {
         return m_patch;
     }
 
-
 private:
     QPainterPath m_dstShapeOutline;
     QTransform m_dstShapeTransform;
@@ -116,4 +113,4 @@ private:
     QRect m_referenceRectUser;
 };
 
-#endif // KOBAKEDSHAPERENDERER_H
+#endif

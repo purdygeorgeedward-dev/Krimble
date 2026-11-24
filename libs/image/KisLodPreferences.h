@@ -51,4 +51,4 @@ private:
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(KisLodPreferences::PreferenceFlags)
 
-#endif // KISLODPREFERENCES_H
+#endif

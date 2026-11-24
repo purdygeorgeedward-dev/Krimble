@@ -46,7 +46,6 @@ SvgInlineSizeChangeStrategy::SvgInlineSizeChangeStrategy(KoToolBase *tool,
         QPointF initPos = info->editorTransform.inverted().map(m_shape->initialTextPosition());
         m_snapDelta = invTransform.inverted().map(QPointF(invTransform.map(handleLocation).x(), initPos.y())) - m_dragStart;
     } else {
-        // We cannot bail out, so just pretend to be doing something :(
         m_initialInlineSize = m_finalInlineSize = SvgInlineSizeHelper::getInlineSizePt(shape);
         m_anchor = VisualAnchor::LeftOrTop;
         m_handleSide = m_startHandle? Side::LeftOrTop: Side::RightOrBottom;
@@ -69,11 +68,9 @@ void SvgInlineSizeChangeStrategy::handleMouseMove(const QPointF &mouseLocation, 
     const double mouseDelta = invTransform.map(QLineF(m_dragStart, snappedLocation)).dx();
     QPointF newPosition = m_shape->absolutePosition(KoFlake::TopLeft);
 
-    // The anchor pos is mostly to determine the transformed origin so that moving the position stays consistent.
     QPointF anchorPos = m_shape->absoluteTransformation().map(QPointF());
     QPointF anchorDiff = anchorPos - m_anchorOffset;
     QPointF diff = (invTransform.inverted().map(QPointF(mouseDelta, 0)) - anchorPos) - anchorDiff;
-
 
     switch (m_anchor) {
     case VisualAnchor::LeftOrTop:
@@ -170,6 +167,6 @@ void SvgInlineSizeChangeStrategy::cancelInteraction()
     tool()->repaintDecorations();
 }
 
-void SvgInlineSizeChangeStrategy::finishInteraction(Qt::KeyboardModifiers /*modifiers*/)
+void SvgInlineSizeChangeStrategy::finishInteraction(Qt::KeyboardModifiers )
 {
 }

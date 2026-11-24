@@ -23,16 +23,11 @@
 
 #include <memory>
 
-//#define DEBUG_PYRAMID
-
 #include <config-ocio.h>
 
 #define ORIGINAL_INDEX           0
 #define FIRST_NOT_ORIGINAL_INDEX 1
 #define SCALE_FROM_INDEX(idx) (1./qreal(1<<(idx)))
-
-
-/************* AUXILIARY FUNCTIONS **********************************/
 
 #include <KoConfig.h>
 #ifdef HAVE_OPENEXR
@@ -42,10 +37,6 @@
 #define ceiledSize(sz) QSize(ceil((sz).width()), ceil((sz).height()))
 #define isOdd(x) ((x) & 0x01)
 
-/**
- * Aligns @p value to the lowest integer not smaller than @p value and
- * that is a divident of alignment
- */
 inline void alignByPow2Hi(qint32 &value, qint32 alignment)
 {
     qint32 mask = alignment - 1;
@@ -53,20 +44,12 @@ inline void alignByPow2Hi(qint32 &value, qint32 alignment)
     value++;
 }
 
-/**
- * Aligns @p value to the lowest integer not smaller than @p value and
- * that is, increased by one, a divident of alignment
- */
 inline void alignByPow2ButOneHi(qint32 &value, qint32 alignment)
 {
     qint32 mask = alignment - 1;
     value |= mask;
 }
 
-/**
- * Aligns @p value to the highest integer not exceeding @p value and
- * that is a divident of @p alignment
- */
 inline void alignByPow2Lo(qint32 &value, qint32 alignment)
 {
     qint32 mask = alignment - 1;
@@ -82,9 +65,6 @@ inline void alignRectBy2(qint32 &x, qint32 &y, qint32 &w, qint32 &h)
     h += isOdd(y);
     h += isOdd(h);
 }
-
-
-/************* class KisImagePyramid ********************************/
 
 KisImagePyramid::KisImagePyramid(qint32 pyramidHeight)
         : m_monitorProfile(0)
@@ -105,10 +85,6 @@ void KisImagePyramid::setMonitorProfile(const KoColorProfile* monitorProfile,
                                         KoColorConversionTransformation::ConversionFlags conversionFlags)
 {
     m_monitorProfile = monitorProfile;
-    /**
-     * If you change pixel size here, don't forget to change it
-     * in optimized function downsamplePixels()
-     */
     m_monitorColorSpace = KoColorSpaceRegistry::instance()->rgb8(monitorProfile);
     m_renderingIntent = renderingIntent;
     m_conversionFlags = conversionFlags;
@@ -165,7 +141,6 @@ void KisImagePyramid::setImage(KisImageWSP newImage)
         clearPyramid();
         setImageSize(m_originalImage->width(), m_originalImage->height());
 
-        // Get the full image size
         QRect rc = m_originalImage->projection()->exactBounds();
 
         KisImageConfig config(true);
@@ -194,7 +169,6 @@ void KisImagePyramid::setImage(KisImageWSP newImage)
             }
 
         }
-        //TODO: check whether there is needed recalculateCache()
     }
 }
 
@@ -202,7 +176,6 @@ void KisImagePyramid::setImageSize(qint32 w, qint32 h)
 {
     Q_UNUSED(w);
     Q_UNUSED(h);
-    /* nothing interesting */
 }
 
 void KisImagePyramid::updateCache(const QRect &dirtyImageRect)
@@ -212,9 +185,6 @@ void KisImagePyramid::updateCache(const QRect &dirtyImageRect)
 
 void KisImagePyramid::retrieveImageData(const QRect &rect)
 {
-    // XXX: use QThreadStorage to cache the two patches (512x512) of pixels. Note
-    // that when we do that, we need to reset that cache when the projection's
-    // colorspace changes.
     const KoColorSpace *projectionCs = m_originalImage->projection()->colorSpace();
     KisPaintDeviceSP originalProjection = m_originalImage->projection();
     quint32 numPixels = rect.width() * rect.height();
@@ -323,7 +293,6 @@ QRect KisImagePyramid::downsampleByFactor2(const QRect& srcRect,
     srcRect.getRect(&srcX, &srcY, &srcWidth, &srcHeight);
     alignRectBy2(srcX, srcY, srcWidth, srcHeight);
 
-    // Nothing to do
     if (srcWidth < 1) return QRect();
     if (srcHeight < 1) return QRect();
 
@@ -348,7 +317,6 @@ QRect KisImagePyramid::downsampleByFactor2(const QRect& srcRect,
             downsamplePixels(srcIt0->oldRawData(), srcIt1->oldRawData(),
                              dstIt->rawData(), conseqPixels);
 
-
             srcIt1->nextPixels(conseqPixels);
             dstIt->nextPixels(conseqPixels / 2);
         } while (srcIt0->nextPixels(conseqPixels));
@@ -366,16 +334,13 @@ void  KisImagePyramid::downsamplePixels(const quint8 *srcRow0,
                                         quint8 *dstRow,
                                         qint32 numSrcPixels)
 {
-    /**
-     * FIXME (mandatory): Use SSE and friends here.
-     */
 
     qint16 b = 0;
     qint16 g = 0;
     qint16 r = 0;
     qint16 a = 0;
 
-    static const qint32 pixelSize = 4; // This is preview argb8 mode
+    static const qint32 pixelSize = 4;
 
     for (qint32 i = 0; i < numSrcPixels / 2; i++) {
         b = srcRow0[0] + srcRow1[0] + srcRow0[4] + srcRow1[4];
@@ -409,10 +374,6 @@ int KisImagePyramid::findFirstGoodPlaneIndex(qreal scale,
         nearest = i;
     }
 
-    // FOR DEBUGGING
-    //nearest = 0;
-    //nearest = qMin(1, nearest);
-
     dbgRender << "First good plane:" << nearest << "(sc:" << scale << ")";
     return nearest;
 }
@@ -424,10 +385,6 @@ void KisImagePyramid::alignSourceRect(QRect& rect, qreal scale)
 
     dbgRender << "Before alignment:\t" << rect;
 
-    /**
-     * Assume that KisImage pixels are always positive
-     * It allows us to use binary op-s for aligning
-     */
     Q_ASSERT(rect.left() >= 0 && rect.top() >= 0);
 
     qint32 x1, y1, x2, y2;
@@ -435,11 +392,6 @@ void KisImagePyramid::alignSourceRect(QRect& rect, qreal scale)
 
     alignByPow2Lo(x1, alignment);
     alignByPow2Lo(y1, alignment);
-    /**
-     * Here is a workaround of Qt's QRect::right()/bottom()
-     * "historical reasons". It should be one pixel smaller
-     * than actual right/bottom position
-     */
     alignByPow2ButOneHi(x2, alignment);
     alignByPow2ButOneHi(y2, alignment);
 

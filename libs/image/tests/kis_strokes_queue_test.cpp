@@ -15,7 +15,6 @@
 #include "kis_update_job_item.h"
 #include "kis_merge_walker.h"
 
-
 void KisStrokesQueueTest::testSequentialJobs()
 {
     KisStrokesQueue queue;
@@ -64,7 +63,6 @@ void KisStrokesQueueTest::testConcurrentSequentialBarrier()
     queue.addJob(id, new KisStrokeJobData(KisStrokeJobData::CONCURRENT));
     queue.endStroke(id);
 
-    // make the number of threads higher
     KisTestableUpdaterContext context(3);
     QVector<KisUpdateJobItem*> jobs;
 
@@ -98,7 +96,6 @@ void KisStrokesQueueTest::testExclusiveStrokes()
     queue.addJob(id, new KisStrokeJobData(KisStrokeJobData::CONCURRENT));
     queue.endStroke(id);
 
-    // well, this walker is not initialized... but who cares?
     KisBaseRectsWalkerSP walker = new KisMergeWalker(QRect());
 
     KisTestableUpdaterContext context(2);
@@ -167,7 +164,6 @@ void KisStrokesQueueTest::testBarrierStrokeJobs()
     queue.addJob(id, new KisStrokeJobData(KisStrokeJobData::CONCURRENT));
     queue.endStroke(id);
 
-    // yes, this walker is not initialized again... but who cares?
     KisBaseRectsWalkerSP walker = new KisMergeWalker(QRect());
     bool externalJobsPending = false;
 
@@ -190,7 +186,6 @@ void KisStrokesQueueTest::testBarrierStrokeJobs()
     VERIFY_EMPTY(jobs[1]);
     VERIFY_EMPTY(jobs[2]);
 
-    // Now some updates has come...
     context.addMergeJob(walker);
 
     jobs = context.getJobs();
@@ -198,7 +193,6 @@ void KisStrokesQueueTest::testBarrierStrokeJobs()
     COMPARE_WALKER(jobs[1], walker);
     VERIFY_EMPTY(jobs[2]);
 
-    // No difference for the queue
     queue.processQueue(context, externalJobsPending);
 
     jobs = context.getJobs();
@@ -206,10 +200,8 @@ void KisStrokesQueueTest::testBarrierStrokeJobs()
     COMPARE_WALKER(jobs[1], walker);
     VERIFY_EMPTY(jobs[2]);
 
-    // Even more updates has come...
     externalJobsPending = true;
 
-    // Still no difference for the queue
     queue.processQueue(context, externalJobsPending);
 
     jobs = context.getJobs();
@@ -217,10 +209,8 @@ void KisStrokesQueueTest::testBarrierStrokeJobs()
     COMPARE_WALKER(jobs[1], walker);
     VERIFY_EMPTY(jobs[2]);
 
-    // Now clear the context
     context.clear();
 
-    // And still no difference for the queue
     queue.processQueue(context, externalJobsPending);
 
     jobs = context.getJobs();
@@ -228,11 +218,9 @@ void KisStrokesQueueTest::testBarrierStrokeJobs()
     VERIFY_EMPTY(jobs[1]);
     VERIFY_EMPTY(jobs[2]);
 
-    // Process the last update...
     context.addMergeJob(walker);
     externalJobsPending = false;
 
-    // Yep, the queue is still waiting
     queue.processQueue(context, externalJobsPending);
 
     jobs = context.getJobs();
@@ -242,7 +230,6 @@ void KisStrokesQueueTest::testBarrierStrokeJobs()
 
     context.clear();
 
-    // Finally, we can do our work. Barrier job is executed alone
     queue.processQueue(context, externalJobsPending);
 
     jobs = context.getJobs();
@@ -250,7 +237,6 @@ void KisStrokesQueueTest::testBarrierStrokeJobs()
     VERIFY_EMPTY(jobs[1]);
     VERIFY_EMPTY(jobs[2]);
 
-    // Barrier job has finished
     context.clear();
 
     jobs = context.getJobs();
@@ -258,7 +244,6 @@ void KisStrokesQueueTest::testBarrierStrokeJobs()
     VERIFY_EMPTY(jobs[1]);
     VERIFY_EMPTY(jobs[2]);
 
-    // fetch the last (concurrent) one
     queue.processQueue(context, externalJobsPending);
 
     jobs = context.getJobs();
@@ -268,7 +253,6 @@ void KisStrokesQueueTest::testBarrierStrokeJobs()
 
     context.clear();
 
-    // finish the stroke
     queue.processQueue(context, externalJobsPending);
 
     jobs = context.getJobs();
@@ -285,15 +269,11 @@ void KisStrokesQueueTest::testStrokesOverlapping()
     KisStrokeId id = queue.startStroke(new KisTestingStrokeStrategy(QLatin1String("1_"), false, true));
     queue.addJob(id, 0);
 
-    // comment out this line to catch an assert
     queue.endStroke(id);
 
     id = queue.startStroke(new KisTestingStrokeStrategy(QLatin1String("2_"), false, true));
     queue.addJob(id, 0);
     queue.endStroke(id);
-
-    // uncomment this line to catch an assert
-    // queue.addJob(id, 0);
 
     KisTestableUpdaterContext context(2);
     QVector<KisUpdateJobItem*> jobs;
@@ -320,7 +300,6 @@ void KisStrokesQueueTest::testImmediateCancel()
     KisStrokeId id = queue.startStroke(new KisTestingStrokeStrategy(QLatin1String("1_"), false, false));
     queue.cancelStroke(id);
 
-    // this should not crash
     queue.processQueue(context, false);
 }
 
@@ -353,7 +332,6 @@ void KisStrokesQueueTest::testAsyncCancelWhileOpenedStroke()
     queue.addJob(id, 0);
     queue.addJob(id, 0);
 
-    // no async cancelling until the stroke is ended by the owner
     QVERIFY(!queue.tryCancelCurrentStrokeAsync());
 
     queue.endStroke(id);
@@ -367,7 +345,6 @@ void KisStrokesQueueTest::testAsyncCancelWhileOpenedStroke()
 
     queue.processQueue(context, externalJobsPending);
 
-    // no? really?
     jobs = context.getJobs();
     VERIFY_EMPTY(jobs[0]);
     VERIFY_EMPTY(jobs[1]);
@@ -493,16 +470,13 @@ struct KisStrokesQueueTest::LodStrokesQueueTester {
     }
 };
 
-
 void KisStrokesQueueTest::testStrokesLevelOfDetail()
 {
     LodStrokesQueueTester t;
     KisStrokesQueue &queue = t.queue;
 
-    // create a stroke with LOD0 + LOD2
     queue.setLodPreferences(KisLodPreferences(2));
 
-    // process sync-lodn-planes stroke
     t.processQueue();
     t.checkOnlyJob("sync_u_init");
 
@@ -510,8 +484,6 @@ void KisStrokesQueueTest::testStrokesLevelOfDetail()
     queue.addJob(id2, new KisTestingStrokeJobData(KisStrokeJobData::CONCURRENT));
     queue.endStroke(id2);
 
-    // create a update with LOD == 0 (default one)
-    // well, this walker is not initialized... but who cares?
     KisBaseRectsWalkerSP walker = new KisMergeWalker(QRect());
 
     KisTestableUpdaterContext context(2);
@@ -539,7 +511,6 @@ void KisStrokesQueueTest::testStrokesLevelOfDetail()
     VERIFY_EMPTY(jobs[1]);
     QCOMPARE(queue.needsExclusiveAccess(), false);
 
-    // walker of a different LOD must not be allowed
     QCOMPARE(context.isJobAllowed(walker), false);
 
     context.clear();
@@ -575,10 +546,8 @@ void KisStrokesQueueTest::testStrokeWithMixedLodJobs()
     LodStrokesQueueTester t;
     KisStrokesQueue &queue = t.queue;
 
-    // create a stroke with LOD0 + LOD2
     queue.setLodPreferences(KisLodPreferences(2));
 
-    // process sync-lodn-planes stroke
     t.processQueue();
     t.checkOnlyJob("sync_u_init");
 
@@ -635,7 +604,6 @@ void KisStrokesQueueTest::testMultipleLevelOfDetailStrokes()
     LodStrokesQueueTester t;
     KisStrokesQueue &queue = t.queue;
 
-    // create a stroke with LOD0 + LOD2
     queue.setLodPreferences(KisLodPreferences(2));
 
     KisStrokeId id1 = queue.startStroke(new KisTestingStrokeStrategy(QLatin1String("lod1_"), false, true));
@@ -673,7 +641,6 @@ void KisStrokesQueueTest::testMultipleLevelOfDetailAfterLegacy()
     LodStrokesQueueTester t;
     KisStrokesQueue &queue = t.queue;
 
-    // create a stroke with LOD0 + LOD2
     queue.setLodPreferences(KisLodPreferences(2));
 
     KisStrokeId id0 = queue.startStroke(new KisTestingStrokeStrategy(QLatin1String("leg0_"), false, true, false, false, true));
@@ -722,7 +689,6 @@ void KisStrokesQueueTest::testMultipleLevelOfDetailMixedLegacy()
     LodStrokesQueueTester t;
     KisStrokesQueue &queue = t.queue;
 
-    // create a stroke with LOD0 + LOD2
     queue.setLodPreferences(KisLodPreferences(2));
 
     KisStrokeId id0 = queue.startStroke(new KisTestingStrokeStrategy(QLatin1String("lod0_"), false, true));
@@ -776,7 +742,6 @@ void KisStrokesQueueTest::testCancelBetweenLodNStrokes()
     LodStrokesQueueTester t;
     KisStrokesQueue &queue = t.queue;
 
-    // create a stroke with LOD0 + LOD2
     queue.setLodPreferences(KisLodPreferences(2));
 
     KisStrokeId idneg1 = queue.startStroke(new KisTestingStrokeStrategy(QLatin1String("legneg1_"), false, true, false, false, true));
@@ -787,7 +752,6 @@ void KisStrokesQueueTest::testCancelBetweenLodNStrokes()
     queue.addJob(id0, new KisTestingStrokeJobData(KisStrokeJobData::CONCURRENT));
     queue.endStroke(id0);
 
-    // cancelling the strokes should force synchronization of lod planes
     queue.tryCancelCurrentStrokeAsync();
 
     KisStrokeId id2 = queue.startStroke(new KisTestingStrokeStrategy(QLatin1String("lod2_"), false, true));
@@ -815,7 +779,6 @@ void KisStrokesQueueTest::testUFOVisitBetweenLodNStrokes()
     LodStrokesQueueTester t;
     KisStrokesQueue &queue = t.queue;
 
-    // create a stroke with LOD0 + LOD2
     queue.setLodPreferences(KisLodPreferences(2));
 
     KisStrokeId idneg1 = queue.startStroke(new KisTestingStrokeStrategy(QLatin1String("legneg1_"), false, true, false, false, true));
@@ -826,7 +789,6 @@ void KisStrokesQueueTest::testUFOVisitBetweenLodNStrokes()
     queue.addJob(id0, new KisTestingStrokeJobData(KisStrokeJobData::CONCURRENT));
     queue.endStroke(id0);
 
-    // force synchronization of lod planes
     queue.notifyUFOChangedImage();
 
     KisStrokeId id2 = queue.startStroke(new KisTestingStrokeStrategy(QLatin1String("lod2_"), false, true));
@@ -896,10 +858,8 @@ void KisStrokesQueueTest::testLodUndoBase()
     LodStrokesQueueTester t;
     KisStrokesQueue &queue = t.queue;
 
-    // create a stroke with LOD0 + LOD2
     queue.setLodPreferences(KisLodPreferences(2));
 
-    // process sync-lodn-planes stroke
     t.processQueue();
     t.checkOnlyJob("sync_u_init");
 
@@ -913,7 +873,6 @@ void KisStrokesQueueTest::testLodUndoBase()
 
     t.processQueue();
     t.checkOnlyJob("clone2_str1_dab");
-
 
     QSharedPointer<TestUndoCommand> undoStr1(new TestUndoCommand("str1_undo"));
     queue.lodNPostExecutionUndoAdapter()->addCommand(undoStr1);
@@ -942,7 +901,6 @@ void KisStrokesQueueTest::testLodUndoBase2()
     LodStrokesQueueTester t(true);
     KisStrokesQueue &queue = t.queue;
 
-    // create a stroke with LOD0 + LOD2
     queue.setLodPreferences(KisLodPreferences(2));
     KisStrokeId id1 = queue.startStroke(new KisTestingStrokeStrategy(QLatin1String("str1_"), false, true, false, true));
     queue.addJob(id1, new KisTestingStrokeJobData(KisStrokeJobData::CONCURRENT));
@@ -974,7 +932,6 @@ void KisStrokesQueueTest::testLodUndoBase2()
     t.processQueue();
 
     while (queue.currentStrokeName() == kundo2_noi18n("str2_undo")) {
-        //queue.debugPrintStrokes();
         t.processQueue();
     }
 
@@ -1094,7 +1051,7 @@ void KisStrokesQueueTest::testUniquelyConcurrentJobs()
     queue.addJob(id1, new KisTestingStrokeJobData(KisStrokeJobData::CONCURRENT));
     queue.addJob(id1, new KisTestingStrokeJobData(KisStrokeJobData::CONCURRENT));
 
-    { // manual test
+    {
         t.processQueue();
         t.checkJobs({"str1_dab", "str1_dab"});
 
@@ -1111,8 +1068,6 @@ void KisStrokesQueueTest::testUniquelyConcurrentJobs()
         t.checkNothing();
     }
 
-    // Test various cases of overlapping
-
     checkJobsOverlapping(t, id1, KisStrokeJobData::UNIQUELY_CONCURRENT, KisStrokeJobData::CONCURRENT, true);
     checkJobsOverlapping(t, id1, KisStrokeJobData::UNIQUELY_CONCURRENT, KisStrokeJobData::UNIQUELY_CONCURRENT, false);
     checkJobsOverlapping(t, id1, KisStrokeJobData::UNIQUELY_CONCURRENT, KisStrokeJobData::SEQUENTIAL, false);
@@ -1125,6 +1080,5 @@ void KisStrokesQueueTest::testUniquelyConcurrentJobs()
 
     queue.endStroke(id1);
 }
-
 
 KISTEST_MAIN(KisStrokesQueueTest)

@@ -32,4 +32,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif /* __KIS_SYNC_LOD_CACHE_STROKE_STRATEGY_H */
+#endif

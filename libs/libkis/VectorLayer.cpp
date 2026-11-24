@@ -20,7 +20,6 @@
 #include "GroupShape.h"
 #include "LibKisUtils.h"
 
-
 VectorLayer::VectorLayer(KoShapeControllerBase* shapeController, KisImageSP image, QString name, QObject *parent) :
     Node(image, new KisShapeLayer(shapeController, image, name, OPACITY_OPAQUE_U8), parent)
 {
@@ -232,7 +231,6 @@ Shape* VectorLayer::createGroupShape(const QString &name, QList<Shape *> shapes)
 
     return new GroupShape(group);
 }
-
 
 bool VectorLayer::isAntialiased() const
 {

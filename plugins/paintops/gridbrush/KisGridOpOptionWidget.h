@@ -25,11 +25,10 @@ public:
 
     void writeOptionSetting(KisPropertiesConfigurationSP setting) const override;
     void readOptionSetting(const KisPropertiesConfigurationSP setting) override;
-    
 
 private:
     struct Private;
     const QScopedPointer<Private> m_d;
 };
 
-#endif // KIS_GRID_OP_OPTION_WIDGET_H
+#endif

@@ -25,15 +25,14 @@ private:
 
     void checkPerformance();
 
-
 private Q_SLOTS:
 
     void testSimpleBlt();
-    void testSelectionBltSelectionIrregular(); // Irregular selection
-    void testPaintDeviceBltSelectionInverted(); // Inverted selection
-    void testPaintDeviceBltSelectionIrregular(); // Irregular selection
-    void testPaintDeviceBltSelection(); // Square selection
-    void testSelectionBltSelection(); // Square selection
+    void testSelectionBltSelectionIrregular();
+    void testPaintDeviceBltSelectionInverted();
+    void testPaintDeviceBltSelectionIrregular();
+    void testPaintDeviceBltSelection();
+    void testSelectionBltSelection();
     void testSimpleAlphaCopy();
     void testSelectionBitBltFixedSelection();
     void testSelectionBitBltEraseCompositeOp();
@@ -48,7 +47,6 @@ private Q_SLOTS:
     void testMassiveBltFixedMultiTileWithSelection();
 
     void testMassiveBltFixedCornerCases();
-
 
     void testOptimizedCopying();
 };

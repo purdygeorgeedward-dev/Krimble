@@ -2,7 +2,7 @@
  *
  * This file was written by Henning Makholm <henning@makholm.net>
  * It is hereby in the public domain.
- * 
+ *
  * In jurisdictions that do not recognise grants of copyright to the
  * public domain: I, the author and (presumably, in those jurisdictions)
  * copyright holder, hereby permit anyone to distribute and use this code,
@@ -54,8 +54,6 @@ struct FlattenSpec {
   int gimpish_indexed ;
 };
 
-/* From flatspec.c */
-
 void init_flatspec(struct FlattenSpec *);
 
 int add_layer_request(struct FlattenSpec *,const char *name);
@@ -63,15 +61,12 @@ struct xcfLayer *lastlayerspec(struct FlattenSpec *,const char *option);
 
 typedef enum out_color_mode (*guesser) (struct FlattenSpec *,rgba **);
 
-/* Call this after processing options, and after opening the XCF file */
 int complete_flatspec(struct FlattenSpec *,guesser);
 int analyse_colormode(struct FlattenSpec *,rgba **allPixels,guesser);
-
-/* From flatten.c */
 
 typedef void (*lineCallback)(unsigned num,rgba *pixels);
 int flattenIncrementally(struct FlattenSpec *,lineCallback);
 rgba **flattenAll(struct FlattenSpec*);
 void shipoutWithCallback(struct FlattenSpec *,rgba **pixels,lineCallback);
 
-#endif /* FLATTEN_H */
+#endif

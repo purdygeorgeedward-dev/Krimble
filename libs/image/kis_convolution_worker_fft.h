@@ -35,7 +35,6 @@ private:
 
 QMutex KisConvolutionWorkerFFTLock::fftwMutex;
 
-
 template<class _IteratorFactory_>
 class KisConvolutionWorkerFFT : public KisConvolutionWorker<_IteratorFactory_>
 {
@@ -56,7 +55,6 @@ public:
                  QSize areaSize,
                  const QRect &dataRect) override
     {
-        // Make the area we cover as small as possible
         if (this->m_painter->selection())
         {
             QRect r = this->m_painter->selection()->selectedRect().intersected(QRect(srcPos, areaSize));
@@ -77,22 +75,13 @@ public:
         m_fftWidth = areaSize.width() + 4 * halfKernelWidth;
         m_fftHeight = areaSize.height() + 2 * halfKernelHeight;
 
-        /**
-         * FIXME: check whether this "optimization" is needed to
-         * be uncommented. My tests showed about 30% better performance
-         * when the line is commented out (DK).
-         */
-        //optimumDimensions(m_fftWidth, m_fftHeight);
-
         m_fftLength = m_fftHeight * (m_fftWidth / 2 + 1);
         m_extraMem = (m_fftWidth % 2) ? 1 : 2;
 
-        // create and fill kernel
         m_kernelFFT = (fftw_complex *)fftw_malloc(sizeof(fftw_complex) * m_fftLength);
         memset(m_kernelFFT, 0, sizeof(fftw_complex) * m_fftLength);
         fftFillKernelMatrix(kernel, m_kernelFFT);
 
-        // find out which channels need convolving
         QList<KoChannelInfo*> convChannelList = this->convolvableChannelList(src);
 
         m_channelFFT.resize(convChannelList.count());
@@ -117,10 +106,8 @@ public:
         addToProgress(10);
         if (isInterrupted()) return;
 
-        // calculate number off fft operations required for progress reporting
         const float progressPerFFT = (100 - 30) / (double)(convChannelList.count() * 2 + 1);
 
-        // perform FFT
         fftw_plan fftwPlanForward, fftwPlanBackward;
 
         KisConvolutionWorkerFFTLock::fftwMutex.lock();
@@ -150,7 +137,6 @@ public:
         fftw_destroy_plan(fftwPlanBackward);
         KisConvolutionWorkerFFTLock::fftwMutex.unlock();
 
-
         writeResultToDevice(QRect(dstPos.x(), dstPos.y(), areaSize.width(), areaSize.height()),
                             cacheRowStride, halfKernelWidth, halfKernelHeight,
                             info, dataRect);
@@ -163,7 +149,7 @@ public:
         FFTInfo(qreal _fftScale,
                 const QList<KoChannelInfo*> &_convChannelList,
                 const KisConvolutionKernelSP kernel,
-                const KoColorSpace */*colorSpace*/)
+                const KoColorSpace * )
             : fftScale(_fftScale),
               convChannelList(_convChannelList)
         {
@@ -194,7 +180,6 @@ public:
         inline int numChannels() const {
             return convChannelList.size();
         }
-
 
         QVector<qreal> minClamp;
         QVector<qreal> maxClamp;
@@ -232,18 +217,15 @@ public:
             *i = (double*)*iFFt;
         }
 
-        // prepare cache, reused in all loops
         QVector<double*> cacheRowStart(channelCount);
         const auto cacheRowStartBegin = cacheRowStart.begin();
 
         for (int y = 0; y < rect.height(); ++y) {
-            // cache current channelPtr in cacheRowStart
             memcpy(cacheRowStart.data(), channelPtr.data(), channelCount * sizeof(double*));
 
             for (int x = 0; x < rect.width(); ++x) {
                 const quint8 *data = hitSrc->oldRawData();
 
-                // no alpha is a rare case, so just multiply by 1.0 in that case
                 double alphaValue = info.alphaRealPos >= 0 ?
                     info.toDoubleFuncPtr[info.alphaCachePos](data, info.alphaRealPos) : 1.0;
                 int k = 0;
@@ -274,8 +256,7 @@ public:
     inline void limitValue(qreal *value, qreal lowBound, qreal highBound) {
         if (*value > highBound) {
             *value = highBound;
-        } else if (!(*value >= lowBound)) {  // value < lowBound or value == NaN
-            // IEEE compliant comparisons with NaN are always false
+        } else if (!(*value >= lowBound)) {
             *value = lowBound;
         }
     }
@@ -339,12 +320,10 @@ public:
             *i = (double*)*iFFt + initialOffset;
         }
 
-        // prepare cache, reused in all loops
         QVector<double*> cacheRowStart(channelCount);
         const auto cacheRowStartBegin = cacheRowStart.begin();
 
         for (int y = 0; y < rect.height(); ++y) {
-            // cache current channelPtr in cacheRowStart
             memcpy(cacheRowStart.data(), channelPtr.data(), channelCount * sizeof(double*));
 
             for (int x = 0; x < rect.width(); ++x) {
@@ -414,7 +393,6 @@ public:
 private:
     void fftFillKernelMatrix(const KisConvolutionKernelSP kernel, fftw_complex *m_kernelFFT)
     {
-        // find central item
         QPoint offset((kernel->width() - 1) / 2, (kernel->height() - 1) / 2);
 
         qint32 xShift = m_fftWidth - offset.x();
@@ -441,7 +419,6 @@ private:
 
     void fftMultiply(fftw_complex* channel, fftw_complex* kernel)
     {
-        // perform complex multiplication
         fftw_complex *channelPtr = channel;
         fftw_complex *kernelPtr = kernel;
 
@@ -462,7 +439,6 @@ private:
 
     void optimumDimensions(quint32& w, quint32& h)
     {
-        // FFTW is most efficient when array size is a factor of 2, 3, 5 or 7
         quint32 optW = w, optH = h;
 
         while ((optW % 2 != 0) || (optW % 3 != 0) || (optW % 5 != 0) || (optW % 7 != 0))
@@ -533,7 +509,6 @@ private:
 
     void cleanUp()
     {
-        // free kernel fft data
         if (m_kernelFFT) {
             fftw_free(m_kernelFFT);
         }

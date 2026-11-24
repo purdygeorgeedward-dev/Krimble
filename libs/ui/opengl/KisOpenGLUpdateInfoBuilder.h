@@ -31,7 +31,6 @@ typedef KisSharedPtr<KisOpenGLUpdateInfo> KisOpenGLUpdateInfoSP;
 class KoColorSpace;
 struct ConversionOptions;
 
-
 class KRITAUI_EXPORT KisOpenGLUpdateInfoBuilder
 {
 public:
@@ -65,4 +64,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif // KISOPENGLUPDATEINFOBUILDER_H
+#endif

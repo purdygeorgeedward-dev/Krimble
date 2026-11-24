@@ -21,4 +21,4 @@ private Q_SLOTS:
     void slotCreateClonesArray();
 };
 
-#endif // CLONESARRAY<_H
+#endif

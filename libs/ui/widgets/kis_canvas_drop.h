@@ -39,4 +39,4 @@ private:
     Private *const d;
 };
 
-#endif // KIS_CANVAS_DROP_H
+#endif

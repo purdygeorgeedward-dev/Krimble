@@ -54,7 +54,6 @@ void KisSelectionActionsPanelHandle::draw(QPainter& painter, const KoColorDispla
     QRect rect = geometry();
     QPoint offset;
 
-    // Adjust the rect a bit to fill the right side of the bar properly
     if (d->orientation == Orientation::Horizontal) {
         painter.fillRect(rect.marginsAdded(QMargins(-3, 4, 1, 4)),
                          renderInterface->systemPaletteForDisplayColorSpace().window().color());
@@ -64,9 +63,6 @@ void KisSelectionActionsPanelHandle::draw(QPainter& painter, const KoColorDispla
                          renderInterface->systemPaletteForDisplayColorSpace().window().color());
         offset = QPoint(0, 3);
     }
-
-    // Adjusting the icon location a bit to be properly centered
-
 
 #if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
     d->handle_icon.paint(&painter, QRect(QPoint(rect.topLeft() + offset), QSize(d->size, d->size)));
@@ -86,7 +82,6 @@ void KisSelectionActionsPanelHandle::contextMenuEvent(QContextMenuEvent *event)
 
 void KisSelectionActionsPanelHandle::mousePressEvent(QMouseEvent *event)
 {
-    //Do not propagate the rmb event, to prevent other tool context menus from appearing
     if (event->button() == Qt::RightButton) {
         event->accept();
     } else {

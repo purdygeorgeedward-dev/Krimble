@@ -55,4 +55,4 @@ private Q_SLOTS:
     void slotFilteredColorsChanged();
 };
 
-#endif // ONION_SKINS_DOCKER_H
+#endif

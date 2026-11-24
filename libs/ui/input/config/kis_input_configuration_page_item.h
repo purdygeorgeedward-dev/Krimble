@@ -17,12 +17,6 @@ class KisInputConfigurationPageItem;
 
 class KisActionShortcutsModel;
 class KisAbstractInputAction;
-/**
- * \brief A collapsible widget displaying an action, its description and associated shortcuts.
- *
- * This is used in KisInputConfigurationPage to display a list of actions and the associated
- * shortcuts, depending on the current profile.
- */
 class KisInputConfigurationPageItem : public QWidget
 {
     Q_OBJECT
@@ -51,4 +45,4 @@ private:
     const QString m_defaultToolTipText;
 };
 
-#endif // KISINPUTCONFIGURATIONPAGEITEM_H
+#endif

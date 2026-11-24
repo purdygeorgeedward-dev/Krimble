@@ -27,9 +27,6 @@ KisWaylandAPIColorManager::KisWaylandAPIColorManager()
 
 KisWaylandAPIColorManager::~KisWaylandAPIColorManager()
 {
-    // the destruction of the member object is automatically handled
-    // be the extension template class (thanks to the second template
-    // parameter)
 }
 
 void KisWaylandAPIColorManager::wp_color_manager_v1_supported_intent(uint32_t _render_intent)

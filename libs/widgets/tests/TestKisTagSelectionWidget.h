@@ -9,7 +9,6 @@
 
 #include <QTest>
 
-
 #include "KisTagSelectionWidget.h"
 
 class TestKisTagSelectionWidget : public QObject
@@ -18,14 +17,12 @@ class TestKisTagSelectionWidget : public QObject
 private Q_SLOTS:
     void test();
 
-
 private:
     QList<KoID> createAvailableTags();
     QList<KoID> createSelectedTags();
-
 
     WdgCloseableLabel* firstCloseableLabel(QLayout* layout);
 
 };
 
-#endif /* __KO_ANCHOR_SELECTION_WIDGET_TEST_H */
+#endif

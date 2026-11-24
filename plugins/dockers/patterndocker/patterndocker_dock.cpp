@@ -36,18 +36,15 @@ void PatternDockerDock::setViewManager(KisViewManager* kisview)
             resourceProvider, SLOT(slotPatternActivated(KoResourceSP )));
 }
 
-
 void PatternDockerDock::setCanvas(KoCanvasBase *canvas)
 {
     setEnabled(canvas != 0);
 }
 
-
 void PatternDockerDock::unsetCanvas()
 {
     setEnabled(false);
 }
-
 
 void PatternDockerDock::patternChanged(KoPatternSP pattern)
 {

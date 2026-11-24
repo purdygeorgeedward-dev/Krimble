@@ -11,7 +11,6 @@
 #include <kconfiggroup.h>
 #include <ksharedconfig.h>
 
-
 KoBackgroundColour::KoBackgroundColour(KisCanvasResourceProvider *canvasResourceProvider,
                                      const KoColorDisplayRendererInterface *displayRenderer,
                                      QWidget *parent, QWidget *dialogParent)
@@ -21,7 +20,6 @@ KoBackgroundColour::KoBackgroundColour(KisCanvasResourceProvider *canvasResource
     backgroundRect = QRect( 6, 6, 22, 22);
     setColorDialogState(Background);
 }
-
 
 void KoBackgroundColour::paint_icons(QPainter &painter)
 {
@@ -36,10 +34,10 @@ void KoBackgroundColour::mousePressEvent( QMouseEvent *event )
 void KoBackgroundColour::mouseReleaseEvent( QMouseEvent *event )
 {
     Q_UNUSED(event);
-    
+
     KConfigGroup cfg =  KSharedConfig::openConfig()->group("colorselector");
     bool usePlatformDialog = cfg.readEntry("UsePlatformColorDialog", false);
-    
+
     backgroundSelect(usePlatformDialog);
 
     update();

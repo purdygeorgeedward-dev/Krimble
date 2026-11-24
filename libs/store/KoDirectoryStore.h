@@ -36,13 +36,10 @@ protected:
 
     bool openReadOrWrite(const QString &name, QIODevice::OpenModeFlag ioMode);
 private:
-    // Path to base directory (== the ctor argument)
     QString m_basePath;
 
-    // Path to current directory
     QString m_currentPath;
 
-    // Current File
     QFile* m_file;
     Q_DECLARE_PRIVATE(KoStore)
 };

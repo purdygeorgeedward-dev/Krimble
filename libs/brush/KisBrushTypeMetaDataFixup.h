@@ -16,4 +16,4 @@ public:
     QStringList executeFix() override;
 };
 
-#endif // KISBRUSHTYPEMETADATAFIXUP_H
+#endif

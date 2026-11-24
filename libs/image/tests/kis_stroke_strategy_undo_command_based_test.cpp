@@ -39,7 +39,6 @@ private:
     QString &m_result;
 };
 
-
 void KisStrokeStrategyUndoCommandBasedTest::testFinishedStroke()
 {
     QString result;
@@ -88,7 +87,7 @@ void KisStrokeStrategyUndoCommandBasedTest::testCancelledStroke()
 #define NUM_JOBS 1000
 #define SEQUENTIAL_NTH 12
 #define NUM_CHECKS 10
-#define CHECK_DELAY 2 // ms
+#define CHECK_DELAY 2
 
 class ExclusivenessCheckerCommand : public KUndo2Command
 {

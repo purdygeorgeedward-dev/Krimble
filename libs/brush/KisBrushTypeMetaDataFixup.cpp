@@ -14,7 +14,6 @@
 #include <KisResourceLocator.h>
 #include "kis_brush.h"
 
-
 QStringList KisBrushTypeMetaDataFixup::executeFix()
 {
     QStringList errorMessages;
@@ -38,16 +37,11 @@ QStringList KisBrushTypeMetaDataFixup::executeFix()
         bool updatedAtLeastOneResource = false;
 
         while(q.next()) {
-            /// we cannot use KisResourceModel here because it
-            /// is not yet initialized at this state
             KoResourceSP res = KisResourceLocator::instance()->resourceForId(q.value(0).toInt());
             KIS_SAFE_ASSERT_RECOVER(res) { continue; }
             KisBrushSP brush = res.dynamicCast<KisBrush>();
             KIS_SAFE_ASSERT_RECOVER(brush) { continue; }
 
-            /// on loading the metadata of the brush has been
-            /// initialized properly, so we can just write the
-            /// updated version into the database back...
             KisResourceLocator::instance()->setMetaDataForResource(res->resourceId(), res->metadata());
 
             updatedAtLeastOneResource = true;

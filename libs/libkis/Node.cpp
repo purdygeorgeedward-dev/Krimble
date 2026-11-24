@@ -73,7 +73,6 @@
 #include "KoCanvasResourceProvider.h"
 #include <brushengine/kis_paintop_preset.h>
 
-
 struct Node::Private {
     Private() {}
     KisImageWSP image;
@@ -154,7 +153,6 @@ Node *Node::clone() const
     return node;
 }
 
-
 bool Node::alphaLocked() const
 {
     if (!d->node) return false;
@@ -174,7 +172,6 @@ void Node::setAlphaLocked(bool value)
     }
 }
 
-
 QString Node::blendingMode() const
 {
     if (!d->node) return QString();
@@ -192,7 +189,6 @@ void Node::setBlendingMode(QString value)
     KisProcessingApplicator::runSingleCommandStroke(d->image, cmd);
     d->image->waitForDone();
 }
-
 
 QList<Channel*> Node::channels() const
 {
@@ -323,7 +319,6 @@ QString Node::colorModel() const
     return d->node->projection()->colorSpace()->colorModelId().id();
 }
 
-
 QString Node::colorProfile() const
 {
     if (!d->node) return "";
@@ -435,7 +430,6 @@ void Node::setName(QString name)
     d->node->setName(name);
 }
 
-
 int Node::opacity() const
 {
     if (!d->node) return 0;
@@ -449,7 +443,6 @@ void Node::setOpacity(int value)
     if (value > 255) value = 255;
     d->node->setOpacity(value);
 }
-
 
 Node* Node::parentNode() const
 {
@@ -540,7 +533,6 @@ void Node::setVisible(bool visible)
     d->node->setVisible(visible);
 }
 
-
 QByteArray Node::pixelData(int x, int y, int w, int h) const
 {
     QByteArray ba;
@@ -561,7 +553,6 @@ QByteArray Node::pixelDataAtTime(int x, int y, int w, int h, int time) const
 
     if (!d->node || !d->node->isAnimated()) return ba;
 
-    //
     KisRasterKeyframeChannel *rkc = dynamic_cast<KisRasterKeyframeChannel*>(d->node->getKeyframeChannel(KisKeyframeChannel::Raster.id()));
     if (!rkc) return ba;
     KisRasterKeyframeSP frame = rkc->keyframeAt<KisRasterKeyframe>(time);
@@ -575,7 +566,6 @@ QByteArray Node::pixelDataAtTime(int x, int y, int w, int h, int time) const
     dev->readBytes(reinterpret_cast<quint8*>(ba.data()), x, y, w, h);
     return ba;
 }
-
 
 QByteArray Node::projectionPixelData(int x, int y, int w, int h) const
 {
@@ -829,7 +819,6 @@ KisNodeSP Node::node() const
 
 QString Node::paintAbility()
 {
-    // Taken from KisTool:nodePaintAbility().
     KisMainWindow *mainWindow = KisPart::instance()->currentMainwindow();
     KisCanvas2 *canvas = mainWindow->activeView()->canvasBase();
     if (canvas->resourceManager()->resource(KoCanvasResource::CurrentPaintOpPreset).isNull()) {
@@ -881,7 +870,6 @@ void Node::paintLine(const QPointF pointOne, const QPointF pointTwo, double pres
     helper.paintLine(pointOneInfo, pointTwoInfo);
 }
 
-
 void Node::paintRectangle(const QRectF &rect, const QString strokeStyle, const QString fillStyle)
 {
     if (paintAbility() != "PAINT") {
@@ -889,13 +877,9 @@ void Node::paintRectangle(const QRectF &rect, const QString strokeStyle, const Q
         return;
     }
 
-    // reference class where this stuff is being done. Maybe can use the "facade" like that does for setup?
-    // void KisFigurePaintingToolHelper::paintRect(const QRectF &rect)
-
     KisFigurePaintingToolHelper helper = PaintingResources::createHelper(d->image, node(), strokeStyle, fillStyle);
     helper.paintRect(rect);
 }
-
 
 void Node::paintPolygon(const QList<QPointF> listPoint, const QString strokeStyle, const QString fillStyle)
 {
@@ -904,12 +888,10 @@ void Node::paintPolygon(const QList<QPointF> listPoint, const QString strokeStyl
         return;
     }
 
-    // strategy needs points in vPointF format
     QVector<QPointF> points = points.fromList(listPoint);
     KisFigurePaintingToolHelper helper = PaintingResources::createHelper(d->image, node(), strokeStyle, fillStyle);
     helper.paintPolygon(points);
 }
-
 
 void Node::paintEllipse(const QRectF &rect, const QString strokeStyle, const QString fillStyle)
 {
@@ -921,7 +903,6 @@ void Node::paintEllipse(const QRectF &rect, const QString strokeStyle, const QSt
     KisFigurePaintingToolHelper helper = PaintingResources::createHelper(d->image, node(), strokeStyle, fillStyle);
     helper.paintEllipse(rect);
 }
-
 
 void Node::paintPath(const QPainterPath &path, const QString strokeStyle, const QString fillStyle)
 {

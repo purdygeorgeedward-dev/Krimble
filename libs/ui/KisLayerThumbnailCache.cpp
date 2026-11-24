@@ -13,14 +13,13 @@
 #include "KisRunnableStrokeJobUtils.h"
 #include "KisRunnableStrokeJobsInterface.h"
 
-
 namespace {
 struct ThumbnailRecord {
     QImage image;
     int seqNo = -1;
     int maxSize = 0;
 };
-} // namespace
+}
 
 struct ThumbnailsStroke : KisIdleTaskStrokeStrategy
 {
@@ -33,7 +32,6 @@ public:
         , m_maxSize(maxSize)
         , m_cache(cache)
     {
-        // thread-safety!
         m_cache.detach();
     }
 
@@ -46,7 +44,6 @@ public:
 
         QVector<KisRunnableStrokeJobData*> jobs;
         recursiveApplyNodes(m_root, [&jobs, this] (KisNodeSP node) {
-
 
             if (!node->parent()) return;
             if (node->isFakeNode()) return;
@@ -112,7 +109,6 @@ struct KisLayerThumbnailCache::Private
     void cleanupDeletedNodes();
 };
 
-
 KisLayerThumbnailCache::KisLayerThumbnailCache()
     : m_d(new Private())
 {
@@ -155,7 +151,6 @@ void KisLayerThumbnailCache::setImage(KisImageSP image, KisIdleTasksManager *man
 {
     setIdleTaskManagerImpl(manager);
     setImage(image);
-    // the update is triggered only by the second call, not the first one!
 }
 
 void KisLayerThumbnailCache::setMaxSize(int maxSize)

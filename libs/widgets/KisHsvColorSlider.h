@@ -12,7 +12,6 @@
 
 class KoColor;
 
-// Same as the KoColorSlider, except mixing is done with HSV values.
 class KRITAWIDGETS_EXPORT KisHsvColorSlider : public KSelector
 {
     Q_OBJECT

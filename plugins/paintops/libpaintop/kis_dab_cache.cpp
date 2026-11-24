@@ -34,8 +34,6 @@ struct KisDabCache::Private {
     KisTextureOption *textureOption = 0;
 };
 
-
-
 KisDabCache::KisDabCache(KisBrushSP brush)
     : m_d(new Private(brush))
 {
@@ -61,7 +59,6 @@ bool KisDabCache::needSeparateOriginal() const
     return KisDabCacheBase::needSeparateOriginal(m_d->textureOption, m_d->sharpnessOption);
 }
 
-
 KisFixedPaintDeviceSP KisDabCache::fetchDab(const KoColorSpace *cs,
         KisColorSource *colorSource,
         const QPointF &cursorPoint,
@@ -71,7 +68,6 @@ KisFixedPaintDeviceSP KisDabCache::fetchDab(const KoColorSpace *cs,
         QRect *dstDabRect,
         qreal lightnessStrength)
 {
-    //Q_UNUSED(lightnessStrength);
 
     return fetchDabCommon(cs, colorSource, KoColor(),
                           cursorPoint,
@@ -134,15 +130,9 @@ KisFixedPaintDeviceSP KisDabCache::fetchFromCache(KisDabCacheUtils::DabRendering
     return m_d->dab;
 }
 
-/**
- * A special hack class that allows creation of temporary object with resources
- * without taking ownership over the option classes
- */
 struct TemporaryResourcesWithoutOwning : public KisDabCacheUtils::DabRenderingResources
 {
     ~TemporaryResourcesWithoutOwning() override {
-        // we do not own these resources, so just
-        // release them before destruction
         colorSource.release();
         sharpnessOption.release();
         textureOption.release();
@@ -162,7 +152,6 @@ KisFixedPaintDeviceSP KisDabCache::fetchDabCommon(const KoColorSpace *cs,
         bool forceNormalizedRGBAImageStamp)
 {
     Q_ASSERT(dstDabRect);
-    //Q_UNUSED(lightnessStrength);
 
     bool hasDabInCache = true;
 
@@ -173,23 +162,16 @@ KisFixedPaintDeviceSP KisDabCache::fetchDabCommon(const KoColorSpace *cs,
 
     using namespace KisDabCacheUtils;
 
-    // 0. Notify brush that we ar going to paint a new dab
-
     m_d->brush->prepareForSeqNo(info, m_d->seqNo);
     m_d->seqNo++;
-
-    // 1. Calculate new dab parameters and whether we can reuse the cache
 
     TemporaryResourcesWithoutOwning resources;
     resources.brush = m_d->brush;
     resources.colorSourceDevice = m_d->colorSourceDevice;
 
-    // NOTE: we use a special subclass of resources that will NOT
-    //       delete options on destruction!
     resources.colorSource.reset(colorSource);
     resources.sharpnessOption.reset(m_d->sharpnessOption);
     resources.textureOption.reset(m_d->textureOption);
-
 
     DabGenerationInfo di;
     bool shouldUseCache = false;
@@ -208,18 +190,12 @@ KisFixedPaintDeviceSP KisDabCache::fetchDabCommon(const KoColorSpace *cs,
 
     *dstDabRect = di.dstDabRect;
 
-
-    // 2. Try return a saved dab from the cache
-
     if (shouldUseCache) {
         return fetchFromCache(&resources, info, dstDabRect);
     }
 
-    // 3. Generate new dab
-
     generateDab(di, &resources, &m_d->dab, forceNormalizedRGBAImageStamp);
 
-    // 4. Do postprocessing
     if (di.needsPostprocessing) {
         if (!m_d->dabOriginal || *cs != *m_d->dabOriginal->colorSpace()) {
             m_d->dabOriginal = new KisFixedPaintDevice(cs);

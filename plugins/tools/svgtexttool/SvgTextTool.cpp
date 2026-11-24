@@ -89,14 +89,12 @@
 #include <QTimer>
 #endif
 
-
 using SvgInlineSizeHelper::InlineSizeInfo;
 
-constexpr double INLINE_SIZE_DASHES_PATTERN_A = 4.0; /// Size of the visible part of the inline-size handle dashes.
-constexpr double INLINE_SIZE_DASHES_PATTERN_B = 8.0; /// Size of the hidden part of the inline-size handle dashes.
-constexpr int INLINE_SIZE_DASHES_PATTERN_LENGTH = 3; /// Total amount of trailing dashes on inline-size handles.
-constexpr double INLINE_SIZE_HANDLE_THICKNESS = 1.0; /// Linethickness.
-
+constexpr double INLINE_SIZE_DASHES_PATTERN_A = 4.0;
+constexpr double INLINE_SIZE_DASHES_PATTERN_B = 8.0;
+constexpr int INLINE_SIZE_DASHES_PATTERN_LENGTH = 3;
+constexpr double INLINE_SIZE_HANDLE_THICKNESS = 1.0;
 
 static bool debugEnabled()
 {
@@ -110,7 +108,6 @@ SvgTextTool::SvgTextTool(KoCanvasBase *canvas)
     , m_textCursor(canvas)
     , m_textOutlineHelper(new KoSvgTextShapeOutlineHelper(canvas))
 {
-     // TODO: figure out whether we should use system config for this, Windows and GTK have values for it, but Qt and MacOS don't(?).
     const int cursorFlashLimit = 5000;
     const bool enableCursorWithSelection = QApplication::style()->styleHint(QStyle::SH_BlinkCursorWhenTextSelected);
     m_textCursor.setCaretSetting(QApplication::style()->pixelMetric(QStyle::PM_TextCursorWidth)
@@ -184,7 +181,7 @@ SvgTextTool::~SvgTextTool()
 
 void SvgTextTool::activate(const QSet<KoShape *> &shapes)
 {
-    krimbleEnsureBundledFonts();   // Krimble 2026-11-23: the bundled fonts are loaded the first time a text tool is chosen
+    krimbleEnsureBundledFonts();
     KoToolBase::activate(shapes);
     m_canvasConnections.addConnection(canvas()->selectedShapesProxy(), SIGNAL(selectionChanged()), this, SLOT(slotShapeSelectionChanged()));
 
@@ -231,7 +228,6 @@ void SvgTextTool::deactivate()
     if (canvas2) {
         canvas2->viewManager()->textPropertyManager()->setTextPropertiesInterface(nullptr);
     }
-    // Exiting text editing mode is handled by requestStrokeEnd
     disconnect(m_textTypeSignalsMapper.data(), 0, this, 0);
     disconnect(m_typeSettingMovementMapper.data(), 0, this, 0);
 
@@ -278,7 +274,6 @@ QWidget *SvgTextTool::createOptionWidget()
         qWarning() << optionWidget->errors();
     }
 
-
     connect(m_optionManager.data(), SIGNAL(openTextEditor()), SLOT(showEditor()));
     connect(m_optionManager.data(), SIGNAL(openGlyphPalette()), SLOT(showGlyphPalette()));
 
@@ -296,13 +291,11 @@ QWidget *SvgTextTool::createOptionWidget()
             connect(m_optionManager.data(), &SvgTextToolOptionsManager::openTextPropertiesDocker, [docker](){
                         docker->setVisible(!docker->isVisible());
                     });
-            // Once we have docker toggling actions, we should revisit this.
         }
     }
     slotUpdateVisualCursor();
     slotUpdateTextPasteBehaviour();
     slotTextTypeUpdated();
-
 
     return optionWidget;
 }
@@ -341,12 +334,11 @@ void SvgTextTool::showEditor()
 
         connect(m_editor, SIGNAL(textUpdated(KoSvgTextShape*,QString,QString)), SLOT(textUpdated(KoSvgTextShape*,QString,QString)));
 
-        m_editor->activateWindow(); // raise on creation only
+        m_editor->activateWindow();
     }
     if (!m_editor->isVisible()) {
         m_editor->setInitialShape(shape);
 #ifdef Q_OS_ANDROID
-        // for window manager
         m_editor->setWindowFlags(Qt::Dialog);
         m_editor->menuBar()->setNativeMenuBar(false);
 #endif
@@ -619,11 +611,6 @@ void SvgTextTool::requestStrokeEnd()
 
 void SvgTextTool::requestStrokeCancellation()
 {
-    /**
-     * Doing nothing, since these signals come on undo/redo actions
-     * in the mainland undo stack, which we manipulate while editing
-     * text
-     */
 }
 
 void SvgTextTool::slotUpdateCursorDecoration(QRectF updateRect)
@@ -701,7 +688,6 @@ void SvgTextTool::slotMoveTextSelection(int index)
     KoSvgTextShape *shape = selectedShape();
     if (!shape) return;
     QPointF offset;
-    // test type setting mode.
     if (index == Qt::Key_Down) {
         offset = QPointF(0, 1);
     } else if (index == Qt::Key_Up) {
@@ -854,7 +840,6 @@ void SvgTextTool::paint(QPainter &gc, const KoViewConverter &converter)
         gc.restore();
     }
 
-    // Paint debug outline
     if (debugEnabled() && shape) {
         gc.save();
         using Element = KoSvgTextShape::DebugElement;
@@ -874,9 +859,6 @@ void SvgTextTool::paint(QPainter &gc, const KoViewConverter &converter)
 
 void SvgTextTool::mousePressEvent(KoPointerEvent *event)
 {
-    // When using touch drawing, we only ever receive move events after the
-    // finger has pressed down. We have to issue an artificial move here so that
-    // the tool's state is updated properly to handle the press.
     if (event->isTouchEvent()) {
         mouseMoveEvent(event);
     }
@@ -977,7 +959,7 @@ void SvgTextTool::mousePressEvent(KoPointerEvent *event)
             m_textCursor.setPosToPoint(event->point, true);
             m_textCursor.moveCursor(SvgTextCursor::ParagraphStart, true);
             m_textCursor.moveCursor(SvgTextCursor::ParagraphEnd, false);
-            m_lastDoubleClickElapsed.invalidate(); // don't chain into a fourth tap
+            m_lastDoubleClickElapsed.invalidate();
             event->accept();
             repaintDecorations();
             return;
@@ -1000,7 +982,7 @@ void SvgTextTool::mousePressEvent(KoPointerEvent *event)
             canvas()->shapeManager()->selection()->deselectAll();
         }
         event->accept();
-    } else { // if there's a selected shape but no hovered shape...
+    } else {
         canvas()->shapeManager()->selection()->deselectAll();
         event->accept();
     }
@@ -1052,7 +1034,6 @@ void SvgTextTool::mouseMoveEvent(KoPointerEvent *event)
             }
         } else if (m_dragging == DragMode::Select && this->selectedShape()) {
             KoSvgTextShape *const selectedShape = this->selectedShape();
-            // Todo: replace with something a little less hacky.
             if (selectedShape->writingMode() == KoSvgText::HorizontalTB) {
                 useCursor(m_ibeam_horizontal);
             } else {
@@ -1232,7 +1213,7 @@ void SvgTextTool::focusOutEvent(QFocusEvent *event)
 void SvgTextTool::mouseDoubleClickEvent(KoPointerEvent *event)
 {
     if (canvas()->shapeManager()->shapeAt(event->point) != selectedShape()) {
-        event->ignore(); // allow the event to be used by another
+        event->ignore();
         return;
     } else {
         m_textCursor.setPosToPoint(event->point, true);
@@ -1249,8 +1230,6 @@ void SvgTextTool::mouseDoubleClickEvent(KoPointerEvent *event)
 void SvgTextTool::mouseTripleClickEvent(KoPointerEvent *event)
 {
     if (canvas()->shapeManager()->shapeAt(event->point) == selectedShape()) {
-        // TODO: Consider whether we want to use sentence based selection instead:
-        // QTextBoundaryFinder allows us to find sentences if necessary.
         m_textCursor.moveCursor(SvgTextCursor::ParagraphStart, true);
         m_textCursor.moveCursor(SvgTextCursor::ParagraphEnd, false);
         event->accept();

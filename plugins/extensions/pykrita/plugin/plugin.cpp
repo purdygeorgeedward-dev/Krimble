@@ -48,9 +48,6 @@ KritaPyQtPlugin::KritaPyQtPlugin(QObject *parent, const QVariantList &)
     KisPreferenceSetRegistry *preferenceSetRegistry = KisPreferenceSetRegistry::instance();
     PyQtPluginSettingsFactory* settingsFactory = new PyQtPluginSettingsFactory(pluginManager);
 
-    //load and save preferences
-    //if something in kritarc is missing, then the default from this load function will be used and saved back to kconfig.
-    //this way, cfg.readEntry() in any part won't be able to set its own default
     KisPreferenceSet* settings = settingsFactory->createPreferenceSet();
     KIS_SAFE_ASSERT_RECOVER_RETURN(settings);
     settings->loadPreferences();
@@ -59,7 +56,6 @@ KritaPyQtPlugin::KritaPyQtPlugin(QObject *parent, const QVariantList &)
 
     preferenceSetRegistry->add("PyQtPluginSettingsFactory", settingsFactory);
 
-    // Try to import the `pykrita` module
     PyKrita::Python py = PyKrita::Python();
     PyObject* pykritaPackage = py.moduleImport("pykrita");
     pykritaPackage = py.moduleImport("krita");
@@ -68,7 +64,6 @@ KritaPyQtPlugin::KritaPyQtPlugin(QObject *parent, const QVariantList &)
         dbgScript << "Loaded pykrita, now load plugins";
         pluginManager->scanPlugins();
         pluginManager->tryLoadEnabledPlugins();
-        //py.functionCall("_pykritaLoaded", PyKrita::Python::PYKRITA_ENGINE);
     } else  {
         dbgScript << "Cannot load pykrita module";
     }
@@ -77,19 +72,10 @@ KritaPyQtPlugin::KritaPyQtPlugin(QObject *parent, const QVariantList &)
         extension->setup();
     }
 
-    // This ensures that QObject's owned by Python are destructed before
-    // the destructor of QCoreApplication is called, in order to prevent
-    // a crash on exit.
-    // See https://bugs.kde.org/show_bug.cgi?id=417465
-    // XXX: Commented out because this still can cause crashes:
-    // https://invent.kde.org/graphics/krita/-/commit/a0c29913114164ff3f2ba4e255ccee1c52cb3e86#note_260688
-    // connect(QCoreApplication::instance(), &QCoreApplication::aboutToQuit, this, []() { PyKrita::finalize(); });
 }
 
 KritaPyQtPlugin::~KritaPyQtPlugin()
 {
-    // Don't call PyKrita::finalize here, because that can result in a crash
-    // deep inside Qt.
 }
 
 #include "plugin.moc"

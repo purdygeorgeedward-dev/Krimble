@@ -7,7 +7,6 @@
 #ifndef KIS_HATCHING_OPTIONS_DATA_H
 #define KIS_HATCHING_OPTIONS_DATA_H
 
-
 #include "kis_types.h"
 #include <boost/operators.hpp>
 
@@ -48,4 +47,4 @@ struct KisHatchingOptionsData : boost::equality_comparable<KisHatchingOptionsDat
     KisPaintopLodLimitations lodLimitations() const;
 };
 
-#endif // KIS_HATCHING_OPTIONS_DATA_H
+#endif

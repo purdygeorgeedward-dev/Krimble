@@ -9,19 +9,11 @@
 #include "KisDocument.h"
 #include <kundo2stack.h>
 
-
-/*****************************************************************/
-/*                KisDocumentUndoStore                           */
-/*****************************************************************/
-
 KisDocumentUndoStore::KisDocumentUndoStore(KisDocument *doc)
     : m_doc(doc)
 {
-    /// The thread of the document should be the same as the store to
-    /// avoid incorrect signal delivery
     KIS_SAFE_ASSERT_RECOVER_NOOP(doc->thread() == this->thread());
 
-    // Use direct connection to avoid queueing the signal forwarding (BUG:447985)
     connect(doc->undoStack(), SIGNAL(indexChanged(int)), this, SIGNAL(historyStateChanged()), Qt::DirectConnection);
 }
 
@@ -32,19 +24,6 @@ const KUndo2Command* KisDocumentUndoStore::presentCommand()
 
 void KisDocumentUndoStore::undoLastCommand()
 {
-    /**
-     * FIXME: Added as a workaround for being able to cancel creation
-     * of the new adjustment mask (or any other mask whose
-     * creation can be cancelled).
-     *
-     * Ideally, we should use "addToIndex-commit" technique like git does.
-     * When a user presses Create button, we call command->redo()
-     * and save this command in a cache. When the user confirms creation
-     * of the layer with "OK" button, we "commit" the command to the undoStack.
-     * If the user changes his mind and presses Cancel, we just call
-     * command->undo() and remove the cache without committing it
-     * to the undoStack
-     */
     m_doc->undoStack()->undo();
 }
 

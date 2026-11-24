@@ -21,10 +21,6 @@ public:
     void setIconSize(const QSize& size);
     QSize iconSize() const;
 
-    /* setAutoCollapse:
-     * Set whether we want to try to automatically collapse based on the size
-     * of the current widget. This can be disabled for manual collapsing.
-     */
     void setAutoCollapse(bool autoCollapse);
     void setCollapsed(bool collapse);
     bool collapsed() const;
@@ -42,4 +38,4 @@ private:
     QScopedPointer<Private> m_d;
 };
 
-#endif // KISCOLLAPSIBLEBUTTONGROUP_H
+#endif

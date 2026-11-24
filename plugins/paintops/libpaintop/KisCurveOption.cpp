@@ -87,7 +87,6 @@ qreal KisCurveOption::ValueComponents::sizeLikeValue() const {
                   maxSizeLikeValue);
 }
 
-
 KisCurveOption::KisCurveOption(const KisCurveOptionData &data)
     : m_isChecked(data.isChecked)
     , m_useCurve(data.useCurve)
@@ -125,24 +124,24 @@ KisCurveOption::ValueComponents KisCurveOption::computeValueComponents(const Kis
             components.scaling = sensorValues.first();
         } else if (sensorValues.count() > 1) {
 
-            if (m_curveMode == 1){           // add
+            if (m_curveMode == 1){
                 components.scaling = 0;
                 double i;
                 foreach (i, sensorValues) {
                     components.scaling += i;
                 }
-            } else if (m_curveMode == 2){    //max
+            } else if (m_curveMode == 2){
                 components.scaling = *std::max_element(sensorValues.begin(), sensorValues.end());
 
-            } else if (m_curveMode == 3){    //min
+            } else if (m_curveMode == 3){
                 components.scaling = *std::min_element(sensorValues.begin(), sensorValues.end());
 
-            } else if (m_curveMode == 4){    //difference
+            } else if (m_curveMode == 4){
                 double max = *std::max_element(sensorValues.begin(), sensorValues.end());
                 double min = *std::min_element(sensorValues.begin(), sensorValues.end());
                 components.scaling = max-min;
 
-            } else {                         //multiply - default
+            } else {
                 double i;
                 foreach (i, sensorValues) {
                     components.scaling *= i;

@@ -9,7 +9,6 @@
 #ifndef KORESETBGFGCOLOURS_H
 #define KORESETBGFGCOLOURS_H
 
-
 #include <KoDualColorButton.h>
 
 #include <kis_canvas2.h>

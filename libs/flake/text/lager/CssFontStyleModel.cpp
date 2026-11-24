@@ -39,7 +39,7 @@ auto getStyle = lager::lenses::getset(
         return data;
     });
 
-} // namespace
+}
 
 CssFontStyleModel::CssFontStyleModel(lager::cursor<KoSvgText::CssFontStyleData> _data)
     : data(_data)

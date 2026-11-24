@@ -88,31 +88,26 @@ void WGColorSelectorSettings::savePreferences() const
     cfg.set(WGConfig::rgbColorModel, static_cast<KisVisualColorModel::ColorModel>(
                 m_ui->cmbColorModel->currentIndex() +  KisVisualColorModel::HSV));
     cfg.setColorSelectorConfiguration(m_selectorConfigGrid->currentConfiguration());
-    // General
     cfg.set(WGConfig::quickSettingsEnabled, m_ui->grpQuickSettingsMenu->isChecked());
     cfg.setFavoriteConfigurations(m_favoriteConfigGrid->selectedConfigurations());
     cfg.set(WGConfig::colorSpaceSource,
             static_cast<WGColorSelectorDock::ColorSpaceSource>(m_ui->cmbSelectionColorSpace->currentIndex()));
     cfg.setCustomSelectionColorSpace(m_ui->wdgColorspace->currentColorSpace());
     cfg.set(WGConfig::proofToPaintingColors, m_ui->chkProofColors->isChecked());
-    // Pop-ups
     cfg.set(WGConfig::popupSize, m_ui->sbPopupSize->value());
     cfg.set(WGConfig::popupPatches.orientation, m_ui->rbPopupHorizontal->isChecked() ? Qt::Horizontal : Qt::Vertical);
     cfg.set(WGConfig::popupPatches.patchSize, QSize(m_ui->sbPatchWidth->value(), m_ui->sbPatchHeight->value()));
     cfg.set(WGConfig::popupPatches.maxCount, m_ui->sbPopupMaxPatches->value());
     cfg.set(WGConfig::popupPatches.rows, m_ui->sbPopupPatchesRows->value());
     cfg.set(WGConfig::popupPatches.scrolling, static_cast<WGConfig::Scrolling>(m_ui->cbPopupScrolling->currentIndex()));
-    // Shade Selector
     cfg.set(WGConfig::minimalShadeSelectorEnabled, m_ui->grpMinimalShadeSelector->isChecked());
     cfg.set(WGConfig::shadeSelectorUpdateOnExternalChanges, m_ui->chkShadeSelUpdateExternal->isChecked());
     cfg.set(WGConfig::shadeSelectorUpdateOnInteractionEnd, m_ui->chkShadeSelUpdateInteraction->isChecked());
     cfg.set(WGConfig::shadeSelectorUpdateOnRightClick, m_ui->chkShadeSelUpdateOnRightClick->isChecked());
-    // we don't discard shade line configurations right away so we need to trim here
     QVector<WGConfig::ShadeLine> lineConfig = m_shadeLineConfig;
     lineConfig.resize(m_ui->sbShadeLineCount->value());
     cfg.setShadeSelectorLines(lineConfig);
     cfg.set(WGConfig::shadeSelectorLineHeight, m_ui->sbShadeLineHeight->value());
-    // Color History
     cfg.set(WGConfig::colorHistoryFromDocument, m_ui->chkColorHistoryDocument->isChecked());
     cfg.set(WGConfig::colorHistoryEnabled, m_ui->historyGroupBox->isChecked());
     cfg.set(WGConfig::colorHistory.orientation, m_ui->rbHistoryHorizontal->isChecked() ? Qt::Horizontal : Qt::Vertical);
@@ -121,7 +116,6 @@ void WGColorSelectorSettings::savePreferences() const
     cfg.set(WGConfig::colorHistory.rows, m_ui->sbHistoryRows->value());
     cfg.set(WGConfig::colorHistory.scrolling, static_cast<WGConfig::Scrolling>(m_ui->cbScrolling->currentIndex()));
     cfg.set(WGConfig::colorHistoryShowClearButton, m_ui->ckHistoryClearButton->isChecked());
-    // Common Colors (Colors from Image)
     cfg.set(WGConfig::commonColorsEnabled, m_ui->commonColorsGroupBox->isChecked());
     cfg.set(WGConfig::commonColors.orientation, m_ui->rbCommonColorsHorizontal->isChecked() ? Qt::Horizontal : Qt::Vertical);
     cfg.set(WGConfig::commonColors.patchSize, { m_ui->sbCommonColorsPatchWidth->value(),
@@ -154,7 +148,6 @@ void WGColorSelectorSettings::loadPreferencesImpl(bool defaults)
                                                              : cfg.colorSelectorConfiguration();
     m_selectorConfigGrid->setChecked(selectorCfg);
     m_ui->btnSelectorShape->setIcon(m_selectorConfigGrid->generateIcon(selectorCfg, devicePixelRatioF()));
-    // General
     m_ui->grpQuickSettingsMenu->setChecked(cfg.get(WGConfig::quickSettingsEnabled, defaults));
     QVector<KisColorSelectorConfiguration> favoriteConfigs = cfg.favoriteConfigurations(defaults);
     for (const KisColorSelectorConfiguration &fav : std::as_const(favoriteConfigs)) {
@@ -163,7 +156,6 @@ void WGColorSelectorSettings::loadPreferencesImpl(bool defaults)
     m_ui->cmbSelectionColorSpace->setCurrentIndex(cfg.get(WGConfig::colorSpaceSource, defaults));
     m_ui->wdgColorspace->setCurrentColorSpace(cfg.customSelectionColorSpace(defaults));
     m_ui->chkProofColors->setChecked(cfg.get(WGConfig::proofToPaintingColors, defaults));
-    // Pop-ups
     m_ui->sbPopupSize->setValue(cfg.get(WGConfig::popupSize, defaults));
     Qt::Orientation patchOrientation = cfg.get(WGConfig::popupPatches.orientation, defaults);
     if (patchOrientation == Qt::Horizontal) {
@@ -177,19 +169,16 @@ void WGColorSelectorSettings::loadPreferencesImpl(bool defaults)
     m_ui->sbPopupMaxPatches->setValue(cfg.get(WGConfig::popupPatches.maxCount, defaults));
     m_ui->sbPopupPatchesRows->setValue(cfg.get(WGConfig::popupPatches.rows, defaults));
     m_ui->cbPopupScrolling->setCurrentIndex(static_cast<int>(cfg.get(WGConfig::popupPatches.scrolling, defaults)));
-    // Shade Selector
     m_ui->grpMinimalShadeSelector->setChecked(cfg.get(WGConfig::minimalShadeSelectorEnabled, defaults));
     m_ui->chkShadeSelUpdateExternal->setChecked(cfg.get(WGConfig::shadeSelectorUpdateOnExternalChanges, defaults));
     m_ui->chkShadeSelUpdateInteraction->setChecked(cfg.get(WGConfig::shadeSelectorUpdateOnInteractionEnd, defaults));
     m_ui->chkShadeSelUpdateOnRightClick->setChecked(cfg.get(WGConfig::shadeSelectorUpdateOnRightClick, defaults));
     m_shadeLineConfig = cfg.shadeSelectorLines(defaults);
-    // update shade lines we will re-use, the rest is handled by slotSetShadeLineCount()
     for (int i = 0, end = qMin(m_shadeLineButtons.size(), m_shadeLineConfig.size()); i < end; i++) {
         m_shadeLineButtons.at(i)->setIcon(m_shadeLineEditor->generateIcon(m_shadeLineConfig.at(i)));
     }
     m_ui->sbShadeLineCount->setValue(m_shadeLineConfig.size());
     m_ui->sbShadeLineHeight->setValue(cfg.get(WGConfig::shadeSelectorLineHeight, defaults));
-    // Color History
     m_ui->chkColorHistoryDocument->setChecked(cfg.get(WGConfig::colorHistoryFromDocument, defaults));
     m_ui->historyGroupBox->setChecked(cfg.get(WGConfig::colorHistoryEnabled, defaults));
     patchOrientation = cfg.get(WGConfig::colorHistory.orientation, defaults);
@@ -205,7 +194,6 @@ void WGColorSelectorSettings::loadPreferencesImpl(bool defaults)
     m_ui->sbHistoryRows->setValue(cfg.get(WGConfig::colorHistory.rows, defaults));
     m_ui->cbScrolling->setCurrentIndex(static_cast<int>(cfg.get(WGConfig::colorHistory.scrolling, defaults)));
     m_ui->ckHistoryClearButton->setChecked(cfg.get(WGConfig::colorHistoryShowClearButton, defaults));
-    // Common Colors (Colors from Image)
     m_ui->commonColorsGroupBox->setChecked(cfg.get(WGConfig::commonColorsEnabled, defaults));
     patchOrientation = cfg.get(WGConfig::commonColors.orientation, defaults);
     if (patchOrientation == Qt::Horizontal) {
@@ -263,7 +251,6 @@ void WGColorSelectorSettings::slotSetShadeLineCount(int count)
     while (m_shadeLineButtons.size() < count) {
         QToolButton *lineButton = new QToolButton(this);
         lineButton->setIconSize(QSize(128, 10));
-        // TODO: update icon
         lineButton->setIcon(m_shadeLineEditor->generateIcon(m_shadeLineConfig.at(m_shadeLineButtons.size())));
         m_shadeLineGroup->addButton(lineButton, m_shadeLineButtons.size());
         m_shadeLineButtons.append(lineButton);
@@ -299,7 +286,6 @@ void WGColorSelectorSettings::slotLineEdited(int lineNum)
     m_shadeLineConfig[lineNum] = m_shadeLineEditor->configuration();
     m_shadeLineButtons[lineNum]->setIcon(m_shadeLineEditor->generateIcon(m_shadeLineConfig.at(lineNum)));
 }
-
 
 WGColorSelectorSettingsDialog::WGColorSelectorSettingsDialog(QWidget *parent)
     : QDialog(parent)

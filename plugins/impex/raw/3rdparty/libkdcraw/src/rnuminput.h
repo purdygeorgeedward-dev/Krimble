@@ -28,13 +28,7 @@
 #ifndef RNUMINPUT_H
 #define RNUMINPUT_H
 
-// Qt includes
-
 #include <QWidget>
-
-// Local includes
-
-
 
 namespace KDcrawIface
 {
@@ -76,8 +70,6 @@ private:
     Private* const d;
 };
 
-// ---------------------------------------------------------
-
 class  RDoubleNumInput : public QWidget
 {
     Q_OBJECT
@@ -116,6 +108,6 @@ private:
     Private* const d;
 };
 
-}  // namespace KDcrawIface
+}
 
-#endif /* RNUMINPUT_H */
+#endif

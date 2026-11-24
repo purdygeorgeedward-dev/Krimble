@@ -30,9 +30,6 @@
 
 struct KisTIFFOptions;
 
-/**
-   @author Cyrille Berger <cberger@cberger.net>
-*/
 class KisTIFFWriterVisitor : public KisNodeVisitor, protected KisTIFFBaseWriter
 {
 public:
@@ -92,7 +89,6 @@ public:
     bool visit(KisColorizeMask*) override {
         return true;
     }
-
 
 private:
     bool saveLayerProjection(KisLayer *);

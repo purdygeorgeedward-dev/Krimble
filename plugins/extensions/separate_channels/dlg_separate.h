@@ -20,10 +20,6 @@ public:
     }
 };
 
-/**
- * This dialog allows the user to configure the decomposition of an image
- * into layers: one layer for each color channel.
- */
 class DlgSeparate: public KoDialog
 {
 
@@ -46,7 +42,6 @@ public:
     bool getToColor();
     bool getActivateCurrentChannel();
 
-
 private Q_SLOTS:
 
     void slotSetColorSpaceLabel();
@@ -62,4 +57,4 @@ private:
 
 };
 
-#endif // DLG_SEPARATE
+#endif

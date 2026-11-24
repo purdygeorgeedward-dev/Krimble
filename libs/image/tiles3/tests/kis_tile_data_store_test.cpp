@@ -17,7 +17,6 @@
 #include "tiles3/kis_tile_data_store.h"
 #include "tiles3/kis_tile_data_store_iterators.h"
 
-
 void KisTileDataStoreTest::testClockIterator()
 {
     KisTileDataStore *store = KisTileDataStore::instance();
@@ -39,8 +38,6 @@ void KisTileDataStoreTest::testClockIterator()
     store->registerTileData(item);
     tileDataList.append(item);
 
-
-    /// First, full cycle!
     KisTileDataStoreClockIterator *iter = store->beginClockIteration();
 
     QVERIFY(iter->hasNext());
@@ -59,8 +56,6 @@ void KisTileDataStoreTest::testClockIterator()
 
     store->endIteration(iter);
 
-
-    /// Second, iterate until the second item!
     iter = store->beginClockIteration();
 
     QVERIFY(iter->hasNext());
@@ -69,8 +64,6 @@ void KisTileDataStoreTest::testClockIterator()
 
     store->endIteration(iter);
 
-
-    /// Third, check the position restored!
     iter = store->beginClockIteration();
 
     QVERIFY(iter->hasNext());
@@ -88,11 +81,6 @@ void KisTileDataStoreTest::testClockIterator()
     QVERIFY(!iter->hasNext());
 
     store->endIteration(iter);
-
-
-    /// By this moment clock index has been set
-    /// onto the last item.
-    /// Let's try remove it and see what will happen...
 
     store->freeTileData(tileDataList[0]);
 
@@ -145,8 +133,6 @@ void KisTileDataStoreTest::testSwapping()
 
     KisTileDataStore::instance()->debugClear();
 
-
-
     const qint32 pixelSize = 1;
     quint8 defaultPixel = 128;
     KisTiledDataManager dm(pixelSize, &defaultPixel);
@@ -163,8 +149,6 @@ void KisTileDataStoreTest::testSwapping()
 
         tile->unlockForWrite();
     }
-
-    //KisTileDataStore::instance()->debugSwapAll();
 
     for(qint32 col = 0; col < 1000; col++) {
         KisTileSP tile = dm.getTile(col, 0, true);

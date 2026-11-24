@@ -32,8 +32,6 @@ KisSPenSettings::KisSPenSettings(QWidget *parent)
 
     m_model->setColumnCount(2);
 
-    // TODO - popup palette is different action mechanism, thus is missing in this list; maybe we could create a fake KisAction for it
-    // Thanks to the KisActionSnapshot, we can list all actions even when no document is open
     QScopedPointer<KisActionsSnapshot> actionsSnapshot(new KisActionsSnapshot());
 
     KisKActionCollection *actionCollection = KisPart::instance()->currentMainwindow()->actionCollection();

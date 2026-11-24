@@ -43,8 +43,6 @@ public:
     KUndo2Command* moveGradientHandle(Handle::Type handleType, const QPointF &absoluteOffset);
     Handle getHandle(Handle::Type handleType);
 
-
-
 private:
     const QGradient* gradient() const;
     QPointF getNewHandlePos(const QPointF &oldPos, const QPointF &absoluteOffset, QGradient::CoordinateMode mode);
@@ -54,4 +52,4 @@ private:
     KoShape *m_shape;
 };
 
-#endif // KOSHAPEGRADIENTHANDLES_H
+#endif

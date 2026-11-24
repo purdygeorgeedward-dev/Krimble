@@ -8,7 +8,6 @@
 #ifndef SVG_TEXT_TOOL
 #define SVG_TEXT_TOOL
 
-
 #include <KConfigGroup>
 #include <KoToolBase.h>
 #include <QPointer>
@@ -44,19 +43,12 @@ class SvgTextTool : public KoToolBase
 public:
     explicit SvgTextTool(KoCanvasBase *canvas);
     ~SvgTextTool() override;
-    /// reimplemented from KoToolBase
     QRectF decorationsRect() const override;
-    /// reimplemented from KoToolBase
     void paint(QPainter &gc, const KoViewConverter &converter) override;
-    /// reimplemented from KoToolBase
     void mousePressEvent(KoPointerEvent *event) override;
-    /// reimplemented from superclass
     void mouseDoubleClickEvent(KoPointerEvent *event) override;
-    /// reimplemented from KoToolBase
     void mouseTripleClickEvent(KoPointerEvent *event) override;
-    /// reimplemented from KoToolBase
     void mouseMoveEvent(KoPointerEvent *event) override;
-    /// reimplemented from KoToolBase
     void mouseReleaseEvent(KoPointerEvent *event) override;
 
     void keyPressEvent(QKeyEvent *event) override;
@@ -65,9 +57,7 @@ public:
     void focusInEvent(QFocusEvent *event) override;
     void focusOutEvent(QFocusEvent *event) override;
 
-    /// reimplemented from KoToolBase
     void activate(const QSet<KoShape *> &shapes) override;
-    /// reimplemented from KoToolBase
     void deactivate() override;
 
     KisPopupWidgetInterface* popupWidget() override;
@@ -75,26 +65,20 @@ public:
     QVariant inputMethodQuery(Qt::InputMethodQuery query) const override;
     void inputMethodEvent(QInputMethodEvent *event) override;
 
-    /// reimplemented from superclass
     void copy() const override;
-    /// reimplemented from superclass
     void deleteSelection() override;
-    /// reimplemented from superclass
     bool paste() override;
-    /// reimplemented from superclass
     bool hasSelection() override;
 
     bool selectAll() override;
 
     void deselect() override;
-    /// reimplemented from superclass
     KoToolSelection * selection() override;
-    
+
     void requestStrokeEnd() override;
     void requestStrokeCancellation() override;
 
 protected:
-    /// reimplemented from KoToolBase
     virtual QWidget *createOptionWidget() override;
 
     KoSelection *koSelection() const;
@@ -107,11 +91,6 @@ private:
 
     void addMappedAction(KisSignalMapper* mapper, const QString &actionName, const int value, QActionGroup *group = nullptr);
 
-    /**
-     * @brief nodeEditable
-     * @see nodeEditable in KisTool.
-     * @return whether the current Node is editable. If not, it'll display an oncanvas message.
-     */
     bool nodeEditable();
 
 private Q_SLOTS:
@@ -119,99 +98,37 @@ private Q_SLOTS:
     void showEditor();
     void textUpdated(KoSvgTextShape *shape, const QString &svg, const QString &defs);
 
-    /**
-     * @brief showGlyphPalette
-     * Shows the glyph palette dialog.
-     */
     void showGlyphPalette();
-    /**
-     * @brief updateGlyphPalette
-     * update the glyph palette dialog from the current selection.
-     */
     void updateGlyphPalette();
 
     void updateTextPathHelper();
 
-    /**
-     * @brief updateQuickActionBar
-     * Krimble: shows/hides/repositions the floating Cut/Copy/Paste/Select
-     * All bar based on whether there's currently a text selection.
-     */
     void updateQuickActionBar();
     void slotQuickActionCut();
     void slotQuickActionCopy();
     void slotQuickActionPaste();
     void slotQuickActionSelectAll();
 
-    /**
-     * @brief insertRichText
-     * Insert a rich text shape, used by the glyph palette..
-     * @param richText -- rich text shape.
-     * @param replaceLastGlyph -- whether to replace the last glyph or to fully insert.
-     */
     void insertRichText(KoSvgTextShape *richText, bool replaceLastGlyph = false);
 
-    /**
-     * @brief generateDefs
-     * This generates a defs section with the appropriate
-     * css and css strings assigned.
-     */
     QString generateDefs(const KoSvgTextProperties &properties = KoSvgTextProperties());
 
-    /**
-     * @brief propertiesForNewText
-     * get the text properties that should be used for new text.
-     */
     KoSvgTextProperties propertiesForNewText() const;
 
-    /**
-     * @brief selectionChanged
-     * called when the canvas selection is changed.
-     */
     void slotShapeSelectionChanged();
 
-    /**
-     * @brief updateCursor
-     * update the canvas decorations in a particular update rect for the text cursor.
-     * @param updateRect the rect to update in.
-     */
     void slotUpdateCursorDecoration(QRectF updateRect);
 
-    /**
-     * @brief slotConvertType
-     * @param index
-     */
     void slotConvertType(int index);
 
-    /**
-     * @brief slotUpdateVisualCursor
-     * update the visual cursor mode on the text cursor.
-     */
     void slotUpdateVisualCursor();
 
-    /**
-     * @brief slotUpdateTextPasteBehaviour
-     * update the default text paste behaviour.
-     */
     void slotUpdateTextPasteBehaviour();
 
-    /**
-     * @brief slotTextTypeUpdated
-     * Update the text type in the tool options.
-     */
     void slotTextTypeUpdated();
 
-    /**
-     * @brief slotMoveTextSelection
-     * Move the start of the selection in typesetting mode by image 1 pix.
-     * @param index -- Qt key for a direction.
-     */
     void slotMoveTextSelection(int index);
 
-    /**
-     * @brief slotUpdateTypeSettingMode
-     * Enable typesetting mode from the tool options.
-     */
     void slotUpdateTypeSettingMode();
 
 private:
@@ -250,7 +167,6 @@ private:
 
     QPointF m_lastDoubleClickPos;
     QElapsedTimer m_lastDoubleClickElapsed;
-
 
     SvgTextCursor m_textCursor;
     SvgTextOnPathDecorationHelper m_textOnPathHelper;

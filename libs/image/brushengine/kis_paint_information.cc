@@ -43,8 +43,6 @@ struct KisPaintInformation::Private {
     {
     }
 
-
-
     ~Private() {
         KIS_ASSERT_RECOVER_NOOP(!sanityIsRegistered);
     }
@@ -69,7 +67,7 @@ struct KisPaintInformation::Private {
         isHoveringMode = rhs.isHoveringMode;
         randomSource = rhs.randomSource;
         perStrokeRandomSource = rhs.perStrokeRandomSource;
-        sanityIsRegistered = false; // HINT: we do not copy registration mark!
+        sanityIsRegistered = false;
         directionHistoryInfo = rhs.directionHistoryInfo;
         canvasRotation = rhs.canvasRotation;
         canvasMirroredH = rhs.canvasMirroredH;
@@ -82,7 +80,6 @@ struct KisPaintInformation::Private {
 
         levelOfDetail = rhs.levelOfDetail;
     }
-
 
     QPointF pos;
     qreal pressure;
@@ -99,7 +96,7 @@ struct KisPaintInformation::Private {
     qreal canvasRotation {0};
     bool canvasMirroredH {false};
     bool canvasMirroredV {false};
-    qreal tiltDirectionOffset {0};    // [0.0, 360.0) degrees
+    qreal tiltDirectionOffset {0};
 
     boost::optional<qreal> drawingAngleOverride;
     bool sanityIsRegistered = false;
@@ -139,7 +136,6 @@ struct KisPaintInformation::Private {
                                                     di->lastPosition(),
                                                     di->maxPressure(),
                                                     di->lockedDrawingAngleOptional());
-
 
         KIS_SAFE_ASSERT_RECOVER_NOOP(!sanityIsRegistered);
         sanityIsRegistered = true;
@@ -243,7 +239,6 @@ bool KisPaintInformation::isHoveringMode() const
     return d->isHoveringMode;
 }
 
-
 KisPaintInformation
 KisPaintInformation::createHoveringModeInfo(const QPointF &pos,
         qreal pressure,
@@ -270,7 +265,6 @@ KisPaintInformation::createHoveringModeInfo(const QPointF &pos,
     info.d->tiltDirectionOffset = tiltDirectionOffset;
     return info;
 }
-
 
 qreal KisPaintInformation::canvasRotation() const
 {
@@ -314,7 +308,6 @@ void KisPaintInformation::setTiltDirectionOffset(qreal value)
 
 void KisPaintInformation::toXML(QDomDocument&, QDomElement& e) const
 {
-    // hovering mode infos are not supposed to be saved
     KIS_ASSERT_RECOVER_NOOP(!d->isHoveringMode);
 
     e.setAttribute("pointX", QString::number(pos().x(), 'g', 15));
@@ -414,8 +407,6 @@ qreal KisPaintInformation::drawingAngle(bool considerLockedAngle) const
         return *d->directionHistoryInfo->lockedDrawingAngle;
     }
 
-    // If the start and end positions are the same, we can't compute an angle. In that case, use the
-    // provided default.
     return KisAlgebra2D::directionBetweenPoints(d->directionHistoryInfo->lastPosition,
                                                 pos(),
                                                 d->directionHistoryInfo->lastAngle);
@@ -642,7 +633,6 @@ void KisPaintInformation::mixOtherImpl(const QPointF &p, qreal t, const KisPaint
         this->d->canvasMirroredV = other.d->canvasMirroredV;
         this->d->randomSource = other.d->randomSource;
         this->d->perStrokeRandomSource = other.d->perStrokeRandomSource;
-        // this->d->isHoveringMode = other.isHoveringMode();
         this->d->levelOfDetail = other.d->levelOfDetail;
         this->d->tiltDirectionOffset = other.d->tiltDirectionOffset;
     }
@@ -653,18 +643,9 @@ qreal KisPaintInformation::tiltDirection(const KisPaintInformation& info, bool n
     qreal xTilt = info.xTilt();
     qreal yTilt = info.yTilt();
 
-    // radians -PI, PI
     qreal tiltDirection = 0.0;
 
     if (qFuzzyIsNull(xTilt) && qFuzzyIsNull(yTilt)) {
-        /**
-         * When the stylus is in fully vertical position, stick it
-         * to a "neutral position", which is a 3 o'clock tilt of the stylus
-         * as defined in the Krita documentation.
-         *
-         * The normal 0 deg position as returned from Qt is at 6 o'clock
-         * tilt of the stylus
-         */
         tiltDirection = - KisAlgebra2D::signPZ(xTilt) * KisAlgebra2D::signPZ(yTilt) * M_PI_2;
     } else {
         tiltDirection = atan2(-xTilt, yTilt);
@@ -672,7 +653,6 @@ qreal KisPaintInformation::tiltDirection(const KisPaintInformation& info, bool n
 
     if (!qFuzzyIsNull(info.d->tiltDirectionOffset)) {
         tiltDirection += kisDegreesToRadians(info.d->tiltDirectionOffset);
-        // ensure we stay in the -PI, PI range
         if (tiltDirection < -M_PI) {
             tiltDirection += 2 * M_PI;
         } else if (tiltDirection > M_PI) {
@@ -680,7 +660,6 @@ qreal KisPaintInformation::tiltDirection(const KisPaintInformation& info, bool n
         }
     }
 
-    // if normalize is true map to 0.0..1.0
     return normalize ? (tiltDirection / (2 * M_PI) + 0.5) : tiltDirection;
 }
 
@@ -697,8 +676,7 @@ qreal KisPaintInformation::tiltElevation(const KisPaintInformation& info, qreal 
     }
 
     qreal cosAlpha    = sqrt(xTilt * xTilt + yTilt * yTilt) / e;
-    qreal tiltElevation = acos(cosAlpha); // in radians in [0, 0.5 * PI]
+    qreal tiltElevation = acos(cosAlpha);
 
-    // mapping to 0.0..1.0 if normalize is true
     return normalize ? (tiltElevation / (M_PI * qreal(0.5))) : tiltElevation;
 }

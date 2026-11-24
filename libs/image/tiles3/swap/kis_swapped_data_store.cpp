@@ -5,14 +5,11 @@
  */
 
 #include <QMutexLocker>
-//#include "kis_debug.h"
 #include "kis_swapped_data_store.h"
 #include "kis_memory_window.h"
 #include "kis_image_config.h"
 
 #include "kis_tile_compressor_2.h"
-
-//#define COMPRESSOR_VERSION 2
 
 KisSwappedDataStore::KisSwappedDataStore()
     : m_totalSwapMemoryUsed(0)
@@ -25,7 +22,6 @@ KisSwappedDataStore::KisSwappedDataStore()
     m_allocator = new KisChunkAllocator(swapSlabSize, maxSwapSize);
     m_swapSpace = new KisMemoryWindow(config.swapDir(), swapWindowSize);
 
-    // FIXME: use a factory after the patch is committed
     m_compressor = new KisTileCompressor2();
 }
 
@@ -38,8 +34,6 @@ KisSwappedDataStore::~KisSwappedDataStore()
 
 quint64 KisSwappedDataStore::numTiles() const
 {
-    // We are not acquiring the lock here...
-    // Hope QLinkedList will ensure atomic access to it's size...
 
     return m_allocator->numChunks();
 }
@@ -48,12 +42,6 @@ bool KisSwappedDataStore::trySwapOutTileData(KisTileData *td)
 {
     Q_ASSERT(td->data());
     QMutexLocker locker(&m_lock);
-
-    /**
-     * We are expecting that the lock of KisTileData
-     * has already been taken by the caller for us.
-     * So we can modify the tile data freely.
-     */
 
     const qint32 expectedBufferSize = m_compressor->tileDataBufferSize(td);
     if(m_buffer.size() < expectedBufferSize)
@@ -82,8 +70,6 @@ void KisSwappedDataStore::swapInTileData(KisTileData *td)
 {
     Q_ASSERT(!td->data());
     QMutexLocker locker(&m_lock);
-
-    // see comment in swapOutTileData()
 
     KisChunk chunk = td->swapChunk();
     m_totalSwapMemoryUsed -= chunk.size();

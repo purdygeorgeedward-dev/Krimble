@@ -13,7 +13,6 @@
 #include <KoResource.h>
 #include "KisResourceStorage.h"
 
-
 PageMetadataInfo::PageMetadataInfo(KoResourceBundleSP bundle, QWidget *parent) :
     QWizardPage(parent),
     m_ui(new Ui::PageMetadataInfo)
@@ -89,7 +88,6 @@ QString PageMetadataInfo::description() const
 {
     return m_ui->editDescription->document()->toPlainText();
 }
-
 
 QString PageMetadataInfo::previewImage() const
 {

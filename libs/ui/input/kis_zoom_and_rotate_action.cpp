@@ -110,10 +110,7 @@ void KisZoomAndRotateAction::inputEvent(QEvent *event)
             KoViewTransformStillPoint adjustedStillPoint = d->actionStillPoint;
             adjustedStillPoint.second = p0;
             controller->setZoom(KoZoomMode::ZOOM_CONSTANT, newZoom, adjustedStillPoint);
-            
-            // Rotation removed from default pinch gesture - see wishlist #9.
-// controller->rotateCanvas(rotationAngle, adjustedStillPoint);
-            
+
             d->lastPosition = p0;
             d->lastDistance = dist;
 
@@ -150,13 +147,10 @@ qreal KisZoomAndRotateAction::canvasRotationAngle(QPointF p0, QPointF p1)
         KisCanvasController *controller = static_cast<KisCanvasController *>(canvas->canvasController());
         const qreal canvasAnglePostRotation = controller->rotation() + rotationAngle;
         const qreal snapDelta = angleForSnapping(canvasAnglePostRotation);
-        // we snap the canvas to an angle that is a multiple of 45
         if (abs(snapDelta) <= 2 && abs(d->accumRotationAngle) <= 2) {
-            // accumulate the relative angle of finger from the point when we started snapping
             d->accumRotationAngle += rotationAngle;
             rotationAngle = rotationAngle - snapDelta;
         } else {
-            // snap the canvas out using the accumulated angle
             rotationAngle += d->accumRotationAngle;
             d->accumRotationAngle = 0;
         }
@@ -172,18 +166,12 @@ qreal KisZoomAndRotateAction::canvasRotationAngle(QPointF p0, QPointF p1)
         const qreal relativeAngle = (180 / M_PI) * (currentAngle - d->initialReferenceAngle);
         const qreal rotationThreshold = 15;
 
-        // if the canvas is moved in either direction with an angle greater than the threshold, we rotate the canvas in
-        // that direction by 15°.
         if (std::abs(relativeAngle) >= rotationThreshold && std::abs(relativeAngle) <= (360 - rotationThreshold)) {
-            // set reference as currentAngle to check if we go beyond the threshold next time
             d->initialReferenceAngle = currentAngle;
 
             if (std::abs(relativeAngle) <= 180) {
                 rotationAngle = KisAlgebra2D::copysign(15.0, relativeAngle);
             } else {
-                // if we're over 180, it means the canvas has to be rotated in the opposite direction of the current
-                // angle. E.g if the relative angle is +341° then we move the canvas by -15° (because the actual effect
-                // is 341 - 360 = -19°  on the original theta).
                 rotationAngle = KisAlgebra2D::copysign(15.0, -relativeAngle);
             }
         }

@@ -16,7 +16,6 @@
 
 class KisFilterStrategy;
 
-
 class KRITAIMAGE_EXPORT KisTransformProcessingVisitor : public KisProcessingVisitor
 {
 public:
@@ -28,7 +27,6 @@ public:
 
     void setSelection(KisSelectionSP selection);
     KUndo2Command *createInitCommand() override;
-
 
     void visit(KisNode *node, KisUndoAdapter *undoAdapter) override;
     void visit(KisPaintLayer *layer, KisUndoAdapter *undoAdapter) override;
@@ -60,4 +58,4 @@ private:
     KisSelectionBasedProcessingHelper m_selectionHelper;
 };
 
-#endif /* __KIS_TRANSFORM_PROCESSING_VISITOR_H */
+#endif

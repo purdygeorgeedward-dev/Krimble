@@ -11,7 +11,6 @@
 
 #include <klocalizedstring.h>
 
-
 KisImageChangeLayersCommand::KisImageChangeLayersCommand(KisImageWSP image, KisNodeSP oldRootLayer, KisNodeSP newRootLayer)
     : KisImageCommand(kundo2_noi18n("change-layer-command"), image)
 {

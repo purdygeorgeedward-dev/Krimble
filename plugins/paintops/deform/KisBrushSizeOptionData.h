@@ -6,7 +6,6 @@
 #ifndef KIS_BRUSHSIZE_OPTION_DATA_H
 #define KIS_BRUSHSIZE_OPTION_DATA_H
 
-
 #include "kis_types.h"
 #include <boost/operators.hpp>
 
@@ -38,4 +37,4 @@ struct KisBrushSizeOptionData : boost::equality_comparable<KisBrushSizeOptionDat
     void write(KisPropertiesConfiguration *setting) const;
 };
 
-#endif // KIS_BRUSHSIZE_OPTION_DATA_H
+#endif

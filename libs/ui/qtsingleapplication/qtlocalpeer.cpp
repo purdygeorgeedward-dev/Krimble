@@ -1,7 +1,6 @@
 // Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 // SPDX-License-Identifier: BSD-3-Clause
 
-
 #include "qtlocalpeer.h"
 #include <QCoreApplication>
 #include <QDataStream>
@@ -72,8 +71,6 @@ QtLocalPeer::QtLocalPeer(QObject* parent, const QString &appId)
     lockFile.open(QIODevice::ReadWrite);
 }
 
-
-
 bool QtLocalPeer::isClient()
 {
     if (lockFile.isLocked())
@@ -84,7 +81,6 @@ bool QtLocalPeer::isClient()
 
     bool res = server->listen(socketName);
 #if defined(Q_OS_UNIX) && (QT_VERSION >= QT_VERSION_CHECK(4,5,0))
-    // ### Workaround
     if (!res && server->serverError() == QAbstractSocket::AddressInUseError) {
         QFile::remove(QDir::cleanPath(QDir::tempPath())+QLatin1Char('/')+socketName);
         res = server->listen(socketName);
@@ -96,7 +92,6 @@ bool QtLocalPeer::isClient()
     return false;
 }
 
-
 bool QtLocalPeer::sendMessage(const QString &message, int timeout)
 {
     if (!isClient())
@@ -105,7 +100,6 @@ bool QtLocalPeer::sendMessage(const QString &message, int timeout)
     QLocalSocket socket;
     bool connOk = false;
     for(int i = 0; i < 2; i++) {
-        // Try twice, in case the other instance is just starting up
         socket.connectToServer(socketName);
         connOk = socket.waitForConnected(timeout/2);
         if (connOk || i)
@@ -126,13 +120,12 @@ bool QtLocalPeer::sendMessage(const QString &message, int timeout)
     ds.writeBytes(uMsg.constData(), uMsg.size());
     bool res = socket.waitForBytesWritten(timeout);
     if (res) {
-        res &= socket.waitForReadyRead(timeout);   // wait for ack
+        res &= socket.waitForReadyRead(timeout);
         if (res)
             res &= (socket.read(qstrlen(ack)) == ack);
     }
     return res;
 }
-
 
 void QtLocalPeer::receiveConnection()
 {
@@ -171,7 +164,7 @@ void QtLocalPeer::receiveConnection()
     QString message(QString::fromUtf8(uMsg));
     socket->write(ack, qstrlen(ack));
     socket->waitForBytesWritten(1000);
-    socket->waitForDisconnected(1000); // make sure client reads ack
+    socket->waitForDisconnected(1000);
     delete socket;
-    emit messageReceived(message); //### (might take a long time to return)
+    emit messageReceived(message);
 }

@@ -21,18 +21,9 @@ class KoToolBase;
 class KoShape;
 class KoSelection;
 
-/**
- * Implements the Move action on an object or selected objects.
- */
 class ShapeMoveStrategy : public KoInteractionStrategy
 {
 public:
-    /**
-     * Constructor that starts to move the objects.
-     * @param tool the parent tool which controls this strategy
-     * @param canvas the canvas interface which will supply things like a selection object
-     * @param clicked the initial point that the user depressed (in pt).
-     */
     ShapeMoveStrategy(KoToolBase *tool, KoSelection *selection, const QPointF &clicked);
     ~ShapeMoveStrategy() override {}
 

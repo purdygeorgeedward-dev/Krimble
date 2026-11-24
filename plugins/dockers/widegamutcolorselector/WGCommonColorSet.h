@@ -36,4 +36,4 @@ private:
     bool m_autoUpdate {false};
 };
 
-#endif // WGCOMMONCOLORSET_H
+#endif

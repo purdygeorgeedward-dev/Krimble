@@ -15,7 +15,6 @@
 
 class KisLayerStyleKnockoutBlower;
 
-
 class KisLayerStyleFilterProjectionPlane : public KisAbstractProjectionPlane
 {
 public:
@@ -37,11 +36,6 @@ public:
 
     KisPaintDeviceList getLodCapableDevices() const override;
 
-    /**
-     * \returns true if a call to apply() will actually paint anything. Basically,
-     * it is a cached version of isEnabled(), though the state may change after calling
-     * to recalculate().
-     */
     bool isEmpty() const;
 
     KisLayerStyleKnockoutBlower *knockoutBlower() const;
@@ -59,4 +53,4 @@ private:
 typedef QSharedPointer<KisLayerStyleFilterProjectionPlane> KisLayerStyleFilterProjectionPlaneSP;
 typedef QWeakPointer<KisLayerStyleFilterProjectionPlane> KisLayerStyleFilterProjectionPlaneWSP;
 
-#endif /* __KIS_LAYER_STYLE_FILTER_PROJECTION_PLANE_H */
+#endif

@@ -19,7 +19,6 @@
 #include <QDoubleSpinBox>
 #include <QScreen>
 
-
 #include <klocalizedstring.h>
 #include <WidgetsDebug.h>
 
@@ -35,15 +34,13 @@ KoSliderCombo::KoSliderCombo(QWidget *parent)
     d->container->setAttribute(Qt::WA_WindowPropagation);
     QStyleOptionComboBox opt;
     opt.initFrom(this);
-//    d->container->setFrameStyle(style()->styleHint(QStyle::SH_ComboBox_PopupFrameStyle, &opt, this));
 
     d->slider = new QSlider(Qt::Horizontal);
     d->slider->setMinimum(0);
     d->slider->setMaximum(256);
     d->slider->setPageStep(10);
     d->slider->setValue(0);
-    // When set to true, causes flicker on Qt 4.6. Any reason to keep it?
-    d->firstShowOfSlider = false; //true;
+    d->firstShowOfSlider = false;
 
     QHBoxLayout *layout = new QHBoxLayout(d->container);
     layout->setContentsMargins(2, 2, 2, 2);
@@ -79,7 +76,6 @@ QSize KoSliderCombo::minimumSizeHint() const
     sh.setWidth(5 * fm.horizontalAdvance(QLatin1Char('8')));
     sh.setHeight(qMax(fm.lineSpacing(), 14) + 2);
 
-    // add style and strut values
     QStyleOptionComboBox opt;
     opt.initFrom(this);
     opt.subControls = QStyle::SC_All;
@@ -92,7 +88,7 @@ QSize KoSliderCombo::minimumSizeHint() const
 void KoSliderCombo::KoSliderComboPrivate::showPopup()
 {
     if(firstShowOfSlider) {
-        container->show(); //show container a bit early so the slider can be laid out
+        container->show();
         firstShowOfSlider = false;
     }
 
@@ -111,7 +107,6 @@ void KoSliderCombo::KoSliderComboPrivate::showPopup()
     QSize popSize = container->size();
     QRect popupRect(thePublic->mapToGlobal(QPoint(arrowPos - hdlPos - slider->x(), thePublic->size().height())), popSize);
 
-    // Make sure the popup is not drawn outside the screen area
     QRect screenRect = thePublic->screen()->availableGeometry();
 
     if (popupRect.right() > screenRect.right())
@@ -270,5 +265,4 @@ void KoSliderCombo::setValue(qreal value)
     Q_EMIT valueChanged(value, true);
 }
 
-//have to include this because of Q_PRIVATE_SLOT
 #include <moc_KoSliderCombo.cpp>

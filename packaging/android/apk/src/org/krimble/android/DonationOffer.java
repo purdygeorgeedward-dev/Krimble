@@ -102,11 +102,6 @@ public final class DonationOffer {
     }
 
     private static int getOfferPriority(List<String> offerTags) {
-        // There's a litany of options you can set on products, with multiple plans, special offers
-        // and all sorts of guff. We don't currently intend to use any of that, but we gotta pick a
-        // single offer out of the list *somehow*. So it does this by checking the offer tags (which
-        // can be configured in the Play Console), which is just a p followed by a number, which can
-        // be negative. The offer with the lowest number wins, default priority is 1000.
         return Optional.of(offerTags)
                 .orElseGet(Collections::emptyList)
                 .stream()
@@ -121,24 +116,18 @@ public final class DonationOffer {
 
     private static String formatOneTimeButtonText(
             Activity activity, ProductDetails.OneTimePurchaseOfferDetails offerDetails) {
-        // Doesn't currently handle any discounts or anything, just shows the price.
         String price = offerDetails.getFormattedPrice().trim();
         if(!price.isEmpty()) {
             return activity.getString(R.string.product_button_buy_for, price);
         }
-        // Fallback, just say "buy" with no pricing information.
         return activity.getString(R.string.product_button_buy);
     }
 
     private static String formatSubscriptionButtonText(
             Activity activity, ProductDetails.SubscriptionOfferDetails offerDetails) {
-        // We currently only intend to have monthly subscriptions, so the code is only set up to say
-        // "subscribe for price/month" on the button. It can't deal with multiple phases or other
-        // cadences, so this code weeds those out so that the button just says "subscribe" instead.
         List<ProductDetails.PricingPhase> pricingPhases = offerDetails.getPricingPhases().getPricingPhaseList();
         if (pricingPhases.size() == 1) {
             ProductDetails.PricingPhase onlyPhase = pricingPhases.get(0);
-            // Billing periods are in ISO8601 duration format, P1M is one month.
             if ("P1M".equals(onlyPhase.getBillingPeriod())) {
                 String price = onlyPhase.getFormattedPrice().trim();
                 if(!price.isEmpty()) {
@@ -146,7 +135,6 @@ public final class DonationOffer {
                 }
             }
         }
-        // Fallback, just say "subscribe" with no pricing information.
         return activity.getString(R.string.product_button_subscribe);
     }
 

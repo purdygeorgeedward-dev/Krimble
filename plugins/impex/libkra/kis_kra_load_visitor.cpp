@@ -26,7 +26,6 @@
 #include <KoShapeControllerBase.h>
 #include <KisGlobalResourcesInterface.h>
 
-// kritaimage
 #include "kis_colorize_dom_utils.h"
 #include "kis_dom_utils.h"
 #include "kis_filter_registry.h"
@@ -70,8 +69,8 @@ QString expandEncodedDirectory(const QString& _intern)
     while ((pos = intern.indexOf('/')) != -1) {
         if (QChar(intern.at(0)).isDigit())
             result += "part";
-        result += intern.left(pos + 1);   // copy numbers (or "pictures") + "/"
-        intern = intern.mid(pos + 1);   // remove the dir we just processed
+        result += intern.left(pos + 1);
+        intern = intern.mid(pos + 1);
     }
 
     if (!intern.isEmpty() && QChar(intern.at(0)).isDigit())
@@ -80,7 +79,6 @@ QString expandEncodedDirectory(const QString& _intern)
 
     return result;
 }
-
 
 KisKraLoadVisitor::KisKraLoadVisitor(KisImageSP image,
                                      KoStore *store,
@@ -144,7 +142,6 @@ bool KisKraLoadVisitor::visit(KisExternalLayer * layer)
                         "Path: %1\n\n"
                         "Do you want to select another location?", reference->filename());
 
-                    // qApp->activeWindow() doesn't work here
                     int locateManually = QMessageBox::warning(qApp->activeWindow(), i18nc("@title:window", "File not found"), msg, QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
 
                     QString url;
@@ -199,9 +196,6 @@ bool KisKraLoadVisitor::visit(KisPaintLayer *layer)
     }
 
     if (m_syntaxVersion == 1) {
-        // Check whether there is a file with a .mask extension in the
-        // layer directory, if so, it's an old-style transparency mask
-        // that should be converted.
         QString location = getLocation(layer, ".mask");
 
         if (m_store->open(location)) {
@@ -238,8 +232,6 @@ bool KisKraLoadVisitor::visit(KisAdjustmentLayer* layer)
 {
     loadNodeKeyframes(layer);
 
-    // Adjustmentlayers are tricky: there's the 1.x style and the 2.x
-    // style, which has selections with selection components
     bool result = true;
     if (m_syntaxVersion == 1) {
         KisSelectionSP selection = new KisSelection();
@@ -250,14 +242,11 @@ bool KisKraLoadVisitor::visit(KisAdjustmentLayer* layer)
         result = loadSelection(getLocation(layer), layer->internalSelection());
 
     } else {
-        // We use the default, empty selection
     }
 
     if (!result) {
         m_warningMessages.append(i18nc("Warning during loading a kra file with a filter layer",
                                        "Selection on layer %s couldn't be loaded. It will be replaced by an empty selection.", layer->name()));
-        // otherwise ignore and just use what is there already
-        // (most probably an empty selection)
     }
 
     if (!loadMetaData(layer)) {
@@ -305,8 +294,6 @@ bool KisKraLoadVisitor::visit(KisCloneLayer *layer)
         return false;
     }
 
-    // the layer might have already been lazily initialized
-    // from the mask loading code
     if (layer->copyFrom()) {
         return true;
     }
@@ -322,7 +309,6 @@ bool KisKraLoadVisitor::visit(KisCloneLayer *layer)
                                                               "This layer will be converted into a paint layer."));
     }
 
-    // Clone layers have no data except for their masks
     bool result = visitAll(layer);
     return result;
 }
@@ -331,14 +317,10 @@ void KisKraLoadVisitor::initSelectionForMask(KisMask *mask)
 {
     KisLayer *cloneLayer = dynamic_cast<KisCloneLayer*>(mask->parent().data());
     if (cloneLayer) {
-        // the clone layers should be initialized out of order
-        // and lazily, because their original() is still not
-        // initialized
         cloneLayer->accept(*this);
     }
 
     KisLayer *parentLayer = qobject_cast<KisLayer*>(mask->parent().data());
-    // the KisKraLoader must have already set the parent for us
     Q_ASSERT(parentLayer);
     mask->initSelection(parentLayer);
 }
@@ -379,13 +361,12 @@ bool KisKraLoadVisitor::visit(KisTransformMask *mask)
 
             QDomElement main;
 
-            if (!KisDomUtils::findOnlyElement(rootElement, "main", &main/*, &m_errorMessages*/)) {
+            if (!KisDomUtils::findOnlyElement(rootElement, "main", &main )) {
                 return false;
             }
 
             QString id = main.attribute("id", "not-valid");
 
-            // backward compatibility
             if (id == "animatedtransformparams") {
                 id = "tooltransformparams";
             }
@@ -404,15 +385,6 @@ bool KisKraLoadVisitor::visit(KisTransformMask *mask)
             KisTransformMaskParamsInterfaceSP params =
                 KisTransformMaskParamsFactoryRegistry::instance()->createParams(id, data);
 
-            /**
-             * Workaround for the dumbparams that we used in older versions
-             * of Krita for simple translations. The dumbparams were deprecated
-             * with the proper implementation of the param holder, so
-             * now we should convert the old definition into the new format
-             * somehow.
-             *
-             * See: https://bugs.kde.org/show_bug.cgi?id=492320
-             */
             if (id == "dumbparams") {
                 const QPointF center = m_image->bounds().center();
                 params->transformSrcAndDst(QTransform::fromTranslate(center.x(), center.y()));
@@ -555,7 +527,6 @@ struct FramedDevicePolicy
 
 bool KisKraLoadVisitor::loadPaintDevice(KisPaintDeviceSP device, const QString& location)
 {
-    // Layer data
     KisPaintDeviceFramesInterface *frameInterface = device->framesInterface();
     QList<int> frames;
 
@@ -622,13 +593,11 @@ bool KisKraLoadVisitor::loadPaintDeviceFrame(KisPaintDeviceSP device, const QStr
     return true;
 }
 
-
 bool KisKraLoadVisitor::loadProfile(KisPaintDeviceSP device, const QString& location)
 {
     const KoColorProfile *profile = loadProfile(location, device->colorSpace()->colorModelId().id(), device->colorSpace()->colorDepthId().id());
 
     if (profile) {
-        // TODO: check result!
         device->setProfile(profile, 0);
     } else {
         m_warningMessages << i18n("Could not load profile: %1.", location);
@@ -656,7 +625,6 @@ const KoColorProfile *KisKraLoadVisitor::loadProfile(const QString &location, co
             result = m_profileCache[hash];
         }
         else {
-            // Create a colorspace with the embedded profile
             const KoColorProfile *profile = KoColorSpaceRegistry::instance()->createColorProfile(colorModelId, colorDepthId, data, customProfileNameAliasForKra());
             m_profileCache[hash] = profile;
             result = profile;
@@ -735,7 +703,6 @@ bool KisKraLoadVisitor::loadMetaData(KisNode* node)
 
 bool KisKraLoadVisitor::loadSelection(const QString& location, KisSelectionSP dstSelection)
 {
-    // by default the selection is expected to be fully transparent
     {
         KisPixelSelectionSP pixelSelection = dstSelection->pixelSelection();
         KoColor transparent = KoColor::createTransparent(pixelSelection->colorSpace());
@@ -744,7 +711,6 @@ bool KisKraLoadVisitor::loadSelection(const QString& location, KisSelectionSP ds
 
     bool result = true;
 
-    // Shape selection
     QString shapeSelectionLocation = location + DOT_SHAPE_SELECTION;
     if (m_store->hasFile(shapeSelectionLocation + "/content.svg") ||
         m_store->hasFile(shapeSelectionLocation + "/content.xml")) {
@@ -756,31 +722,13 @@ bool KisKraLoadVisitor::loadSelection(const QString& location, KisSelectionSP ds
         dstSelection->convertToVectorSelectionNoUndo(shapeSelection);
         result = shapeSelection->loadSelection(m_store, m_image->bounds());
 
-        /**
-         * We need to explicitly call updateProjection() here, because
-         * KisUpdateSelectionJob that is put into the queue will not update
-         * actual layers that own this selection. In normal situation,
-         * the setDirty() call is done explicitly while painting.
-         *
-         * TODO: consider adding a proper setDirty() call to
-         *       KisUpdateSelectionJob. Though it doesn't seem to be needed
-         *       until we allow modifying vector selections on non-selection
-         *       masks.
-         */
         dstSelection->updateProjection();
         m_store->popDirectory();
         if (!result) {
             m_warningMessages << i18n("Could not load vector selection %1.", location);
         }
     } else {
-        /**
-         * NOTE: since loading a vector selection discards all the contents
-         * of a raster projection by reincarnating the paint device, there is
-         * no need to load pixel selection in case any vector selection
-         * is present.
-         */
 
-        // Pixel selection
         QString pixelSelectionLocation = location + DOT_PIXEL_SELECTION;
         if (m_store->hasFile(pixelSelectionLocation)) {
             KisPixelSelectionSP pixelSelection = dstSelection->pixelSelection();
@@ -819,7 +767,6 @@ void KisKraLoadVisitor::loadNodeKeyframes(KisNode *node)
         m_errorMessages << i18n("Could not load keyframes from %1.", location);
         return;
     }
-
 
     QDomDocument dom;
 #if QT_VERSION < QT_VERSION_CHECK(6, 5, 0)
@@ -895,8 +842,6 @@ void KisKraLoadVisitor::loadDeprecatedFilter(KisFilterConfigurationSP cfg)
 
 QHash<QString, QString> KisKraLoadVisitor::customProfileNameAliasForKra()
 {
-    // replace the legacy profile with the new Rec2020PQ profile explicitly pinned
-    // to 80 nit Diffuse White
     return {
         {"High Dynamic Range UHDTV Wide Color Gamut Display (Rec. 2020) - SMPTE ST 2084 PQ EOTF",
         "Krita Rec. 2100 Perceptual Quantizer (80cd/m²)"}

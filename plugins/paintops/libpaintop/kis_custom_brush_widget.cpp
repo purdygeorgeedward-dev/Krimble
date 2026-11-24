@@ -55,8 +55,7 @@ KisCustomBrushWidget::KisCustomBrushWidget(QWidget *parent, const QString& capti
     connect(preserveAlpha, SIGNAL(toggled(bool)), this, SLOT(slotUpdateCurrentBrush()));
     connect(comboBox2, SIGNAL(currentIndexChanged(int)), this, SLOT(slotUpdateCurrentBrush(int)));
 
-
-    colorAsMask->setChecked(true); // use color as mask by default. This is by far the most common way to make tip.
+    colorAsMask->setChecked(true);
     spacingWidget->setSpacing(true, 1.0);
     connect(spacingWidget, SIGNAL(sigSpacingChanged()), SLOT(slotSpacingChanged()));
 
@@ -67,7 +66,6 @@ KisCustomBrushWidget::KisCustomBrushWidget(QWidget *parent, const QString& capti
 KisCustomBrushWidget::~KisCustomBrushWidget()
 {
 }
-
 
 KisBrushSP KisCustomBrushWidget::brush()
 {
@@ -90,7 +88,7 @@ void KisCustomBrushWidget::updatePreviewImage()
     QImage brushImage = m_brush ? m_brush->brushTipImage() : QImage();
 
     if (!brushImage.isNull()) {
-        int w = preview->size().width() - 10; // 10 for the padding...
+        int w = preview->size().width() - 10;
         brushImage = brushImage.scaled(w, w, Qt::KeepAspectRatio);
     }
 
@@ -138,7 +136,6 @@ void KisCustomBrushWidget::slotUpdateSaveButton()
     }
 }
 
-
 void KisCustomBrushWidget::slotAddPredefined()
 {
     QString dir = KoResourcePaths::saveLocation("data", ResourceType::Brushes);
@@ -149,10 +146,7 @@ void KisCustomBrushWidget::slotAddPredefined()
         name = QUuid::createUuid().toByteArray().toHex();
     }
 
-    // Add it to the brush server, so that it automatically gets to the mediators, and
-    // so to the other brush choosers can pick it up, if they want to
     if (m_rServer && m_brush) {
-
 
         if (m_brush->clone().dynamicCast<KisGbrBrush>()) {
             KisGbrBrushSP resource = m_brush->clone().dynamicCast<KisGbrBrush>();
@@ -183,7 +177,6 @@ void KisCustomBrushWidget::createBrush()
     if (brushStyle->currentIndex() == 0) {
         KisSelectionSP selection = m_image->globalSelection();
 
-        // create copy of the data
         m_image->barrierLock();
         KisPaintDeviceSP dev = new KisPaintDevice(*m_image->projection());
         m_image->unlock();
@@ -192,7 +185,6 @@ void KisCustomBrushWidget::createBrush()
             m_brush = KisBrushSP(new KisGbrBrush(dev, 0, 0, m_image->width(), m_image->height()));
         }
         else {
-            // apply selection mask
             QRect r = selection->selectedExactRect();
 
             KisHLineIteratorSP pixelIt = dev->createHLineIteratorNG(r.x(), r.top(), r.width());
@@ -212,7 +204,6 @@ void KisCustomBrushWidget::createBrush()
 
     }
     else {
-        // For each layer in the current image, create a new image, and add it to the list
         QVector< QVector<KisPaintDevice*> > devices;
         devices.push_back(QVector<KisPaintDevice*>());
         int w = m_image->width();
@@ -220,8 +211,6 @@ void KisCustomBrushWidget::createBrush()
 
         KisImageReadOnlyBarrierLock lock(m_image);
 
-        // We only loop over the rootLayer. Since we actually should have a layer selection
-        // list, no need to elaborate on that here and now
         KoProperties properties;
         properties.setProperty("visible", true);
         QList<KisNodeSP> layers = m_image->root()->childNodes(QStringList("KisLayer"), properties);

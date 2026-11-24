@@ -21,7 +21,6 @@ public:
     KisDrawingAngleSensorModel(lager::cursor<KisDrawingAngleSensorData> data, QObject *parent);
     ~KisDrawingAngleSensorModel();
 
-    // the state must be declared **before** any cursors or readers
     lager::cursor<KisDrawingAngleSensorData> m_data;
     LAGER_QT_CURSOR(bool, fanCornersEnabled);
     LAGER_QT_CURSOR(int, fanCornersStep);
@@ -30,4 +29,4 @@ public:
     LAGER_QT_CURSOR(bool, lockedAngleMode);
 };
 
-#endif // KISDRAWINGANGLESENSORMODEL_H
+#endif

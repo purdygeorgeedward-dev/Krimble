@@ -34,7 +34,6 @@ struct OverCompositor128 {
         channels_type alpha;
     };
 
-    // \see docs in AlphaDarkenCompositor32
     template<bool haveMask, bool src_aligned, typename _impl>
     static ALWAYS_INLINE void compositeVector(const quint8 *src, quint8 *dst, const quint8 *mask, float opacity, const ParamsWrapper &oparams)
     {
@@ -64,7 +63,6 @@ struct OverCompositor128 {
         PixelWrapper<channels_type, _impl> dataWrapper;
         dataWrapper.read(src, src_c1, src_c2, src_c3, src_alpha);
 
-        //bool haveOpacity = opacity != 1.0;
         const float_v opacity_norm_vec(opacity);
         src_alpha *= opacity_norm_vec;
 
@@ -75,8 +73,6 @@ struct OverCompositor128 {
         }
 
         const float_v zeroValue(static_cast<float>(NATIVE_OPACITY_TRANSPARENT));
-        // The source cannot change the colors in the destination,
-        // since its fully transparent
         if (xsimd::all(src_alpha == zeroValue)) {
 #if INFO_DEBUG
             countFour++;
@@ -101,10 +97,6 @@ struct OverCompositor128 {
             new_alpha = src_alpha;
             src_blend = oneValue;
         } else {
-            /**
-             * The value of new_alpha can have *some* zero values,
-             * which will result in NaN values while division.
-             */
             new_alpha = dst_alpha + (oneValue - dst_alpha) * src_alpha;
             const float_m mask = (new_alpha == zeroValue);
             src_blend = src_alpha / new_alpha;
@@ -232,11 +224,6 @@ struct OverCompositor128 {
     }
 };
 
-/**
- * An optimized version of a composite op for the use in 16 byte
- * colorspaces with alpha channel placed at the last byte of
- * the pixel: C1_C2_C3_A.
- */
 template<typename _impl>
 class KoOptimizedCompositeOpOver128 : public KoCompositeOp
 {
@@ -274,7 +261,7 @@ public:
                 KoStreamedMath<_impl>::template genericComposite128_novector<haveMask, false, OverCompositor128<float, true, true> >(params);
             } else if (!allChannelsFlag && !alphaLocked) {
                 KoStreamedMath<_impl>::template genericComposite128_novector<haveMask, false, OverCompositor128<float, false, false> >(params);
-            } else /*if (!allChannelsFlag && alphaLocked) */{
+            } else {
                 KoStreamedMath<_impl>::template genericComposite128_novector<haveMask, false, OverCompositor128<float, true, false> >(params);
             }
         }
@@ -318,11 +305,11 @@ public:
                 KoStreamedMath<_impl>::template genericComposite64_novector<haveMask, false, OverCompositor128<quint16, true, true> >(params);
             } else if (!allChannelsFlag && !alphaLocked) {
                 KoStreamedMath<_impl>::template genericComposite64_novector<haveMask, false, OverCompositor128<quint16, false, false> >(params);
-            } else /*if (!allChannelsFlag && alphaLocked) */{
+            } else {
                 KoStreamedMath<_impl>::template genericComposite64_novector<haveMask, false, OverCompositor128<quint16, true, false> >(params);
             }
         }
     }
 };
 
-#endif // KOOPTIMIZEDCOMPOSITEOPOVER128_H_
+#endif

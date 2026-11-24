@@ -88,4 +88,3 @@ KisPropertiesConfigurationSP InfoObject::configuration() const
     return d->properties;
 }
 
-

@@ -20,4 +20,4 @@ public:
     QString replacementWarningText() override;
 };
 
-#endif // __DLGCRASHLOG_H_
+#endif

@@ -35,4 +35,4 @@ public:
     LAGER_QT_CURSOR(int, lineWidth);
 };
 
-#endif // KIS_SKETCHOP_OPTION_MODEL_H
+#endif

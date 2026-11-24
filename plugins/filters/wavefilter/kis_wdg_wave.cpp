@@ -15,7 +15,7 @@
 
 #include "ui_wdgwaveoptions.h"
 
-KisWdgWave::KisWdgWave(KisFilter* /*nfilter*/, QWidget* parent)
+KisWdgWave::KisWdgWave(KisFilter* , QWidget* parent)
         : KisConfigWidget(parent)
 {
     m_widget = new Ui_WdgWaveOptions();
@@ -78,5 +78,4 @@ KisPropertiesConfigurationSP KisWdgWave::configuration() const
     config->setProperty("verticalshape", this->widget()->cbVShape->currentIndex());
     return config;
 }
-
 

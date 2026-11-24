@@ -14,7 +14,6 @@
 #include "kis_kra_savexml_visitor.h"
 #include "kis_paint_layer.h"
 
-
 struct KisExrLayersSorter::Private
 {
     Private(const QDomDocument &_extraData, KisImageSP _image)
@@ -57,7 +56,6 @@ void KisExrLayersSorter::Private::createOrderingMap()
     int index = 0;
     QDomElement el = extraData.documentElement().firstChildElement();
 
-
     while (!el.isNull()) {
         QString path = el.attribute(EXR_NAME);
         pathToElementMap.insert(path, el);
@@ -72,7 +70,6 @@ template <typename T>
 T fetchMapValueLazy(const QMap<QString, T> &map, QString path)
 {
     if (map.contains(path)) return map[path];
-
 
     typename QMap<QString, T>::const_iterator it = map.constBegin();
     typename QMap<QString, T>::const_iterator end = map.constEnd();
@@ -96,14 +93,6 @@ void KisExrLayersSorter::Private::processLayers(KisNodeSP root)
         if (KisPaintLayer *paintLayer = dynamic_cast<KisPaintLayer*>(root.data())) {
             QDomElement el = pathToElementMap[path];
 
-            /**
-             * In older files (before Krita 5.2.7) we used to save the layer offset
-             * into the XML metadata, while loading the pixel data at the origin.
-             * Since 5.2.7 we stopped saving offsets (we save null instead of them),
-             * we let's just make sure we don't load garbage from older files).
-             *
-             * Hence, we pass `false` for loading the offset
-             */
             KisSaveXmlVisitor::loadPaintLayerAttributes(el, paintLayer, false);
         }
     }
@@ -128,12 +117,10 @@ private:
     const QMap<KisNodeSP, int> &m_nodeToOrderingMap;
 };
 
-
 void KisExrLayersSorter::Private::sortLayers(KisNodeSP root)
 {
     QList<KisNodeSP> childNodes;
 
-    // first move all the children to the list
     KisNodeSP child = root->firstChild();
     while (child) {
         KisNodeSP lastChild = child;
@@ -143,15 +130,12 @@ void KisExrLayersSorter::Private::sortLayers(KisNodeSP root)
         image->removeNode(lastChild);
     }
 
-    // sort the list
     std::stable_sort(childNodes.begin(), childNodes.end(), CompareNodesFunctor(nodeToOrderingMap));
 
-    // put the children back
     Q_FOREACH (KisNodeSP node, childNodes) {
         image->addNode(node, root, root->childCount());
     }
 
-    // recursive calls
     child = root->firstChild();
     while (child) {
         sortLayers(child);

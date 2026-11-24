@@ -1,9 +1,4 @@
-﻿/*
- *  SPDX-FileCopyrightText: 2014 Victor Lafon metabolic.ewilan @hotmail.fr
- *  SPDX-FileCopyrightText: 2023 Srirupa Datta <srirupa.sps@gmail.com>
- *
- * SPDX-License-Identifier: LGPL-2.0-or-later
- */
+﻿
 #ifndef DLG_BUNDLE_MANAGER_H
 #define DLG_BUNDLE_MANAGER_H
 
@@ -81,4 +76,4 @@ private:
 
 };
 
-#endif // DLG_BUNDLE_MANAGER_H
+#endif

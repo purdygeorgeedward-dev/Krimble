@@ -73,7 +73,6 @@ void CmykU16ColorSpace::toHSY(const QVector<double> &channelValues, qreal *hue, 
     qreal c1 = channelValues[1];
     qreal c2 = channelValues[2];
     qreal c3 = channelValues[3];
-    //we use HSI here because we can't linearise CMYK, and HSY doesn't work right with...
     CMYKToCMY(&c0, &c1, &c2, &c3);
     c0 = 1.0 - c0;
     c1 = 1.0 - c1;

@@ -35,7 +35,7 @@ void KisRecentFilesManager::loadEntries(const KConfigGroup &_config)
     }
 
     m_d->m_maxItems = cg.readEntry("maxRecentFileItems", 100);
-    
+
     for (int i = 0; i < m_d->m_maxItems; ++i) {
         const QString key = QString("File%1").arg(i+1);
         QString value;
@@ -53,27 +53,19 @@ void KisRecentFilesManager::loadEntries(const KConfigGroup &_config)
             QString localFilePath = url.toLocalFile();
             QFileInfo fileInfo = QFileInfo(localFilePath);
 
-            // Don't restore if file doesn't exist anymore
             if (!fileInfo.exists()) {
                 continue;
             }
 
-            // When KConfigGroup substitutes $HOME, it may produce a path
-            // with two consecutive forward slashes. This may cause duplicated
-            // entries of the same file when opened using the file selector,
-            // in which the path does not include this double slash.
-            // `absoluteFilePath` replaces the double slash to a single slash.
             value = fileInfo.absoluteFilePath();
             url = QUrl::fromLocalFile(value);
         }
 
-        // Don't restore where the url is already known (eg. broken config)
         if (m_d->containsUrl(url)) {
             continue;
         }
 
 #ifdef Q_OS_WIN
-        // convert to backslashes
         if (url.isLocalFile()) {
             value = QDir::toNativeSeparators(value);
         }
@@ -82,8 +74,8 @@ void KisRecentFilesManager::loadEntries(const KConfigGroup &_config)
         const QString nameKey = QString("Name%1").arg(i+1);
         const QString nameValue = cg.readEntry(nameKey, url.fileName());
         m_d->m_entries.append(KisRecentFilesEntry {
-            url, // m_url
-            nameValue, // m_displayName
+            url,
+            nameValue,
         });
     }
 
@@ -101,7 +93,6 @@ void KisRecentFilesManager::saveEntries(const KConfigGroup &_cg)
 
     cg.writeEntry("maxRecentFileItems", m_d->m_maxItems);
 
-    // write file list
     for (int i = 0; i < m_d->m_entries.count(); ++i) {
         const QString key = QString("File%1").arg(i+1);
         QString value;
@@ -120,7 +111,7 @@ void KisRecentFilesManager::saveEntries(const KConfigGroup &_cg)
 
 void KisRecentFilesManager::add(const QUrl &url)
 {
-    const QString name; // Dummy
+    const QString name;
 
     if (m_d->m_maxItems <= 0) {
         return;
@@ -138,7 +129,6 @@ void KisRecentFilesManager::add(const QUrl &url)
     const QString file = pathOrUrl;
 #endif
 
-    // remove file if already in list
     {
         int removeIndex = m_d->indexOfUrl(url);
         if (removeIndex >= 0) {
@@ -147,15 +137,13 @@ void KisRecentFilesManager::add(const QUrl &url)
         }
     }
 
-    // remove oldest item if already maxitems in list
     if (m_d->m_entries.count() >= m_d->m_maxItems) {
-        // remove oldest added item
         m_d->m_entries.removeFirst();
     }
 
     m_d->m_entries.append(KisRecentFilesEntry {
-        url, // m_url
-        tmpName, // m_displayName
+        url,
+        tmpName,
     });
     Q_EMIT fileAdded(url);
     m_d->requestSaveOnNextTick();

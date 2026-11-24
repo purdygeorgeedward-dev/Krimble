@@ -32,9 +32,6 @@ class KisAutoBrushModel;
 class KisPredefinedBrushModel;
 class KisTextBrushModel;
 
-/**
- *Compound widget that collects all the various brush selection widgets.
- */
 class PAINTOP_EXPORT KisBrushSelectionWidget : public QWidget
 {
     Q_OBJECT

@@ -4,7 +4,6 @@
  * SPDX-License-Identifier: LGPL-2.0-or-later
  */
 
-
 #ifndef KIS_WORKSPACE_CHOOSER_H
 #define KIS_WORKSPACE_CHOOSER_H
 
@@ -52,4 +51,4 @@ private:
     ChooserWidgets createChooserWidgets(const QString &resourceType, const QString &title);
 };
 
-#endif // KIS_WORKSPACE_CHOOSER_H
+#endif

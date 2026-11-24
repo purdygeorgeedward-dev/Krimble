@@ -31,7 +31,7 @@ void KisIteratorTest::allCsApplicator(void (KisIteratorTest::* funcPtr)(const Ko
 
         dbgKrita << "Testing with" << cs->id();
 
-        if (cs->id() != "GRAYU16") // No point in testing extend for GRAYU16
+        if (cs->id() != "GRAYU16")
             (this->*funcPtr)(cs);
 
     }
@@ -53,20 +53,14 @@ inline quint8* allocatePixels(const KoColorSpace *colorSpace, int numPixels)
 void KisIteratorTest::writeBytes(const KoColorSpace * colorSpace)
 {
 
-
     KisPaintDevice dev(colorSpace);
 
     QCOMPARE(dev.extent(), QRect());
 
-    // Check allocation on tile boundaries
-
-    // Allocate memory for a 2 * 5 tiles grid
     QScopedArrayPointer<quint8> bytes(allocatePixels(colorSpace, 64 * 64 * 10));
 
-    // Covers 5 x 2 tiles
     dev.writeBytes(bytes.data(), 0, 0, 5 * 64, 2 * 64);
 
-    // Covers
     QCOMPARE(dev.extent(), QRect(0, 0, 64 * 5, 64 * 2));
     QCOMPARE(dev.exactBounds(), QRect(0, 0, 64 * 5, 64 * 2));
 
@@ -74,14 +68,12 @@ void KisIteratorTest::writeBytes(const KoColorSpace * colorSpace)
     QCOMPARE(dev.extent(), QRect());
 
     dev.clear();
-    // Covers three by three tiles
     dev.writeBytes(bytes.data(), 10, 10, 130, 130);
 
     QCOMPARE(dev.extent(), QRect(0, 0, 64 * 3, 64 * 3));
     QCOMPARE(dev.exactBounds(), QRect(10, 10, 130, 130));
 
     dev.clear();
-    // Covers 11 x 2 tiles
     dev.writeBytes(bytes.data(), -10, -10, 10 * 64, 64);
 
     QCOMPARE(dev.extent(), QRect(-64, -64, 64 * 11, 64 * 2));
@@ -137,7 +129,6 @@ void KisIteratorTest::hLineIter(const KoColorSpace * colorSpace)
         do {
             memcpy(it->rawData(), bytes.data(), colorSpace->pixelSize());
         } while (it->nextPixel());
-
 
         QCOMPARE(dev.extent(), QRect(0, 0, 128, 64));
         QCOMPARE(dev.exactBounds(), QRect(0, 0, 128, 1));
@@ -215,7 +206,7 @@ void KisIteratorTest::vLineIter(const KoColorSpace * colorSpace)
         QCOMPARE(dev.extent(), QRect(0, 0, 64, 192));
         QCOMPARE(dev.exactBounds(), QRect(10, 10, 1, 128));
     }
-    
+
     dev.clear();
     dev.setX(10);
     dev.setY(-15);
@@ -257,7 +248,7 @@ void KisIteratorTest::randomAccessor(const KoColorSpace * colorSpace)
     }
     QCOMPARE(dev.extent(), QRect(0, 0, 128, 128));
     QCOMPARE(dev.exactBounds(), QRect(0, 0, 128, 128));
-    
+
     dev.clear();
     dev.setX(10);
     dev.setY(-15);
@@ -278,7 +269,7 @@ void KisIteratorTest::randomAccessor(const KoColorSpace * colorSpace)
 void KisIteratorTest::repeatHLineIter(const KoColorSpace* cs)
 {
     KoColor color(Qt::green, cs);
-    
+
     KisPaintDeviceSP dev = new KisPaintDevice(cs);
     dev->fill(5, 5, 10, 10, color.data());
 
@@ -294,7 +285,7 @@ void KisIteratorTest::repeatHLineIter(const KoColorSpace* cs)
 void KisIteratorTest::repeatVLineIter(const KoColorSpace* cs)
 {
     KoColor color(Qt::green, cs);
-    
+
     KisPaintDeviceSP dev = new KisPaintDevice(cs);
     dev->fill(5, 5, 10, 10, color.data());
 
@@ -374,10 +365,6 @@ public:
                     qint32 rowStride = iter->rowStride(x, y);
                     iter->moveTo(x, y);
 
-                    // dbgKrita << "BitBlt:" << ppVar(x) << ppVar(y)
-                    //          << ppVar(columns) << ppVar(rows)
-                    //          << ppVar(rowStride);
-
                     doBitBlt(iter->rawData(), rowStride, m_device->pixelSize(),
                              rows, columns);
 
@@ -406,7 +393,6 @@ private:
     void doBitBlt(quint8* data, qint32 rowStride, qint32 pixelSize,
                   qint32 rows, qint32 columns) {
         for(int i = 0; i < rows; i++) {
-            // Let's write something here...
             memset(data, 0x13, columns * pixelSize);
 
             data += rowStride;
@@ -445,13 +431,11 @@ void KisIteratorTest::stressTest()
     KisPaintDeviceSP device = new KisPaintDevice(colorSpace);
     device->fill(imageRect, KoColor(Qt::red, colorSpace));
 
-
     QThreadPool threadPool;
     threadPool.setMaxThreadCount(NUM_THREADS);
 
     for(int i = 0; i< NUM_THREADS; i++) {
         QRect rc = QRect(double(i) / NUM_THREADS * 2000, 0, 2000 / NUM_THREADS, 2000);
-//        dbgKrita << rc;
 
         DataReaderThread *reader = new DataReaderThread(device, rc);
         threadPool.start(reader);

@@ -24,4 +24,4 @@ namespace KisSurfaceColorimetry
     KoColorProfileQuery colorSpaceToRequest(ColorSpace cs);
 }
 
-#endif /* KISSURFACECOLORIMETRYICCUTILS_H */
+#endif

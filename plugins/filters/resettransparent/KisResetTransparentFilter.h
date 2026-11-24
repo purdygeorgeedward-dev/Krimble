@@ -39,4 +39,4 @@ protected:
 
 };
 
-#endif /* RESET_TRANSPARENT_H */
+#endif

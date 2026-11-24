@@ -50,17 +50,6 @@
 
 class KUndo2Command;
 
-//
-//  W A R N I N G
-//  -------------
-//
-// This file is not part of the Qt API.  It exists for the convenience
-// of qapplication_*.cpp, qwidget*.cpp and qfiledialog.cpp.  This header
-// file may change from version to version without notice, or even be removed.
-//
-// We mean it.
-//
-
 class KUndo2CommandPrivate
 {
 public:
@@ -87,7 +76,7 @@ private:
     QString m_textTemplate;
     QString m_defaultText;
 };
-#endif // QT_NO_ACTION
+#endif
 
-#endif // QT_NO_UNDOSTACK
-#endif // KUNDO2STACK_P_H
+#endif
+#endif

@@ -11,7 +11,6 @@ class TestSelection : public QObject
 {
     Q_OBJECT
 private Q_SLOTS:
-    // tests
     void testSelectedShapes();
     void testSize();
 };

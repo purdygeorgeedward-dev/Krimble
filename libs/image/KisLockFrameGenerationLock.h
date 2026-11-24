@@ -12,11 +12,6 @@
 
 class KisImageAnimationInterface;
 
-/**
- * A RAII-based locker for calling
- * animationInterface->lock/unlockFrameGeneration(), which
- * acquires the lock for the exclusive frame generation process.
- */
 class KRITAIMAGE_EXPORT KisLockFrameGenerationLockAdapter
 {
 public:
@@ -32,4 +27,4 @@ private:
 
 KIS_DECLARE_ADAPTED_LOCK(KisLockFrameGenerationLock, KisLockFrameGenerationLockAdapter)
 
-#endif // KISLOCKFRAMEGENERATIONLOCK_H
+#endif

@@ -13,9 +13,6 @@
 #include "kis_signal_auto_connection.h"
 
 #include <kis_paint_device.h>
-/**
- * @brief The KisFileLayer class loads a particular file as a layer into the layer stack.
- */
 class KRITAUI_EXPORT KisFileLayer : public KisExternalLayer
 {
     Q_OBJECT
@@ -28,16 +25,6 @@ public:
     };
 
     KisFileLayer(KisImageWSP image, const QString &name, quint8 opacity);
-    /**
-     * @brief KisFileLayer create a new file layer with the given file
-     * @param image the image the file layer will belong to
-     * @param basePath the path to the image, if it has been saved before.
-     * @param filename the path to the file, relative to the basePath
-     * @param scalingMethod @see ScalingMethod
-     * @param scalingFilter the ID of the KisFilterStrategy to be used if scaling
-     * @param name the name of the layer
-     * @param opacity the opacity of the layer
-     */
     KisFileLayer(KisImageWSP image, const QString& basePath, const QString &filename, ScalingMethod scalingMethod, QString scalingFilter, const QString &name, quint8 opacity, const KoColorSpace *fallbackColorSpace = 0);
     ~KisFileLayer() override;
     KisFileLayer(const KisFileLayer& rhs);
@@ -51,15 +38,9 @@ public:
     void setSectionModelProperties(const KisBaseNode::PropertyList &properties) override;
     KisBaseNode::PropertyList sectionModelProperties() const override;
 
-    /**
-     * @brief setFileName replace the existing file with a new one
-     * @param basePath the path to the image, if it has been saved before.
-     * @param filename the path to the file, relative to the basePath
-     */
     void setFileName(const QString &basePath, const QString &filename);
     QString fileName() const;
     QString path() const;
-
 
     ScalingMethod scalingMethod() const;
     void setScalingMethod(ScalingMethod method);
@@ -115,4 +96,4 @@ private:
     KisSignalAutoConnectionsStore m_imageConnections;
 };
 
-#endif // KIS_FILE_LAYER_H
+#endif

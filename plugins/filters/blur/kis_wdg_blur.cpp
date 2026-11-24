@@ -91,10 +91,6 @@ void KisWdgBlur::sldHalfWidthChanged(int v)
         widget()->intHalfHeight->setValue(v);
         widget()->intHalfHeight->blockSignals(false);
     }
-    /*    if( widget()->intHalfHeight->value() == v && widget()->cbShape->currentItem() != 1)
-            widget()->intAngle->setEnabled(false);
-        else
-            widget()->intAngle->setEnabled(true);*/
     Q_EMIT sigConfigurationItemChanged();
 }
 
@@ -105,10 +101,6 @@ void KisWdgBlur::sldHalfHeightChanged(int v)
         widget()->intHalfWidth->setValue(v);
         widget()->intHalfWidth->blockSignals(false);
     }
-    /*    if( widget()->intHalfWidth->value() == v && widget()->cbShape->currentItem() != 1)
-            widget()->intAngle->setEnabled(false);
-        else
-            widget()->intAngle->setEnabled(true);*/
     Q_EMIT sigConfigurationItemChanged();
 }
 

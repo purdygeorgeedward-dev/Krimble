@@ -25,9 +25,6 @@ void KisBatchUpdateLayerModificationCommand::redo()
         return;
     }
 
-    // TODO: reuse compression from the KisUpdateCommandEx and KisBatchNodeUpdate
-    //       to avoid double updates
-
     if (getState() == INITIALIZING) {
         KIS_SAFE_ASSERT_RECOVER(m_recipe->removedNodesUpdateTargets.empty()) {
             m_recipe->removedNodesUpdateTargets.clear();

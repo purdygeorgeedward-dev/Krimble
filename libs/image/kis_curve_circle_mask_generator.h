@@ -25,10 +25,6 @@ class QPointF;
 template<typename V>
 struct FastRowProcessor;
 
-/**
- * This mask generator use softness/hardness defined by user curve
- * It used to be soft brush paintop. 
- */
 class KRITAIMAGE_EXPORT KisCurveCircleMaskGenerator : public KisMaskGenerator
 {
 public:

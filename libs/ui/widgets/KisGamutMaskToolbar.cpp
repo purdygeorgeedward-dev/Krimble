@@ -49,7 +49,6 @@ KisGamutMaskToolbar::KisGamutMaskToolbar(QWidget* parent) : QWidget(parent)
     m_ui->rotationAngleSelector->setIncreasingDirection(KisAngleGauge::IncreasingDirection_Clockwise);
     m_ui->rotationAngleSelector->hide();
 
-    // gamut mask connections
     connect(m_ui->bnToggleMask, SIGNAL(toggled(bool)), SLOT(slotGamutMaskToggle(bool)));
     connect(m_ui->rotationAngleSelector, SIGNAL(angleChanged(qreal)), SLOT(slotGamutMaskRotate(qreal)));
 }

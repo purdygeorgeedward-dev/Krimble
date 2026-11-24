@@ -34,7 +34,6 @@ Store::Store() : d(new Private)
 
 Store::Store(const Store& s) : d(new Private(*s.d))
 {
-    // TODO: reaffect all schemas
 }
 
 Store::~Store()
@@ -121,7 +120,6 @@ Entry& Store::getEntry(const KisMetaData::Schema* schema, const QString & entryN
 {
     return getEntry(schema->generateQualifiedName(entryName));
 }
-
 
 const Entry& Store::getEntry(const QString & entryKey) const
 {

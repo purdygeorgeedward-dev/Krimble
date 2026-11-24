@@ -53,7 +53,7 @@ static const IPTCToKMD mappings[] = {
     {"Iptc.Application2.Urgency", KisMetaData::Schema::PhotoshopSchemaUri, "Urgency"},
     {"Iptc.Application2.Category", KisMetaData::Schema::PhotoshopSchemaUri, "Category"},
     {"Iptc.Application2.SuppCategory", KisMetaData::Schema::PhotoshopSchemaUri, "SupplementalCategory"},
-    {"", "", ""} // indicates the end of the array
+    {"", "", ""}
 };
 
 struct KisIptcIO::Private {
@@ -61,7 +61,6 @@ struct KisIptcIO::Private {
     QHash<QString, IPTCToKMD> kmdToIPTC;
 };
 
-// ---- Implementation of KisIptcIO ----//
 KisIptcIO::KisIptcIO()
     : KisMetaData::IOBackend()
     , d(new Private)
@@ -75,7 +74,6 @@ KisIptcIO::~KisIptcIO()
 
 void KisIptcIO::initMappingsTable() const
 {
-    // For some reason, initializing the tables in the constructor makes the it crash
     if (d->iptcToKMD.size() == 0) {
         for (int i = 0; !mappings[i].exivTag.isEmpty(); i++) {
             dbgKrita << "mapping[i] = " << mappings[i].exivTag << " " << mappings[i].namespaceUri << " "
@@ -129,7 +127,7 @@ bool KisIptcIO::saveTo(const KisMetaData::Store *store, QIODevice *ioDevice, Hea
     if (headerType == KisMetaData::IOBackend::JpegHeader) {
         QByteArray header;
         header.append(photoshopMarker);
-        header.append(QByteArray(1, 0)); // Null terminated string
+        header.append(QByteArray(1, 0));
         header.append(photoshopBimId_);
         header.append(photoshopIptc_);
         header.append(QByteArray(2, 0));

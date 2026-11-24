@@ -40,16 +40,12 @@ struct QImageGradientOp
                     interp.setX(srcPoint.x());
                     QPointF dstPoint = interp.getValue();
 
-                    // about srcPoint/dstPoint hell please see a
-                    // comment in PaintDevicePolygonOp::operator() ()
-
                     srcPoint -= m_dstImageOffset;
 
                     QPoint srcPointI = srcPoint.toPoint();
 
                     if (!m_dstImageRect.contains(srcPointI)) continue;
 
-                    // TODO: move vertical calculation into the upper loop
                     const QColor c1 = lerp(m_colors[0], m_colors[1], qBound(0.0, dstPoint.x(), 1.0));
                     const QColor c2 = lerp(m_colors[2], m_colors[3], qBound(0.0, dstPoint.x(), 1.0));
 
@@ -175,7 +171,6 @@ void KisBezierGradientMesh::renderPatch(const KisBezierGradientMeshDetail::Gradi
 
     {
         QImageGradientOp polygonOp(patch.colors, *dstImage, dstQImageOffset);
-
 
         GridIterationTools::RegularGridIndexesOp indexesOp(gridSize);
         GridIterationTools::iterateThroughGrid

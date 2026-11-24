@@ -26,7 +26,6 @@
 
 #include <memory>
 
-
 class FreehandStrokeBenchmarkTester : public utils::StrokeTester
 {
 public:
@@ -108,7 +107,6 @@ void benchmarkBrushUnthreaded(const QString &presetName)
 {
     FreehandStrokeBenchmarkTester tester(presetName);
 
-
     Q_FOREACH(int i, QVector<int>({1, QThread::idealThreadCount()})) {
         tester.setCpuCoresLimit(i);
         tester.benchmark();
@@ -140,7 +138,6 @@ void FreehandStrokeBenchmark::initTestCase()
         model.importResourceFile(fullFileName, true);
     }
 
-    // warm-up memory pools
     {
         FreehandStrokeBenchmarkTester tester("testing_1000px_auto_default.kpp");
         tester.setCpuCoresLimit(QThread::idealThreadCount());

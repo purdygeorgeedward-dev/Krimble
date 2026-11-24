@@ -1,5 +1,3 @@
-// Tests animated GIF and WebP: reading, writing animated WebP, the script commands frames / fps / loop.
-// Usage: anim_test OUTDIR sprite.gif sprite.webp   (build_anim_test.sh)
 #include "KrimbleBatch.h"
 #include <QCoreApplication>
 #include <QDir>
@@ -36,7 +34,6 @@ int main(int argc, char **argv)
     save(outDir + "/sprite_lossless.webp", lossless);
     save(outDir + "/sprite_lossy80.webp", lossy);
     out << "  sizes: GIF source and the two WebP below\n  lossless " << lossless.size() << " bytes, lossy 80 " << lossy.size() << " bytes\n";
-    // read my own output back
     Animation back;
     save("/tmp/_back.webp", lossless);
     check(loadAnimation("/tmp/_back.webp", &back) && back.frames.size() == 10 && back.frames.at(9).delayMs == 200, "the lossless animated WebP reads back: 10 frames, last delay 200");
@@ -49,7 +46,6 @@ int main(int argc, char **argv)
         }
     }
     check(same, "lossless: every pixel of every frame is the same after the round trip");
-    // the program: resize, fps, loop on the frames
     Program p; QString e;
     check(parseScript("resize width 36\nfps 20\nloop 3\nformat webp 80\nname add small\nframes", &p, &e), "parse: resize, fps, loop, format, name, frames: " + e);
     check(p.fps == 20 && p.loop == 3 && p.framesOut, "fps 20, loop 3, frames are set");

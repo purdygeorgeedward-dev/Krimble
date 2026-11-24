@@ -22,19 +22,15 @@
 #include <KisSprayShapeDynamicsOptionWidget.h>
 #include <KisSprayShapeOptionWidget.h>
 
-
-
-
 KisSprayPaintOpSettingsWidget:: KisSprayPaintOpSettingsWidget(QWidget* parent)
     : KisPaintOpSettingsWidget(parent)
 {
     namespace kpowu = KisPaintOpOptionWidgetUtils;
 
-
 	KisSprayOpOptionWidget* sprayOpWidget = kpowu::createOptionWidget<KisSprayOpOptionWidget>();
-	
+
     addPaintOpOption(sprayOpWidget);
-    
+
     addPaintOpOption(kpowu::createOptionWidget<KisSprayShapeOptionWidget>(KisSprayShapeOptionData(), sprayOpWidget->diameter(), sprayOpWidget->scale()));
     addPaintOpOption(new KisBrushOptionWidget(KisBrushOptionWidgetFlag::None));
     addPaintOpOption(kpowu::createOpacityOptionWidget());
@@ -57,7 +53,7 @@ KisSprayPaintOpSettingsWidget::~ KisSprayPaintOpSettingsWidget()
 KisPropertiesConfigurationSP  KisSprayPaintOpSettingsWidget::configuration() const
 {
     KisSprayPaintOpSettings* config = new KisSprayPaintOpSettings(resourcesInterface());
-    config->setProperty("paintop", "spraybrush"); // XXX: make this a const id string
+    config->setProperty("paintop", "spraybrush");
     writeConfiguration(config);
     return config;
 }

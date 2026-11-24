@@ -89,11 +89,6 @@ public:
 
     KisFixedPoint &operator*=(const KisFixedPoint &x)
     {
-        /**
-         * Until C++20 `d >>= 8` is "implementation defined" for negative `d`.
-         * But we have a unittest that confirms that the our compiler handles
-         * that in an expected way
-         */
 
         d *= x.d;
         d >>= 8;
@@ -102,11 +97,6 @@ public:
 
     KisFixedPoint &operator/=(const KisFixedPoint &x)
     {
-        /**
-         * Until C++20 `d <<= 8` is an "undefined behavior" for negative `d`.
-         * But we have a unittest that confirms that the our compiler handles
-         * that in an expected way
-         */
 
         d *= 256;
         d /= x.d;
@@ -131,4 +121,4 @@ QDebug operator<<(QDebug dbg, const KisFixedPoint &v) {
     return dbg.space();
 }
 
-#endif /* __KIS_FIXED_POINT_MATHS_H */
+#endif

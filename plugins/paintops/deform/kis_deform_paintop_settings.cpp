@@ -61,7 +61,6 @@ bool KisDeformPaintOpSettings::paintIncremental()
 
 bool KisDeformPaintOpSettings::isAirbrushing() const
 {
-    // version 2.3
     if (hasProperty(AIRBRUSH_ENABLED)) {
         return getBool(AIRBRUSH_ENABLED);
     }
@@ -88,13 +87,11 @@ KisOptimizedBrushOutline KisDeformPaintOpSettings::brushOutline(const KisPaintIn
     return path;
 }
 
-
 #include <brushengine/kis_slider_based_paintop_property.h>
 #include <brushengine/kis_combo_based_paintop_property.h>
 #include "kis_paintop_preset.h"
 #include "KisPaintOpPresetUpdateProxy.h"
 #include "kis_standard_uniform_properties_factory.h"
-
 
 QList<KisUniformPaintOpPropertySP> KisDeformPaintOpSettings::uniformProperties(KisPaintOpSettingsSP settings, QPointer<KisPaintOpPresetUpdateProxy> updateProxy)
 {
@@ -151,13 +148,13 @@ QList<KisUniformPaintOpPropertySP> KisDeformPaintOpSettings::uniformProperties(K
                 [](KisUniformPaintOpProperty *prop) {
                     KisDeformOptionData option;
                     option.read(prop->settings().data());
-                    prop->setValue(int(option.deformAction) - 1); // DeformModes start at 1, combobox indices start at 0
+                    prop->setValue(int(option.deformAction) - 1);
                 });
             prop->setWriteCallback(
                 [](KisUniformPaintOpProperty *prop) {
                     KisDeformOptionData option;
                     option.read(prop->settings().data());
-                    option.deformAction = (DeformModes)(prop->value().toInt() + 1); // Combobox indices start at 0, DeformModes start at 1
+                    option.deformAction = (DeformModes)(prop->value().toInt() + 1);
                     option.write(prop->settings().data());
                 });
 
@@ -165,7 +162,6 @@ QList<KisUniformPaintOpPropertySP> KisDeformPaintOpSettings::uniformProperties(K
             prop->requestReadValue();
             props << toQShared(prop);
         }
-
 
         {
             KisIntSliderBasedPaintOpPropertyCallback *prop =

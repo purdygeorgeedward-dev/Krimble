@@ -21,7 +21,6 @@
 
 Q_GLOBAL_STATIC(KisQtWidgetsTweaker, kqwt_instance)
 
-
 namespace {
 
 class ShortcutOverriderBase
@@ -181,9 +180,6 @@ private:
 
 };
 
-
-//for some reason I can't just populate constexpr
-//pointer array using "new"
 LineTextEditingShortcutOverrider overrider0;
 SpinboxShortcutOverrider overrider1;
 TabShortcutOverrider overrider2;
@@ -196,9 +192,7 @@ constexpr int numOfShortcutOverriders =
                     sizeof(allShortcutOverriders)/
                     sizeof(allShortcutOverriders[0]);
 
-
-
-} //namespace
+}
 
 struct KisQtWidgetsTweaker::Private
 {
@@ -243,15 +237,7 @@ bool KisQtWidgetsTweaker::eventFilter(QObject *receiver, QEvent *event)
 {
     switch(event->type()) {
     case QEvent::ShortcutOverride:{
-        //QLineEdit and other widgets lets qt's shortcut system take away it's keyboard events
-        //even is it knows them, such as ctrl+backspace
-        //if there is application-wide shortcut, assigned to it.
-        //The following code fixes it
-        //by accepting ShortcutOverride events.
 
-        //if you press key 'a' and then 'b', qt at first call
-        //all handlers for 'a' key press event, and only after that
-        //for 'b'
         QKeyEvent *key = static_cast<QKeyEvent*>(event);
         if (d->lastKeyPressProcessingComplete) {
             d->newPhysicalKeyPressed(key);
@@ -264,8 +250,6 @@ bool KisQtWidgetsTweaker::eventFilter(QObject *receiver, QEvent *event)
                 d->decision = allShortcutOverriders[i]->handleEvent(receiver, key);
             }
         }
-        //if nothing said whether shortcutoverride to be accepted
-        //last widget that qt will ask will be kismainwindow or docker
         if (qobject_cast<KisMainWindow*>(receiver)!=nullptr||
             receiver->inherits(QDockWidget::staticMetaObject.className())) {
             for (int i = 0; i < numOfShortcutOverriders; ++i) {
@@ -291,8 +275,6 @@ bool KisQtWidgetsTweaker::eventFilter(QObject *receiver, QEvent *event)
             break;
         case ShortcutOverriderBase::DecisionOnShortcutOverride::overrideShortcut:
             event->accept();
-            //once shortcutoverride accepted, qt stop asking everyone
-            //about it and proceed to handling next event
             d->lastKeyPressProcessingComplete = true;
             retval = true;
             break;
@@ -302,18 +284,12 @@ bool KisQtWidgetsTweaker::eventFilter(QObject *receiver, QEvent *event)
 
     }break;
 
-        //other event types
     default:
         break;
     }
 
-
-    //code for tweaking the behavior of other qt elements will go here
-
-
     return QObject::eventFilter(receiver, event);
 }
-
 
 KisQtWidgetsTweaker *KisQtWidgetsTweaker::instance()
 {

@@ -19,7 +19,6 @@ Q_GLOBAL_STATIC(KisLayerPropertiesIcons, s_instance)
 #include <commands/kis_node_property_list_command.h>
 #include "kis_image.h"
 
-
 const KoID KisLayerPropertiesIcons::locked("locked", ki18n("Locked"));
 const KoID KisLayerPropertiesIcons::visible("visible", ki18n("Visible"));
 const KoID KisLayerPropertiesIcons::layerStyle("layer-style", ki18n("Layer Style"));
@@ -88,7 +87,6 @@ void KisLayerPropertiesIcons::updateIcons()
     m_d->icons.insert(layerError.id(), IconsPair(KisIconUtils::loadIcon("warning"), KisIconUtils::loadIcon("warning")));
     m_d->icons.insert(layerColorSpaceMismatch.id(), IconsPair(KisIconUtils::loadIcon("different-colorspace"), KisIconUtils::loadIcon("different-colorspace")));
     m_d->icons.insert(antialiased.id(), IconsPair(KisIconUtils::loadIcon("select-shape"), KisIconUtils::loadIcon("select-pixel")));
-    // No static icons for colorOverlay.
 }
 
 KisBaseNode::Property KisLayerPropertiesIcons::getProperty(const KoID &id, bool state)

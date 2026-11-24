@@ -81,7 +81,7 @@ ShapeResizeStrategy::ShapeResizeStrategy(KoToolBase *tool, KoSelection *selectio
         m_globalStillPoint = QPointF(w, h);
         break;
     default:
-        Q_ASSERT(0); // illegal 'corner'
+        Q_ASSERT(0);
     }
 
     const QPointF p0 = shape->outlineRect().topLeft();
@@ -91,7 +91,6 @@ ShapeResizeStrategy::ShapeResizeStrategy(KoToolBase *tool, KoSelection *selectio
     m_unwindMatrix = shape->absoluteTransformation().inverted();
     m_initialSelectionSize = shape->size();
     m_postScalingCoveringTransform = shape->transformation();
-
 
     tool->setStatusText(i18n("Press CTRL to resize from center."));
     tool->canvas()->snapGuide()->setIgnoredShapes(KoShape::linearizeSubtree(m_selectedShapes));
@@ -122,11 +121,9 @@ void ShapeResizeStrategy::handleMouseMove(const QPointF &point, Qt::KeyboardModi
 
     QPointF distance = m_unwindMatrix.map(newPos) - m_unwindMatrix.map(m_start);
 
-    // guard against resizing zero width shapes, which would result in huge zoom factors
     if (m_initialSelectionSize.width() < std::numeric_limits<qreal>::epsilon()) {
         distance.rx() = 0.0;
     }
-    // guard against resizing zero height shapes, which would result in huge zoom factors
     if (m_initialSelectionSize.height() < std::numeric_limits<qreal>::epsilon()) {
         distance.ry() = 0.0;
     }
@@ -151,11 +148,6 @@ void ShapeResizeStrategy::handleMouseMove(const QPointF &point, Qt::KeyboardModi
         newHeight = startHeight + distance.y();
     }
 
-    /**
-     * Do not let a shape be less than 1px in size in current view
-     * coordinates.  If the user wants it to be smaller, he can just
-     * zoom-in a bit.
-     */
     QSizeF minViewSize(1.0, 1.0);
     QSizeF minDocSize = tool()->canvas()->viewConverter()->viewToDocument(minViewSize);
 

@@ -19,7 +19,6 @@
 #include "commands_new/kis_transaction_based_command.h"
 #include <functional>
 
-
 KisMirrorProcessingVisitor::KisMirrorProcessingVisitor(const QRect &bounds, Qt::Orientation orientation)
     : m_bounds(bounds),
       m_orientation(orientation),

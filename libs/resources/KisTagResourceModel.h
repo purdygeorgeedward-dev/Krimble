@@ -24,13 +24,6 @@ public:
     virtual bool tagResources(const KisTagSP tag, const QVector<int> &resourceIds) = 0;
     virtual bool untagResources(const KisTagSP tag, const QVector<int> &resourceIds) = 0;
 
-    /**
-     * @brief isResourceTagged
-     * @param tag the tag to check
-     * @param resourceId the id of the resource to check
-     * @return  -1 if the resource was never tagged before, 0 if the resource
-     * was tagged, but then untagged, 1 if the resource is already tagged
-     */
     virtual int isResourceTagged(const KisTagSP tag, const int resourceId) = 0;
 };
 
@@ -64,15 +57,11 @@ public:
         TagName
     };
 
-    // QAbstractItemModel API
-
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
 
-    /// Note: only role is significant, column is not.
     QVariant data(const QModelIndex &index, int role) const override;
 
-    // Abstract Tag API
     bool tagResources(const KisTagSP tag, const QVector<int> &resourceIds) override;
     bool untagResources(const KisTagSP tag, const QVector<int> &resourceId) override;
     int isResourceTagged(const KisTagSP tag, const int resourceId) override;
@@ -92,16 +81,10 @@ private:
     bool resetQuery();
     void closeQuery();
 
-
     struct Private;
     Private* const d;
 };
 
-/**
- * @brief The KisTagResourceModel class makes it possible to retrieve the resources for certain
- * tags or the tags for certain resources. If the filter for tags or resources is empty, all
- * tags or resources that match for the active/inactive/all filters will match.
- */
 class KRITARESOURCES_EXPORT KisTagResourceModel : public QSortFilterProxyModel
     , public KisAbstractTagResourceModel
     , public KisAbstractResourceModel
@@ -133,13 +116,9 @@ public:
     void setTagsFilter(const QVector<KisTagSP> tags);
     void setResourcesFilter(const QVector<KoResourceSP> resources);
 
-    // KisAbstractTagResourceModel API
-
     bool tagResources(const KisTagSP tag, const QVector<int> &resourceIds) override;
     bool untagResources(const KisTagSP tag, const QVector<int> &resourceIds) override;
     int isResourceTagged(const KisTagSP tag, const int resourceId) override;
-
-    // KisAbstractResourceModel interface
 
     KoResourceSP resourceForIndex(QModelIndex index) const override;
     QModelIndex indexForResource(KoResourceSP resource) const override;
@@ -171,4 +150,4 @@ private:
     Private* const d;
 };
 
-#endif // KISTAGRESOURCEMODEL_H
+#endif

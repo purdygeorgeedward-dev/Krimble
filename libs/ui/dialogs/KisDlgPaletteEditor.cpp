@@ -59,11 +59,9 @@ KisDlgPaletteEditor::KisDlgPaletteEditor(KisPaletteEditor *editor, QWidget *pare
     connect(m_ui->spinBoxCol, SIGNAL(valueChanged(int)), SLOT(slotColCountChanged(int)));
     connect(m_ui->lineEditName, SIGNAL(editingFinished()), SLOT(slotNameChanged()));
 
-
     m_ui->storageLocation->setModel(KisStorageModel::instance());
     m_ui->storageLocation->setModelColumn(KisStorageModel::DisplayName);
 
-    // TODO: We have no concept of moving storages whatsoever, so for now, let's disable this combobox.
     m_ui->storageLocation->setEnabled(false);
     connect(m_ui->storageLocation, SIGNAL(currentIndexChanged(int)), SLOT(slotSetGlobal()));
 
@@ -83,7 +81,6 @@ void KisDlgPaletteEditor::initialize(KisPaletteModel *model)
         return;
     }
 
-    // don't let editor make changes when initializing
     const QSignalBlocker blocker2(m_ui->lineEditName);
     const QSignalBlocker blocker3(m_ui->spinBoxCol);
     const QSignalBlocker blocker4(m_ui->spinBoxRow);

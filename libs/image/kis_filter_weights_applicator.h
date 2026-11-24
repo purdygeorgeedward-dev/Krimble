@@ -11,10 +11,8 @@
 #include "kis_filter_weights_buffer.h"
 #include "kis_iterator_ng.h"
 
-
 #include <KoColorSpace.h>
 #include <KoMixColorsOp.h>
-
 
 namespace tmp {
     template <class iter> iter createIterator(KisPaintDeviceSP dev, qint32 start, qint32 lineNum, qint32 len);
@@ -31,65 +29,6 @@ namespace tmp {
         return dev->createVLineIteratorNG(lineNum, start, len);
     }
 }
-
-/**
- * \class KisFilterWeightsApplicator
- *
- * This is a main class for transforming a line of pixel data.  It
- * transforms lines from \p src into \p dst using \p scale, \p shear
- * and offset (\p dx) parameters.
- *
- * Notation:
- * \<pixel_name\>_l -- leftmost border of the pixel
- * \<pixel_name\>_c -- center of the pixel
- *
- *
- * Example calculation of an offset (see calculateBlendSpan()):
- * scale = 0.5;
- * offset = \<very small value\>
- *
- *                    +------ dst_l
- *                    |
- *                    |   +-- dst_c
- *                    |   |
- *
- * dst:       |   *   |   *   |   *   |
- *
- * src:      | * | * | * | * | * | * | * | * |
- *
- *                       |||
- *                       ||+--- next_c_in_src
- *                       |||
- *                       |+---- dst_c_in_src
- *                       |||
- *                       |++--- offset (near zero, measured in dst coordinates)
- *                       |
- *                       +-- _l position of the pixel, which is considered
- *                           central in the weights buffer
- *
- * Another example calculation of an offset (see calculateBlendSpan()):
- * scale = 0.5;
- * offset = \<high value near 0.5\>
- *
- *                      +------ dst_l
- *                      |
- *                      |   +-- dst_c
- *                      |   |
- *
- * dst:         |   *   |   *   |   *   |
- *
- * src:      | * | * | * | * | * | * | * | * |
- *
- *                          || |
- *                          || +--- next_c_in_src
- *                          || |
- *                          +------ dst_c_in_src
- *                          || |
- *                          +|-+--- offset (near 0.5, measured in dst coordinates)
- *                           |
- *                           +-- _l position of the pixel, which is considered
- *                               central in the weights buffer
- */
 
 class KisFilterWeightsApplicator
 {
@@ -110,7 +49,7 @@ public:
 
     struct BlendSpan {
         KisFilterWeightsBuffer::FilterWeights *weights;
-        int firstBlendPixel; // in src coords
+        int firstBlendPixel;
         KisFixedPoint offset;
         KisFixedPoint offsetInc;
     };
@@ -119,7 +58,6 @@ public:
         KisFixedPoint dst_c = l_to_c(dst_l);
         KisFixedPoint dst_c_in_src = dstToSrc(dst_c.toFloat(), line);
 
-        // gives the nearest center of the pixel in src ( x e (0, 1> => f(x) = 0.5, x e (1, 2> => f(x) = 1.5 etc. )
         KisFixedPoint next_c_in_src = (dst_c_in_src - qreal(0.5)).toIntCeil() + qreal(0.5);
 
         BlendSpan span;
@@ -150,13 +88,6 @@ public:
             return m_start;
         }
 
-        /**
-         * WARNING: be careful! This is not the same as
-         * QRect::right()!  This is an equivalent of (QRect::right() +
-         * QRect::width()) or QRectF::right(), that is it points to
-         * the pixel after(!) the actual last pixel.  See Qt docs for
-         * more info about this historical difference.
-         */
         inline int end() const {
             return m_start + m_size;
         }
@@ -195,9 +126,6 @@ public:
             dstStart = findAntialiasedDstStart(srcLine.start(), filterSupport, line);
             dstEnd = findAntialiasedDstEnd(srcLine.end(), filterSupport, line);
 
-            /// Since we are rounding the borders of the line we might
-            /// end up to squashing our line into a single pixel. In such
-            /// a case we should correct our line to be exactly one pixel
             if (dstStart == dstEnd) {
                 dstEnd = dstStart + 1;
             }
@@ -209,9 +137,6 @@ public:
             dstStart = findAntialiasedDstStart(srcLine.end(), filterSupport, line);
             dstEnd = findAntialiasedDstEnd(srcLine.start(), filterSupport, line);
 
-            /// Since we are rounding the borders of the line we might
-            /// end up to squashing our line into a single pixel. In such
-            /// a case we should correct our line to be exactly one pixel
             if (dstStart == dstEnd) {
                 dstEnd = dstStart + 1;
             }
@@ -336,4 +261,4 @@ private:
     bool m_clampToEdge;
 };
 
-#endif /* __KIS_FILTER_WEIGHTS_APPLICATOR_H */
+#endif

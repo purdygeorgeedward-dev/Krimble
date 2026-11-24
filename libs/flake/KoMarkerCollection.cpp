@@ -18,10 +18,7 @@
 
 #include "kis_debug.h"
 
-// WARNING: there is a bug in GCC! It doesn't warn that we are
-//          deleting an uninitialized type here!
 #include <KoShape.h>
-
 
 class Q_DECL_HIDDEN KoMarkerCollection::Private
 {
@@ -37,9 +34,7 @@ KoMarkerCollection::KoMarkerCollection(QObject *parent)
 : QObject(parent)
 , d(new Private)
 {
-    // Add no marker so the user can remove a marker from the line.
     d->markers.append(QExplicitlySharedDataPointer<KoMarker>(0));
-    // Add default markers
     loadDefaultMarkers();
 }
 
@@ -71,7 +66,7 @@ void KoMarkerCollection::loadMarkersFromFile(const QString &svgFile)
 
     KoDocumentResourceManager manager;
     SvgParser parser(&manager);
-    parser.setResolution(QRectF(0,0,100,100), 72); // initialize with default values
+    parser.setResolution(QRectF(0,0,100,100), 72);
     parser.setXmlBaseDir(QFileInfo(svgFile).absolutePath());
 
     parser.setFileFetcher(

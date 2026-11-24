@@ -99,8 +99,6 @@ void KisToolLineHelper::start(KoPointerEvent *event, KoCanvasResourceProvider *r
 {
     if (!m_d->enabled) return;
 
-    // Ignore the elapsed stroke time, so that the line tool will behave as if the whole stroke is
-    // drawn at once. This should prevent any possible spurious dabs caused by airbrushing features.
     KisPaintInformation pi =
             m_d->infoBuilder->startStroke(event, 0, resourceManager);
 
@@ -115,8 +113,6 @@ void KisToolLineHelper::addPoint(KoPointerEvent *event, const QPointF &overrideP
 {
     if (!m_d->enabled) return;
 
-    // Ignore the elapsed stroke time, so that the line tool will behave as if the whole stroke is
-    // drawn at once. This should prevent any possible spurious dabs caused by airbrushing features.
     KisPaintInformation pi =
             m_d->infoBuilder->continueStroke(event, 0);
 
@@ -208,7 +204,6 @@ void KisToolLineHelper::end()
     clearPoints();
 }
 
-
 void KisToolLineHelper::cancel()
 {
     if (!m_d->enabled) return;
@@ -218,12 +213,10 @@ void KisToolLineHelper::cancel()
     clearPoints();
 }
 
-
 void KisToolLineHelper::clearPoints()
 {
     m_d->linePoints.clear();
 }
-
 
 void KisToolLineHelper::clearPaint()
 {
@@ -240,7 +233,6 @@ void KisToolLineHelper::adjustPointsToDDA(QVector<KisPaintInformation> &points)
     int x2 = qFloor(points.last().pos().x());
     int y2 = qFloor(points.last().pos().y());
 
-    // Width and height of the line
     int xd = x2 - x;
     int yd = y2 - y;
 

@@ -35,12 +35,10 @@ KoToolBoxButton::KoToolBoxButton(KoToolAction *toolAction, QWidget *parent)
     , m_toolAction(toolAction)
 {
     setObjectName(m_toolAction->id());
-    // ensure same L&F
     setCheckable(true);
     setAutoRaise(true);
     setIcon(KrimbleToolboxIcons::icon(m_toolAction->iconName()));
 
-    // only a fallback
     setToolTip(m_toolAction->toolTip());
 
     connect(this, SIGNAL(clicked(bool)), m_toolAction, SLOT(trigger()));
@@ -76,7 +74,7 @@ void KoToolBoxButton::mouseMoveEvent(QMouseEvent *event)
 void KoToolBoxButton::mouseReleaseEvent(QMouseEvent *event)
 {
     m_krimbleTimer.stop();
-    if (m_krimbleLongPressFired) {   // the long press opened the flyout: this release is not a tap on the button
+    if (m_krimbleLongPressFired) {
         m_krimbleLongPressFired = false;
         event->accept();
         return;
@@ -84,7 +82,6 @@ void KoToolBoxButton::mouseReleaseEvent(QMouseEvent *event)
     QToolButton::mouseReleaseEvent(event);
 }
 
-// the system also turns a long press into a context menu event, which would open the toolbox's own menu on top of the flyout
 void KoToolBoxButton::contextMenuEvent(QContextMenuEvent *event)
 {
     if (m_krimbleLongPress) {
@@ -96,7 +93,6 @@ void KoToolBoxButton::contextMenuEvent(QContextMenuEvent *event)
 
 void KoToolBoxButton::krimbleRefreshIcon()
 {
-    // setIcon(KrimbleToolboxIcons::icon(m_toolAction->iconName()));
     setIcon(KrimbleToolboxIcons::icon(m_krimbleIconOverride.isEmpty() ? m_toolAction->iconName() : m_krimbleIconOverride));
     krimbleFitIconSize();
 }
@@ -110,8 +106,8 @@ void KoToolBoxButton::krimbleFitIconSize()
              && KrimbleToolboxIcons::classicLineArt(m_toolAction->iconName()));
     if (picture) {
         const int side = qMin(width(), height());
-        if (side < 8) return;   // not laid out yet; resizeEvent comes later
-        if (!m_krimbleColorFit || iconSize() != m_krimbleSetIconSize) m_krimbleBaseIconSize = iconSize();   // a size from the toolbox since we set ours is the new base
+        if (side < 8) return;
+        if (!m_krimbleColorFit || iconSize() != m_krimbleSetIconSize) m_krimbleBaseIconSize = iconSize();
         const int wanted = qRound(side * 0.92);
         m_krimbleSetIconSize = QSize(wanted, wanted);
         m_krimbleColorFit = true;
@@ -148,7 +144,7 @@ void KoToolBoxButton::setHighlightColor()
 {
     setPalette(qApp->palette());
     const QString sheet = isChecked() ? QStringLiteral("QToolButton { border: none; background: transparent; }") : QString();
-    if (styleSheet() != sheet) setStyleSheet(sheet);   // unchanged: no restyle
+    if (styleSheet() != sheet) setStyleSheet(sheet);
 }
 
 void KoToolBoxButton::setDataFromToolAction(QAction *action)
@@ -198,14 +194,11 @@ void KoToolBoxButton::krimblePaintRaisedBox(QWidget *widget, bool down)
     box.setRenderHint(QPainter::Antialiasing, false);
     const QRect r = widget->rect().adjusted(1, 1, -1, -1);
     const QColor krimbleWindow = qApp->palette().color(QPalette::Window);
-    // const bool krimbleLight = krimbleWindow.lightness() > 150;
-    // const QColor face = krimbleLight ? krimbleWindow.darker(108) : krimbleWindow.lighter(150);
-    const bool krimbleLight = KrimbleToolboxIcons::lightGray() || krimbleWindow.lightness() > 150;   // the Light gray switch gives the light face
+    const bool krimbleLight = KrimbleToolboxIcons::lightGray() || krimbleWindow.lightness() > 150;
     const QColor face = KrimbleToolboxIcons::customFace() ? KrimbleToolboxIcons::lightGrayFace()
                       : (krimbleLight ? krimbleWindow.darker(108) : krimbleWindow.lighter(150));
     const int t = qMax(2, qRound(qMin(r.width(), r.height()) * 0.075));
-    // box.fillRect(r, face);
-    if (KrimbleToolboxIcons::glowFace()) KrimbleToolboxIcons::paintGlowTile(box, QRectF(r));   // Glow, raised: the bevel is drawn over the tile
+    if (KrimbleToolboxIcons::glowFace()) KrimbleToolboxIcons::paintGlowTile(box, QRectF(r));
     else box.fillRect(r, face);
     const int hiTop = krimbleLight ? 255 : 85;
     const int hiLeft = krimbleLight ? 170 : 40;
@@ -231,98 +224,22 @@ void KoToolBoxButton::paintEvent(QPaintEvent *event)
         krimblePaintRaisedBox(this, isDown());
     } else if (KrimbleToolboxIcons::glowFace() && !isChecked()) {
         QPainter face(this);
-        KrimbleToolboxIcons::paintGlowTile(face, QRectF(rect()).adjusted(2, 2, -2, -2));   // Glow, flat
+        KrimbleToolboxIcons::paintGlowTile(face, QRectF(rect()).adjusted(2, 2, -2, -2));
     } else if (KrimbleToolboxIcons::customFace() && !isChecked()) {
         QPainter face(this);
-        face.fillRect(rect().adjusted(1, 1, -1, -1), KrimbleToolboxIcons::lightGrayFace());   // Light gray, flat
+        face.fillRect(rect().adjusted(1, 1, -1, -1), KrimbleToolboxIcons::lightGrayFace());
     }
-    // The first version of the Raised style (near-white and near-black sides, a near-black outline), not used any more:
     if (isChecked()) {
         QPainter painter(this);
         const qreal s = qMin(width(), height());
-        // painter.fillRect(QRectF(rect()).adjusted(s * 0.12, s * 0.12, -s * 0.12, -s * 0.12), QColor("#0b87dd"));   // flat, the blue of the menu selection
-        // krimblePaintAqua(painter, QRectF(rect()).adjusted(s * 0.12, s * 0.12, -s * 0.12, -s * 0.12), s * 0.07);   // the Aqua-style selection
-        // krimblePaintAqua(painter, QRectF(rect()), s * 0.18);   // the Aqua-style selection fills the whole tile, rounder corners
-        // George 2026-11-22: "I probably went too far making it big. Maybe shave off a bit." 5% of the tile off each side
-        // krimblePaintAqua(painter, QRectF(rect()).adjusted(s * 0.05, s * 0.05, -s * 0.05, -s * 0.05), s * 0.16);
-        // George 2026-11-23 (869th): "Let's just do flat color on toolbox selections. Save the aqua for the buttons." / "Flat is more professional."
-        // a flat square in the selection blue, same size as before
         painter.fillRect(QRectF(rect()).adjusted(s * 0.05, s * 0.05, -s * 0.05, -s * 0.05), QColor(11, 135, 221));
     }
-    // if (isChecked()) {
-    //     QPainter painter(this);
-    //     painter.setRenderHint(QPainter::Antialiasing, true);
-    //     const qreal s = qMin(width(), height());
-    //     const QRectF base = QRectF(rect()).adjusted(s * 0.12, s * 0.12, -s * 0.12, -s * 0.12);
-    //     const qreal bw = base.width();
-    //     const qreal r = 0.0;
-    //     const QPointF centre = base.center();
-    //     // the glow outside the outline: tight and weak, fading out within 6 percent of the width, stronger where the mockup's is
-    //     const int glowSteps = 18;
-    //     for (int i = glowSteps; i >= 1; --i) {
-    //         const qreal t = qreal(i) / glowSteps;
-    //         const qreal w = bw * 0.05 * t;
-    //         const qreal alpha = 255 * 0.6 * qExp(-3.4 * t);
-    //         painter.setPen(QPen(QBrush(krimbleSelConical(centre, krimbleSelGlow, [alpha](qreal v) { return QColor(28, 128, 235, qMin(255, int(alpha * (0.25 + 0.9 * v)))); })), qMax<qreal>(1.0, bw * 0.012)));
-    //         krimbleMiterPen(painter);   // task 37: a pen's corners are cut off (bevel join) unless it says miter; that is what looked rounded
-    //         painter.setBrush(Qt::NoBrush);
-    //         painter.drawRoundedRect(base.adjusted(-w, -w, w, w), r, r);
-    //     }
-    //     // the fill, darker in the middle
-    //     QLinearGradient fill(base.topLeft(), base.bottomLeft());
-    //     fill.setColorAt(0.0, QColor("#10498c"));
-    //     fill.setColorAt(0.5, QColor("#07306f"));
-    //     fill.setColorAt(1.0, QColor("#033075"));
-    //     painter.setPen(Qt::NoPen);
-    //     painter.setBrush(fill);
-    //     painter.drawRoundedRect(base, r, r);
-    //     QRadialGradient vignette(centre, bw * 0.62);
-    //     vignette.setColorAt(0.0, QColor(1, 8, 34, 235));
-    //     vignette.setColorAt(0.3, QColor(1, 10, 40, 150));
-    //     vignette.setColorAt(0.62, QColor(1, 12, 45, 34));
-    //     vignette.setColorAt(0.85, QColor(1, 12, 45, 0));
-    //     vignette.setColorAt(1.0, QColor(1, 12, 45, 0));
-    //     painter.setBrush(vignette);
-    //     painter.drawRoundedRect(base, r, r);
-    //     // vivid blue just inside the edge, fading toward the middle, as strong as the outline is bright at each place
-    //     const int innerSteps = 24;
-    //     for (int k = 1; k <= innerSteps; ++k) {
-    //         const qreal t = qreal(k) / innerSteps;
-    //         const qreal d = bw * 0.06 * t;
-    //         const qreal alpha = 255 * qExp(-4.5 * t);
-    //         painter.setPen(QPen(QBrush(krimbleSelConical(centre, krimbleSelOutline, [alpha](qreal v) { return QColor(36, 150, 248, qMax(0, qMin(255, int(alpha * (0.8 + 0.9 * (v - 0.55)))))); })), qMax<qreal>(1.0, bw * 0.011)));
-    //         krimbleMiterPen(painter);   // task 37
-    //         painter.setBrush(Qt::NoBrush);
-    //         painter.drawRoundedRect(base.adjusted(d, d, -d, -d), r, r);
-    //     }
-    //     painter.setPen(QPen(QBrush(krimbleSelConical(centre, krimbleSelOutline, [](qreal v) { return QColor(80, 200, 255, qMin(255, int(255 * v))); })), qMax<qreal>(3.0, bw * 0.022)));
-    //     // qMax<qreal>(2.0, bw * 0.014)));   // the thinner try of task 37 (not wanted)
-    //     krimbleMiterPen(painter);   // task 37
-    //     painter.setBrush(Qt::NoBrush);
-    //     painter.drawRoundedRect(base, r, r);
-    //     painter.setPen(QPen(QBrush(krimbleSelConical(centre, krimbleSelOutline, [](qreal v) {
-    //         const qreal t = qBound<qreal>(0.0, (v - 0.62) / 0.38, 1.0);
-    //         return QColor(int(105 + (205 - 105) * t), int(220 + (255 - 220) * t), 255);
-    //     })), qMax<qreal>(2.2, bw * 0.018)));
-    //     // qMax<qreal>(1.5, bw * 0.011)));   // the thinner try of task 37 (not wanted)
-    //     krimbleMiterPen(painter);   // task 37
-    //     painter.drawRoundedRect(base, r, r);
-    //     // the dark shadow behind the icon (the mockup's icon casts one): the icon is drawn over it below
-    //     QRadialGradient shadow(centre, s * 0.30);
-    //     shadow.setColorAt(0.0, QColor(0, 4, 24, 170));
-    //     shadow.setColorAt(1.0, QColor(0, 4, 24, 0));
-    //     painter.setPen(Qt::NoPen);
-    //     painter.setBrush(shadow);
-    //     painter.drawEllipse(centre, s * 0.30, s * 0.30);
-    // }
     Q_UNUSED(event);
     {
         QStylePainter stylePainter(this);
         QStyleOptionToolButton opt;
         initStyleOption(&opt);
         if (!isDown()) opt.state &= ~QStyle::State_MouseOver;
-        // Krimble 2026-11-23: in the light theme the selected tool's icon is white on the selection blue (George: "#0B87DD is a good
-        // selection blue if the tool icon turns white on select in the toolbox. Can we do that in light theme?" / "Better. Yes.")
         if (isChecked() && qApp->palette().color(QPalette::Window).lightness() > 160 && !opt.icon.isNull()) {
             const qreal dpr = devicePixelRatioF();
             QPixmap white(opt.iconSize * dpr);

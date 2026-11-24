@@ -1,5 +1,4 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
-// Krimble 2026-11-08: the palette commands of the Color panel (New, Open, Import, Export, Duplicate, Rename, Delete), shared by the Palette page and the palette row of the Picker,
 // Sliders and Values pages. Each asks what it needs (a name, a file, a confirmation) and returns true when the palettes changed. They work on the GPL files of krimble_color_palettes.h.
 #pragma once
 #include <QFileDialog>
@@ -19,7 +18,6 @@ struct KrimblePaletteActions
     {
         const QString name = ask(parent, QObject::tr("New Palette"), QObject::tr("Palette name:"), QObject::tr("New palette"));
         if (name.isEmpty()) return false;
-        // 2026-11-08: George: "palettes stored as CMYK color values (4 channels, commonly called plates in printing)": a new palette is an RGB palette or a CMYK palette
         bool modelOk = false;
         const QString model = QInputDialog::getItem(parent, QObject::tr("New Palette"), QObject::tr("Color model (a CMYK palette stores the four plates C, M, Y and K of each swatch):"),
                                                     QStringList() << QStringLiteral("RGB") << QStringLiteral("CMYK"), 0, false, &modelOk);
@@ -58,7 +56,7 @@ struct KrimblePaletteActions
     {
         const QString name = KrimblePaletteStore::active();
         const QString path = QFileDialog::getSaveFileName(parent, QObject::tr("Export Palette"), name + QStringLiteral(".gpl"), QObject::tr("GIMP palettes (*.gpl)"));
-        return !path.isEmpty() && KrimblePaletteStore::exportTo(name, path) && false;   // exporting changes no palette
+        return !path.isEmpty() && KrimblePaletteStore::exportTo(name, path) && false;
     }
     static bool duplicatePalette(QWidget *parent)
     {

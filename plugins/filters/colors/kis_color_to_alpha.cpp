@@ -167,8 +167,8 @@ void KisFilterColorToAlpha::processImpl(KisPaintDeviceSP device,
         break;
 
 #endif
-    case KoChannelInfo::INT8: /* !UNSUPPORTED! */
-    case KoChannelInfo::INT16: /* !UNSUPPORTED! */
+    case KoChannelInfo::INT8:
+    case KoChannelInfo::INT16:
 
     case KoChannelInfo::OTHER:
         warnKrita << "Color To Alpha: Unsupported channel type:" << valueType;

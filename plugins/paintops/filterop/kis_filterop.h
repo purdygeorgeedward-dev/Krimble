@@ -47,4 +47,4 @@ private:
     bool m_smudgeMode;
 };
 
-#endif // KIS_FILTEROP_H_
+#endif

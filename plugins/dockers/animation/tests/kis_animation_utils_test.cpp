@@ -16,7 +16,6 @@
 
 #include <tuple>
 
-
 bool verifyFrames(TestUtil::MaskParent &p,
                   const QVector<KisNodeSP> &nodes,
                   const QVector<std::tuple<int, QRect, QRect>> &offsets)
@@ -38,9 +37,7 @@ bool verifyFrames(TestUtil::MaskParent &p,
         KisKeyframeChannel *channel1 = nodes[0]->getKeyframeChannel("content");
         KisKeyframeChannel *channel2 = nodes[1]->getKeyframeChannel("content");
 
-
         if (!rc1.isValid() && !channel1->keyframeAt(time)) {
-            // noop
         } else if (nodes[0]->paintDevice()->exactBounds() != rc1) {
             qWarning() << "Compared values are not the same:";
             qWarning() << "    " << ppVar(nodes[0]->paintDevice()->exactBounds());
@@ -50,7 +47,6 @@ bool verifyFrames(TestUtil::MaskParent &p,
         }
 
         if (!rc2.isValid() && !channel2->keyframeAt(time)) {
-            // noop
         } else if (nodes[1]->paintDevice()->exactBounds() != rc2) {
             qWarning() << "Compared values are not the same:";
             qWarning() << "    "  << ppVar(nodes[1]->paintDevice()->exactBounds());
@@ -62,7 +58,6 @@ bool verifyFrames(TestUtil::MaskParent &p,
 
     return true;
 }
-
 
 void KisAnimationUtilsTest::test()
 {
@@ -110,7 +105,6 @@ void KisAnimationUtilsTest::test()
     dev1->fill(QRect(20, 0, 10, 10), fillColor);
     dev2->fill(QRect(20, 10, 10, 10), fillColor);
 
-
     QVector<std::tuple<int, QRect, QRect>> initialReferenceRects;
     initialReferenceRects << std::make_tuple( 0, QRect( 0, 0, 10, 10), QRect( 0, 10, 10, 10));
     initialReferenceRects << std::make_tuple(10, QRect(10, 0, 10, 10), QRect(10, 10, 10, 10));
@@ -122,9 +116,6 @@ void KisAnimationUtilsTest::test()
 
     FrameMovePairList frameMoves;
 
-    //
-    // Cycling single-layer move
-    //
     frameMoves << std::make_pair(FrameItem(layer1, "content", 0), FrameItem(layer1, "content", 10));
     frameMoves << std::make_pair(FrameItem(layer1, "content", 10), FrameItem(layer1, "content", 20));
     frameMoves << std::make_pair(FrameItem(layer1, "content", 20), FrameItem(layer1, "content", 0));
@@ -146,10 +137,6 @@ void KisAnimationUtilsTest::test()
     referenceRects.clear();
     cmd.reset();
 
-    //
-    // Just a complex non-cycling move
-    //
-
     frameMoves << std::make_pair(FrameItem(layer1, "content", 0), FrameItem(layer2, "content", 10));
     frameMoves << std::make_pair(FrameItem(layer2, "content", 10), FrameItem(layer1, "content", 10));
     frameMoves << std::make_pair(FrameItem(layer1, "content", 20), FrameItem(layer2, "content", 20));
@@ -170,9 +157,6 @@ void KisAnimationUtilsTest::test()
     referenceRects.clear();
     cmd.reset();
 
-    //
-    // Cross-node swap of the frames
-    //
     frameMoves << std::make_pair(FrameItem(layer1, "content", 0), FrameItem(layer2, "content", 0));
     frameMoves << std::make_pair(FrameItem(layer1, "content", 10), FrameItem(layer2, "content", 10));
     frameMoves << std::make_pair(FrameItem(layer1, "content", 20), FrameItem(layer2, "content", 20));
@@ -196,9 +180,6 @@ void KisAnimationUtilsTest::test()
     referenceRects.clear();
     cmd.reset();
 
-    //
-    // Cross-node move and swap
-    //
     frameMoves << std::make_pair(FrameItem(layer1, "content", 0), FrameItem(layer2, "content", 0));
     frameMoves << std::make_pair(FrameItem(layer1, "content", 10), FrameItem(layer2, "content", 10));
     frameMoves << std::make_pair(FrameItem(layer1, "content", 20), FrameItem(layer2, "content", 20));
@@ -223,8 +204,6 @@ void KisAnimationUtilsTest::test()
     frameMoves.clear();
     referenceRects.clear();
     cmd.reset();
-
-
 
 }
 

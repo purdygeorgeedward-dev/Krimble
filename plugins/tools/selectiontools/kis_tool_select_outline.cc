@@ -46,7 +46,6 @@ __KisToolSelectOutlineLocal::__KisToolSelectOutlineLocal(KoCanvasBase * canvas)
     setObjectName("tool_select_outline");
 }
 
-
 KisToolSelectOutline::KisToolSelectOutline(KoCanvasBase * canvas)
     : KisToolSelectBase<__KisToolSelectOutlineLocal>(canvas, i18n("Freehand Selection"))
 {}
@@ -101,8 +100,6 @@ void KisToolSelectOutline::finishOutline(const QVector<QPointF>& points)
             -> KUndo2Command * {
                 KisPainter painter(tmpSel);
                 painter.setPaintColor(KoColor(Qt::black, tmpSel->colorSpace()));
-                // Since the feathering already smooths the selection, the
-                // antiAlias is not applied if we must feather
                 painter.setAntiAliasPolygonFill(antiAlias && feather == 0);
                 painter.setFillStyle(KisPainter::FillStyleForegroundColor);
                 painter.setStrokeStyle(KisPainter::StrokeStyleNone);
@@ -176,11 +173,6 @@ bool KisToolSelectOutline::primaryActionSupportsHiResEvents() const
 
 bool KisToolSelectOutline::alternateActionSupportsHiResEvents(AlternateAction action) const
 {
-    /**
-     * In selection tools we abuse alternate actions to switch different
-     * selection modes. So we should notify input manager that we need a
-     * good precision for them
-     */
 
     Q_UNUSED(action);
     return !isMovingSelection();

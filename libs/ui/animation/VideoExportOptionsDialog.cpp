@@ -14,7 +14,6 @@
 #include "VideoHDRMetadataOptionsDialog.h"
 #include "KisHDRMetadataOptions.h"
 
-
 struct KisVideoExportOptionsDialog::Private
 {
     Private(ContainerType _containerType, const QStringList& validEncoders)
@@ -22,12 +21,11 @@ struct KisVideoExportOptionsDialog::Private
     {
         encoders = KisVideoExportOptionsDialog::encoderIdentifiers(containerType);
 
-        // Cross check w/ arbitrary ffmpeg's list of present encoders if list is populated.
         if (validEncoders.size() > 0) {
             encoders = [validEncoders](const QVector<KoID>& input) -> QVector<KoID> {
                 QVector<KoID> filtered;
                 Q_FOREACH(const KoID& encoder, input) {
-                    if (validEncoders.contains(encoder.id())) { 
+                    if (validEncoders.contains(encoder.id())) {
                         filtered << encoder;
                     }
                 }
@@ -57,7 +55,6 @@ struct KisVideoExportOptionsDialog::Private
         profilesXH265 << KoID("main", i18nc("h264 profile name, check simplescreenrecorder for standard translations", "main"));
         profilesXH265 << KoID("main10", i18nc("h264 profile name, check simplescreenrecorder for standard translations", "main10 (HDR)"));
 
-        // TODO: add "none" tune option
         tuningXH264 << KoID("film", i18nc("h264 tune option name, check simplescreenrecorder for standard translations", "film"));
         tuningXH264 << KoID("animation", i18nc("h264 tune option name, check simplescreenrecorder for standard translations", "animation"));
         tuningXH264 << KoID("grain", i18nc("h264 tune option name, check simplescreenrecorder for standard translations", "grain"));
@@ -74,7 +71,7 @@ struct KisVideoExportOptionsDialog::Private
         tuningXH265 << KoID("ssim", i18nc("h264 tune option name, check simplescreenrecorder for standard translations", "ssim"));
         tuningXH265 << KoID("fastdecode", i18nc("h264 tune option name, check simplescreenrecorder for standard translations", "fastdecode"));
         tuningXH265 << KoID("zero-latency", i18nc("h264 tune option name, check simplescreenrecorder for standard translations", "zero-latency"));
-        
+
         predAPNG << KoID("none", i18nc("apng prediction option name", "none"));
         predAPNG << KoID("sub", i18nc("apng prediction option name", "sub"));
         predAPNG << KoID("up", i18nc("apng prediction option name", "up"));
@@ -82,25 +79,25 @@ struct KisVideoExportOptionsDialog::Private
         predAPNG << KoID("paeth", i18nc("apng prediction option name", "paeth"));
         predAPNG << KoID("mixed", i18nc("apng prediction option name", "mixed"));
 
-        presetsWEBP << KoID("default", i18nc("webp preset option name", "default"));        
+        presetsWEBP << KoID("default", i18nc("webp preset option name", "default"));
         presetsWEBP << KoID("none", i18nc("webp preset option name", "none"));
-        presetsWEBP << KoID("drawing", i18nc("webp preset option name", "drawing"));        
+        presetsWEBP << KoID("drawing", i18nc("webp preset option name", "drawing"));
         presetsWEBP << KoID("icon", i18nc("webp preset option name", "icon"));
         presetsWEBP << KoID("photo", i18nc("webp preset option name", "photo"));
         presetsWEBP << KoID("picture", i18nc("webp preset option name", "picture"));
         presetsWEBP << KoID("text", i18nc("webp preset option name", "text"));
-        
+
         paletteGenModeGIF << KoID("full", i18nc("palettegen status mode option name", "Global/Full"));
         paletteGenModeGIF << KoID("diff", i18nc("palettegen status mode option name", "Difference"));
         paletteGenModeGIF << KoID("single", i18nc("palettegen status mode option name", "Per Single Frame"));
-    
+
         paletteDitherGIF << KoID("none", i18nc("paletteuse dither option name", "none"));
         paletteDitherGIF << KoID("bayer", i18nc("paletteuse dither option name", "bayer"));
         paletteDitherGIF << KoID("floyd_steinberg", i18nc("paletteuse dither option name", "floyd_steinberg"));
         paletteDitherGIF << KoID("heckbert", i18nc("paletteuse dither option name", "heckbert"));
         paletteDitherGIF << KoID("sierra2", i18nc("paletteuse dither option name", "sierra2"));
         paletteDitherGIF << KoID("sierra2_4a", i18nc("paletteuse dither option name", "sierra2_4a"));
-        
+
         paletteDiffModeGIF << KoID("none", i18nc("paletteuse diff mode option name", "none"));
         paletteDiffModeGIF << KoID("rectangle", i18nc("paletteuse diff mode option name", "rectangle"));
     }
@@ -109,9 +106,9 @@ struct KisVideoExportOptionsDialog::Private
     QVector<KoID> presetsXH264;
     QVector<KoID> profilesXH264;
     QVector<KoID> profilesXH265;
-    
+
     QVector<KoID> predAPNG;
-    
+
     QVector<KoID> paletteGenModeGIF;
     QVector<KoID> paletteDitherGIF;
     QVector<KoID> paletteDiffModeGIF;
@@ -170,35 +167,32 @@ KisVideoExportOptionsDialog::KisVideoExportOptionsDialog(ContainerType container
     ui->gifReserveTransparent->setChecked(true);
     ui->gifLoop->setChecked(true);
     ui->gifTransDiff->setChecked(true);
-    
+
     populateComboWithKoIds(ui->cmbPalettegenStatsModeGIF, m_d->paletteGenModeGIF, 0);
     populateComboWithKoIds(ui->cmbPaletteuseDitherGIF, m_d->paletteDitherGIF, 5);
     populateComboWithKoIds(ui->cmbPaletteuseDiffModeGIF, m_d->paletteDiffModeGIF, 0);
- 
+
     ui->intPaletteuseBayerScaleGIF->setRange(0, 5);
     ui->intPaletteuseBayerScaleGIF->setValue(2);
-    
+
     ui->apngLoop->setChecked(true);
-    
+
     populateComboWithKoIds(ui->cmbPredAPNG, m_d->predAPNG, 0);
-    
+
     ui->intCompressWEBP->setRange(0, 6);
     ui->intCompressWEBP->setValue(4);
 
     ui->intQscaleWEBP->setRange(0, 100);
     ui->intQscaleWEBP->setValue(75);
-    
+
     populateComboWithKoIds(ui->cmbPresetWEBP, m_d->presetsWEBP, 0);
-    
+
     ui->webpLoop->setChecked(true);
-    
+
     populateComboWithKoIds(ui->cmbCodec, m_d->encoders, 0);
     connect(ui->cmbCodec, SIGNAL(currentIndexChanged(int)), SLOT(slotCodecSelected(int)));
     slotCodecSelected(0);
 
-    // TODO: temporarily hidden! Some combinations of 'tune' and
-    //       'profile' options make ffmpeg generate empty file.
-    //       We should not let the user shoot into his own foot!
     ui->cmbTuneH264->setVisible(false);
     ui->lblTuneH264->setVisible(false);
 
@@ -219,12 +213,12 @@ KisVideoExportOptionsDialog::KisVideoExportOptionsDialog(ContainerType container
 
     connect(ui->btnHdrMetadata, SIGNAL(clicked()), SLOT(slotEditHDRMetadata()));
 
-    connect(ui->cmbPaletteuseDitherGIF, 
+    connect(ui->cmbPaletteuseDitherGIF,
             SIGNAL(currentIndexChanged(int)),
             SLOT(slotBayerFilterSelected(int)));
-    
+
     slotBayerFilterSelected(ui->cmbPaletteuseDitherGIF->currentIndex());
-    
+
     setSupportsHDR(false);
 }
 
@@ -293,9 +287,8 @@ QVector<KoID> KisVideoExportOptionsDialog::encoderIdentifiers(ContainerType type
                                 KoID("libx264", i18nc("h264 codec name, check simplescreenrecorder for standard translations", "H.264, MPEG-4 Part 10")),
                                 KoID("libx265", i18nc("h265 codec name, check simplescreenrecorder for standard translations", "H.265, MPEG-H Part 2 (HEVC)"))
                                 };
-    
+
     KoID vp9Encoder =  KoID("libvpx-vp9", i18nc("VP9 codec name", "VP9"));
-    
 
     switch (type) {
         case ContainerType::OGV:
@@ -320,7 +313,7 @@ QVector<KoID> KisVideoExportOptionsDialog::encoderIdentifiers(ContainerType type
             encoders << vp9Encoder;
             break;
     }
-    
+
     return encoders;
 }
 
@@ -400,7 +393,6 @@ void KisVideoExportOptionsDialog::setHDRConfiguration(bool value) {
         ui->chkUseHDRMetadata->setEnabled(true);
     }
 
-    //If HDR is enabled && the codec id is correct, we need to use main10.
     if (value && currentCodecId() == "libx265") {
         ui->cmbProfileH265->setCurrentIndex(m_d->profilesXH265.indexOf(KoID("main10")));
     }
@@ -477,10 +469,6 @@ QStringList KisVideoExportOptionsDialog::generateCustomLine() const
             options << "-pix_fmt" << "yuv420p";
         }
 
-        // Disabled! see the comment in c-tor!
-        //const int tuneIndex = ui->cmbTune->currentIndex();
-        //options << "-tune" << m_d->tunes[tuneIndex].id();
-
     } else if (currentCodecId() == "libx265") {
         const bool enableHDR =
             ui->chkUseHDRMetadata->isEnabled() &&
@@ -529,31 +517,31 @@ QStringList KisVideoExportOptionsDialog::generateCustomLine() const
         options << "-f" << "gif"
                 << "-loop" << ( ui->gifLoop->isChecked() ? "0":"-1" )
                 << "-gifflags" << ( ui->gifTransDiff->isChecked() ? "+transdiff":"-transdiff" )
-                << "-palettegen" << QString("palettegen=stats_mode=%1%2") 
+                << "-palettegen" << QString("palettegen=stats_mode=%1%2")
                                             .arg(m_d->paletteGenModeGIF[ ui->cmbPalettegenStatsModeGIF->currentIndex() ].id())
                                             .arg(":reserve_transparent=" + QString(ui->gifReserveTransparent->isChecked() ? "1":"0"))
                 << "-lavfi" << QString("[0:v][1:v]paletteuse=dither=%1%2%3")
                                             .arg(ditherFilterString)
                                             .arg(ditherFilterString == "bayer" ? (QString(":bayer_scale=%1").arg(ui->intPaletteuseBayerScaleGIF->value()) ):"" )
                                             .arg(":diff_mode=" + m_d->paletteDiffModeGIF[ ui->cmbPaletteuseDiffModeGIF->currentIndex() ].id() );
-                
+
     } else if (currentCodecId() == "apng") {
         const int predIndex = ui->cmbPredAPNG->currentIndex();
-        
+
         options << "-f" << "apng"
                 << "-pred" << m_d->predAPNG[predIndex].id()
                 << "-plays" << ( ui->apngLoop->isChecked() ? "0":"1" );
-                
+
     } else if (currentCodecId() == "libwebp") {
         const int presetIndex = ui->cmbPresetWEBP->currentIndex();
-        
+
         options << "-f" << "webp"
                 << "-lossless" << ( ui->webpLossless->isChecked() ? "1":"0" )
                 << "-compression_level" << QString::number(ui->intCompressWEBP->value())
                 << "-q:v" << QString::number(ui->intQscaleWEBP->value())
                 << "-preset" << m_d->presetsWEBP[presetIndex].id()
                 << "-loop" << ( ui->webpLoop->isChecked() ? "0":"1" );
-        
+
     }
 
     return options;

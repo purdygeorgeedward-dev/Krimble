@@ -135,7 +135,7 @@ inline auto readPlanarLayer(const int luma, Args &&...args)
         return readPlanarWithLuma<16>(std::forward<Args>(args)...);
     }
 }
-} // namespace Gray
+}
 
 namespace SDR
 {
@@ -153,7 +153,7 @@ struct readLayerImpl {
                        float displayNits,
                        const KoColorSpace *colorSpace);
 };
-} // namespace SDR
+}
 
 namespace Planar
 {
@@ -178,7 +178,7 @@ struct readLayerImpl {
                        float displayNits,
                        const KoColorSpace *colorSpace);
 };
-} // namespace Planar
+}
 
 namespace HDR
 {
@@ -197,6 +197,6 @@ struct readLayerImpl {
                        float displayNits,
                        const KoColorSpace *colorSpace);
 };
-} // namespace HDR
+}
 
-#endif // KIS_HEIF_IMPORT_TOOLS_H
+#endif

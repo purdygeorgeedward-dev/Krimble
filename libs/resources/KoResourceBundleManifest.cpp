@@ -106,8 +106,6 @@ bool KoResourceBundleManifest::parseFileEntry(const QDomElement &e)
     QString version   = e.attributeNS(KoXmlNS::manifest, "version");
 
     if (fullPath == "/" && mediaType == "application/x-krita-resourcebundle") {
-        // The manifest always contains an entry for the bundle root.
-        // This is not a resource, so skip it without indicating failure.
         return true;
     } else if (fullPath.isNull() || mediaType.isNull() || md5sum.isNull()) {
         return false;
@@ -145,8 +143,6 @@ bool KoResourceBundleManifest::save(QIODevice *device)
            Q_FOREACH (const ResourceReference &resource, m_resources[resourceType].values()) {
                manifestWriter.startElement("manifest:file-entry");
                manifestWriter.addAttribute("manifest:media-type", resourceTypeToManifestType(resourceType));
-               // we cannot just use QFileInfo(resource.resourcePath).fileName() because it would cut off the subfolder
-               // but the resourcePath is already correct, so let's just add the resourceType
                manifestWriter.addAttribute("manifest:full-path", resourceTypeToManifestType(resourceType) + "/" + resource.filenameInBundle);
                manifestWriter.addAttribute("manifest:md5sum", resource.md5sum);
                if (!resource.tagList.isEmpty()) {
@@ -207,7 +203,6 @@ QList<KoResourceBundleManifest::ResourceReference> KoResourceBundleManifest::fil
     QList<ResourceReference> resources;
 
     if (type.isEmpty()) {
-        // If no type is specified we return all the resources.
         Q_FOREACH (const QString &type, m_resources.keys()) {
             resources += m_resources[type].values();
         }

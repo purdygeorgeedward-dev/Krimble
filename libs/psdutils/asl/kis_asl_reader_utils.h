@@ -19,19 +19,10 @@
 
 #include <kis_debug.h>
 
-/**
- * Default value for variable read from a file
- */
-
 #define GARBAGE_VALUE_MARK 999
 
 namespace KisAslReaderUtils
 {
-/**
- * Exception that is emitted when any parse error appear.
- * Thanks to KisOffsetOnExitVerifier parsing can be continued
- * most of the time, based on the offset values written in PSD.
- */
 
 struct KRITAPSDUTILS_EXPORT ASLParseException : public std::runtime_error {
     ASLParseException(const QString &msg)
@@ -72,11 +63,8 @@ inline bool TRY_READ_SIGNATURE_2OPS_EX(QIODevice &device, const std::array<T, S>
         return false;
     }
 
-    // If read successfully, adjust current position of the io device
-
-    if (std::equal(bytes.constBegin(), bytes.constEnd(), expected1.begin()) 
+    if (std::equal(bytes.constBegin(), bytes.constEnd(), expected1.begin())
         || std::equal(bytes.constBegin(), bytes.constEnd(), expected2.begin())) {
-        // read, not seek, to support sequential devices
         auto bytesRead = psdreadBytes(device, S);
         if (bytesRead.size() == S) {
             return true;
@@ -100,16 +88,6 @@ inline bool TRY_READ_SIGNATURE_2OPS_EX(psd_byte_order byteOrder, QIODevice &devi
 
 namespace KisAslReaderUtils
 {
-/**
- * String fetch functions
- *
- * ASL has 4 types of strings:
- *
- * - fixed length (4 bytes)
- * - variable length (length (4 bytes) + string (var))
- * - pascal (length (1 byte) + string (var))
- * - unicode string (length (4 bytes) + null-terminated unicode string (var)
- */
 
 template<psd_byte_order byteOrder = psd_byte_order::psdBigEndian>
 inline QString readStringCommon(QIODevice &device, int length)
@@ -170,4 +148,4 @@ inline QString readUnicodeString(QIODevice &device)
 }
 }
 
-#endif /* __KIS_ASL_READER_UTILS_H */
+#endif

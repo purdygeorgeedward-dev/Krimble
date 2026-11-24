@@ -27,7 +27,6 @@
 
 #include "DlgResourceTypeForFile.h"
 
-// ------------ Warnings dialog ---------------
 class FailureReasonsDialog : public KoDialog
 {
 
@@ -66,7 +65,6 @@ public:
                 label->setWordWrap(true);
                 layout->addWidget(label);
 
-
                 QPlainTextEdit* textBox = new QPlainTextEdit(widget);
                 textBox->setBaseSize(0, 0);
                 for (int j = 0; j < failureReasons[keys[i]].size(); j++) {
@@ -79,7 +77,6 @@ public:
             }
         }
 
-
         widget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
         widget->setLayout(layout);
         widget->setGeometry(QRect(QPoint(0,0), layout->sizeHint()));
@@ -90,16 +87,11 @@ public:
 
 };
 
-
-
-// ------------ Resource Importer --------------
-
 ResourceImporter::ResourceImporter(QWidget *parent)
     : m_widgetParent(parent)
 {
     initialize();
 }
-
 
 ResourceImporter::~ResourceImporter()
 {
@@ -108,7 +100,6 @@ ResourceImporter::~ResourceImporter()
 
 void ResourceImporter::importResources(QString startPath)
 {
-    // TODO: remove debug after finishing the importer
     bool debug = false;
 
     if (startPath.isEmpty()) {
@@ -121,16 +112,12 @@ void ResourceImporter::importResources(QString startPath)
     dialog.setMimeTypeFilters(m_allMimetypes);
     QStringList filenames = dialog.filenames();
 
-
     if (debug) qCritical() << "All filenames: " << filenames;
-
 
     QMap<QString, QString> troublesomeFiles;
     QStringList troublesomeMimetypes;
 
     QMap<QString, QStringList> troublesomeFilesPerMimetype;
-
-
 
     QMap<QString, QString> resourceTypePerFile;
 
@@ -141,31 +128,16 @@ void ResourceImporter::importResources(QString startPath)
     failedFiles.insert(ResourceCannotBeLoaded, QStringList());
     failedFiles.insert(CancelledByTheUser, QStringList());
 
-
     for (int i = 0; i < filenames.count(); i++) {
         QString mimetype = KisMimeDatabase::mimeTypeForFile(filenames[i]);
         if (m_storagesMimetypes.contains(mimetype)) {
             if (debug) qCritical() << "We're loading a storage here: " << filenames[i];
 
-            // import the bundle/asl/abr storage
-
             KisStorageModel::StorageImportOption importMode = KisStorageModel::None;
             if (debug) qCritical() << "checking for storage" << filenames[i] << QFileInfo(filenames[i]).fileName();
-            // TODO: three options in case of the same filename: cancel; overwrite; rename;
-            // but for now, let's just skip
             bool skip = false;
             if (KisResourceLocator::instance()->hasStorage(QFileInfo(filenames[i]).fileName())) {
                 skip = true;
-                /*
-                if (QMessageBox::warning(m_widgetParent, i18nc("@title:window", "Warning"),
-                                         i18n("There is already a resource library with this name installed. Do you want to overwrite it? Resource library name: "),
-                                         QMessageBox::Ok | QMessageBox::Cancel) == QMessageBox::Cancel) {
-                    importMode = KisStorageModel::Rename;
-                }
-                else {
-                    importMode = KisStorageModel::Overwrite;
-                }
-                */
             }
             if (skip || !KisStorageModel::instance()->importStorage(filenames[i], importMode)) {
                 failedFiles[StorageAlreadyExists] << filenames[i];
@@ -174,7 +146,6 @@ void ResourceImporter::importResources(QString startPath)
             }
 
         } else if (m_zipMimetypes.contains(mimetype)) {
-            // TODO: unpack a zip file and then proceed the same way like with others
         } else if (m_resourceTypesForMimetype.contains(mimetype)) {
             bool differentResourceTypes = m_resourceTypesForMimetype.value(mimetype).count() > 1;
             if (differentResourceTypes) {
@@ -226,9 +197,6 @@ void ResourceImporter::importResources(QString startPath)
         }
     }
 
-
-
-
     if (debug) qCritical() <<  "Resource types for mimetype: ";
 
     for (int i = 0; i < m_resourceTypesForMimetype.keys().size(); i++) {
@@ -249,7 +217,6 @@ void ResourceImporter::importResources(QString startPath)
 
             bool allowOverwrite = false;
 
-            // first check if we are going to overwrite anything
             if (model->importWillOverwriteResource(resourceFiles[i])) {
                 if(!KisResourceUserOperations::userAllowsOverwrite(m_widgetParent, resourceFiles[i])) {
                     continue;
@@ -292,7 +259,7 @@ void ResourceImporter::prepareTypesMaps()
                                         << "image/x-adobe-brushlibrary"
                                         << "application/x-photoshop-style-library";
 
-    m_zipMimetypes = QStringList(); // << "application/zip"; // TODO: implement for zip archives
+    m_zipMimetypes = QStringList();
 
     QStringList resourceTypes;
     KisResourceTypeModel model;
@@ -309,9 +276,6 @@ void ResourceImporter::prepareTypesMaps()
     for (int i = 0; i < resourceTypes.count(); i++) {
         QStringList mime = KisResourceLoaderRegistry::instance()->mimeTypes(resourceTypes[i]);
 
-        // remove mypaint brushes for now, because we'd need to figure out an UX for them
-        // probably 1) remove all the _prev.png files from a list to import as patterns or brush tips
-        // and 2) when importing a .myb file, find a proper .png file alongside it to import together
         mime.removeAll("application/x-mypaint-brush");
 
         m_mimetypeForResourceType.insert(resourceTypes[i], mime);
@@ -331,10 +295,7 @@ void ResourceImporter::prepareTypesMaps()
     m_allMimetypes << m_zipMimetypes;
     m_allMimetypes << mimetypes;
 
-
     m_allMimetypes.removeDuplicates();
-
-
 
 }
 
@@ -363,11 +324,4 @@ void ResourceImporter::initialize()
         m_isInitialized = true;
     }
 }
-
-
-
-
-
-
-
 

@@ -16,15 +16,12 @@ namespace KisGradientWidgetsUtils
 void paintGradientBox(QPainter &painter, const KoAbstractGradientSP gradient, const QRectF &rect)
 {
     static KoCheckerBoardPainter checkerBoardPainter(4);
-    
-    // Background
+
     checkerBoardPainter.paint(painter, rect, rect.topLeft());
-    // Gradient
     QImage image = gradient->generatePreview(rect.width(), rect.height());
     if (!image.isNull()) {
         painter.drawImage(rect.topLeft(), image);
     }
-    // Border
     painter.setPen(QColor(0, 0, 0, 192));
     painter.drawRect(rect);
 }
@@ -66,7 +63,6 @@ void paintStopHandle(QPainter &painter,
         240
     );
     path.closeSubpath();
-    // paint the "drop" handle
     if (color1.type != None && color2.type != None && color1.color != color2.color) {
         painter.setClipRect(QRectF(QPointF(alignedPosition.x() - halfWidth, alignedPosition.y()), QSizeF(halfWidth, size.height())));
         painter.setPen(Qt::NoPen);
@@ -82,15 +78,12 @@ void paintStopHandle(QPainter &painter,
     } else {
         painter.setPen(QPen(borderColor, borderWidth));
         if (color1.type != None) {
-            // Only color 1 was specified
             painter.setBrush(color1.color);
         } else {
-            // Only color 2 was specified
             painter.setBrush(color2.color);
         }
         painter.drawPath(path);
     }
-    // paint the type indicator
     constexpr QSizeF typeIndicatorSize(5.0, 5.0);
     if (color1.type == Foreground || color1.type == Background) {
         QPointF typeIndicatorPosition(
@@ -165,7 +158,6 @@ void paintMidPointHandle(QPainter &painter,
 
     painter.restore();
 }
-
 
 KisGradientWidgetsUtils::ColorType segmentEndPointTypeToColorType(KoGradientSegmentEndpointType type)
 {

@@ -143,7 +143,6 @@ void SvgChangeTextPaddingMarginStrategy::paint(QPainter &painter, const KoViewCo
             KoShape::createHandlePainterHelperView(&painter, m_shape, converter, handleRadius(), decorationThickness());
     handlePainter.setHandleStyle(KisHandleStyle::selectedPrimaryHandles(displayRendererInterface->handlePaletteForDisplayColorSpace()));
 
-
     const QLineF line = getLine(m_lastMousePos, m_referenceShape, m_isPadding);
     const QTransform lineTf = m_referenceShape->absoluteTransformation() * m_shape->absoluteTransformation().inverted();
     handlePainter.drawConnectionLine(lineTf.map(line));

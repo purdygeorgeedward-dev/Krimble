@@ -10,25 +10,17 @@
 #include "kritaimage_export.h"
 #include "kis_default_bounds_base.h"
 
-
 namespace KisLodSwitchingWrapperDetail
 {
-/**
- * By default forward the syncing request to the wrapped
- * object itself.
- */
 template <typename T>
 inline T syncLodNValue(const T &value, int lod) {
     return value.syncLodNValue(lod);
 }
 
-/**
- * Otherwise just use specialized functions for that
- */
 KRITAIMAGE_EXPORT
 QPoint syncLodNValue(const QPoint &value, int lod);
 
-} // namespace KisLodSwitchingWrapperDetail
+}
 
 template <typename T>
 class KisLodSwitchingWrapper
@@ -63,7 +55,6 @@ public:
 
         return *this;
     }
-
 
     KisDefaultBoundsBaseSP defaultBounds() const {
         return m_defaultBounds;
@@ -119,7 +110,6 @@ public:
         return *this;
     }
 
-
 private:
     KisDefaultBoundsBaseSP m_defaultBounds;
     T m_data;
@@ -128,4 +118,4 @@ private:
 
 using KisLodCapableLayerOffset = KisLodSwitchingWrapper<QPoint>;
 
-#endif /* __KIS_LOD_CAPABLE_LAYER_OFFSET_H */
+#endif

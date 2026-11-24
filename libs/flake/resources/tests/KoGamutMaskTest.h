@@ -21,7 +21,6 @@ private Q_SLOTS:
 
     void testLoad();
     void testLoad_data();
-// TODO: add preview vs. non-preview testing
 };
 
-#endif // KOGAMUTMASKTEST_H
+#endif

@@ -89,4 +89,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif // TIMELINE_RULER_HEADER_H
+#endif

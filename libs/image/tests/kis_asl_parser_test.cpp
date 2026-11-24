@@ -78,7 +78,6 @@ struct CallbackVerifier {
         dbgKrita << ppVar(pattern->name());
         dbgKrita << ppVar(pattern->filename());
 
-        //QCOMPARE(text, QString("11adf7a2-a120-11e1-957c-d1ee226781a4"));
         m_numCallsHappened++;
     }
 
@@ -91,7 +90,6 @@ void KisAslParserTest::testWithCallbacks()
     QString fileName(TestUtil::fetchDataFileLazy("asl/freebie.asl"));
     QFile aslFile(fileName);
     KIS_ASSERT(aslFile.open(QIODevice::ReadOnly));
-
 
     KisAslReader reader;
     QDomDocument doc = reader.readFile(aslFile);
@@ -151,7 +149,6 @@ void KisAslParserTest::testASLXMLWriter()
     c.fromQColor(Qt::green);
     w.writeColor("Clr ", c);
 
-
     w.writeUnitFloat("Opct", "#Prc", 16);
     w.writeBoolean("uglg", false);
     w.writeUnitFloat("lagl", "#Prc", 100);
@@ -197,8 +194,6 @@ void KisAslParserTest::testWritingGradients()
                                   Qt::green, Qt::white);
 
     w1.writeSegmentGradient("tstG", segmentGradient);
-    //dbgKrita << "===";
-    //dbgKrita << ppVar(w1.document().toString());
 
     KisAslXmlWriter w2;
 
@@ -215,9 +210,6 @@ void KisAslParserTest::testWritingGradients()
 
     w2.writeStopGradient("tstG", stopGradient);
 
-    //dbgKrita << "===";
-    //dbgKrita << ppVar(w2.document().toString());
-
     QCOMPARE(w1.document().toString(),
              w2.document().toString());
 
@@ -227,7 +219,6 @@ void KisAslParserTest::testWritingGradients()
 
 void KisAslParserTest::testASLWriter()
 {
-    //QString srcFileName(TestUtil::fetchDataFileLazy("asl/testset/freebie_with_pattern.asl"));
     QString srcFileName(TestUtil::fetchDataFileLazy("asl/freebie.asl"));
 
     QDomDocument srcDoc;
@@ -282,12 +273,9 @@ void KisAslParserTest::testParserWithPatterns()
 
     QFileInfoList files = dir.entryInfoList(QStringList() << "*.asl", QDir::Files);
 
-
     int index = 0;
 
     Q_FOREACH (const QFileInfo &fileInfo, files) {
-
-        //if (index != 12) {index++; continue;}
 
         dbgKrita << "===" << index << "===";
         dbgKrita << ppVar(fileInfo.fileName());
@@ -302,8 +290,6 @@ void KisAslParserTest::testParserWithPatterns()
         KIS_ASSERT(xmlFile.open(QIODevice::WriteOnly));
         xmlFile.write(doc.toByteArray());
 
-        //dbgKrita << ppVar(doc.toString());
-
         CallbackVerifier verifier;
         KisAslCallbackObjectCatcher c;
 
@@ -313,10 +299,7 @@ void KisAslParserTest::testParserWithPatterns()
         KisAslXmlParser parser;
         parser.parseXML(doc, c);
 
-        //QCOMPARE(verifier.m_numCallsHappened, 7);
-
         index++;
-        //break;
     }
 }
 

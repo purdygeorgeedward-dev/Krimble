@@ -13,7 +13,6 @@
 
 #include "kritaimage_export.h"
 
-
 class KRITAIMAGE_EXPORT KisPerStrokeRandomSource : public KisShared
 {
 public:
@@ -22,14 +21,8 @@ public:
 
     ~KisPerStrokeRandomSource();
 
-    /**
-     * Generates a random number in a range from \p min to \p max
-     */
     int generate(const QString &key, int min, int max) const;
 
-    /**
-     * Generates a random number in a closed range [0; 1.0]
-     */
     qreal generateNormalized(const QString &key) const;
 
 private:
@@ -41,4 +34,4 @@ class KisPerStrokeRandomSource;
 typedef KisSharedPtr<KisPerStrokeRandomSource> KisPerStrokeRandomSourceSP;
 typedef KisWeakSharedPtr<KisPerStrokeRandomSource> KisPerStrokeRandomSourceWSP;
 
-#endif // KISPERSTROKERANDOMSOURCE_H
+#endif

@@ -8,7 +8,6 @@
 #include "kis_properties_configuration.h"
 #include <KisResourcesInterface.h>
 
-
 KisPaintopPropertiesResourcesBase::~KisPaintopPropertiesResourcesBase()
 {
 
@@ -17,7 +16,6 @@ KisPaintopPropertiesResourcesBase::~KisPaintopPropertiesResourcesBase()
 KisPaintopPropertiesBase::~KisPaintopPropertiesBase()
 {
 }
-
 
 KisPaintopPropertiesCanvasResourcesBase::~KisPaintopPropertiesCanvasResourcesBase()
 {

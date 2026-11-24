@@ -22,4 +22,4 @@ private Q_SLOTS:
 
 };
 
-#endif // TESTPROFILEGENERATION_H
+#endif

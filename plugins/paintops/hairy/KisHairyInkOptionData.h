@@ -6,7 +6,6 @@
 #ifndef KIS_HAIRYINK_OPTION_DATA_H
 #define KIS_HAIRYINK_OPTION_DATA_H
 
-
 #include "kis_types.h"
 #include <boost/operators.hpp>
 
@@ -50,4 +49,4 @@ struct KisHairyInkOptionData : boost::equality_comparable<KisHairyInkOptionData>
     void write(KisPropertiesConfiguration *setting) const;
 };
 
-#endif // KIS_HAIRYINK_OPTION_DATA_H
+#endif

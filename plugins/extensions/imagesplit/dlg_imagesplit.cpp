@@ -168,7 +168,7 @@ void DlgImagesplit::updatePreview()
             painter.drawLine(lineX, point.y(), lineX, point.y()+m_thumbnail.height());
         }
     }
-    painter.end(); // Otherwise there will always be a copy
+    painter.end();
 
     m_page->imagePreviewLabel->setPixmap(QPixmap::fromImage(img));
 }

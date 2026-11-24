@@ -10,7 +10,6 @@
 #ifndef _KIS_CROSSCHANNEL_FILTER_H_
 #define _KIS_CROSSCHANNEL_FILTER_H_
 
-
 #include <filter/kis_color_transformation_filter.h>
 #include <filter/kis_color_transformation_configuration.h>
 #include <kis_config_widget.h>
@@ -22,10 +21,6 @@
 #include "kis_multichannel_filter_base.h"
 #include <KisCurveWidgetControlsManager.h>
 
-/**
- * Filter which applies a relative adjustment to a (virtual) color channel based on the value of another.
- * The amount of adjustment for a given input is controlled by a user-defined curve.
- */
 class KisCrossChannelFilter : public KisMultiChannelFilter
 {
 public:
@@ -71,15 +66,6 @@ private:
     const KoColorSpace *m_colorSpace {nullptr};
     QVector<int> m_driverChannels;
 
-    /**
-     * @brief Takes a driver property name with format "driver#", where # is the
-     *        index of the channel and puts the index on the "channelIndex"
-     *        parameter
-     * @param name A string with format "driver#"
-     * @param channelIndex An int where the decoded channel index is stored
-     * @return true if "name" had a valid format
-     * @return false if "name" had an invalid format
-     */
     bool channelIndexFromDriverPropertyName(const QString& name, int& channelIndex) const;
 };
 

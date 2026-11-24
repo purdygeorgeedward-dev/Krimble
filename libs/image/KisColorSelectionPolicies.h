@@ -200,7 +200,6 @@ public:
         if (m_threshold == 0) {
             return MIN_SELECTED;
         }
-        // Integer version of: (threshold - diff) / (threshold * softness)
         if (difference < m_threshold) {
             const int v = (m_threshold - difference) * MAX_SELECTED * 100 / (m_threshold * m_softness);
             return v > MAX_SELECTED ? MAX_SELECTED : v;
@@ -238,7 +237,6 @@ public:
         if (m_threshold == 0) {
             return MAX_SELECTED;
         }
-        // Integer version of: 1 - ((1-threshold) - diff) / ((1-threshold) * softness)
         if (difference < m_threshold) {
             const int v = MAX_SELECTED - (m_threshold - difference) * MAX_SELECTED * 100 / (m_threshold * m_softness);
             return v < MIN_SELECTED ? MIN_SELECTED : v;

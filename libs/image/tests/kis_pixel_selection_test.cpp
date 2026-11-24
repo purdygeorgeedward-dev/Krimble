@@ -7,7 +7,6 @@
 #include "kis_pixel_selection_test.h"
 #include <simpletest.h>
 
-
 #include <kis_debug.h>
 #include <QRect>
 
@@ -26,7 +25,6 @@
 #include "kis_transaction.h"
 #include "kis_surrogate_undo_adapter.h"
 #include "commands/kis_selection_commands.h"
-
 
 void KisPixelSelectionTest::testCreation()
 {
@@ -58,7 +56,7 @@ void KisPixelSelectionTest::testSetSelected()
 void KisPixelSelectionTest::testInvert()
 {
     KisDefaultBounds defaultBounds;
-    
+
     KisPixelSelectionSP selection = new KisPixelSelection();
     selection->select(QRect(5, 5, 10, 10));
     selection->invert();
@@ -80,7 +78,6 @@ void KisPixelSelectionTest::testInvertWithImage()
     selection->invert();
     QCOMPARE(selection->selectedExactRect(), QRect(0, 0, 200, 200));
 
-    // round trip
     selection->invert();
     QCOMPARE(selection->selectedExactRect(), QRect(5, 5, 10, 10));
 }
@@ -98,11 +95,8 @@ void KisPixelSelectionTest::testClear()
     QCOMPARE(TestUtil::alphaDevicePixel(selection, 205, 205), MAX_SELECTED);
     QCOMPARE(TestUtil::alphaDevicePixel(selection, 250, 250), MAX_SELECTED);
 
-    // everything deselected
     selection->clear();
-    // completely selected
     selection->invert();
-    // deselect a certain area
     selection->clear(QRect(5, 5, 200, 200));
 
     QCOMPARE(TestUtil::alphaDevicePixel(selection, 0, 0), MAX_SELECTED);
@@ -133,7 +127,6 @@ void KisPixelSelectionTest::testExtent()
     QCOMPARE(selection->selectedExactRect(), QRect(0, 0, 516, 441));
     QCOMPARE(selection->selectedRect(), QRect(0, 0, 576, 448));
 }
-
 
 void KisPixelSelectionTest::testAddSelection()
 {
@@ -192,8 +185,6 @@ void KisPixelSelectionTest::testExactRectWithImage()
     selection->select(QRect(100, 50, 200, 100));
     QCOMPARE(selection->selectedExactRect(), QRect(100, 50, 200, 100));
 }
-
-
 
 void KisPixelSelectionTest::testUndo()
 {
@@ -381,7 +372,6 @@ bool compareRect(KisPixelSelectionSP psel, const QRect &rc)
     poly << rc.topLeft();
 
     psel->select(rc);
-    //KIS_DUMP_DEVICE_2(psel, psel->defaultBounds()->bounds(), "selection_rect", "dd");
 
     const QVector<QPolygon> outline = psel->outline();
     const QVector<QPolygon> ref({poly});
@@ -406,8 +396,6 @@ bool compareRegion(KisPixelSelectionSP psel,
     Q_FOREACH(const QRect &rc, rects) {
         psel->select(rc);
     }
-
-    //KIS_DUMP_DEVICE_2(psel, psel->defaultBounds()->bounds(), "selection_poly", "dd");
 
     const QVector<QPolygon> outline = psel->outline();
 
@@ -435,7 +423,6 @@ void KisPixelSelectionTest::testOutlineArtifacts()
     QVERIFY(compareRect(psel, QRect(10,10,4,1)));
     QVERIFY(compareRect(psel, QRect(10,10,4,2)));
     QVERIFY(compareRect(psel, QRect(10,10,1,1)));
-
 
     QVERIFY(compareRegion(psel,
         {QRect(10,10,5,4), QRect(10,15,5,4), QRect(13,14,1,1)},

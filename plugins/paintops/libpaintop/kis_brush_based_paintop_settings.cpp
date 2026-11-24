@@ -1,8 +1,4 @@
-﻿/*
- *  SPDX-FileCopyrightText: 2010 Sven Langkamp <sven.langkamp@gmail.com>
- *
- *  SPDX-License-Identifier: GPL-2.0-or-later
- */
+﻿
 
 #include "kis_brush_based_paintop_settings.h"
 
@@ -54,7 +50,6 @@ struct BrushWriter {
     KisBrushOptionProperties m_option;
 };
 
-
 KisBrushBasedPaintOpSettings::KisBrushBasedPaintOpSettings(KisResourcesInterfaceSP resourcesInterface)
     : KisOutlineGenerationPolicy<KisPaintOpSettings>(KisCurrentOutlineFetcher::SIZE_OPTION |
                                                      KisCurrentOutlineFetcher::ROTATION_OPTION |
@@ -77,13 +72,6 @@ KisPaintOpSettingsSP KisBrushBasedPaintOpSettings::clone() const
     KisPaintOpSettingsSP _settings = KisOutlineGenerationPolicy<KisPaintOpSettings>::clone();
     KisBrushBasedPaintOpSettingsSP settings = dynamic_cast<KisBrushBasedPaintOpSettings*>(_settings.data());
 
-    /**
-     * We don't copy m_savedBrush directly because it can also
-     * depend on "canvas resources", which should be baked into
-     * the preset on cloning. This dependency is tracked by
-     * KisPresetShadowUpdater and reset when needed via
-     * resetting cache interface.
-     */
     settings->setResourceCacheInterface(resourceCacheInterface());
 
     return settings;
@@ -162,7 +150,6 @@ void KisBrushBasedPaintOpSettings::setAutoSpacing(bool active, qreal coeff)
     w.brush()->setAutoSpacing(active, coeff);
 }
 
-
 bool KisBrushBasedPaintOpSettings::autoSpacingActive()
 {
     KIS_SAFE_ASSERT_RECOVER_RETURN_VALUE(this->brush(), false);
@@ -205,7 +192,6 @@ qreal KisBrushBasedPaintOpSettings::paintOpAngle() const
     const qreal value = kisRadiansToDegrees(this->brush()->angle());
     return value;
 }
-
 
 #include <brushengine/kis_slider_based_paintop_property.h>
 #include "kis_paintop_preset.h"
@@ -280,7 +266,6 @@ QList<KisUniformPaintOpPropertySP> KisBrushBasedPaintOpSettings::uniformProperti
             prop->setRange(0.01, 10);
             prop->setSingleStep(0.01);
             prop->setExponentRatio(3.0);
-
 
             prop->setReadCallback(
                 [](KisUniformPaintOpProperty *prop) {

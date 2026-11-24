@@ -11,9 +11,6 @@
 
 class KoShapeContainerModel;
 
-/**
- * \internal used private d-pointer class for the \a KoShapeContainer class.
- */
 class KRITAFLAKE_EXPORT KoShapeContainer::Private
 {
 public:

@@ -1,5 +1,3 @@
-// Draws the Krimble Help window offscreen, as a phone would show it, and writes pictures of it.
-// Usage: help_dialog OUTDIR WIDTH HEIGHT krimble-help.md [part to go to] [word to find]
 #include "KrimbleHelpDialog.h"
 #include <QApplication>
 #include <QComboBox>

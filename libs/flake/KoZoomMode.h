@@ -13,39 +13,25 @@
 
 class QDebug;
 
-/**
- * The ZoomMode container
- */
 class KRITAFLAKE_EXPORT KoZoomMode
 {
 public:
     enum Mode
     {
-        ZOOM_CONSTANT = 0,  ///< zoom x %
-        ZOOM_PAGE     = 1,  ///< zoom page
-        ZOOM_WIDTH    = 2,  ///< zoom pagewidth
-        ZOOM_HEIGHT   = 16,  ///< zoom pageheight
+        ZOOM_CONSTANT = 0,
+        ZOOM_PAGE     = 1,
+        ZOOM_WIDTH    = 2,
+        ZOOM_HEIGHT   = 16,
     };
 
     Q_DECLARE_FLAGS(Modes, Mode)
 
-    /// \return the to QString converted and translated Mode \c mode
     static QString toString(Mode mode);
 
-    /**
-     * Generates standard zoom levels for the allowed range of \p minZoom
-     * and \p maxZoom
-     */
     static QVector<qreal> generateStandardZoomLevels(qreal minZoom, qreal maxZoom);
 
-    /**
-     * Find the next zoom level to switch during the zoom-in operation
-     */
     static qreal findNextZoom(qreal currentZoom, const QVector<qreal> &zoomLevels);
 
-    /**
-     * Find the previous zoom level to switch during the zoom-out operation
-     */
     static qreal findPrevZoom(qreal currentZoom, const QVector<qreal> &zoomLevels);
 
 private:

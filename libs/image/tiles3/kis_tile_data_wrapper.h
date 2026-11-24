@@ -7,12 +7,6 @@
 #ifndef __KIS_TILE_DATA_WRAPPER_H
 #define __KIS_TILE_DATA_WRAPPER_H
 
-
-/**
- * KisTileDataWrapper is a special object, that fetches the tile from
- * the data manager according to the position, locks it and returns
- * a pointer to the needed piece of data
- */
 class KisTileDataWrapper
 {
 public:
@@ -21,10 +15,6 @@ public:
         WRITE
     };
 
-    /**
-     * Fetches the tile which contains point (\p x, \p y) from
-     * the data manager \p dm with access \p type
-     */
     inline KisTileDataWrapper(KisTiledDataManager *dm,
                               qint32 x, qint32 y,
                               enum KisTileDataWrapper::accessType type)
@@ -32,7 +22,6 @@ public:
         const qint32 col = dm->xToCol(x);
         const qint32 row = dm->yToRow(y);
 
-        /* FIXME: Always positive? */
         const qint32 xInTile = x - col * KisTileData::WIDTH;
         const qint32 yInTile = y - row * KisTileData::HEIGHT;
 
@@ -62,31 +51,16 @@ public:
         }
     }
 
-    /**
-     * Returns the offset of the data in the tile's chunk of memory
-     *
-     * \see data()
-     */
     inline qint32 offset() const
     {
         return m_offset;
     }
 
-    /**
-     * Returns the fetched tile
-     */
     inline KisTileSP& tile()
     {
         return m_tile;
     }
 
-    /**
-     * Returns the pointer to the pixel, that was passed to
-     * the constructor. This points to the raw data of the tile,
-     * so you should think about the borders of the tile yourself.
-     * When (x,y) is the top-left corner of the tile, the pointer
-     * will lead to the beginning of the tile's chunk of memory.
-     */
     inline quint8* data() const
     {
         return m_tile->data() + m_offset;
@@ -99,4 +73,4 @@ private:
     qint32 m_offset;
     KisTileDataWrapper::accessType m_type;
 };
-#endif /* __KIS_TILE_DATA_WRAPPER_H */
+#endif

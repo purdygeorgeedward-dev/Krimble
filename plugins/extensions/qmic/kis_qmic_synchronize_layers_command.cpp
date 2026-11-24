@@ -130,7 +130,6 @@ void KisQmicSynchronizeLayersCommand::redo()
 
     addCommand(new KisCommandUtils::SkipFirstRedoWrapper(selectOldLayer));
 
-    // if gmic produces more layers
     if (d->m_nodes->size() < d->m_images.size()) {
         if (d->m_image) {
             const QPoint origin = [&]() -> QPoint {
@@ -160,9 +159,6 @@ void KisQmicSynchronizeLayersCommand::redo()
                 KisNodeSP parent(nullptr);
 
                 if (nodesCount > 0) {
-                    // This node is a copy made by GMic of an existing node;
-                    // give it its name back (the existing node will be reused
-                    // by KisImportQmicProcessingVisitor)
                     paintLayer->setName(getNode(i - nodesCount)->name());
                     aboveThis = pickAboveThis();
                     parent = d->m_nodes->at(0)->parent();
@@ -184,7 +180,7 @@ void KisQmicSynchronizeLayersCommand::redo()
                 addCommand(new KisCommandUtils::SkipFirstRedoWrapper(addLayerCmd));
                 d->m_newNodes->append(paintLayer);
             }
-        } else // small preview
+        } else
         {
             Q_ASSERT(!d->m_nodes->empty());
             for (int i = d->m_nodes->size(); i < d->m_images.size(); i++) {
@@ -194,7 +190,6 @@ void KisQmicSynchronizeLayersCommand::redo()
             }
         }
     } else if (d->m_nodes->size() > d->m_images.size()) {
-        // if gmic produces less layers, we are going to drop some
 
         const KisNodeList extraNodes = [&]() {
             KisNodeList result;

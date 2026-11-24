@@ -64,7 +64,7 @@ PSDLayerMaskSection::~PSDLayerMaskSection()
 
 bool PSDLayerMaskSection::read(QIODevice &io)
 {
-    bool retval = true; // be optimistic! <:-)
+    bool retval = true;
 
     try {
         if (m_header.tiffStyleLayerBlock) {
@@ -114,7 +114,7 @@ bool PSDLayerMaskSection::readLayerInfoImpl(QIODevice &io)
                 return false;
             }
 
-            hasTransparency = nLayers < 0; // first alpha channel is the alpha channel of the projection.
+            hasTransparency = nLayers < 0;
             nLayers = qAbs(nLayers);
 
             dbgFile << "Number of layers:" << nLayers;
@@ -124,7 +124,7 @@ bool PSDLayerMaskSection::readLayerInfoImpl(QIODevice &io)
                 dbgFile << "Going to read layer" << i << "pos" << io.pos();
                 dbgFile << "== Enter PSDLayerRecord";
                 PSDHeader sanitizedHeader(m_header);
-                sanitizedHeader.tiffStyleLayerBlock = false; // disable padding
+                sanitizedHeader.tiffStyleLayerBlock = false;
                 std::unique_ptr<PSDLayerRecord> layerRecord(new PSDLayerRecord(sanitizedHeader));
                 if (!layerRecord->read(io)) {
                     error = QString("Could not load layer %1: %2").arg(i).arg(layerRecord->error);
@@ -137,7 +137,6 @@ bool PSDLayerMaskSection::readLayerInfoImpl(QIODevice &io)
             }
         }
 
-        // get the positions for the channels belonging to each layer
         for (int i = 0; i < nLayers; ++i) {
             dbgFile << "Going to seek channel positions for layer" << i << "pos" << io.pos();
             if (i > layers.size()) {
@@ -148,7 +147,6 @@ bool PSDLayerMaskSection::readLayerInfoImpl(QIODevice &io)
             PSDLayerRecord *layerRecord = layers.at(i);
 
             for (int j = 0; j < layerRecord->nChannels; ++j) {
-                // save the current location so we can jump beyond this block later on.
                 quint64 channelStartPos = io.pos();
                 dbgFile << "\tReading channel image data for channel" << j << "from pos" << io.pos();
 
@@ -169,10 +167,8 @@ bool PSDLayerMaskSection::readLayerInfoImpl(QIODevice &io)
 
                 QRect channelRect = layerRecord->channelRect(channelInfo);
 
-                // read the rle row lengths;
                 if (channelInfo->compressionType == psd_compression_type::RLE) {
                     for (qint64 row = 0; row < channelRect.height(); ++row) {
-                        // dbgFile << "Reading the RLE byte count position of row" << row << "at pos" << io.pos();
 
                         quint32 byteCount;
                         if (m_header.version == 1) {
@@ -188,22 +184,17 @@ bool PSDLayerMaskSection::readLayerInfoImpl(QIODevice &io)
                                 return 0;
                             }
                         }
-                        ////dbgFile << "rle byte count" << byteCount;
                         channelInfo->rleRowLengths << byteCount;
                     }
                 }
 
-                // we're beyond all the length bytes, rle bytes and whatever, this is the
-                // location of the real pixel data
                 channelInfo->channelDataStart = io.pos();
 
                 dbgFile << "\t\tstart" << channelStartPos << "data start" << channelInfo->channelDataStart << "data length" << channelInfo->channelDataLength
                         << "pos" << io.pos();
 
-                // make sure we are at the start of the next channel data block
                 io.seek(channelStartPos + channelInfo->channelDataLength);
 
-                // this is the length of the actual channel data bytes
                 channelInfo->channelDataLength = channelInfo->channelDataLength - (channelInfo->channelDataStart - channelStartPos);
 
                 dbgFile << "\t\tchannel record" << j << "for layer" << i << "with id" << channelInfo->channelId << "starting position"
@@ -220,7 +211,6 @@ bool PSDLayerMaskSection::readPsdImpl(QIODevice &io)
 {
     dbgFile << "(PSD) reading layer section. Pos:" << io.pos() << "bytes left:" << io.bytesAvailable();
 
-    // https://www.adobe.com/devnet-apps/photoshop/fileformatashtml/#50577409_21849
     boost::optional<quint64> layerMaskBlockSize = 0;
 
     if (m_header.version == 1) {
@@ -240,15 +230,9 @@ bool PSDLayerMaskSection::readPsdImpl(QIODevice &io)
         return true;
     }
 
-    /**
-     * PSD files created in some weird web applications may
-     * have invalid layer-mask-block-size set. Just do a simple
-     * sanity check to catch this case
-     */
     if (static_cast<qint64>(*layerMaskBlockSize) > io.bytesAvailable()) {
         warnKrita << "WARNING: invalid layer block size. Got" << *layerMaskBlockSize << "Bytes left" << io.bytesAvailable() << "Triggering a workaround...";
 
-        // just don't use this value for offset recovery at the end
         layerMaskBlockSize = boost::none;
     }
 
@@ -289,8 +273,6 @@ bool PSDLayerMaskSection::readPsdImpl(QIODevice &io)
             return false;
         }
 
-        // Global mask must measure at least 13 bytes
-        // (excluding the 1 byte compiler enforced padding)
         if (globalMaskBlockLength >= 13) {
             dbgFile << "Padding for global mask block:"
                     << globalMaskBlockLength - 13 << "(" << io.pos() << ")";
@@ -298,16 +280,6 @@ bool PSDLayerMaskSection::readPsdImpl(QIODevice &io)
         }
     }
 
-    // global additional sections
-
-    /**
-     * Newer versions of PSD have layers info block wrapped into
-     * 'Lr16' or 'Lr32' additional section, while the main block is
-     * absent.
-     *
-     * Here we pass the callback which should be used when such
-     * additional section is recognized.
-     */
     globalInfoSection.setExtraLayerInfoBlockHandler(
         std::bind(&PSDLayerMaskSection::readLayerInfoImpl<psd_byte_order::psdBigEndian>, this, std::placeholders::_1));
 
@@ -316,7 +288,6 @@ bool PSDLayerMaskSection::readPsdImpl(QIODevice &io)
     globalInfoSection.read(io);
 
     if (layerMaskBlockSize) {
-        /* put us after this section so reading the next section will work even if we mess up */
         io.seek(start + static_cast<qint64>(*layerMaskBlockSize));
     }
 
@@ -358,13 +329,13 @@ bool PSDLayerMaskSection::readGlobalMask(QIODevice &io)
         }
 
         dbgFile << "Global mask info: ";
-        dbgFile << "\tOverlay:" << globalLayerMaskInfo.overlayColorSpace; // 0
-        dbgFile << "\tColor components:" << globalLayerMaskInfo.colorComponents[0] // 65535
-                << globalLayerMaskInfo.colorComponents[1] // 0
-                << globalLayerMaskInfo.colorComponents[2] // 0
-                << globalLayerMaskInfo.colorComponents[3]; // 0
-        dbgFile << "\tOpacity:" << globalLayerMaskInfo.opacity; // 50
-        dbgFile << "\tKind:" << globalLayerMaskInfo.kind; // 128
+        dbgFile << "\tOverlay:" << globalLayerMaskInfo.overlayColorSpace;
+        dbgFile << "\tColor components:" << globalLayerMaskInfo.colorComponents[0]
+                << globalLayerMaskInfo.colorComponents[1]
+                << globalLayerMaskInfo.colorComponents[2]
+                << globalLayerMaskInfo.colorComponents[3];
+        dbgFile << "\tOpacity:" << globalLayerMaskInfo.opacity;
+        dbgFile << "\tKind:" << globalLayerMaskInfo.kind;
 
         if (globalMaskBlockLength >= 15) {
             io.skip(qMax(globalMaskBlockLength - 15, 0x0U));
@@ -378,18 +349,6 @@ template<psd_byte_order byteOrder>
 bool PSDLayerMaskSection::readTiffImpl(QIODevice &io)
 {
     dbgFile << "(TIFF) reading layer section. Pos:" << io.pos() << "bytes left:" << io.bytesAvailable();
-
-    // TIFF additional sections
-
-    /**
-     * Just like PSD, new versions of PSD have layers info block wrapped into
-     * 'Lr16' or 'Lr32' additional section, while the main block is
-     * absent.
-     * Additionally, the global mask info is stored in a separate "LMsk" block.
-     *
-     * So, instead of having special handling, we just ship everything to the
-     * additional layer info block handlers
-     */
 
     globalInfoSection.setExtraLayerInfoBlockHandler(std::bind(&PSDLayerMaskSection::readLayerInfoImpl<byteOrder>, this, std::placeholders::_1));
     globalInfoSection.setUserMaskInfoBlockHandler(std::bind(&PSDLayerMaskSection::readGlobalMask<byteOrder>, this, std::placeholders::_1));
@@ -631,9 +590,7 @@ void PSDLayerMaskSection::writePsdImpl(QIODevice &io, KisNodeSP rootLayer, psd_c
     dbgFile << "Writing layer section";
 
     globalInfoSection.txt2Data = KisTxt2Utils::defaultTxt2();
-    //int textCount = 0;
 
-    // Build the whole layer structure
     QList<FlattenedNode> nodes;
     addBackgroundIfNeeded(rootLayer, nodes);
     flattenNodes(rootLayer, nodes);
@@ -650,14 +607,12 @@ void PSDLayerMaskSection::writePsdImpl(QIODevice &io, KisNodeSP rootLayer, psd_c
             KisAslWriterUtils::OffsetStreamPusher<quint32, psd_byte_order::psdBigEndian> layerInfoSizeTag(io, 2);
 
             {
-                // number of layers (negative, because krita always has alpha)
                 const qint16 layersSize = static_cast<qint16>(-nodes.size());
                 SAFE_WRITE_EX(psd_byte_order::psdBigEndian, io, layersSize);
 
                 dbgFile << "Number of layers" << layersSize << "at" << io.pos();
             }
 
-            // Layer records section
             Q_FOREACH (const FlattenedNode &item, nodes) {
                 KisNodeSP node = item.node;
 
@@ -720,7 +675,6 @@ void PSDLayerMaskSection::writePsdImpl(QIODevice &io, KisNodeSP rootLayer, psd_c
                         }
 
                     }
-                    // And if anything else, it cannot be stored as a PSD fill layer.
                 }
 
                 double vectorWidth = rootLayer->image()? rootLayer->image()->width() / rootLayer->image()->xRes(): 1;
@@ -734,7 +688,6 @@ void PSDLayerMaskSection::writePsdImpl(QIODevice &io, KisNodeSP rootLayer, psd_c
                 QDomDocument vogkData;
 
                 if (shapeLayer && !shapeLayer->isFakeNode()) {
-                    // only store the first shape.
                     if (shapeLayer->shapes().size() == 1) {
                         KoSvgTextShape * text = dynamic_cast<KoSvgTextShape*>(shapeLayer->shapes().first());
                         if (text) {
@@ -743,10 +696,8 @@ void PSDLayerMaskSection::writePsdImpl(QIODevice &io, KisNodeSP rootLayer, psd_c
                             QString svgtext;
                             QString styles;
                             svgConverter.convertToSvg(&svgtext, &styles);
-                            // unsure about the boundingBox, needs more research.
                             textData.boundingBox = text->boundingRect().normalized();
                             if (text->shapesInside().isEmpty()) {
-                                // Scale bbox to inline
                                 const KoSvgText::AutoValue inlineSizeProp =
                                     text->textProperties().property(KoSvgTextProperties::InlineSizeId).value<KoSvgText::AutoValue>();
                                 if (!inlineSizeProp.isAuto) {
@@ -766,7 +717,6 @@ void PSDLayerMaskSection::writePsdImpl(QIODevice &io, KisNodeSP rootLayer, psd_c
                             }
                             dbgFile << convert.warnings();
                             textData.engineData = KisTxt2Utils::tyShFromTxt2(globalInfoSection.txt2Data, FlaketoPixels.mapRect(textData.boundingBox), textData.textIndex);
-                            //textCount += 1;
                             if (!text->shapesInside().isEmpty()) {
                                 textData.bounds = text->outlineRect().normalized();
                             }
@@ -782,8 +732,6 @@ void PSDLayerMaskSection::writePsdImpl(QIODevice &io, KisNodeSP rootLayer, psd_c
                             if (pathShape){
                                 layerRecord->addPathShapeToPSDPath(vectorMask.path, pathShape, vectorWidth, vectorHeight);
 
-                                // Right now only saving rect and ellipse when they are 'simple', as the actual parametric
-                                // shapes themselves are plugins, so we cannot include them and access the object data.
                                 if ((pathShape->pathShapeId() == "RectangleShape" || pathShape->pathShapeId() == "EllipseShape")
                                         && pathShape->pointCount() == 4) {
                                     psd_vector_origination_data data;
@@ -861,9 +809,6 @@ void PSDLayerMaskSection::writePsdImpl(QIODevice &io, KisNodeSP rootLayer, psd_c
                     nodeName = node->name();
                     layerContentDevice = onlyTransparencyMask ? node->original() : node->projection();
 
-                    /**
-                     * For fill layers we save their internal selection as a separate transparency mask
-                     */
                     if (fillLayer) {
                         bool transparency = KisPainter::checkDeviceHasTransparency(node->paintDevice());
                         bool semiOpacity = node->paintDevice()->defaultPixel().opacityU8() < OPACITY_OPAQUE_U8;
@@ -916,15 +861,12 @@ void PSDLayerMaskSection::writePsdImpl(QIODevice &io, KisNodeSP rootLayer, psd_c
                                                                               : psd_closed_folder;
                 }
 
-                // === no access to node anymore
-
                 QRect layerRect;
 
                 if (layerContentDevice) {
                     QRect rc = layerContentDevice->exactBounds();
                     rc = rc.normalized();
 
-                    // keep to the max of PS's capabilities
                     if (rc.width() > 30000)
                         rc.setWidth(30000);
                     if (rc.height() > 30000)
@@ -938,18 +880,15 @@ void PSDLayerMaskSection::writePsdImpl(QIODevice &io, KisNodeSP rootLayer, psd_c
                 layerRecord->bottom = layerRect.y() + layerRect.height();
                 layerRecord->right = layerRect.x() + layerRect.width();
 
-                // colors + alpha channel
-                // note: transparency mask not included
                 layerRecord->nChannels = static_cast<quint16>(colorSpace->colorChannelCount() + 1);
 
                 ChannelInfo *info = new ChannelInfo;
-                info->channelId = -1; // For the alpha channel, which we always have in Krita, and should be saved first in
+                info->channelId = -1;
                 layerRecord->channelInfoRecords << info;
 
-                // the rest is in display order: rgb, cmyk, lab...
                 for (qint16 i = 0; i < (int)colorSpace->colorChannelCount(); ++i) {
                     info = new ChannelInfo;
-                    info->channelId = i; // 0 for red, 1 = green, etc
+                    info->channelId = i;
                     layerRecord->channelInfoRecords << info;
                 }
 
@@ -980,14 +919,12 @@ void PSDLayerMaskSection::writePsdImpl(QIODevice &io, KisNodeSP rootLayer, psd_c
 
             dbgFile << "start writing layer pixel data" << io.pos();
 
-            // Now save the pixel data
             for (PSDLayerRecord *layerRecord : layers) {
                 layerRecord->writePixelData(io, compressionType);
             }
         }
 
         {
-            // write the global layer mask info -- which is empty
             const quint32 globalMaskSize = 0;
             SAFE_WRITE_EX(psd_byte_order::psdBigEndian, io, globalMaskSize);
         }
@@ -995,24 +932,6 @@ void PSDLayerMaskSection::writePsdImpl(QIODevice &io, KisNodeSP rootLayer, psd_c
         globalInfoSection.writePattBlockEx(io, mergedPatternsXmlDoc);
 
 #if 0
-        /**
-         * We're currently not writing the Txt2 data itself as it doesn't
-         * result in correct PSDs. There's three possible culprits for this:
-         *
-         * 1. PSD perhaps requires the data to be stored in a specific order.
-         *    The 'uncompressKeys' function in kis_txt2_utls gives an indication of this order.
-         * 2. PSD requires the Strikes for each text object to be written.
-         *    This is the most likely cause. The strikes object however consists of data for
-         *    every line, segment, and character, with positioning, bounding boxes and even
-         *    precise font glyph indices for each character. This is more or less a cached
-         *    version of the layout data of the text shape, and we don't have that kind of access
-         *    of the text shape data right now.
-         * 3. Something else. The Txt2 data is huge and therefore it is hard to figure out
-         *    where things might be going wrong.
-         *
-         * In practice, this means Krita won't be able to store OpenType feature data as well
-         * as path shapes for either text-in-shape or text-on-path.
-         */
         if (textCount > 0) {
             globalInfoSection.writeTxt2BlockEx(io, globalInfoSection.txt2Data);
         }
@@ -1025,7 +944,6 @@ void PSDLayerMaskSection::writeTiffImpl(QIODevice &io, KisNodeSP rootLayer, psd_
 {
     dbgFile << "(TIFF) Writing layer section";
 
-    // Build the whole layer structure
     QList<FlattenedNode> nodes;
     addBackgroundIfNeeded(rootLayer, nodes);
     flattenNodes(rootLayer, nodes);
@@ -1042,13 +960,11 @@ void PSDLayerMaskSection::writeTiffImpl(QIODevice &io, KisNodeSP rootLayer, psd_
             KisAslWriterUtils::writeFixedString<byteOrder>("Layr", io);
 
             KisAslWriterUtils::OffsetStreamPusher<quint32, byteOrder> layerAndMaskSectionSizeTag(io, 4);
-            // number of layers (negative, because krita always has alpha)
             const qint16 layersSize = nodes.size();
             SAFE_WRITE_EX(byteOrder, io, layersSize);
 
             dbgFile << "Number of layers" << layersSize << "at" << io.pos();
 
-            // Layer records section
             for (const FlattenedNode &item : nodes) {
                 KisNodeSP node = item.node;
 
@@ -1094,16 +1010,12 @@ void PSDLayerMaskSection::writeTiffImpl(QIODevice &io, KisNodeSP rootLayer, psd_
                                                                               : psd_closed_folder;
                 }
 
-                // === no access to node anymore
-
                 QRect layerRect;
 
                 if (layerContentDevice) {
                     QRect rc = layerContentDevice->exactBounds();
                     rc = rc.normalized();
 
-                    // keep to the max of PS's capabilities
-                    // XXX: update this to PSB
                     if (rc.width() > 30000)
                         rc.setWidth(30000);
                     if (rc.height() > 30000)
@@ -1117,18 +1029,15 @@ void PSDLayerMaskSection::writeTiffImpl(QIODevice &io, KisNodeSP rootLayer, psd_
                 layerRecord->bottom = layerRect.y() + layerRect.height();
                 layerRecord->right = layerRect.x() + layerRect.width();
 
-                // colors + alpha channel
-                // note: transparency mask not included
                 layerRecord->nChannels = static_cast<quint16>(colorSpace->colorChannelCount() + 1);
 
                 ChannelInfo *info = new ChannelInfo;
-                info->channelId = -1; // For the alpha channel, which we always have in Krita, and should be saved first in
+                info->channelId = -1;
                 layerRecord->channelInfoRecords << info;
 
-                // the rest is in display order: rgb, cmyk, lab...
                 for (quint32 i = 0; i < colorSpace->colorChannelCount(); ++i) {
                     info = new ChannelInfo;
-                    info->channelId = static_cast<qint16>(i); // 0 for red, 1 = green, etc
+                    info->channelId = static_cast<qint16>(i);
                     layerRecord->channelInfoRecords << info;
                 }
 
@@ -1149,27 +1058,10 @@ void PSDLayerMaskSection::writeTiffImpl(QIODevice &io, KisNodeSP rootLayer, psd_
 
             dbgFile << "start writing layer pixel data" << io.pos();
 
-            // Now save the pixel data
             for (PSDLayerRecord *layerRecord : layers) {
                 layerRecord->writePixelData(io, compressionType);
             }
         }
-
-        // {
-        //     // write the global layer mask info -- which is NOT empty but fixed
-        //     KisAslWriterUtils::writeFixedString<byteOrder>("8BIM", io);
-        //     KisAslWriterUtils::writeFixedString<byteOrder>("LMsk", io);
-
-        //     KisAslWriterUtils::OffsetStreamPusher<quint32, byteOrder> layerAndMaskSectionSizeTag(io, 4);
-        //     // https://www.adobe.com/devnet-apps/photoshop/fileformatashtml/#50577411_22664
-        //     psdwrite<byteOrder>(io, quint16(0));     // CS: RGB
-        //     psdwrite<byteOrder>(io, quint16(65535)); // Pure red verification
-        //     psdwrite<byteOrder>(io, quint16(0));
-        //     psdwrite<byteOrder>(io, quint16(0));
-        //     psdwrite<byteOrder>(io, quint16(0));
-        //     psdwrite<byteOrder>(io, quint16(50)); // opacity
-        //     psdwrite<byteOrder>(io, quint16(128)); // kind
-        // }
 
         globalInfoSection.writePattBlockEx(io, mergedPatternsXmlDoc);
     }

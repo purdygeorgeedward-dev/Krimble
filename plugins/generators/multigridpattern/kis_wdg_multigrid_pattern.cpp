@@ -80,7 +80,6 @@ KisWdgMultigridPattern::~KisWdgMultigridPattern()
     delete m_widget;
 }
 
-
 void KisWdgMultigridPattern::setConfiguration(const KisPropertiesConfigurationSP config)
 {
     if (config->hasProperty("gradientXML")) {
@@ -92,7 +91,6 @@ void KisWdgMultigridPattern::setConfiguration(const KisPropertiesConfigurationSP
         }
         widget()->wdgGradient->setGradient(m_gradient);
     }
-
 
     KoColor c = config->getColor("lineColor");
     c.convertTo(m_cs);
@@ -152,5 +150,4 @@ KisPropertiesConfigurationSP KisWdgMultigridPattern::configuration() const
 
     return config;
 }
-
 

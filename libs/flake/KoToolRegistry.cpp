@@ -34,7 +34,6 @@ void KoToolRegistry::init()
     KoPluginLoader::instance()->load(QString::fromLatin1("Krita/Tool"),
                                      config);
 
-    // register generic tools
     add(new KoPathToolFactory());
     add(new KoZoomToolFactory());
 

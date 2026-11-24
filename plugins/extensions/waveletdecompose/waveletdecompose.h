@@ -24,4 +24,4 @@ private Q_SLOTS:
 
 };
 
-#endif // WAVELETDECOMPOSE_H
+#endif

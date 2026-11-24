@@ -8,13 +8,6 @@
 
 namespace deprecated_remove_after_krita6 {
 
-/**
- * Before Krita 5.2 MyPaint brushes saved into .kpp files used to have
- * separate properties for hardness, opacity and diameter. They are gone
- * with Krita 5.2, but to make sure new brush presets can be open with the
- * older versions of Krita, we should keep them for some time.
- */
-
 const QString MYPAINT_HARDNESS = "MyPaint/hardness";
 const QString MYPAINT_OPACITY = "MyPaint/opcity";
 const QString MYPAINT_DIAMETER = "MyPaint/diameter";
@@ -48,7 +41,6 @@ public:
     }
 };
 
-
 class SensorPackRadiusLogarithmic : public MyPaintSensorPack
 {
 public:
@@ -62,7 +54,7 @@ public:
     }
 };
 
-} // namespace deprecated_remove_after_krita6
+}
 
 MyPaintRadiusLogarithmicData::MyPaintRadiusLogarithmicData()
     : MyPaintCurveOptionData("",

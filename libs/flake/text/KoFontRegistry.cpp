@@ -30,7 +30,6 @@
 #include FT_TRUETYPE_TABLES_H
 #include FT_FREETYPE_H
 
-
 static unsigned int firstCharUcs4(const QStringView qsv)
 {
     if (Q_UNLIKELY(qsv.isEmpty())) {
@@ -113,21 +112,11 @@ public:
         FcConfig *config = FcConfigCreate();
         KIS_ASSERT(config && "No Fontconfig support available");
 
-        /**
-         * This loads the fontconfig configured on the host Linux system.
-         *
-         * Theoretically, it can cause some version inconsistency problems if
-         * the version of fontconfig on the host differs from the version
-         * of fontconfig shipped with Krita. But we estimate such risks as
-         * negligible.
-         */
         if (qgetenv("FONTCONFIG_PATH").isEmpty()) {
             QDir appdir("/etc/fonts");
             if (QFile::exists(appdir.absoluteFilePath("fonts.conf"))) {
                 qputenv("FONTCONFIG_PATH", QFile::encodeName(QDir::toNativeSeparators(appdir.absolutePath())));
             } else {
-                // Otherwise use default, which is defined in src/fcinit.c , windows and macos
-                // default locations *are* defined in fontconfig's meson build system.
                 appdir = QDir(KoResourcePaths::getApplicationRoot() +"/etc/fonts");
                 if (QFile::exists(appdir.absoluteFilePath("fonts.conf"))) {
                     qputenv("FONTCONFIG_PATH", QFile::encodeName(QDir::toNativeSeparators(appdir.absolutePath())));
@@ -142,11 +131,9 @@ public:
         }
         m_config.reset(config);
 
-        // Add fonts folder from resource folder.
         const QString fontsFolder = KoResourcePaths::saveLocation("data", "/fonts/", true);
         FcConfigAppFontAddDir(m_config.data(), reinterpret_cast<const FcChar8 *>(fontsFolder.toUtf8().data()));
 
-        /// Setup the change tracker.
         FcStrList *list = FcConfigGetFontDirs(m_config.data());
         FcStrListFirst(list);
         FcChar8 *dirString = FcStrListNext(list);
@@ -201,10 +188,6 @@ public:
         return m_config;
     }
 
-    /**
-     * @brief fallbackFont
-     * @return a fall back font for when no other font was found.
-     */
     FT_FaceSP fallbackFont() {
         if (!m_data.hasLocalData())
             initialize();
@@ -331,8 +314,6 @@ QString modificationsString(KoCSSFontInfo info, quint32 xRes, quint32 yRes) {
     return modifications;
 }
 
-
-
 std::vector<FT_FaceSP> KoFontRegistry::facesForCSSValues(QVector<int> &lengths,
                                                          KoCSSFontInfo info,
                                                          const QString &text,
@@ -401,12 +382,9 @@ std::vector<FT_FaceSP> KoFontRegistry::facesForCSSValues(QVector<int> &lengths,
         FcConfigSubstitute(nullptr, p.data(), FcMatchPattern);
         FcDefaultSubstitute(p.data());
 
-
         p = [&]() {
             const FcChar32 hash = FcPatternHash(p.data());
             QString patternHash = info.families.join("+")+QString::number(hash);
-            // FCPatternHash breaks down when there's multiple family names that start
-            // with the same letter and are the same length (Butcherman and Babylonica, Eater and Elsie, all 4 on google fonts).
             const auto oldPattern = d->patterns().find(patternHash);
             if (oldPattern != d->patterns().end()) {
                 return oldPattern.value();
@@ -449,15 +427,8 @@ std::vector<FT_FaceSP> KoFontRegistry::facesForCSSValues(QVector<int> &lengths,
             familyValues.fill(-1);
             fallbackMatchValues.fill(-1);
 
-            // First, we're going to split up the text into graphemes. This is both
-            // because the css spec requires it, but also because of why the css
-            // spec requires it: graphemes' parts should not end up in separate
-            // runs, which they will if they get assigned different fonts,
-            // potentially breaking ligatures and emoji sequences.
             QStringList graphemes = KoCssTextUtils::textToUnicodeGraphemeClusters(text, language);
 
-            // Parse over the fonts and graphemes and try to see if we can get the
-            // best match for a given grapheme.
             for (int i = 0; i < fontSet->nfont; i++) {
 
                 double fontsize = 0.0;
@@ -465,19 +436,12 @@ std::vector<FT_FaceSP> KoFontRegistry::facesForCSSValues(QVector<int> &lengths,
                 FcPatternGetBool(fontSet->fonts[i], FC_SCALABLE, 0, &isScalable);
                 FcPatternGetDouble(fontSet->fonts[i], FC_PIXEL_SIZE, 0, &fontsize);
                 if (!isScalable && pixelSize != fontsize) {
-                    // For some reason, FC will sometimes consider a smaller font pixel-size
-                    // to be more relevant to the requested pattern than a bigger one. This
-                    // skips those fonts, but it does mean that such pixel fonts would not
-                    // be used for fallback.
                     continue;
                 }
                 if (FcPatternGetCharSet(fontSet->fonts[i], FC_CHARSET, 0, &set) == FcResultMatch) {
                     int index = 0;
                     Q_FOREACH (const QString &grapheme, graphemes) {
 
-                        // Don't worry about matching controls directly,
-                        // as they are not important to font-selection (and many
-                        // fonts have no glyph entry for these)
                         if (const uint first = firstCharUcs4(grapheme); QChar::category(first) == QChar::Other_Control
                                 || QChar::category(first) == QChar::Other_Format) {
                             index += grapheme.size();
@@ -510,7 +474,6 @@ std::vector<FT_FaceSP> KoFontRegistry::facesForCSSValues(QVector<int> &lengths,
                 }
             }
 
-            // Remove the -1 entries.
             if (familyValues.contains(-1)) {
                 int value = -1;
                 Q_FOREACH (const int currentValue, familyValues) {
@@ -533,7 +496,6 @@ std::vector<FT_FaceSP> KoFontRegistry::facesForCSSValues(QVector<int> &lengths,
                 }
             }
 
-            // Get the filenames and lengths for the entries.
             int length = 0;
             int startIndex = 0;
             int lastIndex = familyValues.at(0);
@@ -570,8 +532,6 @@ std::vector<FT_FaceSP> KoFontRegistry::facesForCSSValues(QVector<int> &lengths,
 
     for (int i = 0; i < lengths.size(); i++) {
         KoFFWWSConverter::FontFileEntry font = fonts.at(i);
-        // For some reason, FontConfig will sometimes return the wrong file index.
-        // We can in this case select the appropriate index, which should work as tcc collections share glyphs.
         for (int j = 0; j < candidates.size(); j++) {
             if (font.fileName == candidates.at(j).fileName) {
                 font.fontIndex = candidates.at(j).fontIndex;
@@ -599,7 +559,6 @@ std::vector<FT_FaceSP> KoFontRegistry::facesForCSSValues(QVector<int> &lengths,
                 } else {
                     const QMap<QString, qreal> axisSettings;
                     if (d->fallbackFont().data()->size->metrics.x_ppem == 0) {
-                        // if the font has not been configured yet, it's ppem is set to 0, so we test that and configure it.
                         configureFaces({d->fallbackFont()}, 12, 1.0, 72, 72, axisSettings);
                     }
 
@@ -628,7 +587,6 @@ bool KoFontRegistry::configureFaces(const std::vector<FT_FaceSP> &faces,
     const qreal scaleToPixel = finalRes / 72;
     Q_FOREACH (const FT_FaceSP &face, faces) {
 
-        // set the charmap, by default Freetype will select a Unicode charmap, but when there's none, it doesn't set any and we need to select one manually.
         if (!face->charmap) {
             FT_CharMap map = nullptr;
             for (int i = 0; i < face->num_charmaps; i++) {
@@ -715,14 +673,6 @@ bool KoFontRegistry::configureFaces(const std::vector<FT_FaceSP> &faces,
                 const QByteArray utfData = tagName.toUtf8();
                 const char *tag = utfData.data();
                 if (tagName == "opsz" && !qFuzzyCompare(adjustedSize, size)) {
-                    /**
-                     *  There's something peculiar about this:
-                     *  Var fonts can change their x-height depending
-                     *  on the optical size selected. Meaning that the x-height adjusted size
-                     *  could be wrong depending on the font and its x-height choices.
-                     *  There's no reasonable way to fix this beyond cycling, and it is questionable
-                     *  whether the font-size-adjust property is even meant to be that specific.
-                     */
                     tags.insert(FT_MAKE_TAG(tag[0], tag[1], tag[2], tag[3]), adjustedSize);
                 } else {
                     tags.insert(FT_MAKE_TAG(tag[0], tag[1], tag[2], tag[3]), axisSettings.value(tagName));
@@ -735,8 +685,6 @@ bool KoFontRegistry::configureFaces(const std::vector<FT_FaceSP> &faces,
         if (FT_HAS_MULTIPLE_MASTERS(face)) {
             FT_MM_Var *amaster = nullptr;
             FT_Get_MM_Var(face.data(), &amaster);
-            // note: this only works for opentype, as it uses
-            // tag-based-selection.
             std::vector<FT_Fixed> designCoords(amaster->num_axis);
             for (FT_UInt i = 0; i < amaster->num_axis; i++) {
                 FT_Var_Axis axis = amaster->axis[i];
@@ -782,9 +730,9 @@ void KoFontRegistry::updateConfig()
 
 QFont::Style KoFontRegistry::slantMode(FT_FaceSP face)
 {
-    constexpr unsigned OS2_ITALIC = 1u << 0; /// Is italic
-    constexpr unsigned OS2_REGULAR = 1u << 6; /// Is truly regular (instead of italic or oblique)
-    constexpr unsigned OS2_OBLIQUE = 1u << 9; // Is an oblique instead of an italic.
+    constexpr unsigned OS2_ITALIC = 1u << 0;
+    constexpr unsigned OS2_REGULAR = 1u << 6;
+    constexpr unsigned OS2_OBLIQUE = 1u << 9;
 
     if (FT_IS_SFNT(face.data())) {
         hb_font_t_sp hbFont(hb_ft_font_create_referenced(face.data()));
@@ -856,7 +804,6 @@ KoSvgText::FontMetrics KoFontRegistry::generateFontMetrics(FT_FaceSP face, bool 
     const FT_Int32 faceLoadFlags = loadFlagsForFace(face.data(), isHorizontal, 0, rendering);
 
     metrics.isVertical = !isHorizontal;
-    // Fontsize and advances.
     metrics.fontSize = isHorizontal? face.data()->size->metrics.y_ppem*64.0: face.data()->size->metrics.x_ppem*64.0;
 
     uint charIndex = FT_Get_Char_Index(face.data(), 0x20);
@@ -895,8 +842,6 @@ KoSvgText::FontMetrics KoFontRegistry::generateFontMetrics(FT_FaceSP face, bool 
     }
 
     const bool useFallback = hb_version_atleast(4, 0, 0);
-
-    // metrics
 
     QVector<hb_ot_metrics_tag_t> metricTags ({
                                               HB_OT_METRICS_TAG_X_HEIGHT,
@@ -938,14 +883,10 @@ KoSvgText::FontMetrics KoFontRegistry::generateFontMetrics(FT_FaceSP face, bool 
         }
     }
 
-    /// BUG:517717, some vertical fonts have nonsense values for the caret.
-    /// We can assume a multi-master font is relatively modern and doesn't have this issue.
     if (!FT_HAS_MULTIPLE_MASTERS(face) && !isHorizontal) {
         metrics.caretRise = 0;
         metrics.caretRun = 1;
     }
-
-    // Baselines.
 
     const QVector<hb_ot_layout_baseline_tag_t> baselines ({
                 HB_OT_LAYOUT_BASELINE_TAG_ROMAN,
@@ -968,26 +909,10 @@ KoSvgText::FontMetrics KoFontRegistry::generateFontMetrics(FT_FaceSP face, bool 
         }
     }
 
-    //--- ascender/descender/linegap, and also ideographic em-box calculatation ---//
-
     hb_position_t ascender = 0;
     hb_position_t descender = 0;
     hb_position_t lineGap = 0;
 
-    /**
-     * There's 3 different definitions of the so-called vertical metrics, that is,
-     * the ascender and descender for horizontally laid out script. WinAsc & Desc,
-     * HHAE asc&desc, and OS/2... we need the last one, but harfbuzz doesn't return
-     * it unless there's a flag set in the font, which is missing in a lot of fonts
-     * that were from the transitional period, like Deja Vu Sans. Hence we need to get
-     * the OS/2 table and calculate the values manually (and fall back in various ways).
-     *
-     * https://www.w3.org/TR/css-inline-3/#ascent-descent
-     * https://www.w3.org/TR/CSS2/visudet.html#sTypoAscender
-     * https://wiki.inkscape.org/wiki/Text_Rendering_Notes#Ascent_and_Descent
-     *
-     * Related HB issue: https://github.com/harfbuzz/harfbuzz/issues/1920
-     */
     TT_OS2 *os2Table = nullptr;
     os2Table = (TT_OS2*)FT_Get_Sfnt_Table(face.data(), FT_SFNT_OS2);
     if (os2Table) {
@@ -1013,10 +938,6 @@ KoSvgText::FontMetrics KoFontRegistry::generateFontMetrics(FT_FaceSP face, bool 
             altLineGap = face.data()->height - (altAscender-altDescender);
         }
 
-        // Some fonts have sTypo metrics that are too small compared
-        // to the HHEA values which make the default line height too
-        // tight (e.g. Microsoft JhengHei, Source Han Sans), so we
-        // compare them and take the ones that are larger.
         if (!os2Table || (altAscender - altDescender + altLineGap) > (ascender - descender + lineGap)) {
             ascender = altAscender;
             descender = altDescender;
@@ -1024,9 +945,6 @@ KoSvgText::FontMetrics KoFontRegistry::generateFontMetrics(FT_FaceSP face, bool 
         }
     }
 
-    // Because the ideographic em-box is so important to SVG 2 vertical line calculation,
-    // I am manually calculating it here, following
-    // https://learn.microsoft.com/en-us/typography/opentype/spec/baselinetags#ideographic-em-box
     const QString ideoBottom("ideo");
     const QString ideoTop("idtp");
     const QString alphabetic("romn");
@@ -1048,8 +966,6 @@ KoSvgText::FontMetrics KoFontRegistry::generateFontMetrics(FT_FaceSP face, bool 
             const QString designLang = QString::fromLatin1(ba).trimmed();
 
             if (!designLang.isEmpty()) {
-                // This assumes a font where there's design language metadata, but no water glyph.
-                // In theory could happen with the non-han cjk fonts.
                 const QStringList cjkScripts {
                     KoWritingSystemUtils::scriptTagForQLocaleScript(QLocale::HanScript),
                             KoWritingSystemUtils::scriptTagForQLocaleScript(QLocale::JapaneseScript),
@@ -1120,12 +1036,9 @@ KoSvgText::FontMetrics KoFontRegistry::generateFontMetrics(FT_FaceSP face, bool 
     }
 
     if (!isHorizontal) {
-        // SVG 2.0 explicitly requires vertical ascent/descent to be tied to the ideographic em box.
         ascender = metrics.ideographicOverBaseline;
         descender = metrics.ideographicUnderBaseline;
 
-        // Default microsoft CJK fonts have the vertical ascent and descent be the same as the horizontal
-        // ascent and descent, so we 'normalize' the ascender and descender to be half the total height.
         qreal height = ascender - descender;
         ascender = height*0.5;
         descender = -ascender;
@@ -1147,7 +1060,6 @@ KoSvgText::FontMetrics KoFontRegistry::generateFontMetrics(FT_FaceSP face, bool 
     if (isHorizontal) {
         metrics.offsetMetricsToNewOrigin(KoSvgText::BaselineAlphabetic);
     } else {
-        // because we normalize, we need to add here.
         metrics.ascender += metrics.ideographicCenterBaseline;
         metrics.descender += metrics.ideographicCenterBaseline;
         metrics.offsetMetricsToNewOrigin(KoSvgText::BaselineCentral);
@@ -1161,22 +1073,12 @@ int32_t KoFontRegistry::loadFlagsForFace(FT_Face face, bool isHorizontal, int32_
     FT_Int32 faceLoadFlags = loadFlags;
 
     if (rendering == KoSvgText::RenderingGeometricPrecision || rendering == KoSvgText::RenderingAuto) {
-        // without load_no_hinting, the advance and offset will be rounded
-        // to nearest pixel, which we don't want as we're using the vector
-        // outline.
         faceLoadFlags |= FT_LOAD_NO_HINTING;
 
-        // Disable embedded bitmaps because they _do not_ follow geometric
-        // precision, but is focused on legibility.
-        // This does not affect bitmap-only fonts.
         faceLoadFlags |= FT_LOAD_NO_BITMAP;
     } else if (rendering == KoSvgText::RenderingOptimizeSpeed) {
         faceLoadFlags |= FT_LOAD_TARGET_MONO;
     } else {
-        // When using hinting, sometimes the bounding box does not encompass the
-        // drawn glyphs properly.
-        // The default hinting works best for vertical, while the 'light'
-        // hinting mode works best for horizontal.
         if (isHorizontal) {
             faceLoadFlags |= FT_LOAD_TARGET_LIGHT;
         }
@@ -1188,7 +1090,6 @@ int32_t KoFontRegistry::loadFlagsForFace(FT_Face face, bool isHorizontal, int32_
         faceLoadFlags |= FT_LOAD_VERTICAL_LAYOUT;
     }
     if (!FT_IS_SCALABLE(face)) {
-        // This is needed for the CBDT version of Noto Color Emoji
         faceLoadFlags &= ~FT_LOAD_NO_BITMAP;
     }
     return faceLoadFlags;

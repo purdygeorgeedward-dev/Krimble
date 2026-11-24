@@ -17,20 +17,16 @@ class SpiralShapeConfigWidget : public KoShapeConfigWidgetBase
     Q_OBJECT
 public:
     SpiralShapeConfigWidget();
-    /// reimplemented
     void open(KoShape *shape) override;
-    /// reimplemented
     void save() override;
-    /// reimplemented
     bool showOnShapeCreate() override
     {
         return false;
     }
-    /// reimplemented
     KUndo2Command *createCommand() override;
 private:
     Ui::SpiralShapeConfigWidget widget;
     SpiralShape *m_spiral {nullptr};
 };
 
-#endif // SPIRALSHAPECONFIGWIDGET_H
+#endif

@@ -45,7 +45,6 @@ void KisTagLabel::paintEvent(QPaintEvent *event)
     QPainterPath path;
     path.addRoundedRect(this->rect(), 6, 6);
 
-    // good color:
     painter.fillPath(path, qApp->palette().light());
 }
 

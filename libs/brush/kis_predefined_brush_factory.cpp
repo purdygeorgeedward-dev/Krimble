@@ -37,7 +37,6 @@ KoResourceLoadResult KisPredefinedBrushFactory::createBrush(const KisBrushModel:
         return KoResourceSignature(ResourceType::Brushes, brushMD5Sum, brushFileName, "");
     }
 
-    // we always return a copy of the brush!
     brush = brush->clone().dynamicCast<KisBrush>();
 
     brush->setSpacing(brushData.common.spacing);
@@ -68,7 +67,6 @@ KoResourceLoadResult KisPredefinedBrushFactory::createBrush(const QDomElement& b
         return std::get<KoResourceSignature>(data);
     }
 
-    // fallback, should never reach!
     return KoResourceSignature(ResourceType::Brushes, "", "", "");
 }
 
@@ -94,8 +92,6 @@ std::variant<KisBrushModel::BrushData, KoResourceSignature> KisPredefinedBrushFa
 
     brush.type = KisBrushModel::Predefined;
 
-    /// we should first initialize data from the brush, because it may
-    /// change the spacing properties embedded into some brushes
     loadFromBrushResource(brush.common, brush.predefinedBrush, brushResource);
 
     brush.common.angle = KisDomUtils::toDouble(element.attribute("angle", "0.0"));
@@ -105,7 +101,6 @@ std::variant<KisBrushModel::BrushData, KoResourceSignature> KisPredefinedBrushFa
 
     brush.predefinedBrush.scale = KisDomUtils::toDouble(element.attribute("scale", "1.0"));
 
-    // legacy support...
     if (element.attribute("BrushVersion", "1") == "1") {
         brush.predefinedBrush.scale *= 2.0;
     }
@@ -120,30 +115,11 @@ std::variant<KisBrushModel::BrushData, KoResourceSignature> KisPredefinedBrushFa
         const bool autoAdjustMidPoint = element.attribute("AutoAdjustMidPoint", "0").toInt();
         const bool hasAutoAdjustMidPoint = element.hasAttribute("AutoAdjustMidPoint");
 
-        /**
-         * In Krita 4.x releases there was a bug that caused lightness
-         * adjustments to be applied to the brush **twice**. It happened
-         * due to the fact that copy-ctor called brushTipImage() virtual
-         * method instead of just copying the image itself.
-         *
-         * In Krita 5 we should open these brushes in somewhat the same way.
-         * The problem is that we cannot convert the numbers precisely, because
-         * after applying a piecewise-linear function twice we get a
-         * quadratic function. So we fall-back to a blunt parameters scaling,
-         * which gives result that is just "good enough".
-         *
-         * NOTE: AutoAdjustMidPoint option appeared only in Krita 5, so it
-         * automatically means the adjustments should be applied in the new way.
-         */
         if (adjustmentVersion < 2 && !hasAutoAdjustMidPoint) {
             adjustmentMidPoint = qBound(0, 127 + (int(adjustmentMidPoint) - 127) * 2, 255);
             brightnessAdjustment *= 2.0;
             contrastAdjustment *= 2.0;
 
-            /**
-             * In Krita we also changed formula for contrast calculation in
-             * negative part, so we need to convert that as well.
-             */
             if (contrastAdjustment < 0) {
                 contrastAdjustment = 1.0 / (1.0 - contrastAdjustment) - 1.0;
             }
@@ -157,15 +133,8 @@ std::variant<KisBrushModel::BrushData, KoResourceSignature> KisPredefinedBrushFa
     }
 
     auto legacyBrushApplication = [] (KisColorfulBrush *colorfulBrush, bool forceColorToAlpha) {
-        /**
-         * In Krita versions before 4.4 series "ColorAsMask" could
-         * be overridden to false when the brush had no **color**
-         * inside. That changed in Krita 4.4.x series, when
-         * "brushApplication" replaced all the automatic heuristics
-         */
         return (colorfulBrush && colorfulBrush->hasColorAndTransparency() && !forceColorToAlpha) ? IMAGESTAMP : ALPHAMASK;
     };
-
 
     if (element.hasAttribute("preserveLightness")) {
         const int preserveLightness = KisDomUtils::toInt(element.attribute("preserveLightness", "0"));
@@ -183,11 +152,6 @@ std::variant<KisBrushModel::BrushData, KoResourceSignature> KisPredefinedBrushFa
         brush.predefinedBrush.application =legacyBrushApplication(colorfulBrush, useColorAsMask);
     }
     else {
-        /**
-         * In Krita versions before 4.4 series we used to automatically select
-         * the brush application depending on the presence of the color in the
-         * brush, even when there was no "ColorAsMask" field.
-         */
         brush.predefinedBrush.application = legacyBrushApplication(colorfulBrush, false);
     }
 
@@ -241,9 +205,7 @@ void KisPredefinedBrushFactory::toXML(QDomDocument &doc, QDomElement &e, const K
         e.setAttribute("name", model.predefinedBrush.resourceSignature.name);
 
     } else {
-        // all other brushes are derived from KisColorfulBrush
 
-        // legacy setting, now 'brushApplication' is used instead
         e.setAttribute("ColorAsMask", QString::number((int)(model.predefinedBrush.application != IMAGESTAMP)));
 
         e.setAttribute("AdjustmentMidPoint", QString::number(model.predefinedBrush.adjustmentMidPoint));

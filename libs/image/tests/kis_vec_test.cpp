@@ -16,5 +16,4 @@ void KisVecTest::testCreation()
     QVERIFY(v2d.y() == 0.0);
 }
 
-
 SIMPLE_TEST_MAIN(KisVecTest)

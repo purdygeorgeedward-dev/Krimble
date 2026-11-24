@@ -45,32 +45,14 @@ public:
 
     virtual void unsetResourceServer() = 0;
 
-    /**
-     * Will be called by the resource server after a resource is added
-     * @param resource the added resource
-     */
     virtual void resourceAdded(QSharedPointer<T> resource) = 0;
 
-    /**
-     * Will be called by the resource server before a resource will be removed
-     * @param resource the resource which is going to be removed
-     */
     virtual void removingResource(QSharedPointer<T> resource) = 0;
 
-    /**
-     * Will be called by the resource server when a resource is changed
-     * @param resource the resource which is going to be removed
-     */
     virtual void resourceChanged(QSharedPointer<T> resource) = 0;
-
 
 };
 
-/**
- * KoResourceServer is a shim around KisResourceModel. It knows
- * nothing by its own, and does nothing on its own. It can only
- * be used in the gui thread.
- */
 template <class T>
 class KoResourceServer
 {
@@ -100,7 +82,6 @@ public:
         }
     }
 
-    /// @return the active resource model
     KisResourceModel *resourceModel() const
     {
         KIS_SAFE_ASSERT_RECOVER_NOOP(QThread::currentThread() == qApp->thread());
@@ -111,7 +92,6 @@ public:
         return m_resourceModel;
     }
 
-    /// Return the first resource available
     QSharedPointer<T> firstResource() const
     {
 
@@ -129,7 +109,6 @@ public:
         return m_resourceModel->rowCount();
     }
 
-    /// Adds an already loaded resource to the server
     bool addResource(QSharedPointer<T> resource, bool save = true) {
 
         KIS_SAFE_ASSERT_RECOVER_NOOP(QThread::currentThread() == qApp->thread());
@@ -150,7 +129,6 @@ public:
         return false;
     }
 
-    /// Remove a resource from Resource Server but not from a file
     bool removeResourceFromServer(QSharedPointer<T> resource){
 
         KIS_SAFE_ASSERT_RECOVER_NOOP(QThread::currentThread() == qApp->thread());
@@ -165,17 +143,10 @@ public:
         return false;
     }
 
-    /// Returns path where to save user defined and imported resources to
     QString saveLocation() {
         return KisResourceLocator::instance()->resourceLocationBase() + m_type;
     }
 
-    /**
-     * Creates a new resource from a given file and adds them to the resource server
-     * The base implementation does only load one resource per file, override to implement collections
-     * @param filename file name of the resource file to be imported
-     * @param fileCreation decides whether to create the file in the saveLocation() directory
-     */
     KoResourceSP importResourceFile(const QString &filename, const bool allowOverwrite)
     {
 
@@ -187,7 +158,6 @@ public:
         return m_resourceModel->importResourceFile(filename, allowOverwrite);
     }
 
-    /// Removes the resource file from the resource server
     void removeResourceFile(const QString & filename)
     {
         QFileInfo fi(filename);
@@ -200,11 +170,6 @@ public:
         removeResourceFromServer(resource);
     }
 
-    /**
-     * Adds an observer to the server
-     * @param observer the observer to be added
-     * @param notifyLoadedResources determines if the observer should be notified about the already loaded resources
-     */
     void addObserver(ObserverType* observer)
     {
         if (observer && !m_observers.contains(observer)) {
@@ -212,10 +177,6 @@ public:
         }
     }
 
-    /**
-     * Removes an observer from the server
-     * @param observer the observer to be removed
-     */
     void removeObserver(ObserverType* observer)
     {
         int index = m_observers.indexOf(observer);
@@ -234,7 +195,6 @@ private:
             qDebug().noquote() << kisBacktrace();
         }
 
-
         if (filename.isEmpty() || filename.isNull()) {
             return nullptr;
         }
@@ -246,7 +206,6 @@ private:
 
         return nullptr;
     }
-
 
     QSharedPointer<T> resourceByName(const QString& name) const
     {
@@ -289,24 +248,11 @@ private:
 
 public:
 
-    /**
-     * @brief resource retrieves a resource. If the md5sum is not empty, the resource
-     * will only be retrieved if a resource with that md5sum exists. If it is empty,
-     * a fallback to filename or name is possible.
-     * @param md5 This is the hex-encoded md5sum as stored in e.g. configuration objects
-     * @param fileName A filename without the path
-     * @param name The name of the resource
-     * @return a resource, or nullptr
-     */
     QSharedPointer<T> resource(const QString &md5, const QString &fileName, const QString &name)
     {
         return KisGlobalResourcesInterface::instance()->source<T>(m_type).bestMatch(md5, fileName, name);
     }
 
-    /**
-     * Call after changing the content of a resource and saving it;
-     * Notifies the connected views.
-     */
     bool updateResource(QSharedPointer<T> resource)
     {
         KIS_SAFE_ASSERT_RECOVER_NOOP(QThread::currentThread() == qApp->thread());
@@ -318,9 +264,6 @@ public:
         return result;
     }
 
-    /**
-     * Reloads the resource from the persistent storage
-     */
     bool reloadResource(QSharedPointer<T> resource)
     {
         KIS_SAFE_ASSERT_RECOVER_NOOP(QThread::currentThread() == qApp->thread());
@@ -372,4 +315,4 @@ private:
     QString m_type;
 };
 
-#endif // KORESOURCESERVER_H
+#endif

@@ -13,10 +13,9 @@
 
 struct KisHDRMetadataOptions;
 
-
 namespace Ui {
 class VideoHDRMetadataOptionsDialog;
-} // namespace Ui
+}
 
 class VideoHDRMetadataOptionsDialog : public KoDialog
 {
@@ -36,4 +35,4 @@ private:
     Ui::VideoHDRMetadataOptionsDialog *ui;
 };
 
-#endif // VIDEOHDRMETADATAOPTIONSDIALOG_H
+#endif

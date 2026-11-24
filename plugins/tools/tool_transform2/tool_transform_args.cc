@@ -18,7 +18,6 @@
 #include "kis_dom_utils.h"
 #include <QMatrix4x4>
 
-
 ToolTransformArgs::ToolTransformArgs()
     : m_liquifyProperties(new KisLiquifyProperties())
 {
@@ -65,7 +64,7 @@ void ToolTransformArgs::init(const ToolTransformArgs& args)
     m_shearX = args.shearX();
     m_shearY = args.shearY();
     m_boundsRotation = args.boundsRotation();
-    m_origPoints = args.origPoints(); //it's a copy
+    m_origPoints = args.origPoints();
     m_transfPoints = args.transfPoints();
     m_warpType = args.warpType();
     m_alpha = args.alpha();
@@ -177,8 +176,6 @@ bool ToolTransformArgs::operator==(const ToolTransformArgs& other) const
          *m_liquifyProperties == *other.m_liquifyProperties) &&
         m_meshTransform == other.m_meshTransform &&
 
-        // pointer types
-
         m_externalSource == other.m_externalSource &&
 
         ((m_filter && other.m_filter &&
@@ -282,7 +279,6 @@ ToolTransformArgs::ToolTransformArgs(TransformMode mode,
 {
     setFilterId(filterId);
 }
-
 
 ToolTransformArgs::~ToolTransformArgs()
 {
@@ -414,7 +410,6 @@ void ToolTransformArgs::toXML(QDomElement *e) const
         KisDomUtils::saveValue(&freeEl, "shearX", m_shearX);
         KisDomUtils::saveValue(&freeEl, "shearY", m_shearY);
 
-        // bounds rotation is currently not supported by transform masks, so it should be null
         KisDomUtils::saveValue(&freeEl, "boundsRotation", m_boundsRotation);
 
         KisDomUtils::saveValue(&freeEl, "keepAspectRatio", m_keepAspectRatio);
@@ -430,7 +425,7 @@ void ToolTransformArgs::toXML(QDomElement *e) const
         KisDomUtils::saveValue(&warpEl, "originalPoints", m_origPoints);
         KisDomUtils::saveValue(&warpEl, "transformedPoints", m_transfPoints);
 
-        KisDomUtils::saveValue(&warpEl, "warpType", (int)m_warpType); // limited!
+        KisDomUtils::saveValue(&warpEl, "warpType", (int)m_warpType);
         KisDomUtils::saveValue(&warpEl, "alpha", m_alpha);
 
         if(m_mode == CAGE){
@@ -453,7 +448,6 @@ void ToolTransformArgs::toXML(QDomElement *e) const
         KIS_ASSERT_RECOVER_RETURN(0 && "Unknown transform mode");
     }
 
-    // m_editTransformPoints should not be saved since it is reset explicitly
 }
 
 ToolTransformArgs ToolTransformArgs::fromXML(const QDomElement &e)
@@ -465,7 +459,6 @@ ToolTransformArgs ToolTransformArgs::fromXML(const QDomElement &e)
 
     args.m_mode = (TransformMode) newMode;
 
-    // reset explicitly
     args.m_editTransformPoints = false;
 
     bool result = false;
@@ -499,13 +492,10 @@ ToolTransformArgs ToolTransformArgs::fromXML(const QDomElement &e)
             KisDomUtils::loadValue(freeEl, "flattenedPerspectiveTransform", &args.m_flattenedPerspectiveTransform) &&
             KisDomUtils::loadValue(freeEl, "filterId", &filterId);
 
-        // transformAroundRotationCenter is a new parameter introduced in Krita 4.0,
-        // so it might be not present in older transform masks
         if (!KisDomUtils::loadValue(freeEl, "transformAroundRotationCenter", &args.m_transformAroundRotationCenter)) {
             args.m_transformAroundRotationCenter = false;
         }
 
-        // bounds rotation is currently not supported by transform masks, so it should be null for them
         if (!KisDomUtils::loadValue(freeEl, "boundsRotation", &args.m_boundsRotation)) {
             args.m_boundsRotation = 0.0;
         }
@@ -532,9 +522,6 @@ ToolTransformArgs ToolTransformArgs::fromXML(const QDomElement &e)
             KisDomUtils::loadValue(warpEl, "alpha", &args.m_alpha);
 
         if(args.m_mode == CAGE){
-            // Pixel precision is a parameter introduced in Krita 4.2, so we should
-            // expect it not being present in older files. In case it is not found,
-            // just use the default value initialized by c-tor (that is, do nothing).
 
             (void) KisDomUtils::loadValue(warpEl, "pixelPrecision", &args.m_pixelPrecision);
             (void) KisDomUtils::loadValue(warpEl, "previewPixelPrecision", &args.m_previewPixelPrecision);
@@ -637,8 +624,6 @@ void ToolTransformArgs::scale3dSrcAndDst(qreal scale)
         m_originalCenter = t.map(m_originalCenter);
         m_transformedCenter = t.map(m_transformedCenter);
 
-        // we need to scale Z-coordinate of the camera pos as well,
-        // so we cannot just do `QMatrix4x4 m(t)`.
         QMatrix4x4 m;
         m.scale(scale);
         m_cameraPos = m.map(m_cameraPos);

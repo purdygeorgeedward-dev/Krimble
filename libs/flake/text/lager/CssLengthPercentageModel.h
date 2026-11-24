@@ -26,4 +26,4 @@ public:
     LAGER_QT_CURSOR(int, unitType);
 };
 
-#endif // CSSLENGTHPERCENTAGEMODEL_H
+#endif

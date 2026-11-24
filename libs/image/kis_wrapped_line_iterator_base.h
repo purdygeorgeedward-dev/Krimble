@@ -7,7 +7,6 @@
 #ifndef __KIS_WRAPPED_LINE_ITERATOR_BASE_H
 #define __KIS_WRAPPED_LINE_ITERATOR_BASE_H
 
-
 template <class IteratorStrategy, class BaseClass>
     class KisWrappedLineIteratorBase : public BaseClass
 {
@@ -137,11 +136,11 @@ private:
 private:
 
     KisWrappedRect m_splitRect;
-    QSize m_iterationAreaSize; // columns x rows
-    QPoint m_currentPos; // column, row
+    QSize m_iterationAreaSize;
+    QPoint m_currentPos;
     QVector<typename IteratorStrategy::IteratorTypeSP> m_iterators;
     typename IteratorStrategy::IteratorTypeSP m_currentIterator;
     IteratorStrategy m_strategy;
 };
 
-#endif /* __KIS_WRAPPED_LINE_ITERATOR_BASE_H */
+#endif

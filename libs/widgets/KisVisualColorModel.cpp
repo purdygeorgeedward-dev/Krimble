@@ -35,7 +35,7 @@ struct KisVisualColorModel::Private
     bool isLinear {false};
     bool applyGamma {false};
     bool allowUpdates {true};
-    int logicalToMemoryPosition[4]; // map logical channel index to storage index for display
+    int logicalToMemoryPosition[4];
     int colorChannelCount {0};
     qreal gamma {2.2};
     qreal lumaRGB[3] {0.2126, 0.7152, 0.0722};
@@ -81,7 +81,6 @@ void KisVisualColorModel::slotSetColorSpace(const KoColorSpace *cs)
     if (!m_d->currentCS || *m_d->currentCS != *cs) {
         const KoColorSpace *csNew = cs;
 
-        // PQ color space is not very suitable for color picking, substitute with linear one
         if (cs->colorModelId() == RGBAColorModelID
                 && cs->profile()->getTransferCharacteristics() == TRC_ITU_R_BT_2100_0_PQ) {
 
@@ -90,8 +89,6 @@ void KisVisualColorModel::slotSetColorSpace(const KoColorSpace *cs)
                                KoColorSpaceRegistry::instance()->p2020G10Profile());
         }
 
-
-        // TODO: split off non-config related initializations
         loadColorSpace(csNew);
         m_d->currentcolor = KoColor(csNew);
         m_d->channelValues = convertKoColorToChannelValues(m_d->currentcolor);
@@ -153,7 +150,6 @@ void KisVisualColorModel::setMaxChannelValues(const QVector4D &maxValues)
     }
     m_d->channelMaxValues = maxValues;
     if (m_d->exposureSupported) {
-        // need to re-scale our normalized channel values on exposure changes:
         m_d->channelValues = convertKoColorToChannelValues(m_d->currentcolor);
         emitChannelValues();
     }
@@ -217,14 +213,13 @@ KoColor KisVisualColorModel::convertChannelValuesToKoColor(const QVector4D &valu
             HSLToRGB(values.x()*360, values.y(), values.z(), &baseValues[0], &baseValues[1], &baseValues[2]);
         }
         else if (m_d->model == ColorModel::HSI) {
-            // why suddenly qreal?
             qreal temp[3];
             HSIToRGB(values.x(), values.y(), values.z(), &temp[0], &temp[1], &temp[2]);
             baseValues.setX(temp[0]);
             baseValues.setY(temp[1]);
             baseValues.setZ(temp[2]);
         }
-        else /*if (m_d->model == ColorModel::HSY)*/ {
+        else {
             qreal temp[3];
             qreal Y = pow(values.z(), m_d->gamma);
             HSYToRGB(values.x(), values.y(), Y, &temp[0], &temp[1], &temp[2],
@@ -233,8 +228,6 @@ KoColor KisVisualColorModel::convertChannelValuesToKoColor(const QVector4D &valu
             baseValues.setY(temp[1]);
             baseValues.setZ(temp[2]);
             if (!m_d->isLinear) {
-                // Note: not all profiles define a TRC necessary for (de-)linearization,
-                // substituting with a linear profiles would be better
                 QVector<qreal> tempVec({baseValues[0], baseValues[1], baseValues[2]});
                 if (m_d->exposureSupported) {
                     m_d->currentCS->profile()->delinearizeFloatValue(tempVec);
@@ -313,8 +306,6 @@ QVector4D KisVisualColorModel::convertKoColorToChannelValues(KoColor c) const
             coordinates = QVector4D(hsi[0], hsi[1], hsi[2], 0.f);
         } else if (m_d->model == ColorModel::HSY) {
             if (!m_d->isLinear) {
-                // Note: not all profiles define a TRC necessary for (de-)linearization,
-                // substituting with a linear profiles would be better
                 QVector<qreal> temp({channelValuesDisplay[0], channelValuesDisplay[1], channelValuesDisplay[2]});
                 m_d->currentCS->profile()->linearizeFloatValue(temp);
                 channelValuesDisplay = QVector4D(temp[0], temp[1], temp[2], 0);
@@ -325,7 +316,6 @@ QVector4D KisVisualColorModel::convertKoColorToChannelValues(KoColor c) const
             hsy[2] = pow(hsy[2], 1/m_d->gamma);
             coordinates = QVector4D(hsy[0], hsy[1], hsy[2], 0.f);
         }
-        // if we couldn't determine a hue, keep last value
         if (coordinates[0] < 0) {
             coordinates[0] = m_d->channelValues[0];
         }
@@ -391,7 +381,6 @@ void KisVisualColorModel::slotLoadACSConfig()
         KIS_SAFE_ASSERT_RECOVER_NOOP(false);
     }
     if (m_d->acs_config.mainType == KisColorSelectorConfiguration::Triangle) {
-        //Triangle only really works in HSV mode.
         RGB_model = KisVisualColorModel::HSV;
     }
 
@@ -436,8 +425,6 @@ void KisVisualColorModel::loadColorSpace(const KoColorSpace *cs)
 
     if (m_d->isRGBA) {
         m_d->applyGamma = (m_d->isLinear && m_d->modelRGB != ColorModel::HSY);
-        // Note: only profiles that define colorants will give precise luma coefficients.
-        // Maybe using the explicitly set values of the Advanced Color Selector is better?
         QVector <qreal> luma = cs->lumaCoefficients();
         memcpy(m_d->lumaRGB, luma.constData(), 3*sizeof(qreal));
         m_d->model = m_d->modelRGB;

@@ -80,12 +80,6 @@ public:
     void setCanvas(KisCanvas2* canvas);
     bool checkMergedCommand(int index);
 
-    // It's a bit weird to have "setDevicePixelRatio"
-    //  in a model class, but it's needed for
-    //  QImages inside, because there is no
-    //  ItemDelegate for the items,
-    //  so it's better to initialize QImages already
-    //  devicePixelRatio-corrected.
     void setDevicePixelRatio(qreal devicePixelRatio);
 
 public Q_SLOTS:

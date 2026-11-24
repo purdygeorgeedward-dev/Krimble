@@ -28,7 +28,6 @@ KisConvolutionFilter::KisConvolutionFilter(const KoID& id, const KoID & category
     setSupportsLevelOfDetail(true);
 }
 
-
 void KisConvolutionFilter::processImpl(KisPaintDeviceSP device,
                                        const QRect& applyRect,
                                        const KisFilterConfigurationSP config,
@@ -48,7 +47,7 @@ void KisConvolutionFilter::processImpl(KisPaintDeviceSP device,
     if (channelFlags.isEmpty() || !config) {
         channelFlags = QBitArray(device->colorSpace()->channelCount(), true);
     }
- 
+
     painter.setChannelFlags(channelFlags);
     painter.setProgress(progressUpdater);
     painter.applyMatrix(m_matrix, device, srcTopLeft, srcTopLeft, applyRect.size(), BORDER_REPEAT);

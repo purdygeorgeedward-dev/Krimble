@@ -21,12 +21,6 @@ class KisPostExecutionUndoAdapter;
 class KoPattern;
 class KisInterstrokeDataFactory;
 
-/**
- * @brief The KisResourcesSnapshot class takes a snapshot of the various resources
- * like colors and settings used at the begin of a stroke so subsequent
- * changes don't impact the running stroke. The main reason for the snapshot is that the
- * user can *change* the options while the stroke is being executed in the background.
- */
 class KRITAUI_EXPORT KisResourcesSnapshot : public KisShared
 {
 public:
@@ -51,12 +45,6 @@ public:
 
     bool needsMaskingBrushRendering() const;
 
-    /**
-     * \return currently active selection. Note that it will return
-     *         null if current node *is* the current selection. This
-     *         is done to avoid recursive selection application when
-     *         painting on selection masks.
-     */
     KisSelectionSP activeSelection() const;
 
     bool needsAirbrushing() const;
@@ -79,7 +67,6 @@ public:
 
     QTransform fillTransform() const;
 
-    /// @return the channel lock flags of the current node with the global override applied
     QBitArray channelLockFlags() const;
 
     qreal effectiveZoom() const;
@@ -98,5 +85,4 @@ private:
 
 typedef KisSharedPtr<KisResourcesSnapshot> KisResourcesSnapshotSP;
 
-
-#endif /* __KIS_RESOURCES_SNAPSHOT_H */
+#endif

@@ -29,17 +29,6 @@ class KisShapeLayerCanvasBase;
 class KoSelectedShapesProxy;
 
 const QString KIS_SHAPE_LAYER_ID = "KisShapeLayer";
-/**
-   A KisShapeLayer contains any number of non-krita flakes, such as
-   path shapes, text shapes and anything else people come up with.
-
-   The KisShapeLayer has a shapemanager and a canvas of its own. The
-   canvas paints onto the projection, and the projection is what we
-   render in Krita. This means that no matter how many views you have,
-   you cannot have a different view on your shapes per view.
-
-   XXX: what about removing shapes?
-*/
 class KRITAUI_EXPORT KisShapeLayer
         : public KisExternalLayer,
         public KoShapeLayer,
@@ -55,15 +44,6 @@ public:
     KisShapeLayer(const KisShapeLayer& _rhs, KoShapeControllerBase* controller);
     KisShapeLayer(const KisShapeLayer& _rhs, KoShapeControllerBase* controller, std::function<KisShapeLayerCanvasBase*()> canvasFactory);
 
-    /**
-     * Merge constructor
-     *
-     * Creates a new layer as a merge of two existing layers. The shapes of \p baseTemplate
-     * are **not** used. You need to add them into \p newShapes to be used in the final layer.
-     *
-     * \p newShapes are the shapes used in the new shape layer, they should be z-order sorted
-     * homogenized externally before calling this constructor
-     */
     KisShapeLayer(const KisShapeLayer& baseTemplate, const QList<KoShape*> &newShapes);
 
     ~KisShapeLayer() override;
@@ -81,7 +61,6 @@ public:
     }
     bool allowAsChild(KisNodeSP) const override;
 
-
     void setImage(KisImageWSP image) override;
 
     KisLayerSP tryCreateInternallyMergedLayerFromMutipleLayers(QList<KisLayerSP> layers) override;
@@ -90,14 +69,12 @@ public:
     void fillMergedLayerTemplate(KisLayerSP dstLayer, KisLayerSP prevLayer, bool skipPaintingThisLayer) override;
 public:
 
-    // KoShape overrides
     bool isSelectable() const {
         return false;
     }
 
     void setParent(KoShapeContainer *parent);
 
-    // KisExternalLayer implementation
     QIcon icon() const override;
     void resetCache(const KoColorSpace *colorSpace) override;
 
@@ -138,7 +115,6 @@ public:
                                  KoColorConversionTransformation::Intent renderingIntent = KoColorConversionTransformation::internalRenderingIntent(),
                                  KoColorConversionTransformation::ConversionFlags conversionFlags = KoColorConversionTransformation::internalConversionFlags()) override;
 
-
     bool visible(bool recursive = false) const override;
     void setVisible(bool visible, bool isLoading = false) override;
 
@@ -146,31 +122,12 @@ public:
 
     bool isShapeEditable(bool recursive) const override;
 
-    /**
-     * Forces a repaint of a shape layer without waiting for an event loop
-     * calling a delayed timer update. If you want to see the result of the shape
-     * layer right here and right now, you should do:
-     *
-     * shapeLayer->setDirty();
-     * shapeLayer->image()->waitForDone();
-     * shapeLayer->forceUpdateTimedNode();
-     * shapeLayer->image()->waitForDone();
-     *
-     */
     void forceUpdateTimedNode() override;
 
-    /**
-     * \return true if there are any pending updates in the delayed queue
-     */
     bool hasPendingTimedUpdates() const override;
 
     void forceUpdateHiddenAreaOnOriginal() override;
 
-    /**
-     * @brief selectedShapesProxy
-     * @return returns the selectedShapesProxy of the KoCanvasBase of this layer,
-     * used for certain undo commands.
-     */
     KoSelectedShapesProxy* selectedShapesProxy();
 
     bool antialiased() const;
@@ -181,7 +138,6 @@ protected:
 
     bool loadSvg(QIODevice *device, const QString &baseXmlDir, QStringList *warnings = 0);
 
-
     friend class ShapeLayerContainerModel;
     const KoViewConverter *converter() const;
 
@@ -191,23 +147,10 @@ protected:
     friend class TransformShapeLayerDeferred;
 
 Q_SIGNALS:
-    /**
-     * These signals are forwarded from the local shape manager
-     * This is done because we switch KoShapeManager and therefore
-     * KoSelection in KisCanvas2, so we need to connect local managers
-     * to the UI as well.
-     *
-     * \see comment in the constructor of KisCanvas2
-     */
     void selectionChanged();
     void currentLayerChanged(const KoShapeLayer *layer);
 
 Q_SIGNALS:
-    /**
-     * A signal + slot to synchronize UI and image
-     * threads. Image thread emits the signal, UI
-     * thread performs the action
-     */
     void sigMoveShapes(const QPointF &diff);
 
 private Q_SLOTS:

@@ -89,7 +89,7 @@ static long     ZCALLBACK fseek64_file_func(voidpf opaque, voidpf stream, uint64
 static int      ZCALLBACK fclose_file_func(voidpf opaque, voidpf stream);
 static int      ZCALLBACK ferror_file_func(voidpf opaque, voidpf stream);
 
-typedef struct 
+typedef struct
 {
     FILE *file;
     int filenameLength;

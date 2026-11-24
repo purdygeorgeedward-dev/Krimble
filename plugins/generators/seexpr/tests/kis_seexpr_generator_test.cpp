@@ -23,7 +23,6 @@
 #include <testimage.h>
 #include <testutil.h>
 
-
 #include "kis_seexpr_generator_test.h"
 
 #define BASE_SCRIPT                                                                                                                                                                                                                            \

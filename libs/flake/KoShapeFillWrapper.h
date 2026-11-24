@@ -50,4 +50,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif // KOSHAPEFILLWRAPPER_H
+#endif

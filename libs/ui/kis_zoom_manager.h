@@ -28,11 +28,6 @@ class QPoint;
 
 #include "kritaui_export.h"
 
-/**
- *  The zoom manager handles all user actions related to zooming
- *  and unzooming. The actual computation of zoom levels and things
- *  are the job of KoZoomHandler or its descendants
- */
 class KRITAUI_EXPORT KisZoomManager : public QObject
 {
 
@@ -71,7 +66,6 @@ public Q_SLOTS:
     void applyRulersUnit(const KoUnit &baseUnit);
     void setRulersPixelMultiple2(bool enabled);
 
-
 private Q_SLOTS:
     void slotUpdateGuiAfterZoomChange();
     void slotUpdateGuiAfterDocumentRectChanged();
@@ -99,6 +93,5 @@ private:
     KoZoomMode::Mode m_previousZoomMode;
     QPointF m_previousZoomPoint;
 };
-
 
 #endif

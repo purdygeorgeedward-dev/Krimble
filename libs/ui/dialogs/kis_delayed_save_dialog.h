@@ -48,4 +48,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif // KIS_DELAYED_SAVE_DIALOG_H
+#endif

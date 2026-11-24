@@ -10,7 +10,6 @@
 #include "kis_color_space_selector.h"
 #include "kis_advanced_color_space_selector.h"
 
-
 #include <QUrl>
 
 #include <KoFileDialog.h>
@@ -26,7 +25,6 @@
 #include <QStandardPaths>
 
 #include <KoResourcePaths.h>
-
 
 #include <kis_debug.h>
 
@@ -81,7 +79,6 @@ KisColorSpaceSelector::~KisColorSpaceSelector()
     delete d;
 }
 
-
 void KisColorSpaceSelector::fillCmbProfiles()
 {
     const QString currentProfileName = d->colorSpaceSelector->cmbProfile->currentUnsqueezedText();
@@ -122,8 +119,6 @@ void KisColorSpaceSelector::fillCmbDepths(const KoID& id)
         d->colorSpaceSelector->cmbColorDepth->setCurrent(activeDepth);
     }
 }
-
-
 
 const KoColorSpace* KisColorSpaceSelector::currentColorSpace()
 {
@@ -248,7 +243,6 @@ void KisColorSpaceSelector::slotProfileValid(bool valid)
     d->profileValid = valid;
 }
 
-
 void KisColorSpaceSelector::slotModelsComboBoxActivated(const KoID& id)
 {
     if (d->previousModel != id) {
@@ -263,7 +257,6 @@ void KisColorSpaceSelector::slotDepthsComboBoxActivated()
 {
     fillCmbProfiles();
 }
-
 
 void KisColorSpaceSelector::slotProfilesComboBoxActivated()
 {

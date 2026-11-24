@@ -21,17 +21,6 @@ Q_SIGNALS:
     void sigRangeChanged();
 };
 
-
-/**
- * This is a general class for the properties that can be represented
- * in the GUI as an integer or double slider. The GUI representation
- * creates a slider and connects it to this property using all the
- * information contained in it.
- *
- * Methods of this property basically copy the methods of
- * Kis{,Double}SliderSpinbox
- */
-
 template<typename T>
 class KRITAIMAGE_EXPORT_TEMPLATE KisSliderBasedPaintOpProperty
     : public KisSliderBasedPaintOpPropertyBase
@@ -88,4 +77,4 @@ using KisIntSliderBasedPaintOpPropertyCallback =
 using KisDoubleSliderBasedPaintOpPropertyCallback =
     KisCallbackBasedPaintopProperty<KisSliderBasedPaintOpProperty<qreal>>;
 
-#endif /* __KIS_SLIDER_BASED_PAINTOP_PROPERTY_H */
+#endif

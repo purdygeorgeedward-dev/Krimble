@@ -10,8 +10,6 @@
 #include <QScopedPointer>
 #include <QAbstractButton>
 
-
-
 class KisRoundHudButton : public QAbstractButton
 {
 public:
@@ -32,4 +30,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif /* __KIS_ROUND_HUD_BUTTON_H */
+#endif

@@ -13,7 +13,6 @@
 #include <KoColorProfile.h>
 #include <kis_signal_compressor.h>
 
-
 #include "ui_wdgproofingoptions.h"
 
 struct KisProofingOptionsWidget::Private
@@ -51,7 +50,6 @@ KisProofingOptionsWidget::KisProofingOptionsWidget(QWidget *parent)
                                                                  std::get<2>(tuple)));
             });
     m_d->proofingModel.LAGER_QT(proofingSpaceTuple).nudge();
-
 
     m_d->softProofConfigCompressor = new KisSignalCompressor(500, KisSignalCompressor::POSTPONE, this);
 

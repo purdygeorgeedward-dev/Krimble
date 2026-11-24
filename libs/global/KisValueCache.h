@@ -9,11 +9,6 @@
 
 #include <optional>
 
-/**
- * A simple class for cache-like structures. It should be parametrized
- * with a policy-class that has `value_type initialize()` method, which
- * would be used for initializing the cache.
- */
 template <typename Initializer>
 struct KisValueCache : Initializer
 {
@@ -49,4 +44,4 @@ private:
     std::optional<value_type> m_value;
 };
 
-#endif // KISVALUECACHE_H
+#endif

@@ -19,8 +19,6 @@
 const qint32 KisTileDataSwapper::TIMEOUT = -1;
 const qint32 KisTileDataSwapper::DELAY = 0.7 * SEC;
 
-//#define DEBUG_SWAPPER
-
 #ifdef DEBUG_SWAPPER
 #define DEBUG_ACTION(action) dbgKrita << action
 #define DEBUG_VALUE(value) dbgKrita << "\t" << ppVar(value)
@@ -31,7 +29,6 @@ const qint32 KisTileDataSwapper::DELAY = 0.7 * SEC;
 
 class SoftSwapStrategy;
 class AggressiveSwapStrategy;
-
 
 struct Q_DECL_HIDDEN KisTileDataSwapper::Private
 {
@@ -91,17 +88,12 @@ void KisTileDataSwapper::run()
 
 void KisTileDataSwapper::checkFreeMemory()
 {
-//    dbgKrita <<"check memory: high limit -" << m_d->limits.emergencyThreshold() <<"in mem -" << m_d->store->numTilesInMemory();
     if(m_d->store->memoryMetric() > m_d->limits.emergencyThreshold())
         doJob();
 }
 
 void KisTileDataSwapper::doJob()
 {
-    /**
-     * In emergency case usual threads have access
-     * to this function as well
-     */
     QMutexLocker locker(&m_d->cycleLock);
 
     qint32 memoryMetric = m_d->store->memoryMetric();
@@ -113,7 +105,6 @@ void KisTileDataSwapper::doJob()
 
     DEBUG_VALUE(m_d->limits.softLimitThreshold());
     DEBUG_VALUE(m_d->limits.hardLimitThreshold());
-
 
     if(memoryMetric > m_d->limits.softLimitThreshold()) {
         qint32 softFree =  memoryMetric - m_d->limits.softLimit();
@@ -132,7 +123,6 @@ void KisTileDataSwapper::doJob()
     }
 }
 
-
 class SoftSwapStrategy
 {
 public:
@@ -147,7 +137,6 @@ public:
     }
 
     static inline bool isInteresting(KisTileData *td) {
-        // We are working with mementoed tiles only...
         return td->historical();
     }
 
@@ -170,16 +159,14 @@ public:
     }
 
     static inline bool isInteresting(KisTileData *td) {
-        // Add some aggression...
         Q_UNUSED(td);
-        return true; // >:)
+        return true;
     }
 
     static inline bool swapOutFirst(KisTileData *td) {
         return td->age() > 0;
     }
 };
-
 
 template<class strategy>
 qint64 KisTileDataSwapper::pass(qint64 needToFreeMetric)

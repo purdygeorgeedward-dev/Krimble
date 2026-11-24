@@ -14,7 +14,6 @@
 
 class KisNodeVisitor;
 
-
 class KRITAIMAGE_EXPORT KisProjectionLeaf
 {
 public:
@@ -50,10 +49,6 @@ public:
 
     bool isDroppedNode() const;
 
-    /**
-     * A leaf can be renderable even when it is invisible, e.g. when it has
-     * clones (it should update data for clones)
-     */
     bool shouldBeRendered() const;
 
     enum NodeDropReason {
@@ -65,30 +60,10 @@ public:
 
     bool isOverlayProjectionLeaf() const;
 
-    /**
-     * Temporarily exclude the projection leaf from rendering by making
-     * it invisible (KisProjectionLeaf::visible() == false).
-     *
-     * This method is used by the tools that want to hide the
-     * original layer's content temporarily.
-     *
-     * NOTE: the method is not thread-safe! The caller must guarantee
-     * exclusive access to the projection leaf himself.
-     */
     void setTemporaryHiddenFromRendering(bool value);
 
-    /**
-     * \see setTemporaryHiddenFromRendering
-     */
     bool isTemporaryHiddenFromRendering() const;
 
-    /**
-     * Regenerate projection of the current group layer iff it is
-     * pass-through mode.
-     *
-     * WARNING: must be called either under the image lock held
-     *          or in the context of an exclusive stroke job.
-     */
     void explicitlyRegeneratePassThroughProjection();
 
 private:
@@ -96,4 +71,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif /* __KIS_PROJECTION_LEAF_H */
+#endif

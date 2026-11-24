@@ -20,13 +20,6 @@ class QLabel;
 class QHBoxLayout;
 class QPushButton;
 
-/** @brief A special utility titlebar with a title and controls,
- * as well as a central area for adding frequently used widgets.
- *
- * As a general design philosophy, we should try to reserve titlebar
- * widgets for things that are simple to use, frequently tweaked,
- * and core to the artists' workflow.
- */
 class KRITAUI_EXPORT KisUtilityTitleBar : public QWidget
 {
     Q_OBJECT
@@ -43,7 +36,6 @@ public:
     QWidget* widgetArea();
     void setWidgetArea(QWidget* widgetArea);
 
-
 public Q_SLOTS:
     void setLocked(bool locked);
 protected:
@@ -55,4 +47,4 @@ protected:
     Private * const d;
 };
 
-#endif // KISUTILITYTITLEBAR_H
+#endif

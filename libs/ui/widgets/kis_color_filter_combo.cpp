@@ -19,8 +19,6 @@
 
 #include <QStyleFactory>
 
-
-
 #include "kis_node_view_color_scheme.h"
 #include "kis_debug.h"
 #include "kis_icon_utils.h"
@@ -31,7 +29,6 @@ enum AdditionalRoles {
     OriginalLabelIndex = Qt::UserRole + 1000
 };
 
-
 struct LabelFilteringModel : public QSortFilterProxyModel
 {
     LabelFilteringModel(QObject *parent) : QSortFilterProxyModel(parent) {}
@@ -39,7 +36,6 @@ struct LabelFilteringModel : public QSortFilterProxyModel
     bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const override {
         const QModelIndex index = sourceModel()->index(source_row, 0, source_parent);
         const int labelIndex = index.data(OriginalLabelIndex).toInt();
-
 
         return labelIndex < 0 || m_acceptedLabels.contains(labelIndex);
     }
@@ -52,7 +48,6 @@ struct LabelFilteringModel : public QSortFilterProxyModel
 private:
     QSet<int> m_acceptedLabels;
 };
-
 
 class ComboEventFilter : public QObject
 {
@@ -73,10 +68,6 @@ protected:
             QModelIndex index = m_parent->view()->indexAt(mevent->pos());
             if (!index.isValid()) return false;
 
-            /**
-             * We should eat the first event that arrives exactly when
-             * the drop down appears on screen.
-             */
             if (!m_buttonPressed) return true;
 
             const bool toUncheckedState = index.data(Qt::CheckStateRole) == Qt::Checked;
@@ -156,9 +147,6 @@ public:
 
     int styleHint(QStyle::StyleHint hint, const QStyleOption *option, const QWidget *widget, QStyleHintReturn *returnData) const override
     {
-        // This flag makes ComboBox popup float on top of its parent ComboBox, like in Fusion style.
-        // Only when this hint is set will Qt respect combobox popup size hints, otherwise the popup
-        // can never exceed the width of its parent ComboBox, like in Breeze style.
         if (hint == QStyle::SH_ComboBox_Popup) {
             return true;
         }
@@ -170,18 +158,7 @@ public:
 struct KisColorFilterCombo::Private
 {
     LabelFilteringModel *filteringModel;
-    /**
-      * if the combobox is in the filter mode
-      *     (when no colors are selected)
-      *     it will show the filter icon ("view-filter")
-      *     otherwise it will show tag icon ("tag")
-      */
     bool filterMode {true};
-    /**
-      * If the combobox is in the circle mode,
-      *     it will show the selected colors as circle
-      *     otherwise it will show it in a rectangle
-      */
     bool circleMode {true};
 };
 
@@ -192,12 +169,10 @@ KisColorFilterCombo::KisColorFilterCombo(QWidget *parent, bool filterMode, bool 
     m_d->filterMode = filterMode;
     m_d->circleMode = circleMode;
 
-
     QStandardItemModel *newModel = new QStandardItemModel(this);
     setModel(newModel);
 
     QStyle* newStyle = QStyleFactory::create(style()->objectName());
-    // proxy style steals the ownership of the style and deletes it later
     PopupComboBoxStyle *proxyStyle = new PopupComboBoxStyle(newStyle);
 
     proxyStyle->setParent(this);
@@ -356,7 +331,6 @@ void KisColorFilterCombo::paintColorPie(QStylePainter &painter, const QPalette& 
     painter.setBrush(oldBrush);
 }
 
-
 void KisColorFilterCombo::paintEvent(QPaintEvent *event)
 {
     Q_UNUSED(event);
@@ -364,11 +338,9 @@ void KisColorFilterCombo::paintEvent(QPaintEvent *event)
     QStylePainter painter(this);
     painter.setPen(palette().color(QPalette::Text));
 
-    // draw the combobox frame, focusrect and selected etc.
     QStyleOptionComboBox opt;
     initStyleOption(&opt);
     painter.drawComplexControl(QStyle::CC_ComboBox, opt);
-
 
     {
         const QRect editRect = style()->subControlRect(QStyle::CC_ComboBox, &opt, QStyle::SC_ComboBoxEditField, this);
@@ -386,7 +358,6 @@ void KisColorFilterCombo::paintEvent(QPaintEvent *event)
             if (m_d->circleMode) {
                 KisColorFilterCombo::paintColorPie(painter, opt.palette, selectedColors, editRect, size );
             } else {
-                // show all colors in a rectangle
                 KisNodeViewColorScheme scm;
 
                 int oneColorWidth = editRect.width()/numColors;
@@ -397,7 +368,6 @@ void KisColorFilterCombo::paintEvent(QPaintEvent *event)
                     painter.setPen(color);
                     painter.setBrush(brush);
                     if (i == numColors - 1) {
-                        // last color; let's fill up
                         painter.fillRect(currentWidth, editRect.top(), editRect.width() - currentWidth, editRect.height(), brush);
                     } else {
                         painter.fillRect(currentWidth, editRect.top(), oneColorWidth, editRect.height(), brush);
@@ -406,15 +376,10 @@ void KisColorFilterCombo::paintEvent(QPaintEvent *event)
                     currentWidth += oneColorWidth;
                 }
 
-
-
-
             }
         }
     }
 
-    // draw the icon and text
-    //painter.drawControl(QStyle::CE_ComboBoxLabel, opt);
 }
 
 QSize KisColorFilterCombo::minimumSizeHint() const

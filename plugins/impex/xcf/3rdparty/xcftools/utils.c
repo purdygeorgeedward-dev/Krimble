@@ -2,7 +2,7 @@
  *
  * This file was written by Henning Makholm <henning@makholm.net>
  * It is hereby in the public domain.
- * 
+ *
  * In jurisdictions that do not recognise grants of copyright to the
  * public domain: I, the author and (presumably, in those jurisdictions)
  * copyright holder, hereby permit anyone to distribute and use this code,
@@ -28,7 +28,7 @@ int verboseFlag = 0 ;
 static void
 vFatalGeneric(int status,const char *format, va_list args)
 {
-  (void) status; /* mark as unused */
+  (void) status;
   if( format ) {
     if( *format == '!' ) {
       vfprintf(stderr,format+1,args);
@@ -38,8 +38,6 @@ vFatalGeneric(int status,const char *format, va_list args)
       fputc('\n',stderr);
     }
   }
-  /* don't exit here - Krita can't handle errors otherwise */
-  /* exit(status); */
 }
 
 void
@@ -86,7 +84,6 @@ xcfCheckspace(uint32_t addr,int spaceafter,const char *format,...)
   return XCF_OK;
 }
 
-
 void
 FatalUnsupportedXCF(const char* format,...)
 {
@@ -104,11 +101,7 @@ gpl_blurb(void)
   fprintf(stderr,PACKAGE_STRING "\n");
   fprintf(stderr,
           _("Type \"%s -h\" to get an option summary.\n"),progname);
-  /* don't exit here - Krita will close otherwise */
-  /* exit(1) ; */
 }
-
-/* ******************************************************* */
 
 void *
 xcfmalloc(size_t size)
@@ -131,8 +124,6 @@ xcffree(void *block)
   else
     free(block);
 }
-
-/* ******************************************************* */
 
 FILE *
 openout(const char *name)
@@ -159,13 +150,9 @@ closeout(FILE *f,const char *name)
       if( fclose(f) == 0 )
         return XCF_OK;
     } else if( errno == 0 ) {
-      /* Attempt to coax a valid errno out of the standard library,
-       * following an idea by Bruno Haible
-       * https://lists.gnu.org/archive/html/bug-gnulib/2003-09/msg00157.html
-       */
       if( fputc('\0', f) != EOF &&
           fflush(f) == 0 )
-        errno = EIO ; /* Argh, everything succedes. Just call it an I/O error */
+        errno = EIO ;
     }
   }
   FatalUnexpected(_("!Error writing file %s"),name);

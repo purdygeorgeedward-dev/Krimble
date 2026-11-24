@@ -36,7 +36,6 @@ class KisShortcutsDialog;
 class KisKShortcutSchemesEditor;
 class QAction;
 
-
 enum ColumnDesignation {
     Name = 0,
     LocalPrimary,
@@ -44,31 +43,20 @@ enum ColumnDesignation {
     Id
 };
 
-// XXX: Hmm
 enum MyRoles {
     ShortcutRole = Qt::UserRole,
     DefaultShortcutRole,
     ObjectRole
 };
 
-
-/**
- * Type used for QTreeWidgetItems
- *
- * @internal
- */
 enum ItemTypes {
     NonActionItem = 0,
     ActionItem = 1
 };
 
-// Return the first item of the list, if it exists
 QKeySequence primarySequence(const QList<QKeySequence> &sequences);
 
-// Return the second item of the list, if it exists
 QKeySequence alternateSequence(const QList<QKeySequence> &sequences);
-
-
 
 class KisShortcutsDialog::KisShortcutsDialogPrivate
 {
@@ -84,37 +72,13 @@ public:
     KisKShortcutSchemesEditor *m_schemeEditor{0};
 };
 
-
-/**
- * Mixes the KisKShortcutWidget into the treeview used by KisShortcutsEditor. When
- * selecting an shortcut it changes the display from "CTRL-W" to the Widget.
- *
- * @bug That delegate uses KExtendableItemDelegate. That means a cell can be
- * expanded. When selected a cell is replaced by a KisShortcutsEditor. When
- * painting the widget KExtendableItemDelegate reparents the widget to the
- * viewport of the itemview it belongs to. The widget is destroyed when the user
- * selects another shortcut or explicitly issues a contractItem event. But when
- * the user clears the model the delegate misses that event and doesn't delete
- * the KShortcutseditor. And remains as a visible artifact in your treeview.
- * Additionally when closing your application you get an assertion failure from
- * KExtendableItemDelegate.
- *
- * @internal
- */
 class KisShortcutsEditorDelegate : public KExtendableItemDelegate
 {
     Q_OBJECT
 public:
     KisShortcutsEditorDelegate(QTreeWidget *parent, bool allowLetterShortcuts);
-    //reimplemented to have some extra height
     QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const override;
 
-    /**
-     * Set a list of action collections to check against for conflicting
-     * shortcuts.
-     *
-     * @see KisKKeySequenceWidget::setCheckActionCollections
-     */
     void setCheckActionCollections(const QList<KisKActionCollection *> checkActionCollections);
     bool eventFilter(QObject *, QEvent *) override;
 private:
@@ -122,9 +86,7 @@ private:
     bool m_allowLetterShortcuts;
     QWidget *m_editor;
 
-    //! List of actionCollections to check for conflicts.
     QList<KisKActionCollection *> m_checkActionCollections;
-
 
 Q_SIGNALS:
   void shortcutChanged(QVariant, const QModelIndex &);
@@ -135,33 +97,14 @@ public Q_SLOTS:
 private Q_SLOTS:
     void itemActivated(QModelIndex index);
 
-    /**
-     * When the user collapses a hole subtree of shortcuts then remove eventually
-     * extended items. Else we get that artifact bug. See above.
-     */
     void itemCollapsed(QModelIndex index);
 
-    /**
-     * If the user allowed stealing a shortcut we want to be able to undo
-     * that.
-     */
     void stealShortcut(const QKeySequence &seq, QAction *action);
 
     void keySequenceChanged(const QKeySequence &);
 
 };
 
-
-/**
- * Edit a shortcut. This widget is displayed when a user clicks on a shortcut
- * from the list. It contains radio buttons choosing between default and custom
- * shortcuts, and a button to configure the custom shortcut.
- *
- * @see KisShortcutsEditorDelegate::itemActivated
- * @see KisShortcutWidget.cpp
- *
- * @internal
- */
 class ShortcutEditWidget : public QWidget
 {
     Q_OBJECT
@@ -169,45 +112,30 @@ public:
     ShortcutEditWidget(QWidget *viewport, const QKeySequence &defaultSeq, const QKeySequence &activeSeq,
                        bool allowLetterShortcuts);
 
-    //! @see KisKKeySequenceWidget::setCheckActionCollections()
     void setCheckActionCollections(const QList<KisKActionCollection *> checkActionCollections);
 
-    //@{
-    //! @see KisKKeySequenceWidget::checkAgainstStandardShortcuts()
     KisKKeySequenceWidget::ShortcutTypes checkForConflictsAgainst() const;
     void setCheckForConflictsAgainst(KisKKeySequenceWidget::ShortcutTypes);
-    //@}
 
-    //@{
-    //! @see KisKKeySequenceWidget::checkAgainstStandardShortcuts()
     bool multiKeyShortcutsAllowed() const;
     void setMultiKeyShortcutsAllowed(bool);
-    //@}
 
-    //! @see KisKKeySequenceWidget::setComponentName
     void setComponentName(const QString componentName);
 
     void setAction(QObject *action);
     void paintEvent(QPaintEvent *pe) override;
 
-
 Q_SIGNALS:
-    //! Emitted when the key sequence is changed.
     void keySequenceChanged(const QKeySequence &);
 
-    //! @see KisKKeySequenceWidget::stealShortcut()
     void stealShortcut(const QKeySequence &seq, QAction *action);
 
-
 public Q_SLOTS:
-  //! Set the displayed sequences
   void setKeySequence(const QKeySequence &activeSeq);
 
 private Q_SLOTS:
     void defaultToggled(bool);
     void setCustom(const QKeySequence &);
-
-
 
 private:
     QLabel *m_defaultLabel;
@@ -219,4 +147,4 @@ private:
     QObject *m_action;
 };
 
-#endif /* KISSHORTCUTSDIALOG_P_H */
+#endif

@@ -37,7 +37,6 @@
 
 #include "KisSimpleModifyTransformMaskCommand.h"
 
-
 KisTransformProcessingVisitor::
 KisTransformProcessingVisitor(qreal  xscale, qreal  yscale,
                               qreal  xshear, qreal  yshear,
@@ -173,8 +172,6 @@ void KisTransformProcessingVisitor::transformClones(KisLayer *layer, KisUndoAdap
     QList<KisCloneLayerWSP> clones = layer->registeredClones();
 
     Q_FOREACH (KisCloneLayerSP clone, clones) {
-        // we have just casted an object from a weak pointer,
-        // so check validity first
         if(!clone) continue;
 
         KisTransformWorker tw(clone->projection(), m_sx, m_sy, m_shearx, m_sheary,

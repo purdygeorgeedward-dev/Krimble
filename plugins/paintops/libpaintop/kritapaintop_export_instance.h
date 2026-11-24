@@ -10,8 +10,6 @@
 
 #include "kritapaintop_export.h"
 
-/* See https://reviews.llvm.org/D61118 */
-
 #if defined(__MINGW64__) || defined(__MINGW32__)
 #define PAINTOP_EXPORT_TEMPLATE PAINTOP_EXPORT
 #define PAINTOP_EXPORT_INSTANCE
@@ -23,5 +21,4 @@
 #define PAINTOP_EXPORT_INSTANCE PAINTOP_EXPORT
 #endif
 
-
-#endif // KRITAPAINTOP_EXPORT_INSTANCE_H
+#endif

@@ -11,7 +11,6 @@
 #include <simpletest.h>
 #include <testbrush.h>
 
-
 #include <KoColor.h>
 #include <KoColorSpace.h>
 #include <KoColorSpaceRegistry.h>
@@ -40,11 +39,6 @@ inline void KisImagePipeBrushTest::checkConsistency(KisImagePipeBrushSP brush)
     qreal scale = 0.5; Q_UNUSED(scale);
     KisGbrBrushSP firstBrush = brush->brushes().first();
 
-    /**
-     * This set of values is supposed to be constant, so
-     * it is just set to the corresponding values of the
-     * first brush
-     */
     QCOMPARE(brush->width(), firstBrush->width());
     QCOMPARE(brush->height(), firstBrush->height());
     KisOptimizedBrushOutline brushOutline = brush->outline();
@@ -61,17 +55,10 @@ inline void KisImagePipeBrushTest::checkConsistency(KisImagePipeBrushSP brush)
 
     QVERIFY((it == brushOutline.end()) && (firstBrushIt == firstBrushOutline.end()));
 
-    /**
-     * These values should be spread over the children brushes
-     */
     COMPARE_ALL(brush, maskAngle);
     COMPARE_ALL(brush, scale);
     COMPARE_ALL(brush, angle);
     COMPARE_ALL(brush, spacing);
-
-    /**
-     * Check mask size values, they depend on current brush
-     */
 
     KisPaintInformation info;
 
@@ -96,7 +83,6 @@ inline void KisImagePipeBrushTest::checkConsistency(KisImagePipeBrushSP brush)
     KisBrushSP newBrush = brush->testingGetCurrentBrush(info);
     QCOMPARE(oldBrush, newBrush);
 }
-
 
 void KisImagePipeBrushTest::testLoading()
 {
@@ -174,21 +160,18 @@ void KisImagePipeBrushTest::testColoredDab()
     QCOMPARE(brush->brushType(), PIPE_IMAGE);
     QCOMPARE(brush->isImageType(), true);
 
-    // let it be the mask (should be revertible)
     brush->setBrushApplication(ALPHAMASK);
 
     QCOMPARE(brush->brushApplication(), ALPHAMASK);
     QCOMPARE(brush->brushType(), PIPE_IMAGE);
     QCOMPARE(brush->isImageType(), true);
 
-    // revert back
     brush->setBrushApplication(IMAGESTAMP);
 
     QCOMPARE(brush->brushApplication(), IMAGESTAMP);
     QCOMPARE(brush->brushType(), PIPE_IMAGE);
     QCOMPARE(brush->isImageType(), true);
 
-    // convert to the mask (irreversible)
     brush->makeMaskImage(false);
 
     QCOMPARE(brush->brushApplication(), ALPHAMASK);
@@ -225,9 +208,7 @@ void KisImagePipeBrushTest::testColoredDabWash()
 
     QImage result = layer->convertToQImage(0, rc.x(), rc.y(), rc.width(), rc.height());
 
-
 #if 0
-    // if you want to see the result on white background, set #if 1
     QImage bg(result.size(), result.format());
     bg.fill(Qt::white);
     QPainter qPainter(&bg);
@@ -236,8 +217,6 @@ void KisImagePipeBrushTest::testColoredDabWash()
 #endif
     result.save("z_spark_alpha_darken.png");
 }
-
-
 
 #include "kis_text_brush.h"
 

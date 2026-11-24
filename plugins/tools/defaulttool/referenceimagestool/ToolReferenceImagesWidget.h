@@ -27,7 +27,6 @@ public:
 
     void selectionChanged(KoSelection *selection);
 
-
 private Q_SLOTS:
     void slotOpacitySliderChanged(qreal);
     void slotSaturationSliderChanged(qreal);

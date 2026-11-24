@@ -9,7 +9,6 @@
 
 #include <QToolButton>
 
-
 class KisDraggableToolButton : public QToolButton
 {
     Q_OBJECT
@@ -37,4 +36,4 @@ private:
     QPoint m_lastPosition;
 };
 
-#endif /* __KIS_DRAGGABLE_TOOL_BUTTON_H */
+#endif

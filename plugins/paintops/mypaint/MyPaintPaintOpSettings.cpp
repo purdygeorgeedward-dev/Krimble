@@ -12,13 +12,12 @@
 
 #include <KisValueCache.h>
 
-
 struct KisMyPaintOpSettings::Private
 {
     struct Cache
     {
         qreal paintOpSize{0.0};
-        qreal paintOpAngle{0.0};  // the original angle value as seen by KisPaintOpSettings interface
+        qreal paintOpAngle{0.0};
         qreal offsetValue{0.0};
     };
 
@@ -60,7 +59,6 @@ struct KisMyPaintOpSettings::Private
     KisValueCache<CacheInitializer> cache;
 };
 
-
 KisMyPaintOpSettings::KisMyPaintOpSettings(KisResourcesInterfaceSP resourcesInterface)
     : KisOutlineGenerationPolicy<KisPaintOpSettings>(KisCurrentOutlineFetcher::SIZE_OPTION |
                                                      KisCurrentOutlineFetcher::ROTATION_OPTION,
@@ -97,10 +95,6 @@ void KisMyPaintOpSettings::setPaintOpAngle(qreal value)
         value -= 180.0;
     }
 
-    /**
-     * All brushes are rotated in Krita counterclockwise,
-     * so we should invert the value for MyPaint
-     */
     value = 180.0 - value;
 
     data.strengthValue = value;

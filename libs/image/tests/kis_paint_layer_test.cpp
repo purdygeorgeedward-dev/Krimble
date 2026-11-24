@@ -42,7 +42,6 @@ void KisPaintLayerTest::testProjection()
     layer->paintDevice()->convertFromQImage(qimage, 0, 0, 0);
     image->addNode(layer.data());
 
-    // Make sure the projection and the paint device are the same -- we don't have masks yet
     QVERIFY(layer->paintDevice().data() == layer->projection().data());
 
     KisTransparencyMaskSP transparencyMask = new KisTransparencyMask(image, "tmask");
@@ -50,44 +49,32 @@ void KisPaintLayerTest::testProjection()
     transparencyMask->selection()->pixelSelection()->invert();
     image->addNode(transparencyMask.data(), layer.data());
 
-    // Now there are masks. Verify that
     Q_ASSERT(layer->hasEffectMasks());
 
-    // And now we're going to update the projection, but nothing is dirty yet
     layer->projectionPlane()->recalculate(qimage.rect(), layer, KisRenderPassFlag::None);
 
-    // Which also means that the projection is no longer the paint device
     QVERIFY(layer->paintDevice().data() != layer->projection().data());
 
-    // Now the machinery will start to roll
     layer->setDirty(qimage.rect());
 
-    // And now we're going to update the projection, but nothing is dirty yet
     layer->projectionPlane()->recalculate(qimage.rect(), layer, KisRenderPassFlag::None);
 
-    // Which also means that the projection is no longer the paint device
     QVERIFY(layer->paintDevice().data() != layer->projection().data());
 
-    // And the projection is no longer 0, because while we've updated it, nothing is dirty,
-    // so nothing gets updated
     QVERIFY(layer->projection().data() != 0);
 
-    // The selection is initially empty, so after an update, all pixels are still visible
     layer->projectionPlane()->recalculate(qimage.rect(), layer, KisRenderPassFlag::None);
 
-    // We've inverted the mask, so now nothing is seen
     KisSequentialConstIterator it(layer->projection(), qimage.rect());
     while (it.nextPixel()) {
         QVERIFY(cs->opacityU8(it.oldRawData()) == OPACITY_TRANSPARENT_U8);
     };
 
-    // Now fill the layer with some opaque pixels
     transparencyMask->select(qimage.rect());
     transparencyMask->setDirty(qimage.rect());
     image->waitForDone();
 
     layer->projection()->convertToQImage(0, 0, 0, qimage.width(), qimage.height()).save("aaa.png");
-    // Nothing is transparent anymore, so the projection and the paint device should be identical again
     QPoint errpoint;
     if (!TestUtil::compareQImages(errpoint, qimage, layer->projection()->convertToQImage(0, 0, 0, qimage.width(), qimage.height()))) {
         QFAIL(QString("Failed to create identical image, first different pixel: %1,%2 ").arg(errpoint.x()).arg(errpoint.y()).toLatin1());
@@ -122,18 +109,12 @@ void KisPaintLayerTest::testKeyframing()
 
 void KisPaintLayerTest::testLayerStyles()
 {
-    /**
-     * FIXME: Right now the layer style plugin is stored in 'filters'
-     *        directory, so we need to load filters to get it registered
-     *        in the factory.
-     */
     KisFilterRegistry::instance();
 
     const QRect imageRect(0, 0, 200, 200);
     const QRect rFillRect(10, 10, 100, 100);
     const QRect tMaskRect(50, 50, 20, 20);
     const QRect partialSelectionRect(90, 50, 20, 20);
-
 
     const KoColorSpace * cs = KoColorSpaceRegistry::instance()->rgb8();
     KisImageSP image = new KisImage(0, imageRect.width(), imageRect.height(), cs, "styles test");
@@ -175,6 +156,5 @@ void KisPaintLayerTest::testLayerStyles()
     image->waitForDone();
     KIS_DUMP_DEVICE_2(image->projection(), imageRect, "04P_partial", "dd");
 }
-
 
 SIMPLE_TEST_MAIN(KisPaintLayerTest)

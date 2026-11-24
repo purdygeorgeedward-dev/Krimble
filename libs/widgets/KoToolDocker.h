@@ -16,10 +16,6 @@ class QWidget;
 
 #include <kritawidgets_export.h>
 #include <KoCanvasObserverBase.h>
-/**
- * The tool docker shows the tool option widget associated with the
- * current tool and the current canvas.
- */
 class KRITAWIDGETS_EXPORT KoToolDocker : public QDockWidget, public KoCanvasObserverBase
 {
     Q_OBJECT
@@ -29,20 +25,13 @@ public:
 
     void resetWidgets();
 
-    /// reimplemented
     void setCanvas(KoCanvasBase *canvas) override;
     void unsetCanvas() override;
 
 public Q_SLOTS:
-    /**
-     * Update the option widgets to the argument one, removing the currently set widget.
-     */
     void setOptionWidgets(const QList<QPointer<QWidget> > &optionWidgetList);
     void slotScrollerStateChange(QScroller::State state);
 
-    /**
-     * Returns whether the docker has an option widget attached
-     */
     bool hasOptionWidget();
 
 private:

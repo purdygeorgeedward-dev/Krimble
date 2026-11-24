@@ -50,8 +50,6 @@
 
 #include <KisHandlePainterHelper.h>
 
-// KoShape::Private
-
 KoShape::SharedData::SharedData()
     : QSharedData()
     , size(50, 50)
@@ -128,8 +126,6 @@ void KoShape::removeShapeManager(KoShapeManager *manager)
     d->shapeManagers.remove(manager);
 }
 
-// ======== KoShape
-
 const qint16 KoShape::maxZIndex = std::numeric_limits<qint16>::max();
 const qint16 KoShape::minZIndex = std::numeric_limits<qint16>::min();
 
@@ -150,14 +146,6 @@ KoShape::~KoShape()
 {
     shapeChangedPriv(Deleted);
     d->listeners.clear();
-    /**
-     * The shape must have already been detached from all the parents and
-     * shape managers. Otherwise we might accidentally request some RTTI
-     * information, which is not available anymore (we are in d-tor).
-     *
-     * TL;DR: fix the code that caused this destruction without unparenting
-     *        instead of trying to remove these assert!
-     */
     KIS_SAFE_ASSERT_RECOVER (!d->parent) {
         d->parent->removeShape(this);
     }
@@ -181,10 +169,6 @@ KoShape *KoShape::cloneShapeAndBakeAbsoluteTransform() const
 {
     KoShape *clonedShape = this->cloneShape();
 
-    /**
-     * The shape is cloned without its parent's transformation, so we should
-     * adjust it manually.
-     */
     KoShape *oldParentShape = this->parent();
     if (oldParentShape && !oldParentShape->absoluteTransformation().isIdentity()) {
         clonedShape->applyAbsoluteTransformation(oldParentShape->absoluteTransformation());
@@ -250,7 +234,6 @@ void KoShape::setSize(const QSizeF &newSize)
 {
     QSizeF oldSize(size());
 
-    // always set size, as d->size and size() may vary
     setSizeImpl(newSize);
 
     if (oldSize == newSize)
@@ -330,7 +313,6 @@ QRectF KoShape::absoluteOutlineRect(const QList<KoShape *> &shapes)
 QTransform KoShape::absoluteTransformation() const
 {
     QTransform matrix;
-    // apply parents matrix to inherit any transformations done there.
     KoShapeContainer * container = d->parent;
     if (container) {
         if (container->inheritsTransform(this)) {
@@ -348,9 +330,6 @@ QTransform KoShape::absoluteTransformation() const
 void KoShape::applyAbsoluteTransformation(const QTransform &matrix)
 {
     QTransform globalMatrix = absoluteTransformation();
-    // the transformation is relative to the global coordinate system
-    // but we want to change the local matrix, so convert the matrix
-    // to be relative to the local coordinate system
     QTransform transformMatrix = globalMatrix * matrix * globalMatrix.inverted();
     applyTransformation(transformMatrix);
 }
@@ -387,36 +366,12 @@ KoShape::ChildZOrderPolicy KoShape::childZOrderPolicy()
 
 bool KoShape::compareShapeZIndex(KoShape *s1, KoShape *s2)
 {
-    /**
-     * WARNING: Our definition of zIndex is not yet compatible with SVG2's
-     *          definition. In SVG stacking context of groups with the same
-     *          zIndex are **merged**, while in Krita the contents of groups
-     *          is never merged. One group will always below than the other.
-     *          Therefore, when zIndex of two groups inside the same parent
-     *          coincide, the resulting painting order in Krita is
-     *          **UNDEFINED**.
-     *
-     *          To avoid this trouble we use  KoShapeReorderCommand::mergeInShape()
-     *          inside KoShapeCreateCommand.
-     */
 
-    /**
-     * The algorithm below doesn't correctly handle the case when the two pointers actually
-     * point to the same shape. So just check it in advance to guarantee strict weak ordering
-     * relation requirement
-     */
     if (s1 == s2) return false;
 
     KoShape *parentShapeS1 = s1->parent();
     KoShape *parentShapeS2 = s2->parent();
 
-    // We basically walk up through the parents until we find a common base parent
-    // To do that we need two loops where the inner loop walks up through the parents
-    // of s2 every time we step up one parent level on s1
-    //
-    // We don't update the index value until after we have seen that it's not a common base
-    // That way we ensure that two children of a common base are sorted according to their respective
-    // z value
     bool foundCommonParent = false;
     int index1 = s1->zIndex();
     int index2 = s2->zIndex();
@@ -444,7 +399,6 @@ bool KoShape::compareShapeZIndex(KoShape *s1, KoShape *s2)
         }
     }
 
-    // If the one shape is a parent/child of the other then sort so.
     if (s1 == parentShapeS2) {
         return true;
     }
@@ -452,7 +406,6 @@ bool KoShape::compareShapeZIndex(KoShape *s1, KoShape *s2)
         return false;
     }
 
-    // If we went that far then the z-Index is used for sorting.
     return index1 < index2;
 }
 
@@ -467,7 +420,6 @@ void KoShape::setParent(KoShapeContainer *parent)
         d->parent->shapeInterface()->removeShape(this);
         d->parent = 0;
     }
-
 
     KIS_SAFE_ASSERT_RECOVER_NOOP(parent != this);
 
@@ -543,7 +495,6 @@ void KoShape::updateAbsolute(const QRectF &rect) const
         return;
     }
 
-
     if (!d->shapeManagers.empty() && isVisible()) {
         Q_FOREACH (KoShapeManager *manager, d->shapeManagers) {
             manager->update(rect);
@@ -597,7 +548,6 @@ void KoShape::copySettings(const KoShape *shape)
     s->zIndex = shape->zIndex();
     s->visible = shape->isVisible(false);
 
-    // Ensure printable is true by default
     if (!s->visible)
         s->printable = true;
     else
@@ -714,17 +664,12 @@ bool KoShape::inheritPaintOrder() const
 
 qreal KoShape::rotation() const
 {
-    // try to extract the rotation angle out of the local matrix
-    // if it is a pure rotation matrix
 
-    // check if the matrix has shearing mixed in
     if (fabs(fabs(s->localMatrix.m12()) - fabs(s->localMatrix.m21())) > 1e-10)
         return std::numeric_limits<qreal>::quiet_NaN();
-    // check if the matrix has scaling mixed in
     if (fabs(s->localMatrix.m11() - s->localMatrix.m22()) > 1e-10)
         return std::numeric_limits<qreal>::quiet_NaN();
 
-    // calculate the angle from the matrix elements
     qreal angle = atan2(-s->localMatrix.m21(), s->localMatrix.m11()) * 180.0 / M_PI;
     if (angle < 0.0)
         angle += 360.0;
@@ -982,7 +927,6 @@ KisHandlePainterHelper KoShape::createHandlePainterHelperView(QPainter *painter,
                           converter.documentToView() *
                           painter->transform());
 
-    // move c-tor
     return KisHandlePainterHelper(painter, originalPainterTransform, handleRadius, decorationThickness);
 }
 
@@ -993,10 +937,8 @@ KisHandlePainterHelper KoShape::createHandlePainterHelperDocument(QPainter *pain
     painter->setTransform(shape->absoluteTransformation() *
                           painter->transform());
 
-    // move c-tor
     return KisHandlePainterHelper(painter, originalPainterTransform, handleRadius, decorationThickness);
 }
-
 
 QPointF KoShape::shapeToDocument(const QPointF &point) const
 {
@@ -1023,7 +965,6 @@ bool KoShape::addDependee(KoShape *shape)
     if (! shape)
         return false;
 
-    // refuse to establish a circular dependency
     if (shape->hasDependee(this))
         return false;
 
@@ -1056,12 +997,6 @@ void KoShape::shapeChanged(ChangeType type, KoShape *shape)
     Q_UNUSED(type);
     Q_UNUSED(shape);
 
-    /**
-     * NOTE: we don't need to handle Deleted type for the shapes
-     * in d->dependees list here, becasue this function is called
-     * on the other side of the relation, i.e. in the actual
-     * "dependee". We handle that in Private::DependeesLifetimeListener.
-     */
 }
 
 KoSnapData KoShape::snapData() const
@@ -1205,6 +1140,6 @@ QList<KoShape *> KoShape::linearizeSubtreeSorted(const QList<KoShape *> &shapes)
     return result;
 }
 
-void KoShape::setResolution(qreal /*xRes*/, qreal /*yRes*/)
+void KoShape::setResolution(qreal , qreal )
 {
 }

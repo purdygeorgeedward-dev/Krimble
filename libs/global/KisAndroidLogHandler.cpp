@@ -25,12 +25,6 @@ namespace KisAndroidLogHandler {
 namespace detail {
 const char*const applicationName="krita";
 
-
-/**
- * TODO: theoretically, Qt should forward its debugging lines itself, but for
- *       some undefined reason it doesn't, so let's just force it with a custom
- *       handler.
- */
 void kritaQtMessageHandler(QtMsgType type, const QMessageLogContext& context, const QString& msg)
 {
     QString report = msg;
@@ -63,7 +57,7 @@ void kritaQtMessageHandler(QtMsgType type, const QMessageLogContext& context, co
     case QtFatalMsg:
     default:
         __android_log_write(ANDROID_LOG_FATAL, applicationName, local);
-        abort();    
+        abort();
     }
 }
 
@@ -79,24 +73,22 @@ static void *loggingFunction(void*) {
             --readSize;
         }
 
-        buf[readSize] = 0;  // add null-terminator
+        buf[readSize] = 0;
 
-        __android_log_write(ANDROID_LOG_DEBUG, applicationName, buf); // Set any log level you want
+        __android_log_write(ANDROID_LOG_DEBUG, applicationName, buf);
     }
 
     return 0;
 }
 
-static int runStdioForwardingThread() { // run this function to redirect your output to android log
-    setvbuf(stdout, 0, _IOLBF, 0); // make stdout line-buffered
-    setvbuf(stderr, 0, _IONBF, 0); // make stderr unbuffered
+static int runStdioForwardingThread() {
+    setvbuf(stdout, 0, _IOLBF, 0);
+    setvbuf(stderr, 0, _IONBF, 0);
 
-    /* create the pipe and redirect stdout and stderr */
     pipe(pfd);
     dup2(pfd[1], 1);
     dup2(pfd[1], 2);
 
-    /* spawn the logging thread */
     if(pthread_create(&loggingThread, 0, loggingFunction, 0) == -1) {
         return -1;
     }
@@ -106,7 +98,7 @@ static int runStdioForwardingThread() { // run this function to redirect your ou
     return 0;
 }
 
-} // detail
+}
 
 void handler_init()
 {
@@ -116,14 +108,13 @@ void handler_init()
 
 }
 
-#else /* ANDROID_ENABLE_STDIO_FORWARDING */
+#else
 
 namespace KisAndroidLogHandler {
 void handler_init()
 {
-    // do nothing
 }
 
 }
 
-#endif /* ANDROID_ENABLE_STDIO_FORWARDING */
+#endif

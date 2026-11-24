@@ -8,7 +8,6 @@
 #ifndef TESTKOUNIT_H
 #define TESTKOUNIT_H
 
-// Qt
 #include <QObject>
 
 class TestKoUnit : public QObject

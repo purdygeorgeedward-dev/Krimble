@@ -10,7 +10,6 @@
 #include <KisTextureOptionData.h>
 #include <lager/cursor.hpp>
 
-
 class PAINTOP_EXPORT KisTextureOptionWidget : public KisPaintOpOption
 {
 public:
@@ -30,4 +29,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif // KISTEXTUREOPTIONWIDGET_H
+#endif

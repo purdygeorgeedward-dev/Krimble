@@ -14,7 +14,6 @@
 #include "kis_icon.h"
 #include "klocalizedstring.h"
 
-
 KisTransportControls::KisTransportControls(QWidget* parent)
     : QWidget(parent)
 {

@@ -23,4 +23,4 @@ struct MirrorProperties
     }
 };
 
-#endif // KISMIRRORPROPERTIES_H
+#endif

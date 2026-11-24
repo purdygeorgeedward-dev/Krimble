@@ -32,4 +32,4 @@ struct KisDensityOptionData : KisCurveOptionData
     {}
 };
 
-#endif // KISSKETCHSTANDARDOPTIONDATA_H
+#endif

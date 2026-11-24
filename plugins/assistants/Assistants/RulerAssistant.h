@@ -27,7 +27,7 @@ public:
     bool isAssistantComplete() const override;
     void saveCustomXml(QXmlStreamWriter *xml) override;
     bool loadCustomXml(QXmlStreamReader *xml) override;
-    
+
     int subdivisions() const;
     void setSubdivisions(int subdivisions);
     int minorSubdivisions() const;
@@ -38,7 +38,7 @@ public:
     void setFixedLength(qreal length);
     QString fixedLengthUnit() const;
     void setFixedLengthUnit(QString unit);
-    
+
     void ensureLength();
 
 protected:
@@ -51,7 +51,7 @@ protected:
     QPointF project(const QPointF& pt) const;
     void drawSubdivisions(QPainter& gc, const KisCoordinatesConverter *converter, const KoColorDisplayRendererInterface *displayRenderInterface);
     void drawHandleAnnotations(QPainter& gc, const KisCoordinatesConverter *converter, const KoColorDisplayRendererInterface *displayRenderInterface);
-    
+
     int m_subdivisions {0};
     int m_minorSubdivisions {0};
     bool m_hasFixedLength {false};

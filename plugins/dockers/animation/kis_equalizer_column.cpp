@@ -24,7 +24,6 @@ struct KisEqualizerColumn::Private
     bool forceDisabled;
 };
 
-
 KisEqualizerColumn::KisEqualizerColumn(QWidget *parent, int id, const QString &title)
     : QWidget(parent),
       m_d(new Private)

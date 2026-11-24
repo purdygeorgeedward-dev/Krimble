@@ -22,7 +22,6 @@
 
 K_PLUGIN_FACTORY_WITH_JSON(HairyPaintOpPluginFactory, "kritahairypaintop.json", registerPlugin<HairyPaintOpPlugin>();)
 
-
 HairyPaintOpPlugin::HairyPaintOpPlugin(QObject *parent, const QVariantList &)
     : QObject(parent)
 {

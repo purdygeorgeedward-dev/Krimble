@@ -57,7 +57,6 @@ class WdgStrokeSelection : public QWidget, public Ui::WdgStrokeSelection
 {
     Q_OBJECT
 
-
 public:
     WdgStrokeSelection(QWidget *parent) ;
     StrokeSelectionOptions  m_options;
@@ -77,7 +76,6 @@ private Q_SLOTS:
     void on_lineColorBox_currentIndexChanged(int index);
 
 };
-
 
 class KisDlgStrokeSelection : public KoDialog
 {
@@ -109,6 +107,4 @@ private Q_SLOTS:
     void colorFillChanged(const QColor &newColor);
 };
 
-
-
-#endif // KIS_DLG_STROKE_SEL_PROPERTIES_H_
+#endif

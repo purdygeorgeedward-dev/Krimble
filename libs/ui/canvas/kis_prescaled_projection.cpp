@@ -34,12 +34,6 @@
 #include <KisCanvasState.h>
 
 namespace {
-/**
- * RelevantCanvasState represents a part of the canvas state
- * which is relevant for the prescaled projection. Basically,
- * if this structure changes, then the prescaled projection
- * needs an update.
- */
 struct RelevantCanvasState
 {
     qreal zoom = 1.0;
@@ -120,8 +114,6 @@ KisPrescaledProjection::KisPrescaledProjection()
 {
     updateSettings();
 
-    // we disable building the pyramid with setting its height to 1
-    // XXX: setting it higher than 1 is broken because it's not updated until you show/hide the layer
     m_d->projectionBackend = new KisImagePyramid(1);
 
     connect(KisConfigNotifier::instance(), SIGNAL(configChanged()), SLOT(updateSettings()));
@@ -132,7 +124,6 @@ KisPrescaledProjection::~KisPrescaledProjection()
     delete m_d->projectionBackend;
     delete m_d;
 }
-
 
 void KisPrescaledProjection::setImage(KisImageWSP image)
 {
@@ -180,17 +171,12 @@ void KisPrescaledProjection::notifyCanvasStateChanged(const KisCanvasState &stat
 
 void KisPrescaledProjection::viewportMoved(const QPointF &offset)
 {
-    // FIXME: \|/
     if (m_d->prescaledQImage.isNull()) return;
     if (offset.isNull()) return;
 
     QPoint alignedOffset = offset.toPoint();
 
     if(offset != alignedOffset) {
-        /**
-         * We can't optimize anything when offset is float :(
-         * Just prescale entire image.
-         */
         dbgRender << "prescaling the entire image because the offset is float";
         preScale();
         return;
@@ -199,11 +185,6 @@ void KisPrescaledProjection::viewportMoved(const QPointF &offset)
     QImage newImage = QImage(m_d->viewportSize, QImage::Format_ARGB32);
     newImage.fill(0);
 
-    /**
-     * TODO: viewport rects should be cropped by the borders of
-     * the image, because it may be requested to read/write
-     * outside QImage and copyQImage will not catch it
-     */
     QRect newViewportRect = QRect(QPoint(0,0), m_d->viewportSize);
     QRect oldViewportRect = newViewportRect.translated(alignedOffset);
 
@@ -240,8 +221,6 @@ void KisPrescaledProjection::viewportMoved(const QPointF &offset)
 void KisPrescaledProjection::slotImageSizeChanged(qint32 w, qint32 h)
 {
     m_d->projectionBackend->setImageSize(w, h);
-    // viewport size is cropped by the size of the image
-    // so we need to update it as well
     updateViewportSize();
 }
 
@@ -249,14 +228,9 @@ KisUpdateInfoSP KisPrescaledProjection::updateCache(const QRect &dirtyImageRect)
 {
     if (!m_d->image) {
         dbgRender.noquote() << "Calling updateCache without an image:" << kisBacktrace() << Qt::endl;
-        // return invalid info
         return new KisPPUpdateInfo();
     }
 
-    /**
-     * We needn't this stuff outside KisImage's area. We're not displaying
-     * anything painted outside the image anyway.
-     */
     QRect croppedImageRect = dirtyImageRect & m_d->image->bounds();
     if (croppedImageRect.isEmpty()) return new KisPPUpdateInfo();
 
@@ -322,7 +296,6 @@ void KisPrescaledProjection::setDisplayFilter(QSharedPointer<KisDisplayFilter> d
     m_d->projectionBackend->setDisplayFilter(displayFilter);
 }
 
-
 void KisPrescaledProjection::updateViewportSize()
 {
     QRect imageRect = m_d->coordinatesConverter->imageRectInWidgetPixels().toAlignedRect();
@@ -349,12 +322,6 @@ void KisPrescaledProjection::notifyCanvasSizeChanged(const QSize &widgetSize)
 
 KisPPUpdateInfoSP KisPrescaledProjection::getInitialUpdateInformation(const QRect &dirtyImageRect)
 {
-    /**
-     * This update information has nothing more than an information
-     * about dirty image rect. All the other information used for
-     * scaling will be fetched in fillUpdateInformation() later,
-     * when we are working in the context of the UI thread
-     */
 
     KisPPUpdateInfoSP info = new KisPPUpdateInfo();
     info->dirtyImageRectVar = dirtyImageRect;
@@ -367,20 +334,10 @@ void KisPrescaledProjection::fillInUpdateInformation(const QRect &viewportRect,
 {
     m_d->coordinatesConverter->imageScale(&info->scaleX, &info->scaleY);
 
-    // first, crop the part of the view rect that is outside of the canvas
     QRect croppedViewRect = viewportRect.intersected(QRect(QPoint(0, 0), m_d->viewportSize));
 
-    // second, align this rect to the KisImage's pixels and pixels
-    // of projection backend.
     info->imageRect = m_d->coordinatesConverter->viewportToImage(QRectF(croppedViewRect)).toAlignedRect();
 
-    /**
-     * To avoid artifacts while scaling we use mechanism like
-     * changeRect/needRect for layers. Here we grow the rect to update
-     * pixels which depend on the dirty rect (like changeRect), and
-     * later we request a bit more pixels for the patch to make the
-     * scaling safe (like needRect).
-     */
     const int borderSize = BORDER_SIZE(qMax(info->scaleX, info->scaleY));
     info->imageRect.adjust(-borderSize, -borderSize, borderSize, borderSize);
 
@@ -388,7 +345,6 @@ void KisPrescaledProjection::fillInUpdateInformation(const QRect &viewportRect,
 
     m_d->projectionBackend->alignSourceRect(info->imageRect, info->scaleX);
 
-    // finally, compute the dirty rect of the canvas
     info->viewportRect = m_d->coordinatesConverter->imageToViewport(info->imageRect);
 
     info->borderWidth = 0;
@@ -399,7 +355,7 @@ void KisPrescaledProjection::fillInUpdateInformation(const QRect &viewportRect,
             info->borderWidth = borderSize;
         }
         info->transfer = KisPPUpdateInfo::DIRECT;
-    } else { // <100%
+    } else {
         info->renderHints = QPainter::SmoothPixmapTransform;
         info->borderWidth = borderSize;
         info->transfer = KisPPUpdateInfo::PATCH;
@@ -429,10 +385,8 @@ void KisPrescaledProjection::drawUsingBackend(QPainter &gc, KisPPUpdateInfoSP in
 
     if (info->transfer == KisPPUpdateInfo::DIRECT) {
         m_d->projectionBackend->drawFromOriginalImage(gc, info);
-    } else /* if info->transfer == KisPPUpdateInformation::PATCH */ {
+    } else {
         KisImagePatch patch = m_d->projectionBackend->getNearestPatch(info);
-        // prescale the patch because otherwise we'd scale using QPainter, which gives
-        // a crap result compared to QImage's smoothscale
         patch.preScale(info->viewportRect);
         patch.drawMe(gc, info->viewportRect, info->renderHints);
     }

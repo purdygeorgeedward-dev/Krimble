@@ -13,8 +13,6 @@
 class QWidget;
 class QString;
 
-// This class can be implemented when we want to extend the
-// dialog with new, specific pages.
 class KRITAWIDGETS_EXPORT KoPageWidgetItem
 {
 public:
@@ -27,5 +25,4 @@ public:
     virtual void apply() = 0;
 };
 
-
-#endif // KOPAGEWIDGETITEM_H
+#endif

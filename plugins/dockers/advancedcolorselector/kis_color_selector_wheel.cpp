@@ -17,7 +17,6 @@
 #include "kis_display_color_converter.h"
 #include "kis_acs_pixel_cache_renderer.h"
 
-
 KisColorSelectorWheel::KisColorSelectorWheel(KisColorSelector *parent) :
     KisColorSelectorComponent(parent),
     m_lastClickPos(-1,-1),
@@ -154,8 +153,6 @@ void KisColorSelectorWheel::setColor(const KoColor &color)
     m_lastClickPos.setX(cos(angle)*radius+0.5);
     m_lastClickPos.setY(sin(angle)*radius+0.5);
 
-    //workaround for bug 279500
-
     if(m_lastClickPos!=QPoint(-1,-1) && m_parent->displayBlip()) {
         QPoint pos = (m_lastClickPos*qMin(width(), height())).toPoint();
         if(width() < height()) {
@@ -178,7 +175,6 @@ void KisColorSelectorWheel::paint(QPainter* painter)
         Acs::PixelCacheRenderer::render(this, m_parent->converter(), QRect(0, 0, width(), height()), realPixelCache,
                                         m_pixelCache, m_pixelCacheOffset, painter->device()->devicePixelRatioF());
 
-        //antialiasing for wheel
         QPainter tmpPainter(&m_pixelCache);
         tmpPainter.setRenderHint(QPainter::Antialiasing);
         tmpPainter.setPen(QPen(QColor(0,0,0,0), 2.5));
@@ -199,7 +195,6 @@ void KisColorSelectorWheel::paint(QPainter* painter)
 
     painter->drawImage(m_pixelCacheOffset.x(),m_pixelCacheOffset.y(), m_pixelCache);
 
-    // draw gamut mask
     if (m_gamutMaskOn && m_currentGamutMask) {
         QImage maskBuffer = QImage(m_renderAreaSize*painter->device()->devicePixelRatioF(), QImage::Format_ARGB32_Premultiplied);
         maskBuffer.setDevicePixelRatio(painter->device()->devicePixelRatioF());
@@ -214,7 +209,7 @@ void KisColorSelectorWheel::paint(QPainter* painter)
         maskPainter.scale(rect.width()*0.5, rect.height()*0.5);
 
         maskPainter.setPen(QPen(QBrush(Qt::white), 0.002));
-        maskPainter.setBrush(QColor(128,128,128,255)); // middle gray
+        maskPainter.setBrush(QColor(128,128,128,255));
 
         maskPainter.drawEllipse(QPointF(0,0), 1.0, 1.0);
 
@@ -229,8 +224,6 @@ void KisColorSelectorWheel::paint(QPainter* painter)
 
         painter->drawImage(m_renderAreaOffsetX, m_renderAreaOffsetY, maskBuffer);
     }
-
-    // draw blips
 
     if(m_lastClickPos!=QPoint(-1,-1) && m_parent->displayBlip()) {
         QPoint pos = (m_lastClickPos*qMin(width(), height())).toPoint();

@@ -10,10 +10,6 @@
 #include <QIcon>
 #include <QWidget>
 
-/* Code based on KisColorPreviewPopup in kis_color_selector_base.cpp
- * from Advanced Color Selector.
- * Copyright (c) 2010 Adam Celarek <kdedev at xibo dot at> */
-
 class WGColorPreviewToolTip : public QWidget
 {
     Q_OBJECT
@@ -57,4 +53,4 @@ private:
     QIcon m_brushIcon;
 };
 
-#endif // WGCOLORPREVIEWTOOLTIP_H
+#endif

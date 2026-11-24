@@ -1,14 +1,7 @@
-// This file is part of PyKrita, Krita' Python scripting plugin.
-//
 // SPDX-FileCopyrightText: 2006 Paul Giannaros <paul@giannaros.org>
 // SPDX-FileCopyrightText: 2012, 2013 Shaheed Haque <srhaque@theiet.org>
 // SPDX-FileCopyrightText: 2021 L. E. Segovia <amy@amyspark.me>
-//
 // SPDX-License-Identifier: LGPL-2.1-only OR LGPL-3.0-only OR LicenseRef-KDE-Accepted-LGPL
-//
-
-// config.h defines PYKRITA_PYTHON_LIBRARY, the path to libpython.so
-// on the build system
 
 #include "config.h"
 #include "utilities.h"
@@ -43,7 +36,6 @@ namespace PyKrita
 
     InitResult initialize()
     {
-        // Already initialized?
         if (initStatus == INIT_OK) return INIT_OK;
 
         dbgScript << "Initializing Python plugin for Python" << PY_MAJOR_VERSION << "," << PY_MINOR_VERSION;
@@ -52,9 +44,6 @@ namespace PyKrita
             return INIT_CANNOT_LOAD_PYTHON_LIBRARY;
         }
 
-        // Update PYTHONPATH
-        // 0) custom plugin directories (prefer local dir over systems')
-        // 1) shipped krita module's dir
         QStringList pluginDirectories = KoResourcePaths::findDirs("pythonscripts");
         dbgScript << "Plugin Directories: " << pluginDirectories;
         if (!Python::setPath(pluginDirectories)) {
@@ -70,19 +59,16 @@ namespace PyKrita
         Python::ensureInitialized();
         Python py = Python();
 
-        // Initialize 'plugins' dict of module 'pykrita'
         PyObject* plugins = PyDict_New();
         py.itemStringSet("plugins", plugins);
 
         pluginManagerInstance.reset(new PythonPluginManager());
 
-        // Initialize our built-in module.
         auto pykritaModule = PYKRITA_INIT();
 
         if (!pykritaModule) {
             initStatus = INIT_CANNOT_LOAD_PYKRITA_MODULE;
             return initStatus;
-            //return i18nc("@info:tooltip ", "No <icode>pykrita</icode> built-in module");
         }
 
         initStatus = INIT_OK;
@@ -116,7 +102,7 @@ QLibrary* s_pythonLibrary = 0;
 #endif
 PyThreadState* s_pythonThreadState = 0;
 bool isPythonPathSet = false;
-}                                                           // anonymous namespace
+}
 
 const char* Python::PYKRITA_ENGINE = "pykrita";
 
@@ -236,14 +222,11 @@ QString Python::lastTraceback() const
 
 bool Python::libraryLoad()
 {
-    // no-op on Windows
 #if defined(Q_OS_UNIX) && !defined(Q_OS_MAC)
     if (!s_pythonLibrary) {
 
         QFileInfo fi(PYKRITA_PYTHON_LIBRARY);
-        // get the filename of the configured Python library, without the .so suffix
         const QString libraryName = fi.completeBaseName();
-        // 1.0 is the SONAME of the shared Python library
         s_pythonLibrary = new QLibrary(libraryName, "1.0");
         s_pythonLibrary->setLoadHints(QLibrary::ExportExternalSymbolsHint);
         if (!s_pythonLibrary->load()) {
@@ -278,8 +261,6 @@ QString findKritaPythonLibsPath(const QString &libdir)
         if (libDir.cd(libdir)) {
             return libDir.absolutePath();
         } else {
-            // Handle cases like Linux where libs are placed in a sub-dir
-            // with the ABI name
             Q_FOREACH (const QFileInfo &subEntry, libDir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot)) {
                 QDir subDir(subEntry.absoluteFilePath());
                 if (subDir.cd(libdir)) {
@@ -291,18 +272,13 @@ QString findKritaPythonLibsPath(const QString &libdir)
     return QString();
 }
 
-} // namespace
+}
 
 bool Python::setPath(const QStringList& scriptPaths)
 {
 
     KIS_SAFE_ASSERT_RECOVER_RETURN_VALUE(!Py_IsInitialized(), false);
     KIS_SAFE_ASSERT_RECOVER_RETURN_VALUE(!isPythonPathSet, false);
-
-//    qDebug() << ">>>>>>>>>>>" << qgetenv("APPDIR")
-//             << KoResourcePaths::getApplicationRoot()
-//             << (!qgetenv("APPDIR").isNull() && KoResourcePaths::getApplicationRoot().contains(qgetenv("APPDIR")));
-
 
 #if defined Q_OS_WIN
     bool runningInBundle = false;
@@ -321,10 +297,8 @@ bool Python::setPath(const QStringList& scriptPaths)
 #endif
 
     QString originalPath;
-    // Start with the script paths
     QStringList paths(scriptPaths);
 
-    // Append the Krita libraries path
     QString pythonLibsPath = findKritaPythonLibsPath("krita-python-libs");
     dbgScript << "pythonLibsPath (krita-python-libs)" << pythonLibsPath;
     if (pythonLibsPath.isEmpty()) {
@@ -335,7 +309,6 @@ bool Python::setPath(const QStringList& scriptPaths)
     paths.append(pythonLibsPath);
 
 #ifndef Q_OS_WIN
-    // Append the sip libraries path
     pythonLibsPath = findKritaPythonLibsPath("sip");
     dbgScript << "pythonLibsPath (sip)" << pythonLibsPath;
     if (!pythonLibsPath.isEmpty()) {
@@ -345,17 +318,10 @@ bool Python::setPath(const QStringList& scriptPaths)
 #endif
 
 #ifdef Q_OS_WIN
-    // Find embeddable Python at <root>/python
     QDir pythonDir(KoResourcePaths::getApplicationRoot());
     if (pythonDir.cd("python")) {
         const QString pythonHome = pythonDir.absolutePath();
         dbgScript << "Found bundled Python at" << pythonHome;
-        // The default paths for Windows embeddable Python is
-        // ./python[0-9][0-9]+.zip;./
-        // Ordinarily, Python would find its own bundle here.
-        // But because we set sys.path manually afterwards,
-        // the prefix gets zeroed out. See
-        // https://docs.python.org/3/c-api/init.html#c.Py_SetPath
         paths.append(pythonDir.absoluteFilePath(QStringLiteral("python%1%2.zip")
                                                     .arg(PY_MAJOR_VERSION)
                                                     .arg(PY_MINOR_VERSION)));
@@ -365,7 +331,6 @@ bool Python::setPath(const QStringList& scriptPaths)
         return false;
     }
 
-    // Add stock Python libs folder at <root>/lib/site-packages
     QString distToolsPath = findKritaPythonLibsPath("site-packages");
     dbgScript << "distToolsPath (site-packages)" << distToolsPath;
     if (distToolsPath.isEmpty()) {
@@ -375,9 +340,7 @@ bool Python::setPath(const QStringList& scriptPaths)
     dbgScript << "Found site-packages at" << distToolsPath;
     paths.append(distToolsPath);
 #else
-    // If using a system Python install, respect the current PYTHONPATH
     if (runningInBundle) {
-        // We're running from an appimage, so we need our local python
         QString p = QFileInfo(PYKRITA_PYTHON_LIBRARY).fileName();
 #ifdef Q_OS_MAC
         QString p2 = p.remove("lib").remove("m.dy").remove(".dy");
@@ -387,9 +350,7 @@ bool Python::setPath(const QStringList& scriptPaths)
         dbgScript << "\t" << p << p2;
         originalPath = findKritaPythonLibsPath(p);
 #ifdef Q_OS_MAC
-        // Are we running with a system Python library instead?
         if (originalPath.isEmpty()) {
-            // Keep the original Python search path.
             originalPath = QString::fromWCharArray(Py_GetPath());
             QString d = QFileInfo(PYKRITA_PYTHON_LIBRARY).absolutePath();
 
@@ -399,7 +360,7 @@ bool Python::setPath(const QStringList& scriptPaths)
 #else
             paths.append(d + "/" + p2 + "/site-packages/PyQt5");
 #endif
-            
+
         }
         else {
 #endif
@@ -415,7 +376,6 @@ bool Python::setPath(const QStringList& scriptPaths)
 #endif
     }
     else {
-        // Use the system path
         originalPath = QString::fromLocal8Bit(qgetenv("PYTHONPATH"));
     }
 #endif
@@ -462,10 +422,8 @@ void Python::maybeFinalize()
 
 void Python::libraryUnload()
 {
-    // no-op on Windows
 #ifndef Q_OS_WIN
     if (s_pythonLibrary) {
-        // Shut the interpreter down if it has been started.
         if (s_pythonLibrary->isLoaded()) {
             s_pythonLibrary->unload();
         }
@@ -517,13 +475,10 @@ PyObject* Python::moduleImport(const char* const moduleName)
     return 0;
 }
 
-// Inspired by https://lists.gt.net/python/python/150924.
 void Python::traceback(const QString& description)
 {
     m_traceback.clear();
     if (!PyErr_Occurred())
-        // Return an empty string on no error.
-        // NOTE "Return a string?" really??
         return;
 
     PyObject* exc_typ;
@@ -532,7 +487,6 @@ void Python::traceback(const QString& description)
     PyErr_Fetch(&exc_typ, &exc_val, &exc_tb);
     PyErr_NormalizeException(&exc_typ, &exc_val, &exc_tb);
 
-    // Include the traceback.
     if (exc_tb) {
         m_traceback = "Traceback (most recent call last):\n";
         PyObject* const arguments = PyTuple_New(1);
@@ -553,7 +507,6 @@ void Python::traceback(const QString& description)
         Py_DECREF(exc_tb);
     }
 
-    // Include the exception type and value.
     if (exc_typ) {
         PyObject* const temp = PyObject_GetAttrString(exc_typ, "__name__");
         if (temp) {
@@ -577,7 +530,6 @@ void Python::traceback(const QString& description)
     Q_FOREACH(const QString &s, l) {
         errScript << s;
     }
-    /// \todo How about to show it somewhere else than "console output"?
 }
 
 PyObject* Python::unicode(const QString& string)
@@ -626,7 +578,6 @@ bool Python::prependPythonPaths(const QStringList& paths)
     if (!sys_path)
         return false;
 
-    /// \todo Heh, boosts' range adaptors would be good here!
     QStringList reversed_paths;
     std::reverse_copy(
         paths.begin()
@@ -647,6 +598,5 @@ bool Python::prependPythonPaths(const QString& path, PyObject* sys_path)
     return bool(prependStringToList(sys_path, path));
 }
 
-}                                                           // namespace PyKrita
+}
 
-// krita: indent-width 4;

@@ -10,10 +10,6 @@
 #include <QtGlobal>
 #include <kritaui_export.h>
 
-/**
- * A special interface for OCIO filter providing functionality for the
- * main UI module. See Dependency Inversion Principle for more.
- */
 struct KRITAUI_EXPORT KisExposureGammaCorrectionInterface {
     virtual ~KisExposureGammaCorrectionInterface();
     virtual bool canChangeExposureAndGamma() const = 0;
@@ -34,4 +30,4 @@ struct KRITAUI_EXPORT KisDumbExposureGammaCorrectionInterface : public KisExposu
     void setCurrentGamma(qreal value) override;
 };
 
-#endif /* __KIS_EXPOSURE_GAMMA_CORRECTION_INTERFACE_H */
+#endif

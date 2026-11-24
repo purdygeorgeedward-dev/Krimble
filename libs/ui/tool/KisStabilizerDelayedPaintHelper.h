@@ -34,7 +34,6 @@ class KRITAUI_EXPORT KisStabilizerDelayedPaintHelper : public QObject
     int m_lastPaintTime {0};
     QElapsedTimer m_elapsedTimer;
 
-    // Callbacks
     std::function<void(const KisPaintInformation &, const KisPaintInformation &)> m_paintLine;
     std::function<void()> m_requestUpdateOutline;
 
@@ -51,7 +50,6 @@ public:
     }
 
     KisPaintInformation lastPaintInformation() const {
-        // Please call hasLastPaintInformation before this
         return m_paintQueue.head().paintInfo;
     }
 
@@ -73,4 +71,4 @@ private Q_SLOTS:
     void stabilizerDelayedPaintTimer();
 };
 
-#endif // KIS_STABILIZER_DELAYED_PAINT_HELPER_H
+#endif

@@ -53,4 +53,4 @@ private:
     const KoColorSpace *m_cachedColorSpace {nullptr};
 };
 
-#endif // KIS_MY_PAINT_SHADE_SELECTOR_H
+#endif

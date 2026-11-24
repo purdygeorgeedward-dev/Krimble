@@ -24,7 +24,6 @@ public:
         quint8* oldData {nullptr};
     };
 
-
 public:
     KisVLineIterator2(KisDataManager *dataManager, qint32 x, qint32 y, qint32 h, qint32 offsetX, qint32 offsetY, bool writable, KisIteratorCompleteListener *completeListener);
     ~KisVLineIterator2() override;
@@ -46,10 +45,10 @@ private:
     qint32 m_offsetX {0};
     qint32 m_offsetY {0};
 
-    qint32 m_x {0};        // current x position
-    qint32 m_y {0};        // current y position
-    qint32 m_column {0};    // current column in tilemgr
-    qint32 m_index {0};    // current row in tilemgr
+    qint32 m_x {0};
+    qint32 m_y {0};
+    qint32 m_column {0};
+    qint32 m_index {0};
     qint32 m_tileSize {0};
     quint8 *m_data {nullptr};
     quint8 *m_dataBottom {nullptr};

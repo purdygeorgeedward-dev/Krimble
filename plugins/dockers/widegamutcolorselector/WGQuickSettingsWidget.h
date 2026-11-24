@@ -39,4 +39,4 @@ private:
     WGSelectorConfigGrid *m_selectorConf;
 };
 
-#endif // WGQUICKSETTINGSWIDGET_H
+#endif

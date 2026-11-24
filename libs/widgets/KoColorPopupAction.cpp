@@ -76,7 +76,6 @@ KoColorPopupAction::KoColorPopupAction(QObject *parent)
     d->colorSetWidget->setColorSet(defaultColorSet);
 
     d->colorChooser = new KoTriangleColorSelector( widget );
-    // prevent mouse release on color selector from closing popup
     d->colorChooser->setAttribute( Qt::WA_NoMousePropagation );
     d->opacitySlider = new KoColorSlider( Qt::Vertical, widget );
     d->opacitySlider->setFixedWidth(25);
@@ -164,8 +163,6 @@ void KoColorPopupAction::updateIcon()
         iconSize = QSize(16, 16);
     }
 
-    // This must be a QImage, as drawing to a QPixmap outside the
-    // UI thread will cause sporadic crashes.
     QImage pm;
 
     if (icon().isNull()) {

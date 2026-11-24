@@ -29,11 +29,6 @@ public:
 
     qreal step() const;
 
-    /**
-     * @brief valueToWidgetOffset
-     * @param value Y value in ruler units.
-     * @return Pixel offset relative to widget.
-     */
     qreal valueToWidget(qreal value) const;
     qreal widgetToValue(qreal position) const;
 
@@ -64,11 +59,11 @@ public:
 
     QSize sizeHint() const override {return QSize(64, 0);}
     void paintEvent(QPaintEvent *e) override;
-    
+
 Q_SIGNALS:
     void scaleChanged(qreal scale);
     void valueOffsetChanged(qreal offset);
-    
+
 protected:
     virtual void mouseMoveEvent(QMouseEvent* mouseEvent) override;
     virtual void mousePressEvent(QMouseEvent* mouseEvent) override;

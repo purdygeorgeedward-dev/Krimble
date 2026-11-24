@@ -37,17 +37,14 @@ public:
     }
 
     bool isSequential() const {
-        // Default value is 'SEQUENTIAL'
         return m_dabData ? m_dabData->isSequential() : true;
     }
 
     bool isBarrier() const {
-        // Default value is simply 'SEQUENTIAL', *not* 'BARRIER'
         return m_dabData ? m_dabData->isBarrier() : false;
     }
 
     bool isExclusive() const {
-        // Default value is 'NORMAL'
         return m_dabData ? m_dabData->isExclusive() : false;
     }
 
@@ -70,7 +67,6 @@ public:
     }
 
 private:
-    // for testing use only, do not use in real code
     friend QString getJobName(KisStrokeJob *job);
     friend QString getCommandName(KisStrokeJob *job);
     friend int cancelSeqNo(KisStrokeJob *job);
@@ -84,14 +80,12 @@ private:
     }
 
 private:
-    // Shared between different jobs
     KisStrokeJobStrategy *m_dabStrategy;
 
-    // Owned by the job
     KisStrokeJobData *m_dabData;
 
     int m_levelOfDetail;
     bool m_isOwnJob;
 };
 
-#endif /* __KIS_STROKE_JOB_H */
+#endif

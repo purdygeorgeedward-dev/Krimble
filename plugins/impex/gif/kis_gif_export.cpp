@@ -56,7 +56,5 @@ void KisGIFExport::initializeCapabilities()
     addSupportedColorModels(supportedColorModels, "GIF");
 }
 
-
-
 #include "kis_gif_export.moc"
 

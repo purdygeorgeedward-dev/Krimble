@@ -15,7 +15,6 @@
 cmsHPROFILE KoLcmsDefaultTransformations::s_RGBProfile = 0;
 QMap< QString, QMap< LcmsColorProfileContainer *, KoLcmsDefaultTransformations * > > KoLcmsDefaultTransformations::s_transformations;
 
-// -- LcmsColorSpaceFactory --
 QList<KoColorConversionTransformationFactory *> LcmsColorSpaceFactory::colorConversionLinks() const
 {
     return QList<KoColorConversionTransformationFactory *>();

@@ -6,7 +6,6 @@
 
 #include "KisTgaTest.h"
 
-
 #include <simpletest.h>
 #include <QCoreApplication>
 
@@ -16,30 +15,22 @@
 #error "FILES_DATA_DIR not set. A directory with the data used for testing the importing of files in krita"
 #endif
 
-
 const QString TgaMimetype = "image/x-gimp-brush";
-
-
 
 void KisTgaTest::testImportFromWriteonly()
 {
     TestUtil::testImportFromWriteonly(TgaMimetype);
 }
 
-
 void KisTgaTest::testExportToReadonly()
 {
     TestUtil::testExportToReadonly(TgaMimetype);
 }
-
 
 void KisTgaTest::testImportIncorrectFormat()
 {
     TestUtil::testImportIncorrectFormat(TgaMimetype);
 }
 
-
-
 KISTEST_MAIN(KisTgaTest)
-
 

@@ -4,7 +4,6 @@
  *  SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-
 #include "KisShortcutsDialog_p.h"
 #include "kshortcutschemeshelper_p.h"
 #include "kxmlguiclient.h"
@@ -19,7 +18,6 @@
 #include <KConfigGroup>
 #include <KisCursorOverrideLock.h>
 
-
 QKeySequence primarySequence(const QList<QKeySequence> &sequences)
 {
     return sequences.isEmpty() ? QKeySequence() : sequences.at(0);
@@ -30,14 +28,12 @@ QKeySequence alternateSequence(const QList<QKeySequence> &sequences)
     return sequences.size() <= 1 ? QKeySequence() : sequences.at(1);
 }
 
-
 KisShortcutsDialog::KisShortcutsDialogPrivate::KisShortcutsDialogPrivate(KisShortcutsDialog *q)
     : q(q)
 { }
 
 void KisShortcutsDialog::KisShortcutsDialogPrivate::changeShortcutScheme(const QString &schemeName)
 {
-    // KTreeWidgetSearchLine is unhappy if the contents of the tree change
     m_shortcutsEditor->clearSearch();
 
     QString dialogText = i18n("The current shortcut scheme is modified. Save before switching to the new one?");
@@ -60,12 +56,9 @@ void KisShortcutsDialog::KisShortcutsDialogPrivate::changeShortcutScheme(const Q
     cg.writeEntry("Current Scheme", schemeName);
     KisActionRegistry::instance()->loadShortcutScheme(schemeName);
 
-
-    // Update actions themselves, and re-add to dialog box to refresh
     auto it = m_collections.constBegin();
     while (it != m_collections.constEnd()) {
         it.value()->updateShortcuts();
-        // TODO: BAD
         m_shortcutsEditor->addCollection(it.value(), it.key());
         it++;
     }

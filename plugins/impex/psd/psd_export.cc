@@ -37,7 +37,7 @@ psdExport::~psdExport()
 {
 }
 
-KisImportExportErrorCode psdExport::convert(KisDocument *document, QIODevice *io,  KisPropertiesConfigurationSP /*configuration*/)
+KisImportExportErrorCode psdExport::convert(KisDocument *document, QIODevice *io,  KisPropertiesConfigurationSP )
 {
     PSDSaver psdSaver(document);
     return psdSaver.buildFile(*io);
@@ -65,8 +65,6 @@ void psdExport::initializeCapabilities()
     supportedColorModels << QPair<KoID, KoID>()
             << QPair<KoID, KoID>(RGBAColorModelID, Integer8BitsColorDepthID)
             << QPair<KoID, KoID>(RGBAColorModelID, Integer16BitsColorDepthID)
-//            << QPair<KoID, KoID>(RGBAColorModelID, Float16BitsColorDepthID)
-//            << QPair<KoID, KoID>(RGBAColorModelID, Float32BitsColorDepthID)
             << QPair<KoID, KoID>(GrayAColorModelID, Integer8BitsColorDepthID)
             << QPair<KoID, KoID>(GrayAColorModelID, Integer16BitsColorDepthID)
             << QPair<KoID, KoID>(CMYKAColorModelID, Integer8BitsColorDepthID)

@@ -37,10 +37,7 @@ void KisSampleScreenColor::slotSampleScreenColor(bool sampleRealCanvas)
     return;
 #endif
     if (m_screenColorSampler) {
-        // The action will cancel the previous one if it is still active
         m_screenColorSampler->cancel();
-        // If the new action type is the same as the previous, cancelling is
-        // enough, so we return. Otherwise, a new operation is started 
         if (sampleRealCanvas == m_lastSampleRealCanvas) {
             return;
         }
@@ -50,8 +47,6 @@ void KisSampleScreenColor::slotSampleScreenColor(bool sampleRealCanvas)
     m_screenColorSampler = new KisScreenColorSampler(false);
     m_screenColorSampler->setPerformRealColorSamplingOfCanvas(sampleRealCanvas);
     m_screenColorSampler->setCurrentColor(viewManager()->canvasResourceProvider()->fgColor());
-    // screenColorSampler is a temporary top level widget own by no other
-    // QObject, so it must be automatically deleted when it is closed 
     m_screenColorSampler->setAttribute(Qt::WA_DeleteOnClose);
     connect(m_screenColorSampler, &KisScreenColorSampler::sigNewColorSampled, this,
         [this](KoColor sampledColor)

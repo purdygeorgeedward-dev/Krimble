@@ -16,7 +16,6 @@
 
 #include "kis_bspline.h"
 
-
 namespace KisBSplines {
 
 class KRITAIMAGE_EXPORT KisNUBSpline2D
@@ -63,14 +62,10 @@ private:
     struct Private;
     const QScopedPointer<Private> m_d;
 
-    /**
-     * We need to store them separately, because they should
-     * be accessible from the templated part
-     */
     const QVector<double> m_xSamples;
     const QVector<double> m_ySamples;
 };
 
 }
 
-#endif /* __KIS_NU_BSPLINE_2D_H */
+#endif

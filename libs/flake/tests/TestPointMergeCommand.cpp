@@ -14,7 +14,6 @@
 #include <simpletest.h>
 #include <testflake.h>
 
-
 void TestPointMergeCommand::closeSingleLinePath()
 {
     KoPathShape path1;
@@ -290,7 +289,6 @@ void TestPointMergeCommand::testCombineShapes()
     }
 
     rootContainer.reset();
-    // 'shapesToCombine' will be deleted by KoPathCombineCommand
 }
 
 #include <commands/KoMultiPathPointMergeCommand.h>
@@ -387,25 +385,21 @@ void testMultipathMergeShapesImpl(const int srcPointIndex1,
         QCOMPARE(shapes.size(), 1);
         QCOMPARE(shapes.first(), combinedShape);
 
-        //dumpShape(combinedShape, "tmp_0_seq.png");
         cmd.undo();
 
         QCOMPARE(rootContainer->shapes().size(), 3);
     }
 
     rootContainer.reset();
-    // combined shapes will be deleted by the corresponding commands
 }
-
 
 void TestPointMergeCommand::testMultipathMergeShapesBothSequential()
 {
-    // both sequential
     testMultipathMergeShapesImpl(2, 0,
                                  {
                                      QPointF(5,5),
                                      QPointF(15,15),
-                                     QPointF(17.5,12.5), // merged by melding the points!
+                                     QPointF(17.5,12.5),
                                      QPointF(30,30),
                                      QPointF(30,20)
                                  });
@@ -413,12 +407,11 @@ void TestPointMergeCommand::testMultipathMergeShapesBothSequential()
 
 void TestPointMergeCommand::testMultipathMergeShapesFirstReversed()
 {
-    // first reversed
     testMultipathMergeShapesImpl(0, 0,
                                  {
                                      QPointF(15,5),
                                      QPointF(15,15),
-                                     QPointF(12.5,12.5), // merged by melding the points!
+                                     QPointF(12.5,12.5),
                                      QPointF(30,30),
                                      QPointF(30,20)
                                  });
@@ -426,12 +419,11 @@ void TestPointMergeCommand::testMultipathMergeShapesFirstReversed()
 
 void TestPointMergeCommand::testMultipathMergeShapesSecondReversed()
 {
-    // second reversed
     testMultipathMergeShapesImpl(2, 2,
                                  {
                                      QPointF(5,5),
                                      QPointF(15,15),
-                                     QPointF(22.5,12.5), // merged by melding the points!
+                                     QPointF(22.5,12.5),
                                      QPointF(30,30),
                                      QPointF(20,20)
                                  });
@@ -439,12 +431,11 @@ void TestPointMergeCommand::testMultipathMergeShapesSecondReversed()
 
 void TestPointMergeCommand::testMultipathMergeShapesBothReversed()
 {
-    // both reversed
     testMultipathMergeShapesImpl(0, 2,
                                  {
                                      QPointF(15,5),
                                      QPointF(15,15),
-                                     QPointF(17.5,12.5), // merged by melding the points!
+                                     QPointF(17.5,12.5),
                                      QPointF(30,30),
                                      QPointF(20,20)
                                  });
@@ -452,7 +443,6 @@ void TestPointMergeCommand::testMultipathMergeShapesBothReversed()
 
 void TestPointMergeCommand::testMultipathMergeShapesSingleShapeEndToStart()
 {
-    // close end->start
     testMultipathMergeShapesImpl(2, 0,
                                  {
                                      QPointF(10,5),
@@ -462,7 +452,6 @@ void TestPointMergeCommand::testMultipathMergeShapesSingleShapeEndToStart()
 
 void TestPointMergeCommand::testMultipathMergeShapesSingleShapeStartToEnd()
 {
-    // close start->end
     testMultipathMergeShapesImpl(0, 2,
                                  {
                                      QPointF(10,5),
@@ -472,7 +461,6 @@ void TestPointMergeCommand::testMultipathMergeShapesSingleShapeStartToEnd()
 
 void TestPointMergeCommand::testMultipathJoinShapesBothSequential()
 {
-    // both sequential
     testMultipathMergeShapesImpl<KoMultiPathPointJoinCommand>
             (2, 0,
              {
@@ -487,7 +475,6 @@ void TestPointMergeCommand::testMultipathJoinShapesBothSequential()
 
 void TestPointMergeCommand::testMultipathJoinShapesFirstReversed()
 {
-    // first reversed
     testMultipathMergeShapesImpl<KoMultiPathPointJoinCommand>
             (0, 0,
              {
@@ -502,7 +489,6 @@ void TestPointMergeCommand::testMultipathJoinShapesFirstReversed()
 
 void TestPointMergeCommand::testMultipathJoinShapesSecondReversed()
 {
-    // second reversed
     testMultipathMergeShapesImpl<KoMultiPathPointJoinCommand>
             (2, 2,
              {
@@ -517,7 +503,6 @@ void TestPointMergeCommand::testMultipathJoinShapesSecondReversed()
 
 void TestPointMergeCommand::testMultipathJoinShapesBothReversed()
 {
-    // both reversed
     testMultipathMergeShapesImpl<KoMultiPathPointJoinCommand>
             (0, 2,
              {
@@ -532,7 +517,6 @@ void TestPointMergeCommand::testMultipathJoinShapesBothReversed()
 
 void TestPointMergeCommand::testMultipathJoinShapesSingleShapeEndToStart()
 {
-    // close end->start
     testMultipathMergeShapesImpl<KoMultiPathPointJoinCommand>
             (2, 0,
              {
@@ -544,7 +528,6 @@ void TestPointMergeCommand::testMultipathJoinShapesSingleShapeEndToStart()
 
 void TestPointMergeCommand::testMultipathJoinShapesSingleShapeStartToEnd()
 {
-    // close start->end
     testMultipathMergeShapesImpl<KoMultiPathPointJoinCommand>
             (0, 2,
              {
@@ -564,7 +547,7 @@ void TestPointMergeCommand::undoRedo()
 
     path2.lineTo(QPointF(60, 30));
     path2.lineTo(QPointF(0, 30));
-    
+
     KoPathPointIndex index1(0, 0);
     KoPathPointIndex index2(0, 0);
 
@@ -578,7 +561,6 @@ void TestPointMergeCommand::undoRedo()
     KoPathPointData pd1(&path1, index1);
     KoPathPointData pd2(&path2, index2);
 
-    // Test merge
     {
         KoMultiPathPointMergeCommand cmd(pd1, pd2, &mockController, canvas.shapeManager()->selection());
         cmd.redo();
@@ -596,8 +578,6 @@ void TestPointMergeCommand::undoRedo()
         cmd.undo();
     }
 
-
-    // Test join
     {
         KoMultiPathPointJoinCommand cmd(pd1, pd2, &mockController, canvas.shapeManager()->selection());
         cmd.redo();

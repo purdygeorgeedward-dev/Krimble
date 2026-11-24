@@ -77,7 +77,6 @@ public:
     QList<KoResourceLoadResult> sideLoadedResources;
 };
 
-
 KisPaintOpPreset::KisPaintOpPreset()
     : KoResource(QString())
     , d(new Private(this))
@@ -101,10 +100,9 @@ KisPaintOpPreset::KisPaintOpPreset(const KisPaintOpPreset &rhs)
     , d(new Private(this))
 {
     if (rhs.settings()) {
-        setSettings(rhs.settings()); // the settings are cloned inside!
+        setSettings(rhs.settings());
     }
     KIS_SAFE_ASSERT_RECOVER_NOOP(isDirty() == rhs.isDirty());
-    // only valid if we could clone the settings
     setValid(rhs.settings());
 
     setName(rhs.name());
@@ -182,11 +180,8 @@ bool KisPaintOpPreset::loadFromDevice(QIODevice *dev, KisResourcesInterfaceSP re
         return false;
     }
 
-    //Workaround for broken presets
-    //Presets was saved with nested cdata section
     preset.replace("<curve><![CDATA[", "<curve>");
     preset.replace("]]></curve>", "</curve>");
-    //Presets with non-base64 pattern md5
     QRegularExpressionMatch patternMd5 = QRegularExpression("<param (?:type=\"string\" )?name=\"Texture/Pattern/PatternMD5\"(?: type=\"string\")?><!\\[CDATA\\[(.+?)\\]\\]></param>").match(preset);
     if (patternMd5.hasMatch() && patternMd5.captured(1).contains(QRegularExpression("[^a-zA-Z0-9+/=]"))) {
         preset.replace(patternMd5.captured(0), "");
@@ -200,7 +195,6 @@ bool KisPaintOpPreset::loadFromDevice(QIODevice *dev, KisResourcesInterfaceSP re
     QDomElement root = doc.documentElement();
 
     if (d->version == "5.0") {
-        // Load any embedded resources
         QDomElement e = root.firstChildElement("resources");
         if (!e.isNull()) {
             for (e = e.firstChildElement("resource"); !e.isNull(); e = e.nextSiblingElement("resource")) {
@@ -262,7 +256,6 @@ void KisPaintOpPreset::toXML(QDomDocument& doc, QDomElement& elt) const
     elt.setAttribute("paintopid", paintopid);
     elt.setAttribute("name", name());
 
-
     QList<KoResourceLoadResult> linkedResources = this->linkedResources(resourcesInterface());
 
     elt.setAttribute("embedded_resources", linkedResources.count());
@@ -271,7 +264,6 @@ void KisPaintOpPreset::toXML(QDomDocument& doc, QDomElement& elt) const
         QDomElement resourcesElement = doc.createElement("resources");
         elt.appendChild(resourcesElement);
         Q_FOREACH(KoResourceLoadResult linkedResource, linkedResources) {
-            // we have requested linked resources, how can it be an embedded one?
             KIS_SAFE_ASSERT_RECOVER(linkedResource.type() != KoResourceLoadResult::EmbeddedResource) { continue; }
 
             KoResourceSP resource = linkedResource.resource();
@@ -281,7 +273,6 @@ void KisPaintOpPreset::toXML(QDomDocument& doc, QDomElement& elt) const
                 continue;
             }
 
-            //KIS_SAFE_ASSERT_RECOVER_NOOP(resource->isSerializable() && "embedding non-serializable resources is not yet implemented");
             if (!resource->isSerializable()) {
                 qWarning() << "embedding non-serializable resources is not yet implemented. Resource: " << filename() << name()
                            << "cannot embed" << resource->filename() << resource->name() << resource->resourceType().first << resource->resourceType().second;
@@ -307,7 +298,6 @@ void KisPaintOpPreset::toXML(QDomDocument& doc, QDomElement& elt) const
         }
     }
 
-    // sanitize the settings
     bool hasTexture = d->settings->getBool("Texture/Pattern/Enabled");
     if (!hasTexture) {
         Q_FOREACH (const QString & key, d->settings->getProperties().keys()) {
@@ -352,7 +342,6 @@ void KisPaintOpPreset::fromXML(const QDomElement& presetElt, KisResourcesInterfa
 
     settings->fromXML(presetElt);
 
-    // sanitize the settings
     bool hasTexture = settings->getBool("Texture/Pattern/Enabled");
     if (!hasTexture) {
         Q_FOREACH (const QString & key, settings->getProperties().keys()) {
@@ -376,19 +365,6 @@ bool KisPaintOpPreset::saveToDevice(QIODevice *dev) const
 
     doc.appendChild(root);
 
-    /**
-     * HACK ALERT: We update the version of the resource format on
-     * the first save operation, even though there is no guarantee
-     * that it was "save" operation, but not "export" operation.
-     *
-     * The only point it affects now is whether we need to check
-     * for the presence of the linkedResources() in
-     * updateLinkedResourcesMetaData(). The new version of the
-     * preset format ("5.0") has all the linked resources embedded
-     * outside KisPaintOpSettings, which are automatically
-     * loaded on the resource activation. We we shouldn't
-     * add them into metaData()["dependent_resources_filenames"].
-     */
     d->version = "5.0";
 
     const_cast<KisPaintOpPreset*>(this)->updateLinkedResourcesMetaData();
@@ -409,11 +385,6 @@ bool KisPaintOpPreset::saveToDevice(QIODevice *dev) const
 
 void KisPaintOpPreset::updateLinkedResourcesMetaData()
 {
-    /**
-     * The new preset format embeds all the linked resources outside
-     * KisPaintOpSettings and loads them on activation, therefore we
-     * shouldn't add them into "dependent_resources_filenames".
-     */
 
     if (d->version == "2.2") {
         KisResourcesInterfaceSP fakeResourcesInterface(new KisLocalStrokeResources());
@@ -454,9 +425,6 @@ QPointer<KisPaintOpPresetUpdateProxy> KisPaintOpPreset::updateProxyNoCreate() co
 
 QList<KisUniformPaintOpPropertySP> KisPaintOpPreset::uniformProperties()
 {
-    /// we pass a shared pointer to settings explicitly,
-    /// because the settings will not be able to wrap
-    /// itself into a shared pointer
     return d->settings->uniformProperties(d->settings, updateProxy());
 }
 
@@ -524,12 +492,6 @@ KisPaintOpPresetSP KisPaintOpPreset::cloneWithResourcesSnapshot(KisResourcesInte
     if (cacheInterface) {
         result->setResourceCacheInterface(cacheInterface);
     } else if (!canvasResources.isEmpty()) {
-        /**
-         * If the preset depends on any canvas resources, then we don't trust
-         * the caches that are stored inside. Instead we just reset them. If the
-         * preset is independent of the canvas resources, then its caches are,
-         * most probably valid and we can reuse them.
-         */
         result->setResourceCacheInterface(nullptr);
     }
 
@@ -588,9 +550,6 @@ QList<KoResourceLoadResult> KisPaintOpPreset::sideLoadedResources(KisResourcesIn
     Q_FOREACH(const KoResourceLoadResult &resource, d->sideLoadedResources) {
         KoResourceSignature sig = resource.signature();
 
-        /**
-         * Do not load the existing resources. There is no use for it.
-         */
         if (!globalResourcesInterface->source(sig.type)
                 .exactMatch(sig.md5sum, sig.filename, sig.name)) {
 

@@ -10,13 +10,11 @@
 #include <klocalizedstring.h>
 #include "kis_image.h"
 
-
 KisImageResizeCommand::KisImageResizeCommand(KisImageWSP image,
                                              const QSize& newSize, KUndo2Command *parent)
     : KUndo2Command(kundo2_i18n("Resize Image"), parent),
       m_image(image)
 {
-    // do we really need a translatable name for the command?
     KisImageSP imageSP = m_image.toStrongRef();
     if (!imageSP) {
         return;

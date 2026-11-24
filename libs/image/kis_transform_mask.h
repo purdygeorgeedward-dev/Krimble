@@ -14,19 +14,12 @@
 
 class KisTransformMaskTestingInterface;
 
-/**
-   Transform a layer according to a matrix transform
-*/
-
 class KRITAIMAGE_EXPORT KisTransformMask : public KisEffectMask, public KisDelayedUpdateNodeInterface
 {
     Q_OBJECT
 
 public:
 
-    /**
-     * Create an empty transform mask.
-     */
     KisTransformMask(KisImageWSP image, const QString &name);
 
     ~KisTransformMask() override;
@@ -68,10 +61,6 @@ public:
     KisPaintDeviceSP buildPreviewDevice();
     KisPaintDeviceSP buildSourcePreviewDevice();
 
-    /**
-     * Transform Tool may override mask's device for the sake of
-     * in-stack preview
-     */
     void overrideStaticCacheDevice(KisPaintDeviceSP device);
 
     qint32 x() const override;
@@ -113,4 +102,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif //_KIS_TRANSFORM_MASK_
+#endif

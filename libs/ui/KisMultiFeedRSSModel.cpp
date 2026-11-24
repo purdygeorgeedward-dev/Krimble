@@ -56,7 +56,6 @@ MultiFeedRssModel::MultiFeedRssModel(KisNetworkAccessManager* nam, QObject* pare
     initialize();
 }
 
-
 MultiFeedRssModel::~MultiFeedRssModel()
 {
     delete m_networkAccessManager;
@@ -78,7 +77,6 @@ QHash<int, QByteArray> MultiFeedRssModel::roleNames() const
 void MultiFeedRssModel::addFeed(const QString& feed)
 {
     if (m_sites.contains(feed)) {
-        // do not add the feed twice
         return;
     }
 
@@ -148,9 +146,6 @@ QVariant MultiFeedRssModel::data(const QModelIndex &index, int role) const
         {
             QTextDocument doc;
             doc.setHtml(item.description);
-            // Extract the first text block, which is the `<p>` element containing
-            // the shortened post text, excluding the "This post [...] appeared
-            // first on [...]" text.
             QString text = doc.firstBlock().text();
             if (text.length() > 292) {
                 text.truncate(290);

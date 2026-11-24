@@ -30,7 +30,7 @@
 #include <QPainter>
 #include <QXmlStreamReader>
 #include <QXmlStreamAttributes>
-#include <QtEndian> // qFromLittleEndian
+#include <QtEndian>
 #include <QRegularExpression>
 #include <QRegularExpressionMatch>
 
@@ -52,12 +52,6 @@
 
 namespace {
 
-/**
- * readAllLinesSafe() reads all the lines in the byte array
- * using the automated UTF8 and CR/LF transformations. That
- * might be necessary for opening GPL palettes created on Linux
- * in Windows environment.
- */
 QStringList readAllLinesSafe(QByteArray *data)
 {
     QStringList lines;
@@ -101,7 +95,6 @@ const QString KoColorSet::KPL_PALETTE_TAG = "ColorSet";
 
 const int MAXIMUM_ALLOWED_COLUMNS = 4096;
 
-
 struct AddSwatchCommand : public KUndo2Command
 {
 
@@ -116,7 +109,6 @@ struct AddSwatchCommand : public KUndo2Command
 
    ~AddSwatchCommand() override {}
 
-    /// redo the command
     void redo() override
     {
         KisSwatchGroupSP modifiedGroup = m_colorSet->getGroup(m_groupName);
@@ -131,7 +123,6 @@ struct AddSwatchCommand : public KUndo2Command
         m_colorSet->notifySwatchChanged(m_groupName, m_x, m_y);
     }
 
-    /// revert the actions done in redo
     void undo() override
     {
         KisSwatchGroupSP modifiedGroup = m_colorSet->getGroup(m_groupName);
@@ -147,7 +138,6 @@ private:
     int m_y;
 };
 
-
 struct RemoveSwatchCommand : public KUndo2Command
 {
    RemoveSwatchCommand(KoColorSet *colorSet, int column, int row, KisSwatchGroupSP group)
@@ -160,14 +150,12 @@ struct RemoveSwatchCommand : public KUndo2Command
    {
    }
 
-   /// redo the command
     void redo() override
     {
         m_group->removeSwatch(m_x, m_y);
         m_colorSet->notifySwatchChanged(m_group->name(), m_x, m_y);
     }
 
-    /// revert the actions done in redo
     void undo() override
     {
         m_group->setSwatch(m_swatch, m_x, m_y);
@@ -194,7 +182,6 @@ struct ChangeGroupNameCommand : public KUndo2Command
 
    ~ChangeGroupNameCommand() override {}
 
-    /// redo the command
     void redo() override
     {
         KisSwatchGroupSP group = m_colorSet->getGroup(m_oldGroupName);
@@ -202,7 +189,6 @@ struct ChangeGroupNameCommand : public KUndo2Command
         Q_EMIT m_colorSet->entryChanged(0, m_colorSet->startRowForGroup(m_newGroupName));
     }
 
-    /// revert the actions done in redo
     void undo() override
     {
         KisSwatchGroupSP group = m_colorSet->getGroup(m_newGroupName);
@@ -239,7 +225,6 @@ struct MoveGroupCommand : public KUndo2Command
        }
    }
 
-    /// redo the command
     void redo() override
     {
         if (m_groupNameInsertBefore != KoColorSet::GLOBAL_GROUP_NAME &&
@@ -252,8 +237,6 @@ struct MoveGroupCommand : public KUndo2Command
         }
     }
 
-
-    /// revert the actions done in redo
     void undo() override
     {
         Q_EMIT m_colorSet->layoutAboutToChange();
@@ -281,7 +264,6 @@ struct AddGroupCommand : public KUndo2Command
    {
    }
 
-    /// redo the command
     void redo() override
     {
         KisSwatchGroupSP group(new KisSwatchGroup);
@@ -293,8 +275,6 @@ struct AddGroupCommand : public KUndo2Command
         Q_EMIT m_colorSet->layoutChanged();
     }
 
-
-    /// revert the actions done in redo
     void undo() override
     {
         int idx = 0;
@@ -336,11 +316,9 @@ struct RemoveGroupCommand : public KUndo2Command
        }
    }
 
-    /// redo the command
     void redo() override
     {
         if (m_keepColors) {
-            // put all colors directly below global
             KisSwatchGroupSP globalGroup = m_colorSet->getGlobalGroup();
             for (const KisSwatchGroup::SwatchInfo &info : m_oldGroup->infoList()) {
                 globalGroup->setSwatch(info.swatch,
@@ -354,13 +332,11 @@ struct RemoveGroupCommand : public KUndo2Command
         Q_EMIT m_colorSet->layoutChanged();
     }
 
-    /// revert the actions done in redo
     void undo() override
     {
         Q_EMIT m_colorSet->layoutAboutToChange();
         m_colorSet->d->swatchGroups.insert(m_groupIndex, m_oldGroup);
 
-        // remove all colors that were inserted into global
         if (m_keepColors) {
             KisSwatchGroupSP globalGroup = m_colorSet->getGlobalGroup();
             for (const KisSwatchGroup::SwatchInfo &info : globalGroup->infoList()) {
@@ -389,13 +365,11 @@ struct ClearCommand : public KUndo2Command
    {
    }
 
-
    ~ClearCommand() override
    {
        delete m_OldColorSet;
    }
 
-    /// redo the command
     void redo() override
     {
         m_colorSet->d->swatchGroups.clear();
@@ -406,8 +380,6 @@ struct ClearCommand : public KUndo2Command
         Q_EMIT m_colorSet->layoutChanged();
     }
 
-
-    /// revert the actions done in redo
     void undo() override
     {
         Q_EMIT m_colorSet->layoutAboutToChange();
@@ -430,7 +402,6 @@ struct SetColumnCountCommand : public KUndo2Command
    {
    }
 
-    /// redo the command
     void redo() override
     {
         Q_EMIT m_colorSet->layoutAboutToChange();
@@ -441,8 +412,6 @@ struct SetColumnCountCommand : public KUndo2Command
         Q_EMIT m_colorSet->layoutChanged();
     }
 
-
-    /// revert the actions done in redo
     void undo() override
     {
         Q_EMIT m_colorSet->layoutAboutToChange();
@@ -459,7 +428,6 @@ private:
     int m_oldColumnsCount;
 };
 
-
 struct SetCommentCommand : public KUndo2Command
 {
    SetCommentCommand(KoColorSet *colorSet, const QString &comment)
@@ -469,14 +437,11 @@ struct SetCommentCommand : public KUndo2Command
    {
    }
 
-    /// redo the command
     void redo() override
     {
         m_colorSet->d->comment = m_comment;
     }
 
-
-    /// revert the actions done in redo
     void undo() override
     {
         m_colorSet->d->comment = m_oldComment;
@@ -497,7 +462,6 @@ struct SetPaletteTypeCommand : public KUndo2Command
    {
    }
 
-    /// redo the command
     void redo() override
     {
         m_colorSet->d->paletteType = m_paletteType;
@@ -506,8 +470,6 @@ struct SetPaletteTypeCommand : public KUndo2Command
         m_colorSet->setFilename(fileName.join("."));
     }
 
-
-    /// revert the actions done in redo
     void undo() override
     {
         m_colorSet->d->paletteType = m_oldPaletteType;
@@ -567,7 +529,6 @@ KoColorSet::KoColorSet(const QString& filename)
     connect(&d->undoStack, SIGNAL(canRedoChanged(bool)), this, SLOT(canRedoChanged(bool)));
 }
 
-/// Create an copied palette
 KoColorSet::KoColorSet(const KoColorSet& rhs)
     : QObject()
     , KoResource(rhs)
@@ -638,7 +599,6 @@ void KoColorSet::setPaletteType(PaletteType paletteType)
 
     d->undoStack.push(cmd);
 }
-
 
 void KoColorSet::addSwatch(const KisSwatch &swatch, const QString &groupName, int column, int row)
 {
@@ -780,7 +740,6 @@ void KoColorSet::notifySwatchChanged(const QString &groupName, int column, int r
     Q_EMIT entryChanged(column, startRow + row);
 }
 
-
 void KoColorSet::canUndoChanged(bool canUndo)
 {
     if (canUndo) {
@@ -791,7 +750,7 @@ void KoColorSet::canUndoChanged(bool canUndo)
     }
 }
 
-void KoColorSet::canRedoChanged(bool /*canRedo*/)
+void KoColorSet::canRedoChanged(bool )
 {
     if (d->undoStack.canUndo()) {
         setModified(true);
@@ -935,7 +894,6 @@ KisSwatchGroupSP KoColorSet::getGroup(const QString &name) const
 
 KisSwatchGroupSP KoColorSet::getGroup(int row) const
 {
-//    qDebug() << "------------";
 
     if (row >= rowCountWithTitles()) return nullptr;
 
@@ -947,10 +905,6 @@ KisSwatchGroupSP KoColorSet::getGroup(int row) const
         if (group->name() != KoColorSet::GLOBAL_GROUP_NAME) {
             groupRowCount++;
         }
-
-//        qDebug() << group->name()
-//                 << "row" << row << "currentRow" << currentRow << "group rowcount" << groupRowCount
-//                 << "hit" << (currentRow <= row && row < currentRow + groupRowCount);
 
         bool hit = (currentRow <= row && row < currentRow + groupRowCount);
 
@@ -1009,7 +963,6 @@ void KoColorSet::updateThumbnail()
 {
     int rows = 0;
 
-    // Determine the last filled row in each group
     for (const KisSwatchGroupSP &group : d->swatchGroups) {
         int lastRowInGroup =  0;
         for (const KisSwatchGroup::SwatchInfo &info : group->infoList()) {
@@ -1036,8 +989,6 @@ void KoColorSet::updateThumbnail()
     setImage(img);
 }
 
-/********************************KoColorSet::Private**************************/
-
 KoColorSet::Private::Private(KoColorSet *a_colorSet)
     : colorSet(a_colorSet)
 {
@@ -1052,15 +1003,12 @@ KoColorSet::PaletteType KoColorSet::Private::detectFormat(const QString &fileNam
 {
     QFileInfo fi(fileName);
 
-    // .pal
     if (ba.startsWith("RIFF") && ba.indexOf("PAL data", 8)) {
         return KoColorSet::RIFF_PAL;
     }
-    // .gpl
     else if (ba.startsWith("GIMP Palette")) {
         return KoColorSet::GPL;
     }
-    // .pal
     else if (ba.startsWith("JASC-PAL")) {
         return KoColorSet::PSP_PAL;
     }
@@ -1094,19 +1042,17 @@ KoColorSet::PaletteType KoColorSet::Private::detectFormat(const QString &fileNam
 void KoColorSet::Private::scribusParseColor(KoColorSet *set, QXmlStreamReader *xml)
 {
     KisSwatch colorEntry;
-    // It's a color, retrieve it
     QXmlStreamAttributes colorProperties = xml->attributes();
     auto colorName = colorProperties.value("NAME");
     colorEntry.setName(colorName.isEmpty() || colorName.isNull() ? i18n("Untitled") : colorName.toString());
 
-    // RGB or CMYK?
     if (colorProperties.hasAttribute("RGB")) {
         dbgPigment << "Color " << colorProperties.value("NAME") << ", RGB " << colorProperties.value("RGB");
 
         KoColor currentColor(KoColorSpaceRegistry::instance()->rgb8());
         auto colorValue = colorProperties.value("RGB");
 
-        if (colorValue.length() != 7 && colorValue.at(0) != '#') { // Color is a hexadecimal number
+        if (colorValue.length() != 7 && colorValue.at(0) != '#') {
             xml->raiseError("Invalid rgb8 color (malformed): " + colorValue);
             return;
         } else {
@@ -1132,7 +1078,6 @@ void KoColorSet::Private::scribusParseColor(KoColorSet *set, QXmlStreamReader *x
             set->addSwatch(colorEntry);
 
             while(xml->readNextStartElement()) {
-                //ignore - these are all unknown or the /> element tag
                 xml->skipCurrentElement();
             }
             return;
@@ -1144,13 +1089,13 @@ void KoColorSet::Private::scribusParseColor(KoColorSet *set, QXmlStreamReader *x
         KoColor currentColor(KoColorSpaceRegistry::instance()->colorSpace(CMYKAColorModelID.id(), Integer8BitsColorDepthID.id(), QString()));
         auto colorValue = colorProperties.value("CMYK");
 
-        if (colorValue.length() != 9 && colorValue.at(0) != '#') { // Color is a hexadecimal number
+        if (colorValue.length() != 9 && colorValue.at(0) != '#') {
             xml->raiseError("Invalid cmyk color (malformed): " % colorValue);
             return;
         }
         else {
             bool cmykOk;
-            quint32 cmyk = colorValue.mid(1).toUInt(&cmykOk, 16); // cmyk uses the full 32 bits
+            quint32 cmyk = colorValue.mid(1).toUInt(&cmykOk, 16);
             if  (!cmykOk) {
                 xml->raiseError("Invalid cmyk color (unable to convert): " % colorValue);
                 return;
@@ -1173,7 +1118,6 @@ void KoColorSet::Private::scribusParseColor(KoColorSet *set, QXmlStreamReader *x
             set->addSwatch(colorEntry);
 
             while(xml->readNextStartElement()) {
-                //ignore - these are all unknown or the /> element tag
                 xml->skipCurrentElement();
             }
             return;
@@ -1187,13 +1131,10 @@ void KoColorSet::Private::scribusParseColor(KoColorSet *set, QXmlStreamReader *x
 bool KoColorSet::Private::loadScribusXmlPalette(KoColorSet *set, QXmlStreamReader *xml)
 {
 
-    //1. Get name
     QXmlStreamAttributes paletteProperties = xml->attributes();
     auto paletteName = paletteProperties.value("Name");
     dbgPigment << "Processed name of palette:" << paletteName;
     set->setName(paletteName.toString());
-
-    //2. Inside the SCRIBUSCOLORS, there are lots of colors. Retrieve them
 
     while(xml->readNextStartElement()) {
         auto currentElement = xml->name();
@@ -1262,14 +1203,13 @@ QString KoColorSet::Private::readUnicodeString(QIODevice *io, bool sizeIsInt)
         }
     }
     if (!sizeIsInt) {
-        readShort(io); // when the size is quint16, the string is 00 terminated;
+        readShort(io);
     }
     return unicode.trimmed();
 }
 
 bool KoColorSet::Private::init()
 {
-    // just in case this is a reload (eg by KoEditColorSetDialog),
     swatchGroups.clear();
     KisSwatchGroupSP globalGroup(new KisSwatchGroup);
     globalGroup->setName(KoColorSet::GLOBAL_GROUP_NAME);
@@ -1397,18 +1337,15 @@ bool KoColorSet::Private::loadGpl()
     qint32 r, g, b;
     KisSwatch swatch;
 
-    // Read name
     if (!lines[0].startsWith("GIMP") || !lines[1].toLower().contains("name")) {
         warnPigment << "Illegal Gimp palette file: " << colorSet->filename();
         return false;
     }
 
-    // translated name will be in a tooltip, here don't translate
     colorSet->setName(lines[1].split(":")[1].trimmed());
 
     index = 2;
 
-    // Read columns
     int columns = 0;
     if (lines[index].toLower().contains("columns")) {
         columnsText = lines[index].split(":")[1].trimmed();
@@ -1422,7 +1359,6 @@ bool KoColorSet::Private::loadGpl()
         }
         index = 3;
     }
-
 
     for (qint32 i = index; i < lines.size(); i++) {
         if (lines[i].startsWith('#')) {
@@ -1470,7 +1406,6 @@ bool KoColorSet::Private::loadAct()
 
 bool KoColorSet::Private::loadRiff()
 {
-    // https://worms2d.info/Palette_file
     QFileInfo info(colorSet->filename());
     colorSet->setName(info.completeBaseName());
     KisSwatch swatch;
@@ -1490,7 +1425,6 @@ bool KoColorSet::Private::loadRiff()
     }
     return true;
 }
-
 
 bool KoColorSet::Private::loadPsp()
 {
@@ -1535,16 +1469,15 @@ bool KoColorSet::Private::loadCss()
 {
     QFileInfo info(colorSet->filename());
     colorSet->setName(info.completeBaseName());
-    
-    QString text = readAllLinesSafe(&data).join("").replace("\t", "").replace(" ", ""); 
-    
+
+    QString text = readAllLinesSafe(&data).join("").replace("\t", "").replace(" ", "");
+
     QRegularExpression re("/\\*.*?\\*/");
 
-    text.remove(re); // Remove comments
+    text.remove(re);
 
     KisSwatch swatch;
-    
-    // Regex to detect a color in the palette
+
     QRegularExpression palette("(.*?){(?:[^:;]+:[^;]+;)*?color:(.*?)(?:;.*?)*?}");
 
     QRegularExpressionMatchIterator colors = palette.globalMatch(text);
@@ -1553,13 +1486,13 @@ bool KoColorSet::Private::loadCss()
         warnPigment << "No color found in CSS palette : " << colorSet->filename();
         return false;
     }
-    
+
     while (colors.hasNext()) {
         QRegularExpressionMatch match = colors.next();
         QString colorInfo = match.captured();
         QString colorName = match.captured(1);
         QString colorValue = match.captured(2);
-        
+
         if (!colorInfo.startsWith(".") || colorValue.isEmpty()) {
             warnPigment << "Illegal CSS palette syntax : " << colorInfo;
             return false;
@@ -1572,7 +1505,7 @@ bool KoColorSet::Private::loadCss()
 
         if (colorValue.startsWith("rgb")) {
             QStringList color;
-            
+
             if (colorValue.startsWith("rgba")) {
                 colorValue.remove("rgba(").remove(")");
                 color = colorValue.split(",");
@@ -1581,9 +1514,9 @@ bool KoColorSet::Private::loadCss()
                     warnPigment << "Invalid RGBA color definition : " << colorInfo;
                     return false;
                 }
-                
+
                 int alpha = color[3].toFloat() * 255;
-                
+
                 if (alpha < 0 || alpha > 255) {
                     warnPigment << "Invalid alpha parameter : " << colorInfo;
                     return false;
@@ -1591,7 +1524,7 @@ bool KoColorSet::Private::loadCss()
             }
             else {
                 colorValue.remove("rgb(").remove(")");
-                
+
                 color = colorValue.split(",");
 
                 if (color.size() != 3) {
@@ -1641,7 +1574,7 @@ bool KoColorSet::Private::loadCss()
                     return false;
                 }
             }
-            
+
             float hue = color[0].toFloat() / 359;
             float saturation = color[1].toFloat() / 100;
             float lightness = color[2].toFloat() / 100;
@@ -1666,18 +1599,16 @@ bool KoColorSet::Private::loadCss()
         }
         else if (colorValue.startsWith("#")) {
             if (colorValue.size() == 9) {
-                // Convert the CSS format #RRGGBBAA to #RRGGBB 
-                // Due to QColor's 8 digits format being #AARRGGBB and that we do not load the alpha channel
                 colorValue.truncate(7);
             }
-            
+
             qColor = QColor(colorValue);
         }
         else {
             warnPigment << "Unknown color declaration : " << colorInfo;
             return false;
         }
- 
+
         if (!qColor.isValid()) {
             warnPigment << "Invalid color definition : " << colorInfo;
             return false;
@@ -1740,7 +1671,6 @@ bool KoColorSet::Private::loadKplProfiles(QScopedPointer<KoStore> &store)
         }
 
         loadColorProfile(store, filename, colorModelId, colorDepthId);
-        // TODO: What should happen if this fails?
     }
 
     return true;
@@ -1844,7 +1774,7 @@ bool KoColorSet::Private::loadAco()
         quint16 ch4 = readShort(&buf);
 
         bool skip = false;
-        if (colorSpace == 0) { // RGB
+        if (colorSpace == 0) {
             const KoColorProfile *srgb = KoColorSpaceRegistry::instance()->rgb8()->profile();
             KoColor c(KoColorSpaceRegistry::instance()->rgb16(srgb));
             reinterpret_cast<quint16*>(c.data())[0] = ch3;
@@ -1853,14 +1783,14 @@ bool KoColorSet::Private::loadAco()
             c.setOpacity(OPACITY_OPAQUE_U8);
             swatch.setColor(c);
         }
-        else if (colorSpace == 1) { // HSB
+        else if (colorSpace == 1) {
             QColor qc;
             qc.setHsvF(ch1 / 65536.0, ch2 / 65536.0, ch3 / 65536.0);
             KoColor c(qc, KoColorSpaceRegistry::instance()->rgb16());
             c.setOpacity(OPACITY_OPAQUE_U8);
             swatch.setColor(c);
         }
-        else if (colorSpace == 2) { // CMYK
+        else if (colorSpace == 2) {
             KoColor c(KoColorSpaceRegistry::instance()->colorSpace(CMYKAColorModelID.id(), Integer16BitsColorDepthID.id(), QString()));
             reinterpret_cast<quint16*>(c.data())[0] = quint16_MAX - ch1;
             reinterpret_cast<quint16*>(c.data())[1] = quint16_MAX - ch2;
@@ -1869,7 +1799,7 @@ bool KoColorSet::Private::loadAco()
             c.setOpacity(OPACITY_OPAQUE_U8);
             swatch.setColor(c);
         }
-        else if (colorSpace == 7) { // LAB
+        else if (colorSpace == 7) {
             KoColor c = KoColor(KoColorSpaceRegistry::instance()->lab16());
             reinterpret_cast<quint16*>(c.data())[0] = ch3;
             reinterpret_cast<quint16*>(c.data())[1] = ch2;
@@ -1877,7 +1807,7 @@ bool KoColorSet::Private::loadAco()
             c.setOpacity(OPACITY_OPAQUE_U8);
             swatch.setColor(c);
         }
-        else if (colorSpace == 8) { // GRAY
+        else if (colorSpace == 8) {
             KoColor c(KoColorSpaceRegistry::instance()->colorSpace(GrayAColorModelID.id(), Integer16BitsColorDepthID.id(), QString()));
             reinterpret_cast<quint16*>(c.data())[0] = ch1 * (quint16_MAX / 10000);
             c.setOpacity(OPACITY_OPAQUE_U8);
@@ -1930,9 +1860,8 @@ bool KoColorSet::Private::loadSbzSwatchbook(QScopedPointer<KoStore> &store)
         return false;
     }
 
-    QDomElement root = doc.documentElement(); // SwatchBook
+    QDomElement root = doc.documentElement();
 
-    // Start reading properties...
     QDomElement metadata = root.firstChildElement("metadata");
     if (metadata.isNull()) {
         warnPigment << "Palette metadata not found";
@@ -1944,9 +1873,7 @@ bool KoColorSet::Private::loadSbzSwatchbook(QScopedPointer<KoStore> &store)
     colorName = colorName.isEmpty() ? i18n("Untitled") : colorName;
     colorSet->setName(colorName);
     dbgPigment << "Processed name of palette:" << colorSet->name();
-    // End reading properties
 
-    // Also read the swatch book...
     QDomElement book = root.firstChildElement("book");
     if (book.isNull()) {
         warnPigment << "Palette book (swatch composition) not found (line" << root.lineNumber()
@@ -1955,7 +1882,6 @@ bool KoColorSet::Private::loadSbzSwatchbook(QScopedPointer<KoStore> &store)
         return false;
     }
 
-    // Which has lots of "swatch"es (todo: support groups)
     QDomElement swatch = book.firstChildElement();
     if (swatch.isNull()) {
         warnPigment << "Swatches/groups definition not found (line" << book.lineNumber()
@@ -1964,14 +1890,12 @@ bool KoColorSet::Private::loadSbzSwatchbook(QScopedPointer<KoStore> &store)
         return false;
     }
 
-    // Now read colors...
     QDomElement materials = root.firstChildElement("materials");
     if (materials.isNull()) {
         warnPigment << "Materials (color definitions) not found";
         return false;
     }
 
-    // This one has lots of "color" elements
     if (materials.firstChildElement("color").isNull()) {
         warnPigment << "Color definitions not found (line" << materials.lineNumber()
                     << ", column" << materials.columnNumber()
@@ -1979,27 +1903,19 @@ bool KoColorSet::Private::loadSbzSwatchbook(QScopedPointer<KoStore> &store)
         return false;
     }
 
-    // We'll store colors here, and as we process swatches
-    // we'll add them to the palette
     QHash<QString, KisSwatch> materialsBook;
     QHash<QString, const KoColorSpace*> fileColorSpaces;
 
-    // Color processing
-    store->enterDirectory("profiles"); // Color profiles (icc files) live here
+    store->enterDirectory("profiles");
     for (QDomElement colorElement = materials.firstChildElement("color");
          !colorElement.isNull();
          colorElement = colorElement.nextSiblingElement("color")) {
         KisSwatch currentEntry;
-        // Set if color is spot
         currentEntry.setSpotColor(colorElement.attribute("usage") == "spot");
 
-        // <metadata> inside contains id and name
-        // one or more <values> define the color
         QDomElement currentColorMetadata = colorElement.firstChildElement("metadata");
-        // Get color name
         QDomElement colorTitle = currentColorMetadata.firstChildElement("dc:title");
         QDomElement colorId = currentColorMetadata.firstChildElement("dc:identifier");
-        // Is there an id? (we need that at the very least for identifying a color)
         if (colorId.text().isEmpty()) {
             warnPigment << "Unidentified color (line" << colorId.lineNumber()
                         << ", column" << colorId.columnNumber()
@@ -2014,11 +1930,9 @@ bool KoColorSet::Private::loadSbzSwatchbook(QScopedPointer<KoStore> &store)
             return false;
         }
 
-        // Get a valid color name
         currentEntry.setId(colorId.text());
         currentEntry.setName(colorTitle.text().isEmpty() ? colorId.text() : colorTitle.text());
 
-        // Get a valid color definition
         if (colorElement.firstChildElement("values").isNull()) {
             warnPigment << "Color definitions not found (line" << colorElement.lineNumber()
                         << ", column" << colorElement.columnNumber()
@@ -2030,7 +1944,6 @@ bool KoColorSet::Private::loadSbzSwatchbook(QScopedPointer<KoStore> &store)
         bool firstDefinition = false;
         KoColorSpaceRegistry *colorSpaceRegistry = KoColorSpaceRegistry::instance();
         const QString colorDepthId = Float32BitsColorDepthID.id();
-        // Priority: Lab, otherwise the first definition found
         for (QDomElement colorValueE = colorElement.firstChildElement("values");
              !colorValueE.isNull();
              colorValueE = colorValueE.nextSiblingElement("values")) {
@@ -2061,14 +1974,11 @@ bool KoColorSet::Private::loadSbzSwatchbook(QScopedPointer<KoStore> &store)
 
             const KoColorSpace *colorSpace = colorSpaceRegistry->colorSpace(modelId, colorDepthId, profile);
 
-            // The 'space' attribute is the name of the icc file
-            // sitting in the 'profiles' directory in the zip.
             QString space = colorValueE.attribute("space");
             if (!space.isEmpty()) {
                 if (fileColorSpaces.contains(space)) {
                     colorSpace = fileColorSpaces.value(space);
                 } else {
-                    // Try loading the profile and add it to the registry
                     profile = loadColorProfile(store, space, modelId, colorDepthId);
                     if (profile) {
                         colorSpace = colorSpaceRegistry->colorSpace(modelId, colorDepthId, profile);
@@ -2079,10 +1989,6 @@ bool KoColorSet::Private::loadSbzSwatchbook(QScopedPointer<KoStore> &store)
 
             KoColor c(colorSpace);
 
-            // sRGB,RGB,HSV,HSL,CMY,CMYK,nCLR: 0 -> 1
-            // YIQ: Y 0 -> 1 : IQ -0.5 -> 0.5
-            // Lab: L 0 -> 100 : ab -128 -> 127
-            // XYZ: 0 -> ~100
             QVector<float> channels;
             for (const QString &str : colorValueE.text().split(" ")) {
                 float channelValue = str.toFloat(&status);
@@ -2096,14 +2002,14 @@ bool KoColorSet::Private::loadSbzSwatchbook(QScopedPointer<KoStore> &store)
 
                 channels.append(channelValue);
             }
-            channels.append(OPACITY_OPAQUE_F); // Alpha channel
+            channels.append(OPACITY_OPAQUE_F);
             colorSpace->fromNormalisedChannelsValue(c.data(), channels);
 
             currentEntry.setColor(c);
             firstDefinition = true;
 
             if (model == "Lab") {
-                break; // Immediately add this one
+                break;
             }
         }
 
@@ -2117,9 +2023,7 @@ bool KoColorSet::Private::loadSbzSwatchbook(QScopedPointer<KoStore> &store)
         }
     }
 
-    store->leaveDirectory(); // Return to root
-    // End colors
-    // Now decide which ones will go into the palette
+    store->leaveDirectory();
 
     KisSwatchGroupSP global = colorSet->getGlobalGroup();
     for(; !swatch.isNull(); swatch = swatch.nextSiblingElement()) {
@@ -2186,7 +2090,6 @@ bool KoColorSet::Private::loadSbzSwatchbook(QScopedPointer<KoStore> &store)
             }
         }
     }
-    // End palette
 
     return true;
 }
@@ -2195,7 +2098,6 @@ bool KoColorSet::Private::loadSbz() {
     QBuffer buf(&data);
     buf.open(QBuffer::ReadOnly);
 
-    // &buf is a subclass of QIODevice
     QScopedPointer<KoStore> store(
         KoStore::createStore(&buf, KoStore::Read,
                              "application/x-swatchbook",
@@ -2220,7 +2122,7 @@ bool KoColorSet::Private::loadAse()
     QBuffer buf(&data);
     buf.open(QBuffer::ReadOnly);
 
-    QByteArray signature; // should be "ASEF";
+    QByteArray signature;
     signature = buf.read(4);
     quint16 version = readShort(&buf);
     quint16 version2 = readShort(&buf);
@@ -2258,7 +2160,7 @@ bool KoColorSet::Private::loadAse()
             colorSet->getGroup(groupName)->setRowCount(rows);
             inGroup = false;
         }
-        else /* if (blockType == swatchSig)*/ {
+        else {
             KisSwatch swatch;
             swatch.setName(readUnicodeString(&buf).trimmed());
             QByteArray colorModel;
@@ -2280,7 +2182,6 @@ bool KoColorSet::Private::loadAse()
                 elt.setAttribute("m", readFloat(&buf));
                 elt.setAttribute("y", readFloat(&buf));
                 elt.setAttribute("k", readFloat(&buf));
-                //try to select the default PS icc profile if possible.
                 elt.setAttribute("space", "U.S. Web Coated (SWOP) v2");
 
                 KoColor color = KoColor::fromXML(elt, "U8");
@@ -2303,7 +2204,7 @@ bool KoColorSet::Private::loadAse()
                 swatch.setColor(color);
             }
             qint16 type = readShort(&buf);
-            if (type == 1) { //0 is global, 2 is regular;
+            if (type == 1) {
                 swatch.setSpotColor(true);
             }
             if (inGroup) {
@@ -2325,7 +2226,7 @@ bool KoColorSet::Private::loadAcb()
     QBuffer buf(&data);
     buf.open(QBuffer::ReadOnly);
 
-    QByteArray signature; // should be "8BCB";
+    QByteArray signature;
     signature = buf.read(4);
     quint16 version = readShort(&buf);
     quint16 bookID = readShort(&buf);
@@ -2363,7 +2264,7 @@ bool KoColorSet::Private::loadAcb()
 
     quint16 numColors = readShort(&buf);
     quint16 numColumns = readShort(&buf);
-    numColumns = numColumns > 0 ? numColumns : 8; // overwrite with sane default in case of 0
+    numColumns = numColumns > 0 ? numColumns : 8;
     colorSet->setColumnCount(numColumns);
     quint16 numKeyColorPage = readShort(&buf);
     Q_UNUSED(numKeyColorPage);
@@ -2384,7 +2285,7 @@ bool KoColorSet::Private::loadAcb()
         name << readUnicodeString(&buf, true);
         name << postfix;
         swatch.setName(name.join(" ").trimmed());
-        QByteArray key; // should be "8BCB";
+        QByteArray key;
         key = buf.read(6);
         swatch.setId(QString::fromLatin1(key));
         swatch.setSpotColor(true);
@@ -2422,17 +2323,15 @@ bool KoColorSet::Private::loadXml() {
 
     if (xml->readNextStartElement()) {
         auto paletteId = xml->name();
-        if (paletteId.compare(QString("SCRIBUSCOLORS"), Qt::CaseInsensitive) == 0) { // Scribus
+        if (paletteId.compare(QString("SCRIBUSCOLORS"), Qt::CaseInsensitive) == 0) {
             dbgPigment << "XML palette: " << colorSet->filename() << ", Scribus format";
             res = loadScribusXmlPalette(colorSet, xml);
         }
         else {
-            // Unknown XML format
             xml->raiseError("Unknown XML palette format. Expected SCRIBUSCOLORS, found " + paletteId);
         }
     }
 
-    // If there is any error (it should be returned through the stream)
     if (xml->hasError() || !res) {
         warnPigment << "Illegal XML palette:" << colorSet->filename();
         warnPigment << "Error (line"<< xml->lineNumber() << ", column" << xml->columnNumber() << "):" << xml->errorString();
@@ -2521,7 +2420,6 @@ void KoColorSet::Private::saveKplGroup(QDomDocument &doc,
 
     for (const KisSwatchGroup::SwatchInfo &info : group->infoList()) {
         const KoColorProfile *profile = info.swatch.color().colorSpace()->profile();
-        // Only save non-builtin profiles.=
         if (!profile->fileName().isEmpty()) {
             bool alreadyIncluded = false;
             Q_FOREACH(const KoColorSpace* colorSpace, colorSetSet) {
@@ -2565,9 +2463,6 @@ void KoColorSet::Private::loadKplGroup(const QDomDocument &doc, const QDomElemen
         KisSwatch swatch;
 
         if (version == "1.0" && swatchEle.firstChildElement().tagName() == "Lab") {
-            // previous version of krita had the values wrong, and scaled everything between 0 to 1,
-            // but lab requires L = 0-100 and AB = -128-127.
-            // TODO: write unittest for this.
             QDomElement el = swatchEle.firstChildElement();
             double L = KisDomUtils::toDouble(el.attribute("L"));
             el.setAttribute("L", L*100.0);

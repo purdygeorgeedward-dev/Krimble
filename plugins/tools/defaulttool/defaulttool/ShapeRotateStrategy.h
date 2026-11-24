@@ -18,19 +18,9 @@ class KoToolBase;
 class KoShape;
 class KoSelection;
 
-/**
- * A strategy for the KoInteractionTool.
- * This strategy is invoked when the user starts a rotate of a selection of objects,
- * the strategy will then rotate the objects interactively and provide a command afterwards.
- */
 class ShapeRotateStrategy : public KoInteractionStrategy
 {
 public:
-    /**
-     * Constructor that starts to rotate the objects.
-     * @param tool the parent tool which controls this strategy
-     * @param clicked the initial point that the user depressed (in pt).
-     */
     ShapeRotateStrategy(KoToolBase *tool, KoSelection *selection, const QPointF &clicked, Qt::MouseButtons buttons);
     ~ShapeRotateStrategy() override {}
 

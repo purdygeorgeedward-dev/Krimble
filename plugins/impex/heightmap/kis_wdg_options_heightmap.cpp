@@ -161,7 +161,6 @@ void KisWdgOptionsHeightmap::guessDimensions()
 
     if (w > 0 && h > 0) {
         if (w * h == dimensions) {
-            // toggle landscape/portrait orientation
             widthInput->setValue(h);
             heightInput->setValue(w);
         }
@@ -169,13 +168,11 @@ void KisWdgOptionsHeightmap::guessDimensions()
     else if (w == 0 && h == 0) {
         quint32 r = (quint32)(qFloor(qSqrt(dimensions) + 0.5));
 
-        // First guess, square image?
         if (r*r == dimensions) {
             widthInput->setValue(r);
             heightInput->setValue(r);
         }
         else {
-            // second guess, power of two?
             w = prevPow2(r);
             h = dimensions / w + (dimensions % w);
             if (w * h != dimensions) {
@@ -183,11 +180,9 @@ void KisWdgOptionsHeightmap::guessDimensions()
                 return;
             }
 
-            // prefer landscape orientation
             widthInput->setValue(w > h ? w : h);
             heightInput->setValue(w > h ? h : w);
 
-            // TODO: cycle through other pow2 combinations if called multiple times?
         }
     }
     else if (w > 0) {

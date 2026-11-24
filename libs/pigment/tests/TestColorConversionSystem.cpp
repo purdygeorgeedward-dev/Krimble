@@ -32,7 +32,6 @@ TestColorConversionSystem::TestColorConversionSystem()
             }
         }
     }
-    //listModels.append(ModelDepthProfile(AlphaColorModelID.id(), Integer8BitsColorDepthID.id(), ""));
 }
 
 void TestColorConversionSystem::testConnections()
@@ -119,10 +118,6 @@ void TestColorConversionSystem::testAlphaConnectionPaths()
 
     std::vector<NodeKey> expectedPath;
 
-       // to Alpha8 conversions. Everything should go via GrayA color space,
-    // we expect alpha colorspace be just a flattened of graya color space
-    // with srgb tone curve.
-
     expectedPath =
         {{GrayAColorModelID.id(), Integer8BitsColorDepthID.id(), "Gray-D50-elle-V2-srgbtrc.icc"},
          {alpha8->colorModelId().id(), alpha8->colorDepthId().id(), alpha8->profile()->name()}};
@@ -171,8 +166,6 @@ return;
          {AlphaColorModelID.id(), Integer16BitsColorDepthID.id(), alpha8->profile()->name()}};
     QCOMPARE(calcPath(expectedPath), expectedPath);
 
-    // from Alpha8 conversions. Everything should go via GrayA color space
-
     expectedPath =
         {{alpha8->colorModelId().id(), alpha8->colorDepthId().id(), alpha8->profile()->name()},
          {GrayAColorModelID.id(), Integer8BitsColorDepthID.id(), "Gray-D50-elle-V2-srgbtrc.icc"}};
@@ -200,7 +193,6 @@ return;
          {GrayAColorModelID.id(), Integer8BitsColorDepthID.id(), "Gray-D50-elle-V2-srgbtrc.icc"},
          {RGBAColorModelID.id(), Integer8BitsColorDepthID.id(), KoColorSpaceRegistry::instance()->p709SRGBProfile()->name()}};
     QCOMPARE(calcPath(expectedPath), expectedPath);
-
 
     expectedPath =
         {{alpha8->colorModelId().id(), alpha8->colorDepthId().id(), alpha8->profile()->name()},
@@ -347,7 +339,6 @@ void TestColorConversionSystem::testGrayAConnectionPaths()
         {GrayAColorModelID.id(), Integer16BitsColorDepthID.id(), "Gray-D50-elle-V2-srgbtrc.icc"}};
     QCOMPARE(calcPath(expectedPath), expectedPath);
 
-
     expectedPath =
        {{GrayAColorModelID.id(), Integer8BitsColorDepthID.id(), "Gray-D50-elle-V2-srgbtrc.icc"},
         {RGBAColorModelID.id(), Integer8BitsColorDepthID.id(), KoColorSpaceRegistry::instance()->p709SRGBProfile()->name()}};
@@ -358,12 +349,10 @@ void TestColorConversionSystem::testGrayAConnectionPaths()
         {GrayAColorModelID.id(), Integer8BitsColorDepthID.id(), "Gray-D50-elle-V2-srgbtrc.icc"}};
     QCOMPARE(calcPath(expectedPath), expectedPath);
 
-
     expectedPath =
        {{RGBAColorModelID.id(), Integer8BitsColorDepthID.id(), KoColorSpaceRegistry::instance()->p709SRGBProfile()->name()},
         {GrayAColorModelID.id(), Integer8BitsColorDepthID.id(), "Gray-D50-elle-V2-srgbtrc.icc"}};
     QCOMPARE(calcPath(expectedPath), expectedPath);
-
 
 }
 
@@ -456,11 +445,6 @@ void TestColorConversionSystem::testRec2020PQConnectionPaths_data()
             rgbNode(Float32BitsColorDepthID, pqProfileName),
         };
 
-        //
-        // PQ spaces have direct connections to floating point spaces only. It disables
-        // the usage of the integer spaces as intermediate spaces
-        //
-
 #ifdef HAVE_OPENEXR
         QTest::addRow("f16-linear-u16-%s", pqTagVariant) << ExpectedPathVector{
             rgbNode(Float16BitsColorDepthID, KoColorSpaceRegistry::instance()->p2020G10Profile()->name()),
@@ -473,22 +457,12 @@ void TestColorConversionSystem::testRec2020PQConnectionPaths_data()
         };
 #endif
 
-        //
-        // It is impossible to convert any PQ space into an integer space directly,
-        // it should go through a floating point space first
-        //
-
         QTest::addRow("u16-%s-u16-linear", pqTagVariant) << ExpectedPathVector{
             rgbNode(Integer16BitsColorDepthID, pqProfileName),
             rgbNode(Float32BitsColorDepthID, KoColorSpaceRegistry::instance()->p2020G10Profile()->name()),
             iccNode(),
             rgbNode(Integer16BitsColorDepthID, KoColorSpaceRegistry::instance()->p2020G10Profile()->name()),
         };
-
-        //
-        // Conversion into sRGB happens via F32 space as well
-        // TODO: perhaps we could optimize U8 case and use F16 as an intermediate space instead?
-        //
 
         QTest::addRow("u16-%s-u8-srgb", pqTagVariant) << ExpectedPathVector{
             rgbNode(Integer16BitsColorDepthID, pqProfileName),
@@ -602,30 +576,12 @@ void TestColorConversionSystem::testCmykBitnessConversion()
                                                      Integer16BitsColorDepthID.id(),
                                                      "Chemical proof");
 
-//    ENTER_FUNCTION() << ppVar(cmyk8);
-//    ENTER_FUNCTION() << ppVar(cmyk8->profile()->name());
-//    ENTER_FUNCTION() << ppVar(cmyk8->profile()->fileName());
-
-//    ENTER_FUNCTION() << ppVar(cmyk16);
-//    ENTER_FUNCTION() << ppVar(cmyk16->profile()->name());
-//    ENTER_FUNCTION() << ppVar(cmyk16->profile()->fileName());
-
-
     KoColor color(QColor(177, 180, 42, 255), cmyk8);
-//    qDebug() << ppVar(color);
     color.convertTo(cmyk16);
-//    qDebug() << ppVar(color);
     KoColor color2 = color.convertedTo(cmyk8);
-//    qDebug() << ppVar(color2);
 
-    /**
-     * For some reason out CMYK color spaces don't support round-tripping
-     * to-from 16-bit representation. So the code that relies on that should
-     * use KoOptimizedCmykPixelDataScalerU8ToU16Factory::create().
-     */
     QVERIFY(color != color2);
 
 }
-
 
 KISTEST_MAIN(TestColorConversionSystem)

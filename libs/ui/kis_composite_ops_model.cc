@@ -32,7 +32,6 @@ void KisCompositeOpListModel::initialize()
     QMultiMapIterator<KoID, KoID> it(ops);
 #endif
 
-
     while (it.hasNext()) {
         KoID op = *it.next();
         KoID category = it.key();
@@ -54,7 +53,6 @@ void KisCompositeOpListModel::initializeForLayerStyles()
 #else
     QMultiMapIterator<KoID, KoID> it(ops);
 #endif
-
 
     while (it.hasNext()) {
         KoID op = *it.next();
@@ -98,7 +96,6 @@ bool KisCompositeOpListModel::setData(const QModelIndex& idx, const QVariant& va
 
     DataItem *item = categoriesMapper()->itemFromRow(idx.row());
     Q_ASSERT(item);
-
 
     if(role == Qt::CheckStateRole) {
         if (item->isChecked()) {

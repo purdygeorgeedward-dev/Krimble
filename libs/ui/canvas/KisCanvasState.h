@@ -43,4 +43,4 @@ public:
     KoZoomState zoomState() const;
 };
 
-#endif // KIS_CANVAS_STATE_H
+#endif

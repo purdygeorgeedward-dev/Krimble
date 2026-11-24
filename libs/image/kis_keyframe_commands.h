@@ -13,7 +13,6 @@
 #include "kis_scalar_keyframe_channel.h"
 #include "kritaimage_export.h"
 
-
 class KisInsertKeyframeCommand : public KUndo2Command
 {
 public:
@@ -30,7 +29,6 @@ private:
     KisKeyframeSP m_overwritten = nullptr;
 };
 
-
 class KisRemoveKeyframeCommand : public KUndo2Command
 {
 public:
@@ -45,7 +43,6 @@ private:
 
     KisKeyframeSP m_cached;
 };
-
 
 class KisScalarKeyframeUpdateCommand : public KUndo2Command
 {
@@ -102,6 +99,5 @@ private:
     UndoStore<QPointF> cachedTangentRight;
 
 };
-
 
 #endif

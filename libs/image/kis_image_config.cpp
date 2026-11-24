@@ -39,7 +39,6 @@ KisImageConfig::KisImageConfig(bool readOnly)
         KIS_SAFE_ASSERT_RECOVER_RETURN(qApp->thread() == QThread::currentThread());
     }
 #ifdef Q_OS_MACOS
-    // clear /var/folders/ swap path set by old broken Krita swap implementation in order to use new default swap dir.
     QString swap = m_config.readEntry("swaplocation", "");
     if (swap.startsWith("/var/folders/")) {
         m_config.deleteEntry("swaplocation");
@@ -127,9 +126,6 @@ qreal KisImageConfig::maxMergeCollectAlpha() const
 
 qreal KisImageConfig::schedulerBalancingRatio() const
 {
-    /**
-     * updates-queue-size / strokes-queue-size
-     */
     return m_config.readEntry("schedulerBalancingRatio", 100.);
 }
 
@@ -141,7 +137,7 @@ void KisImageConfig::setSchedulerBalancingRatio(qreal value)
 int KisImageConfig::maxSwapSize(bool requestDefault) const
 {
     return !requestDefault ?
-        m_config.readEntry("maxSwapSize", 4096) : 4096; // in MiB
+        m_config.readEntry("maxSwapSize", 4096) : 4096;
 }
 
 void KisImageConfig::setMaxSwapSize(int value)
@@ -151,7 +147,7 @@ void KisImageConfig::setMaxSwapSize(int value)
 
 int KisImageConfig::swapSlabSize() const
 {
-    return m_config.readEntry("swapSlabSize", 64); // in MiB
+    return m_config.readEntry("swapSlabSize", 64);
 }
 
 void KisImageConfig::setSwapSlabSize(int value)
@@ -161,7 +157,7 @@ void KisImageConfig::setSwapSlabSize(int value)
 
 int KisImageConfig::swapWindowSize() const
 {
-    return m_config.readEntry("swapWindowSize", 16); // in MiB
+    return m_config.readEntry("swapWindowSize", 16);
 }
 
 void KisImageConfig::setSwapWindowSize(int value)
@@ -200,8 +196,6 @@ static const qreal krimbleDefaultMemoryHardLimitPercent = 50.;
 
 qreal KisImageConfig::memoryHardLimitPercent(bool requestDefault) const
 {
-    // return !requestDefault ?
-    //     m_config.readEntry("memoryHardLimitPercent", 50.) : 50.;
     return !requestDefault ?
         m_config.readEntry("memoryHardLimitPercent", krimbleDefaultMemoryHardLimitPercent) : krimbleDefaultMemoryHardLimitPercent;
 }
@@ -236,23 +230,6 @@ void KisImageConfig::setMemoryPoolLimitPercent(qreal value)
 QString KisImageConfig::safelyGetWritableTempLocation(const QString &suffix, const QString &configKey, bool requestDefault) const
 {
 #ifdef Q_OS_MACOS
-    // On OSX, QDir::tempPath() gives us a folder we cannot reply upon (usually
-    // something like /var/folders/.../...) and that will have vanished when we
-    // try to create the tmp file in KisMemoryWindow::KisMemoryWindow using
-    // swapFileTemplate. thus, we just pick the home folder if swapDir does not
-    // tell us otherwise.
-
-    // the other option here would be to use a "garbled name" temp file (i.e. no name
-    // KRITA_SWAP_FILE_XXXXXX) in an obscure /var/folders place, which is not
-    // nice to the user. having a clearly named swap file in the home folder is
-    // much nicer to Krita's users.
-
-    // NOTE: QStandardPaths::AppLocalDataLocation on macos sandboxed envs
-    // does not return writable locations at all times, using QDir static methods
-    // will always return locations inside the sandbox Container
-
-    // furthermore, this is just a default and swapDir can always be configured
-    // to another location.
 
     QString swap;
 
@@ -287,11 +264,6 @@ QString KisImageConfig::safelyGetWritableTempLocation(const QString &suffix, con
     Q_FOREACH (const QString location, proposedSwapLocations) {
         if (!QFileInfo(location).isWritable()) continue;
 
-        /**
-         * On NTFS, isWritable() doesn't check for attributes due to performance
-         * reasons, so we should try it in a brute-force way...
-         * (yes, there is a hacky-global-variable workaround, but let's be safe)
-         */
         QTemporaryFile tempFile;
         tempFile.setFileTemplate(location + '/' + "krita_test_swap_location");
         if (tempFile.open() && !tempFile.fileName().isEmpty()) {
@@ -312,7 +284,6 @@ QString KisImageConfig::safelyGetWritableTempLocation(const QString &suffix, con
 
     return chosenLocation;
 }
-
 
 QString KisImageConfig::swapDir(bool requestDefault)
 {
@@ -432,8 +403,7 @@ void KisImageConfig::setAutoKeyModeDuplicate(bool value)
 
 int KisImageConfig::totalRAM()
 {
-    // let's think that default memory size is 1000MiB
-    int totalMemory = 1000; // MiB
+    int totalMemory = 1000;
     int error = 1;
 
 #if defined Q_OS_LINUX
@@ -452,7 +422,7 @@ int KisImageConfig::totalRAM()
 	}
 #elif defined Q_OS_FREEBSD || defined Q_OS_NETBSD || defined Q_OS_OPENBSD
     u_long physmem;
-#   if defined HW_PHYSMEM64 // NetBSD only
+#   if defined HW_PHYSMEM64
     int mib[] = {CTL_HW, HW_PHYSMEM64};
 #   else
     int mib[] = {CTL_HW, HW_PHYSMEM};
@@ -472,7 +442,6 @@ int KisImageConfig::totalRAM()
         totalMemory = status.ullTotalPhys >> 20;
     }
 
-    // For 32 bit windows, the total memory available is at max the 2GB per process memory limit.
 #   if defined ENV32BIT
     totalMemory = qMin(totalMemory, 2000);
 #   endif
@@ -602,7 +571,7 @@ void KisImageConfig::setFrameRenderingClones(int value)
 
 int KisImageConfig::frameRenderingTimeout(bool defaultValue) const
 {
-    const int defaultFrameRenderingTimeout = 30000; // 30 ms
+    const int defaultFrameRenderingTimeout = 30000;
     return defaultValue ? defaultFrameRenderingTimeout : m_config.readEntry("frameRenderingTimeout", defaultFrameRenderingTimeout);
 }
 

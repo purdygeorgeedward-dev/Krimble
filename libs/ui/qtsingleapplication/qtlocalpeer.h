@@ -37,4 +37,4 @@ private:
     static const char* ack;
 };
 
-#endif // QTLOCALPEER_H
+#endif

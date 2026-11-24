@@ -19,7 +19,6 @@
 #include <TagActions.h>
 #include <kis_signal_compressor.h>
 
-
 class KRITAWIDGETS_EXPORT WdgCloseableLabel : public QWidget
 {
     Q_OBJECT
@@ -46,7 +45,6 @@ private:
     friend class TestKisTagSelectionWidget;
 };
 
-
 class WdgAddTagButton : public QToolButton
 {
 
@@ -66,8 +64,6 @@ Q_SIGNALS:
 public Q_SLOTS:
     void slotFinishLastAction();
 
-
-
 private Q_SLOTS:
     void slotAddNewTag(QAction* action);
     void slotCreateNewTag(QString tagName);
@@ -79,7 +75,6 @@ protected:
         AddNewTag,
         CreateNewTag,
     };
-
 
 private:
     int m_size { 18 };
@@ -108,7 +103,6 @@ public:
     void setTagList(bool editable, QList<KoID> &selected, QList<KoID> &notSelected);
     void setTagList(bool editable, QList<KoID> &selected, QList<KoID> &notSelected, QList<KoID> &semiSelected);
 
-
 Q_SIGNALS:
     void sigAddTagToSelection(KoID tag);
     void sigRemoveTagFromSelection(KoID tag);
@@ -128,4 +122,4 @@ private:
     friend class TestKisTagSelectionWidget;
 };
 
-#endif // KIS_TAG_SELECTION_WIDGET_H
+#endif

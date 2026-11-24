@@ -73,16 +73,8 @@ QSize KisImageInterface::gmic_qt_get_image_size(int mode)
             break;
         case InputLayerMode::Active:
         case InputLayerMode::ActiveAndBelow: {
-            // The last layer in the list is always the layer the user
-            // has selected in Paint.NET, so it will be treated as the
-            // active layer. The clipboard layer (if present) will be
-            // placed above the active layer.
             const auto activeLayer = nodes->last();
 
-            // G'MIC takes as the image size the size of the active layer.
-            // This is a lie since a query to All will imply a query to Active
-            // through CroppedActiveLayerProxy, and the latter will return a
-            // bogus size if we reply straight with the paint device's bounds.
             if (activeLayer && activeLayer->paintDevice()) {
                 const QSize layerSize = activeLayer->exactBounds().size();
                 const QSize imageSize = activeLayer->image()->bounds().size();
@@ -94,11 +86,6 @@ QSize KisImageInterface::gmic_qt_get_image_size(int mode)
         case InputLayerMode::AllVisible:
             for (auto &node : *nodes) {
                 if (node && node->paintDevice()) {
-                    // XXX: when using All, G'MIC will instead do another query
-                    // through CroppedActiveLayerProxy to determine the image's
-                    // "size". So we need to be both consistent with the image's
-                    // bounds, but also extend them in case the layer's
-                    // partially offscreen.
                     const QSize layerSize = node->exactBounds().size();
                     const QSize imageSize = node->image()->bounds().size();
                     size = size.expandedTo(layerSize).expandedTo(imageSize);
@@ -126,7 +113,6 @@ QSize KisImageInterface::gmic_qt_get_image_size(int mode)
 
 QVector<KisQMicImageSP> KisImageInterface::gmic_qt_get_cropped_images(int inputMode, QRectF &rc)
 {
-    // Create the shared memory segments, and create a new "message" to send back
 
     QVector<KisQMicImageSP> message;
 
@@ -157,7 +143,6 @@ QVector<KisQMicImageSP> KisImageInterface::gmic_qt_get_cropped_images(int inputM
                 if (selection) {
                     return selection->selectedExactRect();
                 } else {
-                    // XXX: This is a lie, see gmic_qt_get_image_size as to why
                     const QRect nodeBounds = node->exactBounds();
                     const QRect imageBounds = node->image()->bounds();
 
@@ -211,7 +196,6 @@ void KisImageInterface::gmic_qt_detach()
 
 void KisImageInterface::gmic_qt_output_images(int mode, QVector<KisQMicImageSP> layers)
 {
-    // Parse the message. read the shared memory segments, fix up the current image and send an ack
     dbgPlugins << "gmic_qt_output_images";
     p->m_outputMode = (OutputMode)mode;
     if (p->m_outputMode != OutputMode::InPlace) {
@@ -226,15 +210,12 @@ void KisImageInterface::gmic_qt_output_images(int mode, QVector<KisQMicImageSP> 
     dbgPlugins << "Got" << layers.size() << "gmic images";
 
     {
-        // Start the applicator
         KUndo2MagicString actionName = kundo2_i18n("G'MIC filter");
         KisNodeSP rootNode = p->m_viewManager->image()->root();
         KisNodeListSP mappedLayers =
             KisQmicImportTools::inputNodes(p->m_viewManager->image(),
                                            p->m_inputMode,
                                            p->m_viewManager->activeNode());
-        // p->m_gmicApplicator->setProperties(p->m_viewManager->image(), rootNode, images, actionName, layers);
-        // p->m_gmicApplicator->apply();
 
         KisImageSignalVector emitSignals;
         emitSignals << ComplexSizeChangedSignal();
@@ -254,13 +235,6 @@ void KisImageInterface::gmic_qt_output_images(int mode, QVector<KisQMicImageSP> 
             layerSize = QRect(0, 0, p->m_viewManager->image()->width(), p->m_viewManager->image()->height());
         }
 
-        // This is a three-stage process.
-
-        // 1. Layer sizes must be adjusted individually
-        // 2. synchronize layer count and convert excess GMic nodes to paint
-        // layers
-        // 3. visit the existing nodes and reuse them to apply the remaining
-        // changes from GMic
         applicator.applyCommand(
             new KisQmicSynchronizeLayersCommand(mappedLayers,
                                                 layers,

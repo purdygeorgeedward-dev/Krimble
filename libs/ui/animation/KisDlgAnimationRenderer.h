@@ -56,10 +56,6 @@ private Q_SLOTS:
     void selectRenderType(int i);
 #endif
     void selectRenderOptions();
-    /**
-     * @brief sequenceMimeTypeSelected
-     * calls the dialog for the export widget.
-     */
     void sequenceMimeTypeOptionsClicked();
 
     void slotLockAspectRatioDimensionsWidth(int width);
@@ -79,8 +75,7 @@ protected Q_SLOTS:
 #endif
     void slotDialogAccepted();
 
-
-private: 
+private:
 #ifndef Q_OS_ANDROID
     enum FFmpegValidationResult {
         VALID = 1,
@@ -141,8 +136,8 @@ private:
     QString m_customFFMpegOptionsString;
     QString ffmpegVersion = "None";
 
-    QStringList ffmpegCodecs = QStringList(); // List of all supported output formats.
-    QMap<QString, QStringList> ffmpegEncoderTypes; // Maps supported output format to available list of encoder(s)
+    QStringList ffmpegCodecs = QStringList();
+    QMap<QString, QStringList> ffmpegEncoderTypes;
 
     bool m_wantsRenderWithHDR = false;
 #endif
@@ -150,4 +145,4 @@ private:
     WdgAnimationRenderer *m_page {0};
 };
 
-#endif // DLG_ANIMATIONRENDERERIMAGE
+#endif

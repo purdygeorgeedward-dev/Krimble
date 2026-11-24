@@ -36,4 +36,4 @@ private:
     const static QStringList intWrongExprs;
 };
 
-#endif // KISPARSESPINBOXESTEST_H
+#endif

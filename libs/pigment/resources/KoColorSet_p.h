@@ -100,4 +100,4 @@ private:
     void loadKplGroup(const QDomDocument &doc, const QDomElement &parentElement, KisSwatchGroupSP group, QString version);
 };
 
-#endif // KOCOLORSET_P_H
+#endif

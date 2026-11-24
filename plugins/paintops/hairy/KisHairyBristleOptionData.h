@@ -6,7 +6,6 @@
 #ifndef KIS_HAIRYBRISTLE_OPTION_DATA_H
 #define KIS_HAIRYBRISTLE_OPTION_DATA_H
 
-
 #include "kis_types.h"
 #include <boost/operators.hpp>
 
@@ -43,4 +42,4 @@ struct KisHairyBristleOptionData : boost::equality_comparable<KisHairyBristleOpt
     KisPaintopLodLimitations lodLimitations() const;
 };
 
-#endif // KIS_HAIRYBRISTLE_OPTION_DATA_H
+#endif

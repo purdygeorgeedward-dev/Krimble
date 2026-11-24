@@ -34,7 +34,6 @@
 
 #include <kritaui_export.h>
 
-
 class QNetworkReply;
 class KisNetworkAccessManager;
 
@@ -85,6 +84,5 @@ private:
     friend class MockMultiFeedRssModel;
 };
 
-#endif // MULTIFEEDRSSMODEL_H
-
+#endif
 

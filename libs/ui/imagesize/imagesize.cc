@@ -36,12 +36,6 @@
 
 namespace {
 
-/**
- * Krimble: makes "Image Size" a genuinely replayable Actions-panel step.
- * WdgImageSize::getConfiguration() already captures everything needed;
- * this just reads it back and calls the same KisImageManager method the
- * menu action always called directly.
- */
 class ImageSizeOperation : public KisOperation
 {
 public:
@@ -62,17 +56,6 @@ public:
     }
 };
 
-/**
- * Krimble: unlike WdgImageSize, DlgCanvasSize is already a full KoDialog
- * itself (anchor-icon grid, offset sync, aspect lock all live inside it),
- * not a plain content widget meant to be embedded in someone else's
- * dialog shell -- so rather than refactor that substantial existing logic
- * to fit KisOperationUIWidgetFactory<T>'s template shape, this small
- * custom factory just constructs/execs it exactly as
- * ImageSize::slotCanvasSize() always did, then reads its existing
- * accessors into the operation config. None of DlgCanvasSize's own code
- * is touched.
- */
 class CanvasSizeUIFactory : public KisOperationUIFactory
 {
 public:

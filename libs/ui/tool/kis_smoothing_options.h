@@ -12,7 +12,6 @@
 #include <QScopedPointer>
 #include <kritaui_export.h>
 
-
 class KRITAUI_EXPORT KisSmoothingOptions : public QObject
 {
     Q_OBJECT
@@ -76,4 +75,4 @@ private:
 
 typedef QSharedPointer<KisSmoothingOptions> KisSmoothingOptionsSP;
 
-#endif // KIS_SMOOTHING_OPTIONS_H
+#endif

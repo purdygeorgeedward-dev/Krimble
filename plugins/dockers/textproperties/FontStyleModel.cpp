@@ -37,7 +37,6 @@ FontStyleModel::FontStyleModel(QObject *parent)
 FontStyleModel::~FontStyleModel()
 {
 }
-// sort the font styles in any given manner.
 static bool styleLowerThan(const KoSvgText::FontFamilyStyleInfo &a, const KoSvgText::FontFamilyStyleInfo &b) {
 
     for (auto it = a.instanceCoords.begin(); it != a.instanceCoords.end(); it++) {
@@ -45,7 +44,6 @@ static bool styleLowerThan(const KoSvgText::FontFamilyStyleInfo &a, const KoSvgT
         qreal other = b.instanceCoords.value(it.key());
         if (it.value() < other) return true;
     }
-    // todo: support slant and ital variation axes.
     QFont::Style aStyle = a.isItalic? a.isOblique?  QFont::StyleOblique: QFont::StyleItalic: QFont::StyleNormal;
     QFont::Style bStyle = b.isItalic? a.isOblique?  QFont::StyleOblique: QFont::StyleItalic: QFont::StyleNormal;
     return aStyle < bStyle;
@@ -148,7 +146,6 @@ int FontStyleModel::rowForStyle(const qreal &weight, const qreal &width, const i
     if (styles.size() > 1) {
         styles = searchAxisTag(WEIGHT_TAG, weight, weights, 400.0, 500.0, styles);
     }
-    // Test all the italics and slant stuff, complete with fallbacks...
     if (styles.size() > 1) {
         QHash<int, KoSvgText::FontFamilyStyleInfo> italicStyles;
         QHash<int, KoSvgText::FontFamilyStyleInfo> obliqueStyles;

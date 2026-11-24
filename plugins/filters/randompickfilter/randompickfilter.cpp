@@ -57,7 +57,6 @@ KisFilterRandomPick::KisFilterRandomPick() : KisFilter(id(), FiltersCategoryOthe
     setSupportsPainting(true);
 }
 
-
 void KisFilterRandomPick::processImpl(KisPaintDeviceSP device,
                                       const QRect& applyRect,
                                       const KisFilterConfigurationSP config,

@@ -13,7 +13,6 @@
 #include <QEvent>
 #include <QKeyEvent>
 
-
 struct KisCustomModifiersCatcher::Private
 {
     Private(QObject *_trackedObject) : trackedObject(_trackedObject) {}
@@ -25,11 +24,9 @@ struct KisCustomModifiersCatcher::Private
     QSet<Qt::Key> pressedKeys;
 
     void reset() {
-        // something went wrong!
         pressedKeys.clear();
     }
 };
-
 
 KisCustomModifiersCatcher::KisCustomModifiersCatcher(QObject *parent)
     : QObject(parent),
@@ -102,7 +99,7 @@ bool KisCustomModifiersCatcher::eventFilter(QObject* object, QEvent* event)
     case QEvent::FocusIn: {
         m_d->reset();
 
-        { // Emulate pressing of the key that are already pressed
+        {
             KisExtendedModifiersMapper mapper;
 
             Qt::KeyboardModifiers modifiers = mapper.queryStandardModifiers();

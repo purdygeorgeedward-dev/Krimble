@@ -9,7 +9,6 @@
 
 #include "kis_default_bounds_base.h"
 
-
 namespace TestUtil {
 
 class LodOverride
@@ -131,4 +130,4 @@ private:
 
 }
 
-#endif /* __LOD_OVERRIDE_H */
+#endif

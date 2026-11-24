@@ -7,8 +7,6 @@
 #ifndef KIS_GRID_PAINTOP_H_
 #define KIS_GRID_PAINTOP_H_
 
-//#define BENCHMARK
-
 #include <klocalizedstring.h>
 #include <brushengine/kis_paintop.h>
 #include <kis_types.h>
@@ -19,7 +17,6 @@
 #include "kis_grid_paintop_settings.h"
 
 class KisPainter;
-
 
 class KisGridPaintOp : public KisPaintOp
 {
@@ -49,7 +46,6 @@ private:
     KisGridShapeOptionData m_shapeProperties;
     KisNodeSP m_node;
 
-
 #ifdef BENCHMARK
     int m_total;
     int m_count;
@@ -57,4 +53,4 @@ private:
 
 };
 
-#endif // KIS_GRID_PAINTOP_H_
+#endif

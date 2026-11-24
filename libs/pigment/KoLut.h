@@ -4,8 +4,6 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later
 */
 
-// The file lut.h comes from https://bitbucket.org/cyrille/lut/src/default/, keep it as much untouched as possible for easier sync
-
 #ifndef _KO_LUT_H_
 #define _KO_LUT_H_
 

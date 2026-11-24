@@ -9,7 +9,6 @@
 #ifndef _KIS_PERCHANNEL_FILTER_H_
 #define _KIS_PERCHANNEL_FILTER_H_
 
-
 #include <filter/kis_color_transformation_filter.h>
 #include <filter/kis_color_transformation_configuration.h>
 #include <kis_config_widget.h>
@@ -19,7 +18,6 @@
 
 #include "kis_multichannel_filter_base.h"
 #include <KisCurveWidgetControlsManager.h>
-
 
 class KisPerChannelFilterConfiguration
         : public KisMultiChannelFilterConfiguration
@@ -34,10 +32,6 @@ public:
     KisCubicCurve getDefaultCurve() override;
 };
 
-
-/**
- * This class is a filter to adjust channels independently
- */
 class KisPerChannelFilter : public KisMultiChannelFilter
 {
 public:

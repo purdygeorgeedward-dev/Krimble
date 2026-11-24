@@ -9,12 +9,11 @@
 
 #include "kis_pointer_utils.h"
 
-
 SvgGraphicsContext::SvgGraphicsContext()
 : stroke(toQShared(new KoShapeStroke()))
 , textProperties(KoSvgTextProperties())
 {
-    stroke->setLineStyle(Qt::NoPen, QVector<qreal>());   // default is no stroke
+    stroke->setLineStyle(Qt::NoPen, QVector<qreal>());
     stroke->setLineWidth(1.0);
     stroke->setCapStyle(Qt::FlatCap);
     stroke->setJoinStyle(Qt::MiterJoin);
@@ -30,26 +29,18 @@ SvgGraphicsContext::SvgGraphicsContext(const SvgGraphicsContext &gc)
 
 void SvgGraphicsContext::workaroundClearInheritedFillProperties()
 {
-    /**
-     * HACK ALERT: according to SVG patterns, clip paths and clip masks
-     *             must not inherit any properties from the referencing element.
-     *             We still don't support it, therefore we reset only fill/stroke
-     *             properties to avoid cyclic fill inheritance, which may cause
-     *             infinite recursion.
-     */
-
 
     strokeType = None;
 
     stroke = toQShared(new KoShapeStroke());
-    stroke->setLineStyle(Qt::NoPen, QVector<qreal>());   // default is no stroke
+    stroke->setLineStyle(Qt::NoPen, QVector<qreal>());
     stroke->setLineWidth(1.0);
     stroke->setCapStyle(Qt::FlatCap);
     stroke->setJoinStyle(Qt::MiterJoin);
 
     fillType = Solid;
     fillRule = Qt::WindingFill;
-    fillColor = QColor(Qt::black);   // default is black fill as per svg spec
+    fillColor = QColor(Qt::black);
 
     opacity = 1.0;
 

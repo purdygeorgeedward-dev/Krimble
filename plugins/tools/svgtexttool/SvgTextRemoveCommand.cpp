@@ -66,7 +66,6 @@ bool SvgTextRemoveCommand::mergeWith(const KUndo2Command *other)
 {
     const SvgTextRemoveCommand *command = dynamic_cast<const SvgTextRemoveCommand*>(other);
 
-
     if (!command || command->m_shape != m_shape) {
         return false;
     }

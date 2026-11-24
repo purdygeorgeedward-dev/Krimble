@@ -60,7 +60,6 @@ struct WidgetWrapperDataTypeChecker<false, Widget, Data, Args...> :
 {
     using BaseClass = WidgetWrapperConversionChecker<false, Widget, Data, Args...>;
 
-    // reuse c-tor from the base
     using BaseClass::BaseClass;
 };
 
@@ -71,7 +70,6 @@ struct WidgetWrapperDataTypeChecker<true, Widget, Data, Args...> :
     using BaseClass =
         WidgetWrapperConversionChecker<!std::is_same_v<Data, typename Widget::data_type>, Widget, Data, Args...>;
 
-    // reuse c-tor from the base
     using BaseClass::BaseClass;
 };
 
@@ -83,7 +81,6 @@ struct WidgetWrapper :
     using BaseClass = WidgetWrapperDataTypeChecker<
         has_type_data_type<Widget>::value, Widget, Data, Args...>;
 
-    // reuse c-tor from the base
     using BaseClass::BaseClass;
 };
 
@@ -92,7 +89,6 @@ struct WidgetWrapperWithLodLimitations : WidgetWrapper<Widget, Data, Args...>
 {
     using BaseClass = WidgetWrapper<Widget, Data, Args...>;
 
-    // reuse c-tor from the base
     using BaseClass::BaseClass;
 
     KisPaintOpOption::OptionalLodLimitationsReader
@@ -105,33 +101,13 @@ struct WidgetWrapperWithLodLimitations : WidgetWrapper<Widget, Data, Args...>
     }
 };
 
-} // namespace detail
+}
 
-/**
- * Creates an option widget and lager::store for its \p Data
- * type.
- *
- * The store is initialized with the passed \p data
- * object. If the widget provides the required data
- * type via `typename Widget::data_type`, and \p Data
- * is derived from it, then the function will automatically
- * create a cursor that upcasts \p Data into
- * `typename Widget::data_type`.
- *
- * All the extra arguments \p args are forwarded into the
- * widget's constructor right after the cursor to the data.
- */
 template <typename Widget, typename Data, typename... Args>
 Widget* createOptionWidget(Data&& data, Args... args)
 {
     return new detail::WidgetWrapper<Widget, Data, Args...>(std::forward<Data>(data), std::forward<Args>(args)...);
 }
-
-/**
- * Same as normal createOptionWidget(), but creates a widget that fetches
- * lod limitations directly from the \p Data object by calling
- * Data::lodLimitations().
- */
 
 template <typename Widget, typename Data, typename... Args>
 Widget* createOptionWidgetWithLodLimitations(Data&& data, Args... args)
@@ -140,16 +116,6 @@ Widget* createOptionWidgetWithLodLimitations(Data&& data, Args... args)
     return new detail::WidgetWrapperWithLodLimitations<Widget, Data, Args...>(std::forward<Data>(data), std::forward<Args>(args)...);
 }
 
-
-/**
- * Creates an option widget and lager::store for its \p Data
- * type.
- *
- * This override `typename Widget::data_type` to
- * default-construct the data and pass it to the
- * widget. If widget does not provide this type,
- * compilation will fail.
- */
 template <typename Widget>
 Widget* createOptionWidget()
 {
@@ -157,19 +123,6 @@ Widget* createOptionWidget()
     return createOptionWidget<Widget>(typename Widget::data_type{});
 }
 
-/**
- * Creates an option widget and lager::store for its \p Data
- * type.
- *
- * This override `typename Widget::data_type` to
- * default-construct the data and pass it to the
- * widget. If widget does not provide this type,
- * compilation will fail.
- *
- * Same as normal createOptionWidget(), but creates a widget that fetches lod
- * limitations directly from the \p Data object by calling
- * Data::lodLimitations().
- */
 template <typename Widget>
 Widget* createOptionWidgetWithLodLimitations()
 {
@@ -177,19 +130,6 @@ Widget* createOptionWidgetWithLodLimitations()
     return createOptionWidgetWithLodLimitations<Widget>(typename Widget::data_type{});
 }
 
-
-/**
- * Creates an instance of KisCurveOptionWidget and a
- * lager::store for its \p Data type.
- *
- * The store is initialized with the passed \p data
- * object. The object is automatically upcasted
- * with a cursor into KisCurveOptionData creation
- * of the widget.
- *
- * All the extra arguments \p args are forwarded into the
- * widget's constructor right after the cursor to the data.
- */
 template <typename Data, typename... Args>
 KisCurveOptionWidget* createCurveOptionWidget(Data&& data, Args... args)
 {
@@ -198,4 +138,4 @@ KisCurveOptionWidget* createCurveOptionWidget(Data&& data, Args... args)
 
 }
 
-#endif // KISPAINTOPOPTIONWIDGETUTILS_H
+#endif

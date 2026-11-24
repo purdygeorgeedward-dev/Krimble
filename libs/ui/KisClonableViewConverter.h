@@ -16,4 +16,4 @@ public:
     virtual KisClonableViewConverter* clone() const = 0;
 };
 
-#endif // KISCLONABLEVIEWCONVERTER_H
+#endif

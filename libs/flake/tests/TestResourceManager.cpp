@@ -89,7 +89,6 @@ void TestResourceManager::testConverters()
 
 void TestResourceManager::testDerivedChanged()
 {
-    // const int key1 = 1;
     const int key2 = 2;
     const int derivedKey = 3;
     const int otherDerivedKey = 4;
@@ -206,10 +205,6 @@ void TestResourceManager::testComplexResource()
     r2->m_resources[complex1] = 15;
     r2->m_resources[complex2] = 25;
 
-
-    // ####################################################
-    // Initial assignment
-    // ####################################################
     m.setResource(key, QVariant::fromValue(r1));
 
     QCOMPARE(mediator->m_res.value<ComplexResourceSP>(), r1);
@@ -225,9 +220,6 @@ void TestResourceManager::testComplexResource()
     QCOMPARE(spy[2][1].toInt(), 10);
     spy.clear();
 
-    // ####################################################
-    // Change the whole resource
-    // ####################################################
     m.setResource(key, QVariant::fromValue(r2));
 
     QCOMPARE(mediator->m_res.value<ComplexResourceSP>(), r2);
@@ -243,9 +235,6 @@ void TestResourceManager::testComplexResource()
     QCOMPARE(spy[2][1].toInt(), 15);
     spy.clear();
 
-    // ####################################################
-    // Change a derived resource
-    // ####################################################
     m.setResource(complex1, 16);
 
     QCOMPARE(mediator->m_res.value<ComplexResourceSP>(), r2);
@@ -257,9 +246,6 @@ void TestResourceManager::testComplexResource()
     QCOMPARE(spy[0][1].toInt(), 16);
     spy.clear();
 
-    // ####################################################
-    // Change another derived resource
-    // ####################################################
     m.setResource(complex2, 26);
 
     QCOMPARE(mediator->m_res.value<ComplexResourceSP>(), r2);
@@ -271,9 +257,6 @@ void TestResourceManager::testComplexResource()
     QCOMPARE(spy[0][1].toInt(), 26);
     spy.clear();
 
-    // ####################################################
-    // Switch back the whole source resource
-    // ####################################################
     m.setResource(key, QVariant::fromValue(r1));
 
     QCOMPARE(mediator->m_res.value<ComplexResourceSP>(), r1);
@@ -289,9 +272,6 @@ void TestResourceManager::testComplexResource()
     QCOMPARE(spy[2][1].toInt(), 10);
     spy.clear();
 
-    // ####################################################
-    // The value keep unchanged case!
-    // ####################################################
     m.setResource(complex1, 10);
 
     QCOMPARE(mediator->m_res.value<ComplexResourceSP>(), r1);
@@ -302,10 +282,6 @@ void TestResourceManager::testComplexResource()
     QCOMPARE(spy.size(), 0);
     spy.clear();
 
-    // ####################################################
-    // While switching a complex resource one derived value
-    // is kept unchanged
-    // ####################################################
     r2->m_resources[complex1] = 10;
     m.setResource(key, QVariant::fromValue(r2));
 
@@ -320,9 +296,6 @@ void TestResourceManager::testComplexResource()
     QCOMPARE(spy[1][1].toInt(), 26);
     spy.clear();
 
-    // ####################################################
-    // No derived values are changed!
-    // ####################################################
     *r1 = *r2;
     m.setResource(key, QVariant::fromValue(r1));
 
@@ -335,9 +308,6 @@ void TestResourceManager::testComplexResource()
     QCOMPARE(spy[0][1].value<ComplexResourceSP>(), r1);
     spy.clear();
 
-    // ####################################################
-    // Try to set the same pointer. No signals emitted!
-    // ####################################################
     m.setResource(key, QVariant::fromValue(r1));
 
     QCOMPARE(mediator->m_res.value<ComplexResourceSP>(), r1);
@@ -348,18 +318,11 @@ void TestResourceManager::testComplexResource()
     QCOMPARE(spy.size(), 0);
     spy.clear();
 
-
-    // ####################################################
-    // Internals 'officially' changed, but the values not
-    // ####################################################
     mediator->forceNotify();
 
     QCOMPARE(spy.size(), 0);
     spy.clear();
 
-    // ####################################################
-    // We changed the values, but didn't notify anyone :)
-    // ####################################################
     r1->m_resources[complex1] = 11;
     r1->m_resources[complex2] = 21;
 
@@ -491,7 +454,6 @@ void TestResourceManager::testAbstractResource()
     }
 
     {
-        // the new resource sets the same value
         resourceValue1->setValue(21);
 
         m.setAbstractResource(resourceValue1);
@@ -499,11 +461,9 @@ void TestResourceManager::testAbstractResource()
     }
 
     {
-        // explicit change in the linked resource (delivers a signal)
         resourceValue1->notifyChangedExplicitly();
         QCOMPARE(spy.size(), 1);
 
-        // explicit change in unlinked resource (does nothing)
         resourceValue2->notifyChangedExplicitly();
         QCOMPARE(spy.size(), 1);
 
@@ -545,7 +505,5 @@ void TestResourceManager::testDerivedAbstractChange()
     QCOMPARE(m.resource(derivedKey).toInt(), 15);
     QCOMPARE(abstractResource->value().toInt(), 20);
 }
-
-
 
 SIMPLE_TEST_MAIN(TestResourceManager)

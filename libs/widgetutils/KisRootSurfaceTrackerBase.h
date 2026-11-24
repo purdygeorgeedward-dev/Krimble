@@ -15,25 +15,6 @@ class QWidget;
 class QWindow;
 class QEvent;
 
-/**
- * KisRootSurfaceProxyBase is a special proxy object for toplevel
- * native window attached to the current QWidget
- *
- * When created, the proxy does the following:
- *
- * 1) Finds the top-level widget that \p watched belongs to.
- *    (is \p watched changed its parent in the meantime, e.g.
- *     during construction, then the proxy will handle that
- *     as well)
- *
- * 2) Finds the QWindow that this toplevel widget is painted on
- *    (if platform window is not created yet, subscribes to
- *     QPlatformSurfaceEvent to attach when platform window is
- *     finally created)
- *
- * 3) When found, calls implementation of connectToNativeWindow()
- *    that would connect to the actual native window
- */
 class KRITAWIDGETUTILS_EXPORT KisRootSurfaceTrackerBase : public QObject
 {
     Q_OBJECT
@@ -69,4 +50,4 @@ private:
     QPointer<QObject> m_childChangedFilter;
 };
 
-#endif /* KISROOTSURFACETRACKERBASE_H */
+#endif

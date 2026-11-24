@@ -7,33 +7,27 @@
 #ifndef KIS_GRID_SHAPE_OPTION_DATA_H
 #define KIS_GRID_SHAPE_OPTION_DATA_H
 
-
 #include "kis_types.h"
 #include <boost/operators.hpp>
 #include <kritapaintop_export.h>
 
 class KisPropertiesConfiguration;
 
-
 const QString GRIDSHAPE_SHAPE = "GridShape/shape";
 
-
 struct KisGridShapeOptionData : boost::equality_comparable<KisGridShapeOptionData>
-{	
-	
+{
+
     inline friend bool operator==(const KisGridShapeOptionData &lhs, const KisGridShapeOptionData &rhs) {
         return lhs.shape == rhs.shape
 			;
     }
 
-
-	/// Ellipse, rectangle, line, pixel, anti-aliased pixel
     int shape {0};
-	
-	// functions
+
     bool read(const KisPropertiesConfiguration *setting);
     void write(KisPropertiesConfiguration *setting) const;
-    
+
 };
 
-#endif // KIS_GRID_SHAPE_OPTION_DATA_H
+#endif

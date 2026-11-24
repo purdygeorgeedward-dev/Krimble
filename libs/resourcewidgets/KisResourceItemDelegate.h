@@ -14,7 +14,6 @@
 #include "KoCheckerBoardPainter.h"
 #include "kritaresourcewidgets_export.h"
 
-/// The resource item delegate for rendering the resource preview
 class KRITARESOURCEWIDGETS_EXPORT KisResourceItemDelegate : public QAbstractItemDelegate
 {
     Q_OBJECT
@@ -25,13 +24,6 @@ public:
     void paint( QPainter *, const QStyleOptionViewItem &, const QModelIndex & ) const override;
     void setShowText(bool);
 
-    /**
-     * When index conversion is set, the delegate will request only
-     * KisAbstractResourceModel::{Id,ResourceType,Name} from the local index
-     * and will use this info to resolve the index in the global resources
-     * model. It is necessary for, e.g. KisResourceItemListWidget in the bundle
-     * creator
-     */
     void setNeedIndexConversion(bool value);
 
     QSize sizeHint ( const QStyleOptionViewItem &, const QModelIndex & ) const override;

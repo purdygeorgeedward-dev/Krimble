@@ -9,11 +9,6 @@
 
 #include "kis_abstract_input_action.h"
 
-/**
- * \brief Select Layer implementation of KisAbstractInputAction.
- *
- * The Select Layer action selects a layer under a cursor.
- */
 class KisSelectLayerAction : public KisAbstractInputAction
 {
 public:
@@ -46,4 +41,4 @@ private:
     Private * const d;
 };
 
-#endif // KIS_SELECT_LAYER_ACTION_H
+#endif

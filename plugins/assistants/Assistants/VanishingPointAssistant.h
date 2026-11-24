@@ -13,20 +13,6 @@
 #include "kis_painting_assistant.h"
 #include <QObject>
 #include <QLineF>
-/* Design:
- *The idea behind the vanishing point ruler is that in a perspective deformed landscape, a set of parallel
- *lines al share a single vanishing point.
- *Therefore, a perspective can contain an theoretical infinite of vanishing points.
- *It's a pity if we only allowed an artist to access 1, 2 or 3 of these at any given time, as other
- *solutions for perspective tools do.
- *Hence a vanishing point ruler.
- *
- *This ruler is relatively simple compared to the other perspective ruler:
- *It has only one vanishing point that is required to draw.
- *However, it does have it's own weaknesses in how to determine onto which of these infinite rulers to snap.
- *Furthermore, it has four extra handles for adding a perspective ruler to a preexisting perspective.
- */
-//class VanishingPoint;
 
 class VanishingPointAssistant : public KisPaintingAssistant
 {
@@ -62,7 +48,6 @@ protected:
     KisPaintingAssistantHandleSP secondLocalHandle() const override;
 
 private:
-
 
     QPointF project(const QPointF& pt, const QPointF& strokeBegin, qreal moveThresholdPt);
     explicit VanishingPointAssistant(const VanishingPointAssistant &rhs, QMap<KisPaintingAssistantHandleSP, KisPaintingAssistantHandleSP> &handleMap);

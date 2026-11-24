@@ -35,7 +35,6 @@ public:
         , m_crossingCost(crossingCost)
     {
         if (m_referenceDepth >= 0) {
-            // noop, already initialized!
         } else if (colorDepthId == Integer8BitsColorDepthID) {
             m_referenceDepth = 1 * 8;
         } else if (colorDepthId == Integer16BitsColorDepthID) {
@@ -48,7 +47,6 @@ public:
             m_referenceDepth = 8 * 8;
         }
     }
-
 
     QString id() const override {
         return m_id;
@@ -98,7 +96,7 @@ public:
         return QString("default");
     }
 protected:
-    KoColorProfile* createColorProfile(const QByteArray& /*rawData*/) const override {
+    KoColorProfile* createColorProfile(const QByteArray& ) const override {
         return 0;
     }
 private:

@@ -16,7 +16,7 @@
 #include <kritapigment_export.h>
 #include <boost/operators.hpp>
 
-enum KoGradientStopType 
+enum KoGradientStopType
 {
     COLORSTOP,
     FOREGROUNDSTOP,
@@ -29,7 +29,7 @@ struct KoGradientStop : public boost::equality_comparable<KoGradientStop>
     KoColor color;
     qreal position;
 
-    KoGradientStop(qreal _position = 0.0, KoColor _color = KoColor(), KoGradientStopType _type = COLORSTOP) 
+    KoGradientStop(qreal _position = 0.0, KoColor _color = KoColor(), KoGradientStopType _type = COLORSTOP)
     {
         type = _type;
         color = _color;
@@ -37,13 +37,11 @@ struct KoGradientStop : public boost::equality_comparable<KoGradientStop>
     }
 
     bool operator == (const KoGradientStop& other) const
-    { 
+    {
         return this->type == other.type && this->color == other.color && this->position == other.position;
     }
 
-
-
-    QString typeString() const 
+    QString typeString() const
     {
         switch (type) {
         case COLORSTOP:
@@ -68,7 +66,6 @@ struct KoGradientStop : public boost::equality_comparable<KoGradientStop>
     }
 };
 
-
 struct KoGradientStopValueSort
 {
     inline bool operator() (const KoGradientStop& a, const KoGradientStop& b) {
@@ -83,14 +80,11 @@ struct KoGradientStopHueSort
     }
 };
 
-/**
- * Resource for colorstop based gradients like SVG gradients
- */
 class KRITAPIGMENT_EXPORT KoStopGradient : public KoAbstractGradient, public boost::equality_comparable<KoStopGradient>
 {
 
 public:
-    
+
     explicit KoStopGradient(const QString &filename = QString());
     ~KoStopGradient() override;
     KoStopGradient(const KoStopGradient &rhs);
@@ -105,40 +99,24 @@ public:
         return QPair<QString, QString>(ResourceType::Gradients, ResourceSubType::StopGradients);
     }
 
-    /// reimplemented
     QGradient* toQGradient() const override;
 
-    /// Find stops surrounding position, returns false if position outside gradient
     bool stopsAt(KoGradientStop& leftStop, KoGradientStop& rightStop, qreal t) const;
 
-    /// reimplemented
     void colorAt(KoColor&, qreal t) const override;
 
-    /// Creates KoStopGradient from a QGradient
     static QSharedPointer<KoStopGradient> fromQGradient(const QGradient *gradient);
 
-    /// Sets the gradient stops
     void setStops(QList<KoGradientStop> stops);
-    QList<KoGradientStop> stops() const;    
+    QList<KoGradientStop> stops() const;
 
     QList<int> requiredCanvasResources() const override;
     void bakeVariableColors(KoCanvasResourcesInterfaceSP canvasResourcesInterface) override;
     void updateVariableColors(KoCanvasResourcesInterfaceSP canvasResourcesInterface) override;
 
-
-    /// reimplemented
     QString defaultFileExtension() const override;
 
-    /**
-     * @brief toXML
-     * Convert the gradient to an XML string.
-     */
     void toXML(QDomDocument& doc, QDomElement& gradientElt) const;
-    /**
-     * @brief fromXML
-     * convert a gradient from xml.
-     * @return a gradient.
-     */
     static KoStopGradient fromXML(const QDomElement& elt);
 
     QString saveSvgGradient() const;
@@ -159,5 +137,5 @@ private:
 
 typedef QSharedPointer<KoStopGradient> KoStopGradientSP;
 
-#endif // KOSTOPGRADIENT_H
+#endif
 

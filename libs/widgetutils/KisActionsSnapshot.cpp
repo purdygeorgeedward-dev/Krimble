@@ -11,9 +11,6 @@
 
 #include "kis_debug.h"
 
-//#define ACTIONS_CHECKSUM_SANITY_CHECK
-
-
 struct KisActionsSnapshot::Private
 {
     QMap<QString, KisKActionCollection*> actionCollections;
@@ -52,7 +49,7 @@ void KisActionsSnapshot::addAction(const QString &name, QAction *action)
     if (!KisActionRegistry::instance()->sanityCheckPropertized(action->objectName())) {
         warnKrita << "WARNING: action" << name  << "was not propertized!"  << ppVar(action->property("isShortcutConfigurable").toBool());
     }
-#endif /* ACTIONS_CHECKSUM_SANITY_CHECK */
+#endif
 
     KisKActionCollection *collection =  m_d->actionCollections[cat.componentName];
 
@@ -66,10 +63,6 @@ void KisActionsSnapshot::addAction(const QString &name, QAction *action)
 
 QMap<QString, KisKActionCollection *> KisActionsSnapshot::actionCollections()
 {
-    /**
-     * A small heuristics to show warnings only when unknown shortcuts appear
-     * in the non-registered list
-     */
     if (m_d->nonRegisteredShortcuts.size() > 4 &&
         m_d->nonRegisteredShortcuts.size() < 160) {
 
@@ -81,7 +74,6 @@ QMap<QString, KisKActionCollection *> KisActionsSnapshot::actionCollections()
         warnKrita << "=== end ===";
     }
 
-    // try to workaround non-registered shortcuts by faking them manually
     Q_FOREACH (const QString &str, m_d->nonRegisteredShortcuts) {
         QAction *action = KisActionRegistry::instance()->makeQAction(str, 0);
         m_d->fakeActions << action;

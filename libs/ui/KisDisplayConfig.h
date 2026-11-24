@@ -12,12 +12,6 @@
 
 class KoColorProfile;
 class KisConfig;
-/**
- * @brief KisDisplayConfig
- * This class keeps track of the color management configuration for
- * image to display. This includes the profile used, but also the
- * various flags that need to be set on the final transform.
- */
 class KRITAUI_EXPORT KisDisplayConfig : public boost::equality_comparable<KisDisplayConfig>
 {
 public:
@@ -45,12 +39,6 @@ public:
     KoColorConversionTransformation::Intent intent;
     KoColorConversionTransformation::ConversionFlags conversionFlags;
 
-    // TODO (DK):
-    // 1) remove isHDR from KisDisplayConfig and keep it only in
-    //    KisMultiSurfaceDisplayConfig
-    // 2) move KisDisplayConfig into pigment and use it as a structure
-    //    for transformation options, e.g. rename into
-    //    KoColorTransformationOptions
     bool isHDR { false };
 };
 
@@ -89,4 +77,4 @@ public:
     bool isCanvasHDR { false };
 };
 
-#endif // KISDISPLAYCONFIG_H
+#endif

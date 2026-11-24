@@ -8,7 +8,6 @@
 
 #include <klocalizedstring.h>
 
-
 const KoID AlphaColorModelID("A", ki18n("Alpha mask"));
 const KoID RGBAColorModelID("RGBA", ki18n("RGB/Alpha"));
 const KoID XYZAColorModelID("XYZA", ki18n("XYZ/Alpha"));

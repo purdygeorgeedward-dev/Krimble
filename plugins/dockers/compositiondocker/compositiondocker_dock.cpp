@@ -49,9 +49,7 @@
 #include <animation/KisAndroidMediaEncoderRunnable.h>
 #endif
 
-
 #include "compositionmodel.h"
-
 
 CompositionDockerDock::CompositionDockerDock( )
     : QDockWidget(i18n("Layer Comps"))
@@ -187,7 +185,6 @@ void CompositionDockerDock::saveClicked()
     KisImageWSP image = m_canvas->viewManager()->image();
     if (!image) return;
 
-    // format as 001, 002 ...
     QString name = saveNameEdit->text();
     if (name.isEmpty()) {
         bool found = false;
@@ -271,10 +268,7 @@ void CompositionDockerDock::exportImageClicked()
         const QString exportWindowTitle = i18n("Exporting Compositions...");
         QSharedPointer<QProgressDialog> m_progressBar(new QProgressDialog(exportWindowTitle, i18n("Cancel"), 0, 0, this));
         const int compositionCount = image->compositions().size();
-        m_progressBar->setCancelButton(0); //  TODO: This task should be threaded in the future so that canceling is possible,
-                                           // Additionally, we should also be copying the image and working off that copy to
-                                           // improve runtime performance and allow for the current krita instance to work
-                                           // without locking up. **For now, we will simply make this operation uncancelable.**
+        m_progressBar->setCancelButton(0);
         m_progressBar->setMaximum(compositionCount);
         m_progressBar->setMinimum(0);
         m_progressBar->setValue(0);
@@ -296,10 +290,6 @@ void CompositionDockerDock::exportImageClicked()
 
             m_progressBar->setLabelText(i18n("Exporting composition: %1...", composition->name()));
 
-            // TODO: Extension of above, but this algorithm is highly inefficient.
-            // We should simply a) Deep Copy Image, b) Apply Composition, c) RefreshImageGraph,
-            // d) Export Image.
-            // This task can then be threaded to work in parallel.
             composition->apply();
             image->refreshGraphAsync();
             image->waitForDone();
@@ -344,14 +334,12 @@ void CompositionDockerDock::exportAnimationClicked()
 
 #ifdef Q_OS_ANDROID
     KisMediaEncoderFormat *format = KisMediaEncoderWrapper::getFormatByKey(exportOptions.videoFormatKey);
-    // If there's no format configured, try to grab the first available one.
     if (!format) {
         const QVector<KisMediaEncoderFormat *> &supportedFormats = KisMediaEncoderWrapper::getSupportedFormats();
         if (!supportedFormats.isEmpty()) {
             format = supportedFormats.first();
         }
     }
-    // If there's still none, bail out.
     if (!format) {
         return;
     }
@@ -427,7 +415,6 @@ bool CompositionDockerDock::eventFilter(QObject* obj, QEvent* event)
     if (event->type() == QEvent::KeyPress ) {
         QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
         if (keyEvent->key() == Qt::Key_Up || keyEvent->key() == Qt::Key_Down) {
-            // new index will be set after the method is called
             QTimer::singleShot(0, this, SLOT(activateCurrentIndex()));
         }
         return false;
@@ -482,5 +469,4 @@ void CompositionDockerDock::renameComposition()
         }
     }
 }
-
 

@@ -27,14 +27,11 @@
 
 #include <KoViewConverter.h>
 
-// the distance in pixels of a mouse position considered outside the rule
 static const int OutsideRulerThreshold = 20;
-//
 static const int fullStepMarkerLength = 6;
 static const int halfStepMarkerLength = 6;
 static const int quarterStepMarkerLength = 3;
 static const int measurementTextAboveBelowMargin = 1;
-
 
 void RulerTabChooser::mousePressEvent(QMouseEvent *)
 {
@@ -114,7 +111,6 @@ struct {
     }
 } compareTabs;
 
-
 QRectF HorizontalPaintingStrategy::drawBackground(const KoRulerPrivate *d, QPainter &painter)
 {
     lengthInPixel = d->viewConverter->documentToViewX(d->rulerLength);
@@ -135,19 +131,17 @@ QRectF HorizontalPaintingStrategy::drawBackground(const KoRulerPrivate *d, QPain
 
     painter.setPen(QPen(d->ruler->palette().color(QPalette::Mid), 0));
 
-    painter.fillRect(rectangle,d->ruler->palette().color(QPalette::AlternateBase)); // make background slightly different so it is easier to see
+    painter.fillRect(rectangle,d->ruler->palette().color(QPalette::AlternateBase));
     painter.drawRect(rectangle);
 
     if(d->effectiveActiveRangeStart() != d->effectiveActiveRangeEnd())
         painter.fillRect(activeRangeRectangle, d->ruler->palette().brush(QPalette::Base));
 
     if(d->showSelectionBorders) {
-        // Draw first selection border
         if(d->firstSelectionBorder > 0) {
             qreal border = d->viewConverter->documentToViewX(d->firstSelectionBorder) + d->offset;
             painter.drawLine(QPointF(border, rectangle.y() + 1), QPointF(border, rectangle.bottom() - 1));
         }
-        // Draw second selection border
         if(d->secondSelectionBorder > 0) {
             qreal border = d->viewConverter->documentToViewX(d->secondSelectionBorder) + d->offset;
             painter.drawLine(QPointF(border, rectangle.y() + 1), QPointF(border, rectangle.bottom() - 1));
@@ -214,9 +208,7 @@ void HorizontalPaintingStrategy::drawTabs(const KoRulerPrivate *d, QPainter &pai
         }
     }
 
-    // and also draw the regular interval tab that are non editable
     if (d->tabDistance > 0.0) {
-        // first possible position
         position = qMax(position, d->relativeTabs ? 0 : d->paragraphIndent);
         if (position < 0) {
             position = int(position / d->tabDistance) * d->tabDistance;
@@ -254,17 +246,11 @@ void HorizontalPaintingStrategy::drawMeasurements(const KoRulerPrivate *d, QPain
     painter.setPen(markerPen);
     painter.setFont(font);
 
-    // length of the ruler in pixels
     const int rulerLengthPixel = d->viewConverter->documentToViewX(d->rulerLength);
-    // length of the ruler in the chosen unit
     const qreal rulerLengthUnit = d->unit.toUserValue(d->rulerLength);
-    // length of a unit in pixels
     const qreal unitLength = d->viewConverter->documentToViewX(d->unit.fromUserValue(1.0));
-    // length of the text for longest number with some padding
     const int textLength = fontMetrics.horizontalAdvance(QString::number(qCeil(rulerLengthUnit))) + 20;
-    // the minimal separation of numbers that won't make the text a mess
     const qreal minimalNumberSeparation = qCeil(textLength / unitLength);
-    // the chosen separation of numbers so that we have "whole" numbers
     qreal numberSeparation = minimalNumberSeparation;
     if (minimalNumberSeparation <= 5) {
     } else if (minimalNumberSeparation <= 10) {
@@ -282,20 +268,15 @@ void HorizontalPaintingStrategy::drawMeasurements(const KoRulerPrivate *d, QPain
     } else {
         numberSeparation = qRound(qreal(numberSeparation / 100)) * 100;
     }
-    // the chosen separation converted to pixel
     const int pixelSeparation = qRound(d->viewConverter->documentToViewX(d->unit.fromUserValue(numberSeparation)));
-    // the value used to calculate displacement of secondary marks
     const int secondarydisplacement = d->rightToLeft ? -pixelSeparation : pixelSeparation;
 
-    // Draw the marks
     int rulerEnd;
     qreal numberStart, numberEnd;
     if (d->rightToLeft) {
         rulerEnd = d->offset;
         numberStart = d->unit.toUserValue(d->viewConverter->viewToDocumentX(
                     rulerLengthPixel + d->offset - rectangle.right()));
-        // draw the partly hidden mark when the left part of the ruler is
-        // invisible
         int pixelEnd = rulerLengthPixel + d->offset - rectangle.left();
         if (rulerEnd + textLength < rectangle.left()) {
             pixelEnd -= textLength;
@@ -309,8 +290,6 @@ void HorizontalPaintingStrategy::drawMeasurements(const KoRulerPrivate *d, QPain
         rulerEnd = d->offset + rulerLengthPixel;
         numberStart = d->unit.toUserValue(d->viewConverter->viewToDocumentX(
                     rectangle.left() - d->offset));
-        // draw the partly hidden mark when the right part of the ruler is
-        // invisible
         int pixelEnd = rectangle.right() - d->offset;
         if (rulerEnd - textLength > rectangle.right()) {
             pixelEnd += textLength;
@@ -328,7 +307,6 @@ void HorizontalPaintingStrategy::drawMeasurements(const KoRulerPrivate *d, QPain
             x = d->offset + rulerLengthPixel - posOnRuler;
         }
 
-        // to draw the primary mark
         painter.drawLine(QPointF(x, rectangle.bottom()-1),
                 QPointF(x, rectangle.bottom() - fullStepMarkerLength));
         QString numberText = QString::number(n);
@@ -336,7 +314,6 @@ void HorizontalPaintingStrategy::drawMeasurements(const KoRulerPrivate *d, QPain
         painter.drawText(QPointF(x - fontMetrics.horizontalAdvance(numberText)/2.0,
                     rectangle.bottom() - fullStepMarkerLength - measurementTextAboveBelowMargin),
                 numberText);
-        // start to draw secondary marks following the primary mark
         painter.setPen(markerPen);
 
         int xQuarterMark1 = qRound(qreal(x) + qreal(secondarydisplacement) / 4.0);
@@ -358,7 +335,6 @@ void HorizontalPaintingStrategy::drawMeasurements(const KoRulerPrivate *d, QPain
                 QPointF(xQuarterMark2, rectangle.bottom() - quarterStepMarkerLength));
     }
 
-    // Draw the mouse indicator
     const int mouseCoord = d->mouseCoordinate + d->offset;
     if (d->selected == KoRulerPrivate::None || d->selected == KoRulerPrivate::HotSpot) {
         const qreal top = rectangle.y() + 1;
@@ -383,12 +359,10 @@ void HorizontalPaintingStrategy::drawIndents(const KoRulerPrivate *d, QPainter &
     painter.setRenderHint( QPainter::Antialiasing );
 
     qreal x;
-    // Draw first line start indent
     if (d->rightToLeft)
         x = d->effectiveActiveRangeEnd() - d->firstLineIndent - d->paragraphIndent;
     else
         x = d->effectiveActiveRangeStart() + d->firstLineIndent + d->paragraphIndent;
-    // convert and use the +0.5 to go to nearest integer so that the 0.5 added below ensures sharp lines
     x = int(d->viewConverter->documentToViewX(x) + d->offset + 0.5);
     polygon << QPointF(x+6.5, 0.5)
         << QPointF(x+0.5, 8.5)
@@ -396,12 +370,10 @@ void HorizontalPaintingStrategy::drawIndents(const KoRulerPrivate *d, QPainter &
         << QPointF(x+5.5, 0.5);
     painter.drawPolygon(polygon);
 
-    // draw the hanging indent.
     if (d->rightToLeft)
         x = d->effectiveActiveRangeStart() + d->endIndent;
     else
         x = d->effectiveActiveRangeStart() + d->paragraphIndent;
-    // convert and use the +0.5 to go to nearest integer so that the 0.5 added below ensures sharp lines
     x = int(d->viewConverter->documentToViewX(x) + d->offset + 0.5);
     const int bottom = d->ruler->height();
     polygon.clear();
@@ -411,7 +383,6 @@ void HorizontalPaintingStrategy::drawIndents(const KoRulerPrivate *d, QPainter &
         << QPointF(x+5.5, bottom - 0.5);
     painter.drawPolygon(polygon);
 
-    // Draw end-indent or paragraph indent if mode is rightToLeft
     qreal diff;
     if (d->rightToLeft)
         diff = d->viewConverter->documentToViewX(d->effectiveActiveRangeEnd()
@@ -425,9 +396,8 @@ void HorizontalPaintingStrategy::drawIndents(const KoRulerPrivate *d, QPainter &
 
 QSize HorizontalPaintingStrategy::sizeHint()
 {
-    // assumes that digits for the number only use glyphs which do not go below the baseline
     const QFontMetrics fm(QFontDatabase::systemFont(QFontDatabase::SmallestReadableFont));
-    const int digitsHeight = fm.ascent() + 1; // +1 for baseline
+    const int digitsHeight = fm.ascent() + 1;
     const int minimum = digitsHeight + fullStepMarkerLength + 2*measurementTextAboveBelowMargin;
 
     return QSize(0, minimum);
@@ -460,12 +430,10 @@ QRectF VerticalPaintingStrategy::drawBackground(const KoRulerPrivate *d, QPainte
         painter.fillRect(activeRangeRectangle, d->ruler->palette().brush(QPalette::Base));
 
     if(d->showSelectionBorders) {
-        // Draw first selection border
         if(d->firstSelectionBorder > 0) {
             qreal border = d->viewConverter->documentToViewY(d->firstSelectionBorder) + d->offset;
             painter.drawLine(QPointF(rectangle.x() + 1, border), QPointF(rectangle.right() - 1, border));
         }
-        // Draw second selection border
         if(d->secondSelectionBorder > 0) {
             qreal border = d->viewConverter->documentToViewY(d->secondSelectionBorder) + d->offset;
             painter.drawLine(QPointF(rectangle.x() + 1, border), QPointF(rectangle.right() - 1, border));
@@ -484,18 +452,12 @@ void VerticalPaintingStrategy::drawMeasurements(const KoRulerPrivate *d, QPainte
     painter.setPen(markerPen);
     painter.setFont(font);
 
-    // length of the ruler in pixels
     const int rulerLengthPixel = d->viewConverter->documentToViewY(d->rulerLength);
-    // length of the ruler in the chosen unit
     const qreal rulerLengthUnit = d->unit.toUserValue(d->rulerLength);
-    // length of a unit in pixels
     const qreal unitLength = d->viewConverter->documentToViewY(d->unit.fromUserValue(1.0));
-    // length of the text for longest number with some padding
      const int textLength = fontMetrics.horizontalAdvance(QString::number(qCeil(rulerLengthUnit))) + 20;
 
-    // the minimal separation of numbers that won't make the text a mess
     const qreal minimalNumberSeparation = qCeil(textLength / unitLength);
-    // the chosen separation of numbers so that we have "whole" numbers
     qreal numberSeparation = minimalNumberSeparation;
     if (minimalNumberSeparation <= 5) {
     } else if (minimalNumberSeparation <= 10) {
@@ -513,15 +475,11 @@ void VerticalPaintingStrategy::drawMeasurements(const KoRulerPrivate *d, QPainte
     } else {
         numberSeparation = qRound(qreal(numberSeparation / 100.0)) * 100;
     }
-    // the chosen separation converted to pixel
     const int pixelSeparation = qRound(d->viewConverter->documentToViewY(d->unit.fromUserValue(numberSeparation)));
 
-    // Draw the marks
     const int rulerEnd = rulerLengthPixel + d->offset;
     qreal numberStart = d->unit.toUserValue(d->viewConverter->viewToDocumentY(
                 rectangle.top() - d->offset));
-    // draw the partly hidden mark when the bottom part of the ruler is
-    // invisible
     int pixelEnd = rectangle.bottom() - d->offset;
     if (rulerEnd - textLength > rectangle.bottom()) {
         pixelEnd += textLength;
@@ -535,7 +493,6 @@ void VerticalPaintingStrategy::drawMeasurements(const KoRulerPrivate *d, QPainte
         int posOnRuler = qRound(d->viewConverter->documentToViewY(d->unit.fromUserValue(n)));
         int y = d->offset + posOnRuler;
 
-        // to draw the primary mark
         QString numberText = QString::number(n);
         painter.save();
         painter.translate(rectangle.right() - fullStepMarkerLength, y);
@@ -547,7 +504,6 @@ void VerticalPaintingStrategy::drawMeasurements(const KoRulerPrivate *d, QPainte
                 numberText);
         painter.restore();
 
-        // start to draw secondary marks following the primary mark
         painter.setPen(markerPen);
 
         int yQuarterMark1 = qRound(qreal(y + pixelSeparation / 4.0));
@@ -569,7 +525,6 @@ void VerticalPaintingStrategy::drawMeasurements(const KoRulerPrivate *d, QPainte
                 QPointF(rectangle.right() - quarterStepMarkerLength, yQuarterMark2));
     }
 
-    // Draw the mouse indicator
     const int mouseCoord = d->mouseCoordinate + d->offset;
     if (d->selected == KoRulerPrivate::None || d->selected == KoRulerPrivate::HotSpot) {
         const qreal left = rectangle.left() + 1;
@@ -588,19 +543,16 @@ void VerticalPaintingStrategy::drawMeasurements(const KoRulerPrivate *d, QPainte
 
 QSize VerticalPaintingStrategy::sizeHint()
 {
-    // assumes that digits for the number only use glyphs which do not go below the baseline
     const QFontMetrics fm(QFontDatabase::systemFont(QFontDatabase::SmallestReadableFont));
-    const int digitsHeight = fm.ascent() + 1; // +1 for baseline
+    const int digitsHeight = fm.ascent() + 1;
     const int minimum = digitsHeight + fullStepMarkerLength + 2*measurementTextAboveBelowMargin;
 
     return QSize(minimum, 0);
 }
 
-
 void HorizontalDistancesPaintingStrategy::drawDistanceLine(const KoRulerPrivate *d, QPainter &painter, const qreal start, const qreal end)
 {
 
-    // Don't draw too short lines
     if (qMax(start, end) - qMin(start, end) < 1)
         return;
 
@@ -613,7 +565,6 @@ void HorizontalDistancesPaintingStrategy::drawDistanceLine(const KoRulerPrivate 
             QPointF(d->viewConverter->documentToViewX(end), 0));
     QPointF midPoint = line.pointAt(0.5);
 
-    // Draw the label text
     const QFont font = QFontDatabase::systemFont(QFontDatabase::SmallestReadableFont);
     const QFontMetrics fontMetrics(font);
     QString label = d->unit.toUserStringValue(
@@ -623,7 +574,6 @@ void HorizontalDistancesPaintingStrategy::drawDistanceLine(const KoRulerPrivate 
     painter.setFont(font);
     painter.drawText(labelPosition, label);
 
-    // Draw the arrow lines
     qreal arrowLength = (line.length() - fontMetrics.horizontalAdvance(label)) / 2 - 2;
     arrowLength = qMax(qreal(0.0), arrowLength);
     QLineF startArrow(line.p1(), line.pointAt(arrowLength / line.length()));
@@ -631,7 +581,6 @@ void HorizontalDistancesPaintingStrategy::drawDistanceLine(const KoRulerPrivate 
     painter.drawLine(startArrow);
     painter.drawLine(endArrow);
 
-    // Draw the arrow heads
     QPolygonF arrowHead;
     arrowHead << line.p1() << QPointF(line.x1()+3, line.y1()-3)
         << QPointF(line.x1()+3, line.y1()+3);
@@ -822,7 +771,6 @@ void KoRulerPrivate::emitTabChanged()
     Q_EMIT ruler->tabChanged(originalIndex, currentIndex >= 0 ? &tab : 0);
 }
 
-
 KoRuler::KoRuler(QWidget* parent, Qt::Orientation orientation, const KoViewConverter* viewConverter)
   : QWidget(parent)
   , d( new KoRulerPrivate( this, viewConverter, orientation) )
@@ -875,7 +823,6 @@ void KoRuler::paintEvent(QPaintEvent* event)
     painter.setClipRegion(event->region());
 
     painter.save();
-    // Add subtle shade to entire widget to separate from neighbors..
     painter.fillRect(rect(), QColor(0, 0, 0, 24));
 
     QRectF rectangle = d->paintingStrategy->drawBackground(d, painter);
@@ -1072,10 +1019,6 @@ void KoRuler::mousePressEvent ( QMouseEvent* ev )
         return;
     }
 
-    /**
-     * HACK ALERT: We don't need all that indentation stuff in Krita.
-     *             Just ensure the rulers are created correctly.
-     */
     if (d->selected == KoRulerPrivate::None) {
         d->guideCreationStarted = true;
         return;
@@ -1116,7 +1059,6 @@ void KoRuler::mousePressEvent ( QMouseEvent* ev )
     }
 
     if (d->showTabs && d->selected == KoRulerPrivate::None) {
-        // still haven't found something so let assume the user wants to add a tab
         qreal tabpos;
         if (d->rightToLeft) {
             tabpos = d->viewConverter->viewToDocumentX(pos.x() - d->offset)
@@ -1132,7 +1074,7 @@ void KoRuler::mousePressEvent ( QMouseEvent* ev )
         d->selectOffset = 0;
         d->selected = KoRulerPrivate::Tab;
         d->currentIndex = d->tabs.count() - 1;
-        d->originalIndex = -1; // new!
+        d->originalIndex = -1;
         update();
     }
     if (d->orientation == Qt::Horizontal && (ev->modifiers() & Qt::ShiftModifier) &&
@@ -1243,8 +1185,8 @@ void KoRuler::mouseMoveEvent ( QMouseEvent* ev )
         break;
     case KoRulerPrivate::Tab:
         d->tabMoved = true;
-        if (d->currentIndex < 0) { // tab is deleted.
-            if (ev->pos().y() < height()) { // reinstate it.
+        if (d->currentIndex < 0) {
+            if (ev->pos().y() < height()) {
                 d->currentIndex = d->tabs.count();
                 d->tabs.append(d->deletedTab);
             } else {
@@ -1264,10 +1206,9 @@ void KoRuler::mouseMoveEvent ( QMouseEvent* ev )
         if (d->tabs[d->currentIndex].position > activeLength)
             d->tabs[d->currentIndex].position = activeLength;
 
-        if (ev->pos().y() > height() + OutsideRulerThreshold ) { // moved out of the ruler, delete it.
+        if (ev->pos().y() > height() + OutsideRulerThreshold ) {
             d->deletedTab = d->tabs.takeAt(d->currentIndex);
             d->currentIndex = -1;
-            // was that a temporary added tab?
             if ( d->originalIndex == -1 )
                 Q_EMIT guideLineCreated(d->orientation,
                         d->orientation == Qt::Horizontal
@@ -1336,7 +1277,6 @@ void KoRuler::setHotSpot(qreal position, int id)
             return;
         }
     }
-    // not there yet, then insert it.
     KoRulerPrivate::HotSpotData hs;
     hs.position = position;
     hs.id = id;
@@ -1360,7 +1300,7 @@ void KoRuler::createGuideToolConnection(KoCanvasBase *canvas)
 {
     Q_ASSERT(canvas);
     KoToolBase *tool = KoToolManager::instance()->toolById(canvas, QLatin1String("GuidesTool"));
-    if (!tool) return; // It's perfectly fine to have no guides tool, we don't have to warn the user about it
+    if (!tool) return;
     connect(this, SIGNAL(guideLineCreated(Qt::Orientation,qreal)),
         tool, SLOT(createGuideLine(Qt::Orientation,qreal)));
 }

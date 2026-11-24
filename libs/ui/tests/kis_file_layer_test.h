@@ -18,4 +18,4 @@ private Q_SLOTS:
     void testFileLayerPlusTransformMaskSmallFileBigOffset();
 };
 
-#endif /* __KIS_FILE_LAYER_TEST_H */
+#endif

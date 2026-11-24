@@ -48,7 +48,6 @@ public:
     void updateCount(bool);
     void updateResources(QString resourceType, int count);
 
-
 private:
     Ui::PageResourceChooser *m_ui;
     WdgResourcePreview *m_wdgResourcePreview;
@@ -64,4 +63,4 @@ private:
     KisBundleStorage *m_bundleStorage;
 };
 
-#endif // PAGE_RESOURCE_CHOOSER_H
+#endif

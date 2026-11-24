@@ -11,11 +11,9 @@
 
 class KoShape;
 
-/// Factory for path shapes
 class RectangleShapeFactory : public KoShapeFactoryBase
 {
 public:
-    /// constructor
     RectangleShapeFactory();
     ~RectangleShapeFactory() override {}
     KoShape *createDefaultShape(KoDocumentResourceManager *documentResources = 0) const override;

@@ -7,7 +7,6 @@
  *
  * SPDX-License-Identifier: LGPL-2.0-or-later
  */
-// flake
 #include "KoToolManager.h"
 #include "KoToolManager_p.h"
 #include "KoToolRegistry.h"
@@ -30,7 +29,6 @@
 
 #include <krita_container_utils.h>
 
-// Qt + kde
 #include <QWidget>
 #include <QEvent>
 #include <QWheelEvent>
@@ -53,7 +51,6 @@
 
 Q_GLOBAL_STATIC(KoToolManager, s_instance)
 
-
 class CanvasData
 {
 public:
@@ -68,7 +65,6 @@ public:
 
     ~CanvasData()
     {
-        // the dummy tool widget does not necessarily have a parent and we create it, so we delete it.
         delete dummyToolWidget;
     }
 
@@ -88,26 +84,21 @@ public:
 
         QMap<QKeySequence, QStringList> shortcutMap;
 
-//        qDebug() << "................... activating tool" << activeToolId;
-
         Q_FOREACH(QAction *action, windowActionCollection->actions()) {
 
             if (action->property("tool_action").isValid()) {
                 QStringList tools = action->property("tool_action").toStringList();
 
                 if (KoToolRegistry::instance()->keys().contains(action->objectName())) {
-                    //qDebug() << "This action needs to be enabled!";
                     action->setEnabled(true);
                     toolActions << action->objectName();
                 }
                 else {
                     if (tools.contains(activeToolId) || action->property("always_enabled").toBool()) {
-                        //qDebug() << "\t\tenabling";
                         action->setEnabled(true);
                         toolActions << action->objectName();
                     }
                     else {
-                        //qDebug() << "\t\tDISabling";
                         action->setDisabled(true);
                     }
                 }
@@ -117,7 +108,6 @@ public:
             }
 
             Q_FOREACH(QKeySequence keySequence, action->shortcuts()) {
-                // After loading a custom shortcut profile, shortcuts can be defined as an empty string, which is not an empty shortcut
                 if (keySequence.toString() != "") {
                     if (shortcutMap.contains(keySequence)) {
                         shortcutMap[keySequence].append(action->objectName());
@@ -129,11 +119,9 @@ public:
             }
         }
 
-        // Make sure the tool's actions override the global actions that aren't associated with the tool.
         Q_FOREACH(const QKeySequence &k, shortcutMap.keys()) {
             if (shortcutMap[k].size() > 1) {
                 QStringList actions = shortcutMap[k];
-                //qDebug() << k << actions;
                 bool toolActionFound = false;
                 Q_FOREACH(const QString &action, actions) {
                     if (toolActions.contains(action)) {
@@ -142,16 +130,14 @@ public:
                 }
                 Q_FOREACH(const QString &action, actions) {
                     if (toolActionFound && globalActions.contains(action)) {
-                        //qDebug() << "\tdisabling global action" << action;
                         windowActionCollection->action(action)->setEnabled(false);
                         disabledGlobalActions << action;
                     }
                 }
-                //qDebug() << k << shortcutMap[k];
             }
         }
 
-        windowActionCollection->readSettings(); // The shortcuts might have been configured in the meantime.
+        windowActionCollection->readSettings();
     }
 
     void deactivateToolActions()
@@ -159,35 +145,29 @@ public:
         if (!activeTool)
             return;
 
-        //qDebug() << "............... deactivating previous tool because activating" << activeToolId;
-
         KisKActionCollection *windowActionCollection = canvas->actionCollection();
 
         Q_FOREACH(const QString &action, toolActions) {
-            //qDebug() << "disabling" << action;
             windowActionCollection->action(action)->setDisabled(true);
         }
         Q_FOREACH(const QString &action, disabledGlobalActions) {
-            //qDebug() << "enabling" << action;
             windowActionCollection->action(action)->setEnabled(true);
         }
     }
 
-    KoToolBase *activeTool;     // active Tool
-    QString activeToolId;   // the id of the active Tool
-    QString activationShapeId; // the shape-type (KoShape::shapeId()) the activeTool 'belongs' to.
-    QHash<QString, KoToolBase*> allTools; // all the tools that are created for this canvas.
-    QList<KoToolBase*> mostRecentTools; // ordered unique list of tools starting from the most recently used, except for the active tool.
+    KoToolBase *activeTool;
+    QString activeToolId;
+    QString activationShapeId;
+    QHash<QString, KoToolBase*> allTools;
+    QList<KoToolBase*> mostRecentTools;
     KoCanvasController *const canvas;
     const KoInputDevice inputDevice;
-    QWidget *dummyToolWidget;  // the widget shown in the toolDocker.
+    QWidget *dummyToolWidget;
     QLabel *dummyToolLabel;
     QStringList toolActions;
     QStringList disabledGlobalActions;
 };
 
-
-// ******** KoToolManager **********
 KoToolManager::KoToolManager()
     : QObject(),
       d(new Private(this))
@@ -291,7 +271,6 @@ QString KoToolManager::preferredToolForSelection(const QList<KoShape*> &shapes)
     Q_FOREACH (KoShape *shape, shapes) {
         shapeTypes << shape->shapeId();
     }
-    //KritaUtils::makeContainerUnique(types);
 
     QString toolType = KoInteractionTool_ID;
     int prio = INT_MAX;
@@ -319,7 +298,6 @@ void KoToolManager::initializeCurrentToolForCanvas()
 {
     KIS_ASSERT_RECOVER_RETURN(d->canvasData);
 
-    // make a full reconnect cycle for the currently active tool
     d->disconnectActiveTool();
     d->connectActiveTool();
     d->postSwitchTool();
@@ -357,14 +335,10 @@ void KoToolManager::setAbstractResource(KoAbstractCanvasResourceInterfaceSP abst
     tool->setAbstractResource(abstractResource);
 }
 
-
 KoToolManager::Private *KoToolManager::priv()
 {
     return d;
 }
-
-
-/**** KoToolManager::Private ****/
 
 KoToolManager::Private::Private(KoToolManager *qq)
     : q(qq),
@@ -378,13 +352,12 @@ KoToolManager::Private::~Private()
     qDeleteAll(toolActionList);
 }
 
-// helper method.
 CanvasData *KoToolManager::Private::createCanvasData(KoCanvasController *controller, const KoInputDevice &device)
 {
     QHash<QString, KoToolBase*> toolsHash;
     Q_FOREACH (KoToolAction *toolAction, toolActionList) {
         KoToolBase* tool = createTool(controller, toolAction);
-        if (tool) { // only if a real tool was created
+        if (tool) {
             toolsHash.insert(tool->toolId(), tool);
             Q_EMIT q->createOpacityResource(tool->isOpacityPresetMode(), tool);
         }
@@ -462,11 +435,8 @@ void KoToolManager::Private::connectActiveTool()
         }
     }
 
-    // we expect the tool to Q_EMIT a cursor on activation.
     updateCursor(Qt::BlankCursor);
 }
-
-
 
 void KoToolManager::Private::disconnectActiveTool()
 {
@@ -487,8 +457,6 @@ void KoToolManager::Private::disconnectActiveTool()
         }
 
         canvasData->deactivateToolActions();
-        // repaint the decorations before we deactivate the tool as it might deleted
-        // data needed for the repaint
         Q_EMIT q->aboutToChangeTool(canvasData->canvas);
         canvasData->activeTool->deactivate();
         disconnect(canvasData->activeTool, SIGNAL(cursorChanged(QCursor)),
@@ -501,7 +469,6 @@ void KoToolManager::Private::disconnectActiveTool()
                    q, SIGNAL(textModeChanged(bool)));
     }
 
-    // Q_EMIT a empty status text to clear status text from last active tool
     Q_EMIT q->changedStatusText(QString());
 }
 
@@ -564,31 +531,20 @@ void KoToolManager::Private::postSwitchTool()
     }
 
     if (canvasData->canvas->canvas()) {
-        // Caller of postSwitchTool expect this to be called to update the selected tool
         updateToolForProxy();
 
-        // Activate the actions for the currently active tool
-        //
-        // We should do that **before** calling tool->activate(),
-        // because the tool may have its own logic on activation
-        // of the actions.
         canvasData->activateToolActions();
 
         canvasData->activeTool->activate(shapesToOperateOn);
     } else {
 
-        // Activate the actions for the currently active tool
-        //
-        // We should do that **before** calling tool->activate(),
-        // because the tool may have its own logic on activation
-        // of the actions.
         canvasData->activateToolActions();
 
         canvasData->activeTool->activate(shapesToOperateOn);
     }
 
     QList<QPointer<QWidget> > optionWidgetList = canvasData->activeTool->optionWidgets();
-    if (optionWidgetList.empty()) { // no option widget.
+    if (optionWidgetList.empty()) {
         QWidget *toolWidget;
         QString title = canvasData->activeTool->factory()->toolTip();
         toolWidget = canvasData->dummyToolWidget;
@@ -602,19 +558,15 @@ void KoToolManager::Private::postSwitchTool()
             layout->addItem(new QSpacerItem(1, 1, QSizePolicy::Minimum, QSizePolicy::Expanding));
             canvasData->dummyToolWidget = toolWidget;
         }
-        // canvasData->dummyToolLabel->setText(i18n("Active tool: %1", title));
-        // Krimble: the tool name is already the first line of Tool Options (Krimble Type showed its name twice)
         Q_UNUSED(title);
         canvasData->dummyToolLabel->setText(i18n("No options"));
         optionWidgetList.append(toolWidget);
     }
 
-
     Q_EMIT q->changedTool(canvasData->canvas);
 
     Q_EMIT q->toolOptionWidgetsChanged(canvasData->canvas, optionWidgetList);
 }
-
 
 void KoToolManager::Private::switchCanvasData(CanvasData *cd)
 {
@@ -639,10 +591,6 @@ void KoToolManager::Private::switchCanvasData(CanvasData *cd)
     canvasData = cd;
     inputDevice = canvasData->inputDevice;
 
-    // Krimble 2026-11-22: one tool for the whole program. Krita keeps a tool per image, so going to another image (or coming back from the
-    // file picker, which can activate another image for a moment) brought that image's old tool back, and it was then remembered as "the
-    // tool in use": new images opened with the Healing Brush (George: "This is a major bug."). An image that becomes active now takes
-    // the tool the user chose last.
     if (canvasData->activeTool) {
         const QString krimbleWanted = qApp->property("krimbleLastToolId").toString();
         if (!krimbleWanted.isEmpty() && canvasData->activeToolId != krimbleWanted) {
@@ -673,13 +621,10 @@ void KoToolManager::Private::switchCanvasData(CanvasData *cd)
 void KoToolManager::Private::detachCanvas(KoCanvasController *controller)
 {
     Q_ASSERT(controller);
-    // check if we are removing the active canvas controller
     if (canvasData && canvasData->canvas == controller) {
         KoCanvasController *newCanvas = 0;
-        // try to find another canvas controller beside the one we are removing
         Q_FOREACH (KoCanvasController* canvas, canvasses.keys()) {
             if (canvas != controller) {
-                // yay found one
                 newCanvas = canvas;
                 break;
             }
@@ -689,7 +634,6 @@ void KoToolManager::Private::detachCanvas(KoCanvasController *controller)
         } else {
             disconnectActiveTool();
             Q_EMIT q->toolOptionWidgetsChanged(controller, QList<QPointer<QWidget> >());
-            // as a last resort just set a blank one
             canvasData = 0;
         }
     }
@@ -719,7 +663,6 @@ void KoToolManager::Private::attachCanvas(KoCanvasController *controller)
     Q_ASSERT(controller);
     CanvasData *cd = createCanvasData(controller, KoInputDevice::mouse());
 
-    // switch to new canvas as the active one.
     switchCanvasData(cd);
 
     inputDevice = cd->inputDevice;
@@ -732,10 +675,8 @@ void KoToolManager::Private::attachCanvas(KoCanvasController *controller)
         tp->priv()->setCanvasController(controller);
 
     if (cd->activeTool == 0) {
-        // no active tool, so we activate the highest priority main tool
         int highestPriority = INT_MAX;
         KoToolAction * helper = 0;
-        // Krimble: a new image keeps the tool the user has selected; Pan only when there is none yet (program launch)
         const QString krimbleLastTool = qApp->property("krimbleLastToolId").toString();
         if (!krimbleLastTool.isEmpty()) {
             Q_FOREACH (KoToolAction * th, toolActionList) {
@@ -772,21 +713,14 @@ void KoToolManager::Private::attachCanvas(KoCanvasController *controller)
 void KoToolManager::Private::movedFocus(QWidget *from, QWidget *to)
 {
     Q_UNUSED(from);
-    // no canvas anyway or no focus set anyway?
     if (!canvasData || to == 0) {
         return;
     }
 
-    // focus returned to current canvas?
     if (to == canvasData->canvas->canvas()->canvasWidget()) {
-        // nothing to do
         return;
     }
 
-    // if the 'to' is one of our canvasWidgets, then switch.
-
-    // for code simplicity the current canvas will be checked again,
-    // but would have been caught already in the lines above, so no issue
     KoCanvasController *newCanvas = 0;
     Q_FOREACH (KoCanvasController* canvas, canvasses.keys()) {
         if (canvas->canvas()->canvasWidget() == to) {
@@ -795,19 +729,16 @@ void KoToolManager::Private::movedFocus(QWidget *from, QWidget *to)
         }
     }
 
-    // none of our canvasWidgets got focus?
     if (newCanvas == 0) {
         return;
     }
 
-    // switch to canvasdata matching inputdevice used last with this app instance
     Q_FOREACH (CanvasData *data, canvasses.value(newCanvas)) {
         if (data->inputDevice == inputDevice) {
             switchCanvasData(data);
             return;
         }
     }
-    // if no such inputDevice for this canvas, then simply fallback to first one
     switchCanvasData(canvasses.value(newCanvas).first());
 }
 
@@ -824,7 +755,7 @@ void KoToolManager::Private::selectionChanged(const QList<KoShape*> &shapes)
     QList<QString> types;
     Q_FOREACH (KoShape *shape, shapes) {
         QSet<KoShape*> delegates = shape->toolDelegates();
-        if (delegates.isEmpty()) { // no delegates, just the orig shape
+        if (delegates.isEmpty()) {
             delegates << shape;
         }
 
@@ -835,11 +766,6 @@ void KoToolManager::Private::selectionChanged(const QList<KoShape*> &shapes)
             }
         }
     }
-
-    // check if there is still a shape selected the active tool can work on
-    // there needs to be at least one shape for a tool without an activationShapeId
-    // to work
-    // if not change the current tool to the default tool
 
     const QStringList activationShapeIds = canvasData->activationShapeId.split(',');
 
@@ -887,16 +813,11 @@ void KoToolManager::Private::switchInputDevice(const KoInputDevice &device)
     if (inputDevice == device) return;
     if (inputDevice.isMouse() && device.isMouse()) return;
     if (device.isMouse() && !inputDevice.isMouse()) {
-        // we never switch back to mouse from a tablet input device, so the user can use the
-        // mouse to edit the settings for a tool activated by a tablet. See bugs
-        // https://bugs.kde.org/show_bug.cgi?id=283130 and https://bugs.kde.org/show_bug.cgi?id=285501.
-        // We do continue to switch between tablet devices, thought.
         return;
     }
 
     QList<CanvasData*> items = canvasses[canvasData->canvas];
 
-    // search for a canvasdata object for the current input device
     Q_FOREACH (CanvasData *cd, items) {
         if (cd->inputDevice == device) {
             switchCanvasData(cd);
@@ -909,9 +830,7 @@ void KoToolManager::Private::switchInputDevice(const KoInputDevice &device)
         }
     }
 
-    // still here?  That means we need to create a new CanvasData instance with the current InputDevice.
     CanvasData *cd = createCanvasData(canvasData->canvas, device);
-    // switch to new canvas as the active one.
     QString oldTool = canvasData->activeToolId;
 
     items.append(cd);
@@ -933,5 +852,4 @@ void KoToolManager::Private::registerToolProxy(KoToolProxy *proxy, KoCanvasBase 
     }
 }
 
-//have to include this because of Q_PRIVATE_SLOT
 #include "moc_KoToolManager.cpp"

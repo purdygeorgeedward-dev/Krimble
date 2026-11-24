@@ -18,7 +18,6 @@ enum enumSepAlphaOptions {
     CREATE_ALPHA_SEPARATION = 2
 };
 
-
 enum enumSepSource {
     CURRENT_LAYER = 0,
     ALL_LAYERS = 1,

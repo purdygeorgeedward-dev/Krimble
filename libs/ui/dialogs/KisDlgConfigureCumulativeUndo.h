@@ -31,4 +31,4 @@ private:
     QScopedPointer<Private> m_d;
 };
 
-#endif // DLGCONFIGURECUMULATIVEUNDO_H
+#endif

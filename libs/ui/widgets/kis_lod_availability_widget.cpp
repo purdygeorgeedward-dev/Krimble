@@ -11,7 +11,6 @@
 #include <QHBoxLayout>
 #include <QToolTip>
 
-
 #include <kis_canvas_resource_provider.h>
 #include <kis_slider_spin_box.h>
 #include "kis_image_config.h"
@@ -22,12 +21,7 @@
 
 #include "kis_signals_blocker.h"
 
-
 namespace {
-/**
- * These strings are added intentionally so we could relayout the threshold slider after
- * the string freeze for 4.0. Please translate them :)
- */
 static const KLocalizedString stringForInstantPreviewThreshold1 = ki18nc("@label:slider", "Threshold:");
 static const KLocalizedString stringForInstantPreviewThreshold2 = ki18nc("@label:slider", "Instant preview threshold:");
 }
@@ -167,7 +161,6 @@ void KisLodAvailabilityWidget::slotLodAvailabilityStateChanged(KisLodAvailabilit
     const QString text = state == KisLodAvailabilityModel::Limited ?
         i18n("(Instant Preview)*") : i18n("Instant Preview");
 
-
     {
         QFont font;
         font.setStrikeOut(state >= KisLodAvailabilityModel::BlockedByThreshold);
@@ -178,10 +171,6 @@ void KisLodAvailabilityWidget::slotLodAvailabilityStateChanged(KisLodAvailabilit
         m_d->btnLod->setToolTip(toolTip);
 
         if (state == KisLodAvailabilityModel::BlockedFully) {
-            /**
-             * If LoD is really blocked by some limitation we sneakily reset
-             * the checkbox to let the user know it is fully disabled.
-             */
 
             KisSignalsBlocker b(m_d->chkLod);
             m_d->chkLod->setChecked(false);

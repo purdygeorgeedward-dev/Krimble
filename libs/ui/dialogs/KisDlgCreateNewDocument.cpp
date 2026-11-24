@@ -16,7 +16,6 @@
 #include <QGuiApplication>
 #include <QScreen>
 
-
 KisDlgCreateNewDocument::KisDlgCreateNewDocument(QWidget* parent)
     : KisOpenPane(parent, KisImportExportManager::supportedMimeTypes(KisImportExportManager::Import), QStringLiteral("templates/"))
 {
@@ -29,7 +28,6 @@ KisDlgCreateNewDocument::KisDlgCreateNewDocument(QWidget* parent)
     int h = cfg.defImageHeight();
 #ifdef Q_OS_ANDROID
     {
-        // the first New of each run: the size of the phone's screen in real pixels, the way the phone is held; after that the last size used
         static bool krimbleFirstNewThisRun = true;
         if (krimbleFirstNewThisRun) {
             krimbleFirstNewThisRun = false;
@@ -59,18 +57,15 @@ KisDlgCreateNewDocument::KisDlgCreateNewDocument(QWidget* parent)
 
     KisCustomImageWidget *krimbleCustomPage = new KisCustomImageWidget(this, w, h, resolution, colorModel, colorDepth, colorProfile, i18n("Unnamed"));
     addCustomDocumentWidget(
-        // new KisCustomImageWidget(this, w, h, resolution, colorModel, colorDepth, colorProfile, i18n("Unnamed")),
         krimbleCustomPage,
         i18n("Custom Document"),
         "Custom Document",
-        // "document-new");
         "krimble-new-document");
 
    addCustomDocumentWidget(
         new KisImageFromClipboardWidget(this, 0, 0, resolution, colorModel, colorDepth, colorProfile, i18n("Unnamed")),
         i18n("Create from Clipboard"),
         "Create from ClipBoard",
-        // "tab-new");
         "krimble-new-from-clipboard");
 
     connect(this, SIGNAL(documentSelected(KisDocument*)), KisPart::instance(), SLOT(startCustomDocument(KisDocument*)));

@@ -89,21 +89,17 @@ bool KisTranslateLayerNamesVisitor::visit(KisGroupLayer *layer) {
     return translate(layer);
 }
 
-
 bool KisTranslateLayerNamesVisitor::visit(KisAdjustmentLayer *layer) {
     return translate(layer);
 }
-
 
 bool KisTranslateLayerNamesVisitor::visit(KisExternalLayer *layer) {
     return translate(layer);
 }
 
-
 bool KisTranslateLayerNamesVisitor::visit(KisCloneLayer *layer) {
     return translate(layer);
 }
-
 
 bool KisTranslateLayerNamesVisitor::visit(KisFilterMask *mask) {
     return translate(mask);
@@ -116,7 +112,6 @@ bool KisTranslateLayerNamesVisitor::visit(KisTransformMask *mask) {
 bool KisTranslateLayerNamesVisitor::visit(KisTransparencyMask *mask) {
     return translate(mask);
 }
-
 
 bool KisTranslateLayerNamesVisitor::visit(KisGeneratorLayer * layer) {
     return translate(layer);

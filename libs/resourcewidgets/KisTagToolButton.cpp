@@ -148,4 +148,3 @@ void KisTagToolButton::onTagUndeleteClicked()
     Q_EMIT undeletionOfTagRequested(d->undeleteCandidate);
 }
 
-

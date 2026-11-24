@@ -13,7 +13,6 @@
 #include <KoCanvasObserverBase.h>
 #include <kis_canvas2.h>
 
-
 class BrushHudDock : public QDockWidget, public KoCanvasObserverBase {
     Q_OBJECT
 public:
@@ -25,6 +24,5 @@ private:
     QPointer<KisCanvas2> m_canvas;
     KisBrushHud* m_brushHud;
 };
-
 
 #endif

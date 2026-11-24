@@ -26,23 +26,11 @@ public:
 
     QList<KoMarker*> markers() const;
 
-    /**
-     * Add marker to collection
-     *
-     * The collection checks if a marker with the same content exists and if so deletes the
-     * passed marker and returns a pointer to an existing marker. If no such marker exists it
-     * adds the marker and return the same pointer as passed.
-     * Calling that function passes ownership of the marker to this class.
-     *
-     * @param marker Marker to add
-     * @return pointer to marker that should be used. This might be different to the marker passed
-     */
     KoMarker * addMarker(KoMarker *marker);
 
     void loadMarkersFromFile(const QString &svgFile);
 
 private:
-    /// load the markers that are available per default.
     void loadDefaultMarkers();
 
     class Private;
@@ -51,4 +39,4 @@ private:
 
 Q_DECLARE_METATYPE(KoMarkerCollection *)
 
-#endif /* KOMARKERCOLLECTION_H */
+#endif

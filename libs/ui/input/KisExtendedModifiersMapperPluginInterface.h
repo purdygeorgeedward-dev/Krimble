@@ -12,7 +12,6 @@
 #include <QObject>
 #include <QVector>
 
-
 class KRITAUI_EXPORT KisExtendedModifiersMapperPluginInterface : public QObject
 {
     Q_OBJECT
@@ -25,4 +24,4 @@ public:
     virtual ExtendedModifiers queryExtendedModifiers() = 0;
 };
 
-#endif /* __KIS_EXTENDED_MODIFIERS_MAPPER_PLUGIN_INTERFACE_H */
+#endif

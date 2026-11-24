@@ -54,7 +54,6 @@ KisMyPaintSurface::KisMyPaintSurface(KisPainter *painter, KisPaintDeviceSP paint
     m_surface->destroy = destroy_internal_surface_callback;
     m_surface->bitDepth = m_precisePainterWrapper.overlayColorSpace()->channels()[0]->channelValueType();
 
-    // devices for mask information
     static const KoColorSpace *maskCs = KoColorSpaceRegistry::instance()->alpha8();
     m_maskDevice = KisFixedPaintDeviceSP(new KisFixedPaintDevice(maskCs));
 }
@@ -114,8 +113,6 @@ void KisMyPaintSurface::get_color(MyPaintSurface *self, float x, float y, float 
     }
 }
 
-
-/*GIMP's draw_dab and get_color code*/
 template <typename channelType>
 int KisMyPaintSurface::drawDabImpl(MyPaintSurface *self, float x, float y, float radius, float color_r, float color_g,
                                 float color_b, float opaque, float hardness, float color_a,
@@ -155,25 +152,19 @@ int KisMyPaintSurface::drawDabImpl(MyPaintSurface *self, float x, float y, float
     m_tempPainter->copyAreaOptimized(dabRectAligned.topLeft(), m_tempPainter->device(), m_dab, dabRectAligned);
     KisSequentialIterator it(m_dab, dabRectAligned);
 
-    quint8 maskUnitValue = KoColorSpaceMathsTraits<quint8>::unitValue; // because it's alpha8
+    quint8 maskUnitValue = KoColorSpaceMathsTraits<quint8>::unitValue;
 
     float unitValue = KoColorSpaceMathsTraits<channelType>::unitValue;
     float minValue = KoColorSpaceMathsTraits<channelType>::min;
     bool eraser = painter()->compositeOpId() == COMPOSITE_ERASE;
 
-
     m_maskDevice->setRect(dabRectAligned);
     m_maskDevice->lazyGrowBufferWithoutInitialization();
 
-
-    // Dmitry says that going with the pointer should be in the same order
-    // as using the sequential iterator
     quint8* maskPointer = m_maskDevice->data();
-
 
     while(it.nextPixel()) {
 
-        // first initialize to 0;
         *maskPointer = 0;
 
         QPoint pt(it.x(), it.y());
@@ -197,7 +188,6 @@ int KisMyPaintSurface::drawDabImpl(MyPaintSurface *self, float x, float y, float
         m_tempPainter->selection();
         alpha = base_alpha * normal_mode;
 
-        // set alpha to mask
         if (alpha > minValue) {
             *maskPointer = (quint8)(maskUnitValue);
         }
@@ -266,7 +256,6 @@ int KisMyPaintSurface::drawDabImpl(MyPaintSurface *self, float x, float y, float
         maskPointer++;
     }
 
-
     m_tempPainter->bitBltWithFixedSelection(dabRectAligned.x(), dabRectAligned.y(), m_dab, m_maskDevice, dabRectAligned.x(), dabRectAligned.y(), dabRectAligned.x(), dabRectAligned.y(), dabRectAligned.width(), dabRectAligned.height());
     m_tempPainter->renderMirrorMask(dabRectAligned, m_dab, dabRectAligned.x(), dabRectAligned.y(), m_maskDevice);
     const QVector<QRect> dirtyRects = m_tempPainter->takeDirtyRegion();
@@ -290,7 +279,6 @@ void KisMyPaintSurface::getColorImpl(MyPaintSurface *self, float x, float y, flo
     const QPoint pt = QPoint(x - radius, y - radius);
     const QSize sz = QSize(2 * radius, 2 * radius);
 
-
     const QRect dabRectAligned = QRect(pt, sz);
     const QPointF center = QPointF(x, y);
     KisAlgebra2D::OuterCircle outer(center, radius);
@@ -301,11 +289,9 @@ void KisMyPaintSurface::getColorImpl(MyPaintSurface *self, float x, float y, flo
     m_precisePainterWrapper.readRect(dabRectAligned);
     KisPaintDeviceSP activeDev = m_precisePainterWrapper.overlay();
     if(m_image) {
-        //m_image->blockUpdates();
         m_backgroundPainter->device()->clear();
         m_backgroundPainter->bitBlt(dabRectAligned.topLeft(), activeDev, dabRectAligned);
         activeDev = m_backgroundPainter->device();
-        //m_image->unblockUpdates();
     } else if (m_imageDevice) {
         m_backgroundPainter->bitBlt(dabRectAligned.topLeft(), m_imageDevice, dabRectAligned);
         activeDev = m_backgroundPainter->device();
@@ -322,7 +308,6 @@ void KisMyPaintSurface::getColorImpl(MyPaintSurface *self, float x, float y, flo
     m_blendDevice->setRect(dabRectAligned);
     m_blendDevice->lazyGrowBufferWithoutInitialization();
 
-
     qint16* weights = new qint16[size];
     quint32 num_colors = 0;
 
@@ -334,7 +319,6 @@ void KisMyPaintSurface::getColorImpl(MyPaintSurface *self, float x, float y, flo
 
         float rr = 0.0;
         if(outer.fadeSq(pt) <= 1.0) {
-            /* pixel_weight == a standard dab with hardness = 0.5, aspect_ratio = 1.0, and angle = 0.0 */
             float yy = (it.y() + 0.5f - y);
             float xx = (it.x() + 0.5f - x);
 
@@ -381,7 +365,6 @@ MyPaintSurface* KisMyPaintSurface::surface() {
     return m_surface;
 }
 
-/*mypaint code*/
 qreal KisMyPaintSurface::calculateOpacity(float angle, float hardness, float opaque, float x, float y,
                                         float xp, float yp, float aspect_ratio, float radius) {
 
@@ -420,7 +403,6 @@ inline float KisMyPaintSurface::calculate_rr (int  xp,
     const float yyr=(yy*cs-xx*sn)*aspect_ratio;
     const float xxr=yy*sn+xx*cs;
     const float rr = (yyr*yyr + xxr*xxr) * one_over_radius2;
-    /* rr is in range 0.0..1.0*sqrt(2) */
     return rr;
 }
 
@@ -449,22 +431,10 @@ closest_point_to_line (float  lx, float  ly, float  px, float  py, float *ox, fl
     *oy = ly * t;
 }
 
-
-/* This works by taking the visibility at the nearest point
- * and dividing by 1.0 + delta.
- *
- * - nearest point: point where the dab has more influence
- * - farthest point: point at a fixed distance away from
- *                   the nearest point
- * - delta: how much occluded is the farthest point relative
- *          to the nearest point
- */
 inline float KisMyPaintSurface::calculate_rr_antialiased (int  xp, int  yp, float x, float y,
                           float aspect_ratio, float sn, float cs, float one_over_radius2,
                           float r_aa_start) {
 
-    /* calculate pixel position and borders in a way
-     * that the dab's center is always at zero */
     float pixel_right = x - (float)xp;
     float pixel_bottom = y - (float)yp;
     float pixel_center_x = pixel_right - 0.5f;
@@ -472,12 +442,11 @@ inline float KisMyPaintSurface::calculate_rr_antialiased (int  xp, int  yp, floa
     float pixel_left = pixel_right - 1.0f;
     float pixel_top = pixel_bottom - 1.0f;
 
-    float nearest_x, nearest_y; /* nearest to origin, but still inside pixel */
-    float farthest_x, farthest_y; /* farthest from origin, but still inside pixel */
+    float nearest_x, nearest_y;
+    float farthest_x, farthest_y;
     float r_near, r_far, rr_near, rr_far;
     float center_sign, rad_area_1, visibilityNear, delta, delta2;
 
-    /* Dab's center is inside pixel? */
     if( pixel_left<0 && pixel_right>0 &&
         pixel_top<0 && pixel_bottom>0 )
     {
@@ -490,35 +459,22 @@ inline float KisMyPaintSurface::calculate_rr_antialiased (int  xp, int  yp, floa
         closest_point_to_line( cs, sn, pixel_center_x, pixel_center_y, &nearest_x, &nearest_y );
         nearest_x = CLAMP( nearest_x, pixel_left, pixel_right );
         nearest_y = CLAMP( nearest_y, pixel_top, pixel_bottom );
-        /* XXX: precision of "nearest" values could be improved
-         * by intersecting the line that goes from nearest_x/Y to 0
-         * with the pixel's borders here, however the improvements
-         * would probably not justify the performance cost.
-         */
         r_near = calculate_r_sample( nearest_x, nearest_y, aspect_ratio, sn, cs );
         rr_near = r_near * one_over_radius2;
     }
 
-    /* out of dab's reach? */
     if( rr_near > 1.0f )
         return rr_near;
 
-    /* check on which side of the dab's line is the pixel center */
     center_sign = sign_point_in_line( pixel_center_x, pixel_center_y, cs, -sn );
 
-    /* radius of a circle with area=1
-     *   A = pi * r * r
-     *   r = sqrt(1/pi)
-     */
     rad_area_1 = sqrtf( 1.0f / M_PI );
 
-    /* center is below dab */
     if( center_sign < 0 )
     {
         farthest_x = nearest_x - sn*rad_area_1;
         farthest_y = nearest_y + cs*rad_area_1;
     }
-    /* above dab */
     else
     {
         farthest_x = nearest_x + sn*rad_area_1;
@@ -528,11 +484,9 @@ inline float KisMyPaintSurface::calculate_rr_antialiased (int  xp, int  yp, floa
     r_far = calculate_r_sample( farthest_x, farthest_y, aspect_ratio, sn, cs );
     rr_far = r_far * one_over_radius2;
 
-    /* check if we can skip heavier AA */
     if( r_far < r_aa_start )
         return (rr_far+rr_near) * 0.5f;
 
-    /* calculate AA approximate */
     visibilityNear = 1.0f - rr_near;
     delta = rr_far - rr_near;
     delta2 = 1.0f + delta;
@@ -540,7 +494,6 @@ inline float KisMyPaintSurface::calculate_rr_antialiased (int  xp, int  yp, floa
 
     return 1.0f - visibilityNear;
 }
-/* -- end mypaint code */
 
 inline float KisMyPaintSurface::calculate_alpha_for_rr (float rr, float hardness, float slope1, float slope2) {
 

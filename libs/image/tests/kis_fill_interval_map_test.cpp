@@ -22,7 +22,6 @@ void KisFillIntervalMapTest::test()
 
     KisFillIntervalMap map;
 
-    // 0..10, 20..30, 40..50, ...
     for (int i = 0; i < 100; i += 20) {
         map.insertInterval(KisFillInterval(i, i + 10, row));
     }

@@ -20,9 +20,6 @@
 #define PYKRITA_INIT PyInit_pykrita
 #endif
 
-/**
- * Initializer for the built-in Python module.
- */
 PyMODINIT_FUNC PYKRITA_INIT();
 
 #endif

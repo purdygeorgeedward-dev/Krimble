@@ -16,7 +16,6 @@
 #include <QRunnable>
 #endif
 
-
 class KisMainWindow;
 struct RecorderExportSettings;
 

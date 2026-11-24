@@ -37,13 +37,6 @@
 
 #define HUGE_IMAGE_SIZE 8000
 
-/**
- * This benchmark runs a series of huge strokes on a canvas with a
- * particular configuration of the swapper/pooler and history
- * management. After the test is done you can visualize the results
- * with the GNU Octave. Please use kis_low_memory_show_report.m file
- * for that.
- */
 void KisLowMemoryBenchmark::benchmarkWideArea(const QString presetFileName,
                                               const QRectF &rect, qreal vstep,
                                               int numCycles,
@@ -56,10 +49,6 @@ void KisLowMemoryBenchmark::benchmarkWideArea(const QString presetFileName,
     KisPaintOpPresetSP preset(new KisPaintOpPreset(QString(FILES_DATA_DIR) + '/' + presetFileName));
     LOAD_PRESET_OR_RETURN(preset, presetFileName);
 
-
-    /**
-     * Initialize image and painter
-     */
     const KoColorSpace *colorSpace = KoColorSpaceRegistry::instance()->rgb8();
     KisImageSP image = new KisImage(0, HUGE_IMAGE_SIZE, HUGE_IMAGE_SIZE, colorSpace, "stroke sample image");
     KisLayerSP layer = new KisPaintLayer(image, "temporary for stroke sample", OPACITY_OPAQUE_U8, colorSpace);
@@ -73,14 +62,8 @@ void KisLowMemoryBenchmark::benchmarkWideArea(const QString presetFileName,
     painter->setPaintColor(KoColor(Qt::black, colorSpace));
     painter->setPaintOpPreset(preset, layer, image);
 
-    /**
-     * A simple adapter that will store all the transactions for us
-     */
     KisSurrogateUndoAdapter undoAdapter;
 
-    /**
-     * Reset configuration to the desired settings
-     */
     KisImageConfig config(false);
     qreal oldHardLimit = config.memoryHardLimitPercent();
     qreal oldSoftLimit = config.memorySoftLimitPercent();
@@ -93,9 +76,6 @@ void KisLowMemoryBenchmark::benchmarkWideArea(const QString presetFileName,
 
     KisTileDataStore::instance()->testingRereadConfig();
 
-    /**
-     * Create an empty the log file
-     */
     QString fileName;
     fileName = QString("log_%1_%2_%3_%4_%5.txt")
         .arg(createTransaction)
@@ -110,10 +90,6 @@ void KisLowMemoryBenchmark::benchmarkWideArea(const QString presetFileName,
     KisPortingUtils::setUtf8OnStream(logStream);
     logStream.setFieldWidth(10);
     logStream.setFieldAlignment(QTextStream::AlignRight);
-
-    /**
-     * Start painting on the image
-     */
 
     QElapsedTimer cycleTime;
     QElapsedTimer lineTime;
@@ -154,7 +130,6 @@ void KisLowMemoryBenchmark::benchmarkWideArea(const QString presetFileName,
             painter->endTransaction(&undoAdapter);
         }
 
-        // comment/uncomment to emulate user waiting after the stroke
         QTest::qSleep(1000);
 
         logStream << "C 2" << i << cycleTime.elapsed()
@@ -176,7 +151,6 @@ void KisLowMemoryBenchmark::benchmarkWideArea(const QString presetFileName,
 void KisLowMemoryBenchmark::unlimitedMemoryNoHistoryNoPool()
 {
     QString presetFileName = "autobrush_300px.kpp";
-    // one cycle takes about 48 MiB of memory (total 960 MiB)
     QRectF rect(150,150,4000,4000);
     qreal step = 250;
     int numCycles = 20;
@@ -188,7 +162,6 @@ void KisLowMemoryBenchmark::unlimitedMemoryNoHistoryNoPool()
 void KisLowMemoryBenchmark::unlimitedMemoryHistoryNoPool()
 {
     QString presetFileName = "autobrush_300px.kpp";
-    // one cycle takes about 48 MiB of memory (total 960 MiB)
     QRectF rect(150,150,4000,4000);
     qreal step = 250;
     int numCycles = 20;
@@ -200,7 +173,6 @@ void KisLowMemoryBenchmark::unlimitedMemoryHistoryNoPool()
 void KisLowMemoryBenchmark::unlimitedMemoryHistoryPool50()
 {
     QString presetFileName = "autobrush_300px.kpp";
-    // one cycle takes about 48 MiB of memory (total 960 MiB)
     QRectF rect(150,150,4000,4000);
     qreal step = 250;
     int numCycles = 20;
@@ -212,7 +184,6 @@ void KisLowMemoryBenchmark::unlimitedMemoryHistoryPool50()
 void KisLowMemoryBenchmark::memory2000History100Pool500HugeBrush()
 {
     QString presetFileName = "BIG_TESTING.kpp";
-    // one cycle takes about 316 MiB of memory (total 3+ GiB)
     QRectF rect(150,150,7850,7850);
     qreal step = 250;
     int numCycles = 10;

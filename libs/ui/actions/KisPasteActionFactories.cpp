@@ -93,8 +93,6 @@ bool tryPasteShapes(KisPasteActionFactory::Flags flags, KisViewManager *view)
             KoShapeManager *shapeManager = canvas->shapeManager();
             shapeManager->selection()->deselectAll();
 
-            // adjust z-index of the shapes so that they would be
-            // pasted on the top of the stack
             QList<KoShape*> topLevelShapes = shapeManager->topLevelShapes();
             auto it = std::max_element(topLevelShapes.constBegin(), topLevelShapes.constEnd(), KoShape::compareShapeZIndex);
             if (it != topLevelShapes.constEnd()) {
@@ -130,7 +128,6 @@ bool tryPasteShapes(KisPasteActionFactory::Flags flags, KisViewManager *view)
 
             QPointF finalShapesOffset;
 
-
             if (flags.testFlag(KisPasteActionFactory::PasteAtCursor)) {
                 QRectF boundingRect = KoShape::boundingRect(shapes);
                 const QPointF cursorPos = canvas->canvasController()->currentCursorPosition();
@@ -152,8 +149,6 @@ bool tryPasteShapes(KisPasteActionFactory::Flags flags, KisViewManager *view)
                     do {
                         hasOverlappingShape = false;
 
-                        // we cannot use shapesAt() here, because the groups are not
-                        // handled in the shape manager's tree
                         QList<KoShape*> conflicts = shapeManager->shapes();
 
                         Q_FOREACH (KoShape *intersectedShape, conflicts) {
@@ -161,7 +156,7 @@ bool tryPasteShapes(KisPasteActionFactory::Flags flags, KisViewManager *view)
 
                             QRectF br2 = intersectedShape->boundingRect();
 
-                            const qreal tolerance = 2.0; /* pt */
+                            const qreal tolerance = 2.0;
                             if (KisAlgebra2D::fuzzyCompareRects(br1, br2, tolerance)) {
                                 br1.translate(offsetStep.x(), offsetStep.y());
                                 offset += offsetStep;
@@ -215,13 +210,10 @@ void KisPasteActionFactory::run(Flags flags, KisViewManager *view)
 
     const QPointF docPos = view->canvasBase()->canvasController()->currentCursorPosition();
 
-    // Activate the current tool's paste functionality
     if (view->canvasBase()->toolProxy()->paste()) {
-        // XXX: "Add saving of XML data for Paste of shapes"
         return;
     }
 
-    // Paste shapes
     if (tryPasteShapes(flags, view)) {
         return;
     }
@@ -229,7 +221,6 @@ void KisPasteActionFactory::run(Flags flags, KisViewManager *view)
     const QRect fittingBounds =
         pasteAtCursorPosition ? QRect() : image->bounds();
 
-    // If no shapes, check for layers
     if (KisClipboard::instance()->hasLayers()) {
         const QPointF offsetTopLeft = [&]() -> QPointF {
             KisPaintDeviceSP clip =
@@ -241,7 +232,6 @@ void KisPasteActionFactory::run(Flags flags, KisViewManager *view)
                 return {};
             }
 
-
             QPointF imagePos;
             if (pasteAtCursorPosition) {
                 imagePos =
@@ -249,7 +239,6 @@ void KisPasteActionFactory::run(Flags flags, KisViewManager *view)
                         docPos);
 
             } else if (!clip->exactBounds().intersects(image->bounds())) {
-                 // BUG:459111
                 pasteAtCursorPosition = true;
                 imagePos = QPointF(image->bounds().center());
             } else {
@@ -260,10 +249,7 @@ void KisPasteActionFactory::run(Flags flags, KisViewManager *view)
             return offset;
         }();
 
-
         if (view->selection()) {
-            /// TODO: we are relying on a sticky translated string from KisImageLayerAddCommand
-            ///       change the string after Krita 5.2.5
             KisProcessingApplicator *ap = beginAction(view, kundo2_i18n("Add Layer"));
             KUndo2Command *deselectCmd = new KisDeselectActiveSelectionCommand(view->selection(), image);
             ap->applyCommand(deselectCmd);
@@ -329,7 +315,7 @@ void KisPasteActionFactory::run(Flags flags, KisViewManager *view)
         KUndo2Command *cmd = new KisImageLayerAddCommand(image, newLayer, parentNode, aboveNode);
         KisProcessingApplicator *ap = beginAction(view, cmd->text());
         ap->applyCommand(cmd, KisStrokeJobData::SEQUENTIAL, KisStrokeJobData::NORMAL);
-        
+
         if (view->selection()) {
             KUndo2Command *deselectCmd = new KisDeselectActiveSelectionCommand(view->selection(), image);
             ap->applyCommand(deselectCmd, KisStrokeJobData::SEQUENTIAL, KisStrokeJobData::NORMAL);
@@ -339,7 +325,7 @@ void KisPasteActionFactory::run(Flags flags, KisViewManager *view)
             KUndo2Command *transformToolCmd = new KisTransformToolActivationCommand(view);
             ap->applyCommand(transformToolCmd, KisStrokeJobData::BARRIER, KisStrokeJobData::NORMAL);
         }
-        
+
         endAction(ap, KisOperationConfiguration(id()).toXML());
     }
 }
@@ -456,12 +442,10 @@ void KisPasteShapeStyleActionFactory::run(KisViewManager *view)
         if (!shapes.isEmpty()) {
             KoShape *referenceShape = shapes.first();
 
-
             KUndo2Command *parentCommand = new KUndo2Command(kundo2_i18n("Paste Style"));
 
             new KoShapeBackgroundCommand(selectedShapes, referenceShape->background(), parentCommand);
             new KoShapeStrokeCommand(selectedShapes, referenceShape->stroke(), parentCommand);
-
 
             canvas->addCommand(parentCommand);
         }

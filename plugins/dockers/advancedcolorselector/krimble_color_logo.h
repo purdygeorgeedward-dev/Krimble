@@ -1,6 +1,4 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
-// Krimble 2026-11-08: the Color Lab logo (George's: colorlab-3.webp, the complete one; colorlab-3.png is cut off at the right edge of the B and has white bars), as a PNG 900 x 211
-// (a picture Qt always reads: the WebP reader is a plugin that may not be in the Android build). The picture has its own black background; it is not transparent.
 #pragma once
 #include <QByteArray>
 #include <QPixmap>

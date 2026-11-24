@@ -15,7 +15,6 @@
 class KisPostExecutionUndoAdapter;
 class KisUpdatesFacade;
 
-
 class MoveSelectionStrokeStrategy : public QObject, public KisStrokeStrategyUndoCommandBased
 {
     Q_OBJECT
@@ -65,4 +64,4 @@ private:
     QPoint m_initialSelectionOffset;
 };
 
-#endif /* __MOVE_SELECTION_STROKE_STRATEGY_H */
+#endif

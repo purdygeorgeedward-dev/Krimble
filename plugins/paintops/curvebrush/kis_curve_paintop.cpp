@@ -21,7 +21,6 @@
 #include <kis_lod_transform.h>
 #include <kis_paintop_settings.h>
 
-
 KisCurvePaintOp::KisCurvePaintOp(const KisPaintOpSettingsSP settings, KisPainter * painter, KisNodeSP node, KisImageSP image)
     : KisPaintOp(painter)
     , m_opacityOption(settings.data(), node)
@@ -102,14 +101,12 @@ void KisCurvePaintOp::paintLine(KisPaintDeviceSP dab, const KisPaintInformation 
     }
 
     if (m_points.length() >= maxPoints) {
-        // alpha * 0.2;
         path.moveTo(m_points.first());
 
         if (m_curveOpOption.curve_smoothing) {
             path.quadTo(m_points.at(maxPoints / 2), m_points.last());
         }
         else {
-            // control point is at 1/3 of the history, 2/3 of the history and endpoint at 3/3
             int step = maxPoints / 3;
             path.cubicTo(m_points.at(step), m_points.at(step + step), m_points.last());
         }

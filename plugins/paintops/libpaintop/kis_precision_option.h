@@ -17,7 +17,6 @@ const QString AUTO_PRECISION_ENABLED = "KisPrecisionOption/AutoPrecisionEnabled"
 const QString STARTING_SIZE = "KisPrecisionOption/SizeToStartFrom";
 const QString DELTA_VALUE = "KisPrecisionOption/DeltaValue";
 
-
 namespace KisBrushModel {
 struct PrecisionData :  public boost::equality_comparable<PrecisionData>
 {
@@ -49,4 +48,4 @@ private:
     KisBrushModel::PrecisionData m_precisionData;
 };
 
-#endif /* __KIS_PRECISION_OPTION_H */
+#endif

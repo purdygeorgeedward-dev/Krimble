@@ -11,15 +11,9 @@
 #include "kis_color_selector_base.h"
 #include "kis_display_color_converter.h"
 
-
-/************* KisColorSelectorBaseProxy *******************************/
-
 KisColorSelectorBaseProxy::~KisColorSelectorBaseProxy()
 {
 }
-
-
-/************* KisColorSelectorBaseProxyNoop ***************************/
 
 KisColorSelectorBaseProxyNoop::KisColorSelectorBaseProxyNoop()
 {
@@ -38,9 +32,6 @@ KisDisplayColorConverter* KisColorSelectorBaseProxyNoop::converter() const
 {
     return KisDisplayColorConverter::dumbConverterInstance();
 }
-
-
-/************* KisColorSelectorBaseProxyObject *************************/
 
 KisColorSelectorBaseProxyObject::KisColorSelectorBaseProxyObject(KisColorSelectorBase *parent)
     : m_parent(parent)

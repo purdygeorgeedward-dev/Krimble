@@ -27,7 +27,7 @@ ToolTransformArgs syncLodNValue<ToolTransformArgs>(const ToolTransformArgs &valu
     args.scale3dSrcAndDst(KisLodTransform::lodToScale(lod));
     return args;
 }
-} // namespace KisLodSwitchingWrapperDetail
+}
 
 using KisLodCapableTransformArgs = KisLodSwitchingWrapper<ToolTransformArgs>;
 
@@ -70,14 +70,7 @@ QPointF centerOffsetCurvesToArgs(const ToolTransformArgs &args)
 
     QTransform t = m.TS * m.SC * m.S * m.projectedP;
 
-
     const QPointF calculatedOffset = t.map(args.originalCenter() + args.rotationCenterOffset());
-
-    /**
-     * We add args.rotationCenterOffset() due to legacy reasons, since it was
-     * subtracted from the curves in the original implementation of transformation
-     * masks, so not it is baked in the file format
-     */
 
     return (args.transformedCenter() + args.rotationCenterOffset()) - calculatedOffset;
 }
@@ -89,16 +82,10 @@ QPointF centerOffsetArgsToCurves(const ToolTransformArgs &args)
     const QPointF expectedCurveOffset =
         m.finalTransform().map(args.originalCenter() + args.rotationCenterOffset());
 
-    /**
-     * We subtract args.rotationCenterOffset() due to legacy reasons, because
-     * curves of the original implementation of the animated transform masks
-     * had this value subtracted (which is actually a bug, since it should be
-     * added instead).
-     */
     return expectedCurveOffset - args.rotationCenterOffset();
 }
 
-} // namespace
+}
 
 KisAnimatedTransformMaskParamsHolder::KisAnimatedTransformMaskParamsHolder(KisDefaultBoundsBaseSP defaultBounds)
     : m_d(new Private(defaultBounds))
@@ -127,7 +114,6 @@ const QSharedPointer<ToolTransformArgs> KisAnimatedTransformMaskParamsHolder::tr
     if (m_d->defaultBounds->currentLevelOfDetail() > 0) return args;
     if (args->mode() != ToolTransformArgs::FREE_TRANSFORM) return args;
 
-
     auto channelFor = [this] (const QString &id) -> KisScalarKeyframeChannel* {
         KisScalarKeyframeChannel *channel = this->m_d->transformChannels.value(id, nullptr).data();
 
@@ -139,7 +125,6 @@ const QSharedPointer<ToolTransformArgs> KisAnimatedTransformMaskParamsHolder::tr
     };
 
     {
-        // Position
 
         KisScalarKeyframeChannel *posXChannel = channelFor(KisKeyframeChannel::PositionX.id());
         KisScalarKeyframeChannel *posYChannel = channelFor(KisKeyframeChannel::PositionY.id());
@@ -153,7 +138,6 @@ const QSharedPointer<ToolTransformArgs> KisAnimatedTransformMaskParamsHolder::tr
     }
 
     {
-        // Scale
 
         KisScalarKeyframeChannel *scaleXChannel = channelFor(KisKeyframeChannel::ScaleX.id());
         KisScalarKeyframeChannel *scaleYChannel = channelFor(KisKeyframeChannel::ScaleY.id());
@@ -168,7 +152,6 @@ const QSharedPointer<ToolTransformArgs> KisAnimatedTransformMaskParamsHolder::tr
     }
 
     {
-        // Shear
 
         KisScalarKeyframeChannel *shearXChannel = channelFor(KisKeyframeChannel::ShearX.id());
         KisScalarKeyframeChannel *shearYChannel = channelFor(KisKeyframeChannel::ShearY.id());
@@ -183,7 +166,6 @@ const QSharedPointer<ToolTransformArgs> KisAnimatedTransformMaskParamsHolder::tr
     }
 
     {
-        // Rotation
 
         KisScalarKeyframeChannel *rotationXChannel = channelFor(KisKeyframeChannel::RotationX.id());
         KisScalarKeyframeChannel *rotationYChannel = channelFor(KisKeyframeChannel::RotationY.id());
@@ -224,9 +206,6 @@ KisKeyframeChannel *KisAnimatedTransformMaskParamsHolder::requestKeyframeChannel
 {
     KIS_SAFE_ASSERT_RECOVER_RETURN_VALUE(!m_d->transformChannels.contains(id), m_d->transformChannels.value(id).data());
 
-    /**
-     * We shouldn't create the channels in lodN mode
-     */
     KIS_SAFE_ASSERT_RECOVER_NOOP(m_d->defaultBounds->currentLevelOfDetail() <= 0);
 
     const KoID channelId = KisKeyframeChannel::channelIdToKoId(id);
@@ -234,13 +213,6 @@ KisKeyframeChannel *KisAnimatedTransformMaskParamsHolder::requestKeyframeChannel
     channel->setDefaultValue(defaultValueForScalarChannel(channelId));
     channel->setDefaultInterpolationMode(KisScalarKeyframe::Linear);
     m_d->transformChannels.insert(id, toQShared(channel));
-
-
-    // TODO: recover or remove this link!!!
-    //
-    //    channel->connect(m_d->transformChannels[name].data(), &KisKeyframeChannel::sigAnyKeyframeChange, [this] () {
-    //        this->clearChangedFlag();
-    //    });
 
     return channel;
 }
@@ -329,11 +301,6 @@ void KisAnimatedTransformMaskParamsHolder::setNewTransformArgs(const ToolTransfo
     if (args.mode() != ToolTransformArgs::FREE_TRANSFORM) return;
 
     if (!layerCenterOffset.isNull()) {
-        /**
-         * Sometimes the originalCenter() position can change on a layer change or
-         * a transformation tool run. In this case we should adjust all the frames,
-         * because their relative translation offsets should not change
-         */
         auto translateChannel = [this] (const KoID &channelId, qreal offset, KUndo2Command *parentCommand)
         {
             KisScalarKeyframeChannel *channel = m_d->transformChannels.value(channelId.id()).data();

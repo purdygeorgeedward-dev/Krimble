@@ -23,56 +23,27 @@ Q_DECLARE_OPERATORS_FOR_FLAGS(KisInputActionGroupsMask)
 
 class KisInputActionGroupsMaskGuard;
 
-/**
- * A special interface class for accessing masking properties using
- * KisInputActionGroupsMaskGuard
- */
 struct KisInputActionGroupsMaskInterface
 {
-    /**
-     * Unregister ourselves from all KisInputActionGroupsMaskGuard
-     */
     virtual ~KisInputActionGroupsMaskInterface();
 
-    /**
-     * Return the mask of currently available input action groups
-     */
     virtual KisInputActionGroupsMask inputActionGroupsMask() const = 0;
 
-    /**
-     * Set the mask of currently available action groups
-     */
     virtual void setInputActionGroupsMask(KisInputActionGroupsMask mask) = 0;
 
     using SharedInterface=QSharedPointer<KisInputActionGroupsMaskInterface>;
 };
 
-/**
- * A RAII wrapper for setting the input actions mask on the masking interface
- * (which is usually a canvas). In constructor the guard saves the previous mask
- * value and resets it to the new one. In destructor the guard restores the old
- * mask value.
- */
 class KisInputActionGroupsMaskGuard
 {
 public:
-    /**
-     * Create a guard and set a new mask \p mask onto \p object. The old mask value is
-     * saved in the guard itself.
-     */
     KisInputActionGroupsMaskGuard(KisInputActionGroupsMaskInterface::SharedInterface sharedInterface, KisInputActionGroupsMask mask);
 
-    /**
-     * Destroy the guard and reset the mask value to the old value (if masking interface wasn't deleted)
-     */
     ~KisInputActionGroupsMaskGuard();
 
 private:
-    /**
-     * Pointer to the interface to be updated on delete
-     */
     KisInputActionGroupsMaskInterface::SharedInterface m_sharedInterface;
     KisInputActionGroupsMask m_oldMask;
 };
 
-#endif // KISINPUTACTIONGROUP_H
+#endif

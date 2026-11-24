@@ -21,4 +21,4 @@ public:
     void apply(KoColor& color, const KoAbstractGradientSP gradient, const KisPaintInformation& info) const;
 };
 
-#endif // KISGRADIENTOPTION_H
+#endif

@@ -26,18 +26,12 @@ class KisShapeSelectionModel;
 class KisImageViewConverter;
 class KUndo2Command;
 
-/**
- * The marker class.
- * It is added to the shape's user data to show this shape
- * is a part of a shape selection
- */
 class KisShapeSelectionMarker : public KoShapeUserData
 {
     KoShapeUserData* clone() const override {
         return new KisShapeSelectionMarker(*this);
     }
 };
-
 
 class KRITAUI_EXPORT KisShapeSelection : public QObject, public KoShapeLayer, public KisSelectionComponent
 {
@@ -57,12 +51,6 @@ public:
     bool saveSelection(KoStore * store, const QRect &imageRect) const;
 
     bool loadSelection(KoStore * store, const QRect &imageRect);
-    /**
-     * Renders the shapes to a selection. This method should only be called
-     * by KisSelection to update it's projection.
-     *
-     * @param projection the target selection
-     */
     void renderToProjection(KisPaintDeviceSP projection) override;
     void renderToProjection(KisPaintDeviceSP projection, const QRect& r) override;
 
@@ -110,7 +98,6 @@ private:
     KoShapeControllerBase *m_shapeControllerBase {nullptr};
     friend class KisShapeSelectionModel;
 };
-
 
 class KRITAUI_EXPORT KisShapeSelectionFactory : public KoShapeFactoryBase
 {

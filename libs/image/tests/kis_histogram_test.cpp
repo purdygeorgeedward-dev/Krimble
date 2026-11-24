@@ -30,9 +30,7 @@ void KisHistogramTest::testCreation()
             KisHistogram test(dev, QRect(0, 0, 100, 100), producer, LINEAR);
             Q_UNUSED(test);
         }
-        //delete producer;
     }
 }
-
 
 KISTEST_MAIN(KisHistogramTest)

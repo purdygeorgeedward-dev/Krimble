@@ -58,7 +58,6 @@ struct KRITAUI_EXPORT KisMediaEncoderWrapperSettings {
     int audioSeekFrame;
 };
 
-// Intentionally not exported, this is only needed internally.
 class KisMediaEncoderRunnable : public QObject, public QRunnable
 {
     Q_OBJECT

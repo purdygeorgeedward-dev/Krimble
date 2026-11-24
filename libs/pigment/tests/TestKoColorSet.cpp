@@ -88,7 +88,6 @@ void TestKoColorSet::testLoadPSP_PAL()
     QVERIFY(set2.load(KisGlobalResourcesInterface::instance()));
     QCOMPARE(set2.paletteType(), KoColorSet::KPL);
 
-
 }
 void TestKoColorSet::testLoadACO()
 {
@@ -384,7 +383,6 @@ void TestKoColorSet::testRemoveSwatch()
 
     QVERIFY(cs->isDirty());
 
-    // Undo the initial addSwatch
     cs->undoStack()->undo();
     QVERIFY(!cs->isDirty());
 }
@@ -417,7 +415,6 @@ void TestKoColorSet::testAddGroup()
     QCOMPARE(cs->getGroup(50)->name(), "newgroup2");
 
 }
-
 
 void TestKoColorSet::testChangeGroupName()
 {
@@ -455,7 +452,6 @@ void TestKoColorSet::testChangeGroupName()
     QVERIFY(!cs->isDirty());
 }
 
-
 void TestKoColorSet::testMoveGroup()
 {
     KoColorSetSP cs = createColorSet();
@@ -482,8 +478,6 @@ void TestKoColorSet::testMoveGroup()
 void TestKoColorSet::testRemoveGroup()
 {
     KoColorSetSP cs = createColorSet();
-
-    // Discard Colors
 
     cs->addGroup("newgroup");
     QVERIFY(cs->swatchGroupNames().size() == 2);
@@ -516,8 +510,6 @@ void TestKoColorSet::testRemoveGroup()
     QVERIFY(cs->swatchGroupNames().contains(KoColorSet::GLOBAL_GROUP_NAME));
     QVERIFY(!cs->swatchGroupNames().contains("newgroup"));
     QVERIFY(!cs->isDirty());
-
-    // Keep Colors
 
     cs->clear();
     cs->addGroup("newgroup");
@@ -636,7 +628,6 @@ void TestKoColorSet::testStartRowForNamedGroup()
 
     QCOMPARE(cs->rowCountWithTitles(), 25);
 
-
     QCOMPARE(cs->startRowForGroup(""), 0);
     QCOMPARE(cs->startRowForGroup("group1"), 7);
     QCOMPARE(cs->startRowForGroup("group2"), 14);
@@ -672,7 +663,7 @@ void TestKoColorSet::testGetGroup()
     QVERIFY(grp);
     QVERIFY(grp->name().isEmpty());
 
-    grp = cs->getGroup(7); // titlerow
+    grp = cs->getGroup(7);
     QVERIFY(grp);
     QCOMPARE(grp->name(), "group1");
 
@@ -680,11 +671,11 @@ void TestKoColorSet::testGetGroup()
     QVERIFY(grp);
     QCOMPARE(grp->name(), "group1");
 
-    grp = cs->getGroup(13); // last row
+    grp = cs->getGroup(13);
     QVERIFY(grp);
     QCOMPARE(grp->name(), "group1");
 
-    grp = cs->getGroup(14); // titlerow
+    grp = cs->getGroup(14);
     QVERIFY(grp);
     QCOMPARE(grp->name(), "group2");
 
@@ -746,7 +737,6 @@ void TestKoColorSet::testRowNumberInGroup()
                                    -1, 0, 1, 2, 3, 4,
                                    -1, 0, 1, 2, 3};
 
-
     QCOMPARE(cs->rowCountWithTitles(), rowCountsInGroup.size());
 
     for (int i = 0; i < cs->rowCountWithTitles(); ++i) {
@@ -767,24 +757,18 @@ void TestKoColorSet::testGetColorGlobal()
 
     Q_FOREACH(const QString &groupName, cs->swatchGroupNames()) {
         KisSwatchGroupSP group = cs->getGroup(groupName);
-        //qDebug() << group->name();
         for (int row = 0; row < group->rowCount(); row++) {
             for (int col = 0; col < group->columnCount(); col++) {
                 QColor c(row, col, 0);
                 sw.setColor(KoColor(c, KoColorSpaceRegistry::instance()->rgb8()));
-                //qDebug() << "rgb" << c.red() << c.green() << c.blue() << "row/col" << row << "," << col;
                 cs->addSwatch(sw, groupName, col, row);
             }
         }
     }
 
-
-    //qDebug() << "==================";
-
     for (int row = 0; row < cs->rowCountWithTitles(); row++) {
         if (row == 7 || row == 14 || row == 20) {
             QVERIFY(cs->isGroupTitleRow(row));
-            //qDebug() << cs->getGroup(row)->name();
         }
 
         for (int col = 0; col < cs->columnCount(); col++) {
@@ -792,7 +776,6 @@ void TestKoColorSet::testGetColorGlobal()
                 QVERIFY(!cs->isGroupTitleRow(row));
                 KisSwatch sw2 = cs->getColorGlobal(col, row);
                 QColor c = sw2.color().toQColor();
-                //qDebug() << "rgb" << c.red() << c.green() << c.blue() << "row/col" << cs->rowNumberInGroup(row) << "," << col;
                 QCOMPARE(c.red(), cs->rowNumberInGroup(row));
                 QCOMPARE(c.green(), col);
             }
@@ -825,7 +808,6 @@ KoColor TestKoColorSet::red()
     KoColor  kc(c, KoColorSpaceRegistry::instance()->rgb8());
     return kc;
 }
-
 
 SIMPLE_TEST_MAIN(TestKoColorSet)
 

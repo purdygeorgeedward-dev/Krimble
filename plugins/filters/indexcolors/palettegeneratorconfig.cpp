@@ -36,7 +36,6 @@ QByteArray PaletteGeneratorConfig::toByteArray()
     stream.setVersion(QDataStream::Qt_4_6);
     stream.setByteOrder(QDataStream::BigEndian);
 
-    // Version int
     stream << 0;
 
     for(int i = 0; i < 4; ++i)
@@ -86,7 +85,6 @@ void PaletteGeneratorConfig::fromByteArray(const QByteArray& str)
 IndexColorPalette PaletteGeneratorConfig::generate()
 {
     IndexColorPalette pal;
-    // Add all colors to the palette
     for(int y = 0; y < 4; ++y)
         for(int x = 0; x < 4; ++x)
             if(colorsEnabled[y][x])

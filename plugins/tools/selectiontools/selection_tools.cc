@@ -29,7 +29,6 @@
 
 K_PLUGIN_FACTORY_WITH_JSON(SelectionToolsFactory, "kritaselectiontools.json", registerPlugin<SelectionTools>();)
 
-
 SelectionTools::SelectionTools(QObject *parent, const QVariantList &)
         : QObject(parent)
 {
@@ -39,7 +38,7 @@ SelectionTools::SelectionTools(QObject *parent, const QVariantList &)
     KoToolRegistry::instance()->add(new KisToolSelectEllipticalFactory());
     KoToolRegistry::instance()->add(new KisToolSelectHexagonFactory());
     KoToolRegistry::instance()->add(new KisToolSelectContiguousFactory());
-    KoToolRegistry::instance()->add(new KisToolSelectPathFactory()); // Retained: precision path selection
+    KoToolRegistry::instance()->add(new KisToolSelectPathFactory());
     KoToolRegistry::instance()->add(new KisToolSelectSimilarFactory());
     KoToolRegistry::instance()->add(new KisToolSelectMagneticFactory());
 }

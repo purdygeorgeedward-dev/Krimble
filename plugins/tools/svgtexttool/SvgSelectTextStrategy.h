@@ -28,4 +28,4 @@ private:
     QPointF m_dragEnd;
 };
 
-#endif // SVGSELECTTEXTSTRATEGY_H
+#endif

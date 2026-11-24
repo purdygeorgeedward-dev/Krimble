@@ -14,7 +14,6 @@ TableDelegate::TableDelegate(QObject *parent)
 
 QRect getNewRect(const QStyleOptionViewItem &option)
 {
-    // get the rectangle in the middle of the field
     const int textMargin = QApplication::style()->pixelMetric(QStyle::PM_FocusFrameHMargin) + 1;
     QRect newRect = QStyle::alignedRect(option.direction, Qt::AlignCenter,
                                         QSize(option.decorationSize.width() +
@@ -28,12 +27,9 @@ QRect getNewRect(const QStyleOptionViewItem &option)
 void TableDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
     QStyleOptionViewItem viewItemOption(option);
-    // Only do this if we are accessing the column with boolean variables.
     if (m_booleanColumns.contains(index.column())) {
-        // This basically changes the rectangle in which the check box is drawn.
         viewItemOption.rect = getNewRect(option);
     }
-    // Draw the check box using the new rectangle.
     QSqlRelationalDelegate::paint(painter, viewItemOption, index);
 }
 
@@ -87,7 +83,6 @@ void TableDelegate::setEditable(bool editable)
     m_editable = editable;
 }
 
-
 TableModel::TableModel(QObject *parent, QSqlDatabase db)
     : QSqlRelationalTableModel(parent, db)
 {
@@ -126,13 +121,9 @@ QVariant TableModel::data(const QModelIndex &index, int role) const
 bool TableModel::setData(const QModelIndex & index, const QVariant & value, int role)
 {
     if (m_booleanColumns.contains(index.column()) && role == Qt::CheckStateRole) {
-        // Writing the data when the check box is set to checked.
         if (value == Qt::Checked) {
-            // Let's write the new value
             return QSqlTableModel::setData(index, 1, Qt::EditRole);
-            // Writing the data when the check box is set to unchecked
         } else if (value == Qt::Unchecked) {
-            // Let's write the new value
             return QSqlTableModel::setData(index, 0, Qt::EditRole);
         }
     }

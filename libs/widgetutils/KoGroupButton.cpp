@@ -19,8 +19,6 @@ class Q_DECL_HIDDEN KoGroupButton::Private
 public:
     Private(KoGroupButton *qq, const GroupPosition position) : groupPosition(position)
     {
-        // Make the policy closer to QPushButton's default but horizontal shouldn't be Fixed,
-        // otherwise spacing gets broken
         qq->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
     }
     GroupPosition groupPosition;
@@ -62,7 +60,6 @@ void KoGroupButton::paintEvent(QPaintEvent* event)
     initStyleOption(&opt);
     QStyleOptionToolButton panelOpt = opt;
 
-    // Panel
     QRect& panelRect = panelOpt.rect;
     switch (groupPosition()) {
     case GroupLeft:
@@ -80,8 +77,6 @@ void KoGroupButton::paintEvent(QPaintEvent* event)
     }
     if (autoRaise()) {
         if (!isChecked() && !isDown() && !(panelOpt.state & QStyle::State_MouseOver)) {
-            // Use 'pushed' appearance for all buttons, but those that are not really pushed
-            // are drawn with less contrast and are toned down.
             panelOpt.state |= (QStyle::State_On | QStyle::State_Sunken);
             QPalette panelPal(panelOpt.palette);
             QColor c;
@@ -99,7 +94,6 @@ void KoGroupButton::paintEvent(QPaintEvent* event)
         if (!isChecked() && !isDown() && !(panelOpt.state & QStyle::State_MouseOver)) {
 
         } else {
-            // only highlight the selected item
             panelOpt.state |= (QStyle::State_On | QStyle::State_Sunken);
             QPalette panelPal(panelOpt.palette);
             QColor c;
@@ -114,20 +108,14 @@ void KoGroupButton::paintEvent(QPaintEvent* event)
         }
     }
 
-
-    // painter.drawPrimitive(QStyle::PE_PanelButtonTool, panelOpt);
     if (isChecked()) {
-        // the Aqua-style selection on the selected button only (it was the highlight at half opacity: a dull blue green)
         painter.setOpacity(1.0);
-        // krimblePaintAqua(painter, QRectF(rect()).adjusted(1, 1, -1, -1), qMin(width(), height()) * 0.10);
-        krimblePaintAqua(painter, QRectF(rect()).adjusted(1, 1, -1, -1), qMin(width(), height()) * 0.22);   // rounder corners
+        krimblePaintAqua(painter, QRectF(rect()).adjusted(1, 1, -1, -1), qMin(width(), height()) * 0.22);
     } else {
         painter.drawPrimitive(QStyle::PE_PanelButtonTool, panelOpt);
     }
     painter.setOpacity(1.0);
 
-    // Separator
-    //! @todo make specific fixes for styles such as Cleanlooks if there's practical no alternative
     const int y1 = opt.rect.top() + 1;
     const int y2 = opt.rect.bottom() - 1;
     painter.setOpacity(0.4);
@@ -138,18 +126,8 @@ void KoGroupButton::paintEvent(QPaintEvent* event)
     }
     painter.setOpacity(1.0);
 
-    // Text
     painter.drawControl(QStyle::CE_ToolButtonLabel, opt);
 
-    // Filtering message on tooltip text for CJK to remove accelerators.
-    // Quoting ktoolbar.cpp:
-    // """
-    // CJK languages use more verbose accelerator marker: they add a Latin
-    // letter in parenthesis, and put accelerator on that. Hence, the default
-    // removal of ampersand only may not be enough there, instead the whole
-    // parenthesis construct should be removed. Provide these filtering i18n
-    // messages so that translators can use Transcript for custom removal.
-    // """
     if (!actions().isEmpty()) {
         QAction* action = actions().first();
         setToolTip(i18nc("@info:tooltip of custom triple button", "%1", action->toolTip()));

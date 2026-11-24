@@ -279,7 +279,6 @@ void KoPathToolSelection::notifyPathPointsChanged(KoPathShape *shape)
 void KoPathToolSelection::notifyShapeChanged(KoShape::ChangeType type, KoShape *shape)
 {
     if (type == KoShape::Deleted) {
-        // we cannot select non-path shapes, so static cast is safe here
         KIS_SAFE_ASSERT_RECOVER_NOOP(shape->shapeId() == KoPathShapeId);
 
         if (KoPathShape *pathShape = static_cast<KoPathShape*>(shape)) {

@@ -18,14 +18,9 @@ public:
     KisSurfaceColorManagementInfo(QObject *parent = nullptr);
     virtual ~KisSurfaceColorManagementInfo();
 
-    /**
-     * If returns true, then KisSurfaceColorManagerInterface must
-     * be implemented by the plugin and all the surfaces's color
-     * space should be managed by OS.
-     */
     virtual bool surfaceColorManagedByOS() = 0;
 
     virtual QFuture<QString> debugReport() = 0;
 };
 
-#endif /* KISSURFACECOLORMANAGEMENTINFO_H */
+#endif

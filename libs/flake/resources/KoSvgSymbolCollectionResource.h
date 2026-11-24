@@ -20,7 +20,6 @@
 #include <KoShapeGroup.h>
 #include <KoShapeManager.h>
 
-
 #include "kritaflake_export.h"
 
 struct KRITAFLAKE_EXPORT KoSvgSymbol {
@@ -50,18 +49,12 @@ struct KRITAFLAKE_EXPORT KoSvgSymbol {
     }
 };
 
-/**
- * Loads an svg file that contains "symbol" objects and creates a collection of those objects.
- */
 class KRITAFLAKE_EXPORT KoSvgSymbolCollectionResource : public KoResource
 {
 public:
 
-    /**
-     */
     explicit KoSvgSymbolCollectionResource(const QString &filename);
 
-    /// Create an empty color set
     KoSvgSymbolCollectionResource();
     ~KoSvgSymbolCollectionResource() override;
 
@@ -90,12 +83,11 @@ public:
 
     QVector<KoSvgSymbol *> symbols() const;
 
-
 private:
 
     struct Private;
     const QScopedPointer<Private> d;
 
 };
-#endif // KOSVGSYMBOLCOLLECTIONRESOURCE
+#endif
 

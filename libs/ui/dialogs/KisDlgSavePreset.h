@@ -20,9 +20,8 @@ class KisPaintOpPresetSaveDialog : public QDialog , public Ui::WdgSaveBrushPrese
 public:
     KisPaintOpPresetSaveDialog(QWidget* parent) : QDialog(parent) {
         setupUi(this);
-    }       
+    }
 };
-
 
 class KisPresetSaveWidget : public KisPaintOpPresetSaveDialog
 {
@@ -34,7 +33,6 @@ public:
 
     void showDialog();
 
-    /// determines if we should show the save as dialog (true) or save in the background (false)
     void useNewBrushDialog(bool show);
 
     void scratchPadSetup(KisCanvasResourceProvider* resourceProvider);
@@ -46,7 +44,6 @@ public:
 Q_SIGNALS:
     void resourceSelected(KoResourceSP resource);
 
-
 public Q_SLOTS:
 
     void loadImageFromFile();
@@ -55,12 +52,10 @@ public Q_SLOTS:
     void loadExistingThumbnail();
     void loadImageFromLibrary();
 
-
 private:
     bool m_useNewBrushDialog {false};
     KisFavoriteResourceManager * m_favoriteResourceManager {0};
     QImage scratchPadThumbnailArea;
 };
-
 
 #endif

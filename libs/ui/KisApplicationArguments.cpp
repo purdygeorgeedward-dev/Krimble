@@ -49,12 +49,10 @@ struct Q_DECL_HIDDEN KisApplicationArguments::Private
 
 };
 
-
 KisApplicationArguments::KisApplicationArguments()
     : d(new Private)
 {
 }
-
 
 KisApplicationArguments::~KisApplicationArguments()
 {
@@ -83,7 +81,7 @@ KisApplicationArguments::KisApplicationArguments(const QApplication &app)
                                         QLatin1String("colorspace,depth,width,height")));
     parser.addOption(QCommandLineOption(QStringList() << QLatin1String("workspace"), i18n("The name of the workspace to open Krimble with"), QLatin1String("workspace")));
     parser.addOption(QCommandLineOption(QStringList() << QLatin1String("windowlayout"), i18n("The name of the window layout to open Krimble with"), QLatin1String("windowlayout")));
-    parser.addOption(QCommandLineOption(QStringList() << QLatin1String("load-session"), i18n("The name of the session to open Krimble with"), QLatin1String("load-session"))); // NB: the argument "session" is already used by QGuiApplication
+    parser.addOption(QCommandLineOption(QStringList() << QLatin1String("load-session"), i18n("The name of the session to open Krimble with"), QLatin1String("load-session")));
     parser.addOption(QCommandLineOption(QStringList() << QLatin1String("canvasonly"), i18n("Start Krimble in canvas-only mode")));
     parser.addOption(QCommandLineOption(QStringList() << QLatin1String("nosplash"), i18n("Do not show the splash screen")));
     parser.addOption(QCommandLineOption(QStringList() << QLatin1String("fullscreen"), i18n("Start Krimble in full-screen mode")));
@@ -102,7 +100,6 @@ KisApplicationArguments::KisApplicationArguments(const QApplication &app)
     QStringList filteredArgs;
     {
         auto checkIsIgnoreEpic = [](const QString &arg) {
-            // List according to https://dev.epicgames.com/docs/services/en-US/Interfaces/Auth/index.html#epicgameslauncher
             static const QStringList epicIgnoreArgsStart = {
                 QStringLiteral("AUTH_PASSWORD="),
                 QStringLiteral("AUTH_LOGIN="),
@@ -122,7 +119,6 @@ KisApplicationArguments::KisApplicationArguments(const QApplication &app)
 #else
             QStringView argDashless(arg);
 #endif
-            // Strip leading dashes.
             while (argDashless.startsWith('-')) {
                 argDashless = argDashless.mid(1);
             }
@@ -141,7 +137,6 @@ KisApplicationArguments::KisApplicationArguments(const QApplication &app)
 
         QStringListIterator iter(app.arguments());
         if (iter.hasNext()) {
-            // First argument is application name.
             filteredArgs.append(iter.next());
 
             bool isAfterDoubleDash = false;
@@ -238,7 +233,6 @@ QByteArray KisApplicationArguments::serialize()
     buf.open(QIODevice::WriteOnly);
     QDataStream ds(&buf);
     ds.setVersion(QDataStream::Qt_5_0);
-    // explicitly declare the type of the size variable
     const qsizetype fileNamesCount = d->filenames.count();
     ds << fileNamesCount;
     Q_FOREACH (const QString &filename, d->filenames) {

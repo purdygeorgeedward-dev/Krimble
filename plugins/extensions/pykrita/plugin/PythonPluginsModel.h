@@ -33,9 +33,8 @@ protected:
     Qt::ItemFlags flags(const QModelIndex&) const override;
     bool setData(const QModelIndex&, const QVariant&, int) override;
 
-
 private:
     PythonPluginManager *m_pluginManager;
 };
 
-#endif //KRITA_PYTHONPLUGINSMODEL_H
+#endif

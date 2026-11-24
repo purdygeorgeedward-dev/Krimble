@@ -8,7 +8,6 @@
 
 #include "kis_selection_manager.h"
 
-
 KisSelectionActionsAdapter::KisSelectionActionsAdapter(KisSelectionManager *selectionManager)
     : m_selectionManager(selectionManager)
 {

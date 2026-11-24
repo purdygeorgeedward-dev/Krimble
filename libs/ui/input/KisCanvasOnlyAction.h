@@ -19,4 +19,4 @@ class KisCanvasOnlyAction : public KisAbstractInputAction
     void begin(int shortcut, QEvent *event = 0) override;
 };
 
-#endif // KIS_CANVAS_ONLY_ACTION_H
+#endif

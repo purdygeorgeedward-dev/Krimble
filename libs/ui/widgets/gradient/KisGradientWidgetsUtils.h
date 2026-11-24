@@ -46,7 +46,7 @@ void KRITAUI_EXPORT paintMidPointHandle(QPainter &painter,
                                         const QColor &borderColor,
                                         const QColor &fillColor,
                                         const QColor &highlightColor);
-                                        
+
 KisGradientWidgetsUtils::ColorType KRITAUI_EXPORT segmentEndPointTypeToColorType(KoGradientSegmentEndpointType type);
 KoGradientSegmentEndpointType KRITAUI_EXPORT colorTypeToSegmentEndPointType(KisGradientWidgetsUtils::ColorType type, bool transparent = false);
 

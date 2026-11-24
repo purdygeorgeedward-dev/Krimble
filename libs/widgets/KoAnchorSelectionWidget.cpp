@@ -17,7 +17,6 @@
 #include "kis_signals_blocker.h"
 #include "kis_algebra_2d.h"
 
-
 struct Q_DECL_HIDDEN KoAnchorSelectionWidget::Private {
     std::array<QToolButton*, KoFlake::NumAnchorPositions> buttons;
     QButtonGroup *buttonGroup;
@@ -34,12 +33,12 @@ KoAnchorSelectionWidget::KoAnchorSelectionWidget(QWidget *parent)
     icons << KisIconUtils::loadIcon("arrow-up");
     icons << KisIconUtils::loadIcon("arrow-topright");
     icons << KisIconUtils::loadIcon("arrow-left");
-    icons << QIcon(); // center
+    icons << QIcon();
     icons << KisIconUtils::loadIcon("arrow-right");
     icons << KisIconUtils::loadIcon("arrow-downleft");
     icons << KisIconUtils::loadIcon("arrow-down");
     icons << KisIconUtils::loadIcon("arrow-downright");
-    icons << QIcon(); // no anchor
+    icons << QIcon();
 
     QGridLayout *gridLayout = new QGridLayout(this);
     gridLayout->setSpacing(0);
@@ -50,7 +49,6 @@ KoAnchorSelectionWidget::KoAnchorSelectionWidget(QWidget *parent)
     for (int i = 0; i < KoFlake::NumAnchorPositions; i++) {
         QToolButton *button = new QToolButton(this);
         button->setCheckable(true);
-        //button->setAutoRaise(true);
         button->setAutoExclusive(true);
         button->setIcon(icons[i]);
         button->setFocusPolicy(Qt::NoFocus);

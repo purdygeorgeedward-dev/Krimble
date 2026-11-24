@@ -6,7 +6,6 @@
 
 #include "kis_projection_updates_filter.h"
 
-
 #include <QtGlobal>
 #include <QRect>
 

@@ -26,4 +26,4 @@ private:
     KisUpdateInfoList m_updatesList;
 };
 
-#endif /* __KIS_CANVAS_UPDATES_COMPRESSOR_H */
+#endif

@@ -32,7 +32,6 @@ __KisToolSelectEllipticalLocal::__KisToolSelectEllipticalLocal(KoCanvasBase *can
     setObjectName("tool_select_elliptical");
 }
 
-
 KisToolSelectElliptical::KisToolSelectElliptical(KoCanvasBase *canvas):
     KisToolSelectBase<__KisToolSelectEllipticalLocal>(canvas, i18n("Elliptical Selection"))
 {}
@@ -83,8 +82,6 @@ void KisToolSelectElliptical::finishRect(const QRectF &rect, qreal roundCornersX
             -> KUndo2Command * {
                 KisPainter painter(tmpSel);
                 painter.setPaintColor(KoColor(Qt::black, tmpSel->colorSpace()));
-                // Since the feathering already smooths the selection, the
-                // antiAlias is not applied if we must feather
                 painter.setAntiAliasPolygonFill(antiAlias && feather == 0);
                 painter.setFillStyle(KisPainter::FillStyleForegroundColor);
                 painter.setStrokeStyle(KisPainter::StrokeStyleNone);

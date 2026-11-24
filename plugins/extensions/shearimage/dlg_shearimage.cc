@@ -28,7 +28,7 @@ DlgShearImage::DlgShearImage(QWidget *  parent,
     Q_CHECK_PTR(m_page);
     m_page->layout()->setContentsMargins(0, 0, 0, 0);
     m_page->setObjectName("shear_image");
-    
+
     m_page->shearAngleX->setDecimals(0);
     m_page->shearAngleX->setRange(-45, 45);
     m_page->shearAngleX->setWrapping(false);
@@ -74,8 +74,6 @@ qint32 DlgShearImage::angleY()
 {
     return static_cast<qint32>(m_page->shearAngleY->angle());
 }
-
-// SLOTS
 
 void DlgShearImage::okClicked()
 {

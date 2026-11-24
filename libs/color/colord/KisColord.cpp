@@ -10,11 +10,9 @@
 #include <klocalizedstring.h>
 #include <kis_debug.h>
 
-
 #include "CdInterface.h"
 #include "CdProfileInterface.h"
 #include "CdDeviceInterface.h"
-
 
 struct Profile {
     QString kind;
@@ -44,14 +42,12 @@ struct Device {
 KisColord::KisColord(QObject *parent)
     : QObject(parent)
 {
-    //dbgKrita << "Creating KisColorD";
 
     m_cdInterface = new CdInterface(QLatin1String("org.freedesktop.ColorManager"),
                                     QLatin1String("/org/freedesktop/ColorManager"),
                                     QDBusConnection::systemBus(),
                                     this);
 
-    // listen to colord for device events
     connect(m_cdInterface, SIGNAL(DeviceAdded(QDBusObjectPath)),
             this, SLOT(deviceAdded(QDBusObjectPath)));
     connect(m_cdInterface, SIGNAL(DeviceRemoved(QDBusObjectPath)),
@@ -59,14 +55,11 @@ KisColord::KisColord(QObject *parent)
     connect(m_cdInterface, SIGNAL(DeviceChanged(QDBusObjectPath)),
             this, SLOT(deviceChanged(QDBusObjectPath)));
 
-    // Ask for devices
     QDBusPendingReply<QList<QDBusObjectPath> > async = m_cdInterface->GetDevices();
     QDBusPendingCallWatcher *displayWatcher = new QDBusPendingCallWatcher(async, this);
     connect(displayWatcher, SIGNAL(finished(QDBusPendingCallWatcher*)),
             this, SLOT(gotDevices(QDBusPendingCallWatcher*)));
 
-
-    // Make sure we know is colord is running
     QDBusServiceWatcher *watcher = new QDBusServiceWatcher("org.freedesktop.ColorManager",
                                                            QDBusConnection::systemBus(),
                                                            QDBusServiceWatcher::WatchForOwnerChange,
@@ -127,7 +120,6 @@ QByteArray KisColord::deviceProfile(const QString &id, int p)
         }
 
         if (profile) {
-            //dbgKrita << "profile filename" << profile->filename;
             QFile f(profile->filename);
             if (f.open(QFile::ReadOnly)) {
                 ba = f.readAll();
@@ -141,13 +133,10 @@ QByteArray KisColord::deviceProfile(const QString &id, int p)
     return ba;
 }
 
-
-
 void KisColord::serviceOwnerChanged(const QString &serviceName, const QString &oldOwner, const QString &newOwner)
 {
     Q_UNUSED(serviceName);
     if (newOwner.isEmpty() || oldOwner != newOwner) {
-        // colord has quit or restarted
         qDeleteAll(m_devices);
         m_devices.clear();
     }
@@ -156,7 +145,6 @@ void KisColord::serviceOwnerChanged(const QString &serviceName, const QString &o
 
 void KisColord::gotDevices(QDBusPendingCallWatcher *call)
 {
-    //dbgKrita << "Got devices!!!";
 
     QDBusPendingReply<QList<QDBusObjectPath> > reply = *call;
     if (reply.isError()) {
@@ -168,7 +156,6 @@ void KisColord::gotDevices(QDBusPendingCallWatcher *call)
         }
         Q_EMIT changed();
     }
-    //dbgKrita << "gotDevices" << m_devices.count();
     call->deleteLater();
 }
 
@@ -182,7 +169,6 @@ void KisColord::deviceChanged(const QDBusObjectPath &objectPath)
     }
 
     if (!m_devices.contains(objectPath)) {
-        //dbgKrita << "deviceChanged for an unknown device" << objectPath.path();
         deviceAdded(objectPath, false);
         return;
     }
@@ -195,15 +181,12 @@ void KisColord::deviceChanged(const QDBusObjectPath &objectPath)
 
     addProfilesToDevice(dev, profiles);
 
-    //dbgKrita << "deviceChanged" << dev->id << "with" << profiles.size() << "profiles";
-
     Q_EMIT changed(dev->id);
 }
 
 void KisColord::deviceAdded(const QDBusObjectPath &objectPath, bool emitChanged)
 {
     if (m_devices.contains(objectPath)) {
-        //dbgKrita << "Device is already on the list" << objectPath.path();
         return;
     }
 
@@ -227,12 +210,6 @@ void KisColord::deviceAdded(const QDBusObjectPath &objectPath, bool emitChanged)
 
     QList<QDBusObjectPath> profiles = device.profiles();
     addProfilesToDevice(dev, profiles);
-
-//    dbgKrita << "deviceAdded" << dev->id
-//             << dev->kind
-//             << dev->model
-//             << dev->vendor
-//             << "with" << profiles.size() << "profiles";
 
     if (emitChanged) {
         Q_EMIT changed();
@@ -258,7 +235,6 @@ void KisColord::addProfilesToDevice(Device *dev, QList<QDBusObjectPath> profiles
         if (!profile.isValid()) {
             return;
         }
-
 
         Profile *p = new Profile;
 

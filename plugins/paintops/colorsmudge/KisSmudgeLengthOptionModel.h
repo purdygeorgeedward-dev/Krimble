@@ -29,4 +29,4 @@ public:
     KisSmudgeLengthOptionMixIn backedOptionData() const;
 };
 
-#endif // KISSMUDGELENGTHOPTIONMODEL_H
+#endif

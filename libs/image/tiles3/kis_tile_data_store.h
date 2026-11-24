@@ -22,9 +22,6 @@ class KisTileDataStoreIterator;
 class KisTileDataStoreReverseIterator;
 class KisTileDataStoreClockIterator;
 
-/**
- * Stores tileData objects. When needed compresses them and swaps.
- */
 class KRITAIMAGE_EXPORT KisTileDataStore
 {
 public:
@@ -47,18 +44,11 @@ public:
     MemoryStatistics memoryStatistics();
     void tryForceUpdateMemoryStatisticsWhileIdle();
 
-    /**
-     * Returns total number of tiles present: in memory
-     * or in a swap file
-     */
     inline qint32 numTiles() const
     {
         return m_numTiles.loadAcquire() + m_swappedStore.numTiles();
     }
 
-    /**
-     * Returns the number of tiles present in memory only
-     */
     inline qint32 numTilesInMemory() const
     {
         return m_numTiles.loadAcquire();
@@ -69,9 +59,6 @@ public:
         m_swapper.checkFreeMemory();
     }
 
-    /**
-     * \see m_memoryMetric
-     */
     inline qint64 memoryMetric() const
     {
         return m_memoryMetric.loadAcquire();
@@ -91,42 +78,19 @@ public:
         return allocTileData(pixelSize, defPixel);
     }
 
-    // Called by The Memento Manager after every commit
     inline void kickPooler()
     {
         m_pooler.kick();
 
-        //FIXME: maybe, rename a function?
         m_swapper.kick();
     }
 
-    /**
-     * Try swap out the tile data.
-     * It may fail in case the tile is being accessed
-     * at the same moment of time.
-     */
     bool trySwapTileData(KisTileData *td);
-
-
-    /**
-     * WARN: The following three method are only for usage
-     * in KisTileData. Do not call them directly!
-     */
 
     KisTileData *duplicateTileData(KisTileData *rhs);
 
     void freeTileData(KisTileData *td);
 
-    /**
-     * Ensures that the tile data is totally present in memory
-     * and it's swapping is blocked by holding td->m_swapLock
-     * in a read mode.
-     * PRECONDITIONS: td->m_swapLock is *unlocked*
-     *                m_listRWLock is *unlocked*
-     * POSTCONDITIONS: td->m_data is in memory and
-     *                 td->m_swapLock is locked
-     *                 m_listRWLock is unlocked
-     */
     void ensureTileDataLoaded(KisTileData *td);
 
     void registerTileData(KisTileData *td);
@@ -158,11 +122,6 @@ private:
     friend class KisTileDataPoolerTest;
     KisSwappedDataStore m_swappedStore;
 
-    /**
-     * This metric is used for computing the volume
-     * of memory occupied by tile data objects.
-     * metric = num_bytes / (KisTileData::WIDTH * KisTileData::HEIGHT)
-     */
     QAtomicInt m_numTiles;
     QAtomicInt m_memoryMetric;
     QAtomicInt m_counter;
@@ -178,5 +137,5 @@ inline T MiB_TO_METRIC(T value)
     return value * (__MiB / (KisTileData::WIDTH * KisTileData::HEIGHT));
 }
 
-#endif /* KIS_TILE_DATA_STORE_H_ */
+#endif
 

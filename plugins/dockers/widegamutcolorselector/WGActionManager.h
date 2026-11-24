@@ -83,4 +83,4 @@ private:
     bool m_isSynchronizing {false};
 };
 
-#endif // WGPOPUPMANAGER_H
+#endif

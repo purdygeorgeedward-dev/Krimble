@@ -5,7 +5,6 @@
  *  SPDX-License-Identifier: LGPL-2.0-or-later
  */
 
-
 #ifndef OVERVIEWWIDGET_H
 #define OVERVIEWWIDGET_H
 #include <QObject>
@@ -57,17 +56,6 @@ private:
     void recalculatePreviewDimensions();
     KisIdleTasksManager::TaskGuard registerIdleTask(KisCanvas2 *canvas) override;
     void clearCachedState() override;
-    ///
-    /// \brief isPixelArt checks if the preview is bigger than the image itself
-    ///
-    /// We assume that if the preview is bigger than the image itself,
-    /// (1) the image is very small,
-    ///     (might not be true if the docker is huge and the user is on 4k display...)
-    /// (2) the image is pixel art, so they would like to see pixels.
-    /// In that case we'd like to use a different algorithm (Nearest Neighbour, called "Box")
-    ///    in the OverviewThumbnailStrokeStrategy.
-    /// \return
-    ///
     bool isPixelArt();
 
     QPointF calculatePreviewOrigin(QSize previewSize);
@@ -79,7 +67,7 @@ private:
     QPixmap m_oldPixmap;
     QPixmap m_pixmap;
 
-    QPointF m_previewOrigin; // in the same coordinates space as m_previewSize
+    QPointF m_previewOrigin;
     QSize m_previewSize {QSize(100, 100)};
 
     bool m_dragging {false};
@@ -88,6 +76,4 @@ private:
     QColor m_outlineColor;
 };
 
-
-
-#endif /* OVERVIEWWIDGET_H */
+#endif

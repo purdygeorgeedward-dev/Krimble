@@ -60,4 +60,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif /* __KIS_NODE_VIEW_COLOR_SCHEME_H */
+#endif

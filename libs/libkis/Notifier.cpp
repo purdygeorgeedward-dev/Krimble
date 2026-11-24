@@ -38,7 +38,6 @@ Notifier::Notifier(QObject *parent)
     blockSignals(false);
 }
 
-
 Notifier::~Notifier()
 {
     delete d;

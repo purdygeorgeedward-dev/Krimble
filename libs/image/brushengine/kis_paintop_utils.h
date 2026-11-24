@@ -49,7 +49,6 @@ bool paintFan(PaintOp &op,
     return i;
 }
 
-
 template <class PaintOp>
 void paintLine(PaintOp &op,
                const KisPaintInformation &pi1,
@@ -77,23 +76,9 @@ void paintLine(PaintOp &op,
                      fanCornersStep);
         }
 
-        /**
-         * A bit complicated part to ensure the registration
-         * of the distance information is done in right order
-         */
         pi.paintAt(op, currentDistance);
     }
 
-    /*
-     * Perform spacing and/or timing updates between dabs if appropriate. Typically, this will not
-     * happen if the above loop actually painted anything. This is because the
-     * getNextPointPosition() call before the paint operation will reset the accumulators in
-     * currentDistance and therefore make needsSpacingUpdate() and needsTimingUpdate() false. The
-     * temporal distance between pi1 and pi2 is typically too small for the accumulators to build
-     * back up enough to require a spacing or timing update after that. (The accumulated time values
-     * are updated not during the paint operation, but during the call to getNextPointPosition(),
-     * that is, updated during every paintLine() call.)
-     */
     if (currentDistance->needsSpacingUpdate()) {
         op.updateSpacing(pi2, *currentDistance);
     }
@@ -102,29 +87,13 @@ void paintLine(PaintOp &op,
     }
 }
 
-/**
- * A special class containing the previous position of the cursor for
- * the sake of painting the outline of the paint op. The main purpose
- * of this class is to ensure that the saved point does not equal to
- * the current one, which would cause a outline flicker. To achieve
- * this the class stores two previously requested points instead of the
- * last one.
- */
 class KRITAIMAGE_EXPORT PositionHistory
 {
 public:
-    /**
-     * \return the previously used point, which is guaranteed not to
-     *         be equal to \p pt and updates the history if needed
-     */
     QPointF pushThroughHistory(const QPointF &pt, qreal zoom) {
         QPointF result;
         const qreal pointSwapThreshold = 7.0 / zoom;
 
-        /**
-         * We use per-axis distance to avoid artifacts when using devices that
-         * send events in a staircase way.
-         */
         const qreal distance = qMin(qAbs(pt.x() - m_second.x()), qAbs(pt.y() - m_second.y()));
         const qreal coeff = qMin(1.0, distance / pointSwapThreshold);
 
@@ -133,10 +102,6 @@ public:
             m_first = m_second;
             m_second = pt;
         } else {
-            /**
-             * Ideally, we should make the transition from m_first to m_second smooth,
-             * but simple blending via 'coeff' doesn't work for some reason.
-             */
             result = m_first;
         }
 
@@ -198,4 +163,4 @@ QVector<QRect> splitDabsIntoRects(const QVector<QRect> &dabRects, int idealNumRe
 
 }
 
-#endif /* __KIS_PAINTOP_UTILS_H */
+#endif

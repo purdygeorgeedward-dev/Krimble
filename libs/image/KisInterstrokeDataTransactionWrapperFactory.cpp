@@ -15,7 +15,6 @@
 #include <kis_pointer_utils.h>
 #include <kis_command_utils.h>
 
-
 namespace {
 struct BeginInterstrokeDataTransactionCommand : public KUndo2Command
 {
@@ -87,7 +86,6 @@ private:
 };
 
 }
-
 
 struct KisInterstrokeDataTransactionWrapperFactory::Private
 {

@@ -19,7 +19,6 @@
 class QDomElement;
 class QDomDocument;
 
-
 class KRITAUI_EXPORT KisGridConfig : boost::equality_comparable<KisGridConfig>
 {
 public:
@@ -323,9 +322,6 @@ public:
         return *this == defaultGrid();
     }
 
-    /// Transform the grids using the given \p transform. Please note that \p transform
-    /// should be in 'image' coordinate system.
-    /// Used with image-wide transformations.
     void transform(const QTransform &transform);
 
 private:
@@ -333,7 +329,6 @@ private:
     void updateTrigoCache();
 
 private:
-    // Dynamic data. Stored in KisDocument.
 
     bool m_showGrid;
     bool m_snapToGrid;
@@ -356,8 +351,6 @@ private:
 
     QPoint m_offset;
 
-    // Static data. Stored in the Krita config.
-
     LineTypeInternal m_lineTypeMain;
     LineTypeInternal m_lineTypeSubdivision;
     LineTypeInternal m_lineTypeIsoVertical;
@@ -375,4 +368,4 @@ private:
 
 Q_DECLARE_METATYPE(KisGridConfig)
 
-#endif /* __KIS_GRID_CONFIG_H */
+#endif

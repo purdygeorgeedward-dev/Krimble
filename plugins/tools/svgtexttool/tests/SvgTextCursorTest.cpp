@@ -69,8 +69,6 @@ void SvgTextCursorTest::test_ltr()
     QFETCH(int, result);
     cursor.setVisualMode(visual);
 
-    //The current textcursor sets the pos to the text end...
-    //QCOMPARE(cursor.getPos(), 0);
     cursor.setPos(5, 5);
 
     cursor.moveCursor(mode);
@@ -121,8 +119,6 @@ void SvgTextCursorTest::test_rtl()
     QFETCH(int, result);
     cursor.setVisualMode(visual);
 
-    //The current textcursor sets the pos to the text end...
-    //QCOMPARE(cursor.getPos(), 0);
     cursor.setPos(10, 10);
 
     cursor.moveCursor(mode);
@@ -172,8 +168,6 @@ void SvgTextCursorTest::test_ttb_rl()
     QFETCH(int, result);
     cursor.setVisualMode(visual);
 
-    //The current textcursor sets the pos to the text end...
-    //QCOMPARE(cursor.getPos(), 0);
     cursor.setPos(5, 5);
 
     cursor.moveCursor(mode);
@@ -223,8 +217,6 @@ void SvgTextCursorTest::test_ttb_lr()
     QFETCH(int, result);
     cursor.setVisualMode(visual);
 
-    //The current textcursor sets the pos to the text end...
-    //QCOMPARE(cursor.getPos(), 0);
     cursor.setPos(5, 5);
 
     cursor.moveCursor(mode);
@@ -254,7 +246,6 @@ void SvgTextCursorTest::test_filter_control_chars_in_command()
     QCOMPARE(result, expectedFilteredText);
 }
 
-// Test basic text insertion in a horizontal ltr wrapped text;
 void SvgTextCursorTest::test_text_insert_command()
 {
     KoSvgTextShape *textShape = new KoSvgTextShape();
@@ -274,7 +265,6 @@ void SvgTextCursorTest::test_text_insert_command()
     QCOMPARE(test2, textShape->plainText());
 }
 
-// Test basic text removal in a horizontal ltr wrapped text;
 void SvgTextCursorTest::test_text_remove_command()
 {
     KoSvgTextShape *textShape = new KoSvgTextShape();
@@ -371,8 +361,6 @@ void SvgTextCursorTest::test_set_transforms_on_text_command_data()
                           mapType.value(type).toLatin1().data(),
                           mapDelta.value(delta).toLatin1().data()) << "<text style=\"font-size:10.0;font-family:Deja Vu Sans\">Digital Painting, <tspan x=\"0\" dy=\"10\">Creative</tspan> Freedom</text>" << 15 << 4 << type << bool(delta);
 
-            // These tests are very sensitive to the location of the anchor, so the following tests have been massaged a little so the text isn't moved in such a manner that the anchor location changes.
-
             QTest::addRow("ltr-relative-pos%s%s",
                           mapType.value(type).toLatin1().data(),
                           mapDelta.value(delta).toLatin1().data()) << "<text style=\"font-size:10.0;text-anchor:start;font-family:Deja Vu Sans\">Digital Painting, <tspan dx=\"-50\" dy=\"10\">Creative</tspan> Freedom</text>" << 15 << 4 << type << bool(delta);
@@ -401,7 +389,6 @@ void SvgTextCursorTest::test_set_transforms_on_text_command()
     KoSvgTextShapeMarkupConverter converter(textShape);
     converter.convertFromSvg(svg, QString(), QRectF(0, 0, 300, 300), 72.0);
 
-    // Normalize the pos and anchor, so we're sure the index corresponds to the given pos.
     const int indexPos = textShape->indexForPos(pos);
     const int indexAnchor = textShape->indexForPos(pos+length);
     const int posNormalized = textShape->posForIndex(indexPos);
@@ -450,8 +437,6 @@ void SvgTextCursorTest::test_set_transforms_on_text_command()
     for (int i = 0; i < positions.size(); i++) {
         KoSvgTextCharacterInfo info = newInfos.value(i);
         if (i > 0 && !delta && info.rtl) {
-            /// Absolute positioning is supossed to affect the shaping, which in turn affects advance and positioning
-            /// This means we cannot be expected to test rtl beyond the first offset.
             break;
         }
         const QPointF position = positions.value(i);

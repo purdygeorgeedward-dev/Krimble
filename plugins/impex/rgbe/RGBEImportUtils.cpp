@@ -19,11 +19,9 @@
 
 namespace RGBEIMPORT
 {
-#define MINELEN 8 // minimum scanline length for encoding
-#define MAXELEN 0x7fff // maximum scanline length for encoding
+#define MINELEN 8
+#define MAXELEN 0x7fff
 
-// read an old style line from the hdr image file
-// if 'first' is true the first byte is already read
 bool ReadOldLine(quint8 *image, int width, QDataStream &s)
 {
     int rshift = 0;
@@ -34,7 +32,6 @@ bool ReadOldLine(quint8 *image, int width, QDataStream &s)
         s >> image[1];
         s >> image[2];
 
-        // check if we can read the whole pixel block correctly
         if (s.atEnd()) {
             return false;
         }
@@ -76,7 +73,6 @@ void RGBEToPaintDevice(quint8 *image, int width, KisSequentialIterator &it)
                                         1.0f};
             memcpy(dst, pixelData, 4 * sizeof(float));
         } else {
-            // Zero exponent handle
             const float pixelData[4] = {0.0f, 0.0f, 0.0f, 1.0f};
             memcpy(dst, pixelData, 4 * sizeof(float));
         }
@@ -85,7 +81,6 @@ void RGBEToPaintDevice(quint8 *image, int width, KisSequentialIterator &it)
     }
 }
 
-// Load the HDR image.
 bool LoadHDR(QDataStream &s, const int width, const int height, KisSequentialIterator &it)
 {
     quint8 val;
@@ -96,7 +91,6 @@ bool LoadHDR(QDataStream &s, const int width, const int height, KisSequentialIte
     quint8 *image = (quint8 *)lineArray.data();
 
     for (int cline = 0; cline < height; cline++) {
-        // determine scanline type
         if ((width < MINELEN) || (MAXELEN < width)) {
             if (!ReadOldLine(image, width, s)) {
                 return false;
@@ -123,7 +117,6 @@ bool LoadHDR(QDataStream &s, const int width, const int height, KisSequentialIte
         s >> image[1];
         s >> image[2];
 
-        // check if we can read the whole pixel block correctly
         if (s.atEnd()) {
             return false;
         }
@@ -144,7 +137,6 @@ bool LoadHDR(QDataStream &s, const int width, const int height, KisSequentialIte
             return false;
         }
 
-        // read each component
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < width;) {
                 s >> code;
@@ -153,7 +145,6 @@ bool LoadHDR(QDataStream &s, const int width, const int height, KisSequentialIte
                     return false;
                 }
                 if (code > 128) {
-                    // run
                     code &= 127;
                     s >> val;
                     if (j + code - 1 >= width) {
@@ -166,7 +157,6 @@ bool LoadHDR(QDataStream &s, const int width, const int height, KisSequentialIte
                         code--;
                     }
                 } else {
-                    // non-run
                     if (j + code - 1 >= width) {
                         dbgFile << "Broken file detected: cannot extract data past image bounds!";
                         return false;
@@ -186,4 +176,4 @@ bool LoadHDR(QDataStream &s, const int width, const int height, KisSequentialIte
     return true;
 }
 
-} // namespace RGBEIMPORT
+}

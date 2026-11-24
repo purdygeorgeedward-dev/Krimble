@@ -114,7 +114,7 @@ private:
     QList<Folder> m_folders;
     Bone *m_rootBone {nullptr};
     QList<SpriterObject> m_objects;
-    KisGroupLayerSP m_rootLayer; // Not the image's root later, but the one that is named "root"
+    KisGroupLayerSP m_rootLayer;
     KisLayerSP m_boneLayer;
 
 };

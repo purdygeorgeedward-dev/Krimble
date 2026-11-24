@@ -6,7 +6,6 @@
 
 #include "kis_hline_iterator.h"
 
-
 KisHLineIterator2::KisHLineIterator2(KisDataManager *dataManager, qint32 x, qint32 y, qint32 w, qint32 offsetX, qint32 offsetY, bool writable, KisIteratorCompleteListener *completionListener)
     : KisBaseIterator(dataManager, writable, completionListener),
       m_offsetX(offsetX),
@@ -16,7 +15,7 @@ KisHLineIterator2::KisHLineIterator2(KisDataManager *dataManager, qint32 x, qint
     y -= m_offsetY;
     Q_ASSERT(dataManager);
 
-    if (w < 1) w = 1;  // To make sure there's always at least one pixel read.
+    if (w < 1) w = 1;
 
     m_x = x;
     m_y = y;
@@ -45,7 +44,6 @@ KisHLineIterator2::KisHLineIterator2(KisDataManager *dataManager, qint32 x, qint
 
     m_tileWidth = m_pixelSize * KisTileData::HEIGHT;
 
-    // let's preallocate first row
     for (quint32 i = 0; i < m_tilesCacheSize; i++){
         fetchTileDataForCache(m_tilesCache[i], m_leftCol + i, m_row);
     }
@@ -76,9 +74,7 @@ void KisHLineIterator2::resetRowPos()
 
 bool KisHLineIterator2::nextPixel()
 {
-    // We won't increment m_x here as integer can overflow here
     if (m_x >= m_right) {
-        //return !m_isDoneFlag;
         return m_havePixels = false;
     } else {
         ++m_x;
@@ -86,7 +82,6 @@ bool KisHLineIterator2::nextPixel()
         if (m_x <= m_rightmostInTile)
             m_oldData += m_pixelSize;
         else {
-            // Switching to the beginning of the next tile
             ++m_index;
             switchToTile(0);
         }
@@ -95,14 +90,12 @@ bool KisHLineIterator2::nextPixel()
     return m_havePixels;
 }
 
-
 void KisHLineIterator2::nextRow()
 {
     m_x = m_left;
     ++m_y;
 
     if (++m_yInTile < KisTileData::HEIGHT) {
-        /* do nothing, usual case */
     } else {
         ++m_row;
         m_yInTile = 0;
@@ -114,25 +107,20 @@ void KisHLineIterator2::nextRow()
     m_havePixels = true;
 }
 
-
 qint32 KisHLineIterator2::nConseqPixels() const
 {
     return qMin(m_rightmostInTile, m_right) - m_x + 1;
 }
-
-
 
 bool KisHLineIterator2::nextPixels(qint32 n)
 {
     Q_ASSERT_X(!(m_x > 0 && (m_x + n) < 0), "hlineIt+=", "Integer overflow");
 
     qint32 previousCol = xToCol(m_x);
-    // We won't increment m_x here first as integer can overflow
     if (m_x >= m_right || (m_x += n) > m_right) {
         m_havePixels = false;
     } else {
         qint32 col = xToCol(m_x);
-        // if we are in the same column in tiles
         if (col == previousCol) {
             m_data += n * m_pixelSize;
         } else {
@@ -144,8 +132,6 @@ bool KisHLineIterator2::nextPixels(qint32 n)
     return m_havePixels;
 }
 
-
-
 KisHLineIterator2::~KisHLineIterator2()
 {
     for (uint i = 0; i < m_tilesCacheSize; i++) {
@@ -154,12 +140,10 @@ KisHLineIterator2::~KisHLineIterator2()
     }
 }
 
-
 quint8* KisHLineIterator2::rawData()
 {
     return m_data;
 }
-
 
 const quint8* KisHLineIterator2::oldRawData() const
 {
@@ -173,7 +157,6 @@ const quint8* KisHLineIterator2::rawDataConst() const
 
 void KisHLineIterator2::switchToTile(qint32 xInTile)
 {
-    // The caller must ensure that we are not out of bounds
     Q_ASSERT(m_index < m_tilesCacheSize);
 
     m_data = m_tilesCache[m_index].data;
@@ -186,7 +169,6 @@ void KisHLineIterator2::switchToTile(qint32 xInTile)
     m_data  += offset_col;
     m_oldData += offset_row + offset_col;
 }
-
 
 void KisHLineIterator2::fetchTileDataForCache(KisTileInfo& kti, qint32 col, qint32 row)
 {

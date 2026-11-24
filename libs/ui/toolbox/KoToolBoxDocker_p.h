@@ -30,11 +30,9 @@ class KoToolBoxDocker : public QDockWidget, public KisMainwindowObserver
 public:
     explicit KoToolBoxDocker(KoToolBox *toolBox);
 
-    /// reimplemented from KoCanvasObserverBase
     void setCanvas(KoCanvasBase *canvas) override;
     void unsetCanvas() override;
     QString observerName() override { return "KoToolBoxDocker"; }
-    /// reimplemented from KisMainwindowObserver
     void setViewManager(KisViewManager *viewManager) override;
 
 protected:
@@ -105,4 +103,4 @@ private:
     QWidget *m_edgeBottom {nullptr};
 };
 
-#endif // _KO_TOOLBOX_DOCKER_H_
+#endif

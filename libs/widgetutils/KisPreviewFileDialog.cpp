@@ -82,9 +82,6 @@ void KisPreviewFileDialog::resetIconProvider()
 
 void KisPreviewFileDialog::onCurrentChanged(const QString &path)
 {
-    // Generate the preview only if we're not using the native dialog.
-    // In AppImages, the platform plugins are inaccessible,
-    // so we check the existence of a widget layout instead.
     if ((testOption(QFileDialog::DontUseNativeDialog) || layout()) && m_preview) {
         QIcon icon;
         if (s_iconCreator && s_iconCreator->createFileIcon(path, icon, devicePixelRatioF(), QSize(512, 512))) {
@@ -104,7 +101,6 @@ void KisPreviewFileDialog::previewToggled(bool showPreview)
     group.writeEntry("show_preview", showPreview);
     m_preview->setVisible(showPreview);
 }
-
 
 KisAbstractFileIconCreator::KisAbstractFileIconCreator()
 {

@@ -18,7 +18,6 @@
 
 class KisImportUserFeedbackInterface;
 
-
 namespace KritaUtils {
 
 enum SaveFlag {
@@ -59,12 +58,6 @@ struct ExportFileJob {
     SaveFlags flags;
 };
 
-/**
- * When the image has a colorspace that is not suitable for displaying,
- * Krita should convert that into something more useful. This tool function
- * asks the user about the desired working color space and converts into
- * it.
- */
 KisImportExportErrorCode KRITAUI_EXPORT
 workaroundUnsuitableImageColorSpace(KisImageSP image,
                                     KisImportUserFeedbackInterface *feedbackInterface,
@@ -72,4 +65,4 @@ workaroundUnsuitableImageColorSpace(KisImageSP image,
 
 }
 
-#endif // KISIMPORTEXPORTUTILS_H
+#endif

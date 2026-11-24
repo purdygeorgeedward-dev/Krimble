@@ -34,7 +34,7 @@ public:
     int indexOfUrl(const QUrl &url) const;
 
     void requestSaveOnNextTick();
-}; /* class KisRecentFilesEntry::Private */
+};
 
 KisRecentFilesManager::Private::Private(KisRecentFilesManager *q)
     : m_q(q)
@@ -65,11 +65,8 @@ int KisRecentFilesManager::Private::indexOfUrl(const QUrl &url) const
 
 void KisRecentFilesManager::Private::requestSaveOnNextTick()
 {
-    // If multiple saves are requested within the same tick, they will be
-    // consolidated by the timer.
     m_saveOnIdleTimer.start();
 }
-
 
 KisRecentFilesManager::KisRecentFilesManager()
     : m_d(new Private(this))
@@ -116,7 +113,6 @@ QVector<KisRecentFilesEntry> KisRecentFilesManager::recentFiles() const
 
 QList<QUrl> KisRecentFilesManager::recentUrlsLatestFirst() const
 {
-    // switch order so last opened file is first
     QList<QUrl> sortedList;
     for (int i = m_d->m_entries.length() - 1; i >= 0; i--) {
         sortedList.append(m_d->m_entries[i].m_url);
@@ -125,6 +121,4 @@ QList<QUrl> KisRecentFilesManager::recentUrlsLatestFirst() const
     return sortedList;
 }
 
-// The following file contains code copied and modified from LGPL-2.0-only
-// source:
 #include "KisRecentFilesManager_p.h"

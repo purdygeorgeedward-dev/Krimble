@@ -12,4 +12,3 @@ const QLoggingCategory &KRITAWIDGETUTILS_LOG()
     return category;
 }
 
-

@@ -38,4 +38,4 @@ public:
     std::unique_ptr<KisWaylandAPISurfaceFeedback> m_feedback;
 };
 
-#endif /* KISWAYLANDAPISURFACE_H */
+#endif

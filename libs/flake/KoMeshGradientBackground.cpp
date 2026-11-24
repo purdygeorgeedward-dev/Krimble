@@ -90,13 +90,10 @@ void KoMeshGradientBackground::paint(QPainter &painter,
                 d->renderer->fillPatch(patch, gradient->type(), mesharray, row, col);
             }
         }
-        // uncomment to debug
-        //  d->renderer->patchImage()->save("mesh-patch.png");
     }
 
     painter.setClipPath(fillPath);
 
-    // patch is to be drawn wrt. to "user" coordinates
     painter.drawImage(meshBoundingRect, *d->renderer->patchImage());
 
     painter.restore();

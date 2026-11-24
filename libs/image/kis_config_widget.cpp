@@ -26,9 +26,6 @@ void KisConfigWidget::slotConfigChanged()
     }
 }
 
-/// TODO: remove this method from KisConfigWidget, since
-/// KisViewManager is from kritaui, but we are in
-/// kritaimage
 void KisConfigWidget::setView(KisViewManager *view)
 {
     if (!view) {

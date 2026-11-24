@@ -37,4 +37,4 @@ private:
     bool m_antialiasing = false;
 };
 
-#endif // DLG_BORDER_SELECTION_H
+#endif

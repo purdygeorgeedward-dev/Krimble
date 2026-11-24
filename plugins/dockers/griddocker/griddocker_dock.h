@@ -41,5 +41,4 @@ private:
     KisSignalAutoConnectionsStore m_canvasConnections;
 };
 
-
 #endif

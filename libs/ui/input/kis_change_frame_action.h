@@ -11,7 +11,6 @@
 
 #include "kis_abstract_input_action.h"
 
-
 class KisChangeFrameAction : public KisAbstractInputAction
 {
 public:
@@ -19,7 +18,6 @@ public:
         NextFrameShortcut,
         PreviousFrameShortcut
     };
-
 
     KisChangeFrameAction();
     ~KisChangeFrameAction() override;
@@ -32,4 +30,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif /* __KIS_CHANGE_FRAME_ACTION_H */
+#endif

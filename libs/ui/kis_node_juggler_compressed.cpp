@@ -24,19 +24,6 @@
 #include "kis_generator_layer.h"
 #include "kis_selection_mask.h"
 
-
-/**
- * A special structure that stores information about a node that was
- * moved. The purpose of the object is twofold:
- *
- *     1) When the reordering stroke is already started than the
- *        parent and sibling nodes may be not consistent anymore. So
- *        we store it separately.
- *
- *     2) This objects allows merging (compressing) multiple moves of
- *        a layer into a single action. This behavior is implemented
- *        in tryMerge() method.
- */
 struct MoveNodeStruct {
     MoveNodeStruct(KisImageSP _image, KisNodeSP _node, KisNodeSP _parent, KisNodeSP _above)
         : image(_image),
@@ -56,11 +43,9 @@ struct MoveNodeStruct {
         bool result = true;
 
         if (newParent == rhs.oldParent) {
-            // 'rhs' is newer
             newParent = rhs.newParent;
             newAbove = rhs.newAbove;
         } else if (oldParent == rhs.newParent) {
-            // 'this' is newer
             oldParent = rhs.oldParent;
             oldAbove = rhs.oldAbove;
         } else {
@@ -105,18 +90,6 @@ struct MoveNodeStruct {
 typedef QSharedPointer<MoveNodeStruct> MoveNodeStructSP;
 typedef QHash<KisNodeSP, MoveNodeStructSP> MovedNodesHash;
 
-
-/**
- * All the commands executed by the stroke system are running in the
- * background asynchronously. But, at the same time, they Q_EMIT updates
- * in parallel to the ones emitted by the juggler. Therefore, the
- * juggler and all its commands should share some data: which updates
- * have been requested, but not yet dispatched (m_movedNodesInitial),
- * and what updates have already been processed and executed
- * (m_movedNodesUpdated). This object is shared via a shared pointer
- * and guarantees safe (including thread-safe) access to the shared
- * data.
- */
 class BatchMoveUpdateData {
     MovedNodesHash m_movedNodesInitial;
     MovedNodesHash m_movedNodesUpdated;
@@ -209,8 +182,6 @@ public:
             addToHashLazy(&m_movedNodesInitial, moveStruct);
             resolveParentCollisions(&m_movedNodesInitial);
 
-            // the juggler might directly forward the signal to processUnhandledUpdates,
-            // which would also like to get a lock, so we should release it beforehand
         }
         if (m_parentJuggler) {
             Q_EMIT m_parentJuggler->requestUpdateAsyncFromCommand();
@@ -237,10 +208,6 @@ public:
 
 typedef QSharedPointer<BatchMoveUpdateData> BatchMoveUpdateDataSP;
 
-/**
- * A command that emits a update signals on the compressed move undo
- * or redo.
- */
 class UpdateMovedNodesCommand : public KisCommandUtils::FlipFlopCommand
 {
 public:
@@ -254,19 +221,8 @@ public:
         State currentState = getState();
 
         if (currentState == FINALIZING && isFirstRedo()) {
-            /**
-             * When doing the first redo() some of the updates might
-             * have already been executed by the juggler itself, so we
-             * should process 'unhandled' updates only
-             */
             m_updateData->processUnhandledUpdates();
         } else {
-            /**
-             * When being executed by real undo/redo operations, we
-             * should Q_EMIT all the update signals. No one else will do
-             * that for us (juggler, which did it in the previous
-             * case, might have already died).
-             */
             m_updateData->emitFinalUpdates(currentState);
         }
     }
@@ -274,9 +230,6 @@ private:
     BatchMoveUpdateDataSP m_updateData;
 };
 
-/**
- * A command to activate newly created selection masks after any action
- */
 class ActivateSelectionMasksCommand : public KisCommandUtils::FlipFlopCommand
 {
 public:
@@ -322,10 +275,6 @@ private:
     QList<KisSelectionMaskSP> m_activeAfter;
 };
 
-
-/**
- * A generalized command to move up/down a set of layer
- */
 struct LowerRaiseLayer : public KisCommandUtils::AggregateCommand {
     LowerRaiseLayer(BatchMoveUpdateDataSP updateData,
                     KisImageSP image,
@@ -405,7 +354,7 @@ struct LowerRaiseLayer : public KisCommandUtils::AggregateCommand {
                        prevNode->inherits("KisLayer")) {
 
                 newAbove = prevNode->lastChild();
-                newParent = prevNode; // NOTE: this is an updated 'prevNode'!
+                newParent = prevNode;
             }
         } else {
             KisNodeSP nextNode = headNode->nextSibling();
@@ -430,7 +379,7 @@ struct LowerRaiseLayer : public KisCommandUtils::AggregateCommand {
                        nextNode->inherits("KisLayer")) {
 
                 newAbove = 0;
-                newParent = nextNode; // NOTE: this is an updated 'nextNode'!
+                newParent = nextNode;
             }
         }
 
@@ -495,14 +444,12 @@ struct DuplicateLayers : public KisCommandUtils::AggregateCommand {
 
         KisNodeSP newAbove = filteredNodes.last();
 
-        // make sure we don't add the new layer into a locked group
         while (newAbove->parent() && !newAbove->parent()->isEditable(false)) {
             newAbove = newAbove->parent();
         }
 
         KisNodeSP newParent = newAbove->parent();
 
-        // override parent if provided externally
         if (m_dstParent) {
             newAbove = m_dstAbove;
             newParent = m_dstParent;
@@ -511,8 +458,6 @@ struct DuplicateLayers : public KisCommandUtils::AggregateCommand {
         const int indexOfActiveNode = filteredNodes.indexOf(m_activeNode);
         QList<KisSelectionMaskSP> activeMasks = findActiveSelectionMasks(filteredNodes);
 
-        // we will deactivate the masks before processing, so we should
-        // save their list in a convenient form
         QSet<KisNodeSP> activeMaskNodes;
         Q_FOREACH (KisSelectionMaskSP mask, activeMasks) {
             activeMaskNodes.insert(mask);
@@ -527,14 +472,6 @@ struct DuplicateLayers : public KisCommandUtils::AggregateCommand {
                                                                m_image, false));
 
         if (haveActiveMasks) {
-            /**
-             * We should first disable the currently active masks, after the operation
-             * completed their cloned counterparts will be activated instead.
-             *
-             * HINT: we should deactivate the masks before cloning, because otherwise
-             *       KisGroupLayer::allowAsChild() will not let the second mask to be
-             *       added to the list of child nodes. See bug 382315.
-             */
 
             addCommand(new ActivateSelectionMasksCommand(activeMasks,
                                                          QList<KisSelectionMaskSP>(),
@@ -590,12 +527,7 @@ struct DuplicateLayers : public KisCommandUtils::AggregateCommand {
             }
         }
 
-
         if (haveActiveMasks) {
-            /**
-             * Activate the cloned counterparts of the masks after the operation
-             * is complete.
-             */
             addCommand(new ActivateSelectionMasksCommand(QList<KisSelectionMaskSP>(),
                                                          newActiveMasks,
                                                          true));
@@ -612,7 +544,6 @@ private:
         KisSelectionMask *mask = dynamic_cast<KisSelectionMask*>(node.data());
         return mask && mask->active() ? mask : 0;
     }
-
 
     QList<KisSelectionMaskSP> findActiveSelectionMasks(KisNodeList nodes) {
         QList<KisSelectionMaskSP> masks;
@@ -853,19 +784,11 @@ void KisNodeJugglerCompressed::startTimers()
 
 void KisNodeJugglerCompressed::slotUpdateTimeout()
 {
-    // The juggler could have been already finished explicitly
-    // by slotEndStrokeRequested(). In such a case the final updates
-    // will be issued by the last command of the stroke.
 
     if (!m_d->updateData || !m_d->isStarted) return;
 
     BatchMoveUpdateDataSP updateData = m_d->updateData;
 
-    /**
-     * Since the update should be synchronized with the
-     * flow of layer-add commands, we issue it from a fake
-     * undo command that doesn't generate any history
-     */
     m_d->applicator->applyCommand(
         new KisCommandUtils::LambdaCommand(
             [updateData] () {
@@ -915,16 +838,6 @@ void KisNodeJugglerCompressed::slotUndoDuringStrokeRequested()
 {
     if (!m_d->isStarted) return;
 
-    /**
-     * When the user presses Cltr+Z during the process of layer removal
-     * we should **end** the process and pass execution process back to
-     * the undo stack to make it undone. If we just cancel the action,
-     * then no redo action will be created (see bug 491186).
-     *
-     * So we just wait till the end of the action and return back
-     * to the undo stack.
-     */
-
     KisImageSP image = m_d->image;
     end();
     image->waitForDone();
@@ -934,10 +847,6 @@ void KisNodeJugglerCompressed::slotImageAboutToBeDeleted()
 {
     if (!m_d->isStarted) return;
 
-    /**
-     * We should start a proper end() routine with updates
-     * to avoid an assert about missing updates
-     */
     end();
 }
 

@@ -39,11 +39,11 @@ struct KisJPEGOptions {
     QColor transparencyFillColor;
     bool forceSRGB;
     bool saveProfile;
-    bool storeDocumentMetaData; //this is for getting the metadata from the document info.
-    bool storeAuthor; //this is for storing author data from the document info.
+    bool storeDocumentMetaData;
+    bool storeAuthor;
     int smartLevel = 0;
-    int smartProtect = 0;          // 0 = Smart Selection (automatic), 1 = the selection of the picture, 2 = nothing protected
-    int smartSensitivity = 35;     // how much the Smart Selection protects, 0 to 100
+    int smartProtect = 0;
+    int smartSensitivity = 35;
     bool smartForceGray = false;
     bool smartGrayscale = false;
 };
@@ -62,8 +62,6 @@ public:
 public:
     KisImportExportErrorCode buildImage(QIODevice *io);
     KisImportExportErrorCode buildFile(QIODevice *io, KisPaintLayerSP layer, KisJPEGOptions options, KisMetaData::Store* metaData);
-    /** Retrieve the constructed image
-    */
     KisImageSP image();
 public Q_SLOTS:
     virtual void cancel();

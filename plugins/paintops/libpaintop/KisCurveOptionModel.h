@@ -21,7 +21,6 @@ using RangeState = std::tuple<qreal, qreal>;
 using StrengthState = std::tuple<qreal, qreal, qreal>;
 using LabelsState = std::tuple<QString, int>;
 
-
 class PAINTOP_EXPORT KisCurveOptionModel : public QObject
 {
     Q_OBJECT
@@ -33,7 +32,6 @@ public:
                         KisCurveRangeModelFactory rangeModelFactory);
     ~KisCurveOptionModel();
 
-    // the state must be declared **before** any cursors or readers
     lager::cursor<KisCurveOptionDataCommon> optionData;
     lager::reader<RangeState> strengthRangeNorm;
     lager::state<QString, lager::automatic_tag> activeSensorIdData;
@@ -60,4 +58,4 @@ public:
     KisCurveOptionDataCommon bakedOptionData() const;
 };
 
-#endif // KISCURVEOPTIONMODEL_H
+#endif

@@ -23,14 +23,11 @@ KisInputProfileMigrator::~KisInputProfileMigrator()
 KisInputProfileMigrator5To6::KisInputProfileMigrator5To6(KisInputProfileManager *manager)
     : m_manager(manager)
 {
-    // FIXME(sh_zam): Should we declare this as "the default profile" somewhere?
     const QStringList profiles =
         KoResourcePaths::findAllAssets("data", "input/*.profile", KoResourcePaths::Recursive)
             .filter("kritadefault.profile");
 
     if (!profiles.empty()) {
-        // This will be from the install location, so *has* to be the default, see KoResourcePaths for the
-        // order in which it returns locations.
         m_defaultProfile = profiles.last();
     } else {
         qWarning() << "Default profile does not exist anywhere!";
@@ -97,12 +94,10 @@ KisInputProfileMigrator5To6::migrate(const QMap<QString, ProfileEntry> profiles)
     for (const auto &profile : profiles) {
         QList<KisShortcutConfiguration> shortcuts = getShortcutsFromProfile(profile.fullpath);
 
-        // we ignore the touch shortcuts, because they're from an older version
         filterShortcuts(shortcuts, [](KisShortcutConfiguration shortcut) {
             return shortcut.type() != KisShortcutConfiguration::GestureType;
         });
 
-        // now we add the default new shortcuts -- this should complete the migration.
         shortcuts.append(defaultTouchShortcuts());
 
         parsedProfiles[profile] = shortcuts;

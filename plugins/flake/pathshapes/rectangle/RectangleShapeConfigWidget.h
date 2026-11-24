@@ -19,18 +19,13 @@ class RectangleShapeConfigWidget : public KoShapeConfigWidgetBase, public KoShap
     Q_OBJECT
 public:
     RectangleShapeConfigWidget();
-    /// reimplemented
     void open(KoShape *shape) override;
-    /// reimplemented
     void save() override;
-    /// reimplemented
     void setUnit(const KoUnit &unit) override;
-    /// reimplemented
     bool showOnShapeCreate() override
     {
         return false;
     }
-    /// reimplemented
     KUndo2Command *createCommand() override;
 
     void notifyShapeChanged(KoShape::ChangeType type, KoShape *shape) override;
@@ -43,4 +38,4 @@ private:
     RectangleShape *m_rectangle;
 };
 
-#endif // RECTANGLESHAPECONFIGWIDGET_H
+#endif

@@ -43,7 +43,6 @@
 #include <KisOptimizedBrushOutline.h>
 #include <KisStaticInitializer.h>
 
-
 KIS_DECLARE_STATIC_INITIALIZER {
     qRegisterMetaType<KisBrushSP>("KisBrushSP");
 #if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
@@ -149,17 +148,6 @@ struct KisBrush::Private {
           autoSpacingCoeff(rhs.autoSpacingCoeff),
           threadingAllowed(rhs.threadingAllowed),
           brushTipImage(rhs.brushTipImage),
-          /**
-           * Be careful! The pyramid is shared between two brush objects,
-           * therefore you cannot change it, only recreate! That is the
-           * reason why it is defined as const!
-           *
-           * Take it also into account that the object is defined as
-           * KisLazySharedCacheStorage**Linked**, that is, when a cloned
-           * object updates the cache, the cache of the source object is
-           * also updated. The two caches are detached only when any of
-           * the objects calls cache.reset().
-           */
           brushPyramid(rhs.brushPyramid),
           brushOutline(rhs.brushOutline)
     {
@@ -271,7 +259,6 @@ QPointF KisBrush::hotSpot(KisDabShape const& shape, const KisPaintInformation& i
     qreal w = metric.width();
     qreal h = metric.height();
 
-    // The smallest brush we can produce is a single pixel.
     if (w < 1) {
         w = 1;
     }
@@ -280,9 +267,6 @@ QPointF KisBrush::hotSpot(KisDabShape const& shape, const KisPaintInformation& i
         h = 1;
     }
 
-    // XXX: This should take d->hotSpot into account, though it
-    // isn't specified by gimp brushes so it would default to the center
-    // anyway.
     QPointF p(w / 2, h / 2);
     return p;
 }
@@ -371,10 +355,6 @@ void fetchPremultipliedRed(const QRgb* src, quint8 *dst, int maskWidth)
 
 KisFixedPaintDeviceSP KisBrush::outlineSourceImage() const
 {
-    /**
-     * We need to generate the mask manually, skipping the
-     * construction of the image pyramid
-     */
 
     const KoColorSpace* cs = KoColorSpaceRegistry::instance()->alpha8();
     KisFixedPaintDeviceSP dev = new KisFixedPaintDevice(cs);
@@ -397,7 +377,7 @@ KisFixedPaintDeviceSP KisBrush::outlineSourceImage() const
     return dev;
 }
 
-bool KisBrush::canPaintFor(const KisPaintInformation& /*info*/)
+bool KisBrush::canPaintFor(const KisPaintInformation& )
 {
     return true;
 }
@@ -445,7 +425,7 @@ void KisBrush::predefinedBrushToXML(const QString &type, QDomElement& e) const
     e.setAttribute("brushApplication", QString::number((int)brushApplication()));
 }
 
-void KisBrush::toXML(QDomDocument& /*document*/ , QDomElement& element) const
+void KisBrush::toXML(QDomDocument& , QDomElement& element) const
 {
     element.setAttribute("BrushVersion", "2");
 }
@@ -551,8 +531,6 @@ void KisBrush::notifyStrokeStarted()
 
 void KisBrush::notifyBrushIsGoingToBeClonedForStroke()
 {
-    /// Default implementation for all image-based brushes:
-    /// just recreate the shared pyramid
     d->brushPyramid.initialize(this);
 }
 
@@ -628,7 +606,7 @@ void KisBrush::generateMaskAndApplyMaskOrCreateDab(KisFixedPaintDeviceSP dst,
     if (applyGradient) {
         if (d->cachedGradient) {
             KIS_SAFE_ASSERT_RECOVER_RETURN(d->cachedGradient);
-            d->cachedGradient->setColorSpace(cs); //convert gradient to colorspace so we don't have to convert each pixel
+            d->cachedGradient->setColorSpace(cs);
         } else {
             fallbackColor.reset(new KoColor(Qt::red, cs));
             color = fallbackColor->data();
@@ -657,7 +635,7 @@ void KisBrush::generateMaskAndApplyMaskOrCreateDab(KisFixedPaintDeviceSP dst,
                     gradientcolor.setOpacity(opacity);
                     memcpy(pixel, gradientcolor.data(), pixelSize);
 
-                    maskPointer += maskPixelSize; 
+                    maskPointer += maskPixelSize;
                     pixel += pixelSize;
                 }
             }
@@ -686,7 +664,6 @@ void KisBrush::generateMaskAndApplyMaskOrCreateDab(KisFixedPaintDeviceSP dst,
             coloringInformation->nextRow();
         }
     }
-
 
 }
 

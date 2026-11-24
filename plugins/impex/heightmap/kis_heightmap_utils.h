@@ -14,4 +14,4 @@ namespace KisHeightmapUtils
 KoID mimeTypeToKoID(const class QByteArray& mimeType);
 }
 
-#endif // _KIS_HEIGHTMAP_UTILS_H_
+#endif

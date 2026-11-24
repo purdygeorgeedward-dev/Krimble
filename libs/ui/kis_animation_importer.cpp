@@ -53,12 +53,6 @@ KisAnimationImporter::~KisAnimationImporter()
 
 KisImportExportErrorCode KisAnimationImporter::import(QStringList files, int firstFrame, int step, bool autoAddHoldframes, bool startfrom0, int isAscending, bool assignDocumentProfile, QList<int> optionalKeyframeTimeList)
 {
-    //TODO: We should clean up this code --
-    // There are a lot of actions here that we should break into individual methods
-    // so that we can better control code flow, and I'd prefer to use multiple import
-    // calls to better handle all of these different options!
-    // Additionally, we might prefer to use flags for multiple booleans to improve
-    // legibility of calls.
     Q_ASSERT(step > 0);
 
     KisUndoAdapter *undo = m_d->image->undoAdapter();
@@ -85,9 +79,9 @@ KisImportExportErrorCode KisAnimationImporter::import(QStringList files, int fir
 
     QPair<KisPaintLayerSP, KisRasterKeyframeChannel*> layerRasterChannelPair;
 
-    const QRegularExpression rx(QLatin1String("(\\d+)"));    //regex for extracting numbers
+    const QRegularExpression rx(QLatin1String("(\\d+)"));
     QStringList fileNumberRxList;
-    
+
     QRegularExpressionMatchIterator i = rx.globalMatch(files.at(0));
     while (i.hasNext()) {
         QRegularExpressionMatch match = i.next();
@@ -98,16 +92,15 @@ KisImportExportErrorCode KisAnimationImporter::import(QStringList files, int fir
     bool ok;
 
     if (!fileNumberRxList.isEmpty()) {
-        fileNumberRxList.last().toInt(&ok);    // selects the last number of file name of the first frame (useful for descending order)
-        // Note to self -- ^^ uh.... This isn't doing anything?? Shouldn't this assign `firstFrameNumber`?
+        fileNumberRxList.last().toInt(&ok);
     }
 
     if (firstFrameNumber == 0){
-        startfrom0 = false;     // if enabled, the zeroth frame will be places in -1 slot, leading to an error
+        startfrom0 = false;
     }
 
     fileNumberRxList.clear();
-    const int offset = (startfrom0 ? 1 : 0);    //offset added to consider file numbering starts from 1 instead of 0
+    const int offset = (startfrom0 ? 1 : 0);
     int autoframe = 0;
 
     KisConfig cfg(true);
@@ -127,8 +120,6 @@ KisImportExportErrorCode KisAnimationImporter::import(QStringList files, int fir
             } else {
                 m_d->updater->setValue(filesProcessed + 1);
 
-                // the updater doesn't call that automatically,
-                // it is "threaded" by default
                 qApp->processEvents();
             }
         }
@@ -146,7 +137,7 @@ KisImportExportErrorCode KisAnimationImporter::import(QStringList files, int fir
         KIS_SAFE_ASSERT_RECOVER_RETURN_VALUE(layerRasterChannelPair.second, ImportExportCodes::InternalError);
 
         if (!autoAddHoldframes) {
-            layerRasterChannelPair.second->importFrame(frame, importDoc->image()->projection(), NULL);    // as first frame added will go to second slot i.e #1 instead of #0
+            layerRasterChannelPair.second->importFrame(frame, importDoc->image()->projection(), NULL);
         } else {
             QRegularExpressionMatchIterator i = rx.globalMatch(file);
             while (i.hasNext()) {
@@ -159,13 +150,12 @@ KisImportExportErrorCode KisAnimationImporter::import(QStringList files, int fir
             if (isAscending == 0) {
                 autoframe = firstFrame + filenum - offset;
             } else {
-                autoframe = firstFrame + (firstFrameNumber - filenum); //places the first frame #0 (or #1) slot, and later frames are added as per the difference
+                autoframe = firstFrame + (firstFrameNumber - filenum);
             }
 
             if (ok) {
                 layerRasterChannelPair.second->importFrame(autoframe , importDoc->image()->projection(), NULL);
             } else {
-                // if it fails to extract a number, the next frame will simply be added to next slot
                 layerRasterChannelPair.second->importFrame(autoframe + 1, importDoc->image()->projection(), NULL);
             }
             fileNumberRxList.clear();

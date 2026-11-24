@@ -38,7 +38,7 @@ void KisAnimationImporterTest::testImport()
     KisKeyframeChannel* contentChannel = importedLayer->getKeyframeChannel(KisKeyframeChannel::Raster.id());
 
     QVERIFY(contentChannel != 0);
-    QCOMPARE(contentChannel->keyframeCount(), 4); // Three imported ones + blank at time 0
+    QCOMPARE(contentChannel->keyframeCount(), 4);
     QVERIFY(!contentChannel->keyframeAt(7).isNull());
     QVERIFY(!contentChannel->keyframeAt(10).isNull());
     QVERIFY(!contentChannel->keyframeAt(13).isNull());

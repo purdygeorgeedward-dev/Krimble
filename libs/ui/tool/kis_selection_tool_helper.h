@@ -18,9 +18,6 @@
 
 class KoShape;
 
-/**
- * XXX: Doc!
- */
 class KRITAUI_EXPORT KisSelectionToolHelper
 {
 public:
@@ -42,13 +39,11 @@ public:
 
     SelectionMode tryOverrideSelectionMode(KisSelectionSP activeSelection, SelectionMode currentMode, SelectionAction currentAction) const;
 
-
 private:
     QPointer<KisCanvas2> m_canvas;
     KisImageSP m_image;
     KisLayerSP m_layer;
     KUndo2MagicString m_name;
 };
-
 
 #endif

@@ -20,4 +20,4 @@ private Q_SLOTS:
 
 };
 
-#endif // KISFRAMESERIALIZERTEST_H
+#endif

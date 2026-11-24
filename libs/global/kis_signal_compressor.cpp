@@ -4,35 +4,11 @@
  *  SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-/**
- * KisSignalCompressor will never trigger timeout more often than every \p delay ms,
- * i.e. \p delay ms is a given lower limit defining the highest frequency.
- *
- * The current implementation uses a long-running monitor timer to eliminate the
- * overhead incurred by restarting and stopping timers with each signal. The
- * consequence of this is that the given \p delay ms is not always exactly followed.
- *
- * KisSignalCompressor makes the following callback guarantees (0 < err <= 1, with
- * err == 0 if this is the first signal after a while):
- *
- * POSTPONE:
- *   - timeout after = [0.5 ... 1.0] * \p delay ms.
- * FIRST_ACTIVE_POSTPONE_NEXT:
- *   - first timeout immediately
- *   - postponed timeout after [0.5 ... 1.0] * \p delay ms
- * FIRST_ACTIVE:
- *   - first timeout immediately
- *   - after that [0.5 ... 1.5] * \p delay ms
-  * FIRST_INACTIVE:
- *   - timeout after [0.5 ... 1.5] * \p delay ms
- */
-
 #include "kis_signal_compressor.h"
 
 #include <QTimer>
 #include "kis_assert.h"
 #include "kis_debug.h"
-
 
 KisSignalCompressor::KisSignalCompressor()
     : QObject(0)
@@ -97,7 +73,6 @@ void KisSignalCompressor::start()
     KIS_SAFE_ASSERT_RECOVER_NOOP(!isFirstStart || !m_signalsPending);
     m_sanityIsStarting++;
 
-
     switch (m_mode) {
     case POSTPONE:
         if (isFirstStart) {
@@ -140,7 +115,7 @@ void KisSignalCompressor::start()
             tryEmitOnTick(false);
         }
     case UNDEFINED:
-        ; // Should never happen, but do nothing
+        ;
     };
 
     m_sanityIsStarting--;
@@ -154,13 +129,8 @@ bool KisSignalCompressor::tryEmitOnTick(bool isFromTimer)
 {
     bool wasEmitted = false;
 
-    // we have different requirements for hi-frequency events (the mean
-    // of the events rate must be min(compressorRate, eventsRate)
     const int realInterval = m_timeout;
     const int minInterval = realInterval < 100 ? 0.5 * realInterval : realInterval;
-
-    // Enable for debugging:
-    // ENTER_FUNCTION() << ppVar(isFromTimer) << ppVar(m_signalsPending) << m_lastEmittedTimer.elapsed() << ppVar((m_idleCallback && m_idleCallback()));
 
     if (m_signalsPending &&
             (m_lastEmittedTimer.elapsed() >= minInterval ||

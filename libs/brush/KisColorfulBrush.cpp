@@ -6,7 +6,6 @@
 
 #include "KisColorfulBrush.h"
 
-
 KisColorfulBrush::KisColorfulBrush(const QString &filename)
     : KisScalingSizeBrush(filename)
 {
@@ -183,7 +182,6 @@ qreal KisColorfulBrush::contrastAdjustment() const
 
 void KisColorfulBrush::toXML(QDomDocument& d, QDomElement& e) const
 {
-    // legacy setting, now 'brushApplication' is used instead
     e.setAttribute("ColorAsMask", QString::number((int)(brushApplication() != IMAGESTAMP)));
 
     e.setAttribute("AdjustmentMidPoint", QString::number(m_adjustmentMidPoint));

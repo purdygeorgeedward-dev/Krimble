@@ -102,7 +102,6 @@ QString Resource::filename() const
     return d->filename;
 }
 
-
 QImage Resource::image() const
 {
     return d->image;
@@ -119,9 +118,4 @@ KoResourceSP Resource::resource() const
     Q_ASSERT(res);
     return res;
 }
-
-
-
-
-
 

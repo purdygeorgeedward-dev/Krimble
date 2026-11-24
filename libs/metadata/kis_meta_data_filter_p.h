@@ -10,9 +10,6 @@
 
 namespace KisMetaData
 {
-/**
- * Filter that remove personal data in a meta store.
- */
 class AnonymizerFilter : public Filter
 {
 public:
@@ -23,10 +20,6 @@ public:
     bool defaultEnabled() const override;
     void filter(KisMetaData::Store*) const override;
 };
-/**
- * Filter that add the name of the creation program and the date
- * of the last modification.
- */
 class ToolInfoFilter : public Filter
 {
 public:

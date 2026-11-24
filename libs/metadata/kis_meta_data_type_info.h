@@ -50,18 +50,8 @@ public:
     };
 private:
     TypeInfo(PropertyType _propertiesType);
-    /**
-     * Create a \ref TypeInfo for a
-     */
     TypeInfo(PropertyType _propertiesType, const TypeInfo* _embedded);
-    /**
-     * Create a \ref TypeInfo for a choice (either open or closed).
-     * @param _propertiesType either OpenedChoice or ClosedChoice
-     */
     TypeInfo(PropertyType _propertiesType, const TypeInfo* _embedded, const QList< Choice >&);
-    /**
-     * Create a \ref TypeInfo for a structure.
-     */
     TypeInfo(Schema* _structureSchema, const QString& name);
     ~TypeInfo();
 public:
@@ -71,13 +61,7 @@ public:
     Schema* structureSchema() const;
     const QString& structureName() const;
     const Parser* parser() const;
-    /**
-     * @return true if @p value has a type that is correct for this \ref TypeInfo
-     */
     bool hasCorrectType(const Value& value) const;
-    /**
-     * @return true if @p value has a value acceptable for this \ref TypeInfo
-     */
     bool hasCorrectValue(const Value& value) const;
 public:
     struct Private;

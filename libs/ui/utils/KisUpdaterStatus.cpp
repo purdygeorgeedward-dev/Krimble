@@ -4,7 +4,6 @@
  *  SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-
 #include "KisUpdaterStatus.h"
 #include <kis_debug.h>
 

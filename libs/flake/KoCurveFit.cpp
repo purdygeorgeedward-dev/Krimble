@@ -10,17 +10,7 @@
 #include <QVector>
 #include <math.h>
 
-/// our equivalent to zero
 const qreal Zero = 10e-12;
-
-/*
-    An Algorithm for Automatically Fitting Digitized Curves
-    by Philip J. Schneider
-    from "Graphics Gems", Academic Press, 1990
-
-    http://tog.acm.org/resources/GraphicsGems/gems/FitCurves.c
-    http://tog.acm.org/resources/GraphicsGems/gems/README
-*/
 
 class FitVector {
 public:
@@ -88,7 +78,6 @@ qreal distance(const QPointF &p1, const QPointF &p2)
     return sqrt(dx*dx + dy*dy);
 }
 
-
 FitVector ComputeLeftTangent(const QList<QPointF> &points, int end)
 {
     FitVector tHat1(points.at(end + 1), points.at(end));
@@ -107,15 +96,10 @@ FitVector ComputeRightTangent(const QList<QPointF> &points, int end)
     return tHat1;
 }
 
-/*
- *  ChordLengthParameterize :
- *  Assign parameter values to digitized points
- *  using relative distances between points.
- */
 static qreal *ChordLengthParameterize(const QList<QPointF> &points, int first, int last)
 {
     int     i;
-    qreal   *u;         /*  Parameterization        */
+    qreal   *u;
 
     u = new qreal[(last-first+1)];
 
@@ -173,16 +157,11 @@ static FitVector ComputeCenterTangent(const QList<QPointF> &points, int center)
     return tHatCenter;
 }
 
-/*
- *  B0, B1, B2, B3 :
- *  Bezier multipliers
- */
 static qreal B0(qreal u)
 {
     qreal tmp = 1.0 - u;
     return (tmp * tmp * tmp);
 }
-
 
 static qreal B1(qreal u)
 {
@@ -201,33 +180,25 @@ static qreal B3(qreal u)
     return (u * u * u);
 }
 
-/*
- *  GenerateBezier :
- *  Use least-squares method to find Bezier control points for region.
- *
- */
 QPointF* GenerateBezier(const QList<QPointF> &points, int first, int last, qreal *uPrime, FitVector tHat1, FitVector tHat2)
 {
     int     i;
-    int     nPts;           /* Number of pts in sub-curve */
-    qreal   C[2][2];            /* Matrix C     */
-    qreal   X[2];           /* Matrix X         */
-    qreal   det_C0_C1,      /* Determinants of matrices */
+    int     nPts;
+    qreal   C[2][2];
+    qreal   X[2];
+    qreal   det_C0_C1,
     det_C0_X,
     det_X_C1;
-    qreal   alpha_l,        /* Alpha values, left and right */
+    qreal   alpha_l,
     alpha_r;
-    FitVector   tmp;            /* Utility variable     */
+    FitVector   tmp;
     QPointF *curve;
 
     curve = new QPointF[4];
     nPts = last - first + 1;
 
-    /* Precomputed rhs for eqn      */
-    // FitVector A[nPts][2]
     QVector< QVector<FitVector> > A(nPts, QVector<FitVector>(2));
 
-    /* Compute the A's  */
     for (i = 0; i < nPts; ++i) {
         FitVector v1, v2;
         v1 = tHat1;
@@ -238,7 +209,6 @@ QPointF* GenerateBezier(const QList<QPointF> &points, int first, int last, qreal
         A[i][1] = v2;
     }
 
-    /* Create the C and X matrices  */
     C[0][0] = 0.0;
     C[0][1] = 0.0;
     C[1][0] = 0.0;
@@ -249,7 +219,6 @@ QPointF* GenerateBezier(const QList<QPointF> &points, int first, int last, qreal
     for (i = 0; i < nPts; ++i) {
         C[0][0] += (A[i][0]).dot(A[i][0]);
         C[0][1] += A[i][0].dot(A[i][1]);
-        /* C[1][0] += V2Dot(&A[i][0], &A[i][1]);*/
         C[1][0] = C[0][1];
         C[1][1] += A[i][1].dot(A[i][1]);
 
@@ -266,17 +235,14 @@ QPointF* GenerateBezier(const QList<QPointF> &points, int first, int last, qreal
                                     VectorScale(vlast, B2(uPrime[i])),
                                     VectorScale(vlast, B3(uPrime[i]))))));
 
-
         X[0] += A[i][0].dot(tmp);
         X[1] += A[i][1].dot(tmp);
     }
 
-    /* Compute the determinants of C and X  */
     det_C0_C1 = C[0][0] * C[1][1] - C[1][0] * C[0][1];
     det_C0_X  = C[0][0] * X[1]    - C[0][1] * X[0];
     det_X_C1  = X[0]    * C[1][1] - X[1]    * C[0][1];
 
-    /* Finally, derive alpha values */
     if (qFuzzyCompare(det_C0_C1, qreal(0.0))) {
         det_C0_C1 = (C[0][0] * C[1][1]) * 10e-12;
         if (qFuzzyCompare(det_C0_C1, qreal(0.0))) {
@@ -286,10 +252,6 @@ QPointF* GenerateBezier(const QList<QPointF> &points, int first, int last, qreal
     alpha_l = det_X_C1 / det_C0_C1;
     alpha_r = det_C0_X / det_C0_C1;
 
-
-    /*  If alpha negative, use the Wu/Barsky heuristic (see text) */
-    /* (if alpha is 0, you get coincident control points that lead to
-     * divide by zero in any subsequent NewtonRaphsonRootFind() call. */
     if (alpha_l < 1.0e-6 || alpha_r < 1.0e-6) {
         qreal dist = distance(points.at(last), points.at(first)) / 3.0;
 
@@ -304,10 +266,6 @@ QPointF* GenerateBezier(const QList<QPointF> &points, int first, int last, qreal
         return curve;
     }
 
-    /*  First and last control points of the Bezier curve are */
-    /*  positioned exactly at the first and last data points */
-    /*  Control points 1 and 2 are positioned an alpha distance out */
-    /*  on the tangent vectors, left and right, respectively */
     curve[0] = points.at(first);
     curve[3] = points.at(last);
 
@@ -320,16 +278,11 @@ QPointF* GenerateBezier(const QList<QPointF> &points, int first, int last, qreal
     return (curve);
 }
 
-/*
- *  Bezier :
- *      Evaluate a Bezier curve at a particular parameter value
- *
- */
 static QPointF BezierII(int degree, QPointF *V, qreal t)
 {
     int     i, j;
-    QPointF     Q;          /* Point on curve at parameter t    */
-    QPointF     *Vtemp;     /* Local copy of control points     */
+    QPointF     Q;
+    QPointF     *Vtemp;
 
     Vtemp = new QPointF[degree+1];
 
@@ -337,7 +290,6 @@ static QPointF BezierII(int degree, QPointF *V, qreal t)
         Vtemp[i] = V[i];
     }
 
-    /* Triangle computation */
     for (i = 1; i <= degree; ++i) {
         for (j = 0; j <= degree - i; ++j) {
             Vtemp[j].setX((1.0 - t) * Vtemp[j].x() + t * Vtemp[j+1].x());
@@ -350,18 +302,13 @@ static QPointF BezierII(int degree, QPointF *V, qreal t)
     return Q;
 }
 
-/*
- *  ComputeMaxError :
- *  Find the maximum squared distance of digitized points
- *  to fitted curve.
-*/
 static qreal ComputeMaxError(const QList<QPointF> &points, int first, int last, QPointF *curve, qreal *u, int *splitPoint)
 {
     int     i;
-    qreal   maxDist;        /*  Maximum error       */
-    qreal   dist;       /*  Current error       */
-    QPointF P;          /*  Point on curve      */
-    FitVector   v;          /*  Vector from point to curve  */
+    qreal   maxDist;
+    qreal   dist;
+    QPointF P;
+    FitVector   v;
 
     *splitPoint = (last - first + 1) / 2;
     maxDist = 0.0;
@@ -377,39 +324,29 @@ static qreal ComputeMaxError(const QList<QPointF> &points, int first, int last, 
     return (maxDist);
 }
 
-
-/*
- *  NewtonRaphsonRootFind :
- *  Use Newton-Raphson iteration to find better root.
- */
 static qreal NewtonRaphsonRootFind(QPointF *Q, QPointF P, qreal u)
 {
     qreal       numerator, denominator;
-    QPointF         Q1[3], Q2[2];   /*  Q' and Q''          */
-    QPointF     Q_u, Q1_u, Q2_u; /*u evaluated at Q, Q', & Q''  */
-    qreal       uPrime;     /*  Improved u          */
+    QPointF         Q1[3], Q2[2];
+    QPointF     Q_u, Q1_u, Q2_u;
+    qreal       uPrime;
     int         i;
 
-    /* Compute Q(u) */
     Q_u = BezierII(3, Q, u);
 
-    /* Generate control vertices for Q' */
     for (i = 0; i <= 2; ++i) {
         Q1[i].setX((Q[i+1].x() - Q[i].x()) * 3.0);
         Q1[i].setY((Q[i+1].y() - Q[i].y()) * 3.0);
     }
 
-    /* Generate control vertices for Q'' */
     for (i = 0; i <= 1; ++i) {
         Q2[i].setX((Q1[i+1].x() - Q1[i].x()) * 2.0);
         Q2[i].setY((Q1[i+1].y() - Q1[i].y()) * 2.0);
     }
 
-    /* Compute Q'(u) and Q''(u) */
     Q1_u = BezierII(2, Q1, u);
     Q2_u = BezierII(1, Q2, u);
 
-    /* Compute f(u)/f'(u) */
     numerator = (Q_u.x() - P.x()) * (Q1_u.x()) + (Q_u.y() - P.y()) * (Q1_u.y());
     denominator = (Q1_u.x()) * (Q1_u.x()) + (Q1_u.y()) * (Q1_u.y()) +
                   (Q_u.x() - P.x()) * (Q2_u.x()) + (Q_u.y() - P.y()) * (Q2_u.y());
@@ -418,22 +355,15 @@ static qreal NewtonRaphsonRootFind(QPointF *Q, QPointF P, qreal u)
         denominator = Zero;
     }
 
-    /* u = u - f(u)/f'(u) */
     uPrime = u - (numerator / denominator);
     return (uPrime);
 }
 
-/*
- *  Reparameterize:
- *  Given set of points and their parameterization, try to find
- *   a better parameterization.
- *
- */
 static qreal *Reparameterize(const QList<QPointF> &points, int first, int last, qreal *u, QPointF *curve)
 {
     int     nPts = last - first + 1;
     int     i;
-    qreal   *uPrime;        /*  New parameter values    */
+    qreal   *uPrime;
 
     uPrime = new qreal[nPts];
     for (i = first; i <= last; ++i) {
@@ -457,7 +387,6 @@ QPointF *FitCubic(const QList<QPointF> &points, int first, int last, FitVector t
 
     width = 0;
 
-
     iterationError = error * error;
     nPts = last - first + 1;
 
@@ -479,12 +408,9 @@ QPointF *FitCubic(const QList<QPointF> &points, int first, int last, FitVector t
         return curve;
     }
 
-    /*  Parameterize points, and attempt to fit curve */
     u = ChordLengthParameterize(points, first, last);
     curve = GenerateBezier(points, first, last, u, tHat1, tHat2);
 
-
-    /*  Find max deviation of points to fitted curve */
     maxError = ComputeMaxError(points, first, last, curve, u, &splitPoint);
     if (maxError < error) {
         delete[] u;
@@ -492,9 +418,6 @@ QPointF *FitCubic(const QList<QPointF> &points, int first, int last, FitVector t
         return curve;
     }
 
-
-    /*  If error not too large, try some reparameterization  */
-    /*  and iteration */
     if (maxError < iterationError) {
         for (i = 0; i < maxIterations; ++i) {
             uPrime = Reparameterize(points, first, last, u, curve);
@@ -513,7 +436,6 @@ QPointF *FitCubic(const QList<QPointF> &points, int first, int last, FitVector t
         }
     }
 
-    /* Fitting failed -- split at max error point and fit recursively */
     delete[] u;
     delete[] curve;
     tHatCenter = ComputeCenterTangent(points, splitPoint);
@@ -538,7 +460,6 @@ QPointF *FitCubic(const QList<QPointF> &points, int first, int last, FitVector t
     width = w1 + w2;
     return newcurve;
 }
-
 
 KoPathShape * bezierFit(const QList<QPointF> &points, float error)
 {

@@ -52,4 +52,4 @@ inline qreal minimizeEnergy(const qreal* m, qreal* sol, int w, int h)
 }
 }
 
-#endif // KIS_DUPLICATEOP_P_H_
+#endif

@@ -22,27 +22,10 @@ public:
     explicit KisSelectionPropertySliderBase(QWidget* parent = 0);
     ~KisSelectionPropertySliderBase() override;
 
-    /**
-     * Set the prefix/suffix using i18n strings in the form of `prefix {n} suffix`.
-     *
-     * @param normalTemplate The text in the form of `prefix{n}suffix`, usually
-     *                       passed through `i18n` or `i18nc`, for when there
-     *                       is only one selection or multiple selections with
-     *                       the same value.
-     * @param mixedTemplate The text in the form of `prefix{n}suffix`, usually
-     *                      passed through `i18n` or `i18nc`, for when there
-     *                      are multiple selections with different values.
-     */
     void setTextTemplates(const QString &normalTemplate, const QString &mixedTemplate);
 
-    /**
-     * **Deleted function** - use `setTextTemplates` instead.
-     */
     void setPrefix(const QString &) = delete;
 
-    /**
-     * **Deleted function** - use `setTextTemplates` instead.
-     */
     void setSuffix(const QString &) = delete;
 
 protected:
@@ -61,21 +44,6 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-/**
- * This is a generic slider for adjusting a property across a set of one or
- * more items such as a selection.
- *
- * When using this class, first call the setValueGetter method to allow the
- * slider to get values from the items. For example:
- * slider->setValueGetter(
- *     [](KoShape *s) { return s->transparency(); }
- * );
- *
- * To update the slider, call setSelection with the new set of objects.
- *
- * When the slider is dragged, valueChanged(qreal) signals are emitted after
- * signal compression.
- */
 template<class T>
 class KRITAUI_EXPORT KisSelectionPropertySlider : public KisSelectionPropertySliderBase
 {

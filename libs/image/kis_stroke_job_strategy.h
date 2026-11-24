@@ -10,7 +10,6 @@
 #include "kritaimage_export.h"
 #include <QLatin1String>
 
-
 class KRITAIMAGE_EXPORT KisStrokeJobData
 {
 public:
@@ -56,7 +55,6 @@ private:
     int m_levelOfDetailOverride;
 };
 
-
 class KRITAIMAGE_EXPORT KisStrokeJobStrategy
 {
 public:
@@ -66,8 +64,7 @@ public:
     virtual void run(KisStrokeJobData *data) = 0;
     virtual QString debugId() const = 0;
 
-
 private:
 };
 
-#endif /* __KIS_STROKE_JOB_STRATEGY_H */
+#endif

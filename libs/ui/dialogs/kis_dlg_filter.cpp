@@ -7,8 +7,6 @@
 
 #include "kis_dlg_filter.h"
 
-
-
 #include <KoResourcePaths.h>
 #include <filter/kis_filter.h>
 #include <filter/kis_filter_configuration.h>
@@ -57,8 +55,6 @@ struct KisDlgFilter::Private {
     KisViewManager *view;
     KisFilterManager *filterManager;
 
-    // a special guard object that blocks all the painting input actions while the
-    // dialog is open
     QScopedPointer<KisInputActionGroupsMaskGuard> blockModifyingActionsGuard;
     KisSignalCompressor updateCompressor;
 };
@@ -122,7 +118,6 @@ KisDlgFilter::KisDlgFilter(KisViewManager *view, KisNodeSP node, KisFilterManage
 
     d->uiFilterDialog.chkFilterSelectedFrames->setChecked(d->filterManager->filterAllSelectedFrames());
 
-    //Handle create mask toggle based on state of chkFilterSelectedFrames
     connect(d->uiFilterDialog.chkFilterSelectedFrames, &QCheckBox::toggled, [this](const bool state){
         if (d->currentFilter) {
             d->uiFilterDialog.pushButtonCreateMaskEffect->setEnabled(!state && d->currentFilter->supportsAdjustmentLayers());

@@ -10,7 +10,6 @@
 
 #include "kis_default_bounds_base.h"
 
-
 namespace TestUtil {
 
 struct TestingTimedDefaultBounds : public KisDefaultBoundsBase {
@@ -65,4 +64,4 @@ private:
 
 }
 
-#endif /* __TESTING_TIMED_DEFAULT_BOUNDS_H */
+#endif

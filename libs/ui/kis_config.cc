@@ -100,7 +100,6 @@ void KisConfig::logImportantSettings() const
         backupDir = QStandardPaths::writableLocation(QStandardPaths::TempLocation);
         break;
     default:
-        // Do nothing: the empty string is user file location
         backupDir = "Same Folder as the File";
     }
     KisUsageLogger::writeSysInfo(QString("  Backup Location: %1").arg(backupDir));
@@ -114,7 +113,6 @@ void KisConfig::logImportantSettings() const
 
     KisUsageLogger::writeSysInfo("\n");
 
-    // Tablet API information
 #if defined Q_OS_WIN && QT_VERSION > QT_VERSION_CHECK(6, 0, 0)
 {
     auto tabletAPIName = [] (bool useWinTab) {
@@ -163,9 +161,6 @@ bool KisConfig::disableTouchOnCanvas() const
     case TOUCH_PAINTING_DISABLED:
         return true;
     default:
-        // Automatic detection: enable or disable touch input based on whether
-        // we've received a tablet input during this session and therefore know
-        // that the user has a pen available.
         return KoPointerEvent::tabletInputReceived();
     }
 }
@@ -310,8 +305,6 @@ void KisConfig::setUseDefaultColorSpace(bool value) const
     m_cfg.writeEntry("useDefaultColorSpace", value);
 }
 
-// brush cursor settings
-
 void cleanOldCursorStyleKeys(KConfigGroup &cfg)
 {
     if (cfg.hasKey("newCursorStyle") &&
@@ -327,11 +320,9 @@ CursorStyle KisConfig::newCursorStyle(bool defaultValue) const
         return CURSOR_STYLE_NO_CURSOR;
     }
 
-
     int style = m_cfg.readEntry("newCursorStyle", int(-1));
 
     if (style < 0) {
-        // old style format
         style = m_cfg.readEntry("cursorStyleDef", int(OLD_CURSOR_STYLE_OUTLINE));
 
         switch (style) {
@@ -368,7 +359,6 @@ CursorStyle KisConfig::newCursorStyle(bool defaultValue) const
 
     cleanOldCursorStyleKeys(m_cfg);
 
-    // compatibility with future versions
     if (style < 0 || style >= N_CURSOR_STYLE_SIZE) {
         style = CURSOR_STYLE_NO_CURSOR;
     }
@@ -402,7 +392,6 @@ OutlineStyle KisConfig::newOutlineStyle(bool defaultValue) const
     int style = m_cfg.readEntry("newOutlineStyle", int(-1));
 
     if (style < 0) {
-        // old style format
         style = m_cfg.readEntry("cursorStyleDef", int(OLD_CURSOR_STYLE_OUTLINE));
 
         switch (style) {
@@ -429,7 +418,6 @@ OutlineStyle KisConfig::newOutlineStyle(bool defaultValue) const
 
     cleanOldCursorStyleKeys(m_cfg);
 
-    // compatibility with future versions
     if (style < 0 || style >= N_OUTLINE_STYLE_SIZE) {
         style = OUTLINE_FULL;
     }
@@ -458,8 +446,6 @@ void KisConfig::setLastUsedOutlineStyle(OutlineStyle style)
     m_cfg.writeEntry("lastUsedOutlineStyle", (int)style);
 }
 
-// eraser cursor settings
-
 bool KisConfig::separateEraserCursor(bool defaultValue) const
 {
     return (defaultValue ? false : m_cfg.readEntry("separateEraserCursor", false));
@@ -478,7 +464,6 @@ CursorStyle KisConfig::eraserCursorStyle(bool defaultValue) const
 
     int style = m_cfg.readEntry("eraserCursorStyle", int(-1));
 
-    // compatibility with future versions
     if (style < 0 || style >= N_CURSOR_STYLE_SIZE) {
         style = CURSOR_STYLE_ERASER;
     }
@@ -511,7 +496,6 @@ OutlineStyle KisConfig::eraserOutlineStyle(bool defaultValue) const
 
     int style = m_cfg.readEntry("eraserOutlineStyle", int(-1));
 
-    // compatibility with future versions
     if (style < 0 || style >= N_OUTLINE_STYLE_SIZE) {
         style = OUTLINE_FULL;
     }
@@ -557,7 +541,7 @@ void KisConfig::setColorSamplerPreviewCircleDiameter(int diameter)
 
 qreal KisConfig::colorSamplerPreviewCircleThickness(bool defaultValue) const
 {
-    qreal def = 12; // percentage
+    qreal def = 12;
     if (!defaultValue) {
         return m_cfg.readEntry("colorSamplerPreviewCircleThickness", def);
     }
@@ -715,7 +699,6 @@ void KisConfig::setCanvasSurfaceColorSpaceManagementMode(KisConfig::CanvasSurfac
     m_cfg.writeEntry("canvasSurfaceColorSpaceManagementMode", modeStr);
 }
 
-
 KisConfig::CanvasSurfaceBitDepthMode KisConfig::canvasSurfaceBitDepthMode(QSettings *settings, bool defaultValue)
 {
     QString modeStr = defaultValue ? "auto" : settings->value("canvasSurfaceBitDepthMode", "auto").toString();
@@ -782,28 +765,20 @@ KisConfig::CanvasSurfaceBitDepthMode KisConfig::effectiveCanvasSurfaceBitDepthMo
     return mode;
 }
 
-
 QString KisConfig::monitorProfile(int screen) const
 {
-    // Note: keep this in sync with the default profile for the RGB colorspaces!
     const QString defaultProfile = "sRGB-elle-V2-srgbtrc.icc";
 
     QString profile;
     const QString screenIdentifier = getScreenStringIdentfier(screen);
     const QString screenIdentifierKey = "monitorProfile" + screenIdentifier;
 
-    /**
-     * Screen identifier may be empty (e.g. on macOS), so the identifier
-     * key will be plain 'monitorProfile', which is the key for the **first**
-     * display's profile, so we shouldn't fall into this trap...
-     */
     if (!screenIdentifier.isEmpty() && m_cfg.hasKey(screenIdentifierKey)) {
         profile = m_cfg.readEntry(screenIdentifierKey, defaultProfile);
     } else {
         profile = m_cfg.readEntry("monitorProfile" + QString(screen == 0 ? "": QString("_%1").arg(screen)), defaultProfile);
     }
 
-    //dbgKrita << "KisConfig::monitorProfile()" << profile;
     return profile;
 }
 
@@ -827,7 +802,6 @@ void KisConfig::setMonitorProfile(int screen, const QString & monitorProfile, bo
     }
 }
 
-// TODO: rename into getSystemScreenProfile
 const KoColorProfile *KisConfig::getScreenProfile(int screen)
 {
     if (screen < 0) return 0;
@@ -837,7 +811,6 @@ const KoColorProfile *KisConfig::getScreenProfile(int screen)
     if (KisColorManager::instance()->devices().size() > screen) {
         monitorId = cfg.monitorForScreen(screen, KisColorManager::instance()->devices()[screen]);
     }
-    //dbgKrita << "getScreenProfile(). Screen" << screen << "monitor id" << monitorId;
 
     if (monitorId.isEmpty()) {
         return 0;
@@ -845,11 +818,9 @@ const KoColorProfile *KisConfig::getScreenProfile(int screen)
 
     QByteArray bytes = KisColorManager::instance()->displayProfile(monitorId);
 
-    //dbgKrita << "\tgetScreenProfile()" << bytes.size();
     const KoColorProfile * profile = 0;
     if (bytes.length() > 0) {
         profile = KoColorSpaceRegistry::instance()->createColorProfile(RGBAColorModelID.id(), Integer8BitsColorDepthID.id(), bytes);
-        //dbgKrita << "\tKisConfig::getScreenProfile for screen" << screen << profile->name();
     }
     return profile;
 }
@@ -858,43 +829,29 @@ const KoColorProfile *KisConfig::displayProfile(int screen) const
 {
     if (screen < 0) return 0;
 
-    // if the user plays with the settings, they can override the display profile, in which case
-    // we don't want the system setting.
     bool override = useSystemMonitorProfile();
-    //dbgKrita << "KisConfig::displayProfile(). Override X11:" << override;
     const KoColorProfile *profile = 0;
     if (override) {
-        //dbgKrita << "\tGoing to get the screen profile";
         profile = KisConfig::getScreenProfile(screen);
     }
 
-    // if it fails. check the configuration
     if (!profile || !profile->isSuitableForDisplay()) {
-        //dbgKrita << "\tGoing to get the monitor profile";
         QString monitorProfileName = monitorProfile(screen);
-        //dbgKrita << "\t\tmonitorProfileName:" << monitorProfileName;
         if (!monitorProfileName.isEmpty()) {
             profile = KoColorSpaceRegistry::instance()->profileByName(monitorProfileName);
         }
         if (profile) {
-            //dbgKrita << "\t\tsuitable for display" << profile->isSuitableForDisplay();
         }
         else {
-            //dbgKrita << "\t\tstill no profile";
         }
     }
-    // if we still don't have a profile, or the profile isn't suitable for display,
-    // we need to get a last-resort profile. the built-in sRGB is a good choice then.
     if (!profile || !profile->isSuitableForDisplay()) {
-        //dbgKrita << "\tnothing worked, going to get sRGB built-in";
         profile = KoColorSpaceRegistry::instance()->profileByName("sRGB Built-in");
     }
 
     if (profile) {
-        //dbgKrita << "\tKisConfig::displayProfile for screen" << screen << "is" << profile->name();
     }
     else {
-        //dbgKrita << "\tCouldn't get a display profile at all";
     }
 
     return profile;
@@ -911,7 +868,7 @@ const QString KisConfig::getScreenStringIdentfier(int screenNo) const {
     QString serialNumber = screen->serialNumber();
 
     if (manufacturer == "" && model == "" && serialNumber == "") {
-        return QString(); // it would be scary to base the profile just on resolution
+        return QString();
     }
 
     QString identifier = QStringList({manufacturer, model, serialNumber}).join("_");
@@ -928,10 +885,8 @@ void KisConfig::setWorkingColorSpace(const QString & workingColorSpace) const
     m_cfg.writeEntry("workingColorSpace", workingColorSpace);
 }
 
-QString KisConfig::printerColorSpace(bool /*defaultValue*/) const
+QString KisConfig::printerColorSpace(bool ) const
 {
-    //TODO currently only rgb8 is supported
-    //return (defaultValue ? "RGBA" : m_cfg.readEntry("printerColorSpace", "RGBA"));
     return QString("RGBA");
 }
 
@@ -939,7 +894,6 @@ void KisConfig::setPrinterColorSpace(const QString & printerColorSpace) const
 {
     m_cfg.writeEntry("printerColorSpace", printerColorSpace);
 }
-
 
 QString KisConfig::printerProfile(bool defaultValue) const
 {
@@ -950,7 +904,6 @@ void KisConfig::setPrinterProfile(const QString & printerProfile) const
 {
     m_cfg.writeEntry("printerProfile", printerProfile);
 }
-
 
 bool KisConfig::useBlackPointCompensation(bool defaultValue) const
 {
@@ -1427,8 +1380,6 @@ void KisConfig::setShowGlobalSelection(bool showGlobalSelection) const
     m_cfg.writeEntry("ShowGlobalSelection", showGlobalSelection);
 }
 
-// brush outline settings
-
 bool KisConfig::showOutlineWhilePainting(bool defaultValue) const
 {
     return (defaultValue ? true : m_cfg.readEntry("ShowOutlineWhilePainting", true));
@@ -1448,8 +1399,6 @@ void KisConfig::setForceAlwaysFullSizedOutline(bool value) const
 {
     m_cfg.writeEntry("forceAlwaysFullSizedOutline", value);
 }
-
-// eraser outline settings
 
 bool KisConfig::showEraserOutlineWhilePainting(bool defaultValue) const
 {
@@ -1601,7 +1550,6 @@ void KisConfig::setToolOptionsPopupDetached(bool detached) const
     m_cfg.writeEntry("ToolOptionsPopupDetached", detached);
 }
 
-
 bool KisConfig::paintopPopupDetached(bool defaultValue) const
 {
     return (defaultValue ? true : m_cfg.readEntry("PaintopPopupDetached", true));
@@ -1616,12 +1564,6 @@ QString KisConfig::pressureTabletCurve(bool defaultValue) const
 {
     QString fallback = DEFAULT_CURVE_STRING;
 #ifdef Q_OS_ANDROID
-    // Xiaomi styluses need superhuman strength to reach full input pressure.
-    // We use a much steeper default pressure curve for them by default that
-    // effectively caps out at 70% pressure to make it at least bearable. A
-    // note for a possible future: Apple styluses have an even greater range,
-    // so if we somehow end up on iPads, we'll probably need to make those cap
-    // out at 50% pressure at most something like: "0,0;0.5,1.0;"
     if (KisAndroidUtils::looksLikeXiaomiDevice()) {
         fallback = QStringLiteral("0,0;0.7,1;");
     }
@@ -1651,8 +1593,6 @@ void KisConfig::setUseWin8PointerInput(bool value)
 {
 #ifdef Q_OS_WIN
 
-    // Special handling: Only set value if changed
-    // I don't want it to be set if the user hasn't touched it
     if (useWin8PointerInput() != value) {
         const QString configPath = QStandardPaths::writableLocation(QStandardPaths::GenericConfigLocation);
         QSettings kritarc(configPath + QStringLiteral("/kritadisplayrc"), QSettings::IniFormat);
@@ -1703,10 +1643,6 @@ void KisConfig::setUsePageUpDownMouseButtonEmulationWorkaround(bool value)
 
 bool KisConfig::useHighFunctionKeyMouseButtonEmulationWorkaround(bool defaultValue) const
 {
-    // This hack is only relevant for OnePlus devices (as far as we know), but
-    // it only affects the F21 key, which isn't something a creature of flesh
-    // and blood would regularly input. So it'll be fine to just enable this b
-    // default rather than bothering to detect the tablet brand or something.
     if (defaultValue) {
         return true;
     } else {
@@ -1847,7 +1783,6 @@ void KisConfig::setClicklessSpacePan(const bool toggle) const
 {
     m_cfg.writeEntry("clicklessSpacePan", toggle);
 }
-
 
 bool KisConfig::hideDockersFullscreen(bool defaultValue) const
 {
@@ -2057,14 +1992,12 @@ void KisConfig::setOcioConfiguration(const KisOcioConfiguration &cfg)
 KisConfig::OcioColorManagementMode
 KisConfig::ocioColorManagementMode(bool defaultValue) const
 {
-    // FIXME: this option duplicates ocioConfiguration(), please deprecate it
     return (OcioColorManagementMode)(defaultValue ? INTERNAL
                                                   : m_cfg.readEntry("Krita/Ocio/OcioColorManagementMode", (int) INTERNAL));
 }
 
 void KisConfig::setOcioColorManagementMode(OcioColorManagementMode mode) const
 {
-    // FIXME: this option duplicates ocioConfiguration(), please deprecate it
     m_cfg.writeEntry("Krita/Ocio/OcioColorManagementMode", (int) mode);
 }
 
@@ -2487,9 +2420,9 @@ void KisConfig::setKineticScrollingEnabled(bool value)
 int KisConfig::kineticScrollingGesture(bool defaultValue) const
 {
 #ifdef Q_OS_ANDROID
-    int defaultGesture = 1; // LeftMouseButtonGesture
+    int defaultGesture = 1;
 #else
-    int defaultGesture = 2; // MiddleMouseButtonGesture
+    int defaultGesture = 2;
 #endif
 
     return (defaultValue ? defaultGesture : m_cfg.readEntry("KineticScrollingGesture", defaultGesture));
@@ -2551,7 +2484,6 @@ const KoColorSpace* KisConfig::customColorSelectorColorSpace(bool defaultValue) 
         QString depthID = cfg.readEntry("customColorSpaceDepthID", "U8");
         QString profile = cfg.readEntry("customColorSpaceProfile", "sRGB built-in - (lcms internal)");
         if (profile == "default") {
-          // qDebug() << "Falling back to default color profile.";
           profile = "sRGB built-in - (lcms internal)";
         }
         cs = csr->colorSpace(modelID, depthID, profile);
@@ -2593,13 +2525,11 @@ void KisConfig::setEnableBrushSpeedLogging(bool value) const
 
 void KisConfig::setDisableVectorOptimizations(bool value)
 {
-    // use the old key name for compatibility
     m_cfg.writeEntry("amdDisableVectorWorkaround", value);
 }
 
 bool KisConfig::disableVectorOptimizations(bool defaultValue) const
 {
-    // use the old key name for compatibility
     return (defaultValue ? false : m_cfg.readEntry("amdDisableVectorWorkaround", false));
 }
 
@@ -2669,7 +2599,7 @@ QString KisConfig::ffmpegLocation(bool defaultValue) const {
 
 void KisConfig::setFFMpegLocation(const QString& value) {
     m_cfg.writeEntry("ffmpegLocation", value);
-}   
+}
 
 qreal KisConfig::timelineZoom(bool defaultValue) const
 {
@@ -3054,7 +2984,6 @@ void KisConfig::writeKoColor(const QString& name, const KoColor& color) const
     m_cfg.writeEntry(name, doc.toString());
 }
 
-//ported from kispropertiesconfig.
 KoColor KisConfig::readKoColor(const QString& name, const KoColor& _color) const
 {
     QDomDocument doc;
@@ -3081,7 +3010,6 @@ void KisConfig::writeKoColors(const QString& name, const QList<KoColor>& colors)
     QDomElement colorsElement = doc.createElement("colors");
     doc.appendChild(colorsElement);
 
-    // Writes like <colors><RGB ../><RGB .. /> ... </colors>
     Q_FOREACH(const KoColor & color, colors) {
         color.toXML(doc, colorsElement);
     }

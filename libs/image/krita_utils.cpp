@@ -28,7 +28,6 @@
 
 #include <KisRenderedDab.h>
 
-
 namespace KritaUtils
 {
 
@@ -43,13 +42,11 @@ namespace KritaUtils
     {
         using namespace KisAlgebra2D;
 
-
         QVector<QRect> patches;
 
         const qint32 firstCol = divideFloor(rc.x(), patchSize.width());
         const qint32 firstRow = divideFloor(rc.y(), patchSize.height());
 
-        // TODO: check if -1 is needed here
         const qint32 lastCol = divideFloor(rc.x() + rc.width(), patchSize.width());
         const qint32 lastRow = divideFloor(rc.y() + rc.height(), patchSize.height());
 
@@ -100,7 +97,6 @@ namespace KritaUtils
         return triangle.intersected(rect).boundingRect().isValid();
     }
 
-
     KisRegion splitTriangles(const QPointF &center,
                                                const QVector<QPointF> &points)
     {
@@ -120,7 +116,6 @@ namespace KritaUtils
             totalRect |= triangle.boundingRect().toAlignedRect();
             triangles << triangle;
         }
-
 
         const int step = 64;
         const int right = totalRect.x() + totalRect.width();
@@ -155,7 +150,6 @@ namespace KritaUtils
         QVector<QRect> dirtyRects;
         QRect totalRect = path.boundingRect().toAlignedRect();
 
-        // adjust the rect for antialiasing to work
         totalRect = totalRect.adjusted(-1,-1,1,1);
 
         const int step = 64;
@@ -209,7 +203,7 @@ namespace KritaUtils
 
             QPainterPath mergedPath = testPath;
 
-            for (auto it = resultList.begin(); it != resultList.end(); /*noop*/) {
+            for (auto it = resultList.begin(); it != resultList.end(); ) {
                 if (it->intersects(testPath)) {
                     mergedPath.addPath(*it);
                     it = resultList.erase(it);
@@ -308,7 +302,6 @@ namespace KritaUtils
     {
         QImage dstImage(image.size(), QImage::Format_ARGB32);
 
-        // TODO: if someone feel bored, a more optimized version of this would be welcome
         const QSize size = image.size();
         for(int y = 0; y < size.height(); ++y) {
             for(int x = 0; x < size.width(); ++x) {
@@ -363,7 +356,7 @@ namespace KritaUtils
         }
 
         if (numPixels == 0) {
-            return 0; // avoid dividing by 0
+            return 0;
         }
         return qreal(numTransparentPixels) / numPixels;
     }
@@ -379,7 +372,7 @@ namespace KritaUtils
                 dab->device->mirror(true, false);
             }
             dab->offset.rx() = mirrorX;
-        } else /* if (dir == Qt::Vertical) */ {
+        } else {
             const int mirrorY = -((rc.y() + rc.height()) - center.y()) + center.y();
 
             if (!skipMirrorPixels) {
@@ -400,7 +393,7 @@ namespace KritaUtils
                 dab->device->mirror(true, false);
             }
             dab->offset.rx() = mirrorX;
-        } else /* if (dir == Qt::Vertical) */ {
+        } else {
             const int mirrorY = -((rc.y() + rc.height()) - center.y()) + center.y();
 
             if (!skipMirrorPixels) {
@@ -415,7 +408,7 @@ namespace KritaUtils
         if (dir == Qt::Horizontal) {
             const int mirrorX = -((rc->x() + rc->width()) - center.x()) + center.x();
             rc->moveLeft(mirrorX);
-        } else /* if (dir == Qt::Vertical) */ {
+        } else {
             const int mirrorY = -((rc->y() + rc->height()) - center.y()) + center.y();
             rc->moveTop(mirrorY);
         }
@@ -426,7 +419,7 @@ namespace KritaUtils
         if (dir == Qt::Horizontal) {
             const int mirrorX = -((rc->x() + rc->width()) - center.x()) + center.x();
             rc->moveLeft(mirrorX);
-        } else /* if (dir == Qt::Vertical) */ {
+        } else {
             const int mirrorY = -((rc->y() + rc->height()) - center.y()) + center.y();
             rc->moveTop(mirrorY);
         }
@@ -436,7 +429,7 @@ namespace KritaUtils
     {
         if (dir == Qt::Horizontal) {
             pt->rx() = -(pt->x() - qreal(center.x())) + center.x();
-        } else /* if (dir == Qt::Vertical) */ {
+        } else {
             pt->ry() = -(pt->y() - qreal(center.y())) + center.y();
         }
     }
@@ -445,7 +438,7 @@ namespace KritaUtils
     {
         if (dir == Qt::Horizontal) {
             pt->rx() = -(pt->x() - qreal(center.x())) + center.x();
-        } else /* if (dir == Qt::Vertical) */ {
+        } else {
             pt->ry() = -(pt->y() - qreal(center.y())) + center.y();
         }
     }

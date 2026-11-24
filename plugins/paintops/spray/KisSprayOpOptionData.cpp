@@ -42,7 +42,6 @@ bool KisSprayOpOptionData::read(const KisPropertiesConfiguration *settings)
         } else if (radialDistributionTypeStr == "curveBased") {
             radialDistributionType = ParticleDistribution_CurveBased;
         } else {
-            // Old brush
             if (settings->getBool(SPRAY_GAUSS_DISTRIBUTION, false)) {
                 radialDistributionType = ParticleDistribution_Gaussian;
             } else {

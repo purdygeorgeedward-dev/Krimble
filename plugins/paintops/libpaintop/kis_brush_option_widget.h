@@ -17,10 +17,6 @@
 
 class KisBrushSelectionWidget;
 
-/**
- * The brush option allows the user to select a particular brush
- * footprint for suitable paintops
- */
 class PAINTOP_EXPORT KisBrushOptionWidget : public KisPaintOpOption
 {
     Q_OBJECT
@@ -30,9 +26,6 @@ public:
 
     ~KisBrushOptionWidget() override;
 
-    /**
-     * @return the currently selected brush
-     */
     KisBrushSP brush() const;
 
     void setImage(KisImageWSP image) override;

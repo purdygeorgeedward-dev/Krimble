@@ -19,7 +19,6 @@ class KisCanvasResourceProvider;
 class KoColor;
 class KoUnit;
 
-
 class KisToolKnifeOptionsWidget : public QWidget
 {
     Q_OBJECT
@@ -37,7 +36,6 @@ public:
     enum ToolMode {
         AddGutter,
         RemoveGutter,
-        //MoveGutterEndPoint,
     };
 
     GutterWidthsConfig getCurrentWidthsConfig();
@@ -50,7 +48,6 @@ public Q_SLOTS:
     void modeChanged();
     void currentWidthSystemChanged();
 
-
 private:
     friend class KisToolKnife;
 
@@ -58,4 +55,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif /* __KIS_TOOL_KNIFE_OPTIONS_WIDGET_H */
+#endif

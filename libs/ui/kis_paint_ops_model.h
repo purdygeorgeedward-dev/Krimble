@@ -2,7 +2,7 @@
  *  SPDX-FileCopyrightText: 2009 Cyrille Berger <cberger@cberger.net>
  *  SPDX-FileCopyrightText: 2010 Lukáš Tvrdý <lukast.dev@gmail.com>
  *  SPDX-FileCopyrightText: 2011 Silvio Heinrich <plassy@web.de>
- * 
+ *
  *  SPDX-License-Identifier: GPL-2.0-or-later
  */
 
@@ -76,4 +76,4 @@ private:
     KisPaintOpListModel *m_model;
 };
 
-#endif //_KIS_PAINTOP_LIST_MODEL_H_
+#endif

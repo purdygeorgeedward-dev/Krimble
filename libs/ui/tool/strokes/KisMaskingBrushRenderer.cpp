@@ -19,7 +19,6 @@
 #include "KisMaskingBrushCompositeOpBase.h"
 #include "KisMaskingBrushCompositeOpFactory.h"
 
-
 KisMaskingBrushRenderer::KisMaskingBrushRenderer(KisPaintDeviceSP dstDevice, const QString &compositeOpId)
     : m_dstDevice(dstDevice)
 {
@@ -43,7 +42,7 @@ KisMaskingBrushRenderer::KisMaskingBrushRenderer(KisPaintDeviceSP dstDevice, con
     }
 
     const QList<KoChannelInfo *> channels = dstCs->channels();
-    alphaChannelOffset = channels[alphaPos]->pos()/* * channels[i]->size()*/;
+    alphaChannelOffset = channels[alphaPos]->pos() ;
     alphaChannelType = channels[alphaPos]->channelValueType();
 
     KIS_SAFE_ASSERT_RECOVER (alphaChannelOffset >= 0) {

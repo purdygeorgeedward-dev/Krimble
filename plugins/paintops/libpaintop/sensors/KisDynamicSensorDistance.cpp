@@ -10,7 +10,6 @@
 #include <kis_paint_information.h>
 #include <KisCurveOptionData.h>
 
-
 KisDynamicSensorDistance::KisDynamicSensorDistance(const KisSensorWithLengthData &data, std::optional<KisCubicCurve> curveOverride)
     : KisDynamicSensor(DistanceId, data, curveOverride)
     , m_periodic(data.isPeriodic)

@@ -19,18 +19,9 @@
 #define WARMUP_CYCLES 2
 #define SHOW_WARMUPS  0
 
-/**
- * Our filters don't know anything about applyAlphaU8Mask
- * That's why they treat semy-selected pixels badly
- *
- * If you have a hack in KisFilter - processSpecial(..) method
- * that takes into account this alpha mask then activate
- * the following define
- */
 #define USE_GOOD_SELECTIONS 0
 
 #define USE_UTIME 0
-
 
 #if(USE_UTIME==1)
 #include <sys/times.h>
@@ -56,7 +47,7 @@ private:
     struct tms m_startTime;
     double m_factor;
 };
-#else /* if(USE_UTIME==0) */
+#else
 typedef QElapsedTimer KisTimeCounter;
 #endif
 
@@ -65,8 +56,6 @@ void KisFilterSelectionsBenchmark::initSelection()
     m_selection = new KisSelection();
     KisPixelSelectionSP pixelSelection = m_selection->pixelSelection();
 
-
-//67.2% deselected
     dbgKrita << "Deselected: 67.2%";
     pixelSelection->dataManager()->clear(75, 75, 500, 320, 255);
     pixelSelection->dataManager()->clear(100, 100, 50, 50, quint8(0));
@@ -79,13 +68,6 @@ void KisFilterSelectionsBenchmark::initSelection()
     pixelSelection->dataManager()->clear(375, 75, 150, 150, quint8(0));
 
     pixelSelection->dataManager()->clear(205, 105, 50, 50, quint8(128));
-
-// 94.9% deselected
-//    dbgKrita << "Deselected: 94.9%";
-//    pixelSelection->dataManager()->clear(75,75,500,320,255);
-//    pixelSelection->dataManager()->clear(80,80,490,310,quint8(0));
-
-
 
     pixelSelection->convertToQImage(0).save("TEST_FILTER_SELECTION.png");
 }
@@ -123,7 +105,6 @@ void KisFilterSelectionsBenchmark::testFilter(const QString &name)
     blockSignals(false);
 }
 
-
 void KisFilterSelectionsBenchmark::testAll()
 {
     initSelection();
@@ -135,7 +116,6 @@ void KisFilterSelectionsBenchmark::testAll()
 
     testFilter("brightnesscontrast");
     testFilter("invert");
-//    testFilter("levels");
 
 }
 
@@ -209,7 +189,7 @@ void KisFilterSelectionsBenchmark::testGoodSelections(int num)
 
     if (num > WARMUP_CYCLES || SHOW_WARMUPS)
         dbgKrita << "Selections with alpha (filter):\t" << avTime;
-#else /* if (USE_GOOD_SELECTIONS!=1) */
+#else
     if (num > WARMUP_CYCLES || SHOW_WARMUPS)
         dbgKrita << "Selections with alpha (filter):\t [Disabled]";
 #endif

@@ -19,7 +19,6 @@ namespace Acs {
     class PixelCacheRenderer;
 }
 
-
 class KisColorSelectorSimple : public KisColorSelectorComponent
 {
 Q_OBJECT

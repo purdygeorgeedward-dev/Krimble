@@ -13,12 +13,11 @@
 #include <KisSensorData.h>
 #include <KisSensorPackInterface.h>
 
-
 struct PAINTOP_EXPORT KisKritaSensorData : boost::equality_comparable<KisKritaSensorData>
 {
     KisKritaSensorData();
-    
-    inline friend bool operator==(const KisKritaSensorData &lhs, const KisKritaSensorData &rhs) {   
+
+    inline friend bool operator==(const KisKritaSensorData &lhs, const KisKritaSensorData &rhs) {
         return lhs.sensorPressure == rhs.sensorPressure &&
             lhs.sensorPressureIn == rhs.sensorPressureIn &&
             lhs.sensorXTilt == rhs.sensorXTilt &&
@@ -34,7 +33,7 @@ struct PAINTOP_EXPORT KisKritaSensorData : boost::equality_comparable<KisKritaSe
             lhs.sensorFuzzyPerStroke == rhs.sensorFuzzyPerStroke &&
             lhs.sensorFade == rhs.sensorFade &&
             lhs.sensorPerspective == rhs.sensorPerspective &&
-            lhs.sensorTangentialPressure == rhs.sensorTangentialPressure;   
+            lhs.sensorTangentialPressure == rhs.sensorTangentialPressure;
     }
 
     KisSensorData sensorPressure;
@@ -58,13 +57,6 @@ struct PAINTOP_EXPORT KisKritaSensorData : boost::equality_comparable<KisKritaSe
 class PAINTOP_EXPORT KisKritaSensorPack : public KisSensorPackInterface
 {
 public:
-    /**
-     * Some options make be uncheckable in normal situation, and become
-     * checkable when loaded from a prefix. E.g. Opacity, Flow and Size
-     * options of the masking brush. Such options will be marked with
-     * `CheckableIfHasPrefix` and their state will be deduced from the
-     * prefix.
-     */
     enum class Checkability {
         NotCheckable,
         Checkable,
@@ -76,7 +68,7 @@ public:
     KisKritaSensorPack(const KisKritaSensorPack &rhs) = default;
 
     KisSensorPackInterface * clone() const override;
-    
+
     std::vector<const KisSensorData *> constSensors() const override;
     std::vector<KisSensorData *> sensors() override;
 
@@ -94,4 +86,4 @@ private:
     Checkability m_checkability;
 };
 
-#endif // KISKRITASENSORPACK_H
+#endif

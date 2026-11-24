@@ -23,28 +23,22 @@ void TestShapeStrokeCommand::refCounting()
     shape1->setStroke(whiteStroke);
     QVERIFY(shape1->stroke() == whiteStroke);
 
-    // old stroke is white, new stroke is black
     KUndo2Command *cmd1 = new KoShapeStrokeCommand(shape1, blackStroke);
     cmd1->redo();
     QVERIFY(shape1->stroke() == blackStroke);
 
-    // change stroke back to white stroke
     cmd1->undo();
     QVERIFY(shape1->stroke() == whiteStroke);
 
-    // old stroke is white, new stroke is red
     KUndo2Command *cmd2 = new KoShapeStrokeCommand(shape1, redStroke);
     cmd2->redo();
     QVERIFY(shape1->stroke() == redStroke);
 
-    // this command has the white stroke as the old stroke
     delete cmd1;
 
-    // set stroke back to white stroke
     cmd2->undo();
     QVERIFY(shape1->stroke() == whiteStroke);
 
-    // if white is deleted when deleting cmd1 this will crash
     KoInsets insets;
     whiteStroke->strokeInsets(shape1, insets);
 

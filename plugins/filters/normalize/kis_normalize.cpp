@@ -40,7 +40,6 @@ KritaNormalizeFilter::~KritaNormalizeFilter()
 {
 }
 
-
 KisFilterNormalize::KisFilterNormalize()
     : KisColorTransformationFilter(KoID("normalize", i18n("Normalize")),
                                    FiltersCategoryAdjustId, i18n("&Normalize"))
@@ -63,8 +62,6 @@ KisNormalizeTransformation::KisNormalizeTransformation(const KoColorSpace* cs) :
 
 void KisNormalizeTransformation::transform(const quint8* src, quint8* dst, qint32 nPixels) const
 {
-    // if the color space is not RGBA o something like that, just
-    // pass the values through
     if (m_colorSpace->channelCount() != 4) {
         memcpy(dst, src, nPixels * m_colorSpace->pixelSize());
         return;
@@ -72,10 +69,6 @@ void KisNormalizeTransformation::transform(const quint8* src, quint8* dst, qint3
 
     QVector3D normal_vector;
     QVector<float> channelValues(4);
-    //if (m_colorSpace->colorDepthId().id()!="F16" && m_colorSpace->colorDepthId().id()!="F32" && m_colorSpace->colorDepthId().id()!="F64") {
-    /* I don't know why, but the results of this are unexpected with a floating point space.
-     * And manipulating the pixels gives strange results.
-     */
     while (nPixels--) {
         m_colorSpace->normalisedChannelsValue(src, channelValues);
         normal_vector.setX(channelValues[2]*2-1.0);
@@ -86,7 +79,6 @@ void KisNormalizeTransformation::transform(const quint8* src, quint8* dst, qint3
         channelValues[0]=normal_vector.z()*0.5+0.5;
         channelValues[1]=normal_vector.y()*0.5+0.5;
         channelValues[2]=normal_vector.x()*0.5+0.5;
-        //channelValues[3]=1.0;
 
         m_colorSpace->fromNormalisedChannelsValue(dst, channelValues);
 
@@ -94,32 +86,6 @@ void KisNormalizeTransformation::transform(const quint8* src, quint8* dst, qint3
         src += m_psize;
         dst += m_psize;
     }
-    /*    } else {
-    while (nPixels--) {
-        m_colorSpace->normalisedChannelsValue(src, channelValues);
-        qreal max = qMax(channelValues[2], qMax(channelValues[1], channelValues[0]));
-        qreal min = qMin(channelValues[2], qMin(channelValues[1], channelValues[0]));
-        qreal range = max-min;
-        normal_vector.setX( ((channelValues[2]-min)/range) *2.0-1.0);
-        normal_vector.setY( ((channelValues[1]-min)/range) *2.0-1.0);
-        normal_vector.setZ( ((channelValues[0]-min)/range) *2.0-1.0);
-        normal_vector.normalize();
-
-        channelValues[2]=normal_vector.x()*0.5+0.5;
-        channelValues[1]=normal_vector.y()*0.5+0.5;
-        channelValues[0]=normal_vector.z()*0.5+0.5;
-        //channelValues[3]=1.0;
-
-        m_colorSpace->fromNormalisedChannelsValue(dst, channelValues);
-        dst[3]=src[3];
-        //hack to truncate values.
-        m_colorSpace->toRgbA16(dst, reinterpret_cast<quint8 *>(m_rgba), 1);
-        m_colorSpace->fromRgbA16(reinterpret_cast<quint8 *>(m_rgba), dst, 1);
-
-        src += m_psize;
-        dst += m_psize;
-    }
-    }*/
 }
 
 #include "kis_normalize.moc"

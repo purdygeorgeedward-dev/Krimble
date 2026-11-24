@@ -18,8 +18,6 @@
 class KoCanvasBase;
 class KisToolPencil;
 
-///
-
 class __KisToolPencilLocalTool : public KoPencilTool {
 public:
     __KisToolPencilLocalTool(KoCanvasBase * canvas, KisToolPencil* parentTool);
@@ -47,8 +45,6 @@ class KisToolPencil : public DelegatedPencilTool
 public:
     KisToolPencil(KoCanvasBase * canvas);
     void mousePressEvent(KoPointerEvent *event) override;
-    // reimplementing KoToolBase's method. It ignores the event, and then
-    // Qt does not send mouseRelease event, which causes the tool to jump.
     void mouseDoubleClickEvent(KoPointerEvent *event) override;
 
     void beginPrimaryAction(KoPointerEvent* event) override;
@@ -87,7 +83,5 @@ public:
     }
 };
 
-
-
-#endif // KIS_TOOL_PENCIL_H_
+#endif
 

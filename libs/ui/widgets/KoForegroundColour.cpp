@@ -21,7 +21,6 @@ KoForegroundColour::KoForegroundColour(KisCanvasResourceProvider *canvasResource
     setColorDialogState(Foreground);
 }
 
-
 void KoForegroundColour::paint_icons(QPainter &painter)
 {
     Q_UNUSED(painter);
@@ -35,10 +34,10 @@ void KoForegroundColour::mousePressEvent( QMouseEvent *event )
 void KoForegroundColour::mouseReleaseEvent( QMouseEvent *event )
 {
     Q_UNUSED(event);
-    
+
     KConfigGroup cfg =  KSharedConfig::openConfig()->group("colorselector");
     bool usePlatformDialog = cfg.readEntry("UsePlatformColorDialog", false);
-    
+
     foregroundSelect(usePlatformDialog);
 
     update();

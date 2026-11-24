@@ -14,13 +14,11 @@
 
 class KisStrokesFacade;
 
-
 class KRITAIMAGE_EXPORT KisSavedCommandBase : public KUndo2Command
 {
 public:
     KisSavedCommandBase(const KUndo2MagicString &name, KisStrokesFacade *strokesFacade);
     ~KisSavedCommandBase() override;
-
 
     void undo() override;
     void redo() override;
@@ -58,11 +56,6 @@ public:
     QTime endTime() const override;
     bool isMerged() const override;
 
-    /**
-     * The function lazily unwraps a saved command `cmd` and passes the internal
-     * command to the the function `func`. If passed `cmd` command is not a saved
-     * command, then it is passed to the function directly.
-     */
     template <typename Command, typename Func>
     static auto unwrap(Command *cmd, Func &&func)
         -> decltype(func(static_cast<Command*>(nullptr))) {
@@ -111,4 +104,4 @@ private:
     Private * const m_d;
 };
 
-#endif /* __KIS_SAVED_COMMANDS_H */
+#endif

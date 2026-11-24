@@ -46,7 +46,6 @@ KisHandlePainterHelper::KisHandlePainterHelper(KisHandlePainterHelper &&rhs)
       m_handlePolygon(rhs.m_handlePolygon),
       m_handleStyle(rhs.m_handleStyle)
 {
-    // disable the source helper
     rhs.m_painter = 0;
 }
 
@@ -86,7 +85,6 @@ void KisHandlePainterHelper::drawHandleRect(const QPointF &center, qreal radius,
 
     const QPen originalPen = m_painter->pen();
 
-    // temporarily set the pen width to 2 to avoid pixel shifting dropping pixels the border
     QPen customPen = m_painter->pen();
     customPen.setCosmetic(true);
     customPen.setWidth(4);
@@ -188,7 +186,7 @@ void KisHandlePainterHelper::drawGradientHandle(const QPointF &center)
 void KisHandlePainterHelper::drawGradientCrossHandle(const QPointF &center, qreal radius) {
     KIS_SAFE_ASSERT_RECOVER_RETURN(m_painter);
 
-    { // Draw a cross
+    {
         QPainterPath p;
         p.moveTo(-radius, -radius);
         p.lineTo(radius, radius);
@@ -205,7 +203,7 @@ void KisHandlePainterHelper::drawGradientCrossHandle(const QPointF &center, qrea
         }
     }
 
-    { // Draw a square
+    {
         const qreal halfRadius = 0.5 * radius;
 
         QPolygonF handlePolygon;
@@ -346,8 +344,6 @@ void KisHandlePainterHelper::fillHandleRect(const QPointF &center, qreal radius,
     QPainterPath painterPath;
     painterPath.addPolygon(handlePolygon);
 
-    // offset that happens after zoom transform. This means the offset will be the same, no matter the zoom level
-    // this is good for UI elements that need to be below the bounding box
     painterPath.translate(offset);
 
     const QPainterPath pathToSend = painterPath;

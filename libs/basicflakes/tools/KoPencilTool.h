@@ -39,11 +39,6 @@ public:
 protected:
     QList<QPointer<QWidget> > createOptionWidgets() override;
 
-    /**
-     * Add path shape to document.
-     * This method can be overridden and change the behaviour of the tool. In that case the subclass takes ownership of pathShape.
-     * It gets only called, if there are two or more points in the path.
-     */
     virtual void addPathShape(KoPathShape* path, bool closePath);
 
     KoShapeStrokeSP createStroke();
@@ -66,10 +61,8 @@ private:
     void addPoint(const QPointF & point);
     void finish(bool closePath);
 
-    /// returns the nearest existing path point
     KoPathPoint* endPointAtPosition(const QPointF &position);
 
-    /// Connects given path with the ones we hit when starting/finishing
     bool connectPaths(KoPathShape *pathShape, KoPathPoint *pointAtStart, KoPathPoint *pointAtEnd);
 
     enum PencilMode { ModeRaw, ModeCurve, ModeStraight };
@@ -82,15 +75,15 @@ private:
     bool m_close {false};
     QColor m_strokeColor;
 
-    QList<QPointF> m_points; // the raw points
+    QList<QPointF> m_points;
 
     KoPathShape * m_shape {0};
-    KoPathPoint *m_existingStartPoint {0}; ///< an existing path point we started a new path at
-    KoPathPoint *m_existingEndPoint {0};   ///< an existing path point we finished a new path at
-    KoPathPoint *m_hoveredPoint {0}; ///< an existing path end point the mouse is hovering on
+    KoPathPoint *m_existingStartPoint {0};
+    KoPathPoint *m_existingEndPoint {0};
+    KoPathPoint *m_hoveredPoint {0};
     KoStrokeConfigWidget *m_strokeWidget {0};
 
     KConfigGroup m_configGroup;
 };
 
-#endif // _KOPENCILTOOL_H_
+#endif

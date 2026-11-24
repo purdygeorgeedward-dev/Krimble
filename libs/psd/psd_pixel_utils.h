@@ -83,4 +83,4 @@ void KRITAPSD_EXPORT writePixelDataCommon(QIODevice &io,
                                           psd_byte_order byteOrder = psd_byte_order::psdBigEndian);
 }
 
-#endif /* __PSD_PIXEL_UTILS_H */
+#endif

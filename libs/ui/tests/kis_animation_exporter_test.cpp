@@ -60,8 +60,6 @@ void KisAnimationExporterTest::testAnimationExport()
                                                false,
                                                0);
 
-
-
     exporter.setBatchMode(true);
     exporter.regenerateRange(0);
 

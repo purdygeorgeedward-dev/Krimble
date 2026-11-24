@@ -18,4 +18,4 @@ private Q_SLOTS:
     void test_data();
 };
 
-#endif // KISCOLORSMUDGEOPTEST_H
+#endif

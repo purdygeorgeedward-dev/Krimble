@@ -14,11 +14,6 @@
 #include <QString>
 #include <QDockWidget>
 
-
-/**
- * Factory class to create a new KoToolBox that contains the buttons
- * to activate tools.
- */
 class KRITAUI_EXPORT KoToolBoxFactory : public KoDockFactoryBase
 {
 public:

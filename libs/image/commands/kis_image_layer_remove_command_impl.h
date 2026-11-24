@@ -8,23 +8,14 @@
 #ifndef KIS_IMAGE_LAYER_REMOVE_COMMAND_IMPL_H_
 #define KIS_IMAGE_LAYER_REMOVE_COMMAND_IMPL_H_
 
-
 #include <kritaimage_export.h>
 
 #include "kis_types.h"
 #include "kis_image_command.h"
 
-
-/// The command for removing a single node. It should be used inside
-/// KisImageLayerRemoveCommand only
 class KRITAIMAGE_EXPORT KisImageLayerRemoveCommandImpl : public KisImageCommand
 {
 public:
-    /**
-     * Constructor
-     * @param image The image the command will be working on.
-     * @param node the node to remove
-     */
     KisImageLayerRemoveCommandImpl(KisImageWSP image, KisNodeSP node, KUndo2Command *parent = 0);
     ~KisImageLayerRemoveCommandImpl() override;
 

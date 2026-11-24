@@ -37,7 +37,6 @@ protected Q_SLOTS:
     void slotSkipChanged(int);
     void slotOrderOptionsChanged(int);
 
-
 private:
     void sortFileList();
 
@@ -57,4 +56,4 @@ private:
     QCollator m_collator;
 };
 
-#endif // KISDLGIMPORTIMAGESEQUENCE_H
+#endif

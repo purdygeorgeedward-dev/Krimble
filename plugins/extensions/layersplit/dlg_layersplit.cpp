@@ -52,7 +52,7 @@ DlgLayerSplit::DlgLayerSplit()
     connect(m_page->cmbMode, SIGNAL(currentIndexChanged(int)), this, SLOT(slotChangeMode(int)));
 
     KisConfig cfg(true);
-    QString paletteName = cfg.readEntry<QString>("layersplit/paletteName", "Default"); // resource names are not translatable by design
+    QString paletteName = cfg.readEntry<QString>("layersplit/paletteName", "Default");
     KoResourceServer<KoColorSet> *pserver = KoResourceServerProvider::instance()->paletteServer();
     KoColorSetSP pal = pserver->resource("", "", paletteName);
     m_modeToMask = m_page->cmbMode->currentIndex();
@@ -65,7 +65,6 @@ DlgLayerSplit::DlgLayerSplit()
         m_page->paletteChooser->setIcon(icon);
     }
 
-
     connect(this, SIGNAL(applyClicked()), this, SLOT(slotApplyClicked()));
 
     setMainWidget(m_page);
@@ -77,7 +76,7 @@ DlgLayerSplit::~DlgLayerSplit()
 
 void DlgLayerSplit::slotApplyClicked()
 {
-    
+
     KisDialogStateSaver::saveState(m_page, "krita/layer_split");
 
     KisConfig cfg(false);

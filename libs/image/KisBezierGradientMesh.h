@@ -97,4 +97,4 @@ using KisBezierGradientMeshDetail::saveValue;
 
 using KisBezierGradientMesh = KisBezierGradientMeshDetail::KisBezierGradientMesh;
 
-#endif // KISBEZIERGRADIENTMESH_H
+#endif

@@ -13,4 +13,4 @@ namespace TestUtil {
 void KRITATRANSFORMMASKSTUBS_EXPORT registerTransformMaskStubs();
 }
 
-#endif // KRITATRANSFORMMASKSTUBS_H
+#endif

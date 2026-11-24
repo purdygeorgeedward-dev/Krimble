@@ -137,7 +137,6 @@ KisExtendedModifiersMapperPluginInterface::ExtendedModifiers KisExtendedModifier
     XQueryKeymap(qGuiApp->nativeInterface<QNativeInterface::QX11Application>()->display(), keysState);
 #endif
 
-
     auto checkKeyCodePressedX11 = [&keysState] (KeyCode key) -> bool {
         int byte = key / 8;
         char mask = 1 << (key % 8);
@@ -165,8 +164,6 @@ KisExtendedModifiersMapperPluginInterface::ExtendedModifiers KisExtendedModifier
         }
     }
 
-    // in X11 some keys may have multiple keysyms,
-    // (Alt Key == XK_Meta_{L,R}, XK_Meta_{L,R})
     KritaUtils::makeContainerUnique(modifiers);
     return modifiers;
 }

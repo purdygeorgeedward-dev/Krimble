@@ -39,7 +39,6 @@ public:
             m_lastReportedLocalProgress = localProgress;
             m_progressUpdater->setProgress(m_baseProgress + localProgress);
         }
-        // TODO: handle interrupted processing (connect to other layers, i.e. undo)
     }
 
 private:
@@ -51,4 +50,4 @@ private:
     int m_lastReportedLocalProgress;
 };
 
-#endif /* __KIS_PROGRESS_UPDATE_HELPER_H */
+#endif

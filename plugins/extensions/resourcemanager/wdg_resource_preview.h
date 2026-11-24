@@ -15,7 +15,6 @@
 #include "ResourceListViewModes.h"
 #include <KisResourceItemDelegate.h>
 
-
 class KisActionManager;
 class KisResourceTypeModel;
 class KisStorageModel;
@@ -81,4 +80,4 @@ private:
 
 };
 
-#endif // WDG_RESOURCE_PREVIEW_H
+#endif

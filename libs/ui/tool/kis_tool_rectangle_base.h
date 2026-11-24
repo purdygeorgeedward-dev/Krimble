@@ -83,4 +83,4 @@ protected:
     void cancelStroke();
 };
 
-#endif // KIS_TOOL_RECTANGLE_BASE_H
+#endif

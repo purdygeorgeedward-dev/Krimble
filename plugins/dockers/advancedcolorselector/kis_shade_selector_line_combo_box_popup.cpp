@@ -21,7 +21,6 @@
 #include "kis_shade_selector_line_editor.h"
 #include "kis_color_selector_base_proxy.h"
 
-
 KisShadeSelectorLineComboBoxPopup::KisShadeSelectorLineComboBoxPopup(QWidget* parent)
     : QWidget(parent, Qt::Popup),
       spacing(10),

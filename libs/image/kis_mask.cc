@@ -7,10 +7,8 @@
 
 #include "kis_mask.h"
 
-
 #include <kis_debug.h>
 
-// to prevent incomplete class types on "delete selection->flatten();"
 #include <kundo2command.h>
 
 #include <QScopedPointer>
@@ -33,7 +31,6 @@
 #include "kis_raster_keyframe_channel.h"
 #include "KisSafeNodeProjectionStore.h"
 
-
 struct Q_DECL_HIDDEN KisMask::Private {
     Private(KisMask *_q)
         : q(_q),
@@ -45,14 +42,6 @@ struct Q_DECL_HIDDEN KisMask::Private {
     KisCachedPaintDevice paintDeviceCache;
     KisMask *q;
 
-    /**
-     * Due to the design of the Kra format the X,Y offset of the paint
-     * device belongs to the node, but not to the device itself.  So
-     * the offset is set when the node is created, but not when the
-     * selection is initialized. This causes the X,Y values to be
-     * lost, since the selection does not exist at the moment. That is
-     * why we save it separately.
-     */
     QScopedPointer<QPoint> deferredSelectionOffset;
 
     KisAbstractProjectionPlaneSP projectionPlane;
@@ -112,7 +101,6 @@ void KisMask::setImage(KisImageWSP image)
             qWarning() << "WARNING: KisMask::setImage() was called without any parent layer being set";
         }
 
-        // just a fallback solution
         defaultBounds = new KisDefaultBounds(image);
     }
 
@@ -140,12 +128,6 @@ const KoColorSpace * KisMask::colorSpace() const
 
 const KoCompositeOp * KisMask::compositeOp() const
 {
-    /**
-     * FIXME: This function duplicates the same function from
-     * KisLayer. We can't move it to KisBaseNode as it doesn't
-     * know anything about parent() method of KisNode
-     * Please think it over...
-     */
 
     const KoColorSpace *colorSpace = this->colorSpace();
     if (!colorSpace) return 0;
@@ -176,9 +158,6 @@ void KisMask::Private::initSelectionImpl(KisSelectionSP copyFrom, KisLayerSP par
     KisPaintDeviceSP parentPaintDevice = parentLayer->original();
 
     if (copyFrom) {
-        /**
-         * We can't use setSelection as we may not have parent() yet
-         */
         selection = new KisSelection(*copyFrom);
         selection->setDefaultBounds(new KisMaskDefaultBounds(parentLayer));
         selection->setResolutionProxy(copyFrom->resolutionProxy()->createOrCloneDetached(image));
@@ -266,7 +245,6 @@ void KisMask::select(const QRect & rc, quint8 selectedness)
     sel->updateProjection(rc);
 }
 
-
 QRect KisMask::decorateRect(KisPaintDeviceSP &src,
                             KisPaintDeviceSP &dst,
                             const QRect & rc,
@@ -295,12 +273,9 @@ void KisMask::apply(KisPaintDeviceSP projection, const QRect &applyRect, const Q
         KisSelectionSP effectiveSelection = m_d->selection;
 
         {
-            // Access temporary target under the lock held
             KisIndirectPaintingSupport::ReadLocker l(this);
 
             if (!paintsOutsideSelection()) {
-                // extent of m_d->selection should also be accessed under a lock,
-                // because it might be being merged in by the temporary target atm
                 QRect effectiveExtent = m_d->selection->selectedRect();
 
                 if (hasTemporaryTarget()) {
@@ -347,7 +322,6 @@ void KisMask::mergeInMaskInternal(KisPaintDeviceSP projection,
     if (effectiveSelection) {
         QRect updatedRect = decorateRect(projection, cacheDevice, applyRect, maskPos, flags);
 
-        // masks don't have any compositing
         KisPainter::copyAreaOptimized(updatedRect.topLeft(), cacheDevice, projection, updatedRect, effectiveSelection);
 
     } else {
@@ -370,7 +344,6 @@ QRect KisMask::needRect(const QRect &rect,  PositionToFilthy pos) const
     if (m_d->selection) {
         QRect selectionExtent = m_d->selection->selectedRect();
 
-        // copy for thread safety!
         KisPaintDeviceSP temporaryTarget = this->temporaryTarget();
 
         if (temporaryTarget) {
@@ -395,7 +368,6 @@ QRect KisMask::extent() const
     if (m_d->selection) {
         resultRect = m_d->selection->selectedRect();
 
-        // copy for thread safety!
         KisPaintDeviceSP temporaryTarget = this->temporaryTarget();
 
         if (temporaryTarget) {
@@ -415,7 +387,6 @@ QRect KisMask::exactBounds() const
     if (m_d->selection) {
         resultRect = m_d->selection->selectedExactRect();
 
-        // copy for thread safety!
         KisPaintDeviceSP temporaryTarget = this->temporaryTarget();
 
         if (temporaryTarget) {

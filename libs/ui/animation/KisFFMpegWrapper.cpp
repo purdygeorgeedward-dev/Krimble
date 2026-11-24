@@ -42,7 +42,6 @@ KisFFMpegWrapper::~KisFFMpegWrapper()
 {
 }
 
-
 void KisFFMpegWrapper::startNonBlocking(const KisFFMpegWrapperSettings &settings)
 {
     KIS_ASSERT(m_process == nullptr);
@@ -59,23 +58,19 @@ void KisFFMpegWrapper::startNonBlocking(const KisFFMpegWrapperSettings &settings
 
     const QString renderLogPath = m_processSettings.outputFile + ".log";
 
-    // Create a new log per each ffmpeg operation..
     if (QFile::exists(renderLogPath)) {
         QFile existingFile(renderLogPath);
         existingFile.remove();
     }
 
-    QFile renderLog(renderLogPath); // Logs ONLY this render operation.
+    QFile renderLog(renderLogPath);
 
-    // Log ffmpeg command info..
     if (renderLog.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
         QString command = m_processSettings.processPath + " " + settings.defaultPrependArgs.join(" ") + " " + m_processSettings.args.join(" ") + " " + m_processSettings.outputFile;
         renderLog.write(command.toUtf8());
         renderLog.write("\n");
         renderLog.write("=====================================================\n");
 
-        // Handle logged errors..
-        // Due to various reasons (including image preview), ffmpeg uses STDERR and not STDOUT for general output logging.
         connect(this, &KisFFMpegWrapper::sigReadSTDERR, [renderLogPath](QByteArray stderrBuffer){
             QFile renderLog(renderLogPath);
             if (renderLog.open(QIODevice::WriteOnly | QIODevice::Append)) {
@@ -86,15 +81,12 @@ void KisFFMpegWrapper::startNonBlocking(const KisFFMpegWrapperSettings &settings
 
     if (!settings.logPath.isEmpty()) {
         QString sessionRenderLogPath(settings.logPath);
-        // Logs FULL history of Krita session render operations.
         QFile sessionRenderLog(sessionRenderLogPath);
 
-        // Make directory..
         const QString logDirPath = QFileInfo(sessionRenderLogPath).dir().path();
         QDir().mkpath(logDirPath);
 
         if (sessionRenderLog.open(QIODevice::WriteOnly | QIODevice::Append)) {
-            // Append finished renderlog to sessionlog..
             connect(this, &KisFFMpegWrapper::sigFinishedWithError, [renderLogPath, sessionRenderLogPath](QString){
                 QFile renderLog(renderLogPath);
                 QFile sessionRenderLog(sessionRenderLogPath);
@@ -110,12 +102,12 @@ void KisFFMpegWrapper::startNonBlocking(const KisFFMpegWrapperSettings &settings
             });
         }
     }
-    
+
     if (!m_processSettings.batchMode) {
         QString progressText = m_processSettings.progressMessage;
-    
+
         progressText.replace("[progress]", "0");
-    
+
         m_progress = toQShared(new QProgressDialog(progressText, "", 0, 0));
 
         m_progress->setWindowModality(Qt::ApplicationModal);
@@ -128,11 +120,11 @@ void KisFFMpegWrapper::startNonBlocking(const KisFFMpegWrapperSettings &settings
         } else {
             m_progress->setRange(0, 100);
         }
-        
+
         connect(m_progress.data(), SIGNAL(canceled()), m_process.data(), SLOT(kill()));
 
         m_progress->show();
-        
+
         dbgFile << "Open progress dialog!";
     }
 
@@ -146,9 +138,9 @@ void KisFFMpegWrapper::startNonBlocking(const KisFFMpegWrapperSettings &settings
     if ( !settings.defaultPrependArgs.isEmpty() ) {
         args << settings.defaultPrependArgs;
     }
-    
+
     args << settings.args;
-    
+
     if ( !settings.outputFile.isEmpty() ) {
         args << settings.outputFile;
     }
@@ -188,7 +180,7 @@ KisImportExportErrorCode KisFFMpegWrapper::start(const KisFFMpegWrapperSettings 
             return ImportExportCodes::Failure;
         }
     } else {
-        reset(); // Ensure process isn't running before returning failure here.
+        reset();
         return ImportExportCodes::Failure;
     }
 }
@@ -205,9 +197,9 @@ bool KisFFMpegWrapper::waitForFinished(int msecs)
 }
 
 void KisFFMpegWrapper::updateProgressDialog(int progressValue) {
-    
+
     dbgFile << "Update Progress" << progressValue << "/" << m_processSettings.totalFrames;
-    
+
     if (!m_progress) return;
 
     QString progressText = m_processSettings.progressMessage;
@@ -228,7 +220,6 @@ void KisFFMpegWrapper::updateProgressDialog(int progressValue) {
 
 bool KisFFMpegWrapper::ffprobeCheckStreamsValid(const QJsonObject& ffprobeJsonObj, const QString& ffprobeSTDERR)
 {
-    // Sanity checks..
     KIS_SAFE_ASSERT_RECOVER_RETURN_VALUE(ffprobeJsonObj.contains("streams"), false);
 
     QRegularExpression invalidStreamRX("(?:Unsupported codec with id .+? for input stream|Could not find codec parameters for stream) ([0-9]+)");
@@ -240,7 +231,6 @@ bool KisFFMpegWrapper::ffprobeCheckStreamsValid(const QJsonObject& ffprobeJsonOb
         if (invalidStreamMatch.hasMatch()) {
             const int invalidStreamId = invalidStreamMatch.captured(1).toInt();
 
-            // We make sure we're talking about video streams here.
             if (ffprobeJsonObj["streams"].toArray()[invalidStreamId].toObject()["codec_type"] == "video") {
                 return false;
             }
@@ -265,67 +255,64 @@ void KisFFMpegWrapper::reset()
 void KisFFMpegWrapper::slotReadyReadSTDERR()
 {
     QByteArray stderrRawBuffer = m_process->readAllStandardError();
-    
+
     Q_EMIT sigReadSTDERR(stderrRawBuffer);
     m_stderrBuffer += stderrRawBuffer;
-    
+
     int frameNo = -1;
     int startPos = 0;
     int endPos = 0;
-    
+
     while ((endPos = m_stderrBuffer.indexOf(lineDelimiter, startPos)) != -1) {
         const QString &line = m_stderrBuffer.mid(startPos, endPos - startPos).trimmed();
 
         if (m_processSettings.storeOutput) m_processSTDERR += line + "\n";
-                
+
         Q_EMIT sigReadLine(2,line);
-        
+
         for (const QString &word : errorWords) {
             if (line.contains(word)) {
                 m_errorMessage += line % "\n";
                 break;
             }
         }
-        
+
         const QRegularExpressionMatch &match = frameRegexp.match(line);
-        
+
         if (match.hasMatch()) {
             frameNo = match.captured(1).toInt();
         }
-
 
         dbgFile << "ffmpeg stderr:" << line;
         startPos = endPos + 1;
     }
 
     m_stderrBuffer.remove(0, startPos);
-    
+
     if (frameNo != -1) {
         updateProgressDialog(frameNo);
         Q_EMIT sigProgressUpdated(frameNo);
     }
-    
+
 }
 
 void KisFFMpegWrapper::slotReadyReadSTDOUT()
 {
     QByteArray stdoutRawBuffer = m_process->readAllStandardOutput();
-    
+
     Q_EMIT sigReadSTDOUT(stdoutRawBuffer);
     m_stdoutBuffer += stdoutRawBuffer;
 
-  
     if (m_processSettings.binaryOutput) {
         if (m_processSettings.storeOutput) m_processSTDOUT += stdoutRawBuffer;
     } else {
-        
+
         int startPos = 0;
         int endPos = 0;
         QString str;
-        
+
         if (m_processSettings.storeOutput) m_processSTDOUT += stdoutRawBuffer + "\n";
-        
-        // ffmpeg splits normal lines by '\n' and progress data lines by '\r'
+
         while ((endPos = m_stdoutBuffer.indexOf(lineDelimiter, startPos)) != -1) {
             const QString &line = m_stdoutBuffer.mid(startPos, endPos - startPos).trimmed();
 
@@ -333,11 +320,10 @@ void KisFFMpegWrapper::slotReadyReadSTDOUT()
             Q_EMIT sigReadLine(1,line);
             startPos = endPos + 1;
         }
-        
+
         m_stdoutBuffer.remove(0, startPos);
     }
 
-    
 }
 
 void KisFFMpegWrapper::slotStarted()
@@ -353,7 +339,7 @@ void KisFFMpegWrapper::slotFinished(int exitCode)
     if (!m_processSettings.batchMode && m_progress){
         m_progress->setValue(100);
     }
-    
+
     if (exitCode != 0) {
         m_errorMessage.remove(junkRegex);
         if (m_process->exitStatus() == QProcess::CrashExit) {
@@ -369,14 +355,6 @@ void KisFFMpegWrapper::slotFinished(int exitCode)
 void KisFFMpegWrapper::fixUpNonEmbeddedProcessEnvironment(const QString &processPath, QProcess &process)
 {
 #ifdef Q_OS_LINUX
-
-    /**
-     * We are embedding our own dynamically linked ffmpeg into Krita's appimage
-     * and add that to the environment using LD_LIBRARY_PATH variable. If the user
-     * has his/her own ffmpeg installed into the system, our libraries in
-     * LD_LIBRARY_PATH may cause conflicts, so we should remove our environment
-     * for such binaries.
-     */
 
     QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
 
@@ -410,17 +388,17 @@ void KisFFMpegWrapper::fixUpNonEmbeddedProcessEnvironment(const QString &process
 #else
     Q_UNUSED(processPath);
     Q_UNUSED(process);
-#endif /* Q_OS_LINUX */
+#endif
 }
 
 QByteArray KisFFMpegWrapper::runProcessAndReturn(const QString &processPath, const QStringList &args, int msecs)
 {
     QProcess runProcess;
-    
+
     fixUpNonEmbeddedProcessEnvironment(processPath, runProcess);
-    
+
     runProcess.start(processPath, args);
-    
+
     if (runProcess.waitForStarted(msecs)) runProcess.waitForFinished(msecs);
 
     const bool successfulStart =
@@ -428,7 +406,7 @@ QByteArray KisFFMpegWrapper::runProcessAndReturn(const QString &processPath, con
         runProcess.error() == QProcess::UnknownError;
 
     dbgFile << "runProcessAndReturn Success:" << successfulStart;
-    
+
     if (successfulStart) return runProcess.readAllStandardOutput();
 
     return "";
@@ -451,18 +429,14 @@ QJsonObject KisFFMpegWrapper::findProcessPath(const QString &processName, const 
     QJsonObject resultJsonObj;
     QStringList proposedPaths;
 
-    // User-specified..
     if (!customLocation.isEmpty()) {
         proposedPaths << customLocation;
         proposedPaths << customLocation + '/' + processName;
     }
 
-    // Krita-bundled..
     proposedPaths << KoResourcePaths::getApplicationRoot() + '/' + "bin" + '/' + processName;
 
-    // OS-specific..
 #ifdef Q_OS_WIN
-    // Look for winget-installed ffmpeg packages in C:\users\USERNAME\appdata\local\microsoft\winget\packages\FFMPEGVERSION\bin
     QDir wingetPackageDir = QDir(QDir::homePath() + "/AppData/Local/Microsoft/WinGet/Packages/");
     QStringList wingetPackageFolderNames = wingetPackageDir.entryList();
     for (const auto &folderName : wingetPackageFolderNames) {
@@ -513,7 +487,7 @@ QJsonObject KisFFMpegWrapper::findProcessPath(const QString &processName, const 
             processInfoJsonObj["custom"]=(!customLocation.isEmpty() && i <= 1) ? true:false;
             resultJsonObj = processInfoJsonObj;
             break;
-        }        
+        }
     }
 
     return resultJsonObj;
@@ -527,54 +501,49 @@ QJsonObject KisFFMpegWrapper::findProcessInfo(const QString &processName, const 
                             {"version", "0"},
                             {"encoder",QJsonValue::Object},
                             {"decoder",QJsonValue::Object}};
-                            
+
     if (!QFile::exists(rawProcessPath)) return ffmpegInfo;
 
     const QString processPath = QFileInfo(rawProcessPath).absoluteFilePath();
     ffmpegInfo["path"] = processPath;
-    
-    dbgFile << "Found process at:" << processPath;    
+
+    dbgFile << "Found process at:" << processPath;
     QString processVersion = KisFFMpegWrapper::runProcessAndReturn(processPath, QStringList() << "-version", FFMPEG_TIMEOUT);
 
     if (!processVersion.isEmpty()) {
-        
+
         QRegularExpressionMatch versionMatch = ffmpegVersionRX.match(processVersion);
-        
+
         if (versionMatch.hasMatch() && versionMatch.captured(1) == processName ) {
             ffmpegInfo["version"] = versionMatch.captured(2);
             dbgFile << "found version" << ffmpegInfo.value("version").toString();
             ffmpegInfo["enabled"] = true;
         }
-        
+
         if (!includeProcessInfo || !ffmpegInfo["enabled"].toBool()) return ffmpegInfo;
-        
+
         QString processCodecs = KisFFMpegWrapper::runProcessAndReturn(processPath, QStringList() << "-codecs", FFMPEG_TIMEOUT);
 
         QJsonObject codecsJson {};
-        
+
         {
-            // For regular expression advice, check out https://regexr.com/.
-            // Beware: We need double backslashes here for C++, in regular regex it would be a single backslash instead.
             QRegularExpression ffmpegCodecsRX("(D|\\.)(E|\\.)....\\s+(.+?)\\s+([^\\r\\n]*)");
             QRegularExpressionMatchIterator codecsMatchList = ffmpegCodecsRX.globalMatch(processCodecs);
-            
-            // Find out codec types.. (e.g. H264, VP9, etc)
+
             while (codecsMatchList.hasNext()) {
                 QRegularExpressionMatch codecsMatch = codecsMatchList.next();
 
                 if (codecsMatch.hasMatch()) {
                     QJsonObject codecInfoJson {};
-                    
+
                     bool encodingSupported = codecsMatch.captured(2) == "E" ? true:false;
                     bool decodingSupported = codecsMatch.captured(1) == "D" ? true:false;
                     QString codecName = codecsMatch.captured(3);
-                    QString codecRemainder = codecsMatch.captured(4); 
+                    QString codecRemainder = codecsMatch.captured(4);
 
                     codecInfoJson.insert("encoding", encodingSupported);
                     codecInfoJson.insert("decoding", decodingSupported);
 
-
-                    // Regular expression for grouping specific encoders and decoders..
                     QRegularExpression ffmpegSpecificCodecRX("\\(decoders:(.+?)\\)|\\(encoders:(.+?)\\)");
                     QRegularExpressionMatchIterator specificCodecMatchList = ffmpegSpecificCodecRX.globalMatch(codecRemainder);
 
@@ -584,7 +553,6 @@ QJsonObject KisFFMpegWrapper::findProcessInfo(const QString &processName, const 
                     while (specificCodecMatchList.hasNext()) {
                         QRegularExpressionMatch specificCodecMatch = specificCodecMatchList.next();
                         if (specificCodecMatch.hasMatch()) {
-                            // Add specific decoders..
                             QStringList decoders = specificCodecMatch.captured(1).split(" ");
                             Q_FOREACH(const QString& string, decoders) {
                                 if (!string.isEmpty()) {
@@ -592,7 +560,6 @@ QJsonObject KisFFMpegWrapper::findProcessInfo(const QString &processName, const 
                                 }
                             }
 
-                            // Add specific encoders.. (e.g. for h264: h264_vaapi, libopenh264, etc )
                             QStringList encoders = specificCodecMatch.captured(2).split(" ");
                             Q_FOREACH(const QString& string, encoders) {
                                 if (!string.isEmpty()) {
@@ -601,7 +568,7 @@ QJsonObject KisFFMpegWrapper::findProcessInfo(const QString &processName, const 
                             }
                         }
                     }
-                    
+
                     codecInfoJson.insert("encoders", encodersList);
                     codecInfoJson.insert("decoders", decodersList);
                     codecsJson.insert(codecName, codecInfoJson);
@@ -610,24 +577,20 @@ QJsonObject KisFFMpegWrapper::findProcessInfo(const QString &processName, const 
         }
 
         ffmpegInfo.insert("codecs", codecsJson);
-        
-            
-        dbgFile << "codec support:" << ffmpegInfo; 
+
+        dbgFile << "codec support:" << ffmpegInfo;
     } else {
         dbgFile << "Not a valid process at:" << processPath;
     }
-    
+
     return ffmpegInfo;
-    
+
 }
 
 QStringList KisFFMpegWrapper::getSupportedCodecs(const QJsonObject& ffmpegProcessInfo) {
-    // TODO: I really don't like having to deal with JSON in C++ code as frequently as we are here.
-    // We should make a proper datatype for FFMPEG Process Information!
-    
+
     QStringList encodersToReturn = {};
-    
-    // For now, I'm just treating this as strictly typed using KIS_SAFE_ASSERT_RECOVER_RETURN
+
     KIS_SAFE_ASSERT_RECOVER_RETURN_VALUE(ffmpegProcessInfo["enabled"].toBool(), encodersToReturn);
 
     QJsonObject encoders = ffmpegProcessInfo["codecs"].toObject();
@@ -650,26 +613,26 @@ QJsonObject KisFFMpegWrapper::findFFProbe(const QString &customLocation)
     return findProcessPath("ffprobe", customLocation, false);
 }
 
-QJsonObject KisFFMpegWrapper::ffprobe(const QString &inputFile, const QString &ffprobePath) 
+QJsonObject KisFFMpegWrapper::ffprobe(const QString &inputFile, const QString &ffprobePath)
 {
     struct KisFFMpegWrapperSettings ffprobeSettings;
-     
+
     ffprobeSettings.processPath = ffprobePath;
     ffprobeSettings.storeOutput = true;
     ffprobeSettings.defaultPrependArgs.clear();
-    
-    ffprobeSettings.args << "-hide_banner" 
-                         << "-v" << "warning" 
-                         << "-of" << "json=compact=1" 
-                         << "-show_format" 
-                         << "-show_streams" 
+
+    ffprobeSettings.args << "-hide_banner"
+                         << "-v" << "warning"
+                         << "-of" << "json=compact=1"
+                         << "-show_format"
+                         << "-show_streams"
                          << "-i" << inputFile;
     startNonBlocking(ffprobeSettings);
     waitForFinished();
-    
+
     QString ffprobeSTDOUT = m_processSTDOUT;
     QString ffprobeSTDERR = m_processSTDERR;
-     
+
     QJsonDocument ffprobeJsonDoc = QJsonDocument::fromJson(ffprobeSTDOUT.toUtf8());
     QJsonObject ffprobeJsonObj;
 
@@ -683,45 +646,42 @@ QJsonObject KisFFMpegWrapper::ffprobe(const QString &inputFile, const QString &f
     const bool hasValidStreams = ffprobeCheckStreamsValid(ffprobeJsonObj, ffprobeSTDERR);
     ffprobeJsonObj["error"] = hasValidStreams ? FFProbeErrorCodes::NONE : FFProbeErrorCodes::UNSUPPORTED_CODEC;
 
-    
     return ffprobeJsonObj;
 }
 
-QJsonObject KisFFMpegWrapper::ffmpegProbe(const QString &inputFile, const QString &ffmpegPath, bool batchMode) 
+QJsonObject KisFFMpegWrapper::ffmpegProbe(const QString &inputFile, const QString &ffmpegPath, bool batchMode)
 {
     struct KisFFMpegWrapperSettings ffmpegSettings;
-     
+
     ffmpegSettings.processPath = ffmpegPath;
     ffmpegSettings.storeOutput = true;
     ffmpegSettings.progressMessage = i18nc("Video information probing dialog. arg1: frame number.", "Loading video data... %1 frames examined.", "[progress]");
     ffmpegSettings.batchMode = batchMode;
 
     ffmpegSettings.args << "-stats"
-                        << "-v" << "info" 
-                        << "-progress" << "pipe:1" 
+                        << "-v" << "info"
+                        << "-progress" << "pipe:1"
                         << "-map" << "0:v:0"
                         << "-c" << "copy"
                         << "-f" << "null" << "pipe:1"
                         << "-i" << inputFile;
-                        
 
     this->startNonBlocking(ffmpegSettings);
     this->waitForFinished();
 
-    
     QString ffmpegSTDOUT = m_processSTDERR + "\n" + m_processSTDOUT;
-    
+
     dbgFile << "ffmpegProbe stdout:" << ffmpegSTDOUT;
 
     QJsonObject ffmpegJsonObj;
     QJsonArray ffmpegStreamsJsonArr;
     QJsonObject ffmpegFormatJsonObj;
     QJsonObject ffmpegProgressJsonObj;
-    
+
     QStringList stdoutLines = ffmpegSTDOUT.split('\n');
-    
+
     ffmpegJsonObj["error"] = FFProbeErrorCodes::UNSUPPORTED_CODEC;
-    
+
     for (const QString &line : stdoutLines) {
         dbgFile << "ffmpeg probe stdout" << line;
         QRegularExpression videoInfoInputRX("Duration: (\\d+):(\\d+):([\\d\\.]+),");
@@ -729,7 +689,7 @@ QJsonObject KisFFMpegWrapper::ffmpegProbe(const QString &inputFile, const QStrin
 
         if (ffmpegFormatJsonObj.value("duration").isUndefined() && durationMatch.hasMatch()) {
             ffmpegFormatJsonObj["duration"] = QString::number( (durationMatch.captured(1).toInt() * 60 * 60)
-                                                             + (durationMatch.captured(2).toInt() * 60) 
+                                                             + (durationMatch.captured(2).toInt() * 60)
                                                              + durationMatch.captured(3).toFloat()
                                                              );
         } else {
@@ -739,22 +699,22 @@ QJsonObject KisFFMpegWrapper::ffmpegProbe(const QString &inputFile, const QStrin
                         .append("(\\d+)x(\\d+)([ ]*?\\[.+?\\]|.*?),[ ]*?")
                         .append("(?:([\\d\\.]+) fps,|) (\\S+?) tbr, (.+?) tbn, (.+?) tbc")
             );
-            
+
             QRegularExpressionMatch streamMatch = videoInfoStreamRX.match(line);
-            
+
             if (streamMatch.hasMatch() && ffmpegStreamsJsonArr[streamMatch.captured(1).toInt()].isUndefined() ) {
                 int index = streamMatch.captured(1).toInt();
                 QJsonObject ffmpegJsonOnStreamObj;
-                
+
                 ffmpegJsonOnStreamObj["index"] = index;
                 ffmpegJsonOnStreamObj["codec_name"] = streamMatch.captured(4);
                 ffmpegJsonOnStreamObj["profile"] = streamMatch.captured(5);
                 ffmpegJsonOnStreamObj["pix_fmt"] = streamMatch.captured(6);
                 ffmpegJsonOnStreamObj["width"] = streamMatch.captured(8).toInt();
                 ffmpegJsonOnStreamObj["height"] = streamMatch.captured(9).toInt();
-                
+
                 ffmpegJsonOnStreamObj["codec_type"] = "video";
-                
+
                 if (streamMatch.captured(11).toFloat() > 0) {
                     float fps = streamMatch.captured(11).toFloat();
 
@@ -765,26 +725,26 @@ QJsonObject KisFFMpegWrapper::ffmpegProbe(const QString &inputFile, const QStrin
                 }
 
                 ffmpegJsonObj["error"] = FFProbeErrorCodes::NONE;
-                
+
                 dbgFile << "ffmpegProbe stream:" << ffmpegJsonOnStreamObj;
-                
+
                 ffmpegStreamsJsonArr.insert(index, ffmpegJsonOnStreamObj);
-                
+
             } else {
-                
+
                 QRegularExpression videoInfoFrameRX("^(\\w+?)=([\\w\\./:]+?)$");
                 QRegularExpressionMatch frameMatch = videoInfoFrameRX.match(line);
 
                 if (frameMatch.hasMatch()) ffmpegProgressJsonObj[frameMatch.captured(1)] = frameMatch.captured(2);
-    
+
             }
         }
     }
-    
+
     ffmpegJsonObj.insert("streams",ffmpegStreamsJsonArr);
     ffmpegJsonObj.insert("format",ffmpegFormatJsonObj);
     ffmpegJsonObj.insert("progress",ffmpegProgressJsonObj);
-    
+
     return ffmpegJsonObj;
 }
 

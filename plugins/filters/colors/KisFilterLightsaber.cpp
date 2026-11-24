@@ -35,7 +35,7 @@
 #include <kis_image.h>
 
 namespace {
-struct Pixel16 { quint16 b, g, r, a; };   // the 16-bit RGBA layout of Krita (blue first)
+struct Pixel16 { quint16 b, g, r, a; };
 
 struct Preset { const char *name; QColor color; };
 const Preset presets[] = {
@@ -77,7 +77,7 @@ void KisFilterLightsaber::processImpl(KisPaintDeviceSP device,
     const double bx = bounds.left() + bounds.width() * config->getDouble("x2", 75.0) / 100.0;
     const double by = bounds.top() + bounds.height() * config->getDouble("y2", 25.0) / 100.0;
     const double diag = std::hypot(double(bounds.width()), double(bounds.height()));
-    const double w = qMax(0.5, diag * config->getInt("width", 10) / 1000.0);   // blade width, 1% of the diagonal at 10
+    const double w = qMax(0.5, diag * config->getInt("width", 10) / 1000.0);
     const double glow = config->getInt("glow", 100) / 100.0;
     const double bright = config->getInt("brightness", 100) / 100.0;
     const QColor c = config->getColor("color", KoColor(QColor(40, 120, 255), KoColorSpaceRegistry::instance()->rgb8())).toQColor();
@@ -99,7 +99,6 @@ void KisFilterLightsaber::processImpl(KisPaintDeviceSP device,
             const double t = qBound(0.0, (px * vx + py * vy) / len2, 1.0);
             const double dx = px - t * vx, dy = py - t * vy;
             const double d = std::sqrt(dx * dx + dy * dy);
-            // white-hot core with a soft edge, colored inner glow, wide soft outer glow
             const double core = qBound(0.0, (w * 0.5 - d) / qMax(1.0, w * 0.15) + 0.5, 1.0);
             const double q1 = d / (w * 1.3), q2 = d / (w * 4.5);
             const double inner = std::exp(-q1 * q1) * glow, outer = std::exp(-q2 * q2) * 0.55 * glow;
@@ -239,7 +238,6 @@ void KisWdgLightsaber::setView(KisViewManager *view)
     }
 }
 
-// a finger on the picture moves the nearer end of the blade (chosen when the finger goes down)
 bool KisWdgLightsaber::dragTo(const QPointF &widgetPoint, bool start)
 {
     if (!m_view || !m_view->canvasBase() || !m_view->image()) return false;
@@ -265,7 +263,7 @@ bool KisWdgLightsaber::dragTo(const QPointF &widgetPoint, bool start)
         sy->setValue(y);
         sx->blockSignals(false);
         sy->blockSignals(false);
-        emit sigConfigurationItemChanged();   // one signal for both: one preview
+        emit sigConfigurationItemChanged();
     }
     return true;
 }
@@ -286,7 +284,7 @@ bool KisWdgLightsaber::eventFilter(QObject *watched, QEvent *event)
     case QEvent::TouchBegin:
     case QEvent::TouchUpdate: {
         QTouchEvent *touch = static_cast<QTouchEvent*>(event);
-        if (touch->touchPoints().size() != 1) break;   // two fingers still pan and zoom
+        if (touch->touchPoints().size() != 1) break;
         event->accept();
         dragTo(touch->touchPoints().first().pos(), event->type() == QEvent::TouchBegin);
         return true;

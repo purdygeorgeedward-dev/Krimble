@@ -6,7 +6,6 @@
 #include "KoSvgTextLoader.h"
 #include "KoSvgTextShape_p.h"
 
-
 struct KoSvgTextLoader::Private {
 
     Private(KoSvgTextShape *shape)
@@ -30,12 +29,10 @@ KoSvgTextLoader::KoSvgTextLoader(KoSvgTextShape *shape)
 
 KoSvgTextLoader::~KoSvgTextLoader()
 {
-    // run clean-up after parsing to remove empty spans and the like.
     d->shape->d->updateShapeGroup();
     d->shape->cleanUp();
     d->shape->d->isLoading = false;
 
-    // finish loading by synchronizing the internal group
     d->shape->d->shapeGroup->setTransformation(d->shape->absoluteTransformation());
     d->shape->d->updateTextWrappingAreas();
     d->shape->notifyChanged();
@@ -78,7 +75,6 @@ bool KoSvgTextLoader::loadSvgText(const QDomText &text, SvgLoadingContext &conte
 void KoSvgTextLoader::setStyleInfo(KoShape *s)
 {
     if (!KisForestDetail::isEnd(d->currentNode)) {
-        // find closest parent stroke and fill so we can check for inheritance.
         QSharedPointer<KoShapeBackground> parentBg;
         KoShapeStrokeModelSP parentStroke;
         for (auto it = KisForestDetail::hierarchyBegin(d->currentNode); it != KisForestDetail::hierarchyEnd(d->currentNode); it++) {

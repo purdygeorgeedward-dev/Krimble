@@ -15,14 +15,6 @@
 #include "KisRecentFileIconCache.h"
 #include "KisRecentFilesManager.h"
 
-
-/**
- * This class implements lazy-loading of file icons when used by, for example,
- * a `QListView` via a `QStandardItemModel`. It can be used by the welcome
- * screen to load the thumbnail icons of recent files on demand as the user
- * scrolls through the list, thus avoiding the need to preload all icons
- * when the user may not even look at the list.
- */
 class KisRecentDocumentsModelItem : public QStandardItem
 {
     QUrl m_url;
@@ -41,7 +33,6 @@ public:
 static QString urlToTooltip(const QUrl &url)
 {
 #ifdef Q_OS_WIN
-    // Convert forward slashes to backslashes
     if (url.isLocalFile()) {
         return QDir::toNativeSeparators(url.toLocalFile());
     }
@@ -66,9 +57,6 @@ QVariant KisRecentDocumentsModelItem::data(int role) const
     case Qt::DecorationRole:
         if (!m_iconFetched) {
             m_iconFetched = true;
-            // This lazy-loads the icon if not already cached. Once the real
-            // icon has been loaded, `KisRecentDocumentsModelItem` will be
-            // notified of the icon change and sets it to this item.
             const QIcon icon = KisRecentFileIconCache::instance()->getOrQueueFileIcon(m_url);
             if (!icon.isNull()) {
                 m_fileIcon = icon;
@@ -92,8 +80,6 @@ void KisRecentDocumentsModelItem::setData(const QVariant &value, int role)
     switch (role) {
     case Qt::DecorationRole:
         if (value.type() == QMetaType::QIcon) {
-            // `KisRecentDocumentsModelItem` calls `setIcon` to update the
-            // file icon once it has been lazy-loaded or changed.
             m_iconFetched = true;
             m_fileIcon = value.value<QIcon>();
             emitDataChanged();
@@ -108,7 +94,6 @@ void KisRecentDocumentsModelItem::setData(const QVariant &value, int role)
     }
     QStandardItem::setData(value, role);
 }
-
 
 KisRecentDocumentsModelWrapper::KisRecentDocumentsModelWrapper()
 {
@@ -125,7 +110,6 @@ KisRecentDocumentsModelWrapper::KisRecentDocumentsModelWrapper()
             SIGNAL(listRenewed()),
             SLOT(listRenewed()));
 
-    // Load the initial recent files list
     listRenewed();
 }
 
@@ -143,8 +127,6 @@ KisRecentDocumentsModelWrapper *KisRecentDocumentsModelWrapper::instance()
 
 void KisRecentDocumentsModelWrapper::setFiles(const QList<QUrl> &urls)
 {
-    // Replace all items in the model. The existing items are deleted by
-    // `QStandardItemModel`.
     m_filesAndThumbnailsModel.setRowCount(urls.count());
     for (int i = 0; i < urls.count(); i++) {
         QStandardItem *item = new KisRecentDocumentsModelItem(urls[i]);

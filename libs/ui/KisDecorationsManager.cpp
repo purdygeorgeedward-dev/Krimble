@@ -19,7 +19,6 @@
 #include <kactioncollection.h>
 #include <KisDocument.h>
 
-
 KisDecorationsManager::KisDecorationsManager(KisViewManager* view)
     : QObject(view)
     , m_imageView(0)
@@ -42,8 +41,6 @@ void KisDecorationsManager::setup(KisActionManager * actionManager)
 void KisDecorationsManager::setView(QPointer<KisView> imageView)
 {
 
-    // set view is called twice when a document is open, so we need to disconnect the original signals
-    // if m_imageView has already been created. This prevents double signal events firing
     if (m_imageView) {
         m_toggleAssistant->disconnect();
         m_togglePreview->disconnect();
@@ -84,7 +81,6 @@ void KisDecorationsManager::setView(QPointer<KisView> imageView)
     if (m_imageView && referenceImagesDecoration()) {
         connect(m_toggleReferenceImages, SIGNAL(triggered(bool)), referenceImagesDecoration(), SLOT(setVisible(bool)), Qt::UniqueConnection);
     }
-
 
     updateAction();
 }

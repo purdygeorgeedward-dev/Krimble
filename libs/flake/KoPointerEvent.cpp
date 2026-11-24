@@ -46,9 +46,6 @@ Q_GLOBAL_STATIC(KisTouchPressureSensitivityOptionContainer, s_optionContainer)
 #if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
 namespace detail {
 
-// Qt's events do not have copy-ctors yet, so we should emulate them
-// See https://bugreports.qt.io/browse/QTBUG-72488
-
 template <class Event> void copyEventHack(const Event *src, QScopedPointer<QEvent> &dst);
 
 template<> void copyEventHack(const QMouseEvent *src, QScopedPointer<QEvent> &dst) {
@@ -159,7 +156,6 @@ KoPointerEventWrapper::KoPointerEventWrapper(Event *_event, const QPointF &point
 {
 }
 
-
 #if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
 struct DeepCopyVisitor
 {
@@ -194,7 +190,6 @@ KoPointerEventWrapper KoPointerEvent::deepCopyEvent() const
         }
     };
     return visit(Visitor{point}, d->eventPtr);
-
 
 #endif
 }
@@ -374,7 +369,6 @@ qreal KoPointerEvent::xTilt() const
     return visit(Visitor(), d->eventPtr);
 }
 
-
 qreal KoPointerEvent::yTilt() const
 {
     struct Visitor {
@@ -515,9 +509,6 @@ std::optional<QPointF> KoPointerEvent::fetchGlobalPositionFromPointerEvent(QEven
         const QList<QTouchEvent::TouchPoint> &touchPoints = touchEvent->touchPoints();
 #endif
         if (touchPoints.isEmpty()) {
-            // Getting zero touch points can happen on Android when pressing
-            // on the screen with an entire palm. Punt to using the cursor
-            // position after all.
             return std::nullopt;
         } else {
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)

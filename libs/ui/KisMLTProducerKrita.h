@@ -5,4 +5,4 @@
 
 void registerKritaMLTProducer(Mlt::Repository *repository);
 
-#endif // KISMLTPRODUCERKRITA_H
+#endif

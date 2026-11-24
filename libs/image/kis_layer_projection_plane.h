@@ -12,10 +12,6 @@
 #include <QScopedPointer>
 #include "krita_utils.h"
 
-/**
- * An implementation of the KisAbstractProjectionPlane interface for a
- * layer object
- */
 class KisLayerProjectionPlane : public KisAbstractProjectionPlane
 {
 public:
@@ -46,5 +42,4 @@ private:
 typedef QSharedPointer<KisLayerProjectionPlane> KisLayerProjectionPlaneSP;
 typedef QWeakPointer<KisLayerProjectionPlane> KisLayerProjectionPlaneWSP;
 
-
-#endif /* __KIS_LAYER_PROJECTION_PLANE_H */
+#endif

@@ -69,7 +69,6 @@ qreal KisSmoothingOptions::smoothnessDistanceMin() const
     return m_d->smoothnessDistanceMin;
 }
 
-
 void KisSmoothingOptions::setSmoothnessDistanceMin(qreal value)
 {
     m_d->smoothnessDistanceMin = value;
@@ -127,8 +126,6 @@ bool KisSmoothingOptions::useScalableDistance() const
 
 void KisSmoothingOptions::setUseScalableDistance(bool value)
 {
-    // stabilizer mush always have scalable distance on
-    // see bug 421314
     KIS_SAFE_ASSERT_RECOVER_RETURN(m_d->smoothingType != STABILIZER);
 
     m_d->useScalableDistance = value;

@@ -33,23 +33,11 @@ public:
         qreal minSizeLikeValue {0.0};
         qreal maxSizeLikeValue {0.0};
 
-        /**
-         * @param normalizedBaseAngle canvas rotation angle normalized to range [0; 1]
-         * @param absoluteAxesFlipped true if underlying image coordinate system is flipped (horiz. mirror != vert. mirror)
-         */
-
         qreal rotationLikeValue(qreal normalizedBaseAngle, bool absoluteAxesFlipped, qreal scalingPartCoeff, bool disableScalingPart) const;
 
         qreal sizeLikeValue() const;
     };
 
-    /**
-     * Uses the curves set on the sensors to compute a single
-     * double value that can control the parameters of a brush.
-     *
-     * This value is derives from the values stored in
-     * ValuesComponents object.
-     */
     ValueComponents computeValueComponents(const KisPaintInformation& info, bool useStrengthValue) const;
 
     qreal computeSizeLikeValue(const KisPaintInformation &info, bool useStrengthValue = true) const;
@@ -72,4 +60,4 @@ private:
     std::vector<std::unique_ptr<KisDynamicSensor>> m_sensors;
 };
 
-#endif // KISCURVEOPTION_H
+#endif

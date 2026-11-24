@@ -11,7 +11,6 @@
 #include <limits.h>
 #include <stdlib.h>
 
-
 #include <klocalizedstring.h>
 
 #include "KoChannelInfo.h"
@@ -34,7 +33,6 @@ KoRgbU16ColorSpace::KoRgbU16ColorSpace() :
 KoRgbU16ColorSpace::~KoRgbU16ColorSpace()
 {
 }
-
 
 QString KoRgbU16ColorSpace::colorSpaceId()
 {
@@ -61,7 +59,7 @@ void KoRgbU16ColorSpace::toQColor(const quint8 * src, QColor *c) const
 }
 void KoRgbU16ColorSpace::toHSY(const QVector<double> &channelValues, qreal *hue, qreal *sat, qreal *luma) const
 {
-    
+
     RGBToHSY(channelValues[0],channelValues[1],channelValues[2], hue, sat, luma);
 }
 

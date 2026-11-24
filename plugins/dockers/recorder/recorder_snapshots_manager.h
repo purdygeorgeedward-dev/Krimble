@@ -53,4 +53,4 @@ private:
     QPushButton* cleanUpButton;
 };
 
-#endif // WIDGET_H
+#endif

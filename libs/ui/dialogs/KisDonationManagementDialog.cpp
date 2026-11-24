@@ -27,10 +27,6 @@ KisDonationManagementDialog::KisDonationManagementDialog(QWidget *parent)
         m_buttons->addButton(i18n("Manage Subscriptions"), QDialogButtonBox::ActionRole);
 
     if (m_androidDonations) {
-        // It is theoretically possible that the user purchases a product while
-        // Krita is still loading, hence the existence of this "pending" flag,
-        // in case the Qt UI isn't ready yet. This here is the dialog that's
-        // pending to be shown, so its appearance clears that flag.
         m_androidDonations->setShowDonationManagementDialogPending(false);
         connect(m_androidDonations,
                 &KisAndroidDonations::sigStateChanged,
@@ -46,7 +42,6 @@ KisDonationManagementDialog::KisDonationManagementDialog(QWidget *parent)
                 m_androidDonations,
                 &KisAndroidDonations::slotManageSubscriptions);
     } else {
-        // Shouldn't happen, but just revert to a blank no benefits page.
         m_stack->setCurrentWidget(m_pgNoBenefits);
         m_btnNoBenefitsSupport->hide();
     }

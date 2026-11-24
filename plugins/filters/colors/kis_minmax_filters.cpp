@@ -16,7 +16,6 @@
 #include <kis_processing_information.h>
 #include <KisSequentialIteratorProgress.h>
 
-
 typedef void (*funcMaxMin)(const quint8* , quint8* , uint);
 
 template<typename _TYPE>

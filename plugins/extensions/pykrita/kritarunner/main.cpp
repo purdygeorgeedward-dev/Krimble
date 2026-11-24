@@ -16,11 +16,6 @@
 #include <opengl/kis_opengl.h>
 
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-/**
- * Qt6 overrides main via its own implementation in Qt6::EntryPointPrivate
- * and then calls it via a qMain definition. We shouldn't declare main
- * as extern "C" to let Qt call it.
- */
 extern "C"
 #endif
 int main(int argc, char **argv)
@@ -29,8 +24,6 @@ int main(int argc, char **argv)
     QCoreApplication::setAttribute(Qt::AA_ShareOpenGLContexts, true);
     KisOpenGL::testingInitializeDefaultSurfaceFormat();
 
-
-    // first create the application so we can create a pixmap
     KisApplication app("kritarunner", argc, argv);
     app.setApplicationDisplayName("Krita Script Runner");
     app.setApplicationName("kritarunner");
@@ -63,13 +56,10 @@ int main(int argc, char **argv)
     app.registerResources();
     app.loadPlugins();
 
-
     QByteArray pythonPath = qgetenv("PYTHONPATH");
     qDebug() << "\tPython path:" << pythonPath;
 
     qDebug() << "Creating engine";
-
-    // TODO: refactor to share common parts with plugin.cpp
 
     PyKrita::InitResult initResult = PyKrita::initialize();
 

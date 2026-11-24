@@ -6,7 +6,6 @@
 
 #include "kis_model_index_converter_base.h"
 
-
 KisModelIndexConverterBase::~KisModelIndexConverterBase()
 {
 }

@@ -36,7 +36,7 @@ public:
         return 3;
     }
 
-    void mouseDoubleClickEvent(KoPointerEvent */*event*/) override {}
+    void mouseDoubleClickEvent(KoPointerEvent * ) override {}
 
     bool hasSelection() override;
 
@@ -78,7 +78,6 @@ public Q_SLOTS:
     bool selectAll() override;
     void deselect() override;
 
-
 private:
     friend class ToolReferenceImagesWidget;
     ToolReferenceImagesWidget *m_optionsWidget = nullptr;
@@ -87,7 +86,6 @@ private:
     KisDocument *document() const;
     void setReferenceImageLayer(KisSharedPtr<KisReferenceImagesLayer> layer);
 };
-
 
 class ToolReferenceImagesFactory : public DefaultToolFactory
 {
@@ -101,7 +99,6 @@ public:
         setActivationShapeId(KRITA_TOOL_ACTIVATION_ID);
     };
 
-
     ~ToolReferenceImagesFactory() override {}
 
     KoToolBase * createTool(KoCanvasBase * canvas) override {
@@ -111,7 +108,6 @@ public:
     QList<QAction *> createActionsImpl() override;
 
 };
-
 
 #endif
 

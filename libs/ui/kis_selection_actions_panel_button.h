@@ -11,7 +11,6 @@
 
 class KoColorDisplayRendererInterface;
 
-///Custom widget for selection actions panel buttons, to prevent them being drawn over the pop-up palette
 class KisSelectionActionsPanelButton : public QAbstractButton {
   public:
     KisSelectionActionsPanelButton(const QString& iconName, const QString &tooltip, int size, QWidget *parent);
@@ -24,6 +23,5 @@ protected:
     void contextMenuEvent(QContextMenuEvent *event) override;
     void mousePressEvent(QMouseEvent* event) override;
 };
-
 
 #endif

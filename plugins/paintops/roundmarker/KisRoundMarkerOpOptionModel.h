@@ -29,4 +29,4 @@ public:
     LAGER_QT_CURSOR(SpacingState, aggregatedSpacing);
 };
 
-#endif // KIS_ROUNDMARKER_OP_OPTION_MODEL_H
+#endif

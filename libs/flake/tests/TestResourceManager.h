@@ -25,4 +25,4 @@ private Q_SLOTS:
     void testDerivedAbstractChange();
 };
 
-#endif // TESTRESOURCEMANAGER_H
+#endif

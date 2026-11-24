@@ -19,19 +19,13 @@
 #include <boost/optional.hpp>
 #include <optional>
 
-
 class KRITAIMAGE_EXPORT KisSpatialContainer
 {
-    // right now it's just a standard Quadtree, since it seemed like it would work well
-    // for points that are mostly uniformly located
-    // and need a decent amount of changes and need to have fast queries
-
 
 public:
     struct SpatialNode;
 
 public:
-
 
     KisSpatialContainer(QRectF startArea, int maxPointsInDict = 100);
     KisSpatialContainer(QRectF startArea, QVector<QPointF> &points);
@@ -52,17 +46,12 @@ public:
     void findAllInRange(QVector<int> &indexes, QPointF center, qreal range);
 
     int count();
-    // O(log(n)*m_maxPointsInDict)
     QPointF getTopLeft();
-    // O(log(n)*m_maxPointsInDict)
     QRectF exactBounds();
 
-    // erase everything
     void clear();
 
-
     void debugWriteOut();
-
 
 private:
 
@@ -71,9 +60,7 @@ private:
     void movePointRec(int index, QPointF positionBefore, QPointF positionAfter, SpatialNode* node);
     SpatialNode *createNodeForPoint(int index, QPointF position);
 
-
     void findAllInRangeRec(QVector<int> &indexes, QPointF center, qreal range, SpatialNode* node);
-
 
     void gatherDataRec(QVector<QPointF> &vector, SpatialNode* node);
 
@@ -89,22 +76,15 @@ private:
 
     void deepCopyData(SpatialNode* node, const SpatialNode* from);
 
-
-
 private:
 
     int m_count {0};
     int m_maxPointsInDict = {100};
-    int m_nextNodeId = {0}; // just for debug
+    int m_nextNodeId = {0};
     SpatialNode* m_root {nullptr};
 
     friend class KisSpatialContainerTest;
 
-
 };
 
-
-
-
-
-#endif /* __KIS_SPATIAL_CONTAINER_H */
+#endif

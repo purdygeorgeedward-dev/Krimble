@@ -46,23 +46,19 @@ public:
     int swapWindowSize() const;
     void setSwapWindowSize(int value);
 
-    int tilesHardLimit() const; // MiB
-    int tilesSoftLimit() const; // MiB
-    int poolLimit() const; // MiB
+    int tilesHardLimit() const;
+    int tilesSoftLimit() const;
+    int poolLimit() const;
 
-    qreal memoryHardLimitPercent(bool requestDefault = false) const; // % of total RAM
-    qreal memorySoftLimitPercent(bool requestDefault = false) const; // % of memoryHardLimitPercent() * (1 - 0.01 * memoryPoolLimitPercent())
-    qreal memoryPoolLimitPercent(bool requestDefault = false) const; // % of memoryHardLimitPercent()
+    qreal memoryHardLimitPercent(bool requestDefault = false) const;
+    qreal memorySoftLimitPercent(bool requestDefault = false) const;
+    qreal memoryPoolLimitPercent(bool requestDefault = false) const;
     void setMemoryHardLimitPercent(qreal value);
     void setMemorySoftLimitPercent(qreal value);
     void setMemoryPoolLimitPercent(qreal value);
 
-    static int totalRAM(); // MiB
+    static int totalRAM();
 
-    /**
-     * @return a specific directory for the swapfile, if set. If not set, return an
-     * empty QString and use the default KDE directory.
-     */
     QString swapDir(bool requestDefault = false);
     void setSwapDir(const QString &swapDir);
 
@@ -171,10 +167,6 @@ public:
         return m_config.readEntry(name, defaultValue);
     }
 
-    /* Per-File Export Configurations
-     * Export configurations can optionally be saved into the file. If no configuration exists,
-     * the user should try loading a configuration from the global system instead.
-     */
     QString exportConfigurationXML(const QString &exportConfigId, bool defaultValue = false) const;
     bool hasExportConfiguration(const QString& exportConfigID);
     KisPropertiesConfigurationSP exportConfiguration(const QString &exportConfigId, bool defaultValue = false) const;
@@ -191,5 +183,4 @@ private:
     bool m_readOnly;
 };
 
-
-#endif /* KIS_IMAGE_CONFIG_H_ */
+#endif

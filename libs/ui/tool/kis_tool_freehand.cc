@@ -23,10 +23,8 @@
 #include <KoViewConverter.h>
 #include <KoCanvasController.h>
 
-//pop up palette
 #include <kis_canvas_resource_provider.h>
 
-// Krita/image
 #include <kis_layer.h>
 #include <kis_paint_layer.h>
 #include <kis_painter.h>
@@ -35,8 +33,6 @@
 #include <brushengine/kis_paintop_preset.h>
 #include <brushengine/KisOptimizedBrushOutline.h>
 
-
-// Krita/ui
 #include "kis_abstract_perspective_grid.h"
 #include "kis_config.h"
 #include "kis_config_notifier.h"
@@ -50,8 +46,7 @@
 #include "strokes/freehand_stroke.h"
 #include "kis_tool_utils.h"
 
-using namespace std::placeholders; // For _1 placeholder
-
+using namespace std::placeholders;
 
 KisToolFreehand::KisToolFreehand(KoCanvasBase * canvas, const QCursor & cursor,
                                  const KUndo2MagicString &transactionText, bool useSavedSmoothing)
@@ -202,13 +197,11 @@ bool KisToolFreehand::primaryActionSupportsHiResEvents() const
 
 void KisToolFreehand::beginPrimaryAction(KoPointerEvent *event)
 {
-    // FIXME: workaround for the Duplicate Op
     trySampleByPaintOp(event, SampleFgImage);
 
     requestUpdateOutline(event->point, event);
 
     NodePaintAbility paintability = nodePaintAbility();
-    // XXX: move this to KisTool and make it work properly for clone layers: for clone layers, the shape paint tools don't work either
     if (!nodeEditable() || paintability != PAINT) {
         if (paintability == KisToolPaint::VECTOR || paintability == KisToolPaint::CLONE){
             KisCanvas2 * kiscanvas = static_cast<KisCanvas2*>(canvas());
@@ -243,9 +236,6 @@ void KisToolFreehand::continuePrimaryAction(KoPointerEvent *event)
 
     requestUpdateOutline(event->point, event);
 
-    /**
-     * Actual painting
-     */
     doStroke(event);
 }
 
@@ -272,10 +262,6 @@ bool KisToolFreehand::trySampleByPaintOp(KoPointerEvent *event, AlternateAction 
 {
     if (action != SampleFgNode && action != SampleFgImage) return false;
 
-    /**
-     * FIXME: we need some better way to implement modifiers
-     * for a paintop level. This method is used in DuplicateOp only!
-     */
     QPointF pos = adjustPosition(event->point, event->point);
     qreal perspective = calculatePerspective(pos);
     if (!currentPaintOpPreset()) {
@@ -293,8 +279,6 @@ bool KisToolFreehand::trySampleByPaintOp(KoPointerEvent *event, AlternateAction 
     bool paintOpIgnoredEvent = currentPaintOpPreset()->settings()->mousePressEvent(info,
                                                                                    event->modifiers(),
                                                                                    currentNode());
-    // DuplicateOP during the sampling of new source point (origin)
-    // is the only paintop that returns "false" here
     return !paintOpIgnoredEvent;
 }
 
@@ -388,7 +372,6 @@ void KisToolFreehand::continueAlternateAction(KoPointerEvent *event, AlternateAc
         requestUpdateOutline(
             m_initialGestureDocPoint,
             m_beginAlternateActionEvent.has_value() ? &m_beginAlternateActionEvent->event : nullptr);
-        //m_brushResizeCompressor.start(newSize);
 
         m_lastDocumentPoint = event->point;
         m_lastPaintOpSize = newSize;
@@ -452,8 +435,6 @@ QPointF KisToolFreehand::adjustPosition(const QPointF& point, const QPointF& str
         c->paintingAssistantsDecoration()->setEraserSnap(m_eraser_snapping);
         QPointF ap = c->paintingAssistantsDecoration()->adjustPosition(point, strokeBegin);
         QPointF fp = (1.0 - m_magnetism) * point + m_magnetism * ap;
-        // Report the final position back to the assistant so the guides
-        // can follow the brush
         c->paintingAssistantsDecoration()->setAdjustedBrushPosition(fp);
         return fp;
     }
@@ -495,5 +476,4 @@ KisOptimizedBrushOutline KisToolFreehand::getOutlinePath(const QPointF &document
     else
         return KisOptimizedBrushOutline();
 }
-
 

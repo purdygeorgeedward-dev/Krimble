@@ -5,7 +5,6 @@
  * SPDX-License-Identifier: LGPL-2.0-or-later
  */
 
-
 #include <QPainter>
 #include <QDebug>
 
@@ -52,7 +51,7 @@ void KisResourceItemDelegate::paint(QPainter *painter, const QStyleOptionViewIte
 
     if (m_showText) {
         QRect paintRect = QRect(option.rect.x(), option.rect.y(), option.rect.height(), option.rect.height());
-        QString resourceDisplayName = index.data(Qt::UserRole + KisAbstractResourceModel::Name).toString().replace("_", " "); // don't need underscores that might be part of the file name
+        QString resourceDisplayName = index.data(Qt::UserRole + KisAbstractResourceModel::Name).toString().replace("_", " ");
         painter->drawText(paintRect.width() + 10, option.rect.y() + option.rect.height() - 10, resourceDisplayName);
 
         const QModelIndex globalIndex = convertToGlobalModelIndexIfNeeded(index);
@@ -63,10 +62,9 @@ void KisResourceItemDelegate::paint(QPainter *painter, const QStyleOptionViewIte
             painter->setOpacity(1.0);
             painter->fillRect(option.rect, option.palette.highlight());
 
-            // highlight is not strong enough to pick out preset. draw border around it.
             painter->setCompositionMode(QPainter::CompositionMode_SourceOver);
             painter->setPen(QPen(option.palette.highlight(), 4, Qt::SolidLine, Qt::FlatCap, Qt::MiterJoin));
-            QRect selectedBorder = option.rect.adjusted(2 , 2, -2, -2); // constrict the rectangle so it doesn't bleed into other presets
+            QRect selectedBorder = option.rect.adjusted(2 , 2, -2, -2);
             painter->drawRect(selectedBorder);
         }
     } else {
@@ -75,7 +73,6 @@ void KisResourceItemDelegate::paint(QPainter *painter, const QStyleOptionViewIte
     }
     painter->restore();
 }
-
 
 QSize KisResourceItemDelegate::sizeHint(const QStyleOptionViewItem &optionItem, const QModelIndex &index) const
 {

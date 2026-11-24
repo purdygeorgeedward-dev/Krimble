@@ -69,7 +69,6 @@ void KisAnimCurvesChannelDelegate::paint(QPainter *painter, const QStyleOptionVi
     const bool isNode = !index.data(KisAnimCurvesChannelsModel::CurveRole).toBool();
     QPalette palette = QApplication::palette();
 
-    // Draw background
     if (isNode) {
         QVariant colorData = index.data(KisAnimCurvesChannelsModel::NodeColorRole);
         KIS_ASSERT(colorData.isValid());
@@ -82,7 +81,6 @@ void KisAnimCurvesChannelDelegate::paint(QPainter *painter, const QStyleOptionVi
                                                    styleOption.widget);
     }
 
-    // Draw layer name..
     QString text = index.data().toString();
     const int iconSpace = isNode ? 0 : CHANNEL_ICON_SIZE;
     QRect textArea = styleOption.rect.adjusted(CHANNEL_LEGEND_RADIUS + 4, 0, -iconSpace, 0);
@@ -91,7 +89,6 @@ void KisAnimCurvesChannelDelegate::paint(QPainter *painter, const QStyleOptionVi
     styleOption.widget->style()->drawItemText(painter, textArea, Qt::AlignLeft | Qt::AlignVCenter, styleOption.palette, true, text, QPalette::ButtonText);
 
     if (isNode) {
-        // Draw Open / Close Arrow
         QRect arrow = QRect(styleOption.widget->rect().topLeft(), styleOption.rect.bottomLeft());
         painter->setPen(Qt::NoPen);
         QStyleOptionViewItem item = styleOption;
@@ -119,7 +116,6 @@ void KisAnimCurvesChannelDelegate::paint(QPainter *painter, const QStyleOptionVi
         painter->drawLine(left, right);
     }
 
-    // Draw buttons..
     if (!isNode) {
         QRect iconArea = styleOption.rect.adjusted(styleOption.rect.width() - iconSpace, 0, 0, 0);
         const bool isVisible = index.data(KisAnimCurvesChannelsModel::CurveVisibilityRole).toBool();
@@ -140,7 +136,7 @@ void KisAnimCurvesChannelDelegate::paintNodeBackground(const QStyleOptionViewIte
     KIS_ASSERT(widget);
     viewArea.setLeft(widget->rect().left());
 
-    { // Highlight, Shadow and Selection Color
+    {
         const QColor highlight = nodeColor.lighter(115);
         const QColor shadow = nodeColor.darker(105);
         painter->fillRect(viewArea, highlight);
@@ -152,7 +148,7 @@ void KisAnimCurvesChannelDelegate::paintNodeBackground(const QStyleOptionViewIte
         }
     }
 
-    { // Center "Neutral" Band
+    {
         viewArea -= QMargins(0, 2, 0, 2);
         painter->fillRect(viewArea, nodeColor);
     }
@@ -160,7 +156,7 @@ void KisAnimCurvesChannelDelegate::paintNodeBackground(const QStyleOptionViewIte
 
 void KisAnimCurvesChannelDelegate::soloChannelVisibility(QAbstractItemModel *model, const QModelIndex &channelIndex)
 {
-    KIS_SAFE_ASSERT_RECOVER_RETURN(channelIndex.parent().isValid()); //We need to have a parent "node" to isolate.
+    KIS_SAFE_ASSERT_RECOVER_RETURN(channelIndex.parent().isValid());
 
     const int numCurves = model->rowCount(channelIndex.parent());
     const int clickedCurve = channelIndex.row();
@@ -178,7 +174,7 @@ void KisAnimCurvesChannelDelegate::soloChannelVisibility(QAbstractItemModel *mod
 
 void KisAnimCurvesChannelDelegate::showAllChannels(QAbstractItemModel *model, const QModelIndex &nodeIndex )
 {
-    KIS_SAFE_ASSERT_RECOVER_RETURN(nodeIndex.isValid() && !nodeIndex.parent().isValid()); //We should have no parent node here.
+    KIS_SAFE_ASSERT_RECOVER_RETURN(nodeIndex.isValid() && !nodeIndex.parent().isValid());
 
     const int numCurves = model->rowCount(nodeIndex);
 

@@ -47,7 +47,6 @@ void generateDab(const DabGenerationInfo &di, DabRenderingResources *resources, 
     KIS_SAFE_ASSERT_RECOVER_RETURN(*dab);
     const KoColorSpace *cs = (*dab)->colorSpace();
 
-
     if (forceNormalizedRGBAImageStamp || resources->brush->brushApplication() == IMAGESTAMP) {
         *dab = resources->brush->paintDevice(cs, di.shape, di.info,
                                              di.subPixel.x(),

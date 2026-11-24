@@ -40,4 +40,4 @@ private:
     KisMagneticGraph *m_graph {nullptr};
 };
 
-#endif // ifndef KISMAGNETICWORKER_H
+#endif

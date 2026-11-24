@@ -410,7 +410,6 @@ private:
             return m_row == m_mesh->size().height() - 1;
         }
 
-
         bool isBorderNode() const {
             return isLeftBorder() || isRightBorder() || isTopBorder() || isBottomBorder();
         }
@@ -517,7 +516,6 @@ private:
                 }
             } while (nodeIsValid() && !controlIsValid());
         }
-
 
         bool equal(control_point_iterator_impl const& other) const {
             return m_controlIndex == other.m_controlIndex &&
@@ -693,7 +691,6 @@ private:
             } while (nodeIsValid() && !controlIsValid());
         }
 
-
         bool equal(segment_iterator_impl const& other) const {
             return m_isHorizontal == other.m_isHorizontal &&
                 m_row == other.m_row &&
@@ -776,7 +773,6 @@ public:
     const Node& node(const NodeIndex &index) const {
         return node(index.x(), index.y());
     }
-
 
     int subdivideRow(qreal proportionalT) {
         KIS_SAFE_ASSERT_RECOVER_RETURN_VALUE(proportionalT >= 0.0 && proportionalT <= 1.0, -1);
@@ -1374,7 +1370,6 @@ Mesh<NodeArg, PatchArg>::patch_iterator_impl<is_const>::nodeBottomRight() const
     return ControlPointIteratorType(const_cast<Mesh<NodeArg, PatchArg>*>(m_mesh), m_col + 1, m_row + 1, Mesh::ControlType::Node);
 }
 
-
 template<typename NodeArg, typename PatchArg>
 template<bool is_const>
 typename Mesh<NodeArg, PatchArg>::template control_point_iterator_impl<is_const>::SegmentIteratorType
@@ -1446,7 +1441,6 @@ void smartMoveControl(Mesh<NodeArg, PatchArg> &mesh,
 {
     using ControlType = typename Mesh<NodeArg, PatchArg>::ControlType;
     using ControlPointIndex = typename Mesh<NodeArg, PatchArg>::ControlPointIndex;
-//    using ControlPointIterator = typename Mesh<NodeArg, PatchArg>::control_point_iterator;
     using SegmentIterator = typename Mesh<NodeArg, PatchArg>::segment_iterator;
 
     auto it = mesh.find(index);
@@ -1552,5 +1546,4 @@ using KisBezierMeshBase = KisBezierMeshDetails::Mesh<Node, Patch>;
 using KisSmartMoveMeshControlMode = KisBezierMeshDetails::SmartMoveMeshControlMode;
 using KisBezierMesh = KisBezierMeshDetails::Mesh<KisBezierMeshDetails::BaseMeshNode, KisBezierPatch>;
 
-
-#endif // KISBEZIERMESH_H
+#endif

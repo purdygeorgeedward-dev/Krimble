@@ -10,10 +10,6 @@
 #include <simpletest.h>
 #include <KisSpinBoxSplineUnitConverter.h>
 
-/**
- * KisSpinBoxSplineUnitConverterTest contains tests
- *  for class KisSpinBoxSplineUnitConverter
- */
 class KisSpinBoxSplineUnitConverterTest : public QObject
 {
     Q_OBJECT

@@ -12,7 +12,6 @@
 class KisDocument;
 class KisNameServer;
 
-
 class KisShapeControllerTest : public KisDummiesFacadeBaseTest
 {
     Q_OBJECT

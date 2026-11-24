@@ -45,7 +45,7 @@ QSize KisClickableLabel::minimumSizeHint() const
 }
 
 QSize KisClickableLabel::sizeHint() const
-{   
+{
     return {};
 }
 
@@ -59,7 +59,6 @@ void KisClickableLabel::setUnscaledPixmap(QPixmap pixmap)
 void KisClickableLabel::updatePixmap()
 {
     if (!m_pixmap.isNull()) {
-        // setPixmap(m_pixmap.scaled(width(), height(), Qt::KeepAspectRatio, Qt::SmoothTransformation));
         setPixmap(m_pixmap.scaledToWidth(width(), Qt::SmoothTransformation));
     }
 }
@@ -82,7 +81,7 @@ void KisClickableLabel::mousePressEvent(QMouseEvent *event)
     Q_EMIT clicked();
 }
 
-void KisClickableLabel::resizeEvent(QResizeEvent */*event*/)
+void KisClickableLabel::resizeEvent(QResizeEvent * )
 {
     updatePixmap();
 }

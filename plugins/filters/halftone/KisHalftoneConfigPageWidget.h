@@ -53,7 +53,7 @@ private:
     Ui_HalftoneConfigPageWidget* ui();
 
     void setGenerator(const QString & generatorId, const KisFilterConfigurationSP config);
-    
+
 Q_SIGNALS:
     void signal_configurationUpdated();
 

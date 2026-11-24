@@ -17,4 +17,4 @@ private Q_SLOTS:
     void testSerializeNoSensors();
 };
 
-#endif // KISCURVEOPTIONDATATEST_H
+#endif

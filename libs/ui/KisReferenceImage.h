@@ -23,9 +23,6 @@ class KoStore;
 class KisCoordinatesConverter;
 class KisCanvas2;
 
-/**
- * @brief The KisReferenceImage class represents a single reference image
- */
 class KRITAUI_EXPORT KisReferenceImage : public KoShape
 {
 public:
@@ -45,19 +42,10 @@ public:
 
     KoShape *cloneShape() const override;
 
-    /**
-     * Load a reference image from specified file.
-     * If parent is provided and the image cannot be loaded, a warning message will be displayed to user.
-     * @return reference image or null if one could not be loaded
-     */
-    static KisReferenceImage * fromFile(const QString &filename, const KisCoordinatesConverter &converter, QWidget *parent /*= nullptr*/);
+    static KisReferenceImage * fromFile(const QString &filename, const KisCoordinatesConverter &converter, QWidget *parent );
     static KisReferenceImage * fromClipboard(const KisCoordinatesConverter &converter);
     static KisReferenceImage * fromQImage(const KisCoordinatesConverter &converter, const QImage &img);
 
-    /**
-     * Load a reference image from specified paint device.
-     * @return reference image or null if one could not be loaded
-     */
     static KisReferenceImage *
     fromPaintDevice(KisPaintDeviceSP src, const KisCoordinatesConverter &converter, QWidget *parent);
 
@@ -89,4 +77,4 @@ private:
     QSharedDataPointer<Private> d;
 };
 
-#endif // KISREFERENCEIMAGE_H
+#endif

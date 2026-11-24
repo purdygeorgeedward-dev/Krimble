@@ -18,7 +18,6 @@ KisOperationRegistry* KisOperationRegistry::instance()
     return s_instance;
 }
 
-
 KisOperationRegistry::KisOperationRegistry()
 {
     add(new KisSelectAllActionFactory);

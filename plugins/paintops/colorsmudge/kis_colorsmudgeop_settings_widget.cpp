@@ -29,7 +29,6 @@
 #include <KisSmudgeRadiusOptionData.h>
 #include <KisZug.h>
 
-
 struct KisColorSmudgeOpSettingsWidget::Private
 {
     Private(lager::reader<KisBrushModel::BrushData> brushData,
@@ -58,7 +57,6 @@ KisColorSmudgeOpSettingsWidget::KisColorSmudgeOpSettingsWidget(QWidget* parent, 
     addPaintOpOption(kpowu::createRatioOptionWidget());
     addPaintOpOption(kpowu::createOptionWidget<KisSpacingOptionWidget>());
     addPaintOpOption(kpowu::createOptionWidget<KisMirrorOptionWidget>());
-
 
     KisSmudgeLengthOptionWidget *smudgeLengthWidget =
         kpowu::createOptionWidget<KisSmudgeLengthOptionWidget>

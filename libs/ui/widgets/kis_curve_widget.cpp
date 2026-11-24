@@ -5,13 +5,8 @@
  *  SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-
-// C++ includes.
-
 #include <cmath>
 #include <cstdlib>
-
-// Qt includes.
 
 #include <QPixmap>
 #include <QPainter>
@@ -28,8 +23,6 @@
 
 #include <QSpinBox>
 
-// KDE includes.
-
 #include <kis_debug.h>
 #include <kis_config.h>
 #include <klocalizedstring.h>
@@ -37,11 +30,7 @@
 #include <kis_signal_compressor.h>
 #include <kis_thread_safe_signal_compressor.h>
 
-
-// Local includes.
-
 #include "widgets/kis_curve_widget.h"
-
 
 #define bounds(x,a,b) (x<a ? a : (x>b ? b :x))
 #define MOUSE_AWAY_THRES 15
@@ -64,8 +53,6 @@ KisCurveWidget::KisCurveWidget(QWidget *parent, Qt::WindowFlags f)
     setMinimumSize(150, 50);
     setMaximumSize(250, 250);
 
-    // Curves widgets don't have context menus. Setting this prevents any
-    // long-presses from delaying inputs, see KisLongPressEventFilter.cpp.
     setContextMenuPolicy(Qt::PreventContextMenu);
 
     setFocusPolicy(Qt::StrongFocus);
@@ -117,7 +104,6 @@ bool KisCurveWidget::setCurrentPointAsCorner(bool setAsCorner)
 {
     Q_ASSERT(d->m_grab_point_index >= 0);
 
-    // Setting the point corner flag is not allowed if there is some global constrain set
     if (d->m_globalPointConstrain != PointConstrain_None) {
         return false;
     }
@@ -135,7 +121,7 @@ void KisCurveWidget::setGlobalPointConstrain(PointConstrain constrain)
     if (d->m_globalPointConstrain == constrain) {
         return;
     }
-    
+
     d->m_globalPointConstrain = constrain;
     d->applyGlobalPointConstrain();
 
@@ -173,7 +159,6 @@ void KisCurveWidget::reset(void)
     d->m_grab_point_index = -1;
     Q_EMIT pointSelectedChanged();
 
-    //remove total - 2 points.
     while (d->m_curve.curvePoints().count() - 2 ) {
         d->m_curve.removePoint(d->m_curve.curvePoints().count() - 2);
     }
@@ -202,7 +187,6 @@ void KisCurveWidget::keyPressEvent(QKeyEvent *e)
 {
     if (e->key() == Qt::Key_Delete || e->key() == Qt::Key_Backspace) {
         if (d->m_grab_point_index > 0 && d->m_grab_point_index < d->m_curve.curvePoints().count() - 1) {
-            //x() find closest point to get focus afterwards
             double grab_point_x = d->m_curve.curvePoints()[d->m_grab_point_index].x();
 
             int left_of_grab_point_index = d->m_grab_point_index - 1;
@@ -231,14 +215,12 @@ void KisCurveWidget::keyPressEvent(QKeyEvent *e)
         e->accept();
         d->setCurveModified();
     } else if ((e->key() == Qt::Key_A || e->key() == Qt::Key_Insert) && d->state() == ST_NORMAL) {
-        /* FIXME: Lets user choose the hotkeys */
         addPointInTheMiddle();
         e->accept();
     } else if (e->key() == Qt::Key_S &&
                d->m_globalPointConstrain == PointConstrain_None &&
                pointSelected() &&
                d->state() == ST_NORMAL) {
-        /* FIXME: Lets user choose the hotkeys */
         setCurrentPointAsCorner(!*isCurrentPointSetAsCorner());
         e->accept();
     } else
@@ -272,24 +254,15 @@ void KisCurveWidget::paintEvent(QPaintEvent *)
     int    wWidth = width() - 1;
     int    wHeight = height() - 1;
 
-
     QPainter p(this);
 
-    // Antialiasing is not a good idea here, because
-    // the grid will drift one pixel to any side due to rounding of int
-    // FIXME: let's user tell the last word (in config)
-    //p.setRenderHint(QPainter::Antialiasing);
      QPalette appPalette = QApplication::palette();
-     p.fillRect(rect(), appPalette.color(QPalette::Base)); // clear out previous paint call results
+     p.fillRect(rect(), appPalette.color(QPalette::Base));
 
-     // make the entire widget grayed out if it is disabled
      if (!this->isEnabled()) {
         p.setOpacity(0.2);
      }
 
-
-
-    //  draw background
     if (!d->m_pix.isNull()) {
         if (d->m_pixmapDirty || !d->m_pixmapCache) {
             delete d->m_pixmapCache;
@@ -310,7 +283,6 @@ void KisCurveWidget::paintEvent(QPaintEvent *)
         p.setRenderHint(QPainter::Antialiasing);
     }
 
-    // Draw curve.
     double curY;
     double normalizedX;
     int x;
@@ -322,11 +294,6 @@ void KisCurveWidget::paintEvent(QPaintEvent *)
         normalizedX = double(x) / wWidth;
         curY = wHeight - d->m_curve.value(normalizedX) * wHeight;
 
-        /**
-         * Keep in mind that QLineF rounds doubles
-         * to ints mathematically, not just rounds down
-         * like in C
-         */
         poly.append(QPointF(x, curY));
     }
     poly.append(QPointF(x, wHeight - d->m_curve.value(1.0) * wHeight));
@@ -337,17 +304,12 @@ void KisCurveWidget::paintEvent(QPaintEvent *)
     fillPoly.append(QPoint(rect().width(), rect().height()));
     fillPoly.append(QPointF(0,rect().height()));
 
-    // add a couple points to the edges so it fills in below always
-
     QColor fillColor = appPalette.color(QPalette::Text);
     fillColor.setAlphaF(0.2);
 
     fillCurvePath.addPolygon(fillPoly);
     p.fillPath(fillCurvePath, fillColor);
 
-
-
-    // Drawing curve handles.
     if (!d->m_readOnlyMode) {
         const qreal halfHandleSize = d->m_handleSize * 0.5;
 
@@ -355,7 +317,6 @@ void KisCurveWidget::paintEvent(QPaintEvent *)
             const KisCubicCurvePoint &point = d->m_curve.curvePoints().at(i);
 
             if (i == d->m_grab_point_index) {
-                // active point is slightly more "bold"
                 p.setPen(QPen(appPalette.color(QPalette::Text), 4, Qt::SolidLine));
             } else {
                 p.setPen(QPen(appPalette.color(QPalette::Text), 2, Qt::SolidLine));
@@ -376,13 +337,11 @@ void KisCurveWidget::paintEvent(QPaintEvent *)
         }
     }
 
-    // add border around widget to help contain everything
     QPainterPath widgetBoundsPath;
     widgetBoundsPath.addRect(rect());
     p.strokePath(widgetBoundsPath, appPalette.color(QPalette::Text));
 
-
-    p.setOpacity(1.0); // reset to 1.0 in case we were drawing a disabled widget before
+    p.setOpacity(1.0);
 }
 
 void KisCurveWidget::mousePressEvent(QMouseEvent * e)
@@ -394,8 +353,6 @@ void KisCurveWidget::mousePressEvent(QMouseEvent * e)
 
     double x = e->pos().x() / (double)(width() - 1);
     double y = 1.0 - e->pos().y() / (double)(height() - 1);
-
-
 
     int closest_point_index = d->nearestPointInRange(QPointF(x, y), width(), height());
     if (closest_point_index < 0) {
@@ -412,7 +369,7 @@ void KisCurveWidget::mousePressEvent(QMouseEvent * e)
     }
 
     const KisCubicCurvePoint &currentPoint = d->m_curve.curvePoints()[d->m_grab_point_index];
-    
+
     d->m_grabOriginalX = currentPoint.x();
     d->m_grabOriginalY = currentPoint.y();
     d->m_grabOffsetX = currentPoint.x() - x;
@@ -425,10 +382,8 @@ void KisCurveWidget::mousePressEvent(QMouseEvent * e)
     d->m_draggedAwayPointIndex = -1;
     d->setState(ST_DRAG);
 
-
     d->setCurveModified();
 }
-
 
 void KisCurveWidget::mouseReleaseEvent(QMouseEvent *e)
 {
@@ -443,7 +398,6 @@ void KisCurveWidget::mouseReleaseEvent(QMouseEvent *e)
     d->setCurveModified();
 }
 
-
 void KisCurveWidget::mouseMoveEvent(QMouseEvent * e)
 {
     if (d->m_readOnlyMode) return;
@@ -451,14 +405,14 @@ void KisCurveWidget::mouseMoveEvent(QMouseEvent * e)
     double x = e->pos().x() / (double)(width() - 1);
     double y = 1.0 - e->pos().y() / (double)(height() - 1);
 
-    if (d->state() == ST_NORMAL) { // If no point is selected set the cursor shape if on top
+    if (d->state() == ST_NORMAL) {
         int nearestPointIndex = d->nearestPointInRange(QPointF(x, y), width(), height());
 
         if (nearestPointIndex < 0)
             setCursor(Qt::ArrowCursor);
         else
             setCursor(Qt::CrossCursor);
-    } else { // Else, drag the selected point
+    } else {
         bool crossedHoriz = e->pos().x() - width() > MOUSE_AWAY_THRES ||
                             e->pos().x() < -MOUSE_AWAY_THRES;
         bool crossedVert =  e->pos().y() - height() > MOUSE_AWAY_THRES ||
@@ -467,7 +421,6 @@ void KisCurveWidget::mouseMoveEvent(QMouseEvent * e)
         bool removePoint = (crossedHoriz || crossedVert);
 
         if (!removePoint && d->m_draggedAwayPointIndex >= 0) {
-            // point is no longer dragged away so reinsert it
             KisCubicCurvePoint newPoint(d->m_draggedAwayPoint);
             d->m_grab_point_index = d->m_curve.addPoint(newPoint);
             d->m_draggedAwayPointIndex = -1;
@@ -476,7 +429,6 @@ void KisCurveWidget::mouseMoveEvent(QMouseEvent * e)
         if (removePoint &&
                 (d->m_draggedAwayPointIndex >= 0))
             return;
-
 
         setCursor(Qt::CrossCursor);
 
@@ -497,7 +449,6 @@ void KisCurveWidget::mouseMoveEvent(QMouseEvent * e)
         } else {
             Q_ASSERT(d->m_grab_point_index > 0 && d->m_grab_point_index < d->m_curve.curvePoints().count() - 1);
 
-            // the 1E-4 addition so we can grab the dot later.
             leftX = d->m_curve.curvePoints()[d->m_grab_point_index - 1].x() + POINT_AREA;
             rightX = d->m_curve.curvePoints()[d->m_grab_point_index + 1].x() - POINT_AREA;
         }

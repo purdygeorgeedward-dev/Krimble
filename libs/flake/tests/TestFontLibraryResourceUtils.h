@@ -24,4 +24,4 @@ private Q_SLOTS:
     void testFailedDestruction();
 };
 
-#endif // TESTLIBRARYRESOURCEUTILS_H
+#endif

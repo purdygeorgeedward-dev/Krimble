@@ -42,8 +42,7 @@ bool KisTIFFWriterVisitor::saveLayerProjection(KisLayer *layer)
     uint16_t color_type = 0;
     uint16_t sample_format = SAMPLEFORMAT_UINT;
     const KoColorSpace *destColorSpace = nullptr;
-    // Check colorspace
-    if (!writeColorSpaceInformation(image(), pd->colorSpace(), color_type, sample_format, destColorSpace)) { // unsupported colorspace
+    if (!writeColorSpaceInformation(image(), pd->colorSpace(), color_type, sample_format, destColorSpace)) {
         if (!destColorSpace) {
             return false;
         }
@@ -52,9 +51,6 @@ bool KisTIFFWriterVisitor::saveLayerProjection(KisLayer *layer)
     }
 
     {
-        // WORKAROUND: block any attempts to use YCbCr with alpha channels.
-        // This should not happen because alpha is disabled by default
-        // and the checkbox is blocked for YCbCr and CMYK.
         KIS_SAFE_ASSERT_RECOVER(color_type != PHOTOMETRIC_YCBCR
                                 || !m_options->alpha)
         {
@@ -64,12 +60,10 @@ bool KisTIFFWriterVisitor::saveLayerProjection(KisLayer *layer)
         }
     }
 
-    // Save depth
     uint32_t depth = 8 * pd->pixelSize() / pd->channelCount();
     TIFFSetField(image(), TIFFTAG_BITSPERSAMPLE, depth);
 
     {
-        // WORKAROUND: block any attempts to use JPEG with >= 8 bits
 
         if (m_options->compressionType == COMPRESSION_JPEG && depth != 8) {
             warnFile << "Attempt to export JPEG with multi-byte depth, "
@@ -78,7 +72,6 @@ bool KisTIFFWriterVisitor::saveLayerProjection(KisLayer *layer)
         }
     }
 
-    // Save number of samples
     if (m_options->alpha) {
         TIFFSetField(image(), TIFFTAG_SAMPLESPERPIXEL, pd->channelCount());
         const std::array<uint16_t, 1> sampleinfo = {EXTRASAMPLE_UNASSALPHA};
@@ -88,13 +81,11 @@ bool KisTIFFWriterVisitor::saveLayerProjection(KisLayer *layer)
         TIFFSetField(image(), TIFFTAG_EXTRASAMPLES, 0);
     }
 
-    // Save colorspace information
     TIFFSetField(image(), TIFFTAG_PHOTOMETRIC, color_type);
     TIFFSetField(image(), TIFFTAG_SAMPLEFORMAT, sample_format);
     TIFFSetField(image(), TIFFTAG_IMAGEWIDTH, layer->image()->width());
     TIFFSetField(image(), TIFFTAG_IMAGELENGTH, layer->image()->height());
 
-    // Set the compression options
     TIFFSetField(image(), TIFFTAG_COMPRESSION, m_options->compressionType);
     if (m_options->compressionType == COMPRESSION_JPEG) {
         TIFFSetField(image(), TIFFTAG_JPEGQUALITY, m_options->jpegQuality);
@@ -106,17 +97,12 @@ bool KisTIFFWriterVisitor::saveLayerProjection(KisLayer *layer)
                      m_options->pixarLogCompress);
     }
 
-    // Set the predictor
     if (m_options->compressionType == COMPRESSION_LZW
         || m_options->compressionType == COMPRESSION_ADOBE_DEFLATE)
         TIFFSetField(image(), TIFFTAG_PREDICTOR, m_options->predictor);
 
-    // Use contiguous configuration
     TIFFSetField(image(), TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG);
 
-    // Do not set the rowsperstrip, as it's incompatible with JPEG
-
-    // But do set YCbCr 4:4:4 if applicable
     if (color_type == PHOTOMETRIC_YCBCR) {
         TIFFSetField(image(), TIFFTAG_YCBCRSUBSAMPLING, 1, 1);
         TIFFSetField(image(), TIFFTAG_YCBCRPOSITIONING, YCBCRPOSITION_CENTERED);
@@ -125,7 +111,6 @@ bool KisTIFFWriterVisitor::saveLayerProjection(KisLayer *layer)
         }
     }
 
-    // Save profile
     if (m_options->saveProfile) {
         const KoColorProfile* profile = pd->colorSpace()->profile();
         if (profile && profile->type() == "icc" && !profile->rawData().isEmpty()) {
@@ -135,7 +120,6 @@ bool KisTIFFWriterVisitor::saveLayerProjection(KisLayer *layer)
     }
 
     {
-        // IPTC
         KisMetaData::IOBackend *io =
             KisMetadataBackendRegistry::instance()->value("iptc");
         QBuffer buf;
@@ -151,7 +135,6 @@ bool KisTIFFWriterVisitor::saveLayerProjection(KisLayer *layer)
     }
 
     {
-        // XMP
         KisMetaData::IOBackend *io =
             KisMetadataBackendRegistry::instance()->value("xmp");
         QBuffer buf;

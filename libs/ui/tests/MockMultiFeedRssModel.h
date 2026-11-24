@@ -18,11 +18,7 @@ public:
 
     void addFeed(const QString& feed) override;
 
-    /**
-     * @brief to be called in the setup phase of the unittest, before call to addFeed
-     * @param rssFile
-     */
     void loadFeedData(const RssItemList& feed);
 };
 
-#endif // MOCKMULTIFEEDRSSMODEL_H
+#endif

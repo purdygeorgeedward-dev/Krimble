@@ -21,7 +21,7 @@ class KisRectangleEnclosingProducer : public KisDynamicDelegateTool<KisToolRecta
 public:
     KisRectangleEnclosingProducer(KoCanvasBase *canvas);
     ~KisRectangleEnclosingProducer() override;
-    
+
     bool hasUserInteractionRunning() const;
 
 protected:

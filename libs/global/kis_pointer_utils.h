@@ -12,17 +12,11 @@
 #include <QForeach>
 #endif
 
-/**
- * Convert a raw pointer into a shared pointer
- */
 template <class T>
 inline QSharedPointer<T> toQShared(T* ptr) {
     return QSharedPointer<T>(ptr);
 }
 
-/**
- * Convert a list of raw pointers into a list of shared pointers
- */
 template <class A, template <class C> class List>
 List<QSharedPointer<A>> listToQShared(const List<A*> list) {
     List<QSharedPointer<A>> newList;
@@ -32,10 +26,6 @@ List<QSharedPointer<A>> listToQShared(const List<A*> list) {
     return newList;
 }
 
-
-/**
- * Convert a list of strong pointers into a list of weak pointers
- */
 template <template <class> class Container, class T>
 Container<QWeakPointer<T>> listStrongToWeak(const Container<QSharedPointer<T>> &container)
 {
@@ -46,14 +36,6 @@ Container<QWeakPointer<T>> listStrongToWeak(const Container<QSharedPointer<T>> &
     return result;
 }
 
-/**
- * Convert a list of weak pointers into a list of strong pointers
- *
- * WARNING: By default, uses "all or nothing" rule. If at least one of
- *          the weak pointers is invalid, returns an *empty* list!
- *          Even though some other pointer can still be converted
- *          correctly.
- */
 template <template <class> class Container, class T>
     Container<QSharedPointer<T> > listWeakToStrong(const Container<QWeakPointer<T>> &container,
                                                    bool allOrNothing = true)
@@ -73,12 +55,6 @@ template <template <class> class Container, class T>
     return result;
 }
 
-/**
- * Converts a list of objects with type T into a list of objects of type R.
- * The conversion is done implicitly, therefore the c-tor of type R should
- * support it. The main usage case is conversion of pointers in "descendant-
- * to-parent" way.
- */
 template <typename R, typename T, template <typename U> class Container>
 inline Container<R> implicitCastList(const Container<T> &list)
 {
@@ -90,20 +66,12 @@ inline Container<R> implicitCastList(const Container<T> &list)
     return result;
 }
 
-
 template<class T>
 class KisWeakSharedPtr;
 template<class T>
 class KisSharedPtr;
 template<class T>
 class KisPinnedSharedPtr;
-
-/**
- * \fn removeSharedPointer
- *
- * A template function for converting any kind of a shared pointer into a
- * raw pointer.
- */
 
 template <typename T>
 T* removeSharedPointer(T* value)
@@ -128,7 +96,6 @@ T* removeSharedPointer(QSharedPointer<T> value)
 {
     return value.data();
 }
-
 
 template <typename T>
 struct KisSharedPointerTraits
@@ -174,5 +141,5 @@ struct KisSharedPointerTraits<KisPinnedSharedPtr<T>>
     }
 };
 
-#endif // KIS_POINTER_UTILS_H
+#endif
 

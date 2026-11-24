@@ -16,7 +16,6 @@
 class QDomDocument;
 class QString;
 
-
 class KisBrushHudPropertiesConfig
 {
 public:
@@ -39,4 +38,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif /* __KIS_BRUSH_HUD_PROPERTIES_CONFIG_H */
+#endif

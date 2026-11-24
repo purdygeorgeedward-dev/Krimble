@@ -19,9 +19,6 @@
 
 class QIcon;
 
-/**
- * Implement this abstract class to provide a preferences pane for the preferences dialog.
- */
 class KRITAUI_EXPORT KisPreferenceSet : public QWidget {
 Q_OBJECT
 public:
@@ -44,10 +41,6 @@ public:
     virtual QString id() const = 0;
 };
 
-/**
- * This registry does not load the plugins itself: plugins with preferences panes should
- * add those panes when they are loaded themselves.
- */
 class KRITAUI_EXPORT KisPreferenceSetRegistry : public QObject, public KoGenericRegistry<KisAbstractPreferenceSetFactory*>
 {
 public:
@@ -59,4 +52,4 @@ private:
     Q_DISABLE_COPY(KisPreferenceSetRegistry)
 };
 
-#endif // KIS_PREFERENCE_SETSPACE_REGISTRY_H_
+#endif

@@ -8,7 +8,6 @@
 
 #include <simpletest.h>
 
-
 #include <KisDocument.h>
 #include <KoDocumentInfo.h>
 #include <KoShapeContainer.h>
@@ -50,7 +49,6 @@
 #include <filestest.h>
 #include <testui.h>
 
-
 const QString KraMimetype = "application/x-krita";
 
 void KisKraSaverTest::initTestCase()
@@ -65,14 +63,7 @@ void KisKraSaverTest::initTestCase()
 
 void KisKraSaverTest::testCrashyShapeLayer()
 {
-    /**
-     * KisShapeLayer used to call setImage from its destructor and
-     * therefore causing an infinite recursion (when at least one transparency
-     * mask was preset. This testcase just checks that.
-     */
 
-    //QScopedPointer<KisDocument> doc(createCompleteDocument(true));
-    //Q_UNUSED(doc);
 }
 
 void KisKraSaverTest::testRoundTrip()
@@ -80,7 +71,7 @@ void KisKraSaverTest::testRoundTrip()
     QScopedPointer<KisDocument> doc(createCompleteDocument());
     KoColor bgColor(Qt::red, doc->image()->colorSpace());
     doc->image()->setDefaultProjectionColor(bgColor);
-    doc->image()->waitForDone(); // wait to make sure the image can be locked for saving!
+    doc->image()->waitForDone();
     bool result = doc->exportDocumentSync("roundtriptest.kra", doc->mimeType());
     QVERIFY(result);
 
@@ -96,10 +87,8 @@ void KisKraSaverTest::testRoundTrip()
     doc2->image()->rootLayer()->accept(cv2);
     QCOMPARE(cv1.count(), cv2.count());
 
-    // check whether the BG color is saved correctly
     QCOMPARE(doc2->image()->defaultProjectionColor(), bgColor);
 
-    // test round trip of a transform mask
     KisNode* tnode =
         TestUtil::findNode(doc2->image()->rootLayer(), "testTransformMask").data();
     QVERIFY(tnode);
@@ -139,7 +128,6 @@ void testRoundTripFillLayerImpl(const QString &testName, KisFilterConfigurationS
 
     QScopedPointer<KisDocument> doc(KisPart::instance()->createDocument());
 
-    // mask parent should be destructed before the document!
     QRect refRect(0,0,512,512);
     TestUtil::MaskParent p(refRect);
 
@@ -173,7 +161,6 @@ void KisKraSaverTest::testRoundTripFillLayerColor()
     KisGeneratorSP generator = KisGeneratorRegistry::instance()->get("color");
     Q_ASSERT(generator);
 
-    // warning: we pass null paint device to the default constructed value
     KisFilterConfigurationSP config = generator->defaultConfiguration(KisGlobalResourcesInterface::instance());
     Q_ASSERT(config);
 
@@ -189,7 +176,6 @@ void KisKraSaverTest::testRoundTripFillLayerPattern()
     KisGeneratorSP generator = KisGeneratorRegistry::instance()->get("pattern");
     QVERIFY(generator);
 
-    // warning: we pass null paint device to the default constructed value
     KisFilterConfigurationSP config = generator->defaultConfiguration(KisGlobalResourcesInterface::instance());
     QVERIFY(config);
 
@@ -202,14 +188,12 @@ void KisKraSaverTest::testRoundTripFillLayerPattern()
 
 #include "kis_psd_layer_style.h"
 
-
 void KisKraSaverTest::testRoundTripLayerStyles()
 {
     TestUtil::ReferenceImageChecker chk("kra_saver_test", "layer_styles");
 
     QRect imageRect(0,0,512,512);
 
-    // the document should be created before the image!
     QScopedPointer<KisDocument> doc(KisPart::instance()->createDocument());
 
     const KoColorSpace * cs = KoColorSpaceRegistry::instance()->rgb8();
@@ -231,7 +215,6 @@ void KisKraSaverTest::testRoundTripLayerStyles()
     KisPSDLayerStyleSP style(new KisPSDLayerStyle());
     style->dropShadow()->setEffectEnabled(true);
 
-
     style->dropShadow()->setAngle(-90);
     style->dropShadow()->setUseGlobalLight(false);
     layer1->setLayerStyle(style->clone().dynamicCast<KisPSDLayerStyle>());
@@ -248,7 +231,6 @@ void KisKraSaverTest::testRoundTripLayerStyles()
     chk.checkImage(image, "00_initial_layers");
 
     doc->exportDocumentSync("roundtrip_layer_styles.kra", doc->mimeType());
-
 
     QScopedPointer<KisDocument> doc2(KisPart::instance()->createDocument());
     doc2->loadNativeFormat("roundtrip_layer_styles.kra");
@@ -364,28 +346,23 @@ void KisKraSaverTest::testRoundTripColorizeMask()
         KisPaintDeviceSP key1 = new KisPaintDevice(KoColorSpaceRegistry::instance()->alpha8());
         key1->fill(QRect(50,50,10,20), KoColor(Qt::black, key1->colorSpace()));
         mask->testingAddKeyStroke(key1, KoColor(Qt::green, layer1->colorSpace()));
-        // KIS_DUMP_DEVICE_2(key1, refRect, "key1", "dd");
     }
 
     {
         KisPaintDeviceSP key2 = new KisPaintDevice(KoColorSpaceRegistry::instance()->alpha8());
         key2->fill(QRect(150,50,10,20), KoColor(Qt::black, key2->colorSpace()));
         mask->testingAddKeyStroke(key2, KoColor(Qt::red, layer1->colorSpace()));
-        // KIS_DUMP_DEVICE_2(key2, refRect, "key2", "dd");
     }
 
     {
         KisPaintDeviceSP key3 = new KisPaintDevice(KoColorSpaceRegistry::instance()->alpha8());
         key3->fill(QRect(0,0,10,10), KoColor(Qt::black, key3->colorSpace()));
         mask->testingAddKeyStroke(key3, KoColor(Qt::blue, layer1->colorSpace()), true);
-        // KIS_DUMP_DEVICE_2(key3, refRect, "key3", "dd");
     }
 
     KisLayerPropertiesIcons::setNodePropertyAutoUndo(mask, KisLayerPropertiesIcons::colorizeEditKeyStrokes, false, image);
     KisLayerPropertiesIcons::setNodePropertyAutoUndo(mask, KisLayerPropertiesIcons::colorizeShowColoring, false, image);
     image->waitForDone();
-
-
 
     doc->exportDocumentSync("roundtrip_colorize.kra", doc->mimeType());
 
@@ -536,7 +513,6 @@ void KisKraSaverTest::testRoundTripShapeSelection()
     QVERIFY(chk.testPassed());
 }
 
-
 void KisKraSaverTest::testRoundTripStoryboard()
 {
     const KoColorSpace * cs = KoColorSpaceRegistry::instance()->rgb8();
@@ -546,7 +522,6 @@ void KisKraSaverTest::testRoundTripStoryboard()
     KisImageSP image = new KisImage(new KisSurrogateUndoStore(), imageRect.width(), imageRect.height(), cs, "test image");
     doc->setCurrentImage(image);
 
-    // TODO: make initialization of StoryboardItem more fool-proof
     StoryboardItemSP item(new StoryboardItem());
     item->appendChild(QVariant::fromValue(ThumbnailData()));
     item->appendChild("scene0");
@@ -628,7 +603,6 @@ void KisKraSaverTest::testRoundTripCicp()
         }
     }
 
-    // De-Duplication test.
     QList<const KoColorProfile*> profiles = KoColorSpaceRegistry::instance()->profilesFor(cs->id());
     QStringList tested;
     Q_FOREACH(const KoColorProfile *profile, profiles) {

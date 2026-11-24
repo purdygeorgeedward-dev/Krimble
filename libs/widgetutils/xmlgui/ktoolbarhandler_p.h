@@ -22,26 +22,12 @@ class ToolBarHandler : public QObject, public KisKXMLGUIClient
     Q_OBJECT
 
 public:
-    /**
-     * Creates a new tool bar handler for the supplied
-     * @p mainWindow.
-     */
     explicit ToolBarHandler(KXmlGuiWindow *mainWindow);
 
-    /**
-     * Creates a new tool bar handler for the supplied
-     * @p mainWindow and with the supplied @p parent.
-     */
     ToolBarHandler(KXmlGuiWindow *mainWindow, QObject *parent);
 
-    /**
-     * Destroys the tool bar handler.
-     */
     ~ToolBarHandler() override;
 
-    /**
-     * Returns the action which is responsible for the tool bar menu.
-     */
     QAction *toolBarMenuAction();
 
 public Q_SLOTS:
@@ -54,6 +40,6 @@ private:
     Q_PRIVATE_SLOT(d, void clientAdded(KisKXMLGUIClient *))
 };
 
-} // namespace KDEPrivate
+}
 
-#endif // KTOOLBARHANDLER_H
+#endif

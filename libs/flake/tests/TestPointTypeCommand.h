@@ -17,4 +17,4 @@ private Q_SLOTS:
     void redoUndoCorner();
 };
 
-#endif // TESTPOINTTYPECOMMAND_H
+#endif

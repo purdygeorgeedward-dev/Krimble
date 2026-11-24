@@ -34,4 +34,4 @@ private:
     int m_growValue;
 };
 
-#endif // DLG_GROW_SELECTION_H
+#endif

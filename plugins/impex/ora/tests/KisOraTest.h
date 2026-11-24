@@ -19,5 +19,5 @@ private Q_SLOTS:
     void testImportIncorrectFormat();
 };
 
-#endif // _KIS_ORA_TEST_H_
+#endif
 

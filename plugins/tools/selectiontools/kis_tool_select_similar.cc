@@ -83,13 +83,11 @@ void KisToolSelectSimilar::beginPrimaryAction(KoPointerEvent *event)
 
     KisCursorOverrideLock cursorLock(KisCursor::waitCursor());
 
-    // Create the stroke
     KisStrokeStrategyUndoCommandBased *strategy =
             new KisStrokeStrategyUndoCommandBased(kundo2_i18n("Select Similar Color"), false, image().data());
     strategy->setSupportsWrapAroundMode(false);
     KisStrokeId strokeId = image()->startStroke(strategy);
 
-    // Construct the reference device
     if (sampleLayersMode() == SampleCurrentLayer) {
         m_referencePaintDevice = currentNode()->projection();
     } else if (sampleLayersMode() == SampleAllLayers) {
@@ -127,13 +125,9 @@ void KisToolSelectSimilar::beginPrimaryAction(KoPointerEvent *event)
         m_previousTime = currentTime;
     }
 
-    // Get the color of the pixel where the user clicked
     KisPaintDeviceSP sourceDevice = m_referencePaintDevice;
     const QPoint pos = convertToImagePixelCoordFloored(event);
     QSharedPointer<KoColor> referenceColor = QSharedPointer<KoColor>(new KoColor(sourceDevice->colorSpace()));
-    // We need to obtain the reference color from the reference paint
-    // device, but it is produced in a stroke, so we must get the color
-    // after the device is ready. So we get it in the stroke
     image()->addJob(
         strokeId,
         new KisStrokeStrategyUndoCommandBased::Data(
@@ -150,7 +144,6 @@ void KisToolSelectSimilar::beginPrimaryAction(KoPointerEvent *event)
         )
     );
 
-    // Get the similar colors selection
     KisFillPainter painter;
     QRect bounds = currentImage()->bounds();
     QSharedPointer<KisProcessingVisitor::ProgressHelper>
@@ -192,7 +185,6 @@ void KisToolSelectSimilar::beginPrimaryAction(KoPointerEvent *event)
 
     image()->endStroke(strokeId);
 
-    // Apply selection
     KisSelectionToolHelper helper(kisCanvas, kundo2_i18n("Select Similar Color"));
     helper.selectPixelSelection(tmpSel, selectionAction());
 }
@@ -226,7 +218,6 @@ QWidget* KisToolSelectSimilar::createOptionWidget()
 
     selectionWidget->setStopGrowingAtDarkestPixelButtonVisible(true);
 
-    // Create widgets
     KisSliderSpinBox *sliderThreshold = new KisSliderSpinBox;
     sliderThreshold->setPrefix(i18nc(
         "The 'threshold' spinbox prefix in similar selection tool options",
@@ -244,7 +235,6 @@ QWidget* KisToolSelectSimilar::createOptionWidget()
                                         "number value, % is the percent sign",
                                         "Spread: {n}%"));
 
-    // Set the tooltips
     sliderThreshold->setToolTip(
         i18n("Set the color similarity tolerance of the selection. "
              "Increasing threshold increases the range of similar colors to be selected."));
@@ -252,7 +242,6 @@ QWidget* KisToolSelectSimilar::createOptionWidget()
         i18n("Set the extent of the opaque portion of the selection. "
              "Decreasing spread decreases opacity of selection areas depending on color similarity."));
 
-    // Construct the option widget
     KisOptionCollectionWidgetWithHeader *sectionSelectionExtent =
         new KisOptionCollectionWidgetWithHeader(
             i18nc("The 'selection extent' section label in similar selection "
@@ -262,7 +251,6 @@ QWidget* KisToolSelectSimilar::createOptionWidget()
     sectionSelectionExtent->appendWidget("sliderSpread", sliderSpread);
     selectionWidget->insertWidget(3, "sectionSelectionExtent", sectionSelectionExtent);
 
-    // load setting from config
     if (m_configGroup.hasKey("threshold")) {
         m_threshold = m_configGroup.readEntry("threshold", 20);
     } else {
@@ -273,7 +261,6 @@ QWidget* KisToolSelectSimilar::createOptionWidget()
     m_opacitySpread = m_configGroup.readEntry("opacitySpread", 100);
     sliderSpread->setValue(m_opacitySpread);
 
-    // Make connections
     connect(sliderThreshold,
             SIGNAL(valueChanged(int)),
             this,

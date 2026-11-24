@@ -4,7 +4,6 @@
  *  SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-
 #ifndef KISMANUALUPDATER_H
 #define KISMANUALUPDATER_H
 
@@ -14,27 +13,16 @@
 #include <KisMultiFeedRSSModel.h>
 #include "kritaui_export.h"
 
-
 class KRITAUI_EXPORT KisManualUpdater : public KisUpdaterBase
 {
     Q_OBJECT
 
 public:
     KisManualUpdater();
-    /**
-     * @brief KisManualUpdater - constructor for testing
-     * @param rssModel
-     * @param currentVersion
-     */
     explicit KisManualUpdater(MultiFeedRssModel* rssModel, QString& currentVersion);
 
     void checkForUpdate() override;
 
-    // this updater can only check for updates
-    /**
-     * @brief the manual updater can only check for available versions
-     * @return false
-     */
     inline bool hasUpdateCapability() override { return false; }
     inline void doUpdate() override { return; }
 
@@ -50,4 +38,4 @@ private:
     friend class KisManualUpdaterTest;
 };
 
-#endif // KISMANUALUPDATER_H
+#endif

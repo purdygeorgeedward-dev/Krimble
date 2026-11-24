@@ -35,7 +35,6 @@ private Q_SLOTS:
     void testOpeningAllFormats();
     void testSavingAllFormats();
 
-
     void testImportFromWriteonly();
     void testExportToReadonly();
     void testImportIncorrectFormat();

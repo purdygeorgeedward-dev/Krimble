@@ -41,4 +41,4 @@ private:
     Qt::KeyboardModifiers m_modifiers;
 };
 
-#endif /* SVG_CREATE_TEXT_STRATEGY_H */
+#endif

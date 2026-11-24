@@ -84,8 +84,6 @@ KisMultiIntegerFilterWidget::KisMultiIntegerFilterWidget(const QString& filterid
 
         m_integerWidgets.append(widget);
 
-        // Add an aspect ratio locker if requested;
-        // it must be requested by the second paired spinbox only.
         if (!iwparam[i].lockerName.isEmpty()) {
             KoAspectButton *aspectButton = new KoAspectButton(this);
             aspectButton->setObjectName(iwparam[i].lockerName);
@@ -95,7 +93,6 @@ KisMultiIntegerFilterWidget::KisMultiIntegerFilterWidget(const QString& filterid
 
             m_aspectButtons.append(aspectButton);
         }
-
 
     }
     widgetLayout->setRowStretch(iwparam.size(),1);
@@ -119,7 +116,6 @@ void KisMultiIntegerFilterWidget::setConfiguration(const KisPropertiesConfigurat
     m_config->fromXML(config->toXML());
     for (int i = 0; i < nbValues(); ++i) {
 
-    // Keep aspect must be unset first if false, to not interfere with the values
     Q_FOREACH(KoAspectButton *aspectButton, m_aspectButtons) {
         if (!config->getBool(aspectButton->objectName(), true)) {
             aspectButton->setKeepAspectRatio(false);
@@ -134,7 +130,6 @@ void KisMultiIntegerFilterWidget::setConfiguration(const KisPropertiesConfigurat
         }
     }
 
-    // Keep aspect must be set last if true, to not interfere with the values
     Q_FOREACH(KoAspectButton *aspectButton, m_aspectButtons) {
         if (config->getBool(aspectButton->objectName(), true)) {
             aspectButton->setKeepAspectRatio(true);
@@ -177,5 +172,4 @@ qint32 KisMultiIntegerFilterWidget::valueAt(qint32 i) {
         return 0;
     }
 }
-
 

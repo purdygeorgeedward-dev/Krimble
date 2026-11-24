@@ -18,9 +18,6 @@
 template<typename V>
 struct FastRowProcessor;
 
-/**
- * Represent, serialize and deserialize a rectangular 8-bit mask.
- */
 class KRITAIMAGE_EXPORT KisRectangleMaskGenerator : public KisMaskGenerator
 {
 public:

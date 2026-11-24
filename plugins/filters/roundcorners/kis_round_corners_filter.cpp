@@ -38,7 +38,6 @@
 #include <kis_algebra_2d.h>
 #include <KoProgressUpdater.h>
 
-
 KisRoundCornersFilter::KisRoundCornersFilter() : KisFilter(id(), FiltersCategoryOtherId, i18n("&Round Corners..."))
 {
     setSupportsPainting(false);
@@ -63,7 +62,6 @@ void fadeOneCorner(KisPaintDeviceSP device,
         }
     }
 }
-
 
 void KisRoundCornersFilter::processImpl(KisPaintDeviceSP device,
                                         const QRect& applyRect,

@@ -104,4 +104,3 @@ void KisPatternChooser::setGrayscalePreview(bool grayscale)
     m_itemChooser->setGrayscalePreview(grayscale);
 }
 
-

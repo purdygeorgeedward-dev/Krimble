@@ -35,4 +35,4 @@ private:
     QPointF m_oldPosition;
 };
 
-#endif /* SVG_MOVE_TEXT_COMMAND_H */
+#endif

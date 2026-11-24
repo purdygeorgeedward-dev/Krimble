@@ -112,12 +112,11 @@ void KisFilterTest::testDifferentSrcAndDst()
     KisPaintDeviceSP src = new KisPaintDevice(cs);
     KisPaintDeviceSP dst = new KisPaintDevice(cs);
     KisSelectionSP sel = new KisSelection(new KisSelectionDefaultBounds(src), KisImageResolutionProxy::identity());
-    sel->pixelSelection()->invert(); // select everything
+    sel->pixelSelection()->invert();
     sel->updateProjection();
 
     src->convertFromQImage(qimage, 0, 0, 0);
     src->setDefaultBounds(new TestUtil::TestingTimedDefaultBounds(src->exactBounds()));
-
 
     KisFilterSP f = KisFilterRegistry::instance()->value("invert");
     Q_ASSERT(f);
@@ -149,18 +148,8 @@ void KisFilterTest::testOldDataApiAfterCopy()
     src->fill(0, 0, 50, 50, whitePixel);
     src->setDefaultBounds(new TestUtil::TestingTimedDefaultBounds(src->exactBounds()));
 
-
-    /**
-     * Make a full copy here to catch the bug.
-     * Buggy memento manager would make a commit
-     * that is not good.
-     */
     KisPaintDeviceSP dst = new KisPaintDevice(*src);
 
-    /**
-     * This would write go to a new revision in a buggy
-     * memento manager
-     */
     dst->clear(updateRect);
 
     KisFilterSP f = KisFilterRegistry::instance()->value("invert");
@@ -168,17 +157,8 @@ void KisFilterTest::testOldDataApiAfterCopy()
     KisFilterConfigurationSP  kfc = f->defaultConfiguration(KisGlobalResourcesInterface::instance());
     Q_ASSERT(kfc);
 
-    /**
-     * This filter reads from oldRawData, so if we have some
-     * weirdness with transactions it will read from old and non-cleared
-     * version of the device and we will see a black square instead
-     * of empty device in tmp
-     */
     f->process(dst, tmp, 0, updateRect, kfc->cloneWithResourcesSnapshot());
 
-    /**
-     * In theory, both devices: dst and tmp must be empty by now
-     */
     KisPaintDeviceSP reference = new KisPaintDevice(cs);
 
     QImage refImage = reference->convertToQImage(0,0,0,63,63);
@@ -210,7 +190,6 @@ void KisFilterTest::testBlurFilterApplicationRect()
     src2->fill(src2Rect.left(),src2Rect.top(),src2Rect.width(),src2Rect.height(), whitePixel);
     src2->setDefaultBounds(new TestUtil::TestingTimedDefaultBounds(src2->exactBounds()));
 
-
     KisPaintDeviceSP dst1 = new KisPaintDevice(cs);
     KisPaintDeviceSP dst2 = new KisPaintDevice(cs);
 
@@ -229,13 +208,9 @@ void KisFilterTest::testBlurFilterApplicationRect()
     QImage dst1Image = dst1->convertToQImage(0,10,10,40,40);
     QImage dst2Image = dst2->convertToQImage(0,10,10,40,40);
 
-    //dst1Image.save("DST1.png");
-    //dst2Image.save("DST2.png");
-
     QPoint pt;
     QVERIFY(TestUtil::compareQImages(pt, refImage, dst1Image));
     QVERIFY(TestUtil::compareQImages(pt, refImage, dst2Image));
 }
-
 
 SIMPLE_TEST_MAIN(KisFilterTest)

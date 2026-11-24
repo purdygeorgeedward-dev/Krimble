@@ -6,7 +6,6 @@
 
 #include "kis_jpeg_import.h"
 
-
 #include <kpluginfactory.h>
 
 #include <KisDocument.h>
@@ -26,7 +25,7 @@ KisJPEGImport::~KisJPEGImport()
 {
 }
 
-KisImportExportErrorCode KisJPEGImport::convert(KisDocument *document, QIODevice *io,  KisPropertiesConfigurationSP /*configuration*/)
+KisImportExportErrorCode KisJPEGImport::convert(KisDocument *document, QIODevice *io,  KisPropertiesConfigurationSP )
 {
     KisJPEGConverter ib(document, batchMode());
     KisImportExportErrorCode result = ib.buildImage(io);

@@ -43,7 +43,6 @@ public:
     void showEvent(QShowEvent *event) override {
         BaseWidget::showEvent(event);
 
-        // see a comment at the declaration of `m_isVisibleState`
         if (!m_isVisibleState) {
             m_isVisibleState = true;
 
@@ -63,7 +62,6 @@ public:
     void hideEvent(QHideEvent *event) override {
         BaseWidget::hideEvent(event);
 
-        // see a comment at the declaration of `m_isVisibleState`
         if (m_isVisibleState) {
             m_isVisibleState = false;
 
@@ -88,13 +86,7 @@ protected:
     KisCanvas2 *m_canvas {0};
     KisIdleTasksManager::TaskGuard m_idleTaskGuard;
 
-    /**
-     * Hide/show events may be unbalanced so we track their parity with
-     * an internal state. Also, we cannot rely on this->isVisible(),
-     * because its state is different on different platforms during the
-     * event delivery.
-     */
     bool m_isVisibleState {false};
 };
 
-#endif // KISWIDGETWITHIDLETASK_H
+#endif

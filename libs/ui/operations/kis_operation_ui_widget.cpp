@@ -4,7 +4,6 @@
  *  SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-
 #include "kis_operation_ui_widget.h"
 
 class Q_DECL_HIDDEN KisOperationUIWidget::Private {
@@ -13,7 +12,6 @@ public:
     Private() {}
     QString caption;
 };
-
 
 KisOperationUIWidget::KisOperationUIWidget(const QString& caption, QWidget* parent)
   : QWidget(parent)

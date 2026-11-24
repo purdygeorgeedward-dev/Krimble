@@ -41,4 +41,4 @@ namespace std {
 
 #endif
 
-#endif // KISHALFTRAITS_H
+#endif

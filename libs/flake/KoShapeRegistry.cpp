@@ -8,7 +8,6 @@
  * SPDX-License-Identifier: LGPL-2.0-or-later
  */
 
-// Own
 #include "KoShapeRegistry.h"
 
 #include "KoSvgTextShape.h"
@@ -37,7 +36,6 @@ public:
     void insertFactory(KoShapeFactoryBase *factory);
     void init(KoShapeRegistry *q);
 
-    // Map namespace,tagname to priority:factory
     QHash<QPair<QString, QString>, QMultiMap<int, KoShapeFactoryBase*> > factoryMap;
 };
 
@@ -64,13 +62,8 @@ void KoShapeRegistry::Private::init(KoShapeRegistry *q)
     KoPluginLoader::instance()->load(QString::fromLatin1("Krita/Shape"),
                                      config);
 
-    // Also add our hard-coded basic shapes
     q->add(new KoSvgTextShapeFactory());
     q->add(new KoPathShapeFactory(QStringList()));
-
-    // Now all shape factories are registered with us, determine their
-    // associated odf tagname & priority and prepare ourselves for
-    // loading ODF.
 
     QList<KoShapeFactoryBase*> factories = q->values();
     for (int i = 0; i < factories.size(); ++i) {
@@ -125,15 +118,12 @@ void KoShapeRegistry::Private::insertFactory(KoShapeFactoryBase *factory)
 #include <KoShapeController.h>
 #include <KoShapeGroupCommand.h>
 
-
 QList<KoShapeFactoryBase*> KoShapeRegistry::factoriesForElement(const QString &nameSpace, const QString &elementName)
 {
-    // Pair of namespace, tagname
     QPair<QString, QString> p = QPair<QString, QString>(nameSpace, elementName);
 
     QMultiMap<int, KoShapeFactoryBase*> priorityMap = d->factoryMap.value(p);
     QList<KoShapeFactoryBase*> shapeFactories;
-    // sort list by priority
     Q_FOREACH (KoShapeFactoryBase *f, priorityMap.values()) {
         shapeFactories.prepend(f);
     }

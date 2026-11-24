@@ -57,4 +57,4 @@ template KoAlphaMaskApplicatorBase* KoAlphaMaskApplicatorFactoryImpl<half,    1,
 #endif
 template KoAlphaMaskApplicatorBase* KoAlphaMaskApplicatorFactoryImpl<float,   1, 0>::create<xsimd::current_arch>();
 
-#endif // XSIMD_UNIVERSAL_BUILD_PASS
+#endif

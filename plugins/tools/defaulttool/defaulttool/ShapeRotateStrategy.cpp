@@ -26,10 +26,6 @@ ShapeRotateStrategy::ShapeRotateStrategy(KoToolBase *tool, KoSelection *selectio
     : KoInteractionStrategy(tool)
     , m_start(clicked)
 {
-    /**
-     * The outline of the selection should look as if it is also rotated, so we
-     * add it to the transformed shapes list.
-     */
     m_transformedShapesAndSelection = selection->selectedEditableShapes();
     m_transformedShapesAndSelection << selection;
 
@@ -50,9 +46,8 @@ void ShapeRotateStrategy::handleMouseMove(const QPointF &point, Qt::KeyboardModi
 {
     qreal angle = atan2(point.y() - m_rotationCenter.y(), point.x() - m_rotationCenter.x()) -
                   atan2(m_start.y() - m_rotationCenter.y(), m_start.x() - m_rotationCenter.x());
-    angle = angle / M_PI * 180;  // convert to degrees.
+    angle = angle / M_PI * 180;
     if (modifiers & (Qt::AltModifier | Qt::ControlModifier)) {
-        // limit to 45 degree angles
         qreal modula = qAbs(angle);
         while (modula > 45.0) {
             modula -= 45.0;
@@ -87,7 +82,6 @@ void ShapeRotateStrategy::rotateBy(qreal angle)
 
 void ShapeRotateStrategy::paint(QPainter &painter, const KoViewConverter &converter, const KoColorDisplayRendererInterface *displayRendererInterface)
 {
-    // paint the rotation center
     KoColor c;
     c.fromQColor(Qt::red);
     QColor red = displayRendererInterface->convertColorToDisplayColorSpace(c);

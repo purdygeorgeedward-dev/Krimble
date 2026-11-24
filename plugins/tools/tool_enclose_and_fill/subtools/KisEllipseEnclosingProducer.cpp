@@ -42,7 +42,7 @@ void KisEllipseEnclosingProducer::finishRect(const QRectF& rect, qreal roundCorn
 {
     Q_UNUSED(roundCornersX);
     Q_UNUSED(roundCornersY);
-    
+
     QRect rc(rect.normalized().toRect());
     if (!rc.isValid()) {
         return;

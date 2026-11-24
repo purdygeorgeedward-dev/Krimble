@@ -39,7 +39,7 @@ QStringList screentoneShapeNames(int pattern)
             << i18nc("Screentone Pattern - Sawtooth Wave Lines", "Sawtooth Wave")
             << i18nc("Screentone Pattern - Curtains Lines", "Curtains");
     }
-    
+
     return QStringList();
 }
 

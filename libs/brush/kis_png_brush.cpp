@@ -36,8 +36,6 @@ bool KisPngBrush::loadFromDevice(QIODevice *dev, KisResourcesInterfaceSP resourc
 {
     Q_UNUSED(resourcesInterface);
 
-    // Workaround for some OS (Debian, Ubuntu), where loading directly from the QIODevice
-    // fails with "libpng error: IDAT: CRC error"
     QByteArray data = dev->readAll();
     QBuffer buf(&data);
     buf.open(QIODevice::ReadOnly);
@@ -84,10 +82,6 @@ bool KisPngBrush::loadFromDevice(QIODevice *dev, KisResourcesInterfaceSP resourc
     const bool isAllGray = image.allGray();
 
     if (isAllGray && !hasAlpha) {
-        // Make sure brush tips all have a white background
-        // NOTE: drawing it over white background can probably be skipped now...
-        //       Any images with an Alpha channel should be loaded as RGBA so
-        //       they can have the lightness and gradient options available
         QImage base(image.size(), image.format());
         if ((int)base.format() < (int)QImage::Format_RGB32) {
             base.convertTo(QImage::Format_ARGB32);
@@ -103,8 +97,6 @@ bool KisPngBrush::loadFromDevice(QIODevice *dev, KisResourcesInterfaceSP resourc
         setHasColorAndTransparency(false);
     }
     else {
-        // see bug https://bugs.kde.org/show_bug.cgi?id=484115 if you want to edit this condition
-        // keep it in sync with KisColorfulBrush code
         if ((int)image.format() != (int)QImage::Format_ARGB32) {
             image.convertTo(QImage::Format_ARGB32);
         }
@@ -114,7 +106,6 @@ bool KisPngBrush::loadFromDevice(QIODevice *dev, KisResourcesInterfaceSP resourc
         setBrushApplication(isAllGray ? ALPHAMASK : LIGHTNESSMAP);
         setHasColorAndTransparency(!isAllGray);
     }
-
 
     setWidth(brushTipImage().width());
     setHeight(brushTipImage().height());

@@ -15,9 +15,9 @@ public:
     Private(Qt::FillRule fillRule) : newFillRule(fillRule) {
     }
 
-    QList<KoPathShape*> shapes;       ///< the shapes to set fill rule for
-    QList<Qt::FillRule> oldFillRules; ///< the old fill rules, one for each shape
-    Qt::FillRule newFillRule;         ///< the new fill rule to set
+    QList<KoPathShape*> shapes;
+    QList<Qt::FillRule> oldFillRules;
+    Qt::FillRule newFillRule;
 };
 
 KoPathFillRuleCommand::KoPathFillRuleCommand(const QList<KoPathShape*> &shapes, Qt::FillRule fillRule, KUndo2Command *parent)

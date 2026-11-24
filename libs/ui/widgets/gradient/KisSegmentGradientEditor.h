@@ -50,7 +50,7 @@ private:
 private Q_SLOTS:
     void on_nameedit_editingFinished();
     void on_gradientSlider_selectedHandleChanged();
-    
+
     void on_segmentLeftEditor_positionChanged(double position);
     void on_segmentLeftEditor_colorTypeChanged(KisGradientWidgetsUtils::ColorType type);
     void on_segmentLeftEditor_transparentToggled(bool checked);

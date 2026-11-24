@@ -35,7 +35,6 @@
 #include <KoCanvasResourcesIds.h>
 #include <KoCanvasResourcesInterface.h>
 
-
 KoStopGradient::KoStopGradient(const QString& filename)
     : KoAbstractGradient(filename)
 {
@@ -124,25 +123,21 @@ bool KoStopGradient::stopsAt(KoGradientStop& leftStop, KoGradientStop& rightStop
     if (!m_stops.count())
         return false;
 
-    KIS_SAFE_ASSERT_RECOVER(!qIsNaN(t)) { // if it's nan, it would crash in the last 'else'
+    KIS_SAFE_ASSERT_RECOVER(!qIsNaN(t)) {
         leftStop = m_stops.first();
         rightStop = KoGradientStop(-std::numeric_limits<double>::infinity(), leftStop.color, leftStop.type);
         return true;
     }
 
     if (t <= m_stops.first().position || m_stops.count() == 1) {
-        // we have only one stop or t is before the first stop
         leftStop = m_stops.first();
         rightStop = KoGradientStop(-std::numeric_limits<double>::infinity(), leftStop.color, leftStop.type);
         return true;
     } else if (t >= m_stops.last().position) {
-        // t is after the last stop
         rightStop = m_stops.last();
         leftStop = KoGradientStop(std::numeric_limits<double>::infinity(), rightStop.color, rightStop.type);
         return true;
     } else {
-        // we have at least two color stops
-        // -> find the two stops which frame our t
         auto it = std::lower_bound(m_stops.begin(), m_stops.end(), KoGradientStop(t, KoColor(), COLORSTOP),
                                    kismpl::mem_less(&KoGradientStop::position));
         leftStop = *(it - 1);
@@ -321,7 +316,6 @@ void KoStopGradient::loadSvgGradient(QIODevice* file)
                     }
                 }
 
-
                 if (profile && !profiles.contains(name)) {
                     profiles.insert(name, profile);
                 }
@@ -336,9 +330,7 @@ void KoStopGradient::loadSvgGradient(QIODevice* file)
                 parseSvgGradient(e, profiles);
                 return;
             }
-            // Inkscape gradients are in another defs
             if (e.tagName() == "defs") {
-
 
                 for (QDomNode defnode = e.firstChild(); !defnode.isNull(); defnode = defnode.nextSibling()) {
                     QDomElement defelement = defnode.toElement();
@@ -355,17 +347,12 @@ void KoStopGradient::loadSvgGradient(QIODevice* file)
     }
 }
 
-
 void KoStopGradient::parseSvgGradient(const QDomElement& element, QHash<QString, const KoColorProfile *> profiles)
 {
     m_stops.clear();
     m_hasVariableStops = false;
     setSpread(QGradient::PadSpread);
 
-    /*QString href = e.attribute( "xlink:href" ).mid( 1 );
-    if( !href.isEmpty() )
-    {
-    }*/
     setName(element.attribute("id", i18n("SVG Gradient")));
 
     bool bbox = element.attribute("gradientUnits") != "userSpaceOnUse";
@@ -476,7 +463,6 @@ void KoStopGradient::parseSvgGradient(const QDomElement& element, QHash<QString,
         }
         setType(QGradient::RadialGradient);
     }
-    // handle spread method
     QString spreadMethod = element.attribute("spreadMethod");
     if (!spreadMethod.isEmpty()) {
         if (spreadMethod == "reflect")
@@ -502,7 +488,6 @@ void KoStopGradient::parseSvgGradient(const QDomElement& element, QHash<QString,
             if (!colorstop.attribute("stop-color").isEmpty())
                 color = KoColor::fromSVG11(colorstop.attribute("stop-color"), profiles);
             else {
-                // try style attr
                 QString style = colorstop.attribute("style").simplified();
                 QStringList substyles = style.split(';', Qt::SkipEmptyParts);
                 Q_FOREACH(const QString & s, substyles) {
@@ -525,8 +510,6 @@ void KoStopGradient::parseSvgGradient(const QDomElement& element, QHash<QString,
             if (stopType != COLORSTOP) {
                 m_hasVariableStops = true;
             }
-            //According to the SVG spec each gradient offset has to be equal to or greater than the previous one
-            //if not it needs to be adjusted to be equal
             if (m_stops.count() > 0 && m_stops.last().position >= off) {
                 off = m_stops.last().position;
             }

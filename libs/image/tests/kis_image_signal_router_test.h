@@ -13,7 +13,6 @@
 #include "kis_image_signal_router.h"
 #include "empty_nodes_test.h"
 
-
 class KisImageSignalRouterTest : public QObject, public TestUtil::EmptyNodesTest
 {
     Q_OBJECT
@@ -27,4 +26,4 @@ private:
     void checkNotification(KisImageSignalType notification, const char *signal);
 };
 
-#endif /* __KIS_IMAGE_SIGNAL_ROUTER_TEST_H */
+#endif

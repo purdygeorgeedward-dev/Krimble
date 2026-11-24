@@ -7,7 +7,6 @@
 
 #include "KisHeifTest.h"
 
-
 #include <simpletest.h>
 #include <QCoreApplication>
 #include <KoColorSpaceEngine.h>
@@ -19,11 +18,8 @@
 #error "FILES_DATA_DIR not set. A directory with the data used for testing the importing of files in krita"
 #endif
 
-
 const QString HeifMimetype = "image/heic";
 const QString AvifMimetype = "image/avif";
-
-
 
 void KisHeifTest::testImportFromWriteonly()
 {
@@ -31,13 +27,11 @@ void KisHeifTest::testImportFromWriteonly()
     TestUtil::testImportFromWriteonly(AvifMimetype);
 }
 
-
 void KisHeifTest::testExportToReadonly()
 {
     TestUtil::testExportToReadonly(HeifMimetype);
     TestUtil::testExportToReadonly(AvifMimetype);
 }
-
 
 void KisHeifTest::testImportIncorrectFormat()
 {
@@ -351,18 +345,14 @@ void KisHeifTest::testLoadHDR()
                 heif_image_pq->projection()->pixel(x, y, &heifColor);
                 avif_image_pq->projection()->pixel(x, y, &avifColor);
 
-                // PNG file experiences alpha sampling to 16i-bits, so use differenceA for comparison
                 QVERIFY2(cs->differenceA(pngColor.data(), avifColor.data()) <1, QString("Avif PQ color doesn't match PNG color, (%1, %2) %3 %4")
                          .arg(x).arg(y).arg(pngColor.toXML()).arg(avifColor.toXML()).toLatin1());
 
-                // PNG file experiences alpha sampling to 16i-bits, so use differenceA for comparison
                 QVERIFY2(cs->differenceA(pngColor.data(), heifColor.data()) <1, QString("Heif PQ color doesn't match PNG color, (%1, %2) %3 %4")
                          .arg(x).arg(y).arg(pngColor.toXML()).arg(heifColor.toXML()).toLatin1());
 
-                // compare HEIF and AVIF strictly
                 QVERIFY2(cs->difference(heifColor.data(), avifColor.data()) <1, QString("Heif PQ color doesn't match AVIF color, (%1, %2) %3 %4")
                          .arg(x).arg(y).arg(heifColor.toXML()).arg(avifColor.toXML()).toLatin1());
-
 
                 heif_image_hlg->projection()->pixel(x, y, &heifColor);
                 avif_image_hlg->projection()->pixel(x, y, &avifColor);
@@ -549,8 +539,5 @@ void KisHeifTest::testImages()
     testLoadMonochrome(12);
 }
 
-
-
 KISTEST_MAIN(KisHeifTest)
-
 

@@ -48,8 +48,7 @@ static int buttonSize(int screen)
 
 #ifdef Q_OS_ANDROID
     Q_UNUSED(screen);
-    // return 16;
-    return 22;   // "Default the toolbox size to 22 x 22."
+    return 22;
 #else
     QRect rc = QGuiApplication::screens().at(screen)->availableGeometry();
     if (rc.width() <= 1024) {
@@ -71,18 +70,15 @@ static const QList<QStringList> &krimbleToolGroupIds()
 {
     static const QList<QStringList> groups = {
         { QStringLiteral("KisToolSelectRectangular"), QStringLiteral("KisToolSelectElliptical"), QStringLiteral("KisToolSelectHexagon") },
-                                                 // Marquee
-        { QStringLiteral("KisToolSelectOutline"), QStringLiteral("KisToolSelectPolygonal"), QStringLiteral("KisToolSelectMagnetic"), QStringLiteral("KisToolSelectPath") },   // Lasso
-        { QStringLiteral("KisToolSelectContiguous"), QStringLiteral("KisToolSelectSimilar") },                                              // Wand
+        { QStringLiteral("KisToolSelectOutline"), QStringLiteral("KisToolSelectPolygonal"), QStringLiteral("KisToolSelectMagnetic"), QStringLiteral("KisToolSelectPath") },
+        { QStringLiteral("KisToolSelectContiguous"), QStringLiteral("KisToolSelectSimilar") },
         { QStringLiteral("KritaShape/KisToolRectangle"), QStringLiteral("KritaShape/KisToolEllipse"), QStringLiteral("KritaShape/KisToolPolygonStar"), QStringLiteral("KritaShape/KisToolLine") },
-        { QStringLiteral("KritaFill/KisToolGradient"), QStringLiteral("KritaFill/KisToolFill"), QStringLiteral("KisToolEncloseAndFill") },                  // Fill
-        { QStringLiteral("KisToolPath"), QStringLiteral("KisToolPolyline"), QStringLiteral("KisToolPolygon"), QStringLiteral("KisToolPencil") },           // Pen
-        { QStringLiteral("KisToolTransform"), QStringLiteral("KisToolFreeRotate") },                                                                         // Transform
-        // { QStringLiteral("KritaShape/KisToolSmudge"), QStringLiteral("KritaShape/KisToolSoften"), QStringLiteral("KritaShape/KisToolSharpen") },             // Smudge (Blur and Sharpen in its flyout)
-        { QStringLiteral("KritaShape/KisToolSoften"), QStringLiteral("KritaShape/KisToolSmudge"), QStringLiteral("KritaShape/KisToolSharpen") },                // Soften first ("Make soften tool the default instead of smudge."), Smudge and Sharpen in its flyout
-        { QStringLiteral("KritaSelected/KisToolColorSampler"), QStringLiteral("KritaShape/KisToolMeasure"), QStringLiteral("ToolReferenceImages"), QStringLiteral("KisAssistantTool") },   // Sampler
-        { QStringLiteral("KrimbleTextTool"), QStringLiteral("SvgTextTool") },                                                                                // Type
-        // { QStringLiteral("PanTool"), QStringLiteral("ZoomTool") },                                                                                           // Navigation (722nd: each has its own button)
+        { QStringLiteral("KritaFill/KisToolGradient"), QStringLiteral("KritaFill/KisToolFill"), QStringLiteral("KisToolEncloseAndFill") },
+        { QStringLiteral("KisToolPath"), QStringLiteral("KisToolPolyline"), QStringLiteral("KisToolPolygon"), QStringLiteral("KisToolPencil") },
+        { QStringLiteral("KisToolTransform"), QStringLiteral("KisToolFreeRotate") },
+        { QStringLiteral("KritaShape/KisToolSoften"), QStringLiteral("KritaShape/KisToolSmudge"), QStringLiteral("KritaShape/KisToolSharpen") },
+        { QStringLiteral("KritaSelected/KisToolColorSampler"), QStringLiteral("KritaShape/KisToolMeasure"), QStringLiteral("ToolReferenceImages"), QStringLiteral("KisAssistantTool") },
+        { QStringLiteral("KrimbleTextTool"), QStringLiteral("SvgTextTool") },
     };
     return groups;
 }
@@ -96,7 +92,6 @@ static int krimbleGroupIndexOf(const QString &toolId)
     return -1;
 }
 
-// the same ordering number that addButton() gives a tool (the old group of its section, then its priority)
 static int krimbleRankedPriority(KoToolAction *toolAction)
 {
     const QString section = toolAction->section();
@@ -126,7 +121,7 @@ public:
     QHash<QToolButton*, QString> visibilityCodes;
     struct KrimbleGroup {
         QList<KoToolBoxButton*> buttons;
-        KoToolBoxButton *shown {nullptr};   // the one button of the group that is visible
+        KoToolBoxButton *shown {nullptr};
     };
     QList<KrimbleGroup> groups;
     bool floating {false};
@@ -146,16 +141,14 @@ KoToolBox::KoToolBox()
     : d(new Private)
 {
     d->layout = new KoToolBoxLayout(this);
-    // add defaults
     d->addSection(new Section(this), "main");
     d->addSection(new Section(this), "dynamic");
 
     d->buttonGroup = new QButtonGroup(this);
-    qApp->installEventFilter(this);   // the Transform mode in use (the qApp property krimbleTransformMode, set by the Transform Tool Options)
+    qApp->installEventFilter(this);
 
-    // Get screen the widget exists in, but fall back to primary screen if invalid.
     const int widgetsScreen = KisPortingUtils::getScreenNumberForWidget(QApplication::activeWindow());
-    const int primaryScreen = 0; //In QT, primary screen should always be the first index of QGuiApplication::screens()
+    const int primaryScreen = 0;
     const int screen = (widgetsScreen >= 0 && widgetsScreen < QGuiApplication::screens().size()) ? widgetsScreen : primaryScreen;
     const int toolbuttonSize = buttonSize(screen);
     KConfigGroup cfg =  KSharedConfig::openConfig()->group("KoToolBox");
@@ -167,8 +160,7 @@ KoToolBox::KoToolBox()
 
     applyIconSize();
 
-    // Update visibility of buttons
-    setButtonsVisible(QList<QString>());   // (it ends with krimbleApplyGroups(): the tool groups)
+    setButtonsVisible(QList<QString>());
 
     setCompact(cfg.readEntry<bool>("compact", false));
 
@@ -199,7 +191,6 @@ void KoToolBox::applyIconSize()
     }
 }
 
-
 void KoToolBox::setViewManager(KisViewManager *viewManager)
 {
     KisKActionCollection *actionCollection = viewManager->actionCollection();
@@ -226,8 +217,8 @@ void KoToolBox::addButton(KoToolAction *toolAction)
 #ifdef Q_OS_ANDROID
     {
         static const QStringList krimbleHiddenOnMobile = {
-            QStringLiteral("KritaShape/KisToolLazyBrush"),   // Colorize Mask Editing Tool
-            QStringLiteral("KisToolEncloseAndFill"),         // Enclose and Fill Tool
+            QStringLiteral("KritaShape/KisToolLazyBrush"),
+            QStringLiteral("KisToolEncloseAndFill"),
         };
         if (krimbleHiddenOnMobile.contains(toolAction->id())) {
             return;
@@ -259,10 +250,6 @@ void KoToolBox::addButton(KoToolAction *toolAction)
     } else if (!sectionToBeAddedTo.isEmpty() && sectionToBeAddedTo.at(0).isDigit()) {
         groupRank = 2 + sectionToBeAddedTo.at(0).digitValue();
     }
-    // (old: the tool went into its own section)
-    // Section *sectionWidget = d->sections.value(sectionToBeAddedTo);
-    // if (sectionWidget == 0) { sectionWidget = new Section(this); d->addSection(sectionWidget, sectionToBeAddedTo); }
-    // sectionWidget->addButton(button, toolAction->toolBoxPriority());
     Section *sectionWidget = d->sections.value(QStringLiteral("main"));
     if (sectionWidget == 0) {
         sectionWidget = new Section(this);
@@ -308,7 +295,7 @@ void KoToolBox::setActiveTool(KoCanvasController *canvas)
     Q_UNUSED(canvas);
 
     QString id = KoToolManager::instance()->activeToolId();
-    if (id == QLatin1String("KisToolFreeRotate")) id = QStringLiteral("KisToolTransform");   // Rotate is a Transform mode: it has no button of its own
+    if (id == QLatin1String("KisToolFreeRotate")) id = QStringLiteral("KisToolTransform");
     KoToolBoxButton *button = d->buttonsByToolId.value(id);
     if (button) {
         for (int g = 0; g < d->groups.size(); ++g) {
@@ -377,8 +364,6 @@ void KoToolBox::krimbleApplyGroups()
     }
 }
 
-// The Transform modes, each a tool of its own for the user:
-// key (the Transform Tool Options understand it), name, picture. Scale is uniform; Stretch is the non-uniform scale.
 struct KrimbleTransformMode { const char *key; const char *name; const char *icon; };
 static const QList<KrimbleTransformMode> &krimbleTransformModes()
 {
@@ -402,7 +387,7 @@ bool KoToolBox::eventFilter(QObject *watched, QEvent *event)
             && static_cast<QDynamicPropertyChangeEvent*>(event)->propertyName() == "krimbleTransformMode") {
         if (KoToolBoxButton *transform = d->buttonsByToolId.value(QStringLiteral("KisToolTransform"))) {
             const QString key = qApp->property("krimbleTransformMode").toString();
-            QString icon;   // Scale (and anything unknown): the Transform tool's own picture
+            QString icon;
             Q_FOREACH (const KrimbleTransformMode &mode, krimbleTransformModes()) {
                 if (key == QLatin1String(mode.key) && key != QLatin1String("scale")) icon = QLatin1String(mode.icon);
             }
@@ -417,7 +402,6 @@ void KoToolBox::krimbleShowFlyout(int groupIndex)
     if (groupIndex < 0 || groupIndex >= d->groups.size()) return;
     Private::KrimbleGroup &group = d->groups[groupIndex];
     if (!group.shown) return;
-    // the Transform button: its flyout offers the Transform modes, not other tools
     if (krimbleToolGroupIds().at(groupIndex).first() == QLatin1String("KisToolTransform")) {
         const QString activeId = KoToolManager::instance()->activeToolId();
         QString current = qApp->property("krimbleTransformMode").toString();
@@ -428,7 +412,6 @@ void KoToolBox::krimbleShowFlyout(int groupIndex)
             const QString key = QLatin1String(mode.key);
             flyout->addRow(KisIconUtils::loadIcon(QLatin1String(mode.icon)), i18n(mode.name), group.shown->iconSize(), group.shown->height(),
                            transformActive && key == current, [key]() {
-                // the Transform Tool Options take the request (now, or when they are shown after the tool changes)
                 qApp->setProperty("krimbleTransformModeRequest", key);
                 KoToolManager::instance()->switchToolRequested(key == QLatin1String("rotate") ? QStringLiteral("KisToolFreeRotate") : QStringLiteral("KisToolTransform"));
             });
@@ -436,7 +419,6 @@ void KoToolBox::krimbleShowFlyout(int groupIndex)
         flyout->showBeside(group.shown);
         return;
     }
-    // the tools in the order of the group list
     QList<KoToolBoxButton*> ordered;
     Q_FOREACH (const QString &id, krimbleToolGroupIds().at(groupIndex)) {
         Q_FOREACH (KoToolBoxButton *b, group.buttons) {
@@ -580,7 +562,7 @@ void KoToolBox::setupIconSizeMenu(QMenu *menu)
 
         QActionGroup *sizeGroup = new QActionGroup(menu);
         QList<int> sizes;
-        sizes << 12 << 14 << 16 << 22 << 32 << 48 << 64; //<< 96 << 128 << 192 << 256;
+        sizes << 12 << 14 << 16 << 22 << 32 << 48 << 64;
         Q_FOREACH (int i, sizes) {
             QAction *action = menu->addAction(i18n("%1x%2", i, i), this, SLOT(slotContextIconSize()));
             d->contextIconSizes.insert(action, i);
@@ -615,13 +597,9 @@ void KoToolBox::setupButtonStyleMenu(QMenu *menu)
     };
     connect(flatAction, &QAction::triggered, this, [apply]() { apply(0); });
     connect(raisedAction, &QAction::triggered, this, [apply]() { apply(1); });
-    // the button background, on its own beside Flat and Raised: it works with either
     menu->addSeparator();
     QActionGroup *faceGroup = new QActionGroup(menu);
-    // const QStringList faces = {i18n("Panel background"), i18n("Light gray"), i18n("White")};
-    // const QStringList faces = {i18n("Panel background"), i18n("Light gray"), i18n("White"), i18n("Dark gray")};
-    // const QStringList faces = {i18n("Panel background"), i18n("Light gray"), i18n("White"), i18n("Dark gray"), i18n("Glow")};
-    const QStringList faces = {i18n("Panel background"), i18n("Light gray"), i18n("White"), i18n("Dark gray")};   // Glow dropped
+    const QStringList faces = {i18n("Panel background"), i18n("Light gray"), i18n("White"), i18n("Dark gray")};
     for (int face = 0; face < faces.size(); ++face) {
         QAction *action = menu->addAction(faces[face]);
         action->setActionGroup(faceGroup);
@@ -629,40 +607,13 @@ void KoToolBox::setupButtonStyleMenu(QMenu *menu)
         action->setChecked(KrimbleToolboxIcons::buttonFace() == face);
         connect(action, &QAction::triggered, this, [this, face]() {
             KrimbleToolboxIcons::setButtonFace(face);
-            Q_FOREACH (KoToolBoxButton *button, d->buttonsByToolId) button->krimbleRefreshIcon();   // White icons turn black on a light background
+            Q_FOREACH (KoToolBoxButton *button, d->buttonsByToolId) button->krimbleRefreshIcon();
             Q_FOREACH (KoToolBoxButton *button, d->buttonsByToolId) button->update();
             Q_FOREACH (QToolButton *button, d->buttons) button->update();
             update();
         });
     }
 }
-
-/*
-void KoToolBox::setupIconStyleMenu(QMenu *menu)
-{
-    QActionGroup *styleGroup = new QActionGroup(menu);
-    const bool color = KrimbleToolboxIcons::colorMode();
-    const bool gray = KrimbleToolboxIcons::grayMode();
-    QAction *colorAction = menu->addAction(i18n("Full color"));
-    QAction *grayAction = menu->addAction(i18n("Black and white"));
-    QAction *clearAction = menu->addAction(i18n("Silhouette"));
-    for (QAction *action : {colorAction, grayAction, clearAction}) {
-        action->setActionGroup(styleGroup);
-        action->setCheckable(true);
-    }
-    colorAction->setChecked(color && !gray);
-    grayAction->setChecked(gray);
-    clearAction->setChecked(!color);
-    auto refresh = [this]() {
-        Q_FOREACH (KoToolBoxButton *button, d->buttonsByToolId) {
-            button->krimbleRefreshIcon();
-        }
-    };
-    connect(colorAction, &QAction::triggered, this, [refresh]() { KrimbleToolboxIcons::setColorMode(true); refresh(); });
-    connect(grayAction, &QAction::triggered, this, [refresh]() { KrimbleToolboxIcons::setGrayMode(); refresh(); });
-    connect(clearAction, &QAction::triggered, this, [refresh]() { KrimbleToolboxIcons::setColorMode(false); refresh(); });
-}
-*/
 
 void KoToolBox::setupIconStyleMenu(QMenu *menu)
 {
@@ -672,9 +623,6 @@ void KoToolBox::setupIconStyleMenu(QMenu *menu)
         {i18n("White"), KrimbleToolboxIcons::White},
         {i18n("Black"), KrimbleToolboxIcons::Black},
         {i18n("Grayscale"), KrimbleToolboxIcons::Grayscale},
-        // {i18n("Color"), KrimbleToolboxIcons::Color},   // removed: "Remove the color option completely"
-        // {i18n("Classic"), KrimbleToolboxIcons::Classic},   // removed: "Lose the \"classic\" version. It's not great."
-        // {i18n("Photorealistic"), KrimbleToolboxIcons::Photorealistic},   // held back: the pictures are not in the app ("We should hold back the photorealistic high resolution buttons.")
     };
     for (const Choice &choice : choices) {
         QAction *action = menu->addAction(choice.name);
@@ -685,7 +633,7 @@ void KoToolBox::setupIconStyleMenu(QMenu *menu)
         connect(action, &QAction::triggered, this, [this, style]() {
             KrimbleToolboxIcons::setIconStyle(style);
             Q_FOREACH (KoToolBoxButton *button, d->buttonsByToolId) button->krimbleRefreshIcon();
-            KrimbleToolboxIcons::refreshGadgets(window());   // Quick Mask and Screen Mode have photos too
+            KrimbleToolboxIcons::refreshGadgets(window());
         });
     }
 }

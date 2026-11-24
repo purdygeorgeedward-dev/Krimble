@@ -85,7 +85,6 @@
 
 Q_GLOBAL_STATIC(KisPart, s_instance)
 
-
 class Q_DECL_HIDDEN KisPart::Private
 {
 public:
@@ -127,7 +126,6 @@ public:
     }
 };
 
-
 KisPart* KisPart::instance()
 {
     return s_instance;
@@ -147,7 +145,6 @@ void busyWaitWithFeedback(KisImageSP image)
 KisPart::KisPart()
     : d(new Private(this))
 {
-    // Preload all the resources in the background
     Q_UNUSED(KoResourceServerProvider::instance());
     Q_UNUSED(KisResourceServerProvider::instance());
     Q_UNUSED(KisColorManager::instance());
@@ -165,8 +162,6 @@ KisPart::KisPart()
     connect(&d->idleWatcher, SIGNAL(startedIdleMode()),
             KisMemoryStatisticsServer::instance(), SLOT(tryForceUpdateMemoryStatisticsWhileIdle()));
 
-    // We start by loading the simple QTimer-based anim playback engine first.
-    // To save RAM, the MLT-based engine will be loaded later, once the KisImage in question becomes animated.
     setPlaybackEngine(new KisPlaybackEngineQT(this));
 
     d->animationCachePopulator.slotRequestRegeneration();
@@ -202,15 +197,11 @@ void KisPart::updateIdleWatcherConnections()
 
     d->idleWatcher.setTrackedImages(images);
 
-    /**
-     * Update memory stats on changing the amount of images open in Krita
-     */
     d->idleWatcher.forceImageModified();
 }
 
 void KisPart::addDocument(KisDocument *document, bool notify)
 {
-    //dbgUI << "Adding document to part list" << document;
     Q_ASSERT(document);
     if (!d->documents.contains(document)) {
         d->documents.append(document);
@@ -238,7 +229,6 @@ KisDocument *KisPart::createTemporaryDocument() const
     KisDocument *doc = new KisDocument(false);
     return doc;
 }
-
 
 int KisPart::documentCount() const
 {
@@ -273,12 +263,10 @@ void KisPart::notifyMainWindowIsBeingCreated(KisMainWindow *mainWindow)
     Q_EMIT sigMainWindowIsBeingCreated(mainWindow);
 }
 
-
 KisView *KisPart::createView(KisDocument *document,
                              KisViewManager *viewManager,
                              QWidget *parent)
 {
-    // If creating the canvas fails, record this and disable OpenGL next time
     KisConfig cfg(false);
     KConfigGroup grp( KSharedConfig::openConfig(), "crashprevention");
     if (grp.readEntry("CreatingCanvas", false)) {
@@ -296,7 +284,6 @@ KisView *KisPart::createView(KisDocument *document,
         view = new KisView(document,  viewManager, parent);
     }
 
-    // Record successful canvas creation
     grp.writeEntry("CreatingCanvas", false);
     grp.sync();
 
@@ -321,12 +308,6 @@ void KisPart::removeView(KisView *view)
 {
     if (!view) return;
 
-    /**
-     * HACK ALERT: we check here explicitly if the document (or main
-     *             window), is saving the stuff. If we close the
-     *             document *before* the saving is completed, a crash
-     *             will happen.
-     */
     KIS_ASSERT_RECOVER_RETURN(!view->mainWindow()->hackIsSaving());
 
     Q_EMIT sigViewRemoved(view);
@@ -422,10 +403,6 @@ bool KisPart::closeSession(bool keepWindows)
 
 void KisPart::slotDocumentSaved(const QString &filePath)
 {
-    // We used to use doc->path(), but it does not contain the correct output
-    // file path when doing an export, therefore we now pass it directly from
-    // the sigSavingFinished signal.
-    // KisDocument *doc = qobject_cast<KisDocument*>(sender());
     Q_EMIT sigDocumentSaved(filePath);
 
     QUrl url = QUrl::fromLocalFile(filePath);
@@ -454,7 +431,6 @@ int KisPart::mainwindowCount() const
 {
     return d->mainWindows.count();
 }
-
 
 KisMainWindow *KisPart::currentMainwindow() const
 {
@@ -512,7 +488,6 @@ void KisPart::prioritizeFrameForCache(KisImageSP image, int frame) {
 
 void KisPart::openExistingFile(const QString &path)
 {
-    // TODO: refactor out this method!
 
     KisMainWindow *mw = currentMainwindow();
     KIS_SAFE_ASSERT_RECOVER_RETURN(mw);
@@ -522,8 +497,6 @@ void KisPart::openExistingFile(const QString &path)
 
 void KisPart::updateShortcuts()
 {
-    // Update the UI actions. KisActionRegistry also takes care of updating
-    // shortcut hints in tooltips.
     Q_FOREACH (KisMainWindow *mainWindow, d->mainWindows) {
         KisKActionCollection *ac = mainWindow->actionCollection();
 
@@ -544,7 +517,6 @@ void KisPart::openTemplate(const QUrl &url)
 
     if (ok) {
         QString mimeType = KisMimeDatabase::mimeTypeForFile(url.toLocalFile());
-        // in case this is a open document template remove the -template from the end
         mimeType.remove( QRegularExpression( "-template$" ) );
         document->setMimeTypeAfterLoading(mimeType);
         document->resetPath();
@@ -561,7 +533,6 @@ void KisPart::openTemplate(const QUrl &url)
         return;
     }
     QMap<QString, QString> dictionary;
-    // XXX: fill the dictionary from the desktop file
     KisTranslateLayerNamesVisitor v(dictionary);
     document->image()->rootLayer()->accept(v);
 
@@ -573,8 +544,6 @@ void KisPart::openTemplate(const QUrl &url)
 
 void KisPart::addRecentURLToAllMainWindows(QUrl url, QUrl oldUrl)
 {
-    // Add entry to recent documents list
-    // (call coming from KisDocument because it must work with cmd line, template dlg, file/open, etc.)
     if (!url.isEmpty()) {
         bool ok = true;
         if (url.isLocalFile()) {
@@ -582,14 +551,14 @@ void KisPart::addRecentURLToAllMainWindows(QUrl url, QUrl oldUrl)
             const QStringList tmpDirs = QStandardPaths::locateAll(QStandardPaths::TempLocation, "", QStandardPaths::LocateDirectory);
             for (QStringList::ConstIterator it = tmpDirs.begin() ; ok && it != tmpDirs.end() ; ++it) {
                 if (path.contains(*it)) {
-                    ok = false; // it's in the tmp resource
+                    ok = false;
                 }
             }
 
             const QStringList templateDirs = KoResourcePaths::findDirs("templates");
             for (QStringList::ConstIterator it = templateDirs.begin() ; ok && it != templateDirs.end() ; ++it) {
                 if (path.contains(*it)) {
-                    ok = false; // it's in the templates directory.
+                    ok = false;
                     break;
                 }
             }
@@ -669,8 +638,6 @@ void KisPart::upgradeToPlaybackEngineMLT(KoCanvasBase* canvas)
 {
 #ifdef HAVE_MLT
 
-    // TODO: This is a slightly hacky workaround to loading the MLT engine over itself,
-    // as the QT-based engine no longer supports audio. Is there a better way?
     if (d->playbackEngine->supportsAudio()) {
         return;
     }
@@ -681,7 +648,7 @@ void KisPart::upgradeToPlaybackEngineMLT(KoCanvasBase* canvas)
         d->playbackEngine->setObservedCanvas(canvas);
     }
 
-#endif //HAVE_MLT
+#endif
 }
 
 void KisPart::unloadPlaybackEngine()
@@ -690,18 +657,14 @@ void KisPart::unloadPlaybackEngine()
 
     d->playbackEngine.reset();
 
-#endif //HAVE_MLT
+#endif
 }
 
 void KisPart::setPlaybackEngine(KisPlaybackEngine *p_playbackEngine)
 {
-    // make sure that the old engine is still alive until the end
-    // of the emitted signal
     std::unique_ptr<KisPlaybackEngine> backup(p_playbackEngine);
     d->playbackEngine.swap(backup);
 
-    // Log all changes to playback engine for easier debugging.
-    // (See `krita.log` or `Help > Show Krita log for bug reports`.)
     KisUsageLogger::log("Audio Playback Engine: " + QString(p_playbackEngine->metaObject()->className()));
 
     Q_EMIT playbackEngineChanged(p_playbackEngine);

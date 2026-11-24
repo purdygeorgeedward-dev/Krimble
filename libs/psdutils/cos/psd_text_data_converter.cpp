@@ -46,7 +46,6 @@ PsdTextDataConverter::~PsdTextDataConverter()
 
 }
 
-
 QColor PsdTextDataConverter::colorFromPSDStyleSheet(QVariantHash color, const KoColorSpace *imageCs) {
     QColor c(Qt::black);
     if (color.keys().contains("/Color")) {
@@ -55,16 +54,16 @@ QColor PsdTextDataConverter::colorFromPSDStyleSheet(QVariantHash color, const Ko
     QDomDocument doc;
     QDomElement root;
     QVariantList values = color.value("/Values").toList();
-    if (color.value("/Type").toInt() == 0) { //graya
+    if (color.value("/Type").toInt() == 0) {
         root = doc.createElement("Gray");
         root.setAttribute("g", values.at(1).toDouble());
-    } else if (color.value("/Type").toInt() == 2) { // CMYK
+    } else if (color.value("/Type").toInt() == 2) {
         root = doc.createElement("CMYK");
         root.setAttribute("c", values.value(1).toDouble());
         root.setAttribute("m", values.value(2).toDouble());
         root.setAttribute("y", values.value(3).toDouble());
         root.setAttribute("k", values.value(4).toDouble());
-    } else if (color.value("/Type").toInt() == 3) { // LAB
+    } else if (color.value("/Type").toInt() == 3) {
         root = doc.createElement("Lab");
         root.setAttribute("L", values.value(1).toDouble());
         root.setAttribute("a", values.value(2).toDouble());
@@ -83,37 +82,30 @@ QColor PsdTextDataConverter::colorFromPSDStyleSheet(QVariantHash color, const Ko
     return c;
 }
 
-// language is one of pt, pt-BR, fr, fr-CA, de, de-1901, gsw, nl, en-UK, en-US, fi, it, nb, nn, es, sv
 static QHash <int, QString> psdLanguageMap {
-    {0, "en-US"},   // US English
-    {1, "fi"},      // Finnish
-    {2, "fr"},      // French
-    {3, "fr-CA"},   // Canadian French
-    {4, "de"},      // German
-    {5, "de-1901"}, // German before spelling reform
-    {6, "gsw"},     // Swiss German
-    {7, "it"},      // Italian
-    {8, "nb"},      //Norwegian
-    {9, "nn"},      // Norsk (nynorsk)
-    {10, "pt"},     // Portuguese
-    {11, "pt-BR"},  // Brazilian Portuguese
-    {12, "es"},     // Spansh
-    {13, "sv"},     // Swedish
-    {14, "en-UK"},  // British English
-    {15, "nl"},     // Dutch
-    {16, "da"},     // Danish
-    //{17, ""},
-    {18, "ru"},     // Russian
-    //{19, ""},
-    //{20, ""},
-    //{21, ""},
-    {22, "cs"},     // Czech
-    {23, "pl"},     // Polish
-    //{24, ""},
-    {25, "el"},     // Greek
-    {26, "tr"},     // Turkish
-    //{27, ""},
-    {28, "hu"},     // Hungarian
+    {0, "en-US"},
+    {1, "fi"},
+    {2, "fr"},
+    {3, "fr-CA"},
+    {4, "de"},
+    {5, "de-1901"},
+    {6, "gsw"},
+    {7, "it"},
+    {8, "nb"},
+    {9, "nn"},
+    {10, "pt"},
+    {11, "pt-BR"},
+    {12, "es"},
+    {13, "sv"},
+    {14, "en-UK"},
+    {15, "nl"},
+    {16, "da"},
+    {18, "ru"},
+    {22, "cs"},
+    {23, "pl"},
+    {25, "el"},
+    {26, "tr"},
+    {28, "hu"},
 };
 
 QString PsdTextDataConverter::stylesForPSDStyleSheet(QString &lang, QVariantHash PSDStyleSheet, QMap<int, KoCSSFontInfo> fontNames, QTransform scale, const KoColorSpace *imageCs) {
@@ -153,7 +145,6 @@ QString PsdTextDataConverter::stylesForPSDStyleSheet(QString &lang, QVariantHash
             }
             continue;
         } else if (key == "/Kerning") {
-            // adjusts kerning value, we don't support this.
             unsupportedStyles << key;
             continue;
         } else if (key == "/FauxBold") {
@@ -165,7 +156,6 @@ QString PsdTextDataConverter::stylesForPSDStyleSheet(QString &lang, QVariantHash
             if (PSDStyleSheet.value(key).toBool()) {
                 italic = true;
             }
-            // synthetic Italic, bool
             continue;
         } else if (key == "/Leading") {
             bool autoleading = true;
@@ -177,14 +167,11 @@ QString PsdTextDataConverter::stylesForPSDStyleSheet(QString &lang, QVariantHash
                 double val = PSDStyleSheet.value(key).toDouble();
                 styles.append("line-height:"+QString::number(val/fontSize));
             }
-            // value for line-height
             continue;
         } else if (key == "/HorizontalScale" || key == "/VerticalScale") {
-            // adjusts scale glyphs, we don't support this.
             unsupportedStyles << key;
             continue;
         } else if (key == "/Tracking") {
-            // tracking is in 1/1000 of an EM (as is kerning for that matter...)
             double letterSpacing = (0.001 * PSDStyleSheet.value(key).toDouble());
             styles.append("letter-spacing:"+QString::number(letterSpacing)+"em");
             continue;
@@ -210,9 +197,6 @@ QString PsdTextDataConverter::stylesForPSDStyleSheet(QString &lang, QVariantHash
             }
             continue;
         } else if (key == "/FontBaseline") {
-            // NOTE: This might also be better done with font-variant-position, though
-            // we don't support synthetic font stuff, including super and sub script.
-            // Actually, seems like this is specifically font-synthesis
             switch (PSDStyleSheet.value(key).toInt()) {
             case 0:
                 break;
@@ -227,8 +211,6 @@ QString PsdTextDataConverter::stylesForPSDStyleSheet(QString &lang, QVariantHash
             }
             continue;
         } else if (key == "/FontOTPosition") {
-            // NOTE: This might also be better done with font-variant-position, though
-            // we don't support synthetic font stuff, including super and sub script.
             switch (PSDStyleSheet.value(key).toInt()) {
             case 0:
                 break;
@@ -270,7 +252,6 @@ QString PsdTextDataConverter::stylesForPSDStyleSheet(QString &lang, QVariantHash
             }
             continue;
         } else if (key == "/YUnderline") {
-            // Option relating to vertical underline left or right
             if (PSDStyleSheet.value(key).toInt() == 1) {
                 underlinePos = "auto left";
             } else if (PSDStyleSheet.value(key).toInt() == 0) {
@@ -357,7 +338,6 @@ QString PsdTextDataConverter::stylesForPSDStyleSheet(QString &lang, QVariantHash
             }
             continue;
         } else if (key == "/Italics") {
-            // This is an educated guess: other italic happens via postscript name.
             if (PSDStyleSheet.value(key).toBool()) {
                 fontFeatureSettings.append("'ital' 1");
             }
@@ -368,24 +348,16 @@ QString PsdTextDataConverter::stylesForPSDStyleSheet(QString &lang, QVariantHash
                 styles.append("text-orientation: upright");
             } else if (val == 2) {
                 styles.append("text-orientation: mixed");
-            } else if (val == 3) { //TCY or tate-chu-yoko
+            } else if (val == 3) {
                 styles.append("text-combine-upright: all");
             } else {
                 d->warnings << QString("Unknown value for %1: %2").arg(key).arg(PSDStyleSheet.value(key).toString());
             }
             continue;
         } else if (key == "/Tsume" || key == "/LeftAki" || key == "/RightAki" || key == "/JiDori") {
-            // Reduce spacing around a single character. Partially related to text-spacing,
-            // Tsume is reduction, Aki expansion, and both can be used as part of Mojikumi
-            // However, in this particular case, the property seems to just reduce the space
-            // of a single character, and may not be possible to support (as in CSS that'd
-            // just be padding/margin-reduction, but SVG cannot do that).
             unsupportedStyles << key;
             continue;
         } else if (key == "/StyleRunAlignment") {
-            // 3 = roman
-            // 5 = em-box top/right, 2 = em-box center, 0 = em-box bottom/left
-            // 4 = icf-top/right, 1 icf-bottom/left?
             QString dominantBaseline;
             switch(PSDStyleSheet.value(key).toInt()) {
             case 3:
@@ -435,27 +407,20 @@ QString PsdTextDataConverter::stylesForPSDStyleSheet(QString &lang, QVariantHash
                 fontVariantEastAsian.append("ruby");
             }
         } else if (key == "/JapaneseAlternateFeature") {
-            // hojo kanji - 'hojo'
-            // nlc kanji - 'nlck'
-            // alternate notation - nalt
-            // proportional kana - 'pkna'
-            // vertical kana - 'vkna'
-            // vert alt+rot - vrt2, or vert + vrtr
             int val = PSDStyleSheet.value(key).toInt();
             if (val == 0) {
                 continue;
-            } else if (val == 1) { // japanese traditional - 'tnam'/'trad'
+            } else if (val == 1) {
                 fontVariantEastAsian.append("traditional");
-            } else if (val == 2) {  // japanese expert - 'expt'
+            } else if (val == 2) {
                 fontFeatureSettings.append("'expt' 1");
-            } else if (val == 3) { // Japanese 78 - jis78
+            } else if (val == 3) {
                 fontVariantEastAsian.append("jis78");
             } else {
                 d->warnings << QString("Unknown value for %1: %2").arg(key).arg(PSDStyleSheet.value(key).toString());
             }
             continue;
         } else if (key == "/NoBreak") {
-            // Prevents word from breaking... I guess word-break???
             if (PSDStyleSheet.value(key).toBool()) {
                 styles.append("word-break: keep-all");
             }
@@ -495,28 +460,20 @@ QString PsdTextDataConverter::stylesForPSDStyleSheet(QString &lang, QVariantHash
             val = scale.map(QPointF(val, val)).y();
             styles.append("stroke-width:"+QString::number(val));
         } else if (key == "/FillFirst") {
-            // draw fill on top of stroke? paint-order: stroke markers fill, I guess.
             if (PSDStyleSheet.value(key).toBool()) {
                 styles.append("paint-order: fill");
             }
             continue;
         } else if (key == "/HindiNumbers") {
-            // bool. Looks like this automatically selects hindi numbers for arabic. There also
-            // seems to be a more complex option to automatically have arabic numbers for hebrew, and an option for farsi numbers, but this might be a different bool altogether.
             unsupportedStyles << key;
             continue;
         } else if (key == "/Kashida") {
-            // number, s related to drawing/inserting Kashida/Tatweel into Arabic justified text... We don't support this.
-            // options are none, short, medium, long, stylistic, indesign apparently has a 'naskh' option, which is what toggles jalt usage.
             unsupportedStyles << key;
             continue;
         } else if (key == "/DiacriticPos") {
-            // number, which is odd, because it looks like it should be a point.
-            // this controls how high or low the diacritic is on arabic text.
             unsupportedStyles << key;
             continue;
         }  else if (key == "/SlashedZero") {
-            // font-variant: common-ligatures
             if (PSDStyleSheet.value(key).toBool()) {
                 fontVariantNumeric.append("slashed-zero");
             }
@@ -561,29 +518,22 @@ QString PsdTextDataConverter::stylesForPSDStyleSheet(QString &lang, QVariantHash
             }
         } else if (key == "/MiterLimit") {
             styles.append("stroke-miterlimit: "+PSDStyleSheet.value(key).toString());
-        //} else if (key == "/LineDashArray") {
-            //"stroke-dasharray"
         } else if (key == "/LineDashOffset") {
             styles.append("stroke-dashoffset: "+PSDStyleSheet.value(key).toString());
         } else if (key == "/EnableWariChu" || key == "/WariChuWidowAmount" || key == "/WariChuLineGap" || key == "/WariChuJustification"
                    || key == "/WariChuOrphanAmount" || key == "/WariChuLineCount" || key == "/WariChuSubLineAmount") {
-            // Inline cutting note features.
             unsupportedStyles << key;
             continue;
         } else if (key == "/TCYUpDownAdjustment" || key == "/TCYLeftRightAdjustment") {
-            // Extra text-combine-upright stuff we don't support.
             unsupportedStyles << key;
             continue;
         }  else if (key == "/Type1EncodingNames" || key == "/ConnectionForms") {
-            // no clue what these are
             unsupportedStyles << key;
             continue;
         } else if (key == "/FillOverPrint" || key == "/StrokeOverPrint" || key == "/Blend") {
-            // Fill stuff we don't support.
             unsupportedStyles << key;
             continue;
         } else if (key == "/UnderlineOffset") {
-            // Needs css text-decor-4 features
             unsupportedStyles << key;
             continue;
         } else {
@@ -654,11 +604,11 @@ QString PsdTextDataConverter::stylesForPSDParagraphSheet(QVariantHash PSDParagra
                 textAnchor = "start";
                 break;
             case 4:
-                textAlign = "justify end"; // guess
+                textAlign = "justify end";
                 textAnchor = "end";
                 break;
             case 5:
-                textAlign = "justify center"; // guess
+                textAlign = "justify center";
                 textAnchor = "middle";
                 break;
             case 6:
@@ -671,47 +621,35 @@ QString PsdTextDataConverter::stylesForPSDParagraphSheet(QVariantHash PSDParagra
 
             styles.append("text-align:"+textAlign);
             styles.append("text-anchor:"+textAnchor);
-        } else if (key == "/FirstLineIndent") { //-1296..1296
+        } else if (key == "/FirstLineIndent") {
             val = scaleToPt.map(QPointF(val, val)).x();
             styles.append("text-indent:"+QString::number(val));
             continue;
         } else if (key == "/StartIndent") {
-            // left margin (also for rtl?), pixels -1296..1296
             unsupportedStyles << key;
             continue;
         } else if (key == "/EndIndent") {
-            // right margin (also for rtl?), pixels -1296..1296
             unsupportedStyles << key;
             continue;
         } else if (key == "/SpaceBefore") {
-            // top margin for paragraph, pixels -1296..1296
             unsupportedStyles << key;
             continue;
         } else if (key == "/SpaceAfter") {
-            // bottom margin for paragraph, pixels -1296..1296
             unsupportedStyles << key;
             continue;
         } else if (key == "/AutoHyphenate") {
-            // hyphenate: auto;
             unsupportedStyles << key;
             continue;
         } else if (key == "/HyphenatedWordSize") {
-            // minimum wordsize at which to start hyphenating. 2-25
             unsupportedStyles << key;
             continue;
         } else if (key == "/PreHyphen") {
-            // minimum number of letters before hyphenation is allowed to start in a word. 1-15
-            // CSS-Text-4 hyphenate-limit-chars value 1.
             unsupportedStyles << key;
             continue;
         } else if (key == "/PostHyphen") {
-            // minimum amount of letters a hyphnated word is allowed to end with. 1-15
-            // CSS-Text-4 hyphenate-limit-chars value 2.
             unsupportedStyles << key;
             continue;
         } else if (key == "/ConsecutiveHyphens") {
-            // maximum consecutive lines with hyphenation. 2-25
-            // CSS-Text-4 hyphenate-limit-lines.
             unsupportedStyles << key;
             continue;
         } else if (key == "/HyphenateCapitalized") {
@@ -724,54 +662,37 @@ QString PsdTextDataConverter::stylesForPSDParagraphSheet(QVariantHash PSDParagra
             unsupportedStyles << key;
             continue;
         } else if (key == "/Zone") {
-            // Hyphenation zone to control where hyphenation is allowed to start, pixels. 0..8640 for 72ppi
-            // CSS-Text-4 hyphenation-limit-zone.
             unsupportedStyles << key;
             continue;
         } else if (key == "/WordSpacing") {
-            // val 0 is minimum allowed spacing, and val 2 is maximum allowed spacing, both for justified text.
-            // 0 to 1000%, 100% default.
             unsupportedStyles << key;
             continue;
         } else if (key == "/LetterSpacing") {
-            // val 0 is minimum allowed spacing, and val 2 is maximum allowed spacing, both for justified text.
-            // -100% to 500%, 0% default.
             unsupportedStyles << key;
             continue;
         } else if (key == "/GlyphSpacing") {
-            // scaling of the glyphs, list of vals, 50% to 200%, default 100%.
             unsupportedStyles << key;
             continue;
         } else if (key == "/AutoLeading") {
             styles.append("line-height:"+QString::number(val));
             continue;
         } else if (key == "/LeadingType") {
-            // Probably how leading is measured for asian glyphs.
-            // 0 = top-to-top, 1 = bottom-to-bottom. CSS can only do the second.
             unsupportedStyles << key;
             continue;
         } else if (key == "/Hanging") {
-            // Roman hanging punctuation (?), bool
             continue;
         } else if (key == "/Burasagari" || key == "/BurasagariType") {
-            // CJK hanging punctuation, bool
-            // options are none, regular (allow-end) and force (force-end).
             if (PSDParagraphSheet.value(key).toBool()) {
                 styles.append("hanging-punctuation:allow-end");
             }
             continue;
         } else if (key == "/Kinsoku") {
-            // line breaking strictness.
             unsupportedStyles << key;
             continue;
         }  else if (key == "/KinsokuOrder") {
-            // might be 0 = pushInFirst, 1 = pushOutFirst, 2 = pushOutOnly, if so, Krita only supports 2.
             unsupportedStyles << key;
             continue;
         } else if (key == "/EveryLineComposer") {
-            // bool representing which text-wrapping method to use.
-            //'single-line' is 'stable/greedy' line breaking,
-            //'everyline' uses a penalty based system like Knuth's method.
             unsupportedStyles << key;
             continue;
         } else if (key == "/ComposerEngine") {
@@ -826,7 +747,6 @@ bool PsdTextDataConverter::convertPSDTextEngineDataToSVG(const QVariantHash tySh
                                                                   QTransform scaleToPt)
 {
 
-
     QVariantHash root = tySh;
     bool loadFallback = txt2.isEmpty();
     const QVariantHash docObjects = txt2.value("/DocumentObjects").toHash();
@@ -847,7 +767,6 @@ bool PsdTextDataConverter::convertPSDTextEngineDataToSVG(const QVariantHash tySh
         d->errors << "No engine dict found in PSD engine data";
         return false;
     } else {
-        // PSD only stores the postscript name, and we'll need a bit more information than that.
         QVariantList fonts = loadFallback? resourceDict.value("/FontSet").toList()
                                          : resourceDict.value("/FontSet").toHash().value("/Resources").toList();
         for (int i = 0; i < fonts.size(); i++) {
@@ -869,15 +788,13 @@ bool PsdTextDataConverter::convertPSDTextEngineDataToSVG(const QVariantHash tySh
     QString inlineSizeString;
     QRectF bounds;
 
-    // load text shape
     QScopedPointer<KoPathShape> textShape;
     double textPathStartOffset = -3;
     double shapePadding = 0.0;
-    int textType = 0; ///< 0 = point text, 1 = paragraph text (including text in shape), 2 = text on path.
+    int textType = 0;
     bool reversed = false;
     if (loadFallback) {
         QVariantHash rendered = textObject.value("/Rendered").toHash();
-        // rendering info...
         if (!rendered.isEmpty()) {
             QVariantHash shapeChild = rendered.value("/Shapes").toHash().value("/Children").toList()[0].toHash();
             textType = shapeChild.value("/ShapeType").toInt();
@@ -896,13 +813,11 @@ bool PsdTextDataConverter::convertPSDTextEngineDataToSVG(const QVariantHash tySh
         }
     } else {
         QVariantHash view = textObject.value("/View").toHash();
-        // todo: if multiple frames in frames array, there's multiple shapes in shape-inside.
         QVariantList frames = view.value("/Frames").toList();
         if (!frames.isEmpty()) {
             int textFrameIndex = view.value("/Frames").toList().value(0).toHash().value("/Resource").toInt();
             QVariantList textFrameSet = resourceDict.value("/TextFrameSet").toHash().value("/Resources").toList();
             QVariantHash textFrame = textFrameSet.at(textFrameIndex).toHash().value("/Resource").toHash();
-
 
             if (!textFrame.isEmpty()) {
                 textType = textFrame["/Data"].toHash()["/Type"].toInt();
@@ -1012,8 +927,6 @@ bool PsdTextDataConverter::convertPSDTextEngineDataToSVG(const QVariantHash tySh
         stylesWriter.writeEndElement();
     }
 
-
-    // disable auto-formatting to avoid axtra spaces appearing here and there
     svgWriter.setAutoFormatting(false);
 
     svgWriter.writeStartElement("text");
@@ -1025,14 +938,13 @@ bool PsdTextDataConverter::convertPSDTextEngineDataToSVG(const QVariantHash tySh
         return false;
     } else {
         text = editor.value("/Text").toString();
-        text.replace("\r", "\n"); // return, used for paragraph hard breaks.
-        text.replace(QChar(0x03), "\n"); // end of text character, used for non-paragraph hard breaks.
+        text.replace("\r", "\n");
+        text.replace(QChar(0x03), "\n");
     }
 
     int antiAliasing = 0;
         antiAliasing = loadFallback? textObject.value("/AntiAlias").toInt()
                                    : textObject.value("/StorySheet").toHash().value("/AntiAlias").toInt();
-    //0 = None, 4 = Sharp, 1 = Crisp, 2 = Strong, 3 = Smooth
     if (antiAliasing == 3) {
         svgWriter.writeAttribute("text-rendering", "auto");
     } else if (antiAliasing == 0) {
@@ -1041,7 +953,6 @@ bool PsdTextDataConverter::convertPSDTextEngineDataToSVG(const QVariantHash tySh
 
     QVariantHash paragraphRun = loadFallback? textObject.value("/ParagraphRun").toHash() : editor.value("/ParagraphRun").toHash();
     if (!paragraphRun.isEmpty()) {
-        //QVariantList runLengthArray = paragraphRun.value("RunLengthArray").toList();
         QVariantList runArray = paragraphRun.value("/RunArray").toList();
         QString features = loadFallback? "/Properties": "/Features";
         QVariantHash style = loadFallback? runArray.value(0).toHash() : runArray.value(0).toHash().value("/RunData").toHash();
@@ -1147,7 +1058,7 @@ bool PsdTextDataConverter::convertPSDTextEngineDataToSVG(const QVariantHash tySh
         svgWriter.writeEndElement();
     }
 
-    svgWriter.writeEndElement();//text root element.
+    svgWriter.writeEndElement();
     stylesWriter.writeEndElement();
 
     if (svgWriter.hasError() || stylesWriter.hasError()) {
@@ -1159,8 +1070,6 @@ bool PsdTextDataConverter::convertPSDTextEngineDataToSVG(const QVariantHash tySh
 
     return true;
 }
-
-
 
 void PsdTextDataConverter::gatherFonts(const QMap<QString, QString> cssStyles, const QString text, QVariantList &fontSet,
                  QVector<int> &lengths, QVector<int> &fontIndices) {
@@ -1350,7 +1259,6 @@ void gatherFills(QDomElement el, QVariantHash &styleDict) {
     if (el.hasAttribute("fill")) {
         if (el.attribute("fill") != "none") {
             QColor c = QColor(el.attribute("fill"));
-            //double opacity = el.attribute("fill-opacity", "1.0").toDouble();
             styleDict["/FillFlag"] = true;
             styleDict["/FillColor"] = QVariantHash({ {"/StreamTag", "/SimplePaint"},
                                                      { "/Color", QVariantHash({
@@ -1365,7 +1273,6 @@ void gatherFills(QDomElement el, QVariantHash &styleDict) {
     if (el.hasAttribute("stroke")) {
         if (el.attribute("stroke") != "none" && el.attribute("stroke-width").toDouble() != 0) {
             QColor c = QColor(el.attribute("stroke"));
-            //double opacity = el.attribute("stroke-opacity").toDouble();
             styleDict["/StrokeFlag"] = true;
             styleDict["/StrokeColor"] = QVariantHash({ {"/StreamTag", "/SimplePaint"},
                                                        { "/Color", QVariantHash({
@@ -1551,7 +1458,6 @@ bool PsdTextDataConverter::convertToPSDTextEngineData(const QString &svgText, QR
     QVector<int> fontIndices;
     gatherFonts(KoSvgTextProperties::defaultProperties().convertToSvgTextAttributes(), "", fontSet, lengths, fontIndices);
 
-    // go down the document children to get the style.
     QDomDocument doc;
     doc.setContent(svgText);
     gatherStyles(doc.documentElement(), text, QVariantHash(), QMap<QString, QString>(), styles, fontSet, scaleToPx);
@@ -1601,15 +1507,13 @@ bool PsdTextDataConverter::convertToPSDTextEngineData(const QString &svgText, QR
         bounds = QRectF();
     }
 
-    int shapeType = bounds.isEmpty()? 0: 1; ///< 0 point, 1 paragraph, 2 text-on-path.
+    int shapeType = bounds.isEmpty()? 0: 1;
     int writingDirection = isHorizontal? 0: 2;
-
 
     const int textFrameIndex = textFrames.size();
     QVariantHash newTextFrame;
     QVariantHash newTextFrameData;
     newTextFrameData.insert("/LineOrientation", writingDirection);
-
 
     QList<QPointF> points;
 
@@ -1665,47 +1569,14 @@ bool PsdTextDataConverter::convertToPSDTextEngineData(const QString &svgText, QR
     QVariantList bbox = {0.0, 0.0, bounds.width(), bounds.height()};
     QVariantList bbox2 = {bounds.left(), bounds.top(), bounds.right(), bounds.bottom()};
 
-    /*
-    QVariantHash glyphStrike {
-        {"/Bounds", bbox},
-        {"/GlyphAdjustments", QVariantHash({{"/Data", QVariantList()}, {"/RunLengths", QVariantList()}})},
-        {"/Glyphs", QVariantList()},
-        {"/Invalidation", bbox},
-        {"/RenderedBounds", bbox},
-        {"/VisualBounds", bbox},
-        {"/SelectionAscent", 10.0},
-        {"/SelectionDescent", -10.0},
-        {"/ShadowStylesRun", QVariantHash({{"/Data", QVariantList()}, {"/RunLengths", QVariantList()}})},
-        {"/StreamTag", "/GlyphStrike"},
-        {"/Transform", QVariantHash({{"/Origin", QVariantList({0.0, 0.0})}})}
-    };
-    QVariantHash frameStrike {
-        {"/Bounds", QVariantList({0.0, 0.0, 0.0, 0.0})},
-        {"/ChildProcession", 2},
-        {"/Children", QVariantList({glyphStrike})},
-        {"/StreamTag", "/FrameStrike"},
-        {"/Frame", textFrameIndex},
-        {"/Transform", QVariantHash({{"/Origin", QVariantList({0.0, 0.0})}})}
-    };
-    QVariantHash pathStrike {
-        {"/Bounds", QVariantList({0.0, 0.0, 0.0, 0.0})},
-        {"/ChildProcession", 0},
-        {"/Children", QVariantList({frameStrike})},
-        {"/StreamTag", "/PathSelectGroupCharacter"},
-        {"/Transform", QVariantHash({{"/Origin", QVariantList({0.0, 0.0})}})}
-    };
-    view.insert("/Strikes", QVariantList({pathStrike}));*/
     QVariantHash rendered {
         {"/RunData", QVariantHash({{"/LineCount", 1}})},
         {"/Length", textTotal.length()}
     };
     view.insert("/RenderedData", QVariantHash({{"/RunArray", QVariantList({rendered})}}));
 
-
     textFrames.append(QVariantHash({{"/Resource", newTextFrame}}));
     textObjects.append(QVariantHash({{"/Model", model}, {"/View", view}}));
-
-    // default resource dict
 
     textTotal = text;
 

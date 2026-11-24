@@ -10,7 +10,6 @@
 #include <QIODevice>
 #include <QMetaObject>
 
-
 FakeNetworkReply::FakeNetworkReply(const QNetworkRequest& originalRequest, FakeReplyData &replyData)
     : QNetworkReply()
 {

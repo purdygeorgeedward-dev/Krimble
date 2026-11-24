@@ -22,7 +22,6 @@
 #include <kis_slider_spin_box.h>
 #include <KisAngleSelector.h>
 
-
 #define MAXIMUM_SMOOTHNESS 1000
 #define MAXIMUM_MAGNETISM 1000
 
@@ -33,7 +32,6 @@
 #define MIN_ACC 0.000001
 #define MIN_VEL 0.000001
 
-
 KisToolDyna::KisToolDyna(KoCanvasBase * canvas)
         : KisToolFreehand(canvas, KisCursor::loadWithSize("tool_freehand_cursor.svg", 32, 32, 2, 2), kundo2_i18n("Dynamic Brush Stroke"), false)
 {
@@ -42,10 +40,8 @@ KisToolDyna::KisToolDyna(KoCanvasBase * canvas)
     initDyna();
 }
 
-
 void KisToolDyna::initDyna()
 {
-    /* dynadraw init */
     m_curmass = 0.5;
     m_curdrag = 0.15;
     m_mouse.fixedangle = false;
@@ -54,7 +50,6 @@ void KisToolDyna::initDyna()
     m_yangle = 0.20;
     m_widthRange = 0.05;
 }
-
 
 KisToolDyna::~KisToolDyna()
 {
@@ -105,14 +100,11 @@ void KisToolDyna::continuePrimaryAction(KoPointerEvent *event)
     }
 }
 
-// dyna algorithm
 int KisToolDyna::applyFilter(qreal mx, qreal my)
 {
-    /* calculate mass and drag */
     qreal mass = flerp(MIN_MASS, MAX_MASS, m_curmass);
     qreal drag = flerp(MIN_DRAG, MAX_DRAG, m_curdrag * m_curdrag);
 
-    /* calculate force and acceleration */
     qreal fx = mx - m_mouse.curx;
     qreal fy = my - m_mouse.cury;
 
@@ -125,7 +117,6 @@ int KisToolDyna::applyFilter(qreal mx, qreal my)
     m_mouse.accx = fx / mass;
     m_mouse.accy = fy / mass;
 
-    /* calculate new velocity */
     m_mouse.velx += m_mouse.accx;
     m_mouse.vely += m_mouse.accy;
     m_mouse.vel = sqrt(m_mouse.velx * m_mouse.velx + m_mouse.vely * m_mouse.vely);
@@ -135,7 +126,6 @@ int KisToolDyna::applyFilter(qreal mx, qreal my)
         return 0;
     }
 
-    /* calculate angle of drawing tool */
     if (m_mouse.fixedangle) {
         m_mouse.angx = m_xangle;
         m_mouse.angy = m_yangle;
@@ -155,7 +145,6 @@ int KisToolDyna::applyFilter(qreal mx, qreal my)
     return 1;
 }
 
-
 KoPointerEvent KisToolDyna::filterEvent(KoPointerEvent* event)
 {
     qreal wid = m_widthRange - m_mouse.vel;
@@ -174,8 +163,8 @@ KoPointerEvent KisToolDyna::filterEvent(KoPointerEvent* event)
     qreal nx = m_mouse.curx;
     qreal ny = m_mouse.cury;
 
-    QPointF prev(px , py);         // previous position
-    QPointF now(nx , ny);           // new position
+    QPointF prev(px , py);
+    QPointF now(nx , ny);
 
     QPointF prevr(px + m_odelx , py + m_odely);
     QPointF prevl(px - m_odelx , py - m_odely);
@@ -183,7 +172,6 @@ KoPointerEvent KisToolDyna::filterEvent(KoPointerEvent* event)
     QPointF nowl(nx - delx , ny - dely);
     QPointF nowr(nx + delx , ny + dely);
 
-    // transform coords from float points into image points
     prev.rx() *= m_surfaceWidth;
     prevr.rx() *= m_surfaceWidth;
     prevl.rx() *= m_surfaceWidth;
@@ -204,13 +192,11 @@ KoPointerEvent KisToolDyna::filterEvent(KoPointerEvent* event)
     qreal m_rotation;
     qreal m_tangentialPressure;
 
-    // some funny debugging
     dbgPlugins << "m_mouse.vel: " << m_mouse.vel;
     dbgPlugins << "m_mouse.velx: " << m_mouse.velx;
     dbgPlugins << "m_mouse.vely: " << m_mouse.vely;
     dbgPlugins << "m_mouse.accx: " << m_mouse.accx;
     dbgPlugins << "m_mouse.accy: " << m_mouse.accy;
-
 
     dbgPlugins << "fixed: " << m_mouse.fixedangle;
     dbgPlugins << "drag: " << m_curdrag;
@@ -223,10 +209,8 @@ KoPointerEvent KisToolDyna::filterEvent(KoPointerEvent* event)
     m_odelx = delx;
     m_odely = dely;
 
-    // how to change pressure in the KoPointerEvent???
     return KoPointerEvent(event,now);
 }
-
 
 void KisToolDyna::slotSetDrag(qreal drag)
 {
@@ -234,13 +218,11 @@ void KisToolDyna::slotSetDrag(qreal drag)
     m_configGroup.writeEntry("dragAmount", drag);
 }
 
-
 void KisToolDyna::slotSetMass(qreal mass)
 {
     m_curmass = mass;
     m_configGroup.writeEntry("massAmount", mass);
 }
-
 
 void KisToolDyna::slotSetDynaWidth(double width)
 {
@@ -248,13 +230,11 @@ void KisToolDyna::slotSetDynaWidth(double width)
     m_configGroup.writeEntry("initWidth", width);
 }
 
-
 void KisToolDyna::slotSetWidthRange(double widthRange)
 {
     m_widthRange = widthRange;
     m_configGroup.writeEntry("initWidthRange", widthRange);
 }
-
 
 void KisToolDyna::slotSetFixedAngle(bool fixedAngle)
 {
@@ -289,8 +269,6 @@ QWidget * KisToolDyna::createOptionWidget()
     connect(m_dragSPBox, SIGNAL(valueChanged(qreal)), this, SLOT(slotSetDrag(qreal)));
     KisToolFreehand::addOptionWidgetOption(m_dragSPBox,dragLbl);
 
-    //NOTE: so far unused, waiting for the changes to propagate rotation/pressure to freehand tool
-    // fixed angle might be for 2.4, but the later one for 2.5
     m_chkFixedAngle = new QCheckBox(i18n("Fixed angle:"), optionsWidget);
     m_chkFixedAngle->setEnabled(false);
     connect(m_chkFixedAngle, SIGNAL(toggled(bool)), this, SLOT(slotSetFixedAngle(bool)));
@@ -304,27 +282,23 @@ QWidget * KisToolDyna::createOptionWidget()
 
     KisToolFreehand::addOptionWidgetOption(m_angleSelector,m_chkFixedAngle);
 
-    // read settings in from config
     m_massSPBox->setValue(m_configGroup.readEntry("massAmount", 0.01));
     m_dragSPBox->setValue(m_configGroup.readEntry("dragAmount", .98));
     m_chkFixedAngle->setChecked((bool)m_configGroup.readEntry("useFixedAngle", false));
     m_angleSelector->setAngle(m_configGroup.readEntry("angleAmount", 20));
 
-
 #if 0
     QLabel* initWidthLbl = new QLabel(i18n("Initial width:"), optionWidget);
-    m_initWidthSPBox = new QDoubleSpinBox(optionWidget);   
+    m_initWidthSPBox = new QDoubleSpinBox(optionWidget);
     connect(m_initWidthSPBox, SIGNAL(valueChanged(double)), this, SLOT(slotSetDynaWidth(double)));
     KisToolFreehand::addOptionWidgetOption(m_initWidthSPBox,initWidthLbl);
 
     QLabel* widthRangeLbl = new QLabel(i18n("Width range:"), optionWidget);
     m_widthRangeSPBox = new QDoubleSpinBox(optionWidget);
     connect(m_widthRangeSPBox, SIGNAL(valueChanged(double)), this, SLOT(slotSetWidthRange(double)));
-    //KisToolFreehand::addOptionWidgetOption(m_widthRangeSPBox,widthRangeLbl);
 
     m_initWidthSPBox->setValue(m_configGroup.readEntry("initWidth", 10));
     m_widthRangeSPBox->setValue(m_configGroup.readEntry("initWidthRange", 20));
-
 
 #endif
 
@@ -338,5 +312,4 @@ void KisToolDyna::slotSetAngle(qreal angle)
 
     m_configGroup.writeEntry("angleAmount", angle);
 }
-
 

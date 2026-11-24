@@ -40,6 +40,4 @@ public:
 
 };
 
-
-
-#endif // KIS_DUPLICATEOP_SETTINGS_WIDGET_H_
+#endif

@@ -21,4 +21,4 @@ public:
     int version() const override { return DUMMY_PLUGIN_VERSION; }
 };
 
-#endif // DUMMY_PLUGIN_H
+#endif

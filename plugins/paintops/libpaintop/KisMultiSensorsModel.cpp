@@ -29,7 +29,7 @@ KisMultiSensorsModel::~KisMultiSensorsModel()
 {
 }
 
-int KisMultiSensorsModel::rowCount(const QModelIndex &/*parent*/) const
+int KisMultiSensorsModel::rowCount(const QModelIndex & ) const
 {
     return m_d->sensorsData->size();
 }
@@ -59,7 +59,6 @@ bool KisMultiSensorsModel::setData(const QModelIndex &index, const QVariant &val
                     std::count_if(sensors.begin(), sensors.end(),
                                   std::mem_fn(&SensorData::second));
 
-            // we don't allow unchecking of the last sensor (but why?)
             if (checked || numActiveSensors > 1 ) {
                 sensors[index.row()].second = checked;
             }
@@ -71,7 +70,7 @@ bool KisMultiSensorsModel::setData(const QModelIndex &index, const QVariant &val
     return result;
 }
 
-Qt::ItemFlags KisMultiSensorsModel::flags(const QModelIndex & /*index */) const
+Qt::ItemFlags KisMultiSensorsModel::flags(const QModelIndex & ) const
 {
     return Qt::ItemIsSelectable | Qt::ItemIsUserCheckable | Qt::ItemIsEnabled;
 }

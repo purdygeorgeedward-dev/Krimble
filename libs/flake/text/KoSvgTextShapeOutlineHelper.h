@@ -17,11 +17,6 @@
 #include <KisHandleStyle.h>
 
 class KoSvgTextShape;
-/**
- * @brief The KoSvgTextShapeOutlineHelper class
- * helper class that draws the text outlines and
- * contour mode button of the KoSvgTextTool.
- */
 class KRITAFLAKE_EXPORT KoSvgTextShapeOutlineHelper
 {
 public:
@@ -30,33 +25,14 @@ public:
 
     void paint(QPainter *painter, const KoViewConverter &converter);
 
-    /**
-     * @brief decorationRect
-     * @return the current rect necessary.
-     */
     QRectF decorationRect();
 
-    /**
-     * @brief setDrawBoundingRect
-     * Whether to draw the bounding rect of the shapes.
-     * @param enable
-     */
     void setDrawBoundingRect(bool enable);
     bool drawBoundingRect() const;
 
-    /**
-     * @brief setDrawTextWrappingArea
-     * draw the wrapping area. The wrapping area is computed from
-     * the shapes as well as padding and margin.
-     * This also draws connection lines.
-     */
     void setDrawTextWrappingArea(bool enable);
     bool drawTextWrappingArea() const;
 
-    /**
-     * @brief setDrawShapeOutlines
-     * Draw the shape outlines instead of only the rect.
-     */
     void setDrawShapeOutlines(bool enable);
     bool drawShapeOutlines() const;
 
@@ -65,12 +41,6 @@ public:
 
     KoSvgTextShape *contourModeButtonHovered(const QPointF &point);
 
-    /**
-     * @brief updateTextContourMode
-     * This checks if the text contour mode still has shapes,
-     * and otherwise switches out of this mode.
-     * @return whether the mode was updated.
-     */
     bool updateTextContourMode();
 
     void toggleTextContourMode(KoSvgTextShape *shape);
@@ -84,4 +54,4 @@ private:
     QScopedPointer<Private> d;
 };
 
-#endif // KOSVGTEXTSHAPEOUTLINEHELPER_H
+#endif

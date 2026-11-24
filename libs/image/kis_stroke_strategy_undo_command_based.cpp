@@ -11,10 +11,8 @@
 #include "kis_post_execution_undo_adapter.h"
 #include "commands_new/kis_saved_commands.h"
 
-
 KisStrokeStrategyUndoCommandBased::Data::~Data()
 {
-    // acts as a key function
 }
 
 KisStrokeStrategyUndoCommandBased::

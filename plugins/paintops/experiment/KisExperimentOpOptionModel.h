@@ -24,18 +24,18 @@ public:
 
     LAGER_QT_CURSOR(bool, isDisplacementEnabled);
     LAGER_QT_CURSOR(qreal, displacement);
-    
+
     LAGER_QT_CURSOR(bool, isSpeedEnabled);
     LAGER_QT_CURSOR(qreal, speed);
-    
+
     LAGER_QT_CURSOR(bool, isSmoothingEnabled);
     LAGER_QT_CURSOR(qreal, smoothing);
-    
+
     LAGER_QT_CURSOR(bool, windingFill);
     LAGER_QT_CURSOR(bool, hardEdge);
-    
+
     LAGER_QT_CURSOR(int, fillType);
-    
+
 };
 
-#endif // KIS_EXPERIMENT_OP_OPTION_MODEL_H
+#endif

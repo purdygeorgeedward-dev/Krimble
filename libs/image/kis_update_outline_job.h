@@ -28,4 +28,4 @@ private:
     QColor m_maskColor;
 };
 
-#endif /* __KIS_UPDATE_OUTLINE_JOB_H */
+#endif

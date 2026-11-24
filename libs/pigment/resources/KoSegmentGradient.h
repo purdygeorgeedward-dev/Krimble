@@ -20,7 +20,6 @@
 
 #include <kritapigment_export.h>
 
-
 enum {
     INTERP_LINEAR = 0,
     INTERP_CURVED,
@@ -35,7 +34,6 @@ enum {
     COLOR_INTERP_HSV_CW
 };
 
-//For saving to .ggr to match GIMP format, we also have Foreground (transparent) and Background (transparent) modes, currently unused...
 enum KoGradientSegmentEndpointType {
     COLOR_ENDPOINT,
     FOREGROUND_ENDPOINT,
@@ -55,16 +53,13 @@ struct KoGradientSegmentEndpoint {
     KoColor color;
     KoGradientSegmentEndpointType type;
 
-
 };
 
-/// Write API docs here
 class KRITAPIGMENT_EXPORT KoGradientSegment
 {
 public:
     KoGradientSegment(int interpolationType, int colorInterpolationType, KoGradientSegmentEndpoint start, KoGradientSegmentEndpoint end, qreal middleOffset);
 
-    // startOffset <= t <= endOffset
     void colorAt(KoColor&, qreal t) const;
 
     const KoColor& startColor() const;
@@ -198,9 +193,6 @@ protected:
             return INTERP_LINEAR;
         }
 
-        // This does the actual calculation and is made
-        // static as an optimization for the other
-        // strategies that need this for their own calculation.
         static qreal calcValueAt(qreal t, qreal middle);
 
     private:
@@ -282,9 +274,6 @@ private:
 
 };
 
-/**
-  * KoSegmentGradient stores a segment based gradients like Gimp gradients
-  */
 class KRITAPIGMENT_EXPORT KoSegmentGradient : public KoAbstractGradient
 {
 
@@ -302,53 +291,21 @@ public:
         return QPair<QString, QString>(ResourceType::Gradients, ResourceSubType::SegmentedGradients);
     }
 
-    /// reimplemented
     void colorAt(KoColor& dst, qreal t) const override;
 
     QList<int> requiredCanvasResources() const override;
     void bakeVariableColors(KoCanvasResourcesInterfaceSP canvasResourcesInterface) override;
     void updateVariableColors(KoCanvasResourcesInterfaceSP canvasResourcesInterface) override;
 
-    /**
-     * Returns the segment at a given position
-     * @param t position inside the gradient, with 0 <= t <= 1
-     * @return the segment the position, 0 if no segment is found
-     */
     KoGradientSegment *segmentAt(qreal t) const;
 
-    /// reimplemented
     QGradient* toQGradient() const override;
 
-    /// reimplemented
     QString defaultFileExtension() const override;
 
-    /**
-     * @brief toXML
-     * convert the gradient to xml.
-     */
     void toXML(QDomDocument& doc, QDomElement& gradientElt) const;
-    /**
-     * @brief fromXML
-     * get a segment gradient from xml.
-     * @return gradient
-     */
     static KoSegmentGradient fromXML(const QDomElement& elt);
 
-        /**
-     * a gradient color picker can consist of one or more segments.
-     * A segment has two end points - each color in the gradient
-     * color picker represents a segment end point.
-     * @param interpolation
-     * @param colorInterpolation
-     * @param startOffset
-     * @param endOffset
-     * @param middleOffset
-     * @param left
-     * @param right
-     * @param leftType
-     * @param rightType
-     * @return void
-     */
     void createSegment(int interpolation, int colorInterpolation, double startOffset, double endOffset, double middleOffset,
                        const QColor & leftColor, const QColor & rightColor,
                        KoGradientSegmentEndpointType leftType = COLOR_ENDPOINT, KoGradientSegmentEndpointType rightType = COLOR_ENDPOINT);
@@ -357,114 +314,26 @@ public:
                        const KoColor & leftColor, const KoColor & rightColor,
                        KoGradientSegmentEndpointType leftType = COLOR_ENDPOINT, KoGradientSegmentEndpointType rightType = COLOR_ENDPOINT);
 
-    /**
-     * gets a list of end points of the segments in the gradient
-     * color picker. If two colors, one segment then two end
-     * points, and if three colors, then two segments with four
-     * endpoints.
-     * @return a list of double values
-     */
     const QList<double> getHandlePositions() const;
 
-    /**
-     * gets a list of middle points of the segments in the gradient
-     * color picker.
-     * @return a list of double values
-     */
     const QList<double> getMiddleHandlePositions() const;
 
-    /**
-     * Moves the StartOffset of the specified segment to the
-     * specified value and corrects the endoffset of the previous
-     * segment. If the segment is the first Segment the startoffset
-     * will be set to 0.0 . The offset will maximally be moved till
-     * the middle of the current or the previous segment. This is
-     * useful if someone clicks to move the handler for a segment,
-     * to set the half the segment to the right and half the segment
-     * to the left of the handler.
-     * @param segment the segment for which to move the relative
-     * offset within the gradient color picker.
-     * @param t the new startoff position for the segment
-     * @return void
-     */
     void moveSegmentStartOffset(KoGradientSegment* segment, double t);
 
-    /**
-     * Moves the endoffset of the specified segment to the specified
-     * value and corrects the startoffset of the following segment.
-     * If the segment is the last segment the endoffset will be set
-     * to 1.0 . The offset will maximally be moved till the middle
-     * of the current or the following segment. This is useful if
-     * someone moves the segment handler in the gradient color
-     * picker, and needs the segment to move with it. Sets the end
-     * position of the segment to the correct new position.
-     * @param segment the segment for which to move the relative
-     * end position within the gradient color picker.
-     * @param t the new end position for the segment
-     * @return void
-     */
     void moveSegmentEndOffset(KoGradientSegment* segment, double t);
 
-    /**
-     * moves the Middle of the specified segment to the specified
-     * value. The offset will maximally be moved till the endoffset
-     * or startoffset of the segment. This sets the middle of the
-     * segment to the same position as the handler of the gradient
-     * color picker.
-     * @param segment the segment for which to move the relative
-     * middle position within the gradient color picker.
-     * @param t the new middle position for the segment
-     * @return void
-     */
     void moveSegmentMiddleOffset(KoGradientSegment* segment, double t);
 
-    /**
-     * splits the specified segment into two equal parts
-     * @param segment the segment to split
-     * @return void
-     */
     void splitSegment(KoGradientSegment* segment);
 
-    /**
-     * duplicate the specified segment
-     * @param segment the segment to duplicate
-     * @return void
-     */
     void duplicateSegment(KoGradientSegment* segment);
 
-    /**
-     * create a segment horizontally reversed to the specified one.
-     * @param segment the segment to reverse
-     * @return void
-     */
     void mirrorSegment(KoGradientSegment* segment);
 
-    /**
-     * removes the specific segment from the gradient color picker.
-     * @param segment the segment to remove
-     * @return the segment which will be at the place of the old
-     * segment. 0 if the segment is not in the gradient or it is
-     * not possible to remove the segment.
-     */
     KoGradientSegment* removeSegment(KoGradientSegment* segment);
 
-    /**
-     * removes the specific segment from the gradient color picker and
-     * modifies the previous and next segments so that they end and start
-     * where the middle of the passed segment was respectively.
-     * @param segment the segment to remove
-     * @return the segment which will be at the place of the old
-     * segment: the previous segment if the passed segment was not the first;
-     * the next segment if the passed segment was the first; 0 if the passed
-     * segment is not in the gradient or it is not possible to remove the segment.
-     */
     KoGradientSegment* collapseSegment(KoGradientSegment* segment);
 
-    /**
-     * checks if it's possible to remove a segment (at least two
-     * segments in the gradient)
-     * @return true if it's possible to remove an segment
-     */
     bool removeSegmentPossible() const;
 
     const QList<KoGradientSegment *>& segments() const;
@@ -484,5 +353,5 @@ private:
 
 typedef QSharedPointer<KoSegmentGradient> KoSegmentGradientSP;
 
-#endif // KOSEGMENTGRADIENT_H
+#endif
 

@@ -14,7 +14,6 @@
 #include <half.h>
 #endif
 
-
 template <typename channel_type>
 KoID colorDepthIdForChannelType();
 
@@ -60,6 +59,5 @@ Result channelTypeForColorDepthId(const KoID &depthId, Args... args)
     throw std::runtime_error("Invalid bit depth!");
 }
 
-
-#endif // KOCOLORMODELSTANDARDIDSUTILS_H
+#endif
 

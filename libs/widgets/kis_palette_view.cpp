@@ -54,15 +54,8 @@ KisPaletteView::KisPaletteView(QWidget *parent)
     setDragEnabled(true);
     setAcceptDrops(false);
 
-    /*
-     * without this, a cycle might be created:
-     * the view stretches to right border, and this make it need a scroll bar;
-     * after the bar is added, the view shrinks to the bar, and this makes it
-     * no longer need the bar any more, and the bar is removed again
-     */
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 
-    // set the size of swatches
     horizontalHeader()->setVisible(false);
     verticalHeader()->setVisible(false);
     horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
@@ -191,7 +184,6 @@ void KisPaletteView::selectClosestColor(const KoColor &color)
         return;
     }
 
-    //also don't select if the color is the same as the current selection
     if (d->model->getSwatch(currentIndex()).color() == color) {
         return;
     }
@@ -266,28 +258,13 @@ void KisPaletteView::removeSelectedEntry()
 
 void KisPaletteView::slotAdditionalGuiUpdate()
 {
-    /*
-     * Note: QTableView (Qt 5.15) does not clear spans on model resets.
-     * But it does move spans on row inserts/removals, so incremental updates
-     * would be possible.
-     * Moving rows on the other hand does NOT update row spans accordingly...
-     */
     if (!d->model->colorSet()) return;
 
     clearSpans();
     resizeRows(verticalHeader()->defaultSectionSize());
 
-//    int row = -1;
-
     for (const QString &groupName : d->model->colorSet()->swatchGroupNames()) {
         if (groupName.isEmpty()) continue;
-
-//        KisSwatchGroupSP group = d->model->colorSet()->getGroup(groupName);
-//        row += group->rowCount() + 1;
-//        setSpan(row, 0, 1, d->model->columnCount());
-//        setRowHeight(row, fontMetrics().lineSpacing() + 6);
-//        verticalHeader()->resizeSection(row, fontMetrics().lineSpacing() + 6);
-
 
         int rowNumber = d->model->colorSet()->startRowForGroup(groupName);
         setSpan(rowNumber, 0, 1, d->model->columnCount());

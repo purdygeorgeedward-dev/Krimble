@@ -9,17 +9,13 @@
 
 #include <KisStaticInitializer.h>
 
-/**
- * @brief The SvgTextShortcutInfo class
- * This is a struct that describes a text property shortcut.
- */
 struct SvgTextShortcutInfo : public boost::equality_comparable<SvgTextShortcutInfo> {
 
     enum ActionType {
-        Set, ///< Will set value1, cannot be toggled.
-        Toggle, ///< Toggle will test "testValue", and toggle between value1 and value 2;
-        Increase, //< Will increase by value 1.
-        Decrease //< Will decrease by value 1.
+        Set,
+        Toggle,
+        Increase,
+        Decrease
     };
     SvgTextShortcutInfo() {}
 
@@ -55,8 +51,6 @@ struct SvgTextShortcutInfo : public boost::equality_comparable<SvgTextShortcutIn
     QVariant value1;
     QVariant value2;
     QVariant testValue;
-
-
 
     bool operator==(const SvgTextShortcutInfo & other) const {
         return (propertyId == other.propertyId
@@ -214,19 +208,12 @@ bool SvgTextShortCuts::configureAction(QAction *action, const QString &name)
     action->setData(QVariant::fromValue(info));
     return true;
 }
-/**
- * @brief testPropertyEnabled
- * @param info
- * @param currentProperties
- * @return whether any properties in the current properties pass the info.testValue.
- */
 bool testPropertyEnabled(const SvgTextShortcutInfo &info, const QList<KoSvgTextProperties> currentProperties)
 {
     const QVariant testValue = info.type == SvgTextShortcutInfo::Toggle? info.testValue: info.value1;
 
     for (auto properties = currentProperties.begin(); properties != currentProperties.end(); properties++) {
         const QVariant oldValue = properties->propertyOrDefault(info.propertyId);
-
 
         if (oldValue.canConvert<KoSvgText::TextDecorations>() && info.propertyId == KoSvgTextProperties::TextDecorationLineId) {
 
@@ -288,11 +275,6 @@ bool SvgTextShortCuts::actionEnabled(QAction *action, const QList<KoSvgTextPrope
     return testPropertyEnabled(info, currentProperties);
 }
 
-/**
- * @brief toggleProperty
- * Handles toggling properties for getModifiedProperties
- * split out to make code easier to navigate.
- */
 QVariant toggleProperty(SvgTextShortcutInfo info, bool checked, QList<KoSvgTextProperties> currentProperties) {
     QVariant newVal;
 
@@ -316,13 +298,6 @@ QVariant toggleProperty(SvgTextShortcutInfo info, bool checked, QList<KoSvgTextP
     return newVal;
 }
 
-/**
- * @brief adjustValue
- * Handles increase/decrease value for getModifiedProperties,
- * split out to make code easier to navigate.
- *
- * TODO: handle max/min.
- */
 QVariant adjustValue(SvgTextShortcutInfo info, QVariant oldValue) {
     QVariant newVal;
 

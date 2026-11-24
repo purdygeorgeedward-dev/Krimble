@@ -5,7 +5,6 @@
  */
 #include "DlgResourceTypeForFile.h"
 
-
 #include <QRadioButton>
 #include <QButtonGroup>
 #include <QDebug>
@@ -55,12 +54,10 @@ DlgResourceTypeForFile::DlgResourceTypeForFile(QWidget *parent, QMap<QString, QS
         }
     }
 
-
     QWidget* widget = new QWidget(parent);
     widget->setLayout(layout);
     this->setMainWidget(widget);
 
-    
 }
 
 QString DlgResourceTypeForFile::getResourceTypeForMimetype(QString mimetype)
@@ -81,5 +78,4 @@ QString DlgResourceTypeForFile::getResourceTypeForMimetype(QString mimetype)
     KIS_SAFE_ASSERT_RECOVER_RETURN_VALUE(false, "");
     return "";
 }
-
 

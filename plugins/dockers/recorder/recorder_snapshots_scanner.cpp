@@ -68,7 +68,6 @@ void RecorderSnapshotsScanner::run()
     Q_EMIT scanningFinished(result);
 }
 
-
 SnapshotDirInfo RecorderSnapshotsScanner::readSnapshotDirInfo(const QString &path) const
 {
     SnapshotDirInfo result;

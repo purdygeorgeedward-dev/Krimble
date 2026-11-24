@@ -1,6 +1,3 @@
-/*
- * Krimble 2026-10-25: see KrimbleBatch.h.
- */
 #include "KrimbleBatch.h"
 
 #include <QBuffer>
@@ -85,7 +82,6 @@ static Recipe make(const QString &name, int resize, int size, int format, int qu
 
 QList<Recipe> builtInRecipes()
 {
-    // the WebP ones first (George works with WebP a lot), then the ones that were there before (Batch Process, 2026-10-12)
     QList<Recipe> list;
     list << make(QStringLiteral("WebP, lossless (keeps transparency)"), ResizeNone, 0, FormatWebPLossless, 100, QStringLiteral("webp"))
          << make(QStringLiteral("WebP, quality 90 (keeps transparency)"), ResizeNone, 0, FormatWebPLossy, 90, QStringLiteral("webp"))
@@ -137,7 +133,6 @@ QImage loadPicture(const QString &path)
 {
 #ifdef KRIMBLE_HAVE_WEBP
     if (path.endsWith(QLatin1String(".webp"), Qt::CaseInsensitive)) {
-        // libwebp reads the picture with its transparency; Qt may not have a WebP reader on the phone
         QFile file(path);
         if (file.open(QIODevice::ReadOnly)) {
             const QByteArray data = file.readAll();
@@ -158,10 +153,6 @@ QImage loadPicture(const QString &path)
 #endif
     return QImage(path);
 }
-
-// ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-// the programs: what a recipe or a script does to a picture
-// ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 QString extensionOf(int format)
 {
@@ -208,7 +199,6 @@ QString scriptFromRecipe(const Recipe &recipe)
 
 static QImage scaledKeepingEdges(const QImage &image, int w, int h)
 {
-    // scaled in premultiplied form, so that the edges of a transparent picture do not get dark or light fringes
     QImage source = image.hasAlphaChannel() ? image.convertToFormat(QImage::Format_ARGB32_Premultiplied) : image;
     return source.scaled(w, h, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
 }
@@ -225,7 +215,7 @@ static QImage flattened(const QImage &image, const QColor &color)
 
 static QImage mapChannels(const QImage &image, const uchar *lut)
 {
-    QImage out = image.convertToFormat(QImage::Format_ARGB32);   // not premultiplied: the colors are changed, the transparency is not
+    QImage out = image.convertToFormat(QImage::Format_ARGB32);
     for (int y = 0; y < out.height(); ++y) {
         QRgb *line = reinterpret_cast<QRgb*>(out.scanLine(y));
         for (int x = 0; x < out.width(); ++x) {
@@ -241,7 +231,7 @@ int resolveFormat(const Program &program, const QString &sourcePath)
     const QString ext = QFileInfo(sourcePath).suffix().toLower();
     if (ext == QLatin1String("jpg") || ext == QLatin1String("jpeg")) return FormatJpg;
     if (ext == QLatin1String("webp")) return FormatWebPLossless;
-    if (ext == QLatin1String("gif")) return FormatWebPLossless;   // a GIF cannot be written yet: a lossless WebP (animated, if the GIF is) is the closest
+    if (ext == QLatin1String("gif")) return FormatWebPLossless;
     return FormatPng;
 }
 
@@ -316,7 +306,7 @@ QImage runProgram(const QImage &source, const Program &program, int outputFormat
             break;
         }
         case ScriptStep::Contrast: {
-            const double c = step.a * 2.55;   // -255 to 255
+            const double c = step.a * 2.55;
             const double factor = (259.0 * (c + 255.0)) / (255.0 * (259.0 - c));
             uchar lut[256];
             for (int v = 0; v < 256; ++v) lut[v] = uchar(qBound(0, qRound(factor * (v - 128) + 128), 255));
@@ -328,7 +318,6 @@ QImage runProgram(const QImage &source, const Program &program, int outputFormat
             break;
         }
     }
-    // a JPG has no transparency: what is still transparent becomes white
     if (format == FormatJpg && image.hasAlphaChannel()) image = flattened(image, Qt::white);
     return image;
 }
@@ -342,10 +331,9 @@ bool encodeAs(const QImage &image, int format, int quality, QByteArray *bytes)
         buffer.open(QIODevice::WriteOnly);
         return format == FormatJpg ? image.save(&buffer, "JPG", quality) : image.save(&buffer, "PNG");
     }
-    // WebP: at most 16383 px on a side
     if (image.width() > 16383 || image.height() > 16383) return false;
 #ifdef KRIMBLE_HAVE_WEBP
-    const QImage rgba = image.convertToFormat(QImage::Format_RGBA8888);   // not premultiplied: what libwebp wants
+    const QImage rgba = image.convertToFormat(QImage::Format_RGBA8888);
     uint8_t *output = nullptr;
     size_t size = 0;
     if (format == FormatWebPLossless) {
@@ -360,7 +348,7 @@ bool encodeAs(const QImage &image, int format, int quality, QByteArray *bytes)
 #else
     QBuffer buffer(bytes);
     buffer.open(QIODevice::WriteOnly);
-    return image.save(&buffer, "WEBP", format == FormatWebPLossless ? 100 : quality);   // Qt: 100 is lossless
+    return image.save(&buffer, "WEBP", format == FormatWebPLossless ? 100 : quality);
 #endif
 }
 
@@ -373,16 +361,11 @@ QString outputNameFor(const QString &sourcePath, const Program &program, int fra
     return program.namePrefix.trimmed() + base + (add.isEmpty() ? QString() : QLatin1Char('-') + add) + frame + QLatin1Char('.') + extensionOf(resolveFormat(program, sourcePath));
 }
 
-// the older functions of the recipes, now written with the programs
 QImage applyRecipe(const QImage &source, const Recipe &recipe) { return runProgram(source, programFromRecipe(recipe)); }
 bool encodePicture(const QImage &image, const Recipe &recipe, QByteArray *bytes) { return encodeAs(image, recipe.format, recipe.quality, bytes); }
 QString outputName(const QString &sourcePath, const Recipe &recipe) { return outputNameFor(sourcePath, programFromRecipe(recipe)); }
 
-// ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-// animated pictures
-// ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-static const qint64 kMaxAnimationPixels = 60LL * 1000 * 1000;   // frames x width x height: about 240 MB as pictures; more is refused (a phone has not the memory)
+static const qint64 kMaxAnimationPixels = 60LL * 1000 * 1000;
 
 bool gifReadable()
 {
@@ -402,8 +385,8 @@ static bool loadAnimatedGif(const QString &path, Animation *animation)
         if (pixels > kMaxAnimationPixels || animation->frames.size() >= 2000) { animation->frames.clear(); return false; }
         Frame frame;
         frame.image = image.convertToFormat(QImage::Format_ARGB32);
-        int delay = reader.nextImageDelay();      // how long the frame just read is shown
-        if (delay <= 10) delay = 100;             // 0 or 1 hundredth of a second: browsers show it for a tenth of a second
+        int delay = reader.nextImageDelay();
+        if (delay <= 10) delay = 100;
         frame.delayMs = delay;
         animation->frames << frame;
     }
@@ -475,8 +458,8 @@ bool encodeAnimation(const Animation &animation, int format, int quality, QByteA
     WebPAnimEncoderOptions options;
     if (!WebPAnimEncoderOptionsInit(&options)) return false;
     options.anim_params.loop_count = qBound(0, animation.loopCount, 65535);
-    options.anim_params.bgcolor = 0x00000000;           // transparent
-    options.minimize_size = (qint64(size.width()) * size.height() * animation.frames.size() <= 2000000) ? 1 : 0;   // smaller files, slower: only for small animations
+    options.anim_params.bgcolor = 0x00000000;
+    options.minimize_size = (qint64(size.width()) * size.height() * animation.frames.size() <= 2000000) ? 1 : 0;
     WebPAnimEncoder *encoder = WebPAnimEncoderNew(size.width(), size.height(), &options);
     if (!encoder) return false;
     WebPConfig config;
@@ -489,7 +472,7 @@ bool encodeAnimation(const Animation &animation, int format, int quality, QByteA
     int timestamp = 0;
     for (int i = 0; ok && i < animation.frames.size(); ++i) {
         QImage image = animation.frames.at(i).image;
-        if (image.size() != size) image = image.scaled(size, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);   // every frame must be as big as the first
+        if (image.size() != size) image = image.scaled(size, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
         const QImage rgba = image.convertToFormat(QImage::Format_RGBA8888);
         WebPPicture picture;
         if (!WebPPictureInit(&picture)) { ok = false; break; }
@@ -511,10 +494,9 @@ bool encodeAnimation(const Animation &animation, int format, int quality, QByteA
 #else
     Q_UNUSED(format);
     Q_UNUSED(quality);
-    return false;   // no libwebp in this build: Qt cannot write an animated WebP
+    return false;
 #endif
 }
-
 
 QString scriptHelp()
 {
@@ -568,7 +550,6 @@ static bool safeWord(const QString &w, bool allowSpace)
     return true;
 }
 
-// a note starts with # at the start of a line or after a space, and is followed by a space or the end of the line ("#ff0000" is a color, "# a note" is a note)
 static QString withoutNote(const QString &line)
 {
     for (int i = 0; i < line.size(); ++i) {

@@ -24,7 +24,6 @@ class SpecificColorSelectorDock : public QDockWidget, public KisMainwindowObserv
 public:
     SpecificColorSelectorDock();
     QString observerName() override { return "SpecificColorSelectorDock"; }
-    /// reimplemented from KoCanvasObserverBase/KisMainwindowObserver
     void setCanvas(KoCanvasBase *canvas) override;
     void unsetCanvas() override;
     void setViewManager(KisViewManager* kisview) override;
@@ -34,6 +33,5 @@ private:
     KisViewManager *m_view;
     KisSpecificColorSelectorWidget* m_colorSelector;
 };
-
 
 #endif

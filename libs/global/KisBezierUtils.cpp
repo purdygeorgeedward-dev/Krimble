@@ -33,7 +33,6 @@ QVector<qreal> linearizeCurve(const QPointF p0, const QPointF p1, const QPointF 
     QVector<qreal> steps;
     steps << 0.0;
 
-
     QStack<std::tuple<QPointF, QPointF, qreal>> stackedPoints;
     stackedPoints.push(std::make_tuple(p3, 3 * (p3 - p2), 1.0));
 
@@ -84,9 +83,7 @@ QVector<qreal> mergeLinearizationSteps(const QVector<qreal> &a, const QVector<qr
 class BezierSegment
 {
 private:
-    /// Maximal recursion depth for finding root params
     const int MaxRecursionDepth = 64;
-    /// Flatness tolerance for finding root params
     const qreal FlatnessTolerance = ldexp(1.0,-MaxRecursionDepth-1);
 
 public:
@@ -138,12 +135,10 @@ public:
         for (int i = 0; i <= deg; ++i)
             Vtemp[i].resize(deg + 1);
 
-        /* Copy control points  */
         for (int j = 0; j <= deg; j++) {
             Vtemp[0][j] = points[j];
         }
 
-        /* Triangle computation */
         for (int i = 1; i <= deg; i++) {
             for (int j =0 ; j <= deg - i; j++) {
                 Vtemp[i][j].rx() = (1.0 - t) * Vtemp[i-1][j].x() + t * Vtemp[i-1][j+1].x();
@@ -174,25 +169,18 @@ public:
         if (! degree())
             return rootParams;
 
-        // Calculate how often the control polygon crosses the x-axis
-        // This is the upper limit for the number of roots.
         int xAxisCrossings = controlPolygonZeros(points);
 
         if (! xAxisCrossings) {
-            // No solutions.
             return rootParams;
         }
         else if (xAxisCrossings == 1) {
-            // Exactly one solution.
 
-            // Stop recursion when the tree is deep enough
             if (depth >= MaxRecursionDepth) {
-                // if deep enough, return 1 solution at midpoint
                 rootParams.append((points.first().x() + points.last().x()) / 2.0);
                 return rootParams;
             }
             else if (isFlat(FlatnessTolerance)) {
-                // Calculate intersection of chord with x-axis.
                 QPointF chord = points.last() - points.first();
                 QPointF segStart = points.first();
                 rootParams.append((chord.x() * segStart.y() - chord.y() * segStart.x()) / - chord.y());
@@ -200,7 +188,6 @@ public:
             }
         }
 
-        // Many solutions. Do recursive midpoint subdivision.
         BezierSegment left, right;
         evaluate(0.5, &left, &right);
         rootParams += left.roots(depth+1);
@@ -229,7 +216,6 @@ public:
             }
         }
 
-
         return signChanges;
     }
 
@@ -237,11 +223,8 @@ public:
     {
         int deg = degree();
 
-        // Find the  perpendicular distance from each interior control point to
-        // the line connecting points[0] and points[degree]
         qreal *distance = new qreal[deg + 1];
 
-        // Derive the implicit equation for line connecting first and last control points
         qreal a = points[0].y() - points[deg].y();
         qreal b = points[deg].x() - points[0].x();
         qreal c = points[0].x() * points[deg].y() - points[deg].x() * points[0].y();
@@ -249,7 +232,6 @@ public:
         qreal abSquared = (a * a) + (b * b);
 
         for (int i = 1; i < deg; i++) {
-            // Compute distance from each of the points to that line
             distance[i] = a * points[i].x() + b * points[i].y() + c;
             if (distance[i] > 0.0) {
                 distance[i] = (distance[i] * distance[i]) / abSquared;
@@ -259,8 +241,6 @@ public:
             }
         }
 
-
-        // Find the largest distance
         qreal max_distance_above = 0.0;
         qreal max_distance_below = 0.0;
         for (int i = 1; i < deg; i++) {
@@ -273,12 +253,10 @@ public:
         }
         delete [] distance;
 
-        // Implicit equation for zero line
         qreal a1 = 0.0;
         qreal b1 = 1.0;
         qreal c1 = 0.0;
 
-        // Implicit equation for "above" line
         qreal a2 = a;
         qreal b2 = b;
         qreal c2 = c + max_distance_above;
@@ -288,7 +266,6 @@ public:
 
         qreal intercept_1 = (b1 * c2 - b2 * c1) * dInv;
 
-        // Implicit equation for "below" line
         a2 = a;
         b2 = b;
         c2 = c + max_distance_below;
@@ -298,7 +275,6 @@ public:
 
         qreal intercept_2 = (b1 * c2 - b2 * c1) * dInv;
 
-        // Compute intercepts of bounding box
         qreal left_intercept = qMin(intercept_1, intercept_2);
         qreal right_intercept = qMax(intercept_1, intercept_2);
 
@@ -325,15 +301,10 @@ qreal nearestPoint(const QList<QPointF> controlPoints, const QPointF &point, qre
 {
     const int deg = controlPoints.size() - 1;
 
-    // use shortcut for line segments
     if (deg == 1) {
-        // the segments chord
         QPointF chord = controlPoints.last() - controlPoints.first();
-        // the point relative to the segment
         QPointF relPoint = point - controlPoints.first();
-        // project point to chord (dot product)
         qreal scale = chord.x() * relPoint.x() + chord.y() * relPoint.y();
-        // normalize using the chord length
         scale /= chord.x() * chord.x() + chord.y() * chord.y();
 
         if (scale < 0.0) {
@@ -345,56 +316,20 @@ qreal nearestPoint(const QList<QPointF> controlPoints, const QPointF &point, qre
         }
     }
 
-    /* This function solves the "nearest point on curve" problem. That means, it
-    * calculates the point q (to be precise: it's parameter t) on this segment, which
-    * is located nearest to the input point P.
-    * The basic idea is best described (because it is freely available) in "Phoenix:
-    * An Interactive Curve Design System Based on the Automatic Fitting of
-    * Hand-Sketched Curves", Philip J. Schneider (Master thesis, University of
-    * Washington).
-    *
-    * For the nearest point q = C(t) on this segment, the first derivative is
-    * orthogonal to the distance vector "C(t) - P". In other words we are looking for
-    * solutions of f(t) = (C(t) - P) * C'(t) = 0.
-    * (C(t) - P) is a nth degree curve, C'(t) a n-1th degree curve => f(t) is a
-    * (2n - 1)th degree curve and thus has up to 2n - 1 distinct solutions.
-    * We solve the problem f(t) = 0 by using something called "Approximate Inversion Method".
-    * Let's write f(t) explicitly (with c_i = p_i - P and d_j = p_{j+1} - p_j):
-    *
-    *         n                     n-1
-    * f(t) = SUM c_i * B^n_i(t)  *  SUM d_j * B^{n-1}_j(t)
-    *        i=0                    j=0
-    *
-    *         n  n-1
-    *      = SUM SUM w_{ij} * B^{2n-1}_{i+j}(t)
-    *        i=0 j=0
-    *
-    * with w_{ij} = c_i * d_j * z_{ij} and
-    *
-    *          BinomialCoeff(n, i) * BinomialCoeff(n - i ,j)
-    * z_{ij} = -----------------------------------------------
-    *                   BinomialCoeff(2n - 1, i + j)
-    *
-    * This Bernstein-Bezier polynom representation can now be solved for its roots.
-    */
-
     QList<QPointF> ctlPoints = controlPoints;
 
-    // Calculate the c_i = point(i) - P.
     QPointF * c_i = new QPointF[ deg + 1 ];
 
     for (int i = 0; i <= deg; ++i) {
         c_i[ i ] = ctlPoints[ i ] - point;
     }
 
-    // Calculate the d_j = point(j + 1) - point(j).
     QPointF *d_j = new QPointF[deg];
 
     for (int j = 0; j <= deg - 1; ++j) {
         d_j[j] = 3.0 * (ctlPoints[j+1] - ctlPoints[j]);
     }
 
-    // Calculate the dot products of c_i and d_i.
     qreal *products = new qreal[deg * (deg + 1)];
 
     for (int j = 0; j <= deg - 1; ++j) {
@@ -403,48 +338,36 @@ qreal nearestPoint(const QList<QPointF> controlPoints, const QPointF &point, qre
         }
     }
 
-    // We don't need the c_i and d_i anymore.
     delete[] d_j ;
     delete[] c_i ;
 
-    // Calculate the control points of the new 2n-1th degree curve.
     BezierSegment newCurve;
     newCurve.setDegree(2 * deg - 1);
-    // Set up control points in the (u, f(u))-plane.
     for (unsigned short u = 0; u <= 2 * deg - 1; ++u) {
         newCurve.setPoint(u, QPointF(static_cast<qreal>(u) / static_cast<qreal>(2 * deg - 1), 0.0));
     }
 
-    // Precomputed "z" for cubics
     static const qreal z3[3*4] = {1.0, 0.6, 0.3, 0.1, 0.4, 0.6, 0.6, 0.4, 0.1, 0.3, 0.6, 1.0};
-    // Precomputed "z" for quadrics
     static const qreal z2[2*3] = {1.0, 2./3., 1./3., 1./3., 2./3., 1.0};
 
     const qreal *z = deg == 3 ? z3 : z2;
 
-    // Set f(u)-values.
     for (int k = 0; k <= 2 * deg - 1; ++k) {
         int min = qMin(k, deg);
 
         for (unsigned short i = qMax(0, k - (deg - 1)); i <= min; ++i) {
             unsigned short j = k - i;
 
-            // p_k += products[j][i] * z[j][i].
             QPointF currentPoint = newCurve.point(k);
             currentPoint.ry() += products[j * (deg + 1) + i] * z[j * (deg + 1) + i];
             newCurve.setPoint(k, currentPoint);
         }
     }
 
-    // We don't need the c_i/d_i dot products and the z_{ij} anymore.
     delete[] products;
 
-    // Find roots.
     QList<qreal> rootParams = newCurve.roots();
 
-    // Now compare the distances of the candidate points.
-
-    // First candidate is the previous knot.
     qreal distanceSquared = kisSquareDistance(point, controlPoints.first());
     qreal minDistanceSquared = distanceSquared;
     qreal resultParam = 0.0;
@@ -455,7 +378,6 @@ qreal nearestPoint(const QList<QPointF> controlPoints, const QPointF &point, qre
         *resultPoint = controlPoints.first();
     }
 
-    // Iterate over the found candidate params.
     Q_FOREACH (qreal root, rootParams) {
         const QPointF rootPoint = bezierCurve(controlPoints, root);
         distanceSquared = kisSquareDistance(point, rootPoint);
@@ -472,7 +394,6 @@ qreal nearestPoint(const QList<QPointF> controlPoints, const QPointF &point, qre
         }
     }
 
-    // Last candidate is the knot.
     distanceSquared = kisSquareDistance(point, controlPoints.last());
     if (distanceSquared < minDistanceSquared) {
         minDistanceSquared = distanceSquared;
@@ -496,10 +417,10 @@ int controlPolygonZeros(const QList<QPointF> &controlPoints)
 namespace {
 
 struct Params2D {
-    QPointF p0, p1, p2, p3; // top curve
-    QPointF q0, q1, q2, q3; // bottom curve
-    QPointF r0, r1, r2, r3; // left curve
-    QPointF s0, s1, s2, s3; // right curve
+    QPointF p0, p1, p2, p3;
+    QPointF q0, q1, q2, q3;
+    QPointF r0, r1, r2, r3;
+    QPointF s0, s1, s2, s3;
 
     QPointF dstPoint;
 };
@@ -576,7 +497,6 @@ struct LevelBasedPatchMethod
     Eigen::Matrix4d M_3rel2abs;
     Eigen::Matrix<double, 2, 4> M_1;
 
-
     Eigen::Matrix<double, 4, 2> PQ_left;
     Eigen::Matrix<double, 4, 2> PQ_right;
     Eigen::Matrix<double, 4, 2> RS_top;
@@ -608,7 +528,6 @@ struct LevelBasedPatchMethod
 
         Eigen::Matrix<double, 1, 2> L = T_u3 * M_3 * M_3rel2abs * L_controls;
 
-
         Eigen::Matrix<double, 1, 2> H_1 = T_u3 * M_3 * P;
         Eigen::Matrix<double, 1, 2> H_2 = T_u1 * M_1 * RS_top;
         Eigen::Matrix<double, 1, 2> H_3 = T_u1 * M_1 * RS_bottom;
@@ -634,7 +553,6 @@ struct LevelBasedPatchMethod
         L_controls << L_1, L_2, L_3, L_4;
 
         Eigen::Matrix<double, 1, 2> L = T_dot_u3 * M_3 * M_3rel2abs * L_controls;
-
 
         Eigen::Matrix<double, 1, 2> H_1 = T_dot_u3 * M_3 * P;
         Eigen::Matrix<double, 1, 2> H_2 = T_dot_u1 * M_1 * RS_top;
@@ -681,10 +599,6 @@ struct LevelBasedPatchMethod
 struct SvgPatchMethod
 {
 private:
-
-    /**
-     * TODO: optimize these function somehow!
-     */
 
     static QPointF meshForwardMapping(qreal u, qreal v, const Params2D &p) {
         return p.r0 + pow3(u)*v*(p.p0 - 3*p.p1 + 3*p.p2 - p.p3 - p.q0 + 3*p.q1 - 3*p.q2 + p.q3) + pow3(u)*(-p.p0 + 3*p.p1 - 3*p.p2 + p.p3) + pow2(u)*v*(-3*p.p0 + 6*p.p1 - 3*p.p2 + 3*p.q0 - 6*p.q1 + 3*p.q2) + pow2(u)*(3*p.p0 - 6*p.p1 + 3*p.p2) + u*pow3(v)*(p.r0 - 3*p.r1 + 3*p.r2 - p.r3 - p.s0 + 3*p.s1 - 3*p.s2 + p.s3) + u*pow2(v)*(-3*p.r0 + 6*p.r1 - 3*p.r2 + 3*p.s0 - 6*p.s1+ 3*p.s2) + u*v*(2*p.p0 - 3*p.p1 + p.p3 - 2*p.q0 + 3*p.q1 - p.q3 + 3*p.r0 - 3*p.r1 - 3*p.s0 + 3*p.s1) + u*(-2*p.p0 + 3*p.p1 - p.p3 - p.r0 + p.s0) + pow3(v)*(-p.r0 + 3*p.r1 - 3*p.r2 + p.r3) + pow2(v)*(3*p.r0 - 6*p.r1 + 3*p.r2) + v*(-3*p.r0 + 3*p.r1);
@@ -798,7 +712,6 @@ QPointF calculateLocalPosImpl(const std::array<QPointF, 12> &points, const QPoin
     size_t iter = 0;
     int status;
 
-    /* Starting point */
     x = gsl_vector_alloc (2);
     gsl_vector_set (x, 0, approxStart.x());
     gsl_vector_set (x, 1, approxStart.y());
@@ -827,7 +740,6 @@ QPointF calculateLocalPosImpl(const std::array<QPointF, 12> &points, const QPoin
 
     p.dstPoint = globalPoint;
 
-    /* Initialize method and iterate */
     minex_func.n = 2;
     minex_func.f = my_f<PatchMethod>;
     minex_func.params = (void*)&p;
@@ -838,7 +750,6 @@ QPointF calculateLocalPosImpl(const std::array<QPointF, 12> &points, const QPoin
     gsl_multimin_fdfminimizer_set (s, &minex_func, x, 0.01, 0.1);
 
     QPointF result;
-
 
     result.rx() = gsl_vector_get (s->x, 0);
     result.ry() = gsl_vector_get (s->x, 1);
@@ -860,14 +771,10 @@ QPointF calculateLocalPosImpl(const std::array<QPointF, 12> &points, const QPoin
         {
             result.rx() = gsl_vector_get (s->x, 0);
             result.ry() = gsl_vector_get (s->x, 1);
-            //qDebug() << "******* Converged to minimum" << ppVar(result);
 
         }
     }
     while (status == GSL_CONTINUE && iter < 10000);
-
-//    ENTER_FUNCTION()<< ppVar(iter) << ppVar(globalPoint) << ppVar(result);
-//    ENTER_FUNCTION() << ppVar(meshForwardMapping(result.x(), result.y(), p));
 
     gsl_vector_free(x);
     gsl_multimin_fdfminimizer_free (s);
@@ -932,14 +839,6 @@ QPointF interpolateQuadric(const QPointF &p0, const QPointF &p2, const QPointF &
     if (t <= 0.0 || t >= 1.0)
         return lerp(p0, p2, 0.5);
 
-    /*
-        B(t) = [x2 y2] = (1-t)^2*P0 + 2t*(1-t)*P1 + t^2*P2
-
-               B(t) - (1-t)^2*P0 - t^2*P2
-         P1 =  --------------------------
-                       2t*(1-t)
-    */
-
     QPointF c1 = pt - (1.0-t) * (1.0-t)*p0 - t * t * p2;
 
     qreal denom = 2.0 * t * (1.0-t);
@@ -952,15 +851,6 @@ QPointF interpolateQuadric(const QPointF &p0, const QPointF &p2, const QPointF &
 
 std::pair<QPointF, QPointF> offsetSegment(qreal t, const QPointF &offset)
 {
-    /*
-    * method from inkscape, original method and idea borrowed from Simon Budig
-    * <simon@gimp.org> and the GIMP
-    * cf. app/vectors/gimpbezierstroke.c, gimp_bezier_stroke_point_move_relative()
-    *
-    * feel good is an arbitrary parameter that distributes the delta between handles
-    * if t of the drag point is less than 1/6 distance form the endpoint only
-    * the corresponding handle is adjusted. This matches the behavior in GIMP
-    */
     qreal feel_good;
     if (t <= 1.0 / 6.0)
         feel_good = 0;
@@ -979,44 +869,18 @@ std::pair<QPointF, QPointF> offsetSegment(qreal t, const QPointF &offset)
 
 qreal curveLength(const QPointF p0, const QPointF p1, const QPointF p2, const QPointF p3, const qreal error)
 {
-    /*
-     * This algorithm is implemented based on an idea by Jens Gravesen:
-     * "Adaptive subdivision and the length of Bezier curves" mat-report no. 1992-10, Mathematical Institute,
-     * The Technical University of Denmark.
-     *
-     * By subdividing the curve at parameter value t you only have to find the length of a full Bezier curve.
-     * If you denote the length of the control polygon by L1 i.e.:
-     *   L1 = |P0 P1| +|P1 P2| +|P2 P3|
-     *
-     * and the length of the cord by L0 i.e.:
-     *   L0 = |P0 P3|
-     *
-     * then
-     *   L = 1/2*L0 + 1/2*L1
-     *
-     * is a good approximation to the length of the curve, and the difference
-     *   ERR = L1-L0
-     *
-     * is a measure of the error. If the error is to large, then you just subdivide curve at parameter value
-     * 1/2, and find the length of each half.
-     * If m is the number of subdivisions then the error goes to zero as 2^-4m.
-     * If you don't have a cubic curve but a curve of degree n then you put
-     *   L = (2*L0 + (n-1)*L1)/(n+1)
-     */
 
     const int deg = bezierDegree(p0, p1, p2, p3);
 
     if (deg == -1)
         return 0.0;
 
-    // calculate chord length
     const qreal chordLen = kisDistance(p0, p3);
 
     if (deg == 1) {
         return chordLen;
     }
 
-    // calculate length of control polygon
     qreal polyLength = 0.0;
 
     polyLength += kisDistance(p0, p1);
@@ -1030,7 +894,6 @@ qreal curveLength(const QPointF p0, const QPointF p1, const QPointF p2, const QP
         return curveLength(p0, q0, q1, q2, error) +
                 curveLength(q2, q3, q4, p3, error);
     } else {
-        // the error is smaller than our tolerance
         if (deg == 3)
             return 0.5 * chordLen + 0.5 * polyLength;
         else
@@ -1064,7 +927,6 @@ qreal curveParamBySegmentLength(const QPointF p0, const QPointF p1, const QPoint
     }
 }
 
-
 qreal curveParamByProportion(const QPointF p0, const QPointF p1, const QPointF p2, const QPointF p3, qreal proportion, const qreal error)
 {
     const qreal totalLength = curveLength(p0, p1, p2, p3, error);
@@ -1086,60 +948,6 @@ std::pair<QPointF, QPointF> removeBezierNode(const QPointF &p0,
                                              const QPointF &q2,
                                              const QPointF &q3)
 {
-    /**
-     * Calculates the curve control point after removal of a node
-     * by minimizing squared error for the following problem:
-     *
-     * Given two consequent 3rd order curves P and Q with lengths Lp and Lq,
-     * find 3rd order curve B, so that when splitting it at t = Lp / (Lp + Lq)
-     * (using de Casteljau algorithm) the control points of the resulting
-     * curves will have least square errors, compared to the corresponding
-     * control points of curves P and Q.
-     *
-     * First we represent curves in matrix form:
-     *
-     * B(t) = T * M * B,
-     * P(t) = T * Z1 * M * P,
-     * Q(t) = T * Z2 * M * Q,
-     *
-     * where
-     *    T = [1, t, t^2, t^3]
-     *    M --- 4x4 matrix of Bezier coefficients
-     *    B, P, Q --- vector of control points for the curves
-     *
-     *    Z1 --- conversion matrix that splits the curve into range [0.0...t]
-     *    Z2 --- conversion matrix that splits the curve into range [t...1.0]
-     *
-     * Then we represent vectors P and Q via B:
-     *
-     * P = M^(-1) * Z1 * M * B
-     * Q = M^(-1) * Z2 * M * B
-     *
-     * which in block matrix form looks like:
-     *
-     * [ P ]   [ M^(-1) * Z1 * M ]
-     * |   | = |                 | * B
-     * [ Q ]   [ M^(-1) * Z2 * M ]
-     *
-     *
-     *         [ M^(-1) * Z1 * M ]
-     * let C = |                 |,
-     *         [ M^(-1) * Z2 * M ]
-     *
-     *     [ P ]
-     * R = |   |
-     *     [ Q ]
-     *
-     *
-     * then
-     *
-     * R = C * B
-     *
-     * applying normal equation to find a solution with least square error,
-     * get the final result:
-     *
-     * B = (C'C)^(-1) * C' * R
-     */
 
     const qreal lenP = KisBezierUtils::curveLength(p0, p1, p2, p3, 0.001);
     const qreal lenQ = KisBezierUtils::curveLength(p3, q1, q2, q3, 0.001);
@@ -1174,7 +982,6 @@ std::pair<QPointF, QPointF> removeBezierNode(const QPointF &p0,
     Eigen::Matrix<float, 2, 2> B_const;
     B_const << p0.x(), p0.y(),
                q3.x(), q3.y();
-
 
     Eigen::Matrix4f M1 = M.inverse() * Z_1 * M;
     Eigen::Matrix4f M2 = M.inverse() * Z_2 * M;

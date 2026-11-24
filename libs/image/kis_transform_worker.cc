@@ -31,7 +31,6 @@
 #include "kis_pixel_selection.h"
 #include "kis_image.h"
 
-
 KisTransformWorker::KisTransformWorker(KisPaintDeviceSP dev,
                                        double xscale, double yscale,
                                        double xshear, double yshear,
@@ -233,16 +232,11 @@ bool KisTransformWorker::run()
 
 bool KisTransformWorker::runPartial(const QRect &processRect)
 {
-    /* Check for nonsense and let the user know, this helps debugging.
-    Otherwise the program will crash at a later point, in a very obscure way, probably by division by zero */
-    /* Note that because KisFilterWeightsBuffer uses KisFixedPoint, we need to check the fixed point as well
-     * since it has different precision than qreal or double */
     KisFixedPoint m_xscale_fixedPoint = KisFixedPoint(m_xscale);
     KisFixedPoint m_yscale_fixedPoint = KisFixedPoint(m_yscale);
     Q_ASSERT_X(m_xscale != 0 && m_xscale_fixedPoint != 0, "KisTransformer::run() validation step", "xscale == 0");
     Q_ASSERT_X(m_yscale != 0 && m_yscale_fixedPoint != 0, "KisTransformer::run() validation step", "yscale == 0");
 
-    // Fallback safety line in case Krita is compiled without ASSERTS
     if (m_xscale == 0 || m_yscale == 0 || m_xscale_fixedPoint == 0 || m_yscale_fixedPoint == 0) return false;
 
     m_boundRect = processRect;
@@ -260,8 +254,6 @@ bool KisTransformWorker::runPartial(const QRect &processRect)
     qreal xtranslate = m_xtranslate;
     qreal ytranslate = m_ytranslate;
 
-    // Apply shearX/Y separately. In Krita it is demanded separately
-    // most of the times.
     if (m_xshear != 0 || m_yshear != 0) {
         int portion = 50;
 
@@ -291,18 +283,6 @@ bool KisTransformWorker::runPartial(const QRect &processRect)
     int rotQuadrant = int(rotation / (M_PI / 2) + 0.5) & 3;
     rotation -= rotQuadrant * M_PI / 2;
 
-
-    /**
-     * We don't check for xtranslate and ytranslate to be integers here, because
-     * people expect the translation to be lossless, that is, not doing any resampling.
-     *
-     * Theoretically, we could implement a separate option to allow translations with
-     * resampling in the transform tool, but I don't know how useful it would be.
-     * People who wo pixel art can set scale to something like 99.99% and it should
-     * do the trick.
-     *
-     * See: https://bugs.kde.org/show_bug.cgi?id=445714
-     */
     const bool simpleTransform =
         !m_forceSubPixelTranslation &&
         (qFuzzyCompare(rotation, 0.0)) &&
@@ -311,15 +291,9 @@ bool KisTransformWorker::runPartial(const QRect &processRect)
         (qFuzzyCompare(yscale, 1.0) ||
          qFuzzyCompare(yscale, -1.0));
 
-
     int progressTotalSteps = qMax(1, 2 * (!simpleTransform) + (rotQuadrant != 0));
     int progressPortion = 100 / progressTotalSteps;
 
-    /**
-     * Pre-rotate the image to ensure the actual resampling is done
-     * for an angle -pi/4...pi/4. This is faster and produces better
-     * quality.
-     */
     switch (rotQuadrant) {
     case 1:
         swapValues(&xscale, &yscale);
@@ -333,13 +307,11 @@ bool KisTransformWorker::runPartial(const QRect &processRect)
         m_boundRect = rotateLeft90(m_dev, m_boundRect, m_progressUpdater, progressPortion);
         break;
     default:
-        /* do nothing */
         break;
     }
 
     if (simpleTransform) {
 
-        // Flipping horizontally
         if (qFuzzyCompare(xscale, -1.0)) {
             QRect bounds = m_dev->exactBounds();
             double center_x = bounds.topLeft().x() + bounds.width() / 2.0;
@@ -347,7 +319,6 @@ bool KisTransformWorker::runPartial(const QRect &processRect)
             mirrorX(m_dev);
         }
 
-        // Flipping vertically
         if (qFuzzyCompare(yscale, -1.0)) {
             QRect bounds = m_dev->exactBounds();
             double center_y = bounds.topLeft().y() + bounds.height() / 2.0;
@@ -355,7 +326,6 @@ bool KisTransformWorker::runPartial(const QRect &processRect)
             mirrorY(m_dev);
         }
 
-        // Simple translation
         const int intXTranslate = qRound(xtranslate);
         const int intYTranslate = qRound(ytranslate);
 
@@ -368,12 +338,6 @@ bool KisTransformWorker::runPartial(const QRect &processRect)
         QTransform T = QTransform::fromTranslate(xtranslate, ytranslate);
         QTransform m = SC * R * T;
 
-        /**
-         * First X-pass, then Y-pass
-         *     | a 0 0 |   | 1 d 0 |
-         * m = | b 1 0 | x | 0 e 0 | (matrices are in Qt's notation)
-         *     | c 0 1 |   | 0 f 1 |
-         */
         qreal a = m.m11();
         qreal b = m.m21();
         qreal c = m.m31();
@@ -381,36 +345,22 @@ bool KisTransformWorker::runPartial(const QRect &processRect)
         qreal e = m.m22() - m.m21() * m.m12() / m.m11();
         qreal f = m.m32() - m.m31() * m.m12() / m.m11();
 
-        // First Pass (X)
         transformPass <KisHLineIteratorSP>(m_dev.data(), m_dev.data(), a, b, c, m_filter, progressPortion);
 
-        // Second Pass (Y)
         transformPass <KisVLineIteratorSP>(m_dev.data(), m_dev.data(), e, d, f, m_filter, progressPortion);
 
 #if 0
-        /************************************************************/
-        /**
-         * First Y-pass, then X-pass (for testing purposes)
-         *     | 1 d 0 |   | a 0 0 |
-         * m = | 0 e 0 | x | b 1 0 | (matrices are in Qt's notation)
-         *     | 0 f 1 |   | c 0 1 |
-         */
         qreal a = m.m11() - m.m21() * m.m12() / m.m22();
         qreal b = m.m21() / m.m22();
         qreal c = m.m31() - m.m21() * m.m32() / m.m22();
         qreal d = m.m12();
         qreal e = m.m22();
         qreal f = m.m32();
-        // First Pass (X)
         transformPass <KisHLineIteratorSP>(m_dev.data(), m_dev.data(), a, b, c, m_filter, progressPortion);
-        // Second Pass (Y)
         transformPass <KisVLineIteratorSP>(m_dev.data(), m_dev.data(), e, d, f, m_filter, progressPortion);
-        /************************************************************/
-#endif /* 0 */
+#endif
 
 #if 0
-        /************************************************************/
-        // Old three-pass implementation (for testing purposes)
         yshear = sin(rotation);
         xshear = -tan(rotation / 2);
         xtranslate -= int(xshear * ytranslate);
@@ -423,8 +373,7 @@ bool KisTransformWorker::runPartial(const QRect &processRect)
             m_dev->move(m_dev->x() + xtranslate, m_dev->y());
             updateBounds <KisHLineIteratorSP>(m_boundRect, 1.0, 0, xtranslate);
         }
-        /************************************************************/
-#endif /* 0 */
+#endif
 
     }
 
@@ -432,10 +381,6 @@ bool KisTransformWorker::runPartial(const QRect &processRect)
         m_progressUpdater->setProgress(100);
     }
 
-    /**
-     * Purge the tiles which might be left after scaling down the
-     * image
-     */
     m_dev->purgeDefaultPixels();
 
     return true;
@@ -448,28 +393,6 @@ void mirror_impl(KisPaintDeviceSP dev, qreal axis, bool isHorizontal)
     QRect mirrorRect = dev->exactBounds();
     if (mirrorRect.width() <= 1) return;
 
-    /**
-     * We split the total mirror rect into two halves, which lay to
-     * the 'left' and 'right' from the axis. Effectively, these halves
-     * should be swapped, but there is a bit of optimization: some
-     * parts of these portions overlap and some don't. So former ones
-     * should be really swapped, but the latter ones just moved to the
-     * other side.
-     *
-     * So the algorithm consists of two stages:
-     *
-     * 1) Move the non-overlapping portion of the mirror rect to the
-     *    other side of the axis. The move may be either left-to-right or
-     *    right-to-left.
-     *
-     * 2) Use slow 'swap' operation for the remaining portion of the
-     *    mirrorRect.
-     *
-     * NOTE: the algorithm works with (column, row) coordinates which
-     *       are mapped to the real (x, y) depending on the value of
-     *       'isHorizontal' parameter.
-     */
-
     int leftStart;
     int rightEnd;
 
@@ -481,10 +404,6 @@ void mirror_impl(KisPaintDeviceSP dev, qreal axis, bool isHorizontal)
         rightEnd = mirrorRect.y() + mirrorRect.height();
     }
 
-    /**
-     * If the axis is not aligned, that is crosses some pixel cell, we should just skip this
-     * column and not process it. Actually, how can we mirror the central single-pixel column?
-     */
     const bool axisNonAligned = qFloor(axis) < axis;
 
     int leftCenterPoint = qFloor(axis);
@@ -499,16 +418,12 @@ void mirror_impl(KisPaintDeviceSP dev, qreal axis, bool isHorizontal)
     int maxDistanceToAxis = qMax(leftCenterPoint - leftStart,
                            rightEnd - rightCenterPoint);
 
-
-    // Main variables for controlling the stages of the algorithm
     bool moveLeftToRight = leftSize > rightSize;
     int moveAmount = qAbs(leftSize - rightSize);
     int swapAmount = qMin(leftSize, rightSize);
 
-    // Initial position of 'left' and 'right' block iterators
     int initialLeftCol = leftCenterPoint - maxDistanceToAxis;
     int initialRightCol = rightCenterPoint + maxDistanceToAxis - 1;
-
 
     KisRandomAccessorSP leftIt = dev->createRandomAccessorNG();
     KisRandomAccessorSP rightIt = dev->createRandomAccessorNG();
@@ -518,7 +433,6 @@ void mirror_impl(KisPaintDeviceSP dev, qreal axis, bool isHorizontal)
     const int pixelSize = dev->pixelSize();
     QByteArray buf(pixelSize, 0);
 
-    // Map (column, row) -> (x, y)
     int rowsRemaining;
     int row;
 
@@ -555,7 +469,6 @@ void mirror_impl(KisPaintDeviceSP dev, qreal axis, bool isHorizontal)
                 quint8 *rightPtr = rightIt->rawData();
 
                 for (int j = 0; j < rows; j++) {
-                    // left-to-right move
                     memcpy(rightPtr, leftPtr, pixelSize);
                     memcpy(leftPtr, defaultPixel, pixelSize);
 
@@ -575,7 +488,6 @@ void mirror_impl(KisPaintDeviceSP dev, qreal axis, bool isHorizontal)
                 quint8 *rightPtr = rightIt->rawData();
 
                 for (int j = 0; j < rows; j++) {
-                    // right-to-left move
                     memcpy(leftPtr, rightPtr, pixelSize);
                     memcpy(rightPtr, defaultPixel, pixelSize);
 
@@ -596,7 +508,6 @@ void mirror_impl(KisPaintDeviceSP dev, qreal axis, bool isHorizontal)
             quint8 *rightPtr = rightIt->rawData();
 
             for (int j = 0; j < rows; j++) {
-                // swap operation
                 memcpy(buf.data(), leftPtr, pixelSize);
                 memcpy(leftPtr, rightPtr, pixelSize);
                 memcpy(rightPtr, buf.data(), pixelSize);
@@ -645,14 +556,12 @@ void KisTransformWorker::offset(KisPaintDeviceSP device, const QPoint& offsetPos
 {
     Q_ASSERT(wrapRect == wrapRect.normalized());
 
-    // inspired by gimp offset code, only wrap mode supported
     int sx = wrapRect.x();
     int sy = wrapRect.y();
 
     int width = wrapRect.width();
     int height = wrapRect.height();
 
-    // offset coords are relative to space wrapRect
     int offsetX = offsetPosition.x();
     int offsetY = offsetPosition.y();
 
@@ -683,7 +592,6 @@ void KisTransformWorker::offset(KisPaintDeviceSP device, const QPoint& offsetPos
     height = qBound<int>(0, height - offsetY, height);
 
     if ((width != 0) && (height != 0)) {
-        // convert back to paint device space
         KisPainter::copyAreaOptimized(QPoint(destX + sx, destY + sy), device, offsetDevice, QRect(srcX + sx, srcY + sy, width, height));
     }
 
@@ -705,9 +613,7 @@ void KisTransformWorker::offset(KisPaintDeviceSP device, const QPoint& offsetPos
         KisPainter::copyAreaOptimized(QPoint((destX + offsetX) + sx, destY + sy), device, offsetDevice, QRect(0 + sx, srcY + sy, wrapRect.width() - offsetX, offsetY));
     }
 
-    // bitblt the result back
     QRect resultRect(sx, sy, wrapRect.width(), wrapRect.height());
     KisPainter::copyAreaOptimized(resultRect.topLeft(), offsetDevice, device, resultRect);
 }
-
 

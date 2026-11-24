@@ -62,7 +62,6 @@ void WdgSide::focusLabel(int id)
                         .arg(normalColor.name())
                         .arg(normalColor.lightnessF() < 0.5 ? "#FFFFFF" : "#000000");
 
-
     switch(id) {
     case 1: {
                 m_ui->btnChooseRes->setStyleSheet(styleSheetHighlight);

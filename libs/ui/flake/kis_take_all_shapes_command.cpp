@@ -10,7 +10,6 @@
 #include "kis_shape_selection.h"
 #include <kis_image.h>
 
-
 KisTakeAllShapesCommand::KisTakeAllShapesCommand(KisShapeSelection *shapeSelection, bool takeSilently, bool restoreSilently)
     : KUndo2Command(kundo2_i18n("Clear Vector Selection")),
       m_shapeSelection(shapeSelection),

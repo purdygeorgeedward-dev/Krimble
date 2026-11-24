@@ -16,7 +16,6 @@ namespace boost
     {
         namespace traits
         {
-            // Adapt QPoint to Boost.Geometry
 
             template<> struct tag<QPoint>
             { typedef point_tag type; };
@@ -57,11 +56,9 @@ namespace boost
                 }
             };
 
-            // Adapt QPolygon to Boost.Geometry as Linestring
-
             template<> struct tag<QPolygon>
             { typedef linestring_tag type; };
-            
+
         }
     }
 
@@ -72,7 +69,7 @@ namespace boost
     template<>
     struct range_const_iterator<QPolygon>
     { typedef QPolygon::const_iterator type; };
-} // namespace boost::geometry::traits
+}
 
 namespace {
 
@@ -83,7 +80,6 @@ QPolygon convexHull(const QVector<QPoint> &points)
     return hull;
 }
 
-// From libs/image/kis_paint_device.cc
 struct CheckFullyTransparent {
     CheckFullyTransparent(const KoColorSpace *colorSpace)
         : m_colorSpace(colorSpace)
@@ -189,10 +185,9 @@ QVector<QPoint> retrieveAllBoundaryPointsImpl(const KisPaintDevice *device, cons
             points << QPoint(maxX[index] + 1, y + 1);
         }
     }
-    
+
     return points;
 }
-// This matches the behavior of KisPaintDevice::calculateExactBounds(false), whose result is returned by KisPaintDevice::exactBounds()
 QVector<QPoint> retrieveAllBoundaryPoints(const KisPaintDevice *device) {
     QRect rect = device->extent();
 
@@ -242,9 +237,6 @@ QVector<QPoint> retrieveAllBoundaryPointsSelectionLike(const KisPaintDevice *dev
         CheckFullyTransparent compareOp(device->colorSpace());
         points = retrieveAllBoundaryPointsImpl(device, rect, QRect(), compareOp);
     } else {
-        // pre-condition:
-        // defaultOpacity == OPACITY_TRANSPARENT_U8 ||
-        // defaultPixel == "deselected"
 
         CheckDeselected compareOp(device->colorSpace());
         points = retrieveAllBoundaryPointsImpl(device, rect, QRect(), compareOp);

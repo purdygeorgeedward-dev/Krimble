@@ -35,7 +35,6 @@ KoShapeDistributeCommand::KoShapeDistributeCommand(const QList<KoShape*> &shapes
     QMap<qreal, KoShape*> sortedPos;
     QRectF bRect;
     qreal extent = 0.0;
-    // sort by position and calculate sum of objects width/height
     Q_FOREACH (KoShape *shape, shapes) {
         bRect = shape->absoluteOutlineRect();
         switch (d->distribute) {
@@ -66,7 +65,6 @@ KoShapeDistributeCommand::KoShapeDistributeCommand(const QList<KoShape*> &shapes
     KoShape* first = sortedPos.begin().value();
     KoShape* last = (--sortedPos.end()).value();
 
-    // determine the available space to distribute
     qreal space = d->getAvailableSpace(first, last, extent, boundingRect);
     qreal pos = 0.0, step = space / qreal(shapes.count() - 1);
 

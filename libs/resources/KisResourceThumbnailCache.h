@@ -32,9 +32,6 @@ private:
     friend class KisResourceLocator;
     friend class KisStorageModel;
 
-    /*
-     * Check if we have the original image in the cache.
-     */
     QImage originalImage(const QString &storageLocation, const QString &resourceType, const QString &filename) const;
     void insert(const QString &storageLocation,
                 const QString &resourceType,
@@ -50,4 +47,4 @@ private:
     QScopedPointer<Private> m_d;
 };
 
-#endif // __KISRESOURCETHUMBNAILCACHE_H_
+#endif

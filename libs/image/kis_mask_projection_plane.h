@@ -11,14 +11,6 @@
 
 #include <QScopedPointer>
 
-/**
- * An implementation of the KisAbstractProjectionPlane interface for a
- * layer object.
- *
- * Please note that recalculate() and apply() methods are not defined
- * for masks, because the KisLayer code still uses traditional
- * methods of KisMask directly.
- */
 class KisMaskProjectionPlane : public KisAbstractProjectionPlane
 {
 public:
@@ -42,4 +34,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif /* __KIS_MASK_PROJECTION_PLANE_H */
+#endif

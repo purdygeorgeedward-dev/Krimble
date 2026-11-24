@@ -9,7 +9,6 @@
 #include "kis_blur_benchmark.h"
 #include "kis_benchmark_values.h"
 
-
 #include <KoColorSpace.h>
 #include <KoColorSpaceRegistry.h>
 #include <KoColor.h>
@@ -30,21 +29,21 @@
 
 void KisBlurBenchmark::initTestCase()
 {
-    m_colorSpace = KoColorSpaceRegistry::instance()->rgb8();    
+    m_colorSpace = KoColorSpaceRegistry::instance()->rgb8();
     m_device = new KisPaintDevice(m_colorSpace);
     m_color = KoColor(m_colorSpace);
-    
+
     QColor qcolor(Qt::red);
     srand(31524744);
-    
+
     int r,g,b;
-    
+
     KisSequentialIterator it(m_device, QRect(0,0,GMP_IMAGE_WIDTH, GMP_IMAGE_HEIGHT));
     while (it.nextPixel()) {
         r = rand() % 255;
         g = rand() % 255;
         b = rand() % 255;
-        
+
         m_color.fromQColor(QColor(r,g,b));
         memcpy(it.rawData(), m_color.data(), m_colorSpace->pixelSize());
     }
@@ -58,7 +57,6 @@ void KisBlurBenchmark::benchmarkFilter()
 {
     KisFilterSP filter = KisFilterRegistry::instance()->value("blur");
     KisFilterConfigurationSP  kfc = filter->defaultConfiguration(KisGlobalResourcesInterface::instance());
-    // Get the predefined configuration from a file
     QFile file(QString(FILES_DATA_DIR) + '/' + filter->id() + ".cfg");
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
         if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
@@ -80,7 +78,5 @@ void KisBlurBenchmark::benchmarkFilter()
         filter->process(m_device, QRect(0, 0, GMP_IMAGE_WIDTH,GMP_IMAGE_HEIGHT), kfc);
     }
 }
-
-
 
 SIMPLE_TEST_MAIN(KisBlurBenchmark)

@@ -22,14 +22,11 @@
 #include <kis_canvas_controller.h>
 #include <kis_popup_palette.h>
 
-
 K_PLUGIN_FACTORY_WITH_JSON(SPenSettingsFactory, "kritaspensettings.json", registerPlugin<SPenSettings>();)
-
 
 SPenSettings::SPenSettings(QObject* parent, const QVariantList&)
     : KisActionPlugin(parent)
 {
-    // hack: create action for popup palette
     m_actionShowPopupPalette.reset(viewManager()->actionManager()->createAction("spen_show_popup_palette"));
     connect(m_actionShowPopupPalette.data(), SIGNAL(triggered()), this, SLOT(slotTriggerPopupPalette()));
 
@@ -37,7 +34,6 @@ SPenSettings::SPenSettings(QObject* parent, const QVariantList&)
     KisSPenSettingsFactory* settingsFactory = new KisSPenSettingsFactory();
     preferenceSetRegistry->add("KisSPenSettingsFactory", settingsFactory);
 
-    //emit settingsChanged() if the settings are changed in krita preferences
     connect(&(settingsFactory->repeater), SIGNAL(settingsUpdated()), this, SLOT(slotLoadSettings()), Qt::UniqueConnection);
 
     slotLoadSettings();
@@ -74,13 +70,11 @@ SPenSettings::~SPenSettings()
 void SPenSettings::slotActivateAction(SPenSettings::Action gestureType)
 {
     QString actionName = m_actionMap.value(gestureType);
-//    qDebug() << "Gesture " << gestureType << " action " << actionName;
 
     if (!actionName.isEmpty()) {
         KisKActionCollection* actionCollection = KisPart::instance()->currentMainwindow()->actionCollection();
         QAction* action = actionCollection->action(actionName);
         if (action) {
-//            qDebug() << "triggering action " << actionName;
             action->trigger();
         }
     }
@@ -105,7 +99,6 @@ void SPenSettings::slotLoadSettings()
 void SPenSettings::slotTriggerPopupPalette()
 {
     if (KisPart::instance()->currentInputManager()->canvas()) {
-        // determine the current location of cursor on the screen, for popup palette placement
         QPoint cursorPosition = KisPart::instance()->currentInputManager()->canvas()->canvasWidget()->mapFromGlobal(QCursor::pos());
         KisPopupPalette *popupPalette = KisPart::instance()->currentInputManager()->canvas()->popupPalette();
         if (popupPalette) {

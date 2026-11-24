@@ -36,8 +36,6 @@ static QString currentLocale()
 
 PythonPluginManager* instance = 0;
 
-// PythonPlugin implementation
-
 QString PythonPlugin::moduleFilePathPart() const
 {
     QString filePath = m_moduleName;
@@ -49,7 +47,6 @@ bool PythonPlugin::isValid() const
     dbgScript << "Got Krita/PythonPlugin: " << name()
               << ", module-path=" << moduleName()
                 ;
-    // Make sure mandatory properties are here
     if (m_name.isEmpty()) {
         dbgScript << "Ignore desktop file w/o a name";
         return false;
@@ -61,8 +58,6 @@ bool PythonPlugin::isValid() const
 
     return true;
 }
-
-// PythonPluginManager implementation
 
 PythonPluginManager::PythonPluginManager()
         : QObject(0)
@@ -98,8 +93,6 @@ void PythonPluginManager::unloadAllModules()
 
 bool PythonPluginManager::verifyModuleExists(PythonPlugin &plugin)
 {
-    // Find the module:
-    // 0) try to locate directory based plugin first
     QString rel_path = plugin.moduleFilePathPart();
     rel_path = rel_path + "/" + "__init__.py";
     dbgScript << "Finding Python module with rel_path:" << rel_path;
@@ -109,14 +102,12 @@ bool PythonPluginManager::verifyModuleExists(PythonPlugin &plugin)
     dbgScript << "module_path:" << module_path;
 
     if (module_path.isEmpty()) {
-        // 1) Nothing found, then try file based plugin
         rel_path = plugin.moduleFilePathPart() + ".py";
         dbgScript << "Finding Python module with rel_path:" << rel_path;
         module_path = KoResourcePaths::findAsset("pythonscripts", rel_path);
         dbgScript << "module_path:" << module_path;
     }
 
-    // Is anything found at all?
     if (module_path.isEmpty()) {
         plugin.m_broken = true;
         plugin.m_errorReason = i18nc(
@@ -133,7 +124,6 @@ bool PythonPluginManager::verifyModuleExists(PythonPlugin &plugin)
 
 QPair<QString, PyKrita::version_checker> PythonPluginManager::parseDependency(const QString& d)
 {
-    // Check if dependency has package info attached
     const int pnfo = d.indexOf('(');
     if (pnfo != -1) {
         QString dependency = d.mid(0, pnfo);
@@ -156,16 +146,6 @@ QPair<QString, PyKrita::version_checker> PythonPluginManager::parseDependency(co
     return qMakePair(d, PyKrita::version_checker(PyKrita::version_checker::undefined));
 }
 
-/**
- * Collect dependencies and check them. To do it
- * just try to import a module... when unload it ;)
- *
- * \c X-Python-Dependencies property of \c .desktop file has the following format:
- * <tt>python-module(version-info)</tt>, where <tt>python-module</tt>
- * a python module name to be imported, <tt>version-spec</tt>
- * is a version triplet delimited by dots, possible w/ leading compare
- * operator: \c =, \c <, \c >, \c <=, \c >=
- */
 void PythonPluginManager::verifyDependenciesSetStatus(PythonPlugin& plugin)
 {
     QStringList dependencies = plugin.property("X-Python-Dependencies").toStringList();
@@ -183,17 +163,14 @@ void PythonPluginManager::verifyDependenciesSetStatus(PythonPlugin& plugin)
 
         dbgScript << "Try to import dependency module/package:" << d;
 
-        // Try to import a module
         const QString& dependency = info_pair.first;
         PyObject* module = py.moduleImport(PQ(dependency));
         if (module) {
-            if (checker.isEmpty()) {                        // Need to check smth?
+            if (checker.isEmpty()) {
                 dbgScript << "No version to check, just make sure it's loaded:" << dependency;
                 Py_DECREF(module);
                 continue;
             }
-            // Try to get __version__ from module
-            // See PEP396: https://www.python.org/dev/peps/pep-0396/
             PyObject* version_obj = py.itemString("__version__", PQ(dependency));
             if (!version_obj) {
                 dbgScript << "No __version__ for " << dependency
@@ -211,7 +188,6 @@ void PythonPluginManager::verifyDependenciesSetStatus(PythonPlugin& plugin)
             PyKrita::version dep_version = PyKrita::version::fromPythonObject(version_obj);
 
             if (!dep_version.isValid()) {
-                // Dunno what is this... Giving up!
                 dbgScript << "***: Can't parse module version for" << dependency;
                 plugin.m_unstable = true;
                 reason += i18nc(
@@ -237,7 +213,6 @@ void PythonPluginManager::verifyDependenciesSetStatus(PythonPlugin& plugin)
                               , QString(dep_version)
                           );
             }
-            // Do not need this module anymore...
             Py_DECREF(module);
         } else {
             dbgScript << "Load failure [" << plugin.name() << "]:\n" << py.lastTraceback();
@@ -330,20 +305,15 @@ void PythonPluginManager::loadModule(PythonPlugin &plugin)
 
     PyKrita::Python py = PyKrita::Python();
 
-    // Get 'plugins' key from 'pykrita' module dictionary.
-    // Every entry has a module name as a key and 2 elements tuple as a value
     PyObject* plugins = py.itemString("plugins");
     KIS_SAFE_ASSERT_RECOVER_RETURN(plugins);
 
     PyObject* module = py.moduleImport(PQ(module_name));
     if (module) {
-        // Move just loaded module to the dict
         const int ins_result = PyDict_SetItemString(plugins, PQ(module_name), module);
         KIS_SAFE_ASSERT_RECOVER_NOOP(ins_result == 0);
         Py_DECREF(module);
-        // Handle failure in release mode.
         if (ins_result == 0) {
-            // Initialize the module from Python's side
             PyObject* const args = Py_BuildValue("(s)", PQ(module_name));
             PyObject* result = py.functionCall("_pluginLoaded", PyKrita::Python::PYKRITA_ENGINE, args);
             Py_DECREF(args);
@@ -374,7 +344,6 @@ void PythonPluginManager::unloadModule(PythonPlugin &plugin)
 
     PyKrita::Python py = PyKrita::Python();
 
-    // Get 'plugins' key from 'pykrita' module dictionary
     PyObject* plugins = py.itemString("plugins");
     KIS_SAFE_ASSERT_RECOVER_RETURN(plugins);
 
@@ -382,11 +351,8 @@ void PythonPluginManager::unloadModule(PythonPlugin &plugin)
     py.functionCall("_pluginUnloading", PyKrita::Python::PYKRITA_ENGINE, args);
     Py_DECREF(args);
 
-    // This will just decrement a reference count for module instance
     PyDict_DelItemString(plugins, PQ(plugin.moduleName()));
 
-    // Remove the module also from 'sys.modules' dict to really unload it,
-    // so if reloaded all @init actions will work again!
     PyObject* sys_modules = py.itemString("modules", "sys");
     KIS_SAFE_ASSERT_RECOVER_RETURN(sys_modules);
     PyDict_DelItemString(sys_modules, PQ(plugin.moduleName()));

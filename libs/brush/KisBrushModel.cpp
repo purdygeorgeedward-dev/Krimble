@@ -113,7 +113,6 @@ qreal effectiveSizeForBrush(BrushType type,
 
 qreal lightnessModeActivated(BrushType type, const PredefinedBrushData &predefinedBrush)
 {
-    // TODO: use effectiveApplication instead!!!
     return type == Predefined && predefinedBrush.application == LIGHTNESSMAP;
 }
 

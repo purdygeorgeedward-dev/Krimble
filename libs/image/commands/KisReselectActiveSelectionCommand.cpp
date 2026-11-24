@@ -12,7 +12,6 @@
 #include "kis_selection_mask.h"
 #include <KoProperties.h>
 
-
 KisReselectActiveSelectionCommand::KisReselectActiveSelectionCommand(KisNodeSP activeNode, KisImageWSP image, KUndo2Command *parent)
     : KisReselectGlobalSelectionCommand(image, parent),
       m_activeNode(activeNode)

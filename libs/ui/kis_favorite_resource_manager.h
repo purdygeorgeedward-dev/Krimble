@@ -47,14 +47,11 @@ public:
     int recentColorsTotal();
     KoColor recentColorAt(int pos);
 
-    // Reimplemented from KoResourceServerObserver
     void removingResource(QSharedPointer<KisPaintOpPreset> resource) override;
     void resourceAdded(QSharedPointer<KisPaintOpPreset> resource) override;
     void resourceChanged(QSharedPointer<KisPaintOpPreset> resource) override;
 
-    //BgColor;
     KoColor bgColor() const;
-
 
 Q_SIGNALS:
 
@@ -73,17 +70,14 @@ public Q_SLOTS:
 
     void slotChangeActivePaintop(int);
 
-    /*update the priority of a color in m_colorList, used only by m_popupPalette*/
     void slotUpdateRecentColor(int);
 
-    /*add a color to m_colorList, used by KisCanvasResourceProvider*/
     void slotAddRecentColor(const KoColor&);
 
     void slotChangeFGColorSelector(KoColor c);
 
     void slotSetBGColor(const KoColor c);
 
-    /** Clears the color history shown in the popup palette. */
     void slotClearHistory();
 
 private Q_SLOTS:

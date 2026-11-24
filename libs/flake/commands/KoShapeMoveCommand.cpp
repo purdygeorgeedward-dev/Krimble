@@ -13,7 +13,6 @@
 #include <kis_assert.h>
 #include <KoShapeBulkActionLock.h>
 
-
 class Q_DECL_HIDDEN KoShapeMoveCommand::Private
 {
 public:

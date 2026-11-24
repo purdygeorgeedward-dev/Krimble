@@ -56,7 +56,6 @@ struct KisAutoBrush::Private {
     {
     }
 
-
     QScopedPointer<KisMaskGenerator> shape;
     qreal randomness;
     qreal density;
@@ -74,12 +73,6 @@ KisAutoBrush::KisAutoBrush(KisMaskGenerator* as, qreal angle, qreal randomness, 
     setBrushType(MASK);
 
     {
-        /**
-         * Here is a two-stage process of initialization of the brush size.
-         * It is done so for the backward compatibility reasons when the size
-         * was set to the size of brushTipImage(), which initialization is now
-         * skipped for efficiency reasons.
-         */
 
         setWidth(qMax(qreal(1.0), d->shape->width()));
         setHeight(qMax(qreal(1.0), d->shape->height()));
@@ -90,11 +83,6 @@ KisAutoBrush::KisAutoBrush(KisMaskGenerator* as, qreal angle, qreal randomness, 
         setWidth(qMax(1, width));
         setHeight(qMax(1, height));
     }
-
-    // We don't initialize setBrushTipImage(), because
-    // auto brush doesn't use image pyramid. And generation
-    // of a full-scaled QImage may cause a significant delay
-    // in the beginning of the stroke
 
     setAngle(angle);
     setImage(createBrushPreview(128));
@@ -166,8 +154,6 @@ KoResourceSP KisAutoBrush::clone() const
     return KoResourceSP(new KisAutoBrush(*this));
 }
 
-/* It's difficult to predict the mask height exactly when there are
- * more than 2 spikes, so we return an upperbound instead. */
 static KisDabShape lieAboutDabShape(KisDabShape const& shape, int spikes)
 {
     return spikes > 2 ? KisDabShape(shape.scale(), 1.0, shape.rotation()) : shape;
@@ -193,29 +179,17 @@ QSizeF KisAutoBrush::characteristicSize(KisDabShape const& shape) const
 }
 
 KisFixedPaintDeviceSP KisAutoBrush::paintDevice(const KoColorSpace *, const KisDabShape &, const KisPaintInformation &, double, double) const {
-    return 0; // The autobrush does NOT support images!
+    return 0;
 }
-
 
 inline void fillPixelOptimized_4bytes(quint8 *color, quint8 *buf, int size)
 {
-    /**
-     * This version of filling uses low granularity of data transfers
-     * (32-bit chunks) and internal processor's parallelism. It reaches
-     * 25% better performance in KisStrokeBenchmark in comparison to
-     * per-pixel memcpy version (tested on Sandy Bridge).
-     */
 
     int block1 = size / 8;
     int block2 = size % 8;
 
     quint32 *src = reinterpret_cast<quint32*>(color);
     quint32 *dst = reinterpret_cast<quint32*>(buf);
-
-    // check whether all buffers are 4 bytes aligned
-    // (uncomment if experience some problems)
-    // Q_ASSERT(((qint64)src & 3) == 0);
-    // Q_ASSERT(((qint64)dst & 3) == 0);
 
     for (int i = 0; i < block1; i++) {
         *dst = *src;
@@ -238,12 +212,6 @@ inline void fillPixelOptimized_4bytes(quint8 *color, quint8 *buf, int size)
 
 inline void fillPixelOptimized_general(quint8 *color, quint8 *buf, int size, int pixelSize)
 {
-    /**
-     * This version uses internal processor's parallelism and gives
-     * 20% better performance in KisStrokeBenchmark in comparison to
-     * per-pixel memcpy version (tested on Sandy Bridge (+20%) and
-     * on Merom (+10%)).
-     */
 
     int block1 = size / 8;
     int block2 = size % 8;
@@ -287,22 +255,16 @@ void KisAutoBrush::generateMaskAndApplyMaskOrCreateDab(KisFixedPaintDeviceSP dst
     Q_UNUSED(info);
     Q_UNUSED(lightnessStrength);
 
-    // Generate the paint device from the mask
     const KoColorSpace* cs = dst->colorSpace();
     quint32 pixelSize = cs->pixelSize();
 
-    // mask dimension methods already includes KisBrush::angle()
     int dstWidth = maskWidth(shape, subPixelX, subPixelY, info);
     int dstHeight = maskHeight(shape, subPixelX, subPixelY, info);
     QPointF hotSpot = this->hotSpot(shape, info);
 
-    // mask size and hotSpot function take the KisBrush rotation into account
     qreal angle = shape.rotation() + KisBrush::angle();
 
-    // if there's coloring information, we merely change the alpha: in that case,
-    // the dab should be big enough!
     if (coloringInformation) {
-        // new bounds. we don't care if there is some extra memory occupied.
         dst->setRect(QRect(0, 0, dstWidth, dstHeight));
         dst->lazyGrowBufferWithoutInitialization();
     }
@@ -323,7 +285,7 @@ void KisAutoBrush::generateMaskAndApplyMaskOrCreateDab(KisFixedPaintDeviceSP dst
     double centerX = hotSpot.x() - 0.5 + subPixelX;
     double centerY = hotSpot.y() - 0.5 + subPixelY;
 
-    d->shape->setSoftness(softnessFactor); // softness must be set first
+    d->shape->setSoftness(softnessFactor);
     d->shape->setScale(shape.scaleX(), shape.scaleY());
 
     if (!color) {
@@ -350,7 +312,6 @@ void KisAutoBrush::generateMaskAndApplyMaskOrCreateDab(KisFixedPaintDeviceSP dst
 
 void KisAutoBrush::notifyBrushIsGoingToBeClonedForStroke()
 {
-    // do nothing, since we don't use the pyramid!
 }
 
 void KisAutoBrush::coldInitBrush()
@@ -408,7 +369,6 @@ QImage KisAutoBrush::createBrushPreview(int maxSize)
     return fdev->convertToQImage(0);
 }
 
-
 const KisMaskGenerator* KisAutoBrush::maskGenerator() const
 {
     return d->shape.data();
@@ -433,7 +393,7 @@ KisOptimizedBrushOutline KisAutoBrush::outline(bool forcePreciseOutline) const
         if (maskGenerator()->type() == KisMaskGenerator::CIRCLE) {
             path.addEllipse(brushBoundingbox);
         }
-        else { // if (maskGenerator()->type() == KisMaskGenerator::RECTANGLE)
+        else {
             path.addRect(brushBoundingbox);
         }
 

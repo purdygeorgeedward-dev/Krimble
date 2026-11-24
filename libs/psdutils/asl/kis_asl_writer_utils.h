@@ -24,9 +24,6 @@
 
 namespace KisAslWriterUtils
 {
-/**
- * Exception that is emitted when any write error appear.
- */
 struct KRITAPSDUTILS_EXPORT ASLWriteException : public std::runtime_error {
     ASLWriteException(const QString &msg)
         : std::runtime_error(msg.toLatin1().data())
@@ -44,7 +41,6 @@ struct KRITAPSDUTILS_EXPORT ASLWriteException : public std::runtime_error {
 
 namespace KisAslWriterUtils
 {
-// XXX: rect uses variable-sized type, is this correct?
 template<psd_byte_order byteOrder>
 inline void writeRect(const QRect &rect, QIODevice &device)
 {
@@ -121,7 +117,6 @@ inline void writeFixedString(const QString &value, QIODevice &device)
     }
 }
 
-// Write UUID fetched from the file name or generate
 template<psd_byte_order byteOrder = psd_byte_order::psdBigEndian>
 inline QString getPatternUuidLazy(const KoPatternSP pattern)
 {
@@ -143,13 +138,6 @@ inline QString getPatternUuidLazy(const KoPatternSP pattern)
     return uuid.toString().mid(1, 36);
 }
 
-/**
- * Align the pointer \p pos by alignment. Grow the pointer
- * if needed.
- *
- * \return the lowest integer not smaller than \p pos that divides by
- *         alignment
- */
 inline qint64 alignOffsetCeil(qint64 pos, qint64 alignment)
 {
     qint64 mask = alignment - 1;
@@ -217,4 +205,4 @@ private:
 
 }
 
-#endif /* __KIS_ASL_WRITER_UTILS_H */
+#endif

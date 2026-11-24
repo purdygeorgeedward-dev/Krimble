@@ -17,7 +17,6 @@
 #include <KoCompositeOp.h>
 #include <KoID.h>
 
-
 #include "kis_paint_device.h"
 #include "kis_painter.h"
 #include "kis_debug.h"
@@ -38,7 +37,6 @@ KisPaintOpRegistry::~KisPaintOpRegistry()
     }
     dbgRegistry << "Deleting KisPaintOpRegistry";
 }
-
 
 void KisPaintOpRegistry::initRegistry()
 {
@@ -62,7 +60,7 @@ void KisPaintOpRegistry::preinitializePaintOpIfNeeded(const KisPaintOpPresetSP p
     KisPaintOpFactory *f = value(preset->paintOp().id());
     f->preinitializePaintOpIfNeeded(preset->settings());
 }
-#endif /* HAVE_THREADED_TEXT_RENDERING_WORKAROUND */
+#endif
 
 KisPaintOp * KisPaintOpRegistry::paintOp(const QString & id, const KisPaintOpSettingsSP settings, KisPainter * painter, KisNodeSP node, KisImageSP image) const
 {

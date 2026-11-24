@@ -41,7 +41,6 @@ public:
     int offsetX() const { return m_offsetX; }
     int offsetY() const { return m_offsetY; }
 
-
 private Q_SLOTS:
     void okClicked();
     void slotOffsetXChanged(double);
@@ -60,4 +59,4 @@ private:
 
 };
 
-#endif // DLG_OFFSETIMAGE
+#endif

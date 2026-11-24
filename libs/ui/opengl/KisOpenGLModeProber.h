@@ -75,11 +75,6 @@ public:
     }
 
     bool isSupportedVersion() const {
-        // Technically we could support GLES2 (I added the extensions for
-        // floating point surfaces). But given that Dmitry required VAOs
-        // on GLES, I've kept the check mostly as-is.
-        // Note:
-        //  - we've not supported OpenGL 2.1 for a Long time (commit e0d9a4feba0d4b5e70dddece8b76f38a6043fc88)
         return (m_isOpenGLES && m_glMajorVersion >= 3) || ((m_glMajorVersion * 100 + m_glMinorVersion) >= 303);
     }
 
@@ -88,16 +83,6 @@ public:
     }
 
     bool supportsVAO() const {
-        /**
-         * Theoretically, we could also test for ARB_vertex_array_object on
-         * openGL and OES_vertex_array_object on openGLES and enable this
-         * feature for openGL 2.1 as well. But we have no hardware to test if
-         * it really works in our code (our VAO code also uses buffers
-         * extensively), so we limit this feature to openGL/GLES 3.0 only.
-         *
-         * Feel free to test it on the relevant hardware and enable it if
-         * needed.
-         */
         return (m_glMajorVersion * 100 + m_glMinorVersion) >= 300;
     }
 
@@ -122,8 +107,6 @@ public:
     }
 
 #ifdef Q_OS_WIN
-    // This is only for detecting whether ANGLE is being used.
-    // For detecting generic OpenGL ES please check isOpenGLES
     bool isUsingAngle() const {
         return m_rendererString.startsWith("ANGLE", Qt::CaseInsensitive);
     }
@@ -171,4 +154,4 @@ private:
     std::optional<KisOpenGL::XcbGLProviderProtocol> m_xcbGlProviderProtocol;
 };
 
-#endif // KISOPENGLMODEPROBER_H
+#endif

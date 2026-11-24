@@ -47,7 +47,6 @@ void runRenderingTest(KisImageSP image, int numCores, int numClones)
     KisAsyncAnimationFramesSaveDialog dlg(image, range, "temp_frames.png", 0, false, 0);
     dlg.setBatchMode(true);
 
-    // repeat rendering twice!
     for (int i = 0; i < 1; i++) {
         removeTempFiles(dlg.savedFilesMaskWildcard());
         KisAsyncAnimationFramesSaveDialog::Result result = dlg.regenerateRange(0);
@@ -56,27 +55,20 @@ void runRenderingTest(KisImageSP image, int numCores, int numClones)
     }
 }
 
-
 }
-
-
-
 
 void KisAnimationRenderingBenchmark::testCacheRendering()
 {
     const QString fileName = TestUtil::fetchDataFileLazy("miloor_turntable_002.kra", true);
     QVERIFY(QFileInfo(fileName).exists());
 
-
     QScopedPointer<KisDocument> doc(KisPart::instance()->createDocument());
 
     bool loadingResult = doc->loadNativeFormat(fileName);
     QVERIFY(loadingResult);
 
-
     doc->image()->barrierLock();
     doc->image()->unlock();
-
 
     for (int numCores = 1; numCores <= QThread::idealThreadCount(); numCores++) {
         QElapsedTimer timer;

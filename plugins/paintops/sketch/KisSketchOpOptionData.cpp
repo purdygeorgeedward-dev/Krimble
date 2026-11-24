@@ -8,7 +8,6 @@
 #include "kis_properties_configuration.h"
 #include <kis_paintop_lod_limitations.h>
 
-
 const QString SKETCH_PROBABILITY = "Sketch/probability";
 const QString SKETCH_DISTANCE_DENSITY = "Sketch/distanceDensity";
 const QString SKETCH_OFFSET = "Sketch/offset";
@@ -20,7 +19,6 @@ const QString SKETCH_RANDOM_RGB = "Sketch/randomRGB";
 const QString SKETCH_RANDOM_OPACITY = "Sketch/randomOpacity";
 const QString SKETCH_DISTANCE_OPACITY = "Sketch/distanceOpacity";
 const QString SKETCH_ANTIALIASING = "Sketch/antiAliasing";
-
 
 bool KisSketchOpOptionData::read(const KisPropertiesConfiguration *setting)
 {

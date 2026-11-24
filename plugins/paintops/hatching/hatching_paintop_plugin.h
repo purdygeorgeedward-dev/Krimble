@@ -10,9 +10,6 @@
 #include <QObject>
 #include <QVariant>
 
-/**
- * A plugin wrapper that adds the paintop factories to the paintop registry.
- */
 class HatchingPaintOpPlugin : public QObject
 {
     Q_OBJECT
@@ -21,4 +18,4 @@ public:
     ~HatchingPaintOpPlugin() override;
 };
 
-#endif // HATCHING_PAINTOP_PLUGIN_H_
+#endif

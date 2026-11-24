@@ -12,7 +12,6 @@
 #include <simpletest.h>
 #include "KoColor.h"
 
-
 class KisKeyframingTest : public QObject
 {
     Q_OBJECT

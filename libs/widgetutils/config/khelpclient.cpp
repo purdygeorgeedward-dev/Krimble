@@ -24,14 +24,6 @@ void KHelpClient::invokeHelp(const QString &anchor, const QString &_appname)
         appname = _appname;
     }
 
-    // Look for the .desktop file of the application
-
-    // was:
-    //KService::Ptr service(KService::serviceByDesktopName(appname));
-    //if (service)
-    //    docPath = service->docPath();
-    // but we don't want to depend on KService here.
-
     QString docPath;
     const QStringList desktopDirs = QStandardPaths::standardLocations(QStandardPaths::ApplicationsLocation);
     Q_FOREACH (const QString &dir, desktopDirs) {
@@ -41,12 +33,9 @@ void KHelpClient::invokeHelp(const QString &anchor, const QString &_appname)
             KDesktopFile desktopFile(desktopPath);
             docPath = desktopFile.readDocPath();
 
-            // TODO: why explicit break in a loop?
             break;
         }
     }
-
-    // docPath could be a path or a full URL, I think.
 
     QUrl url;
     if (!docPath.isEmpty()) {
@@ -61,7 +50,6 @@ void KHelpClient::invokeHelp(const QString &anchor, const QString &_appname)
         url.setQuery(query);
     }
 
-    // launch khelpcenter, or a browser for URIs not handled by khelpcenter
     QDesktopServices::openUrl(url);
 }
 

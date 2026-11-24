@@ -15,19 +15,10 @@
 class KisBookmarkedConfigurationsModel;
 class QItemSelection;
 
-/**
- * This dialog is used to edit the content of a bookmark manager
- */
 class KRITAUI_EXPORT KisBookmarkedConfigurationsEditor : public QDialog
 {
     Q_OBJECT
 public:
-    /**
-     * @param parent
-     * @param manager the model representing the bookmark manager
-     * @param currentConfig is used if the user choose to create a new configuration
-     *                      entry or to replace an existing entry
-     */
     KisBookmarkedConfigurationsEditor(QWidget* parent, KisBookmarkedConfigurationsModel* manager, const KisSerializableConfigurationSP currentConfig);
     ~KisBookmarkedConfigurationsEditor() override;
 private Q_SLOTS:

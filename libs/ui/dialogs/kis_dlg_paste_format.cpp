@@ -7,7 +7,6 @@
 #include <QPushButton>
 #include "kis_dlg_paste_format.h"
 
-
 KisDlgPasteFormat::KisDlgPasteFormat(QWidget *parent)
     : KoDialog(parent)
     , wdg(new Ui_WdgPasteFormat)

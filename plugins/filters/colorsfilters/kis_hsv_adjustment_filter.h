@@ -4,10 +4,8 @@
  * SPDX-License-Identifier: LGPL-2.0-only
 */
 
-
 #ifndef _KIS_HSV_ADJUSTMENT_FILTER_H_
 #define _KIS_HSV_ADJUSTMENT_FILTER_H_
-
 
 #include "filter/kis_filter.h"
 #include "kis_config_widget.h"
@@ -17,9 +15,6 @@
 class QWidget;
 class KoColorTransformation;
 
-/**
- * This class affect Intensity Y of the image
- */
 class KisHSVAdjustmentFilter : public KisColorTransformationFilter
 {
 
@@ -41,7 +36,6 @@ public:
 
 };
 
-
 class KisHSVConfigWidget : public KisConfigWidget
 {
 
@@ -54,7 +48,6 @@ public:
     KisPropertiesConfigurationSP  configuration() const override;
     void setConfiguration(const KisPropertiesConfigurationSP config) override;
     Ui_WdgHSVAdjustment *m_page;
-
 
 private Q_SLOTS:
 

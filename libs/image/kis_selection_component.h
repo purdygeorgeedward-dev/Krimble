@@ -42,7 +42,7 @@ public:
 
     virtual KUndo2Command* resetToEmpty() { return 0; }
 
-    virtual void setResolutionProxy(KisImageResolutionProxySP /* resolutionProxy */) { };
+    virtual void setResolutionProxy(KisImageResolutionProxySP ) { };
 };
 
 #endif

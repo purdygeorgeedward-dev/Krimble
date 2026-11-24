@@ -22,37 +22,22 @@ class KoCreatePathToolPrivate;
 
 #define KoCreatePathTool_ID "CreatePathTool"
 
-/**
- * Tool for creating path shapes.
- */
 class KRITABASICFLAKES_EXPORT KoCreatePathTool : public KoToolBase
 {
     Q_OBJECT
 public:
-    /**
-     * Constructor for the tool that allows you to create new paths by hand.
-     * @param canvas the canvas this tool will be working for.
-     */
     explicit KoCreatePathTool(KoCanvasBase * canvas);
     ~KoCreatePathTool() override;
 
     QRectF decorationsRect() const override;
 
-    /// reimplemented
     void paint(QPainter &painter, const KoViewConverter &converter) override;
 
-    /// reimplemented
     void mousePressEvent(KoPointerEvent *event) override;
-    /// reimplemented
     void mouseDoubleClickEvent(KoPointerEvent *event) override;
-    /// reimplemented
     void mouseMoveEvent(KoPointerEvent *event) override;
-    /// reimplemented
     void mouseReleaseEvent(KoPointerEvent *event) override;
 
-    /**
-    * Returns true if path has been started
-    */
     bool pathStarted() const;
 
     bool tryMergeInPathShape(KoPathShape *pathShape);
@@ -60,35 +45,20 @@ public:
     void setEnableClosePathShortcut(bool value);
 
 public Q_SLOTS:
-    /// reimplemented
     void activate(const QSet<KoShape*> &shapes) override;
-    /// reimplemented
     void deactivate() override;
-    /// reimplemented
     void canvasResourceChanged(int key, const QVariant & res) override;
 
 Q_SIGNALS:
     void sigUpdateAutoSmoothCurvesGUI(bool value);
 
 protected:
-    /**
-     * Add path shape to document.
-     * This method can be overridden and change the behaviour of the tool. In that case the subclass takes ownership of pathShape.
-     * It gets only called if there are two or more points in the path.
-     */
     virtual void addPathShape(KoPathShape* pathShape);
 
-    /**
-     * Use these methods in subclassed to notify when the user starts and
-     * finishes making a shape, and override to be notified
-     */
     virtual void beginShape() {}
     virtual void endShape() {}
 
 protected:
-    /**
-      * This method is called to paint the path. Decorations are drawn by KoCreatePathTool afterwards.
-      */
     virtual void paintPath(KoPathShape& pathShape, QPainter &painter, const KoViewConverter &converter);
 
     void handleMouseMove(const KoPointerEvent *event, bool considerDrag);
@@ -99,7 +69,6 @@ protected:
 
     bool addPathShapeImpl(KoPathShape* pathShape, bool tryMergeOnly);
 
-    /// reimplemented
     QList<QPointer<QWidget> > createOptionWidgets() override;
 
 private:

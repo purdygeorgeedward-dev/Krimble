@@ -22,7 +22,6 @@ Q_GLOBAL_STATIC(KisFilterStrategyRegistry, s_instance)
 qreal KisHermiteFilterStrategy::valueAt(qreal t, qreal weightsPositionScale) const
 {
     Q_UNUSED(weightsPositionScale);
-    /* f(t) = 2|t|^3 - 3|t|^2 + 1, -1 <= t <= 1 */
     if (t < 0.0) t = -t;
     if (t < 1.0) return((2.0 * t - 3.0) * t * t + 1.0);
     return(0.0);
@@ -31,15 +30,12 @@ qreal KisHermiteFilterStrategy::valueAt(qreal t, qreal weightsPositionScale) con
 qint32 KisHermiteFilterStrategy::intValueAt(qint32 t, qreal weightsPositionScale) const
 {
     Q_UNUSED(weightsPositionScale);
-    /* f(t) = 2|t|^3 - 3|t|^2 + 1, -1 <= t <= 1 */
     if (t < 0) t = -t;
     if (t < 256) {
         t = (2 * t - 3 * 256) * t * t + (256 << 16);
 
-        //go from .24 fixed point to .8 fixedpoint (hack only works with positive numbers, which it is)
         t = (t + 0x8000) >> 16;
 
-        // go from .8 fixed point to 8bitscale. ie t = (t*255)/256;
         if (t >= 128)
             return t - 1;
         return t;
@@ -50,27 +46,21 @@ qint32 KisHermiteFilterStrategy::intValueAt(qint32 t, qreal weightsPositionScale
 qint32 KisBicubicFilterStrategy::intValueAt(qint32 t, qreal weightsPositionScale) const
 {
     Q_UNUSED(weightsPositionScale);
-    /* f(t) = 1.5|t|^3 - 2.5|t|^2 + 1, -1 <= t <= 1 */
     if (t < 0) t = -t;
     if (t < 256) {
         t = (3 * t - 5 * 256) * t * t / 2 + (256 << 16);
 
-        //go from .24 fixed point to .8 fixedpoint (hack only works with positive numbers, which it is)
         t = (t + 0x8000) >> 16;
 
-        // go from .8 fixed point to 8bitscale. ie t = (t*255)/256;
         if (t >= 128)
             return t - 1;
         return t;
     }
     if (t < 512) {
-        /* f(t) = -0.5|t|^3 + 2.5|t|^2 + 4|t| - 2, -2 <= t <= 2 */
         t = ((-t + 5 * 256) * t / 2 - 4 * 256 * 256) * t + (2 * 256 << 16);
 
-        //go from .24 fixed point to .8 fixedpoint (hack only works with positive numbers, which it is)
         t = (t + 0x8000) >> 16;
 
-        // go from .8 fixed point to 8bitscale. ie t = (t*255)/256;
         if (t >= 128)
             return t - 1;
         return t;
@@ -86,12 +76,10 @@ qreal KisBoxFilterStrategy::valueAt(qreal t, qreal weightsPositionScale) const
 
 qint32 KisBoxFilterStrategy::intValueAt(qint32 t, qreal weightsPositionScale) const
 {
-    /* f(t) = 1, -0.5 < t <= 0.5 */
     if ((t >= -128  * weightsPositionScale) && (t < 128 * weightsPositionScale))
         return 255;
     return 0;
 }
-
 
 qreal KisBoxFilterStrategy::support(qreal weightsPositionScale)
 {
@@ -114,16 +102,13 @@ qreal KisBilinearFilterStrategy::valueAt(qreal t, qreal weightsPositionScale) co
 qint32 KisBilinearFilterStrategy::intValueAt(qint32 t, qreal weightsPositionScale) const
 {
     Q_UNUSED(weightsPositionScale);
-    /* f(t) = |t|, -1 <= t <= 1 */
     if (t < 0) t = -t;
     if (t < 256) {
-        // calc 256-1 but also go from .8 fixed point to 8bitscale. ie t = (t*255)/256; ie: if(t>=128) return t-1;
         if (t >= 128) return 256 - t;
         return 255 - t;
     }
     return(0);
 }
-
 
 qreal KisBellFilterStrategy::valueAt(qreal t, qreal weightsPositionScale) const
 {
@@ -250,7 +235,6 @@ QString KisFilterStrategyRegistry::formattedDescriptions() const
 
 KisFilterStrategy *KisFilterStrategyRegistry::autoFilterStrategy(QSize originalSize, QSize desiredSize) const
 {
-    // Default to nearest neighbor scaling for tiny source images. (i.e: icons or small sprite sheets.)
     const int pixelArtThreshold = 256;
     if (originalSize.width() <= pixelArtThreshold ||
         originalSize.height() <= pixelArtThreshold) {
@@ -260,9 +244,9 @@ KisFilterStrategy *KisFilterStrategyRegistry::autoFilterStrategy(QSize originalS
     const float xScaleFactor = (float)desiredSize.width() / originalSize.width();
     const float yScaleFactor = (float)desiredSize.height() / originalSize.height();
 
-    if (xScaleFactor > 1.f || yScaleFactor > 1.f) { // Enlargement.
+    if (xScaleFactor > 1.f || yScaleFactor > 1.f) {
         return KisFilterStrategyRegistry::instance()->value("Bicubic");
-    } else if (xScaleFactor < 1.f || yScaleFactor < 1.f) { // Reduction.
+    } else if (xScaleFactor < 1.f || yScaleFactor < 1.f) {
         return KisFilterStrategyRegistry::instance()->value("Bicubic");
     }
 

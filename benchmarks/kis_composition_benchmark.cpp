@@ -7,7 +7,6 @@
  *  SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-// for calculation of the needed alignment
 #include <xsimd_extensions/xsimd.hpp>
 #if !defined(XSIMD_NO_SUPPORTED_ARCHITECTURE) && XSIMD_UNIVERSAL_BUILD_PASS
 #include <KoOptimizedCompositeOpOver32.h>
@@ -31,7 +30,6 @@
 #include <KoOptimizedCompositeOpFactory.h>
 #include <KoAlphaDarkenParamsWrapper.h>
 
-// for posix_memalign()
 #include <stdlib.h>
 
 #include <kis_debug.h>
@@ -53,7 +51,6 @@ enum AlphaRange {
     ALPHA_UNIT,
     ALPHA_RANDOM
 };
-
 
 template <typename channel_type, class RandomGenerator>
 inline channel_type generateAlphaValue(AlphaRange range, RandomGenerator &rnd) {
@@ -141,7 +138,6 @@ struct RandomGenerator<float>
     }
 
     float operator() () {
-        //return float(m_rnd()) / float(m_rnd.max());
         return m_smallfloat(m_rnd);
     }
 
@@ -161,7 +157,6 @@ struct RandomGenerator<double> : RandomGenerator<float>
     {
     }
 };
-
 
 template <typename channel_type>
 void generateDataLine(uint seed, int numPixels, quint8 *srcPixels, quint8 *dstPixels, quint8 *mask, AlphaRange srcAlphaRange, AlphaRange dstAlphaRange)
@@ -215,7 +210,6 @@ const QRect processRect(0,0,64,64);
 const int numPixels = rowStride * totalRows;
 const int numTiles = 1024;
 
-
 struct Tile {
     quint8 *src;
     quint8 *dst;
@@ -237,7 +231,6 @@ QVector<Tile> generateTiles(int size,
     const int vecSize = 1;
 #endif
 
-    // the 256 are used to make sure that we have a good alignment no matter what build options are used.
     const size_t pixelAlignment = qMax(size_t(vecSize * sizeof(float)), size_t(256));
     const size_t maskAlignment = qMax(size_t(vecSize), size_t(256));
     for (int i = 0; i < size; i++) {
@@ -373,7 +366,6 @@ bool compareTwoOps(bool haveMask, const KoCompositeOp *op1, const KoCompositeOp 
     params.maskRowStride = rowStride;
     params.rows          = processRect.height();
     params.cols          = processRect.width();
-    // This is a hack as in the old version we get a rounding of opacity to this value
     params.opacity       = float(Arithmetic::scale<quint8>(0.5*1.0f))/255.0;
     params.flow          = 0.3*1.0f;
     params.channelFlags  = QBitArray();
@@ -486,19 +478,13 @@ void benchmarkCompositeOp(const KoCompositeOp *op, const QString &postfix)
     benchmarkCompositeOp(op, true, 0.5, 0.3, 0, 8, ALPHA_RANDOM, ALPHA_RANDOM);
     benchmarkCompositeOp(op, true, 0.5, 0.3, 4, 8, ALPHA_RANDOM, ALPHA_RANDOM);
 
-/// --- Vary the content of the source and destination
-
     benchmarkCompositeOp(op, false, 1.0, 1.0, 0, 0, ALPHA_RANDOM, ALPHA_RANDOM);
     benchmarkCompositeOp(op, false, 1.0, 1.0, 0, 0, ALPHA_ZERO, ALPHA_RANDOM);
     benchmarkCompositeOp(op, false, 1.0, 1.0, 0, 0, ALPHA_UNIT, ALPHA_RANDOM);
 
-/// ---
-
     benchmarkCompositeOp(op, false, 1.0, 1.0, 0, 0, ALPHA_RANDOM, ALPHA_ZERO);
     benchmarkCompositeOp(op, false, 1.0, 1.0, 0, 0, ALPHA_ZERO, ALPHA_ZERO);
     benchmarkCompositeOp(op, false, 1.0, 1.0, 0, 0, ALPHA_UNIT, ALPHA_ZERO);
-
-/// ---
 
     benchmarkCompositeOp(op, false, 1.0, 1.0, 0, 0, ALPHA_RANDOM, ALPHA_UNIT);
     benchmarkCompositeOp(op, false, 1.0, 1.0, 0, 0, ALPHA_ZERO, ALPHA_UNIT);
@@ -553,17 +539,10 @@ void checkRounding(qreal opacity, qreal flow, qreal averageOpacity = -1, quint32
     params.channelFlags = QBitArray();
     typename Compositor::ParamsWrapper paramsWrapper(params);
 
-    // The error count is needed as 38.5 gets rounded to 38 instead of 39 in the vc version.
     int errorcount = 0;
     for (int i = 0; i < numBlocks; i++) {
         Compositor::template compositeVector<true,true, xsimd::current_arch>(src1, dst1, msk1, params.opacity, paramsWrapper);
         for (int j = 0; j < vecSize; j++) {
-
-            //if (8 * i + j == 7080) {
-            //    qDebug() << "src: " << src2[0] << src2[1] << src2[2] << src2[3];
-            //    qDebug() << "dst: " << dst2[0] << dst2[1] << dst2[2] << dst2[3];
-            //    qDebug() << "msk:" << msk2[0];
-            //}
 
             Compositor::template compositeOnePixelScalar<true, xsimd::current_arch>(src2, dst2, msk2, params.opacity, paramsWrapper);
 
@@ -616,7 +595,6 @@ void checkRounding(qreal opacity, qreal flow, qreal averageOpacity = -1, quint32
 
 #endif
 
-
 void KisCompositionBenchmark::detectBuildArchitecture()
 {
 #if !defined(XSIMD_NO_SUPPORTED_ARCHITECTURE) && XSIMD_UNIVERSAL_BUILD_PASS
@@ -640,7 +618,6 @@ void KisCompositionBenchmark::detectBuildArchitecture()
     qDebug() << ppVar(supported_architectures().contains<avx512bw>());
     qDebug() << ppVar(supported_architectures().contains<avx512dq>());
     qDebug() << ppVar(supported_architectures().contains<avx512cd>());
-    //    qDebug().nospace() << "running on " << Qt::hex << "0x" << xsimd::available_architectures().best;
 #endif
 }
 
@@ -851,10 +828,6 @@ void KisCompositionBenchmark::compareRgbU8CopyOps()
     KoCompositeOp *opAct = KoOptimizedCompositeOpFactory::createCopyOp32(cs);
     KoCompositeOp *opExp = new KoCompositeOpCopy2<KoRgbU8Traits>(cs);
 
-    // Since composite copy involves a channel division operation,
-    // there might be significant rounding difference with purely
-    // integer implementation. So we should compare in premultiplied
-    // form.
     QVERIFY(compareTwoOps<PixelEqualPremultiplied>(false, opAct, opExp));
 
     delete opExp;
@@ -948,7 +921,6 @@ void KisCompositionBenchmark::testRgb16CompositeOverOptimized()
     benchmarkCompositeOp(op, "Optimized");
     delete op;
 }
-
 
 void KisCompositionBenchmark::testRgb16CompositeCopyLegacy()
 {
@@ -1084,8 +1056,6 @@ void KisCompositionBenchmark::benchmarkUintFloat()
 
     QBENCHMARK {
         for (int i = 0; i < dataSize; i += float_v::size) {
-            // convert uint -> float directly, this causes
-            // static_cast helper be called
             const auto b = xsimd::batch_cast<typename float_v::value_type>(
                 xsimd::load_and_extend<uint_v>(iData + i)
             );
@@ -1118,8 +1088,6 @@ void KisCompositionBenchmark::benchmarkUintIntFloat()
 
     QBENCHMARK {
         for (int i = 0; i < dataSize; i += float_v::size) {
-            // convert uint->int->float, that avoids special sign
-            // treating, and gives 2.6 times speedup
             const auto b = xsimd::batch_cast<typename float_v::value_type>(xsimd::load_and_extend<uint_v>(iData + i));
             b.store_aligned(fData + i);
         }
@@ -1150,8 +1118,6 @@ void KisCompositionBenchmark::benchmarkFloatUint()
 
     QBENCHMARK {
         for (int i = 0; i < dataSize; i += float_v::size) {
-            // conversion float -> uint
-            // this being a direct conversion, load_and_extend does not apply
             const auto b = xsimd::batch_cast<typename uint_v::value_type>(float_v::load_aligned(fData + i));
 
             b.store_aligned(iData + i);
@@ -1182,7 +1148,6 @@ void KisCompositionBenchmark::benchmarkFloatIntUint()
 
     QBENCHMARK {
         for (int i = 0; i < dataSize; i += float_v::size) {
-            // conversion float -> int -> uint
             const auto b = xsimd::batch_cast<typename uint_v::value_type>(float_v::load_aligned(fData + i));
 
             b.store_aligned(iData + i);

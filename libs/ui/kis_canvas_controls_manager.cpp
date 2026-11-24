@@ -117,7 +117,6 @@ void KisCanvasControlsManager::transformColor(int step)
         steps = 1;
     }
 
-
     KoColor color = m_view->canvasResourceProvider()->resourceManager()->resource(KoCanvasResource::ForegroundColor).value<KoColor>();
     if (color.colorSpace()->colorModelId().id()=="CMYKA" || color.colorSpace()->colorModelId().id()=="XYZA"){
         QColor rgb = color.toQColor();
@@ -232,7 +231,6 @@ void KisCanvasControlsManager::transformBlue(int step)
     m_view->canvasResourceProvider()->resourceManager()->setResource(KoCanvasResource::ForegroundColor, color);
 }
 
-
 void KisCanvasControlsManager::makeColorDarker()
 {
     transformColor(-STEP);
@@ -292,9 +290,6 @@ void KisCanvasControlsManager::stepAlpha(float step)
     m_view->showFloatingMessage(i18n("Brush Opacity: %1%", alpha * 100), QIcon(), 1000, KisFloatingMessage::High,
                                 Qt::AlignLeft | Qt::TextWordWrap | Qt::AlignVCenter);
 
-    // FIXME: DK: should we uncomment it back?
-    //KisLockedPropertiesProxySP p = KisLockedPropertiesServer::instance()->createLockedPropertiesProxy(m_view->resourceProvider()->currentPreset()->settings());
-    //p->setProperty("OpacityValue", alpha);
 }
 
 void KisCanvasControlsManager::increaseOpacity()
@@ -318,7 +313,6 @@ void KisCanvasControlsManager::stepFlow(float step)
     flow = qBound<qreal>(0.0, flow, 1.0);
     m_view->canvasBase()->resourceManager ()->setResource(KoCanvasResource::Flow, flow);
 
-    // verify if the brush does actually support this change
     flow = m_view->canvasBase()->resourceManager ()->resource(KoCanvasResource::Flow).toReal();
 
     m_view->showFloatingMessage(i18nc("Brush Option Flow", "Flow: %1%", flow * 100), QIcon(), 1000, KisFloatingMessage::High,
@@ -346,7 +340,6 @@ void KisCanvasControlsManager::stepFade(float step)
     fade = qBound<qreal>(0.0, fade, 1.0);
     m_view->canvasBase()->resourceManager ()->setResource(KoCanvasResource::Fade, fade);
 
-    // verify if the brush does actually support this change
     fade = m_view->canvasBase()->resourceManager ()->resource(KoCanvasResource::Fade).toReal();
 
     m_view->showFloatingMessage(i18nc("Edge softness, Brush Option Fade", "Fade: %1", fade),
@@ -374,7 +367,6 @@ void KisCanvasControlsManager::stepScatter(float step)
     scatter = qBound<qreal>(0.0, scatter, 5.0);
     m_view->canvasBase()->resourceManager ()->setResource(KoCanvasResource::Scatter, scatter);
 
-    // verify if the brush does actually support this change
     scatter = m_view->canvasBase()->resourceManager ()->resource(KoCanvasResource::Scatter).toReal();
 
     m_view->showFloatingMessage(i18nc("Brush Option Scatter", "Scatter: %1%", scatter * 100), QIcon(), 1000, KisFloatingMessage::High,

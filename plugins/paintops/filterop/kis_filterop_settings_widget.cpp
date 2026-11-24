@@ -25,7 +25,6 @@ KisFilterOpSettingsWidget::KisFilterOpSettingsWidget(QWidget* parent)
 {
     namespace kpowu = KisPaintOpOptionWidgetUtils;
 
-
     setObjectName("filter option widget");
 
     addPaintOpOption(kpowu::createOptionWidget<KisCompositeOpOptionWidget>());
@@ -43,7 +42,7 @@ KisFilterOpSettingsWidget::~KisFilterOpSettingsWidget()
 KisPropertiesConfigurationSP KisFilterOpSettingsWidget::configuration() const
 {
     KisFilterOpSettings *config = new KisFilterOpSettings(resourcesInterface());
-    config->setProperty("paintop", "filter"); // XXX: make this a const id string
+    config->setProperty("paintop", "filter");
     writeConfiguration(config);
     return config;
 }

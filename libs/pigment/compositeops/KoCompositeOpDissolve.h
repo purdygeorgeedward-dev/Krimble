@@ -32,13 +32,6 @@ public:
     using KoCompositeOp::composite;
 
     void composite(const KoCompositeOp::ParameterInfo& params) const override {
-        /**
-         * Initialize local per-thread random generator from the global one, it will
-         * reduce contention over the global generator in the main compositing loop.
-         *
-         * KisRandomSource is automatically initialized from QRandomGenerator::global()
-         * internally.
-         */
         if (!m_randomGenerator.hasLocalData()) {
             m_randomGenerator.setLocalData(KisRandomSource());
         }
@@ -48,7 +41,6 @@ public:
 
         using namespace Arithmetic;
 
-//         quint32       ctr       = quint32(reinterpret_cast<quint64>(dstRowStart) % 256);
         qint32        srcInc    = (params.srcRowStride == 0) ? 0 : channels_nb;
         bool          useMask   = params.maskRowStart != 0;
         channels_type unitValue = KoColorSpaceMathsTraits<channels_type>::unitValue;
@@ -83,7 +75,6 @@ public:
 
                 src += srcInc;
                 dst += channels_nb;
-//                 ctr  = (ctr + 1) % 256;
                 if (mask) {
                     ++mask;
                 }
@@ -98,4 +89,4 @@ public:
     }
 };
 
-#endif // _KOCOMPOSITEOP_DISSOLVE_H_
+#endif

@@ -109,7 +109,6 @@ public:
             preset->setSettings(settings);
         }
 
-
         QString testName =
             QString("%7_cmY_%1_cmX_%2_cR_%3_dmX_%4_dmY_%5_dR_%6")
             .arg(mirrorY)
@@ -160,7 +159,6 @@ public:
         vector << KisPaintInformation(QPointF(100, 100));
         vector << KisPaintInformation(QPointF(200, 150));
         vector << KisPaintInformation(QPointF(100, 350));
-
 
         for (auto pi : vector) {
             pi.setCanvasRotation(rotation);
@@ -227,13 +225,6 @@ void KisBrushOpTest::testRotationMirroringDrawingAngle()
 
 void KisBrushOpTest::testMagicSeven()
 {
-    /**
-     * A special preset that forces Qt to bug:
-     *     mask size: 56
-     *     brush size: 7
-     *     therefore scale is: 0.125
-     *     which causes QTransform work as a pure Translate in the mipmap
-     */
 
     TestBrushOpPressureLines t("magic_seven.kpp", "magicseven");
     t.test();

@@ -16,8 +16,6 @@
 #include "LcmsColorSpace.h"
 #include "RgbU8ColorSpace.h"
 
-// -- KoLcmsColorConversionTransformation --
-
 class KoLcmsColorConversionTransformation : public KoColorConversionTransformation
 {
 public:
@@ -39,7 +37,6 @@ public:
         }
         conversionFlags |= KoColorConversionTransformation::CopyAlpha;
 
-        // unset Krita-only flag
         conversionFlags.setFlag(KoColorConversionTransformation::NoAdaptationAbsoluteIntent, false);
 
         m_transform = cmsCreateTransform(srcProfile->lcmsProfile(),
@@ -100,10 +97,9 @@ public:
 
         const double adaptationState = displayConversionFlags.testFlag(KoColorConversionTransformation::NoAdaptationAbsoluteIntent) ? 0.0 : 1.0;
 
-        // unset Krita-only flag
         displayConversionFlags.setFlag(KoColorConversionTransformation::NoAdaptationAbsoluteIntent, false);
 
-        quint16 alarm[cmsMAXCHANNELS];//this seems to be bgr???
+        quint16 alarm[cmsMAXCHANNELS];
         alarm[0] = (cmsUInt16Number)gamutWarning[2]*256;
         alarm[1] = (cmsUInt16Number)gamutWarning[1]*256;
         alarm[2] = (cmsUInt16Number)gamutWarning[0]*256;
@@ -111,15 +107,12 @@ public:
 
         KIS_ASSERT(dynamic_cast<const IccColorProfile *>(proofingSpace->profile()));
 
-        // This more or less does the same thing as cmsCreateProofingTransform in LCMS' cmsxform.c file,
-        // except we try to allow enabling blackpoint compentation on the second bpc too.
         cmsHPROFILE proof = dynamic_cast<const IccColorProfile *>(proofingSpace->profile())->asLcms()->lcmsProfile();
         cmsHPROFILE profiles[] = {srcProfile->lcmsProfile(),
                                   proof,
                                   proof,
                                   dstProfile->lcmsProfile()};
         cmsBool bpc[] = {doBPC1, doBPC1, doBPC2, doBPC2};
-        // Note that of the two transforms that create the proofing transform, the proofing intent is the second intent, not the first!
         cmsUInt32Number intents[] = {renderingIntent, renderingIntent, INTENT_RELATIVE_COLORIMETRIC, proofingIntent};
         cmsFloat64Number adaptation[] = {adaptationState, adaptationState, adaptationState, adaptationState};
         m_transform = cmsCreateExtendedTransform(cmsGetProfileContextID(srcProfile->lcmsProfile()), 4, profiles, bpc, intents, adaptation, proof, 1, srcColorSpaceType, dstColorSpaceType, displayConversionFlags);
@@ -164,11 +157,8 @@ const KoColorProfile* IccColorSpaceEngine::addProfile(const QString &filename)
     KoColorProfile *profile = new IccColorProfile(filename);
     Q_CHECK_PTR(profile);
 
-    // this our own loading code; sometimes it fails because of an lcms error
     profile->load();
 
-    // and then lcms can read the profile from file itself without problems,
-    // quite often, and we can initialize it
     if (!profile->valid()) {
         cmsHPROFILE cmsp = cmsOpenProfileFromFile(filename.toLatin1(), "r");
         if (cmsp) {
@@ -300,7 +290,6 @@ quint32 IccColorSpaceEngine::computeColorSpaceType(const KoColorSpace *cs) const
     } else {
         QString modelId = cs->colorModelId().id();
         QString depthId = cs->colorDepthId().id();
-        // Compute the depth part of the type
         quint32 depthType;
 
         if (depthId == Integer8BitsColorDepthID.id()) {
@@ -317,7 +306,6 @@ quint32 IccColorSpaceEngine::computeColorSpaceType(const KoColorSpace *cs) const
             qWarning() << "Unknown bit depth";
             return 0;
         }
-        // Compute the model part of the type
         quint32 modelType = 0;
 
         if (modelId == RGBAColorModelID.id()) {

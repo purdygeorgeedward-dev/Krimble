@@ -5,21 +5,16 @@
  * SPDX-License-Identifier: LGPL-2.0-or-later
  */
 
-// Own
 #include "ImageShapeFactory.h"
 
-// ImageShape
 #include "ImageShape.h"
-//#include "ImageShapeConfigWidget.h"
 
-// Calligra
 #include <KoXmlNS.h>
 #include <KoShapeLoadingContext.h>
 #include <KoIcon.h>
 #include <KoProperties.h>
 #include <kis_assert.h>
 
-// KDE
 #include <klocalizedstring.h>
 
 ImageShapeFactory::ImageShapeFactory()
@@ -35,7 +30,7 @@ ImageShapeFactory::ImageShapeFactory()
     setLoadingPriority(1);
 }
 
-KoShape *ImageShapeFactory::createDefaultShape(KoDocumentResourceManager */*documentResources*/) const
+KoShape *ImageShapeFactory::createDefaultShape(KoDocumentResourceManager * ) const
 {
     ImageShape *shape = new ImageShape();
     shape->setShapeId(ImageShapeId);
@@ -43,8 +38,7 @@ KoShape *ImageShapeFactory::createDefaultShape(KoDocumentResourceManager */*docu
     return shape;
 }
 
-
-KoShape *ImageShapeFactory::createShape(const KoProperties *params, KoDocumentResourceManager */*documentResources*/) const
+KoShape *ImageShapeFactory::createShape(const KoProperties *params, KoDocumentResourceManager * ) const
 {
     ImageShape *shape = new ImageShape();
     shape->setShapeId(ImageShapeId);
@@ -71,6 +65,5 @@ bool ImageShapeFactory::supports(const QDomElement &e, KoShapeLoadingContext &co
 QList<KoShapeConfigWidgetBase *> ImageShapeFactory::createShapeOptionPanels()
 {
     QList<KoShapeConfigWidgetBase *> result;
-    //result.append(new ImageShapeConfigWidget());
     return result;
 }

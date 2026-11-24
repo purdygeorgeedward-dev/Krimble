@@ -57,7 +57,6 @@ KoToolBase::~KoToolBase()
     delete d_ptr;
 }
 
-
 bool KoToolBase::isActivated() const
 {
     Q_D(const KoToolBase);
@@ -124,7 +123,6 @@ void KoToolBase::keyReleaseEvent(QKeyEvent *e)
 {
     e->ignore();
 }
-
 
 void KoToolBase::explicitUserStrokeEndRequest()
 {
@@ -417,12 +415,8 @@ bool KoToolBase::isInTextMode() const
 
 void KoToolBase::requestUndoDuringStroke()
 {
-    /**
-     * Default implementation just cancels the stroke
-     */
     requestStrokeCancellation();
 }
-
 
 void KoToolBase::requestRedoDuringStroke()
 {

@@ -24,6 +24,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-
-
-#endif // KIS_COLORSMUDGEOP_SETTINGS_WIDGET_H_
+#endif

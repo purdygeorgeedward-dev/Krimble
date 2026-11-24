@@ -13,7 +13,6 @@
 #include "kis_types.h"
 #include <QRect>
 
-
 class KisSelectionUpdateCompressor : public QObject
 {
     Q_OBJECT
@@ -37,4 +36,4 @@ private:
     bool m_hasStalledUpdate {false};
 };
 
-#endif // KISSELECTIONUPDATECOMPRESSOR_H
+#endif

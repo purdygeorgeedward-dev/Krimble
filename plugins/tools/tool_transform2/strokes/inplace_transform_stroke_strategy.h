@@ -24,7 +24,6 @@ class TransformTransactionProperties;
 class KisUpdatesFacade;
 class KisDecoratedNodeInterface;
 
-
 class InplaceTransformStrokeStrategy : public QObject, public KisStrokeStrategyUndoCommandBased
 {
     Q_OBJECT
@@ -64,16 +63,12 @@ public:
     class CalculateConvexHullData : public KisStrokeJobData {
     public:
         CalculateConvexHullData()
-            : KisStrokeJobData(SEQUENTIAL, NORMAL) // Is this right?
+            : KisStrokeJobData(SEQUENTIAL, NORMAL)
         {}
     };
 
 private:
 
-    /**
-     * A special barrier update data that triggers regeneration of
-     * all the processed nodes.
-     */
     struct BarrierUpdateData : public KisAsynchronousStrokeUpdateHelper::UpdateData
     {
         BarrierUpdateData(bool forceUpdate);
@@ -83,33 +78,6 @@ private:
     };
 
 public:
-
-    /**
-     * The transformation pipeline usually looks like that:
-     *
-     * 1) Apply Clear commands for all the layers. Some clear commands might
-     * be "temporary", that is, they do not go to the final history, e.g. when
-     * clearing a shape layer's projection.
-     *
-     * 2) Apply TransformLod commands to generate preview of the
-     * transformation. Some commands may be declared as "temporary", that is,
-     * they do not go to the final history, e.g. for the shape layer, for
-     * which we just write to the projection device explicitly.
-     *
-     * 3) When transformation is changed we undo all TransformLod and
-     * TransformTemporary commands to recover the old state. The temporary
-     * command recovers the state of shape layers' projection device.
-     *
-     * 4) Repeat steps 2) and 3) until the user is satisfied.
-     *
-     * 5) When "Apply" button is pressed, all transform commands are undone
-     * like in step 2).
-     *
-     * 6) All Transform commands are applied at Lod0-level. TransformTemporary
-     * is not used atm.
-     *
-     * 7) All non-temporary commands go to the undo history.
-     */
 
     enum CommandGroup {
         Clear = 0,
@@ -180,4 +148,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif /* __INPLACE_TRANSFORM_STROKE_STRATEGY_H */
+#endif

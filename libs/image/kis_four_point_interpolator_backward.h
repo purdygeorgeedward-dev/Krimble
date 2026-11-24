@@ -14,16 +14,6 @@
 #include "kis_global.h"
 #include "kis_algebra_2d.h"
 
-//#define FPIB_DEBUG
-
-
-/**
- *    A-----B         The polygons must be initialized in this order:
- *    |     |
- *    |     |         polygon << A << B << D << C;
- *    C-----D
- */
-
 class KisFourPointInterpolatorBackward
 {
 public:
@@ -33,27 +23,23 @@ public:
         m_dbgDstPolygon = dstPolygon;
 #endif
 
-        m_a = dstPolygon[1] - dstPolygon[0]; // AB
-        m_b = dstPolygon[2] - dstPolygon[1]; // BD
-        m_c = dstPolygon[3] - dstPolygon[0]; // AC
-        m_d = m_b - m_c; // BD - AC
+        m_a = dstPolygon[1] - dstPolygon[0];
+        m_b = dstPolygon[2] - dstPolygon[1];
+        m_c = dstPolygon[3] - dstPolygon[0];
+        m_d = m_b - m_c;
 
         m_qA = m_c.x() * m_d.y() - m_c.y() * m_d.x();
 
         m_srcBase = srcPolygon[0];
         m_dstBase = dstPolygon[0];
-        m_xCoeff = srcPolygon[1].x() - srcPolygon[0].x(); // AB_src
-        m_yCoeff = srcPolygon[3].y() - srcPolygon[0].y(); // AC_src
+        m_xCoeff = srcPolygon[1].x() - srcPolygon[0].x();
+        m_yCoeff = srcPolygon[3].y() - srcPolygon[0].y();
 
         m_qB_const = m_c.x() * m_a.y() - m_c.y() * m_a.x();
 
         m_qD_div = 1.0 / (2 * m_qA);
     }
 
-    /**
-     * Checks if linear dimensions of the destination polygon are
-     * bigger than \p tolerance.
-     */
     inline bool isValid(const qreal tolerance = 0.1) const {
         const qreal toleranceSq = pow2(tolerance);
 
@@ -95,10 +81,8 @@ public:
         m_py = y;
     }
 
-
     inline QPointF getValue() const {
-        static const qreal eps = 1e-6; // pixels in Krita only get to 32-33k in every direction
-
+        static const qreal eps = 1e-6;
 
         qreal qB = m_qB_const + m_qB_varX + m_qB_varY;
         qreal qC = m_qC_varX + m_qC_varY;
@@ -137,7 +121,6 @@ public:
         qreal yDenomNu1 = yBasedDenom(nu1);
         qreal yMu1 = yBasedMu(nu1, yDenomNu1);
 
-
         if (goodNu1 && inGoodRange(yMu1)) {
             return getResult(nu1, yMu1);
         }
@@ -163,7 +146,6 @@ public:
                 return getResult(nu2, yMu2);
             }
         }
-
 
         const int count = 4;
         qreal denoms[count] = {xDenomNu1, yDenomNu1, xDenomNu2, yDenomNu2};
@@ -206,14 +188,12 @@ public:
         }
 #endif
 
-        // there won't be any sane result here in case we didn't find any bestI
         KIS_SAFE_ASSERT_RECOVER_RETURN_VALUE(bestI >= 0, center);
 
         return results[bestI];
     }
 
 private:
-
 
     inline qreal xBasedDenom(qreal nu) const {
         return m_a.x() + nu * m_d.x();
@@ -239,22 +219,21 @@ private:
         return value >= 0.0 && value <= 1.0;
     }
 
-
 private:
-    QPointF m_a; // AB
-    QPointF m_b; // BD
-    QPointF m_c; // AC
-    QPointF m_d; // m_b - m_c
+    QPointF m_a;
+    QPointF m_b;
+    QPointF m_c;
+    QPointF m_d;
 
-    qreal m_qA {0.0}; // quadratic equation A coeff
-    qreal m_qB_const {0.0}; // quadratic equation B coeff, const part
-    qreal m_qB_varX {0.0}; // quadratic equation B coeff, X-dep part
-    qreal m_qB_varY {0.0}; // quadratic equation B coeff, Y-dep part
-    qreal m_qC_varX {0.0}; // quadratic equation C coeff, X-dep part
-    qreal m_qC_varY {0.0}; // quadratic equation C coeff, Y-dep part
-    qreal m_qD_div {0.0}; // inverted divisor of the quadratic equation solution
-    qreal m_px {0.0}; // saved relative X coordinate
-    qreal m_py {0.0}; // saved relative Y coordinate
+    qreal m_qA {0.0};
+    qreal m_qB_const {0.0};
+    qreal m_qB_varX {0.0};
+    qreal m_qB_varY {0.0};
+    qreal m_qC_varX {0.0};
+    qreal m_qC_varY {0.0};
+    qreal m_qD_div {0.0};
+    qreal m_px {0.0};
+    qreal m_py {0.0};
 
     QPointF m_srcBase;
     QPointF m_dstBase;
@@ -269,7 +248,6 @@ private:
     qreal m_dbgOrigY;
 #endif
 
-
 };
 
-#endif /* __KIS_FOUR_POINT_INTERPOLATOR_BACKWARD_H */
+#endif

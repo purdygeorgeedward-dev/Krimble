@@ -15,7 +15,6 @@
 #include "kis_types.h"
 #include "kis_node_manager.h"
 
-
 class KRITAUI_EXPORT KisNodeJugglerCompressed : public QObject
 {
     Q_OBJECT
@@ -60,4 +59,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif /* __KIS_NODE_JUGGLER_COMPRESSED_H */
+#endif

@@ -6,7 +6,6 @@
 
 #include "kis_csv_test.h"
 
-
 #include <simpletest.h>
 #include <QCoreApplication>
 
@@ -18,24 +17,20 @@
 
 const QString CsvMimetype = "text/csv";
 
-
 void KisCsvTest::testFiles()
 {
     TestUtil::testFiles(QString(FILES_DATA_DIR) + "/sources", QStringList());
 }
-
 
 void KisCsvTest::testImportFromWriteonly()
 {
     TestUtil::testImportFromWriteonly(CsvMimetype);
 }
 
-
 void KisCsvTest::testExportToReadonly()
 {
     TestUtil::testExportToReadonly(CsvMimetype);
 }
-
 
 void KisCsvTest::testImportIncorrectFormat()
 {

@@ -18,7 +18,6 @@
 
 #include "kritaui_export.h"
 
-
 class KisCanvas2;
 
 enum PlaybackState : unsigned int {
@@ -27,14 +26,6 @@ enum PlaybackState : unsigned int {
     PLAYING
 };
 
-/**
- * @brief The KisCanvasAnimationState class stores all of the canvas-specific animation state.
- *
- * Krita drives animation using a single KisPlaybackEngine instance (found in KisPart).
- * However, there is some data that we want/need to store per-canvas (typically per-document).
- * This might include the frame where playback started, audio volume, or anything else
- * that we may need to persist between canvas changes.
- */
 class KRITAUI_EXPORT KisCanvasAnimationState : public QObject
 {
     Q_OBJECT
@@ -43,23 +34,12 @@ public:
     KisCanvasAnimationState(KisCanvas2 *canvas);
     ~KisCanvasAnimationState() override;
 
-    /**
-    * @brief setPlaybackState changes the animation playback state for this canvas.
-    * KisPlaybackEngine should respond to changes in state while canvas is active,
-    * and use appropriate state when a new canvas is made active.
-    */
     void setPlaybackState(PlaybackState state);
     PlaybackState playbackState();
 
-    /**
-     * @brief Get the media file info associated with this canvas, if available.
-     */
     boost::optional<QFileInfo> mediaInfo();
     qreal currentVolume();
 
-    /**
-     * @brief Get the animation frame to return to (for this canvas) when playback is stopped, if available.
-     */
     boost::optional<int> playbackOrigin();
 
     class KisFrameDisplayProxy *displayProxy();
@@ -67,10 +47,6 @@ public:
     void setPlaybackSpeed(qreal value);
     qreal playbackSpeed() const;
 
-    /**
-     * @brief Sets up the audio tracks for a given animation.
-     * (The only reason this is public is because we have to defer this until after canvas construction.)
-     */
     void setupAudioTracks();
 
 public Q_SLOTS:

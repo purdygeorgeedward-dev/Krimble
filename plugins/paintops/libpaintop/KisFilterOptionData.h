@@ -13,7 +13,6 @@
 
 class KisPropertiesConfiguration;
 
-
 struct PAINTOP_EXPORT KisFilterOptionData : boost::equality_comparable<KisFilterOptionData>
 {
     inline friend bool operator==(const KisFilterOptionData &lhs, const KisFilterOptionData &rhs) {
@@ -33,4 +32,4 @@ struct PAINTOP_EXPORT KisFilterOptionData : boost::equality_comparable<KisFilter
     static QString filterConfigTag();
 };
 
-#endif // KISFILTEROPTIONDATA_H
+#endif

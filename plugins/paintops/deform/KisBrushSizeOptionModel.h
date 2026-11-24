@@ -32,4 +32,4 @@ public:
     LAGER_QT_CURSOR(bool, brushJitterMovementEnabled);
 };
 
-#endif // KIS_BRUSHSIZE_OPTION_MODEL_H
+#endif

@@ -14,8 +14,6 @@
 #include "kis_image_command.h"
 #include "KisNodeAdditionFlags.h"
 
-
-/// The command for adding a layer
 class KRITAIMAGE_EXPORT KisImageLayerAddCommand : public KisImageCommand
 {
 
@@ -30,15 +28,6 @@ public:
     Q_DECLARE_FLAGS(Flags, Flag)
 
 public:
-    /**
-     * Constructor
-     * @param image The image the command will be working on.
-     * @param layer The layer to add
-     * @param parent The parent node
-     * @param aboveThis The node above this
-     * @param doRedoUpdates Whether to make the redo updates
-     * @param doUndoUpdates Whether to make the undo updates
-     */
     KisImageLayerAddCommand(KisImageWSP image, KisNodeSP layer, KisNodeSP parent, KisNodeSP aboveThis, bool doRedoUpdates = true, bool doUndoUpdates = true);
     KisImageLayerAddCommand(KisImageWSP image, KisNodeSP layer, KisNodeSP parent, quint32 index, bool doRedoUpdates = true, bool doUndoUpdates = true);
 

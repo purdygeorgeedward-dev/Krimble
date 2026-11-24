@@ -1,9 +1,4 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
-// Krimble 2026-10-30: the toolbox icons come in two styles, and the user switches between them (George: "I want the user to be able to switch between the full
-// color themed toolbox icons and your clear icons you made for the toolbox."): **Full color**, the picture icons drawn by George (32 PNGs in the resource
-// prefix :/krimble-toolbox/, one per tool), and **Silhouette**, the line icons made for Krimble (what the toolbox showed before; George calls them silhouette icons). The choice is the key
-// Krimble/ToolboxColorIcons (full color is the default). A tool with no picture icon (any tool not in the table below) always shows its own icon. (Dodge, Burn, Colorize Mask Editing and Enclose and Fill
-// are not in the toolbox at all, see the 357th entry.) The table maps a tool's icon name (what its factory gives to setIconName) to the picture file.
 #pragma once
 
 #include <QHash>
@@ -48,7 +43,6 @@ inline const QHash<QString, QString> &files()
         { QStringLiteral("krita_tool_color_fill"),      QStringLiteral("04_02_fill") },
         { QStringLiteral("krita_draw_path"),            QStringLiteral("04_03_bezier_curve") },
         { QStringLiteral("select"),                     QStringLiteral("04_04_shape_select") },
-        // { QStringLiteral("shape_handling"),             QStringLiteral("04_04_shape_select") },   // (the 358th entry put it on Edit Shapes; George: "I think you should have left it.")
         { QStringLiteral("draw-text"),                  QStringLiteral("04_05_text") },
         { QStringLiteral("krita_tool_rectangle"),       QStringLiteral("05_01_rectangle") },
         { QStringLiteral("krita_tool_ellipse"),         QStringLiteral("05_02_ellipse") },
@@ -66,44 +60,8 @@ inline const QHash<QString, QString> &files()
     return table;
 }
 
-// // A third style, Black and white: the silhouette icons drawn in black. The key Krimble/ToolboxGrayIcons is on for it
-// // (ToolboxColorIcons is on with it; grayMode() is checked first).
-// inline bool colorMode()
-// {
-//     return KSharedConfig::openConfig()->group("Krimble").readEntry("ToolboxColorIcons", false);
-// }
-
-// inline bool grayMode()
-// {
-//     return colorMode() && KSharedConfig::openConfig()->group("Krimble").readEntry("ToolboxGrayIcons", false);
-// }
-
-// inline void setColorMode(bool on)
-// {
-//     KConfigGroup group = KSharedConfig::openConfig()->group("Krimble");
-//     group.writeEntry("ToolboxColorIcons", on);
-//     group.writeEntry("ToolboxGrayIcons", false);
-//     group.config()->sync();
-// }
-
-// inline void setGrayMode()
-// {
-//     KConfigGroup group = KSharedConfig::openConfig()->group("Krimble");
-//     group.writeEntry("ToolboxColorIcons", true);
-//     group.writeEntry("ToolboxGrayIcons", true);
-//     group.config()->sync();
-// }
-
-// Icon styles: White (the silhouette icons as they are), Black (the silhouettes drawn in black), Grayscale (the picture icons
-// in shades of gray), Color (the picture icons). Key Krimble/ToolboxIconStyle; an older setting (ToolboxColorIcons / ToolboxGrayIcons) is read once.
-// enum IconStyle { White = 0, Color = 1, Black = 2, Grayscale = 3, Classic = 4 };
-// Photorealistic: George's photo pictures (krita/pics/krimble-toolbox-photo, full size in docs/krimble-icon-sets/photorealistic);
-// a tool without one is drawn as in Classic.
 enum IconStyle { White = 0, Color = 1, Black = 2, Grayscale = 3, Classic = 4, Photorealistic = 5 };
 
-// Classic: as in the classic industry-standard toolbar (docs/krimble-refs/2026-11-21_0436_ps-toolbar-labeled-grayscale-icons.jpg),
-// tools that are shapes and lines are black line art (the silhouettes in black); tools that are objects are shaded gray art
-// (the picture icons in grayscale).
 inline bool classicLineArt(const QString &iconName)
 {
     static const QStringList lineArt = {
@@ -128,14 +86,10 @@ inline int &iconStyleCache()
     return style;
 }
 
-// the Color style was removed ("Remove the color option completely"): a saved Color choice shows White
-// inline int iconStyle() { return iconStyleCache() == Color ? int(White) : iconStyleCache(); }
-// Color and Classic were removed ("Remove the color option completely"; "Lose the \"classic\" version. It's not great."): Color shows as White, Classic as Grayscale
 inline int iconStyle()
 {
     if (iconStyleCache() == Color) return int(White);
     if (iconStyleCache() == Classic) return int(Grayscale);
-    // Photorealistic is held back (its pictures are not in the app): anyone who picked it sees White
     static const bool photosInApp = QFile::exists(QStringLiteral(":/krimble-toolbox-photo/01_01_move.png"));
     if (iconStyleCache() == Photorealistic && !photosInApp) return int(White);
     return iconStyleCache();
@@ -149,15 +103,11 @@ inline void setIconStyle(int style)
     group.config()->sync();
 }
 
-// the picture icons are shown in Color and Grayscale
-// inline bool colorMode() { return iconStyle() == Color || iconStyle() == Grayscale || iconStyle() == Classic; }
 inline bool colorMode() { return iconStyle() == Color || iconStyle() == Grayscale || iconStyle() == Classic || iconStyle() == Photorealistic; }
-inline bool grayMode() { return iconStyle() == Black; }   // (name kept: the Black style)
+inline bool grayMode() { return iconStyle() == Black; }
 inline void setColorMode(bool on) { setIconStyle(on ? Color : White); }
 inline void setGrayMode() { setIconStyle(Black); }
 
-// recolors another icon at whatever size is asked for: 0 = black silhouette, 1 = shades of gray
-// (fixed-size copies can come out tiny on the phone's high-density screen)
 class KrimbleRecolorIconEngine : public QIconEngine
 {
 public:
@@ -198,10 +148,8 @@ private:
     int m_kind;
 };
 
-// a picture in shades of gray (the same light and dark, the transparency kept)
 inline QIcon grayIcon(const QIcon &source) { return QIcon(new KrimbleRecolorIconEngine(source, 1)); }
 
-// the earlier version, fixed-size copies
 inline QIcon grayIconFixedSizes(const QIcon &source)
 {
     QIcon gray;
@@ -241,34 +189,6 @@ inline void setButtonStyle(int style)
     group.config()->sync();
 }
 
-// The Light gray switch: the toolbox buttons get a light gray face (flat or raised), like the classic light gray toolbox. Key Krimble/ToolboxLightGray.
-/*
-inline bool &lightGrayCache()
-{
-    static bool on = KSharedConfig::openConfig()->group("Krimble").readEntry("ToolboxLightGray", false);
-    return on;
-}
-
-inline bool lightGray()
-{
-    return lightGrayCache();
-}
-
-inline void setLightGray(bool on)
-{
-    lightGrayCache() = on;
-    KConfigGroup group = KSharedConfig::openConfig()->group("Krimble");
-    group.writeEntry("ToolboxLightGray", on);
-    group.config()->sync();
-}
-
-inline QColor lightGrayFace()
-{
-    return QColor(198, 198, 202);
-}
-*/
-// Button background: 0 = the panel's own (default), 1 = light gray, 2 = white, 3 = dark gray, 4 = glow (a dark tile with a teal glow,
-// docs/krimble-refs/2026-11-21_1245_glow-background-sample.png: "Let's add that as a standard option, the pretty background."). Key Krimble/ToolboxButtonFace (the older ToolboxLightGray is read once).
 inline int &buttonFaceCache()
 {
     static int face = [] {
@@ -279,8 +199,6 @@ inline int &buttonFaceCache()
     return face;
 }
 
-// inline int buttonFace() { return buttonFaceCache(); }
-// Glow (4) is dropped ("Glow background is dropped."): anyone who had picked it sees the panel background
 inline int buttonFace() { return buttonFaceCache() == 4 ? 0 : buttonFaceCache(); }
 
 inline void setButtonFace(int face)
@@ -291,22 +209,19 @@ inline void setButtonFace(int face)
     group.config()->sync();
 }
 
-// inline bool lightGray() { return buttonFace() != 0; }   // a light background (light gray or white)
-inline bool customFace() { return buttonFace() != 0; }   // a background of its own (light gray, white or dark gray)
-inline bool lightGray() { return buttonFace() == 1 || buttonFace() == 2; }   // a light background (light gray or white)
+inline bool customFace() { return buttonFace() != 0; }
+inline bool lightGray() { return buttonFace() == 1 || buttonFace() == 2; }
 inline void setLightGray(bool on) { setButtonFace(on ? 1 : 0); }
 
 inline QColor lightGrayFace()
 {
-    // return buttonFace() == 2 ? QColor(250, 250, 252) : QColor(198, 198, 202);
     if (buttonFace() == 3) return QColor(78, 78, 84);
-    if (buttonFace() == 4) return QColor(4, 30, 44);   // the glow tile's average, for anything that needs one color
+    if (buttonFace() == 4) return QColor(4, 30, 44);
     return buttonFace() == 2 ? QColor(250, 250, 252) : QColor(198, 198, 202);
 }
 
 inline bool glowFace() { return buttonFace() == 4; }
 
-// the Glow background: a dark navy tile, lit from the middle with teal, rounded a little
 inline void paintGlowTile(QPainter &p, const QRectF &r)
 {
     p.save();
@@ -325,7 +240,6 @@ inline void paintGlowTile(QPainter &p, const QRectF &r)
     p.restore();
 }
 
-// the photorealistic picture for a tool (or a toolbox button such as "08_02_quick_mask"), or a null icon
 inline QIcon photoIcon(const QString &fileName)
 {
     if (fileName.isEmpty()) return QIcon();
@@ -345,11 +259,8 @@ inline bool hasPicture(const QString &iconName)
     return !QIcon(QStringLiteral(":/krimble-toolbox/") + it.value() + QStringLiteral(".png")).isNull();
 }
 
-// the icon for a tool: the picture icon in the Full color style (when the tool has one), the program's own icon otherwise
-// the silhouette icon drawn in black (its shape and transparency kept): the Black and white style
 inline QIcon blackIcon(const QIcon &source) { return QIcon(new KrimbleRecolorIconEngine(source, 0)); }
 
-// the earlier version, fixed-size copies
 inline QIcon blackIconFixedSizes(const QIcon &source)
 {
     QIcon black;
@@ -366,8 +277,6 @@ inline QIcon blackIconFixedSizes(const QIcon &source)
     return black;
 }
 
-// draws another icon larger in its square, at whatever size is asked for (fixed-size copies came out tiny on the
-// phone's high-density screen: the eyedropper "disappeared" in 1.0.73)
 class KrimbleEnlargedIconEngine : public QIconEngine
 {
 public:
@@ -407,7 +316,6 @@ inline QIcon enlargedIcon(const QIcon &source, qreal factor)
     return QIcon(new KrimbleEnlargedIconEngine(source, factor));
 }
 
-// the earlier version: fixed-size copies (too small on the phone)
 inline QIcon enlargedIconFixedSizes(const QIcon &source, qreal factor)
 {
     QIcon bigger;
@@ -430,9 +338,6 @@ inline QIcon plainIcon(const QString &iconName);
 
 inline QIcon icon(const QString &iconName)
 {
-    // the eyedropper is drawn small in its square: it is shown 20% larger ("Our eyedropper could be a little bigger.")
-    // Krimble 2026-11-23: the eyedropper's own SVG files are drawn 20% larger instead; the wrapper had no icon name, so a theme change
-    // skipped it and it stayed light gray in Krimble Light (George: "I want to know why that one tool is borked." / "Yes.")
     return plainIcon(iconName);
 }
 
@@ -442,16 +347,13 @@ inline QIcon plainIcon(const QString &iconName)
         const QIcon photo = photoIcon(files().value(iconName));
         if (!photo.isNull()) return photo;
     }
-    // if (iconStyle() == Classic) {
-    if (iconStyle() == Classic || iconStyle() == Photorealistic) {   // a tool with no photo is drawn as in Classic
+    if (iconStyle() == Classic || iconStyle() == Photorealistic) {
         if (classicLineArt(iconName) || !hasPicture(iconName)) return blackIcon(kisIcon(iconName));
         return grayIcon(QIcon(QStringLiteral(":/krimble-toolbox/") + files().value(iconName) + QStringLiteral(".png")));
     }
 
-    // White icons are only shown on a dark background: on light gray or white they are drawn in black ("White should only appear on dark backgrounds.")
     if (iconStyle() == White && lightGray()) return blackIcon(kisIcon(iconName));
 
-    // Black and white: the silhouettes in black ("the problem with those black and white icons is they're just the color ones desaturated. I'd like to see the silhouettes in black.")
     if (grayMode()) return blackIcon(kisIcon(iconName));
     if (colorMode()) {
         const auto it = files().constFind(iconName);
@@ -463,14 +365,10 @@ inline QIcon plainIcon(const QString &iconName)
     return kisIcon(iconName);
 }
 
-// Quick Mask and Screen Mode: the photo in the Photorealistic style, their own drawn icon otherwise
-// (kept in the button's "krimbleDrawnIcon" property when the button is made)
 inline void refreshGadget(QToolButton *button, const QString &photoName)
 {
     if (!button) return;
     const QIcon photo = iconStyle() == Photorealistic ? photoIcon(photoName) : QIcon();
-    // button->setIcon(!photo.isNull() ? photo : button->property("krimbleDrawnIcon").value<QIcon>());
-    // in the Black style (and on light gray or white buttons) they are drawn black like the tools ("Make UNDO black for black toolbox style.")
     const QIcon drawn = button->property("krimbleDrawnIcon").value<QIcon>();
     const bool black = iconStyle() == Black || lightGray();
     button->setIcon(!photo.isNull() ? photo : (black ? blackIcon(drawn) : drawn));
@@ -484,4 +382,4 @@ inline void refreshGadgets(QWidget *top)
     refreshGadget(top->findChild<QToolButton *>(QStringLiteral("krimbleScreenModeButton")), QStringLiteral("08_03_screen_mode"));
 }
 
-} // namespace KrimbleToolboxIcons
+}

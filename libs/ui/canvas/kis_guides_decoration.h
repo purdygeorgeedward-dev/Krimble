@@ -21,7 +21,6 @@ public:
     KisGuidesDecoration(QPointer<KisView> view);
     ~KisGuidesDecoration() override;
 
-
     void setGuidesConfig(const KisGuidesConfig &value);
     const KisGuidesConfig& guidesConfig() const;
 
@@ -33,4 +32,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif /* __KIS_GUIDES_DECORATION_H */
+#endif

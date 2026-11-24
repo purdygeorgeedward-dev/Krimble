@@ -24,5 +24,5 @@ private Q_SLOTS:
 
 };
 
-#endif /* KIS_SWAPPED_DATA_STORE_TEST_H */
+#endif
 

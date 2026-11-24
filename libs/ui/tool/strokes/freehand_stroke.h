@@ -7,7 +7,6 @@
 #ifndef __FREEHAND_STROKE_H
 #define __FREEHAND_STROKE_H
 
-
 #include <QPen>
 #include "kritaui_export.h"
 #include "kis_types.h"
@@ -17,8 +16,6 @@
 #include <brushengine/kis_paint_information.h>
 #include "kis_lod_transform.h"
 #include "KoColor.h"
-
-
 
 class KRITAUI_EXPORT FreehandStrokeStrategy : public KisPainterBasedStrokeStrategy
 {
@@ -213,4 +210,4 @@ private:
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(FreehandStrokeStrategy::Flags)
 
-#endif /* __FREEHAND_STROKE_H */
+#endif

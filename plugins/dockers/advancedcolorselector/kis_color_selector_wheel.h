@@ -51,4 +51,4 @@ private:
     QTransform m_toRenderArea;
 };
 
-#endif // KIS_COLOR_SELECTOR_WHEEL_H
+#endif

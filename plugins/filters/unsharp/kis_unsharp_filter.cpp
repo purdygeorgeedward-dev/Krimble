@@ -27,20 +27,12 @@
 #include "KoColorSpaceTraits.h"
 #include <KisSequentialIteratorProgress.h>
 
-
 KisUnsharpFilter::KisUnsharpFilter() : KisFilter(id(), FiltersCategorySharpenId, i18n("&Unsharp Mask..."))
 {
     setSupportsPainting(true);
     setSupportsAdjustmentLayers(true);
     setSupportsThreading(true);
 
-    /**
-     * Officially Unsharp Mask doesn't support LoD, because it
-     * generates subtle artifacts when the unsharp radius is smaller
-     * than current zoom level. But LoD devices can still appear when
-     * the filter is used in Adjustment Layer. So the actual LoD is
-     * still counted on.
-     */
     setSupportsLevelOfDetail(false);
     setColorSpaceIndependence(FULLY_INDEPENDENT);
 }
@@ -74,7 +66,6 @@ void KisUnsharpFilter::processImpl(KisPaintDeviceSP device,
     if (progressUpdater) {
         updater.reset(new KoProgressUpdater(progressUpdater));
         updater->start(100, i18n("Unsharp Mask"));
-        // Two sub-sub tasks that each go from 0 to 100.
         convolutionUpdater = updater->startSubtask();
         filterUpdater = updater->startSubtask();
     }
@@ -156,7 +147,7 @@ void KisUnsharpFilter::processLightnessOnly(KisPaintDeviceSP device,
                                             quint8 threshold,
                                             qreal weights[2],
                                             qreal factor,
-                                            const QBitArray & /*channelFlags*/,
+                                            const QBitArray & ,
                                             KoUpdater *progressUpdater) const
 {
     const KoColorSpace *cs = device->colorSpace();

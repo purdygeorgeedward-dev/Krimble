@@ -15,7 +15,6 @@
 
 #include <KisSensorPackInterface.h>
 
-
 struct PAINTOP_EXPORT KisCurveOptionDataCommon : boost::equality_comparable<KisCurveOptionDataCommon>
 {
     static constexpr bool supports_prefix = true;
@@ -60,7 +59,7 @@ struct PAINTOP_EXPORT KisCurveOptionDataCommon : boost::equality_comparable<KisC
     bool useCurve = true;
     bool useSameCurve = true;
 
-    int curveMode = 0; // TODO: to enum!
+    int curveMode = 0;
     QString commonCurve = DEFAULT_CURVE_STRING;
     qreal strengthValue = 1.0;
 
@@ -83,4 +82,4 @@ private:
     void writePrefixed(KisPropertiesConfiguration *setting) const;
 };
 
-#endif // KISCURVEOPTIONDATACOMMON_H
+#endif

@@ -17,7 +17,6 @@
 
 #include <sstream>
 
-//#define DEBUG_ENABLED
 #include "kis_filter_weights_applicator.h"
 
 void debugSpan(const KisFilterWeightsApplicator::BlendSpan &span)
@@ -43,8 +42,6 @@ void testSpan(qreal scale, qreal dx, int dst_l,
     KisFilterWeightsApplicator applicator(0, 0, scale, 0.0, dx, false);
     KisFilterWeightsApplicator::BlendSpan span;
     span = applicator.calculateBlendSpan(dst_l, 0, &buf);
-
-    //debugSpan(span);
 
     if (span.firstBlendPixel != expectedFirstPixel ||
         span.offset != KisFixedPoint(expectedOffset) ||
@@ -244,7 +241,6 @@ void testLineImpl(qreal scale, qreal dx, quint8 expR[], quint8 expA[], int x0, i
     KisFilterWeightsBuffer buf(filter, qAbs(scale));
     KisFilterWeightsApplicator applicator(dev, dev, scale, 0.0, dx, clampToEdge);
 
-
     KisFilterWeightsApplicator::LinePos srcPos(startPos, endPos - startPos);
     KisFilterWeightsApplicator::LinePos dstPos;
 
@@ -264,7 +260,6 @@ void testLineImpl(qreal scale, qreal dx, quint8 expR[], quint8 expA[], int x0, i
         QVERIFY(rc.top() + rc.height() <= dstPos.end());
     }
 
-    //printPixels(dev, x0, len, horizontal, true);
     checkRA(dev, x0, len, expR, expA, horizontal);
 }
 
@@ -499,7 +494,6 @@ void KisFilterWeightsApplicatorTest::testProcessLine_NearestNeighbourFilter_05x(
     testLine(scale, dx, r, a, -1, 7, false, filter);
 }
 
-
 void KisFilterWeightsApplicatorTest::testProcessLine_NearestNeighbourFilter_077x()
 {
 
@@ -552,8 +546,6 @@ void KisFilterWeightsApplicatorTest::testProcessLine_NearestNeighbourFilter_051x
     testLine(scale, dx, r, a, -1, 7, false, filter);
 }
 
-
-
 void KisFilterWeightsApplicatorTest::testProcessLine_NearestNeighbourFilter_15x()
 {
 
@@ -567,7 +559,6 @@ void KisFilterWeightsApplicatorTest::testProcessLine_NearestNeighbourFilter_15x(
     testLine(scale, dx, r, a, -1, 7, false, filter);
 }
 
-
 void preparePixelData(quint8* r, quint8* a, int i)
 {
     for (int j = 0; j < 7; j ++) {
@@ -576,7 +567,6 @@ void preparePixelData(quint8* r, quint8* a, int i)
     }
 
     if (i < 13) {
-        // nothing to do
     } else if (i < 17) {
         r[1] = 40;
         a[1] = 255;
@@ -637,7 +627,6 @@ void preparePixelData(quint8* r, quint8* a, int i)
 
 }
 
-
 void KisFilterWeightsApplicatorTest::testProcessLine_NearestNeighbourFilter_all()
 {
 
@@ -657,9 +646,6 @@ void KisFilterWeightsApplicatorTest::testProcessLine_NearestNeighbourFilter_all(
     }
 }
 
-
-
-
 KisPaintDeviceSP prepareUniformPaintDevice(int pixelsNumber, bool horizontal)
 {
     const KoColorSpace *cs = KoColorSpaceRegistry::instance()->rgb8();
@@ -675,7 +661,7 @@ KisPaintDeviceSP prepareUniformPaintDevice(int pixelsNumber, bool horizontal)
     return dev;
 }
 
-void prepareUniformPixels(quint8 r[], quint8 a[], int pixelsNumber, bool /*horizontal*/)
+void prepareUniformPixels(quint8 r[], quint8 a[], int pixelsNumber, bool )
 {
     for (int i = 0; i < pixelsNumber; i++) {
 
@@ -685,8 +671,6 @@ void prepareUniformPixels(quint8 r[], quint8 a[], int pixelsNumber, bool /*horiz
     }
 
 }
-
-
 
 void KisFilterWeightsApplicatorTest::testProcessLine_NearestNeighbourFilter_0098x_horizontal()
 {
@@ -732,7 +716,6 @@ void KisFilterWeightsApplicatorTest::testProcessLine_NearestNeighbourFilter_0098
 
 }
 
-
 void KisFilterWeightsApplicatorTest::benchmarkProcessesLine()
 {
     const KoColorSpace *cs = KoColorSpaceRegistry::instance()->rgb8();
@@ -758,13 +741,6 @@ void KisFilterWeightsApplicatorTest::benchmarkProcessesLine()
 
 void KisFilterWeightsApplicatorTest::testProcessSolidLine()
 {
-    /**
-     * The idea of the test:
-     *
-     * When transforming a semi-transparent image with solid color fill,
-     * the color channel value must not change. Only alpha channel should
-     * change. Otherwise it'll create user-visible halos.
-     */
 
     int startPos = 0;
     int endPos = 4;
@@ -773,7 +749,6 @@ void KisFilterWeightsApplicatorTest::testProcessSolidLine()
     KisTransaction t(dev);
 
     QScopedPointer<KisFilterStrategy> filter(new KisBicubicFilterStrategy());
-
 
     for (int i = 0; i < 4; i++) {
         dev->setPixel(i, 0, QColor(250, 0, 0, 255 - i * 50));
@@ -785,14 +760,12 @@ void KisFilterWeightsApplicatorTest::testProcessSolidLine()
         checkRA(dev, -1, 6, r, a, true);
     }
 
-
     const qreal scale = 0.9;
     const qreal dx = 0.3;
     const bool clampToEdge = true;
 
     KisFilterWeightsBuffer buf(filter.data(), qAbs(scale));
     KisFilterWeightsApplicator applicator(dev, dev, scale, 0.0, dx, clampToEdge);
-
 
     KisFilterWeightsApplicator::LinePos srcPos(startPos, endPos - startPos);
     KisFilterWeightsApplicator::LinePos dstPos;
@@ -804,15 +777,11 @@ void KisFilterWeightsApplicatorTest::testProcessSolidLine()
     QVERIFY(rc.left() >= dstPos.start());
     QVERIFY(rc.left() + rc.width() <= dstPos.end());
 
-    //printPixels(dev, -1, 6, true, true);
-
     {
-        // the color channel of the scaled image should not change!
         quint8 r[] = {  0, 250, 250, 250, 250,  0,  0};
         quint8 a[] = {  0, 255, 214, 157, 105,  0,  0};
         checkRA(dev, -1, 6, r, a, true);
     }
 }
-
 
 KISTEST_MAIN(KisFilterWeightsApplicatorTest)

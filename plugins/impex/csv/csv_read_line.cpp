@@ -27,7 +27,6 @@ CSVReadLine::~CSVReadLine()
 {
 }
 
-// returns: 0 finished, + continue, - error
 int CSVReadLine::nextLine(QIODevice *io)
 {
     int retval= 0;
@@ -37,7 +36,7 @@ int CSVReadLine::nextLine(QIODevice *io)
         m_linebuf= io->readLine();
 
         if (!m_linebuf.size())
-            retval= 0; //finished
+            retval= 0;
         else {
             if (!m_separator)
                 m_separator= ((m_linebuf.size() > 5) && (m_linebuf[5] == ';')) ?
@@ -47,7 +46,7 @@ int CSVReadLine::nextLine(QIODevice *io)
         }
     } catch(KisAslReaderUtils::ASLParseException &e) {
         warnKrita << "WARNING: CSV:" << e.what();
-        retval= -1; //error
+        retval= -1;
     }
     return retval;
 }
@@ -77,7 +76,6 @@ QString CSVReadLine::nextField()
     i= 0;
 
     if (c == '\"') {
-        //quoted
         while(p < max) {
             c= m_linebuf[p++];
 
@@ -87,7 +85,6 @@ QString CSVReadLine::nextField()
 
                 if (m_linebuf[p] != c) break;
 
-                 //double quote escape sequence
                 ++p;
             }
             if (i < (CSV_FIELD_MAX - 1))
@@ -99,7 +96,6 @@ QString CSVReadLine::nextField()
             if (c == m_separator) break;
         }
     } else {
-        //without quotes
         while (c != m_separator) {
             if (i < (CSV_FIELD_MAX - 1))
                 ptr[i++]= c;

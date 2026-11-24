@@ -32,7 +32,6 @@
 #include "KisAsyncAnimationCacheRenderer.h"
 #include "dialogs/KisAsyncAnimationCacheRenderDialog.h"
 
-
 struct KisAnimationCachePopulator::Private
 {
     KisAnimationCachePopulator *q;
@@ -40,9 +39,6 @@ struct KisAnimationCachePopulator::Private
 
     QTimer timer;
 
-    /**
-     * Counts up the number of subsequent times Krita has been detected idle.
-     */
     int idleCounter;
     QStack<QPair<KisImageWSP, int>> priorityFrames;
     static const int IDLE_COUNT_THRESHOLD = 4;
@@ -114,7 +110,6 @@ struct KisAnimationCachePopulator::Private
         enterState(WaitingForIdle);
     }
 
-
     RegenerationRequestResult tryRequestGeneration()
     {
         while (!priorityFrames.isEmpty()) {
@@ -122,23 +117,13 @@ struct KisAnimationCachePopulator::Private
             const int priorityFrame = priorityFrames.top().second;
             priorityFrames.pop();
 
-            /**
-             * We have just upgraded the image pointer to the
-             * strong pointer, let's check if it is still valid.
-             */
             if (!image) continue;
 
             if (!image->animationInterface()->hasAnimation()) continue;
             if (image->animationInterface()->backgroundFrameGenerationBlocked()) continue;
 
-            /**
-             * It may happen that the view (and the canvas) of this image has already
-             * been removed. Hence the cache does not exist anymore. So we should just
-             * skip this stinking image.
-             */
             KisAnimationFrameCacheSP cache = KisAnimationFrameCache::cacheForImage(image);
             if (!cache) {
-                // a small sanity check that our guess it right...
                 QList<QPointer<KisView>> views = KisPart::instance()->views();
                 auto it = std::find_if(views.constBegin(), views.constEnd(),
                                        [image] (QPointer<KisView> view) {
@@ -157,9 +142,6 @@ struct KisAnimationCachePopulator::Private
                 continue;
             }
 
-            /**
-             * The frame got cached in the meantime, so skip its recalculation
-             */
             if (cache->frameStatus(priorityFrame) == KisAnimationFrameCache::Cached) {
                 continue;
             }
@@ -169,7 +151,6 @@ struct KisAnimationCachePopulator::Private
             if (result == RequestSuccessful) return result;
         }
 
-        // Prioritize the active document
         KisAnimationFrameCacheSP activeDocumentCache = KisAnimationFrameCacheSP(0);
 
         KisMainWindow *activeWindow = part->currentMainwindow();
@@ -181,8 +162,6 @@ struct KisAnimationCachePopulator::Private
 
                 activeDocumentCache = activeCanvas->frameCache();
 
-                // Let's skip frames affected by changes to the active node (on the active document)
-                // This avoids constant invalidation and regeneration while drawing
                 KisNodeSP activeNode = activeCanvas->viewManager()->nodeManager()->activeNode();
                 KisTimeSpan skipRange;
                 if (activeNode) {
@@ -207,12 +186,10 @@ struct KisAnimationCachePopulator::Private
         KisAnimationFrameCache *cache;
         Q_FOREACH (cache, caches) {
             if (cache == activeDocumentCache.data()) {
-                // We already handled this one...
                 continue;
             }
 
             if (!cache->image()->animationInterface()->hasAnimation()) {
-                // This image is not animated
                 continue;
             }
 
@@ -235,8 +212,6 @@ struct KisAnimationCachePopulator::Private
             return RequestPostponed;
         }
 
-        // the higher levels of code should have caught the case when
-        // the image is not animated
         KIS_SAFE_ASSERT_RECOVER_RETURN_VALUE(animation->hasAnimation(), RequestRejected);
 
         KisTimeSpan currentRange = animation->documentPlaybackRange();
@@ -253,7 +228,6 @@ struct KisAnimationCachePopulator::Private
     RegenerationRequestResult regenerate(KisAnimationFrameCacheSP cache, int frame)
     {
         if (state == WaitingForFrame) {
-            // Already busy, deny request
             return RequestRejected;
         }
 
@@ -263,17 +237,10 @@ struct KisAnimationCachePopulator::Private
             return RequestPostponed;
         }
 
-        /**
-         * We should enter the state before the frame is
-         * requested. Otherwise the signal may come earlier than we
-         * enter it.
-         */
         enterState(WaitingForFrame);
 
         regenerator.setFrameCache(cache);
 
-        // if we ever decide to add ROI to background cache
-        // regeneration, it should be added here :)
         regenerator.startFrameRegeneration(cache->image(), frame, KisAsyncAnimationRendererBase::Cancellable, std::move(lock));
 
         return RequestSuccessful;
@@ -302,7 +269,6 @@ struct KisAnimationCachePopulator::Private
 
     void enterState(State newState)
     {
-        //ENTER_FUNCTION() << debugStateToString(state) << "->" << debugStateToString(newState);
 
         state = newState;
         int timerTimeout = -1;
@@ -312,12 +278,9 @@ struct KisAnimationCachePopulator::Private
             timerTimeout = IDLE_CHECK_INTERVAL;
             break;
         case WaitingForFrame:
-            // the timeout is handled by the regenerator now
             timerTimeout = -1;
             break;
         case NotWaitingForAnything:
-            // frame conversion cannot be cancelled,
-            // so there is no timeout
             timerTimeout = -1;
             break;
         case BetweenFrames:
@@ -375,7 +338,6 @@ void KisAnimationCachePopulator::slotTimer()
 
 void KisAnimationCachePopulator::slotRequestRegeneration()
 {
-    // skip if the user forbade background regeneration
     if (!m_d->calculateAnimationCacheInBackground) return;
 
     m_d->enterState(Private::WaitingForIdle);

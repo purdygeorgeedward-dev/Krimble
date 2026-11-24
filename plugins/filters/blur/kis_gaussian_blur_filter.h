@@ -5,7 +5,6 @@
  *  SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-
 #ifndef KIS_GAUSSIAN_BLUR_FILTER_H
 #define KIS_GAUSSIAN_BLUR_FILTER_H
 

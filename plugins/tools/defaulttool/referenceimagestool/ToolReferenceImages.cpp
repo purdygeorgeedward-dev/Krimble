@@ -272,7 +272,6 @@ void ToolReferenceImages::slotSelectionChanged()
 
 QList<QPointer<QWidget>> ToolReferenceImages::createOptionWidgets()
 {
-    // Instead of inheriting DefaultTool's multi-tab implementation, inherit straight from KoToolBase
     return KoToolBase::createOptionWidgets();
 }
 
@@ -280,7 +279,6 @@ QWidget *ToolReferenceImages::createOptionWidget()
 {
     if (!m_optionsWidget) {
         m_optionsWidget = new ToolReferenceImagesWidget(this);
-        // See https://bugs.kde.org/show_bug.cgi?id=316896
         QWidget *specialSpacer = new QWidget(m_optionsWidget);
         specialSpacer->setObjectName("SpecialSpacer");
         specialSpacer->setFixedSize(0, 0);

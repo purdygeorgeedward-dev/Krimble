@@ -27,7 +27,6 @@
 #include "filter/kis_filter_registry.h"
 #include <KisGlobalResourcesInterface.h>
 
-
 void KisLayerTest::testCreation()
 {
 
@@ -56,14 +55,12 @@ void KisLayerTest::testCreation()
     QCOMPARE(layer->channelFlags().at(2), true);
     QCOMPARE(layer->channelFlags().at(3), true);
 
-
     layer->setOpacity(OPACITY_TRANSPARENT_U8);
     QCOMPARE(layer->opacity(), OPACITY_TRANSPARENT_U8);
     layer->setPercentOpacity(100);
     QCOMPARE(layer->opacity(), OPACITY_OPAQUE_U8);
     layer->setPercentOpacity(0);
     QCOMPARE(layer->opacity(), OPACITY_TRANSPARENT_U8);
-
 
 }
 
@@ -80,15 +77,6 @@ void KisLayerTest::testOrdering()
     QVERIFY(layer1->name() == "layer1");
     QVERIFY(layer2->name() == "layer2");
     QVERIFY(layer3->name() == "layer3");
-
-    /*
-      +---------+
-      | layer 2 |
-      | layer 3 |
-      | layer 1 |
-      |root     |
-      +---------+
-     */
 
     QVERIFY(image->addNode(layer1, image->rootLayer()));
     QVERIFY(image->addNode(layer2, image->rootLayer()));
@@ -119,15 +107,6 @@ void KisLayerTest::testOrdering()
     QVERIFY(layer2->nextSibling() == 0);
     QVERIFY(layer1->nextSibling() == layer3.data());
 
-
-    /*
-      +---------+
-      | layer 3 |
-      | layer 2 |
-      | layer 1 |
-      |root     |
-      +---------+
-     */
     QVERIFY(image->moveNode(layer2, image->rootLayer(), layer1));
 
     QVERIFY(image->rootLayer()->at(0) == layer1.data());
@@ -150,7 +129,6 @@ void KisLayerTest::testOrdering()
     QVERIFY(layer1->nextSibling() == layer2.data());
 
 }
-
 
 void KisLayerTest::testMoveNode()
 {
@@ -182,7 +160,6 @@ void KisLayerTest::testMoveNode()
 
 }
 
-
 void KisLayerTest::testMoveLayer()
 {
     const KoColorSpace * colorSpace = KoColorSpaceRegistry::instance()->rgb8();
@@ -211,15 +188,6 @@ void KisLayerTest::testMoveLayer()
     QVERIFY(image->root()->at(2) == node2.data());
 
 }
-
-    /*
-      +----------+
-      |root      |
-      | paint 1  |
-      |  fmask2  |
-      |  fmask1  |
-      +----------+
-     */
 
 void KisLayerTest::testMasksChangeRect()
 {
@@ -258,24 +226,10 @@ void KisLayerTest::testMasksChangeRect()
               "KisNode::N_ABOVE_FILTHY node should NOT take "
               "masks into account");
 
-    /**
-     * KisNode::N_BELOW_FILTHY, KisNode::N_FILTHY_PROJECTION
-     * should not be use by the caller, because the walker
-     * should not visit these node on a forward way.
-     * So the behavior here is undefined.
-     *
-     * resultRect = paintLayer1->changeRect(testRect, KisNode::N_BELOW_FILTHY);
-     * resultRect = paintLayer1->changeRect(testRect, KisNode::N_FILTHY_PROJECTION);
-     */
-
 }
 
 void KisLayerTest::testMoveLayerWithMaskThreaded()
 {
-    /**
-     * This test ensures that the layer's original() can be moved
-     * while its projection is still being updated
-     */
 
     const KoColorSpace * colorSpace = KoColorSpaceRegistry::instance()->rgb8();
     KisImageSP image = new KisImage(0, 2000, 2000, colorSpace, "walker test");
@@ -298,7 +252,6 @@ void KisLayerTest::testMoveLayerWithMaskThreaded()
         paintLayer->setY((i*23) % 1873);
     }
 }
-
 
 SIMPLE_TEST_MAIN(KisLayerTest)
 

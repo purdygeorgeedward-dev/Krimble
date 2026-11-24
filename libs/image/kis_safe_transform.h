@@ -16,7 +16,6 @@ class QRect;
 class QRectF;
 class QPolygonF;
 
-
 class KRITAIMAGE_EXPORT KisSafeTransform
 {
 public:
@@ -43,4 +42,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif /* __KIS_SAFE_TRANSFORM_H */
+#endif

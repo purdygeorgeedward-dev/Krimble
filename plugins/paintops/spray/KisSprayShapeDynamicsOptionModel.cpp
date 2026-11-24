@@ -7,7 +7,6 @@
 
 #include <KisLager.h>
 
-
 KisSprayShapeDynamicsOptionModel::KisSprayShapeDynamicsOptionModel(lager::cursor<KisSprayShapeDynamicsOptionData> _optionData)
     : optionData(_optionData)
     , LAGER_QT(enabled) {_optionData[&KisSprayShapeDynamicsOptionData::enabled]}

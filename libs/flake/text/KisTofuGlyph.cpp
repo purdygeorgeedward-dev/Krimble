@@ -14,10 +14,6 @@
 namespace KisTofuGlyph
 {
 
-// These functions build the QPainterPath for each hex char using polygons.
-// Each char glyph is formed by 3x5 grid of squares constructed from polygons
-// wound in the clockwise direction (counterclockwise to subtract).
-
 static inline QPolygon upperHole()
 {
     return {QVector<QPoint>{{1, 1}, {1, 2}, {2, 2}, {2, 1}}};
@@ -123,7 +119,6 @@ static inline QPainterPath hexChar4()
 static inline QPainterPath hexChar5()
 {
     static const QPainterPath s_path5 = []() {
-        // Just mirror a "2".
         QPainterPath p = hexChar2();
         return QTransform::fromScale(-1, 1).map(p).toReversed().translated(3, 0);
     }();
@@ -184,7 +179,6 @@ static inline QPainterPath hexChar8()
 static inline QPainterPath hexChar9()
 {
     static const QPainterPath s_path9 = []() {
-        // Just rotate a "6" upside-down
         QPainterPath p = hexChar6();
         return QTransform::fromScale(-1, -1).map(p).translated(3, 5);
     }();
@@ -365,9 +359,6 @@ static QPainterPath getHexChar(unsigned value)
     return {};
 }
 
-/**
- * @brief Adds a hex char at the specified row/column to the QPainterPath.
- */
 static void addHexChar(QPainterPath &p, unsigned value, int row, int col)
 {
     QPainterPath glyph = getHexChar(value);
@@ -375,21 +366,11 @@ static void addHexChar(QPainterPath &p, unsigned value, int row, int col)
     p.addPath(glyph);
 }
 
-/**
- * @brief Gets the hex digit at a place.
- * 
- * @param codepoint
- * @param place 0-base digit index
- * @return the digit
- */
 static constexpr unsigned valueAt(const char32_t codepoint, const unsigned place)
 {
     return (codepoint >> (place * 4)) & 0xF;
 }
 
-/**
- * @brief Creates the frame of a tofu glyph
- */
 static inline QPainterPath makeFrame(const int width)
 {
     const int inner = width - 1;
@@ -403,14 +384,8 @@ static inline QPainterPath makeFrame(const int width)
 
 QPainterPath create(const char32_t codepoint, double height)
 {
-    // We build the glyph as a 15x15 or 11x15 grid of squares.
     QPainterPath p;
     if (codepoint > 0xFFFF) {
-        // Codepoints outside the BMP need more than 4 digits to display, so we show 6.
-        // +---+
-        // |01F|
-        // |389| => U+1F389
-        // +---+
         static const QPainterPath s_outline15 = makeFrame(15);
         p.addPath(s_outline15);
         addHexChar(p, valueAt(codepoint, 5), 0, 0);
@@ -420,10 +395,6 @@ QPainterPath create(const char32_t codepoint, double height)
         addHexChar(p, valueAt(codepoint, 1), 1, 1);
         addHexChar(p, valueAt(codepoint, 0), 1, 2);
     } else {
-        // +--+
-        // |27|
-        // |64| => U+2764
-        // +--+
         static const QPainterPath s_outline11 = makeFrame(11);
         p.addPath(s_outline11);
         addHexChar(p, valueAt(codepoint, 3), 0, 0);
@@ -435,4 +406,4 @@ QPainterPath create(const char32_t codepoint, double height)
     return QTransform::fromScale(scale, scale).map(p);
 }
 
-} // namespace KisTofuGlyph
+}

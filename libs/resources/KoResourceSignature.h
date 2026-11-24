@@ -10,13 +10,6 @@
 #include <QString>
 #include <boost/operators.hpp>
 
-/**
- * @brief A simple wrapper object for the main information about the
- * resource.
- *
- * This information is needed to somewhat uniquely identify the resource
- * in the world
- */
 class KRITARESOURCES_EXPORT KoResourceSignature : public boost::equality_comparable<KoResourceSignature>
 {
 public:
@@ -34,4 +27,4 @@ public:
 
 KRITARESOURCES_EXPORT QDebug operator<<(QDebug dbg, const KoResourceSignature &sig);
 
-#endif // KORESOURCESIGNATURE_H
+#endif

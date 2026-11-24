@@ -16,4 +16,4 @@ public:
     virtual void run() = 0;
 };
 
-#endif /* __KIS_RUNNABLE_H */
+#endif

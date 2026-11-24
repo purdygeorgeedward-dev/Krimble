@@ -26,7 +26,6 @@ void initDashedStyle(const QColor &baseColor, const QColor &handleFill, KisHandl
 
 }
 
-
 KisHandleStyle &KisHandleStyle::inheritStyle()
 {
     static QScopedPointer<KisHandleStyle> style;
@@ -80,7 +79,6 @@ KisHandleStyle &KisHandleStyle::gradientArrows(KisHandlePalette palette)
 {
     return primarySelection(palette);
 }
-
 
 KisHandleStyle &KisHandleStyle::highlightedPrimaryHandles(KisHandlePalette palette)
 {

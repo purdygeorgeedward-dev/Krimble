@@ -16,7 +16,6 @@
 #include "kis_algebra_2d.h"
 #include "kis_debug.h"
 
-
 using namespace KisBSplines;
 
 struct Q_DECL_HIDDEN KisCachedGradientShapeStrategy::Private
@@ -35,7 +34,7 @@ KisCachedGradientShapeStrategy::KisCachedGradientShapeStrategy(const QRect &rc,
     : KisGradientShapeStrategy(),
       m_d(new Private())
 {
-    using namespace std::placeholders;  // for _1, _2, _3...
+    using namespace std::placeholders;
 
     KIS_ASSERT_RECOVER_NOOP(rc.width() >= 3 && rc.height() >= 3);
 
@@ -69,7 +68,6 @@ KisCachedGradientShapeStrategy::KisCachedGradientShapeStrategy(const QRect &rc,
 
     m_d->spline.reset(new KisBSpline2D(xStart, xEnd, numSamplesX, Natural,
                                        yStart, yEnd, numSamplesY, Natural));
-
 
     std::function<qreal(qreal, qreal)> valueOp =
         std::bind(&KisGradientShapeStrategy::valueAt, m_d->baseStrategy.data(), _1, _2);

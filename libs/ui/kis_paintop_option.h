@@ -20,20 +20,6 @@ class QWidget;
 class QString;
 class KisPaintopLodLimitations;
 
-
-/**
- * Base interface for paintop options. A paintop option
- * can be enabled/disabled, has a configuration page
- * (for example, a curve), a user-visible name and can
- * be serialized and deserialized into KisPaintOpPresets
- *
- * Because KisPaintOpOption classes create a QWidget in
- * their constructor (the configuration page) you CANNOT
- * create those objects in a KisPaintOp. KisPaintOps are
- * created in non-gui threads.
- *
- * Options are disabled by default.
- */
 class KRITAUI_EXPORT KisPaintOpOption : public QObject
 {
     Q_OBJECT
@@ -70,9 +56,6 @@ public:
 
     QString label() const;
 
-    /**
-     * Reimplement this to use the image in the option widget
-     */
     virtual void setImage(KisImageWSP image);
     virtual void setNode(KisNodeWSP node);
     virtual void setResourcesInterface(KisResourcesInterfaceSP resourcesInterface);
@@ -94,16 +77,10 @@ protected:
     KoCanvasResourcesInterfaceSP canvasResourcesInterface() const;
 
 protected:
-    /**
-     * Re-implement this to save the configuration to the paint configuration.
-     */
     virtual void writeOptionSetting(KisPropertiesConfigurationSP setting) const {
         Q_UNUSED(setting);
     }
 
-    /**
-     * Re-implement this to set the widgets with the values in @p setting.
-     */
     virtual void readOptionSetting(const KisPropertiesConfigurationSP setting) {
         Q_UNUSED(setting);
     }
@@ -115,15 +92,8 @@ protected Q_SLOTS:
 
 Q_SIGNALS:
 
-    /**
-     * Q_EMIT this whenever a setting has changed. It will update the preview
-     */
     void sigSettingChanged();
 
-    /**
-     * Q_EMIT this whenever a checked state of the option has changed. It as always
-     * emitted *before* sigSettingChanged()
-     */
     void sigCheckedChanged(bool value);
     void sigEnabledChanged(bool value);
 

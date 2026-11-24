@@ -117,18 +117,7 @@ void KisBrushModelTest::testTextBrush()
     data.type = KisBrushModel::Text;
     data.common.spacing = 0.5;
 
-    // FIXME: angle and auto-spacing are not saved yet!
-    // data.common.angle = 3;
-    // data.common.autoSpacingCoeff = 1.1;
-    // data.common.useAutoSpacing = true;
-
-    // TODO: implement calculation of the size from the font
-    // data.textBrush.baseSize = {10, 11};
-
     data.textBrush.font = "Font String";
-
-    // FIXME: scale is not saved yet!
-    //data.textBrush.scale = 0.3;
 
     data.textBrush.text = "Test text";
     data.textBrush.usePipeMode = true;

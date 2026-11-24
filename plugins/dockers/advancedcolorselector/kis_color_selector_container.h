@@ -61,4 +61,4 @@ private:
     QPointer<KisCanvas2> m_canvas;
 };
 
-#endif // KIS_COLOR_SELECTOR_CONTAINER_H
+#endif

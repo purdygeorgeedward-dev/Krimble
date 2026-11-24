@@ -18,11 +18,6 @@
 
 #include <KisAutoLevels.h>
 
-/**
- * Shared implementation. Works on RGB images only (same limit as the
- * "auto levels for all channels" button in the Levels dialog); other color
- * models are left unchanged.
- */
 class KisAutoLevelsFilterBase : public KisFilter
 {
 public:
@@ -38,14 +33,9 @@ public:
 
 private:
     KisAutoLevels::MidtonesAdjustmentMethod m_midtonesMethod;
-    qreal m_midtonesAmount; // 0.0 - 1.0
+    qreal m_midtonesAmount;
 };
 
-/**
- * Auto Tone: per-channel contrast stretch (black and white points found
- * separately for each channel, 0.1% clipping at each end). Midtones are not
- * touched.
- */
 class KisAutoToneFilter : public KisAutoLevelsFilterBase
 {
 public:
@@ -57,11 +47,6 @@ public:
     }
 };
 
-/**
- * Auto Color: same per-channel contrast stretch as Auto Tone, plus midtone
- * neutralization: each channel's mean is moved to 50% gray (full strength),
- * which removes color casts.
- */
 class KisAutoColorFilter : public KisAutoLevelsFilterBase
 {
 public:

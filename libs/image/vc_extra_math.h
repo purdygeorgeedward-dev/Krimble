@@ -16,26 +16,19 @@ class VcExtraMath
 {
 public:
 
-    // vectorized erf function, precision 1e-5
     template<typename A>
     static inline xsimd::batch<float, A> erf(const xsimd::batch<float, A> x)
     {
-        /**
-         * Our version of erf() is about 10% faster than the version in
-         * xsimd::erf(), because we require less precision. We don't need
-         * too much of precision to calculate 8-bit masks anyway.
-         */
 
         using float_v = xsimd::batch<float, A>;
         using float_m = typename float_v::batch_bool_type;
         float_v xa = xsimd::abs(x);
-        float_m precisionLimit = xa >= float_v(9.3f); // wrong result for any number beyond this
+        float_m precisionLimit = xa >= float_v(9.3f);
         xa = xsimd::set_zero(xa, precisionLimit);
         float_v sign(1.0f);
         float_m invertMask = x < float_v(0.f);
         sign = xsimd::select(invertMask, float_v(-1.f), sign);
 
-        // CONSTANTS
         float a1 =  0.254829592f;
         float a2 = -0.284496736f;
         float a3 =  1.421413741f;
@@ -49,7 +42,6 @@ public:
         return sign * y;
     }
 };
-#endif /* !defined XSIMD_NO_SUPPORTED_ARCHITECTURE */
+#endif
 
-
-#endif // VC_ADDITIONAL_MATH_H
+#endif

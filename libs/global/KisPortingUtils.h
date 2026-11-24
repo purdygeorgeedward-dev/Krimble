@@ -60,5 +60,4 @@ inline QString stringRemoveFirst(QString str)
 #define Q_UNREACHABLE_RETURN(...) Q_UNREACHABLE(); return __VA_ARGS__
 #endif
 
-
-#endif // KISPORTINGUTILS_H
+#endif

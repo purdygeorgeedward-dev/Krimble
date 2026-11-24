@@ -52,7 +52,7 @@ KisImageFromClipboardWidget::KisImageFromClipboardWidget(QWidget* parent, qint32
     setNumberOfLayers(1);
 
     disconnect(newDialogConfirmationButtonBox, &QDialogButtonBox::accepted, nullptr,
-               nullptr); // disable normal signal
+               nullptr);
     connect(newDialogConfirmationButtonBox, &QDialogButtonBox::accepted, this, &KisImageFromClipboardWidget::createImage);
 }
 
@@ -119,7 +119,6 @@ void KisImageFromClipboardWidget::showEvent(QShowEvent *event)
 
     createClipboardPreview();
 }
-
 
 void KisImageFromClipboardWidget::createClipboardPreview()
 {

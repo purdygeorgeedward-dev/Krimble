@@ -26,7 +26,6 @@ public:
 
 };
 
-
 class KRITARESOURCEWIDGETS_EXPORT KisStorageChooserWidget : public KisPopupButton
 {
     Q_OBJECT
@@ -43,5 +42,4 @@ private:
 
 };
 
-
-#endif // KISSTORAGECHOOSERWIDGET_H
+#endif

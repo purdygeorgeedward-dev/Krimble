@@ -23,7 +23,6 @@ enum KisTransformComponent
 
 Q_DECLARE_FLAGS(KisTransformComponents, KisTransformComponent);
 
-
 KisTransformComponents KRITAGLOBAL_EXPORT makeFullTransformComponents();
 KisTransformComponents KRITAGLOBAL_EXPORT componentsForTransform(const QTransform &t);
 KisTransformComponents KRITAGLOBAL_EXPORT compareTransformComponents(const QTransform &lhs, const QTransform &rhs);
@@ -32,8 +31,5 @@ KisTransformComponents KRITAGLOBAL_EXPORT compareTransformComponents(const QTran
 Q_DECLARE_METATYPE(KisAlgebra2D::KisTransformComponents)
 Q_DECLARE_OPERATORS_FOR_FLAGS(KisAlgebra2D::KisTransformComponents)
 
-
-// we don't use Q_FLAGS's autogeneration of QDebug here because we
-// want to avoid adding Q_NAMESPACE to KisAlgebra2D
 QDebug KRITAGLOBAL_EXPORT operator<<(QDebug dbg, KisAlgebra2D::KisTransformComponent component);
 QDebug KRITAGLOBAL_EXPORT operator<<(QDebug dbg, KisAlgebra2D::KisTransformComponents components);

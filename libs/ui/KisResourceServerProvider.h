@@ -52,4 +52,4 @@ private:
     KoResourceServer<KisPSDLayerStyle> *m_layerStyleServer;
 };
 
-#endif // KIS_RESOURCESERVERPROVIDER_H_
+#endif

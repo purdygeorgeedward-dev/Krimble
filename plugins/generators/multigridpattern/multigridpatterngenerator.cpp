@@ -35,7 +35,6 @@
 #include "kis_wdg_multigrid_pattern.h"
 #include "ui_wdgmultigridpatternoptions.h"
 
-
 K_PLUGIN_FACTORY_WITH_JSON(KritaMultigridPatternGeneratorFactory, "kritamultigridpatterngenerator.json", registerPlugin<KritaMultigridPatternGenerator>();)
 
 KritaMultigridPatternGenerator::KritaMultigridPatternGenerator(QObject *parent, const QVariantList &)
@@ -139,7 +138,6 @@ void KisMultigridPatternGenerator::generate(KisProcessingInformation dstInfo,
         QList<KisMultiGridRhomb> rhombs = generateRhombs(dimensions, divisions, offset);
 
         KisProgressUpdateHelper progress(progressUpdater, 100, rhombs.size());
-
 
         KisPainter gc(dst);
         gc.setChannelFlags(config->channelFlags());
@@ -245,7 +243,7 @@ void KisMultigridPatternGenerator::generate(KisProcessingInformation dstInfo,
 
                     } else if (connectorType == Connector::CornerDot) {
                         QPointF cW(connectorWidth, connectorWidth);
-                        
+
                         QRectF dot (shape.at(0)-cW, shape.at(0)+cW);
                         pConnect.addEllipse(dot);
                         dot = QRectF(shape.at(1)-cW, shape.at(1)+cW);
@@ -255,12 +253,12 @@ void KisMultigridPatternGenerator::generate(KisProcessingInformation dstInfo,
                         dot = QRectF(shape.at(3)-cW, shape.at(3)+cW);
                         pConnect.addEllipse(dot);
                         pConnect = pConnect.intersected(p);
-                        
+
                     } else if (connectorType == Connector::CenterDot) {
-                        
+
                         QRectF dot (center-QPointF(connectorWidth, connectorWidth), center+QPointF(connectorWidth, connectorWidth));
                         pConnect.addEllipse(dot);
-                        
+
                     } else {
                         for (int i=1; i<shape.size(); i++) {
                             QPainterPath pAngle;
@@ -322,19 +320,16 @@ QList<KisMultiGridRhomb> KisMultigridPatternGenerator::generateRhombs(int lines,
     int halfLines = divisions;
     int totalLines = (halfLines*2) +1;
 
-    //setup our imaginary lines...
     int dimensions = lines;
     for (int i = 0; i< dimensions; i++) {
         qreal angle = 2*(M_PI/lines)*i;
         angles.append(angle);
     }
 
-
     for (int i = 0; i <angles.size(); i++ ) {
         qreal angle1 = angles.at(i);
         QPointF p1(totalLines*cos(angle1), -totalLines*sin(angle1));
         QPointF p2 = -p1;
-
 
         for (int parallel1 = 0; parallel1 < totalLines; parallel1++) {
             int index1 = halfLines-parallel1;
@@ -348,14 +343,12 @@ QList<KisMultiGridRhomb> KisMultigridPatternGenerator::generateRhombs(int lines,
                 QPointF p3(totalLines*cos(angle2), -totalLines*sin(angle2));
                 QPointF p4 = -p3;
 
-
                 for (int parallel2 = 0; parallel2 < totalLines; parallel2++) {
                     int index2 = halfLines-parallel2;
 
                     QPointF offset2((index2+offset)*sin(angle2), (index2+offset)*cos(angle2));
                     QLineF l2(p3, p4);
                     l2.translate(offset2);
-
 
                     QPointF intersect;
                     if (l1.intersects(l2, &intersect) == QLineF::BoundedIntersection) {
@@ -393,7 +386,6 @@ QList<KisMultiGridRhomb> KisMultigridPatternGenerator::generateRhombs(int lines,
             }
         }
     }
-
 
     return rhombs;
 }

@@ -52,8 +52,6 @@ void KisTIFFOptions::fromProperties(KisPropertiesConfigurationSP cfg)
     indexToComp[3] = COMPRESSION_LZW;
     indexToComp[4] = COMPRESSION_PIXARLOG;
 
-    // old value that might be still stored in a config (remove after Krita 5.0
-    // :) )
     indexToComp[8] = COMPRESSION_PIXARLOG;
 
     const QHash<int, quint16> psdIndexToComp = {

@@ -46,4 +46,4 @@ private:
 
 };
 
-#endif // KIS_FILTERSPACE_REGISTRY_H_
+#endif

@@ -33,7 +33,7 @@ KisFilterOpSettings::~KisFilterOpSettings()
 
 bool KisFilterOpSettings::paintIncremental()
 {
-    return true; // We always paint on the existing data
+    return true;
 }
 
 KisFilterConfigurationSP KisFilterOpSettings::filterConfig() const

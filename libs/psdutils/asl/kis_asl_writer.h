@@ -30,4 +30,4 @@ private:
     psd_byte_order m_byteOrder;
 };
 
-#endif /* __KIS_ASL_WRITER_H */
+#endif

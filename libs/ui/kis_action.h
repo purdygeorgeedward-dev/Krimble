@@ -13,53 +13,33 @@
 #include <QIcon>
 class KisActionManager;
 
-
-
-/**
- *  KisAction, inheriting from QWidgetAction, is a convenience class for GUI
- *  actions, with Krita's configuration system and GUI states. A widget like a
- *  "save" button may be enabled/disabled, hidden or shown depending on the
- *  state of the application, e.g. whether the image currently being viewed was
- *  modified since it was opened.
- *
- *  Copies of these actions are created for each MainWindow instance. They are
- *  owned by a KisActionManager, of which there is one for each MainWindow. Most
- *  of these instantiations happen inside the constructor for KisMainWindow as
- *  well as the various functions called in KisViewManager::setupManagers().
- *
- **/
-
 class KRITAUI_EXPORT KisAction : public QWidgetAction
 {
     Q_OBJECT
 public:
 
-    /**
-     * If you re-order these, you must change the associated values in
-     * krita.action and kritamenu.action!
-     */
     enum ActivationFlag {
-        NONE                        = 0x0000, ///< Always activate
-        ACTIVE_IMAGE                = 0x0001, ///< Activate if there is at least one image
-        MULTIPLE_IMAGES             = 0x0002, ///< Activate if there is more than one image open
-        CURRENT_IMAGE_MODIFIED      = 0x0004, ///< Activate if the current image is modified
-        ACTIVE_NODE                 = 0x0008, ///< Activate if there's an active node (layer or mask)
-        ACTIVE_DEVICE               = 0x0010, ///< Activate if the active node has a paint device, i.e. there are pixels to be modified
-        ACTIVE_LAYER                = 0x0020, ///< Activate if the current node is a layer (vector or pixel)
-        ACTIVE_TRANSPARENCY_MASK    = 0x0040, ///< Activate if the current node is a transparency mask
-        ACTIVE_SHAPE_LAYER          = 0x0080, ///< Activate if the current node is a vector layer
-        PIXELS_SELECTED             = 0x0100, ///< Activate if any pixels are selected (with any kind of selection)
-        SHAPES_SELECTED             = 0x0200, ///< Activate if any vector shape is selected
-        ANY_SELECTION_WITH_PIXELS   = 0x0400, ///< ???
-        PIXELS_IN_CLIPBOARD         = 0x0800, ///< Activate if the clipboard contains pixels
-        SHAPES_IN_CLIPBOARD         = 0x1000, ///< Activate if the clipboard contains vector data
-        NEVER_ACTIVATE              = 0x2000, ///< ???
-        LAYERS_IN_CLIPBOARD         = 0x4000, ///< ???
-        IMAGE_HAS_ANIMATION         = 0x8000, ///< Activate if the image has an animation
-        SHAPE_SELECTION_WITH_SHAPES = 0x10000, ///< Activate there is a vector selection active
-        PIXEL_SELECTION_WITH_PIXELS = 0x20000, ///< Activate there is a raster selection active
-        IMAGE_CAN_RESELECT          = 0x40000, ///< Activate there is a deselected selection in the image
-        IMAGE_IS_WRITABLE           = 0x80000, ///< Activate KisDocument::isReadWrite() is active
+        NONE                        = 0x0000,
+        ACTIVE_IMAGE                = 0x0001,
+        MULTIPLE_IMAGES             = 0x0002,
+        CURRENT_IMAGE_MODIFIED      = 0x0004,
+        ACTIVE_NODE                 = 0x0008,
+        ACTIVE_DEVICE               = 0x0010,
+        ACTIVE_LAYER                = 0x0020,
+        ACTIVE_TRANSPARENCY_MASK    = 0x0040,
+        ACTIVE_SHAPE_LAYER          = 0x0080,
+        PIXELS_SELECTED             = 0x0100,
+        SHAPES_SELECTED             = 0x0200,
+        ANY_SELECTION_WITH_PIXELS   = 0x0400,
+        PIXELS_IN_CLIPBOARD         = 0x0800,
+        SHAPES_IN_CLIPBOARD         = 0x1000,
+        NEVER_ACTIVATE              = 0x2000,
+        LAYERS_IN_CLIPBOARD         = 0x4000,
+        IMAGE_HAS_ANIMATION         = 0x8000,
+        SHAPE_SELECTION_WITH_SHAPES = 0x10000,
+        PIXEL_SELECTION_WITH_PIXELS = 0x20000,
+        IMAGE_CAN_RESELECT          = 0x40000,
+        IMAGE_IS_WRITABLE           = 0x80000,
     };
     Q_DECLARE_FLAGS(ActivationFlags, ActivationFlag)
 
@@ -91,19 +71,8 @@ public:
 
     virtual void setActionEnabled(bool enabled);
 
-   /**
-    * Set operation id. This will used to run an operation in the KisActionManager
-    */
     void setOperationID(const QString& id);
 
-    /**
-     * Krimble: the operation id set by setOperationID(), or an empty
-     * string for a plain action. Lets the Actions docker tell whether an
-     * action merely dispatches a KisOperation -- in which case the real,
-     * parameterized step arrives separately via
-     * KisActionManager::sigOperationRun and this trigger should not also
-     * be recorded as a duplicate, non-replayable step.
-     */
     QString operationID() const;
 
 Q_SIGNALS:
@@ -117,11 +86,7 @@ private:
 
     friend class KisActionManager;
 
-    /**
-     * Set the action manager. Only used by KisActionManager
-     */
      void setActionManager(KisActionManager* actionManager);
-
 
     class Private;
     Private* const d;
@@ -130,5 +95,4 @@ private:
 Q_DECLARE_OPERATORS_FOR_FLAGS(KisAction::ActivationFlags)
 Q_DECLARE_OPERATORS_FOR_FLAGS(KisAction::ActivationConditions)
 
-
-#endif // KIS_ACTION_H
+#endif

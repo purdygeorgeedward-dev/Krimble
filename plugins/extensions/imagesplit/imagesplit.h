@@ -27,4 +27,4 @@ private Q_SLOTS:
     bool saveAsImage(const QRect &imgSize, const QString &mimeType, const QString &url);
 };
 
-#endif // IMAGESPLIT_H
+#endif

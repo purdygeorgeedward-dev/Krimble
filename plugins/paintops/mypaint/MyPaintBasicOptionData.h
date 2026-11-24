@@ -24,4 +24,4 @@ struct MyPaintBasicOptionData : boost::equality_comparable<MyPaintBasicOptionDat
     void write(KisPropertiesConfiguration *setting) const;
 };
 
-#endif // MYPAINTBASICOPTIONDATA_H
+#endif

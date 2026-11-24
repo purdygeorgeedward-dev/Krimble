@@ -59,8 +59,6 @@ QRectF KoCreatePathTool::decorationsRect() const
         dirtyRect |= kisGrowRect(d->activePoint->boundingRect(false), handleDocRadius());
 
         if (d->pointIsDragged) {
-            // the path is not closed, therefore the point is not marked as
-            // active inside the path itself
             dirtyRect |= handlePaintRect(
                         d->activePoint->parent()->shapeToDocument(
                             d->activePoint->controlPoint2()));
@@ -146,14 +144,10 @@ void KoCreatePathTool::mousePressEvent(KoPointerEvent *event)
 {
     Q_D(KoCreatePathTool);
 
-    // When using touch drawing, we only ever receive move events after the
-    // finger has pressed down. We have to issue an artificial move here so that
-    // the tool's state is updated properly to handle the press.
     if (event->isTouchEvent()) {
         handleMouseMove(event, false);
     }
 
-    //Right click removes last point
     if (event->button() == Qt::RightButton) {
         removeLastPoint();
         return;
@@ -182,25 +176,19 @@ void KoCreatePathTool::mousePressEvent(KoPointerEvent *event)
 
             if (haveCloseModifier) {
                 d->shape->closeMerge();
-                // we are closing the path, so reset the existing start path point
                 d->existingStartPoint = 0;
-                // finish path
                 endPath();
             } else {
-                // the path shape will get closed when the user releases
-                // the mouse button
                 d->finishAfterThisPoint = true;
                 repaintDecorations();
             }
         } else {
             QPointF point = canvas()->snapGuide()->snap(event->point, event->modifiers());
 
-            // check whether we hit an start/end node of an existing path
             d->existingEndPoint = d->endPointAtPosition(point);
             if (d->existingEndPoint.isValid() && d->existingEndPoint != d->existingStartPoint) {
                 point = d->existingEndPoint.path->shapeToDocument(d->existingEndPoint.point->point());
                 d->activePoint->setPoint(point);
-                // finish path
                 endPath();
             } else {
                 d->activePoint->setPoint(point);
@@ -223,7 +211,6 @@ void KoCreatePathTool::mousePressEvent(KoPointerEvent *event)
         pathShape->setStroke(stroke);
         QPointF point = canvas()->snapGuide()->snap(event->point, event->modifiers());
 
-        // check whether we hit an start/end node of an existing path
         d->existingStartPoint = d->endPointAtPosition(point);
 
         if (d->existingStartPoint.isValid()) {
@@ -266,7 +253,6 @@ void KoCreatePathTool::setEnableClosePathShortcut(bool value)
 
 void KoCreatePathTool::mouseDoubleClickEvent(KoPointerEvent *event)
 {
-    //remove handle
     canvas()->updateCanvas(handlePaintRect(event->point));
 
     endPathWithoutLastPoint();
@@ -302,7 +288,6 @@ void KoCreatePathTool::handleMouseMove(const KoPointerEvent *event, bool conside
             d->pointIsDragged = true;
             QPointF offset = snappedPosition - d->activePoint->point();
             d->activePoint->setControlPoint2(d->activePoint->point() + offset);
-            // pressing <alt> stops controls points moving symmetrically
             if ((event->modifiers() & Qt::AltModifier) == 0) {
                 d->activePoint->setControlPoint1(d->activePoint->point() - offset);
             }
@@ -361,7 +346,6 @@ void KoCreatePathTool::mouseReleaseEvent(KoPointerEvent *event)
         canvas()->snapGuide()->setIgnoredPathPoints((QList<KoPathPoint*>() << d->activePoint));
     }
 
-    // apply symmetric point property if applicable
     if (lastActivePoint->activeControlPoint1() && lastActivePoint->activeControlPoint2()) {
         QPointF diff1 = lastActivePoint->point() - lastActivePoint->controlPoint1();
         QPointF diff2 = lastActivePoint->controlPoint2() - lastActivePoint->point();
@@ -381,9 +365,7 @@ void KoCreatePathTool::mouseReleaseEvent(KoPointerEvent *event)
 
         d->shape->closeMerge();
 
-        // we are closing the path, so reset the existing start path point
         d->existingStartPoint = 0;
-        // finish path
         endPath();
     }
 
@@ -459,12 +441,10 @@ void KoCreatePathTool::activate(const QSet<KoShape*> &shapes)
     Q_D(KoCreatePathTool);
     useCursor(Qt::ArrowCursor);
 
-    // retrieve the actual global handle radius
     d->handleRadius = handleRadius();
     d->decorationThickness = decorationThickness();
     d->loadAutoSmoothValueFromConfig();
 
-    // reset snap guide
     canvas()->snapGuide()->reset();
     repaintDecorations();
 }
@@ -501,7 +481,6 @@ bool KoCreatePathTool::addPathShapeImpl(KoPathShape *pathShape, bool tryMergeOnl
     KoPathShape *endShape = 0;
     pathShape->normalize();
 
-    // check if existing start/end points are still valid
     d->existingStartPoint.validate(canvas());
     d->existingEndPoint.validate(canvas());
 
@@ -537,7 +516,6 @@ bool KoCreatePathTool::addPathShapeImpl(KoPathShape *pathShape, bool tryMergeOnl
         pathShape->setStroke(endShape->stroke());
     }
 
-
     if (startShape) {
         canvas()->shapeController()->removeShape(startShape, cmd);
     }
@@ -548,7 +526,6 @@ bool KoCreatePathTool::addPathShapeImpl(KoPathShape *pathShape, bool tryMergeOnl
 
     return true;
 }
-
 
 void KoCreatePathTool::addPathShape(KoPathShape *pathShape)
 {
@@ -617,5 +594,4 @@ QList<QPointer<QWidget> > KoCreatePathTool::createOptionWidgets()
     return list;
 }
 
-//have to include this because of Q_PRIVATE_SLOT
 #include <moc_KoCreatePathTool.cpp>

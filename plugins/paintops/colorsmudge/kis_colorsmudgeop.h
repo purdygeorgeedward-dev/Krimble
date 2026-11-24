@@ -81,4 +81,4 @@ private:
     QScopedPointer<KisColorSmudgeStrategy> m_strategy;
 };
 
-#endif // _KIS_COLORSMUDGEOP_H_
+#endif

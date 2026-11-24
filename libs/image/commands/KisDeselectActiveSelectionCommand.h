@@ -23,4 +23,4 @@ private:
     KisSelectionMaskSP m_deselectedMask;
 };
 
-#endif // KISDESELECTACTIVESELECTIONCOMMAND_H
+#endif

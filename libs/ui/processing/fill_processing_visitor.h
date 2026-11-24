@@ -102,4 +102,4 @@ private:
     QSharedPointer<ProgressHelper> m_progressHelper {nullptr};
 };
 
-#endif /* __FILL_PROCESSING_VISITOR_H */
+#endif

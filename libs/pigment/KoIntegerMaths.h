@@ -53,16 +53,12 @@ inline _T_ CLAMP(_T_ x, _T2_ l, _T3_ u)
     return x;
 }
 
-/// take a and scale it up by 256*b/255
 inline uint UINT8_SCALEBY(uint a, uint b)
 {
     uint c = a * b + 0x80u;
     return (c >> 8) + c;
 }
 
-/// multiplication of two scale values
-/// A scale value is interpreted as 255 equaling 1.0 (such as seen in rgb8 triplets)
-/// thus "255*255=255" because 1.0*1.0=1.0
 inline uint UINT8_MULT(uint a, uint b)
 {
     uint c = a * b + 0x80u;
@@ -75,20 +71,14 @@ inline uint UINT8_DIVIDE(uint a, uint b)
     return c;
 }
 
-/// Approximation of (a * b * c + 32512) / 65025.0
 inline uint UINT8_MULT3(uint a, uint b, uint c)
 {
   uint t = a * b * c + 0x7F5B;
   return ((t >> 7) + t) >> 16;
 }
 
-/// Blending of two scale values as described by the alpha scale value
-/// A scale value is interpreted as 255 equaling 1.0 (such as seen in rgb8 triplets)
-/// Basically we do: a*alpha + b*(1-alpha)
 inline uint UINT8_BLEND(uint a, uint b, uint alpha)
 {
-    // However the formula is refactored to (a-b)*alpha + b  since that saves a multiplication
-    // Signed arithmetic is needed since a-b might be negative
     int c = (int(a) - int(b)) * alpha + 0x80u;
     c = ((c >> 8) + c) >> 8;
     return c + b;
@@ -113,9 +103,6 @@ inline uint UINT16_DIVIDE(uint a, uint b)
 
 inline uint UINT16_BLEND(uint a, uint b, uint alpha)
 {
-    // Basically we do a*alpha + b*(1-alpha)
-    // However refactored to (a-b)*alpha + b  since that saves a multiplication
-    // Signed arithmetic is needed since a-b might be negative
     int c = ((int(a) - int(b)) * int(alpha)) >> 16;
     return uint(c + b);
 }
@@ -127,16 +114,12 @@ inline uint UINT8_TO_UINT16(uint c)
 
 inline uint UINT16_TO_UINT8(uint c)
 {
-    //return round(c / 257.0);
-    //For all UINT16 this calculation is the same and a lot faster (off by c/65656 which for every c is 0)
     c = c - (c >> 8) + 128;
     return c >> 8;
 }
 
 inline int INT16_BLEND(int a, int b, uint alpha)
 {
-    // Basically we do a*alpha + b*(1-alpha)
-    // However refactored to (a-b)*alpha + b  since that saves a multiplication
     int c = ((int(a) - int(b)) * int(alpha)) >> 16;
     return c + b;
 }

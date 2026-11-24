@@ -47,7 +47,6 @@ QPointF FisheyePointAssistant::project(const QPointF& pt, const QPointF& strokeB
     Q_ASSERT(isAssistantComplete());
     e.set(*handles()[0], *handles()[1], *handles()[2]);
 
-    //set the extrapolation ellipse.
     if (e.set(*handles()[0], *handles()[1], *handles()[2])){
         QLineF radius(*handles()[1], *handles()[0]);
         radius.setAngle(fmod(radius.angle()+180.0,360.0));
@@ -66,7 +65,7 @@ QPointF FisheyePointAssistant::project(const QPointF& pt, const QPointF& strokeB
 
 }
 
-QPointF FisheyePointAssistant::adjustPosition(const QPointF& pt, const QPointF& strokeBegin, const bool /*snapToAny*/, qreal /*moveThresholdPt*/)
+QPointF FisheyePointAssistant::adjustPosition(const QPointF& pt, const QPointF& strokeBegin, const bool , qreal )
 {
     return project(pt, strokeBegin);
 }
@@ -94,7 +93,6 @@ void FisheyePointAssistant::drawAssistant(QPainter& gc, const QRectF& updateRect
                     gc.setTransform(initialTransform);
                     gc.setTransform(e.getInverse(), true);
                     QPainterPath path;
-                    // Draw the ellipse
                     path.addEllipse(QPointF(0, 0), extraE.semiMajor(), extraE.semiMinor());
                     drawPreview(gc, path, displayRenderInterface);
                 }
@@ -104,7 +102,6 @@ void FisheyePointAssistant::drawAssistant(QPainter& gc, const QRectF& updateRect
                     gc.setTransform(initialTransform);
                     gc.setTransform(extraE.getInverse(), true);
                     QPainterPath path;
-                    // Draw the ellipse
                     path.addEllipse(QPointF(0, 0), extraE.semiMajor(), extraE.semiMinor());
                     drawPreview(gc, path, displayRenderInterface);
                 }
@@ -114,7 +111,6 @@ void FisheyePointAssistant::drawAssistant(QPainter& gc, const QRectF& updateRect
                     gc.setTransform(initialTransform);
                     gc.setTransform(extraE.getInverse(), true);
                     QPainterPath path;
-                    // Draw the ellipse
                     path.addEllipse(QPointF(0, 0), extraE.semiMajor(), extraE.semiMinor());
                     drawPreview(gc, path, displayRenderInterface);
                 }
@@ -137,7 +133,6 @@ void FisheyePointAssistant::drawCache(QPainter& gc, const KisCoordinatesConverte
     QTransform initialTransform = converter->documentToWidgetTransform();
 
     if (handles().size() == 2) {
-        // just draw the axis
         gc.setTransform(initialTransform);
         QPainterPath path;
         path.moveTo(*handles()[0]);
@@ -146,20 +141,15 @@ void FisheyePointAssistant::drawCache(QPainter& gc, const KisCoordinatesConverte
         return;
     }
     if (e.set(*handles()[0], *handles()[1], *handles()[2])) {
-        // valid ellipse
 
         gc.setTransform(initialTransform);
         gc.setTransform(e.getInverse(), true);
         QPainterPath path;
-        //path.moveTo(QPointF(-e.semiMajor(), -e.semiMinor())); path.lineTo(QPointF(e.semiMajor(), -e.semiMinor()));
         path.moveTo(QPointF(-e.semiMajor(), -e.semiMinor())); path.lineTo(QPointF(-e.semiMajor(), e.semiMinor()));
-        //path.moveTo(QPointF(-e.semiMajor(), e.semiMinor())); path.lineTo(QPointF(e.semiMajor(), e.semiMinor()));
         path.moveTo(QPointF(e.semiMajor(), -e.semiMinor())); path.lineTo(QPointF(e.semiMajor(), e.semiMinor()));
         path.moveTo(QPointF(-(e.semiMajor()*3), -e.semiMinor())); path.lineTo(QPointF(-(e.semiMajor()*3), e.semiMinor()));
         path.moveTo(QPointF((e.semiMajor()*3), -e.semiMinor())); path.lineTo(QPointF((e.semiMajor()*3), e.semiMinor()));
         path.moveTo(QPointF(-e.semiMajor(), 0)); path.lineTo(QPointF(e.semiMajor(), 0));
-        //path.moveTo(QPointF(0, -e.semiMinor())); path.lineTo(QPointF(0, e.semiMinor()));
-        // Draw the ellipse
         path.addEllipse(QPointF(0, 0), e.semiMajor(), e.semiMinor());
         drawPath(gc, path, displayRenderInterface, isSnappingActive());
     }
@@ -188,7 +178,6 @@ bool FisheyePointAssistant::isAssistantComplete() const
 {
     return handles().size() >= 3;
 }
-
 
 FisheyePointAssistantFactory::FisheyePointAssistantFactory()
 {

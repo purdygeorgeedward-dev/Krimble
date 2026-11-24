@@ -119,7 +119,6 @@ TransformTransactionProperties(const QRectF &originalRect,
     }
 
     qreal basePreviewOpacity() const {
-        // Todo: this doesn't work for multiple layers
         return 0.9 * qreal(m_rootNodes[0]->opacity()) / 255.0;
     }
 
@@ -156,10 +155,6 @@ TransformTransactionProperties(const QRectF &originalRect,
     }
 
 private:
-    /**
-     * Information about the original selected rect
-     * (before any transformations)
-     */
     QRectF m_originalRect;
     ToolTransformArgs *m_currentConfig {0};
     KisNodeList m_rootNodes;
@@ -171,4 +166,4 @@ private:
     bool m_boundsRotationAllowed {true};
 };
 
-#endif /* __TRANSFORM_TRANSACTION_PROPERTIES_H */
+#endif

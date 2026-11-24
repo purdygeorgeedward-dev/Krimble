@@ -20,4 +20,4 @@ private Q_SLOTS:
     void redoUndoControlPoint2Symmetric();
 };
 
-#endif // TESTCONTROLPOINTMOVECOMMAND_H
+#endif

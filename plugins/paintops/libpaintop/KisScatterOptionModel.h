@@ -23,4 +23,4 @@ public:
     LAGER_QT_CURSOR(bool, axisY);
 };
 
-#endif // KISSCATTEROPTIONMODEL_H
+#endif

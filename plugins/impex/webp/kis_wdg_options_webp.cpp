@@ -19,9 +19,6 @@ KisWdgOptionsWebP::KisWdgOptionsWebP(QWidget *parent)
 {
     setupUi(this);
 
-    // HACK ALERT!
-    // QScrollArea contents are opaque at multiple levels
-    // The contents themselves AND the viewport widget
     {
         scrollAreaWidgetContents->setAutoFillBackground(false);
         scrollAreaWidgetContents->parentWidget()->setAutoFillBackground(false);

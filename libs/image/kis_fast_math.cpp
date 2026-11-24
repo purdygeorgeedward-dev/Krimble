@@ -14,10 +14,8 @@
 #include <QtGlobal>
 #include <QGlobalStatic>
 
-// Algorithm from http://web.archive.org/web/20090728150504/http://www.snippetcenter.org/en/a-fast-atan2-function-s1868.aspx
 const qreal MAX_SECOND_DERIV_IN_RANGE = 0.6495;
 
-/// precision
 const qreal MAX_ERROR = 0.0001;
 
 struct KisATanTable {
@@ -25,7 +23,6 @@ struct KisATanTable {
     KisATanTable() {
         qreal nf = ::sqrt(MAX_SECOND_DERIV_IN_RANGE / (8 * MAX_ERROR));
         NUM_ATAN_ENTRIES = int(nf) + 1;
-        // Build table
         qreal y = 10.0;
         qreal x;
         ATanTable = new qreal[NUM_ATAN_ENTRIES + 1];
@@ -47,8 +44,6 @@ struct KisATanTable {
 
 Q_GLOBAL_STATIC(KisATanTable, kisATanTable)
 
-/// private functions
-
 inline qreal interp(qreal r, qreal a, qreal b)
 {
     return r*(b - a) + a;
@@ -68,52 +63,38 @@ inline qreal calcAngle(qreal x, qreal y)
 qreal KisFastMath::atan2(qreal y, qreal x)
 {
 
-    if (y == 0.0) { // the line is horizontal
-        if (x >= 0.0) { // towards the right
-            return(0.0);// the angle is 0
+    if (y == 0.0) {
+        if (x >= 0.0) {
+            return(0.0);
         }
-        // toward the left
         return qreal(M_PI);
-    } // we now know that y is not 0 check x
-    if (x == 0.0) { // the line is vertical
+    }
+    if (x == 0.0) {
         if (y > 0.0) {
             return M_PI_2;
         }
         return -M_PI_2;
     }
-    // from here on we know that neither x nor y is 0
     if (x > 0.0) {
-        // we are in quadrant 1 or 4
         if (y > 0.0) {
-            // we are in quadrant 1
-            // now figure out which side of the 45 degree line
             if (x > y) {
                 return(calcAngle(x, y));
             }
             return(M_PI_2 - calcAngle(y, x));
         }
-        // we are in quadrant 4
         y = -y;
-        // now figure out which side of the 45 degree line
         if (x > y) {
             return(-calcAngle(x, y));
         }
         return(-M_PI_2 + calcAngle(y, x));
     }
-    // we are in quadrant 2 or 3
     x = -x;
-    // flip x so we can use it as a positive
     if (y > 0.0) {
-        // we are in quadrant 2
-        // now figure out which side of the 45 degree line
         if (x > y) {
             return(M_PI - calcAngle(x, y));
         } return(M_PI_2 + calcAngle(y, x));
     }
-    // we are in quadrant 3
     y = -y;
-    // flip y so we can use it as a positive
-    // now figure out which side of the 45 degree line
     if (x > y) {
         return(-M_PI + calcAngle(x, y));
     } return(-M_PI_2 - calcAngle(y, x));

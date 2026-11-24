@@ -1,18 +1,3 @@
-/*
- * Krimble 2026-11-23: two additions to every menu (QMenu), installed by KrimbleGlowFilter when a menu is first polished.
- *
- * 868th: lines between the columns of a menu that is too tall for the screen and wraps into columns (the Panels menu).
- * George: "Need vertical dividers for menus that expand wide." / "Dark vertical lines." / "Add a hilight edge like the separator has.
- * Dark line and a light line." / "I can't see the dark line." Qt has no style sheet setting for this, so the lines are painted after the
- * menu's own paint. Only between columns: nothing at the top edge, where the menu meets its title
- * ("THE MENUS TOUCH THEIR TITLE AREAS WITH NO DIVIDING LINES IN BETWEEN EVER.").
- *
- * 876th: a barely visible light line down the left edge of every menu (only the left edge).
- *
- * 875th: a small soft cast shadow on the left, right and bottom of a menu, never on the top (the menu joins its title there).
- * George: "Can menus have a small shadow?" / "Can it be softer and a little bigger?" / "Add it. Keep it small."
- * The shadow is its own see-through window just behind the menu, so the menu itself (its size, its place, its submenus) is unchanged.
- */
 #pragma once
 
 #include <QAction>
@@ -27,8 +12,6 @@
 #include <climits>
 #include <cmath>
 
-// a soft shadow on the left, right and bottom of 'menu'; nothing above its top edge.
-// Thin layers stacked from the outside in: darkest at the menu's edge, fading smoothly to nothing.
 inline void krimblePaintMenuShadow(QPainter &p, const QRectF &menu, qreal size, qreal strength = 0.30)
 {
     const int steps = qMax(1, qRound(size));
@@ -44,7 +27,7 @@ inline void krimblePaintMenuShadow(QPainter &p, const QRectF &menu, qreal size, 
 class KrimbleMenuShadowWindow : public QWidget
 {
 public:
-    static constexpr int kSize = 6;   // units around the menu (about 18 real px on the phone): "Keep it small."
+    static constexpr int kSize = 6;
 
     KrimbleMenuShadowWindow()
         : QWidget(nullptr, Qt::ToolTip | Qt::FramelessWindowHint | Qt::WindowTransparentForInput | Qt::WindowDoesNotAcceptFocus)
@@ -103,7 +86,7 @@ private:
         m_shadow->follow(menu);
         if (!m_shadow->isVisible()) {
             m_shadow->show();
-            menu->raise();   // the menu stays in front of its shadow
+            menu->raise();
         }
         m_shadow->update();
     }
@@ -112,7 +95,6 @@ private:
     {
         if (m_inside) return false;
 
-        // column left edge -> its right edge, and the span the items cover from top to bottom
         QMap<int, int> columns;
         int top = INT_MAX, bottom = INT_MIN;
         Q_FOREACH (QAction *action, menu->actions()) {
@@ -123,23 +105,18 @@ private:
             top = qMin(top, r.top());
             bottom = qMax(bottom, r.bottom());
         }
-        // if (columns.size() < 2) return false;   // one column: the menu is painted as always, nothing added
-        // (876th: every menu is painted here now, for its faint left edge)
 
         m_inside = true;
-        QCoreApplication::sendEvent(menu, event);   // the menu's own paint first
+        QCoreApplication::sendEvent(menu, event);
         m_inside = false;
 
         QPainter p(menu);
         p.setPen(Qt::NoPen);
-        // 876th: a barely visible light line down the menu's left edge only, not around it.
-        // George: "On the left edge of the menu add a barely perceptible light edge. Just barely and only the left edge. Not all around."
         p.fillRect(QRectF(0, 0, 1.0, menu->height()), QColor(255, 255, 255, 18));
-        const qreal thick = 1.0;   // one unit, like the lines of the menu's horizontal separator
+        const qreal thick = 1.0;
         QMap<int, int>::const_iterator previous = columns.constBegin();
         for (QMap<int, int>::const_iterator it = columns.constBegin() + 1; it != columns.constEnd(); ++it, ++previous) {
-            const qreal x = (previous.value() + 1 + it.key()) / 2.0 - thick / 2.0;   // midway between the two columns
-            // the dark line twice as wide as the light one: one unit of black did not show on the dark menu ("I can't see the dark line.")
+            const qreal x = (previous.value() + 1 + it.key()) / 2.0 - thick / 2.0;
             p.fillRect(QRectF(x - thick, top, 2 * thick, bottom + 1 - top), QColor(0, 0, 0));
             p.fillRect(QRectF(x + thick, top, thick, bottom + 1 - top), QColor(255, 255, 255, 110));
         }

@@ -15,7 +15,6 @@
 #include <KisMirrorOptionModel.h>
 #include <KisWidgetConnectionUtils.h>
 
-
 struct KisMirrorOptionWidget::Private
 {
     Private(lager::cursor<KisMirrorOptionData> optionData)

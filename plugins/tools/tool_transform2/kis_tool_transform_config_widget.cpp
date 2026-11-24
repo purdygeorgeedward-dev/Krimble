@@ -27,13 +27,11 @@
 #include <kstandardguiitem.h>
 #include <KisSpinBoxI18nHelper.h>
 
-
 template<typename T> inline T sign(T x) {
     return x > 0 ? 1 : x == (T)0 ? 0 : -1;
 }
 
 const int KisToolTransformConfigWidget::DEFAULT_POINTS_PER_LINE = 3;
-
 
 KisToolTransformConfigWidget::KisToolTransformConfigWidget(TransformTransactionProperties *transaction, KisCanvas2 *canvas, QWidget *parent)
     : QWidget(parent),
@@ -65,7 +63,6 @@ KisToolTransformConfigWidget::KisToolTransformConfigWidget(TransformTransactionP
     rotateCWButton->setIcon(KisIconUtils::loadIcon("transform_icons_rotate_cw"));
     rotateCCWButton->setIcon(KisIconUtils::loadIcon("transform_icons_rotate_ccw"));
 
-    // Granularity can only be specified in the power of 2's
     QStringList granularityValues{"4","8","16","32"};
     changeGranularity->addItems(granularityValues);
     changeGranularity->setCurrentIndex(1);
@@ -77,7 +74,6 @@ KisToolTransformConfigWidget::KisToolTransformConfigWidget(TransformTransactionP
     connect(granularityPreview, SIGNAL(currentTextChanged(QString)),
             this,SLOT(slotPreviewGranularityChanged(QString)));
 
-    // Init Filter  combo
     cmbFilter->setIDList(KisFilterStrategyRegistry::instance()->listKeys());
     cmbFilter->setCurrent("Bicubic");
     cmbFilter->setToolTip(i18nc("@info:tooltip",
@@ -91,14 +87,12 @@ KisToolTransformConfigWidget::KisToolTransformConfigWidget(TransformTransactionP
     connect(cmbFilter, SIGNAL(activated(KoID)),
             this, SLOT(slotFilterChanged(KoID)));
 
-    // Init Warp Type combo
     cmbWarpType->insertItem(KisWarpTransformWorker::AFFINE_TRANSFORM,i18n("Default (Affine)"));
     cmbWarpType->insertItem(KisWarpTransformWorker::RIGID_TRANSFORM,i18n("Strong (Rigid)"));
     cmbWarpType->insertItem(KisWarpTransformWorker::SIMILITUDE_TRANSFORM,i18n("Strongest (Similitude)"));
     cmbWarpType->setCurrentIndex(KisWarpTransformWorker::AFFINE_TRANSFORM);
     connect(cmbWarpType, SIGNAL(currentIndexChanged(int)), this, SLOT(slotWarpTypeChanged(int)));
 
-    // Init Rotation Center buttons
     m_handleDir[0] = QPointF(1, 0);
     m_handleDir[1] = QPointF(1, -1);
     m_handleDir[2] = QPointF(0, -1);
@@ -107,10 +101,9 @@ KisToolTransformConfigWidget::KisToolTransformConfigWidget(TransformTransactionP
     m_handleDir[5] = QPointF(-1, 1);
     m_handleDir[6] = QPointF(0, 1);
     m_handleDir[7] = QPointF(1, 1);
-    m_handleDir[8] = QPointF(0, 0); // also add the center
+    m_handleDir[8] = QPointF(0, 0);
 
     m_rotationCenterButtons = new QButtonGroup(0);
-    // we set the ids to match m_handleDir
     m_rotationCenterButtons->addButton(middleRightButton, 0);
     m_rotationCenterButtons->addButton(topRightButton, 1);
     m_rotationCenterButtons->addButton(middleTopButton, 2);
@@ -124,11 +117,9 @@ KisToolTransformConfigWidget::KisToolTransformConfigWidget(TransformTransactionP
     QToolButton *nothingSelected = new QToolButton(0);
     nothingSelected->setCheckable(true);
     nothingSelected->setAutoExclusive(true);
-    nothingSelected->hide(); // a convenient button for when no button is checked in the group
+    nothingSelected->hide();
     m_rotationCenterButtons->addButton(nothingSelected, 9);
 
-
-    // initialize values for free transform sliders
     shearXBox->setSuffix(QStringLiteral("%"));
     shearYBox->setSuffix(QStringLiteral("%"));
     shearXBox->setRange(-500, 500, 2);
@@ -138,12 +129,10 @@ KisToolTransformConfigWidget::KisToolTransformConfigWidget(TransformTransactionP
     shearXBox->setValue(0.0);
     shearYBox->setValue(0.0);
 
-
     translateXBox->setSuffix(i18n(" px"));
     translateYBox->setSuffix(i18n(" px"));
     translateXBox->setRange(-10000, 10000);
     translateYBox->setRange(-10000, 10000);
-
 
     scaleXBox->setRange(-10000, 10000);
     scaleYBox->setRange(-10000, 10000);
@@ -153,7 +142,6 @@ KisToolTransformConfigWidget::KisToolTransformConfigWidget(TransformTransactionP
     KisSpinBoxI18nHelper::setText(scaleYBox, i18nc("{n} is the number value, % is the percent sign", "{n}%"));
 
     m_scaleRatio = 1.0;
-
 
     aXBox->setIncreasingDirection(KisAngleGauge::IncreasingDirection_Clockwise);
     aYBox->setIncreasingDirection(KisAngleGauge::IncreasingDirection_Clockwise);
@@ -167,7 +155,6 @@ KisToolTransformConfigWidget::KisToolTransformConfigWidget(TransformTransactionP
     connect(m_rotationCenterButtons, SIGNAL(idPressed(int)), this, SLOT(slotRotationCenterChanged(int)));
     connect(btnTransformAroundPivotPoint, SIGNAL(clicked(bool)), this, SLOT(slotTransformAroundRotationCenter(bool)));
 
-    // Init Free Transform Values
     connect(scaleXBox, SIGNAL(valueChanged(int)), this, SLOT(slotSetScaleX(int)));
     connect(scaleYBox, SIGNAL(valueChanged(int)), this, SLOT(slotSetScaleY(int)));
     connect(shearXBox, SIGNAL(valueChanged(qreal)), this, SLOT(slotSetShearX(qreal)));
@@ -184,21 +171,16 @@ KisToolTransformConfigWidget::KisToolTransformConfigWidget(TransformTransactionP
     connect(rotateCWButton, SIGNAL(clicked(bool)), this, SLOT(slotRotateCW()));
     connect(rotateCCWButton, SIGNAL(clicked(bool)), this, SLOT(slotRotateCCW()));
 
-    // toggle visibility of different free buttons
     connect(freeMoveRadioButton, SIGNAL(clicked(bool)), SLOT(slotTransformAreaVisible(bool)));
     connect(freeRotationRadioButton, SIGNAL(clicked(bool)), SLOT(slotTransformAreaVisible(bool)));
     connect(freeScaleRadioButton, SIGNAL(clicked(bool)), SLOT(slotTransformAreaVisible(bool)));
     connect(freeShearRadioButton, SIGNAL(clicked(bool)), SLOT(slotTransformAreaVisible(bool)));
 
-    // only first group for free transform
     rotationGroup->hide();
     moveGroup->show();
     scaleGroup->hide();
     shearGroup->hide();
 
-
-
-    // Init Warp Transform Values
     alphaBox->setSingleStep(0.1);
     alphaBox->setRange(0, 10, 1);
 
@@ -210,12 +192,10 @@ KisToolTransformConfigWidget::KisToolTransformConfigWidget(TransformTransactionP
     connect(lockUnlockPointsButton, SIGNAL(clicked()), this, SLOT(slotWarpLockPointsButtonClicked()));
     connect(resetPointsButton, SIGNAL(clicked()), this, SLOT(slotWarpResetPointsButtonClicked()));
 
-    // Init Cage Transform Values
-    cageTransformButtonGroup->setId(cageAddEditRadio, 0); // we need to set manually since Qt Designer generates negative by default
+    cageTransformButtonGroup->setId(cageAddEditRadio, 0);
     cageTransformButtonGroup->setId(cageDeformRadio, 1);
     connect(cageTransformButtonGroup, SIGNAL(idClicked(int)), this, SLOT(slotCageOptionsChanged(int)));
 
-    // Init Liquify Transform Values
     liquifySizeSlider->setRange(KisLiquifyProperties::minSize(),
                                 KisLiquifyProperties::maxSize(), 2);
     liquifySizeSlider->setExponentRatio(3);
@@ -238,7 +218,7 @@ KisToolTransformConfigWidget::KisToolTransformConfigWidget(TransformTransactionP
     connect(liquifyFlowSlider, SIGNAL(editingFinished()), SLOT(notifyEditingFinished()));
     liquifyFlowSlider->setToolTip(i18nc("@info:tooltip", "When in non-buildup mode, shows how fast the deformation limit is reached."));
 
-    buildupModeComboBox->setCurrentIndex(0); // set to build-up mode by default
+    buildupModeComboBox->setCurrentIndex(0);
     connect(buildupModeComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(liquifyBuildUpChanged(int)));
     connect(buildupModeComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(notifyEditingFinished()));
     buildupModeComboBox->setToolTip("<p>" + i18nc("@info:tooltip", "Switch between Build Up and Wash mode of painting. Build Up mode adds deformations one on top of the other without any limits. Wash mode gradually deforms the piece to the selected deformation level.") + "</p>");
@@ -286,14 +266,8 @@ KisToolTransformConfigWidget::KisToolTransformConfigWidget(TransformTransactionP
     liquifyOffset->setToolTip(i18nc("@info:tooltip", "Offset: shift the image to the right of the stroke direction"));
     liquifyUndo->setToolTip(i18nc("@info:tooltip", "Undo: erase actions of other tools"));
 
-    // Connect all edit boxes to the Editing Finished signal
     connect(densityBox, SIGNAL(editingFinished()), this, SLOT(notifyEditingFinished()));
 
-
-
-    // Connect other widget (not having editingFinished signal) to
-    // the same slot. From Qt 4.6 onwards the sequence of the signal
-    // delivery is definite.
     connect(cmbFilter, SIGNAL(activated(KoID)), this, SLOT(notifyEditingFinished()));
     connect(cmbWarpType, SIGNAL(currentIndexChanged(int)), this, SLOT(notifyEditingFinished()));
     connect(m_rotationCenterButtons, SIGNAL(idPressed(int)), this, SLOT(notifyEditingFinished()));
@@ -305,15 +279,8 @@ KisToolTransformConfigWidget::KisToolTransformConfigWidget(TransformTransactionP
     connect(defaultRadioButton, SIGNAL(clicked(bool)), this, SLOT(notifyEditingFinished()));
     connect(customRadioButton, SIGNAL(clicked(bool)), this, SLOT(notifyEditingFinished()));
 
-    // Liquify
-    //
-    // liquify brush options do not affect the image directly and are not
-    // saved to undo, so we don't Q_EMIT notifyEditingFinished() for them
-
-    // Connect Apply/Reset buttons
     connect(buttonBox, SIGNAL(clicked(QAbstractButton*)), this, SLOT(slotButtonBoxClicked(QAbstractButton*)));
 
-    // Mesh. First set up, then connect.
     intNumRows->setRange(1, 999);
     intNumColumns->setRange(1, 999);
 
@@ -326,7 +293,6 @@ KisToolTransformConfigWidget::KisToolTransformConfigWidget(TransformTransactionP
     connect(intNumColumns, SIGNAL(editingFinished()), this, SLOT(notifyEditingFinished()));
     connect(intNumRows, SIGNAL(editingFinished()), this, SLOT(notifyEditingFinished()));
 
-    // Mode switch buttons
     connect(freeTransformButton, SIGNAL(clicked(bool)), this, SLOT(slotSetFreeTransformModeButtonClicked(bool)));
     connect(warpButton, SIGNAL(clicked(bool)), this, SLOT(slotSetWarpModeButtonClicked(bool)));
     connect(cageButton, SIGNAL(clicked(bool)), this, SLOT(slotSetCageModeButtonClicked(bool)));
@@ -344,8 +310,6 @@ KisToolTransformConfigWidget::KisToolTransformConfigWidget(TransformTransactionP
     horizontalLayout_3->insertWidget(1, m_krimbleRotateButton);
     connect(m_krimbleRotateButton, SIGNAL(clicked(bool)), this, SLOT(slotKrimbleRotateButtonClicked(bool)));
 
-    // Stretch (the non-uniform scale) and Shear are mode buttons of their own, like Warp;
-    // the order is Scale, Stretch, Rotate, Shear, Perspective, Warp, Cage, Liquify, Mesh
     auto krimbleModeButton = [this](const QString &name) {
         QToolButton *button = new QToolButton(freeTransformButton->parentWidget());
         button->setCheckable(true);
@@ -357,33 +321,28 @@ KisToolTransformConfigWidget::KisToolTransformConfigWidget(TransformTransactionP
     };
     m_krimbleStretchButton = krimbleModeButton(i18n("Stretch"));
     m_krimbleShearButton = krimbleModeButton(i18n("Shear"));
-    horizontalLayout_3->insertWidget(1, m_krimbleStretchButton);   // after Scale (Rotate moves to the third place)
-    horizontalLayout_3->insertWidget(3, m_krimbleShearButton);     // after Rotate
+    horizontalLayout_3->insertWidget(1, m_krimbleStretchButton);
+    horizontalLayout_3->insertWidget(3, m_krimbleShearButton);
     connect(m_krimbleStretchButton, SIGNAL(clicked(bool)), this, SLOT(slotKrimbleStretchButtonClicked(bool)));
     connect(m_krimbleShearButton, SIGNAL(clicked(bool)), this, SLOT(slotKrimbleShearButtonClicked(bool)));
 
-    // the Position, Rotate, Scale and Shear radio buttons are hidden: each is a mode button now (Position is the Move tool, and a drag inside the box in every mode);
-    // the keep-aspect chain is hidden too: Scale keeps the proportions, Stretch does not
     freeMoveRadioButton->hide();
     freeRotationRadioButton->hide();
     freeScaleRadioButton->hide();
     freeShearRadioButton->hide();
     aspectButton->hide();
-    lblTransformType->setText(i18n("Scale"));   // was "Free Transform" (no "Free" in any name)
-    lblTransformType->hide();   // the mode name is in the title row ("Transform \u2013 Scale"); here it only repeated it
+    lblTransformType->setText(i18n("Scale"));
+    lblTransformType->hide();
     qApp->installEventFilter(this);
 
     Q_FOREACH (QToolButton *modeButton, QList<QToolButton*>({freeTransformButton, m_krimbleStretchButton, m_krimbleRotateButton, m_krimbleShearButton, perspectiveTransformButton, warpButton,
                                                               cageButton, liquifyButton, meshButton})) {
-        // modeButton->setIconSize(QSize(20, 20));
-        // modeButton->setMinimumHeight(30);
         modeButton->setIconSize(QSize(28, 28));
         modeButton->setMinimumHeight(38);
         modeButton->setStyleSheet(QStringLiteral(
             "QToolButton { padding: 4px; border-radius: 6px; }"
             "QToolButton:checked { background-color: palette(highlight); color: palette(highlighted-text); }"));
     }
-
 
     tooBigLabelWidget->hide();
 
@@ -412,8 +371,6 @@ void KisToolTransformConfigWidget::slotUpdateIcons()
     liquifyOffset->setIcon(KisIconUtils::loadIcon("transform_icons_liquify_offset"));
     liquifyUndo->setIcon(KisIconUtils::loadIcon("transform_icons_liquify_erase"));
 
-
-
     middleRightButton->setIcon(KisIconUtils::loadIcon("arrow-right"));
     topRightButton->setIcon(KisIconUtils::loadIcon("arrow-topright"));
     middleTopButton->setIcon(KisIconUtils::loadIcon("arrow-up"));
@@ -425,8 +382,6 @@ void KisToolTransformConfigWidget::slotUpdateIcons()
 
     btnTransformAroundPivotPoint->setIcon(KisIconUtils::loadIcon("pivot-point"));
 
-
-    // pressure icons
     liquifySizePressureBox->setIcon(KisIconUtils::loadIcon("transform_icons_penPressure"));
     liquifyAmountPressureBox->setIcon(KisIconUtils::loadIcon("transform_icons_penPressure"));
 }
@@ -450,7 +405,6 @@ void KisToolTransformConfigWidget::updateLiquifyControls()
     liquifySizePressureBox->setChecked(props->sizeHasPressure());
     liquifyAmountPressureBox->setChecked(props->amountHasPressure());
     liquifyReverseDirectionChk->setChecked(props->reverseDirection());
-
 
     KisLiquifyProperties::LiquifyMode mode =
         static_cast<KisLiquifyProperties::LiquifyMode>(props->mode());
@@ -536,11 +490,10 @@ void KisToolTransformConfigWidget::liquifyBuildUpChanged(int value)
     KisLiquifyProperties *props =
         config->liquifyProperties();
 
-    props->setUseWashMode(value); // 0 == build up mode / 1 == wash mode
+    props->setUseWashMode(value);
 
     notifyConfigChanged(false);
 
-    // we need to enable/disable flow slider
     updateLiquifyControls();
 }
 
@@ -592,11 +545,10 @@ void KisToolTransformConfigWidget::liquifyReverseDirectionChanged(bool value)
     notifyConfigChanged(false);
 }
 
-static int s_krimbleFreeKind = 0;   // Scale (0, uniform: the default), Stretch (1, non-uniform) or Shear (2)
+static int s_krimbleFreeKind = 0;
 
 static void krimbleShowTransformTitle(QWidget *from, const ToolTransformArgs &config)
 {
-    // if (!from || KoToolManager::instance()->activeToolId() != QLatin1String("KisToolTransform")) return;
     if (!from) return;
     const QString activeId = KoToolManager::instance()->activeToolId();
     if (activeId != QLatin1String("KisToolTransform") && activeId != QLatin1String("KisToolFreeRotate")) return;
@@ -608,7 +560,6 @@ static void krimbleShowTransformTitle(QWidget *from, const ToolTransformArgs &co
         case ToolTransformArgs::GestureMove: title = QObject::tr("Position"); break;
         case ToolTransformArgs::GestureRotate: title = QObject::tr("Rotate"); break;
         case ToolTransformArgs::GestureShear: title = QObject::tr("Shear"); break;
-        // default: title = QObject::tr("Scale"); break;
         default: title = s_krimbleFreeKind == 1 ? QObject::tr("Stretch") : QObject::tr("Scale"); break;
         }
         break;
@@ -619,16 +570,13 @@ static void krimbleShowTransformTitle(QWidget *from, const ToolTransformArgs &co
     case ToolTransformArgs::MESH: title = QObject::tr("Mesh"); break;
     default: return;
     }
-    title = QObject::tr("Transform") + QString::fromUtf8(" \u2013 ") + title;   // one line: the tool, then the mode ("Transform \u2013 Shear")
+    title = QObject::tr("Transform") + QString::fromUtf8(" \u2013 ") + title;
     if (QWidget *window = from->window()) {
-        // if (QLabel *label = window->findChild<QLabel *>(QStringLiteral("krimbleToolOptionsName"))) label->setText(title);
         if (QLabel *label = window->findChild<QLabel *>(QStringLiteral("krimbleToolOptionsName"))) {
             label->setText(title);
-            // the name is shown in the Tool Options title row (the label itself is hidden)
             for (QWidget *w = label->parentWidget(); w; w = w->parentWidget()) {
                 if (QDockWidget *dock = qobject_cast<QDockWidget *>(w)) {
-                    // if (dock->titleBarWidget()) QMetaObject::invokeMethod(dock->titleBarWidget(), "setTitleOverride", Q_ARG(QString, title));
-                    if (dock->titleBarWidget()) QMetaObject::invokeMethod(dock->titleBarWidget(), "setTitleOverride", Q_ARG(QString, QString()));   // the title stays "Tool Options"; the label line shows the mode
+                    if (dock->titleBarWidget()) QMetaObject::invokeMethod(dock->titleBarWidget(), "setTitleOverride", Q_ARG(QString, QString()));
                     break;
                 }
             }
@@ -641,7 +589,7 @@ void KisToolTransformConfigWidget::updateConfig(const ToolTransformArgs &config)
     blockUiSlots();
     krimbleShowTransformTitle(this, config);
     krimblePublishMode(config);
- 
+
     if (config.mode() == ToolTransformArgs::FREE_TRANSFORM ||
         config.mode() == ToolTransformArgs::PERSPECTIVE_4POINT) {
 
@@ -653,14 +601,9 @@ void KisToolTransformConfigWidget::updateConfig(const ToolTransformArgs &config)
 
         if (freeTransformIsActive)
         {
-            // freeTransformButton->setChecked(true);
-            // if (m_krimbleRotateButton && KoToolManager::instance()->activeToolId() == QLatin1String("KisToolFreeRotate")) {
-            //     m_krimbleRotateButton->setChecked(true);
-            // }
             if (m_krimbleRotateButton && KoToolManager::instance()->activeToolId() == QLatin1String("KisToolFreeRotate")) {
                 m_krimbleRotateButton->setChecked(true);
             } else {
-                // the chosen one of Scale, Stretch and Shear stays chosen for every new transform (a new transform starts as Scale)
                 if (m_transaction && m_transaction->currentConfig()) {
                     ToolTransformArgs *current = m_transaction->currentConfig();
                     current->setFreeGesture(s_krimbleFreeKind == 2 ? ToolTransformArgs::GestureShear : ToolTransformArgs::GestureScale);
@@ -747,17 +690,14 @@ void KisToolTransformConfigWidget::updateConfig(const ToolTransformArgs &config)
 
     } else if (config.mode() == ToolTransformArgs::CAGE) {
 
-        // default UI options
         resetUIOptions();
 
-        // we need at least 3 point before we can start actively deforming
         if (config.origPoints().size() >= 3)
         {
             cageTransformDirections->setText(i18n("Switch between editing and deforming cage"));
             cageAddEditRadio->setVisible(true);
             cageDeformRadio->setVisible(true);
 
-            // update to correct radio button
             if (config.isEditingTransformPoints())
                 cageAddEditRadio->setChecked(true);
             else
@@ -837,7 +777,6 @@ void KisToolTransformConfigWidget::resetRotationCenterButtons()
     int checkedId = m_rotationCenterButtons->checkedId();
 
     if (checkedId >= 0 && checkedId <= 8) {
-        // uncheck the current checked button
         m_rotationCenterButtons->button(9)->setChecked(true);
     }
 }
@@ -883,10 +822,8 @@ void KisToolTransformConfigWidget::notifyEditingFinished()
     m_configChanged = false;
 }
 
-
 void KisToolTransformConfigWidget::resetUIOptions()
 {
-    // reset tool states since we are done (probably can encapsulate this later)
     ToolTransformArgs *config = m_transaction->currentConfig();
     if (config->mode() == ToolTransformArgs::CAGE)
     {
@@ -895,11 +832,8 @@ void KisToolTransformConfigWidget::resetUIOptions()
         cageDeformRadio->setVisible(false);
         cageTransformDirections->setText(i18n("Create 3 points on the canvas to begin"));
 
-        // ensure we are on the right options view
         stackedWidget->setCurrentIndex(2);
     }
-
-
 
 }
 
@@ -936,7 +870,6 @@ void KisToolTransformConfigWidget::slotKrimbleRotateButtonClicked(bool value)
         QTimer::singleShot(0, []() { KoToolManager::instance()->switchToolRequested(QStringLiteral("KisToolFreeRotate")); });
         return;
     }
-    // already in the Rotate tool, in another mode (Warp, Cage...): back to the Free mode, which is rotating there
     lblTransformType->setText(m_krimbleRotateButton->toolTip());
     Q_EMIT sigResetTransform(ToolTransformArgs::FREE_TRANSFORM);
 }
@@ -944,7 +877,7 @@ void KisToolTransformConfigWidget::slotKrimbleRotateButtonClicked(bool value)
 void KisToolTransformConfigWidget::slotSetFreeTransformModeButtonClicked(bool value)
 {
     if (!value) return;
-    krimbleSetFreeKind(0);   // Scale
+    krimbleSetFreeKind(0);
 }
 
 void KisToolTransformConfigWidget::slotKrimbleStretchButtonClicked(bool value)
@@ -962,7 +895,6 @@ void KisToolTransformConfigWidget::slotKrimbleShearButtonClicked(bool value)
 void KisToolTransformConfigWidget::krimbleSetFreeKind(int kind)
 {
     s_krimbleFreeKind = kind;
-    // already the free transform in the Transform tool: change the gesture only (the picture is not reset)
     if (KoToolManager::instance()->activeToolId() == QLatin1String("KisToolTransform")
             && m_transaction && m_transaction->currentConfig()
             && m_transaction->currentConfig()->mode() == ToolTransformArgs::FREE_TRANSFORM) {
@@ -1140,7 +1072,6 @@ void KisToolTransformConfigWidget::slotSetShearY(qreal value)
         config->setShearY((double)value / 100.);
     }
 
-
     notifyConfigChanged();
     notifyEditingFinished();
 }
@@ -1283,22 +1214,16 @@ void KisToolTransformConfigWidget::slotRotateCCW()
     notifyEditingFinished();
 }
 
-
-// change free transform setting we want to alter (all radio buttons call this)
 void KisToolTransformConfigWidget::slotTransformAreaVisible(bool value)
 {
     Q_UNUSED(value);
 
-    //QCheckBox sender = (QCheckBox)(*)(QObject::sender());
     QString senderName = QObject::sender()->objectName();
 
-
-    // only show setting with what we have selected
     rotationGroup->hide();
     shearGroup->hide();
     scaleGroup->hide();
     moveGroup->hide();
-
 
     ToolTransformArgs::FreeGesture gesture = ToolTransformArgs::GestureRotate;
     if ("freeMoveRadioButton" == senderName)
@@ -1391,9 +1316,6 @@ void KisToolTransformConfigWidget::activateCustomWarpPoints(bool enabled)
         setDefaultWarpPoints(0);
     }
 
-
-
-
     updateLockPointsButtonCaption();
 }
 
@@ -1426,7 +1348,6 @@ void KisToolTransformConfigWidget::slotWarpLockPointsButtonClicked()
     config->setEditingTransformPoints(!config->isEditingTransformPoints());
 
     if (config->isEditingTransformPoints()) {
-        // reinit the transf points to their original value
         ToolTransformArgs *config = m_transaction->currentConfig();
         int nbPoints = config->origPoints().size();
         for (int i = 0; i < nbPoints; ++i) {
@@ -1571,17 +1492,10 @@ void KisToolTransformConfigWidget::slotPreviewChanged(int index)
         group.writeEntry("useOverlayPreviewStyle", true);
     }
 
-    /**
-     * We don't use global config notifier here, because it
-     * requires too many updates in the GUI, which can theoretically
-     * lead to deadlocks
-     */
     Q_EMIT sigUpdateGlobalConfig();
     Q_EMIT sigRestartAndContinueTransform();
 }
 
-
-// Krimble: the mode in use, for the toolbox's Transform button (its picture) and its flyout (the row in use)
 void KisToolTransformConfigWidget::krimblePublishMode(const ToolTransformArgs &config)
 {
     QString key;
@@ -1606,14 +1520,13 @@ void KisToolTransformConfigWidget::krimblePublishMode(const ToolTransformArgs &c
     if (qApp->property("krimbleTransformMode").toString() != key) qApp->setProperty("krimbleTransformMode", key);
 }
 
-// a mode chosen in the toolbox flyout: the button of that mode is pressed, as if tapped here
 void KisToolTransformConfigWidget::krimbleApplyModeRequest()
 {
-    if (!isVisible()) return;   // only the Tool Options that are on screen (the Transform and the Rotate tool each have their own)
+    if (!isVisible()) return;
     const QString key = qApp->property("krimbleTransformModeRequest").toString();
     if (key.isEmpty()) return;
     qApp->setProperty("krimbleTransformModeRequest", QString());
-    if (qApp->property("krimbleTransformMode").toString() == key) return;   // already in that mode: nothing is reset
+    if (qApp->property("krimbleTransformMode").toString() == key) return;
     QToolButton *button = nullptr;
     if (key == QLatin1String("scale")) button = freeTransformButton;
     else if (key == QLatin1String("stretch")) button = m_krimbleStretchButton;

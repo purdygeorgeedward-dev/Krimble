@@ -208,8 +208,6 @@ void WGConfigNotifier::notifySelectorConfigChanged()
     Q_EMIT selectorConfigChanged();
 }
 
-// ======== Static Configuration Object Instantiation ========
-
 const ColorPatches colorHistory {
     { "colorHistory.orientation", Qt::Horizontal, Qt::Horizontal, Qt::Vertical, true },
     { "colorHistory.patchSize", QSize(16,16), QSize(10,10), QSize(99,99), true },
@@ -257,4 +255,4 @@ const NumericSetting<KisVisualColorSelector::RenderMode> selectorRenderMode {
     "renderMode", KisVisualColorSelector::DynamicBackground, KisVisualColorSelector::StaticBackground, KisVisualColorSelector::CompositeBackground, true
 };
 
-} // namespace WGConfig
+}

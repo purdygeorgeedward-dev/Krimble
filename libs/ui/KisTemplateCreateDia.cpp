@@ -41,7 +41,6 @@
 
 #include <ksharedconfig.h>
 
-// ODF thumbnail extent
 static const int thumbnailExtent = 128;
 
 class KisTemplateCreateDiaPrivate {
@@ -69,13 +68,6 @@ public:
     QPixmap m_thumbnail;
     bool m_changed {false};
 };
-
-
-/****************************************************************************
- *
- * Class: KisTemplateCreateDia
- *
- ****************************************************************************/
 
 KisTemplateCreateDia::KisTemplateCreateDia(const QString &templatesResourcePath,
                                            const QString &filePath, const QPixmap &thumbnail, QWidget *parent)
@@ -143,7 +135,7 @@ KisTemplateCreateDia::KisTemplateCreateDia(const QString &templatesResourcePath,
     custombox->addWidget(d->m_select);
     custombox->addStretch(1);
     pixlayout->addLayout(custombox);
-    d->m_preview=new QLabel(pixbox); // setPixmap() -> auto resize?
+    d->m_preview=new QLabel(pixbox);
     pixlayout->addWidget(d->m_preview, 0, Qt::AlignCenter);
     pixlayout->addStretch(1);
 
@@ -220,26 +212,24 @@ static void saveAsQuadraticPng(const QPixmap &pixmap, const QString &fileName)
 
 void KisTemplateCreateDia::slotOk() {
 
-    // get the current item, if there is one...
     QTreeWidgetItem *item = d->m_groups->currentItem();
     if (!item)
         item = d->m_groups->topLevelItem(0);
-    if (!item) {    // safe :)
+    if (!item) {
         d->m_tree.writeTemplateTree();
         slotButtonClicked( KoDialog::Cancel );
         return;
     }
-    // is it a group or a template? anyway - get the group :)
     if (item->parent() != 0)
         item=item->parent();
-    if (!item) {    // *very* safe :P
+    if (!item) {
         d->m_tree.writeTemplateTree();
         slotButtonClicked( KoDialog::Cancel );
         return;
     }
 
     KisTemplateGroup *group=d->m_tree.find(item->text(0));
-    if (!group) {    // even safer
+    if (!group) {
         d->m_tree.writeTemplateTree();
         slotButtonClicked( KoDialog::Cancel );
         return;
@@ -251,7 +241,6 @@ void KisTemplateCreateDia::slotOk() {
         return;
     }
 
-    // copy the tmp file and the picture the app provides
     QString dir = KoResourcePaths::saveLocation("data", d->m_tree.templatesResourcePath());
     dir += group->name();
     QString templateDir = dir+"/.source/";
@@ -305,13 +294,11 @@ void KisTemplateCreateDia::slotOk() {
 
     QString orig;
     orig = d->m_filePath;
-    // don't overwrite the hidden template file with a new non-hidden one
     if (!ignore) {
         if (!QFile::copy(d->m_filePath, dest)) {
             qWarning() << "Could not copy" << d->m_filePath << "to" << dest;
         }
 
-        // save the picture as icon
         if (d->m_default->isChecked() && !d->m_thumbnail.isNull()) {
             saveAsQuadraticPng(d->m_thumbnail, icon);
         } else if (!d->m_customPixmap.isNull()) {
@@ -321,16 +308,13 @@ void KisTemplateCreateDia::slotOk() {
         }
     }
 
-    // if there's a .directory file, we copy this one, too
     bool ready=false;
     QStringList tmp=group->dirs();
     for(QStringList::ConstIterator it=tmp.constBegin(); it!=tmp.constEnd() && !ready; ++it) {
         if ((*it).contains(dir)==0) {
             orig = (*it) + ".directory";
-            // Check if we can read the file
             if (QFile(orig).exists()) {
                 dest = dir + "/.directory";
-                // We copy the file with overwrite
                 if (!QFile(orig).copy(dest)) {
                     warnKrita << "Failed to copy from" << orig << "to" << dest;
                 }
@@ -480,7 +464,6 @@ void KisTemplateCreateDia::updatePixmap() {
 
         if (d->m_customPixmap.isNull()) {
             dbgUI <<"Trying to load picture" << d->m_customFile;
-            // use the code in KisTemplate to load the image... hacky, I know :)
             KisTemplate t("foo", "bar", QString(), d->m_customFile);
             d->m_customPixmap = t.loadPicture();
         }

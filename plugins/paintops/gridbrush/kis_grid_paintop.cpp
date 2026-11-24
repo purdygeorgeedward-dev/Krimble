@@ -28,13 +28,11 @@
 #include <KisColorOptionData.h>
 #include <kis_lod_transform.h>
 
-
 #ifdef BENCHMARK
 #include <QTime>
 #endif
 
-
-KisGridPaintOp::KisGridPaintOp(const KisPaintOpSettingsSP settings, KisPainter *painter, KisNodeSP node, KisImageSP /*image*/)
+KisGridPaintOp::KisGridPaintOp(const KisPaintOpSettingsSP settings, KisPainter *painter, KisNodeSP node, KisImageSP )
     : KisPaintOp(painter)
     , m_settings(static_cast<KisGridPaintOpSettings*>(const_cast<KisPaintOpSettings*>(settings.data())))
     , m_node(node)
@@ -94,11 +92,9 @@ KisSpacingInformation KisGridPaintOp::paintAt(const KisPaintInformation& info)
 
     divide = qRound(m_properties.grid_scale * divide);
 
-    //Adjust the start position of the drawn grid to the top left of the brush instead of in the center
     qreal posX = info.pos().x() - (gridWidth/2) + (cellWidth/2) - horizontalOffset;
     qreal posY = info.pos().y() - (gridHeight/2) + (cellHeight/2) - verticalOffset;
 
-    //Lock the grid alignment
     posX = posX - std::fmod(posX, cellWidth) + horizontalOffset;
     posY = posY - std::fmod(posY, cellHeight) + verticalOffset;
     const QRectF dabRect(posX , posY , cellWidth, cellHeight);
@@ -129,24 +125,20 @@ KisSpacingInformation KisGridPaintOp::paintAt(const KisPaintInformation& info)
     }
 
     bool shouldColor = true;
-    // fill the tile
     if (m_colorProperties.fillBackground) {
         m_dab->fill(dabRectAligned, painter()->backgroundColor());
     }
     for (int y = 0; y < (gridHeight)/yStep; y++) {
         for (int x = 0; x < (gridWidth)/xStep; x++) {
-            // determine the tile size
             tile = QRectF(dabRect.x() + x * xStep, dabRect.y() + y * yStep, xStep, yStep);
             tile.adjust(vertBorder, horzBorder, -vertBorder, -horzBorder);
             tile = tile.normalized();
 
-            // do color transformation
             if (shouldColor) {
                 if (colorSampler && m_colorProperties.sampleInputColor) {
                     colorSampler->sampleOldColor(tile.center().x(), tile.center().y(), color.data());
                 }
 
-                // mix the color with background color
                 if (m_colorProperties.mixBgColor) {
                     KoMixColorsOp * mixOp = source()->colorSpace()->mixColorsOp();
 
@@ -170,8 +162,8 @@ KisSpacingInformation KisGridPaintOp::paintAt(const KisPaintInformation& info)
                     params["v"] = (m_colorProperties.value / 100.0) * randomSource->generateNormalized();
                     KoColorTransformation* transfo;
                     transfo = m_dab->colorSpace()->createColorTransformation("hsv_adjustment", params);
-                    transfo->setParameter(3, 1);//sets the type to HSV. For some reason 0 is not an option.
-                    transfo->setParameter(4, false);//sets the colorize to false.
+                    transfo->setParameter(3, 1);
+                    transfo->setParameter(4, false);
                     transfo->transform(color.data(), color.data() , 1);
                 }
 
@@ -187,15 +179,12 @@ KisSpacingInformation KisGridPaintOp::paintAt(const KisPaintInformation& info)
                 m_painter->setPaintColor(color);
             }
 
-            // paint some element
             switch (m_shapeProperties.shape) {
             case 0: {
                 m_painter->paintEllipse(tile);
                 break;
             }
             case 1: {
-                // anti-aliased version
-                //m_painter->paintRect(tile);
                 m_dab->fill(tile.topLeft().x(), tile.topLeft().y(), tile.width(), tile.height(), color.data());
                 break;
             }
@@ -217,7 +206,7 @@ KisSpacingInformation KisGridPaintOp::paintAt(const KisPaintInformation& info)
             }
 
             if (m_colorProperties.colorPerParticle){
-                color=painter()->paintColor();//reset color//
+                color=painter()->paintColor();
             }
         }
     }

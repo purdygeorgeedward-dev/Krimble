@@ -97,7 +97,6 @@ bool KoSegmentGradient::loadFromDevice(QIODevice *dev, KisResourcesInterfaceSP r
 
         numSegmentsText = fileContent.readLine();
     } else {
-        // Older format without name.
 
         numSegmentsText = nameDefinition;
     }
@@ -141,7 +140,7 @@ bool KoSegmentGradient::loadFromDevice(QIODevice *dev, KisResourcesInterfaceSP r
         int colorInterpolationType = values[12].toInt();
 
         KoGradientSegmentEndpointType startType, endType;
-        if (values.count() >= 15) { //file supports FG/BG colors
+        if (values.count() >= 15) {
             startType = static_cast<KoGradientSegmentEndpointType>(values[13].toInt());
             endType = static_cast<KoGradientSegmentEndpointType>(values[14].toInt());
         }
@@ -350,8 +349,6 @@ KoGradientSegment::KoGradientSegment(int interpolationType, int colorInterpolati
         break;
     }
 
-
-
     if (m_start.offset < DBL_EPSILON) {
         m_start.offset = 0;
     } else if (m_start.offset > 1 - DBL_EPSILON) {
@@ -480,7 +477,7 @@ void KoGradientSegment::setVariableColors(const KoColor& foreground, const KoCol
     case FOREGROUND_ENDPOINT:
         m_start.color = foreground;
         break;
-    case FOREGROUND_TRANSPARENT_ENDPOINT: //TODO: add Transparent options to gradient editor...
+    case FOREGROUND_TRANSPARENT_ENDPOINT:
         m_start.color = foreground;
         m_start.color.setOpacity(quint8(0));
         break;
@@ -693,7 +690,6 @@ KoGradientSegment::HSVCCWColorInterpolationStrategy::HSVCCWColorInterpolationStr
     : m_colorSpace(KoColorSpaceRegistry::instance()->rgb16(KoColorSpaceRegistry::instance()->p709SRGBProfile()))
 {
 }
-
 
 KoGradientSegment::HSVCCWColorInterpolationStrategy *KoGradientSegment::HSVCCWColorInterpolationStrategy::instance()
 {

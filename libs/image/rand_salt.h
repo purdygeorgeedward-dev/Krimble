@@ -4,7 +4,6 @@
 
 #ifndef RAND_SALT
 #define RAND_SALT
-// Generated with:
 #if 0
 
 puts "// Generated with:"
@@ -22,7 +21,6 @@ a = `seq 0 255 | sort --random - sort | xargs - n1 printf "0x%02x, "`
             print "    }"
             puts "," unless i == 255
             end
-
 
             puts "};"
 

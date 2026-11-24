@@ -21,23 +21,22 @@ public:
     KisGridOpOptionModel(lager::cursor<KisGridOpOptionData> optionData);
 
     lager::cursor<KisGridOpOptionData> optionData;
-    
+
     LAGER_QT_CURSOR(int, diameter);
     LAGER_QT_CURSOR(int, grid_width);
     LAGER_QT_CURSOR(int, grid_height);
-    
+
     LAGER_QT_CURSOR(qreal, horizontal_offset);
     LAGER_QT_CURSOR(qreal, vertical_offset);
     LAGER_QT_CURSOR(int, grid_division_level);
-    
+
     LAGER_QT_CURSOR(bool, grid_pressure_division);
     LAGER_QT_CURSOR(qreal, grid_scale);
     LAGER_QT_CURSOR(qreal, grid_vertical_border);
-    
+
     LAGER_QT_CURSOR(qreal, grid_horizontal_border);
     LAGER_QT_CURSOR(bool, grid_random_border);
-    
-    
+
 };
 
-#endif // KIS_GRID_OP_OPTION_MODEL_H
+#endif

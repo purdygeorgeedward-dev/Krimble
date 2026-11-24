@@ -6,13 +6,6 @@
 
 #include "WGCommonColorsCalculationRunner.h"
 
-/*
- * NOTE: Implementation is taken from KisCommonColorsRecalculationRunner
- * from Advanced Color Selector Docker, originally written by Adam Celarek
- *
- * It is currently limited to sRGB and is more of a placeholder
- */
-
 #include <QImage>
 
 #include "kis_image.h"
@@ -113,15 +106,6 @@ public:
     }
 
 private:
-//    unsigned char divPos(ColorAxis axis) const
-//    {
-//        QList<unsigned char> values;
-//        for(int i=0;i<m_colors.size(); i++) {
-//            values.append(m_colors.at(i)[axis]);
-//        }
-//        std::sort(values.begin(), values.end());
-//        return values.at(values.size()*4/5);
-//    }
     unsigned char divPos(ColorAxis axis) const
     {
         short min=m_colors.at(0)[axis];
@@ -135,13 +119,12 @@ private:
     }
 };
 
-} // anonymous namespace
+}
 
 WGCommonColorsCalculationRunner::WGCommonColorsCalculationRunner(KisImageSP image, int numberOfColors, QSharedPointer<QVector<KoColor> > colorStore)
     : m_numColors(numberOfColors)
     , m_commonColors(colorStore)
 {
-    // TODO: can this be done in the worker thread too?
     KisPaintDeviceSP device = image->projection();
     m_imageData = device->createThumbnailUncached(1024, 1024, image->bounds(), 1, KoColorConversionTransformation::internalRenderingIntent(), KoColorConversionTransformation::internalConversionFlags());
 
@@ -178,7 +161,6 @@ void WGCommonColorsCalculationRunner::extractColors()
         VBox newBox = boxes[biggestBox].divide();
         boxes.append(newBox);
     }
-
 
     while (boxes.size()<m_numColors && colors.size()>m_numColors) {
         int biggestBox=-1;

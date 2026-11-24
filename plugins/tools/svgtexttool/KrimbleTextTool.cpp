@@ -1,6 +1,3 @@
-/*
- * Krimble 2026-10-18: see KrimbleTextTool.h.
- */
 #include "KrimbleTextTool.h"
 #include "KrimbleTextDialog.h"
 #include <KoCanvasResourceProvider.h>
@@ -57,7 +54,6 @@
 #include <QXmlStreamReader>
 
 namespace {
-// what was chosen last time is what the window starts with next time
 QString s_family = QStringLiteral("sans-serif");
 qreal s_size = 24.0;
 bool s_bold = false;
@@ -65,7 +61,7 @@ bool s_italic = false;
 qreal s_boxWidth = 0.0;
 qreal s_tracking = 0.0;
 QVector<qreal> s_kern;
-int s_align = 0;               // 0 left, 1 center, 2 right (3 justified: Krimble 2026-10-24)
+int s_align = 0;
 bool s_underline = false;
 bool s_strike = false;
 int s_lineSpacing = 100;
@@ -120,7 +116,6 @@ static QString krimbleTextSvg(const QString &text)
         if (!dx.isEmpty()) dx = QStringLiteral("0") + dx.mid(dx.indexOf(QLatin1Char(' ')) < 0 ? dx.size() : dx.indexOf(QLatin1Char(' ')));
         const QString dxAttr = dx.isEmpty() || dx == QLatin1String("0") ? QString() : QStringLiteral(" dx=\"%1\"").arg(dx);
         if (i == 0) {
-            // svg += QStringLiteral("<tspan>%1</tspan>").arg(line);
             svg += QStringLiteral("<tspan%2>%1</tspan>").arg(line, dxAttr);
         } else {
             svg += QStringLiteral("<tspan x=\"0\" dy=\"%3em\"%2>%1</tspan>").arg(line, dxAttr, lineStepEm);
@@ -172,7 +167,6 @@ static bool krimbleAskText(QWidget *parent, QString *text, bool editing = false)
     QDialog dialog(parent);
     dialog.setWindowTitle(editing ? i18n("Edit Text") : i18n("Text"));
     QVBoxLayout *layout = new QVBoxLayout(&dialog);
-
 
     QPlainTextEdit *edit = new QPlainTextEdit(&dialog);
     edit->setPlainText(*text);
@@ -269,7 +263,6 @@ static bool krimbleAskText(QWidget *parent, QString *text, bool editing = false)
     row4->addWidget(looserButton);
     row4->addWidget(kernResetButton);
     layout->addLayout(row4);
-    // the kerning follows the typing: characters typed or deleted move the kerning after them
     QObject::connect(edit->document(), &QTextDocument::contentsChange, &dialog, [&kern](int position, int removed, int added) {
         if (position < 0) return;
         if (position > kern.size()) kern.resize(position);
@@ -301,8 +294,6 @@ static bool krimbleAskText(QWidget *parent, QString *text, bool editing = false)
     });
     layout->addWidget(colorButton);
 
-    // the preview: the words in the font, size (at most 40 pt, so that it fits), bold, italic, alignment and color that are chosen, changing as they are chosen. On a dark
-    // background when the color is light, so that it can be seen.
     QLabel *preview = new QLabel(&dialog);
     preview->setTextFormat(Qt::PlainText);
     preview->setWordWrap(true);
@@ -341,8 +332,7 @@ static bool krimbleAskText(QWidget *parent, QString *text, bool editing = false)
             int lineStart = 0;
             for (int li = 0; li < lines.size(); ++li) {
                 const QString &line = lines.at(li);
-                // the pieces and the width of the line
-                QList<QPair<QString, qreal>> pieces;   // text, gap before it (px)
+                QList<QPair<QString, qreal>> pieces;
                 int pieceStart = 0;
                 for (int ci = 1; ci <= line.size(); ++ci) {
                     const int pos = lineStart + ci;
@@ -370,7 +360,6 @@ static bool krimbleAskText(QWidget *parent, QString *text, bool editing = false)
         preview->setPixmap(pixmap);
     };
     QObject::connect(edit, &QPlainTextEdit::textChanged, &dialog, [&]() { updatePreview(); });
-    // QObject::connect(fontBox, &QFontComboBox::currentFontChanged, &dialog, [&]() { updatePreview(); });
     QObject::connect(fontBox, QOverload<int>::of(&QComboBox::currentIndexChanged), &dialog, [&]() { updatePreview(); });
     QObject::connect(sizeBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), &dialog, [&]() { updatePreview(); });
     QObject::connect(boldButton, &QPushButton::toggled, &dialog, [&]() { updatePreview(); });
@@ -379,7 +368,7 @@ static bool krimbleAskText(QWidget *parent, QString *text, bool editing = false)
     QObject::connect(trackBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), &dialog, [&]() { updatePreview(); });
     auto nudge = [&](qreal direction) {
         const int at = edit->textCursor().position();
-        if (at <= 0 || at >= edit->toPlainText().size()) return;   // between two letters only
+        if (at <= 0 || at >= edit->toPlainText().size()) return;
         if (kern.size() <= at) kern.resize(at + 1);
         kern[at] += direction * sizeBox->value() * 0.02;
         showKern();
@@ -403,7 +392,6 @@ static bool krimbleAskText(QWidget *parent, QString *text, bool editing = false)
 
     if (dialog.exec() != QDialog::Accepted) return false;
     *text = edit->toPlainText();
-    // s_family = fontBox->currentFont().family();
     s_family = fontBox->currentText();
     s_size = sizeBox->value();
     s_bold = boldButton->isChecked();
@@ -484,7 +472,7 @@ static bool krimbleReadTextShape(KoSvgTextShape *shape, QString *text)
                     int at = result.size();
                     if (xml.name() == QLatin1String("tspan") && inText && tspanDepth == 0 && !firstLine
                             && (xml.attributes().hasAttribute(QStringLiteral("x")) || xml.attributes().hasAttribute(QStringLiteral("dy")))) {
-                        at += 1;   // the line break added just below comes first
+                        at += 1;
                     }
                     const QStringList values = dxText.split(QRegularExpression(QStringLiteral("[\\s,]+")), QString::SkipEmptyParts);
                     if (s_kern.size() < at + values.size()) s_kern.resize(at + values.size());
@@ -552,8 +540,8 @@ void KrimbleTextTool::paint(QPainter &painter, const KoViewConverter &converter)
         painter.setBrush(QColor(255, 255, 255));
         for (int i = 0; i < 6; ++i) {
             const QRectF handleRect(centers[i] - QPointF(half, half), QSizeF(2 * half, 2 * half));
-            if (i < 4) painter.drawRect(handleRect);   // corners: size
-            else painter.drawEllipse(handleRect);      // sides: width of the text box
+            if (i < 4) painter.drawRect(handleRect);
+            else painter.drawEllipse(handleRect);
         }
         painter.restore();
     }
@@ -600,7 +588,7 @@ void KrimbleTextTool::mouseMoveEvent(KoPointerEvent *event)
     const QRectF before = QRectF(m_pressPoint, m_dragPoint).normalized();
     m_dragPoint = event->point;
     const QPointF viewDelta = canvas()->viewConverter()->documentToView(m_dragPoint) - canvas()->viewConverter()->documentToView(m_pressPoint);
-    if (!m_dragging && viewDelta.manhattanLength() > 24) m_dragging = true;   // a drag, not a shaky tap
+    if (!m_dragging && viewDelta.manhattanLength() > 24) m_dragging = true;
     if (m_dragging) {
         canvas()->updateCanvas(before.united(QRectF(m_pressPoint, m_dragPoint).normalized()).adjusted(-20, -20, 20, 20));
     }
@@ -620,7 +608,6 @@ void KrimbleTextTool::mouseReleaseEvent(KoPointerEvent *event)
         if (viewDelta.manhattanLength() > 10) {
             applyFrameChange(handle, from, to);
         } else if (handle == MoveHandle) {
-            // a tap inside the frame: the window opens, as it did before the frame was there
             const QPointF where = event->point;
             QTimer::singleShot(0, QApplication::instance(), [this, where]() { askAndAddText(where, QRectF()); });
         }
@@ -634,14 +621,12 @@ void KrimbleTextTool::mouseReleaseEvent(KoPointerEvent *event)
         where = box.topLeft();
     }
     m_dragging = false;
-    // the window opens after this event is finished
     QTimer::singleShot(0, QApplication::instance(), [this, where, box]() { askAndAddText(where, box); });
 }
 
-
 void KrimbleTextTool::activate(const QSet<KoShape *> &shapes)
 {
-    krimbleEnsureBundledFonts();   // the bundled fonts are loaded the first time a text tool is chosen
+    krimbleEnsureBundledFonts();
     KoToolBase::activate(shapes);
 }
 
@@ -655,7 +640,6 @@ void KrimbleTextTool::deactivate()
 
 bool KrimbleTextTool::selectedStillThere() const
 {
-    // the shape may have been taken away (undo, a deleted layer) since it was chosen
     if (!m_selected) return false;
     return canvas()->shapeManager()->shapes().contains(static_cast<KoShape*>(m_selected));
 }
@@ -668,12 +652,10 @@ QRectF KrimbleTextTool::selectedFrame() const
 void KrimbleTextTool::repaintFrame(const QRectF &frame)
 {
     if (!canvas()) return;
-    // a margin of 40 view pixels, for the handles and the line
     const QRectF viewRect = canvas()->viewConverter()->documentToView(frame).adjusted(-40, -40, 40, 40);
     canvas()->updateCanvas(canvas()->viewConverter()->viewToDocument(viewRect));
 }
 
-// which handle (or the inside of the frame) is at the point; the handles are tested in view pixels so that a finger can hit them
 KrimbleTextTool::Handle KrimbleTextTool::handleAt(const QPointF &documentPoint) const
 {
     const QRectF frame = canvas()->viewConverter()->documentToView(selectedFrame()).adjusted(-6, -6, 6, 6);
@@ -694,7 +676,6 @@ KrimbleTextTool::Handle KrimbleTextTool::handleAt(const QPointF &documentPoint) 
     return NoHandle;
 }
 
-// the frame while a handle is dragged by delta (document units)
 QRectF KrimbleTextTool::frameForDrag(Handle handle, const QRectF &start, const QPointF &delta) const
 {
     const qreal minWidth = 20.0;
@@ -710,7 +691,6 @@ QRectF KrimbleTextTool::frameForDrag(Handle handle, const QRectF &start, const Q
         r.setRight(qMax(start.right() + delta.x(), start.left() + minWidth));
         break;
     default: {
-        // a corner: the text is made bigger or smaller, in proportion; the opposite corner stays
         const bool left = (handle == TopLeftHandle || handle == BottomLeftHandle);
         const bool top = (handle == TopLeftHandle || handle == TopRightHandle);
         const qreal width = qMax(minWidth, start.width() + (left ? -delta.x() : delta.x()));
@@ -724,7 +704,6 @@ QRectF KrimbleTextTool::frameForDrag(Handle handle, const QRectF &start, const Q
     return r;
 }
 
-// the text is changed to fit the frame that was dragged
 void KrimbleTextTool::applyFrameChange(Handle handle, const QRectF &from, const QRectF &to)
 {
     KoSvgTextShape *shape = m_selected;
@@ -738,15 +717,13 @@ void KrimbleTextTool::applyFrameChange(Handle handle, const QRectF &from, const 
         repaintFrame(from.united(to));
         return;
     }
-    // the words and the look of the text as it is now (this sets what was chosen last time, s_family and the others, to the text's own)
     QString text;
     if (!krimbleReadTextShape(shape, &text)) return;
-    // the fill is not written into the svg: it is the shape's own
     QSharedPointer<KoColorBackground> fill = qSharedPointerDynamicCast<KoColorBackground>(shape->background());
     if (fill) s_color = fill->color();
     if (s_kern.size() < text.size()) s_kern.resize(text.size());
     if (handle == LeftHandle || handle == RightHandle) {
-        s_boxWidth = qMax(20.0, to.width());   // a text box of this width (text that had no box gets one)
+        s_boxWidth = qMax(20.0, to.width());
     } else {
         const qreal ratio = to.width() / qMax(1.0, from.width());
         s_size = qBound(4.0, s_size * ratio, 600.0);
@@ -757,7 +734,6 @@ void KrimbleTextTool::applyFrameChange(Handle handle, const QRectF &from, const 
     KUndo2Command *change = new KUndo2Command(kundo2_i18n("Resize text"));
     new SvgTextChangeCommand(shape, krimbleTextSvg(text), QStringLiteral("<defs/>"), change);
     canvas()->addCommand(change);
-    // the edge or corner opposite to the handle stays where it was: the text is moved by what it moved
     const QRectF now = shape->boundingRect();
     const bool left = (handle == LeftHandle || handle == TopLeftHandle || handle == BottomLeftHandle);
     const bool top = (handle == TopLeftHandle || handle == TopRightHandle);
@@ -772,13 +748,12 @@ void KrimbleTextTool::applyFrameChange(Handle handle, const QRectF &from, const 
 
 void KrimbleTextTool::askAndAddText(const QPointF &where, const QRectF &box)
 {
-    // is there text where the finger was? (the boxes of the shapes, within about 14 view px of the tap)
     KoSvgTextShape *existing = nullptr;
     {
         const QPointF viewPoint = canvas()->viewConverter()->documentToView(where);
         const QRectF probe = canvas()->viewConverter()->viewToDocument(QRectF(viewPoint - QPointF(14, 14), QSizeF(28, 28)));
         const QList<KoShape*> shapes = canvas()->shapeManager()->shapesAt(probe);
-        for (int i = shapes.size() - 1; i >= 0 && !existing; --i) {   // the top one first
+        for (int i = shapes.size() - 1; i >= 0 && !existing; --i) {
             existing = dynamic_cast<KoSvgTextShape*>(shapes.at(i));
         }
     }
@@ -792,8 +767,6 @@ void KrimbleTextTool::askAndAddText(const QPointF &where, const QRectF &box)
     if (text.trimmed().isEmpty()) return;
 
     if (existing) {
-        // the words and the look are changed on the shape that is there (one undo step)
-        // KUndo2Command *editCommand = new KUndo2Command(i18n("Edit text"));   // compile error (1.0.38 build): the name of an undo command is a KUndo2MagicString
         KUndo2Command *editCommand = new KUndo2Command(kundo2_i18n("Edit text"));
         new SvgTextChangeCommand(existing, krimbleTextSvg(text), QStringLiteral("<defs/>"), editCommand);
         new KoShapeBackgroundCommand(existing, QSharedPointer<KoShapeBackground>(new KoColorBackground(s_color)), editCommand);
@@ -820,7 +793,6 @@ void KrimbleTextTool::askAndAddText(const QPointF &where, const QRectF &box)
 
     KoShape *shape = factory->createShape(params, canvas()->shapeController()->resourceManager());
     if (!shape) return;
-    // the fill is also set on the shape itself, as the old tool does (properties do not write their fills to the svg)
     shape->setBackground(QSharedPointer<KoShapeBackground>(new KoColorBackground(s_color)));
 
     KUndo2Command *parentCommand = new KUndo2Command();

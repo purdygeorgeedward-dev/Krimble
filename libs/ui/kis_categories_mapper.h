@@ -11,11 +11,6 @@
 #include <QScopedPointer>
 #include <kritaui_export.h>
 
-
-/**
- * Templated classes cannot inherit QObject, so the signal handling is
- * moved to a separate class
- */
 class KRITAUI_EXPORT __CategoriesSignalsBase : public QObject
 {
     Q_OBJECT
@@ -27,7 +22,6 @@ Q_SIGNALS:
     void beginRemoveRow(int row);
     void endRemoveRow();
 };
-
 
 template<class TEntry, class TEntryToQStringConverter>
 class KisCategoriesMapper : public __CategoriesSignalsBase
@@ -326,4 +320,4 @@ private:
     QList<DataItem*> m_items;
 };
 
-#endif /* __KIS_CATEGORIES_MAPPER_H */
+#endif

@@ -40,12 +40,12 @@ public:
             value_red = factor * KoColorSpaceMaths<_channel_type_, float>::scaleToA(src->red);
             value_green = factor * KoColorSpaceMaths<_channel_type_, float>::scaleToA(src->green);
             value_blue = factor * KoColorSpaceMaths<_channel_type_, float>::scaleToA(src->blue);
-            
+
             dst->red = KoColorSpaceMaths< float, _channel_type_>::scaleToA(value_red);
             dst->green = KoColorSpaceMaths< float, _channel_type_ >::scaleToA(value_green);
             dst->blue = KoColorSpaceMaths< float, _channel_type_>::scaleToA(value_blue);
             dst->alpha = src->alpha;
-            
+
             --nPixels;
             ++src;
             ++dst;

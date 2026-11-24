@@ -27,4 +27,4 @@ private:
     bool m_previousValue;
 };
 
-#endif /* __KIS_ACTIVATE_SELECTION_MASK_COMMAND_H */
+#endif

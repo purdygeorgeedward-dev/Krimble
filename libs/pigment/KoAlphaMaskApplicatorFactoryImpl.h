@@ -19,5 +19,4 @@ public:
     static KoAlphaMaskApplicatorBase *create();
 };
 
-
-#endif // KOALPHAMASKAPPLICATORFACTORYIMPL_H
+#endif

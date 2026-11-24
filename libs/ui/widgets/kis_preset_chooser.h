@@ -20,14 +20,8 @@ class KoAbstractResourceServerAdapter;
 class KisPresetDelegate;
 class KisResourceItemChooser;
 
-
 #include <kritaui_export.h>
 
-/**
- * A special type of item chooser that can contain extra widgets that show
- * more information about the currently selected item. Reimplement update()
- * to extract that information and fill the appropriate widgets.
- */
 class KRITAUI_EXPORT KisPresetChooser : public QWidget
 {
     Q_OBJECT
@@ -38,11 +32,10 @@ public:
     ~KisPresetChooser() override;
 
     enum ViewMode {
-        THUMBNAIL, /// Shows thumbnails
-        DETAIL  /// Shows thumbnails with text next to it
+        THUMBNAIL,
+        DETAIL
     };
 
-    /// Sets a list of resources in the paintop list, when ever user press enter in the lineedit of paintop_presets_popup Class
     void setViewMode(ViewMode mode);
     void setViewModeToThumbnail();
     void setViewModeToDetail();
@@ -51,14 +44,12 @@ public:
 
     KoResourceSP currentResource() const;
 
-    /// Sets the visibility of tagging klineEdits
     void showTaggingBar(bool show);
 
     KisResourceItemChooser *itemChooser();
 
     void setPresetFilter(const QString& paintOpId);
 
-    /// get the base size for the icons. Used by the slider in the view options
     int iconSize();
 
 Q_SIGNALS:
@@ -68,16 +59,10 @@ Q_SIGNALS:
 public Q_SLOTS:
     void updateViewSettings();
 
-    /// sets the icon size. Used by slider in view menu
     void setIconSize(int newSize);
 
-    /// saves the icon size for the presets. called by the horizontal slider release event.
     void saveIconSize();
 
-    /// Shows/hides brush names when KisResourceItemListView used by KisResourceItemChooser
-    /// changes it's ListViewMode.
-    /// If this method is removed then the Details view brush names will still be displayed when
-    /// KisResourceItemChooser is in horizontal layout.
     void showHideBrushNames(ListViewMode newViewMode);
 
 private Q_SLOTS:

@@ -18,16 +18,12 @@ class EllipseShapeConfigWidget : public KoShapeConfigWidgetBase, public KoShape:
     Q_OBJECT
 public:
     EllipseShapeConfigWidget();
-    /// reimplemented
     void open(KoShape *shape) override;
-    /// reimplemented
     void save() override;
-    /// reimplemented
     bool showOnShapeCreate() override
     {
         return false;
     }
-    /// reimplemented
     KUndo2Command *createCommand() override;
 
     void notifyShapeChanged(KoShape::ChangeType type, KoShape *shape) override;
@@ -43,4 +39,4 @@ private:
     EllipseShape *m_ellipse;
 };
 
-#endif // ELLIPSESHAPECONFIGWIDGET_H
+#endif

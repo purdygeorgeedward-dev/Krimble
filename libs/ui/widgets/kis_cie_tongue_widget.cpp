@@ -1,4 +1,4 @@
-/* 
+/*
  * SPDX-FileCopyrightText: 2015 Wolthera van Hövell tot Westerflier <griffinvalley@gmail.com>
  *
  * Based on the Digikam CIE Tongue widget
@@ -9,21 +9,6 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  **/
-
-/**
-The following table gives the CIE  color matching functions
-\f$\bar{x}(\lambda)\f$, \f$\bar{y}(\lambda)\f$, and
-\f$\bar{z}(\lambda)\f$, for wavelengths \f$\lambda\f$ at 5 nanometer
-increments from 380 nm through 780 nm. This table is used in conjunction
-with Planck's law for the energy spectrum of a black body at a given
-temperature to plot the black body curve on the CIE chart.
- 
-The following table gives the spectral chromaticity coordinates
-\f$x(\lambda)\f$ and \f$y(\lambda)\f$ for wavelengths in 5 nanometer
-increments from 380 nm through 780 nm. These coordinates represent the
-position in the CIE x-y space of pure spectral colors of the given
-wavelength, and thus define the outline of the CIE "tongue" diagram.
-*/
 
 #include <QPointF>
 #include <QPainter>
@@ -42,7 +27,7 @@ wavelength, and thus define the outline of the CIE "tongue" diagram.
 
 static const double spectral_chromaticity[81][3] =
 {
-    { 0.1741, 0.0050 },               // 380 nm
+    { 0.1741, 0.0050 },
     { 0.1740, 0.0050 },
     { 0.1738, 0.0049 },
     { 0.1736, 0.0049 },
@@ -122,7 +107,7 @@ static const double spectral_chromaticity[81][3] =
     { 0.7347, 0.2653 },
     { 0.7347, 0.2653 },
     { 0.7347, 0.2653 },
-    { 0.7347, 0.2653 }  // 780 nm
+    { 0.7347, 0.2653 }
 };
 
 class Q_DECL_HIDDEN KisCIETongueWidget::Private
@@ -133,20 +118,20 @@ public:
     bool            needUpdatePixmap {false};
     bool            cieTongueNeedsUpdate {true};
     bool            uncalibratedColor {false};
- 
+
     int             xBias {0};
     int             yBias {0};
     int             pxcols {0};
     int             pxrows {0};
- 
+
     double          gridside {0.0};
- 
+
     QPainter        painter;
- 
+
     QPixmap         pixmap;
     QPixmap         cietongue;
     QPixmap         gamutMap;
- 
+
     QVector <KoColorimetryUtils::xyY> Primaries;
     KoColorimetryUtils::xyY whitePoint;
     QPolygonF       gamut;
@@ -175,9 +160,9 @@ void KisCIETongueWidget::setProfileData(QVector <KoColorimetryUtils::xyY> p, KoC
     d->profileDataAvailable = profileData;
     if (profileData){
         d->Primaries = p;
-        
+
         d->whitePoint = w;
-        d->needUpdatePixmap = true;      
+        d->needUpdatePixmap = true;
     } else {
         return;
     }
@@ -190,7 +175,7 @@ void KisCIETongueWidget::setRGBData(KoColorimetryUtils::xyY whitepoint, QVector 
 {
     if (colorants.size()==3){
         d->Primaries= colorants;
-        
+
         d->whitePoint = whitepoint;
         d->needUpdatePixmap = true;
         d->colorModel = KisCIETongueWidget::RGBA;
@@ -201,7 +186,6 @@ void KisCIETongueWidget::setRGBData(KoColorimetryUtils::xyY whitepoint, QVector 
 }
 void KisCIETongueWidget::setCMYKData(KoColorimetryUtils::xyY whitepoint)
 {
-    //d->Primaries= colorants;
 
     d->whitePoint = whitepoint;
     d->needUpdatePixmap = true;
@@ -246,31 +230,26 @@ void KisCIETongueWidget::mapPoint(int& icx, int& icy, QPointF xy)
     icx = (int) floor((xy.x() * (d->pxcols - 1)) + .5);
     icy = (int) floor(((d->pxrows - 1) - xy.y() * (d->pxrows - 1)) + .5);
 }
- 
+
 void KisCIETongueWidget::biasedLine(int x1, int y1, int x2, int y2)
 {
     d->painter.drawLine(x1 + d->xBias, y1, x2 + d->xBias, y2);
 }
- 
+
 void KisCIETongueWidget::biasedText(int x, int y, const QString& txt)
 {
     d->painter.drawText(QPoint(d->xBias + x, y), txt);
 }
- 
+
 QRgb KisCIETongueWidget::colorByCoord(double x, double y)
 {
-    // Get xyz components scaled from coordinates
 
     double cx = ((double)x) / (d->pxcols * devicePixelRatioF() - 1);
     double cy = 1.0 - ((double)y) / (d->pxrows * devicePixelRatioF() - 1);
     double cz = 1.0 - cx - cy;
- 
-    // Project xyz to XYZ space. Note that in this
-    // particular case we are substituting XYZ with xyz
-    
-    //Need to use KoColor here.
+
     const KoColorSpace* xyzColorSpace = KoColorSpaceRegistry::instance()->colorSpace("XYZA", "U8");
-    quint8 data[4]; 
+    quint8 data[4];
     data[0]= cx*255;
     data[1]= cy*255;
     data[2]= cz*255;
@@ -279,19 +258,19 @@ QRgb KisCIETongueWidget::colorByCoord(double x, double y)
     QColor colRGB = colXYZ.toQColor();
     return qRgb(colRGB.red(), colRGB.green(), colRGB.blue());
 }
- 
+
 void KisCIETongueWidget::outlineTongue()
 {
     int lx=0, ly=0;
     int fx=0, fy=0;
- 
+
     for (int x = 380; x <= 700; x += 5) {
         int ix = (x - 380) / 5;
 
         QPointF p(spectral_chromaticity[ix][0], spectral_chromaticity[ix][1]);
         int icx, icy;
         mapPoint(icx, icy, p);
- 
+
         if (x > 380) {
             biasedLine(lx, ly, icx, icy);
         }
@@ -299,15 +278,15 @@ void KisCIETongueWidget::outlineTongue()
             fx = icx;
             fy = icy;
         }
- 
+
         lx = icx;
         ly = icy;
 
     }
- 
+
     biasedLine(lx, ly, fx, fy);
 }
- 
+
 void KisCIETongueWidget::fillTongue()
 {
     QImage Img = d->cietongue.toImage();
@@ -317,8 +296,6 @@ void KisCIETongueWidget::fillTongue()
 
     for (int y = 0; y < d->pxrows * devicePixelRatioF(); ++y) {
         int xe = 0;
- 
-        // Find horizontal extents of tongue on this line.
 
         for (x = 0; x < d->pxcols * devicePixelRatioF(); ++x) {
             if (QColor(Img.pixel(x + d->xBias, y)) != QColor(Qt::black))
@@ -347,61 +324,61 @@ void KisCIETongueWidget::fillTongue()
     d->cietongue = QPixmap::fromImage(Img, Qt::AvoidDither);
     d->cietongue.setDevicePixelRatio(devicePixelRatioF());
 }
- 
+
 void KisCIETongueWidget::drawTongueAxis()
 {
     QFont font;
     font.setPointSize(6);
     d->painter.setFont(font);
- 
+
     d->painter.setPen(qRgb(255, 255, 255));
- 
+
     biasedLine(0, 0,           0,           d->pxrows - 1);
     biasedLine(0, d->pxrows-1, d->pxcols-1, d->pxrows - 1);
- 
+
     for (int y = 1; y <= 9; y += 1)
     {
         QString s;
         int xstart = (y * (d->pxcols - 1)) / 10;
         int ystart = (y * (d->pxrows - 1)) / 10;
- 
+
         QTextStream(&s) << y;
         biasedLine(xstart, d->pxrows - grids(1), xstart,   d->pxrows - grids(4));
         biasedText(xstart - grids(11), d->pxrows + grids(15), s);
- 
+
         QTextStream(&s) << 10 - y;
         biasedLine(0, ystart, grids(3), ystart);
         biasedText(grids(-25), ystart + grids(5), s);
     }
 }
- 
+
 void KisCIETongueWidget::drawTongueGrid()
 {
     d->painter.setPen(qRgb(128, 128, 128));
     d->painter.setOpacity(0.5);
- 
+
     for (int y = 1; y <= 9; y += 1)
     {
         int xstart =  (y * (d->pxcols - 1)) / 10;
         int ystart =  (y * (d->pxrows - 1)) / 10;
- 
+
         biasedLine(xstart, grids(4), xstart,   d->pxrows - grids(4) - 1);
         biasedLine(grids(7), ystart, d->pxcols-1-grids(7), ystart);
     }
     d->painter.setOpacity(1.0);
 }
- 
+
 void KisCIETongueWidget::drawLabels()
 {
     QFont font;
     font.setPointSize(5);
     d->painter.setFont(font);
- 
+
     for (int x = 450; x <= 650; x += (x > 470 && x < 600) ? 5 : 10)
     {
         QString wl;
         int bx = 0, by = 0, tx, ty;
- 
+
         if (x < 520)
         {
             bx = grids(-22);
@@ -416,32 +393,32 @@ void KisCIETongueWidget::drawLabels()
         {
             bx = grids(4);
         }
- 
+
         int ix = (x - 380) / 5;
- 
+
         QPointF p(spectral_chromaticity[ix][0], spectral_chromaticity[ix][1]);
- 
+
         int icx, icy;
         mapPoint(icx, icy, p);
- 
+
         tx = icx + ((x < 520) ? grids(-2) : ((x >= 535) ? grids(2) : 0));
         ty = icy + ((x < 520) ? 0 : ((x >= 535) ? grids(-1) : grids(-2)));
- 
+
         d->painter.setPen(qRgb(255, 255, 255));
         biasedLine(icx, icy, tx, ty);
- 
+
         QRgb Color = colorByCoord(icx, icy);
         d->painter.setPen(Color);
- 
+
         QTextStream(&wl) << x;
         biasedText(icx+bx, icy+by, wl);
     }
 }
- 
+
 void KisCIETongueWidget::drawSmallEllipse(QPointF xy, int r, int g, int b, int sz)
 {
     int icx, icy;
- 
+
     mapPoint(icx, icy, xy);
     d->painter.save();
     d->painter.setRenderHint(QPainter::Antialiasing);
@@ -456,7 +433,7 @@ void KisCIETongueWidget::drawSmallEllipse(QPointF xy, int r, int g, int b, int s
 QPointF xyYToQPointF(KoColorimetryUtils::xyY xy) {
     return QPointF(xy.x, xy.y);
 }
- 
+
 void KisCIETongueWidget::drawColorantTriangle()
 {
     d->painter.save();
@@ -466,30 +443,21 @@ void KisCIETongueWidget::drawColorantTriangle()
         drawSmallEllipse(xyYToQPointF(d->Primaries[0]),   255, 128, 128, 6);
         drawSmallEllipse(xyYToQPointF(d->Primaries[1]), 128, 255, 128, 6);
         drawSmallEllipse(xyYToQPointF(d->Primaries[2]),  128, 128, 255, 6);
-        
+
         int x1, y1, x2, y2, x3, y3;
- 
+
         mapPoint(x1, y1, xyYToQPointF(d->Primaries[0]));
         mapPoint(x2, y2, xyYToQPointF(d->Primaries[1]));
         mapPoint(x3, y3, xyYToQPointF(d->Primaries[2]));
-        
+
         biasedLine(x1, y1, x2, y2);
         biasedLine(x2, y2, x3, y3);
         biasedLine(x3, y3, x1, y1);
-    } /*else if (d->colorModel ==CMYK){
-        for (i=0; i<d->Primaries.size();i+++){
-            drawSmallEllipse((QPointF(d->Primaries[0],d->Primaries[1])),   160, 160, 160, 6);//greyscale for now
-            //int x1, y1, x2, y2;
-            //mapPoint(x1, y1, (QPointF(d->Primaries[i],d->Primaries[i+1])) );
-            //mapPoint(x2, y2, (QPointF(d->Primaries[i+3],d->Primaries[i+4])) );
-            //biasedLine(x1, y1, x2, y2);
-        }
     }
-    */
- 
+
     d->painter.restore();
 }
- 
+
 void KisCIETongueWidget::drawWhitePoint()
 {
     drawSmallEllipse(xyYToQPointF(d->whitePoint),  255, 255, 255, 8);
@@ -503,7 +471,6 @@ void KisCIETongueWidget::drawGamut()
     QPainter gamutPaint;
     gamutPaint.begin(&d->gamutMap);
     QPainterPath path;
-    //gamutPaint.setCompositionMode(QPainter::CompositionMode_Clear);
     gamutPaint.setRenderHint(QPainter::Antialiasing);
     path.setFillRule(Qt::WindingFill);
     gamutPaint.setBrush(Qt::white);
@@ -529,12 +496,9 @@ void KisCIETongueWidget::drawGamut()
         foreach (QPointF Point, d->gamut) {
             mapPoint(x, y, Point);
             gamutPaint.drawEllipse(x + d->xBias- 2, y-2, 4, 4);
-            //Point.setX(x);
-            //Point.setY(y);
-            //path.lineTo(Point);
         }
     }
-    
+
     gamutPaint.end();
     d->painter.save();
     d->painter.setOpacity(0.5);
@@ -551,7 +515,6 @@ void KisCIETongueWidget::updatePixmap()
     d->pixmap.setDevicePixelRatio(devicePixelRatioF());
 
     if (d->cieTongueNeedsUpdate){
-    // Draw the CIE tongue curve. I don't see why we need to redraw it every time the whitepoint and such changes so we cache it.
         d->cieTongueNeedsUpdate = false;
         d->cietongue = QPixmap(size() * devicePixelRatioF());
         d->cietongue.setDevicePixelRatio(devicePixelRatioF());
@@ -586,7 +549,6 @@ void KisCIETongueWidget::updatePixmap()
     d->pixmap = d->cietongue;
 
     d->painter.begin(&d->pixmap);
-    //draw whitepoint and  colorants
     if (d->whitePoint.Y > 0.0)
     {
         drawWhitePoint();
@@ -600,38 +562,33 @@ void KisCIETongueWidget::updatePixmap()
 
     d->painter.end();
 }
- 
+
 void KisCIETongueWidget::paintEvent(QPaintEvent*)
 {
     QPainter p(this);
- 
-    // Widget is disable : drawing grayed frame.
- 
+
     if ( !isEnabled() )
     {
         p.fillRect(0, 0, width(), height(),
                    palette().color(QPalette::Disabled, QPalette::Window));
- 
+
         QPen pen(palette().color(QPalette::Disabled, QPalette::WindowText));
         pen.setStyle(Qt::SolidLine);
         pen.setWidth(1);
- 
+
         p.setPen(pen);
         p.drawRect(0, 0, width(), height());
- 
+
         return;
     }
 
- 
-    // No profile data to show, or RAW file
- 
     if (!d->profileDataAvailable)
     {
         p.fillRect(0, 0, width(), height(), palette().color(QPalette::Active, QPalette::Window));
         QPen pen(palette().color(QPalette::Active, QPalette::Text));
         pen.setStyle(Qt::SolidLine);
         pen.setWidth(1);
- 
+
         p.setPen(pen);
         p.drawRect(0, 0, width(), height());
 
@@ -646,20 +603,18 @@ void KisCIETongueWidget::paintEvent(QPaintEvent*)
             p.drawText(0, 0, width(), height(), Qt::AlignCenter,
                        i18n("No profile available..."));
         }
- 
+
         return;
     }
- 
-    // Create CIE tongue if needed
+
     if (d->needUpdatePixmap)
     {
         updatePixmap();
     }
- 
-    // draw prerendered tongue
+
     p.drawPixmap(0, 0, d->pixmap);
 }
- 
+
 void KisCIETongueWidget::resizeEvent(QResizeEvent* event)
 {
     QWidget::resizeEvent(event);

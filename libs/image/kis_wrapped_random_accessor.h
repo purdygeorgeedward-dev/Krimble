@@ -10,7 +10,6 @@
 #include "tiles3/kis_random_accessor.h"
 #include "KisWraparoundAxis.h"
 
-
 class KisWrappedRandomAccessor : public KisRandomAccessor2
 {
 public:
@@ -35,4 +34,4 @@ private:
     WrapAroundAxis m_wrapAxis;
 };
 
-#endif /* __KIS_WRAPPED_RANDOM_ACCESSOR_H */
+#endif

@@ -172,7 +172,6 @@ KisLiquifyProperties KisLiquifyProperties::fromXML(const QDomElement &e)
     return props;
 }
 
-
 QDebug operator<<(QDebug dbg, const KisLiquifyProperties &props)
 {
     dbg.nospace() << "\nKisLiquifyProperties(";

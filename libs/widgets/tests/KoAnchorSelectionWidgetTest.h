@@ -21,4 +21,4 @@ private Q_SLOTS:
     void slotValueChanged(KoFlake::AnchorPosition id);
 };
 
-#endif /* __KO_ANCHOR_SELECTION_WIDGET_TEST_H */
+#endif

@@ -74,7 +74,6 @@ public class ShareHelper {
         }
     }
 
-    // Removes the empty entry made by prepareCameraUri when the photo was cancelled.
     public static void deleteUri(final String uriString) {
         final Activity activity = QtNative.activity();
         if (activity == null) {

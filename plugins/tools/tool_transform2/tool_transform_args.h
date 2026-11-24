@@ -26,13 +26,6 @@
 class KisLiquifyTransformWorker;
 class QDomElement;
 
-/**
- * Class used to store the parameters of a transformation.
- * Some parameters are specific to free transform mode, and
- * others to warp mode : maybe add a union to save a little more
- * memory.
- */
-
 class KRITATOOLTRANSFORM_EXPORT ToolTransformArgs : public KisToolChangesTrackerData
 {
 public:
@@ -44,23 +37,12 @@ public:
                         MESH,
                         N_MODES};
 
-    /**
-     * Initializes the parameters for an identity transformation,
-     * with mode set to free transform.
-     */
     ToolTransformArgs();
 
-    /**
-     * The object return will be a copy of args.
-     */
     ToolTransformArgs(const ToolTransformArgs& args);
 
     KisToolChangesTrackerData *clone() const override;
 
-    /**
-     * If mode is warp, original and transformed vector points will be of size 0.
-     * Use setPoints method to set those vectors.
-     */
     ToolTransformArgs(TransformMode mode,
                       QPointF transformedCenter,
                       QPointF originalCenter,
@@ -112,7 +94,6 @@ public:
         m_externalSource = externalSource;
     }
 
-    //warp-related
     inline int numPoints() const {
         KIS_ASSERT_RECOVER_NOOP(m_origPoints.size() == m_transfPoints.size());
         return m_origPoints.size();
@@ -167,7 +148,6 @@ public:
         m_defaultPoints = defaultPoints;
     }
 
-    //"free transform"-related
     inline QPointF transformedCenter() const {
         return m_transformedCenter;
     }
@@ -270,13 +250,8 @@ public:
         return m_filter;
     }
 
-    // True if the transformation does not differ from the initial one. The
-    // target device may still need changing if we are placing an external source.
     bool isIdentity() const;
 
-    // True if the target device does not need changing as a result of this
-    // transformation, because the transformation does not differ from the initial
-    // one and the source image is not external.
     bool isUnchanging() const;
 
     inline QTransform flattenedPerspectiveTransform() const {
@@ -343,25 +318,17 @@ private:
     void init(const ToolTransformArgs& args);
     TransformMode m_mode {ToolTransformArgs::TransformMode::FREE_TRANSFORM};
 
-    // warp-related arguments
-    // these are basically the arguments taken by the warp transform worker
-    bool m_defaultPoints {true}; // true : the original points are set to make a grid
-                          // which density is given by numPoints()
+    bool m_defaultPoints {true};
     QVector<QPointF> m_origPoints;
     QVector<QPointF> m_transfPoints;
     KisWarpTransformWorker::WarpType m_warpType {KisWarpTransformWorker::WarpType_::RIGID_TRANSFORM};
-    KisWarpTransformWorker::WarpCalculation m_warpCalculation {KisWarpTransformWorker::WarpCalculation::DRAW}; // DRAW or GRID
+    KisWarpTransformWorker::WarpCalculation m_warpCalculation {KisWarpTransformWorker::WarpCalculation::DRAW};
     double m_alpha {1.0};
 
-    //'free transform'-related
-    // basically the arguments taken by the transform worker
     QPointF m_transformedCenter;
     QPointF m_originalCenter;
-    QPointF m_rotationCenterOffset; // the position of the rotation center relative to
-                                    // the original top left corner of the selection
-                                    // before any transformation
-    bool m_transformAroundRotationCenter {false}; // In freehand mode makes the scaling and other transformations
-                                          // be anchored to the rotation center point.
+    QPointF m_rotationCenterOffset;
+    bool m_transformAroundRotationCenter {false};
 
     double m_aX {0};
     double m_aY {0};
@@ -375,7 +342,6 @@ private:
     bool m_keepAspectRatio {true};
     FreeGesture m_freeGesture {GestureScale};
 
-    // perspective transform related
     QTransform m_flattenedPerspectiveTransform;
 
     KisFilterStrategy *m_filter {0};
@@ -389,22 +355,12 @@ private:
     bool m_meshScaleHandles = false;
     bool m_allowShear = false;
 
-    /**
-     * When we continue a transformation, m_continuedTransformation
-     * stores the initial step of our transform. All cancel and revert
-     * operations should revert to it.
-     */
     std::unique_ptr<ToolTransformArgs> m_continuedTransformation;
 
-    //PixelPrecision should always be in powers of 2
     int m_pixelPrecision {8};
     int m_previewPixelPrecision {16};
 
-    /**
-     * Optional external image, for example from the clipboard, that
-     * can be transformed directly over an existing paint layer or mask.
-     */
     KisPaintDeviceSP m_externalSource;
 };
 
-#endif // TOOL_TRANSFORM_ARGS_H_
+#endif

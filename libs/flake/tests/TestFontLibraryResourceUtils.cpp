@@ -39,14 +39,10 @@ int failingDestroyLibraryResource(LibraryResource *res) {
     res->refCounter--;
     delete res;
 
-    // always report that we failed to destroy
     return -1;
 }
 
-
-
 using LibraryResourceSP = KisLibraryResourcePointer<LibraryResource, destroyLibraryResource>;
-
 
 void TestFontLibraryResourceUtils::initTestCase()
 {

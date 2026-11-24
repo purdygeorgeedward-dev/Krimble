@@ -38,8 +38,6 @@ KisRasterKeyframe::KisRasterKeyframe(KisPaintDeviceWSP paintDevice, const int &p
 
 KisRasterKeyframe::~KisRasterKeyframe()
 {
-    // Note: Because keyframe ownership is shared, it's possible for them to outlive
-    // the paint device.
     if (m_paintDevice && m_paintDevice->framesInterface()) {
         m_paintDevice->framesInterface()->deleteFrame(m_frameID, nullptr);
     }
@@ -93,12 +91,6 @@ KisKeyframeSP KisRasterKeyframe::duplicate(KisKeyframeChannel *newChannel)
     return key;
 }
 
-
-// ===========================================================================================================
-// =======================================KisRasterKeyframeChannel============================================
-// ===========================================================================================================
-
-
 struct KisRasterKeyframeChannel::Private
 {
     Private(KisPaintDeviceWSP paintDevice, const QString filenameSuffix)
@@ -107,10 +99,6 @@ struct KisRasterKeyframeChannel::Private
           onionSkinsEnabled(false)
     {}
 
-    /** @brief Weak pointer to the KisPaintDevice associated with this
-     * channel and a single layer of a KisImage. While the channel maintains
-     * "virtual" KisRasterKeyframes, the real "physical" frame images are stored
-     * within this paint device at the frameID index held in the KisRasterKeyframe. */
     KisPaintDeviceWSP paintDevice;
 
     QMultiHash<int, int> frameIDTimesMap;
@@ -135,7 +123,6 @@ KisRasterKeyframeChannel::KisRasterKeyframeChannel(const KisRasterKeyframeChanne
     m_d->frameFilenames = rhs.m_d->frameFilenames;
     m_d->onionSkinsEnabled = rhs.m_d->onionSkinsEnabled;
 
-    // Copy keyframes with attention to clones..
     foreach (const int& frame, rhs.constKeys().keys()) {
         KisRasterKeyframeSP copySource = rhs.keyframeAt<KisRasterKeyframe>(frame);
         if (m_d->frameIDTimesMap.contains(copySource->frameID())){
@@ -197,7 +184,6 @@ QString KisRasterKeyframeChannel::chooseFrameFilename(int frameId, const QString
     QString filename;
 
     if (m_d->frameFilenames.isEmpty()) {
-        // Use legacy naming convention for first keyframe
         filename = layerFilename + m_d->filenameSuffix;
     } else {
         filename = layerFilename + m_d->filenameSuffix + ".f" + QString::number(frameId);
@@ -258,7 +244,7 @@ void KisRasterKeyframeChannel::removeKeyframe(int time, KUndo2Command *parentUnd
 
     KisKeyframeChannel::removeKeyframeImpl(time, parentUndoCmd);
 
-    if (time == 0) { // There should always be a raster frame on frame 0.
+    if (time == 0) {
         addKeyframe(time, parentUndoCmd);
     }
 }
@@ -272,8 +258,6 @@ void KisRasterKeyframeChannel::cloneKeyframe(int source, int destination, KUndo2
 
 bool KisRasterKeyframeChannel::areClones(int timeA, int timeB)
 {
-    /* Edgecase
-     * If both times are empty, we shouldn't really consider the two "clones".. */
     if (keyframeAt(timeA) == nullptr && keyframeAt(timeB) == nullptr) {
         return false;
     }
@@ -291,7 +275,7 @@ QSet<int> KisRasterKeyframeChannel::clonesOf(int time)
 
     QList<int> values = m_d->frameIDTimesMap.values(rasterKey->frameID());
     QSet<int> clones = QSet<int>(values.cbegin(), values.cend());
-    clones.remove(time); // Clones only! Remove input time from the list.
+    clones.remove(time);
     return clones;
 }
 
@@ -379,17 +363,14 @@ QPair<int, KisKeyframeSP> KisRasterKeyframeChannel::loadKeyframe(const QDomEleme
 
     if (m_d->frameFilenames.isEmpty()) {
 
-        // First keyframe loaded: use the existing frame
         KIS_SAFE_ASSERT_RECOVER_NOOP(keyframeCount() == 1);
         int firstKeyframeTime = constKeys().begin().key();
         keyframe = keyframeAt<KisRasterKeyframe>(firstKeyframeTime);
 
-        // Remove from keys. It will get reinserted with new time once we return
         removeKeyframe(firstKeyframeTime);
         m_d->paintDevice->framesInterface()->setFrameOffset(keyframe->frameID(), offset);
     } else {
 
-        // If the filename already exists, it's **probably** a clone we can reinstance.
         if (m_d->frameFilenames.values().contains(frameFilename)) {
 
             const int frameId = m_d->frameFilenames.key(frameFilename);

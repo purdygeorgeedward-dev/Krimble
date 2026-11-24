@@ -30,7 +30,6 @@
 
 #include "LibKisUtils.h"
 
-
 struct View::Private {
     Private() {}
     QPointer<KisView> view;
@@ -39,7 +38,6 @@ struct View::Private {
 
     void reconnect(View *self)
     {
-        // View::setDocument() can replace the wrapped KisView.
         if (toolProxy) {
             QObject::disconnect(toolProxy, SIGNAL(toolChanged(QString)), self, SIGNAL(currentToolChanged(QString)));
             toolProxy.clear();
@@ -106,7 +104,6 @@ Window* View::window() const
     return win;
 }
 
-
 Document* View::document() const
 {
     if (!d->view) return 0;
@@ -165,7 +162,6 @@ void View::activateResource(Resource *resource)
         d->view->viewManager()->paintOpBox()->resourceSelected(preset);
     }
 }
-
 
 ManagedColor *View::foregroundColor() const
 {
@@ -385,7 +381,6 @@ void View::setDisablePressure(bool value)
     }
     d->view->resourceProvider()->setDisablePressure(value);
 }
-
 
 QList<Node *> View::selectedNodes() const
 {

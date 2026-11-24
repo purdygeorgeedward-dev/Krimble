@@ -1,7 +1,4 @@
-// This file is part of PyKrita, Krita' Python scripting plugin.
-//
 // SPDX-FileCopyrightText: 2013 Alex Turbov <i.zaufi@gmail.com>
-//
 // SPDX-License-Identifier: LGPL-2.0-only OR LGPL-3.0-only
 
 #ifndef __VERSION_CHECKER_H__
@@ -16,9 +13,6 @@
 namespace PyKrita
 {
 
-/**
- * \brief Class \c version
- */
 class version
 {
     enum type {
@@ -27,7 +21,6 @@ class version
     };
 
 public:
-    /// Default constructor
     explicit version(const int _major = zero, const int _minor = zero, const int patch = zero)
         : m_major(_major)
         , m_minor(_minor)
@@ -76,8 +69,6 @@ public:
     {
         version v = tryObtainVersionFromTuple(version_obj);
         if (!v.isValid()) {
-            // PEP396 requires __version__ to be a tuple of integers,
-            // but some modules use a string instead.
             v = tryObtainVersionFromString(version_obj);
         }
         return v;
@@ -92,7 +83,6 @@ private:
     int m_major;
     int m_minor;
     int m_patch;
-
 
     static version tryObtainVersionFromTuple(PyObject* version_obj)
     {
@@ -115,12 +105,6 @@ private:
         return version::invalid();
     }
 
-/**
- * Try to parse version string as a simple triplet X.Y.Z.
- *
- * \todo Some modules has letters in a version string...
- * For example current \c pytz version is \e "2013d".
- */
     static version tryObtainVersionFromString(PyObject* version_obj)
     {
         Q_ASSERT("Sanity check" && version_obj);
@@ -134,7 +118,6 @@ private:
 
         return version::fromString(version_str);
     }
-
 
 };
 
@@ -177,10 +160,6 @@ inline bool operator>=(const version& left, const version& right)
     return left == right || left > right;
 }
 
-
-/**
-* \brief Class \c version_checker
-*/
 class version_checker
 {
 public:
@@ -196,7 +175,6 @@ public:
         , last__
     };
 
-    /// Default constructor
     explicit version_checker(const operation op = invalid)
         : m_op(op) {
     }
@@ -293,14 +271,12 @@ public:
         }
         if (lookup_next_char) {
             if (version_info.at(1).toLatin1() == '=') {
-                // NOTE Shift state
                 checker.m_op = operation(int(checker.m_op) + 1);
                 strip_lead_pos = 2;
             } else {
                 strip_lead_pos = 1;
             }
         }
-        //
         QString rhs_str = version_info.mid(strip_lead_pos).trimmed();
         version rhs = version::fromString(rhs_str);
         if (rhs.isValid())
@@ -315,5 +291,5 @@ private:
     version m_rhs;
 };
 
-}                                                           // namespace PyKrita
-#endif                                                      //  __VERSION_CHECKER_H__
+}
+#endif

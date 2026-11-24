@@ -15,13 +15,11 @@
 
 #define QPAINTER_WORKAROUND_BORDER 1
 
-
 KisQImagePyramid::KisQImagePyramid(const QImage &baseImage, bool useSmoothingForEnlarging)
 {
     KIS_SAFE_ASSERT_RECOVER_RETURN(!baseImage.isNull());
 
     m_originalSize = baseImage.size();
-
 
     qreal scale = MAX_MIPMAP_SCALE;
 
@@ -75,7 +73,6 @@ int KisQImagePyramid::findNearestLevel(qreal scale, qreal *baseScale) const
     int level = 0;
     int lastLevel = m_levels.size() - 1;
 
-
     while ((0.5 * levelScale > scale ||
             qAbs(0.5 * levelScale - scale) < scale_epsilon) &&
             level < lastLevel) {
@@ -90,14 +87,6 @@ int KisQImagePyramid::findNearestLevel(qreal scale, qreal *baseScale) const
 
 inline QRect roundRect(const QRectF &rc)
 {
-    /**
-     * This is an analog of toAlignedRect() with the only difference
-     * that it ensures the rect position will never be below zero.
-     *
-     * Warning: be *very* careful with using bottom()/right() values
-     *          of a pure QRect (we don't use it here for the dangers
-     *          it can lead to).
-     */
 
     QRectF rect(rc);
 
@@ -115,7 +104,6 @@ inline QRect roundRect(const QRectF &rc)
     qreal w_rounded = qRound(rect.width());
     qreal h_rounded = qRound(rect.height());
 
-    //Take care of the float precision errors
     if (qAbs(rect.width() - w_rounded) < 0.000001) {
         rect.setWidth(w_rounded);
     }
@@ -123,7 +111,6 @@ inline QRect roundRect(const QRectF &rc)
     if (qAbs(rect.height() - h_rounded) < 0.000001) {
         rect.setHeight(h_rounded);
     }
-
 
     return rect.toAlignedRect();
 }
@@ -176,8 +163,6 @@ void KisQImagePyramid::calculateParams(KisDabShape shape,
     QTransform transform = baseBrushTransform(shape, subPixelX, subPixelY, baseBounds);
     QRectF mappedRect = originalTransform.mapRect(originalBounds);
 
-    // Set up a 0,0,1,1 size and identity transform in case the transform fails to
-    // produce a usable result.
     int width = 1;
     int height = 1;
     *outputTransform = QTransform();
@@ -185,7 +170,7 @@ void KisQImagePyramid::calculateParams(KisDabShape shape,
     if (mappedRect.isValid()) {
         QRect expectedDstRect = roundRect(mappedRect);
 
-#if 0 // Only enable when debugging; users shouldn't see this warning
+#if 0
         {
             QRect testingRect = roundRect(transform.mapRect(baseBounds));
             if (testingRect != expectedDstRect) {
@@ -201,13 +186,11 @@ void KisQImagePyramid::calculateParams(KisDabShape shape,
         width = expectedDstRect.x() + expectedDstRect.width();
         height = expectedDstRect.y() + expectedDstRect.height();
 
-        // we should not return invalid image, so adjust the image to be
-        // at least 1 px in size.
         width = qMax(1, width);
         height = qMax(1, height);
     }
     else {
-#if 0 // Only enable when debugging; users shouldn't see this warning
+#if 0
         qWarning() << "Brush transform generated an invalid rectangle!"
             << ppVar(shape.scaleX()) << ppVar(shape.scaleY()) << ppVar(shape.rotation())
             << ppVar(subPixelX) << ppVar(subPixelY)
@@ -250,17 +233,7 @@ QSizeF KisQImagePyramid::characteristicSize(const QSize &originalSize,
 
 void KisQImagePyramid::appendPyramidLevel(const QImage &image)
 {
-    /**
-     * QPainter has a bug: when doing a transformation it decides that
-     * all the pixels outside of the image (source rect) are equal to
-     * the border pixels (CLAMP in terms of openGL). This means that
-     * there will be no smooth scaling on the border of the image when
-     * it is rotated.  To workaround this bug we need to add one pixel
-     * wide border to the image, so that it transforms smoothly.
-     *
-     * See a unittest in: KisGbrBrushTest::testQPainterTransformationBorder
-     */
-    
+
 QSize levelSize = image.size();
     QImage tmp = image.convertToFormat(QImage::Format_ARGB32);
     tmp = tmp.copy(-QPAINTER_WORKAROUND_BORDER,
@@ -299,15 +272,6 @@ QImage KisQImagePyramid::createImage(KisDabShape const& shape,
     QImage dstImage(dstSize, QImage::Format_ARGB32);
     dstImage.fill(0);
 
-
-    /**
-     * QPainter has one more bug: when a QTransform is TxTranslate, it
-     * does wrong sampling (probably, Nearest Neighbour) even though
-     * we tell it directly that we need SmoothPixmapTransform.
-     *
-     * So here is a workaround: we set a negligible scale to convince
-     * Qt we use a non-only-translating transform.
-     */
     while (transform.type() == QTransform::TxTranslate) {
         const qreal scale = transform.m11();
         const qreal fakeScale = scale - 10 * std::numeric_limits<qreal>::epsilon();
@@ -329,7 +293,6 @@ QImage KisQImagePyramid::getClosest(QTransform transform, qreal *scale) const
 {
     if (m_levels.isEmpty()) return QImage();
 
-    // Estimate scale
     QSizeF transformedUnitSquare = transform.mapRect(QRectF(0, 0, 1, 1)).size();
     qreal x = qAbs(transformedUnitSquare.width());
     qreal y = qAbs(transformedUnitSquare.height());

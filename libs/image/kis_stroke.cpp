@@ -8,7 +8,6 @@
 
 #include "kis_stroke_strategy.h"
 
-
 KisStroke::KisStroke(KisStrokeStrategy *strokeStrategy, Type type, int levelOfDetail)
     : m_strokeStrategy(strokeStrategy),
       m_strokeInitialized(false),
@@ -75,18 +74,10 @@ void KisStroke::addJob(KisStrokeJobData *data)
 
 void KisStroke::addMutatedJobs(const QVector<KisStrokeJobData *> list)
 {
-    // factory methods can return null, if no action is needed
     if (!m_dabStrategy) {
         qDeleteAll(list);
         return;
     }
-
-    // Find first non-alien (non-suspend/non-resume) job
-    //
-    // Please note that this algorithm will stop working at the day we start
-    // adding alien jobs not to the beginning of the stroke, but to other places.
-    // Right now both suspend and resume jobs are added to the beginning of
-    // the stroke.
 
     auto it = std::find_if(m_jobsQueue.begin(), m_jobsQueue.end(),
                            std::mem_fn(&KisStrokeJob::isOwnJob));
@@ -138,41 +129,14 @@ void KisStroke::endStroke()
     m_strokeStrategy->notifyUserEndedStroke();
 }
 
-/**
- * About cancelling the stroke
- * There may be four different states of the stroke, when cancel
- * is requested:
- * 1) Not initialized, has jobs -- just clear the queue
- * 2) Initialized, has jobs, not finished -- clear the queue,
- *    enqueue the cancel job
- * 5) Initialized, no jobs, not finished -- enqueue the cancel job
- * 3) Initialized, has jobs, finished -- clear the queue, enqueue
- *    the cancel job
- * 4) Initialized, no jobs, finished -- it's too late to cancel
- *    anything
- * 6) Initialized, has jobs, cancelled -- cancelling twice is a permitted
- *                                        operation, though it does nothing
- */
-
 void KisStroke::cancelStroke()
 {
-    // case 6
     if (m_isCancelled) return;
 
     const bool effectivelyInitialized =
         m_strokeInitialized || m_strokeStrategy->needsExplicitCancel();
 
     if(!effectivelyInitialized) {
-        /**
-         * Lod0 stroke cannot be suspended and !initialized at the
-         * same time, because the suspend job is created iff the
-         * stroke has already done some meaningful work.
-         *
-         * At the same time, LodN stroke can be prepended with a
-         * 'suspend' job even when it has not been started yet. That
-         * is obvious: we should suspend the other stroke before doing
-         * anything else.
-         */
         KIS_ASSERT_RECOVER_NOOP(type() == LODN ||
                                 sanityCheckAllJobsAreCancellable());
         clearQueueOnCancel();
@@ -186,9 +150,6 @@ void KisStroke::cancelStroke()
         enqueue(m_cancelStrategy.data(),
                 m_strokeStrategy->createCancelData());
     }
-    // else {
-    //     too late ...
-    // }
 
     m_isCancelled = true;
     m_strokeEnded = true;
@@ -289,7 +250,6 @@ int KisStroke::nextJobLevelOfDetail() const
 void KisStroke::enqueue(KisStrokeJobStrategy *strategy,
                         KisStrokeJobData *data)
 {
-    // factory methods can return null, if no action is needed
     if(!strategy) {
         delete data;
         return;
@@ -303,13 +263,11 @@ void KisStroke::prepend(KisStrokeJobStrategy *strategy,
                         int levelOfDetail,
                         bool isOwnJob)
 {
-    // factory methods can return null, if no action is needed
     if(!strategy) {
         delete data;
         return;
     }
 
-    // LOG_MERGE_FIXME:
     Q_UNUSED(levelOfDetail);
 
     m_jobsQueue.prepend(new KisStrokeJob(strategy, data, worksOnLevelOfDetail(), isOwnJob));

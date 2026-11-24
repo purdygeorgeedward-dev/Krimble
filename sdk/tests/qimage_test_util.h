@@ -81,7 +81,6 @@ inline QString fetchDataFileLazy(const QString relativeFileName, bool externalTe
     return QString();
 }
 
-// quint8 arguments are automatically converted into int
 inline bool compareChannels(int ch1, int ch2, int fuzzy)
 {
     return qAbs(ch1 - ch2) <= fuzzy;
@@ -92,11 +91,8 @@ inline bool compareChannelsPremultiplied(int ch1, int alpha1, int ch2, int alpha
     return qAbs(ch1 * alpha1 - ch2 * alpha2) / 255 <= fuzzy * qMax(1, fuzzyAlpha);
 }
 
-
 inline bool compareQImagesImpl(QPoint & pt, const QImage & image1, const QImage & image2, int fuzzy = 0, int fuzzyAlpha = 0, int maxNumFailingPixels = 0, bool showDebug = true, bool premultipliedMode = false)
 {
-    //     QTime t;
-    //     t.start();
 
     const int w1 = image1.width();
     const int h1 = image1.height();
@@ -159,8 +155,6 @@ inline bool compareQImagesImpl(QPoint & pt, const QImage & image1, const QImage 
             }
         }
     }
-    //     qDebug() << "compareQImages time elapsed:" << t.elapsed();
-    //    qDebug() << "Images are identical";
     return true;
 }
 
@@ -195,14 +189,12 @@ inline bool checkQImageImpl(bool externalTest,
     QString fullPath = fetchDataFileLazy(standardPath, externalTest);
 
     if (fullPath.isEmpty() || !QFileInfo(fullPath).exists()) {
-        // Try without the testname subdirectory
         fullPath = fetchDataFileLazy(prefix + '/' +
                                      filename,
                                      externalTest);
     }
 
     if (fullPath.isEmpty() || !QFileInfo(fullPath).exists()) {
-        // Try without the prefix subdirectory
         fullPath = fetchDataFileLazy(testName + '/' +
                                      filename,
                                      externalTest);
@@ -271,7 +263,6 @@ inline bool checkQImagePremultiplied(const QImage &image, const QString &testNam
                            fuzzy, fuzzyAlpha, maxNumFailingPixels, true);
 }
 
-
 inline bool checkQImageExternal(const QImage &image, const QString &testName,
                                 const QString &prefix, const QString &name,
                                 int fuzzy = 0, int fuzzyAlpha = -1, int maxNumFailingPixels = 0)
@@ -283,7 +274,7 @@ inline bool checkQImageExternal(const QImage &image, const QString &testName,
 
 }
 
-#endif // FILES_OUTPUT_DIR
+#endif
 
-#endif // QIMAGE_TEST_UTIL_H
+#endif
 

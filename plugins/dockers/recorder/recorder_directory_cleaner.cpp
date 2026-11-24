@@ -10,7 +10,6 @@
 #include <QDebug>
 #include <QDir>
 
-
 RecorderDirectoryCleaner::RecorderDirectoryCleaner(const QStringList &directories_)
     : directories(directories_)
 {

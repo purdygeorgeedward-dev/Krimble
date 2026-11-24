@@ -43,7 +43,6 @@ public:
 
     virtual KoToolProxy * toolProxy() const = 0;
 
-    /// Draw the specified decorations on the view.
     virtual void drawDecorations(QPainter & gc, const QRect &updateWidgetRect) const = 0;
 
     virtual void addDecoration(KisCanvasDecorationSP deco) = 0;
@@ -55,10 +54,8 @@ public:
 
     virtual QList<KisCanvasDecorationSP> decorations() const = 0;
 
-    /// set the specified display filter on the canvas
     virtual void setDisplayFilter(QSharedPointer<KisDisplayFilter> displayFilter) = 0;
 
-    /// set/update the color space of the attached image
     virtual void notifyImageColorSpaceChanged(const KoColorSpace *cs) = 0;
 
     virtual void setWrapAroundViewingMode(bool value) = 0;
@@ -67,30 +64,20 @@ public:
     virtual void setWrapAroundViewingModeAxis(WrapAroundAxis value) = 0;
     virtual WrapAroundAxis wrapAroundViewingModeAxis() const = 0;
 
-    // Called from KisCanvas2::channelSelectionChanged
     virtual void channelSelectionChanged(const QBitArray &channelFlags) = 0;
 
     virtual void setDisplayConfig(const KisDisplayConfig &config) = 0;
 
-    // Called from KisCanvas2::finishResizingImage
     virtual void finishResizingImage(qint32 w, qint32 h) = 0;
 
-    // Called from KisCanvas2::startUpdateProjection
     virtual KisUpdateInfoSP startUpdateCanvasProjection(const QRect & rc) = 0;
 
-    // Called from KisCanvas2::updateCanvasProjection
     virtual QRect updateCanvasProjection(KisUpdateInfoSP info) = 0;
     virtual QVector<QRect> updateCanvasProjection(const QVector<KisUpdateInfoSP> &infoObjects) = 0;
 
     virtual void updateCanvasImage(const QRect &imageUpdateRect) = 0;
     virtual void updateCanvasDecorations(const QRect &decoUpdateRect) = 0;
 
-    /**
-     * Returns true if the asynchronous engine of the canvas
-     * (e.g. openGL pipeline) is busy with processing of the previous
-     * update events. This will make KisCanvas2 to postpone and
-     * compress update events.
-     */
     virtual bool isBusy() const = 0;
 
     virtual void setLodResetInProgress(bool value) = 0;
@@ -100,4 +87,4 @@ public:
     virtual QString currentBitDepthUserReport() const = 0;
 };
 
-#endif // _KIS_ABSTRACT_CANVAS_WIDGET_
+#endif

@@ -35,9 +35,6 @@ private:
     bool hungry = true;
 };
 
-
-//=================================================================
-
 KisPopupWidgetAction::KisPopupWidgetAction()
     : KisAbstractInputAction("Show Popup Widget")
 {
@@ -51,14 +48,10 @@ KisPopupWidgetAction::~KisPopupWidgetAction()
 
 void KisPopupWidgetAction::end(QEvent *event)
 {
-    if (QMenu *popupMenu = inputManager()->toolProxy()->popupActionsMenu()) { // Handle popup menus...
+    if (QMenu *popupMenu = inputManager()->toolProxy()->popupActionsMenu()) {
         QEvent::Type requestingEventType = event ? event->type() : QEvent::None;
         std::optional<QPointF> basePopupPos = KoPointerEvent::fetchGlobalPositionFromPointerEvent(event);
 
-        /**
-         * Opening a menu changes the focus of the windows, so we should not open it
-         * inside the filtering loop. Just raise it using the timer.
-         */
         QTimer::singleShot(0, this, [popupMenu, requestingEventType, basePopupPos](){
             if (popupMenu) {
                 QPoint popupPos;
@@ -78,7 +71,7 @@ void KisPopupWidgetAction::end(QEvent *event)
                 popupMenu->clear();
             }
         });
-    } else if (KisPopupWidgetInterface *popupWidget = inputManager()->toolProxy()->popupWidget()) { // Handle other popup widgets...
+    } else if (KisPopupWidgetInterface *popupWidget = inputManager()->toolProxy()->popupWidget()) {
         if (!popupWidget->onScreen()) {
             QPoint pos = eventPos(event);
             if (pos.isNull()) {
@@ -86,8 +79,6 @@ void KisPopupWidgetAction::end(QEvent *event)
             }
             inputManager()->registerPopupWidget(popupWidget);
 
-            /// the popup widget in not modal, so we shouldn't
-            /// wrap it into a QTimer
             popupWidget->popup(pos);
         } else {
             popupWidget->dismiss();

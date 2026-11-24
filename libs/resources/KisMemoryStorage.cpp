@@ -20,13 +20,8 @@
 #include <kis_assert.h>
 #include <KisMpl.h>
 
-
 namespace detail {
 
-    /**
-     * TODO: move this function into KisStorageVersioningHelper with fixing the
-     * versioning functions to handle subfolders as well
-     */
     std::optional<std::pair<QString, QString>> splitResourceUrl(const QString &url)
     {
         if (!url.contains('/')) return std::nullopt;
@@ -77,13 +72,11 @@ private:
     QVectorIterator<KisTagSP> m_it;
 };
 
-
 class MemoryItem : public KisResourceStorage::ResourceItem
 {
 public:
     ~MemoryItem() override {}
 };
-
 
 class KisMemoryStorage::Private {
 public:
@@ -91,7 +84,6 @@ public:
     QHash<QString, QVector<KisTagSP>> tags;
     QMap<QString, QVariant> metadata;
 };
-
 
 KisMemoryStorage::KisMemoryStorage(const QString &location)
     : KisStoragePlugin(location)
@@ -206,7 +198,6 @@ bool KisMemoryStorage::importResource(const QString &url, QIODevice *device)
     if (!parsedUrl) return false;
     auto [resourceType, resourceFilename] = *parsedUrl;
 
-    // we cannot overwrite existing file by API convention
     if (d->resourcesNew.contains(resourceType) &&
         d->resourcesNew[resourceType].contains(resourceFilename)) {
         return false;
@@ -251,9 +242,6 @@ bool KisMemoryStorage::addResource(const QString &resourceType,  KoResourceSP re
     QHash<QString, StoredResource> &typedResources = d->resourcesNew[resourceType];
 
     if (typedResources.contains(resource->filename())) {
-        /// here we silently overwrite the resource if the filename
-        /// is the same; it is the job of higher-level code to actually
-        /// resolve file name clashes
         return true;
     };
 
@@ -346,7 +334,6 @@ QSharedPointer<KisResourceStorage::ResourceIterator> KisMemoryStorage::resources
 {
     QVector<VersionedResourceEntry> entries;
 
-
     QHash<QString, StoredResource> &typedResources =
         d->resourcesNew[resourceType];
 
@@ -354,7 +341,7 @@ QSharedPointer<KisResourceStorage::ResourceIterator> KisMemoryStorage::resources
         VersionedResourceEntry entry;
         entry.filename = it.key();
         entry.lastModified = it.value().timestamp;
-        entry.tagList = {}; // TODO
+        entry.tagList = {};
         entry.resourceType = resourceType;
         entries.append(entry);
 

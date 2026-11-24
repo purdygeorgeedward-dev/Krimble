@@ -26,4 +26,4 @@ private Q_SLOTS:
     void testIntegralType();
 };
 
-#endif /* __KIS_DOM_UTILS_TEST_H */
+#endif

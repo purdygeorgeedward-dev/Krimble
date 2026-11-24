@@ -19,4 +19,4 @@ private Q_SLOTS:
     void subpathRemoval();
 };
 
-#endif // TESTPOINTREMOVECOMMAND_H
+#endif

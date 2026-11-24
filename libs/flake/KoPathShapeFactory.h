@@ -12,16 +12,13 @@
 
 class KoShape;
 
-/// Factory for path shapes.
 class KRITAFLAKE_EXPORT KoPathShapeFactory : public KoShapeFactoryBase
 {
 public:
-    /// constructor
     KoPathShapeFactory(const QStringList&);
     ~KoPathShapeFactory() override {}
     KoShape *createDefaultShape(KoDocumentResourceManager *documentResources = 0) const override;
     bool supports(const QDomElement &element, KoShapeLoadingContext &context) const override;
-    /// reimplemented
     void newDocumentResourceManager(KoDocumentResourceManager *manager) const override;
 };
 

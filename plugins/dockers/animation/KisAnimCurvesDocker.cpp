@@ -56,16 +56,13 @@
 #include "KisAnimationPlaybackControlsModel.h"
 #include "KisWidgetConnectionUtils.h"
 
-
 KisAnimCurvesDockerTitlebar::KisAnimCurvesDockerTitlebar(QWidget* parent) :
     KisUtilityTitleBar(new QLabel(i18n("Animation Curves"), parent), parent)
 {
-    // Transport Controls...
     transport = new KisTransportControls(this);
     widgetAreaLayout->addWidget(transport);
     widgetAreaLayout->addSpacing(SPACING_UNIT);
 
-    // Frame Register...
     sbFrameRegister = new KisIntParseSpinBox(this);
     sbFrameRegister->setToolTip(i18n("Frame register"));
     sbFrameRegister->setPrefix("#  ");
@@ -73,12 +70,11 @@ KisAnimCurvesDockerTitlebar::KisAnimCurvesDockerTitlebar(QWidget* parent) :
     widgetAreaLayout->addWidget(sbFrameRegister);
     widgetAreaLayout->addSpacing(SPACING_UNIT);
 
-    {   // Drop Frames..
+    {
         btnDropFrames = new QToolButton(this);
         btnDropFrames->setAutoRaise(true);
         widgetAreaLayout->addWidget(btnDropFrames);
 
-        // Playback Speed..
         sbSpeed = new KisSliderSpinBox(this);
         sbSpeed->setRange(25, 200);
         sbSpeed->setSingleStep(5);
@@ -91,13 +87,12 @@ KisAnimCurvesDockerTitlebar::KisAnimCurvesDockerTitlebar(QWidget* parent) :
 
     widgetAreaLayout->addSpacing(SPACING_UNIT);
 
-    {   // Frame ops...
+    {
         QWidget *widget = new QWidget(this);
         QHBoxLayout *layout = new QHBoxLayout(widget);
         layout->setSpacing(0);
         layout->setContentsMargins(0,0,0,0);
 
-        // Add/Remove Key..
         btnAddKey = new QToolButton(this);
         btnAddKey->setAutoRaise(true);
         layout->addWidget(btnAddKey);
@@ -108,7 +103,6 @@ KisAnimCurvesDockerTitlebar::KisAnimCurvesDockerTitlebar(QWidget* parent) :
 
         layout->addSpacing(SPACING_UNIT);
 
-        // Interpolation Modes..
         btnGroupInterpolation = new KisCollapsibleButtonGroup(this);
         btnGroupInterpolation->setAutoRaise(true);
         btnGroupInterpolation->setIconSize(QSize(22, 22));
@@ -116,7 +110,6 @@ KisAnimCurvesDockerTitlebar::KisAnimCurvesDockerTitlebar(QWidget* parent) :
 
         layout->addSpacing(SPACING_UNIT);
 
-        // Tangent Modes..
         btnGroupTangents = new KisCollapsibleButtonGroup(this);
         btnGroupTangents->setAutoRaise(true);
         btnGroupTangents->setIconSize(QSize(22, 22));
@@ -135,7 +128,6 @@ KisAnimCurvesDockerTitlebar::KisAnimCurvesDockerTitlebar(QWidget* parent) :
 
     widgetAreaLayout->addSpacing(SPACING_UNIT);
 
-    // Zoom buttons..
     btnGroupZoomFit = new KisCollapsibleButtonGroup(this);
     btnGroupZoomFit->setAutoRaise(true);
     btnGroupZoomFit->setIconSize(QSize(22,22));
@@ -157,14 +149,13 @@ KisAnimCurvesDockerTitlebar::KisAnimCurvesDockerTitlebar(QWidget* parent) :
 
     widgetAreaLayout->addStretch();
 
-    {   // Menus..
+    {
         QWidget *widget = new QWidget(this);
 
         QHBoxLayout *layout = new QHBoxLayout(widget);
         layout->setSpacing(0);
         layout->setContentsMargins(SPACING_UNIT,0,0,0);
 
-        // Onion skins menu.
         btnOnionSkinsMenu = new QToolButton(this);
         btnOnionSkinsMenu->setAutoRaise(true);
         btnOnionSkinsMenu->setIcon(KisIconUtils::loadIcon("onion_skin_options"));
@@ -172,16 +163,15 @@ KisAnimCurvesDockerTitlebar::KisAnimCurvesDockerTitlebar(QWidget* parent) :
         btnOnionSkinsMenu->setIconSize(QSize(22, 22));
         layout->addWidget(btnOnionSkinsMenu);
 
-        // Audio menu..
         btnAudioMenu = new QToolButton(this);
         btnAudioMenu->setAutoRaise(true);
         btnAudioMenu->setIcon(KisIconUtils::loadIcon("audio-none"));
         btnAudioMenu->setToolTip(i18n("Audio menu"));
         btnAudioMenu->setIconSize(QSize(22, 22));
-        btnAudioMenu->hide(); // (NOTE: Hidden for now while audio features develop.)
+        btnAudioMenu->hide();
         layout->addWidget(btnAudioMenu);
 
-        {   // Settings menu..
+        {
             btnSettingsMenu = new QToolButton(this);
             btnSettingsMenu->setIcon(KisIconUtils::loadIcon("view-choose-22"));
             btnSettingsMenu->setToolTip(i18n("Animation settings menu"));
@@ -251,8 +241,8 @@ struct KisAnimCurvesDocker::Private
     KisAnimCurvesChannelsModel *channelTreeModel;
     QTreeView *channelTreeView;
 
-    QMenu *channelTreeMenuChannels; //Menu for channels
-    QMenu *channelTreeMenuLayers; //Menu for layers
+    QMenu *channelTreeMenuChannels;
+    QMenu *channelTreeMenuLayers;
 
     KisMainWindow *mainWindow;
     QPointer<KisCanvas2> canvas;
@@ -271,33 +261,32 @@ KisAnimCurvesDocker::KisAnimCurvesDocker()
     QSplitter *mainSplitter = new QSplitter(this);
     mainWidget->layout()->addWidget(mainSplitter);
 
-    {   // Channel Tree..
+    {
         m_d->channelTreeView->setModel(m_d->channelTreeModel);
         m_d->channelTreeView->setHeaderHidden(true);
         KisAnimCurvesChannelDelegate *listDelegate = new KisAnimCurvesChannelDelegate(this);
         m_d->channelTreeView->setItemDelegate(listDelegate);
 
-        //Right click menu configuration for Channel Tree
         m_d->channelTreeView->setContextMenuPolicy(Qt::CustomContextMenu);
         connect(m_d->channelTreeView, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(requestChannelMenuAt(QPoint)));
 
         m_d->channelTreeMenuChannels->addSection(i18n("Channel Operations"));
         m_d->channelTreeMenuLayers->addSection(i18n("Layer Operations"));
 
-        { //Channels Menu
+        {
             QAction* action = new QAction(i18n("Reset Channel"), this);
             connect(action, SIGNAL(triggered(bool)), this, SLOT(resetChannelTreeSelection()));
             m_d->channelTreeMenuChannels->addAction(action);
         }
 
-        { //Layers Menu
+        {
             QAction* action = new QAction(i18n("Reset All Channels"), this);
             connect(action, SIGNAL(triggered(bool)), this, SLOT(resetChannelTreeSelection()));
             m_d->channelTreeMenuLayers->addAction(action);
         }
     }
 
-    {   // Curves View..
+    {
         m_d->curvesView->setModel(m_d->curvesModel);
     }
 
@@ -306,7 +295,6 @@ KisAnimCurvesDocker::KisAnimCurvesDocker()
     mainSplitter->addWidget(m_d->curvesView);
     mainSplitter->setStretchFactor(1, 10);
 
-    // Kinetic Scrolling..
     QScroller *scroller = KisKineticScroller::createPreconfiguredScroller(m_d->channelTreeView);
     if (scroller){
         connect(scroller, SIGNAL(stateChanged(QScroller::State)),
@@ -316,7 +304,6 @@ KisAnimCurvesDocker::KisAnimCurvesDocker()
     connect(m_d->channelTreeModel, &KisAnimCurvesChannelsModel::rowsInserted,
             this, &KisAnimCurvesDocker::slotListRowsInserted);
 
-    // Titlebar Widget..
     setTitleBarWidget(m_d->titlebar);
     setEnabled(false);
 
@@ -350,7 +337,6 @@ KisAnimCurvesDocker::KisAnimCurvesDocker()
         connectControl(m_d->titlebar->sbSpeed, &m_d->controlsModel, "playbackSpeedDenorm");
     }
 
-    // Watch for KisPlaybackEngine changes and initialize current one..
     connect(KisPart::instance(), &KisPart::playbackEngineChanged, this, &KisAnimCurvesDocker::setPlaybackEngine);
     setPlaybackEngine(KisPart::instance()->playbackEngine());
 }
@@ -406,7 +392,7 @@ void KisAnimCurvesDocker::setCanvas(KoCanvasBase *canvas)
         m_d->channelTreeModel->clear();
         m_d->channelTreeModel->selectedNodesChanged(m_d->canvas->viewManager()->nodeManager()->selectedNodes());
 
-        {   // Reinitialize titlebar widgets..
+        {
             KisSignalsBlocker blocker(m_d->titlebar->sbStartFrame,
                                       m_d->titlebar->sbEndFrame,
                                       m_d->titlebar->sbFrameRate,
@@ -550,7 +536,6 @@ void KisAnimCurvesDocker::setPlaybackEngine(KisPlaybackEngine *playbackEngine)
 {
     if (!playbackEngine) return;
 
-    // Connect transport controls..
     connect(m_d->titlebar->transport, SIGNAL(skipBack()), playbackEngine, SLOT(previousKeyframe()));
     connect(m_d->titlebar->transport, SIGNAL(back()), playbackEngine, SLOT(previousFrame()));
     connect(m_d->titlebar->transport, SIGNAL(stop()), playbackEngine, SLOT(stop()));
@@ -652,17 +637,11 @@ void KisAnimCurvesDocker::slotUpdateIcons()
 void KisAnimCurvesDocker::slotAddAllEnabledKeys()
 {
     KIS_SAFE_ASSERT_RECOVER_RETURN(m_d->canvas && m_d->canvas->viewManager());
-    // remember current node's opacity and set it once we create a new opacity keyframe
     KisNodeSP node = m_d->canvas->viewManager()->activeNode();
     KIS_SAFE_ASSERT_RECOVER_RETURN(node);
 
-    /* Once we start dealing with more scalar values,
-     * we should add a dropdown check-box set of actions that can
-     * enable and disable keys. For now, we will just consider all channels
-     * enabled. */
     KUndo2Command* parentCMD = new KUndo2Command(kundo2_i18n("Add Scalar Keyframes"));
 
-    //This should eventually be a list of all currently enabled channels.
     QList<KoID> ids = {
         KisKeyframeChannel::Opacity,
         KisKeyframeChannel::PositionX,
@@ -701,14 +680,12 @@ void KisAnimCurvesDocker::slotAddOpacityKey()
     }
 }
 
-
 void KisAnimCurvesDocker::slotRemoveSelectedKeys()
 {
     KIS_SAFE_ASSERT_RECOVER_RETURN(m_d->canvas && m_d->canvas->viewManager());
 
     KisNodeSP node = m_d->canvas->viewManager()->activeNode();
     KIS_SAFE_ASSERT_RECOVER_RETURN(node);
-
 
     QItemSelectionModel* selectionModel = m_d->curvesView->selectionModel();
     QModelIndexList selected = selectionModel ? selectionModel->selectedIndexes() : QModelIndexList();
@@ -761,7 +738,6 @@ void KisAnimCurvesDocker::slotRemoveOpacityKey()
 
 void KisAnimCurvesDocker::slotListRowsInserted(const QModelIndex &parentIndex, int first, int last)
 {
-    // Auto-expand nodes on the tree
     for (int r=first; r<=last; r++) {
         QModelIndex index = m_d->channelTreeModel->index(r, 0, parentIndex);
         m_d->channelTreeView->expand(index);

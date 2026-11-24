@@ -142,15 +142,6 @@ QRect KisBezierTransformMesh::approxNeedRect(const QRect &rc) const
     QRectF stepRect;
 
     {
-        /**
-         * First, try to approximate the bounding need rect by sampling
-         * control points. That is the main property of bezier curves:
-         * the resulting curve is **always** contained inside the control
-         * polygon.
-         *
-         * TODO: sample the whole wrapping polygon in a more uniform way,
-         * that is, sample the whole perimeter of the patch.
-         */
 
         const QRectF dstRect = rc;
 
@@ -276,8 +267,6 @@ QRect KisBezierTransformMesh::approxNeedRect(const QRect &rc) const
     KisBezierPatch patch = *beginPatches();
     KisBezierPatchParamToSourceSampler patchSampler(patch);
 
-    /// the number of points that has actually been
-    /// sampled from the destination rect
     int hitPoints = 0;
 
     while (1) {
@@ -315,10 +304,6 @@ QRect KisBezierTransformMesh::approxNeedRect(const QRect &rc) const
         result = alignedRect;
 
         if (dstRectSampler.numSamples() > qMin(2000, samplesLimit)) {
-            /**
-             * We don't warn if the "found" rect is empty, that is a perfectly
-             * valid case.
-             */
             if (!result.isEmpty()) {
                 qWarning() << "KisBezierTransformMesh::approxNeedRect: the algorithm hasn't converged!"
                            << ppVar(hitPoints) << ppVar(stepRect) << ppVar(alignedRect) << ppVar(result);
@@ -375,11 +360,6 @@ QRect KisBezierTransformMesh::approxChangeRect(const QRect &rc) const
     return result;
 }
 
-
-/**
- * Approximate the param-space rect that corresponds to \p srcSpaceRect in the source-space.
- * The resulting param-space rect will fully cover the source-space rect (and will be bigger).
- */
 QRectF KisBezierTransformMesh::calcTightSrcRectRangeInParamSpace(const KisBezierPatch &patch, const QRectF &srcSpaceRect, qreal srcPrecision)
 {
     using KisBezierUtils::Range;

@@ -37,5 +37,4 @@ private:
     FileItemModel *m_model;
 };
 
-
-#endif // KISAUTOSAVERECOVERYDIALOG_H
+#endif

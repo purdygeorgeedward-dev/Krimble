@@ -16,4 +16,4 @@ private Q_SLOTS:
     void testMoveStroke();
 };
 
-#endif /* __MOVE_STROKE_TEST_H */
+#endif

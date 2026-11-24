@@ -6,7 +6,6 @@
 
 #include "EditAssistantsCommand.h"
 
-
 #include <kis_canvas2.h>
 #include <KisView.h>
 #include <KisDocument.h>
@@ -60,7 +59,6 @@ void EditAssistantsCommand::undo()
 
 void EditAssistantsCommand::redo()
 {
-    // this is a post-execution command
     if (m_firstRedo) {
         m_firstRedo = false;
         return;

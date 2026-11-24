@@ -154,5 +154,4 @@ public:
     QVariant toSource(const QVariant &value, const QVariant &sourceValue) override;
 };
 
-
-#endif /* __KIS_DERIVED_RESOURCES_H */
+#endif

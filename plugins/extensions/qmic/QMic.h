@@ -28,4 +28,4 @@ private:
     KisAction *m_againAction;
 };
 
-#endif // QMic_H
+#endif

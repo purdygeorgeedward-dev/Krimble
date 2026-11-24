@@ -40,7 +40,6 @@
 #include "recorder_profile_settings.h"
 #endif
 
-
 namespace
 {
 enum ExportPageIndex
@@ -56,7 +55,6 @@ using Exporter = KisMediaEncoderWrapper;
 using Exporter = KisFFMpegWrapper;
 #endif
 }
-
 
 class RecorderExport::Private
 {
@@ -153,7 +151,7 @@ public:
     {
         QDir dir(settings->inputDirectory, "*." % RecorderFormatInfo::fileExtension(settings->format),
                 QDir::Name, QDir::Files | QDir::NoDotAndDotDot);
-        QStringList frames = dir.entryList(); // dir.count() calls entryList().count() internally
+        QStringList frames = dir.entryList();
         settings->framesCount = frames.count();
         if (settings->framesCount != 0) {
             const QString &fileName = settings->inputDirectory % QDir::separator() % frames.last();
@@ -162,9 +160,6 @@ public:
             settings->imageSize.rheight() &= ~1;
         }
 #ifdef Q_OS_ANDROID
-        // QDir::entryList is mind-bogglingly slow on Android, so we only load
-        // this once and cache the result. Not like these are supposed to change
-        // while this modal dialog is up anyway.
         settings->inputFilePaths.clear();
         settings->inputFilePaths.reserve(settings->framesCount);
         for (const QString &frame : frames) {
@@ -197,7 +192,6 @@ public:
         } else {
             settings->size.setWidth(static_cast<int>(settings->size.height() * ratio));
         }
-        // make width and height even
         settings->size.rwidth() &= ~1;
         settings->size.rheight() &= ~1;
         QSignalBlocker blockerWidth(ui->spinScaleHeight);
@@ -245,14 +239,10 @@ public:
         int quoteCount = 0;
         bool inQuote = false;
 
-        // handle quoting. tokens can be surrounded by double quotes
-        // "hello world". three consecutive double quotes represent
-        // the quote character itself.
         for (int i = 0; i < command.size(); ++i) {
             if (command.at(i) == QLatin1Char('"')) {
                 ++quoteCount;
                 if (quoteCount == 3) {
-                    // third consecutive quote
                     quoteCount = 0;
                     tmp += command.at(i);
                 }
@@ -284,7 +274,6 @@ public:
         Q_ASSERT(exporter == nullptr);
 
 #ifndef Q_OS_ANDROID
-        // We don't do this again on Android, it's mind-bogglingly slow.
         updateFrameInfo();
 #endif
 
@@ -315,7 +304,7 @@ public:
         exporterSettings.processPath = settings->ffmpegPath;
         exporterSettings.args = splitCommand(applyVariables(profile.arguments));
         exporterSettings.outputFile = settings->videoFilePath;
-        exporterSettings.batchMode = true; //TODO: Consider renaming to 'silent' mode, meaning no window for extra window handling...
+        exporterSettings.batchMode = true;
 #endif
 
         ui->labelStatus->setText(i18nc("Status for the export of the video record", "Starting exporter..."));
@@ -323,7 +312,6 @@ public:
         ui->progressExport->setValue(0);
         elapsedTimer.start();
 
-        // Do this last, it may immediately emit a failure.
         exporter->startNonBlocking(exporterSettings);
     }
 
@@ -398,10 +386,6 @@ public:
 
     void initDimensions()
     {
-        // Video with dimensions above 1920 pixels isn't widely supported.
-        // They often fail to encode with mysterious errors, can't be played
-        // back properly and/or are rejected by websites where users attempt to
-        // upload the videos. This caps the dimensions to avoid that trap.
         settings->resize = true;
         settings->lockRatio = true;
         if (settings->imageSize.isEmpty()) {
@@ -448,7 +432,6 @@ public:
     static void desktopServicesOpenPath(const QString &path)
     {
 #ifdef Q_OS_ANDROID
-        // QDesktopServices doesn't clear exceptions
         KisAndroidUtils::clearJniException(QStringLiteral("before opening ") + path);
         QDesktopServices::openUrl(QUrl(path));
         KisAndroidUtils::clearJniException(QStringLiteral("after opening ") + path);
@@ -457,7 +440,6 @@ public:
 #endif
     }
 };
-
 
 RecorderExport::RecorderExport(RecorderExportSettings *s, QWidget *parent)
     : QDialog(parent)
@@ -558,15 +540,9 @@ void RecorderExport::setup()
                                        );
     }
 
-
-    // Don't load lockFps flag from config, if liveCaptureMode was just set by the user
     config.loadConfiguration(settings, !settings->realTimeCaptureModeWasSet);
     settings->realTimeCaptureModeWasSet = false;
 
-    // Video dimensions are much more restrictive than image dimensions.
-    // Clobber them with sensible defaults instead of letting the user run into
-    // the trap of trying to export video well beyond what most encoders,
-    // devices and websites support.
     d->initDimensions();
 
     d->ui->spinInputFps->setValue(settings->inputFps);
@@ -577,7 +553,6 @@ void RecorderExport::setup()
     d->ui->spinLastFrameSec->setValue(settings->lastFrameSec);
     d->ui->checkResize->setChecked(settings->resize);
     {
-        // Need to block signals or else a locked ratio will mess these up.
         QSignalBlocker spinScaleWidthBlocker(d->ui->spinScaleWidth);
         QSignalBlocker spinScaleHeightBlocker(d->ui->spinScaleHeight);
         QSignalBlocker buttonLockRatioBlocker(d->ui->buttonLockRatio);
@@ -843,7 +818,6 @@ void RecorderExport::onButtonCancelClicked()
     if (d->tryAbortExport())
         d->ui->stackedWidget->setCurrentIndex(ExportPageIndex::PageSettings);
 }
-
 
 void RecorderExport::onExporterStarted()
 {

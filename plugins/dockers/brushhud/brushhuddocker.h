@@ -12,9 +12,6 @@
 
 class KisViewManager;
 
-/**
- * Template of view plugin
- */
 class BrushHudDockerPlugin : public QObject
 {
     Q_OBJECT

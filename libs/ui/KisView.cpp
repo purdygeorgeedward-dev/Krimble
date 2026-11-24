@@ -88,8 +88,6 @@
 #include "kis_memory_statistics_server.h"
 #include "kformat.h"
 
-
-//static
 QString KisView::newObjectName()
 {
     static int s_viewIFNumber = 0;
@@ -116,9 +114,9 @@ public:
     {
     }
 
-    bool inOperation {false}; //in the middle of an operation (no screen refreshing)?
+    bool inOperation {false};
 
-    QPointer<KisDocument> document; // our KisDocument
+    QPointer<KisDocument> document;
     QWidget *tempActiveWidget {nullptr};
 
     KisKActionCollection* actionCollection {nullptr};
@@ -144,8 +142,6 @@ public:
 
     KisScreenMigrationTracker screenMigrationTracker;
 
-    // Hmm sorry for polluting the private class with such a big inner class.
-    // At the beginning it was a little struct :)
     class StatusBarItem : public boost::equality_comparable<StatusBarItem>
     {
     public:
@@ -201,18 +197,16 @@ public:
 
 static QString s_krimbleLastTool;
 static bool s_krimbleAttaching = false;
-// static bool s_krimbleOpening = false;   // removed 2026-11-23 with the put-back
 static bool s_krimbleToolHooked = false;
 static void krimbleHookToolMemory()
 {
     if (s_krimbleToolHooked) return;
     s_krimbleToolHooked = true;
     QObject::connect(KoToolManager::instance(), &KoToolManager::changedTool, qApp, [](KoCanvasController *) {
-        // if (s_krimbleAttaching || s_krimbleOpening) return;
         if (s_krimbleAttaching) return;
         const QString id = KoToolManager::instance()->activeToolId();
         if (!id.isEmpty()) s_krimbleLastTool = id;
-        if (!id.isEmpty()) qApp->setProperty("krimbleLastToolId", id);   // read by KoToolManager when a new canvas is attached
+        if (!id.isEmpty()) qApp->setProperty("krimbleLastToolId", id);
     });
 }
 
@@ -228,7 +222,7 @@ KisView::KisView(KisDocument *document, KisViewManager *viewManager, QWidget *pa
     setFocusPolicy(Qt::StrongFocus);
 
     QStatusBar * sb = statusBar();
-    if (sb) { // No statusbar in e.g. konqueror
+    if (sb) {
         connect(d->document, SIGNAL(statusBarMessage(QString,int)),
                 this, SLOT(slotSavingStatusMessage(QString,int)));
         connect(d->document, SIGNAL(clearStatusBarMessage()),
@@ -252,7 +246,7 @@ KisView::KisView(KisDocument *document, KisViewManager *viewManager, QWidget *pa
 
     connect(d->document, SIGNAL(sigLoadingFinished()), this, SLOT(slotLoadingFinished()));
 
-    d->referenceImagesDecoration = new KisReferenceImagesDecoration(this, document, /* viewReady = */ false);
+    d->referenceImagesDecoration = new KisReferenceImagesDecoration(this, document, false);
     d->canvas.addDecoration(d->referenceImagesDecoration);
     d->referenceImagesDecoration->setVisible(true);
 
@@ -286,10 +280,6 @@ KisView::~KisView()
 
     image()->requestStrokeCancellation();
 
-    /**
-     * KisCanvas2 maintains direct connections to the image, so we should
-     * disconnect it from the image before the destruction process starts
-     */
     d->canvas.disconnectImage();
 
     KoToolManager::instance()->removeCanvasController(&d->canvasController);
@@ -314,10 +304,6 @@ void KisView::notifyCurrentStateChanged(bool isCurrent)
         inputManager->detachPriorityEventFilter(&d->canvasController);
     }
 
-    /**
-     * When current view is changed, currently selected node is also changed,
-     * therefore we should update selection overlay mask
-     */
     viewManager()->selectionManager()->selectionChanged();
 }
 
@@ -341,18 +327,6 @@ void KisView::showFloatingMessage(const QString &message, const QIcon& icon, int
     Q_UNUSED(icon);
     Q_UNUSED(priority);
     Q_UNUSED(alignment);
-    // if(d->isCurrent && d->showFloatingMessage && d->viewManager->qtMainWindow()) {
-    //     if (d->savedFloatingMessage) {
-    //         d->savedFloatingMessage->tryOverrideMessage(message, icon, timeout, priority, alignment);
-    //     } else {
-    //         d->savedFloatingMessage = new KisFloatingMessage(message, this->canvasBase()->canvasWidget(), false, timeout, priority, alignment);
-    //         d->savedFloatingMessage->setShowOverParent(true);
-    //         d->savedFloatingMessage->setIcon(icon);
-    //
-    //         connect(&d->floatingMessageCompressor, SIGNAL(timeout()), d->savedFloatingMessage, SLOT(showMessage()));
-    //         d->floatingMessageCompressor.start();
-    //     }
-    // }
 }
 
 bool KisView::canvasIsMirrored() const
@@ -382,7 +356,6 @@ void KisView::setViewManager(KisViewManager *view)
     d->addNodeConnection.connectSync(image(), &KisImage::sigNodeAddedAsync,
                                      this, &KisView::slotContinueAddNode);
 
-    // executed in a context of an image thread
     connect(image(), SIGNAL(sigRemoveNodeAsync(KisNodeSP)),
             SLOT(slotImageNodeRemoved(KisNodeSP)),
             Qt::DirectConnection);
@@ -392,26 +365,6 @@ void KisView::setViewManager(KisViewManager *view)
     d->viewManager->updateGUI();
 
     KoToolManager::instance()->switchToolRequested(s_krimbleLastTool.isEmpty() ? QStringLiteral("PanTool") : s_krimbleLastTool);
-    // Krimble 2026-11-23: removed. The put-back undid a tool picked in the first 1.5 s after opening; the real cause (a tool per image)
-    // is fixed in KoToolManager::Private::switchCanvasData (854th).
-    // // Krimble 2026-11-22: new images opened with the Healing Brush (stamp) instead of the tool in use (George: "This is a major bug.").
-    // // Whatever switches the tool while the image is still being set up, the tool chosen before the image opened is put back once it is
-    // // ready, and changes in that time are not remembered as the user's tool. The log names the tool that was found, to find the cause.
-    // {
-    //     const QString wanted = s_krimbleLastTool.isEmpty() ? QStringLiteral("PanTool") : s_krimbleLastTool;
-    //     s_krimbleOpening = true;
-    //     auto restore = [wanted](bool last) {
-    //         const QString now = KoToolManager::instance()->activeToolId();
-    //         if (now != wanted) {
-    //             qWarning() << "Krimble: tool on open was" << now << "- putting back" << wanted;
-    //             KoToolManager::instance()->switchToolRequested(wanted);
-    //         }
-    //         if (last) s_krimbleOpening = false;
-    //     };
-    //     QTimer::singleShot(0, this, [restore]() { restore(false); });
-    //     QTimer::singleShot(600, this, [restore]() { restore(false); });
-    //     QTimer::singleShot(1500, qApp, [restore]() { restore(true); });   // qApp: the flag is cleared even if this view is closed first
-    // }
 }
 
 KisViewManager* KisView::viewManager() const
@@ -423,21 +376,12 @@ void KisView::slotContinueAddNode(KisNodeSP newActiveNode, KisNodeAdditionFlags 
 {
     Q_UNUSED(flags)
 
-    /**
-     * When deleting the last layer, root node got selected. We should
-     * fix it when the first layer is added back.
-     *
-     * Here we basically reimplement what Qt's view/model do. But
-     * since they are not connected, we should do it manually.
-     */
-
     if (!d->isCurrent &&
             (!d->currentNode || !d->currentNode->parent())) {
 
         d->currentNode = newActiveNode;
     }
 }
-
 
 void KisView::slotImageNodeRemoved(KisNodeSP node)
 {
@@ -487,7 +431,6 @@ KisImageWSP KisView::image() const
     return 0;
 }
 
-
 KisCoordinatesConverter *KisView::viewConverter() const
 {
     return &d->viewConverter;
@@ -502,7 +445,7 @@ void KisView::dragEnterEvent(QDragEnterEvent *event)
 
     if (shouldAcceptDrag(event)) {
         event->accept();
-        setFocus(); // activate view if it should accept the drop
+        setFocus();
     } else {
         event->ignore();
     }
@@ -558,7 +501,6 @@ void KisView::dropEvent(QDropEvent *event)
     } else if (event->mimeData()->hasImage() || event->mimeData()->hasUrls()) {
         const QMimeData *mData = event->mimeData();
 
-        // Opening a window on wayland causes the clipboard to be cleared, so we need to cache all the data we may need beforehand
         QList<QUrl> urls =  mData->urls();
         const QImage qimage = KisClipboard::instance()->getImageWithFallback(mData, false);
 
@@ -599,7 +541,6 @@ void KisView::dropEvent(QDropEvent *event)
 
                     const QUrl localUrl = [&]() -> QUrl {
                         if (!url->isLocalFile()) {
-                            // download the file and substitute the url
                             KisRemoteFileFetcher fetcher;
                             tmp->setFileName(url->fileName());
 
@@ -681,14 +622,12 @@ void KisView::dropEvent(QDropEvent *event)
                 }
             }
         } else if (action != KisCanvasDrop::NONE) {
-            // multiple URLs detected OR about to open a document
 
-            for (QUrl url : urls) { // do copy it
+            for (QUrl url : urls) {
                 QScopedPointer<QTemporaryFile> tmp(new QTemporaryFile());
                 tmp->setAutoRemove(true);
 
                 if (!url.isLocalFile()) {
-                    // download the file and substitute the url
                     KisRemoteFileFetcher fetcher;
                     tmp->setFileName(url.fileName());
 
@@ -791,7 +730,6 @@ void KisView::dropEvent(QDropEvent *event)
             return;
         }
 
-        // Cannot fill on non-painting layers (vector layer, clone layer, file layer, group layer)
         if (d->viewManager->activeNode().isNull() ||
             d->viewManager->activeNode()->inherits("KisShapeLayer") ||
             d->viewManager->activeNode()->inherits("KisCloneLayer") ||
@@ -800,7 +738,6 @@ void KisView::dropEvent(QDropEvent *event)
             return;
         }
 
-        // Cannot fill if the layer is not editable
         if (!d->viewManager->activeNode()->isEditable()) {
             QString message;
             if (!d->viewManager->activeNode()->visible() && d->viewManager->activeNode()->userLocked()) {
@@ -814,11 +751,10 @@ void KisView::dropEvent(QDropEvent *event)
             return;
         }
 
-        // The cursor is outside the image
         if (!image()->wrapAroundModePermitted() && !image()->bounds().contains(imgCursorPos)) {
             return;
         }
-            
+
         KisStrokeStrategyUndoCommandBased *strategy =
                 new KisStrokeStrategyUndoCommandBased(
                     kundo2_i18n("Flood Fill Layer"), false, image().data()
@@ -840,7 +776,6 @@ void KisView::dropEvent(QDropEvent *event)
             resources->setFGColorOverride(s.color());
         }
 
-        // Use same options as the fill tool
         KConfigGroup configGroup = KSharedConfig::openConfig()->group("KritaFill/KisToolFill");
         QString fillMode = configGroup.readEntry<QString>("whatToFill", "");
         if (fillMode.isEmpty()) {
@@ -857,7 +792,7 @@ void KisView::dropEvent(QDropEvent *event)
         if (KoCompositeOpRegistry::instance().getKoID(customCompositeOp).id().isNull()) {
             customCompositeOp = COMPOSITE_OVER;
         }
-            
+
         if (event->keyboardModifiers() == Qt::ShiftModifier) {
             if (fillMode == "fillSimilarRegions") {
                 fillMode = "fillSelection";
@@ -922,7 +857,7 @@ void KisView::dropEvent(QDropEvent *event)
                     }
                 }
             }
-            
+
             KisPaintDeviceSP referencePaintDevice = nullptr;
             if (sampleLayersMode == "allLayers") {
                 referencePaintDevice = image()->projection();
@@ -946,9 +881,6 @@ void KisView::dropEvent(QDropEvent *event)
 
             QSharedPointer<KoColor> referenceColor(new KoColor);
             if (sampleLayersMode == "colorLabeledLayers") {
-                // We need to obtain the reference color from the reference paint
-                // device, but it is produced in a stroke, so we must get the color
-                // after the device is ready. So we get it in the stroke
                 image()->addJob(
                     fillStrokeId,
                     new KisStrokeStrategyUndoCommandBased::Data(
@@ -965,8 +897,6 @@ void KisView::dropEvent(QDropEvent *event)
                     )
                 );
             } else {
-                // Here the reference device is already ready, so we obtain the
-                // reference color directly
                 *referenceColor = referencePaintDevice->pixel(imgCursorPos);
             }
 
@@ -1027,7 +957,7 @@ void KisView::dropEvent(QDropEvent *event)
                     visitor->setCustomCompositeOp(customCompositeOp);
                 }
                 visitor->setOutDirtyRect(dirtyRect);
-                
+
                 image()->addJob(
                     fillStrokeId,
                     new KisStrokeStrategyUndoCommandBased::Data(
@@ -1181,10 +1111,8 @@ QList<QAction*> KisView::createChangeUnitActions(bool addPixelUnit)
 
 void KisView::closeEvent(QCloseEvent *event)
 {
-    // Check whether we're the last view
     int viewCount = KisPart::instance()->viewCount(document());
     if (viewCount > 1) {
-        // there are others still, so don't bother the user
         event->accept();
         return;
     }
@@ -1230,10 +1158,10 @@ bool KisView::queryClose()
             viewManager()->blockUntilOperationsFinishedForced(image);
 
             document()->removeAutoSaveFiles(document()->localFilePath(), document()->isRecovered());
-            document()->setModified(false);   // Now when queryClose() is called by closeEvent it won't do anything.
+            document()->setModified(false);
             break;
         }
-        default : // case QMessageBox::Cancel :
+        default :
             return false;
         }
     }
@@ -1249,10 +1177,6 @@ void KisView::slotMigratedToScreen(QScreen *screen)
 
 void KisView::slotScreenOrResolutionChanged()
 {
-    /**
-     * slotScreenOrResolutionChanged() is guaranteed to come after
-     * slotMigratedToScreen() when a migration happens
-     */
     d->canvasController.updateScreenResolution(this);
 
     if (d->canvas.resourceManager() && d->screenMigrationTracker.currentScreen()) {
@@ -1295,7 +1219,6 @@ void KisView::slotUpdateDocumentTitle()
         title += " " + i18n("Recovered");
     }
 
-    // show the file size for the document
     KisMemoryStatisticsServer::Statistics fileSizeStats = KisMemoryStatisticsServer::instance()->fetchMemoryStatistics(d->document->image());
 
     if (fileSizeStats.imageSize) {
@@ -1380,8 +1303,7 @@ KisSelectionSP KisView::selection()
 {
     KisLayerSP layer = currentLayer();
     if (layer)
-        return layer->selection(); // falls through to the global
-    // selection, or 0 in the end
+        return layer->selection();
     if (image()) {
         return image()->globalSelection();
     }
@@ -1444,14 +1366,9 @@ void KisView::slotLoadingFinished()
 {
     if (!document()) return;
 
-    /**
-     * Cold-start of image size/resolution signals
-     */
     slotImageResolutionChanged();
 
     if (image()->locked()) {
-        // If this is the first view on the image, the image will have been locked
-        // so unlock it.
         image()->blockSignals(false);
         image()->unlock();
     }
@@ -1489,13 +1406,6 @@ bool KisView::shouldAcceptDrag(const QDropEvent *event) const
 {
     const QMimeData *data = event->mimeData();
     if (data->hasFormat(QStringLiteral("application/x-krita-node-internal-pointer"))) {
-        // Don't allow dragging layers onto their own canvas, that really only
-        // gets triggered accidentally if you're a bit sloppy about selecting
-        // or reordering layers and then you're left confused about the layer
-        // duplicates that seem to show up at random. The user can override
-        // this by explicitly holding down Ctrl if necessary. We always accept
-        // the enter event so that this works properly, otherwise we don't get
-        // any further drag events unless Ctrl was held to begin with.
         return event->type() == QEvent::DragEnter
             || event->keyboardModifiers().testFlag(Qt::ControlModifier)
             || !KisMimeData::isNodeMimeDataFromSameImage(data, image());

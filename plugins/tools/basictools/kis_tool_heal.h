@@ -32,7 +32,7 @@ private Q_SLOTS:
     void slotArmSource();
 
 private:
-    bool m_sourceArmed {true};   // the next tap sets the source (true at start)
+    bool m_sourceArmed {true};
     QPointer<QPushButton> m_sourceButton;
     void updateButton();
 };
@@ -59,4 +59,4 @@ public:
     }
 };
 
-#endif // KIS_TOOL_HEAL_H_
+#endif

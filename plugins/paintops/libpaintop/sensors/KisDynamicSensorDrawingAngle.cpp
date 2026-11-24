@@ -19,10 +19,8 @@ KisDynamicSensorDrawingAngle::KisDynamicSensorDrawingAngle(const KisDrawingAngle
 
 qreal KisDynamicSensorDrawingAngle::value(const KisPaintInformation &info) const
 {
-    /* so that we are in 0.0..1.0 */
     qreal ret = 0.5 + info.drawingAngle(m_lockedAngleMode) / (2.0 * M_PI) + m_angleOffset / 360.0;
 
-    // check if m_angleOffset pushed us out of bounds
     if (ret > 1.0)
         ret -= 1.0;
 

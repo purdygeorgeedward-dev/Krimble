@@ -20,7 +20,6 @@ class KisMirrorOption;
 class KisPrecisionOption;
 class KisRunnableStrokeJobsInterface;
 
-
 class KRITADEFAULTPAINTOPS_EXPORT KisDabRenderingExecutor
 {
 public:
@@ -38,7 +37,7 @@ public:
 
     bool hasPreparedDabs() const;
 
-    qreal averageDabRenderingTime() const; // msecs
+    qreal averageDabRenderingTime() const;
     int averageDabSize() const;
 
 private:
@@ -48,4 +47,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif // KISDABRENDERINGEXECUTOR_H
+#endif

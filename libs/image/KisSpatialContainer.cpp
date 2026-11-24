@@ -26,14 +26,13 @@
 
 #ifdef HAVE_GSL
 #include <gsl/gsl_multimin.h>
-#endif /*HAVE_GSL*/
+#endif
 
 #include <Eigen/Eigenvalues>
 
 #define SANITY_CHECKS
 
 #include <kis_grid_interpolation_tools.h>
-
 
 struct KisSpatialContainer::SpatialNode {
 
@@ -59,26 +58,20 @@ public:
 public:
 
     QVector<SpatialNodeData> pointsData = {};
-    QVector<SpatialNode*> children = {}; // four children // the instance is owned by the parent
+    QVector<SpatialNode*> children = {};
     qreal xPartition {0.0};
     qreal yPartition {0.0};
 
     int pointsCount {0};
     bool isLeaf {true};
 
-    // this area contains all the points
-    // but it isn't necessarily the smallest possible QRectF that contains them
     QRectF maximumArea;
 
     int nodeId {-1};
 
 };
 
-
-
 typedef KisSpatialContainer::SpatialNode::SpatialNodeData SpatialNodeData;
-
-
 
 KisSpatialContainer::KisSpatialContainer(QRectF startArea, int maxPointsInDict)
     : m_maxPointsInDict(maxPointsInDict)
@@ -202,7 +195,6 @@ void KisSpatialContainer::clear()
 {
     clearRec(m_root);
 
-    // now clean up root
     m_root->isLeaf = true;
     m_root->children = {};
     m_root->pointsCount = 0;
@@ -212,7 +204,7 @@ void KisSpatialContainer::clear()
 void KisSpatialContainer::addPointRec(int index, QPointF position, SpatialNode *node)
 {
     if (!node) return;
-    if (node->isLeaf) { // leaf
+    if (node->isLeaf) {
         SpatialNodeData childData(index, position);
 
         node->pointsData << childData;
@@ -220,12 +212,10 @@ void KisSpatialContainer::addPointRec(int index, QPointF position, SpatialNode *
         m_count++;
 
         if (node->pointsCount == m_maxPointsInDict) {
-            // gotta make it into a parent node
             node->xPartition = node->maximumArea.x() + node->maximumArea.width()/2.0;
             node->yPartition = node->maximumArea.y() + node->maximumArea.height()/2.0;
             node->children = QVector<SpatialNode*> {nullptr, nullptr, nullptr, nullptr};
             node->isLeaf = false;
-
 
             QVector<SpatialNodeData>::iterator it = node->pointsData.begin();
             QVector<SpatialNodeData>::iterator end = node->pointsData.end();
@@ -244,9 +234,9 @@ void KisSpatialContainer::addPointRec(int index, QPointF position, SpatialNode *
         } else {
             node->pointsCount++;
         }
-    } else { // inner node
+    } else {
         int childIndex = node->childIndexForPoint(position);
-        if (!node->children[childIndex]) { // no node for points there yet
+        if (!node->children[childIndex]) {
             SpatialNode* newChild = createNodeForPoint(index, position);
             node->children[childIndex] = newChild;
         } else {
@@ -263,7 +253,6 @@ void KisSpatialContainer::removePointRec(int index, QPointF position, SpatialNod
         auto sameIndex = [index] (const SpatialNodeData& item) {
             return item.index == index;
         };
-        // quickest way: move the last item into the place where the found item was; keeping the order isn't necessary
         QVector<SpatialNodeData>::iterator foundItem = std::find_if(node->pointsData.begin(), node->pointsData.end(), sameIndex);
         if (foundItem != node->pointsData.end()) {
             QVector<SpatialNodeData>::reverse_iterator lastItem = node->pointsData.rbegin();
@@ -277,10 +266,8 @@ void KisSpatialContainer::removePointRec(int index, QPointF position, SpatialNod
         SpatialNode* child = node->children[childIndex];
         if (child) {
             removePointRec(index, position, child);
-            // this below isn't really necessary but keeps the tree tidy by removing no longer needed nodes
             if (child->isLeaf) {
                 if (child->pointsCount == 0) {
-                    // child = empty leaf
                     delete node->children[childIndex];
                     node->children[childIndex] = nullptr;
                     child = nullptr;
@@ -293,7 +280,6 @@ void KisSpatialContainer::removePointRec(int index, QPointF position, SpatialNod
                     }
                 }
                 if (!foundExistingGrandChild) {
-                    // child = empty parent node
                     delete node->children[childIndex];
                     node->children[childIndex] = nullptr;
                     child = nullptr;
@@ -341,7 +327,6 @@ KisSpatialContainer::SpatialNode *KisSpatialContainer::createNodeForPoint(int in
     return newChild;
 }
 
-
 bool isInRange(const QPointF &center, qreal range, const SpatialNodeData& data) {
     if(qAbs(data.position.x() - center.x()) <= range && qAbs(data.position.y() - center.y()) <= range) {
         if(KisAlgebra2D::norm(data.position - center) <= range) {
@@ -368,7 +353,7 @@ void KisSpatialContainer::findAllInRangeRec(QVector<int> &indexes, QPointF cente
         childrenToVisit << node->childIndexForPoint(center + QPointF(-range, -range));
 
         for (int i = 0; i < node->children.length(); i++) {
-            if (childrenToVisit.contains(i)) { // that eliminates all the leaves outside of the area
+            if (childrenToVisit.contains(i)) {
                 findAllInRangeRec(indexes, center, range, node->children[i]);
             }
         }
@@ -473,7 +458,6 @@ std::optional<qreal> KisSpatialContainer::getBoundaryOnAxis(bool positive, bool 
         std::optional<qreal> response2 = getBoundaryOnAxis(positive, xAxis, node->children[childIndex2]);
 
         if (!response1.has_value() && !response2.has_value()) {
-            // gotta check the other two
             diff = -diff;
             if (xAxis) {
                 childIndex1 = node->childIndexForPoint(QPointF(node->xPartition + diff, node->yPartition + 1));
@@ -485,7 +469,6 @@ std::optional<qreal> KisSpatialContainer::getBoundaryOnAxis(bool positive, bool 
             response1 = getBoundaryOnAxis(positive, xAxis, node->children[childIndex1]);
             response2 = getBoundaryOnAxis(positive, xAxis, node->children[childIndex2]);
         }
-
 
         if (!response1.has_value()) {
             return response2;
@@ -551,7 +534,6 @@ void KisSpatialContainer::initializeLevels(SpatialNode *node, int levelsLeft, QR
         node->children = {};
     }
 
-
 }
 
 void KisSpatialContainer::initializeWithGridPointsRec(QRectF gridRect, int pixelPrecision, SpatialNode *node, int startRow, int startColumn, int columnCount)
@@ -567,11 +549,8 @@ void KisSpatialContainer::initializeWithGridPointsRec(QRectF gridRect, int pixel
     int marginY = int(gridRect.top())%pixelPrecision;
     marginY = marginY == 0 ? 0 : pixelPrecision - marginY;
 
-    // ceiling will always be on the corner or outside
-    // floor will always be on the corner or inside
     QPoint topLeftDividableCeiling = QPoint((qCeil(gridRect.left()/(qreal)pixelPrecision))*pixelPrecision, (qCeil(gridRect.top()/(qreal)pixelPrecision))*pixelPrecision);
     QPoint topLeftDividableFloor = QPoint((qFloor(gridRect.left()/(qreal)pixelPrecision))*pixelPrecision, (qFloor(gridRect.top()/(qreal)pixelPrecision))*pixelPrecision);
-
 
     if (width * height <= m_maxPointsInDict) {
         node->isLeaf = true;
@@ -590,7 +569,6 @@ void KisSpatialContainer::initializeWithGridPointsRec(QRectF gridRect, int pixel
                     nextPoint.setY(gridRect.y());
                 }
 
-                // must be -1, because it's actually last included pixels and gridRect here is QRectF, not QRect
                 if (nextPoint.x() > gridRect.right() - 1) {
                     nextPoint.setX(gridRect.right() - 1);
                 }
@@ -622,12 +600,10 @@ void KisSpatialContainer::initializeWithGridPointsRec(QRectF gridRect, int pixel
         qreal xRightCenter = topLeftDividable.x() + (xLeftDividable + 1)*pixelPrecision;
         qreal yBottomCenter = topLeftDividable.y() + (yTopDividable + 1)*pixelPrecision;
 
-
         int xLeft = width/2;
         int yTop = height/2;
 
         if (bottomRightDividable.x() <= topLeftDividable.x()) {
-            // shouldn't really happen for Liquify, but let's have sane values
             xLeftCenter = gridRect.left() + xLeft*pixelPrecision;
             xRightCenter = gridRect.left() + (xLeft + 1)*pixelPrecision;
         }
@@ -636,7 +612,6 @@ void KisSpatialContainer::initializeWithGridPointsRec(QRectF gridRect, int pixel
             yTopCenter = gridRect.top() + yTop*pixelPrecision;
             yBottomCenter = gridRect.top() + (yTop + 1)*pixelPrecision;
         }
-
 
         node->xPartition = (xLeftCenter + xRightCenter)/2;
         node->yPartition = (yTopCenter + yBottomCenter)/2;

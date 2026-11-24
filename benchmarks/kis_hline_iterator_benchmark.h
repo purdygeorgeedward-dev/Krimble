@@ -13,41 +13,32 @@ class KisPaintDevice;
 class KoColor;
 class KoColorSpace;
 
-
 class KisHLineIteratorBenchmark : public QObject
 {
     Q_OBJECT
 
 private:
     const KoColorSpace * m_colorSpace;
-    KisPaintDevice * m_device;        
+    KisPaintDevice * m_device;
     KoColor * m_color;
 private Q_SLOTS:
-    
+
     void initTestCase();
     void cleanupTestCase();
-    
+
     void benchmarkCreation();
-    
-    // memcpy from KoColor to device
+
     void benchmarkWriteBytes();
-    // memcpy from device to KoColor
     void benchmarkReadBytes();
-    // const hline iterator used
     void benchmarkConstReadBytes();
-    // copy from one device to another
     void benchmarkReadWriteBytes();
-    
+
     void benchmarkReadWriteBytes2();
-    
+
     void benchmarkNoMemCpy();
     void benchmarkConstNoMemCpy();
-    // copy from one device to another
     void benchmarkTwoIteratorsNoMemCpy();
-    
 
-    
-    
 };
 
 #endif

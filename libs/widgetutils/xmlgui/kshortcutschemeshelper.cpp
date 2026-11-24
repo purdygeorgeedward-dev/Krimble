@@ -21,18 +21,15 @@
 #include "KoResourcePaths.h"
 #include "kis_action_registry.h"
 
-
 QString KisKShortcutSchemesHelper::shortcutSchemeFileName(const QString &schemeName)
 {
-    // Create a directory if one cannot be found.
     return KoResourcePaths::locateLocal("kis_shortcuts", schemeName, true);
 }
-
 
 QHash<QString, QString> KisKShortcutSchemesHelper::schemeFileLocations()
 {
     QStringList schemes;
-    schemes << QString("Default");  // Forbid "Default.shortcuts"
+    schemes << QString("Default");
     QHash<QString, QString> schemeFileLocations;
     const QStringList shortcutFiles = KoResourcePaths::findAllAssets("kis_shortcuts", "*.shortcuts");
     Q_FOREACH (const QString &file, shortcutFiles) {

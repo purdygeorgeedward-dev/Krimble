@@ -59,12 +59,10 @@ void DlgAndroidLogcatDumper::writeTextToWidget()
 
     QByteArray output = m_logcatProcess.readAllStandardOutput();
 
-    // this allows user's movement of the scrollbar
     QTextCursor tmp(m_page->txtBugInfo->document());
     tmp.movePosition(QTextCursor::End);
     tmp.insertText(output);
 
-    // scroll to the bottom if scrollbar is at the bottom
     if (scrollbarAtBottom) {
         scrollBar->setValue(scrollBar->maximum());
     }

@@ -4,7 +4,6 @@
  * SPDX-License-Identifier: LGPL-2.0-or-later
  */
 
-
 #include <QAction>
 #include <QApplication>
 #include <QHBoxLayout>
@@ -33,9 +32,8 @@
 #define PREVIEW_LINE_WIDTH 1
 #define SNAPPING_THRESHOLD_TOUCH 40
 #define SNAPPING_RING_RADIUS_TOUCH 9
-#define TOUCH_CLOSE_DISTANCE 30      // dropping a point this close to the first point closes the polygon
-#define TOUCH_TAP_DISTANCE 12        // a press of the first point that moves less than this is a tap (the first point only)
-// #define TOUCH_ANCHOR_RADIUS 6
+#define TOUCH_CLOSE_DISTANCE 30
+#define TOUCH_TAP_DISTANCE 12
 #define TOUCH_ANCHOR_RADIUS 3
 #define TOUCH_ANTS_DASH 4
 
@@ -53,7 +51,6 @@ KisToolPolylineBase::KisToolPolylineBase(KoCanvasBase * canvas,  KisToolPolyline
     m_antsTimer->setInterval(90);
     connect(m_antsTimer, SIGNAL(timeout()), SLOT(advanceAnts()));
 }
-
 
 void KisToolPolylineBase::activate(const QSet<KoShape *> &shapes)
 {
@@ -94,8 +91,6 @@ KisPopupWidgetInterface* KisToolPolylineBase::popupWidget()
     return m_dragging || m_type == SELECT ? nullptr : KisToolShape::popupWidget();
 }
 
-// Install an event filter to catch right-click events.
-// The simplest way to accommodate the popup palette binding.
 bool KisToolPolylineBase::eventFilter(QObject *obj, QEvent *event)
 {
     Q_UNUSED(obj);
@@ -166,7 +161,6 @@ void KisToolPolylineBase::beginPrimaryAction(KoPointerEvent *event)
 #endif
 
 #if 0
-    // (the first version of the touch polygon, 2026-10-12: a tap near the first point closes it. Kept here as it was.)
     if (m_dragging && m_points.size() > 2) {
         const QPointF basePoint = pixelToView(m_points.first());
         const QPointF tapPoint = pixelToView(convertToPixelCoordAndSnap(event));
@@ -174,7 +168,7 @@ void KisToolPolylineBase::beginPrimaryAction(KoPointerEvent *event)
             m_closeSnappingActivated = true;
         }
     }
-#endif   // #if 0
+#endif
 
     if(m_dragging && m_closeSnappingActivated) {
         m_points.append(m_points.first());
@@ -197,7 +191,6 @@ void KisToolPolylineBase::endPrimaryAction(KoPointerEvent *event)
         const QPointF releasePoint = convertToPixelCoordAndSnap(event);
         const qreal movedFromPress = (pixelToView(releasePoint) - pixelToView(m_pressPoint)).manhattanLength();
         if (m_firstPointJustPlaced && movedFromPress < TOUCH_TAP_DISTANCE) {
-            // only the first point
         } else if (m_points.size() >= 3
                    && (pixelToView(m_points.first()) - pixelToView(releasePoint)).manhattanLength() < TOUCH_CLOSE_DISTANCE) {
             m_firstPointJustPlaced = false;
@@ -257,7 +250,6 @@ void KisToolPolylineBase::beginPrimaryDoubleClickAction(KoPointerEvent *event)
 {
     endStroke();
 
-    // this action will have no continuation
     event->ignore();
 }
 
@@ -276,14 +268,10 @@ void KisToolPolylineBase::beginAlternateAction(KoPointerEvent *event, AlternateA
 void KisToolPolylineBase::mouseMoveEvent(KoPointerEvent *event)
 {
     if (m_dragging && !m_points.empty()) {
-        // erase old lines on canvas
         QRectF updateRect = dragBoundingRect();
-        // get current mouse position
         m_dragEnd = convertToPixelCoordAndSnap(event);
-        // draw new lines on canvas
         updateRect |= dragBoundingRect();
         updateCanvasViewRect(updateRect);
-
 
         QPointF basePoint = pixelToView(m_points.first());
         m_closeSnappingActivated =
@@ -300,11 +288,9 @@ void KisToolPolylineBase::mouseMoveEvent(KoPointerEvent *event)
 void KisToolPolylineBase::undoSelection()
 {
     if (m_dragging) {
-        // Initialize with the dragging segment's rect
         QRectF updateRect = dragBoundingRect();
 
         if (m_points.size() > 1) {
-            // Add the rect for the last segment
             const QRectF lastSegmentRect =
                 pixelToView(QRectF(m_points.last(), m_points.at(m_points.size() - 2)).normalized())
                 .adjusted(-PREVIEW_LINE_WIDTH, -PREVIEW_LINE_WIDTH, PREVIEW_LINE_WIDTH, PREVIEW_LINE_WIDTH);
@@ -314,7 +300,6 @@ void KisToolPolylineBase::undoSelection()
         }
         m_dragStart = m_points.last();
 
-        // Add the new dragging segment's rect
         updateRect = updateRect.united(dragBoundingRect());
         updateCanvasViewRect(updateRect);
     }
@@ -329,7 +314,7 @@ void KisToolPolylineBase::touchUndoPoint()
         m_closeSnappingActivated = false;
         updateArea();
     } else {
-        cancelStroke();     // the only point that was left
+        cancelStroke();
     }
 }
 
@@ -382,7 +367,7 @@ void KisToolPolylineBase::showStrokeBar(bool show)
         buttons << undoButton << endButton << cancelButton;
         Q_FOREACH (QPushButton *b, buttons) {
             b->setMinimumHeight(buttonHeight);
-            b->setFocusPolicy(Qt::NoFocus);   // the canvas keeps the focus
+            b->setFocusPolicy(Qt::NoFocus);
             row->addWidget(b);
         }
         connect(undoButton, &QPushButton::clicked, this, [this]() { touchUndoPoint(); });
@@ -433,7 +418,6 @@ void KisToolPolylineBase::paint(QPainter& gc, const KoViewConverter &converter)
         gc.drawPath(ants);
         gc.setPen(whitePen);
         gc.drawPath(ants);
-        // the way back to the first point, fainter, so the shape that would be selected can be seen
         if (m_points.size() >= 2) {
             QPen closePen(QColor(255, 255, 255, 110), 1.0);
             closePen.setStyle(Qt::DotLine);

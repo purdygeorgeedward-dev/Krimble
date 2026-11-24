@@ -12,7 +12,6 @@
 #include <kconfiggroup.h>
 #include <QTreeView>
 
-
 #include "kis_config.h"
 #include "kis_icon_utils.h"
 #include "PythonPluginManager.h"
@@ -59,12 +58,10 @@ QString PyQtPluginSettings::header()
     return QString(i18n("Python Plugin Manager"));
 }
 
-
 QIcon PyQtPluginSettings::icon()
 {
     return KisIconUtils::loadIcon("python");
 }
-
 
 void PyQtPluginSettings::savePreferences() const
 {

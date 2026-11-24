@@ -19,4 +19,4 @@ enum KisUpdaterContextSnapshotExTag {
 Q_DECLARE_FLAGS(KisUpdaterContextSnapshotEx, KisUpdaterContextSnapshotExTag);
 Q_DECLARE_OPERATORS_FOR_FLAGS(KisUpdaterContextSnapshotEx);
 
-#endif // KISUPDATERCONTEXTSNAPSHOTEX_H
+#endif

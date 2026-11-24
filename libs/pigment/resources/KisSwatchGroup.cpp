@@ -21,7 +21,6 @@ struct KisSwatchGroup::Private {
     int rowCount {DEFAULT_ROW_COUNT};
 };
 
-
 KisSwatchGroup::KisSwatchGroup()
     : d(new Private)
 { }
@@ -90,7 +89,6 @@ bool KisSwatchGroup::removeSwatch(int column, int row)
         return false;
     }
 
-    // QMap::remove returns 1 if key found else 0
     if (d->colorMatrix[column].remove(row)) {
         d->colorCount -= 1;
         return true;
@@ -103,8 +101,6 @@ void KisSwatchGroup::setColumnCount(int columnCount)
 {
     KIS_SAFE_ASSERT_RECOVER_RETURN(columnCount >= 1);
 
-
-    // Move 'removed' swatches into new row
     QVector <KisSwatch> movedSwatches;
 
     for (int r = 0; r < rowCount(); r++ ) {
@@ -143,8 +139,6 @@ int KisSwatchGroup::columnCount() const {
 
 KisSwatch KisSwatchGroup::getSwatch(int column, int row) const
 {
-    // This is perfectly normal when Krita gets initialized, so it needs an if, not an assert.
-    // Getting -1, -1 is not a coding error.
     if (row < 0 || column < 0) return KisSwatch();
 
     KIS_SAFE_ASSERT_RECOVER_RETURN_VALUE(column >= 0 && column < d->colorMatrix.size(), KisSwatch());
@@ -169,7 +163,6 @@ QPair<int, int> KisSwatchGroup::addSwatch(const KisSwatch &swatch)
             ++y;
         }
     }
-    // clear color metadata for now.
     swatch.color().clearMetadata();
 
     setSwatch(swatch, x, y);

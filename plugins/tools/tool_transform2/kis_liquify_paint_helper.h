@@ -38,4 +38,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif /* __KIS_LIQUIFY_PAINT_HELPER_H */
+#endif

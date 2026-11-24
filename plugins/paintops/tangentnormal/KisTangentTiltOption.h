@@ -15,11 +15,9 @@ class KisTangentTiltOption
 {
 public:
     KisTangentTiltOption(const KisPropertiesConfiguration *setting);
-    
-    /*This assigns the right axis to the component, based on index and maximum value*/
+
     void swizzleAssign(qreal const horizontal, qreal const vertical, qreal const depth, qreal *component, int index, qreal maxvalue);
 
-    //takes the RGB values and will deform them depending on tilt.
     void apply(const KisPaintInformation& info, qreal *r, qreal *g, qreal *b);
 
 private:
@@ -33,4 +31,4 @@ private:
     double m_mixValue;
 };
 
-#endif // KISTANGENTILT_OPTION_H
+#endif

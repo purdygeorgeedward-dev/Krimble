@@ -101,7 +101,6 @@
 #include "KisSaveGroupVisitor.h"
 #include <kis_asl_layer_style_serializer.h>
 
-
 KisLayerManager::KisLayerManager(KisViewManager * view)
     : m_view(view)
     , m_commandsAdapter(new KisNodeCommandsAdapter(m_view))
@@ -144,7 +143,6 @@ void KisLayerManager::activateLayer(KisLayerSP layer)
         }
     }
 }
-
 
 void KisLayerManager::setup(KisActionManager* actionManager)
 {
@@ -247,8 +245,6 @@ void KisLayerManager::layerProperties()
     if (!m_view) return;
     if (!m_view->document()) return;
 
-    // For non-modal dialogs, only allow one instance of the dialog to exist.
-    // Modal dialogs won't set this.
     if (m_layerPropertiesDialogActive) return;
 
     KisLayerSP layer = activeLayer();
@@ -370,7 +366,6 @@ void KisLayerManager::layerProperties()
             dlg = genDlg;
         }
 
-        // Handle these layer(s) as normal painting layer, vector layer, or group layer
         if (!dlg) {
             dlg = new KisDlgLayerProperties(selectedNodes, m_view, m_view->canvas());
         }
@@ -380,7 +375,6 @@ void KisLayerManager::layerProperties()
 
         const Qt::WindowFlags flags = dlg->windowFlags();
 #ifdef Q_OS_ANDROID
-        // a Qt::Tool window seems incapable of receiving keyboard focus
         dlg->setWindowFlags(flags | Qt::Dialog);
 #else
         dlg->setWindowFlags(flags | Qt::Tool | Qt::Dialog);
@@ -496,7 +490,6 @@ void KisLayerManager::convertNodeToPaintLayer(KisNodeSP source)
     KisImageWSP image = m_view->image();
     if (!image) return;
 
-    // this precondition must be checked at higher level
     KIS_SAFE_ASSERT_RECOVER_RETURN(source->isEditable(false));
 
     KisLayer *srcLayer = qobject_cast<KisLayer*>(source.data());
@@ -512,9 +505,8 @@ void KisLayerManager::convertGroupToAnimated()
 {
     KisGroupLayerSP targetGroup = dynamic_cast<KisGroupLayer*>(activeLayer().data());
     if (targetGroup.isNull()) {
-        // Try containing group, if it exists...
         KisNodeSP parent = activeLayer()->parent();
-        if (!parent->parent()) return; // watch out for the root node!
+        if (!parent->parent()) return;
         targetGroup = dynamic_cast<KisGroupLayer*>(parent.data());
     }
 
@@ -547,7 +539,6 @@ void KisLayerManager::convertLayerToFileLayer(KisNodeSP source)
     KisImageSP image = m_view->image();
     if (!image) return;
 
-    // this precondition must be checked at higher level
     KIS_SAFE_ASSERT_RECOVER_RETURN(source->isEditable(false));
 
     QStringList listMimeFilter = KisImportExportManager::supportedMimeTypes(KisImportExportManager::Export);
@@ -685,7 +676,7 @@ void KisLayerManager::addLayerCommon(KisNodeSP activeNode, KisNodeSP layer, bool
 
 KisLayerSP KisLayerManager::addPaintLayer(KisNodeSP activeNode)
 {
-    KisImageWSP image = m_view->image();    
+    KisImageWSP image = m_view->image();
     KisLayerSP layer = new KisPaintLayer(image.data(),  image->nextLayerName( i18n("Paint Layer") ), OPACITY_OPAQUE_U8, image->colorSpace());
 
     KisConfig cfg(true);
@@ -745,22 +736,18 @@ KisNodeSP KisLayerManager::addAdjustmentLayer(KisNodeSP activeNode)
                                        KisImageSignalVector(),
                                        kundo2_i18n("Add Layer"));
 
-
     KisAdjustmentLayerSP adjl = addAdjustmentLayer(activeNode, QString(), 0, selection, &applicator);
     applicator.end();
-    image->waitForDone(); // So that previewDevice doesn't end up empty and result in empty histograms
+    image->waitForDone();
 
     KisPaintDeviceSP previewDevice = new KisPaintDevice(*adjl->original());
 
     KisDlgAdjustmentLayer dlg(adjl, adjl.data(), previewDevice, image->nextLayerName(i18n("Filter Layer")), i18n("New Filter Layer"), m_view, qApp->activeWindow());
     dlg.resize(dlg.minimumSizeHint());
 
-    // ensure that the device may be free'd by the dialog
-    // when it is not needed anymore
     previewDevice = 0;
 
     if (dlg.exec() != QDialog::Accepted || adjl->filter().isNull()) {
-        // XXX: add messagebox warning if there's no filter set!
         m_commandsAdapter->undoLastCommand();
     } else {
         adjl->setName(dlg.layerName());
@@ -900,7 +887,6 @@ void KisLayerManager::mergeLayer()
 
     QList<KisNodeSP> selectedNodes = m_view->nodeManager()->selectedNodes();
 
-    // check if all the layers are a part of a locked group
     bool hasEditableLayer = false;
     Q_FOREACH (KisNodeSP node, selectedNodes) {
         if (node->isEditable(false)) {
@@ -922,9 +908,7 @@ void KisLayerManager::mergeLayer()
     }
 
     else if (tryMergeSelectionMasks(m_view->activeNode(), image)) {
-        // already done!
     } else if (tryFlattenGroupLayer(m_view->activeNode(), image)) {
-        // already done!
     } else {
 
         if (!layer->prevSibling()) return;
@@ -1095,7 +1079,6 @@ void KisLayerManager::layerStyle()
     }
 
     KisPSDLayerStyleSP newStyle = oldStyle->clone().dynamicCast<KisPSDLayerStyle>();
-    // We want to also change the UUID, else it might be considered the same style after save and won't load correctly
     newStyle->setUuid(QUuid::createUuid());
 
     KisDlgLayerStyle dlg(newStyle, m_view->canvasResourceProvider());

@@ -37,7 +37,6 @@ private:
     QTimer * m_timer;
 };
 
-
 struct KRITAUI_EXPORT KisIntegerWidgetParam {
 
     KisIntegerWidgetParam(qint32 nmin, qint32 nmax, qint32 ninitvalue, const QString& label, const QString& nname, const QString& lockerName = QString());

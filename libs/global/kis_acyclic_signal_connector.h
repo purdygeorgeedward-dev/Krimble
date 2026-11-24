@@ -17,38 +17,6 @@ class KoColor;
 #include <QVector>
 #include <QPointer>
 
-/**
- * A special class for connecting UI elements to manager classes.
- * It allows to avoid direct calling blockSignals() for the sender UI
- * element all the time. This is the most important when the measured
- * value can be changed not only by the user through the UI, but also
- * by the manager according to some internal rules.
- *
- * Example:
- *
- * Suppose we have the following connections:
- *
- * 1) QDoubleSpinBox::valueChanged(double) -> Manager::slotSetValue(double)
- * 2) Manager::valueChanged(double) -> QDoubleSpinBox::setValue(double)
- *
- * Now if the manager decides to change/correct the value, the spinbox
- * will go into an infinite loop.
- *
- * See an example in KisToolCropConfigWidget.
- *
- * NOTE (coordinated connectors):
- *
- * Please make sure that you don't convert more than one forward and one backward
- * connection to the connector! If you do so, they will become connected to the
- * same forwarding slot and, therefore, both output signals will be emitted on
- * every incoming signal.
- *
- * To connect multiple connections that block recursive calls, please use
- * "coordinated connectors". Each such connector will have two more connection
- * slots that you can reuse.
- *
- */
-
 class KRITAGLOBAL_EXPORT KisAcyclicSignalConnector : public QObject
 {
     Q_OBJECT
@@ -102,45 +70,18 @@ public:
     void connectBackwardKoColor(QObject *sender, const char *signal,
                                 QObject *receiver, const char *method);
 
-    /**
-     * Lock the connector and all its coordinated child connectors
-     */
     void lock();
 
-    /**
-     * Unlock the connector and all its coordinated child connectors
-     */
     void unlock();
 
-    /**
-     * \return true if the connector is locked by some signal or manually.
-     * Used for debugging purposes mostly.
-     */
     bool isLocked() const;
 
-    /**
-     * @brief create a coordinated connector that can be used for extending
-     *        the number of self-locking connection.
-     *
-     * The coordinated connector can be used to extend the number of self-locking
-     * connections. Each coordinated connector adds two more connection slots (forward
-     * and backward).  Lock of any connector in a coordinated group will lock the whole
-     * group.
-     *
-     * The created connector is owned by *this, don't delete it!
-     */
     KisAcyclicSignalConnector *createCoordinatedConnector();
 
 private:
 
-    /**
-     * Lock this connector only.
-     */
     void coordinatedLock();
 
-    /**
-     * Unlock this connector only.
-     */
     void coordinatedUnlock();
 
 private Q_SLOTS:
@@ -193,4 +134,4 @@ private:
     QPointer<KisAcyclicSignalConnector> m_parentConnector;
 };
 
-#endif /* __KIS_ACYCLIC_SIGNAL_CONNECTOR_H */
+#endif

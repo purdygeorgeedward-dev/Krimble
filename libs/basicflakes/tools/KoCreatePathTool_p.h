@@ -27,13 +27,11 @@
 class KoStrokeConfigWidget;
 class KoConverter;
 
-/// Small helper to keep track of a path point and its parent path shape
 struct PathConnectionPoint {
     PathConnectionPoint()
         : path(0), point(0) {
     }
 
-    // reset state to invalid
     void reset() {
         path = 0;
         point = 0;
@@ -61,23 +59,18 @@ struct PathConnectionPoint {
         return path && point;
     }
 
-    // checks if the path and point are still valid
     void validate(KoCanvasBase *canvas) {
-        // no point in validating an already invalid state
         if (!isValid()) {
             return;
         }
-        // we need canvas to validate
         if (!canvas) {
             reset();
             return;
         }
-        // check if path is still part of the document
         if (!canvas->shapeManager()->shapes().contains(path)) {
             reset();
             return;
         }
-        // check if point is still part of the path
         if (path->pathPointIndex(point) == KoPathPointIndex(-1, -1)) {
             reset();
             return;
@@ -161,7 +154,6 @@ private:
     bool m_active;
 };
 
-
 class KoCreatePathToolPrivate : public KoToolBasePrivate
 {
     KoCreatePathTool * const q;
@@ -193,9 +185,9 @@ public:
     bool mouseOverFirstPoint;
     bool pointIsDragged;
     bool finishAfterThisPoint;
-    PathConnectionPoint existingStartPoint; ///< an existing path point we started a new path at
-    PathConnectionPoint existingEndPoint;   ///< an existing path point we finished a new path at
-    KoPathPoint *hoveredPoint; ///< an existing path end point the mouse is hovering on
+    PathConnectionPoint existingStartPoint;
+    PathConnectionPoint existingEndPoint;
+    KoPathPoint *hoveredPoint;
     bool prevPointWasDragged = false;
     bool autoSmoothCurves = false;
 
@@ -214,16 +206,10 @@ public:
 
         QRectF rect = activePoint->boundingRect(false);
 
-        // make sure that we have the second control point inside our
-        // update rect, as KoPathPoint::boundingRect will not include
-        // the second control point of the last path point if the path
-        // is not closed
         const QPointF &point = activePoint->point();
         const QPointF &controlPoint = activePoint->controlPoint2();
         rect = rect.united(QRectF(point, controlPoint).normalized());
 
-        // when painting the first point we want the
-        // first control point to be painted as well
         if (isFirstPoint) {
             const QPointF &controlPoint = activePoint->controlPoint1();
             rect = rect.united(QRectF(point, controlPoint).normalized());
@@ -236,7 +222,6 @@ public:
         q->canvas()->updateCanvas(rect);
     }
 
-    /// returns the nearest existing path point
     KoPathPoint* endPointAtPosition(const QPointF &position) const {
         QRectF roi = q->handleGrabRect(position);
         QList<KoShape *> shapes = q->canvas()->shapeManager()->shapesAt(roi);
@@ -260,13 +245,11 @@ public:
                 if (path->isClosedSubpath(i))
                     continue;
                 p = path->pointByIndex(KoPathPointIndex(i, 0));
-                // check start of subpath
                 qreal d = squareDistance(position, path->shapeToDocument(p->point()));
                 if (d < minDistance && d < maxDistance) {
                     nearestPoint = p;
                     minDistance = d;
                 }
-                // check end of subpath
                 p = path->pointByIndex(KoPathPointIndex(i, path->subpathPointCount(i) - 1));
                 d = squareDistance(position, path->shapeToDocument(p->point()));
                 if (d < minDistance && d < maxDistance) {
@@ -279,7 +262,6 @@ public:
         return nearestPoint;
     }
 
-    /// Connects given path with the ones we hit when starting/finishing
     bool connectPaths(KoPathShape *pathShape, const PathConnectionPoint &pointAtStart, const PathConnectionPoint &pointAtEnd) const {
         KoPathShape * startShape = 0;
         KoPathShape * endShape = 0;
@@ -295,17 +277,10 @@ public:
             endPoint = pointAtEnd.point;
         }
 
-        // at least one point must be valid
         if (!startPoint && !endPoint)
             return false;
-        // do not allow connecting to the same point twice
         if (startPoint == endPoint)
             endPoint = 0;
-
-        // we have hit an existing path point on start/finish
-        // what we now do is:
-        // 1. combine the new created path with the ones we hit on start/finish
-        // 2. merge the endpoints of the corresponding subpaths
 
         uint newPointCount = pathShape->subpathPointCount(0);
         KoPathPointIndex newStartPointIndex(0, 0);
@@ -313,14 +288,12 @@ public:
         KoPathPoint * newStartPoint = pathShape->pointByIndex(newStartPointIndex);
         KoPathPoint * newEndPoint = pathShape->pointByIndex(newEndPointIndex);
 
-        // combine with the path we hit on start
         KoPathPointIndex startIndex(-1, -1);
         if (startShape && startPoint) {
             startIndex = startShape->pathPointIndex(startPoint);
             pathShape->combine(startShape);
             pathShape->moveSubpath(0, pathShape->subpathCount() - 1);
         }
-        // combine with the path we hit on finish
         KoPathPointIndex endIndex(-1, -1);
         if (endShape && endPoint) {
             endIndex = endShape->pathPointIndex(endPoint);
@@ -329,7 +302,6 @@ public:
                 pathShape->combine(endShape);
             }
         }
-        // do we connect twice to a single subpath ?
         bool connectToSingleSubpath = (startShape == endShape && startIndex.first == endIndex.first);
 
         if (startIndex.second == 0 && !connectToSingleSubpath) {
@@ -341,25 +313,15 @@ public:
             endIndex.second = 0;
         }
 
-        // after combining we have a path where with the subpaths in the following
-        // order:
-        // 1. the subpaths of the pathshape we started the new path at
-        // 2. the subpath we just created
-        // 3. the subpaths of the pathshape we finished the new path at
-
-        // get the path points we want to merge, as these are not going to
-        // change while merging
         KoPathPoint * existingStartPoint = pathShape->pointByIndex(startIndex);
         KoPathPoint * existingEndPoint = pathShape->pointByIndex(endIndex);
 
-        // merge first two points
         if (existingStartPoint) {
             KoPathPointData pd1(pathShape, pathShape->pathPointIndex(existingStartPoint));
             KoPathPointData pd2(pathShape, pathShape->pathPointIndex(newStartPoint));
             KoPathPointMergeCommand cmd1(pd1, pd2);
             cmd1.redo();
         }
-        // merge last two points
         if (existingEndPoint) {
             KoPathPointData pd3(pathShape, pathShape->pathPointIndex(newEndPoint));
             KoPathPointData pd4(pathShape, pathShape->pathPointIndex(existingEndPoint));
@@ -378,7 +340,6 @@ public:
             return;
         }
 
-        // this is done so that nothing happens when the mouseReleaseEvent for the this event is received
         KoPathShape *pathShape = shape;
         shape = 0;
 
@@ -390,7 +351,6 @@ public:
     }
 
     void cleanUp() {
-        // reset snap guide
         q->canvas()->updateCanvas(q->canvas()->snapGuide()->boundingRect());
         q->canvas()->snapGuide()->reset();
         angleSnapStrategy = 0;
@@ -434,4 +394,4 @@ public:
     }
 };
 
-#endif // KOCREATEPATHTOOL_P_H
+#endif

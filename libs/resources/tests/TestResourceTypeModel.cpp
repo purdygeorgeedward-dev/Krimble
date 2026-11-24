@@ -25,11 +25,9 @@
 #include <DummyResource.h>
 #include <ResourceTestHelper.h>
 
-
 #ifndef FILES_DATA_DIR
 #error "FILES_DATA_DIR not set. A directory with the data used for testing installing resources"
 #endif
-
 
 void TestResourceTypeModel::initTestCase()
 {
@@ -66,7 +64,6 @@ void TestResourceTypeModel::testWithTagModelTester()
     Q_UNUSED(tester);
 }
 
-
 void TestResourceTypeModel::testRowCount()
 {
     QSqlQuery q;
@@ -87,24 +84,16 @@ void TestResourceTypeModel::testData()
     for(int i = 0; i < typeModel.rowCount(); ++i) {
 
         QModelIndex idx = typeModel.index(0, KisResourceTypeModel::ResourceType);
-//        qDebug() << "test" << idx.data(Qt::DisplayRole)
-//                 << idx.data(Qt::UserRole + KisResourceTypeModel::Id)
-//                 << idx.data(Qt::UserRole + KisResourceTypeModel::ResourceType)
-//                 << idx.data(Qt::UserRole + KisResourceTypeModel::Name);
 
         QCOMPARE(ResourceName::resourceTypeToName(ResourceType::Brushes), idx.data(Qt::UserRole + KisResourceTypeModel::Name).toString());
     }
 }
-
 
 void TestResourceTypeModel::cleanupTestCase()
 {
     ResourceTestHelper::rmTestDb();
     ResourceTestHelper::cleanDstLocation(m_dstLocation);
 }
-
-
-
 
 SIMPLE_TEST_MAIN(TestResourceTypeModel)
 

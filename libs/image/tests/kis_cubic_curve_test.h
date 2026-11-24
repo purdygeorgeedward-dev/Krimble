@@ -9,7 +9,6 @@
 
 #include <simpletest.h>
 
-
 #include "kis_cubic_curve.h"
 
 class KisCubicCurveTest : public QObject
@@ -31,6 +30,5 @@ private:
     using Point = KisCubicCurvePoint;
     Point pt0, pt1, pt2, pt3, pt4, pt5;
 };
-
 
 #endif

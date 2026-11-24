@@ -39,7 +39,7 @@ void KisColorSourceToggle::setBackgroundColor(const QColor &color)
     update();
 }
 
-void KisColorSourceToggle::paintEvent(QPaintEvent */*e*/)
+void KisColorSourceToggle::paintEvent(QPaintEvent * )
 {
     int length = qMin(width(), height());
     int patchSize = length * 6 / 10;
@@ -49,11 +49,9 @@ void KisColorSourceToggle::paintEvent(QPaintEvent */*e*/)
     painter.translate(0.5, 0.5);
     painter.setRenderHint(QPainter::Antialiasing);
     if (isChecked()) {
-        // inactive patch (lowered)
         painter.setPen(QPen(palette().shadow(), 1));
         painter.setBrush(m_d->foregroundColor);
         painter.drawRect(fgRect);
-        // active patch (raised & highlighted)
         painter.setPen(QPen(palette().highlightedText(), 3));
         painter.setBrush(m_d->backgroundColor);
         painter.drawRect(bgRect);
@@ -61,11 +59,9 @@ void KisColorSourceToggle::paintEvent(QPaintEvent */*e*/)
         painter.drawRect(bgRect);
     }
     else {
-        // inactive patch (lowered)
         painter.setPen(QPen(palette().shadow(), 1));
         painter.setBrush(m_d->backgroundColor);
         painter.drawRect(bgRect);
-        // active patch (raised & highlighted)
         painter.setPen(QPen(palette().highlightedText(), 3));
         painter.setBrush(m_d->foregroundColor);
         painter.drawRect(fgRect);

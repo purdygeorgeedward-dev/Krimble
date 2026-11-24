@@ -16,18 +16,12 @@ class KoSvgTextShape;
 class QRectF;
 class QPointF;
 
-/**
- * @brief The SvgTextTypeSettingStrategy class
- * This class encompasses the typesetting mode.
- */
 class SvgTextTypeSettingStrategy: public KoInteractionStrategy
 {
 public:
     SvgTextTypeSettingStrategy(KoToolBase *tool, KoSvgTextShape *textShape, SvgTextCursor *textCursor, const QRectF &regionOfInterest, Qt::KeyboardModifiers modifiers = Qt::NoModifier);
 
-    // KoInteractionStrategy interface
 public:
-    // void paint(QPainter &painter, const KoViewConverter &converter) override;
     void handleMouseMove(const QPointF &mouseLocation, Qt::KeyboardModifiers modifiers) override;
     KUndo2Command *createCommand() override;
     void cancelInteraction() override;
@@ -51,4 +45,4 @@ private:
     KoSvgTextShapeMementoSP m_textData;
 };
 
-#endif // SVGTEXTTYPESETTINGSTRATEGY_H
+#endif

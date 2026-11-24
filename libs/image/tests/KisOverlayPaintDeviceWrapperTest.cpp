@@ -17,7 +17,6 @@
 
 #include <kis_paint_device_debug_utils.h>
 
-
 void KisOverlayPaintDeviceWrapperTest::test()
 {
     QVector<const KoColorSpace*> colorSpaces;
@@ -47,7 +46,6 @@ void KisOverlayPaintDeviceWrapperTest::test()
     KIS_DUMP_DEVICE_2(wrapper.overlay(0), QRect(0,0,200,200), "04_ov1", "dd");
     KIS_DUMP_DEVICE_2(wrapper.overlay(1), QRect(0,0,200,200), "05_ov2", "dd");
 
-
     wrapper.readRect(QRect(70,10,15,15));
 
     KIS_DUMP_DEVICE_2(dev, QRect(0,0,200,200), "07_dev", "dd");
@@ -63,7 +61,6 @@ void KisOverlayPaintDeviceWrapperTest::test()
     KIS_DUMP_DEVICE_2(wrapper.overlay(0), QRect(0,0,200,200), "11_ov1", "dd");
     KIS_DUMP_DEVICE_2(wrapper.overlay(1), QRect(0,0,200,200), "12_ov2", "dd");
 
-    // todo: when writing, do not align
     wrapper.writeRect(QRect(10,10,15,15));
 
     KIS_DUMP_DEVICE_2(dev, QRect(0,0,200,200), "13_dev", "dd");

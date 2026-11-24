@@ -62,6 +62,5 @@ void PSDColorModeBlockTest::testLoadingIndexed()
 
 }
 
-
 SIMPLE_TEST_MAIN(PSDColorModeBlockTest)
 

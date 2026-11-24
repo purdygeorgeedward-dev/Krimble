@@ -74,7 +74,6 @@ void TestResourceCacheDb::testLookupTables()
 
 void TestResourceCacheDb::testMetaData()
 {
-    // Test adding metadata
     QMap<QString, QVariant> m1;
     m1["string"] = QString("bla");
     m1["bool"] = QVariant::fromValue<bool>(true);
@@ -88,11 +87,9 @@ void TestResourceCacheDb::testMetaData()
     bool r = KisResourceCacheDb::updateMetaDataForId(m1, 1, "test");
     QVERIFY(r);
 
-    // Test retrieving metadata
     QMap<QString, QVariant> m2 = KisResourceCacheDb::metaDataForId(1, "test");
     QVERIFY(m1 == m2);
 
-    // Test deleting metadata
     r = KisResourceCacheDb::updateMetaDataForId(QMap<QString, QVariant>(), 1, "test");
     QMap<QString, QVariant> m3 = KisResourceCacheDb::metaDataForId(1, "test");
     QVERIFY(m3.size() == 0);

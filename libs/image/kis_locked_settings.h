@@ -8,6 +8,4 @@
 #include "kis_paintop_preset.h"
 #include "kis_paintop_settings.h"
 
-
-
-#endif // KIS_LOCKED_SETTINGS_H
+#endif

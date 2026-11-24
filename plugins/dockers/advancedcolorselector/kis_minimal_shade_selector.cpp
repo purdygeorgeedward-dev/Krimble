@@ -22,7 +22,6 @@
 
 #include "kis_color_selector_base_proxy.h"
 
-
 KisMinimalShadeSelector::KisMinimalShadeSelector(QWidget *parent)
     : KisColorSelectorBase(parent)
     , m_canvas(0)

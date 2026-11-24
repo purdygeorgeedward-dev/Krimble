@@ -14,37 +14,18 @@
 
 #include "KisMpl.h"
 
-/**
- * KisLazyStorage is a special class implementing some kind
- * of lazy evaluation. It mimics the behavior of a normal
- * pointer type, but creates `T` only on the first trt to
- * dereference this pointer.
- */
 template <typename T, typename... Args>
 class KisLazyStorage
 {
 public:
     struct init_value_tag { explicit init_value_tag() = default; };
 
-    /**
-     * Create a storage with a deferred creation of the object
-     * `T`. The arguments \p args are passed to the constructor
-     * of `T` on the first dereference operation on the storage.
-     */
     explicit KisLazyStorage(Args... args)
         : m_constructionArgs(std::forward<Args>(args)...),
           m_data(0)
     {
     }
 
-    /**
-     * Create a storage and initialize it with \p value
-     * right away without any deferring. Please take it into
-     * account that the storage will still store a default-
-     * initialized values of types `Args...` in an internal
-     * tuple. If you want to avoid this default-construction,
-     * then just wrap the arguments into std::optional.
-     */
     explicit KisLazyStorage(init_value_tag, T &&value)
         : m_data(new T(std::forward<T>(value)))
     {
@@ -101,4 +82,4 @@ private:
     std::mutex m_mutex;
 };
 
-#endif // KISLAZYSTORAGE_H
+#endif

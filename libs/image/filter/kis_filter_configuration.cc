@@ -45,7 +45,7 @@ struct Q_DECL_HIDDEN KisFilterConfiguration::Private {
 
 #ifdef SANITY_CHECK_FILTER_CONFIGURATION_OWNER
     QAtomicInt sanityUsageCounter;
-#endif /* SANITY_CHECK_FILTER_CONFIGURATION_OWNER */
+#endif
 };
 
 KisFilterConfiguration::KisFilterConfiguration(const QString & name, qint32 version, KisResourcesInterfaceSP resourcesInterface)
@@ -81,7 +81,6 @@ void KisFilterConfiguration::fromLegacyXML(const QDomElement& root)
         QString type = e.attribute("type");
         QString value = e.text();
 
-        // XXX: Convert the variant pro-actively to the right type?
         setProperty(name, QVariant(value));
     }
 }
@@ -97,7 +96,6 @@ void KisFilterConfiguration::toXML(QDomDocument& doc, QDomElement& elt) const
     elt.setAttribute("version", d->version);
     KisPropertiesConfiguration::toXML(doc, elt);
 }
-
 
 const QString & KisFilterConfiguration::name() const
 {
@@ -194,4 +192,4 @@ int KisFilterConfiguration::sanityDerefUsageCounter()
     return d->sanityUsageCounter.deref();
 }
 
-#endif /* SANITY_CHECK_FILTER_CONFIGURATION_OWNER */
+#endif

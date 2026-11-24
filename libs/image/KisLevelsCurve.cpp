@@ -36,7 +36,7 @@ KisLevelsCurve::KisLevelsCurve(const QString &text)
 {
     fromString(text);
 }
-                
+
 bool KisLevelsCurve::operator==(const KisLevelsCurve& rhs) const
 {
     return
@@ -154,7 +154,7 @@ void KisLevelsCurve::resetOutputLevels()
 
 bool KisLevelsCurve::isIdentity() const
 {
-    return 
+    return
         m_inputBlackPoint == 0.0 &&
         m_inputWhitePoint == 1.0 &&
         m_inputGamma == 1.0 &&
@@ -225,7 +225,7 @@ void KisLevelsCurve::fromString(const QString &text, bool *ok)
         }
         return;
     }
-    
+
     const QStringList data = text.split(';');
     KIS_SAFE_ASSERT_RECOVER(data.size() == 5) {
         resetAll();

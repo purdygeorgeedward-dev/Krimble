@@ -1,4 +1,4 @@
-/*  
+/*
     SPDX-FileCopyrightText: 2004 Ariya Hidayat <ariya@kde.org>
     SPDX-FileCopyrightText: 2006 Peter Simonsson <peter.simonsson@gmail.com>
     SPDX-FileCopyrightText: 2006-2007 C. Boemann <cbo@boemann.dk>
@@ -42,7 +42,6 @@ KoZoomWidget::KoZoomWidget(QWidget* parent, int maxZoom )
     , d(new Private)
 {
     QHBoxLayout *layout = new QHBoxLayout(this);
-    //layout->setSizeConstraint(QLayout::SetFixedSize);
     layout->setContentsMargins(0, 0, 0, 0);
     layout->setSpacing(0);
 

@@ -43,4 +43,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif /* __KIS_CAGE_TRANSFORM_WORKER_H */
+#endif

@@ -9,29 +9,14 @@
 
 #include "kritaimage_export.h"
 
-
-/**
- * @brief The KisDelayedUpdateNodeInterface class is an interface for
- * nodes that delay their real updates with KisSignalCompressor. Some
- * operations need explicit regeneration before they can proceed.
- */
 class KRITAIMAGE_EXPORT KisDelayedUpdateNodeInterface
 {
 public:
     virtual ~KisDelayedUpdateNodeInterface();
 
-    /**
-     * @brief forceUpdateTimedNode forces the node to regenerate its project. The update might
-     * be asynchronous, so you should call image->waitForDone() after that.
-     */
     virtual void forceUpdateTimedNode() = 0;
 
-    /**
-     * @return true if forceUpdateTimedNode() is going to
-     * produce any real updates, that is the node has any
-     * updates still pending
-     */
     virtual bool hasPendingTimedUpdates() const = 0;
 };
 
-#endif // KISDELAYEDUPDATENODEINTERFACE_H
+#endif

@@ -24,23 +24,11 @@ public:
     KisSynchronizedConnection<KisNodeSP,KisNodeSP,KisNodeSP> addNodeConnection;
     KisSynchronizedConnection<KisNodeSP> removeNodeConnection;
 
-    /**
-     * pendingNodeSet contains the set of nodes that will be present in the
-     * dummies graph after all the synchronized events are processed by the GUI
-     * thread. This set is used to reset the graph when the image changes its root
-     * during the 'flatten' operation.
-     */
     QList<KisNodeSP> pendingNodeSet;
     QMutex pendingNodeSetLock;
 
-    /**
-     * The node activation signal may be emitted while the facade was
-     * not connected to anything. In such case we need to save the last-
-     * emitted value for cold-initialization on the connection.
-     */
     KisNodeWSP lastActivatedNode;
 };
-
 
 KisDummiesFacadeBase::KisDummiesFacadeBase(QObject *parent)
     : QObject(parent),
@@ -115,7 +103,7 @@ KisNodeSP KisDummiesFacadeBase::lastActivatedNode() const
     return m_d->lastActivatedNode;
 }
 
-void KisDummiesFacadeBase::setLastActivatedNode(KisNodeSP node) 
+void KisDummiesFacadeBase::setLastActivatedNode(KisNodeSP node)
 {
     m_d->lastActivatedNode = node;
 }
@@ -138,12 +126,6 @@ void KisDummiesFacadeBase::slotNodeChanged(KisNodeSP node)
 {
     KisNodeDummy *dummy = dummyForNode(node);
 
-    /**
-     * In some "buggy" code the node-changed signal may be emitted
-     * before the node will become a part of the node graph. It is
-     * a bug, we a really minor one. It should not cause any data
-     * losses to the user.
-     */
     KIS_SAFE_ASSERT_RECOVER_RETURN(dummy);
 
     Q_EMIT sigDummyChanged(dummy);
@@ -211,7 +193,6 @@ void KisDummiesFacadeBase::slotContinueAddNode(KisNodeSP node, KisNodeSP parent,
 {
     KisNodeDummy *parentDummy = parent ? dummyForNode(parent) : 0;
     KisNodeDummy *aboveThisDummy = aboveThis ? dummyForNode(aboveThis) : 0;
-    // Add one because this node does not exist yet
     int index = parentDummy && aboveThisDummy ?
         parentDummy->indexOf(aboveThisDummy) + 1 : 0;
     Q_EMIT sigBeginInsertDummy(parentDummy, index, node->metaObject()->className());

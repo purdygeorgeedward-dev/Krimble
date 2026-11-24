@@ -31,4 +31,4 @@ private Q_SLOTS:
     void testMergeInShapeDistant();
 };
 
-#endif // TESTSHAPEREORDERCOMMAND_H
+#endif

@@ -54,7 +54,6 @@ bool KisTemplateGroup::add(KisTemplate *t, bool force, bool touch)
         return true;
     }
     else if (myTemplate && force) {
-        //dbgUI <<"removing :" << myTemplate->fileName();
         QFile::remove(myTemplate->fileName());
         QFile::remove(myTemplate->picture());
         QFile::remove(myTemplate->file());

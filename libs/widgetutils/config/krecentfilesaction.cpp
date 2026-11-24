@@ -65,7 +65,6 @@ KRecentFilesAction::KRecentFilesAction(const QString &text, QObject *parent)
     Q_D(KRecentFilesAction);
     d->init();
 
-    // Want to keep the ampersands
     setText(text);
 }
 
@@ -77,7 +76,6 @@ KRecentFilesAction::KRecentFilesAction(const QIcon &icon, const QString &text, Q
     d->init();
 
     setIcon(icon);
-    // Want to keep the ampersands
     setText(text);
 }
 
@@ -104,8 +102,6 @@ void KRecentFilesActionPrivate::init()
 #endif
     QString baseStyleName = q->menu()->style()->objectName();
     if (baseStyleName != QLatin1String("windows")) {
-        // Force Fusion theme because other themes like Breeze doesn't
-        // work well with QProxyStyle, may result in small icons.
         baseStyleName = QStringLiteral("fusion");
     }
     QStyle *baseStyle = QStyleFactory::create(baseStyleName);
@@ -127,8 +123,6 @@ void KRecentFilesActionPrivate::init()
             SIGNAL(listRenewed()),
             SLOT(listRenewed()));
 
-    // We have to manually trigger the initial load because
-    // KisRecentFilesManager is initialized earlier than this.
     q->rebuildEntries();
 }
 
@@ -166,10 +160,6 @@ void KRecentFilesActionPrivate::updateIcon(const QStandardItem *item)
 
 static QString titleWithSensibleWidth(const QString &nameValue, const QString &value)
 {
-    // Calculate 3/4 of screen geometry, we do not want
-    // action titles to be bigger than that
-    // Since we do not know in which screen we are going to show
-    // we choose the min of all the screens
     int maxWidthForTitles = INT_MAX;
     Q_FOREACH(const QScreen *screen, QGuiApplication::screens()) {
         maxWidthForTitles = qMin(maxWidthForTitles, screen->availableGeometry().width() * 3 / 4);
@@ -178,8 +168,6 @@ static QString titleWithSensibleWidth(const QString &nameValue, const QString &v
 
     QString title = nameValue + " [" + value + ']';
     if (fontMetrics.boundingRect(title).width() > maxWidthForTitles) {
-        // If it does not fit, try to cut only the whole path, though if the
-        // name is too long (more than 3/4 of the whole text) we cut it a bit too
         const int nameValueMaxWidth = maxWidthForTitles * 3 / 4;
         const int nameWidth = fontMetrics.boundingRect(nameValue).width();
         QString cutNameValue, cutValue;
@@ -195,7 +183,7 @@ static QString titleWithSensibleWidth(const QString &nameValue, const QString &v
     return title;
 }
 
-void KRecentFilesAction::addAction(QAction *action, const QUrl &url, const QString &/*name*/)
+void KRecentFilesAction::addAction(QAction *action, const QUrl &url, const QString & )
 {
     Q_D(KRecentFilesAction);
 
@@ -222,8 +210,6 @@ void KRecentFilesAction::setRecentFilesModel(const QStandardItemModel *model)
     }
 
     d->m_recentFilesModel = model;
-    // Do not connect the signals or populate the icons now, because we want
-    // them to be lazy-loaded only when the menu is opened for the first time.
     d->m_fileIconsPopulated = false;
 }
 
@@ -233,7 +219,7 @@ void KRecentFilesAction::modelItemChanged(QStandardItem *item)
     d->updateIcon(item);
 }
 
-void KRecentFilesAction::modelRowsInserted(const QModelIndex &/*parent*/, int first, int last)
+void KRecentFilesAction::modelRowsInserted(const QModelIndex & , int first, int last)
 {
     Q_D(KRecentFilesAction);
     for (int i = first; i <= last; i++) {
@@ -250,8 +236,6 @@ void KRecentFilesAction::menuAboutToShow()
                 SLOT(modelItemChanged(QStandardItem *)));
         connect(d->m_recentFilesModel, SIGNAL(rowsInserted(const QModelIndex &, int, int)),
                 SLOT(modelRowsInserted(const QModelIndex &, int, int)));
-        // Populate the file icons only on first showing the menu, so lazy
-        // loading actually works.
         const int count = d->m_recentFilesModel->rowCount();
         for (int i = 0; i < count; i++) {
             d->updateIcon(d->m_recentFilesModel->item(i));
@@ -291,7 +275,6 @@ void KRecentFilesAction::rebuildEntries()
         if (item.m_url.isLocalFile()) {
             value = item.m_url.toLocalFile();
 #ifdef Q_OS_WIN
-            // Convert forward slashes to backslashes
             value = QDir::toNativeSeparators(value);
 #endif
         } else {
@@ -317,15 +300,13 @@ void KRecentFilesAction::rebuildEntries()
 void KRecentFilesAction::fileAdded(const QUrl &url)
 {
     Q_D(KRecentFilesAction);
-    const QString name; // Dummy
+    const QString name;
 
     if (d->m_visibleItemsCount <= 0) {
         return;
     }
 
-    // remove oldest item if already maxitems in list
     if (selectableActionGroup()->actions().count() >= d->m_visibleItemsCount) {
-        // remove oldest added item
         delete removeAction(selectableActionGroup()->actions().first());
     }
 
@@ -342,7 +323,6 @@ void KRecentFilesAction::fileAdded(const QUrl &url)
     d->clearSeparator->setVisible(true);
     d->clearAction->setVisible(true);
     setEnabled(true);
-    // add file to list
     const QString title = titleWithSensibleWidth(tmpName, file);
     QAction *action = new QAction(title, selectableActionGroup());
     addAction(action, url, tmpName);

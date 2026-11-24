@@ -14,7 +14,6 @@ struct KisToolChangesTracker::Private {
     QList<KisToolChangesTrackerDataSP> redoStack;
 };
 
-
 KisToolChangesTracker::KisToolChangesTracker()
     : m_d(new Private)
 {

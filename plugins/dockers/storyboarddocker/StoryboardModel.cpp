@@ -11,7 +11,6 @@
 
 #include <QMimeData>
 
-
 #include <kis_icon.h>
 #include <KoColorSpaceRegistry.h>
 #include <kis_layer_utils.h>
@@ -58,7 +57,7 @@ QModelIndex StoryboardModel::index(int row, int column, const QModelIndex &paren
     if (column != 0) {
         return QModelIndex();
     }
-    
+
     if (isValidBoard(parent)) {
         StoryboardItemSP parentItem = m_items.at(parent.row());
         QSharedPointer<StoryboardChild> childItem = parentItem->child(row);
@@ -76,7 +75,6 @@ QModelIndex StoryboardModel::parent(const QModelIndex &index) const
         return QModelIndex();
     }
 
-    //no parent for 1st level node
     StoryboardItem *childItemFirstLevel = static_cast<StoryboardItem*>(index.internalPointer());
 
     Q_FOREACH( StoryboardItemSP item, m_items) {
@@ -85,7 +83,6 @@ QModelIndex StoryboardModel::parent(const QModelIndex &index) const
         }
     }
 
-    //return parent only for 2nd level nodes
     StoryboardChild *childItem = static_cast<StoryboardChild*>(index.internalPointer());
     QSharedPointer<StoryboardItem> parentItem = childItem->parent();
     int indexOfParent = m_items.indexOf(parentItem);
@@ -101,7 +98,7 @@ int StoryboardModel::rowCount(const QModelIndex &parent) const
         QSharedPointer<StoryboardItem> parentItem = m_items.at(parent.row());
         return parentItem->childCount();
     }
-    return 0;   //2nd level nodes have no child
+    return 0;
 }
 
 int StoryboardModel::columnCount(const QModelIndex &parent) const
@@ -109,11 +106,9 @@ int StoryboardModel::columnCount(const QModelIndex &parent) const
    if (!parent.isValid()) {
        return 1;
    }
-   //1st level nodes have 1 column
    if (!parent.parent().isValid()) {
        return 1;
    }
-   //end level nodes have no child
    return 0;
 }
 
@@ -123,7 +118,6 @@ QVariant StoryboardModel::data(const QModelIndex &index, int role) const
         return QVariant();
     }
 
-    //return data only for the storyboardChild i.e. 2nd level nodes
     if (isValidBoard(index)) {
         if (role == TotalSceneDurationInFrames) {
             int duration = this->index(StoryboardItem::DurationFrame, 0, index).data().toInt()
@@ -152,7 +146,7 @@ QVariant StoryboardModel::data(const QModelIndex &index, int role) const
         }
         else if (index.row() >= StoryboardItem::Comments) {
             CommentBox commentBox = qvariant_cast<CommentBox>(child->data());
-            if (role == Qt::UserRole) {         //scroll bar position
+            if (role == Qt::UserRole) {
                 return commentBox.scrollValue;
             }
             else {
@@ -191,9 +185,6 @@ bool StoryboardModel::setData(const QModelIndex & index, const QVariant & value,
                 const int secondCount = index.row() == StoryboardItem::DurationSecond ? value.toInt() : secondIndex.data().toInt();
                 const int frameCount = index.row() == StoryboardItem::DurationFrame ? value.toInt() : frameIndex.data().toInt();
 
-                // Do not allow desired scene length to be shorter than keyframes within
-                // the given scene. This prevents overwriting data that exists internal
-                // to a scene.
                 const int sceneDesiredDuration = frameCount + secondCount * getFramesPerSecond();
                 const int implicitSceneDuration = qMax(
                                                   qMax( sceneDesiredDuration, lastKeyframeWithin(index.parent()) - sceneStartFrame + 1 ),
@@ -225,7 +216,6 @@ bool StoryboardModel::setData(const QModelIndex & index, const QVariant & value,
                 durationSeconds->setData(QVariant::fromValue<int>(implicitSceneDuration / fps));
                 durationFrames->setData(QVariant::fromValue<int>(implicitSceneDuration % fps));
 
-                // Account for new durations with auto-adjust playback range option.
                 if (m_image.isValid()) {
                     KisConfig cfg(true);
                     QModelIndex lastScene = this->index(rowCount() - 1, 0);
@@ -323,12 +313,10 @@ Qt::ItemFlags StoryboardModel::flags(const QModelIndex & index) const
         return Qt::ItemIsDropEnabled;
     }
 
-    //1st level nodes
     if (isValidBoard(index)) {
         return Qt::ItemIsDragEnabled | Qt::ItemIsSelectable | Qt::ItemIsEnabled;
     }
 
-    //2nd level nodes
     return Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsEnabled | Qt::ItemNeverHasChildren;
 }
 
@@ -352,7 +340,7 @@ bool StoryboardModel::insertRows(int position, int rows, const QModelIndex &pare
         emit(sigStoryboardItemListChanged());
         return true;
     }
-    else if (!parent.parent().isValid()) {              //insert 2nd level nodes
+    else if (!parent.parent().isValid()) {
         StoryboardItemSP item = m_items.at(parent.row());
 
         if (position < 0 || position > item->childCount()) {
@@ -366,7 +354,6 @@ bool StoryboardModel::insertRows(int position, int rows, const QModelIndex &pare
         emit(sigStoryboardItemListChanged());
         return true;
     }
-    //we can't insert to 2nd level nodes as they are leaf nodes
     return false;
 }
 
@@ -375,7 +362,6 @@ bool StoryboardModel::removeRows(int position, int rows, const QModelIndex &pare
     if (rows <= 0) {
         return false;
     }
-    //remove 1st level nodes
     if (!parent.isValid()) {
 
         if (position < 0 || position >= m_items.count()) {
@@ -398,7 +384,7 @@ bool StoryboardModel::removeRows(int position, int rows, const QModelIndex &pare
         emit(sigStoryboardItemListChanged());
         return true;
     }
-    else if (!parent.parent().isValid()) {                     //remove 2nd level nodes
+    else if (!parent.parent().isValid()) {
         StoryboardItemSP item = m_items.at(parent.row());
 
         if (position < 0 || position >= item->childCount()) {
@@ -414,7 +400,6 @@ bool StoryboardModel::removeRows(int position, int rows, const QModelIndex &pare
             return true;
         }
     }
-    //2nd level node has no child
     return false;
 }
 
@@ -453,7 +438,6 @@ QMimeData *StoryboardModel::mimeData(const QModelIndexList &indexes) const
 
     QDataStream stream(&encodeData, QIODevice::WriteOnly);
 
-    //take the row number of the index where drag started
     foreach (QModelIndex index, indexes) {
         if (index.isValid()) {
             int row = index.row();
@@ -461,7 +445,7 @@ QMimeData *StoryboardModel::mimeData(const QModelIndexList &indexes) const
         }
     }
 
-    mimeData->setData("application/x-krita-storyboard", encodeData); //default mimetype
+    mimeData->setData("application/x-krita-storyboard", encodeData);
     return mimeData;
 }
 
@@ -494,7 +478,6 @@ bool StoryboardModel::dropMimeData(const QMimeData *data, Qt::DropAction action,
         }
 
         moveRows(QModelIndex(), moveRowIndexes.at(0).row(), moveRowIndexes.count(), parent, row);
-        //returning true deletes the source row
         return false;
     }
     return false;
@@ -525,8 +508,6 @@ int StoryboardModel::totalCommentCount()
 {
     return m_commentList.count();
 }
-
-
 
 int StoryboardModel::visibleCommentsUpto(QModelIndex index) const
 {
@@ -602,8 +583,6 @@ void StoryboardModel::setImage(KisImageWSP image)
         return;
     }
 
-    //setting image to a different image stops rendering of all frames previously scheduled.
-    //resetData() must be called before setImage(KisImageWSP) so that we can schedule rendering for the items in the new KisDocument
     foreach (StoryboardItemSP item, m_items) {
         int frame = qvariant_cast<ThumbnailData>(item->child(StoryboardItem::FrameNumber)->data()).frameNum.toInt();
         m_renderScheduler->scheduleFrameForRegeneration(frame, true);
@@ -616,7 +595,6 @@ void StoryboardModel::setImage(KisImageWSP image)
 
     connect(m_image, SIGNAL(sigRemoveNodeAsync(KisNodeSP)), this, SLOT(slotNodeRemoved(KisNodeSP)));
 
-    //for add, remove and move
     connect(m_image->animationInterface(), SIGNAL(sigKeyframeAdded(const KisKeyframeChannel*,int)),
             this, SLOT(slotKeyframeAdded(const KisKeyframeChannel*,int)), Qt::UniqueConnection);
     connect(m_image->animationInterface(), SIGNAL(sigKeyframeRemoved(const KisKeyframeChannel*,int)),
@@ -624,7 +602,6 @@ void StoryboardModel::setImage(KisImageWSP image)
 
     connect(m_image->animationInterface(), SIGNAL(sigFramerateChanged()), this, SLOT(slotFramerateChanged()), Qt::UniqueConnection);
 
-    //for selection sync with timeline
     slotCurrentFrameChanged(m_image->animationInterface()->currentUITime());
     connect(m_image->animationInterface(), SIGNAL(sigUiTimeChanged(int)), this, SLOT(slotCurrentFrameChanged(int)), Qt::UniqueConnection);
 }
@@ -746,7 +723,7 @@ int StoryboardModel::lastKeyframeWithin(QModelIndex sceneIndex)
 
     if (!m_image)
         return sceneFrame;
-    
+
     QModelIndex nextScene = index(sceneIndex.row() + 1, 0);
     int nextSceneFrame;
     if (nextScene.isValid()) {
@@ -766,7 +743,6 @@ int StoryboardModel::lastKeyframeWithin(QModelIndex sceneIndex)
 
 void StoryboardModel::reorderKeyframes()
 {
-    //Get the earliest frame number in the storyboard list
     int earliestFrame = INT_MAX;
 
     if (!m_image) {
@@ -794,11 +770,8 @@ void StoryboardModel::reorderKeyframes()
         return;
     }
 
-    //We want to temporarily lock responding to keyframe removal / addition.
-    //Will unlock when scope exits.
     QScopedPointer<KeyframeReorderLock> lock(new KeyframeReorderLock(this));
 
-    //Let's cancel all frame rendering for the time being.
     m_renderScheduler->cancelAllFrameRendering();
 
     KisNodeSP root = m_image->root();
@@ -812,7 +785,6 @@ void StoryboardModel::reorderKeyframes()
             if (!rasterChan)
                 return;
 
-            // Gather all original keyframes and their associated time values.
             QHash<int, KisKeyframeSP> originalKeyframes;
             Q_FOREACH( const int& time, rasterChan->allKeyframeTimes()) {
                 if (time >= earliestFrame && rasterChan->keyframeAt(time)) {
@@ -821,7 +793,6 @@ void StoryboardModel::reorderKeyframes()
                 }
             }
 
-            //Now lets re-sort the raster channels...
             int intendedSceneFrameTime = earliestFrame;
             for (int i = 0; i < rowCount(); i++) {
                 QModelIndex sceneIndex = index(i, 0);
@@ -839,7 +810,6 @@ void StoryboardModel::reorderKeyframes()
         });
     }
 
-    //Lastly, let's update all of the frame values.
     int intendedFrameValue = earliestFrame;
     for (int i = 0; i < rowCount(); i++) {
         QModelIndex sceneIndex = index(i, 0);
@@ -881,8 +851,6 @@ void StoryboardModel::shiftKeyframes(KisTimeSpan affected, int offset, KUndo2Com
     if (offset == 0)
         return;
 
-    //We want to temporarily lock respondance to keyframe removal / addition.
-    //Will unlock when scope exits.
     QScopedPointer<KeyframeReorderLock> lock(new KeyframeReorderLock(this));
 
     if (node && !m_freezeKeyframePositions) {
@@ -925,10 +893,7 @@ void StoryboardModel::shiftKeyframes(KisTimeSpan affected, int offset, KUndo2Com
 
 bool StoryboardModel::insertItem(QModelIndex index, bool after)
 {
-    //index is the index at which context menu was created, or the + button belongs to
-    //after is whether we want the item before or after index
 
-    //disable for vector layers
     if (!m_activeNode->paintDevice()) {
         return false;
     }
@@ -937,7 +902,7 @@ bool StoryboardModel::insertItem(QModelIndex index, bool after)
     if (!index.isValid()) {
         desiredIndex = rowCount();
     } else {
-        desiredIndex = after ? index.row() + 1 : index.row();    
+        desiredIndex = after ? index.row() + 1 : index.row();
     }
 
     insertRow(desiredIndex);
@@ -958,7 +923,6 @@ bool StoryboardModel::insertItem(QModelIndex index, bool after)
 
     pushUndoCommand(command);
 
-    // Let's start rendering after adding new storyboard items.
     slotUpdateThumbnails();
     m_renderScheduler->slotStartFrameRendering();
 
@@ -970,7 +934,6 @@ bool StoryboardModel::removeItem(QModelIndex index, KUndo2Command *command)
     const int row = index.row();
     const int durationDeletedScene = data(index, TotalSceneDurationInFrames).toInt();
 
-    //remove all keyframes within the scene with command as parent
     KisNodeSP node = m_image->rootLayer();
     const int firstFrameOfScene = data(this->index(StoryboardItem::FrameNumber, 0, index)).toInt();
     const int timeOfNextScene = firstFrameOfScene + durationDeletedScene;
@@ -993,7 +956,6 @@ bool StoryboardModel::removeItem(QModelIndex index, KUndo2Command *command)
         }
         shiftKeyframes(KisTimeSpan::infinite(timeOfNextScene), -durationDeletedScene, command);
 
-        //If we're viewing the scene we're about the remove, let's jump back to the last valid scene.
         if (row > 0 && row <= rowCount()) {
             QModelIndex currentSceneFN = this->index(StoryboardItem::FrameNumber, 0, this->index(row, 0));
             if (m_image && m_image->animationInterface()->currentTime() == currentSceneFN.data().toInt()) {
@@ -1012,8 +974,6 @@ bool StoryboardModel::removeItem(QModelIndex index, KUndo2Command *command)
         setData(frameNumIndex, data(frameNumIndex).toInt() - durationDeletedScene);
     }
 
-    //do we also need to make the 'change frame' command a child??
-    // Render after removing
     slotUpdateThumbnails();
     m_renderScheduler->slotStartFrameRendering();
 
@@ -1051,7 +1011,6 @@ void StoryboardModel::slotKeyframeAdded(const KisKeyframeChannel* channel, int t
     const QModelIndex nextScene = index( lastScene.row() + 1, 0);
     const bool extendsLastScene = lastScene.isValid() && !nextScene.isValid();
 
-    //Capture new keyframes after last scene and extend duration to include the new key.
     if (extendsLastScene) {
         const int sceneStartFrame = index(StoryboardItem::FrameNumber, 0, lastScene).data().toInt();
         const int desiredDuration = time - sceneStartFrame + 1;
@@ -1080,12 +1039,11 @@ void StoryboardModel::slotKeyframeRemoved(const KisKeyframeChannel *channel, int
 }
 
 void StoryboardModel::slotNodeRemoved(KisNodeSP node)
-{ 
+{
     if (node->isAnimated() && node->paintDevice() && node->paintDevice()->keyframeChannel()) {
         KisKeyframeChannel *channel = node->paintDevice()->keyframeChannel();
         int keyframeTime = channel->firstKeyframeTime();
         while (channel->keyframeAt(keyframeTime)) {
-            //sigKeyframeRemoved is not emitted when parent node is deleted so calling explicitly
             slotKeyframeRemoved(channel, keyframeTime);
             keyframeTime = channel->nextKeyframeTime(keyframeTime);
         }
@@ -1156,12 +1114,11 @@ void StoryboardModel::slotUpdateThumbnailsForItems(QModelIndexList indices) {
         if (!storyboardItemIndex.isValid())
             continue;
 
-        //If this isn't a storyboard item (root) we will continue
         if (storyboardItemIndex.parent().isValid())
             continue;
 
         const int frame = index(StoryboardItem::FrameNumber, 0, storyboardItemIndex).data().toInt();
-        slotUpdateThumbnailForFrame(frame, false);        
+        slotUpdateThumbnailForFrame(frame, false);
     }
 }
 
@@ -1213,7 +1170,7 @@ void StoryboardModel::slotCommentRowInserted(const QModelIndex parent, int first
     int numItems = rowCount();
     for(int row = 0; row < numItems; row++) {
         QModelIndex parentIndex = index(row, 0);
-        insertRows(4 + first, last - first + 1, parentIndex);       //four indices are already there
+        insertRows(4 + first, last - first + 1, parentIndex);
     }
     slotCommentDataChanged();
 }
@@ -1348,18 +1305,15 @@ bool StoryboardModel::moveRowsImpl(const QModelIndex &sourceParent, int sourceRo
         return false;
     }
 
-    //We want to test-run an action when nullptrs are present.
     bool dryrun = (parentCMD != nullptr);
 
     if (destinationChild > sourceRow + count - 1) {
-        //we adjust for the upward shift, see qt doc for why this is needed
         beginMoveRows(sourceParent, sourceRow, sourceRow + count - 1, destinationParent, destinationChild + count - 1);
         destinationChild = destinationChild - count;
     }
     else {
         beginMoveRows(sourceParent, sourceRow, sourceRow + count - 1, destinationParent, destinationChild);
     }
-    //for moves within the 1st level nodes for comment nodes
     if (sourceParent == destinationParent && sourceParent.isValid() && !sourceParent.parent().isValid()) {
         const QModelIndex parent = sourceParent;
         for (int row = 0; row < count; row++) {
@@ -1385,7 +1339,7 @@ bool StoryboardModel::moveRowsImpl(const QModelIndex &sourceParent, int sourceRo
 
         return true;
     }
-    else if (!sourceParent.isValid()) {                  //for moves of 1st level nodes
+    else if (!sourceParent.isValid()) {
         for (int row = 0; row < count; row++) {
             if (sourceRow < 0 || sourceRow >= rowCount()) {
                 return false;
@@ -1418,7 +1372,7 @@ void StoryboardModel::insertChildRows(int position, StoryboardItemSP item)
     insertRows(0, 4 + m_commentList.count(), parentIndex);
 
     setFreeze(true);
-    for (int i = 0; i < item->childCount(); i++) {   
+    for (int i = 0; i < item->childCount(); i++) {
         QVariant data = item->child(i)->data();
         setData(index(i, 0, index(position, 0)), data);
     }

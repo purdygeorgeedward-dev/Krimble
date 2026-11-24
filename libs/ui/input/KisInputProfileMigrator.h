@@ -35,9 +35,6 @@ public:
     migrate(const QMap<QString, ProfileEntry> profiles) = 0;
 };
 
-/**
- * Migrates Krita profile version 5 to 6
- */
 class KisInputProfileMigrator5To6 : public KisInputProfileMigrator
 {
 
@@ -62,4 +59,4 @@ private:
     QString m_defaultProfile;
 };
 
-#endif // __KISINPUTPROFILEMIGRATOR_H_
+#endif

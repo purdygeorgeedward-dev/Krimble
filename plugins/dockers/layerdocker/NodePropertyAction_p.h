@@ -14,13 +14,6 @@
 #include <QAction>
 
 #include "NodeView.h"
-/**
- * Internal class for the NodeView widget. Provides a
- * toggle action for a particular property associated with a document
- * section, such as visible, selected, locked. Property actions have
- * associated on/off icons to show their state in the
- * NodeView.
- */
 class NodeView::PropertyAction: public QAction
 {
     typedef QAction super;

@@ -25,4 +25,4 @@ enum StrokeStyle {
 
 }
 
-#endif // KISTOOLSHAPEUTILS_H
+#endif

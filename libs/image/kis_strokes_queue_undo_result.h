@@ -13,5 +13,5 @@ enum UndoResult {
     UNDO_WAIT
 };
 
-#endif // KIS_STROKES_QUEUE_UNDO_RESULT_H
+#endif
 

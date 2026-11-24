@@ -11,7 +11,6 @@
 #include <QObject>
 #include <QElapsedTimer>
 
-
 class KisMouseClickEater : public QObject
 {
 public:
@@ -31,4 +30,4 @@ private:
     QElapsedTimer m_timeSinceReset;
 };
 
-#endif // KISMOUSECLICKEATER_H
+#endif

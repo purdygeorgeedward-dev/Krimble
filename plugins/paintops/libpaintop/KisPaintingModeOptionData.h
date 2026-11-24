@@ -6,7 +6,6 @@
 #ifndef KISPAINTINGMODEOPTIONDATA_H
 #define KISPAINTINGMODEOPTIONDATA_H
 
-
 #include "kis_types.h"
 #include <boost/operators.hpp>
 #include <kritapaintop_export.h>
@@ -31,4 +30,4 @@ struct PAINTOP_EXPORT KisPaintingModeOptionData : boost::equality_comparable<Kis
     void write(KisPropertiesConfiguration *setting) const;
 };
 
-#endif // KISPAINTINGMODEOPTIONDATA_H
+#endif

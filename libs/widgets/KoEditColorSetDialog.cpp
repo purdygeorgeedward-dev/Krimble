@@ -21,7 +21,6 @@
 #include <KoColorSpaceRegistry.h>
 #include <KoFileDialog.h>
 
-// debug
 #include <WidgetsDebug.h>
 
 KoEditColorSetWidget::KoEditColorSetWidget(const QList<KoColorSet *> &palettes, const QString &activePalette, QWidget *parent)
@@ -35,13 +34,10 @@ KoEditColorSetWidget::KoEditColorSetWidget(const QList<KoColorSet *> &palettes, 
 {
     widget.setupUi(this);
     foreach (KoColorSet *colorSet, m_colorSets) {
-        //colorSet->load(); resources are loaded at startup...
         widget.selector->addItem(colorSet->name());
     }
     connect(widget.selector, SIGNAL(currentIndexChanged(int)), this, SLOT(setActiveColorSet(int)));
 
-    // A widget that shows all colors from active palette
-    // FIXME no need to hand code the QScrollArea if designer can add QScrollArea (Qt 4.4?)
     m_scrollArea = new QScrollArea(widget.patchesFrame);
 
     int index = 0;
@@ -77,7 +73,7 @@ KoEditColorSetWidget::KoEditColorSetWidget(const QList<KoColorSet *> &palettes, 
 
     setEnabled(m_activeColorSet != 0);
     setActiveColorSet(index);
-    widget.remove->setEnabled(false); // initially no color selected
+    widget.remove->setEnabled(false);
 
     connect(widget.add, SIGNAL(clicked()), this, SLOT(addColor()));
     connect(widget.remove, SIGNAL(clicked()), this, SLOT(removeColor()));
@@ -87,12 +83,9 @@ KoEditColorSetWidget::KoEditColorSetWidget(const QList<KoColorSet *> &palettes, 
 
 KoEditColorSetWidget::~KoEditColorSetWidget()
 {
-    // only delete new color sets
     uint colorSetCount = m_colorSets.count();
     for( uint i = m_initialColorSetCount; i < colorSetCount; ++i ) {
         KoColorSet * cs = m_colorSets[i];
-        // if the active color set was requested by activeColorSet()
-        // the caller takes ownership and then we do not delete it here
         if( cs == m_activeColorSet && m_activeColorSetRequested )
             continue;
         delete cs;

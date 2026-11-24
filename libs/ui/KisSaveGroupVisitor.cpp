@@ -47,11 +47,9 @@ bool KisSaveGroupVisitor::visit(KisExternalLayer *) {
     return true;
 }
 
-
 bool KisSaveGroupVisitor::visit(KisCloneLayer *) {
     return true;
 }
-
 
 bool KisSaveGroupVisitor::visit(KisFilterMask *) {
     return true;
@@ -92,8 +90,7 @@ bool KisSaveGroupVisitor::visit(KisGroupLayer *layer)
         QRect r = m_image->bounds();
 
         KisDocument *exportDocument = KisPart::instance()->createDocument();
-        { // make sure dst is deleted before calling 'delete exportDocument',
-          // since KisDocument checks that its image is properly deref()'d.
+        {
           KisImageSP dst = new KisImage(exportDocument->createUndoStore(), r.width(), r.height(), m_image->colorSpace(), layer->name());
           dst->setResolution(m_image->xRes(), m_image->yRes());
           exportDocument->setCurrentImage(dst);
@@ -122,5 +119,4 @@ bool KisSaveGroupVisitor::visit(KisGroupLayer *layer)
 
     return true;
 }
-
 

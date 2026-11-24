@@ -18,9 +18,6 @@
 #include <QWheelEvent>
 #include "kis_action_manager.h"
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// ---- KisCompositeOpListWidget ------------------------------------------------------ //
-
 KisCompositeOpListWidget::KisCompositeOpListWidget(QWidget* parent):
     KisCategorizedListView(parent),
     m_model(new KisSortedCompositeOpListModel(false, this))
@@ -52,9 +49,6 @@ void KisCompositeOpListWidget::setCompositeOp(const KoID &id)
         qWarning() << "KisCompositeOpListWidget::setCompositeOp: ailed to find index for blendmode" << ppVar(id);
     }
 }
-
-//////////////////////////////////////////////////////////////////////////////////////////
-// ---- KisCompositeOpComboBox -------------------------------------------------------- //
 
 KisCompositeOpComboBox::KisCompositeOpComboBox(QWidget* parent)
     : KisCompositeOpComboBox(false, parent)
@@ -212,11 +206,6 @@ void KisCompositeOpComboBox::slotCategoryToggled(const QModelIndex& index, bool 
     Q_UNUSED(index);
     Q_UNUSED(toggled);
 
-    //NOTE: this will (should) fit the size of the
-    //      popup widget to the view
-    //      don't know if this is expected behaviour
-    //      on all supported platforms.
-    //      There is nothing written about this in the docs.
     showPopup();
 }
 
@@ -414,11 +403,6 @@ void KisCompositeOpComboBox::selectNeighbouringBlendMode(bool down)
 
 void KisCompositeOpComboBox::wheelEvent(QWheelEvent *e)
 {
-    /**
-     * This code is a copy of QComboBox::wheelEvent. It does the same thing,
-     * except that it skips "Category" items, by checking m_model->entryAt()
-     * on each step.
-     */
 
     QStyleOptionComboBox opt;
     initStyleOption(&opt);
@@ -436,11 +420,6 @@ void KisCompositeOpComboBox::wheelEvent(QWheelEvent *e)
 
 void KisCompositeOpComboBox::keyPressEvent(QKeyEvent *e)
 {
-    /**
-     * This code is a copy of QComboBox::keyPressEvent. It does the same thing,
-     * except that it skips "Category" items, by checking m_model->entryAt()
-     * on each step.
-     */
 
     enum Move { NoMove=0 , MoveUp , MoveDown , MoveFirst , MoveLast};
 
@@ -449,7 +428,7 @@ void KisCompositeOpComboBox::keyPressEvent(QKeyEvent *e)
     switch (e->key()) {
     case Qt::Key_Up:
         if (e->modifiers() & Qt::ControlModifier)
-            break; // pass to line edit for auto completion
+            break;
         Q_FALLTHROUGH();
     case Qt::Key_PageUp:
         move = MoveUp;
@@ -459,7 +438,7 @@ void KisCompositeOpComboBox::keyPressEvent(QKeyEvent *e)
             showPopup();
             return;
         } else if (e->modifiers() & Qt::ControlModifier)
-            break; // pass to line edit for auto completion
+            break;
         Q_FALLTHROUGH();
     case Qt::Key_PageDown:
         move = MoveDown;

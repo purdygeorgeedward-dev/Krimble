@@ -16,7 +16,6 @@
 
 #include "kis_command_ids.h"
 
-
 class Q_DECL_HIDDEN KoShapeStrokeCommand::Private
 {
 public:
@@ -35,9 +34,9 @@ public:
         newStrokes.append(newStroke);
     }
 
-    QList<KoShape*> shapes;                ///< the shapes to set stroke for
-    QList<KoShapeStrokeModelSP> oldStrokes; ///< the old strokes, one for each shape
-    QList<KoShapeStrokeModelSP> newStrokes; ///< the new strokes to set
+    QList<KoShape*> shapes;
+    QList<KoShapeStrokeModelSP> oldStrokes;
+    QList<KoShapeStrokeModelSP> newStrokes;
 };
 
 KoShapeStrokeCommand::KoShapeStrokeCommand(const QList<KoShape*> &shapes, KoShapeStrokeModelSP stroke, KUndo2Command *parent)
@@ -46,7 +45,6 @@ KoShapeStrokeCommand::KoShapeStrokeCommand(const QList<KoShape*> &shapes, KoShap
 {
     d->shapes = shapes;
 
-    // save old strokes
     Q_FOREACH (KoShape *shape, d->shapes) {
         d->addOldStroke(shape->stroke());
         d->addNewStroke(stroke);
@@ -65,7 +63,6 @@ KoShapeStrokeCommand::KoShapeStrokeCommand(const QList<KoShape*> &shapes,
 
     d->shapes = shapes;
 
-    // save old strokes
     Q_FOREACH (KoShape *shape, shapes)
         d->addOldStroke(shape->stroke());
     foreach (KoShapeStrokeModelSP stroke, strokes)

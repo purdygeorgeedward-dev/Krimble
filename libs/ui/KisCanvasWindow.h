@@ -10,9 +10,6 @@
 
 class KisMainWindow;
 
-/**
- * Window for the canvas (mdi) area. Used when detached canvas mode is enabled.
- */
 class KisCanvasWindow : public QWidget
 {
 public:

@@ -21,7 +21,6 @@ class KRITAFLAKE_EXPORT CssFontStyleModel: public QObject
 public:
     CssFontStyleModel(lager::cursor<KoSvgText::CssFontStyleData> _data = lager::make_state(KoSvgText::CssFontStyleData(), lager::automatic_tag{}));
 
-    // QFont::Style isn't exposed to qml.
     enum FontStyle {
         StyleNormal = QFont::StyleNormal,
         StyleItalic = QFont::StyleItalic,
@@ -35,4 +34,4 @@ public:
     LAGER_QT_CURSOR(qreal, value);
 };
 
-#endif // CSSFONTSTYLEMODEL_H
+#endif

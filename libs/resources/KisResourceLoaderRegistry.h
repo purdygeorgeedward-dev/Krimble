@@ -15,14 +15,6 @@
 
 #include <kritaresources_export.h>
 
-/**
- * @brief The KisResourceLoaderRegistry class manages the loader plugins for resources. Every resource can be loaded
- * by a KisResourceLoader instance. A loader corresponds to a particular file type. Resources are organized in
- * folders that represent the main type of a certain resource (brushes) and subtypes, that identify a particular
- * resource format (gbr, gih, png, svg).
- * 
- * KisResourceLoaderRegistry has full knowledge of all resource types that are defined for Krita.
- */
 class KRITARESOURCES_EXPORT KisResourceLoaderRegistry : public QObject, public KoGenericRegistry<KisResourceLoaderBase*>
 {
     Q_OBJECT
@@ -31,40 +23,18 @@ public:
 
     static KisResourceLoaderRegistry *instance();
 
-    /**
-     * Adds the given loader and registers its type in the database, if it hasn't been registered yet.
-     */
     void registerLoader(KisResourceLoaderBase* loader);
 
-    /// @return the first loader for the given resource type and mimetype
     KisResourceLoaderBase *loader(const QString &resourceType, const QString &mimetype) const;
 
-    /**
-     * @return a list of filename extensions that can be present for the given resource type
-     */
     QStringList filters(const QString &resourceType) const;
 
-    /**
-     * @return a list of mimetypes that can be loaded for the given resource type
-     */
     QStringList mimeTypes(const QString &resourceType) const;
 
-    /**
-     * @return the list of folders for which resource loaders have been registered
-     */
     QStringList resourceTypes() const;
 
-    /**
-     * @return a list of loader plugins that can handle the resources stored in the folder. A folder can contain multiple subtypes.
-     */
     QVector<KisResourceLoaderBase*> resourceTypeLoaders(const QString &resourceType) const;
 
-    /**
-     * Sometimes the database needs updates without changing
-     * the schema of the database. E.g. when we need to update
-     * the resources' metadata. In such case, fix up should
-     * be created.
-     */
     struct ResourceCacheFixup {
         virtual ~ResourceCacheFixup() {};
         virtual QStringList executeFix() = 0;
@@ -84,4 +54,4 @@ private:
     QScopedPointer<Private> m_d;
 };
 
-#endif // KISRESOURCELOADERREGISTRY_H
+#endif

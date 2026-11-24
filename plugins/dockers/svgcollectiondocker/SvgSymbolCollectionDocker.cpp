@@ -31,9 +31,6 @@
 
 #include <resources/KoSvgSymbolCollectionResource.h>
 
-//
-// SvgCollectionModel
-//
 SvgCollectionModel::SvgCollectionModel(QObject *parent)
     : QAbstractListModel(parent)
 {
@@ -137,12 +134,6 @@ void SvgCollectionModel::setSvgSymbolCollectionResource(QSharedPointer<KoSvgSymb
     m_symbolCollection = resource;
 }
 
-
-
-//
-// SvgSymbolCollectionDockerFactory
-//
-
 SvgSymbolCollectionDockerFactory::SvgSymbolCollectionDockerFactory()
     : KoDockFactoryBase()
 {
@@ -159,10 +150,6 @@ QDockWidget *SvgSymbolCollectionDockerFactory::createDockWidget()
 
     return docker;
 }
-
-//
-// SvgSymbolCollectionDocker
-//
 
 SvgSymbolCollectionDocker::SvgSymbolCollectionDocker(QWidget *parent)
     : QDockWidget(parent)
@@ -190,32 +177,27 @@ SvgSymbolCollectionDocker::SvgSymbolCollectionDocker(QWidget *parent)
                 this, SLOT(slotScrollerStateChanged(QScroller::State)));
     }
 
-    // thumbnail icon changer
     QMenu* configureMenu = new QMenu(this);
     configureMenu->setStyleSheet("margin: 6px");
     m_wdgSvgCollection->vectorPresetsConfigureButton->setIcon(KisIconUtils::loadIcon("view-choose"));
     m_wdgSvgCollection->vectorPresetsConfigureButton->setPopupMode(QToolButton::InstantPopup);
     m_wdgSvgCollection->vectorPresetsConfigureButton->setAutoRaise(true);
 
-
     m_configGroup = KSharedConfig::openConfig()->group("SvgSymbolCollection");
 
-    // add horizontal slider for changing the icon size
     m_iconSizeSlider = new QSlider(this);
     m_iconSizeSlider->setOrientation(Qt::Horizontal);
     m_iconSizeSlider->setRange(20, 80);
-    m_iconSizeSlider->setValue(m_configGroup.readEntry<int>("iconSize", 20));  // defaults to small icon size
+    m_iconSizeSlider->setValue(m_configGroup.readEntry<int>("iconSize", 20));
     m_iconSizeSlider->setMinimumHeight(20);
     m_iconSizeSlider->setMinimumWidth(40);
     m_iconSizeSlider->setTickInterval(10);
-
 
     QWidgetAction *sliderAction= new QWidgetAction(this);
     sliderAction->setDefaultWidget(m_iconSizeSlider);
 
     m_thumbnailsRadioButton = new QRadioButton("Thumbnails", this);
     m_detailsRadioButton = new QRadioButton("Details", this);
-
 
     QWidgetAction *thumbnailsAction = new QWidgetAction(this);
     thumbnailsAction->setDefaultWidget(m_thumbnailsRadioButton);
@@ -230,7 +212,6 @@ SvgSymbolCollectionDocker::SvgSymbolCollectionDocker(QWidget *parent)
         m_detailsRadioButton->setChecked(true);
     }
 
-
     configureMenu->addSection(i18n("Display"));
     configureMenu->addAction(detailsAction);
     configureMenu->addAction(thumbnailsAction);
@@ -239,7 +220,7 @@ SvgSymbolCollectionDocker::SvgSymbolCollectionDocker(QWidget *parent)
     configureMenu->addAction(sliderAction);
 
     m_wdgSvgCollection->vectorPresetsConfigureButton->setMenu(configureMenu);
-    connect(m_iconSizeSlider, SIGNAL(sliderReleased()), this, SLOT(slotSetIconSize())); // resizing while sliding is too heavy of an operation
+    connect(m_iconSizeSlider, SIGNAL(sliderReleased()), this, SLOT(slotSetIconSize()));
     connect(m_thumbnailsRadioButton, SIGNAL(toggled(bool)), this, SLOT(slotChangeDisplay()));
     connect(m_detailsRadioButton, SIGNAL(toggled(bool)), this, SLOT(slotChangeDisplay()));
 
@@ -254,8 +235,6 @@ SvgSymbolCollectionDocker::SvgSymbolCollectionDocker(QWidget *parent)
     connect(m_resourceModel, SIGNAL(modelReset()), this, SLOT(slotResourceModelReset()));
 
     m_wdgSvgCollection->listCollection->setResizeMode(QListView::Adjust);
-
-
 
     slotSetIconSize();
     slotChangeDisplay();
@@ -325,11 +304,8 @@ void SvgSymbolCollectionDocker::slotResourceModelReset()
             }
         }
     }
-    // remove the current model from the view
     m_wdgSvgCollection->listCollection->setModel(0);
-    // delete all models
     clearModels();
-    // setting current index will create and set the model
     m_wdgSvgCollection->cmbCollections->setCurrentIndex(indexToSet);
     collectionActivated(indexToSet);
     m_rememberedSvgCollectionId = -1;
@@ -359,14 +335,13 @@ void SvgSymbolCollectionDocker::collectionActivated(int index)
             m_collectionsModelsCache.insert(index, model);
         }
 
-
         m_configGroup.writeEntry("currentCollection", index);
 
         m_wdgSvgCollection->listCollection->setModel(model);
 
     }
-    slotChangeDisplay(); // to ensure the ShowDescription is set to the model
-    slotSetIconSize(); // to ensure the icon size is correct and they are not scaled up or down by the listview
+    slotChangeDisplay();
+    slotSetIconSize();
 
 }
 

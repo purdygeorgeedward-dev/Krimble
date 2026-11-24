@@ -42,7 +42,6 @@ protected:
     void mousePressEvent(QMouseEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
     void mouseReleaseEvent(QMouseEvent *event) override;
-    //void tabletEvent(QTabletEvent *event) override;
     void paintEvent(QPaintEvent*) override;
     void resizeEvent(QResizeEvent *) override;
 
@@ -55,13 +54,6 @@ protected:
     void recalculateParameters();
     bool sizeRequirementsMet() const;
     QImage renderBackground();
-    /*!
-     * \brief strokeRect
-     * \param painter shall already be scaled so that 1 unit == 1 real Pixel
-     * \param rect the rectangle to stroke in (logical) widget coordinates
-     * \param pixelSize devicePixelRatioF() that was used to determine the real dimensions
-     * \param shrinkX shrinks the rect by a multiple of the line width used to stroke
-     */
     void strokeRect(QPainter &painter, const QRectF &rect, qreal pixelSize, qreal shrinkX);
 
 Q_SIGNALS:
@@ -72,4 +64,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif // WGSHADESLIDER_H
+#endif

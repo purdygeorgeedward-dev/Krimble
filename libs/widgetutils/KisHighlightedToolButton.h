@@ -50,5 +50,4 @@ private:
     }
 };
 
-
-#endif /* __KIS_HIGHLIGHTED_BUTTON_H */
+#endif

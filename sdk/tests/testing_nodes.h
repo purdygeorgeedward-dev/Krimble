@@ -42,5 +42,5 @@ struct DefaultNode : public KisNode {
 
 }
 
-#endif // TESTING_NODES_H
+#endif
 

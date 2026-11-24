@@ -25,4 +25,4 @@ public:
     void initializeCapabilities() override;
 };
 
-#endif // RGBE_EXPORT_H
+#endif

@@ -54,4 +54,4 @@ private:
     KisStrokesFacade *m_strokesFacade;
 };
 
-#endif /* __KIS_FIGURE_PAINTING_TOOL_HELPER_H */
+#endif

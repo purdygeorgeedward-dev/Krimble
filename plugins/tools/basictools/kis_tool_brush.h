@@ -49,7 +49,6 @@ class KisToolBrush : public KisToolFreehand
     Q_PROPERTY(bool finishStabilizedCurve READ finishStabilizedCurve WRITE setFinishStabilizedCurve NOTIFY finishStabilizedCurveChanged)
     Q_PROPERTY(bool stabilizeSensors READ stabilizeSensors WRITE setStabilizeSensors NOTIFY stabilizeSensorsChanged)
 
-
 public:
     KisToolBrush(KoCanvasBase * canvas);
     ~KisToolBrush() override;
@@ -70,7 +69,7 @@ public:
     bool stabilizeSensors() const;
 
 protected:
-    KConfigGroup m_configGroup; // only used in the multihand tool for now
+    KConfigGroup m_configGroup;
 
 protected Q_SLOTS:
     void resetCursorStyle() override;
@@ -139,7 +138,6 @@ private:
     qreal m_savedRetouchSize {1.0};
 };
 
-
 class KisToolBrushFactory : public KisToolPaintFactoryBase
 {
 
@@ -149,7 +147,6 @@ public:
 
         setToolTip(i18n("Brush Tool"));
 
-        // Temporarily
         setSection(ToolBoxSection::PSOrder);
         setIconName(koIconNameCStr("krita_tool_freehand"));
         setShortcut(QKeySequence(Qt::Key_B));
@@ -174,5 +171,4 @@ public:
 
 };
 
-
-#endif // KIS_TOOL_BRUSH_H_
+#endif

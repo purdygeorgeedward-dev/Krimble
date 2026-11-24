@@ -8,7 +8,6 @@
 
 #include <QAbstractItemDelegate>
 
-/// The line style item delegate for rendering the styles
 class KoLineStyleItemDelegate : public QAbstractItemDelegate
 {
 public:

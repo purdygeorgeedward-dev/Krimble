@@ -25,7 +25,6 @@ void KisSqlQueryLoader::init(const QString &fileName, QString entireScript, bool
 
     QTextStream stream(&entireScript);
 
-    // remove comments by splitting into lines
     QRegularExpression regexp("^--.*$");
     while (!stream.atEnd()) {
         const QString statement = stream.readLine().trimmed();
@@ -34,14 +33,11 @@ void KisSqlQueryLoader::init(const QString &fileName, QString entireScript, bool
         }
     }
 
-    // split lines into actual statements
     m_statements = m_statements.join(' ').split(';');
 
-    // trim the statements
     std::transform(m_statements.begin(), m_statements.end(),
                     m_statements.begin(), [] (const QString &x) { return x.trimmed(); });
 
-    // remove empty statements
     m_statements.erase(std::remove_if(m_statements.begin(), m_statements.end(),
                                       kismpl::mem_equal_to(&QString::isEmpty, true)),
                         m_statements.end());

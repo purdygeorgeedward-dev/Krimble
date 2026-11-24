@@ -34,4 +34,4 @@ private:
     KoSvgTextShapeMementoSP m_textData;
 };
 
-#endif // SVGTEXTINSERTCOMMAND_H
+#endif

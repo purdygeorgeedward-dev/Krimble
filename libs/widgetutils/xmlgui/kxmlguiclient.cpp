@@ -61,14 +61,12 @@ public:
     QDomDocument m_buildDocument;
     QPointer<KisKXMLGUIFactory> m_factory;
     KisKXMLGUIClient *m_parent;
-    //QPtrList<KisKXMLGUIClient> m_supers;
     QList<KisKXMLGUIClient *> m_children;
     KisKXMLGUIBuilder *m_builder;
     QString m_xmlFile;
     QString m_localXMLFile;
     QStringList m_textTagNames;
 
-    // Actions to enable/disable on a state change
     QMap<QString, KisKXMLGUIClient::StateChange> m_actionsStateMap;
 };
 
@@ -156,10 +154,10 @@ QString KisKXMLGUIClient::localXMLFile() const
     }
 
     if (!QDir::isRelativePath(d->m_xmlFile)) {
-        return QString();    // can't save anything here
+        return QString();
     }
 
-    if (d->m_xmlFile.isEmpty()) { // setXMLFile not called at all, can't save. Use case: ToolBarHandler
+    if (d->m_xmlFile.isEmpty()) {
         return QString();
     }
 
@@ -169,9 +167,6 @@ QString KisKXMLGUIClient::localXMLFile() const
 
 void KisKXMLGUIClient::reloadXML()
 {
-    // TODO: this method can't be used for the KXmlGuiWindow, since it doesn't merge in ui_standards.xmlgui!
-    //   -> KDE5: load ui_standards_rc in setXMLFile using a flag, and remember that flag?
-    //            and then KisKEditToolBar can use reloadXML.
     QString file(xmlFile());
     if (!file.isEmpty()) {
         setXMLFile(file);
@@ -192,7 +187,6 @@ QString KisKXMLGUIClient::standardsXmlFileLocation()
 {
     QString file = QStandardPaths::locate(QStandardPaths::GenericConfigLocation, QStringLiteral("ui/ui_standards.xmlgui"));
     if (file.isEmpty()) {
-        // fallback to resource, to allow to use the rc file compiled into this framework, must exist!
         file = QStringLiteral(":/kxmlgui5/ui_standards.xmlgui");
         Q_ASSERT(QFile::exists(file));
     }
@@ -206,7 +200,6 @@ void KisKXMLGUIClient::loadStandardsXmlFile()
 
 void KisKXMLGUIClient::setXMLFile(const QString &_file, bool merge, bool setXMLDoc)
 {
-    // store our xml file name
     if (!_file.isNull()) {
         d->m_xmlFile = _file;
     }
@@ -222,19 +215,16 @@ void KisKXMLGUIClient::setXMLFile(const QString &_file, bool merge, bool setXMLD
     } else {
         const QString filter = componentName() + QLatin1Char('/') + _file;
 
-        // files on filesystem
-        allFiles << QStandardPaths::locateAll(QStandardPaths::AppDataLocation, QStringLiteral("kxmlgui5/") + filter); // KF >= 5.1
+        allFiles << QStandardPaths::locateAll(QStandardPaths::AppDataLocation, QStringLiteral("kxmlgui5/") + filter);
 
-        // KF >= 5.4 (resource file)
         const QString qrcFile(QStringLiteral(":/kxmlgui5/") + filter);
         if (QFile::exists(qrcFile)) {
             allFiles << qrcFile;
         }
 
-        // then compat locations
         const QStringList compatFiles =
-                   QStandardPaths::locateAll(QStandardPaths::AppDataLocation, filter) + // kdelibs4, KF 5.0
-                   QStandardPaths::locateAll(QStandardPaths::AppDataLocation, _file); // kdelibs4, KF 5.0, caller passes component name
+                   QStandardPaths::locateAll(QStandardPaths::AppDataLocation, filter) +
+                   QStandardPaths::locateAll(QStandardPaths::AppDataLocation, _file);
 
         if (allFiles.isEmpty() && !compatFiles.isEmpty()) {
             qWarning() << "kxmlguiclient: KisKXMLGUI file found at deprecated location" << compatFiles << "-- please use ${KisKXMLGUI_INSTALL_DIR} to install this file instead.";
@@ -242,12 +232,9 @@ void KisKXMLGUIClient::setXMLFile(const QString &_file, bool merge, bool setXMLD
         allFiles += compatFiles;
     }
     if (allFiles.isEmpty() && !_file.isEmpty()) {
-        // if a non-empty file gets passed and we can't find it,
-        // inform the developer using some debug output
         qWarning() << "cannot find .xmlgui file" << _file << "for component" << componentName();
     }
 
-    // make sure to merge the settings from any file specified by setLocalXMLFile()
     if (!d->m_localXMLFile.isEmpty() && !file.endsWith(QStringLiteral("ui_standards.xmlgui"))) {
         const bool exists = QDir::isRelativePath(d->m_localXMLFile) || QFile::exists(d->m_localXMLFile);
         if (exists && !allFiles.contains(d->m_localXMLFile)) {
@@ -260,7 +247,6 @@ void KisKXMLGUIClient::setXMLFile(const QString &_file, bool merge, bool setXMLD
         file = findMostRecentXMLFile(allFiles, doc);
     }
 
-    // Always call setXML, even on error, so that we don't keep all ui_standards.xmlgui menus.
     setXML(doc, merge);
 }
 
@@ -279,13 +265,6 @@ void KisKXMLGUIClient::replaceXMLFile(const QString &xmlfile, const QString &loc
     setXMLFile(xmlfile, merge);
 }
 
-// The top document element may have translation domain attribute set,
-// or the translation domain may be implicitly the application domain.
-// This domain must be used to fetch translations for all text elements
-// in the document that do not have their own domain attribute.
-// In order to preserve this semantics through document mergings,
-// the top or application domain must be propagated to all text elements
-// lacking their own domain attribute.
 static void propagateTranslationDomain(QDomDocument &doc, const QStringList tagNames)
 {
     const QLatin1String attrDomain("translationDomain");
@@ -312,8 +291,6 @@ static void propagateTranslationDomain(QDomDocument &doc, const QStringList tagN
 void KisKXMLGUIClient::setXML(const QString &document, bool merge)
 {
     QDomDocument doc;
-    // QDomDocument raises a parse error on empty document, but we accept no app-specific document,
-    // in which case you only get ui_standards.xmlgui layout.
 #if QT_VERSION < QT_VERSION_CHECK(6, 5, 0)
     QString errorMsg;
     int errorLine, errorColumn;
@@ -332,7 +309,7 @@ void KisKXMLGUIClient::setXML(const QString &document, bool merge)
         qCritical() << "Error parsing XML document:" << result.errorMessage << "at line" << result.errorLine << "column" << result.errorColumn;
 #endif
 #ifdef NDEBUG
-        setDOMDocument(QDomDocument(), merge); // otherwise empty menus from ui_standards.xmlgui stay around
+        setDOMDocument(QDomDocument(), merge);
 #else
         abort();
 #endif
@@ -346,16 +323,10 @@ void KisKXMLGUIClient::setDOMDocument(const QDomDocument &document, bool merge)
 
         QDomElement e = document.documentElement();
 
-        // merge our original (global) xml with our new one
         d->mergeXML(base, e, actionCollection());
 
-        // reassign our pointer as mergeXML might have done something
-        // strange to it
         base = d->m_doc.documentElement();
 
-        //qDebug(260) << "Result of xmlgui merging:" << d->m_doc.toString();
-
-        // we want some sort of failsafe.. just in case
         if (base.isNull()) {
             d->m_doc = document;
         }
@@ -366,7 +337,6 @@ void KisKXMLGUIClient::setDOMDocument(const QDomDocument &document, bool merge)
     setXMLGUIBuildDocument(QDomDocument());
 }
 
-// if (equals(a,b)) is more readable than if (a.compare(b, Qt::CaseInsensitive)==0)
 static inline bool equalstr(const QString &a, const QString &b)
 {
     return a.compare(b, Qt::CaseInsensitive) == 0;
@@ -390,16 +360,10 @@ bool KisKXMLGUIClientPrivate::mergeXML(QDomElement &base, QDomElement &additive,
     const QString       attrNoMerge(QStringLiteral("noMerge"));
     const QLatin1String attrOne("1");
 
-    // there is a possibility that we don't want to merge in the
-    // additive.. rather, we might want to *replace* the base with the
-    // additive.  this can be for any container.. either at a file wide
-    // level or a simple container level.  we look for the 'noMerge'
-    // tag, in any event and just replace the old with the new
-    if (additive.attribute(attrNoMerge) == attrOne) { // ### use toInt() instead? (Simon)
+    if (additive.attribute(attrNoMerge) == attrOne) {
         base.parentNode().replaceChild(additive, base);
         return true;
     } else {
-        // Merge attributes
         {
             const QDomNamedNodeMap attribs = additive.attributes();
             const uint attribcount = attribs.count();
@@ -410,49 +374,36 @@ bool KisKXMLGUIClientPrivate::mergeXML(QDomElement &base, QDomElement &additive,
             }
         }
 
-        // iterate over all elements in the container (of the global DOM tree)
         QDomNode n = base.firstChild();
         while (!n.isNull()) {
             QDomElement e = n.toElement();
-            n = n.nextSibling(); // Advance now so that we can safely delete e
+            n = n.nextSibling();
             if (e.isNull()) {
                 continue;
             }
 
             const QString tag = e.tagName();
 
-            // if there's an action tag in the global tree and the action is
-            // not implemented, then we remove the element
             if (equalstr(tag, tagAction)) {
                 const QString name =  e.attribute(attrName);
                 if (!actionCollection->action(name)) {
-                    // remove this child as we aren't using it
                     base.removeChild(e);
                     continue;
                 }
             }
 
-            // if there's a separator defined in the global tree, then add an
-            // attribute, specifying that this is a "weak" separator
             else if (equalstr(tag, tagSeparator)) {
                 e.setAttribute(attrWeakSeparator, (uint)1);
 
-                // okay, hack time. if the last item was a weak separator OR
-                // this is the first item in a container, then we nuke the
-                // current one
                 QDomElement prev = e.previousSibling().toElement();
                 if (prev.isNull() ||
                         (equalstr(prev.tagName(), tagSeparator) && !prev.attribute(attrWeakSeparator).isNull()) ||
                         (equalstr(prev.tagName(), tagText))) {
-                    // the previous element was a weak separator or didn't exist
                     base.removeChild(e);
                     continue;
                 }
             }
 
-            // the MergeLocal tag lets us specify where non-standard elements
-            // of the local tree shall be merged in.  After inserting the
-            // elements we delete this element
             else if (equalstr(tag, tagMergeLocal)) {
                 QDomNode it = additive.firstChild();
                 while (!it.isNull()) {
@@ -475,9 +426,6 @@ bool KisKXMLGUIClientPrivate::mergeXML(QDomElement &base, QDomElement &additive,
 
                     if ((itAppend.isNull() && elemName.isEmpty()) ||
                             (itAppend == elemName)) {
-                        // first, see if this new element matches a standard one in
-                        // the global file.  if it does, then we skip it as it will
-                        // be merged in, later
                         QDomElement matchingElement = findMatchingElement(newChild, base);
                         if (matchingElement.isNull() || equalstr(newChild.tagName(), tagSeparator)) {
                             base.insertBefore(newChild, e);
@@ -495,10 +443,6 @@ bool KisKXMLGUIClientPrivate::mergeXML(QDomElement &base, QDomElement &additive,
                 continue;
             }
 
-            // in this last case we check for a separator tag and, if not, we
-            // can be sure that it is a container --> proceed with child nodes
-            // recursively and delete the just proceeded container item in
-            // case it is empty (if the recursive call returns true)
             else {
                 QDomElement matchingElement = findMatchingElement(e, additive);
                 if (!matchingElement.isNull()) {
@@ -506,17 +450,12 @@ bool KisKXMLGUIClientPrivate::mergeXML(QDomElement &base, QDomElement &additive,
 
                     if (mergeXML(e, matchingElement, actionCollection)) {
                         base.removeChild(e);
-                        additive.removeChild(matchingElement); // make sure we don't append it below
+                        additive.removeChild(matchingElement);
                         continue;
                     }
 
                     continue;
                 } else {
-                    // this is an important case here! We reach this point if the
-                    // "local" tree does not contain a container definition for
-                    // this container. However we have to call mergeXML recursively
-                    // and make it check if there are actions implemented for this
-                    // container. *If* none, then we can remove this container now
                     QDomElement dummy;
                     if (mergeXML(e, dummy, actionCollection)) {
                         base.removeChild(e);
@@ -526,12 +465,10 @@ bool KisKXMLGUIClientPrivate::mergeXML(QDomElement &base, QDomElement &additive,
             }
         }
 
-        //here we append all child elements which were not inserted
-        //previously via the LocalMerge tag
         n = additive.firstChild();
         while (!n.isNull()) {
             QDomElement e = n.toElement();
-            n = n.nextSibling(); // Advance now so that we can safely delete e
+            n = n.nextSibling();
             if (e.isNull()) {
                 continue;
             }
@@ -543,8 +480,6 @@ bool KisKXMLGUIClientPrivate::mergeXML(QDomElement &base, QDomElement &additive,
             }
         }
 
-        // do one quick check to make sure that the last element was not
-        // a weak separator
         QDomElement last = base.lastChild().toElement();
         if (equalstr(last.tagName(), tagSeparator) &&
                 (!last.attribute(attrWeakSeparator).isNull())) {
@@ -557,13 +492,10 @@ bool KisKXMLGUIClientPrivate::mergeXML(QDomElement &base, QDomElement &additive,
 
 bool KisKXMLGUIClientPrivate::isEmptyContainer(const QDomElement &base, KisKActionCollection *actionCollection) const
 {
-    // now we check if we are empty (in which case we return "true", to
-    // indicate the caller that it can delete "us" (the base element
-    // argument of "this" call)
     QDomNode n = base.firstChild();
     while (!n.isNull()) {
         const QDomElement e = n.toElement();
-        n = n.nextSibling(); // Advance now so that we can safely delete e
+        n = n.nextSibling();
         if (e.isNull()) {
             continue;
         }
@@ -571,16 +503,10 @@ bool KisKXMLGUIClientPrivate::isEmptyContainer(const QDomElement &base, KisKActi
         const QString tag = e.tagName();
 
         if (equalstr(tag, QLatin1String("Action"))) {
-            // if base contains an implemented action, then we must not get
-            // deleted (note that the actionCollection contains both,
-            // "global" and "local" actions)
             if (actionCollection->action(e.attribute(QStringLiteral("name")))) {
                 return false;
             }
         } else if (equalstr(tag, QLatin1String("Separator"))) {
-            // if we have a separator which has *not* the weak attribute
-            // set, then it must be owned by the "local" tree in which case
-            // we must not get deleted either
             const QString weakAttr = e.attribute(QStringLiteral("weakSeparator"));
             if (weakAttr.isEmpty() || weakAttr.toInt() != 1) {
                 return false;
@@ -591,21 +517,16 @@ bool KisKXMLGUIClientPrivate::isEmptyContainer(const QDomElement &base, KisKActi
             continue;
         }
 
-        // a text tag is NOT enough to spare this container
         else if (equalstr(tag, QLatin1String("text"))) {
             continue;
         }
 
-        // what's left are non-empty containers! *don't* delete us in this
-        // case (at this position we can be *sure* that the container is
-        // *not* empty, as the recursive call for it was in the first loop
-        // which deleted the element in case the call returned "true"
         else {
             return false;
         }
     }
 
-    return true; // I'm empty, please delete me.
+    return true;
 }
 
 QDomElement KisKXMLGUIClientPrivate::findMatchingElement(const QDomElement &base, const QDomElement &additive)
@@ -613,26 +534,23 @@ QDomElement KisKXMLGUIClientPrivate::findMatchingElement(const QDomElement &base
     QDomNode n = additive.firstChild();
     while (!n.isNull()) {
         QDomElement e = n.toElement();
-        n = n.nextSibling(); // Advance now so that we can safely delete e -- TODO we don't, so simplify this
+        n = n.nextSibling();
         if (e.isNull()) {
             continue;
         }
 
         const QString tag = e.tagName();
-        // skip all action and merge tags as we will never use them
         if (equalstr(tag, QLatin1String("Action"))
                 || equalstr(tag, QLatin1String("MergeLocal"))) {
             continue;
         }
 
-        // now see if our tags are equivalent
         if (equalstr(tag, base.tagName()) &&
                 e.attribute(QStringLiteral("name")) == base.attribute(QStringLiteral("name"))) {
             return e;
         }
     }
 
-    // nope, return a (now) null element
     return QDomElement();
 }
 
@@ -676,14 +594,6 @@ void KisKXMLGUIClient::removeChildClient(KisKXMLGUIClient *child)
     d->m_children.removeAll(child);
     child->d->m_parent = 0;
 }
-
-/*bool KisKXMLGUIClient::addSuperClient( KisKXMLGUIClient *super )
-{
-  if ( d->m_supers.contains( super ) )
-    return false;
-  d->m_supers.append( super );
-  return true;
-}*/
 
 QList<KisKXMLGUIClient *> KisKXMLGUIClient::childClients()
 {
@@ -731,7 +641,6 @@ void KisKXMLGUIClient::addStateActionEnabled(const QString &state,
     StateChange stateChange = getActionsToChangeForState(state);
 
     stateChange.actionsToEnable.append(action);
-    //qDebug(260) << "KisKXMLGUIClient::addStateActionEnabled( " << state << ", " << action << ")";
 
     d->m_actionsStateMap.insert(state, stateChange);
 }
@@ -742,7 +651,6 @@ void KisKXMLGUIClient::addStateActionDisabled(const QString &state,
     StateChange stateChange = getActionsToChangeForState(state);
 
     stateChange.actionsToDisable.append(action);
-    //qDebug(260) << "KisKXMLGUIClient::addStateActionDisabled( " << state << ", " << action << ")";
 
     d->m_actionsStateMap.insert(state, stateChange);
 }
@@ -759,8 +667,6 @@ void KisKXMLGUIClient::stateChanged(const QString &newstate, KisKXMLGUIClient::R
     bool setTrue = (reverse == StateNoReverse);
     bool setFalse = !setTrue;
 
-    // Enable actions which need to be enabled...
-    //
     for (QStringList::const_iterator it = stateChange.actionsToEnable.constBegin();
             it != stateChange.actionsToEnable.constEnd(); ++it) {
 
@@ -770,8 +676,6 @@ void KisKXMLGUIClient::stateChanged(const QString &newstate, KisKXMLGUIClient::R
         }
     }
 
-    // and disable actions which need to be disabled...
-    //
     for (QStringList::const_iterator it = stateChange.actionsToDisable.constBegin();
             it != stateChange.actionsToDisable.constEnd(); ++it) {
 
@@ -805,5 +709,4 @@ void KisKXMLGUIClient::prepareXMLUnplug(QWidget *w)
 
 void KisKXMLGUIClient::virtual_hook(int, void *)
 {
-    /*BASE::virtual_hook( id, data );*/
 }

@@ -34,8 +34,6 @@
 #include <KoColorDisplayRendererInterface.h>
 
 #ifdef Q_OS_MACOS
-    // HACK alert
-    // macOS.SDK openGL does not define GL_MULTISAMPLE_EXT
     #define GL_MULTISAMPLE_EXT GL_MULTISAMPLE
 #endif
 
@@ -162,8 +160,6 @@ void KisMirrorAxis::drawDecoration(QPainter& gc, const QRectF& updateArea, const
         hasMultisample = ((gc.paintEngine()->type() == QPaintEngine::OpenGL2)
                           && (ctx->hasExtension("GL_ARB_multisample") || ctx->hasExtension("GL_EXT_multisample_compatibility")));
 
-        // QPainter cannot anti-alias the edges of circles etc. when using OpenGL
-        // So instead, use native OpenGL anti-aliasing when available.
         if (hasMultisample) {
             gc.beginNativePainting();
             ctx->functions()->glEnable(GL_MULTISAMPLE_EXT);
@@ -178,8 +174,6 @@ void KisMirrorAxis::drawDecoration(QPainter& gc, const QRectF& updateArea, const
 
     if(d->config.mirrorHorizontal() && !d->config.hideHorizontalDecoration()) {
         if (!d->horizontalAxis.isNull()) {
-            // QPointF horizontalIndicatorCenter = d->horizontalAxis.unitVector().pointAt(15);
-            // QRectF horizontalIndicator = QRectF(horizontalIndicatorCenter.x() - halfHandleSize, horizontalIndicatorCenter.y() - halfHandleSize, d->config.handleSize(), d->config.handleSize());
 
             float horizontalHandlePosition = qBound<float>(d->minHandlePosition, d->config.horizontalHandlePosition(), d->horizontalAxis.length() - d->minHandlePosition);
             QPointF horizontalHandleCenter = d->horizontalAxis.unitVector().pointAt(horizontalHandlePosition);
@@ -188,10 +182,6 @@ void KisMirrorAxis::drawDecoration(QPainter& gc, const QRectF& updateArea, const
             gc.setPen(pen1);
             gc.drawLine(d->horizontalAxis);
 
-            // gc.drawEllipse(horizontalIndicator);
-            //  gc.drawPixmap(horizontalIndicator.adjusted(5, 5, -5, -5).toRect(), d->horizontalIcon);
-
-            // don't draw the handles if we are locking the axis for movement
             if (!d->config.lockHorizontal()) {
                 gc.setPen(pen2);
                 gc.drawEllipse(d->horizontalHandle);
@@ -209,15 +199,10 @@ void KisMirrorAxis::drawDecoration(QPainter& gc, const QRectF& updateArea, const
             gc.setPen(pen1);
             gc.drawLine(d->verticalAxis);
 
-
-            // QPointF verticalIndicatorCenter = d->verticalAxis.unitVector().pointAt(15);
-            // QRectF verticalIndicator = QRectF(verticalIndicatorCenter.x() - halfHandleSize, verticalIndicatorCenter.y() - halfHandleSize, d->config.handleSize(), d->config.handleSize());
-
             float verticalHandlePosition = qBound<float>(d->minHandlePosition, d->config.verticalHandlePosition(), d->verticalAxis.length() - d->minHandlePosition);
             QPointF verticalHandleCenter = d->verticalAxis.unitVector().pointAt(verticalHandlePosition);
             d->verticalHandle = QRectF(verticalHandleCenter.x() - halfHandleSize, verticalHandleCenter.y() - halfHandleSize, d->config.handleSize(), d->config.handleSize());
 
-            // don't draw the handles if we are locking the axis for movement
             if (!d->config.lockVertical()) {
                 gc.setPen(pen2);
                 gc.drawEllipse(d->verticalHandle);
@@ -301,11 +286,9 @@ bool KisMirrorAxis::eventFilter(QObject* target, QEvent* event)
 
         if(d->xActive) {
             float axisX = view()->viewConverter()->widgetToImage<QPoint>(pos).x();
-            // axisX should be either int or int + 0.5
-            axisX *= 2; // to be able to choose in the middle of the pixel
-            axisX = round(axisX); // find the closest acceptable point
-            axisX = axisX/2; // return to the original space
-
+            axisX *= 2;
+            axisX = round(axisX);
+            axisX = axisX/2;
 
             d->setAxisPosition(axisX, d->config.axisPosition().y());
             d->config.setHorizontalHandlePosition(KisAlgebra2D::dotProduct<QPointF>(pos - d->horizontalAxis.p1(), d->horizontalAxis.unitVector().p2() - d->horizontalAxis.p1()));
@@ -318,10 +301,9 @@ bool KisMirrorAxis::eventFilter(QObject* target, QEvent* event)
         }
         if(d->yActive) {
             float axisY = view()->viewConverter()->widgetToImage<QPoint>(pos).y();
-            // axisX should be either int or int + 0.5
-            axisY *= 2; // to be able to choose in the middle of the pixel
-            axisY = round(axisY); // find the closest acceptable point
-            axisY = axisY/2; // return to the original space
+            axisY *= 2;
+            axisY = round(axisY);
+            axisY = axisY/2;
 
             d->setAxisPosition(d->config.axisPosition().x(), axisY);
             d->config.setVerticalHandlePosition(KisAlgebra2D::dotProduct<QPointF>(pos - d->verticalAxis.p1(), d->verticalAxis.unitVector().p2() - d->verticalAxis.p1()));
@@ -403,7 +385,6 @@ void KisMirrorAxis::setVisible(bool v)
 {
     KisCanvasDecoration::setVisible(v);
 
-
     KisInputManager *inputManager = view() ? view()->canvasBase()->globalInputManager() : 0;
     if (!inputManager) return;
 
@@ -447,9 +428,6 @@ const KisMirrorAxisConfig &KisMirrorAxis::mirrorAxisConfig() const
 void KisMirrorAxis::toggleMirrorActions()
 {
     KisKActionCollection* collection = view()->viewManager()->actionCollection();
-    // first uncheck the action, then set according to config;
-    // otherwise the connected KisHighlightedToolButton's highlight color is not
-    // properly set
     collection->action("hmirror_action")->setChecked(false);
     collection->action("vmirror_action")->setChecked(false);
 
@@ -488,7 +466,6 @@ void KisMirrorAxis::moveVerticalAxisToCenter()
     Q_EMIT sigConfigChanged();
 }
 
-
 void KisMirrorAxis::Private::setAxisPosition(float x, float y)
 {
     QPointF newPosition = QPointF(x, y);
@@ -497,7 +474,6 @@ void KisMirrorAxis::Private::setAxisPosition(float x, float y)
 
     q->view()->canvasBase()->updateCanvas();
 }
-
 
 void KisMirrorAxis::Private::recomputeVisibleAxes(QRect viewport)
 {

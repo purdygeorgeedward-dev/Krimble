@@ -27,7 +27,6 @@
 #include <kis_transform_worker.h>
 #include "lazybrush/kis_colorize_mask.h"
 
-
 KisOffsetProcessingVisitor::KisOffsetProcessingVisitor(const QPoint &offsetPoint, const QRect &rect)
     :   m_offset(offsetPoint),
         m_wrapRect(rect)

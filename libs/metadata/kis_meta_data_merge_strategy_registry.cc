@@ -11,7 +11,6 @@
 
 Q_GLOBAL_STATIC(KisMetaData::MergeStrategyRegistry, s_instance)
 
-
 using namespace KisMetaData;
 
 MergeStrategyRegistry::MergeStrategyRegistry()

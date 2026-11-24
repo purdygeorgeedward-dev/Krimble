@@ -12,7 +12,6 @@
 #include "kis_wrapped_vline_iterator.h"
 #include "kis_wrapped_random_accessor.h"
 
-
 class KisPaintDevice::Private::KisPaintDeviceStrategy
 {
 public:
@@ -75,7 +74,6 @@ public:
         m_d->cache()->invalidate();
     }
 
-
     virtual KisHLineIteratorSP createHLineIteratorNG(KisDataManager *dataManager, qint32 x, qint32 y, qint32 w, qint32 offsetX, qint32 offsetY) {
         return new KisHLineIterator2(dataManager, x, y, w, offsetX, offsetY, true, m_d->cacheInvalidator());
     }
@@ -83,7 +81,6 @@ public:
     virtual KisHLineConstIteratorSP createHLineConstIteratorNG(KisDataManager *dataManager, qint32 x, qint32 y, qint32 w, qint32 offsetX, qint32 offsetY) const {
         return new KisHLineIterator2(dataManager, x, y, w, offsetX, offsetY, false, m_d->cacheInvalidator());
     }
-
 
     virtual KisVLineIteratorSP createVLineIteratorNG(qint32 x, qint32 y, qint32 w) {
         m_d->cache()->invalidate();
@@ -183,7 +180,6 @@ protected:
     KisPaintDevice *m_device;
     KisPaintDevice::Private * const m_d;
 };
-
 
 class KisPaintDevice::Private::KisPaintDeviceWrappedStrategy : public KisPaintDeviceStrategy
 {
@@ -356,12 +352,10 @@ public:
 
     void fastBitBltRoughImpl(KisDataManagerSP srcDataManager, const QRect &rect) override
     {
-        // no rough version in wrapped mode
         fastBitBltImpl(srcDataManager, rect);
     }
 
     void fastBitBltRoughOldData(KisPaintDeviceSP src, const QRect &rect) override {
-        // no rough version in wrapped mode
         fastBitBltOldData(src, rect);
     }
 
@@ -460,6 +454,4 @@ private:
     QRect m_wrapRect;
 };
 
-
-
-#endif /* __KIS_PAINT_DEVICE_STRATEGIES_H */
+#endif

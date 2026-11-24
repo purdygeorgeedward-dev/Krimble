@@ -16,7 +16,6 @@ class KRITAUI_EXPORT KisMemoryReportButton : public QPushButton
 public:
     explicit KisMemoryReportButton(QWidget *parent = 0);
 
-
     void setMaximumMemory(qint64 max);
 
     void setCurrentMemory(qint64 memory);
@@ -31,4 +30,4 @@ private:
     qint64 m_imgbytes;
 };
 
-#endif // KISMEMORYREPORTBUTTON_H
+#endif

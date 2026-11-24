@@ -4,7 +4,6 @@
  *  SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-
 #ifndef PALETTEDOCKER_DOCK_H
 #define PALETTEDOCKER_DOCK_H
 
@@ -25,7 +24,6 @@
 #include <kis_workspace_resource.h>
 #include <kis_signal_auto_connection.h>
 
-
 class KisViewManager;
 class KisCanvasResourceProvider;
 class KisPaletteChooser;
@@ -41,14 +39,14 @@ public:
     PaletteDockerDock();
     ~PaletteDockerDock() override;
 
-public: // QDockWidget
+public:
     void setCanvas(KoCanvasBase *canvas) override;
     void unsetCanvas() override;
 
-public: // KisMainWindowObserver
+public:
     void setViewManager(KisViewManager* kisview) override;
 
-public: //KoResourceServerObserver
+public:
     void unsetResourceServer() override;
     void resourceAdded(QSharedPointer<KoColorSet> resource) override;
     void removingResource(QSharedPointer<KoColorSet> resource) override;
@@ -92,8 +90,7 @@ private:
     void setEntryByForeground(const QModelIndex &index);
     void setFGColorByPalette(const KisSwatch &entry);
 
-
-private /* member variables */:
+private :
     QScopedPointer<Ui_WdgPaletteDock> m_ui;
     KisPaletteModel *m_model;
     KisPaletteChooser *m_paletteChooser;
@@ -116,6 +113,5 @@ private /* member variables */:
 
     bool m_colorSelfUpdate;
 };
-
 
 #endif

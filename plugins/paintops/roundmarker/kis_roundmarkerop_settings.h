@@ -11,7 +11,6 @@
 #include <kis_paintop_settings.h>
 #include <kis_outline_generation_policy.h>
 
-
 class KisRoundMarkerOpSettings : public KisOutlineGenerationPolicy<KisPaintOpSettings>
 {
 public:
@@ -45,4 +44,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif /* __KIS_ROUNDMARKEROP_SETTINGS_H */
+#endif

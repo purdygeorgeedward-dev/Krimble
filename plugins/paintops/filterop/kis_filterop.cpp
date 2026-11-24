@@ -36,7 +36,6 @@
 #include <kis_spacing_information.h>
 #include <KisFilterOptionData.h>
 
-
 KisFilterOp::KisFilterOp(const KisPaintOpSettingsSP settings, KisPainter *painter, KisNodeSP node, KisImageSP image)
     : KisBrushBasedPaintOp(settings, painter)
     , m_sizeOption(settings.data())
@@ -106,11 +105,8 @@ KisSpacingInformation KisFilterOp::paintAt(const KisPaintInformation& info)
 
     QRect dabRect = dab->bounds();
 
-    // sanity check
     Q_ASSERT(dstRect.size() == dabRect.size());
 
-
-    // Filter the paint device
     QRect neededRect = m_filter->neededRect(dstRect, m_filterConfiguration, painter()->device()->defaultBounds()->currentLevelOfDetail());
 
     KisPainter p(m_tmpDevice);

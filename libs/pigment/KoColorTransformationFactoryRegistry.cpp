@@ -26,7 +26,6 @@ KoColorTransformationFactoryRegistry::~KoColorTransformationFactoryRegistry()
     delete d;
 }
 
-
 void KoColorTransformationFactoryRegistry::addColorTransformationFactory(KoColorTransformationFactory* factory)
 {
     instance()->add(factory);

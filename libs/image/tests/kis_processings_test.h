@@ -18,4 +18,4 @@ private Q_SLOTS:
     void testTransformVisitorScaleRotate();
 };
 
-#endif /* __KIS_PROCESSINGS_TEST_H */
+#endif

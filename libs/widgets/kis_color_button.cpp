@@ -49,9 +49,6 @@ public:
     void initStyleOption(QStyleOptionButton *opt) const;
 };
 
-/////////////////////////////////////////////////////////////////////
-// Functions duplicated from KColorMimeData
-// Should be kept in sync
 void _k_populateMimeData(QMimeData *mimeData, const KoColor &color)
 {
     mimeData->setColorData(color.toQColor());
@@ -99,7 +96,6 @@ QDrag *_k_createDrag(const KoColor &color, QObject *dragsource)
     drag->setHotSpot(QPoint(-5, -7));
     return drag;
 }
-/////////////////////////////////////////////////////////////////////
 
 KisColorButton::KisColorButtonPrivate::KisColorButtonPrivate(KisColorButton *q)
     : q(q)
@@ -198,13 +194,10 @@ void KisColorButton::paintEvent(QPaintEvent *)
     QPainter painter(this);
     QStyle *style = QWidget::style();
 
-    //First, we need to draw the bevel.
     QStyleOptionButton butOpt;
     d->initStyleOption(&butOpt);
     style->drawControl(QStyle::CE_PushButtonBevel, &butOpt, &painter, this);
 
-    //OK, now we can muck around with drawing out pretty little color box
-    //First, sort out where it goes
     QRect labelRect = style->subElementRect(QStyle::SE_PushButtonContents,
                                             &butOpt, this);
     int shift = style->pixelMetric(QStyle::PM_ButtonMargin, &butOpt, this) / 2;
@@ -334,7 +327,6 @@ void KisColorButton::KisColorButtonPrivate::_k_chooseColor()
         connect(dialog, &QDialog::accepted, setColorFn);
         m_dialog = dialog;
     }
-    // common functionality
     KoColor colorBeforeColorDialogChanges = col;
     connect(m_dialog, &QDialog::rejected, [colorBeforeColorDialogChanges, this](){ q->setColor(colorBeforeColorDialogChanges); });
     m_dialog->setAttribute(Qt::WA_DeleteOnClose);

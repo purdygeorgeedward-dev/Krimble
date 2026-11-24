@@ -59,7 +59,6 @@ void testMirror(const QRect &imageRect, const QRect &mirrorRect, Qt::Orientation
 
     QCOMPARE(dev->exactBounds(), imageRect);
 
-
     QImage srcImage = dev->convertToQImage(0, mirrorRect.x(), mirrorRect.y(), mirrorRect.width(), mirrorRect.height());
 #if QT_VERSION < QT_VERSION_CHECK(6, 9, 0)
     QImage mirroredImage = srcImage.mirrored(orientation == Qt::Horizontal, orientation == Qt::Vertical);
@@ -68,28 +67,20 @@ void testMirror(const QRect &imageRect, const QRect &mirrorRect, Qt::Orientation
 #endif
     QImage result;
 
-    //srcImage.save("input.png");
-    //mirroredImage.save("mirror_expected.png");
-
     QBENCHMARK_ONCE {
         KisTransformWorker::mirror(dev, axis, orientation);
     }
     result = dev->convertToQImage(0, mirrorRect.x(), mirrorRect.y(), mirrorRect.width(), mirrorRect.height());
     QCOMPARE(result, mirroredImage);
 
-    //result.save("mirror1.png");
-
     KisTransformWorker::mirror(dev, axis, orientation);
     result = dev->convertToQImage(0, mirrorRect.x(), mirrorRect.y(), mirrorRect.width(), mirrorRect.height());
     QCOMPARE(result, srcImage);
-
-    //result.save("mirror2.png");
 
     KisTransformWorker::mirror(dev, axis, orientation);
     result = dev->convertToQImage(0, mirrorRect.x(), mirrorRect.y(), mirrorRect.width(), mirrorRect.height());
     QCOMPARE(result, mirroredImage);
 
-    //result.save("mirror3.png");
 }
 
 void KisTransformWorkerTest::testMirrorX_Even()
@@ -131,11 +122,11 @@ void KisTransformWorkerTest::testOffset()
     KisPaintDeviceSP dev2 = new KisPaintDevice(cs);
 
     QVector<QPoint> offsetPoints;
-    offsetPoints.append(QPoint(image.width() / 2, image.height() / 2));     // offset to 1/2 of image
-    offsetPoints.append(QPoint(image.width() / 4, image.height() / 4)); // offset to 1/4 of image
-    offsetPoints.append(QPoint(image.width() - image.width() / 4, image.height() - image.height() / 4)); // offset to 3/4 of image
-    offsetPoints.append(QPoint(image.width() / 4, 0));      // offset with y == 0
-    offsetPoints.append(QPoint(0, image.height() / 4));     // offset with x == 0
+    offsetPoints.append(QPoint(image.width() / 2, image.height() / 2));
+    offsetPoints.append(QPoint(image.width() / 4, image.height() / 4));
+    offsetPoints.append(QPoint(image.width() - image.width() / 4, image.height() - image.height() / 4));
+    offsetPoints.append(QPoint(image.width() / 4, 0));
+    offsetPoints.append(QPoint(0, image.height() / 4));
 
     QPoint errpoint;
     QPoint backOffsetPoint;
@@ -151,14 +142,12 @@ void KisTransformWorkerTest::testOffset()
         result = dev2->convertToQImage(0, 0, 0, image.width(), image.height());
         if (!TestUtil::compareQImages(errpoint, image, result))
         {
-            // They are the same, but should be mirrored
             image.save(QString("offset_test_%1_source.png").arg(test));
             result.save(QString("offset_test_%1_result.png").arg(test));
             QFAIL(QString("Failed to offset the image, first different pixel: %1,%2 \n").arg(errpoint.x()).arg(errpoint.y()).toLatin1());
         }
     }
 }
-
 
 void KisTransformWorkerTest::testMirrorTransactionX()
 {
@@ -181,7 +170,6 @@ void KisTransformWorkerTest::testMirrorTransactionX()
 
     QPoint errpoint;
     if (!TestUtil::compareQImages(errpoint, image, result)) {
-        // They are the same, but should be mirrored
         image.save("mirror_test_3_source.png");
         result.save("mirror_test_3_result.png");
         QFAIL(QString("Failed to mirror the image, first different pixel: %1,%2 \n").arg(errpoint.x()).arg(errpoint.y()).toLatin1());
@@ -209,7 +197,6 @@ void KisTransformWorkerTest::testMirrorTransactionY()
 
     QPoint errpoint;
     if (!TestUtil::compareQImages(errpoint, image, result)) {
-        // They are the same, but should be mirrored
         image.save("mirror_test_4_source.png");
         result.save("mirror_test_4_result.png");
         QFAIL(QString("Failed to mirror the image, first different pixel: %1,%2 \n").arg(errpoint.x()).arg(errpoint.y()).toLatin1());
@@ -250,7 +237,6 @@ void KisTransformWorkerTest::testScaleUp()
         QFAIL(QString("Failed to scale the image, first different pixel: %1,%2 \n").arg(errpoint.x()).arg(errpoint.y()).toLatin1());
     }
 }
-
 
 void KisTransformWorkerTest::testXScaleUp()
 {
@@ -382,16 +368,6 @@ void KisTransformWorkerTest::testScaleDown()
     QCOMPARE(rc.width(), qRound(image.width() * 0.123));
     QCOMPARE(rc.height(), qRound(image.height() * 0.123));
 
-//    KisTransaction t2("test", dev);
-//    KisRandomAccessorSP ac = dev->createRandomAccessorNG(rc.x(), rc.y());
-//    for(int x = rc.x(); x < rc.width(); ++x) {
-//        for(int y = rc.y(); y < rc.height(); ++y) {
-//            ac->moveTo(x, y);
-//            cs->setOpacity(ac->rawData(), 0.5, 1);
-//        }
-//    }
-//    t2.end();
-
     QImage result = dev->convertToQImage(0, rc.x(), rc.y(), rc.width(), rc.height());
     QPoint errpoint;
     image.load(QString(FILES_DATA_DIR) + '/' + "test_scaledown_result.png");
@@ -401,7 +377,6 @@ void KisTransformWorkerTest::testScaleDown()
         QFAIL(QString("Failed to scale down the image, first different pixel: %1,%2 \n").arg(errpoint.x()).arg(errpoint.y()).toLatin1());
     }
 }
-
 
 void KisTransformWorkerTest::testXScaleDown()
 {
@@ -496,16 +471,6 @@ void KisTransformWorkerTest::testXShear()
     QVERIFY(rc.width() == 959);
     QVERIFY(rc.height() == image.height());
 
-//    KisTransaction t2("test", dev);
-//    KisRandomAccessorSP ac = dev->createRandomAccessorNG(rc.x(), rc.y());
-//    for(int x = rc.x(); x < rc.width(); ++x) {
-//        for(int y = rc.y(); y < rc.height(); ++y) {
-//            ac->moveTo(x, y);
-//            cs->setOpacity(ac->rawData(), 0.5, 1);
-//        }
-//    }
-//    t2.end();
-
     QImage result = dev->convertToQImage(0, rc.x(), rc.y(), rc.width(), rc.height());
     QPoint errpoint;
     image.load(QString(FILES_DATA_DIR) + '/' + "shearx_result.png");
@@ -515,7 +480,6 @@ void KisTransformWorkerTest::testXShear()
         QFAIL(QString("Failed to shear the image, first different pixel: %1,%2 \n").arg(errpoint.x()).arg(errpoint.y()).toLatin1());
     }
 }
-
 
 void KisTransformWorkerTest::testYShear()
 {
@@ -543,16 +507,6 @@ void KisTransformWorkerTest::testYShear()
     QVERIFY(rc.width() == image.width());
     QVERIFY(rc.height() == 959);
 
-//    KisTransaction t2("test", dev);
-//    KisRandomAccessorSP ac = dev->createRandomAccessorNG(rc.x(), rc.y());
-//    for(int x = rc.x(); x < rc.width(); ++x) {
-//        for(int y = rc.y(); y < rc.height(); ++y) {
-//            ac->moveTo(x, y);
-//            cs->setOpacity(ac->rawData(), 0.5, 1);
-//        }
-//    }
-//    t2.end();
-
     QImage result = dev->convertToQImage(0, rc.x(), rc.y(), rc.width(), rc.height());
     QPoint errpoint;
     image.load(QString(FILES_DATA_DIR) + '/' + "sheary_result.png");
@@ -563,7 +517,6 @@ void KisTransformWorkerTest::testYShear()
     }
 
 }
-
 
 bool fuzzyCompareRects(const QRectF rc1, const QRectF rc2, qreal accuracy)
 {
@@ -618,7 +571,6 @@ void KisTransformWorkerTest::testMatrices()
     QVERIFY(fuzzyCompareRects(dev->exactBounds(),
                               referencePolygon.boundingRect(), 3));
 }
-
 
 void testRotationImpl(qreal angle, QString filePrefix, bool useUniformColor = false, const QString &filterId = "NearestNeighbor")
 {
@@ -752,7 +704,6 @@ void KisTransformWorkerTest::testScaleUp5times()
     QRect rc = dev->exactBounds();
 
 #if 0
-    // here you can check the input and result images
     image.save("test_scale_2000_2000_input.bmp");
     QImage result = dev->convertToQImage(0, rc.x(), rc.y(), rc.width(), rc.height());
     result.save("test_scale_2000_2000_" + QString::number(SCALE) + "_result.bmp");
@@ -781,7 +732,6 @@ void KisTransformWorkerTest::rotate90Left()
 
     QPoint errpoint;
     if (!TestUtil::compareQImages(errpoint, rotatedimage, result)) {
-        // They are the same, but should be mirrored
         image.save("rotate_90_left_test_1_source.png");
         rotatedimage.save("rotate_90_left_test_1_rotated_source.png");
         result.save("rotate_90_left_test_1_result.png");
@@ -809,7 +759,6 @@ void KisTransformWorkerTest::rotate90Right()
 
     QPoint errpoint;
     if (!TestUtil::compareQImages(errpoint, rotatedimage, result)) {
-        // They are the same, but should be mirrored
         image.save("rotate_90_right_test_1_source.png");
         rotatedimage.save("rotate_90_right_test_1_rotated_source.png");
         result.save("rotate_90_right_1_result.png");
@@ -837,7 +786,6 @@ void KisTransformWorkerTest::rotate180()
 
     QPoint errpoint;
     if (!TestUtil::compareQImages(errpoint, rotatedimage, result)) {
-        // They are the same, but should be mirrored
         image.save("rotate_180_1_source.png");
         rotatedimage.save("rotate_180_1_rotated_source.png");
         result.save("rotate_180_1_result.png");
@@ -861,7 +809,6 @@ void generateTestImage(QString inputFileName, qreal scale, qreal rotation, qreal
                           rotation,
                           0, 0,
                           updater, filter);
-
 
     tw.run();
 
@@ -926,7 +873,6 @@ void KisTransformWorkerTest::generateTestImages()
 
     QStringList names;
     names << "hakonepa.png";
-    //names << "star-chart-bars-full-600dpi.png";
 
     Q_FOREACH (const QString &name, names) {
         Q_FOREACH (KisFilterStrategy *filter, filters) {
@@ -944,7 +890,6 @@ void KisTransformWorkerTest::generateTestImages()
 }
 
 #include "kis_perspectivetransform_worker.h"
-
 
 void KisTransformWorkerTest::testPartialProcessing()
 {
@@ -1000,8 +945,6 @@ void KisTransformWorkerTest::testXScaleUpPixelAlignment()
 
     dev->fill(QRect(10,10,35,35), KoColor(Qt::blue, cs));
 
-    //qDebug() << "0" << ppVar(dev->exactBounds());
-
     KisFilterStrategy * filter = new KisBoxFilterStrategy();
 
     KisTransaction t(dev);
@@ -1011,8 +954,6 @@ void KisTransformWorkerTest::testXScaleUpPixelAlignment()
                           0, 0, updater, filter);
     tw.run();
     t.end();
-
-    //qDebug() << "1" << ppVar(dev->exactBounds());
 
     QCOMPARE(dev->exactBounds().width(), newSize);
 }

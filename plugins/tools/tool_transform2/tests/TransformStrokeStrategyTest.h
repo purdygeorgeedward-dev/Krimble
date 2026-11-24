@@ -21,4 +21,4 @@ private Q_SLOTS:
     void testLod0ContinueAndCancel();
 };
 
-#endif // TRANSFORMSTROKESTRATEGYTEST_H
+#endif

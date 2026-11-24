@@ -21,24 +21,16 @@ using KoCanvasResourcesInterfaceSP = QSharedPointer<KoCanvasResourcesInterface>;
 
 class KoColor;
 
-/**
- * KoAbstractGradient is the base class of all gradient resources
- */
 class KRITAPIGMENT_EXPORT KoAbstractGradient : public KoResource
 {
 public:
     explicit KoAbstractGradient(const QString &filename);
     ~KoAbstractGradient() override;
 
-    /**
-    * Creates a QGradient from the gradient.
-    * The resulting QGradient might differ from original gradient
-    */
     virtual QGradient* toQGradient() const {
         return new QGradient();
     }
 
-    /// gets the color at position 0 <= t <= 1
     virtual void colorAt(KoColor&, qreal t) const;
 
     void setColorSpace(KoColorSpace* colorSpace);
@@ -88,5 +80,4 @@ inline QDebug operator<<(QDebug dbg, const KoAbstractGradientSP res)
     return dbg.space();
 }
 
-
-#endif // KOABSTRACTGRADIENT_H
+#endif

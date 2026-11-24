@@ -37,4 +37,4 @@ private:
     QGraphicsDropShadowEffect *m_shadow;
 };
 
-#endif /* __KIS_FPS_DECORATION_H */
+#endif

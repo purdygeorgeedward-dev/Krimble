@@ -12,12 +12,6 @@
 
 class KoColorSpace;
 
-/**
- * A KisLayer that bundles child layers into a single layer.
- * The top layer is firstChild(), with index 0; the bottommost lastChild() with index childCount() - 1.
- * KisLayer::nextSibling() moves towards higher indices, from the top to the bottom layer; prevSibling() the reverse.
- * (Implementation detail: internally, the indices are reversed, for speed.)
- **/
 class KRITAIMAGE_EXPORT KisGroupLayer : public KisLayer
 {
     Q_OBJECT
@@ -43,27 +37,12 @@ public:
     KisLayerSP createMergedLayerTemplate(KisLayerSP prevLayer) override;
     void fillMergedLayerTemplate(KisLayerSP dstLayer, KisLayerSP prevLayer, bool skipPaintingThisLayer) override;
 
-    /**
-     * Clear the projection
-     */
     void resetCache(const KoColorSpace *colorSpace);
 
-    /**
-     * XXX: make the colorspace of a layergroup user-settable: we want
-     * to be able to have, for instance, a group of grayscale layers
-     * resulting in a grayscale projection that is then merged with an
-     * rgb image stack.
-     */
     const KoColorSpace * colorSpace() const override;
 
-    /// @return the projection of the layers in the group before the masks are applied.
     KisPaintDeviceSP original() const override;
 
-    /**
-     * Returns own original device when tryOblidgeChild() mechanism is not triggered.
-     * When tryOblidgeChild() mechanism is in action, returns null (therefor
-     * there is no need to do subtree composition).
-     */
     KisPaintDeviceSP lazyDestinationForSubtreeComposition() const;
 
     qint32 x() const override;
@@ -71,27 +50,13 @@ public:
     void setX(qint32 x) override;
     void setY(qint32 y) override;
 
-    /// Group layers don't have a paint device, so return 0
     KisPaintDeviceSP paintDevice() const override;
 
-    /**
-       Accept the specified visitor.
-       @return true if the operation succeeded, false if it failed.
-    */
     bool accept(KisNodeVisitor &v) override;
     void accept(KisProcessingVisitor &visitor, KisUndoAdapter *undoAdapter) override;
 
-    /**
-     * A special method that changes the default color of the
-     * projection merged onto this group layer. Please note, that you
-     * cannot use original()->setDefaultPixel(), because original()
-     * device can be switched by tryOblidgeChild() mechanism randomly.
-     */
     void setDefaultProjectionColor(KoColor color);
 
-    /**
-     * \see setDefaultProjectionColor()
-     */
     KoColor defaultProjectionColor() const;
 
     bool passThroughMode() const;
@@ -120,5 +85,5 @@ private:
     Private * const m_d;
 };
 
-#endif // KIS_GROUP_LAYER_H_
+#endif
 

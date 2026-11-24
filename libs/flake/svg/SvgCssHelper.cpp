@@ -9,38 +9,27 @@
 #include <QPair>
 #include <QRegularExpression>
 
-/// Token types used for tokenizing complex selectors
 enum CssTokenType {
-    SelectorToken,  ///< a selector token
-    CombinatorToken ///< a combinator token
+    SelectorToken,
+    CombinatorToken
 };
 
-/// A token used for tokenizing complex selectors
 typedef QPair<CssTokenType, QString> CssToken;
 
-/// Selector base class, merely an interface
 class CssSelectorBase
 {
 public:
     virtual ~CssSelectorBase() {}
-    /// Matches the given element
     virtual bool match(const QDomElement &) = 0;
-    /// Returns string representation of selector
     virtual QString toString() const { return QString(); }
-    /**
-     * Returns priority of selector
-     * see http://www.w3.org/TR/1998/REC-CSS2-19980512/cascade.html#specificity
-     */
     virtual int priority() { return 0; }
 };
 
-/// Universal selector, matching anything
 class UniversalSelector : public CssSelectorBase
 {
 public:
     bool match(const QDomElement &) override
     {
-        // matches always
         return true;
     }
     QString toString() const override
@@ -49,7 +38,6 @@ public:
     }
 };
 
-/// Type selector, matching the type of an element
 class TypeSelector : public CssSelectorBase
 {
 public:
@@ -74,7 +62,6 @@ private:
     QString m_type;
 };
 
-/// Id selector, matching the id attribute
 class IdSelector : public CssSelectorBase
 {
 public:
@@ -100,7 +87,6 @@ private:
     QString m_id;
 };
 
-/// Attribute selector, matching existence or content of attributes
 class AttributeSelector : public CssSelectorBase
 {
 public:
@@ -179,18 +165,17 @@ public:
 
 private:
     enum MatchType {
-        Unknown,   ///< unknown    -> error state
-        Exists,    ///< [att]      -> attribute exists
-        Equals,    ///< [att=val]  -> attribute value matches exactly val
-        InList,    ///< [att~=val] -> attribute is whitespace separated list where one is val
-        StartsWith ///< [att|=val] -> attribute starts with val-
+        Unknown,
+        Exists,
+        Equals,
+        InList,
+        StartsWith
     };
     QString m_attribute;
     QString m_value;
     MatchType m_type;
 };
 
-/// Pseudo-class selector
 class PseudoClassSelector : public CssSelectorBase
 {
 public:
@@ -228,7 +213,6 @@ private:
     QString m_pseudoClass;
 };
 
-/// A simple selector, i.e. a type/universal selector followed by attribute, id or pseudo-class selectors
 class CssSimpleSelector : public CssSelectorBase
 {
 public:
@@ -288,14 +272,12 @@ private:
             InPseudoClass
         } state;
 
-        // add terminator to string
         QString expr = m_token + QChar();
         int i = 0;
         state = Start;
 
         QString token;
         QString sep("#[:.");
-        // split into base selectors
         while((state != Finish) && (state != Bad) && (i < expr.length())) {
             QChar ch = expr[i];
             switch(state) {
@@ -314,7 +296,6 @@ private:
                     break;
                 case InAttribute:
                     if (ch.isNull()) {
-                        // reset state and token string
                         state = Finish;
                         token.clear();
                         continue;
@@ -331,7 +312,6 @@ private:
                 case InId:
                 case InClassAttribute:
                 case InPseudoClass:
-                    // are we at the start of the next selector or even finished?
                     if (sep.contains(ch) || ch.isNull()) {
                         if (state == InType)
                             m_selectors.append(new TypeSelector(token));
@@ -342,12 +322,10 @@ private:
                         else if (state == InPseudoClass) {
                             m_selectors.append(new PseudoClassSelector(token));
                         }
-                        // reset state and token string
                         state = ch.isNull() ? Finish : Start;
                         token.clear();
                         continue;
                     } else {
-                        // append character to current token
                         if (!ch.isNull())
                             token += ch;
                     }
@@ -363,7 +341,6 @@ private:
     QString m_token;
 };
 
-/// Complex selector, i.e. a combination of simple selectors
 class CssComplexSelector : public CssSelectorBase
 {
 public:
@@ -393,19 +370,16 @@ public:
     {
         int selectorCount = m_selectors.count();
         int combinatorCount = m_combinators.length();
-        // check count of selectors and combinators
         if (selectorCount-combinatorCount != 1)
             return false;
 
         QDomElement currentElement = e;
 
-        // match in reverse order
         for(int i = 0; i < selectorCount; ++i) {
             CssSelectorBase * curr = m_selectors[selectorCount-1-i];
             if (!curr->match(currentElement)) {
                 return false;
             }
-            // last selector and still there -> rule matched completely
             if(i == selectorCount-1)
                 return true;
 
@@ -413,7 +387,6 @@ public:
             QChar combinator = m_combinators[combinatorCount-1-i];
             if (combinator == ' ') {
                 bool matched = false;
-                // descendant combinator
                 QDomNode parent = currentElement.parentNode();
                 while(!parent.isNull()) {
                     currentElement = parent.toElement();
@@ -426,7 +399,6 @@ public:
                 if(!matched)
                     return false;
             } else if (combinator == '>') {
-                // child selector
                 QDomNode parent = currentElement.parentNode();
                 if (parent.isNull())
                     return false;
@@ -479,9 +451,7 @@ private:
     QList<CssSelectorBase*> m_selectors;
 };
 
-/// A group of selectors (comma separated in css style sheet)
 typedef QList<CssSelectorBase*> SelectorGroup;
-/// A css rule consisting of group of selectors corresponding to a style
 typedef QPair<SelectorGroup, QString> CssRule;
 
 class SvgCssHelper::Private
@@ -509,7 +479,6 @@ public:
 
     QList<CssToken> tokenize(const QString &selector)
     {
-        // add terminator to string
         QString expr = selector + QChar();
         enum {
             Finish,
@@ -533,18 +502,14 @@ public:
         }
         int i = 1;
 
-        // split into simple selectors and combinators
         while((state != Finish) && (state != Bad) && (i < expr.length())) {
             QChar ch = expr[i];
             switch(state) {
                 case InCombinator:
-                    // consume as long as there a combinator characters
                     if( ch == '>' || ch == '+') {
                         if( ! combinator.isSpace() ) {
-                            // two non whitespace combinators in sequence are not allowed
                             state = Bad;
                         } else {
-                            // switch combinator
                             combinator = ch;
                         }
                     } else if (!ch.isSpace()) {
@@ -555,7 +520,6 @@ public:
                     }
                     break;
                 case InSelector:
-                    // consume as long as there a non combinator characters
                     if (ch.isSpace() || ch == '>' || ch == '+') {
                         state = InCombinator;
                         combinator = ch;
@@ -583,10 +547,8 @@ public:
             return 0;
 
         if (tokenList.count() == 1) {
-            // simple selector
             return new CssSimpleSelector(tokenList.first().second);
         } else if (tokenList.count() > 2) {
-            // complex selector
             return new CssComplexSelector(tokenList);
         }
         return 0;
@@ -623,10 +585,6 @@ void SvgCssHelper::parseStylesheet(const QDomElement &e)
     if (data.isEmpty())
         return;
 
-    // Remove comments
-    // NOTE: that must not be greedy as per definition of css-comments,
-    //       the first closing '*/' sequence closes the entire comment
-    //       block
     QRegularExpression commentExp("\\/\\*.*?\\*\\/");
     data.remove(commentExp);
 
@@ -654,7 +612,6 @@ void SvgCssHelper::parseStylesheet(const QDomElement &e)
 QStringList SvgCssHelper::matchStyles(const QDomElement &element) const
 {
     QMap<int, QString> prioritizedRules;
-    // match rules to element
     Q_FOREACH (const CssRule &rule, d->cssRules) {
         Q_FOREACH (CssSelectorBase *s, rule.first) {
             bool matched = s->match(element);
@@ -663,13 +620,11 @@ QStringList SvgCssHelper::matchStyles(const QDomElement &element) const
         }
     }
 
-    // css style attribute has the priority of 100
     QString styleAttribute = element.attribute("style").simplified();
     if (!styleAttribute.isEmpty())
         prioritizedRules[100] = styleAttribute;
 
     QStringList cssStyles;
-    // add matching styles in correct order to style list
     QMapIterator<int, QString> it(prioritizedRules);
     while (it.hasNext()) {
         it.next();

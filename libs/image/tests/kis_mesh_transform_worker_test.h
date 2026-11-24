@@ -43,4 +43,4 @@ private Q_SLOTS:
     void testComplexChangeRect();
 };
 
-#endif /* __KIS_MESH_TRANSFORM_WORKER_TEST_H */
+#endif

@@ -10,7 +10,6 @@
 #include "kis_merge_walker.h"
 #include "kis_refresh_subtree_walker.h"
 
-
 class KisFullRefreshWalker : public KisRefreshSubtreeWalker, public KisMergeWalker
 {
 public:
@@ -61,15 +60,6 @@ public:
             KisRefreshSubtreeWalker::registerChangeRect(leaf, position);
         }
         else {
-            /**
-             * Merge walker thinks that we changed the original of the
-             * dirty node (dirtyNode == startNode()), but that is not
-             * true in case of full refresh walker, because all the
-             * children of the dirty node are dirty as well, that is
-             * why we shouldn't rely on usual registerChangeRect()
-             * mechanism for this node. That is why we just unite the
-             * changeRects of all its children here.
-             */
 
             if(isStartLeaf(leaf)&& !leaf->isRoot()) {
                 QRect changeRect;
@@ -105,4 +95,4 @@ private:
     bool m_firstRun { true };
 };
 
-#endif /* __KIS_FULL_REFRESH_WALKER_H */
+#endif

@@ -10,7 +10,6 @@
 #include "kis_node_model.h"
 #include "kis_signals_blocker.h"
 
-
 #include <kconfig.h>
 #include <kconfiggroup.h>
 #include <kis_config.h>
@@ -49,7 +48,6 @@
 #define DRAG_WHILE_DRAG_WORKAROUND_STOP()
 #endif
 
-
 class Q_DECL_HIDDEN NodeView::Private
 {
 public:
@@ -75,7 +73,6 @@ public:
 #endif
     bool ignoreDataChanged = false;
 };
-
 
 NodeView::NodeView(QWidget *parent)
     : QTreeView(parent)
@@ -132,7 +129,6 @@ void NodeView::setModel(QAbstractItemModel *model)
         header()->hideSection(SELECTED_COL);
     }
 
-    // the default may be too large for our visibility icon
     header()->setMinimumSectionSize(KisNodeViewColorScheme::instance()->visibilityColumnWidth());
 }
 
@@ -159,8 +155,6 @@ void NodeView::toggleSolo(const QModelIndex &index) {
 }
 
 QItemSelectionModel::SelectionFlags  NodeView::selectionCommand(const QModelIndex &index, const QEvent *event) const {
-    //When adding a layer with Shift or Ctrl is held, the selection will expand to add that new layer,
-    //So to avoid that we explicitly select the new layer.
     if (!event && QApplication::keyboardModifiers() != Qt::NoModifier
 #ifdef QT6_SHIFT_SELECTION_WORKAROUND
         && !d->shiftClickFix
@@ -173,18 +167,14 @@ QItemSelectionModel::SelectionFlags  NodeView::selectionCommand(const QModelInde
     }
 
 #ifdef QT6_SHIFT_SELECTION_WORKAROUND
-    //Clear this just in case
     d->shiftClickFix = false;
 
-    //Qt6 has a bug/feature? where after you do a shift selection it sends a second selection event with the event argument being null
-    //This triggers the logic above, so we explicitly avoid the next null event
     if (event &&
         (event->type() == QEvent::MouseButtonPress || event->type() == QEvent::KeyPress) &&
         QApplication::keyboardModifiers() & Qt::ShiftModifier)
       d->shiftClickFix = true;
 #endif
 
-    //We still get ctrl click events so we need to ignore those
     if (event &&
         event->type() == QEvent::MouseButtonPress && (static_cast<const QMouseEvent*>(event)->modifiers() & Qt::ControlModifier))
         return QItemSelectionModel::NoUpdate;
@@ -198,8 +188,6 @@ QModelIndex NodeView::indexAt(const QPoint &point) const
 
     QModelIndex index = QTreeView::indexAt(point);
     if (!index.isValid()) {
-        // Middle is a good position for both LTR and RTL layouts
-        // First reset x, then get the x in the middle
         index = QTreeView::indexAt(point - QPoint(point.x(), 0) + QPoint(width() / 2, 0));
     }
 
@@ -231,7 +219,6 @@ bool NodeView::viewportEvent(QEvent *e)
                 return QTreeView::viewportEvent(e);
             }
             if (d->delegate.editorEvent(e, model(), optionForIndex(index), index)) {
-                //Sometimes 2 items become active, to prevent that we explicitly turn off all but the first active item
                 std::optional<QModelIndex> active_ind = getActiveItem();
                 if (active_ind.has_value()) {
                     setExclusiveActiveItem(active_ind.value());
@@ -264,8 +251,6 @@ bool NodeView::viewportEvent(QEvent *e)
                 }
                 d->hovered = hovered;
             }
-            /* This is a workaround for a bug in QTreeView that immediately begins a dragging action
-            when the mouse lands on the decoration/icon of a different index and moves 1 pixel or more */
             Qt::MouseButtons buttons = static_cast<QMouseEvent*>(e)->buttons();
             if ((Qt::LeftButton | Qt::MiddleButton) & buttons) {
                 if ((pos - d->lastPos).manhattanLength() > qApp->startDragDistance()) {
@@ -317,7 +302,7 @@ void NodeView::currentChanged(const QModelIndex &current, const QModelIndex &pre
     }
 }
 
-void NodeView::dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &/*roles*/)
+void NodeView::dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> & )
 {
     QTreeView::dataChanged(topLeft, bottomRight);
 
@@ -343,7 +328,6 @@ void NodeView::dataChanged(const QModelIndex &topLeft, const QModelIndex &bottom
 void NodeView::selectionChanged(const QItemSelection &selected, const QItemSelection &deselected)
 {
     QTreeView::selectionChanged(selected, deselected);
-    // XXX: selectedIndexes() does not include hidden (collapsed) items, is this really intended?
     Q_EMIT selectionChanged(selectedIndexes());
 }
 
@@ -381,8 +365,6 @@ QPixmap NodeView::createDragPixmap() const
 
     const int itemCount = selectedIndexes.count();
 
-    // If more than one item is dragged, align the items inside a
-    // rectangular grid. The maximum grid size is limited to 4 x 4 items.
     int xCount = 2;
     int size = 96;
     if (itemCount > 9) {
@@ -406,7 +388,6 @@ QPixmap NodeView::createDragPixmap() const
         yCount = xCount;
     }
 
-    // Draw the selected items into the grid cells
     QPixmap dragPixmap(xCount * size + xCount - 1, yCount * size + yCount - 1);
     dragPixmap.fill(Qt::transparent);
 
@@ -437,7 +418,6 @@ void NodeView::resizeEvent(QResizeEvent * event)
 
     int otherColumnsWidth = scm.visibilityColumnWidth();
 
-    // if layer box is enabled subtract its width from the "Default col".
     if (KisConfig(false).useLayerSelectionCheckbox()) {
         otherColumnsWidth += scm.selectedButtonColumnWidth();
     }
@@ -465,7 +445,6 @@ void NodeView::drawBranches(QPainter *painter, const QRect &rect,
     initViewItemOption(&option);
 #endif
     option.rect = rect;
-    // This is not really a job for an item delegate, but the logic was already there
     d->delegate.drawBranches(painter, option, index);
 }
 
@@ -484,8 +463,6 @@ int NodeView::cursorPageIndex() const
 
     int numberRow = (cursorPosition.y() + scrollBarValue) / size.height();
 
-    //If cursor is at the half button of the page then the move action is performed after the slide, otherwise it is
-    //performed before the page
     if (abs((cursorPosition.y() + scrollBarValue) - size.height()*numberRow) > (size.height()/2)) {
         numberRow++;
     }
@@ -567,7 +544,6 @@ void NodeView::updateSelectedCheckboxColumn()
         return;
     }
     header()->setSectionHidden(SELECTED_COL, !cfg.useLayerSelectionCheckbox());
-    // add/subtract width based on SELECTED_COL section's visibility
     header()->resizeSection(DEFAULT_COL,
                             size().width()
                                 + (cfg.useLayerSelectionCheckbox() ? header()->sectionSize(SELECTED_COL)
@@ -576,7 +552,7 @@ void NodeView::updateSelectedCheckboxColumn()
 
 std::optional<QModelIndex> NodeView::getActiveItem()
 {
-    QAbstractItemModel* mdl = model(); 
+    QAbstractItemModel* mdl = model();
 
     int rows = mdl->rowCount();
     int clmns = mdl->columnCount();
@@ -595,7 +571,7 @@ std::optional<QModelIndex> NodeView::getActiveItem()
 
 void NodeView::setExclusiveActiveItem(QModelIndex index)
 {
-    QAbstractItemModel* mdl = model(); 
+    QAbstractItemModel* mdl = model();
 
     int rows = mdl->rowCount();
     int clmns = mdl->columnCount();
@@ -603,8 +579,7 @@ void NodeView::setExclusiveActiveItem(QModelIndex index)
     for (int i = 0; i < rows; i++) {
         for (int j = 0; j < clmns; j++) {
            QModelIndex ind = mdl->index(i, j);
-           
-           //Suppress the data changed event, so that it doesn't mess with the selection
+
            d->ignoreDataChanged = true;
            mdl->setData(ind, false, KisNodeModel::ActiveRole);
         }

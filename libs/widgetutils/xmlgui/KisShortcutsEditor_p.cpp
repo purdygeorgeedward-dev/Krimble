@@ -25,10 +25,6 @@
 #include "kis_action_registry.h"
 #include <KisKineticScroller.h>
 
-//---------------------------------------------------------------------
-// KisShortcutsEditorPrivate
-//---------------------------------------------------------------------
-
 namespace {
     KisShortcutsEditorItem *itemFromIndex(QTreeWidget *const w, const QModelIndex &index)
     {
@@ -39,7 +35,6 @@ namespace {
         return 0;
     }
 }
-
 
 KisShortcutsEditorPrivate::KisShortcutsEditorPrivate(KisShortcutsEditor *q)
     :   q(q),
@@ -53,11 +48,9 @@ void KisShortcutsEditorPrivate::initGUI(KisShortcutsEditor::ActionTypes types,
 
     ui.setupUi(q);
     q->layout()->setContentsMargins(0, 0, 0, 0);
-    ui.searchFilter->searchLine()->setTreeWidget(ui.list); // Plug into search line
+    ui.searchFilter->searchLine()->setTreeWidget(ui.list);
     ui.list->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
 
-    // Create the Delegate. It is responsible for the KKeySequenceWidgets that
-    // really change the shortcuts.
     delegate = new KisShortcutsEditorDelegate(
         ui.list,
         allowLetterShortcuts == KisShortcutsEditor::LetterShortcutsAllowed);
@@ -65,7 +58,6 @@ void KisShortcutsEditorPrivate::initGUI(KisShortcutsEditor::ActionTypes types,
     ui.list->setItemDelegate(delegate);
     ui.list->setSelectionBehavior(QAbstractItemView::SelectItems);
     ui.list->setSelectionMode(QAbstractItemView::SingleSelection);
-    //we have our own editing mechanism
     ui.list->setEditTriggers(QAbstractItemView::NoEditTriggers);
     ui.list->setAlternatingRowColors(true);
 
@@ -77,10 +69,8 @@ void KisShortcutsEditorPrivate::initGUI(KisShortcutsEditor::ActionTypes types,
 
     QObject::connect(delegate, SIGNAL(shortcutChanged(QVariant,QModelIndex)),
                      q, SLOT(capturedShortcut(QVariant,QModelIndex)));
-    //hide the editor widget when its item becomes hidden
     QObject::connect(ui.searchFilter->searchLine(), SIGNAL(hiddenChanged(QTreeWidgetItem*,bool)),
                      delegate, SLOT(hiddenBySearchLine(QTreeWidgetItem*,bool)));
-    //Expand items when searching
     QObject::connect(ui.searchFilter->searchLine(), SIGNAL(searchUpdated(QString)),
                      q, SLOT(searchUpdated(QString)));
 
@@ -94,7 +84,6 @@ void KisShortcutsEditorPrivate::setActionTypes(KisShortcutsEditor::ActionTypes t
     }
     actionTypes = types;
 
-    // show/hide the sections based on new selection
     QHeaderView *header = ui.list->header();
     header->showSection(LocalPrimary);
     header->showSection(LocalAlternate);
@@ -103,23 +92,12 @@ void KisShortcutsEditorPrivate::setActionTypes(KisShortcutsEditor::ActionTypes t
 bool KisShortcutsEditorPrivate::addAction(QAction *action, QTreeWidgetItem *hier[], hierarchyLevel level)
 {
 
-    // We cannot handle unnamed actions, even though Qt automatically assigns
-    // them names prefixed by `unnamed-`. Unfortunately those automatic names
-    // are not guaranteed to be the same each time, especially not within
-    // KisParts, so they cannot be reliably saved and loaded.
     QString actionName = action->objectName();
     if (actionName.isEmpty() || actionName.startsWith(QStringLiteral("unnamed-"))) {
         qCritical() << "Skipping action without name " << action->text() << "," << actionName << "!";
         return false;
     }
 
-    // Construct the actual treeview items. The work happens here.
-    //
-    // Don't feed the editor raw QActions. This code requires that the
-    // "defaultShortcut" dynamic property be set.
-    //
-    // Note: Krita never sets the property "isShortcutConfigurable".
-    // Perhaps it could be useful.
     const QVariant value = action->property("isShortcutConfigurable");
     if (!value.isValid() || value.toBool()) {
         new KisShortcutsEditorItem((hier[level]), action);
@@ -149,8 +127,6 @@ void KisShortcutsEditorPrivate::allDefault()
     }
 }
 
-//static
-
 QTreeWidgetItem *KisShortcutsEditorPrivate::findOrMakeItem(QTreeWidgetItem *parent, const QString &name)
 {
     for (int i = 0; i < parent->childCount(); i++) {
@@ -166,10 +142,8 @@ QTreeWidgetItem *KisShortcutsEditorPrivate::findOrMakeItem(QTreeWidgetItem *pare
     return ret;
 }
 
-//private slot
 void KisShortcutsEditorPrivate::capturedShortcut(const QVariant &newShortcut, const QModelIndex &index)
 {
-    //dispatch to the right handler
     if (!index.isValid()) {
         return;
     }
@@ -184,17 +158,14 @@ void KisShortcutsEditorPrivate::capturedShortcut(const QVariant &newShortcut, co
 
 void KisShortcutsEditorPrivate::changeKeyShortcut(KisShortcutsEditorItem *item, uint column, const QKeySequence &capture)
 {
-    // The keySequence we get is cleared by KisKKeySequenceWidget. No conflicts.
     if (capture == item->keySequence(column)) {
         return;
     }
 
     item->setKeySequence(column, capture);
     q->keyChange();
-    //force view update
     item->setText(column, capture.toString(QKeySequence::NativeText));
 }
-
 
 void KisShortcutsEditorPrivate::clearConfiguration()
 {
@@ -211,24 +182,6 @@ void KisShortcutsEditorPrivate::clearConfiguration()
     }
 }
 
-/*TODO for the printShortcuts function
-Nice to have features (which I'm not sure I can do before may due to
-more important things):
-
-- adjust the general page borders, IMHO they're too wide
-
-- add a custom printer options page that allows to filter out all
-  actions that don't have a shortcut set to reduce this list. IMHO this
-  should be optional as people might want to simply print all and  when
-  they find a new action that they assign a shortcut they can simply use
-  a pen to fill out the empty space
-
-- find a way to align the Main/Alternate entries in the shortcuts column without
-  adding borders. I first did this without a nested table but instead simply
-  added 3 rows and merged the 3 cells in the Action name and description column,
-  but unfortunately I didn't find a way to remove the borders between the 6
-  shortcut cells.
-*/
 void KisShortcutsEditorPrivate::printShortcuts() const
 {
     QTreeWidgetItem *root = ui.list->invisibleRootItem();

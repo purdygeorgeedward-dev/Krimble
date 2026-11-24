@@ -12,7 +12,6 @@
 
 #include <kundo2command.h>
 
-
 class KRITAIMAGE_EXPORT KisImageSetResolutionCommand : public KUndo2Command
 {
 public:
@@ -29,16 +28,6 @@ private:
     qreal m_oldYRes;
 };
 
-/**
- * A special workaround command for updating the shapes.  It resets
- * shapes always (for both undo() and redo() actions) after all the
- * child commands are finished. Usually, it should have the only child
- * KisImageSetResolutionCommand.
- *
- * Usecase: When you change the resolution of the image, the
- * projection of the vector layer is still rendered in old
- * resolution. So you should reset it and render again.
- */
 class KRITAIMAGE_EXPORT KisResetShapesCommand : public KUndo2Command
 {
 public:
@@ -54,4 +43,4 @@ private:
     KisNodeSP m_rootNode;
 };
 
-#endif // KIS_IMAGE_SET_RESOLUTION_COMMAND_H
+#endif

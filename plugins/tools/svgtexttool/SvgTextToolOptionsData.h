@@ -22,4 +22,4 @@ struct SvgTextToolOptionsData
     void resetConfig();
 };
 
-#endif // SVGTEXTTOOLOPTIONSDATA_H
+#endif

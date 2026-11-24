@@ -22,7 +22,6 @@ namespace KisLazyFillTools
     struct KeyStroke;
 }
 
-
 class KRITAIMAGE_EXPORT KisColorizeMask : public KisEffectMask
 {
     Q_OBJECT
@@ -41,7 +40,6 @@ public:
     void initializeCompositeOp();
     const KoColorSpace* colorSpace() const override;
 
-    // assign color profile without conversion of pixel data
     void setProfile(const KoColorProfile *profile, KUndo2Command *parentCommand);
 
     KUndo2Command *setColorSpace(const KoColorSpace *dstColorSpace,
@@ -78,10 +76,6 @@ public:
     QRect exactBounds() const override;
     QRect extent() const override;
 
-    /**
-     * Colorize mask has its own "projection", so it should report it
-     * to the parent layer using non-dependent-extent property
-     */
     QRect nonDependentExtent() const override;
 
     void setSectionModelProperties(const KisBaseNode::PropertyList &properties) override;
@@ -140,7 +134,6 @@ Q_SIGNALS:
     void sigUpdateOnDirtyParent() const;
 
 private:
-    // NOTE: please access this methods using model properties only!
 
     bool needsUpdate() const;
     void setNeedsUpdate(bool value);
@@ -169,4 +162,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif /* __KIS_COLORIZE_MASK_H */
+#endif

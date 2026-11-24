@@ -50,38 +50,33 @@ KIS_DECLARE_STATIC_INITIALIZER {
     QMetaType::registerEqualsComparator<KoSvgText::AutoValue>();
     QMetaType::registerDebugStreamOperator<KoSvgText::AutoValue>();
 
-
     QMetaType::registerEqualsComparator<KoSvgText::AutoLengthPercentage>();
     QMetaType::registerDebugStreamOperator<KoSvgText::AutoLengthPercentage>();
 
     QMetaType::registerEqualsComparator<KoSvgText::CssFontStyleData>();
     QMetaType::registerDebugStreamOperator<KoSvgText::CssFontStyleData>();
-    
+
     QMetaType::registerEqualsComparator<KoSvgText::BackgroundProperty>();
     QMetaType::registerDebugStreamOperator<KoSvgText::BackgroundProperty>();
-
 
     QMetaType::registerEqualsComparator<KoSvgText::StrokeProperty>();
     QMetaType::registerDebugStreamOperator<KoSvgText::StrokeProperty>();
 
-
     QMetaType::registerEqualsComparator<KoSvgText::TextTransformInfo>();
     QMetaType::registerDebugStreamOperator<KoSvgText::TextTransformInfo>();
 
-
     QMetaType::registerEqualsComparator<KoSvgText::TextIndentInfo>();
     QMetaType::registerDebugStreamOperator<KoSvgText::TextIndentInfo>();
-
 
     QMetaType::registerEqualsComparator<KoSvgText::TabSizeInfo>();
     QMetaType::registerDebugStreamOperator<KoSvgText::TabSizeInfo>();
 
     QMetaType::registerEqualsComparator<KoSvgText::LineHeightInfo>();
     QMetaType::registerDebugStreamOperator<KoSvgText::LineHeightInfo>();
-    
+
     QMetaType::registerEqualsComparator<KoSvgText::FontFamilyAxis>();
     QMetaType::registerDebugStreamOperator<KoSvgText::FontFamilyAxis>();
-    
+
     QMetaType::registerEqualsComparator<KoSvgText::FontFamilyStyleInfo>();
     QMetaType::registerDebugStreamOperator<KoSvgText::FontFamilyStyleInfo>();
 
@@ -249,9 +244,9 @@ QString writeDominantBaseline(Baseline value)
         : value == BaselineCentral      ? "central"
         : value == BaselineMiddle       ? "middle"
         : value == BaselineTextBottom   ? "text-bottom"
-                                        : // text-after-edge in svg 1.1
+                                        :
         value == BaselineTextTop ? "text-top"
-                                   : // text-before-edge in svg 1.1
+                                   :
         "auto";
 }
 
@@ -265,9 +260,9 @@ QString writeAlignmentBaseline(Baseline value)
         : value == BaselineCentral      ? "central"
         : value == BaselineMiddle       ? "middle"
         : value == BaselineTextBottom   ? "text-bottom"
-                                        : // text-after-edge in svg 1.1
+                                        :
         value == BaselineTextTop ? "text-top"
-                                   : // text-before-edge in svg 1.1
+                                   :
         "auto";
 }
 
@@ -300,7 +295,6 @@ QDebug operator<<(QDebug dbg, const KoSvgText::CssFontStyleData &value)
     } else {
         dbg.nospace() << (value.style == QFont::StyleItalic? "italic": "roman");
     }
-
 
     return dbg.space();
 }
@@ -540,7 +534,7 @@ bool whiteSpaceValueToLongHands(const QString &value, TextSpaceCollapse &collaps
         collapseMethod = PreserveBreaks;
         wrapMethod = Wrap;
         trimMethod = TrimNone;
-    } else { // "normal"
+    } else {
         if (value != "normal") {
             result = false;
         }
@@ -556,23 +550,8 @@ bool xmlSpaceToLongHands(const QString &value, TextSpaceCollapse &collapseMethod
     bool result = true;
 
     if (value == "preserve") {
-        /*
-         * "When xml:space="preserve", the SVG user agent will do the following
-         * using a copy of the original character data content. It will convert
-         * all newline and tab characters into space characters. Then, it will
-         * draw all space characters, including leading, trailing and multiple
-         * contiguous space characters."
-         */
         collapseMethod = PreserveSpaces;
     } else {
-        /*
-         * "When xml:space="default", the SVG user agent will do the following
-         * using a copy of the original character data content. First, it will
-         * remove all newline characters. Then it will convert all tab
-         * characters into space characters. Then, it will strip off all leading
-         * and trailing space characters. Then, all contiguous space characters
-         * will be consolidated."
-         */
         if (value != "default") {
             result = false;
         }
@@ -634,7 +613,7 @@ TextAlign parseTextAlign(const QString &value)
         : value == "justify-all"  ? AlignJustify
         : value == "match-parent" ? AlignMatchParent
         : value == "auto"         ? AlignLastAuto
-                                  : // only for text-align-last
+                                  :
         AlignStart;
 }
 
@@ -661,7 +640,7 @@ QString writeTextAlign(TextAlign value)
         : value == AlignJustify     ? "justify"
         : value == AlignMatchParent ? "match-parent"
         : value == AlignLastAuto    ? "auto"
-                                    : // only for text-align-last
+                                    :
         "start";
 }
 
@@ -725,8 +704,6 @@ TextIndentInfo parseTextIndent(const QString &value, const SvgLoadingContext &co
             textIndent.eachLine = true;
         } else {
             textIndent.length = SvgUtil::parseTextUnitStruct(context.currentGC(), param);
-            //ToDo: figure out how to detect value is number.
-            //qWarning() << "Unknown parameter in text-indent" << param;
         }
     }
     return textIndent;
@@ -767,10 +744,9 @@ QString writeTabSize(const TabSizeInfo tabSize)
     QString val = KisDomUtils::toString(tabSize.value);
     if (!tabSize.isNumber) {
 
-        // Tabsize does not support percentage, so if we accidentally set it somewhere, convert to em.
         val = writeLengthPercentage(tabSize.length, true);
         if (tabSize.length == CssLengthPercentage::Absolute) {
-            val += "px"; // In SVG, due to browsers, the default unit is css px. Krita scales these to pt.
+            val += "px";
         }
     }
     return val;
@@ -792,7 +768,6 @@ int parseCSSFontStretch(const QString &value, int currentStretch)
 
         newStretch = it != fontStretches.rend() ? *it : fontStretches.front();
     } else {
-        // try to read numerical stretch value
         bool ok = false;
         newStretch = value.toInt(&ok, 10);
 
@@ -812,13 +787,6 @@ int parseCSSFontWeight(const QString &value, int currentWeight)
 {
     int weight = 400;
 
-    // map svg weight to qt weight
-    // svg value        qt value
-    // 100,200,300      1, 17, 33
-    // 400              50          (normal)
-    // 500,600          58,66
-    // 700              75          (bold)
-    // 800,900          87,99
     static constexpr std::array<int, 9> svgFontWeights = {100, 200, 300, 400, 500, 600, 700, 800, 900};
 
     if (value == "bold")
@@ -835,7 +803,6 @@ int parseCSSFontWeight(const QString &value, int currentWeight)
     } else {
         bool ok = false;
 
-        // try to read numerical weight value
         const int parsed = value.toInt(&ok, 10);
         if (ok) {
             weight = qBound(0, parsed, 1000);
@@ -856,7 +823,6 @@ LineHeightInfo parseLineHeight(const QString &value, const SvgLoadingContext &co
         lineHeight.length = SvgUtil::parseTextUnitStruct(context.currentGC(), value);
     }
 
-    // Negative line-height is invalid
     if (!lineHeight.isNormal && (lineHeight.value < 0 || lineHeight.length.value < 0)) {
         lineHeight.isNormal = true;
         lineHeight.isNumber = false;
@@ -874,7 +840,7 @@ QString writeLineHeight(LineHeightInfo lineHeight)
     if (!lineHeight.isNumber) {
         val = writeLengthPercentage(lineHeight.length);
         if (lineHeight.length.unit == CssLengthPercentage::Absolute) {
-            val += "px"; // In SVG, due to browsers, the default unit is css px. Krita scales these to pt.
+            val += "px";
         }
     }
     return val;
@@ -990,7 +956,6 @@ QDebug operator<<(QDebug dbg, const KoSvgText::AutoLengthPercentage &value)
     }
     return dbg.space();
 }
-
 
 QDebug operator<<(QDebug dbg, const KoSvgText::FontFamilyAxis &axis)
 {
@@ -1761,4 +1726,4 @@ qreal ResolutionHandler::pixelToPointFactor(const bool x) const {
     return x? pointInInch/xRes: pointInInch/yRes;
 }
 
-} // namespace KoSvgText
+}

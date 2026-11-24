@@ -12,10 +12,6 @@ class QString;
 
 namespace KisTemplates
 {
-    /**
-     * Removes all spaces from the given string, not just from
-     * start and end.
-     */
      QString trimmed(const QString &string);
 }
 

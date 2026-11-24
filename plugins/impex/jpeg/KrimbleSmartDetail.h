@@ -1,6 +1,4 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
-// Krimble 2026-11-13 (task 52): the Smart Selection's analysis, on its own (no JPEG library needed), so that the SmartCompression panel and the JPEG writer use the same code.
-// The 8 x 8 pixel blocks that carry detail (edges, text, texture) are protected; the flat ones (sky, a plain panel, an empty background) are not.
 #pragma once
 
 #include <vector>
@@ -11,7 +9,6 @@
 
 namespace KrimbleSmart {
 
-// lum: width * height luminance bytes. sensitivity 0..100 (more = more is protected). Returns width * height bytes: 255 = protected, 0 = not.
 inline std::vector<uint8_t> detailMask(const uint8_t *lum, int width, int height, int sensitivity)
 {
     const int bs = 8;
@@ -32,12 +29,10 @@ inline std::vector<uint8_t> detailMask(const uint8_t *lum, int width, int height
             score[size_t(by) * bw + bx] = n ? float(sum / n) : 0.0f;
         }
     }
-    // the threshold: 50 percent sensitivity protects blocks whose average step to the neighbour pixels is more than 6 gray levels; 100 percent more than 1.5; 0 percent more than 24
     const float s = std::max(0, std::min(100, sensitivity)) / 100.0f;
     const float threshold = 24.0f * std::pow(1.5f / 24.0f, s);
     std::vector<uint8_t> protect(size_t(bw) * bh, 0);
     for (size_t i = 0; i < protect.size(); ++i) protect[i] = score[i] > threshold ? 1 : 0;
-    // a block next to a detailed block is protected too (an edge's ringing reaches into the next block)
     std::vector<uint8_t> grown(protect);
     for (int by = 0; by < bh; ++by)
         for (int bx = 0; bx < bw; ++bx)
@@ -54,4 +49,4 @@ inline std::vector<uint8_t> detailMask(const uint8_t *lum, int width, int height
     return mask;
 }
 
-} // namespace KrimbleSmart
+}

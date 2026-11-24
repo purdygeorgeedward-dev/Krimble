@@ -41,11 +41,6 @@ struct KisImageResolutionProxy::Private {
     }
 
     ~Private() {
-        /**
-         * Since we are not using QObject for the connection,
-         * we should disconnect the connection automatically
-         * on destruction.
-         */
         if (imageConnection) {
             QObject::disconnect(imageConnection);
         }
@@ -125,13 +120,6 @@ void KisImageResolutionProxy::Private::setImage(KisImageWSP image)
     QObject::disconnect(imageConnection);
 
     if (image) {
-        /**
-         * NOTE: we cannot just use detached converter all the
-         * time, because we cannot update its values in time
-         * before the next update after image changed its
-         * resolution (the signal is emitted at the very end
-         * of the operation).
-         */
 
         this->image = image;
         lastKnownXRes = image->xRes();
@@ -141,10 +129,6 @@ void KisImageResolutionProxy::Private::setImage(KisImageWSP image)
                                     std::bind(&Private::slotImageResolutionChanged, this,
                                               std::placeholders::_1, std::placeholders::_2));
     } else {
-        /**
-         * The layer will keep "the lastly used resolution"
-         * until being attached to the new image.
-         */
         this->image = nullptr;
     }
 }

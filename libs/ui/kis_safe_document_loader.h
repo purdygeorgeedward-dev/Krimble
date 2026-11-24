@@ -38,4 +38,4 @@ private:
     Private * const m_d;
 };
 
-#endif /* __KIS_SAFE_DOCUMENT_LOADER_H */
+#endif

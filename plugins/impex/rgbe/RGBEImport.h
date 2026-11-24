@@ -20,4 +20,4 @@ public:
     KisImportExportErrorCode convert(KisDocument *document, QIODevice *io, KisPropertiesConfigurationSP configuration = nullptr) override;
 };
 
-#endif // RGBE_IMPORT_H_
+#endif

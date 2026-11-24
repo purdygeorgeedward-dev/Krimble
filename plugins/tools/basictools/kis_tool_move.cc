@@ -12,7 +12,6 @@
 
 #include <QPoint>
 
-
 #include "kis_cursor.h"
 #include "kis_selection.h"
 #include "kis_canvas2.h"
@@ -38,7 +37,6 @@
 #include "KisMoveBoundsCalculationJob.h"
 #include <KisOptimizedBrushOutline.h>
 
-
 struct KisToolMoveState : KisToolChangesTrackerData, boost::equality_comparable<KisToolMoveState>
 {
     KisToolMoveState(QPoint _accumulatedOffset) : accumulatedOffset(_accumulatedOffset) {}
@@ -50,7 +48,6 @@ struct KisToolMoveState : KisToolChangesTrackerData, boost::equality_comparable<
 
     QPoint accumulatedOffset;
 };
-
 
 KisToolMove::KisToolMove(KoCanvasBase *canvas)
     : KisTool(canvas, KisCursor::moveCursor())
@@ -64,7 +61,6 @@ KisToolMove::KisToolMove(KoCanvasBase *canvas)
 
     m_optionsWidget = new MoveToolOptionsWidget(nullptr, currentImage()->xRes(), toolId());
 
-    // See https://bugs.kde.org/show_bug.cgi?id=316896
     QWidget *specialSpacer = new QWidget(m_optionsWidget);
     specialSpacer->setObjectName("SpecialSpacer");
     specialSpacer->setFixedSize(0, 0);
@@ -92,13 +88,7 @@ void KisToolMove::resetCursorStyle()
     bool canMove = true;
 
     if (m_strokeId && m_currentlyUsingSelection) {
-        /// noop; whatever the cursor position, we always show move
-        /// cursor, because we don't use 'layer under cursor' mode
-        /// for moving selections
     } else if (m_strokeId && !m_currentlyUsingSelection) {
-        /// we cannot pick layer's pixel data while the stroke is running,
-        /// because it may run in lodN mode; therefore, we delegate this
-        /// work to the stroke itself
         if (m_currentMode != MoveSelectedLayer &&
             (m_handlesRect.isEmpty() ||
              !m_handlesRect.translated(currentOffset()).contains(m_lastCursorPos))) {
@@ -153,22 +143,17 @@ bool KisToolMove::startStrokeImpl(MoveToolMode mode, const QPoint *pos)
     KisPaintLayerSP paintLayer =
         dynamic_cast<KisPaintLayer*>(this->currentNode().data());
 
-
-
     const bool canUseSelectionMode =
             paintLayer && selection &&
             !selection->selectedRect().isEmpty() &&
             !selection->selectedExactRect().isEmpty();
 
     if (pos) {
-        // finish stroke by clicking outside image bounds
         if (m_strokeId && !image->bounds().contains(*pos)) {
             endStroke();
             return false;
         }
 
-        // restart stroke when the mode has changed or the user tried to
-        // pick another layer in "layer under cursor" mode.
         if (m_strokeId &&
                 (m_currentMode != mode ||
                  m_currentlyUsingSelection != canUseSelectionMode ||
@@ -182,10 +167,7 @@ bool KisToolMove::startStrokeImpl(MoveToolMode mode, const QPoint *pos)
 
     if (m_strokeId) return true;
 
-
     if (canUseSelectionMode && !nodeEditable()) {
-        // if there is a selection, it would only use the current layer anyway
-        // if the current layer is not editable, don't continue
         return false;
     }
 
@@ -223,7 +205,6 @@ bool KisToolMove::startStrokeImpl(MoveToolMode mode, const QPoint *pos)
                         *pos) :
                 KisNodeSelectionRecipe(this->selectedNodes());
 
-
         MoveStrokeStrategy *moveStrategy =
             new MoveStrokeStrategy(nodeSelection, image.data(), image.data());
         connect(moveStrategy,
@@ -246,8 +227,6 @@ bool KisToolMove::startStrokeImpl(MoveToolMode mode, const QPoint *pos)
         strategy->setForceLodModeIfPossible(forceLodMode);
     }
 
-    // disable outline feedback until the stroke calculates
-    // correct bounding rect
     m_handlesRect = QRect();
     m_strokeId = image->startStroke(strategy);
     m_currentlyProcessingNodes = nodes;
@@ -329,9 +308,6 @@ void KisToolMove::slotHandlesRectCalculated(const QRect &handlesRect)
 
 void KisToolMove::slotStrokeStartedEmpty()
 {
-    /**
-     * Notify that move-selection stroke ended unexpectedly
-     */
     if (m_currentlyUsingSelection) {
         KisCanvas2 *kisCanvas = static_cast<KisCanvas2*>(canvas());
         kisCanvas->viewManager()->
@@ -341,11 +317,6 @@ void KisToolMove::slotStrokeStartedEmpty()
                 QIcon(), 1000, KisFloatingMessage::High);
     }
 
-    /**
-     * Since the choice of nodes for the operation happens in the
-     * stroke itself, it may happen that there are no nodes at all.
-     * In such a case, we should just cancel already started stroke.
-     */
     cancelStroke();
 }
 
@@ -360,16 +331,15 @@ void KisToolMove::slotStrokePickedLayers(const KisNodeList &nodes)
 
 void KisToolMove::moveDiscrete(MoveDirection direction, bool big)
 {
-    if (mode() == KisTool::PAINT_MODE) return;  // Don't interact with dragging
+    if (mode() == KisTool::PAINT_MODE) return;
     if (!currentNode()) return;
     if (!image()) return;
-    if (!currentNode()->isEditable()) return; // Don't move invisible nodes
+    if (!currentNode()->isEditable()) return;
 
     if (startStrokeImpl(MoveSelectedLayer, nullptr)) {
         setMode(KisTool::PAINT_MODE);
     }
 
-    // Larger movement if "shift" key is pressed.
     qreal scale = big ? m_optionsWidget->moveScale() : 1.0;
     qreal moveStep = m_optionsWidget->moveStep() * scale;
 
@@ -421,25 +391,14 @@ void KisToolMove::activate(const QSet<KoShape*> &shapes)
             SIGNAL(sigConfigChanged(KisToolChangesTrackerDataSP)),
             SLOT(slotTrackerChangedConfig(KisToolChangesTrackerDataSP)));
 
-
     slotNodeChanged(this->selectedNodes());
 }
-
-
 
 void KisToolMove::paint(QPainter& gc, const KoViewConverter &converter)
 {
     Q_UNUSED(converter);
     Q_UNUSED(gc);
 
-    // no box is drawn around what is being moved
-    // if (m_strokeId && !m_handlesRect.isEmpty() && !m_currentlyUsingSelection) {
-    //     QPainterPath handles;
-    //     handles.addRect(m_handlesRect.translated(currentOffset()));
-    //
-    //     QPainterPath path = pixelToView(handles);
-    //     paintToolOutline(&gc, path);
-    // }
 }
 
 void KisToolMove::deactivate()
@@ -501,7 +460,6 @@ void KisToolMove::endPrimaryAction(KoPointerEvent *event)
 
 void KisToolMove::beginAlternateAction(KoPointerEvent *event, AlternateAction action)
 {
-    // Ctrl+Right click toggles between moving current layer and moving layer w/ content
     if (action == SampleFgNode || action == SampleBgImage) {
         MoveToolMode mode = moveToolMode();
 
@@ -628,10 +586,6 @@ void KisToolMove::endStroke()
     m_changesTracker.reset();
     m_currentlyProcessingNodes.clear();
 
-    // Preserve selection-mode intent after finishing a selection move: if there
-    // is still a valid selection on the current paint layer, prefer staying in
-    // selection-move mode rather than forcing subsequent moves to act on the
-    // whole image.
     {
         KisResourcesSnapshotSP resources =
             new KisResourcesSnapshot(image, currentNode(), canvas()->resourceManager());
@@ -649,8 +603,6 @@ void KisToolMove::endStroke()
     m_currentMode = MoveSelectedLayer;
     m_accumulatedOffset = QPoint();
 
-    // Update handles rect & GUI so the tool immediately reflects the selection
-    // state after the stroke has ended.
     requestHandlesRectUpdate();
 
     qobject_cast<KisCanvas2*>(canvas())->updateCanvas();
@@ -663,7 +615,7 @@ void KisToolMove::slotTrackerChangedConfig(KisToolChangesTrackerDataSP state)
     KisToolMoveState *newState = dynamic_cast<KisToolMoveState*>(state.data());
     KIS_SAFE_ASSERT_RECOVER_RETURN(newState);
 
-    if (mode() == KisTool::PAINT_MODE) return;  // Don't interact with dragging
+    if (mode() == KisTool::PAINT_MODE) return;
     m_accumulatedOffset = newState->accumulatedOffset;
     image()->addJob(m_strokeId, new MoveStrokeStrategy::Data(m_accumulatedOffset));
     notifyGuiAfterMove();
@@ -745,12 +697,10 @@ QPoint KisToolMove::applyModifiers(Qt::KeyboardModifiers modifiers, QPoint pos)
 {
     QPoint move = pos - m_dragStart;
 
-    // Snap to axis
     if (modifiers & Qt::ShiftModifier) {
         move = snapToClosestAxis(move);
     }
 
-    // "Precision mode" - scale down movement by 1/5
     if (modifiers & Qt::AltModifier) {
         const qreal SCALE_FACTOR = .2;
         move = SCALE_FACTOR * move;
@@ -761,14 +711,12 @@ QPoint KisToolMove::applyModifiers(Qt::KeyboardModifiers modifiers, QPoint pos)
 
 void KisToolMove::moveBySpinX(int newX)
 {
-    if (mode() == KisTool::PAINT_MODE ||    // Don't interact with dragging
-            !currentNode()->isEditable() || // Don't move invisible nodes
+    if (mode() == KisTool::PAINT_MODE ||
+            !currentNode()->isEditable() ||
             m_handlesRect.isEmpty()) {
         return;
     }
 
-    // starting a new stroke resets m_handlesRect and it gets updated asynchronously,
-    // but in this case no change is expected
     int handlesRectX = m_handlesRect.x();
 
     if (startStrokeImpl(MoveSelectedLayer, nullptr)) {
@@ -785,14 +733,12 @@ void KisToolMove::moveBySpinX(int newX)
 
 void KisToolMove::moveBySpinY(int newY)
 {
-    if (mode() == KisTool::PAINT_MODE ||    // Don't interact with dragging
-            !currentNode()->isEditable() || // Don't move invisible nodes
+    if (mode() == KisTool::PAINT_MODE ||
+            !currentNode()->isEditable() ||
             m_handlesRect.isEmpty()) {
         return;
     }
 
-    // starting a new stroke resets m_handlesRect and it gets updated asynchronously,
-    // but in this case no change is expected
     int handlesRectY = m_handlesRect.y();
 
     if (startStrokeImpl(MoveSelectedLayer, nullptr)) {

@@ -94,5 +94,4 @@ protected:
     KoUpdater* m_progress;
 };
 
-
 #endif

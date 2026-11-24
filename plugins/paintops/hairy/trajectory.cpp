@@ -19,7 +19,6 @@ Trajectory::~Trajectory()
 {
 }
 
-
 void Trajectory::addPoint(QPointF pos)
 {
     if (m_i >= m_path.size()) {
@@ -33,20 +32,17 @@ void Trajectory::addPoint(QPointF pos)
     m_size++;
 }
 
-
 void Trajectory::reset()
 {
     m_size = 0;
     m_i = 0;
 }
 
-
 const QVector<QPointF> &Trajectory::getLinearTrajectory(const QPointF &start, const QPointF &end, double space)
 {
     Q_UNUSED(space);
     reset();
 
-    // Width and height of the line
     qreal xd = (end.x() - start.x());
     qreal yd = (end.y() - start.y());
 
@@ -62,7 +58,6 @@ const QVector<QPointF> &Trajectory::getLinearTrajectory(const QPointF &start, co
     addPoint(start);
 
     if (fabs(m) > 1) {
-        // y - directional axis
         int incr;
         if (yd > 0) {
             m = 1.0f / m;
@@ -75,11 +70,9 @@ const QVector<QPointF> &Trajectory::getLinearTrajectory(const QPointF &start, co
             fx = fx + m;
             fy = fy + incr;
             y += incr;
-//            x = (int)(fx + 0.5f);
             addPoint(QPointF(fx, fy));
         }
     } else {
-        // x - directional axis
         int incr;
         if (xd > 0) {
             incr = 1;
@@ -91,7 +84,6 @@ const QVector<QPointF> &Trajectory::getLinearTrajectory(const QPointF &start, co
             fy = fy + m;
             fx = fx + incr;
             x += incr;
-//            y = (int)(fy + 0.5f);
             addPoint(QPointF(fx, fy));
         }
     }
@@ -104,7 +96,6 @@ QVector<QPointF> Trajectory::getDDATrajectory(QPointF start, QPointF end, double
 {
     Q_UNUSED(space);
     reset();
-    // Width and height of the line
     int xd = (int)(end.x() - start.x());
     int yd = (int)(end.y() - start.y());
 
@@ -151,5 +142,4 @@ QVector<QPointF> Trajectory::getDDATrajectory(QPointF start, QPointF end, double
 
     return m_path;
 }
-
 

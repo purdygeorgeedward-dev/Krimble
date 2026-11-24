@@ -148,13 +148,13 @@ QWidget* KisIntegerColorInput::createInput()
 
 void KisIntegerColorInput::updateMaximums()
 {
-    m_intNumInput->clearFocus(); // make sure focus doesn't interfere with updating
+    m_intNumInput->clearFocus();
 
     Q_ASSERT(m_channelInfo->channelValueType() == KoChannelInfo::UINT8 ||
              m_channelInfo->channelValueType() == KoChannelInfo::UINT16 ||
              m_channelInfo->channelValueType() == KoChannelInfo::UINT32);
 
-    m_intNumInput->blockSignals(true); // prevent clamping from triggering a value update
+    m_intNumInput->blockSignals(true);
     m_intNumInput->setMaximum(m_usePercentage ? 100 : (1 << 8 * m_channelInfo->size()) - 1);
     m_colorSlider->setMaximum((1 << 8 * m_channelInfo->size()) - 1);
     m_intNumInput->blockSignals(false);
@@ -164,7 +164,7 @@ void KisIntegerColorInput::setPercentageWise(bool val)
 {
     m_usePercentage = val;
 
-    m_intNumInput->clearFocus(); // make sure focus doesn't interfere with updating
+    m_intNumInput->clearFocus();
 
     if (m_usePercentage) {
         KisSpinBoxI18nHelper::setText(m_intNumInput, i18nc("{n} is the number value, % is the percent sign", "{n}%"));
@@ -242,7 +242,7 @@ QWidget* KisFloatColorInput::createInput()
     m_dblNumInput->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred);
     m_dblNumInput->setMinimumWidth(60);
     m_dblNumInput->setMaximumWidth(60);
-    
+
     quint8* data = m_color->data() + m_channelInfo->pos();
     qreal value = 1.0;
 
@@ -311,7 +311,6 @@ void KisFloatColorInput::update()
         m_dblNumInput->setMaximum(m_maxValue);
     }
 
-    // ensure at least 3 significant digits are always shown
     int newPrecision = 2 + qMax(qreal(0.0), std::ceil(-std::log10(m_maxValue)));
     if (newPrecision != m_dblNumInput->decimals()) {
         m_dblNumInput->setDecimals(newPrecision);
@@ -401,7 +400,6 @@ QWidget* KisHexColorInput::createInput()
     return m_hexInput;
 }
 
-
 KisHsvColorInput::KisHsvColorInput(QWidget *parent, KoColor *color)
     : QWidget(parent)
     , m_color(color)
@@ -420,19 +418,17 @@ KisHsvColorInput::KisHsvColorInput(QWidget *parent, KoColor *color)
     const QStringList labelNames = QStringList({
         i18nc("@label:slider Abbreviation for 'Hue'", "H:"),
         i18nc("@label:slider Abbreviation for 'Saturation'", "S:"),
-        QString(/* x will get initialized later in setMixMode */) });
+        QString( ) });
     qreal maxValues[3] = { 360, 100, 100 };
 
     QGridLayout *slidersLayout = new QGridLayout(this);
     slidersLayout->setContentsMargins(0,0,0,0);
-    slidersLayout->setHorizontalSpacing(1); // less space around the sliders
+    slidersLayout->setHorizontalSpacing(1);
 
     for (int i = 0; i < 3; i++) {
-        // Label
         QLabel *label = new QLabel(labelNames[i], this);
         slidersLayout->addWidget(label, i, 0);
 
-        // Slider itself
         KisHsvColorSlider *slider = new KisHsvColorSlider(Qt::Horizontal, this);
         slider->setMixMode(m_mixMode);
         slider->setMinimum(0);
@@ -440,7 +436,6 @@ KisHsvColorInput::KisHsvColorInput(QWidget *parent, KoColor *color)
         slider->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
         slidersLayout->addWidget(slider, i, 1);
 
-        // Input box
         KisDoubleParseSpinBox *input = new KisDoubleParseSpinBox(this);
         input->setMinimum(0);
         input->setMaximum(maxValues[i]);
@@ -460,13 +455,12 @@ KisHsvColorInput::KisHsvColorInput(QWidget *parent, KoColor *color)
             m_sSlider = slider;
             m_sInput = input;
         case 2:
-            m_xLabel = label; // Save the HSX label so we can update it
+            m_xLabel = label;
             m_xSlider = slider;
             m_xInput = input;
         }
     }
 
-    // Connect slots
     connect(m_hSlider, SIGNAL(valueChanged(int)), this, SLOT(hueSliderChanged(int)));
     connect(m_hInput, SIGNAL(valueChanged(double)), this, SLOT(setHue(double)));
     connect(m_sSlider, SIGNAL(valueChanged(int)), this, SLOT(saturationSliderChanged(int)));
@@ -476,7 +470,6 @@ KisHsvColorInput::KisHsvColorInput(QWidget *parent, KoColor *color)
 
     setMixMode(KisHsvColorSlider::MIX_MODE::HSV);
 
-    // Set initial values
     QColor c = m_color->toQColor();
     getHsxF(c, &m_h, &m_s, &m_x);
 
@@ -484,7 +477,6 @@ KisHsvColorInput::KisHsvColorInput(QWidget *parent, KoColor *color)
     m_sInput->setValue(m_s);
     m_xInput->setValue(m_x);
 
-    // Update sliders
     QColor minC, maxC;
     minC.setHsvF(0, 1, 1);
     maxC.setHsvF(1, 1, 1);
@@ -506,7 +498,7 @@ void KisHsvColorInput::setMixMode(KisHsvColorSlider::MIX_MODE mixMode) {
 	case KisHsvColorSlider::MIX_MODE::HSI:
         m_xLabel->setText(i18nc("@label:slider Abbreviation for 'Intensity' of HSI color model", "I:"));
 		break;
-	default: // fallthrough
+	default:
 	case KisHsvColorSlider::MIX_MODE::HSV:
         m_xLabel->setText(i18nc("@label:slider Abbreviation for 'Value' of HSV color model", "V:"));
 		break;
@@ -587,7 +579,6 @@ void KisHsvColorInput::valueSliderChanged(int i)
 }
 
 void KisHsvColorInput::recolorSliders() {
-    // Update sliders
     QColor minC, maxC;
 
     minC.setHsvF(m_h, 0, m_x);
@@ -606,20 +597,16 @@ void KisHsvColorInput::update()
         m_hSlider, m_sSlider, m_xSlider
     );
 
-    // Check if it is the same color we have
     QColor current;
 
     fillColor(current);
 
     QColor theirs = m_color->toQColor();
 
-    // Truncate to integer for this check
     if (!(current.red() == theirs.red() && current.green() == theirs.green() && current.blue() == theirs.blue())) {
-        // Apply the update
         qreal theirH;
         getHsxF(theirs, &theirH, &m_s, &m_x);
 
-        // Don't jump the Hue slider around to 0 if it is currently on 360
         const qreal EPSILON = 1e-6;
         if (!((1.0 - m_h) < EPSILON && (theirH - 0.0) < EPSILON)) {
             m_h = theirH;
@@ -631,7 +618,6 @@ void KisHsvColorInput::update()
 
         recolorSliders();
 
-        // Update slider positions
         m_hSlider->setValue(m_h * 360);
         m_sSlider->setValue(m_s * 100);
         m_xSlider->setValue(m_x * 100);
@@ -653,7 +639,6 @@ void KisHsvColorInput::fillColor(QColor& c, const qreal& h, const qreal& s, cons
 		qreal r, g, b;
 		HSYToRGB(h, s, x, &r, &g, &b);
 
-		// Clamp
 		r = qBound(0.0, r, 1.0);
 		g = qBound(0.0, g, 1.0);
 		b = qBound(0.0, b, 1.0);
@@ -669,7 +654,7 @@ void KisHsvColorInput::fillColor(QColor& c, const qreal& h, const qreal& s, cons
 		break;
 	}
 
-	default: // fallthrough
+	default:
 	case KisHsvColorSlider::MIX_MODE::HSV:
 		c.setHsvF(h, s, x);
 		break;
@@ -708,7 +693,7 @@ void KisHsvColorInput::getHsxF(const QColor& color, qreal* h, qreal* s, qreal* x
 		break;
 	}
 
-	default: // fallthrough
+	default:
 	case KisHsvColorSlider::MIX_MODE::HSV:
     {
 #if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))

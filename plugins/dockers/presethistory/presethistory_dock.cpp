@@ -42,7 +42,7 @@ void PresetHistoryList::mouseReleaseEvent(QMouseEvent *e)
     {
         Q_EMIT mouseReleased(currentItem());
     }
-    QListWidget::mouseReleaseEvent(e); // forward the event to the QListWidget
+    QListWidget::mouseReleaseEvent(e);
 }
 
 PresetHistoryDock::PresetHistoryDock( )
@@ -226,16 +226,11 @@ int PresetHistoryDock::bubblePreset(int position)
 {
     QListWidgetItem *item = m_presetHistory->item(position);
     if (position == 0) {
-        // topmost item cannot bubble, its bubble state stays until
-        // below item tries to bubble, so state can be set unconditionally
         item->setData(BubbleMarkerRole, QVariant(true));
         return position;
     }
 
     if (!item->data(BubbleMarkerRole).toBool()) {
-        // first activation effectively makes the entry rival the list position above
-        // (unless that one is already marked to bubble too) but it won't raise in position
-        // until it gets activated again so its position is clearly defined as above
         item->setData(BubbleMarkerRole, QVariant(true));
         return position;
     }
@@ -251,10 +246,7 @@ int PresetHistoryDock::bubblePreset(int position)
                 break;
             }
         }
-        // if all above items want to bubble too, nothing happens besides resetting bubble state
         if (topPosition >= 0) {
-            // since a group of items may bubble together, the net effect is
-            // that the item above this range moves below that group
             QListWidgetItem *topItem = m_presetHistory->takeItem(topPosition);
             m_presetHistory->insertItem(position, topItem);
             return position - 1;
@@ -313,7 +305,6 @@ void PresetHistoryDock::slotContextMenuRequest(const QPoint &pos)
     QAction *triggered = contextMenu.exec(m_presetHistory->mapToGlobal(pos));
 
     if (presetItem && triggered == actionForget) {
-        // deleting a QListWidgetItem removes it from the QListWidget automatically
         delete presetItem;
     }
 }

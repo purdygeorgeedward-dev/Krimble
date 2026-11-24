@@ -50,4 +50,4 @@ private:
 
 };
 
-#endif // DLG_SHEARIMAGE
+#endif

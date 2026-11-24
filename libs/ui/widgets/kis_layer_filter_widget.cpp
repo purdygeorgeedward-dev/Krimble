@@ -84,7 +84,6 @@ KisLayerFilterWidget::KisLayerFilterWidget(QWidget *parent) : QWidget(parent)
        this->reset();
     });
 
-
     layout->addWidget(textFilter);
     layout->addWidget(buttonContainer);
     layout->addWidget(resetButton);
@@ -169,8 +168,6 @@ void KisLayerFilterWidget::showEvent(QShowEvent *show)
         const int widthBefore = parentMenu->width();
         const int rightEdgeThreshold = 5;
 
-        //Fake resize event needs to be made to register change in widget menu size.
-        //Not doing this will cause QMenu to not resize properly!
         resize(sizeHint());
 
         adjustSize();
@@ -183,7 +180,6 @@ void KisLayerFilterWidget::showEvent(QShowEvent *show)
         QRect screenGeometry = screen ? screen->geometry() : parentMenu->parentWidget()->window()->geometry();
         const bool onRightEdge = (parentMenu->pos().x() + widthBefore + rightEdgeThreshold) >  screenGeometry.width();
         const int widthAfter = parentMenu->width();
-
 
         if (onRightEdge) {
             if (widthAfter > widthBefore) {

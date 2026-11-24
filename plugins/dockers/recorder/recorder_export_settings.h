@@ -27,7 +27,6 @@ struct RecorderProfile
 
 struct RecorderExportSettings {
 
-    // The following settings are stored in the RecorderExportConfiguration
     bool resize = false;
     bool lockRatio = false;
     bool lockFps = false;
@@ -50,9 +49,6 @@ struct RecorderExportSettings {
     QList<RecorderProfile> defaultProfiles;
 #endif
 
-
-    // The following are additional settings, which will not be serialized in
-    // the RecorderExportConfiguration
     QString inputDirectory;
     RecorderFormat format;
     QSize imageSize;
@@ -69,5 +65,4 @@ struct RecorderExportSettings {
     bool realTimeCaptureModeWasSet = false;
 };
 
-
-#endif // KRITA_RECORDER_EXPORT_SETTINGS_H
+#endif

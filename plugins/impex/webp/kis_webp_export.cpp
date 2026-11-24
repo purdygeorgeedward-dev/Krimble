@@ -48,7 +48,7 @@ KisWebPExport::KisWebPExport(QObject *parent, const QVariantList &)
 
 KisWebPExport::~KisWebPExport() = default;
 
-KisPropertiesConfigurationSP KisWebPExport::defaultConfiguration(const QByteArray & /*from*/, const QByteArray & /*to*/) const
+KisPropertiesConfigurationSP KisWebPExport::defaultConfiguration(const QByteArray & , const QByteArray & ) const
 {
     KisPropertiesConfigurationSP cfg(new KisPropertiesConfiguration());
     WebPConfig preset {};
@@ -113,12 +113,11 @@ KisPropertiesConfigurationSP KisWebPExport::defaultConfiguration(const QByteArra
     return cfg;
 }
 
-KisConfigWidget *KisWebPExport::createConfigurationWidget(QWidget *parent, const QByteArray & /*from*/, const QByteArray & /*to*/) const
+KisConfigWidget *KisWebPExport::createConfigurationWidget(QWidget *parent, const QByteArray & , const QByteArray & ) const
 {
     return new KisWdgOptionsWebP(parent);
 }
 
-// RAII a WebPPicture.
 struct WebPPictureSP {
     WebPPictureSP()
         : picture()
@@ -172,7 +171,6 @@ KisImportExportErrorCode KisWebPExport::convert(KisDocument *document, QIODevice
         return true;
     }();
 
-    // Then comes the animation chunk.
     WebPData imageChunk = {nullptr, 0};
 
     {
@@ -188,7 +186,6 @@ KisImportExportErrorCode KisWebPExport::convert(KisDocument *document, QIODevice
             encodingOptions.allow_mixed = true;
         }
         encodingOptions.verbose = true;
-        // XXX: should we implement background selection as in JPEG?
         encodingOptions.anim_params.loop_count = 0;
 
         WebPAnimEncoderSP enc(WebPAnimEncoderNew(bounds.width(),
@@ -256,7 +253,6 @@ KisImportExportErrorCode KisWebPExport::convert(KisDocument *document, QIODevice
         }();
 
         if (isAnimated) {
-            // Flatten the image, projections don't have keyframes.
             KisLayerUtils::flattenImage(image, nullptr);
             image->waitForDone();
 
@@ -273,9 +269,6 @@ KisImportExportErrorCode KisWebPExport::convert(KisDocument *document, QIODevice
                 return t;
             }();
 
-            // If this is not an integral number, it must be diagnosed on
-            // export and reported to the user.
-            // THE FRAME DURATION WILL BE ROUNDED.
             const int duration =
                 std::lround(1000.0
                             / static_cast<double>(
@@ -293,7 +286,6 @@ KisImportExportErrorCode KisWebPExport::convert(KisDocument *document, QIODevice
                 currentFrame.get()->width = bounds.width();
                 currentFrame.get()->height = bounds.height();
 
-                // Use ARGB in lossless mode
                 if (config.lossless == 1) {
                     currentFrame.get()->use_argb = 1;
                 }
@@ -311,15 +303,10 @@ KisImportExportErrorCode KisWebPExport::convert(KisDocument *document, QIODevice
                         || !enableDithering) {
                         dst = dev;
                     } else {
-                        // We need to use gradient painter code's:
-                        //    to convert to RGBA samedepth;
-                        //    then dither to RGBA8
-                        //    then convert from ARGB32 to RGBA8888
                         const KisPaintDeviceSP src = dev;
                         const KoID depthId = src->colorSpace()->colorDepthId();
                         const KoColorSpace *destCs = KoColorSpaceRegistry::instance()->rgb8();
                         if (cs->colorModelId() == RGBAColorModelID && !needSrgbConversion) {
-                            // Preserve color profile if model is RGB and force convert sRGB is off
                             destCs = KoColorSpaceRegistry::instance()->colorSpace(RGBAColorModelID.id(),
                                                                                   Integer8BitsColorDepthID.id(),
                                                                                   src->colorSpace()->profile());
@@ -362,7 +349,6 @@ KisImportExportErrorCode KisWebPExport::convert(KisDocument *document, QIODevice
                         }
                     }
 
-                    // Convert to sRGB for non-RGBA color model
                     const KoColorProfile *imageProfile = (dst->colorSpace()->colorModelId() == RGBAColorModelID)
                         ? dst->colorSpace()->profile()
                         : nullptr;
@@ -411,7 +397,6 @@ KisImportExportErrorCode KisWebPExport::convert(KisDocument *document, QIODevice
                 (image->animationInterface()->documentPlaybackRange().end() + 1)
                 * (1000 / image->animationInterface()->framerate());
 
-            // Insert the finish beacon.
             WebPAnimEncoderAdd(enc.get(), nullptr, timestamp_ms, nullptr);
 
             dbgFile << "Animation finished @" << timestamp_ms << "ms";
@@ -425,27 +410,20 @@ KisImportExportErrorCode KisWebPExport::convert(KisDocument *document, QIODevice
             currentFrame.get()->width = bounds.width();
             currentFrame.get()->height = bounds.height();
 
-            // Use ARGB in lossless mode
             if (config.lossless == 1) {
                 currentFrame.get()->use_argb = 1;
             }
 
-            // Insert the projection itself only
             const QImage pixels = [&]() {
                 KisPaintDeviceSP dst;
                 if ((cs->colorModelId() == RGBAColorModelID && cs->colorDepthId() == Integer8BitsColorDepthID)
                     || !enableDithering) {
                     dst = document->savingImage()->projection();
                 } else {
-                    // We need to use gradient painter code's:
-                    //    to convert to RGBA samedepth;
-                    //    then dither to RGBA8
-                    //    then convert from ARGB32 to RGBA8888
                     const KisPaintDeviceSP src = document->savingImage()->projection();
                     const KoID depthId = src->colorSpace()->colorDepthId();
                     const KoColorSpace *destCs = KoColorSpaceRegistry::instance()->rgb8();
                     if (cs->colorModelId() == RGBAColorModelID && !needSrgbConversion) {
-                        // Preserve color profile if model is RGB and force convert sRGB is off
                         destCs = KoColorSpaceRegistry::instance()->colorSpace(RGBAColorModelID.id(),
                                                                               Integer8BitsColorDepthID.id(),
                                                                               src->colorSpace()->profile());
@@ -488,7 +466,6 @@ KisImportExportErrorCode KisWebPExport::convert(KisDocument *document, QIODevice
                     }
                 }
 
-                // Convert to sRGB for non-RGBA color model
                 const KoColorProfile *imageProfile = (dst->colorSpace()->colorModelId() == RGBAColorModelID)
                     ? dst->colorSpace()->profile()
                     : nullptr;
@@ -534,7 +511,6 @@ KisImportExportErrorCode KisWebPExport::convert(KisDocument *document, QIODevice
         WebPAnimEncoderAssemble(enc.get(), &imageChunk);
     };
 
-    // Don't copy this data, it's the biggest chunk.
     WebPMuxSP mux(WebPMuxCreate(&imageChunk, 0), &WebPMuxDelete);
 
     if (!mux) {
@@ -542,7 +518,6 @@ KisImportExportErrorCode KisWebPExport::convert(KisDocument *document, QIODevice
         return ImportExportCodes::InternalError;
     }
 
-    // According to the standard, the ICC profile must be written first.
     if (cfg->getBool("save_profile", true)) {
         const QByteArray profile = needSrgbConversion
             ? KoColorSpaceRegistry::instance()->p709SRGBProfile()->rawData()
@@ -551,7 +526,6 @@ KisImportExportErrorCode KisWebPExport::convert(KisDocument *document, QIODevice
         WebPData iccChunk = {reinterpret_cast<const uint8_t *>(profile.data()),
                              static_cast<size_t>(profile.size())};
 
-        // This data will die at the end of the scope.
         if (WEBP_MUX_OK != WebPMuxSetChunk(mux.get(), "ICCP", &iccChunk, 1)) {
             errFile << "WebPMuxSetChunk for the ICC profile failed";
             return ImportExportCodes::InternalError;
@@ -582,14 +556,12 @@ KisImportExportErrorCode KisWebPExport::convert(KisDocument *document, QIODevice
 
             QBuffer ioDevice;
 
-            // Inject the data as any other IOBackend
             io->saveTo(metaDataStore.get(), &ioDevice);
 
             WebPData xmp = {
                 reinterpret_cast<const uint8_t *>(ioDevice.data().constData()),
                 static_cast<size_t>(ioDevice.data().size())};
 
-            // This data will die at the end of the scope.
             if (WEBP_MUX_OK != WebPMuxSetChunk(mux.get(), "EXIF", &xmp, 1)) {
                 errFile << "WebPMuxSetChunk for EXIF failed";
                 return ImportExportCodes::InternalError;
@@ -602,14 +574,12 @@ KisImportExportErrorCode KisWebPExport::convert(KisDocument *document, QIODevice
 
             QBuffer ioDevice;
 
-            // Inject the data as any other IOBackend
             io->saveTo(metaDataStore.get(), &ioDevice);
 
             WebPData xmp = {
                 reinterpret_cast<const uint8_t *>(ioDevice.data().constData()),
                 static_cast<size_t>(ioDevice.data().size())};
 
-            // This data will die at the end of the scope.
             if (WEBP_MUX_OK != WebPMuxSetChunk(mux.get(), "XMP ", &xmp, 1)) {
                 errFile << "WebPMuxSetChunk for XMP failed";
                 return ImportExportCodes::InternalError;
@@ -648,7 +618,6 @@ void KisWebPExport::initializeCapabilities()
     addCapability(KisExportCheckRegistry::instance()
                       ->get("TiffExifCheck")
                       ->create(KisExportCheckBase::PARTIALLY));
-    // XXX: add check for IPTC metadata and mark as UNSUPPORTED by the standard.
     QList<QPair<KoID, KoID>> supportedColorModels;
     supportedColorModels << QPair<KoID, KoID>() << QPair<KoID, KoID>(RGBAColorModelID, Integer8BitsColorDepthID);
     addSupportedColorModels(supportedColorModels, "WebP");

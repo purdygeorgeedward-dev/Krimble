@@ -23,15 +23,13 @@
 #include "TwoPointAssistant.h"
 #include "PerspectiveEllipseAssistant.h"
 #include "CurvilinearPerspectiveAssistant.h"
-//#include "mesh_assistant.h"
 
 K_PLUGIN_FACTORY_WITH_JSON(AssistantToolFactory, "kritaassistanttool.json", registerPlugin<AssistantToolPlugin>();)
-
 
 AssistantToolPlugin::AssistantToolPlugin(QObject *parent, const QVariantList &)
         : QObject(parent)
 {
-    KoToolRegistry::instance()->add(new KisAssistantToolFactory()); // Retained: drawing guides
+    KoToolRegistry::instance()->add(new KisAssistantToolFactory());
 
     KisPaintingAssistantFactoryRegistry::instance()->add(new RulerAssistantFactory);
     KisPaintingAssistantFactoryRegistry::instance()->add(new EllipseAssistantFactory);
@@ -45,7 +43,6 @@ AssistantToolPlugin::AssistantToolPlugin(QObject *parent, const QVariantList &)
     KisPaintingAssistantFactoryRegistry::instance()->add(new TwoPointAssistantFactory);
     KisPaintingAssistantFactoryRegistry::instance()->add(new PerspectiveEllipseAssistantFactory);
     KisPaintingAssistantFactoryRegistry::instance()->add(new CurvilinearPerspectiveAssistantFactory);
-//    KisPaintingAssistantFactoryRegistry::instance()->add(new MeshAssistantFactory);
 }
 
 AssistantToolPlugin::~AssistantToolPlugin()

@@ -29,4 +29,4 @@ public:
     LAGER_QT_CURSOR(int, deformAction);
 };
 
-#endif // KIS_DEFORM_OPTION_MODEL_H
+#endif

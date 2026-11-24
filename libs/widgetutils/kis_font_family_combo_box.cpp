@@ -63,8 +63,6 @@ KisFontFamilyComboBox::KisFontFamilyComboBox(QWidget *parent)
     setEditable(true);
     completer()->setCompletionMode(QCompleter::InlineCompletion);
     completer()->setCaseSensitivity(Qt::CaseInsensitive);
-    // The following are all helper fonts for LaTeX that no one but LaTeX would use
-    // but because many people use LaTeX, they do show up on quite a few systems.
     m_blacklistedFonts << "bbold10" << "cmbsy10" << "cmmib10"
                        << "cmss10" << "cmex10" << "cmmi10"
                        << "cmr10" << "cmsy10" << "eufb10"
@@ -104,11 +102,9 @@ void KisFontFamilyComboBox::refillComboBox(QVector<QFontDatabase::WritingSystem>
     for (int i = 0; i < writingSystems.size(); i++) {
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
         Q_FOREACH (QString family, fonts.families(writingSystems.at(i))) {
-            // if it's a private family it shouldn't be added.
             bool addFont = !fonts.isPrivateFamily(family);
 #else
         Q_FOREACH (QString family, QFontDatabase::families(writingSystems.at(i))) {
-            // if it's a private family it shouldn't be added.
             bool addFont = !QFontDatabase::isPrivateFamily(family);
 #endif
 
@@ -130,7 +126,6 @@ void KisFontFamilyComboBox::refillComboBox(QVector<QFontDatabase::WritingSystem>
             }
 
             if (addFont) {
-                // now, check for all possible familyname+style name combinations, so we can avoid those.
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
                 Q_FOREACH (const QString style, fonts.styles(family)) {
 #else
@@ -155,7 +150,7 @@ void KisFontFamilyComboBox::refillComboBox(QVector<QFontDatabase::WritingSystem>
         maxWidth += view()->style()->pixelMetric(QStyle::PixelMetric::PM_ScrollBarExtent);
     }
     view()->setMinimumWidth(maxWidth);
-} // KisFontFamilyComboBox::refillComboBox
+}
 
 void KisFontFamilyComboBox::setTopFont(const QString &family)
 {
@@ -346,7 +341,7 @@ void KisFontComboBoxes::fontFamilyChanged()
     if (styles.contains(currentText)) {
         m_styles->setCurrentText(currentText);
     }
-} // KisFontComboBoxes::fontFamilyChanged
+}
 
 void KisFontComboBoxes::fontChange()
 {

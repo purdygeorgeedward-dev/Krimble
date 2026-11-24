@@ -16,14 +16,12 @@
 
 #include "kis_node.h"
 
-
 struct KisTransformMaskAdapter::Private
 {
     QSharedPointer<ToolTransformArgs> args;
     bool isHidden {false};
     bool isInitialized {true};
 };
-
 
 KisTransformMaskAdapter::KisTransformMaskAdapter()
     : m_d(new Private)
@@ -97,7 +95,6 @@ QString KisTransformMaskAdapter::id() const
 
 void KisTransformMaskAdapter::toXML(QDomElement *e) const
 {
-    // bounds rotation cannot be used on transform masks currently
     KIS_SAFE_ASSERT_RECOVER_NOOP(qFuzzyIsNull(m_d->args->boundsRotation()));
     m_d->args->toXML(e);
 }
@@ -106,7 +103,6 @@ KisTransformMaskParamsInterfaceSP KisTransformMaskAdapter::fromXML(const QDomEle
 {
     ToolTransformArgs args(ToolTransformArgs::fromXML(e));
 
-    // bounds rotation cannot be used on transform masks currently
     KIS_SAFE_ASSERT_RECOVER_NOOP(qFuzzyIsNull(args.boundsRotation()));
 
     return KisTransformMaskParamsInterfaceSP(
@@ -134,7 +130,6 @@ KisTransformMaskParamsInterfaceSP KisTransformMaskAdapter::fromDumbXML(const QDo
         args.translateDstSpace(QPointF(transform.dx(), transform.dy()));
     }
 
-    // bounds rotation cannot be used on transform masks currently
     KIS_SAFE_ASSERT_RECOVER_NOOP(qFuzzyIsNull(args.boundsRotation()));
 
     return KisTransformMaskParamsInterfaceSP(

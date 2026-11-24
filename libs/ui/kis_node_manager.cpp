@@ -142,14 +142,10 @@ bool KisNodeManager::Private::activateNodeImpl(KisNodeSP node)
         return false;
     }
 
-    // Set the selection on the shape manager to the active layer
-    // and set call KoSelection::setActiveLayer( KoShapeLayer* layer )
-    // with the parent of the active layer.
     KoSelection *selection = view->canvasBase()->globalShapeManager()->selection();
     Q_ASSERT(selection);
     selection->deselectAll();
 
-    // Disable all enter-group modes that were active
     view->canvasBase()->setCurrentShapeManagerOwnerShape(nullptr);
 
     if (!node) {
@@ -170,8 +166,6 @@ bool KisNodeManager::Private::activateNodeImpl(KisNodeSP node)
 
         KIS_SAFE_ASSERT_RECOVER_RETURN_VALUE(shapeLayer, false);
 
-        //         shapeLayer->setGeometryProtected(node->userLocked());
-        //         shapeLayer->setVisible(node->visible());
         selection->setActiveLayer(shapeLayer);
 
         imageView->setCurrentNode(node);
@@ -180,14 +174,11 @@ bool KisNodeManager::Private::activateNodeImpl(KisNodeSP node)
             layerManager.activateLayer(layer);
         } else if (KisMaskSP mask = dynamic_cast<KisMask*>(node.data())) {
             maskManager.activateMask(mask);
-            // XXX_NODE: for now, masks cannot be nested.
             layerManager.activateLayer(static_cast<KisLayer*>(node->parent().data()));
         }
     }
     return true;
 }
-
-//=====================================================================================
 
 KisNodeManager::KisNodeManager(KisViewManager *view)
     : m_d(new Private(this, view))
@@ -221,23 +212,11 @@ void KisNodeManager::setView(QPointer<KisView>imageView)
         connect(shapeController, SIGNAL(sigActivateNode(KisNodeSP)), SLOT(slotNonUiActivatedNode(KisNodeSP)));
 
         if (!m_d->imageView->currentNode()) {
-            /**
-             * The view has not been initialized yet, so we should try to initialize it with
-             * the node saved in KisDummiesFacadeBase (or just wait for a signal from it)
-             */
             if (shapeController->lastActivatedNode() && !m_d->imageView->currentNode()) {
                 slotNonUiActivatedNode(shapeController->lastActivatedNode());
             } else {
-                // if last activated node is null, most probably, it means that the shape controller
-                // is going to Q_EMIT the activation signal very soon
             }
         } else {
-            /**
-             * If the view is initialized, we should check if the layer still belongs
-             * to the actual image, since it could have been removed. And since the
-             * forwarding happens via KisNodeManager, the could have missed this
-             * update.
-             */
             if (!m_d->imageView->currentNode()->graphListener()) {
                 slotNonUiActivatedNode(m_d->imageView->image()->root()->lastChild());
             }
@@ -350,10 +329,10 @@ void KisNodeManager::setup(KisKActionCollection * actionCollection, KisActionMan
 
     action = actionManager->createAction("new_from_visible");
     connect(action, SIGNAL(triggered()), this, SLOT(createFromVisible()));
-    
+
     action = actionManager->createAction("create_reference_image_from_active_layer");
     connect(action, SIGNAL(triggered()), this, SLOT(createReferenceImageFromLayer()));
-    
+
     action = actionManager->createAction("create_reference_image_from_visible_canvas");
     connect(action, SIGNAL(triggered()), this, SLOT(createReferenceImageFromVisible()));
 
@@ -380,7 +359,6 @@ void KisNodeManager::setup(KisKActionCollection * actionCollection, KisActionMan
 
     NEW_LAYER_ACTION("add_new_filter_mask", "KisFilterMask");
 
-    // NOTE: FastColorOverlayFilterMask is just an identifier, not an actual class name
     NEW_LAYER_ACTION("add_new_fast_color_overlay_mask", "FastColorOverlayFilterMask");
 
     NEW_LAYER_ACTION("add_new_colorize_mask", "KisColorizeMask");
@@ -405,8 +383,6 @@ void KisNodeManager::setup(KisKActionCollection * actionCollection, KisActionMan
     connect(&m_d->nodeConversionSignalMapper, SIGNAL(mapped(QString)),
             this, SLOT(convertNode(QString)));
 
-    // Isolation Modes...
-    // Post Qt5.14 this can be replaced with QActionGroup + ExclusionPolicy::ExclusiveOptional.
     action = actionManager->createAction("isolate_active_layer");
     connect(action, SIGNAL(toggled(bool)), this, SLOT(setIsolateActiveLayerMode(bool)));
     action = actionManager->createAction("isolate_active_group");
@@ -431,14 +407,12 @@ void KisNodeManager::setup(KisKActionCollection * actionCollection, KisActionMan
     action  = actionManager->createAction("split_alpha_write");
     connect(action, SIGNAL(triggered()), this, SLOT(slotSplitAlphaWrite()));
 
-    // HINT: we can save even when the nodes are not editable
     action  = actionManager->createAction("split_alpha_save_merged");
     connect(action, SIGNAL(triggered()), this, SLOT(slotSplitAlphaSaveMerged()));
 }
 
 void KisNodeManager::updateGUI()
 {
-    // enable/disable all relevant actions
     m_d->layerManager.updateGUI();
     m_d->maskManager.updateGUI();
 }
@@ -604,7 +578,6 @@ void KisNodeManager::changeIsolationRoot(KisNodeSP isolationRoot)
     const bool isIsolatingLayer = image->isIsolatingLayer();
     const bool isIsolatingGroup = image->isIsolatingGroup();
 
-    // Restart isolation with a new root node and the same settings.
     if (image->startIsolatedMode(isolationRoot, isIsolatingLayer, isIsolatingGroup) == false) {
         reinitializeIsolationActionGroup();
     }
@@ -612,8 +585,6 @@ void KisNodeManager::changeIsolationRoot(KisNodeSP isolationRoot)
 
 void KisNodeManager::handleExternalIsolationChange()
 {
-    // It might be that we have multiple Krita windows open. In such a case
-    // only the currently active one should restart isolated mode
     if (!m_d->view->mainWindowAsQWidget()->isActiveWindow()) return;
 
     KisImageWSP image = m_d->view->image();
@@ -644,13 +615,6 @@ KisNodeSP  KisNodeManager::createNode(const QString & nodeType, bool quiet, KisP
     }
 
     KIS_ASSERT_RECOVER_RETURN_VALUE(activeNode, 0);
-
-    /// the check for editability happens inside the functions
-    /// themselves, because layers can be created anyway (in a
-    /// different position), but masks cannot.
-
-    // XXX: make factories for this kind of stuff,
-    //      with a registry
 
     if (nodeType == "KisPaintLayer") {
         return m_d->layerManager.addPaintLayer(activeNode);
@@ -753,7 +717,7 @@ void KisNodeManager::createReferenceImage(bool fromLayer) {
     KisViewManager* m_view = m_d->view;
     KisDocument *document = m_view->document();
     KisCanvas2 *canvas = m_view->canvasBase();
-    
+
     const KisPaintDeviceSP paintDevice = fromLayer ? m_view->activeLayer()->projection()
                                                   : canvas->currentImage()->projection();
     const QImage image = paintDevice->convertToQImage(0, KoColorConversionTransformation::internalRenderingIntent(),
@@ -799,11 +763,6 @@ void KisNodeManager::slotSomethingActivatedNodeImpl(KisNodeSP node)
     KIS_ASSERT_RECOVER_RETURN(node != activeNode());
     if (m_d->activateNodeImpl(node)) {
         if (node) {
-            /**
-             * Notify the dummies facade about the lastly
-             * activated node. This information may be used
-             * when a new view is created for the image.
-             */
             dummiesFacade->setLastActivatedNode(node);
         }
         Q_EMIT sigUiNeedChangeActiveNode(node);
@@ -820,8 +779,6 @@ void KisNodeManager::slotSomethingActivatedNodeImpl(KisNodeSP node)
 
 void KisNodeManager::slotNonUiActivatedNode(KisNodeSP node)
 {
-    // the node must still be in the graph, some asynchronous
-    // signals may easily break this requirement
     if (node && !node->graphListener()) {
         node = 0;
     }
@@ -833,8 +790,6 @@ void KisNodeManager::slotNonUiActivatedNode(KisNodeSP node)
 
 void KisNodeManager::slotUiActivatedNode(KisNodeSP node)
 {
-    // the node must still be in the graph, some asynchronous
-    // signals may easily break this requirement
     if (node && !node->graphListener()) {
         node = 0;
     }
@@ -863,12 +818,6 @@ void KisNodeManager::slotUiActivatedNode(KisNodeSP node)
             }
         }
         else {
-            // Purdy Design: disabled forced tool switch on pixel-layer activation.
-            // Was: KoToolManager::instance()->switchToolRequested("KritaShape/KisToolBrush");
-            // Activating a layer should not auto-switch the active tool.
-            // if (vectorTools.contains(KoToolManager::instance()->activeToolId())) {
-            //     KoToolManager::instance()->switchToolRequested("KritaShape/KisToolBrush");
-            // }
         }
     }
 
@@ -915,7 +864,6 @@ void KisNodeManager::nodePropertiesIgnoreSelection(KisNodeSP node)
 {
     Q_ASSERT(node);
 
-    // Change the current node temporarily
     KisNodeSP originalNode = m_d->imageView->currentNode();
     m_d->imageView->setCurrentNode(node);
 
@@ -936,10 +884,6 @@ void KisNodeManager::changeCloneSource()
 
 qint32 KisNodeManager::convertOpacityToInt(qreal opacity)
 {
-    /**
-     * Scales opacity from the range 0...100
-     * to the integer range 0...255
-     */
 
     return qMin(255, int(opacity * 2.55 + 0.5));
 }
@@ -1170,23 +1114,19 @@ void KisNodeManager::activateNextNode(bool siblingsOnly)
     KisNodeSP nextNode = activeNode->nextSibling();
 
     if (!siblingsOnly) {
-        // Recurse groups...
         while (nextNode && nextNode->childCount() > 0) {
             nextNode = nextNode->firstChild();
         }
 
-        // Out of nodes? Back out of group...
         if (!nextNode && activeNode->parent()) {
             nextNode = activeNode->parent();
         }
     }
 
-    // Skip nodes hidden from tree view..
     while (nextNode && isNodeHidden(nextNode, m_d->nodeDisplayModeAdapter->showGlobalSelectionMask())) {
         nextNode = nextNode->nextSibling();
     }
 
-    // Select node, unless root..
     if (nextNode && nextNode->parent()) {
         slotNonUiActivatedNode(nextNode);
     }
@@ -1205,23 +1145,19 @@ void KisNodeManager::activatePreviousNode(bool siblingsOnly)
     KisNodeSP nextNode = activeNode->prevSibling();
 
     if (!siblingsOnly) {
-        // Enter groups..
         if (activeNode->childCount() > 0) {
             nextNode = activeNode->lastChild();
         }
 
-        // Out of nodes? Back out of group...
         if (!nextNode && activeNode->parent()) {
             nextNode = activeNode->parent()->prevSibling();
         }
     }
 
-    // Skip nodes hidden from tree view..
     while (nextNode && isNodeHidden(nextNode, m_d->nodeDisplayModeAdapter->showGlobalSelectionMask())) {
         nextNode = nextNode->prevSibling();
     }
 
-    // Select node, unless root..
     if (nextNode && nextNode->parent()) {
         slotNonUiActivatedNode(nextNode);
     }
@@ -1388,7 +1324,6 @@ void KisNodeManager::slotSplitAlphaIntoMask()
     KisNodeSP node = activeNode();
     if (!canModifyLayer(node)) return;
 
-    // guaranteed by KisActionManager
     KIS_ASSERT_RECOVER_RETURN(node->hasEditablePaintDevice());
 
     KisLayerUtils::splitAlphaToMask(node->image(), node, m_d->maskManager.createMaskNameCommon(node, "KisTransparencyMask",  i18n("Transparency Mask")));
@@ -1399,7 +1334,6 @@ void KisNodeManager::Private::mergeTransparencyMaskAsAlpha(bool writeToLayers)
     KisNodeSP node = q->activeNode();
     KisNodeSP parentNode = node->parent();
 
-    // guaranteed by KisActionManager
     KIS_ASSERT_RECOVER_RETURN(node->inherits("KisTransparencyMask"));
 
     if (writeToLayers && (!parentNode->hasEditablePaintDevice() || !node->isEditable(false))) {
@@ -1464,7 +1398,6 @@ void KisNodeManager::Private::mergeTransparencyMaskAsAlpha(bool writeToLayers)
                           OPACITY_OPAQUE_U8);
     }
 }
-
 
 void KisNodeManager::slotSplitAlphaWrite()
 {
@@ -1552,7 +1485,6 @@ void KisNodeManager::colorOverlayMaskProperties(KisNodeSP node)
 
     KisFilterMaskSP mask = layer->colorOverlayMask();
     if (!mask) {
-        // This layer does not use fast color overlay mask.
         return;
     }
 
@@ -1566,7 +1498,6 @@ void KisNodeManager::cutLayersToClipboard()
 
     KisNodeList::Iterator it = nodes.begin();
     while (it != nodes.end()) {
-        // make sure the deleted nodes aren't referenced here again
         if (!it->data()->parent()) {
             nodes.erase(it);
         }

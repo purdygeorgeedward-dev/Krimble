@@ -7,7 +7,6 @@
 
 #include "kis_shape_selection.h"
 
-
 #include <QPainter>
 #include <kundo2command.h>
 #include <QMimeData>
@@ -46,7 +45,6 @@
 
 #include <kis_debug.h>
 
-
 KisShapeSelection::KisShapeSelection(KoShapeControllerBase *shapeControllerBase, KisSelectionWSP selection)
     : KoShapeLayer(new KisShapeSelectionModel(selection->resolutionProxy(), selection, this)),
       m_model(static_cast<KisShapeSelectionModel*>(this->model())),
@@ -62,8 +60,6 @@ KisShapeSelection::KisShapeSelection(const KisShapeSelection& rhs, KisSelection*
 {
     init(m_resolutionProxy, rhs.m_shapeControllerBase);
 
-    // TODO: refactor shape selection to pass signals
-    //       via KoShapeManager, not via the model
     m_canvas->shapeManager()->setUpdatesBlocked(true);
     m_model->setUpdatesEnabled(false);
 
@@ -121,9 +117,8 @@ bool KisShapeSelection::saveSelection(KoStore * store, const QRect &imageRect) c
 
 bool KisShapeSelection::loadSelection(KoStore* store, const QRect &imageRect)
 {
-    QSizeF fragmentSize; // unused!
+    QSizeF fragmentSize;
 
-    // FIXME: we handle xRes() only!
     KIS_SAFE_ASSERT_RECOVER_NOOP(qFuzzyCompare(m_resolutionProxy->xRes(), m_resolutionProxy->yRes()));
     const qreal resolutionPPI = 72.0 * m_resolutionProxy->xRes();
 
@@ -190,14 +185,6 @@ void KisShapeSelection::recalculateOutlineCache()
 
     QPainterPath outline;
     Q_FOREACH (KoShape * shape, shapesList) {
-        /**
-         * WARNING: we should unite all the shapes in image coordinates,
-         * not in points. Boolean operations inside the QPainterPath
-         * linearize the curves into lines and they use absolute values
-         * for thresholds.
-         *
-         * See KritaUtils::pathShapeBooleanSpaceWorkaround() for more info
-         */
         QTransform shapeMatrix = shape->absoluteTransformation();
         outline = outline.united(resolutionMatrix.map(shapeMatrix.map(shape->outline())));
     }
@@ -250,7 +237,6 @@ void KisShapeSelection::renderSelection(KisPaintDeviceSP projection, const QRect
     QPainter maskPainter(&polygonMaskImage);
     maskPainter.setRenderHint(QPainter::Antialiasing, true);
 
-    // Break the mask up into chunks so we don't have to allocate a potentially very large QImage.
     for (qint32 x = r.x(); x < r.x() + r.width(); x += MASK_IMAGE_WIDTH) {
         for (qint32 y = r.y(); y < r.y() + r.height(); y += MASK_IMAGE_HEIGHT) {
 
@@ -303,7 +289,6 @@ void KisShapeSelection::slotMoveShapes(const QPointF &diff)
     }
 }
 
-// TODO same code as in vector layer, refactor!
 KUndo2Command* KisShapeSelection::transform(const QTransform &transform) {
     QList<KoShape*> shapes = m_canvas->shapeManager()->shapes();
     if(shapes.isEmpty()) return 0;
@@ -314,13 +299,10 @@ KUndo2Command* KisShapeSelection::transform(const QTransform &transform) {
     QList<QTransform> oldTransformations;
     QList<QTransform> newTransformations;
 
-    // this code won't work if there are shapes, that inherit the transformation from the parent container.
-    // the chart and tree shapes are examples for that, but they aren't used in krita and there are no other shapes like that.
     Q_FOREACH (const KoShape* shape, shapes) {
         QTransform oldTransform = shape->transformation();
         oldTransformations.append(oldTransform);
 
-        // don't transform the container
         if (dynamic_cast<const KoShapeGroup *>(shape) || !shape->parent()) {
             newTransformations.append(oldTransform);
         } else {
@@ -337,7 +319,5 @@ void KisShapeSelection::setResolutionProxy(KisImageResolutionProxySP resolutionP
 {
     m_resolutionProxy = resolutionProxy;
 
-    // the model will automatically request update for the
-    // canvas and recalculation of the outline
     m_model->setResolutionProxy(resolutionProxy);
 }

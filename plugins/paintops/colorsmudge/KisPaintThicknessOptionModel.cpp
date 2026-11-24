@@ -19,7 +19,7 @@ auto paintThicknessLens = lager::lenses::getset (
             KisPaintThicknessOptionData::OVERLAY;
     });
 
-} // namespace
+}
 
 KisPaintThicknessOptionModel::KisPaintThicknessOptionModel(lager::cursor<KisPaintThicknessOptionMixIn> _optionData)
     : optionData(_optionData)

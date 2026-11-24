@@ -64,16 +64,13 @@ void KisSegmentGradientSlider::paintEvent(QPaintEvent*)
     QPainter painter(this);
 
     const QRect previewRect = gradientStripeRect();
-    
+
     if (m_gradient) {
-        // Gradient
         KisGradientWidgetsUtils::paintGradientBox(painter, m_gradient, previewRect);
-        // Handles
         QList<KoGradientSegment*> segments = m_gradient->segments();
         painter.setRenderHint(QPainter::Antialiasing, true);
         const QRect handlesRect = this->handlesStripeRect();
         const bool hasFocus = this->hasFocus();
-        // Segment handles
         if (m_selectedHandle.type == HandleType_Segment) {
             const KoGradientSegment *selectedSegment = segments[m_selectedHandle.index];
             QRectF segmentHandleRect =
@@ -99,13 +96,10 @@ void KisSegmentGradientSlider::paintEvent(QPaintEvent*)
             c.setAlpha(96);
             painter.fillRect(segmentHandleRect, c);
         }
-        // Mid-Point handles
         const qreal midPointHandleSize = m_handleSize.height() * 0.5;
         const qreal midPointHandleOffsetY = (handlesRect.height() - 5.0 - midPointHandleSize) * 0.5;
         for (int i = 0; i < segments.count(); i++) {
             if (m_selectedHandle.type == HandleType_MidPoint && m_selectedHandle.index == i) {
-                // If this handle is selected then we will paint it later
-                // on top of everything else
                 continue;
             }
             QPointF handlePos =
@@ -117,15 +111,10 @@ void KisSegmentGradientSlider::paintEvent(QPaintEvent*)
                 palette().windowText().color(), palette().window().color(), palette().highlight().color()
             );
         }
-        // Stop handles
         const QColor highlightColor = palette().color(QPalette::Highlight);
-        // First stop if it is not selected, in which case it will be painted 
-        // later on top of everything else
         if (m_selectedHandle.type != HandleType_Stop || m_selectedHandle.index != 0) {
             KoGradientSegment* segment = segments.front();
             KisGradientWidgetsUtils::ColorType colorType = KisGradientWidgetsUtils::segmentEndPointTypeToColorType(segment->startType());
-            // Pass the color info as color 2 so that the type indicator is
-            // shown on the right side of the handle for this stop
             KisGradientWidgetsUtils::paintStopHandle(
                 painter,
                 QPointF(handlesRect.left() + segment->startOffset() * handlesRect.width(), handlesRect.top()),
@@ -136,23 +125,13 @@ void KisSegmentGradientSlider::paintEvent(QPaintEvent*)
                 { colorType, segment->startColor().toQColor() }
             );
         }
-        // Middle stops
         if (segments.size() > 1) {
             for (int i = 0; i < segments.count() - 1; ++i) {
                 if (m_selectedHandle.type == HandleType_Stop && m_selectedHandle.index == i + 1) {
-                    // If this handle is selected then we will paint it later
-                    // on top of everything else
                     continue;
                 }
                 KoGradientSegment* currentSegment = segments[i];
                 KoGradientSegment* nextSegment = segments[i + 1];
-                // If the end point of the current segment and the start point
-                // of the next segment have the same offset, that means the
-                // segments touch each other, are connected (normal behavior),
-                // so we paint a single special handle.
-                // If the end points have different offsets then krita stills
-                // considers the gradient valid (although Gimp doesn't) so we
-                // paint two different handles. 
                 if (currentSegment->endOffset() == nextSegment->startOffset()) {
                     KisGradientWidgetsUtils::paintStopHandle(
                         painter,
@@ -183,8 +162,6 @@ void KisSegmentGradientSlider::paintEvent(QPaintEvent*)
                 }
             }
         }
-        // Last stop. This is the last thing to be painted before the selected
-        // handle, so we don't need to make a special case here
         {
             KoGradientSegment* segment = segments.back();
             KisGradientWidgetsUtils::ColorType colorType = KisGradientWidgetsUtils::segmentEndPointTypeToColorType(segment->endType());
@@ -200,7 +177,6 @@ void KisSegmentGradientSlider::paintEvent(QPaintEvent*)
                 { colorType, segment->endColor().toQColor() }
             );
         }
-        // Selected stop
         if (m_selectedHandle.type == HandleType_MidPoint) {
             QPointF handlePos =
                 handlesRect.topLeft() +
@@ -214,8 +190,6 @@ void KisSegmentGradientSlider::paintEvent(QPaintEvent*)
             if (m_selectedHandle.index == 0) {
                 KoGradientSegment* segment = segments.front();
                 KisGradientWidgetsUtils::ColorType colorType = KisGradientWidgetsUtils::segmentEndPointTypeToColorType(segment->startType());
-                // Pass the color info as color 2 so that the type indicator is
-                // shown on the right side of the handle for this stop
                 KisGradientWidgetsUtils::paintStopHandle(
                     painter,
                     QPointF(handlesRect.left() + segment->startOffset() * handlesRect.width(), handlesRect.top()),
@@ -274,7 +248,6 @@ void KisSegmentGradientSlider::mousePressEvent(QMouseEvent * e)
     const QRect rect = sliderRect();
     const QRect handlesRect = handlesStripeRect();
 
-    // Find segment under cursor
     Handle selectedHandle;
     const qreal t = (e->x() - rect.left()) / static_cast<qreal>(rect.width());
     const qreal handleClickTolerance = m_handleSize.width() / static_cast<qreal>(rect.width());
@@ -282,27 +255,22 @@ void KisSegmentGradientSlider::mousePressEvent(QMouseEvent * e)
 
     for (int i = 0; i < m_gradient->segments().size(); ++i) {
         KoGradientSegment *segment = m_gradient->segments()[i];
-        // Check if a knob was pressed
         if (qAbs(t - segment->startOffset()) <= handleClickTolerance && e->pos().y() >= handlesRect.y()) {
-            // Left knob was pressed
             selectedHandle.type = HandleType_Stop;
             selectedHandle.index = i;
             m_drag = true;
             break;
         } else if (qAbs(t - segment->endOffset()) <= handleClickTolerance && e->pos().y() >= handlesRect.y()) {
-            // Right knob was pressed
             selectedHandle.type = HandleType_Stop;
             selectedHandle.index = i + 1;
             m_drag = true;
             break;
         } else if (qAbs(t - segment->middleOffset()) <= handleClickTolerance && e->pos().y() >= handlesRect.y()) {
-            // middle knob was pressed
             selectedHandle.type = HandleType_MidPoint;
             selectedHandle.index = i;
             m_drag = true;
             break;
         } else if (t >= segment->startOffset() && t <= segment->endOffset()) {
-            // the segment area was pressed
             selectedHandle.type = HandleType_Segment;
             selectedHandle.index = i;
             if (e->modifiers() & Qt::ControlModifier) {
@@ -551,24 +519,19 @@ void KisSegmentGradientSlider::mouseMoveEvent(QMouseEvent * e)
         const qreal handleClickTolerance = m_handleSize.width() / static_cast<qreal>(rect.width());
         for (int i = 0; i < m_gradient->segments().size(); ++i) {
             KoGradientSegment *segment = m_gradient->segments()[i];
-            // Check if a knob was hovered
             if (qAbs(t - segment->startOffset()) <= handleClickTolerance && e->pos().y() >= handlesRect.y()) {
-                // Left knob was hovered
                 hoveredHandle.type = HandleType_Stop;
                 hoveredHandle.index = i;
                 break;
             } else if (qAbs(t - segment->endOffset()) <= handleClickTolerance && e->pos().y() >= handlesRect.y()) {
-                // Right knob was hovered
                 hoveredHandle.type = HandleType_Stop;
                 hoveredHandle.index = i + 1;
                 break;
             } else if (qAbs(t - segment->middleOffset()) <= handleClickTolerance && e->pos().y() >= handlesRect.y()) {
-                // middle knob was hovered
                 hoveredHandle.type = HandleType_MidPoint;
                 hoveredHandle.index = i;
                 break;
             } else if (t >= segment->startOffset() && t <= segment->endOffset()) {
-                // the segment area was hovered
                 hoveredHandle.type = HandleType_Segment;
                 hoveredHandle.index = i;
                 break;
@@ -697,7 +660,7 @@ void KisSegmentGradientSlider::leaveEvent(QEvent *e)
 
 void KisSegmentGradientSlider::moveHandle(Handle handle, qreal distance, bool useShrinkEpsilon)
 {
-    const qreal epsilon = useShrinkEpsilon ? shrinkEpsilon : 0.0; 
+    const qreal epsilon = useShrinkEpsilon ? shrinkEpsilon : 0.0;
     if (handle.type == HandleType_Segment) {
         KoGradientSegment *segment = m_gradient->segments()[handle.index];
         KoGradientSegment *previousSegment = handle.index == 0 ? nullptr : m_gradient->segments()[handle.index - 1];
@@ -868,7 +831,7 @@ void KisSegmentGradientSlider::collapseSelectedSegment()
     }
 }
 
-void KisSegmentGradientSlider::centerSelectedHandle() 
+void KisSegmentGradientSlider::centerSelectedHandle()
 {
     if (m_selectedHandle.type == HandleType_Segment) {
         KoGradientSegment *segment = m_gradient->segments()[m_selectedHandle.index];
@@ -1107,7 +1070,6 @@ void KisSegmentGradientSlider::chooseSelectedStopColor()
         connect(dialog, &QDialog::accepted, setColorFn);
         colorDialog = dialog;
     }
-    // common functionality
     connect(colorDialog, &QDialog::rejected, [endType1, endType2, color1, color2, segments, this]()
                                              {
                                                  if (m_selectedHandle.index == 0) {

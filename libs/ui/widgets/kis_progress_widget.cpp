@@ -32,7 +32,6 @@ KisProgressWidget::KisProgressWidget(QWidget* parent)
     connect(m_cancelButton, SIGNAL(clicked()), this, SLOT(cancel()));
 
     m_progressBar = new KoProgressBar(this);
-    // fixme:connect to the visibility changed signal if exists
     connect(m_progressBar, SIGNAL(valueChanged(int)), SLOT(correctVisibility(int)));
     layout->addWidget(m_progressBar);
     layout->addWidget(m_cancelButton);
@@ -64,7 +63,6 @@ void KisProgressWidget::cancel()
 
 void KisProgressWidget::correctVisibility(int progressValue)
 {
-    // TODO: this check duplicates code in KoProgressBar::setValue()
 
     const bool visibility =
         m_progressBar->minimum() == m_progressBar->maximum() ||

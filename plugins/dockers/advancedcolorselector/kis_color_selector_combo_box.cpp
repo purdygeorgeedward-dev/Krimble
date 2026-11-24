@@ -40,15 +40,12 @@ public:
         layout->addWidget(new KisColorSelector(KisColorSelectorConfiguration(KisColorSelectorConfiguration::Square, KisColorSelectorConfiguration::Slider, KisColorSelectorConfiguration::VH, KisColorSelectorConfiguration::hsvS), this), 1,2);
         layout->addWidget(new KisColorSelector(KisColorSelectorConfiguration(KisColorSelectorConfiguration::Square, KisColorSelectorConfiguration::Slider, KisColorSelectorConfiguration::hsvSH, KisColorSelectorConfiguration::V), this), 1,3);
 
-
-
         layout->addWidget(new KisColorSelector(KisColorSelectorConfiguration(KisColorSelectorConfiguration::Square, KisColorSelectorConfiguration::Ring, KisColorSelectorConfiguration::SL, KisColorSelectorConfiguration::H), this), 0,1);
         layout->addWidget(new KisColorSelector(KisColorSelectorConfiguration(KisColorSelectorConfiguration::Wheel, KisColorSelectorConfiguration::Slider, KisColorSelectorConfiguration::LH, KisColorSelectorConfiguration::hslS), this), 0,2);
         layout->addWidget(new KisColorSelector(KisColorSelectorConfiguration(KisColorSelectorConfiguration::Wheel, KisColorSelectorConfiguration::Slider, KisColorSelectorConfiguration::hslSH, KisColorSelectorConfiguration::L), this), 0,3);
         layout->addWidget(new KisColorSelector(KisColorSelectorConfiguration(KisColorSelectorConfiguration::Square, KisColorSelectorConfiguration::Slider, KisColorSelectorConfiguration::SL, KisColorSelectorConfiguration::H), this), 1,0);
         layout->addWidget(new KisColorSelector(KisColorSelectorConfiguration(KisColorSelectorConfiguration::Square, KisColorSelectorConfiguration::Slider, KisColorSelectorConfiguration::LH, KisColorSelectorConfiguration::hslS), this), 1,1);
         layout->addWidget(new KisColorSelector(KisColorSelectorConfiguration(KisColorSelectorConfiguration::Square, KisColorSelectorConfiguration::Slider, KisColorSelectorConfiguration::hslSH, KisColorSelectorConfiguration::L), this), 1,2);
-
 
         layout->addWidget(new KisColorSelector(KisColorSelectorConfiguration(KisColorSelectorConfiguration::Square, KisColorSelectorConfiguration::Ring, KisColorSelectorConfiguration::SI, KisColorSelectorConfiguration::H), this), 0,1);
         layout->addWidget(new KisColorSelector(KisColorSelectorConfiguration(KisColorSelectorConfiguration::Wheel, KisColorSelectorConfiguration::Slider, KisColorSelectorConfiguration::IH, KisColorSelectorConfiguration::hsiS), this), 0,2);
@@ -78,7 +75,6 @@ public:
             }
         }
     }
-
 
     void setList(int model){
             for(int i=1; i<layout()->count(); i++) {
@@ -125,7 +121,6 @@ protected:
                 KisColorSelector* item = dynamic_cast<KisColorSelector*>(layout()->itemAt(i)->widget());
                 Q_ASSERT(item);
 
-
                 if(layout()->itemAt(i)->widget()->isVisible()==true && item->geometry().adjusted(-spacing/2, -spacing/2, spacing/2, spacing/2).contains(e->pos())) {
                     QRect oldArea=highlightArea;
                     highlightArea=item->geometry().adjusted(-spacing/2, -spacing/2, spacing/2, spacing/2);
@@ -146,9 +141,7 @@ protected:
             KisColorSelectorComboBox* parent = dynamic_cast<KisColorSelectorComboBox*>(this->parent());
             Q_ASSERT(parent);
             parent->setConfiguration(m_lastActiveConfiguration);
-            //setList(parent->m_model);
         }
-        //dbgKrita<<"mousepress";
         hide();
         e->accept();
     }
@@ -167,7 +160,6 @@ KisColorSelectorComboBox::KisColorSelectorComboBox(QWidget* parent) :
     m_currentSelector.setDisplayBlip(false);
     m_currentSelector.setColor(KoColor(QColor(255,0,0), m_currentSelector.colorSpace()));
 
-    // 30 pixels for the arrow of the combobox
     setMinimumSize(m_private->selectorSize+m_private->spacing+30,m_private->selectorSize+m_private->spacing);
     auto sizePolicy = this->sizePolicy();
     sizePolicy.setWidthForHeight(true);
@@ -186,7 +178,6 @@ void KisColorSelectorComboBox::hidePopup()
 
 void KisColorSelectorComboBox::showPopup()
 {
-    // only show if this is not the popup
     QComboBox::showPopup();
     m_private->move(mapToGlobal(QPoint(0,0)));
     m_private->show();
@@ -194,7 +185,6 @@ void KisColorSelectorComboBox::showPopup()
 
 void KisColorSelectorComboBox::setColorSpace(const KoColorSpace *colorSpace)
 {
-    //this is not the popup, but we should set the canvas for all popup selectors
     for(int i=0; i<m_private->layout()->count(); i++) {
         KisColorSelector* item = dynamic_cast<KisColorSelector*>(m_private->layout()->itemAt(i)->widget());
         Q_ASSERT(item);

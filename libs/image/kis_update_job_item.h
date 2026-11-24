@@ -19,8 +19,6 @@
 #include "kis_updater_context.h"
 #include <KoAlwaysInline.h>
 
-//#define DEBUG_JOBS_SEQUENCE
-
 class KRITAIMAGE_EXPORT KisUpdateJobItem : public QObject, public QRunnable
 {
     Q_OBJECT
@@ -48,8 +46,6 @@ public:
     void run() override {
         runImpl();
 
-        // notify that the job is exiting and wake everybody
-        // waiting on wakeForDone()
         m_updaterContext->jobThreadExited();
     }
 
@@ -57,19 +53,6 @@ private:
 
     ALWAYS_INLINE void runImpl() {
         if (!isRunning()) return;
-
-        /**
-         * Here we break the idea of QThreadPool a bit. Ideally, we should split the
-         * jobs into distinct QRunnable objects and pass all of them to QThreadPool.
-         * That is a nice idea, but it doesn't work well when the jobs are small enough
-         * and the number of available cores is high (>4 cores). It this case the
-         * threads just tend to execute the job very quickly and go to sleep, which is
-         * an expensive operation.
-         *
-         * To overcome this problem we try to bulk-process the jobs. In sigJobFinished()
-         * signal (which is DirectConnection), the context may add the job to ourselves(!!!),
-         * so we switch from "done" state into "running" again.
-         */
 
         while (1) {
             KIS_SAFE_ASSERT_RECOVER_RETURN(isRunning());
@@ -105,13 +88,10 @@ private:
 
             m_updaterContext->doSomeUsefulWork();
 
-            // may flip the current state from Waiting -> Running again
             m_updaterContext->jobFinished();
 
             m_updaterContext->m_exclusiveJobLock.unlock();
 
-            // try to exit the loop. Please note, that no one can flip the state from
-            // WAITING to EMPTY except ourselves!
             Type expectedValue = Type::WAITING;
             if (m_atomicType.compare_exchange_strong(expectedValue, Type::EMPTY)) {
                 break;
@@ -124,8 +104,6 @@ public:
     inline void runMergeJob() {
         KIS_SAFE_ASSERT_RECOVER_RETURN(m_atomicType == Type::MERGE);
         KIS_SAFE_ASSERT_RECOVER_RETURN(m_walker);
-        // dbgKrita << "Executing merge job" << m_walker->changeRect()
-        //          << "on thread" << QThread::currentThreadId();
 
 #ifdef DEBUG_JOBS_SEQUENCE
         qDebug() << "running: merge " << m_walker->startNode() << m_walker->changeRect();
@@ -138,7 +116,6 @@ public:
         m_updaterContext->continueUpdate(changeRect);
     }
 
-    // return true if the thread should actually be started
     inline bool setWalker(KisBaseRectsWalkerSP walker) {
         KIS_ASSERT(m_atomicType <= Type::WAITING);
 
@@ -153,7 +130,6 @@ public:
         return oldState == Type::EMPTY;
     }
 
-    // return true if the thread should actually be started
     inline bool setStrokeJob(KisStrokeJob *strokeJob) {
         KIS_ASSERT(m_atomicType <= Type::WAITING);
 
@@ -168,7 +144,6 @@ public:
         return oldState == Type::EMPTY;
     }
 
-    // return true if the thread should actually be started
     inline bool setSpontaneousJob(KisSpontaneousJob *spontaneousJob) {
         KIS_ASSERT(m_atomicType <= Type::WAITING);
 
@@ -210,10 +185,6 @@ public:
     }
 
 private:
-    /**
-     * Open walker and stroke job for the testing suite.
-     * Please, do not use it in production code.
-     */
     friend class KisTestableUpdaterContext;
     friend class KisSimpleUpdateQueueTest;
     friend class KisStrokesQueueTest;
@@ -241,25 +212,13 @@ private:
     std::atomic<Type> m_atomicType {Type::EMPTY};
     volatile KisStrokeJobData::Sequentiality m_strokeJobSequentiality {KisStrokeJobData::SEQUENTIAL};
 
-    /**
-     * Runnable jobs part
-     * The job is owned by the context and deleted after completion
-     */
     KisRunnableWithDebugName *m_runnableJob {0};
 
-    /**
-     * Merge jobs part
-     */
     KisBaseRectsWalkerSP m_walker;
     KisAsyncMerger m_merger;
 
-    /**
-     * These rects cache actual values from the walker
-     * to eliminate concurrent access to a walker structure
-     */
     QRect m_accessRect;
     QRect m_changeRect;
 };
 
-
-#endif /* __KIS_UPDATE_JOB_ITEM_H */
+#endif

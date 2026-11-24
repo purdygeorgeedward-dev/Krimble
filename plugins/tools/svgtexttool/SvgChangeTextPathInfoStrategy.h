@@ -11,7 +11,6 @@
 #include <KoSvgTextShape.h>
 #include <KoSvgText.h>
 
-
 class SvgTextTool;
 
 class SvgChangeTextPathInfoStrategy : public KoInteractionStrategy
@@ -31,4 +30,4 @@ private:
     KoSvgText::TextOnPathInfo m_oldInfo;
 };
 
-#endif // SVGCHANGETEXTPATHINFOSTRATEGY_H
+#endif

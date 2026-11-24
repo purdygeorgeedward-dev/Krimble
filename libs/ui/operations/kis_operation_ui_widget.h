@@ -4,7 +4,6 @@
  *  SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-
 #ifndef KIS_OPERATION_UI_WIDGET_H
 #define KIS_OPERATION_UI_WIDGET_H
 
@@ -12,9 +11,6 @@
 #include <kritaui_export.h>
 #include "operations/kis_operation_configuration.h"
 
-/**
-*  Base class for the QWidget based operation config widgets
-*/
 class KRITAUI_EXPORT KisOperationUIWidget : public QWidget
 {
 
@@ -22,15 +18,8 @@ public:
     explicit KisOperationUIWidget(const QString& caption, QWidget* parent = 0);
     ~KisOperationUIWidget() override;
 
-   /**
-    * Caption of the operation widget, used in dialog caption
-    */
     QString caption() const;
 
-   /**
-    * Fetch the setting from the config widget
-    * @param config configuration to which the setting will be written
-    */
     virtual void getConfiguration(KisOperationConfigurationSP config) = 0;
 
 private:
@@ -38,4 +27,4 @@ private:
     Private* const d;
 };
 
-#endif // KIS_OPERATION_UI_WIDGET_H
+#endif

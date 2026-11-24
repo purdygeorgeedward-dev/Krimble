@@ -12,9 +12,8 @@
 
 #include "kis_shortcut_matcher.h"
 
-
 void activateLocalMonitor(bool activate);
 
 QVector<Qt::Key> queryPressedKeysMac();
 
-#endif // KIS_EXTENDED_MODIFIERS_MAPPER_OSX_H
+#endif

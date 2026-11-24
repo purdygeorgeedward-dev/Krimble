@@ -28,13 +28,11 @@ inline void putS15(QByteArray &b, double v) { put32(b, quint32(qint32(std::lroun
 inline void putXyz(QByteArray &b, double x, double y, double z) { putS15(b, x); putS15(b, y); putS15(b, z); }
 inline void pad4(QByteArray &b) { while (b.size() % 4) b.append('\0'); }
 
-// ICC v2 16 bit Lab: L 0 to 100 is 0 to 0xFF00; a and b -128 to 127.996 is 0 to 0xFFFF (0 at 0x8000)
 inline quint16 encL(double L) { return quint16(std::clamp(std::lround(L / 100.0 * 65280.0), 0L, 65535L)); }
 inline quint16 encAB(double v) { return quint16(std::clamp(std::lround((v + 128.0) * 256.0), 0L, 65535L)); }
 inline double decL(int e) { return e / 65280.0 * 100.0; }
 inline double decAB(int e) { return e / 256.0 - 128.0; }
 
-// a lut16 (mft2) tag with identity input and output tables
 inline QByteArray lut16(int inCh, int outCh, int grid, const QVector<quint16> &clut)
 {
     QByteArray t;
@@ -57,8 +55,8 @@ inline QByteArray textDescription(const QString &text)
     putSig(t, "desc"); put32(t, 0);
     put32(t, quint32(ascii.size() + 1));
     t.append(ascii); t.append('\0');
-    put32(t, 0); put32(t, 0);           // Unicode language code and count
-    put16(t, 0); t.append('\0');         // Macintosh script code and count
+    put32(t, 0); put32(t, 0);
+    put16(t, 0); t.append('\0');
     t.append(QByteArray(67, '\0'));
     return t;
 }
@@ -71,13 +69,11 @@ inline QByteArray textTag(const QString &text)
     return t;
 }
 
-// Builds the profile file. The main thread stays responsive (a progress box with Cancel); returns an empty array when cancelled.
 inline QByteArray build(const KrimbleCmykProfile &profile, const QString &description, QWidget *parent)
 {
     const KrimbleCmykEngine engine(profile);
     const KrimbleVec3 paperWhite = profile.inks.xyz[0];
 
-    // A2B: CMYK to Lab (fast, in this thread)
     const int gA = 17;
     QVector<quint16> a2b;
     a2b.reserve(gA * gA * gA * gA * 3);
@@ -89,7 +85,6 @@ inline QByteArray build(const KrimbleCmykProfile &profile, const QString &descri
         a2b.append(encL(L)); a2b.append(encAB(a)); a2b.append(encAB(b));
     }
 
-    // B2A: Lab to CMYK (the separation, on all the cores)
     const int gB = 17;
     const int nodes = gB * gB * gB;
     QVector<quint16> b2a(nodes * 4);
@@ -116,7 +111,6 @@ inline QByteArray build(const KrimbleCmykProfile &profile, const QString &descri
     if (watcher.isCanceled()) return QByteArray();
     progress.setValue(nodes);
 
-    // the file
     const QByteArray tagA2B = lut16(4, 3, gA, a2b);
     const QByteArray tagB2A = lut16(3, 4, gB, b2a);
     QByteArray tagDesc = textDescription(description);
@@ -124,7 +118,7 @@ inline QByteArray build(const KrimbleCmykProfile &profile, const QString &descri
     QByteArray tagWtpt;
     putSig(tagWtpt, "XYZ "); put32(tagWtpt, 0); putXyz(tagWtpt, paperWhite.x, paperWhite.y, paperWhite.z);
 
-    struct Tag { const char *sig; int body; };   // body: index into bodies
+    struct Tag { const char *sig; int body; };
     std::vector<QByteArray> bodies = {tagA2B, tagB2A, tagDesc, tagCprt, tagWtpt};
     const std::vector<Tag> tags = {{"A2B0", 0}, {"A2B1", 0}, {"A2B2", 0}, {"B2A0", 1}, {"B2A1", 1}, {"B2A2", 1}, {"desc", 2}, {"cprt", 3}, {"wtpt", 4}};
     const int tableSize = 4 + int(tags.size()) * 12;
@@ -136,22 +130,20 @@ inline QByteArray build(const KrimbleCmykProfile &profile, const QString &descri
         cursor += quint32(bodies[i].size());
     }
     QByteArray file;
-    // header (128 bytes)
-    put32(file, 0);                                  // size, filled in below
-    put32(file, 0);                                  // preferred CMM
-    put32(file, 0x02400000);                         // version 2.4
+    put32(file, 0);
+    put32(file, 0);
+    put32(file, 0x02400000);
     putSig(file, "prtr"); putSig(file, "CMYK"); putSig(file, "Lab ");
     const QDateTime now = QDateTime::currentDateTimeUtc();
     put16(file, quint16(now.date().year())); put16(file, quint16(now.date().month())); put16(file, quint16(now.date().day()));
     put16(file, quint16(now.time().hour())); put16(file, quint16(now.time().minute())); put16(file, quint16(now.time().second()));
     putSig(file, "acsp");
-    put32(file, 0); put32(file, 0); put32(file, 0); put32(file, 0);   // platform, flags, manufacturer, model
-    put32(file, 0); put32(file, 0);                  // attributes
-    put32(file, 0);                                  // rendering intent: perceptual
-    putXyz(file, 0.9642, 1.0, 0.8249);               // the illuminant (D50)
-    put32(file, 0);                                  // creator
+    put32(file, 0); put32(file, 0); put32(file, 0); put32(file, 0);
+    put32(file, 0); put32(file, 0);
+    put32(file, 0);
+    putXyz(file, 0.9642, 1.0, 0.8249);
+    put32(file, 0);
     file.append(QByteArray(128 - file.size(), '\0'));
-    // tag table
     put32(file, quint32(tags.size()));
     for (const Tag &t : tags) { putSig(file, t.sig); put32(file, offsets[size_t(t.body)]); put32(file, quint32(bodies[size_t(t.body)].size())); }
     for (size_t i = 0; i < bodies.size(); ++i) {
@@ -164,7 +156,6 @@ inline QByteArray build(const KrimbleCmykProfile &profile, const QString &descri
     return file;
 }
 
-// builds the profile, saves it in the icc_profiles folder and adds it to the color management; returns the profile's name (empty when cancelled or failed)
 inline QString install(const KrimbleCmykProfile &profile, QWidget *parent)
 {
     const QString description = QStringLiteral("Krimble CMYK ") + profile.displayName();
@@ -182,13 +173,12 @@ inline QString install(const KrimbleCmykProfile &profile, QWidget *parent)
     file.close();
     KoColorSpaceEngine *icc = KoColorSpaceEngineRegistry::instance()->get("icc");
     if (!icc || !icc->addProfile(data)) {
-        // a profile with this name may already be in use (the same settings were made before): it is in the folder, and is taken at the next start
         QMessageBox::information(parent, QStringLiteral("Custom CMYK"), QStringLiteral("The profile \"%1\" is saved. Restart Krimble to use the new version.").arg(description));
         return description;
     }
     return description;
 }
 
-} // namespace KrimbleCmykIcc
+}
 
 #endif

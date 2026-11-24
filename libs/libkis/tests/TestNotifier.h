@@ -19,4 +19,4 @@ private:
     Document *m_document {0};
 };
 
-#endif // TESTNOTIFIER_H
+#endif

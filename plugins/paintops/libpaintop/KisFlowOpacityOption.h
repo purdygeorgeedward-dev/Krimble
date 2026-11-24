@@ -23,4 +23,4 @@ private:
     bool m_indirectPaintingActive {false};
 };
 
-#endif // KISFLOWOPACITYOPTION_H
+#endif

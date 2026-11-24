@@ -15,4 +15,4 @@ private Q_SLOTS:
     void redoUndo();
 };
 
-#endif // TESTREMOVESUBPATHCOMMAND_H
+#endif

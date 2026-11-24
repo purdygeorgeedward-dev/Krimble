@@ -23,7 +23,6 @@ KisImageAnimSettingCommand::KisImageAnimSettingCommand(KisImageAnimationInterfac
 
 void KisImageAnimSettingCommand::redo()
 {
-    // SET image animation settings to after values..
     KIS_ASSERT(m_animInterface);
 
     KUndo2Command::redo();
@@ -34,7 +33,6 @@ void KisImageAnimSettingCommand::redo()
 
 void KisImageAnimSettingCommand::undo()
 {
-    // RESET image animation settings back to before values..
     KIS_ASSERT(m_animInterface);
 
     KUndo2Command::undo();

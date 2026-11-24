@@ -84,8 +84,6 @@ QList<KoShape*> KoSvgPaste::fetchShapesFromData(const QByteArray &data, const QR
         return shapes;
     }
 
-
-
     QString errorMsg;
     int errorLine = 0;
     int errorColumn = 0;

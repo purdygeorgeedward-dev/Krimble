@@ -1,22 +1,8 @@
-/////////////////////////////////////////////////////////////////////////////
-//  einspline:  a library for creating and evaluating B-splines            //
 //  Copyright (C) 2007 Kenneth P. Esler, Jr.                               //
-//                                                                         //
-//  This program is free software; you can redistribute it and/or modify   //
 //  it under the terms of the GNU General Public License as published by   //
 //  the Free Software Foundation; either version 2 of the License, or      //
-//  (at your option) any later version.                                    //
-//                                                                         //
-//  This program is distributed in the hope that it will be useful,        //
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of         //
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          //
 //  GNU General Public License for more details.                           //
-//                                                                         //
 //  You should have received a copy of the GNU General Public License      //
-//  along with this program; if not, write to the Free Software            //
-//  Foundation, Inc., 51 Franklin Street, Fifth Floor,                     //
-//  Boston, MA  02110-1301  USA                                            //
-/////////////////////////////////////////////////////////////////////////////
 
 #include "nugrid.h"
 #include <cmath>
@@ -27,14 +13,13 @@
 #include <boost/math/special_functions/expm1.hpp>
 using namespace boost::math;
 
-
 int
 center_grid_reverse_map (void* gridptr, double x)
 {
   center_grid *grid = (center_grid *)gridptr;
 
   x -= grid->center;
-  double index = 
+  double index =
       copysign (log1p(fabs(x)*grid->aInv)*grid->bInv, x);
   return (int)floor(grid->half_points + index - grid->even_half);
 }
@@ -43,7 +28,7 @@ int
 log_grid_reverse_map (void *gridptr, double x)
 {
   log_grid *grid = (log_grid *)gridptr;
-  
+
   int index = (int) floor(grid->ainv*log(x*grid->startinv));
 
   if (index < 0)
@@ -51,7 +36,6 @@ log_grid_reverse_map (void *gridptr, double x)
   else
     return index;
 }
-
 
 int
 general_grid_reverse_map (void* gridptr, double x)
@@ -80,7 +64,7 @@ general_grid_reverse_map (void* gridptr, double x)
 }
 
 NUgrid*
-create_center_grid (double start, double end, double ratio, 
+create_center_grid (double start, double end, double ratio,
 		    int num_points)
 {
   center_grid *grid = new center_grid;
@@ -96,31 +80,31 @@ create_center_grid (double start, double end, double ratio,
     grid->bInv = 1.0/grid->b;
     grid->points = new double[num_points];
     if (grid->odd) {
-      grid->even_half = 0.0;  
+      grid->even_half = 0.0;
       grid->odd_one   = 1;
       grid->a = 0.5*(end-start)/expm1(grid->b*grid->half_points);
       grid->aInv = 1.0/grid->a;
       for (int i=-grid->half_points; i<=grid->half_points; i++) {
 	double sign;
-	if (i<0) 
+	if (i<0)
 	  sign = -1.0;
 	else
 	  sign =  1.0;
-	grid->points[i+grid->half_points] = 
+	grid->points[i+grid->half_points] =
 	  sign * grid->a*expm1(grid->b*abs(i))+grid->center;
       }
     }
     else {
-      grid->even_half = 0.5;  
+      grid->even_half = 0.5;
       grid->odd_one   = 0;
-      grid->a = 
+      grid->a =
 	0.5*(end-start)/expm1(grid->b*(-0.5+grid->half_points));
       grid->aInv = 1.0/grid->a;
       for (int i=-grid->half_points; i<grid->half_points; i++) {
 	double sign;
-	if (i<0) sign = -1.0; 
+	if (i<0) sign = -1.0;
 	else     sign =  1.0;
-	grid->points[i+grid->half_points] = 
+	grid->points[i+grid->half_points] =
 	  sign * grid->a*expm1(grid->b*fabs(0.5+i)) + grid->center;
       }
     }
@@ -129,7 +113,6 @@ create_center_grid (double start, double end, double ratio,
   }
   return (NUgrid*) grid;
 }
-
 
 NUgrid*
 create_log_grid (double start, double end,
@@ -150,7 +133,6 @@ create_log_grid (double start, double end,
   return (NUgrid*) grid;
 }
 
-
 NUgrid*
 create_general_grid (double *points, int num_points)
 {
@@ -162,7 +144,7 @@ create_general_grid (double *points, int num_points)
     grid->start = points[0];
     grid->end   = points[num_points-1];
     grid->num_points = num_points;
-    for (int i=0; i<num_points; i++) 
+    for (int i=0; i<num_points; i++)
       grid->points[i] = points[i];
     grid->code = GENERAL;
   }

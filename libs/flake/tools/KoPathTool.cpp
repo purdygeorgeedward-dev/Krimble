@@ -62,7 +62,6 @@
 
 #include <math.h>
 
-// helper function to calculate the squared distance between two points
 qreal squaredDistance(const QPointF& p1, const QPointF &p2)
 {
     qreal dx = p1.x()-p2.x();
@@ -154,8 +153,6 @@ void KoPathTool::pointTypeChanged(KoPathPointTypeCommand::PointType type)
 
         KUndo2Command *initialConversionCommand = createPointToCurveCommand(selectedPoints);
 
-        // conversion should happen before the c-tor
-        // of KoPathPointTypeCommand is executed!
         if (initialConversionCommand) {
             initialConversionCommand->redo();
         }
@@ -189,8 +186,6 @@ void KoPathTool::insertPoints()
         KoPathPointInsertCommand *cmd = new KoPathPointInsertCommand(segments, positionInSegment);
         d->canvas->addCommand(cmd);
 
-        // TODO: this construction is dangerous. The canvas can remove the command right after
-        //       it has been added to it!
         m_pointSelection.clear();
         foreach (KoPathPoint * p, cmd->insertedPoints()) {
             m_pointSelection.add(p, false);
@@ -314,9 +309,8 @@ void KoPathTool::convertToPath()
     }
 
     if (!textShapes.isEmpty()) {
-        KUndo2Command *cmd = new KUndo2Command(kundo2_i18n("Convert to Path")); // TODO: reuse the text from KoParameterToPathCommand
+        KUndo2Command *cmd = new KUndo2Command(kundo2_i18n("Convert to Path"));
         const QList<KoShape*> oldSelectedShapes = implicitCastList<KoShape*>(textShapes);
-
 
         new KoKeepShapesSelectedCommand(oldSelectedShapes, {}, canvas()->selectedShapesProxy(),
                                         KisCommandUtils::FlipFlopCommand::State::INITIALIZING, cmd);
@@ -351,15 +345,12 @@ bool checkCanJoinToPoints(const KoPathPointData & pd1, const KoPathPointData & p
     KoPathShape *path1 = pd1.pathShape;
     KoPathShape *path2 = pd2.pathShape;
 
-    // check if subpaths are already closed
     if (path1->isClosedSubpath(index1.first) || path2->isClosedSubpath(index2.first))
         return false;
 
-    // check if first point is an endpoint
     if (index1.second != 0 && index1.second != path1->subpathPointCount(index1.first)-1)
         return false;
 
-    // check if second point is an endpoint
     if (index2.second != 0 && index2.second != path2->subpathPointCount(index2.first)-1)
         return false;
 
@@ -431,7 +422,6 @@ void KoPathTool::breakAtSelection()
 void KoPathTool::breakAtSegment()
 {
     Q_D(KoToolBase);
-    // only try to break a segment when 2 points of the same object are selected
     if (m_pointSelection.objectCount() == 1 && m_pointSelection.size() == 2) {
         QList<KoPathPointData> segments(m_pointSelection.selectedSegmentsData());
         if (segments.size() == 1) {
@@ -485,7 +475,6 @@ void KoPathTool::paint(QPainter &painter, const KoViewConverter &converter)
 
         KoPathShape *shape = m_activeSegment->path;
 
-        // if the stroke is invisible, then we already painted the outline of the shape!
         if (shape->stroke() && shape->stroke()->isVisible()) {
             KoPathPointIndex index = shape->pathPointIndex(m_activeSegment->segmentStart);
             KoPathSegment segment = shape->segmentByIndex(index).toCubic();
@@ -505,8 +494,6 @@ void KoPathTool::paint(QPainter &painter, const KoViewConverter &converter)
             helper.drawPath(path);
         }
     }
-
-
 
     if (m_currentStrategy) {
         painter.save();
@@ -557,9 +544,6 @@ void KoPathTool::repaintDecorations()
 
 void KoPathTool::mousePressEvent(KoPointerEvent *event)
 {
-    // When using touch drawing, we only ever receive move events after the
-    // finger has pressed down. We have to issue an artificial move here so that
-    // the tool's state is updated properly to handle the press.
     if (event->isTouchEvent()) {
         mouseMoveEvent(event);
     }
@@ -568,7 +552,6 @@ void KoPathTool::mousePressEvent(KoPointerEvent *event)
         m_textOutlineHelper->toggleTextContourMode(shape);
         event->accept();
     }
-    // we are moving if we hit a point and use the left mouse button
     if (m_activeHandle) {
         m_currentStrategy.reset(m_activeHandle->handleMousePress(event));
     } else {
@@ -577,14 +560,12 @@ void KoPathTool::mousePressEvent(KoPointerEvent *event)
 
             bool shift_pressed = (event->modifiers() & Qt::ShiftModifier);
 
-            // check if we hit a path segment
             if (m_activeSegment && m_activeSegment->isValid()) {
 
                 KoPathShape *shape = m_activeSegment->path;
                 KoPathPointIndex index = shape->pathPointIndex(m_activeSegment->segmentStart);
                 KoPathSegment segment = shape->segmentByIndex(index);
 
-                // The segment is selected so now need to deselect it
                 if (m_pointSelection.contains(segment.first()) && m_pointSelection.contains(segment.second())
                     && shift_pressed) {
                     m_pointSelection.remove(segment.first());
@@ -653,17 +634,13 @@ void KoPathTool::mouseMoveEvent(KoPointerEvent *event)
         } else {
             QList<KoPathPoint*> points = shape->pointsAt(roi, true);
             if (! points.empty()) {
-                // find the nearest control point from all points within the roi
                 KoPathPoint * bestPoint = 0;
                 KoPathPoint::PointType bestPointType = KoPathPoint::Node;
                 qreal minDistance = HUGE_VAL;
                 Q_FOREACH (KoPathPoint *p, points) {
-                    // the node point must be hit if the point is not selected yet
                     if (! m_pointSelection.contains(p) && ! roi.contains(p->point()))
                         continue;
 
-                    // check for the control points first as otherwise it is no longer
-                    // possible to change the control points when they are the same as the point
                     if (p->activeControlPoint1() && roi.contains(p->controlPoint1())) {
                         qreal dist = squaredDistance(roi.center(), p->controlPoint1());
                         if (dist < minDistance) {
@@ -682,7 +659,6 @@ void KoPathTool::mouseMoveEvent(KoPointerEvent *event)
                         }
                     }
 
-                    // check the node point at last
                     qreal dist = squaredDistance(roi.center(), p->point());
                     if (dist < minDistance) {
                         bestPoint = p;
@@ -704,7 +680,7 @@ void KoPathTool::mouseMoveEvent(KoPointerEvent *event)
 
                 PointHandle *prev = dynamic_cast<PointHandle*>(m_activeHandle.data());
                 if (prev && prev->activePoint() == bestPoint && prev->activePointType() == bestPointType)
-                    return; // no change;
+                    return;
 
                 m_activeHandle.reset(new PointHandle(this, bestPoint, bestPointType));
                 repaintDecorations();
@@ -754,7 +730,6 @@ void KoPathTool::mouseReleaseEvent(KoPointerEvent *event)
             d->canvas->addCommand(command);
         if (hadNoSelection && dynamic_cast<KoPathPointRubberSelectStrategy*>(m_currentStrategy.data())
                 && !m_pointSelection.hasSelection()) {
-            // the click didn't do anything at all. Allow it to be used by others.
             event->ignore();
         }
         m_currentStrategy.reset();
@@ -785,13 +760,6 @@ void KoPathTool::keyPressEvent(QKeyEvent *event)
     } else {
         switch (event->key()) {
 #ifndef NDEBUG
-//        case Qt::Key_D:
-//            if (m_pointSelection.objectCount() == 1) {
-//                QList<KoPathPointData> selectedPoints = m_pointSelection.selectedPointsData();
-//                KoPathShapePrivate *p = static_cast<KoPathShapePrivate*>(selectedPoints[0].pathShape->priv());
-//                p->debugPath();
-//            }
-//            break;
 #endif
         default:
             event->ignore();
@@ -823,7 +791,6 @@ void KoPathTool::keyReleaseEvent(QKeyEvent *event)
 void KoPathTool::mouseDoubleClickEvent(KoPointerEvent *event)
 {
     Q_D(KoToolBase);
-    // check if we are doing something else at the moment
     if (m_currentStrategy) return;
 
     if (!m_activeHandle && m_activeSegment && m_activeSegment->isValid()) {
@@ -841,7 +808,6 @@ void KoPathTool::mouseDoubleClickEvent(KoPointerEvent *event)
         }
         updateActions();
 
-        // Call a mouse move event to update the cursor and allow the user to drag the new point immediately
         mouseMoveEvent(event);
     } else if (!m_activeHandle && !m_activeSegment) {
         explicitUserStrokeEndRequest();
@@ -850,7 +816,6 @@ void KoPathTool::mouseDoubleClickEvent(KoPointerEvent *event)
 
 KoPathTool::PathSegment* KoPathTool::segmentAtPoint(const QPointF &point)
 {
-    // the max allowed distance from a segment
     const QRectF grabRoi = handleGrabRect(point);
     std::unique_ptr<PathSegment> segment(new PathSegment);
 
@@ -921,9 +886,6 @@ void KoPathTool::slotSelectionChanged()
 void KoPathTool::notifyPathPointsChanged(KoPathShape *shape)
 {
     Q_UNUSED(shape);
-
-    // active handle and selection might have already become invalid, so just
-    // delete them without dereferencing anything...
 
     m_activeHandle.reset();
     m_activeSegment.reset();
@@ -1030,7 +992,6 @@ void KoPathTool::updateActions()
 
     QList<KoPathPointData> segments(m_pointSelection.selectedSegmentsData());
 
-
     bool canSplitAtSegment = false;
     bool canConvertSegmentToLine = false;
     bool canConvertSegmentToCurve= false;
@@ -1108,7 +1069,7 @@ void KoPathTool::deactivate()
     KoToolBase::deactivate();
 }
 
-void KoPathTool::canvasResourceChanged(int key, const QVariant & /*res*/)
+void KoPathTool::canvasResourceChanged(int key, const QVariant & )
 {
     if (key == KoCanvasResource::HandleRadius || key == KoCanvasResource::DecorationThickness) {
         repaintDecorations();
@@ -1206,7 +1167,6 @@ KoToolSelection * KoPathTool::selection()
 
 void KoPathTool::requestUndoDuringStroke()
 {
-    // noop!
 }
 
 void KoPathTool::requestStrokeCancellation()
@@ -1216,7 +1176,6 @@ void KoPathTool::requestStrokeCancellation()
 
 void KoPathTool::requestStrokeEnd()
 {
-    // noop!
 }
 
 void KoPathTool::explicitUserStrokeEndRequest()

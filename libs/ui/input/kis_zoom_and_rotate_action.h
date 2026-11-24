@@ -11,11 +11,6 @@
 #include "kis_abstract_input_action.h"
 #include <QScopedPointer>
 
-/**
- * @brief This class handles both rotation and zooming operation. This is
- * separate from Zoom and Rotate operation applied individually because the
- * order of transformation is different.
- */
 class KisZoomAndRotateAction : public KisAbstractInputAction
 {
 public:
@@ -44,4 +39,4 @@ private:
     const QScopedPointer<Private> d;
 };
 
-#endif // KIS_ZOOM_AND_ROTATE_ACTION_H
+#endif

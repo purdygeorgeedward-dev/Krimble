@@ -70,7 +70,6 @@ struct KoColorConversionCache::Private {
     QThreadStorage<FastPathCacheItem*> fastStorage;
 };
 
-
 KoColorConversionCache::KoColorConversionCache() : d(new Private)
 {
 }
@@ -131,7 +130,7 @@ void KoColorConversionCache::colorSpaceIsDestroyed(const KoColorSpace* cs)
     QMultiHash< KoColorConversionCacheKey, CachedTransformation*>::iterator endIt = d->cache.end();
     for (QMultiHash< KoColorConversionCacheKey, CachedTransformation*>::iterator it = d->cache.begin(); it != endIt;) {
         if (it.key().src == cs || it.key().dst == cs) {
-            Q_ASSERT(it.value()->isNotInUse()); // That's terribly evil, if that assert fails, that means that someone is using a color transformation with a color space which is currently being deleted
+            Q_ASSERT(it.value()->isNotInUse());
             delete it.value();
             it = d->cache.erase(it);
         } else {
@@ -139,8 +138,6 @@ void KoColorConversionCache::colorSpaceIsDestroyed(const KoColorSpace* cs)
         }
     }
 }
-
-//--------- KoCachedColorConversionTransformation ----------//
 
 KoCachedColorConversionTransformation::KoCachedColorConversionTransformation(KoColorConversionCache::CachedTransformation* transfo)
     : m_transfo(transfo)

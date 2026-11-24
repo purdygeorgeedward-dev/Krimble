@@ -10,7 +10,6 @@
 
 #include <QApplication>
 
-
 struct KRITAIMAGE_NO_EXPORT KisCloneDocumentStroke::Private
 {
     Private(KisDocument *_document)

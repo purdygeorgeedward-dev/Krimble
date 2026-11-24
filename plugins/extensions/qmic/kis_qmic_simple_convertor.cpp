@@ -131,9 +131,6 @@ public:
 
         const float gmicUnitValue2KritaUnitValue =
             KoColorSpaceMathsTraits<float>::unitValue / m_gmicUnitValue;
-        // warning: green and blue channels on input contain random data!!! see
-        // that we copy only one channel when gmic image has grayscale
-        // colorspace
         while (nPixels > 0) {
             dstPixel->red = dstPixel->green = dstPixel->blue =
                 SCALE_FROM_FLOAT(srcPixel->red * gmicUnitValue2KritaUnitValue);
@@ -171,9 +168,6 @@ public:
 
         const float gmicUnitValue2KritaUnitValue =
             KoColorSpaceMathsTraits<float>::unitValue / m_gmicUnitValue;
-        // warning: green and blue channels on input contain random data!!! see
-        // that we copy only one channel when gmic image has grayscale
-        // colorspace
         while (nPixels > 0) {
             dstPixel->red = dstPixel->green = dstPixel->blue =
                 SCALE_FROM_FLOAT(srcPixel->red * gmicUnitValue2KritaUnitValue);
@@ -192,16 +186,13 @@ private:
 
 const std::map<QString, QString> blendingModeMap = {
     {"add", COMPOSITE_ADD},
-    //   {"alpha", ""}, // XXX
     {"and", COMPOSITE_AND},
-    //   {"average", ""}, // XXX
     {"blue", COMPOSITE_COPY_BLUE},
     {"burn", COMPOSITE_BURN},
     {"darken", COMPOSITE_DARKEN},
     {"difference", COMPOSITE_DIFF},
     {"divide", COMPOSITE_DIVIDE},
     {"dodge", COMPOSITE_DODGE},
-    //   {"edges", ""}, // XXX
     {"exclusion", COMPOSITE_EXCLUSION},
     {"freeze", COMPOSITE_FREEZE},
     {"grainextract", COMPOSITE_GRAIN_EXTRACT},
@@ -224,25 +215,8 @@ const std::map<QString, QString> blendingModeMap = {
     {"red", COMPOSITE_COPY_RED},
     {"reflect", COMPOSITE_REFLECT},
     {"saturation", COMPOSITE_SATURATION},
-    //   {"seamless", ""},       // XXX
-    //   {"seamless_mixed", ""}, // XXX
     {"screen", COMPOSITE_SCREEN},
-    //   {"shapeareamax", ""},                    // XXX
-    //   {"shapeareamax0", ""},                   // XXX
-    //   {"shapeareamin", ""},                    // XXX
-    //   {"shapeareamin0", ""},                   // XXX
-    //   {"shapeaverage", ""},                    // XXX
-    //   {"shapeaverage0", ""},                   // XXX
-    //   {"shapemedian", ""},                     // XXX
-    //   {"shapemedian0", ""},                    // XXX
-    //   {"shapemin", ""},                        // XXX
-    //   {"shapemin0", ""},                       // XXX
-    //   {"shapemax", ""},                        // XXX
-    //   {"shapemax0", ""},                       // XXX
-    //   {"softburn", ""},                        // XXX
-    //   {"softdodge", ""},                       // XXX
-    {"softlight", COMPOSITE_SOFT_LIGHT_SVG}, // XXX Is this correct?
-    //   {"stamp", ""}, // XXX
+    {"softlight", COMPOSITE_SOFT_LIGHT_SVG},
     {"subtract", COMPOSITE_SUBTRACT},
     {"value", COMPOSITE_VALUE},
     {"vividlight", COMPOSITE_VIVID_LIGHT},
@@ -394,13 +368,10 @@ void KisQmicSimpleConvertor::convertFromGmicFast(const KisQMicImage &gmicImage,
             RGBAColorModelID.id(),
             Float32BitsColorDepthID.id(),
             KoColorSpaceRegistry::instance()->rgb8()->profile());
-    // this function always convert to rgba or rgb with various color depth
     const quint32 dstNumChannels = rgbaFloat32bitcolorSpace->channelCount();
 
-    // number of channels that we will copy
     const int numChannels = gmicImage.m_spectrum;
 
-    // gmic image has 4, 3, 2, 1 channel
     std::vector<float *> planes(dstNumChannels);
     const size_t channelOffset = width * height;
     for (int channelIndex = 0; channelIndex < gmicImage.m_spectrum;
@@ -411,7 +382,7 @@ void KisQmicSimpleConvertor::convertFromGmicFast(const KisQMicImage &gmicImage,
     for (int channelIndex = gmicImage.m_spectrum;
          channelIndex < (int)dstNumChannels;
          channelIndex++) {
-        planes[channelIndex] = 0; // turn off
+        planes[channelIndex] = 0;
     }
 
     size_t dataY = 0;
@@ -431,8 +402,6 @@ void KisQmicSimpleConvertor::convertFromGmicFast(const KisQMicImage &gmicImage,
         static_cast<size_t>(rgbaFloat32bitcolorSpace->pixelSize()) * tileWidth
         * tileHeight);
 
-    // grayscale and rgb case does not have alpha, so let's fill 4th channel of
-    // rgba tile with opacity opaque
     if (gmicImage.m_spectrum == 1 || gmicImage.m_spectrum == 3) {
         const auto nPixels = tileWidth * tileHeight;
         auto *srcPixel =
@@ -463,7 +432,6 @@ void KisQmicSimpleConvertor::convertFromGmicFast(const KisQMicImage &gmicImage,
                 (tileWidth - columnsToWork) * floatPixelSize;
 
             auto *tileItStart = convertedTile.data();
-            // copy gmic channels to float tile
             const auto channelSize = sizeof(float);
             for (int i = 0; i < numChannels; i++) {
                 float *planeIt = planes[i] + dataIdx;
@@ -486,9 +454,7 @@ void KisQmicSimpleConvertor::convertFromGmicFast(const KisQMicImage &gmicImage,
             it->moveTo(imageX, imageY);
             quint8 *dstTileItStart = it->rawData();
             tileItStart =
-                convertedTile.data(); // back to the start of the converted tile
-            // copy float tile to dst colorspace based on input colorspace (rgb
-            // or grayscale)
+                convertedTile.data();
             for (size_t row = 0; row < rowsToWork; row++) {
                 gmicToDstPixelFormat->transform(
                     tileItStart,
@@ -606,7 +572,6 @@ void KisQmicSimpleConvertor::convertToGmicImageFast(KisPaintDeviceSP dev,
             it->moveTo(imageX, imageY);
             quint8 *tileItStart = dstTile.data() + dstTileIndex * dstPixelSize;
 
-            // transform tile row by row
             auto *dstTileIt = tileItStart;
             const auto *srcTileIt = it->rawDataConst();
 
@@ -625,8 +590,6 @@ void KisQmicSimpleConvertor::convertToGmicImageFast(KisPaintDeviceSP dev,
                 row--;
             }
 
-            // here we want to copy floats to dstTile, so tileItStart has to
-            // point to float buffer
             const auto channelSize = sizeof(float);
             for (size_t i = 0; i < numChannels; i++) {
                 float *planeIt = planes.at(i) + dataIdx;
@@ -643,7 +606,6 @@ void KisQmicSimpleConvertor::convertToGmicImageFast(KisPaintDeviceSP dev,
                     tileIt += tileRowStride;
                     planeIt += dataStride;
                 }
-                // skip channel in tile: red, green, blue, alpha
                 tileItStart += channelSize;
             }
 
@@ -658,13 +620,12 @@ void KisQmicSimpleConvertor::convertToGmicImageFast(KisPaintDeviceSP dev,
     }
 }
 
-// gmic assumes float rgba in 0.0 - 255.0
 void KisQmicSimpleConvertor::convertToGmicImage(KisPaintDeviceSP dev,
                                                 KisQMicImage &gmicImage,
                                                 QRect rc)
 {
     Q_ASSERT(!dev.isNull());
-    Q_ASSERT(gmicImage.m_spectrum == 4); // rgba
+    Q_ASSERT(gmicImage.m_spectrum == 4);
 
     if (rc.isEmpty()) {
         rc = QRect(0,
@@ -697,7 +658,7 @@ void KisQmicSimpleConvertor::convertToGmicImage(KisPaintDeviceSP dev,
     KisRandomConstAccessorSP it = dev->createRandomConstAccessorNG();
 
     const size_t optimalBufferSize =
-        64; // most common numContiguousColumns, tile size?
+        64;
     std::vector<quint8> floatRGBApixelStorage(
         rgbaFloat32bitcolorSpace->pixelSize() * optimalBufferSize);
     quint8 *floatRGBApixel = floatRGBApixelStorage.data();
@@ -778,7 +739,7 @@ void KisQmicSimpleConvertor::convertFromGmicImage(const KisQMicImage &gmicImage,
     float a = 1.0;
 
     const size_t optimalBufferSize =
-        64; // most common numContiguousColumns, tile size?
+        64;
     std::vector<quint8> floatRGBApixelStorage(
         rgbaFloat32bitcolorSpace->pixelSize() * optimalBufferSize);
     quint8 *floatRGBApixel = floatRGBApixelStorage.data();
@@ -789,13 +750,11 @@ void KisQmicSimpleConvertor::convertFromGmicImage(const KisQMicImage &gmicImage,
     const auto conversionFlags =
         KoColorConversionTransformation::internalConversionFlags();
 
-    // Krita needs rgba in 0.0...1.0
     const float multiplied =
         KoColorSpaceMathsTraits<float>::unitValue / gmicMaxChannelValue;
 
     switch (gmicImage.m_spectrum) {
     case 1: {
-        // convert grayscale to rgba
         for (int y = 0; y < rc.height(); y++) {
             int x = 0;
             while (x < rc.width()) {
@@ -832,7 +791,6 @@ void KisQmicSimpleConvertor::convertFromGmicImage(const KisQMicImage &gmicImage,
         break;
     }
     case 2: {
-        // convert grayscale alpha to rgba
         for (int y = 0; y < rc.height(); y++) {
             int x = 0;
             while (x < rc.width()) {
@@ -869,7 +827,6 @@ void KisQmicSimpleConvertor::convertFromGmicImage(const KisQMicImage &gmicImage,
         break;
     }
     case 3: {
-        // convert rgb -> rgba
         for (int y = 0; y < rc.height(); y++) {
             int x = 0;
             while (x < rc.width()) {
@@ -968,7 +925,6 @@ QImage KisQmicSimpleConvertor::convertToQImage(const KisQMicImage &gmicImage,
         static_cast<size_t>(gmicImage.m_width) * gmicImage.m_height;
     const size_t blueOffset = greenOffset * 2;
 
-    // always put 255 to qimage
     const float multiplied = 255.0f / gmicActualMaxChannelValue;
 
     for (int y = 0; y < gmicImage.m_height; y++) {
@@ -994,7 +950,6 @@ void KisQmicSimpleConvertor::convertFromQImage(const QImage &image,
     const size_t blueOffset = greenOffset * 2;
     const size_t alphaOffset = greenOffset * 3;
 
-    // QImage has 0..255
     const float qimageUnitValue = 255.0f;
     const float multiplied = gmicUnitValue / qimageUnitValue;
 

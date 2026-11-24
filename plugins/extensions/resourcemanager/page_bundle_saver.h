@@ -10,7 +10,6 @@
 #include <KoResourceBundle.h>
 #include "KisBundleStorage.h"
 
-
 namespace Ui {
 class PageBundleSaver;
 }
@@ -45,4 +44,4 @@ private:
     KisBundleStorage *m_bundleStorage;
 };
 
-#endif // PAGE_BUNDLE_SAVER_H
+#endif

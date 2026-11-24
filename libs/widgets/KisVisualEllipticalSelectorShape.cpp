@@ -25,7 +25,6 @@ KisVisualEllipticalSelectorShape::KisVisualEllipticalSelectorShape(KisVisualColo
                                                                  singelDTypes d)
     : KisVisualColorSelectorShape(parent, dimension, channel1, channel2)
 {
-    //qDebug() << "creating KisVisualEllipticalSelectorShape" << this;
     m_type = d;
     m_barWidth = barWidth;
     m_gamutMaskNeedsUpdate = (dimension == KisVisualColorSelectorShape::twodimensional);
@@ -33,7 +32,6 @@ KisVisualEllipticalSelectorShape::KisVisualEllipticalSelectorShape(KisVisualColo
 
 KisVisualEllipticalSelectorShape::~KisVisualEllipticalSelectorShape()
 {
-    //qDebug() << "deleting KisVisualEllipticalSelectorShape" << this;
 }
 
 void KisVisualEllipticalSelectorShape::setBorderWidth(int width)
@@ -52,8 +50,6 @@ QRect KisVisualEllipticalSelectorShape::getSpaceForSquare(QRect geom)
     radius.setAngle(135);
     QPointF tl(qFloor(radius.p2().x()), qFloor(radius.p2().y()));
     QPointF br = b.bottomRight() - tl;
-    // QRect interprets bottomRight differently (unsuitable) for "historical reasons",
-    // so construct a QRectF and convert to QRect
     QRect r = QRectF(tl, br).toRect();
     r.translate(pos());
     return r;
@@ -81,7 +77,6 @@ QRect KisVisualEllipticalSelectorShape::getSpaceForTriangle(QRect geom)
     rLine.setAngle(330);
     QPoint br(rLine.p2().toPoint());
     QPoint tl(width() - br.x(), m_barWidth + 4);
-    // can't use QRect(tl, br) constructor because it interprets br unsuitably for "historical reasons"
     QRect bound(tl, QSize(br.x() - tl.x(), br.y() - tl.y()));
     bound.adjust(-5, -5, 5, 5);
     bound.translate(pos());
@@ -127,7 +122,6 @@ QPointF KisVisualEllipticalSelectorShape::convertShapeCoordinateToWidgetCoordina
 
 QPointF KisVisualEllipticalSelectorShape::convertWidgetCoordinateToShapeCoordinate(QPointF coordinate) const
 {
-    //default implementation:
     qreal x = 0.5;
     qreal y = 1.0;
     qreal offset = 7.0;
@@ -178,8 +172,6 @@ QPointF KisVisualEllipticalSelectorShape::mousePositionToShapeCoordinate(const Q
         if (mask) {
             QPointF maskPoint = m_gamutMaskTransform.map(pos);
             if (!mask->coordIsClear(maskPoint, true)) {
-                // Ideally we try  to find the closest point on the mask border, possibly
-                // depending on dragStart. Currently just returns old position.
                 return getCursorPosition();
             }
         }
@@ -198,8 +190,6 @@ QRegion KisVisualEllipticalSelectorShape::getMaskMap()
 
 QImage KisVisualEllipticalSelectorShape::renderAlphaMaskImpl(qreal outerBorder, qreal innerBorder) const
 {
-    // Hi-DPI aware rendering requires that we determine the device pixel dimension;
-    // actual widget size in device pixels is not accessible unfortunately, it might be 1px smaller...
     const int deviceWidth = qCeil(width() * devicePixelRatioF());
     const int deviceHeight = qCeil(height() * devicePixelRatioF());
 
@@ -213,7 +203,6 @@ QImage KisVisualEllipticalSelectorShape::renderAlphaMaskImpl(qreal outerBorder, 
     QRectF circle(outerBorder, outerBorder, width() - 2*outerBorder, height() - 2*outerBorder);
     painter.drawEllipse(circle);
 
-    //painter.setBrush(Qt::black);
     if (innerBorder > outerBorder) {
         circle = QRectF(innerBorder, innerBorder, width() - 2*innerBorder, height() - 2*innerBorder);
         painter.setCompositionMode(QPainter::CompositionMode_Clear);
@@ -282,11 +271,6 @@ void KisVisualEllipticalSelectorShape::renderGamutMask()
     painter.setCompositionMode(QPainter::CompositionMode_DestinationIn);
     mask->paint(painter, true);
 
-    // TODO: implement a way to render gamut mask outline with custom pen
-    // determine how many units 1 pixel is now:
-    //QLineF measure = painter.transform().map(QLineF(0.0, 0.0, 1.0, 0.0));
-    //pen.setWidthF(1.0 / measure.length());
-    //painter.setPen(pen);
     painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
     mask->paintStroke(painter, true);
 
@@ -295,7 +279,6 @@ void KisVisualEllipticalSelectorShape::renderGamutMask()
 
 void KisVisualEllipticalSelectorShape::drawCursor(QPainter &painter)
 {
-    //qDebug() << this << "KisVisualEllipticalSelectorShape::drawCursor: image needs update" << imagesNeedUpdate();
     QPointF cursorPoint = convertShapeCoordinateToWidgetCoordinate(getCursorPosition());
     QColor col = getColorFromConverter(getCurrentColor());
     QBrush fill(Qt::SolidPattern);

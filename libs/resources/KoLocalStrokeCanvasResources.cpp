@@ -8,7 +8,6 @@
 #include <QVariant>
 #include <QMap>
 
-
 struct KoLocalStrokeCanvasResources::Private
 {
     QMap<int, QVariant> resources;
@@ -34,7 +33,6 @@ KoLocalStrokeCanvasResources &KoLocalStrokeCanvasResources::operator=(const KoLo
 KoLocalStrokeCanvasResources::~KoLocalStrokeCanvasResources()
 {
 }
-
 
 QVariant KoLocalStrokeCanvasResources::resource(int key) const
 {

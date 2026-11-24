@@ -19,4 +19,4 @@ private Q_SLOTS:
     void stressTestSequentialCommands();
 };
 
-#endif /* __KIS_STROKE_STRATEGY_UNDO_COMMAND_BASED_TEST_H */
+#endif

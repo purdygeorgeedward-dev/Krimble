@@ -27,7 +27,6 @@ class KoCanvasBase;
 class KisPaintInformation;
 class KisSpacingInformation;
 
-
 class KisToolSmartPatch : public KisToolPaint
 {
     Q_OBJECT
@@ -54,7 +53,6 @@ public Q_SLOTS:
     void deactivate() override;
 
 private:
-    //QRect inpaintImage(KisPaintDeviceSP maskDev, KisPaintDeviceSP imageDev);
     QPainterPath getBrushOutlinePath(const QPointF &documentPos, const KoPointerEvent *event);
     QPainterPath brushOutline();
     void requestUpdateOutline(const QPointF &outlineDocPoint, const KoPointerEvent *event) override;
@@ -66,7 +64,6 @@ private:
 
     void addMaskPath(KoPointerEvent *event);
 };
-
 
 class KisToolSmartPatchFactory : public KisToolPaintFactoryBase
 {
@@ -94,5 +91,4 @@ public:
 
 };
 
-
-#endif // KIS_TOOL_SMART_PATCH_H_
+#endif

@@ -16,16 +16,11 @@ class QString;
 class QTransform;
 class QImage;
 
-/**
- * @brief The HtmlSavingContext class provides context for saving a flake-based document
- * to html.
- */
 class HtmlSavingContext
 {
 public:
     HtmlSavingContext(QIODevice &shapeDevice);
     virtual ~HtmlSavingContext();
-    /// Provides access to the shape writer
     KoXmlWriter &shapeWriter();
 private:
     Q_DISABLE_COPY(HtmlSavingContext)
@@ -34,4 +29,4 @@ private:
     const QScopedPointer<Private> d;
 };
 
-#endif // HTMLSAVINGCONTEXT_H
+#endif

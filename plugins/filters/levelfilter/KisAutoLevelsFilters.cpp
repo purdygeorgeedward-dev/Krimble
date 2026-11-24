@@ -38,8 +38,6 @@ KisAutoLevelsFilterBase::KisAutoLevelsFilterBase(const KoID &id,
     , m_midtonesMethod(midtonesMethod)
     , m_midtonesAmount(midtonesAmount)
 {
-    // The histogram is computed over the whole apply rect, so no threading.
-    // No dialog: the filter applies immediately.
     setSupportsPainting(false);
     setSupportsThreading(false);
     setSupportsAdjustmentLayers(false);
@@ -55,22 +53,16 @@ void KisAutoLevelsFilterBase::processImpl(KisPaintDeviceSP device,
     Q_UNUSED(config);
     Q_ASSERT(device != 0);
 
-    // Krimble: the curves are now worked out by KrimbleAutoAdjust (Auto Tone: each channel stretched on its own;
-    // Auto Color: dark and light colors, neutral midtones, saturation lift). The old Levels-engine code is kept below, not used.
     KrimbleAutoAdjust::apply(device, applyRect,
                              id() == KisAutoColorFilter::id().id() ? KrimbleAutoAdjust::Color : KrimbleAutoAdjust::Tone,
                              progressUpdater);
 #if 0
     const KoColorSpace *cs = device->colorSpace();
 
-    // Same restriction as the "auto levels for all channels" button in the
-    // Levels dialog (KisLevelsConfigWidget.cpp): RGB only.
     if (cs->colorModelId() != RGBAColorModelID) {
         return;
     }
 
-    // Histogram of the real channels (built the same way as in
-    // KisLevelsConfigWidget::updateHistograms()).
     const QList<QString> keys = KoHistogramProducerFactoryRegistry::instance()->keysCompatibleWith(cs);
     if (keys.isEmpty()) {
         return;
@@ -78,9 +70,6 @@ void KisAutoLevelsFilterBase::processImpl(KisPaintDeviceSP device,
     KoHistogramProducerFactory *hpf = KoHistogramProducerFactoryRegistry::instance()->get(keys.at(0));
     KisHistogram histogram(device, applyRect, hpf->generate(), LINEAR);
 
-    // Same virtual channel list the Levels dialog uses, so that the
-    // configuration below has the channel layout the Levels transformation
-    // expects.
     const QVector<VirtualChannelInfo> virtualChannels = KisMultiChannelUtils::getVirtualChannels(cs);
 
     QVector<KisAutoLevels::ChannelHistogram> channelsHistograms;
@@ -93,7 +82,6 @@ void KisAutoLevelsFilterBase::processImpl(KisPaintDeviceSP device,
         return;
     }
 
-    // Output: black stays black, white stays white, target midtone is 50% gray.
     QVector<qreal> shadowsOutput(channelsHistograms.size(), 0.0);
     QVector<qreal> highlightsOutput(channelsHistograms.size(), 1.0);
     QVector<qreal> midtonesOutput(channelsHistograms.size(), 0.5);
@@ -101,17 +89,15 @@ void KisAutoLevelsFilterBase::processImpl(KisPaintDeviceSP device,
     const QVector<KisLevelsCurve> autoCurves =
         KisAutoLevels::adjustPerChannelContrast(
             channelsHistograms,
-            0.001, // shadows clipping: 0.1% (default of the Levels auto dialog)
-            0.001, // highlights clipping: 0.1% (default of the Levels auto dialog)
-            1.0,   // maximum input black/white offset: 100% (dialog default)
+            0.001,
+            0.001,
+            1.0,
             m_midtonesMethod,
             m_midtonesAmount,
             shadowsOutput,
             highlightsOutput,
             midtonesOutput);
 
-    // Put the computed curves into a Levels configuration, one per real
-    // channel, leaving the other virtual channels at identity.
     KisLevelsFilterConfiguration *levelsConfig =
         new KisLevelsFilterConfiguration(virtualChannels.size(), KisGlobalResourcesInterface::instance());
     KisFilterConfigurationSP levelsConfigSP(levelsConfig);
@@ -124,10 +110,8 @@ void KisAutoLevelsFilterBase::processImpl(KisPaintDeviceSP device,
         }
     }
     levelsConfig->setLevelsCurves(allCurves);
-    // Per-channel mode (not the single lightness curve).
     levelsConfig->setUseLightnessMode(false);
 
-    // Apply through the existing Levels transformation.
     KisLevelsFilter levelsFilter;
     QScopedPointer<KoColorTransformation> adj(levelsFilter.createTransformation(cs, levelsConfigSP));
     if (!adj) {

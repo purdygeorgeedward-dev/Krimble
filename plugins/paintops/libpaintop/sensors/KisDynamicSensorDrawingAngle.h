@@ -23,4 +23,4 @@ private:
     const int m_angleOffset;
 };
 
-#endif // KISDYNAMICSENSORDRAWINGANGLE_H
+#endif

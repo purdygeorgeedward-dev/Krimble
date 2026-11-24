@@ -66,7 +66,7 @@ public:
                 QMutexLocker guard(&mutex);
 
                 for (;;) {
-                    job = m_job.loadNonatomic(); // No concurrent writes inside lock
+                    job = m_job.loadNonatomic();
                     if (job != prevJob) {
                         break;
                     }
@@ -88,7 +88,7 @@ public:
     {
 #ifdef SANITY_CHECK
         KIS_ASSERT_RECOVER_NOOP(job != (Job*) m_job.load(Relaxed));
-#endif // SANITY_CHECK
+#endif
         storeRelease(job);
         job->run();
     }
@@ -104,4 +104,4 @@ public:
     }
 };
 
-#endif // SIMPLEJOBCOORDINATOR_H
+#endif

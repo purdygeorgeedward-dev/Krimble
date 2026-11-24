@@ -38,8 +38,6 @@
 #include <KisResourceThumbnailCache.h>
 #include <KisResourceMetaDataModel.h>
 
-
-/// The resource item delegate for rendering the resource preview
 class KisPresetDelegate : public QAbstractItemDelegate
 {
 public:
@@ -50,10 +48,8 @@ public:
 
     ~KisPresetDelegate() override {}
 
-    /// reimplemented
     void paint(QPainter *, const QStyleOptionViewItem &, const QModelIndex &) const override;
 
-    /// reimplemented
     QSize sizeHint(const QStyleOptionViewItem & option, const QModelIndex &) const override {
         return option.decorationSize;
     }
@@ -114,27 +110,12 @@ void KisPresetDelegate::paint(QPainter * painter, const QStyleOptionViewItem & o
         previewHighDpi.setDevicePixelRatio(devicePixelRatioF);
         painter->drawImage(paintRect.x(), paintRect.y(), previewHighDpi);
 
-        // Put an asterisk after the preset if it is dirty. This will help in case the pixmap icon is too small
-
         QString dirtyPresetIndicator = QString("");
         if (m_useDirtyPresets && dirty) {
             dirtyPresetIndicator = QString("*");
         }
 
-//        qreal brushSize = metaData["paintopSize"].toReal();
-//        qDebug() << "brushsize" << brushSize;
-//        QString brushSizeText;
-//        // Disable displayed decimal precision beyond a certain brush size
-//        if (brushSize < 100) {
-//            brushSizeText = QString::number(brushSize, 'g', 3);
-//        }
-//        else {
-//            brushSizeText = QString::number(brushSize, 'f', 0);
-//        }
-
-//        painter->drawText(pixSize.width() + 10, option.rect.y() + option.rect.height() - 10, brushSizeText); // brush size
-
-        QString presetDisplayName = index.data(Qt::UserRole + KisAbstractResourceModel::Name).toString().replace("_", " "); // don't need underscores that might be part of the file name
+        QString presetDisplayName = index.data(Qt::UserRole + KisAbstractResourceModel::Name).toString().replace("_", " ");
         painter->drawText(pixSize.width() + 10, option.rect.y() + option.rect.height() - 10, presetDisplayName.append(dirtyPresetIndicator));
 
     }
@@ -155,10 +136,9 @@ void KisPresetDelegate::paint(QPainter * painter, const QStyleOptionViewItem & o
         painter->setOpacity(1.0);
         painter->fillRect(option.rect, option.palette.highlight());
 
-        // highlight is not strong enough to pick out preset. draw border around it.
         painter->setCompositionMode(QPainter::CompositionMode_SourceOver);
         painter->setPen(QPen(option.palette.highlight(), 4, Qt::SolidLine, Qt::FlatCap, Qt::MiterJoin));
-        QRect selectedBorder = option.rect.adjusted(2 , 2, -2, -2); // constrict the rectangle so it doesn't bleed into other presets
+        QRect selectedBorder = option.rect.adjusted(2 , 2, -2, -2);
         painter->drawRect(selectedBorder);
     }
 
@@ -196,7 +176,6 @@ KisPresetChooser::KisPresetChooser(QWidget *parent)
 
     connect(KisConfigNotifier::instance(), SIGNAL(configChanged()),
             SLOT(notifyConfigChanged()));
-
 
     notifyConfigChanged();
 }
@@ -291,7 +270,7 @@ KisResourceItemChooser *KisPresetChooser::itemChooser()
 void KisPresetChooser::setPresetFilter(const QString& paintOpId)
 {
     QMap<QString, QVariant> metaDataFilter;
-    if (!paintOpId.isEmpty()) { // empty means "all"
+    if (!paintOpId.isEmpty()) {
         metaDataFilter["paintopid"] = paintOpId;
     }
     m_chooser->tagFilterModel()->setMetaDataFilter(metaDataFilter);
@@ -312,7 +291,6 @@ int KisPresetChooser::iconSize()
 
 void KisPresetChooser::saveIconSize()
 {
-    // save icon size
     if (KisConfig(true).presetIconSize() != iconSize()) {
         KisConfig(false).setPresetIconSize(iconSize());
     }

@@ -10,7 +10,6 @@
 #include "kis_image.h"
 #include "kis_simple_stroke_strategy.h"
 
-
 class TestingSimpleStrokeStrategy : public KisSimpleStrokeStrategy
 {
 public:
@@ -71,10 +70,6 @@ void KisSimpleStrokeStrategyTest::testCancel()
     KisStrokeId id = image->startStroke(new TestingSimpleStrokeStrategy());
     image->addJob(id, 0);
 
-    /**
-     * We add a delay to ensure the job is finished before the cancel
-     * is requested, the cancel job will abort it otherwise
-     */
     QTest::qSleep(500);
 
     image->cancelStroke(id);

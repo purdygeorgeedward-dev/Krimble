@@ -7,7 +7,6 @@
 
 #include "kis_pixel_selection.h"
 
-
 #include <QImage>
 #include <QVector>
 
@@ -30,7 +29,6 @@
 #include "kis_lod_transform.h"
 #include "krita_utils.h"
 #include "kundo2command.h"
-
 
 struct Q_DECL_HIDDEN KisPixelSelection::Private {
     KisSelectionWSP parentSelection;
@@ -67,7 +65,6 @@ KisPixelSelection::KisPixelSelection(const KisPixelSelection& rhs, KritaUtils::D
         , KisSelectionComponent(rhs)
         , m_d(new Private)
 {
-    // parent selection is not supposed to be shared
     m_d->outlineCache = rhs.m_d->outlineCache;
     m_d->outlineCacheValid = rhs.m_d->outlineCacheValid;
 
@@ -217,7 +214,6 @@ void KisPixelSelection::subtractSelection(KisPixelSelectionSP selection)
     QRect r = selection->selectedRect();
     if (r.isEmpty()) return;
 
-
     KisHLineIteratorSP dst = createHLineIteratorNG(r.x(), r.y(), r.width());
     KisHLineConstIteratorSP src = selection->createHLineConstIteratorNG(r.x(), r.y(), r.width());
     for (int i = 0; i < r.height(); ++i) {
@@ -297,7 +293,7 @@ void KisPixelSelection::symmetricdifferenceSelection(KisPixelSelectionSP selecti
 
     const quint8 defPixel = abs(*defaultPixel().data() - *selection->defaultPixel().data());
     setDefaultPixel(KoColor(&defPixel, colorSpace()));
-    
+
     m_d->outlineCacheValid &= selection->outlineCacheValid();
 
     if (m_d->outlineCacheValid) {
@@ -335,15 +331,12 @@ void KisPixelSelection::clear()
     m_d->outlineCacheValid = true;
     m_d->outlineCache = QPainterPath();
 
-    // Empty the thumbnail image. It is a valid state.
     m_d->invalidateThumbnailImage();
     m_d->thumbnailImageValid = true;
 }
 
 void KisPixelSelection::invert()
 {
-    // Region is needed here (not exactBounds or extent), because
-    // unselected but existing pixels need to be inverted too
     QRect rc = region().boundingRect();
 
     if (!rc.isEmpty()) {
@@ -410,12 +403,6 @@ QVector<QPolygon> KisPixelSelection::outline() const
 {
     QRect selectionExtent = selectedExactRect();
 
-    /**
-     * When the default pixel is not fully transparent, the
-     * exactBounds() return extent of the device instead. To make this
-     * value sane we should limit the calculated area by the bounds of
-     * the image.
-     */
     if (*defaultPixel().data() != MIN_SELECTED) {
         selectionExtent &= defaultBounds()->bounds();
     }
@@ -426,7 +413,6 @@ QVector<QPolygon> KisPixelSelection::outline() const
     qint32 height = selectionExtent.height();
 
     KisOutlineGenerator generator(colorSpace(), MIN_SELECTED);
-    // If the selection is small using a buffer is much faster
     try {
         quint8* buffer = new quint8[width*height];
         readBytes(buffer, xOffset, yOffset, width, height);
@@ -437,7 +423,6 @@ QVector<QPolygon> KisPixelSelection::outline() const
         return paths;
     }
     catch(const std::bad_alloc&) {
-        // Allocating so much memory failed, so we fall through to the slow option.
         warnKrita << "KisPixelSelection::outline ran out of memory allocating" << width << "*" << height << "bytes.";
     }
 
@@ -485,15 +470,6 @@ void KisPixelSelection::recalculateOutlineCache()
     Q_FOREACH (const QPolygon &polygon, outline()) {
         m_d->outlineCache.addPolygon(polygon);
 
-        /**
-         * The outline generation algorithm has a small bug, which
-         * results in the starting point be repeated twice in the
-         * beginning of the path, instead of being put to the
-         * end. Here we just explicitly close the path to workaround
-         * it.
-         *
-         * \see KisSelectionTest::testOutlineGeneration()
-         */
         m_d->outlineCache.closeSubpath();
     }
 
@@ -548,7 +524,6 @@ void KisPixelSelection::recalculateThumbnailImage(const QColor &maskColor)
         m_d->thumbnailImage = QImage();
         return;
     }
-
 
     if (rc.width() > maxPreviewSize ||
         rc.height() > maxPreviewSize) {

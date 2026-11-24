@@ -16,13 +16,11 @@
 #include "krita_utils.h"
 #include "kis_exposure_gamma_correction_interface.h"
 
-
 class KisGammaExposureAction::Private
 {
 public:
     Private(KisGammaExposureAction *qq) : q(qq) {}
 
-    // Coverity requires sane defaults for all variables (CID 248819)
     KisGammaExposureAction *q {nullptr};
 
     Shortcuts mode {ExposureShortcut};
@@ -33,7 +31,6 @@ public:
     void addExposure(qreal diff);
     void addGamma(qreal diff);
 };
-
 
 void KisGammaExposureAction::Private::addExposure(qreal diff)
 {
@@ -94,7 +91,7 @@ void KisGammaExposureAction::activate(int shortcut)
 {
     if (shortcut == ExposureShortcut) {
         QApplication::setOverrideCursor(KisCursor::changeExposureCursor());
-    } else /* if (shortcut == GammaShortcut) */ {
+    } else {
         QApplication::setOverrideCursor(KisCursor::changeGammaCursor());
     }
 }
@@ -170,7 +167,6 @@ void KisGammaExposureAction::cursorMovedAbsolute(const QPointF &startPos, const 
         inputManager()->canvas()->exposureGammaCorrectionInterface();
 
     if (!interface->canChangeExposureAndGamma()) return;
-
 
     if (d->mode == ExposureShortcut) {
         const qreal currentExposure = d->baseExposure + qreal(diff.y()) / step;

@@ -22,4 +22,4 @@ private:
     int m_length;
 };
 
-#endif // KISDYNAMICSENSORFADE_H
+#endif

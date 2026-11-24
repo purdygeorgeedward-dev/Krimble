@@ -1,8 +1,4 @@
-﻿/*
- *  SPDX-FileCopyrightText: 2024 Wolthera van Hövell tot Westerflier <griffinvalley@gmail.com>
- *
- *  SPDX-License-Identifier: GPL-2.0-or-later
- */
+﻿
 #ifndef KOMERGETEXTPROPERTIESINTOSHAPESCOMMAND_H
 #define KOMERGETEXTPROPERTIESINTOSHAPESCOMMAND_H
 
@@ -13,11 +9,6 @@
 class KoShape;
 class KoSvgTextProperties;
 
-/**
- * @brief The KoShapeMergeTextPropertiesCommand class
- * This sets text properties on given text shapes. For setting text
- * on range, see SvgTextMergePropertiesRangeCommand.
- */
 class KRITAFLAKE_EXPORT KoShapeMergeTextPropertiesCommand : public KUndo2Command
 {
 public:
@@ -34,4 +25,4 @@ private:
     QScopedPointer<Private> d;
 };
 
-#endif // KOMERGETEXTPROPERTIESINTOSHAPESCOMMAND_H
+#endif

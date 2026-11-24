@@ -52,7 +52,6 @@ public:
         return check(layer);
     }
 
-
     bool visit(KisAdjustmentLayer *layer) override {
         return check(layer);
     }
@@ -78,7 +77,6 @@ public:
     bool visit(KisSelectionMask *) override {return true;}
 
     bool visit(KisColorizeMask *) override {return true;}
-
 
 private:
     bool check(KisNode * node)
@@ -126,7 +124,7 @@ public:
         return (v.count() > 0);
     }
 
-    Level check(KisImageSP /*image*/) const override
+    Level check(KisImageSP ) const override
     {
         return m_level;
     }
@@ -160,4 +158,4 @@ public:
     const KoID m_colorDepthID;
 };
 
-#endif // ColorModelPerLayerCHECK_H
+#endif

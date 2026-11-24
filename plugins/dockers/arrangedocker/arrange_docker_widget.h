@@ -12,7 +12,6 @@
 
 #include "kactioncollection.h"
 
-
 namespace Ui {
 class ArrangeDockerWidget;
 }
@@ -35,4 +34,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif // ARRANGE_DOCKER_WIDGET_H
+#endif

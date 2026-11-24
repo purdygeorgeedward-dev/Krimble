@@ -90,18 +90,17 @@ QVariant ChannelModel::headerData(int section, Qt::Orientation orientation, int 
     return QVariant();
 }
 
-int ChannelModel::rowCount(const QModelIndex& /*parent*/) const
+int ChannelModel::rowCount(const QModelIndex& ) const
 {
     if (!m_canvas || !m_canvas->image()) return 0;
 
     return m_channelCount;
 }
 
-int ChannelModel::columnCount(const QModelIndex& /*parent*/) const
+int ChannelModel::columnCount(const QModelIndex& ) const
 {
     if (!m_canvas) return 0;
 
-    //columns are: checkbox, thumbnail, channel name
     return 3;
 }
 
@@ -133,9 +132,6 @@ bool ChannelModel::setData(const QModelIndex& index, const QVariant& value, int 
     return false;
 }
 
-//User double clicked on a row (but on channel checkbox)
-//we select this channel, and deselect all other channels (except alpha, which we don't touch)
-//this makes it fast to select single color channel
 void ChannelModel::rowActivated(const QModelIndex &index)
 {
     if (m_canvas && m_canvas->image()) {
@@ -164,7 +160,6 @@ void ChannelModel::rowActivated(const QModelIndex &index)
         emitAllDataChanged(channels.count() - 1, 0);
     }
 }
-
 
 void ChannelModel::isolateChannel(int channelIndex)
 {
@@ -222,7 +217,7 @@ void ChannelModel::loadChannelAsSelection(int channelIndex)
     applicator.end();
 }
 
-Qt::ItemFlags ChannelModel::flags(const QModelIndex& /*index*/) const
+Qt::ItemFlags ChannelModel::flags(const QModelIndex& ) const
 {
     Qt::ItemFlags flags = Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsUserCheckable;
     return flags;
@@ -249,7 +244,6 @@ void ChannelModel::setChannelThumbnails(const QVector<QImage> &channels, const K
 
         if (!cs || *rootLayer->colorSpace() == *cs) {
             const int newChannelCount = cs ? cs->channelCount() : 0;
-
 
             if (newChannelCount != m_channelCount) {
                 beginResetModel();

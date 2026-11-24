@@ -63,6 +63,5 @@ struct NotifyColorSpaceChangedOp
     }
 };
 
-
 }
-#endif /* __KIS_DO_SOMETHING_COMMAND_H */
+#endif

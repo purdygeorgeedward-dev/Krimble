@@ -9,7 +9,6 @@
 #include "kis_properties_configuration.h"
 #include <kis_paintop_lod_limitations.h>
 
-
 const QString HATCHING_ANGLE = "Hatching/angle";
 const QString HATCHING_SEPARATION = "Hatching/separation";
 const QString HATCHING_THICKNESS = "Hatching/thickness";
@@ -23,7 +22,6 @@ const QString HATCHING_BOOL_PLUSTHENMINUS = "Hatching/bool_plusthenminus";
 const QString HATCHING_BOOL_MOIREPATTERN = "Hatching/bool_moirepattern";
 
 const QString HATCHING_SEPARATIONINTERVALS = "Hatching/separationintervals";
-
 
 bool KisHatchingOptionsData::read(const KisPropertiesConfiguration *setting)
 {

@@ -28,7 +28,6 @@ KIS_DECLARE_STATIC_INITIALIZER {
     KisPreviewFileDialog::s_iconCreator = new KisFileIconCreator();
 }
 
-
 QIcon createIcon(const QImage &source, const QSize &iconSize)
 {
     QImage result;
@@ -36,28 +35,17 @@ QIcon createIcon(const QImage &source, const QSize &iconSize)
     QSize scaled = source.size().scaled(iconSize, Qt::KeepAspectRatio);
     qreal scale = scaled.width()/(qreal)(source.width());
 
-
-
     if (scale >= 2) {
-        // it can be treated like pixel art
-        // first scale with NN
         int scaleInt = qRound(scale);
         result = source.scaled(scaleInt*source.size(), Qt::KeepAspectRatio, Qt::FastTransformation);
-        // them with smooth transformation to make sure the whole icon is filled in
         result = result.scaled(iconSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
     } else {
         result = source.scaled(iconSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
     }
 
-    // The cropping here centers the image with the difference
-    // between the result and the expected width/height.
-    // The final size must be compared with iconSize
-    // because otherwise parts of the image may be chopped off if
-    // result > iconSize.
-    result = result.convertToFormat(QImage::Format_ARGB32) // add transparency
+    result = result.convertToFormat(QImage::Format_ARGB32)
         .copy((result.width() - iconSize.width()) / 2, (result.height() - iconSize.height()) / 2, iconSize.width(), iconSize.height());
 
-    // draw faint outline
     QPainter painter(&result);
     QColor textColor = qApp->palette().color(QPalette::Text);
     QColor backgroundColor = qApp->palette().color(QPalette::Window);
@@ -75,13 +63,12 @@ QIcon createIcon(const QImage &source, const QSize &iconSize)
     painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
     painter.drawRect(result.rect().adjusted(0, 0, -1, -1));
 
-    painter.end(); // Otherwise there will always be a copy
+    painter.end();
 
     return QIcon(QPixmap::fromImage(result));
 }
 
 }
-
 
 bool KisFileIconCreator::createFileIcon(QString path, QIcon &icon, qreal devicePixelRatioF, QSize iconSize)
 {
@@ -122,8 +109,6 @@ bool KisFileIconCreator::createFileIcon(QString path, QIcon &icon, qreal deviceP
                 return false;
             }
         } else if (mimeType == "image/tiff" || mimeType == "image/x-tiff" || mimeType == "image/jxl") {
-            // Workaround for a bug in Qt tiff QImageIO plugin
-            // XXX: Also for JPEG-XL if KImageFormats haven't updated to accommodate libjxl >= v0.9.0 API changes.
             QScopedPointer<KisDocument> doc(KisPart::instance()->createTemporaryDocument());
             doc->setFileBatchMode(true);
             bool r = doc->openPath(path, KisDocument::DontAddToRecent);

@@ -12,12 +12,6 @@
 
 class KisSwatch;
 
-/**
- * @brief The Swatch class is a thin wrapper around the KisSwatch class.
- *
- * A Swatch is a single color that is part of a palette, that has a name
- * and an id. A Swatch color can be a spot color.
- */
 class KRITALIBKIS_EXPORT Swatch : public QObject
 {
     Q_OBJECT
@@ -58,4 +52,4 @@ private:
     Private *const d;
 };
 
-#endif // SWATCH_H
+#endif

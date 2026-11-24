@@ -34,4 +34,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif /* __KIS_MULTIWAY_CUT_H */
+#endif

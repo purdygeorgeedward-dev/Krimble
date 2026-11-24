@@ -7,7 +7,7 @@
 #include "SvgClipPathHelper.h"
 
 SvgClipPathHelper::SvgClipPathHelper()
-    : m_clipPathUnits(KoFlake::UserSpaceOnUse) // default as per svg spec
+    : m_clipPathUnits(KoFlake::UserSpaceOnUse)
 {
 }
 

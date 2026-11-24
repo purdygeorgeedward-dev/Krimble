@@ -55,15 +55,11 @@ void KisOnionSkinCompositorTest::testComposite()
 
     KisPaintDeviceSP compositeDevice = new KisPaintDevice(p.image->colorSpace());
 
-    // Frame 0
-
     i->switchCurrentTimeAsync(0);
     p.image->waitForDone();
     compositor->composite(paintDevice, compositeDevice, QRect(0,0,512,512));
 
     QVERIFY(chk.checkDevice(compositeDevice, p.image, "frame00"));
-
-    // Frame 10
 
     i->switchCurrentTimeAsync(10);
     p.image->waitForDone();
@@ -71,8 +67,6 @@ void KisOnionSkinCompositorTest::testComposite()
     compositor->composite(paintDevice, compositeDevice, QRect(0,0,512,512));
 
     QVERIFY(chk.checkDevice(compositeDevice, p.image, "frame10"));
-
-    // Frame 20
 
     i->switchCurrentTimeAsync(20);
     p.image->waitForDone();
@@ -133,8 +127,6 @@ void KisOnionSkinCompositorTest::testSettings()
 
     compositor->composite(paintDevice, compositeDevice, QRect(0,0,512,512));
     QVERIFY(chk.checkDevice(compositeDevice, p.image, "01_double_skin"));
-
-    // Test tint options
 
     config.setNumberOfOnionSkins(1);
     config.setOnionSkinTintFactor(64);

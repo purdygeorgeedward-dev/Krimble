@@ -41,49 +41,23 @@ namespace KisIconUtils
         User
     };
 
-
-    /**
-     * Load a themed icon using its base name. Use it in
-     * Krita instead of previous KisIconUtils::loadIcon()
-     */
     KRITAWIDGETUTILS_EXPORT QIcon loadIcon(const QString &name);
 
-    /**
-     * Should we use a dark or light themed icon? Useful for images that are loaded
-     * dynamically like document templates instead of being in static resource files
-     */
     KRITAWIDGETUTILS_EXPORT bool useDarkIcons();
 
-    /**
-     * This function updates an icon of \p object depending on its
-     * type. See updateIcon() overrides to see the supported types
-     */
     KRITAWIDGETUTILS_EXPORT void updateIconCommon(QObject *object);
 
-    /**
-     * Update an icon of \p button according to the current theme
-     */
     KRITAWIDGETUTILS_EXPORT void updateIcon(QAbstractButton *button);
-
 
     KRITAWIDGETUTILS_EXPORT void clearIconCache();
 
-    /**
-     * Update an icon of \p comboBox according to the current theme
-     */
     KRITAWIDGETUTILS_EXPORT void updateIcon(QComboBox *comboBox);
 
-    /**
-     * Update an icon of \p action according to the current theme
-     */
     KRITAWIDGETUTILS_EXPORT void updateIcon(QAction *action);
 
-    /**
-     * Update the iconst of the \p tabBar according to the current theme
-     */
     KRITAWIDGETUTILS_EXPORT void updateIcon(QTabBar *tabBar);
 
     KRITAWIDGETUTILS_EXPORT QStringList allUniqueLoadedIconNames();
 }
 
-#endif /* __KIS_ICON_UTILS_H */
+#endif

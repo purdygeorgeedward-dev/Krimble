@@ -37,4 +37,4 @@ private:
 
 };
 
-#endif // KIS_SHADE_SELECTOR_LINES_SETTINGS_H
+#endif

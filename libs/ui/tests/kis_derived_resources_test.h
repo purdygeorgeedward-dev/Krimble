@@ -16,4 +16,4 @@ private Q_SLOTS:
     void test();
 };
 
-#endif /* __KIS_DERIVED_RESOURCES_TEST_H */
+#endif

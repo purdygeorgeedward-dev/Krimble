@@ -23,4 +23,4 @@ public:
     LAGER_QT_CURSOR(bool, enableHorizontalMirror);
 };
 
-#endif // KISMIRROROPTIONMODEL_H
+#endif

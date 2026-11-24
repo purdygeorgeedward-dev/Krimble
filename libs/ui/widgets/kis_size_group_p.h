@@ -29,12 +29,9 @@ public:
     void addWidget(QWidget *widget);
     void removeWidget(QWidget *widget);
 
-    /// Schedules an update of all widgets size
     void scheduleSizeUpdate();
 
-    /// Returns the size hint for the widgets contained in the size group.
     const QSize getSizeHint() const { return m_sizeHint; }
-
 
 private Q_SLOTS:
     void updateSize();
@@ -45,11 +42,10 @@ public:
     bool m_ignoreHidden;
 
 private:
-    QTimer* m_updateTimer; // used to filter multiple calls to scheduleSizeUpdate() into one single updateSize()
+    QTimer* m_updateTimer;
     QList<GroupItem*> m_groupItems;
     QSize m_sizeHint;
 };
-
 
 class GroupItem : public QObject, public QWidgetItem
 {
@@ -83,4 +79,4 @@ private:
     KisSizeGroupPrivate* m_group {0};
 };
 
-#endif // KISSIZEGROUPPRIVATE_H
+#endif

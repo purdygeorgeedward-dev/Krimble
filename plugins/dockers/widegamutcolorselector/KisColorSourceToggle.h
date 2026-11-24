@@ -10,7 +10,6 @@
 #include <QAbstractButton>
 #include <QScopedPointer>
 
-
 class KisColorSourceToggle : public QAbstractButton
 {
     Q_OBJECT
@@ -29,4 +28,4 @@ private:
     QScopedPointer<Private> m_d;
 };
 
-#endif // KISCOLORSOURCETOGGLE_H
+#endif

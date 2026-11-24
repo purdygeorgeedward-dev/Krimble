@@ -35,14 +35,11 @@ MyPaintCurveOptionWidget* createMyPaintCurveOptionWidgetWithLodLimitations(Data 
     return createOptionWidgetWithLodLimitations<MyPaintCurveOptionWidget>(std::move(data), yLimit, yValueSuffix);
 }
 
-} // namespace KisPaintOpOptionWidgetUtils
-
+}
 
 KisMyPaintOpSettingsWidget:: KisMyPaintOpSettingsWidget(QWidget* parent)
     : KisPaintOpSettingsWidget(parent)
 {
-    /// TODO: move category into the widget itself, remove this
-    /// overridden enum
 
     namespace kpowu = KisPaintOpOptionWidgetUtils;
 
@@ -167,7 +164,7 @@ KisMyPaintOpSettingsWidget::~ KisMyPaintOpSettingsWidget()
 KisPropertiesConfigurationSP  KisMyPaintOpSettingsWidget::configuration() const
 {
     KisMyPaintOpSettings* config = new KisMyPaintOpSettings(resourcesInterface());
-    config->setProperty("paintop", "mypaintbrush"); // XXX: make this a const id string
+    config->setProperty("paintop", "mypaintbrush");
     writeConfiguration(config);
     return config;
 }

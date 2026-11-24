@@ -57,7 +57,6 @@ KisPaintOpPresetsChooserPopup::KisPaintOpPresetsChooserPopup(QWidget * parent)
     action->setChecked(mode == KisPresetChooser::DETAIL);
     action->setActionGroup(actionGroup);
 
-    // add widget slider to control icon size
     QSlider* iconSizeSlider = new QSlider(this);
     iconSizeSlider->setOrientation(Qt::Horizontal);
     iconSizeSlider->setRange(30, 80);
@@ -73,9 +72,6 @@ KisPaintOpPresetsChooserPopup::KisPaintOpPresetsChooserPopup(QWidget * parent)
     menu->addSection(i18n("Icon Size"));
     menu->addAction(sliderAction);
 
-
-
-    // setting the view mode
     m_d->uiWdgPaintOpPresets.wdgPresetChooser->setViewMode(mode);
     m_d->uiWdgPaintOpPresets.wdgPresetChooser->showTaggingBar(true);
 
@@ -83,12 +79,10 @@ KisPaintOpPresetsChooserPopup::KisPaintOpPresetsChooserPopup(QWidget * parent)
     m_d->viewModeButton = m_d->uiWdgPaintOpPresets.wdgPresetChooser->itemChooser()->viewModeButton();
     m_d->viewModeButton->setPopupWidget(menu);
 
-
     connect(m_d->uiWdgPaintOpPresets.wdgPresetChooser, SIGNAL(resourceSelected(KoResourceSP )),
             this, SIGNAL(resourceSelected(KoResourceSP )));
     connect(m_d->uiWdgPaintOpPresets.wdgPresetChooser, SIGNAL(resourceClicked(KoResourceSP )),
             this, SIGNAL(resourceClicked(KoResourceSP ))) ;
-
 
     connect(iconSizeSlider, SIGNAL(valueChanged(int)),
             m_d->uiWdgPaintOpPresets.wdgPresetChooser, SLOT(setIconSize(int)));
@@ -124,7 +118,6 @@ void KisPaintOpPresetsChooserPopup::slotUpdateMenu()
 void KisPaintOpPresetsChooserPopup::paintEvent(QPaintEvent* event)
 {
     QWidget::paintEvent(event);
-    //Workaround to get the column and row size right
     if(m_d->firstShown) {
         m_d->uiWdgPaintOpPresets.wdgPresetChooser->updateViewSettings();
         m_d->firstShown = false;
@@ -144,7 +137,7 @@ void KisPaintOpPresetsChooserPopup::canvasResourceChanged(KisPaintOpPresetSP  pr
 void KisPaintOpPresetsChooserPopup::slotThemeChanged()
 {
    m_d->viewModeButton->setIcon(KisIconUtils::loadIcon("view-choose"));
-   m_d->uiWdgPaintOpPresets.wdgPresetChooser->itemChooser()->updateView(); // updates other icons
+   m_d->uiWdgPaintOpPresets.wdgPresetChooser->itemChooser()->updateView();
 }
 
 void KisPaintOpPresetsChooserPopup::updateViewSettings()

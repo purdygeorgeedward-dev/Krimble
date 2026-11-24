@@ -42,5 +42,4 @@ struct Q_DECL_HIDDEN KisRectangleMaskGenerator::Private {
     QScopedPointer<KisBrushMaskApplicatorBase> applicator;
 };
 
-
-#endif // KIS_RECT_MASK_GENERATOR_P_H
+#endif

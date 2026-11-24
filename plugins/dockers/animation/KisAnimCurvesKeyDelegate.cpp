@@ -42,7 +42,6 @@ KisAnimCurvesKeyDelegate::KisAnimCurvesKeyDelegate(const KisAnimTimelineTimeHead
 KisAnimCurvesKeyDelegate::~KisAnimCurvesKeyDelegate()
 {}
 
-
 void KisAnimCurvesKeyDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
     bool selected = option.state & QStyle::State_Selected;
@@ -103,7 +102,6 @@ bool KisAnimCurvesKeyDelegate::hasHandle(const QModelIndex index, int handle) co
     QModelIndex interpolatedIndex;
 
     if (handle == 0) {
-        // Left handle: use previous keyframe's interpolation mode
 
         QVariant previous = index.data(KisAnimCurvesModel::PreviousKeyframeTime);
         if (!previous.isValid()) return false;

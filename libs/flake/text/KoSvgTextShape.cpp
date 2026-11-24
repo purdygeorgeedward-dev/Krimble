@@ -44,8 +44,6 @@
 #include <FlakeDebug.h>
 #include <functional>
 
-// Memento pointer to hold data for Undo commands.
-
 class KoSvgTextShapeMementoImpl : public KoSvgTextShapeMemento
 {
 public:
@@ -91,13 +89,11 @@ struct KoSvgTextNodeIndex::Private {
         :textElement(_textElement)
         , textPath(_textPath){}
     KisForest<KoSvgTextContentElement>::child_iterator textElement;
-    // textPath is owned by its textshape.
     KoShape *textPath = nullptr;
 };
 
-// for the use in KoSvgTextShape::Private::createTextNodeIndex() only
 KoSvgTextNodeIndex::KoSvgTextNodeIndex()
-    : d() // Private is **not** initialized, to be initialized by the factory method
+    : d()
 {
 }
 
@@ -189,7 +185,7 @@ void KoSvgTextShape::shapeChanged(ChangeType type, KoShape *shape)
             && (transformationTypes.contains(type)
                 || type == ParameterChanged
                 || type == ParentChanged
-                || type == ContentChanged // for KoPathShape modifications
+                || type == ContentChanged
                 || type == Deleted)) {
         if (type == Deleted) {
             if (d->shapesInside.contains(shape)) {
@@ -200,7 +196,6 @@ void KoSvgTextShape::shapeChanged(ChangeType type, KoShape *shape)
             }
             if (d->textPaths.contains(shape)) {
                 d->textPaths.removeAll(shape);
-                // TODO: remove ID from relevant text content element.
             }
             if (d->shapeGroup && d->shapeGroup->shapes().contains(shape)) {
                 d->shapeGroup->removeShape(shape);
@@ -208,17 +203,12 @@ void KoSvgTextShape::shapeChanged(ChangeType type, KoShape *shape)
             d->updateInternalShapesList();
         }
 
-        // Updates the contours and calls relayout.
-        // Would be great if we could compress the updates here somehow...
         if (d->bulkActionState) {
             d->bulkActionState->contourHasChanged = true;
         } else {
             d->updateTextWrappingAreas();
         }
 
-        // NotifyChanged ensures that boundingRect() is called on this shape;
-        // it is NOT compressed by the bulk action, since boundingRect() is
-        // guaranteed to be valid during the whole bulk action
         this->notifyChanged();
     }
     if ((!shape || shape == this)) {
@@ -238,9 +228,6 @@ void KoSvgTextShape::shapeChanged(ChangeType type, KoShape *shape)
             }
         }
 
-        // when calling shapeChangedImpl() on `this` shape, we call
-        // notifyChanged() manually at the calling site, so we shouldn't
-        // do that again here
     }
 }
 
@@ -361,7 +348,6 @@ int KoSvgTextShape::lineEnd(int pos)
 
 int KoSvgTextShape::wordLeft(int pos, bool visual)
 {
-    //TODO: figure out preferred behaviour for wordLeft in RTL && visual.
     Q_UNUSED(visual)
     if (pos < 0 || pos > d->cursorPos.size()-1 || d->result.isEmpty() || d->cursorPos.isEmpty()) {
         return pos;
@@ -482,7 +468,6 @@ int KoSvgTextShape::nextLine(int pos)
         }
     }
 
-
     if (nextLineStart > d->cursorPos.size()-1) {
         return d->cursorPos.size()-1;
     }
@@ -577,7 +562,6 @@ int KoSvgTextShape::wordEnd(int pos)
             break;
         }
 
-        // Also test the next cluster on whether it is a hardbreak. This is because hardbreaks by default get hidden.
         if (i < d->cursorPos.size()-1 && i > pos) {
             const CursorPos nextCursorPos = d->cursorPos.at(i+1);
             bool found = false;
@@ -613,7 +597,6 @@ int KoSvgTextShape::wordStart(int pos)
                 && i < pos) {
             break;
         }
-        // Also test the previous cluster on whether it is a hardbreak. This is because hardbreaks by default get hidden.
         if (i > 1 && i < pos) {
             const CursorPos prevCursorPos = d->getCursorPos(i-1);
             bool found = false;
@@ -922,11 +905,8 @@ QPointF KoSvgTextShape::initialTextPosition() const
 bool KoSvgTextShape::insertText(int pos, QString text)
 {
     bool success = false;
-    int currentIndex = 0; ///< Current position of the search.
+    int currentIndex = 0;
 
-    /// The distinction between element and insertion index allows us to insert text at
-    /// the start or end of a content element, without ambiguity on whether we're
-    /// inserting into the next element.
     int elementIndex = 0;
     int insertionIndex = 0;
     if (pos > -1 && !d->cursorPos.isEmpty()) {
@@ -1013,7 +993,6 @@ QList<KoSvgTextProperties> KoSvgTextShape::propertiesForRange(const int startPos
 {
     QList<KoSvgTextProperties> props;
 
-    /// Sometimes this gets called when xml data is uploaded into the shape, at which point the tree is empty.
     if (d->isLoading) return props;
 
     if (((startPos < 0 || startPos >= d->cursorPos.size()) && startPos == endPos) || d->cursorPos.isEmpty()) {
@@ -1048,8 +1027,6 @@ QList<KoSvgTextProperties> KoSvgTextShape::propertiesForRange(const int startPos
             int currentIndex = 0;
             auto it = d->findTextContentElementForIndex(d->textData, currentIndex, sought);
             if (KisForestDetail::siblingCurrent(it) == d->textData.childBegin()) {
-                // If there's a selection and the search algorithm only returns the root, return empty.
-                // The root text properties should be retrieved explicitly (either by using -1 as pos, or by calling textProperties()).
                 props = {KoSvgTextProperties()};
                 return props;
             } else if (it != d->textData.depthFirstTailEnd()) {
@@ -1187,7 +1164,6 @@ bool KoSvgTextShape::insertRichText(int pos, const KoSvgTextShape *richText, boo
     int insertionIndex = 0;
 
     if (isEnd(richText->d->textData.childBegin())) {
-        // rich text is empty.
         return success;
     }
 
@@ -1328,13 +1304,11 @@ bool KoSvgTextShape::setCharacterTransformsOnRange(const int startPos, const int
                 const int transformIndex = (i - startIndex) - addressableOffset;
                 KoSvgText::CharTransformation tf = resolvedTransforms.value(i, KoSvgText::CharTransformation());
 
-                // Function to get the delta position.
                 auto getDelta = [res, totalStartDelta, accumulatedOffset, anchorAbsolute, anchorCssPos, startAdvance] (QPointF pos) -> QPointF {
                     QPointF delta = pos - (res.textPathAndAnchoringOffset + anchorAbsolute + res.textLengthOffset);
                     delta -= (totalStartDelta + accumulatedOffset + (res.cssPosition-anchorCssPos) + startAdvance);
                     return delta;
                 };
-                // Function to get absolute position.
                 auto getAbsolute = [res, tf, anchorAbsolute] (QPointF pos) -> QPointF {
                     QPointF p = pos - (res.textPathAndAnchoringOffset - anchorAbsolute) - tf.relativeOffset();
                     return p;
@@ -1342,7 +1316,6 @@ bool KoSvgTextShape::setCharacterTransformsOnRange(const int startPos, const int
 
                 if (i < startIndex) {
                     if (!deltaPosition) {
-                        // Because we don't split the text content element, we need to set the absolute pos for every preceding transform.
                         const QPointF p = getAbsolute(res.finalPosition);
                         if (!tf.xPos) {
                             tf.xPos = p.x();
@@ -1357,7 +1330,6 @@ bool KoSvgTextShape::setCharacterTransformsOnRange(const int startPos, const int
 
                 if (i >= endIndex) {
                     if (i == endIndex) {
-                        // Counter transform to keep unselected characters at the same pos.
                         if (deltaPosition && !tf.startsNewChunk()) {
                             QPointF delta = getDelta(res.finalPosition);
                             tf.dxPos = delta.x();
@@ -1517,7 +1489,6 @@ QPair<int, int> KoSvgTextShape::findRangeForNodeIndex(const KoSvgTextNodeIndex &
     int startIndex = 0;
     int endIndex = 0;
     for (auto child = d->textData.childBegin(); child != d->textData.childEnd(); child++) {
-        // count children
         d->startIndexOfIterator(child, node.d->textElement, startIndex);
         endIndex = d->numChars(node.d->textElement) + startIndex;
     }
@@ -1696,7 +1667,6 @@ void KoSvgTextShape::convertCharTransformsToPreformatted(bool makeInlineSize)
     KoSvgTextProperties props = this->propertiesForPos(-1);
     if (makeInlineSize) {
         KoSvgText::AutoValue val;
-        // Using QCeil here because otherwise the text will layout too tight.
         val.customValue = qCeil(inlineSize);
         val.isAuto = false;
         if (!props.hasProperty(KoSvgTextProperties::InlineSizeId)) {
@@ -1705,8 +1675,6 @@ void KoSvgTextShape::convertCharTransformsToPreformatted(bool makeInlineSize)
     } else {
         props.removeProperty(KoSvgTextProperties::InlineSizeId);
     }
-    // NOTE: applyWhiteSpace and insertNewLines don't notify changes,
-    // so setProperties is the only thing triggering relayout();
     setPropertiesAtPos(-1, props);
 }
 
@@ -1715,7 +1683,6 @@ void KoSvgTextShape::setCharacterTransformsFromLayout()
     if (d->result.isEmpty()) return;
     d->setTransformsFromLayout(d->textData, d->result);
     d->cleanUp(d->textData);
-    //d->applyWhiteSpace(d->textData, true);
     KoSvgTextProperties props = this->propertiesForPos(-1);
     props.removeProperty(KoSvgTextProperties::InlineSizeId);
     props.removeProperty(KoSvgTextProperties::TextCollapseId);
@@ -1759,9 +1726,6 @@ bool KoSvgTextShape::saveSvg(SvgSavingContext &context)
                 if (!context.strippedTextMode()) {
                     context.shapeWriter().addAttribute("id", context.getID(this));
 
-                    // save the version to distinguish from the buggy Krita version
-                    // 2: Wrong font-size.
-                    // 3: Wrong font-size-adjust.
                     context.shapeWriter().addAttribute("krita:textVersion", 3);
 
                     if (visibleShapes.isEmpty()) {
@@ -1877,7 +1841,6 @@ bool KoSvgTextShape::saveHtml(HtmlSavingContext &context)
 
                 if (d->childCount(siblingCurrent(it)) == 0) {
                     debugFlake << "saveHTML" << this << it->text;
-                    // After adding all the styling to the <p> element, add the text
                     context.shapeWriter().addTextNode(it->text);
                 }
             }
@@ -1913,9 +1876,6 @@ KoSvgTextShapeMementoSP KoSvgTextShape::getMemento()
 
 void KoSvgTextShape::setMementoImpl(const KoSvgTextShapeMementoSP memento)
 {
-    // TODO: add an assert that all linked shpaes in memento are present in
-    // the current state of d->textPaths. That is the responsibility of
-    // KoSvgTextAddRemoveShapeCommandImpl to prepare the shapes for us
 
     KoSvgTextShapeMementoImpl *impl = dynamic_cast<KoSvgTextShapeMementoImpl*>(memento.data());
     if (impl) {
@@ -1928,7 +1888,6 @@ void KoSvgTextShape::setMementoImpl(const KoSvgTextShapeMementoSP memento)
         d->isBidi = impl->isBidi;
         d->initialTextPosition = impl->initialTextPosition;
 
-        // Ensure that any text paths exist.
         auto root = d->textData.childBegin();
         for (auto child = childBegin(root); child != childEnd(root); child++) {
             if (!child->textPathId.isEmpty()) {
@@ -2042,10 +2001,8 @@ QRectF KoSvgTextShape::endBulkAction()
         if (d->bulkActionState->contourHasChanged) {
             d->updateTextWrappingAreas();
         } else if (d->bulkActionState->layoutHasChanged) {
-            // updateTextWrappingAreas() already includes a call to relayout()
             relayout();
         }
-        // otherwise, it's an update from a memento.
 
         updateRect = d->bulkActionState->originalBoundingRect | boundingRect();
     }
@@ -2065,7 +2022,6 @@ void KoSvgTextShape::paint(QPainter &painter) const
     painter.save();
     KoSvgText::TextRendering textRendering = KoSvgText::TextRendering(textProperties().propertyOrDefault(KoSvgTextProperties::TextRenderingId).toInt());
     if (textRendering == KoSvgText::RenderingOptimizeSpeed || !painter.testRenderHint(QPainter::Antialiasing)) {
-        // also apply antialiasing only if antialiasing is active on provided target QPainter
         painter.setRenderHint(QPainter::Antialiasing, false);
         painter.setRenderHint(QPainter::SmoothPixmapTransform, false);
     } else {
@@ -2090,7 +2046,6 @@ void KoSvgTextShape::paint(QPainter &painter) const
 void KoSvgTextShape::paintStroke(QPainter &painter) const
 {
     Q_UNUSED(painter);
-    // do nothing! everything is painted in paint()
 }
 
 QPainterPath KoSvgTextShape::outline() const {
@@ -2133,7 +2088,6 @@ QRectF KoSvgTextShape::boundingRect() const
 
 QSizeF KoSvgTextShape::size() const
 {
-    // TODO: check if KoShape::m_d->size is consistent, check cache in KoShapeGroup::size()
     return outlineRect().size();
 }
 
@@ -2144,23 +2098,17 @@ void KoSvgTextShape::setSize(const QSizeF &size)
 
     if (size == oldSize) return;
 
-    // don't try to divide by zero
     if (oldSize.isEmpty()) return;
 
     const qreal scaleX = size.width() / oldSize.width();
     const qreal scaleY = size.height() / oldSize.height();
 
     if (d->internalShapes().isEmpty()) {
-        /**
-         * We don't have any contours, just scale (and distort) the text,
-         * as if "Scale Styles" were activated
-         */
 
         const qreal scaleX = size.width() / oldSize.width();
         const qreal scaleY = size.height() / oldSize.height();
 
         this->scale(scaleX, scaleY);
-        // TODO: use scaling function for kosvgtextproperties when styles presets are merged.
         notifyChanged();
         shapeChangedPriv(ScaleChanged);
     } else {
@@ -2176,17 +2124,7 @@ void KoSvgTextShape::setSize(const QSizeF &size)
         }();
 
         if (allInternalShapeAreTranslatedOnly) {
-            /**
-             * We have only one contour that has no transformations, so we can just pass
-             * the resize to it and preserve all the contours intact
-             */
             Q_FOREACH (KoShape *internalShape, d->internalShapes()) {
-                /**
-                 * When resizing the shapes via setSize() we expect the method to
-                 * scale the shapes bluntly in the parent's coordinate system. So,
-                 * when resizing embedded shapes we should just anchor them to the
-                 * origin of the text-shape's coordinate system.
-                 */
                 const QPointF stillPoint = this->absoluteTransformation().map(QPointF());
                 const bool useGlobalMode = false;
                 const bool usePostScaling = false;
@@ -2202,48 +2140,6 @@ void KoSvgTextShape::setSize(const QSizeF &size)
             const QSizeF realNewSize = outlineRect().size();
             KoShape::setSize(realNewSize);
         } else {
-            /**
-             * When we have transformed (scaled, rotated and etc.) shapes
-             * internally, we cannot pass resize action to them, because
-             * it is impossible to mimic the parent resize by mere resizing
-             * the child shapes. We would have to add shear to them [1].
-             *
-             * That is why we just add a scaling transform to every contour
-             * shape while **keeping the text unscaled**. Keeping the text
-             * unscaled covers the case when the user want to simply
-             * transform a text balloon without contours.
-             *
-             * [1] Proof of the "impossible to pass the resize" claim
-             *
-             * That comes from the matrix equation to the child-parent
-             * transformation. Here is an example for a rotated child:
-             *
-             * Original transformation is:
-             *
-             * parentPoint = childPoint * ChildRotate,
-             *
-             * now apply Scale to both sides, to simulate scale in the parent's
-             * coordinate system:
-             *
-             * parentPoint * Scale = childPoint * ChildRotate * Scale,
-             *
-             * now we need to preserve the original child's transformation
-             * to be intact, which was `ChildRotate`. To achieve that,
-             * add (ChildRotate.inverted() * ChildRotate) at the end of the
-             * equation:
-             *
-             * parentPoint * Scale = childPoint * ChildRotate * Scale * (ChildRotate.inverted() * ChildRotate),
-             *
-             * now regroup the matrices:
-             *
-             * parentPoint * Scale = childPoint * (ChildRotate * Scale * ChildRotate.inverted()) * ChildRotate,
-             *
-             * notice matrix (ChildRotate * Scale * ChildRotate.inverted()) is the one
-             * that we should apply to the child shape in setSize() to preserve
-             * its transform. This matrix can not be a scale matrix, it will
-             * always recieve shear components for any non-trivial ChildRotate
-             * values.
-             */
 
             const QTransform scale = QTransform::fromScale(scaleX, scaleY);
 
@@ -2267,7 +2163,6 @@ void KoSvgTextShape::paintDebug(QPainter &painter, const DebugElements elements)
             d->paintDebug(painter, d->result, currentIndex);
         }
 
-        //Debug shape outlines.
         Q_FOREACH (KoShape *shapeInside, d->shapesInside) {
             QPainterPath p = shapeInside->outline();
             p = shapeInside->transformation().map(p);
@@ -2375,7 +2270,7 @@ void KoSvgTextShape::addShapeContours(QList<KoShape *> shapes, const bool inside
         }
     }
 
-    notifyChanged(); // notify shape manager that our geometry has changed
+    notifyChanged();
 
     if (!d->isLoading) {
         d->updateTextWrappingAreas();
@@ -2408,7 +2303,7 @@ void KoSvgTextShape::removeShapesFromContours(QList<KoShape *> shapes, bool call
         d->cleanUp(d->textData);
     }
     if (callUpdate) {
-        notifyChanged(); // notify shape manager that our geometry has changed
+        notifyChanged();
         if (!d->isLoading) {
             d->updateTextWrappingAreas();
         }
@@ -2423,7 +2318,6 @@ void KoSvgTextShape::moveShapeInsideToIndex(KoShape *shapeInside, const int inde
     const int oldIndex = d->shapesInside.indexOf(shapeInside);
     if (oldIndex < 0) return;
 
-    // Update.
     d->shapesInside.move(oldIndex, index);
     if (!d->isLoading) {
         d->updateTextWrappingAreas();
@@ -2450,7 +2344,6 @@ bool KoSvgTextShape::setTextPathOnRange(KoShape *textPath, const int startPos, c
     d->textPaths.append(textPath);
     textPath->addDependee(this);
 
-
     if (KisForestDetail::depth(d->textData) == 1) {
         textPathElement.text = d->textData.childBegin()->text;
         QList<KoSvgTextProperties::PropertyId> copyIds = {KoSvgTextProperties::TextDecorationLineId,
@@ -2466,7 +2359,6 @@ bool KoSvgTextShape::setTextPathOnRange(KoShape *textPath, const int startPos, c
         d->textData.childBegin()->text = QString();
         d->textData.insert(childEnd(d->textData.childBegin()), textPathElement);
     } else {
-        // find nodes
         auto startElement = Private::findTextContentElementForIndex(d->textData, currentIndex, startIndex, true);
         currentIndex = 0;
         auto endElement = Private::findTextContentElementForIndex(d->textData, currentIndex, endIndex, true);
@@ -2476,8 +2368,6 @@ bool KoSvgTextShape::setTextPathOnRange(KoShape *textPath, const int startPos, c
         auto last = endElement.node()? Private::findTopLevelParent(d->textData.childBegin(), KisForestDetail::siblingCurrent(endElement))
                                      : childEnd(d->textData.childBegin());
 
-        // move children. we collect them before inserting the text path,
-        // so we don't get iterator issues.
         KisForest<KoSvgTextContentElement> textPathTree;
         auto textPathIt = textPathTree.insert(
                     textPathTree.childEnd(),
@@ -2590,8 +2480,6 @@ QMap<QString, QString> KoSvgTextShape::shapeTypeSpecificStyles(SvgSavingContext 
             shapesInsideList.append(QString("url(#%1)").arg(id));
         }
         map.insert("shape-inside", shapesInsideList.join(" "));
-        /// Right now we don't support showing glyphs outside the shape. Nor does Inkscape.
-        /// Therefore being excplit about clipping these glyphs is preferable.
         map.insert("overflow", "clip");
     }
     if (!d->shapesSubtract.isEmpty()) {
@@ -2676,7 +2564,7 @@ KoShape *KoSvgTextShapeFactory::createShape(const KoProperties *params, KoDocume
     return shape;
 }
 
-bool KoSvgTextShapeFactory::supports(const QDomElement &/*e*/, KoShapeLoadingContext &/*context*/) const
+bool KoSvgTextShapeFactory::supports(const QDomElement & , KoShapeLoadingContext & ) const
 {
     return false;
 }

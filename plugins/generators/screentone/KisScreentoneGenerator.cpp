@@ -270,8 +270,6 @@ void KisScreentoneGenerator::generate(KisProcessingInformation dst,
 
 bool KisScreentoneGenerator::checkUpdaterInterruptedAndSetPercent(KoUpdater *progressUpdater, int percent) const
 {
-    // The updater is null so return false to keep going
-    // with the computations
     if (!progressUpdater) {
         return false;
     }
@@ -297,7 +295,7 @@ void KisScreentoneGenerator::generate(KisProcessingInformation dst,
     KIS_SAFE_ASSERT_RECOVER_RETURN(config);
 
     checkUpdaterInterruptedAndSetPercent(progressUpdater, 0);
-    
+
     const QRect bounds = QRect(dst.topLeft(), size);
     const KoColorSpace *colorSpace;
     if (device->colorSpace()->profile()->isLinear()) {
@@ -305,7 +303,7 @@ void KisScreentoneGenerator::generate(KisProcessingInformation dst,
     } else {
         colorSpace = device->colorSpace();
     }
-    
+
     KoColor foregroundColor = config->foregroundColor();
     KoColor backgroundColor = config->backgroundColor();
     qreal foregroundOpacity = config->foregroundOpacity() / 100.0;
@@ -366,7 +364,7 @@ KisFilterConfigurationSP KisScreentoneGenerator::factoryConfiguration(KisResourc
 
 KisFilterConfigurationSP KisScreentoneGenerator::defaultConfiguration(KisResourcesInterfaceSP resourcesInterface) const
 {
-    KisScreentoneGeneratorConfigurationSP config = 
+    KisScreentoneGeneratorConfigurationSP config =
         dynamic_cast<KisScreentoneGeneratorConfiguration*>(factoryConfiguration(resourcesInterface).data());
     config->setDefaults();
     return config;

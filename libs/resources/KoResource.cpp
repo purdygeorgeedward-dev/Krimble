@@ -140,11 +140,9 @@ void KoResource::setImage(const QImage &image)
 
 QString KoResource::md5Sum(bool generateIfEmpty) const
 {
-    // [this assert is disputable] ephemeral resources have no md5
     KIS_SAFE_ASSERT_RECOVER_RETURN_VALUE(!isEphemeral(), QString());
 
     if (d->md5sum.isEmpty() && generateIfEmpty) {
-        // non-serializable resources should always have an externally generated md5
         KIS_SAFE_ASSERT_RECOVER_NOOP(isSerializable());
         dbgResources << "No MD5 for" << this << this->name();
         QBuffer buf;
@@ -158,8 +156,6 @@ QString KoResource::md5Sum(bool generateIfEmpty) const
 
 void KoResource::setMD5Sum(const QString &md5sum)
 {
-    /// ephemeral resources have no md5, trying to assign
-    /// them one is considered an error
     KIS_SAFE_ASSERT_RECOVER_RETURN(!isEphemeral());
 
     if (valid()) {
@@ -207,7 +203,6 @@ void KoResource::setActive(bool active)
 {
     d->active = active;
 }
-
 
 QString KoResource::defaultFileExtension() const
 {
@@ -288,15 +283,6 @@ bool KoResource::isDirty() const
 
 void KoResource::addMetaData(QString key, QVariant value)
 {
-    /**
-     * It is responsibility of the resource itself to load all the necessary
-     * metadata right on loading in loadFromDevice(). The resource locator will
-     * **not** try to load this information from the database. Database only
-     * caches metadata.
-     *
-     * To make sure that metadata is correctly populated in the database,
-     * it should be set up right in loadFromDevice().
-     */
     d->metadata.insert(key, value);
 }
 

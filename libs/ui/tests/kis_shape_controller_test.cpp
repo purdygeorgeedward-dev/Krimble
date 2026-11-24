@@ -16,7 +16,6 @@
 #include <testui.h>
 #include <testutil.h>
 
-
 KisDummiesFacadeBase* KisShapeControllerTest::dummiesFacadeFactory()
 {
     m_doc = KisPart::instance()->createDocument();

@@ -18,4 +18,4 @@ private Q_SLOTS:
     void testRestore();
 };
 
-#endif // KISDIALOGSTATESAVERTEST_H
+#endif

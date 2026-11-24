@@ -25,7 +25,6 @@ void KisProjectionBenchmark::cleanupTestCase()
 {
 }
 
-
 void KisProjectionBenchmark::benchmarkProjection()
 {
     QBENCHMARK{
@@ -45,6 +44,5 @@ void KisProjectionBenchmark::benchmarkLoading()
         delete doc2;
     }
 }
-
 
 SIMPLE_TEST_MAIN(KisProjectionBenchmark)

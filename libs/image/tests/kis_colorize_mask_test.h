@@ -17,4 +17,4 @@ private Q_SLOTS:
     void testCrop();
 };
 
-#endif /* __KIS_COLORIZE_MASK_TEST_H */
+#endif

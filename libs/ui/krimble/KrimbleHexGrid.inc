@@ -46,11 +46,11 @@ public:
     {
         setPriority(1);
     }
-    qreal size = 100.0;      // center to corner, in image pixels
+    qreal size = 100.0;
     bool flatTop = false;
     qreal lineWidth = 2.0;
-    QColor lineColor = QColor(30, 30, 30, 210);  // the color with its opacity (the alpha)
-    bool adjusting = false;  // George: "Hex overlay should be pinch zoom then drop with a tap." While true, a pinch scales the hexes and a tap drops them.
+    QColor lineColor = QColor(30, 30, 30, 210);
+    bool adjusting = false;
 
 protected:
     void drawDecoration(QPainter &gc, const QRectF &updateArea, const KisCoordinatesConverter *converter, KisCanvas2 *canvas) override
@@ -58,11 +58,10 @@ protected:
         Q_UNUSED(canvas);
         const QTransform toWidget = converter->imageToWidgetTransform();
         const qreal scale = KoUnit::approxTransformScale(toWidget);
-        if (scale * size < 6.0) return;                       // too small to be of any use: the same rule as the grid
+        if (scale * size < 6.0) return;
         const QRectF imageArea = toWidget.inverted().mapRect(updateArea);
         gc.save();
         gc.setRenderHint(QPainter::Antialiasing, true);
-        // QPen pen(QColor(30, 30, 30, 210), 1.0);   // before task 41: always 1 pixel, always this color
         QPen pen(lineColor, lineWidth);
         pen.setCosmetic(true);
         gc.setPen(pen);
@@ -73,7 +72,6 @@ protected:
             gc.drawPolygon(toWidget.map(krimbleHexPolygon(center, sz, flat)));
         });
         if (adjusting) {
-            // a note while the pattern is being scaled
             const QString note = i18n("Pinch to scale the hexes, tap to drop");
             QFont noteFont = gc.font();
             noteFont.setPointSizeF(noteFont.pointSizeF() * 1.4);
@@ -93,7 +91,6 @@ protected:
     }
 };
 
-// the small window that asks for the size, the orientation and (for the layer) the line thickness and color
 static bool krimbleAskHex(QMainWindow *win, bool forLayer, qreal *size, bool *flatTop, qreal *thickness, QColor *color)
 {
     QDialog dialog(win);
@@ -218,7 +215,7 @@ static void krimbleHexSaveState()
     g.writeEntry("on", g_krimbleHexOn);
     g.writeEntry("size", double(g_krimbleHexSize));
     g.writeEntry("flat", g_krimbleHexFlat);
-    g.writeEntry("lineWidth", double(g_krimbleHexLineWidth));   // task 41
+    g.writeEntry("lineWidth", double(g_krimbleHexLineWidth));
     g.writeEntry("lineColor", g_krimbleHexLineColor);
     g.sync();
 }
@@ -228,7 +225,7 @@ static void krimbleHexLoadState()
     g_krimbleHexOn = g.readEntry("on", false);
     g_krimbleHexSize = g.readEntry("size", double(g_krimbleHexSize));
     g_krimbleHexFlat = g.readEntry("flat", g_krimbleHexFlat);
-    g_krimbleHexLineWidth = g.readEntry("lineWidth", double(g_krimbleHexLineWidth));   // task 41
+    g_krimbleHexLineWidth = g.readEntry("lineWidth", double(g_krimbleHexLineWidth));
     g_krimbleHexLineColor = g.readEntry("lineColor", g_krimbleHexLineColor);
 }
 static QColor g_krimbleHexColor = QColor(Qt::black);
@@ -249,9 +246,6 @@ static bool krimbleHexRefuseWhenLocked(QWidget *parent, const QString &title)
     return true;
 }
 
-// George: "Hex overlay should be pinch zoom then drop with a tap." While the overlay is being adjusted, two fingers scale the hexes (the distance between
-// them against its last value), a short single tap that does not move drops them (the size is kept; the pattern then follows the canvas as usual), and
-// other touches on the canvas are held back so that the canvas does not zoom or paint at the same time.
 class KrimbleHexAdjustFilter : public QObject
 {
 public:
@@ -260,7 +254,6 @@ public:
     {
         widget->installEventFilter(this);
     }
-    // George: "Yes" to: when the overlay is dropped with a tap, ask "Make this a layer?" (a transparent vector layer with the hexes at that size)
     void setOnDrop(const std::function<void()> &onDrop) { m_onDrop = onDrop; }
     void finish(bool dropped = false)
     {
@@ -340,7 +333,6 @@ static KrimbleHexDecoration *krimbleHexDecorationOf(KisMainWindow *win, bool cre
     return hex;
 }
 
-// puts the hex overlay on the picture that is open now, if the hexes are on
 static void krimbleHexFollowView(KisMainWindow *win)
 {
     if (!g_krimbleHexOn) return;
@@ -377,7 +369,6 @@ static void krimbleMakeHexLayer(KisMainWindow *win)
         QMessageBox::warning(win, i18n("Hex Pattern"), i18n("The vector layer could not be made."));
         return;
     }
-    // a vector shape lives in points: image pixels per point is xRes()
     const qreal pointsPerPixel = image->xRes() > 0.0 ? 1.0 / image->xRes() : 1.0;
     KoPathShape *path = new KoPathShape();
     path->setShapeId(KoPathShapeId);
@@ -397,8 +388,8 @@ static void krimbleMakeHexLayer(KisMainWindow *win)
 }
 
 static int g_krimbleStarPoints = 5;
-static int g_krimbleStarInner = 40;      // percent of the outer circle
-static int g_krimbleStarSize = 0;        // outer circle diameter in pixels; 0 = half of the picture's shorter side
+static int g_krimbleStarInner = 40;
+static int g_krimbleStarSize = 0;
 
 static void krimbleMakeStarLayer(KisMainWindow *win)
 {
@@ -451,7 +442,6 @@ static void krimbleMakeStarLayer(KisMainWindow *win)
         QMessageBox::warning(win, i18n("Star"), i18n("The vector layer could not be made."));
         return;
     }
-    // a vector shape lives in points: image pixels per point is xRes() (as in the Hex Pattern layer)
     const qreal pointsPerPixel = image->xRes() > 0.0 ? 1.0 / image->xRes() : 1.0;
     const qreal tipRadius = (g_krimbleStarSize / 2.0) * pointsPerPixel;
     KoProperties props;
@@ -462,19 +452,18 @@ static void krimbleMakeStarLayer(KisMainWindow *win)
     props.setProperty("baseRoundness", 0.0);
     props.setProperty("tipRoundness", 0.0);
     QVariant fill;
-    fill.setValue(manager->canvasResourceProvider()->fgColor().toQColor());   // the foreground color is the fill
+    fill.setValue(manager->canvasResourceProvider()->fgColor().toQColor());
     props.setProperty("background", fill);
     KoShape *shape = factory->createShape(&props, nullptr);
     if (!shape) {
         QMessageBox::warning(win, i18n("Star"), i18n("The star could not be made."));
         return;
     }
-    shape->setStroke(KoShapeStrokeModelSP());   // no outline
+    shape->setStroke(KoShapeStrokeModelSP());
     shape->setName(QStringLiteral("Star"));
     shape->setAbsolutePosition(QPointF(bounds.center().x() * pointsPerPixel, bounds.center().y() * pointsPerPixel), KoFlake::Center);
     layer->addShape(shape);
     node->setName(image->nextLayerName(i18n("Star")));
-    // so that it can be moved, rotated and its circles changed at once
     QTimer::singleShot(0, win, []() { KoToolManager::instance()->switchToolRequested(QStringLiteral("InteractionTool")); });
 }
 #endif

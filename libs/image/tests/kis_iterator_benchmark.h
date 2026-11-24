@@ -24,7 +24,6 @@ private:
     void hLineIterNG(const KoColorSpace * cs);
     void randomAccessor(const KoColorSpace * cs);
 
-
 private Q_SLOTS:
 
     void runBenchmark();

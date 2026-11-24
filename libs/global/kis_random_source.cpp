@@ -20,15 +20,8 @@ struct KisRandomSource::Private
     Private(int seed)
         : uniformSource(seed) {}
 
-    /**
-     * Taus88's numbers are not too random, but it works fast and it
-     * can be copied very quickly (three 32-bit integers only).
-     *
-     * Average cycle: 2^88 steps
-     */
     boost::taus88 uniformSource;
 };
-
 
 KisRandomSource::KisRandomSource()
     : m_d(new Private)
@@ -74,7 +67,6 @@ qreal KisRandomSource::generateNormalized() const
 {
     const qint64 v = m_d->uniformSource();
     const qint64 max = m_d->uniformSource.max();
-    // we don't have min, because taus88 is always positive
 
     return qreal(v) / max;
 }

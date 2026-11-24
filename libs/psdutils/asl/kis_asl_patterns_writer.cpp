@@ -70,7 +70,7 @@ void sliceQImage(const QImage &image, QVector<QVector<QByteArray>> *dstPlanes, b
                 throw KisAslWriterUtils::ASLWriteException("Failed to compress pattern plane");
             }
 
-            compressedSize += compressedRows[i].last().size() + 2; // two bytes for offset tag
+            compressedSize += compressedRows[i].last().size() + 2;
         }
     }
 
@@ -130,8 +130,6 @@ void KisAslPatternsWriter::addPatternImpl(const KoPatternSP pattern)
         KisAslWriterUtils::writeUnicodeString<byteOrder>(pattern->name(), m_device);
         KisAslWriterUtils::writePascalString<byteOrder>(KisAslWriterUtils::getPatternUuidLazy(pattern), m_device);
 
-        // Write "Virtual Memory Array List"
-
         const QRect patternRect(0, 0, pattern->width(), pattern->height());
 
         {
@@ -145,7 +143,6 @@ void KisAslPatternsWriter::addPatternImpl(const KoPatternSP pattern)
             KisAslWriterUtils::writeRect<byteOrder>(patternRect, m_device);
 
             {
-                // don't ask me why it is called this way...
                 const quint32 numberOfChannels = 24;
                 SAFE_WRITE_EX(byteOrder, m_device, numberOfChannels);
             }
@@ -172,13 +169,11 @@ void KisAslPatternsWriter::addPatternImpl(const KoPatternSP pattern)
                 KisAslWriterUtils::writeRect<byteOrder>(patternRect, m_device);
 
                 {
-                    // why twice? who knows...
                     const quint16 pixelDepth2 = 8;
                     SAFE_WRITE_EX(byteOrder, m_device, pixelDepth2);
                 }
 
                 {
-                    // compress with RLE
                     const quint8 compressionMethod = isCompressed;
                     SAFE_WRITE_EX(byteOrder, m_device, compressionMethod);
                 }

@@ -17,8 +17,7 @@ namespace SvgInlineSizeHelper
 {
 enum class VisualAnchor;
 enum class Side;
-} // namespace SvgInlineSizeHelper
-
+}
 
 class SvgInlineSizeChangeStrategy : public KoInteractionStrategy
 {
@@ -47,4 +46,4 @@ private:
     bool m_startHandle;
 };
 
-#endif /* SVG_INLINE_SIZE_CHANGE_STRATEGY_H */
+#endif

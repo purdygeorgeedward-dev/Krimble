@@ -111,7 +111,7 @@ bool KoSnapGuide::addCustomSnapStrategy(KoSnapStrategy *customStrategy)
 
 void KoSnapGuide::overrideSnapStrategy(Strategy type, KoSnapStrategy *strategy)
 {
-    for (auto it = d->strategies.begin(); it != d->strategies.end(); /*noop*/) {
+    for (auto it = d->strategies.begin(); it != d->strategies.end(); ) {
         if ((*it)->type() == type) {
             if (strategy) {
                 *it = toQShared(strategy);
@@ -268,7 +268,6 @@ void KoSnapGuide::reset()
     d->additionalEditedShape = 0;
     d->ignoredPoints.clear();
     d->ignoredShapes.clear();
-    // remove all custom strategies
     int strategyCount = d->strategies.count();
     for (int i = strategyCount-1; i >= 0; --i) {
         if (d->strategies[i]->type() == CustomSnapping) {

@@ -8,7 +8,6 @@
 
 #include "KoColorSpace.h"
 
-
 KoColorProofingConversionTransformation::KoColorProofingConversionTransformation(const KoColorSpace* srcCs,
                                                                  const KoColorSpace* dstCs,
                                                                  const KoColorSpace* proofingSpace,

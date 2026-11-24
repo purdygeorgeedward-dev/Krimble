@@ -106,8 +106,6 @@ QStringList KisResourceLoaderRegistry::mimeTypes(const QString &resourceType) co
     return mimeTypes;
 }
 
-
-
 QStringList KisResourceLoaderRegistry::resourceTypes() const
 {
     QStringList r;

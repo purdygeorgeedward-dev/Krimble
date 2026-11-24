@@ -29,7 +29,6 @@ Canvas::~Canvas()
     delete d;
 }
 
-
 bool Canvas::operator==(const Canvas &other) const
 {
     return (d->canvas == other.d->canvas);
@@ -39,7 +38,6 @@ bool Canvas::operator!=(const Canvas &other) const
 {
     return !(operator==(other));
 }
-
 
 qreal Canvas::zoomLevel() const
 {
@@ -75,7 +73,7 @@ QPointF Canvas::preferredCenter() const
     QPointF docPos = coordConv->flakeToDocument(flakePos);
     QPointF imagePos = coordConv->documentToImage(docPos);
 
-    return imagePos; 
+    return imagePos;
 }
 
 void Canvas::pan(const QPoint& offset)
@@ -88,7 +86,6 @@ void Canvas::resetZoom()
     if (!d->canvas) return;
     d->canvas->imageView()->zoomManager()->zoomTo100();
 }
-
 
 void Canvas::resetRotation()
 {
@@ -107,7 +104,6 @@ void Canvas::setRotation(qreal angle)
     if (!d->canvas) return;
     d->canvas->imageView()->canvasController()->rotateCanvas(angle - rotation());
 }
-
 
 bool Canvas::mirror() const
 {

@@ -28,7 +28,6 @@ KisBookmarkedFilterConfigurationsModel::~KisBookmarkedFilterConfigurationsModel(
     delete d;
 }
 
-
 QVariant KisBookmarkedFilterConfigurationsModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid()) {

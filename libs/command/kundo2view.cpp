@@ -54,26 +54,6 @@
 #include <QPointer>
 #include <QIcon>
 
-
-/*!
-    \class KUndo2View
-    \brief The KUndo2View class displays the contents of a KUndo2QStack.
-    \since 4.2
-
-    \ingroup advanced
-
-    KUndo2View is a QListView which displays the list of commands pushed on an undo stack.
-    The most recently executed command is always selected. Selecting a different command
-    results in a call to KUndo2QStack::setIndex(), rolling the state of the document
-    backwards or forward to the new command.
-
-    The stack can be set explicitly with setStack(). Alternatively, a QUndoGroup object can
-    be set with setGroup(). The view will then update itself automatically whenever the
-    active stack of the group changes.
-
-    \image KUndo2View.png
-*/
-
 class KUndo2ViewPrivate
 {
 public:
@@ -100,18 +80,10 @@ void KUndo2ViewPrivate::init(KUndo2View* view)
     q->setSelectionModel(model->selectionModel());
 }
 
-/*!
-    Constructs a new view with parent \a parent.
-*/
-
 KUndo2View::KUndo2View(QWidget *parent) : QListView(parent), d(new KUndo2ViewPrivate)
 {
     d->init(this);
 }
-
-/*!
-    Constructs a new view with parent \a parent and sets the observed stack to \a stack.
-*/
 
 KUndo2View::KUndo2View(KUndo2QStack *stack, QWidget *parent) : QListView(parent), d(new KUndo2ViewPrivate)
 {
@@ -121,50 +93,24 @@ KUndo2View::KUndo2View(KUndo2QStack *stack, QWidget *parent) : QListView(parent)
 
 #ifndef QT_NO_UNDOGROUP
 
-/*!
-    Constructs a new view with parent \a parent and sets the observed group to \a group.
-
-    The view will update itself automatically whenever the active stack of the group changes.
-*/
-
 KUndo2View::KUndo2View(KUndo2Group *group, QWidget *parent) : QListView(parent), d(new KUndo2ViewPrivate)
 {
     d->init(this);
     setGroup(group);
 }
 
-#endif // QT_NO_UNDOGROUP
-
-/*!
-    Destroys this view.
-*/
+#endif
 
 KUndo2View::~KUndo2View()
 {
     delete d;
 }
 
-/*!
-    Returns the stack currently displayed by this view. If the view is looking at a
-    QUndoGroup, this the group's active stack.
-
-    \sa setStack() setGroup()
-*/
-
 KUndo2QStack *KUndo2View::stack() const
 {
 
     return d->model->stack();
 }
-
-/*!
-    Sets the stack displayed by this view to \a stack. If \a stack is 0, the view
-    will be empty.
-
-    If the view was previously looking at a QUndoGroup, the group is set to 0.
-
-    \sa stack() setGroup()
-*/
 
 void KUndo2View::setStack(KUndo2QStack *stack)
 {
@@ -177,18 +123,8 @@ void KUndo2View::setStack(KUndo2QStack *stack)
 
 #ifndef QT_NO_UNDOGROUP
 
-/*!
-    Sets the group displayed by this view to \a group. If \a group is 0, the view will
-    be empty.
-
-    The view will update itself automatically whenever the active stack of the group changes.
-
-    \sa group() setStack()
-*/
-
 void KUndo2View::setGroup(KUndo2Group *group)
 {
-
 
     if (d->group == group)
         return;
@@ -209,30 +145,13 @@ void KUndo2View::setGroup(KUndo2Group *group)
     }
 }
 
-/*!
-    Returns the group displayed by this view.
-
-    If the view is not looking at group, this function returns 0.
-
-    \sa setGroup() setStack()
-*/
-
 KUndo2Group *KUndo2View::group() const
 {
 
     return d->group;
 }
 
-#endif // QT_NO_UNDOGROUP
-
-/*!
-    \property KUndo2View::emptyLabel
-    \brief the label used for the empty state.
-
-    The empty label is the topmost element in the list of commands, which represents
-    the state of the document before any commands were pushed on the stack. The default
-    is the string "<empty>".
-*/
+#endif
 
 void KUndo2View::setEmptyLabel(const QString &label)
 {
@@ -245,16 +164,6 @@ QString KUndo2View::emptyLabel() const
 
     return d->model->emptyLabel();
 }
-
-/*!
-    \property KUndo2View::cleanIcon
-    \brief the icon used to represent the clean state.
-
-    A stack may have a clean state set with KUndo2QStack::setClean(). This is usually
-    the state of the document at the point it was saved. KUndo2View can display an
-    icon in the list of commands to show the clean state. If this property is
-    a null icon, no icon is shown. The default value is the null icon.
-*/
 
 void KUndo2View::setCleanIcon(const QIcon &icon)
 {
@@ -269,4 +178,4 @@ QIcon KUndo2View::cleanIcon() const
     return d->model->cleanIcon();
 }
 
-#endif // QT_NO_UNDOVIEW
+#endif

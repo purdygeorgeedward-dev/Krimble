@@ -60,8 +60,6 @@ QRectF KoSelection::outlineRect() const
     QRectF boundingRect;
 
     Q_FOREACH (KoShape *shape, selectedVisibleShapes()) {
-        // it is cheaper to invert-transform each outline, than
-        // to group 300+ rotated rectangles into a polygon
         boundingRect |=
             invertedTransform.map(
                 shape->absoluteTransformation().map(
@@ -85,12 +83,10 @@ void KoSelection::select(KoShape *shape)
         return;
     }
 
-    // check recursively
     if (isSelected(shape)) {
         return;
     }
 
-    // find the topmost parent to select
     while (KoShapeGroup *parentGroup = dynamic_cast<KoShapeGroup*>(shape->parent())) {
         if (parentGroup && parentGroup->isSelectable()) {
             shape = parentGroup;
@@ -136,7 +132,6 @@ void KoSelection::deselectAll()
         shape->removeShapeChangeListener(this);
     }
 
-    // reset the transformation matrix of the selection
     setTransformation(QTransform());
 
     d->selectedShapes.clear();
@@ -237,8 +232,6 @@ void KoSelection::notifyShapeChanged(KoShape::ChangeType type, KoShape *shape)
     if (type == KoShape::Deleted) {
         deselect(shape);
 
-        // HACK ALERT: the caller will also remove the listener, which was
-        // removed in deselect(), so re-add it here
         shape->addShapeChangeListener(this);
     }
 }

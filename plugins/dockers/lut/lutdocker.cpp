@@ -8,8 +8,6 @@
 
 #include <stdlib.h>
 
-
-
 #include <kis_debug.h>
 #include <kpluginfactory.h>
 #include <klocalizedstring.h>
@@ -26,7 +24,6 @@
 
 #include <OpenColorIO.h>
 namespace OCIO = OCIO_NAMESPACE;
-
 
 K_PLUGIN_FACTORY_WITH_JSON(LutDockerPluginFactory, "krita_lutdocker.json", registerPlugin<LutDockerPlugin>();)
 
@@ -62,7 +59,6 @@ private:
 
     OCIO::ConstConfigRcPtr m_config;
 };
-
 
 LutDockerPlugin::LutDockerPlugin(QObject *parent, const QVariantList &)
     : QObject(parent)

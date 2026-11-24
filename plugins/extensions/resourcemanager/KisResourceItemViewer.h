@@ -9,7 +9,6 @@
 #include "KisPopupButton.h"
 #include "ResourceListViewModes.h"
 
-
 enum class Viewer {TableAvailable, ResourceManager, TableSelected};
 
 class KisResourceItemViewer : public KisPopupButton
@@ -37,4 +36,4 @@ private:
 
 };
 
-#endif // KISRESOURCEITEMVIEWER_H
+#endif

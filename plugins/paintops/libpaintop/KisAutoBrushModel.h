@@ -17,7 +17,6 @@
 using namespace KisBrushModel;
 using namespace KisWidgetConnectionUtils;
 
-
 class KisAutoBrushModel : public QObject
 {
     Q_OBJECT
@@ -26,7 +25,6 @@ public:
                       lager::cursor<AutoBrushData> autoBrushData,
                       lager::cursor<qreal> commonBrushSizeData);
 
-    // the state must be declared **before** any cursors or readers
     lager::cursor<KisBrushModel::CommonData> m_commonData;
     lager::cursor<KisBrushModel::AutoBrushData> m_autoBrushData;
     lager::cursor<qreal> m_commonBrushSizeData;
@@ -51,4 +49,4 @@ public:
     AutoBrushData bakedOptionData() const;
 };
 
-#endif // KISAUTOBRUSHMODEL_H
+#endif

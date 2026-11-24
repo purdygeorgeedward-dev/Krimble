@@ -12,9 +12,6 @@
 
 class KisViewManager;
 
-/**
- * Template of view plugin
- */
 class TouchDockerPlugin : public QObject
 {
     Q_OBJECT
@@ -23,4 +20,4 @@ class TouchDockerPlugin : public QObject
         ~TouchDockerPlugin() override;
 };
 
-#endif /* _TOUCH_DOCKER_H_ */
+#endif

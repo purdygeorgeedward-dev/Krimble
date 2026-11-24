@@ -41,7 +41,7 @@ void KisBrushEnclosingProducer::finishStroke(const QPainterPath &stroke)
     if (stroke.isEmpty()) {
         return;
     }
-    
+
     KisPixelSelectionSP enclosingMask = new KisPixelSelection();
 
     KisPainter painter(enclosingMask);

@@ -24,7 +24,6 @@
 
 const qreal degToRad = M_PI / 180.0;
 
-
 DeformBrush::DeformBrush()
 {
     m_firstPaint = false;
@@ -84,7 +83,6 @@ bool DeformBrush::setupAction(
     switch (mode) {
     case GROW:
     case SHRINK: {
-        // grow or shrink, the sign decide
         qreal sign = (mode == GROW) ? 1.0 : -1.0;
         qreal factor;
         if (m_properties->deformUseCounter) {
@@ -100,7 +98,6 @@ bool DeformBrush::setupAction(
     }
     case SWIRL_CW:
     case SWIRL_CCW: {
-        // CW or CCW, the sign decide
         qreal sign = (mode == SWIRL_CW) ? 1.0 : -1.0;
         qreal factor;
         if (m_properties->deformUseCounter) {
@@ -144,7 +141,6 @@ bool DeformBrush::setupAction(
         break;
     }
     case DEFORM_COLOR: {
-        // no run-time setup
         break;
     }
     default: {
@@ -170,7 +166,6 @@ KisFixedPaintDeviceSP DeformBrush::paintMask(KisFixedPaintDeviceSP dab,
     int dstWidth =  qRound(m_maskRect.width());
     int dstHeight = qRound(m_maskRect.height());
 
-    // clear
     if (dab->bounds().width() != dstWidth || dab->bounds().height() != dstHeight) {
         dab->setRect(m_maskRect.toRect());
         dab->lazyGrowBufferWithoutInitialization();
@@ -189,7 +184,6 @@ KisFixedPaintDeviceSP DeformBrush::paintMask(KisFixedPaintDeviceSP dab,
     QTransform reverseRotationMatrix;
     reverseRotationMatrix.rotate(-rotation);
 
-    // if can't paint, stop
     if (!setupAction(DeformModes(m_properties->deformAction),
                      pos, forwardRotationMatrix))
     {
@@ -212,7 +206,6 @@ KisFixedPaintDeviceSP DeformBrush::paintMask(KisFixedPaintDeviceSP dab,
             distance = norme(maskX * majorAxis, maskY * minorAxis);
 
             if (distance > 1.0) {
-                // leave there OPACITY TRANSPARENT pixel (default pixel)
 
                 colorSampler.sampleOldColor(x + dabX, y + dabY, dabPointer);
                 dabPointer += dabPixelSize;

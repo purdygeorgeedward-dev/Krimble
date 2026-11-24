@@ -69,7 +69,6 @@ void adjustPointInformationRotation(KisPaintInformation &pi, const QTransform &t
     pi.setCanvasRotation(normalizeAngleDegrees(pi.canvasRotation() - rotation));
 }
 
-
 void KisToolMultihandHelper::paintAt(const KisPaintInformation &pi)
 {
     for (int i = 0; i < d->transformations.size(); i++) {

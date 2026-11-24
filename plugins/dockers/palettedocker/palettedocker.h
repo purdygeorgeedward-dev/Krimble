@@ -10,10 +10,6 @@
 #include <QObject>
 #include <QVariant>
 
-
-/**
- * Docker showing the channels of the current layer
- */
 class PaletteDockerPlugin : public QObject
 {
     Q_OBJECT

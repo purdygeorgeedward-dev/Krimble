@@ -4,7 +4,6 @@
  *  SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-
 #include "LogDockerDock.h"
 
 #include <QHBoxLayout>
@@ -45,13 +44,6 @@ KIS_DECLARE_STATIC_INITIALIZER {
     qRegisterMetaType<QtMsgType>("QtMsgType");
 }
 
-/**
- * A background thread that receives all the debug messages from 
- * the main thread and resends them forward using qt-signals. We
- * cannot resend the message in the same thread, because the a 
- * qDebug() message can come form the qt-signaling code, which
- * can cause deadlocks.
- */
 class MessageForwarderThread : public QThread
 {
     Q_OBJECT
@@ -86,7 +78,6 @@ public:
 Q_SIGNALS:
     void sigDeliverMessage(QtMsgType type, const QString &message);
 
-
 private:
     QMutex m_mutex;
     QWaitCondition m_waitCondition;
@@ -94,21 +85,8 @@ private:
     bool m_exitFlag {false};
 };
 
-/**
- * A forward declaration of the handler that will be passed to Qt as
- * a message handler. The handler will use MessageHandler object
- * below to post the actual messages.
- */
 void kritaLoggerMessageHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg);
 
-/**
- * MessageHandler is the main object that handles management of the debug
- * message delivery. It creates a backgroud thread and set up all the 
- * connections when requested.
- * 
- * MessageHandler is a singleton, i.e. it will be reused by **all**
- * the logging dockers we have in any of Krita's windows.
- */
 class MessageHandler : public QObject
 {
     Q_OBJECT
@@ -119,7 +97,7 @@ public:
 
     void setLoggingEnabled(bool value) {
         if (value == isLoggingEnabled()) return;
-        
+
         if (value) {
             const QtMessageHandler oldHandler = qInstallMessageHandler(kritaLoggerMessageHandler);
             m_originalMessageHandler = oldHandler;
@@ -153,7 +131,7 @@ void kritaLoggerMessageHandler(QtMsgType type, const QMessageLogContext &context
 {
     KIS_SAFE_ASSERT_RECOVER_RETURN(s_messageHandlerObject->m_forwarderThread);
     KIS_SAFE_ASSERT_RECOVER_RETURN(s_messageHandlerObject->m_originalMessageHandler);
-    
+
     s_messageHandlerObject->m_forwarderThread->pushMessage(type, message);
     s_messageHandlerObject->m_originalMessageHandler(type, context, message);
 }
@@ -197,7 +175,7 @@ void LogDockerDock::setViewManager(KisViewManager *kisview)
 void LogDockerDock::toggleLogging(bool toggle)
 {
     KisConfig(false).writeEntry<bool>("logviewer_enabled", toggle);
-    
+
     if (toggle) {
         applyCategories();
     } else {
@@ -316,9 +294,7 @@ void LogDockerDock::settings()
     chkPigment->setChecked(cfg.readEntry("pigment", false));
     layout->addWidget(chkPigment);
 
-
     if (dlg.exec()) {
-        // Apply the new settings
         cfg.writeEntry("resources_30009", chkResources->isChecked());
         cfg.writeEntry("krita_41000", chkKrita->isChecked());
         cfg.writeEntry("image_41001", chkImage->isChecked());

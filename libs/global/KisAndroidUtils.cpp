@@ -37,7 +37,6 @@ void performInitialSetup()
 
 bool looksLikeXiaomiDevice()
 {
-    // The device isn't going to change, so let's cache the slow JNI call.
     static bool checked;
     static bool result;
     if (!checked) {
@@ -50,7 +49,6 @@ bool looksLikeXiaomiDevice()
 
 bool isLowMemoryKillReportSupported()
 {
-    // The support is device-bound and will never change, so cache the JNI call.
     static bool checked;
     static bool result;
     if (!checked) {
@@ -158,7 +156,7 @@ bool copyFileContents(const QString &inputPath,
         }
     }
 }
-} // namespace
+}
 
 bool copyFile(const QString &inputPath, const QString &outputPath, QString *outErrorMessage)
 {
@@ -207,4 +205,4 @@ bool copyFileToTemporary(const QString &inputPath, QTemporaryFile &outputFile, Q
     return copyFileContents(inputPath, outputFile.fileName(), inputFile, outputFile, outErrorMessage);
 }
 
-} // namespace KisAndroidUtils
+}

@@ -56,7 +56,6 @@ static void inheritPaintProperties(const KisForest<KoSvgTextContentElement>::com
 
 void setRenderHints(QPainter &painter, const KoSvgText::TextRendering textRendering, const bool testAntialiasing) {
     if (textRendering != KoSvgText::RenderingOptimizeSpeed && testAntialiasing) {
-        // also apply antialiasing only if antialiasing is active on provided target QPainter
         painter.setRenderHint(QPainter::Antialiasing, true);
         painter.setRenderHint(QPainter::SmoothPixmapTransform, true);
     } else {
@@ -79,7 +78,6 @@ void KoSvgTextShape::Private::paintTextDecoration(QPainter &painter,
         if (it.state() == KisForestDetail::Leave) continue;
 
         inheritPaintProperties(it, stroke, background, paintOrder);
-
 
         KoInsets insets;
         if (stroke) {
@@ -129,7 +127,6 @@ void KoSvgTextShape::Private::paintTextDecoration(QPainter &painter,
                             maskStroke->setColor(Qt::white);
                             maskStroke->setLineBrush(Qt::white);
 
-
                             setRenderHints(*strokePainter.maskPainter(), rendering, painter.testRenderHint(QPainter::Antialiasing));
                             {
                                 QScopedPointer<KoShape> shape(KoPathShape::createShapeFromPainterPath(decorPath));
@@ -150,7 +147,6 @@ void KoSvgTextShape::Private::paintTextDecoration(QPainter &painter,
     }
 }
 
-// NOLINTNEXTLINE(readability-function-cognitive-complexity)
 void KoSvgTextShape::Private::paintPaths(QPainter &painter,
                                          const QPainterPath &rootOutline,
                                          const KoShape *rootShape,
@@ -175,7 +171,7 @@ void KoSvgTextShape::Private::paintPaths(QPainter &painter,
 
             if (childCount(siblingCurrent(it)) == 0) {
                 if (it->finalResultIndex < 0) continue;
-                const int j = it->finalResultIndex;//currentIndex + it->numChars(true);
+                const int j = it->finalResultIndex;
 
                 const QRect shapeGlobalClipRect = painter.transform().mapRect(it->associatedOutline.boundingRect().adjusted(-insets.left, -insets.top, insets.right, insets.bottom)).toAlignedRect();
 
@@ -193,32 +189,16 @@ void KoSvgTextShape::Private::paintPaths(QPainter &painter,
                         if (result.at(i).addressable && !result.at(i).hidden) {
                             const QTransform tf = result.at(i).finalTransform();
 
-                            /**
-                     * Make sure the character touches the painter's clip rect,
-                     * otherwise we can just skip it. Adding insets to ensure the outline will not be skipped.
-                     */
                             const QRectF boundingRect = tf.mapRect(result.at(i).inkBoundingBox).adjusted(-insets.left, -insets.top, insets.right, insets.bottom);
                             const QRectF clipRect = painter.clipBoundingRect();
                             if (boundingRect.isEmpty() ||
                                     (!clipRect.contains(boundingRect) &&
                                      !clipRect.intersects(boundingRect))) continue;
 
-                            /**
-                     * There's an annoying problem here that officially speaking
-                     * the chunks need to be unified into one single path before
-                     * drawing, so there's no weirdness with the stroke, but
-                     * QPainterPath's union function will frequently lead to
-                     * reduced quality of the paths because of 'numerical
-                     * instability'.
-                     */
-
                             if (const auto *colorGlyph = std::get_if<Glyph::ColorLayers>(&result.at(i).glyph)) {
                                 for (int c = 0; c < colorGlyph->paths.size(); c++) {
                                     QBrush color = colorGlyph->colors.at(c);
                                     bool replace = colorGlyph->replaceWithForeGroundColor.at(c);
-                                    // In theory we can use the pattern or gradient as well
-                                    // for ColorV0 fonts, but ColorV1 fonts can have
-                                    // gradients, so I am hesitant.
                                     KoColorBackground *b = dynamic_cast<KoColorBackground *>(background.data());
                                     if (b && replace) {
                                         color = b->brush();
@@ -333,7 +313,6 @@ QSharedPointer<KoShapeBackground> transformBackgroundToBounds(QSharedPointer<KoS
         return QSharedPointer<KoGradientBackground>(new KoGradientBackground(cloneAndTransformGradient(g->gradient(), newTf), g->transform()));
     }
 
-    // assume bg is KoColorBackground.
     return bg;
 }
 
@@ -363,7 +342,6 @@ KoShapeStrokeModelSP transformStrokeBgToNewBounds(KoShapeStrokeModelSP stroke, c
     return stroke;
 }
 
-// NOLINTNEXTLINE(readability-function-cognitive-complexity)
 KoShape *
 KoSvgTextShape::Private::collectPaths(const KoSvgTextShape *rootShape, QVector<CharacterResult> &result, int &currentIndex)
 {
@@ -421,7 +399,6 @@ KoSvgTextShape::Private::collectPaths(const KoSvgTextShape *rootShape, QVector<C
 
         if (it.state() == KisForestDetail::Enter) {
 
-
             if (textDecorations.contains(KoSvgText::DecorationUnderline)) {
                 KoPathShape *shape = KoPathShape::createShapeFromPainterPath(textDecorations.value(KoSvgText::DecorationUnderline));
                 shape->setBackground(transformBackgroundToBounds(decorationColor,
@@ -469,9 +446,6 @@ KoSvgTextShape::Private::collectPaths(const KoSvgTextShape *rootShape, QVector<C
                             for (int c = 0; c < colorGlyph->paths.size(); c++) {
                                 QBrush color = colorGlyph->colors.at(c);
                                 bool replace = colorGlyph->replaceWithForeGroundColor.at(c);
-                                // In theory we can use the pattern or gradient as well
-                                // for ColorV0 fonts, but ColorV1 fonts can have
-                                // gradients, so I am hesitant.
                                 KoColorBackground *b = dynamic_cast<KoColorBackground *>(background.data());
                                 if (b && replace) {
                                     color = b->brush();
@@ -547,9 +521,6 @@ KoSvgTextShape::Private::collectPaths(const KoSvgTextShape *rootShape, QVector<C
 
             }
             if (it == compositionBegin(textData)) {
-                // We don't want the root to inherit stroke or fill, but after
-                // that it should, so we turn both to inherit at the end of the
-                // 'enter' code block for the root.
                 currentNodeInheritsBg = true;
                 currentNodeInheritsStroke = true;
             }
@@ -599,7 +570,6 @@ KoSvgTextShape::Private::collectPaths(const KoSvgTextShape *rootShape, QVector<C
     return parentShape;
 }
 
-// NOLINTNEXTLINE(readability-function-cognitive-complexity)
 void KoSvgTextShape::Private::paintDebug(QPainter &painter,
                                          const QVector<CharacterResult> &result,
                                          int &currentIndex)
@@ -622,7 +592,7 @@ void KoSvgTextShape::Private::paintDebug(QPainter &painter,
                 if (result.at(i).addressable && !result.at(i).hidden) {
                     const QTransform tf = result.at(i).finalTransform();
 
-#if 1 // Debug: draw character bounding boxes
+#if 1
                     painter.setBrush(Qt::transparent);
                     QPen pen(QColor(0, 0, 0, 50));
                     pen.setCosmetic(true);
@@ -664,12 +634,10 @@ void KoSvgTextShape::Private::paintDebug(QPainter &painter,
                     painter.setPen(pen);
                     painter.drawLine(tf.map(result.at(i).cursorInfo.caret));
 
-
                     const QPointF center = tf.mapRect(result.at(i).layoutBox()).center();
                     QString text = "#";
                     text += QString::number(i);
                     {
-                        // Find the range of this typographic character
                         int end = i + 1;
                         while (end < result.size() && result[end].middle) {
                             end++;
@@ -701,7 +669,6 @@ void KoSvgTextShape::Private::paintDebug(QPainter &painter,
                         painter.setPen(pen);
                         painter.drawPoint(center);
                     }
-                    //ligature carets
                     penColor = Qt::darkGreen;
                     penColor.setAlpha(192);
                     pen.setColor(penColor);
@@ -710,7 +677,6 @@ void KoSvgTextShape::Private::paintDebug(QPainter &painter,
                     for (int k=0; k<offset.size(); k++) {
                         painter.drawPoint(tf.map(offset.at(k)));
                     }
-                    // Finalpos
                     penColor = Qt::red;
                     penColor.setAlpha(192);
                     pen.setColor(penColor);

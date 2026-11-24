@@ -15,9 +15,6 @@ namespace KisMetaData
 {
 }
 
-/**
- * Template of view plugin
- */
 class metadataeditorPlugin : public KisActionPlugin
 {
     Q_OBJECT
@@ -30,4 +27,4 @@ private Q_SLOTS:
     void slotEditLayerMetaData();
 };
 
-#endif // metadataeditorPlugin_H
+#endif

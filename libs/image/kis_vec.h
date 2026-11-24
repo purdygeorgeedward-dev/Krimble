@@ -13,7 +13,6 @@
 #include <Eigen/Core>
 #include <QVector2D>
 
-
 typedef Eigen::Matrix<qreal, 2, 1> KisVector2D;
 
 inline KisVector2D toKisVector2D(const QPointF& p)

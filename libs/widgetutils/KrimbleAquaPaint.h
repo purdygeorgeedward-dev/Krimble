@@ -1,8 +1,4 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
-// Krimble: the Aqua-style selection look (reference: docs/krimble-refs/2026-11-20_2311_macos-aqua-gradient-reference.png,
-// approved demo: docs/krimble-refs/2026-11-20_2312_APPROVED-aqua-gradient-demo.png), in the selection blue #0b87dd.
-// Four layers: a blue body darkest at the top edge and deep through the middle, a bright glow rising from the bottom,
-// a thin darker rim, and a white gloss over the top half that fades as it goes down.
 #pragma once
 #include <QPainter>
 #include <QPainterPath>
@@ -19,7 +15,6 @@ inline QColor krimbleAquaMix(const QColor &c, const QColor &to, qreal a, int alp
                   qRound(c.blue() + (to.blue() - c.blue()) * a), alpha);
 }
 
-// A glossy Aqua rim for outlines: light at the top, the selection blue in the middle, deep at the bottom.
 inline QBrush krimbleAquaRimBrush(const QRectF &r)
 {
     QLinearGradient g(r.topLeft(), r.bottomLeft());
@@ -41,26 +36,19 @@ inline void krimblePaintAqua(QPainter &p, const QRectF &r, qreal radius, const Q
     QPainterPath body;
     body.addRoundedRect(r, radius, radius);
 
-    // 1. the body
     QLinearGradient g(r.topLeft(), r.bottomLeft());
     g.setColorAt(0.00, krimbleAquaMix(base, black, 0.30));
     g.setColorAt(0.12, krimbleAquaMix(base, black, 0.12));
     g.setColorAt(0.50, krimbleAquaMix(base, black, 0.05));
-    // g.setColorAt(0.85, krimbleAquaMix(base, white, 0.35));
-    // g.setColorAt(1.00, krimbleAquaMix(base, white, 0.50));
-    // darker ("too light ... White disappears over it")
     g.setColorAt(0.85, krimbleAquaMix(base, white, 0.14));
     g.setColorAt(1.00, krimbleAquaMix(base, white, 0.24));
     p.fillPath(body, g);
 
     p.setClipPath(body);
 
-    // 2. the glow rising from the bottom (an ellipse 1.1 x the width and the height, centered just under the bottom edge)
     {
         QRadialGradient glow(QPointF(0, 0), 1.0);
         const QColor c = krimbleAquaMix(base, white, 0.75);
-        // glow.setColorAt(0.0, QColor(c.red(), c.green(), c.blue(), 140));
-        // glow.setColorAt(0.5, QColor(c.red(), c.green(), c.blue(), 50));
         glow.setColorAt(0.0, QColor(c.red(), c.green(), c.blue(), 85));
         glow.setColorAt(0.5, QColor(c.red(), c.green(), c.blue(), 28));
         glow.setColorAt(1.0, QColor(c.red(), c.green(), c.blue(), 0));
@@ -72,30 +60,15 @@ inline void krimblePaintAqua(QPainter &p, const QRectF &r, qreal radius, const Q
         p.fillRect(r, brush);
     }
 
-    // 3. the rim
     {
         const qreal rim = qMax<qreal>(1.0, qMin(r.width(), r.height()) * 0.012);
         QPen pen(krimbleAquaMix(base, black, 0.40), rim * 2);
         p.setPen(pen);
         p.setBrush(Qt::NoBrush);
-        p.drawPath(body);   // half of the pen is clipped away: a rim of 'rim' inside the edge
+        p.drawPath(body);
         p.setPen(Qt::NoPen);
     }
 
-    // // 4. the gloss over the top half
-    // {
-    //     const QRectF gr(r.left() + r.width() * 0.07, r.top() + r.height() * 0.05, r.width() * 0.86, r.height() * 0.45);
-    //     const qreal gRadius = qMin(radius * 0.85, gr.height() / 2.0);
-    //     QPainterPath gloss;
-    //     gloss.addRoundedRect(gr, gRadius, gRadius);
-    //     QLinearGradient gg(gr.topLeft(), gr.bottomLeft());
-    //     // gg.setColorAt(0.0, QColor(255, 255, 255, 217));
-    //     // gg.setColorAt(1.0, QColor(255, 255, 255, 31));
-    //     gg.setColorAt(0.0, QColor(255, 255, 255, 150));
-    //     gg.setColorAt(1.0, QColor(255, 255, 255, 16));
-    //     p.fillPath(gloss, gg);
-    // }
-    // 3b. dark curved corners at the bottom: only the two corners, each the wedge outside a round curve (like the shine's top corners)
     {
         const qreal h = r.height();
         const qreal c = qMin(0.30 * h, r.width() / 2.0);
@@ -116,15 +89,13 @@ inline void krimblePaintAqua(QPainter &p, const QRectF &r, qreal radius, const Q
         }
     }
 
-    // 4. the gloss over the top half: rounded top corners, its sides curving inward as it goes down, so its bottom edge is narrower
-    //    the sizes come from the height, so a wide button keeps narrow sides
     {
         const qreal h = r.height();
         const qreal inset = qMin(r.width(), h) * 0.08;
         const qreal gt = r.top() + h * 0.05, gb = r.top() + h * 0.50;
         const qreal L = r.left() + inset, R = r.right() - inset;
-        const qreal sh = qMin(0.16 * h, (R - L) / 2.0);        // the rounded top corner
-        const qreal narrow = qMin(0.38 * h, (R - L) / 4.0);    // how far each side comes in at the bottom
+        const qreal sh = qMin(0.16 * h, (R - L) / 2.0);
+        const qreal narrow = qMin(0.38 * h, (R - L) / 4.0);
         QPainterPath gloss;
         gloss.moveTo(L + sh, gt);
         gloss.lineTo(R - sh, gt);
@@ -136,7 +107,7 @@ inline void krimblePaintAqua(QPainter &p, const QRectF &r, qreal radius, const Q
         gloss.closeSubpath();
         QLinearGradient gg(QPointF(0, gt), QPointF(0, gb));
         gg.setColorAt(0.0, QColor(255, 255, 255, 150));
-        gg.setColorAt(1.0, QColor(255, 255, 255, 60));   // visible to its bottom edge, so the shape shows
+        gg.setColorAt(1.0, QColor(255, 255, 255, 60));
         p.fillPath(gloss, gg);
     }
     p.restore();

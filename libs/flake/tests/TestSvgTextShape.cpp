@@ -33,7 +33,6 @@
 
 namespace {
 
-// Quick function to get a rectangle.
 KoShape *createRectangle() {
     KoShapeFactoryBase *base = KoShapeRegistry::instance()->get("RectangleShape");
 
@@ -68,10 +67,6 @@ KoPathShape *createPath() {
     return p;
 }
 
-///
-/// Uncomment to get debugging output and vesual representation of the shapes
-/// as .png files
-///
 #define DEBUG_SHAPE_RENDERING
 
 #ifdef DEBUG_SHAPE_RENDERING
@@ -88,7 +83,7 @@ QString stripTestName(QString name)
     name.remove(')');
     return name;
 }
-#endif /* DEBUG_SHAPE_RENDERING */
+#endif
 
 void paintShapes(KoShape *textShape, QList<KoShape *> contourShapes, const QString &testName)
 {
@@ -108,11 +103,11 @@ void paintShapes(KoShape *textShape, QList<KoShape *> contourShapes, const QStri
     p.setShapes(paintedShapes);
     p.paint(gc, image.rect(), image.rect());
     image.save(stripTestName(testName));
-#else /* DEBUG_SHAPE_RENDERING */
+#else
     Q_UNUSED(textShape)
     Q_UNUSED(contourShapes)
     Q_UNUSED(testName)
-#endif /* DEBUG_SHAPE_RENDERING*/
+#endif
 }
 
 void debugShapes(KoShape *textShape, QList<KoShape *> contourShapes)
@@ -126,10 +121,10 @@ void debugShapes(KoShape *textShape, QList<KoShape *> contourShapes)
         qDebug() << "contour" << i << ppVar(shape->absoluteOutlineRect());
         qDebug() << "contour" << i << ppVar(shape->transformation());
     }
-#else /* DEBUG_SHAPE_RENDERING */
+#else
     Q_UNUSED(textShape)
     Q_UNUSED(contourShapes)
-#endif /* DEBUG_SHAPE_RENDERING */
+#endif
 }
 
 struct ComplexTextInContourBuilder
@@ -191,8 +186,6 @@ struct ComplexTextInContourBuilder
         }
         shapes.clear();
 
-        // for the case when the grouping command is not undone
-        // we should delte the text shape **after** the contours
         if (!textShape->parent()) {
             delete textShape;
             textShape = nullptr;
@@ -203,7 +196,6 @@ struct ComplexTextInContourBuilder
             commonParent = nullptr;
         }
     }
-
 
     void addTextToContour()
     {
@@ -256,7 +248,6 @@ using KisAlgebra2D::makeFullTransformComponents;
 auto rotateAroundPoint = [] (qreal deg, const QPointF center) {
     return QTransform::fromTranslate(-center.x(), -center.y()) * QTransform().rotate(deg) * QTransform::fromTranslate(center.x(), center.y());
 };
-
 
 void TestSvgTextShape::testSetTextOnShape_data()
 {
@@ -507,7 +498,6 @@ void TestSvgTextShape::testSetSize_data()
             for (bool contourHasParent : {false, true}) {
                 for (int steps : {1, 3}) {
                     for (KoFlake::AnchorPosition anchor : anchors) {
-                        // extensively test patch shape only
                         jobs.push_back({false, contourCount, textHasParent, contourHasParent, steps, anchor});
                     }
                 }
@@ -515,7 +505,6 @@ void TestSvgTextShape::testSetSize_data()
         }
     }
 
-    // add one simple job for a parametric shape
     jobs.push_back({true, 1, true, true, 3, KoFlake::BottomRight});
 
     for (const auto &job : jobs) {
@@ -531,8 +520,6 @@ void TestSvgTextShape::testSetSize_data()
             << 1.3 << 1.5 << job.steps << job.anchor << QTransform::fromTranslate(10, 20)
             << QTransform::fromTranslate(5, 5) << job.contourIsParametric << job.contourCount << job.textHasParent
             << job.contourHasParent
-            // when there is only translation in the internal shapes, then resize them instead
-            // of scaling
             << preserveEverythingButTranslation;
 
         QTest::addRow("[%s][text:%s][contour:%s][anchor:%s][steps:%d] text and %d contour(s) (scaled)",
@@ -571,13 +558,8 @@ void TestSvgTextShape::testSetSize_data()
             << QTransform::fromScale(1.0, 1.5) * QTransform::fromTranslate(10, 20) << QTransform::fromTranslate(5, 5)
             << job.contourIsParametric << job.contourCount << job.textHasParent
             << job.contourHasParent
-            // after a shape has been added to a transformed text, it received an
-            // inverted transform of the text, so we cannot manipulate it normally
-            // anymore
             << preserveEverythingButTranslationAndScale;
 
-        // this case looks weird in the test, but in GUI it looks rather consistent,
-        // becasue the handles are also rotated
         QTest::addRow("[%s][text:%s][contour:%s][anchor:%s][steps:%d] text (rotated) and %d contour(s)",
                       shapeType,
                       hasParentToString(job.textHasParent),
@@ -591,9 +573,6 @@ void TestSvgTextShape::testSetSize_data()
             << rotateAroundPoint(30, QPointF(100, -10)) * QTransform::fromTranslate(10, 80)
             << QTransform::fromTranslate(5, 5) << job.contourIsParametric << job.contourCount << job.textHasParent
             << job.contourHasParent
-            // after a shape has been added to a transformed text, it received an
-            // inverted transform of the text, so we cannot manipulate it normally
-            // anymore
             << preserveNothing;
     }
 }
@@ -680,15 +659,10 @@ void TestSvgTextShape::testSetSize()
     QCOMPARE(b.textShape->absolutePosition(stillPointAnchor), absoluteStillPoint);
 
     if (contourCount == 1 && componentsForTransform(b.shapes[0]->transformation()) == KisTransformComponent::Translate) {
-        // the still point of the only contour was unchanged (applies only in translation mode)
         QCOMPARE(b.shapes[0]->absolutePosition(stillPointAnchor), firstContourAnchorPoint);
     }
 
     for (KoShape *shape : b.shapes) {
-        // Verify what transformation components were preserved in the child's transform.
-        // When setSize() is passed down to the child change all components are preserved,
-        // except the translation one. When the children are transformed using the transoform,
-        // then their whole transformation will be messed up.
         auto preservedComponents = compareTransformComponents(shape->transformation(), originalTransform[shape]);
         QCOMPARE(preservedComponents, exprectedPreservedChildTransformComponents);
     }
@@ -830,8 +804,6 @@ void TestSvgTextShape::testTextPathOnRange_data()
 
 void TestSvgTextShape::testTextPathOnRange()
 {
-    // TODO: test a case when mulitple path shapes have the same original id
-    // TODO: assigned names should be removed/undone
 
     QFETCH(QString, svg);
     QFETCH(int, startPos);

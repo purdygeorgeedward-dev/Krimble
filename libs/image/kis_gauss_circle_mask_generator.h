@@ -17,9 +17,6 @@
 template<typename V>
 struct FastRowProcessor;
 
-/**
- * This mask generator uses a Gaussian-blurred circle
- */
 class KRITAIMAGE_EXPORT KisGaussCircleMaskGenerator : public KisMaskGenerator
 {
 public:

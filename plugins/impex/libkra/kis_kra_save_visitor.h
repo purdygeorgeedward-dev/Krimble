@@ -54,7 +54,6 @@ public:
 
     bool visit(KisColorizeMask *mask) override;
 
-    /// @return a list with everything that went wrong while saving
     QStringList errorMessages() const;
 
 private:
@@ -83,5 +82,5 @@ private:
     QStringList m_errorMessages;
 };
 
-#endif // KIS_KRA_SAVE_VISITOR_H_
+#endif
 

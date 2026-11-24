@@ -24,4 +24,4 @@ public:
 
 };
 
-#endif // KISPAINTTHICKNESSOPTIONMODEL_H
+#endif

@@ -9,7 +9,6 @@
 #include "qwayland-wayland.h"
 #include <qscopedpointer.h>
 
-/// Wayland registry for tracking wayland globals
 class KisWaylandRegistry : QtWayland::wl_registry
 {
 public:

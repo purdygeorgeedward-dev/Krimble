@@ -29,4 +29,4 @@ public:
     void write(KisPropertiesConfiguration *setting) const;
 };
 
-#endif // KISLODAVAILABILITYDATA_H
+#endif

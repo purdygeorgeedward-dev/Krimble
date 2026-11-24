@@ -66,10 +66,10 @@ void TestKoLcmsColorProfile::testProofingConversion()
 {
     const KoColorSpace *sRgb = KoColorSpaceRegistry::instance()->rgb16("sRGB built-in");
     Q_ASSERT(sRgb);
-    const KoColorSpace *lab = KoColorSpaceRegistry::instance()->lab16();//there's only one lab profile, replace with it's name.
+    const KoColorSpace *lab = KoColorSpaceRegistry::instance()->lab16();
     Q_ASSERT(lab);
 
-    quint16 src[4];//the following ought to give us a purple only possible in lab. I can't seem to proof this away, somehow...
+    quint16 src[4];
     src[0] = 32896;
     src[1] = 65535;
     src[2] = 0;

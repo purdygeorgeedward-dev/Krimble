@@ -31,4 +31,4 @@ private:
     KisWaylandAPIColorManager *m_colorManager;
 };
 
-#endif /* KISWAYLANDIMAGEDESCRIPTIONCREATORPARAMS_H */
+#endif

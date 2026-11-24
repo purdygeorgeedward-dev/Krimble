@@ -7,7 +7,7 @@ public:
         : QDialog(spin->window()), m_spin(spin), m_apply(apply)
     {
         setWindowTitle(i18n("Enter a number"));
-        setProperty("krimbleNumberPad", true);     // (no Q_OBJECT in this file, so a property marks the pad)
+        setProperty("krimbleNumberPad", true);
         setModal(true);
         QVBoxLayout *layout = new QVBoxLayout(this);
         QString range;
@@ -85,9 +85,9 @@ private:
 class KrimbleNumberFields : public QObject
 {
 public:
-    static const int LongPressMs = 350;          // how long a finger must stay down before dragging changes the value
-    static const int MovePixels = 9;             // logical pixels of drag for one step
-    static const int TapSlop = 12;               // movement allowed during a tap or long press
+    static const int LongPressMs = 350;
+    static const int MovePixels = 9;
+    static const int TapSlop = 12;
 
     explicit KrimbleNumberFields(QObject *parent) : QObject(parent)
     {
@@ -101,7 +101,6 @@ public:
         });
     }
 
-    // Used by the number pad and the drag: changes the value the way each kind of field wants it.
     static void setSpinValue(QAbstractSpinBox *spin, double v)
     {
 #ifndef KRIMBLE_HARNESS
@@ -152,7 +151,6 @@ protected:
         if (event->type() == QEvent::MouseMove) {
             const QPoint d = mouse->globalPos() - m_pressPos;
             if (m_state == Pending && (qAbs(d.x()) > TapSlop || qAbs(d.y()) > TapSlop)) {
-                // moved before the long press: not a tap and not a drag, so nothing happens
                 m_timer.stop();
                 m_state = sidewaysDrag(d) ? Dragging : Cancelled;
             } else if (m_state == Scrubbing) {
@@ -197,7 +195,6 @@ protected:
     }
 
 private:
-    // enum State { Idle, Pending, Scrubbing, Cancelled };
     enum State { Idle, Pending, Scrubbing, Cancelled, Dragging };
 
     static QAbstractSpinBox *spinFor(QObject *o)
@@ -235,7 +232,6 @@ private:
         else if (QDoubleSpinBox *sd = qobject_cast<QDoubleSpinBox*>(s)) step = sd->singleStep();
         return step > 0.0 ? step : 1.0;
     }
-    // very wide ranges move faster so that the whole range can be reached
     static double multiplierOf(QAbstractSpinBox *s)
     {
         const double steps = (maxOf(s) - minOf(s)) / stepOf(s);
@@ -248,7 +244,6 @@ private:
         if (!m_spin || !(qobject_cast<QSpinBox*>(m_spin) || qobject_cast<QDoubleSpinBox*>(m_spin))) return false;
         return qAbs(d.x()) > TapSlop && qAbs(d.x()) > 2 * qAbs(d.y());
     }
-    // dragging the width of the field changes the value by up to 100 (a percentage box moves over its whole 0 to 100; a bigger range moves 100 units; a small range such as 0 to 1 moves its whole range)
     void dragValue(int dx)
     {
         if (!m_spin) return;

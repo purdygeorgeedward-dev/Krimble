@@ -13,9 +13,6 @@
 #define NATIVE_OPACITY_OPAQUE KoColorSpaceMathsTraits<channels_type>::unitValue
 #define NATIVE_OPACITY_TRANSPARENT KoColorSpaceMathsTraits<channels_type>::zeroValue
 
-/**
- * A template version of the erase composite operation to use in colorspaces<
- */
 template<class _CSTraits>
 class KoCompositeOpErase : public KoCompositeOp
 {
@@ -31,8 +28,6 @@ public:
     using KoCompositeOp::composite;
 
     void composite(const KoCompositeOp::ParameterInfo& params) const override {
-        // XXX: How to use channelflags here? It would be cool to
-        // erase all green from an image, for example.
         qint32 srcInc = (params.srcRowStride == 0) ? 0 : _CSTraits::channels_nb;
         channels_type opacity = KoColorSpaceMaths<float, channels_type>::scaleToA(params.opacity);
 
@@ -50,7 +45,6 @@ public:
             for (qint32 i = params.cols; i > 0; i--, s += srcInc, d += _CSTraits::channels_nb) {
                 channels_type srcAlpha = s[_CSTraits::alpha_pos];
 
-                // apply the alphamask
                 if (mask != 0) {
                     quint8 U8_mask = *mask;
 

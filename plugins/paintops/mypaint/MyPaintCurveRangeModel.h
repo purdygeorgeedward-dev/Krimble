@@ -70,4 +70,4 @@ public:
     LAGER_QT_READER(DoubleSpinBoxState, xMaxState);
 };
 
-#endif // MYPAINTCURVERANGEMODEL_H
+#endif

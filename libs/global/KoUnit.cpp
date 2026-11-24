@@ -15,8 +15,6 @@
 #include <klocalizedstring.h>
 #include <QtGlobal>
 
-
-// ensure the same order as in KoUnit::Unit
 static const char* const unitNameList[KoUnit::TypeCount] =
 {
     "mm",
@@ -53,7 +51,6 @@ QString KoUnit::unitDescription(KoUnit::Type type)
     }
 }
 
-// grouped by units which are similar
 static const KoUnit::Type typesInUi[KoUnit::TypeCount] =
 {
     KoUnit::Millimeter,
@@ -82,7 +79,6 @@ KoUnit KoUnit::fromListForUi(int index, ListOptions listOptions, qreal factor)
     KoUnit::Type type = KoUnit::Point;
 
     if ((0 <= index) && (index < KoUnit::TypeCount)) {
-        // iterate through all enums and skip the Pixel enum if needed
         for (int i = 0; i < KoUnit::TypeCount; ++i) {
             if ((listOptions&HidePixel) && (typesInUi[i] == Pixel)) {
                 ++index;
@@ -121,8 +117,6 @@ int KoUnit::indexInListForUi(ListOptions listOptions) const
     return result;
 }
 
-
-
 qreal KoUnit::toUserValueRounded(const qreal value) const
 {
     qreal userValue = toUserValuePrecise(value);
@@ -130,7 +124,7 @@ qreal KoUnit::toUserValueRounded(const qreal value) const
 
     switch (m_type) {
     case Pixel:
-        return userValue; // no rounding for Pixel value
+        return userValue;
     case Millimeter:
         rounding = MM_ROUNDING;
         break;
@@ -153,7 +147,6 @@ qreal KoUnit::toUserValueRounded(const qreal value) const
     default:
         rounding = PT_ROUNDING;
     }
-
 
     return floor(userValue * rounding) / rounding;
 }
@@ -180,8 +173,6 @@ qreal KoUnit::toUserValuePrecise(const qreal ptValue) const
         return ptValue;
     }
 }
-
-
 
 qreal KoUnit::toUserValue(qreal ptValue, bool rounding) const
 {
@@ -264,7 +255,6 @@ qreal KoUnit::parseValue(const QString& _value, qreal defaultVal)
     else if (symbol == QLatin1String("km"))
         return DM_TO_POINT(val * 10000.0);
 
-    // TODO : add support for mi/ft ?
     return defaultVal;
 }
 
@@ -272,7 +262,7 @@ KoUnit KoUnit::fromSymbol(const QString &symbol, bool *ok)
 {
     Type result = Point;
 
-    if (symbol == QLatin1String("inch") /*compat*/) {
+    if (symbol == QLatin1String("inch") ) {
         result = Inch;
         if (ok)
             *ok = true;

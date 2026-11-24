@@ -19,4 +19,4 @@ enum class KisBrushOptionWidgetFlag
 Q_DECLARE_FLAGS(KisBrushOptionWidgetFlags, KisBrushOptionWidgetFlag)
 Q_DECLARE_OPERATORS_FOR_FLAGS(KisBrushOptionWidgetFlags)
 
-#endif // KISBRUSHOPTIONWIDGETFLAGS_H
+#endif

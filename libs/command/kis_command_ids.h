@@ -49,5 +49,5 @@ enum CommandId {
 
 }
 
-#endif // KIS_COMMAND_IDS_H
+#endif
 

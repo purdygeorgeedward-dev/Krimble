@@ -17,12 +17,6 @@ class QPixmap;
 class KisDocument;
 class KisTemplateCreateDiaPrivate;
 
-/****************************************************************************
- *
- * Class: koTemplateCreateDia
- *
- ****************************************************************************/
-
 class KRITAUI_EXPORT KisTemplateCreateDia : public KoDialog
 {
     Q_OBJECT

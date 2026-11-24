@@ -22,7 +22,7 @@ const QString KisFpsDecoration::idTag = "fps_decoration";
 KisFpsDecoration::KisFpsDecoration(QPointer<KisView> view)
     : KisCanvasDecoration(idTag, view)
     , m_font(QApplication::font())
-    , m_pixmap(1, 1) // need non-zero pixmap for initial setup
+    , m_pixmap(1, 1)
 {
     setVisible(true);
 
@@ -40,27 +40,14 @@ KisFpsDecoration::~KisFpsDecoration()
 {
 }
 
-void KisFpsDecoration::drawDecoration(QPainter& gc, const QRectF& /*updateRect*/, const KisCoordinatesConverter */*converter*/, KisCanvas2* canvas)
+void KisFpsDecoration::drawDecoration(QPainter& gc, const QRectF& , const KisCoordinatesConverter * , KisCanvas2* canvas)
 {
-    // we always paint into a pixmap instead of directly into gc, as the latter
-    // approach is known to cause garbled graphics on macOS, Windows, and even
-    // sometimes Linux.
 
     const QString text = getText();
-
-    // note that USUALLY the pixmap will have the right size. in very rare cases
-    // (e.g. on the very first call) the computed bounding rect will not be right
-    // and the pixmap will need a resize. it is faster to NOT usually calculate
-    // the necessary bounds with an extra call like QFontMetrics::boundingRect()
-    // here, as USUALLY the pixmap will be right and thus an extra call would be
-    // unnecessary overhead.
 
     QSize size;
 
     if (!draw(text, size, canvas->displayRendererInterface())) {
-        // the pixmap is too small, we need to make it larger. make it 10% wider
-        // than the measured width to avoid resizing again as soon as the text
-        // gets a bit wider due to different content.
 
         m_pixmap = QPixmap(size.width() * 1.1f, size.height());
 
@@ -93,7 +80,7 @@ bool KisFpsDecoration::draw(const QString &text, QSize &outSize, const KoColorDi
     outSize = bounds.size() + QSize(1, 1);
 
     if (m_pixmap.width() < outSize.width() || m_pixmap.height() != outSize.height()) {
-        return false; // pixmap is too small and needs a resize. rarely happens.
+        return false;
     }
 
     return true;

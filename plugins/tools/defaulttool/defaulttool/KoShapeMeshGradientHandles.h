@@ -47,16 +47,14 @@ public:
         int row {0};
         int col {0};
         SvgMeshPatch::Type segmentType {SvgMeshPatch::Top};
-        Index index { First }; // first or the second bezier handle
+        Index index { First };
     };
 
 public:
     KoShapeMeshGradientHandles(KoFlake::FillVariant fillVariant, KoShape *shape);
 
-    /// get all nodes in the mesh, don't use this for drawing the path but use path()
     QVector<Handle> handles() const;
 
-    /// convenience method to get a handle by its position in the mesharray
     Handle getHandle(SvgMeshPosition position) const;
 
     KUndo2Command* moveGradientHandle(const Handle &handle, const QPointF &newPos);
@@ -64,19 +62,16 @@ public:
     QPainterPath path() const;
     QVector<QPainterPath> getConnectedPath(const Handle &handle) const;
 
-    /// get the attached corner node of the bezierHandle
     QPointF getAttachedCorner(const Handle &bezierHandle) const;
 
 private:
     const SvgMeshGradient* gradient() const;
 
-    /// get handles including the corner
     QVector<Handle> getHandles(const SvgMeshArray *mesharray,
                                 SvgMeshPatch::Type type,
                                 int row,
                                 int col) const;
 
-    // get only bezier handles
     QVector<Handle> getBezierHandles(const SvgMeshArray *mesharray,
                                      SvgMeshPatch::Type type,
                                      int row,
@@ -89,4 +84,4 @@ private:
     KoShape *m_shape {0};
 };
 
-#endif // __KOSHAPEMESHGRADIENTHANDLES_H_
+#endif

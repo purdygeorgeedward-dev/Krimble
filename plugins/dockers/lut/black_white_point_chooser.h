@@ -11,7 +11,6 @@
 
 class KisDoubleSliderSpinBox;
 
-
 class BlackWhitePointChooser : public QFrame
 {
     Q_OBJECT
@@ -36,4 +35,4 @@ private:
     KisDoubleSliderSpinBox *m_white;
 };
 
-#endif /* __BLACK_WHITE_POINT_CHOOSER_H */
+#endif

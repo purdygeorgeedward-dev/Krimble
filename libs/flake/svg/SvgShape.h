@@ -13,19 +13,16 @@ class SvgSavingContext;
 class SvgLoadingContext;
 #include <QDomDocument>
 
-/// An interface providing svg loading and saving routines
 class KRITAFLAKE_EXPORT SvgShape
 {
 public:
     virtual ~SvgShape();
 
-    /// Saves data utilizing specified svg saving context
     virtual bool saveSvg(SvgSavingContext &context);
 
-    /// Loads data from specified svg element
     virtual bool loadSvg(const QDomElement &element, SvgLoadingContext &context);
 
     void saveMetadata(SvgSavingContext &context);
 };
 
-#endif // SVGSHAPE_H
+#endif

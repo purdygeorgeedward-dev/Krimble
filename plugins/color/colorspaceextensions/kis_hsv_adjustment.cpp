@@ -10,7 +10,6 @@
 #include <half.h>
 #endif
 
-
 #include <kis_debug.h>
 #include <klocalizedstring.h>
 
@@ -206,16 +205,12 @@ struct HCYPolicy
 
     inline float fixupChroma(float c, float v) {
         Q_UNUSED(v);
-        // NOTE: no sliding in HCY, because the shape of the triangle
-        //       depends on Hue, which complicated code a lot. And it
-        //       seems to work fine without it :)
         return c;
     }
 
     inline void writeRGB(float *r, float *g, float *b,
                          int sextant,
                          float x, float c, float v) {
-
 
         switch (sextant) {
         case 0: *r = c; *g = x; *b = 0; break;
@@ -270,10 +265,6 @@ void HSVTransform(float *r, float *g, float *b, float dh, float ds, float dv, Va
             h = normalizeAngleDegrees(h);
 
             if (ds > 0) {
-                /// approximation of a nonlinear slider:
-                /// ds = 0.0 -> chroma *= 1.0;
-                /// ds = 0.5 -> chroma *= 2.0;
-                /// ds = 1.0 -> chroma *= 4.0;
 
                 chroma = qMin(1.0f, chroma * (1.0f + ds + 2.0f * pow2(ds)));
             } else {
@@ -314,7 +305,6 @@ void HSVTransform(float *r, float *g, float *b, float dh, float ds, float dv, Va
     }
 }
 
-
 template<typename _channel_type_,typename traits>
 class KisHSVAdjustment : public KoColorTransformation
 {
@@ -340,9 +330,6 @@ public:
     void transform(const quint8 *srcU8, quint8 *dstU8, qint32 nPixels) const override
     {
 
-        //if (m_model="RGBA" || m_colorize) {
-        /*It'd be nice to have LCH automatically selector for LAB in the future, but I don't know how to select LAB
-         * */
             const RGBPixel* src = reinterpret_cast<const RGBPixel*>(srcU8);
             RGBPixel* dst = reinterpret_cast<RGBPixel*>(dstU8);
             float h, s, v;
@@ -350,7 +337,6 @@ public:
             float g = 0.0;
             float b = 0.0;
             qreal lumaR, lumaG, lumaB;
-            //Default to rec 709 when there's no coefficients given//
             if (m_lumaRed<=0 || m_lumaGreen<=0 || m_lumaBlue<=0) {
                 lumaR   = 0.2126;
                 lumaG   = 0.7152;
@@ -503,49 +489,6 @@ public:
                 ++src;
                 ++dst;
             }
-        /*} else if (m_model="LABA"){
-            const LABPixel* src = reinterpret_cast<const LABPixel*>(srcU8);
-            LABPixel* dst = reinterpret_cast<LABPixel*>(dstU8);
-            qreal lightness = SCALE_TO_FLOAT(src->L);
-            qreal a = SCALE_TO_FLOAT(src->a);
-            qreal b = SCALE_TO_FLOAT(src->b);
-            qreal L, C, H;
-
-            while (nPixels > 0) {
-                if (m_type = 4) {
-                    a *= (m_adj_h + 1.0);
-                    a = qBound(0.0, a, 1.0);
-
-                    b *= (m_adj_s + 1.0);
-                    b = qBound(0.0, b, 1.0);
-
-                    if (m_adj_v < 0)
-                        lightness *= (m_adj_v + 1.0);
-                    else
-                        lightness += (m_adj_v * (1.0 - lightness));
-                } else {//lch
-                    LABToLCH(lightness, a, b, &L, &C, &H);
-                    H *=360;
-                    H += m_adj_h * 180;
-                    if (H > 360) h -= 360;
-                    if (H < 0) h += 360;
-                    C += m_adj_s;
-                    C = qBound(0.0,C,1.0);
-                    L += m_adj_v;
-                    L = qBound(0.0,L,1.0);
-                    LCHToLAB(L, C, H/360.0, &lightness, &a, &b);
-                }
-                clamp< _channel_type_ >(&lightness, &a, &b);
-                dst->L = SCALE_FROM_FLOAT(lightness);
-                dst->a = SCALE_FROM_FLOAT(a);
-                dst->b = SCALE_FROM_FLOAT(b);
-                dst->alpha = src->alpha;
-
-                --nPixels;
-                ++src;
-                ++dst;
-                }
-        }*/
     }
 
     QList<QString> parameters() const override
@@ -579,15 +522,6 @@ public:
         return -1;
     }
 
-    /**
-    * name - "h", "s" or "v"
-    * (h)ue in range <-1.0, 1.0> ( for user, show as -180, 180 or 0, 360 for colorize)
-    * (s)aturation in range <-1.0, 1.0> ( for user, show -100, 100, or 0, 100 for colorize)
-    * (v)alue in range <-1.0, 1.0> (for user, show -100, 100)
-    * type: 0:HSV, 1:HSL, 2:HSI, 3:HSY, 4:YUV
-    * m_colorize: Use colorize formula instead
-    * luma Red/Green/Blue: Used for luma calculations.
-    */
     void setParameter(int id, const QVariant& parameter) override
     {
         switch(id)
@@ -674,15 +608,6 @@ public:
         return -1;
     }
 
-    /**
-    * curve: adjustment curve as QVector<quin16>
-    * channel: which channel to adjust. See KisHSVCurve::ColorChannel.
-    * driverChannel: which channel to use as source for adjustments.
-    * relative:
-    *   false: use curve for direct lookup.
-    *   true: add adjustment to original. In this mode, the curve range is mapped to -1.0 to 1.0
-    * luma Red/Green/Blue: Used for luma calculations.
-    */
     void setParameter(int id, const QVariant& parameter) override
     {
         switch(id)
@@ -729,7 +654,6 @@ public:
 
         float component[KisHSVCurve::ChannelCount];
 
-        // Aliases for convenience
         float &h = component[KisHSVCurve::Hue];
         float &s = component[KisHSVCurve::Saturation];
         float &v = component[KisHSVCurve::Value];
@@ -746,13 +670,11 @@ public:
 
             RGBToHSV(r, g, b, &h, &s, &v);
 
-            // Normalize hue to 0.0 to 1.0 range
             h /= 360.0f;
 
             float adjustment = lookupComponent(component[driverChannel], max) * SCALE_FROM_16BIT;
 
             if (m_relative) {
-                // Curve uses range 0.0 to 1.0, but for adjustment we need -1.0 to 1.0
                 adjustment = 2.0f * adjustment - 1.0f;
 
                 if (m_channel == KisHSVCurve::AllColors) {
@@ -792,10 +714,8 @@ public:
         }
     }
 
-
     float lookupComponent(float x, float max) const
     {
-        // No curve for this component? Pass through unmodified
         if (max < 2) return x;
         if (x < 0) return m_curve[0];
 
@@ -812,7 +732,6 @@ public:
         return (1.0f - offset) * m_curve[index]
                      + offset  * m_curve[index + 1];
     }
-
 
 private:
     enum ParameterID
@@ -831,12 +750,8 @@ private:
     int m_driverChannel = 0;
     bool m_relative = false;
 
-    /* Note: the filter currently only supports HSV, so these are
-     * unused, but will be needed once HSL, etc.
-     */
     qreal m_lumaRed, m_lumaGreen, m_lumaBlue;
 };
-
 
 KisHSVAdjustmentFactory::KisHSVAdjustmentFactory()
     : KoColorTransformationFactory("hsv_adjustment")
@@ -880,7 +795,6 @@ KoColorTransformation* KisHSVAdjustmentFactory::createTransformation(const KoCol
     return adj;
 
 }
-
 
 KisHSVCurveAdjustmentFactory::KisHSVCurveAdjustmentFactory()
     : KoColorTransformationFactory("hsv_curve_adjustment")

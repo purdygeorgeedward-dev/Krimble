@@ -49,7 +49,6 @@
 #include <KoFileDialog.h>
 #include <QMessageBox>
 
-
 template <typename Type, typename TypeSP = QSharedPointer<Type>>
 TypeSP fetchResourceLazy(KoResourceSignature signature,
                          KisResourcesInterfaceSP resourcesInterface)
@@ -125,7 +124,6 @@ KisDlgLayerStyle::KisDlgLayerStyle(KisPSDLayerStyleSP layerStyle, KisCanvasResou
 
     m_blendingOptions = new BlendingOptions(this);
     wdgLayerStyles.stylesStack->addWidget(m_blendingOptions);
-    // currently unimplemented, hide for now
     wdgLayerStyles.lstStyleSelector->item(1)->setHidden(true);
 
     m_dropShadow = new DropShadow(DropShadow::DropShadowMode, this);
@@ -144,8 +142,6 @@ KisDlgLayerStyle::KisDlgLayerStyle(KisPSDLayerStyleSP layerStyle, KisCanvasResou
     wdgLayerStyles.stylesStack->addWidget(m_innerGlow);
     connect(m_innerGlow, SIGNAL(configChanged()), SLOT(notifyGuiConfigChanged()));
 
-    // Contour and Texture are sub-styles of Bevel and Emboss
-    // They are only applied to canvas when Bevel and Emboss is active.
     m_contour = new Contour(this);
     m_texture = new Texture(this);
     m_bevelAndEmboss = new BevelAndEmboss(m_contour, m_texture, this);
@@ -154,7 +150,6 @@ KisDlgLayerStyle::KisDlgLayerStyle(KisPSDLayerStyleSP layerStyle, KisCanvasResou
     wdgLayerStyles.stylesStack->addWidget(m_contour);
     wdgLayerStyles.stylesStack->addWidget(m_texture);
 
-    // slotBevelAndEmbossChanged(QListWidgetItem*) enables/disables Contour and Texture on "Bevel and Emboss" toggle.
     connect(wdgLayerStyles.lstStyleSelector, SIGNAL(itemClicked(QListWidgetItem*)), SLOT(slotBevelAndEmbossChanged(QListWidgetItem*)));
     connect(m_bevelAndEmboss, SIGNAL(configChanged()), SLOT(notifyGuiConfigChanged()));
 
@@ -186,19 +181,15 @@ KisDlgLayerStyle::KisDlgLayerStyle(KisPSDLayerStyleSP layerStyle, KisCanvasResou
             SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem*)),
              this, SLOT(changePage(QListWidgetItem*,QListWidgetItem*)));
 
-    // improve the checkbox visibility by altering the style sheet list a bit
-    // the dark themes make them hard to see
     QPalette newPalette = palette();
     newPalette.setColor(QPalette::Active, QPalette::Window, palette().text().color() );
     wdgLayerStyles.lstStyleSelector->setPalette(newPalette);
-
 
     notifyPredefinedStyleSelected(layerStyle);
 
     connect(m_dropShadow, SIGNAL(globalAngleChanged(int)), SLOT(syncGlobalAngle(int)));
     connect(m_innerShadow, SIGNAL(globalAngleChanged(int)), SLOT(syncGlobalAngle(int)));
     connect(m_bevelAndEmboss, SIGNAL(globalAngleChanged(int)), SLOT(syncGlobalAngle(int)));
-
 
     connect(wdgLayerStyles.btnNewStyle, SIGNAL(clicked()), SLOT(slotNewStyle()));
     connect(wdgLayerStyles.btnLoadStyle, SIGNAL(clicked()), SLOT(slotLoadStyle()));
@@ -246,23 +237,19 @@ void KisDlgLayerStyle::slotBevelAndEmbossChanged(QListWidgetItem*) {
     QListWidgetItem *item;
 
     if (wdgLayerStyles.lstStyleSelector->item(6)->checkState() == Qt::Checked) {
-        // Enable "Contour" (list item 7)
         item = wdgLayerStyles.lstStyleSelector->item(7);
         Qt::ItemFlags currentFlags7 = item->flags();
         item->setFlags(currentFlags7 | Qt::ItemIsEnabled);
 
-        // Enable "Texture" (list item 8)
         item = wdgLayerStyles.lstStyleSelector->item(8);
         Qt::ItemFlags currentFlags8 = item->flags();
         item->setFlags(currentFlags8 | Qt::ItemIsEnabled);
     }
     else {
-        // Disable "Contour"
         item = wdgLayerStyles.lstStyleSelector->item(7);
         Qt::ItemFlags currentFlags7 = item->flags();
         item->setFlags(currentFlags7 & (~Qt::ItemIsEnabled));
 
-        // Disable "Texture"
         item = wdgLayerStyles.lstStyleSelector->item(8);
         Qt::ItemFlags currentFlags8 = item->flags();
         item->setFlags(currentFlags8 & (~Qt::ItemIsEnabled));
@@ -337,12 +324,10 @@ void KisDlgLayerStyle::slotNewStyle()
     bool resourceAdded = false;
 
     if (KisResourceLocator::instance()->hasStorage(storagePath)) {
-        // we should side-load dependent resources to make sure they are loaded to the server as well
         KIS_SAFE_ASSERT_RECOVER_NOOP(KisRequiredResourcesOperators::hasLocalResourcesSnapshot(clone.data()));
         KisAslLayerStyleSerializer::sideLoadLinkedResources(clone.data(), clone->resourcesInterface());
         clone->setResourcesInterface(KisGlobalResourcesInterface::instance());
 
-        // storage is named by the folder + filename, NOT the full filepath
         resourceAdded = KisResourceUserOperations::addResourceWithUserInput(this, clone, customStylesStorageLocation);
     } else {
         KisAslLayerStyleSerializer serializer;
@@ -362,7 +347,6 @@ void KisDlgLayerStyle::slotNewStyle()
 
         setStyle(clone);
 
-        // focus on the recently added item
         wdgLayerStyles.stylesStack->setCurrentWidget(m_stylesSelector);
     }
 }
@@ -381,16 +365,9 @@ void KisDlgLayerStyle::slotLoadStyle()
 
     const QString filename = dialog.filename();
 
-    // XXX: implement a resource loader targeting layer style libraries
-    // const auto resource = KisResourceUserOperations::importResourceFileWithUserInput(this, "", ResourceType::LayerStylesLibrary, filename);
-    // if (resource) {
-    //     m_stylesSelector->refillCollections();
-    // }
-
     if (!filename.isEmpty()) {
         const QFileInfo oldFileInfo(filename);
 
-        // 0. Validate layer style
         {
             KisResourceStorageSP storage = QSharedPointer<KisResourceStorage>::create(filename);
             KIS_ASSERT(!storage.isNull());
@@ -404,7 +381,6 @@ void KisDlgLayerStyle::slotLoadStyle()
             }
         }
 
-        // 1. Copy the layer style to the resource folder
         const QString newDir = KoResourcePaths::getAppDataLocation();
         const QString newName = oldFileInfo.fileName();
         const QString newLocation = QStringLiteral("%1/%2").arg(newDir, newName);
@@ -426,7 +402,6 @@ void KisDlgLayerStyle::slotLoadStyle()
 
         QFile::copy(filename, newLocation);
 
-        // 2. Add the layer style as a storage/update database
         KisResourceStorageSP storage = QSharedPointer<KisResourceStorage>::create(newLocation);
         KIS_ASSERT(!storage.isNull());
         if (!KisResourceLocator::instance()->addStorage(newLocation, storage)) {
@@ -438,7 +413,7 @@ void KisDlgLayerStyle::slotLoadStyle()
 
 void KisDlgLayerStyle::slotSaveStyle()
 {
-    QString filename; // default value?
+    QString filename;
 
     KoFileDialog dialog(this, KoFileDialog::SaveFile, "layerstyle");
     dialog.setCaption(i18n("Select ASL file"));
@@ -465,7 +440,6 @@ void KisDlgLayerStyle::changePage(QListWidgetItem *current, QListWidgetItem *pre
 
 void KisDlgLayerStyle::setStyle(KisPSDLayerStyleSP style)
 {
-    // we may self-assign style is some cases
     if (style != m_layerStyle) {
         m_layerStyle = style->clone().dynamicCast<KisPSDLayerStyle>();
     }
@@ -476,8 +450,6 @@ void KisDlgLayerStyle::setStyle(KisPSDLayerStyleSP style)
 
         auto localResourcesInterface = m_layerStyle->resourcesInterface().dynamicCast<KisLocalStrokeResources>();
         if (localResourcesInterface) {
-            /// Upload all the unknown resources into the temporary storage
-            /// so that immutable resource selectors could see them
             Q_FOREACH (KoResourceSP resource, localResourcesInterface->resources()) {
                 auto &globalSource = KisGlobalResourcesInterface::instance()->source(resource->resourceType().first);
                 const KoResourceSignature sig = resource->signature();
@@ -488,12 +460,6 @@ void KisDlgLayerStyle::setStyle(KisPSDLayerStyleSP style)
                 }
             }
         } else {
-            /// Copy all the public resources into the internal storage
-            ///
-            /// We only copy the KoResource-resources into the local storage, while
-            /// keeping KoCanvasResource-resources still detached, hence we cannot
-            /// use cloneWithResourcesSnapshot() here, which bakes canvas resources
-            /// as well
             KisRequiredResourcesOperators::createLocalResourcesSnapshot(m_layerStyle.data(), KisGlobalResourcesInterface::instance());
         }
 
@@ -559,9 +525,6 @@ void KisDlgLayerStyle::setStyle(KisPSDLayerStyleSP style)
 
 KisPSDLayerStyleSP KisDlgLayerStyle::style() const
 {
-    // create a new local resource storage for the newly created resources,
-    // they are not uploaded to the database until the style itself is
-    // saved in the database
     QSharedPointer<KisLocalStrokeResources> newLocalStyleResources(new KisLocalStrokeResources());
 
     m_layerStyle->setEnabled(wdgLayerStyles.chkMasterFxSwitch->isChecked());
@@ -579,7 +542,6 @@ KisPSDLayerStyleSP KisDlgLayerStyle::style() const
     m_layerStyle->patternOverlay()->setEffectEnabled(wdgLayerStyles.lstStyleSelector->item(12)->checkState() == Qt::Checked);
     m_layerStyle->stroke()->setEffectEnabled(wdgLayerStyles.lstStyleSelector->item(13)->checkState() == Qt::Checked);
 
-
     m_dropShadow->fetchShadow(m_layerStyle->dropShadow());
     m_innerShadow->fetchShadow(m_layerStyle->innerShadow());
     m_outerGlow->fetchConfig(m_layerStyle->outerGlow(), newLocalStyleResources);
@@ -591,7 +553,6 @@ KisPSDLayerStyleSP KisDlgLayerStyle::style() const
     m_patternOverlay->fetchPatternOverlay(m_layerStyle->patternOverlay(), newLocalStyleResources);
     m_stroke->fetchStroke(m_layerStyle->stroke(), newLocalStyleResources);
 
-    // reset the resources interface to the one with new resources
     m_layerStyle->setResourcesInterface(newLocalStyleResources);
 
     m_sanityLayerStyleDirty = false;
@@ -615,10 +576,6 @@ void KisDlgLayerStyle::syncGlobalAngle(int angle)
         m_bevelAndEmboss->setBevelAndEmboss(m_layerStyle->bevelAndEmboss(), m_layerStyle->resourcesInterface());
     }
 }
-
-/********************************************************************/
-/***** Styles Selector **********************************************/
-/********************************************************************/
 
 StylesSelector::LocationProxyModel::LocationProxyModel(QObject *parent)
     : QSortFilterProxyModel(parent)
@@ -652,9 +609,6 @@ bool StylesSelector::LocationProxyModel::filterAcceptsRow(int source_row, const 
     return location == m_locationToFilter;
 }
 
-
-
-
 class StyleItem : public QListWidgetItem {
 public:
     StyleItem(KisPSDLayerStyleSP style)
@@ -666,7 +620,6 @@ public:
 public:
     KisPSDLayerStyleSP m_style;
 };
-
 
 StylesSelector::StylesSelector(QWidget *parent)
     : QWidget(parent)
@@ -680,8 +633,6 @@ StylesSelector::StylesSelector(QWidget *parent)
 
     ui.listStyles->setModel(m_locationsProxyModel);
     ui.listStyles->setModelColumn(KisAbstractResourceModel::Name);
-    // XXX: support editing
-    // KisResourceModel doesn't support data with the EditRole
     ui.listStyles->setEditTriggers(QAbstractItemView::EditTrigger::NoEditTriggers);
 
     connect(ui.cmbStyleCollections, SIGNAL(textActivated(QString)), this, SLOT(loadStyles(QString)));
@@ -714,29 +665,6 @@ void StylesSelector::notifyExternalStyleChanged(const QString &name, const QUuid
 {
     Q_UNUSED(name);
     Q_UNUSED(uuid);
-    /*
-    int currentIndex = -1;
-
-    for (int i = 0; i < ui.listStyles->count(); i++ ) {
-        StyleItem *item = dynamic_cast<StyleItem*>(ui.listStyles->item(i));
-
-        QString itemName = item->m_style->name();
-
-        if (itemName == name) {
-            bool isDirty = item->m_style->uuid() != uuid;
-
-            if (isDirty) {
-                itemName += "*";
-            }
-
-            currentIndex = i;
-        }
-
-        item->setText(itemName);
-    }
-
-    ui.listStyles->setCurrentRow(currentIndex);
-    */
 }
 
 void StylesSelector::loadStyles(const QString &name)
@@ -747,7 +675,6 @@ void StylesSelector::loadStyles(const QString &name)
 void StylesSelector::selectStyle(QModelIndex current)
 {
 
-    // the index is from the proxy model
     QModelIndex sourceModelIndex = m_locationsProxyModel->mapToSource(current);
     KoResourceSP resource = m_resourceModel->resourceForIndex(sourceModelIndex);
     KisPSDLayerStyleSP layerStyle = resource.dynamicCast<KisPSDLayerStyle>();
@@ -756,40 +683,13 @@ void StylesSelector::selectStyle(QModelIndex current)
         Q_EMIT styleSelected(layerStyle);
     }
 
-    /*
-    StyleItem *item = dynamic_cast<StyleItem*>(current);
-    if (item) {
-        Q_EMIT styleSelected(item->m_style);
-    }
-    */
 }
 
 void StylesSelector::loadCollection(const QString &fileName)
 {
     Q_UNUSED(fileName);
-    // TODO: RESOURCES: implement or remove
     warnKrita << "Collection cannot be loaded, because we do not use collections now; please use KisAslStorage instead.";
 
-    /*
-    if (!QFileInfo(fileName).exists()) {
-        warnKrita << "Loaded style collection doesn't exist!";
-        return;
-    }
-
-    KisPSDLayerStyleCollectionResourceSP collection = KisPSDLayerStyleCollectionResourceSP(new KisPSDLayerStyleCollectionResource(fileName));
-
-    collection->load();
-
-    KoResourceServer<KisPSDLayerStyleCollectionResource> *server = KisResourceServerProvider::instance()->layerStyleCollectionServer();
-    collection->setFilename(server->saveLocation() + '/' + collection->name());
-    server->addResource(collection);
-
-    refillCollections();
-
-    int index = ui.cmbStyleCollections->findText(collection->name());
-    ui.cmbStyleCollections->setCurrentIndex(index);
-    loadStyles(collection->name());
-    */
 }
 
 void StylesSelector::slotResourceModelReset()
@@ -800,9 +700,6 @@ void StylesSelector::slotResourceModelReset()
 
 void StylesSelector::addNewStyle(const QString &location, KisPSDLayerStyleSP style)
 {
-    // m_resourceModel = new KisResourceModel(ResourceType::LayerStyles, this);
-    // m_locationsProxyModel->setSourceModel(m_resourceModel);
-    // ui.listStyles->setModel(m_locationsProxyModel);
 
     refillCollections();
     ui.listStyles->reset();
@@ -815,10 +712,6 @@ void StylesSelector::addNewStyle(const QString &location, KisPSDLayerStyleSP sty
     notifyExternalStyleChanged(style->name(), style->uuid());
 }
 
-/********************************************************************/
-/***** Bevel and Emboss *********************************************/
-/********************************************************************/
-
 BevelAndEmboss::BevelAndEmboss(Contour *contour, Texture *texture, QWidget *parent)
     : QWidget(parent)
     , m_contour(contour)
@@ -826,7 +719,6 @@ BevelAndEmboss::BevelAndEmboss(Contour *contour, Texture *texture, QWidget *pare
 {
     ui.setupUi(this);
 
-    // Structure
     ui.intDepth->setRange(0, 100);
     KisSpinBoxI18nHelper::setText(ui.intDepth, i18nc("{n} is the number value, % is the percent sign", "{n}%"));
 
@@ -844,7 +736,6 @@ BevelAndEmboss::BevelAndEmboss(Contour *contour, Texture *texture, QWidget *pare
     connect(ui.intSize, SIGNAL(valueChanged(int)), SIGNAL(configChanged()));
     connect(ui.intSoften, SIGNAL(valueChanged(int)), SIGNAL(configChanged()));
 
-    // Shading
     ui.intOpacity->setRange(0, 100);
     KisSpinBoxI18nHelper::setText(ui.intOpacity, i18nc("{n} is the number value, % is the percent sign", "{n}%"));
 
@@ -865,7 +756,6 @@ BevelAndEmboss::BevelAndEmboss(Contour *contour, Texture *texture, QWidget *pare
     connect(ui.bnShadowColor, SIGNAL(changed(KoColor)), SIGNAL(configChanged()));
     connect(ui.intOpacity2, SIGNAL(valueChanged(int)), SIGNAL(configChanged()));
 
-    // Contour
     m_contour->ui.intRange->setRange(1, 100);
     KisSpinBoxI18nHelper::setText(m_contour->ui.intRange,
                                   i18nc("{n} is the number value, % is the percent sign", "{n}%"));
@@ -874,7 +764,6 @@ BevelAndEmboss::BevelAndEmboss(Contour *contour, Texture *texture, QWidget *pare
     connect(m_contour->ui.chkAntiAliased, SIGNAL(toggled(bool)), SIGNAL(configChanged()));
     connect(m_contour->ui.intRange, SIGNAL(valueChanged(int)), SIGNAL(configChanged()));
 
-    // Texture
     m_texture->ui.intScale->setRange(0, 100);
     KisSpinBoxI18nHelper::setText(m_texture->ui.intScale,
                                   i18nc("{n} is the number value, % is the percent sign", "{n}%"));
@@ -903,8 +792,6 @@ void BevelAndEmboss::setBevelAndEmboss(const psd_layer_effects_bevel_emboss *bev
     ui.angleSelector->setUseGlobalLight(bevelAndEmboss->useGlobalLight());
 
     ui.intAltitude->setValue(bevelAndEmboss->altitude());
-    // FIXME: curve editing
-    // ui.cmbContour;
     ui.chkAntiAliased->setChecked(bevelAndEmboss->glossAntiAliased());
     ui.cmbHighlightMode->selectCompositeOp(KoID(bevelAndEmboss->highlightBlendMode()));
     ui.bnHighlightColor->setColor(bevelAndEmboss->highlightColor());
@@ -913,8 +800,6 @@ void BevelAndEmboss::setBevelAndEmboss(const psd_layer_effects_bevel_emboss *bev
     ui.bnShadowColor->setColor(bevelAndEmboss->shadowColor());
     ui.intOpacity2->setValue(bevelAndEmboss->shadowOpacity());
 
-    // FIXME: curve editing
-    // m_contour->ui.cmbContour;
     m_contour->ui.chkAntiAliased->setChecked(bevelAndEmboss->antiAliased());
     m_contour->ui.intRange->setValue(bevelAndEmboss->contourRange());
 
@@ -948,7 +833,6 @@ void BevelAndEmboss::fetchBevelAndEmboss(psd_layer_effects_bevel_emboss *bevelAn
     bevelAndEmboss->setShadowColor(ui.bnShadowColor->color());
     bevelAndEmboss->setShadowOpacity(ui.intOpacity2->value());
 
-    // FIXME: curve editing
     bevelAndEmboss->setAntiAliased(m_contour->ui.chkAntiAliased->isChecked());
     bevelAndEmboss->setContourRange(m_contour->ui.intRange->value());
 
@@ -965,20 +849,11 @@ void BevelAndEmboss::fetchBevelAndEmboss(psd_layer_effects_bevel_emboss *bevelAn
     bevelAndEmboss->setTextureAlignWithLayer(m_texture->ui.chkLinkWithLayer->isChecked());
 }
 
-
-/********************************************************************/
-/***** Texture          *********************************************/
-/********************************************************************/
-
 Texture::Texture(QWidget *parent)
     : QWidget(parent)
 {
     ui.setupUi(this);
 }
-
-/********************************************************************/
-/***** Contour          *********************************************/
-/********************************************************************/
 
 Contour::Contour(QWidget *parent)
     : QWidget(parent)
@@ -986,27 +861,15 @@ Contour::Contour(QWidget *parent)
     ui.setupUi(this);
 }
 
-
-/********************************************************************/
-/***** Blending Options *********************************************/
-/********************************************************************/
-
 BlendingOptions::BlendingOptions(QWidget *parent)
     : QWidget(parent)
 {
     ui.setupUi(this);
 
-    // FIXME: Blend options are not implemented yet
     ui.grpBlendingOptions->setTitle(QString("%1 (%2)").arg(ui.grpBlendingOptions->title()).arg(i18n("Not Implemented Yet")));
     ui.grpBlendingOptions->setEnabled(false);
 
 }
-
-
-/********************************************************************/
-/***** Color Overlay    *********************************************/
-/********************************************************************/
-
 
 ColorOverlay::ColorOverlay(QWidget *parent)
     : QWidget(parent)
@@ -1035,11 +898,6 @@ void ColorOverlay::fetchColorOverlay(psd_layer_effects_color_overlay *colorOverl
     colorOverlay->setColor(ui.bnColor->color());
 }
 
-
-/********************************************************************/
-/***** Drop Shadow **************************************************/
-/********************************************************************/
-
 DropShadow::DropShadow(Mode mode, QWidget *parent)
     : QWidget(parent),
       m_mode(mode)
@@ -1067,7 +925,6 @@ DropShadow::DropShadow(Mode mode, QWidget *parent)
     connect(ui.angleSelector, SIGNAL(globalAngleChanged(int)), SIGNAL(globalAngleChanged(int)));
     connect(ui.angleSelector, SIGNAL(configChanged()), SIGNAL(configChanged()));
 
-    // connect everything to configChanged() signal
     connect(ui.cmbCompositeOp, SIGNAL(currentIndexChanged(int)), SIGNAL(configChanged()));
     connect(ui.intOpacity, SIGNAL(valueChanged(int)), SIGNAL(configChanged()));
     connect(ui.bnColor, SIGNAL(changed(KoColor)), SIGNAL(configChanged()));
@@ -1102,8 +959,6 @@ void DropShadow::setShadow(const psd_layer_effects_shadow_common *shadow)
     ui.intSpread->setValue(shadow->spread());
     ui.intSize->setValue(shadow->size());
 
-    // FIXME: curve editing
-    // ui.cmbContour;
     ui.chkAntiAliased->setChecked(shadow->antiAliased());
 
     ui.intNoise->setValue(shadow->noise());
@@ -1129,8 +984,6 @@ void DropShadow::fetchShadow(psd_layer_effects_shadow_common *shadow) const
     shadow->setSpread(ui.intSpread->value());
     shadow->setSize(ui.intSize->value());
 
-    // FIXME: curve editing
-    // ui.cmbContour;
     shadow->setAntiAliased(ui.chkAntiAliased->isChecked());
     shadow->setNoise(ui.intNoise->value());
 
@@ -1141,10 +994,6 @@ void DropShadow::fetchShadow(psd_layer_effects_shadow_common *shadow) const
         realDropShadow->setKnocksOut(ui.chkLayerKnocksOutDropShadow->isChecked());
     }
 }
-
-/********************************************************************/
-/***** Gradient Overlay *********************************************/
-/********************************************************************/
 
 GradientOverlay::GradientOverlay(KisCanvasResourceProvider *resourceProvider, QWidget *parent)
     : QWidget(parent)
@@ -1210,10 +1059,6 @@ void GradientOverlay::fetchGradientOverlay(psd_layer_effects_gradient_overlay *c
     config->setScale(ui.intScale->value());
     config->setDither(ui.chkDither->isChecked());
 }
-
-/********************************************************************/
-/***** Inner Glow      **********************************************/
-/********************************************************************/
 
 InnerGlow::InnerGlow(Mode mode, KisCanvasResourceProvider *resourceProvider, QWidget *parent)
     : QWidget(parent),
@@ -1300,9 +1145,6 @@ void InnerGlow::setConfig(const psd_layer_effects_glow_common *config, KisResour
         ui.cmbSource->setCurrentIndex(iglow->source() == psd_glow_edge);
     }
 
-    // FIXME: Curve editing
-    //ui.cmbContour;
-
     ui.chkAntiAliased->setChecked(config->antiAliased());
     ui.intRange->setValue(config->range());
     ui.intJitter->setValue(config->jitter());
@@ -1340,19 +1182,10 @@ void InnerGlow::fetchConfig(psd_layer_effects_glow_common *config, QSharedPointe
         iglow->setSource((psd_glow_source)ui.cmbSource->currentIndex());
     }
 
-    // FIXME: Curve editing
-    //ui.cmbContour;
-
     config->setAntiAliased(ui.chkAntiAliased->isChecked());
     config->setRange(ui.intRange->value());
     config->setJitter(ui.intJitter->value());
 }
-
-
-/********************************************************************/
-/***** Pattern Overlay  *********************************************/
-/********************************************************************/
-
 
 PatternOverlay::PatternOverlay(QWidget *parent)
     : QWidget(parent)
@@ -1400,11 +1233,6 @@ void PatternOverlay::fetchPatternOverlay(psd_layer_effects_pattern_overlay *patt
     pattern->setScale(ui.intScale->value());
 }
 
-/********************************************************************/
-/***** Satin            *********************************************/
-/********************************************************************/
-
-
 Satin::Satin(QWidget *parent)
     : QWidget(parent)
 {
@@ -1445,9 +1273,6 @@ void Satin::setSatin(const psd_layer_effects_satin *satin)
     ui.intDistance->setValue(satin->distance());
     ui.intSize->setValue(satin->size());
 
-    // FIXME: Curve editing
-    //ui.cmbContour;
-
     ui.chkAntiAliased->setChecked(satin->antiAliased());
     ui.chkInvert->setChecked(satin->invert());
 
@@ -1464,15 +1289,9 @@ void Satin::fetchSatin(psd_layer_effects_satin *satin) const
     satin->setDistance(ui.intDistance->value());
     satin->setSize(ui.intSize->value());
 
-    // FIXME: curve editing
-    // ui.cmbContour;
     satin->setAntiAliased(ui.chkAntiAliased->isChecked());
     satin->setInvert(ui.chkInvert->isChecked());
 }
-
-/********************************************************************/
-/***** Stroke           *********************************************/
-/********************************************************************/
 
 Stroke::Stroke(KisCanvasResourceProvider *resourceProvider, QWidget *parent)
     : QWidget(parent)
@@ -1517,7 +1336,6 @@ Stroke::Stroke(KisCanvasResourceProvider *resourceProvider, QWidget *parent)
     connect(ui.chkLinkWithLayer, SIGNAL(toggled(bool)), SIGNAL(configChanged()));
     connect(ui.intScale_2, SIGNAL(valueChanged(int)), SIGNAL(configChanged()));
 
-    // cold initialization
     ui.fillStack->setCurrentIndex(ui.cmbFillType->currentIndex());
 }
 
@@ -1574,7 +1392,6 @@ void Stroke::fetchStroke(psd_layer_effects_stroke *stroke, QSharedPointer<KisLoc
     stroke->setReverse(ui.chkReverse->isChecked());
     stroke->setStyle((psd_gradient_style)ui.cmbStyle->currentIndex());
     if (fillType == psd_fill_gradient) {
-        // there is only one boolean value, and it's shared with pattern's "link with layer"
         stroke->setAlignWithLayer(ui.chkAlignWithLayer->isChecked());
     }
     stroke->setAngle(ui.angleSelector->value());
@@ -1588,7 +1405,6 @@ void Stroke::fetchStroke(psd_layer_effects_stroke *stroke, QSharedPointer<KisLoc
     }
 
     if (fillType == psd_fill_pattern) {
-        // there is only one boolean value, and it's shared with gradient's "align with layer"
         stroke->setAlignWithLayer(ui.chkLinkWithLayer->isChecked());
     }
     stroke->setScale(ui.intScale->value());

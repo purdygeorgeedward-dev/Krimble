@@ -20,7 +20,6 @@ SliderSpinBox::SliderSpinBox()
 {
     d->widget = new KisSliderSpinBox();
 
-    // Forward KisSliderSpinBox::draggingFinished to SliderSpinBox::draggingFinished
     connect(d->widget, SIGNAL(draggingFinished()), this, SIGNAL(draggingFinished()));
 }
 
@@ -119,7 +118,6 @@ DoubleSliderSpinBox::DoubleSliderSpinBox()
 {
     d->widget = new KisDoubleSliderSpinBox();
 
-    // Forward KisDoubleSliderSpinBox::draggingFinished to DoubleSliderSpinBox::draggingFinished
     connect(d->widget, SIGNAL(draggingFinished()), this, SIGNAL(draggingFinished()));
 }
 

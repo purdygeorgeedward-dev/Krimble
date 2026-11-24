@@ -42,4 +42,4 @@ private Q_SLOTS:
     void createFromPainterPath();
 };
 
-#endif // TESTPATHSHAPE_H
+#endif

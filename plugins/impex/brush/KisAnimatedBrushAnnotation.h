@@ -21,4 +21,4 @@ public:
     }
 };
 
-#endif // KISANIMATEDBRUSHANNOTATION_H
+#endif

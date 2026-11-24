@@ -6,7 +6,6 @@
 
 #include "kis_undo_adapter.h"
 
-
 KisUndoAdapter::KisUndoAdapter(KisUndoStore *undoStore, QObject *parent)
     : QObject(parent),
       m_undoStore(undoStore)
@@ -21,6 +20,4 @@ void KisUndoAdapter::emitSelectionChanged()
 {
     Q_EMIT selectionChanged();
 }
-
-
 

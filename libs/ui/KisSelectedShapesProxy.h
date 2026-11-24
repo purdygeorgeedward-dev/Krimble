@@ -24,16 +24,14 @@ public:
 
     KoSelection *selection() override;
 
-
 Q_SIGNALS:
     void selectionChanged();
     void selectionContentChanged();
     void currentLayerChanged(const KoShapeLayer *layer);
-
 
 private:
     struct Private;
     QScopedPointer<Private> m_d;
 };
 
-#endif // KISSELECTEDSHAPESPROXY_H
+#endif

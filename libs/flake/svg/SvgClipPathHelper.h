@@ -18,9 +18,7 @@ public:
     SvgClipPathHelper();
     ~SvgClipPathHelper();
 
-    /// Set the clip path units type
     void setClipPathUnits(KoFlake::CoordinateSystem clipPathUnits);
-    /// Returns the clip path units type
     KoFlake::CoordinateSystem clipPathUnits() const;
 
     QList<KoShape *> shapes() const;
@@ -33,4 +31,4 @@ private:
     QList<KoShape*> m_shapes;
 };
 
-#endif // SVGCLIPPATHHELPER_H
+#endif

@@ -50,7 +50,6 @@ void KCanvasPreview::mouseReleaseEvent(QMouseEvent *)
 void KCanvasPreview::mouseMoveEvent(QMouseEvent *event)
 {
     if (m_dragging) {
-        // calculate new image offset
         double scale = scalingFactor();
         int newXOffset , newYOffset;
         if(!xOffsetLocked()) {
@@ -93,7 +92,6 @@ bool KCanvasPreview::isInRegion(QPoint point)
 
 double KCanvasPreview::scalingFactor()
 {
-    // take into account offset frame size to show when the canvas has been shrunk
     const int maxHeight = (m_height > m_imageHeight) ? m_height : m_imageHeight;
     const int maxWidth = (m_width > m_imageWidth) ? m_width : m_imageWidth;
 

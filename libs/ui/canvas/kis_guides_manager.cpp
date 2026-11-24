@@ -120,8 +120,6 @@ void KisGuidesManager::slotUploadConfigToDocument()
     if (doc) {
         KisSignalsBlocker b(doc);
 
-        // we've made KisChangeGuidesCommand post-exec, so in all situations
-        // we will replace the whole config
         doc->setGuidesConfig(value);
 
         value.saveStaticData();
@@ -405,7 +403,6 @@ KisGuidesManager::Private::findGuide(const QPointF &docPos)
     GuideHandle nearestGuide = invalidGuide;
     qreal nearestRadius = std::numeric_limits<int>::max();
 
-
     for (int i = 0; i < guidesConfig.horizontalGuideLines().size(); i++) {
         const QPointF guideCoord = {0, guidesConfig.horizontalGuideLines()[i]};
         const qreal guide = converter->documentToView(guideCoord).y();
@@ -561,19 +558,11 @@ bool KisGuidesManager::Private::mouseReleaseHandler(const QPointF &docPos)
 
     if (isGuideValid(currentGuide)) {
         const QRectF docRect = converter->imageRectInDocumentPixels();
-        // TODO: enable work rect after we fix painting guides
-        //       outside canvas in openGL mode
-        const QRectF workRect = KisAlgebra2D::blowRect(docRect, 0 /*0.2*/);
+        const QRectF workRect = KisAlgebra2D::blowRect(docRect, 0 );
         if (!workRect.contains(docPos)) {
             deleteGuide(currentGuide);
             q->setGuidesConfigImpl(guidesConfig);
 
-            /**
-             * When we delete a guide, it might happen that we are
-             * deleting the last guide. Therefore we should eat the
-             * corresponding event so that the event filter would stop
-             * the filter processing.
-             */
             result = true;
         }
 
@@ -618,8 +607,6 @@ QPointF KisGuidesManager::Private::getDocPointFromEvent(QEvent *event)
         QTabletEvent *tabletEvent = static_cast<QTabletEvent*>(event);
         result = alignToPixels(converter->widgetToDocument(tabletEvent->pos()));
     } else {
-        // we shouldn't silently return QPointF(0,0), higher level code may
-        // snap to some unexpected guide
         KIS_SAFE_ASSERT_RECOVER_NOOP(0 && "event type is not supported!");
     }
 
@@ -664,7 +651,6 @@ bool KisGuidesManager::eventFilter(QObject *obj, QEvent *event)
         const QPointF docPos = m_d->getDocPointFromEvent(event);
         const Qt::KeyboardModifiers modifiers = qApp->keyboardModifiers();
 
-        // we should never eat Enter events, input manager may get crazy about it
         retval = m_d->mouseMoveHandler(docPos, modifiers) && event->type() != QEvent::Enter;
 
         break;

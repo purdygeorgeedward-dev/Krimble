@@ -24,7 +24,6 @@
 #include <KoFlakeTypes.h>
 #include <KoFlake.h>
 
-
 class KoUnit;
 class KoShapeStrokeModel;
 class KoShapeStroke;
@@ -33,7 +32,6 @@ class KoCanvasBase;
 class KoShapeStroke;
 class KisSpinBoxUnitManager;
 
-/// A widget for configuring the stroke of a shape
 class KRITAUI_EXPORT KoStrokeConfigWidget : public QWidget
 {
     Q_OBJECT
@@ -43,7 +41,6 @@ public:
 
     void setNoSelectionTrackingMode(bool value);
 
-    // Getters
     Qt::PenStyle lineStyle() const;
     QVector<qreal> lineDashes() const;
     qreal lineWidth() const;
@@ -57,11 +54,6 @@ public:
     QLabel *strokeStyleLabel;
     QFrame* separatorLine;
 
-    /**
-     * Creates KoShapeStroke object filled with the options
-     * configured by the widget. The caller is in charge of
-     * deletion of the returned object
-     */
     KoShapeStrokeSP createShapeStroke();
 
     void setActive(bool active);
@@ -78,15 +70,12 @@ private Q_SLOTS:
 
     void canvasResourceChanged(int key, const QVariant &value);
 
-    /// selection has changed
     void selectionChanged();
 
-    /// apply line changes to the selected shapes
     void applyDashStyleChanges();
     void applyLineWidthChanges();
     void applyJoinCapChanges();
 
-    /// apply marker changes to the selected shape
     void applyMarkerChanges(int rawPosition);
 
 Q_SIGNALS:
@@ -102,4 +91,4 @@ private:
     Private * const d;
 };
 
-#endif // SHADOWCONFIGWIDGET_H
+#endif

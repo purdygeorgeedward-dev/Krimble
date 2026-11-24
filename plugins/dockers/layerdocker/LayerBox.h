@@ -54,13 +54,6 @@ class QWidgetAction;
 class KisKeyframeChannel;
 class KisSelectionActionsAdapter;
 
-/**
- * A widget that shows a visualization of the layer structure.
- *
- * The center of the layer box is KisNodeModel, which shows the actual layers.
- * This widget adds docking functionality and command buttons.
- *
- */
 class KRITALAYERDOCKER_EXPORT LayerBox : public QDockWidget, public KisMainwindowObserver
 {
 
@@ -71,7 +64,6 @@ public:
     LayerBox();
     ~LayerBox() override;
     QString observerName() override { return "LayerBox"; }
-    /// reimplemented from KisMainwindowObserver
     void setViewManager(KisViewManager* kisview) override;
     void setCanvas(KoCanvasBase *canvas) override;
     void unsetCanvas() override;
@@ -86,7 +78,6 @@ private Q_SLOTS:
 
     void slotContextMenuRequested(const QPoint &pos, const QModelIndex &index);
 
-    // From the node manager to the layerbox
     void slotSetCompositeOp(const KoCompositeOp* compositeOp);
     void slotSetOpacity(double opacity);
     void slotUpdateOpacitySlider(quint8 value);
@@ -94,7 +85,6 @@ private Q_SLOTS:
     void setCurrentNode(KisNodeSP node);
     void slotModelReset();
 
-    // from the layerbox to the node manager
     void slotRmClicked();
     void slotRaiseClicked();
     void slotLowerClicked();
@@ -145,7 +135,6 @@ Q_SIGNALS:
 private:
     inline void connectActionToButton(KisViewManager* view, QAbstractButton *button, const QString &id);
     inline void addActionToMenu(QMenu *menu, const QString &id);
-    // reimp from KisNodeManager
     qint32 convertOpacityToInt(qreal opacity);
 
     KisNodeSP findNonHidableNode(KisNodeSP startNode);
@@ -213,5 +202,5 @@ public:
 
 };
 
-#endif // KIS_LAYERBOX_H
+#endif
 

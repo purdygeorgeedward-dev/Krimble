@@ -24,7 +24,6 @@ inline double drand48()
 }
 #endif
 
-
 class DeformBase
 {
 public:
@@ -38,7 +37,6 @@ public:
     }
 };
 
-/// Inverse weighted inverse scaling - grow&shrink
 class DeformScale : public DeformBase
 {
 
@@ -60,7 +58,6 @@ private:
     qreal m_factor {0.0};
 };
 
-/// Inverse weighted rotation - swirlCW&&swirlCWW
 class DeformRotation : public DeformBase
 {
 
@@ -82,7 +79,6 @@ private:
     qreal m_alpha {0.0};
 };
 
-/// Inverse move
 class DeformMove : public DeformBase
 {
 public:
@@ -105,7 +101,6 @@ private:
     qreal m_factor {0.0};
 };
 
-/// Inverse lens distortion
 class DeformLens : public DeformBase
 {
 public:
@@ -124,7 +119,6 @@ public:
     void transform(qreal* maskX, qreal* maskY, qreal distance, KisRandomSourceSP randomSource) override {
         Q_UNUSED(distance);
         Q_UNUSED(randomSource);
-        //normalize
         qreal normX = *maskX / m_maxX;
         qreal normY = *maskY / m_maxY;
 
@@ -150,7 +144,6 @@ private:
     bool m_out {false};
 };
 
-/// Randomly disturb the pixels
 class DeformColor : public DeformBase
 {
 public:
@@ -171,10 +164,6 @@ public:
 private:
     qreal m_factor {0.0};
 };
-
-
-
-
 
 class DeformBrush
 {
@@ -197,7 +186,6 @@ public:
     QPointF hotSpot(qreal scale, qreal rotation);
 
 private:
-    // return true if can paint
     bool setupAction(
         DeformModes mode, const QPointF& pos, QTransform const& rotation);
     void debugColor(const quint8* data, KoColorSpace * cs);
@@ -214,12 +202,11 @@ private:
         return x * x + y * y;
     }
 
-
 private:
     KisRandomSubAccessorSP m_srcAcc;
     bool m_firstPaint {false};
     qreal m_prevX {0.0}, m_prevY {0.0};
-    int m_counter {1}; // taken from the constructor
+    int m_counter {1};
 
     QRectF m_maskRect;
 
@@ -228,6 +215,5 @@ private:
     KisDeformOptionData * m_properties {0};
     KisBrushSizeOptionData * m_sizeProperties {0};
 };
-
 
 #endif

@@ -32,7 +32,6 @@ QString calcButtonGroupToolTip(bool maskingBrushEnabled) {
 
 }
 
-
 struct KisPaintingModeOptionWidget::Private
 {
     Private(lager::cursor<KisPaintingModeOptionData> optionData, lager::reader<bool> maskingBrushEnabled)
@@ -44,7 +43,6 @@ struct KisPaintingModeOptionWidget::Private
     KisPaintingModeOptionModel model;
     lager::reader<QString> buttonGroupToolTip;
 };
-
 
 KisPaintingModeOptionWidget::KisPaintingModeOptionWidget(lager::cursor<KisPaintingModeOptionData> optionData)
     : KisPaintingModeOptionWidget(optionData, lager::make_constant(false))

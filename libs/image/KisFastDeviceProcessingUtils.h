@@ -12,12 +12,6 @@
 
 namespace KritaUtils {
 
-
-/**
- * this is a special helper function for iterating
- * through pixels in an extremely efficient way. One
- * should either pass a functor or a lambda to it.
- */
 template <class PixelProcessor>
 void processTwoDevices(const QRect &rc,
                        KisRandomConstAccessorSP srcIt,
@@ -77,11 +71,6 @@ void processTwoDevices(const QRect &rc,
     }
 }
 
-/**
- * this is a special helper function for iterating through pixels in an
- * extremely efficient way using strides. One should either pass a functor or a
- * lambda to it.
- */
 template <class PixelProcessor>
 void processTwoDevicesWithStrides(const QRect &rc,
                                   KisRandomConstAccessorSP srcIt,
@@ -130,5 +119,4 @@ void processTwoDevicesWithStrides(const QRect &rc,
 
 }
 
-
-#endif // KISFASTDEVICEPROCESSINGUTILS_H
+#endif

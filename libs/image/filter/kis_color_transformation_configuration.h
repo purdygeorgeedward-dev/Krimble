@@ -15,7 +15,6 @@ class KisColorTransformationFilter;
 class KisColorTransformationConfiguration;
 typedef KisSharedPtr<KisColorTransformationConfiguration> KisColorTransformationConfigurationSP;
 
-
 class KRITAIMAGE_EXPORT KisColorTransformationConfiguration : public KisFilterConfiguration
 {
 public:
@@ -29,12 +28,6 @@ public:
 
     KoColorTransformation *colorTransformation(const KoColorSpace *cs, const KisColorTransformationFilter *filter) const;
 
-    /**
-     * @brief Manually invalidate the cache. By default @ref setProperty
-     *        invalidates the cache but this method can be used in subclasses
-     *        when setProperty is not used to set options. This forces the
-     *        regeneration of the color transforms.
-     */
     void invalidateColorTransformationCache();
 
 private:
@@ -42,4 +35,4 @@ private:
     Private* const d;
 };
 
-#endif /* _KIS_COLOR_TRANSFORMATION_CONFIGURATION_H_ */
+#endif

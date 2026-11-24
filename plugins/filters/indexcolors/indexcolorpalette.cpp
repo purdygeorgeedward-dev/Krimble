@@ -22,7 +22,6 @@ float IndexColorPalette::similarity(LabColor c0, LabColor c1) const
     quint16 diffa = qAbs(c0.a - c1.a);
     quint16 diffb = qAbs(c0.b - c1.b);
 
-
     float valL = diffL / max * similarityFactors.L;
     float valA = diffa / max * similarityFactors.a;
     float valB = diffb / max * similarityFactors.b;
@@ -174,7 +173,6 @@ void IndexColorPalette::mergeMostRedundantColors()
         colorHood[i].color = i;
         colorHood[i].neighbours = getNeighbours(i);
         float lSimilarity = 0.05f, rSimilarity = 0.05f;
-        // There will be exactly 2 colors that have only 1 neighbour, the darkest and the brightest, we don't want to remove those
         if(colorHood[i].neighbours.first  != -1)
             lSimilarity = similarity(m_colors[colorHood[i].neighbours.first], m_colors[i]);
         if(colorHood[i].neighbours.second != -1)
@@ -193,11 +191,8 @@ void IndexColorPalette::mergeMostRedundantColors()
     {
         LabColor clrA = m_colors[darkerIndex];
         LabColor clrB = m_colors[mostSimilarColor];
-        // Remove two, add one = 1 color less
         m_colors.remove(darkerIndex);
         m_colors.remove(mostSimilarColor);
-        //colors.remove(brighterIndex);
         insertShades(clrA, clrB, 1);
-        //insertShades(clrB, clrC, 1);
     }
 }

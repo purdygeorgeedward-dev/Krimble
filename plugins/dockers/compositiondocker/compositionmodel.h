@@ -18,7 +18,7 @@ class CompositionModel : public QAbstractTableModel
 public:
     CompositionModel(QObject* parent = 0);
     ~CompositionModel() override;
-    
+
     QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
     bool setData ( const QModelIndex& index, const QVariant& value, int role = Qt::EditRole ) override;
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
@@ -28,11 +28,9 @@ public:
 
     KisLayerCompositionSP compositionFromIndex(const QModelIndex& index);
     void setCompositions(QList<KisLayerCompositionSP> compositions);
-    
-// public Q_SLOTS:
-//     void clear();
+
 private:
     QList<KisLayerCompositionSP> m_compositions;
 };
 
-#endif // TASKSETMODEL_H
+#endif

@@ -73,4 +73,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif /* __KIS_ASL_XML_WRITER_H */
+#endif

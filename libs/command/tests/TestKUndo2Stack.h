@@ -22,4 +22,4 @@ private Q_SLOTS:
     void testCleanIndexBeforeMerge();
 };
 
-#endif // TESTKUNDO2STACK_H
+#endif

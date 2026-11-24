@@ -30,10 +30,6 @@ class KisView;
 class KisSelectionFilter;
 class KisSelectionDecoration;
 
-/**
- * The selection manager is responsible selections
- * and the clipboard.
- */
 class KRITAUI_EXPORT KisSelectionManager : public QObject
 {
 
@@ -50,9 +46,6 @@ public:
     void setView(QPointer<KisView>imageView);
 
 public:
-    /**
-     * This function return if the selection should be displayed
-     */
     bool displaySelection();
 
     bool showSelectionAsMask() const;
@@ -95,7 +88,7 @@ public Q_SLOTS:
     void convertToShape();
     void enableSelectionActionsPanel(bool enabled);
     void configChanged();
-    
+
     void copySelectionToNewLayer();
     void toggleDisplaySelection();
 
@@ -123,7 +116,6 @@ public:
     bool haveShapesSelected();
     bool haveShapesInClipboard();
 
-    /// Checks if the current selection is editable and has some pixels selected in the pixel selection
     bool haveAnySelectionWithPixels();
     bool haveShapeSelectionWithShapes();
     bool haveRasterSelectionWithPixels();
@@ -169,10 +161,9 @@ private:
     KisAction *m_strokeSelected {0};
     KisAction *m_enableSelectionActionsPanel {0};
 
-
     QList<QAction*> m_pluginActions;
     QPointer<KisSelectionDecoration> m_selectionDecoration;
 
 };
 
-#endif // KIS_SELECTION_MANAGER_
+#endif

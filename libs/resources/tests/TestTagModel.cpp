@@ -25,11 +25,9 @@
 #include <DummyResource.h>
 #include <ResourceTestHelper.h>
 
-
 #ifndef FILES_DATA_DIR
 #error "FILES_DATA_DIR not set. A directory with the data used for testing installing resources"
 #endif
-
 
 void TestTagModel::initTestCase()
 {
@@ -74,7 +72,6 @@ void TestTagModel::testWithTagModelTester()
     Q_UNUSED(tester);
 }
 
-
 void TestTagModel::testRowCount()
 {
     QSqlQuery q;
@@ -92,7 +89,6 @@ void TestTagModel::testRowCount()
     KisTagModel tagModel(m_resourceType);
     auto tester = new QAbstractItemModelTester(&tagModel);
     Q_UNUSED(tester);
-    // There is always an "All" tag in the first row
     QCOMPARE(tagModel.rowCount(), rowCount + 2);
 }
 
@@ -235,7 +231,6 @@ void TestTagModel::testSetTagActiveInactive()
 
     QCOMPARE(tagModel.data(idx, Qt::UserRole + KisAllTagsModel::Active).toBool(), false);
 
-
     tagModel.setTagActive(m_tag);
     QVERIFY(m_tag->active());
     QCOMPARE(tagModel.rowCount(), rowCount);
@@ -256,9 +251,6 @@ void TestTagModel::testRenameTag()
 
     QVERIFY(tagModel.renameTag(tag, "Another name altogether", true));
 
-    /// We are renaming "* Favorites" into "Another...", which
-    /// changed position of the item due to sorting order
-
     tag = tagModel.tagForIndex(tagModel.index(3,0));
 
     QCOMPARE(tag->url(), "Another name altogether");
@@ -270,7 +262,6 @@ void TestTagModel::testChangeTagActive()
     KisTagModel tagModel(m_resourceType);
 
     int rowCount = tagModel.rowCount();
-
 
     KisTagSP tagToActivate = tagModel.tagForUrl("Another name altogether");
 
@@ -307,7 +298,6 @@ void TestTagModel::testAddEmptyTagWithResources()
 
     tagModel.addTag(tagName, false, resources);
 
-    // XXX: check KisTagResourceModel
 }
 
 void TestTagModel::testAddTagWithResources()
@@ -330,8 +320,6 @@ void TestTagModel::testAddTagWithResources()
     tagModel.addTag(tag, true, {resource});
     QVERIFY(tag->id() >= 0);
 
-    // XXX: check KisTagResourceModel
-
 }
 
 void TestTagModel::cleanupTestCase()
@@ -339,10 +327,6 @@ void TestTagModel::cleanupTestCase()
     ResourceTestHelper::rmTestDb();
     ResourceTestHelper::cleanDstLocation(m_dstLocation);
 }
-
-
-
-
 
 SIMPLE_TEST_MAIN(TestTagModel)
 

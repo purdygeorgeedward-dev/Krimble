@@ -33,12 +33,7 @@ bool KisTIFFBaseWriter::writeColorSpaceInformation(TIFF *image,
 {
     const KoID id = cs->colorModelId();
     const KoID depth = cs->colorDepthId();
-    // destColorSpace should be reassigned to a proper color space to convert to
-    // if the return value of this function is false
     destColorSpace = nullptr;
-
-    // sample_format and color_type should be assigned to the destination color
-    // space, not /always/ the one we get here
 
     if (id == RGBAColorModelID) {
         color_type = PHOTOMETRIC_RGB;

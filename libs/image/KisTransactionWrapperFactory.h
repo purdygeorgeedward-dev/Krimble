@@ -12,15 +12,6 @@
 
 class KUndo2Command;
 
-/**
- * A simple factory that allows wrapping a paint device transaction
- * with two commands. One command will be executed before the device
- * transaction's code, and the other one after the transaction has
- * been executed.
- *
- * The only use of this class now is to change/reset interstroke data of
- * a paint device alongside executing the transaction.
- */
 class KRITAIMAGE_EXPORT KisTransactionWrapperFactory
 {
 public:
@@ -30,4 +21,4 @@ public:
     virtual KUndo2Command* createEndTransactionCommand() = 0;
 };
 
-#endif // KISTRANSACTIONWRAPPERFACTORY_H
+#endif

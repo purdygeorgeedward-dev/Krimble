@@ -5,7 +5,6 @@
  */
 #include "History.h"
 
-
 #include <kpluginfactory.h>
 #include <klocalizedstring.h>
 
@@ -41,7 +40,6 @@ public:
         return DockMinimized;
     }
 };
-
 
 HistoryPlugin::HistoryPlugin(QObject *parent, const QVariantList &)
         : QObject(parent)

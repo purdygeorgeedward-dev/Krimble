@@ -21,4 +21,4 @@ public:
     virtual KisLodPreferences lodPreferences() const = 0;
 };
 
-#endif // KISSTROKESQUEUEMUTATEDJOBINTERFACE_H
+#endif

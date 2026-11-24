@@ -9,13 +9,9 @@
 
 #include <simpletest.h>
 
-
 #include "kis_four_point_interpolator_backward.h"
 #include "kis_four_point_interpolator_forward.h"
 #include "kis_debug.h"
-
-
-//#define TEST_POINTS_OUTSIDE_POLYGON
 
 std::pair<QPolygonF, QPolygonF> getFoldedTetragon() {
     QPolygonF src;
@@ -63,8 +59,6 @@ void KisFourPointInterpolatorTest::testForwardInterpolator()
     QCOMPARE(interp.map(QPointF(50,100)), QPointF(50,110));
     QCOMPARE(interp.map(QPointF(50,50)), QPointF(50,57.5));
 }
-
-
 
 void KisFourPointInterpolatorTest::testBackwardInterpolatorXShear()
 {
@@ -130,7 +124,6 @@ void KisFourPointInterpolatorTest::testBackwardInterpolatorXYShear()
     dst << QPointF(140, 120);
     dst << QPointF(20, 100);
 
-
     KisFourPointInterpolatorBackward interp(src, dst);
 
     QCOMPARE(interp.map(QPointF(100,10)), QPointF(100,0));
@@ -166,7 +159,6 @@ void KisFourPointInterpolatorTest::testBackwardInterpolatorRoundTrip()
             QPointF fwdPt = f.map(pt);
             QPointF bwdPt = b.map(fwdPt);
 
-            //dbgKrita << "R:" << ppVar(pt) << ppVar(fwdPt) << ppVar(bwdPt) << (bwdPt - pt);
             QVERIFY((bwdPt - pt).manhattanLength() < 1e-3);
         }
     }
@@ -191,23 +183,19 @@ void KisFourPointInterpolatorTest::testBackwardInterpolatorUnevenlyShearedTetrag
     KisFourPointInterpolatorForward f(src, dst);
     KisFourPointInterpolatorBackward b(src, dst);
 
-    // polygon points
     for (int i = 0; i < src.length(); i++) {
         QPointF pt = src[i];
         QPointF fwdPt = f.map(pt);
         QPointF bwdPt = b.map(fwdPt);
 
-        //dbgKrita << "R:" << ppVar(pt) << ppVar(fwdPt) << ppVar(bwdPt) << (bwdPt - pt);
         QVERIFY((bwdPt - pt).manhattanLength() < 1e-3);
     }
 
-    // points from within polygons
     QRectF srcBounds = src.boundingRect();
     for (int x = srcBounds.left(); x <= srcBounds.right(); x++) {
         for (int y = srcBounds.top(); y <= srcBounds.bottom(); y++) {
 
             QPointF pt = QPointF(x, y);
-
 
 #ifndef TEST_POINTS_OUTSIDE_POLYGON
             if (srcBounds.contains(pt)) {
@@ -215,7 +203,6 @@ void KisFourPointInterpolatorTest::testBackwardInterpolatorUnevenlyShearedTetrag
                 QPointF fwdPt = f.map(pt);
                 QPointF bwdPt = b.map(fwdPt);
 
-                //dbgKrita << "R:" << ppVar(pt) << ppVar(fwdPt) << ppVar(bwdPt) << (bwdPt - pt);
                 if ((bwdPt - pt).manhattanLength() >= 1e-3) {
                     ENTER_FUNCTION() << "R:" << ppVar(pt) << ppVar(fwdPt) << ppVar(bwdPt) << (bwdPt - pt);
                 }
@@ -227,22 +214,17 @@ void KisFourPointInterpolatorTest::testBackwardInterpolatorUnevenlyShearedTetrag
     }
 
 #ifdef TEST_POINTS_OUTSIDE_POLYGON
-    // points from outside of the polygons
     for (int y = 0; y <= 100; y += 1) {
         for (int x = 0; x <= 100; x += 1) {
             QPointF pt(x, y);
             QPointF fwdPt = f.map(pt);
             QPointF bwdPt = b.map(fwdPt);
 
-            //dbgKrita << "R:" << ppVar(pt) << ppVar(fwdPt) << ppVar(bwdPt) << (bwdPt - pt);
-            //DBGVERIFY(((bwdPt - pt).manhattanLength() < 1e-3), (QString(pt).append(fwdPt).append(bwdPt)));
             QVERIFY((bwdPt - pt).manhattanLength() < 1e-3);
         }
     }
 #endif
 }
-
-
 
 void KisFourPointInterpolatorTest::testBackwardInterpolatorFoldedTetragon()
 {
@@ -253,20 +235,17 @@ void KisFourPointInterpolatorTest::testBackwardInterpolatorFoldedTetragon()
     KisFourPointInterpolatorForward f(src, dst);
     KisFourPointInterpolatorBackward b(src, dst);
 
-    // polygon points
     for (int i = 0; i < src.length(); i++) {
         QPointF pt = src[i];
         QPointF fwdPt = f.map(pt);
         QPointF bwdPt = b.map(fwdPt);
 
-        //dbgKrita << "R:" << ppVar(pt) << ppVar(fwdPt) << ppVar(bwdPt) << (bwdPt - pt);
         if ((bwdPt - pt).manhattanLength() >= 1e-3) {
             ENTER_FUNCTION() << "R:" << ppVar(pt) << ppVar(fwdPt) << ppVar(bwdPt) << (bwdPt - pt);
         }
         QVERIFY((bwdPt - pt).manhattanLength() < 1e-3);
     }
 
-    // points from within polygons
     QRectF srcBounds = src.boundingRect();
     for (int x = srcBounds.left(); x <= srcBounds.right(); x++) {
         for (int y = srcBounds.top(); y <= srcBounds.bottom(); y++) {
@@ -278,7 +257,6 @@ void KisFourPointInterpolatorTest::testBackwardInterpolatorFoldedTetragon()
                 QPointF fwdPt = f.map(pt);
                 QPointF bwdPt = b.map(fwdPt);
 
-                //dbgKrita << "R:" << ppVar(pt) << ppVar(fwdPt) << ppVar(bwdPt) << (bwdPt - pt);
                 QVERIFY((bwdPt - pt).manhattanLength() < 1e-3);
 #ifndef TEST_POINTS_OUTSIDE_POLYGON
             }
@@ -286,14 +264,12 @@ void KisFourPointInterpolatorTest::testBackwardInterpolatorFoldedTetragon()
         }
     }
 #ifdef TEST_POINTS_OUTSIDE_POLYGON
-    // points from outside of the polygons
     for (int y = 0; y <= 100; y += 1) {
         for (int x = 0; x <= 100; x += 1) {
             QPointF pt(x, y);
             QPointF fwdPt = f.map(pt);
             QPointF bwdPt = b.map(fwdPt);
 
-            //dbgKrita << "R:" << ppVar(pt) << ppVar(fwdPt) << ppVar(bwdPt) << (bwdPt - pt);
             if ((bwdPt - pt).manhattanLength() >= 1e-3) {
                 qCritical() << ppVar(pt) << ppVar(fwdPt) << ppVar(bwdPt) << (bwdPt - pt);
             }
@@ -334,7 +310,6 @@ void KisFourPointInterpolatorTest::testBackwardInterpolatorSpecialCaseSecond()
     auto pair = getFoldedTetragon();
     QPolygonF src = pair.first;
     QPolygonF dst = pair.second;
-
 
     KisFourPointInterpolatorForward f(src, dst);
     KisFourPointInterpolatorBackward b(src, dst);

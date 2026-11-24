@@ -70,7 +70,6 @@ xyY XYZ::toxyY() const
 {
     const double sum = X + Y + Z;
     if (qFuzzyIsNull(sum)) {
-        // this is nonsense, but at least won't crash
         return xyY{
             .x = 0,
             .y = 0,
@@ -88,7 +87,6 @@ xy XYZ::toxy() const
 {
     const double sum = X + Y + Z;
     if (qFuzzyIsNull(sum)) {
-        // this is nonsense, but at least won't crash
         return xy{
             .x = 0,
             .y = 0,
@@ -200,7 +198,7 @@ Colorimetry Colorimetry::interpolateGamutTo(const Colorimetry &one, double facto
         m_red * (1 - factor) + one.red() * factor,
         m_green * (1 - factor) + one.green() * factor,
         m_blue * (1 - factor) + one.blue() * factor,
-        m_white, // whitepoint should stay the same
+        m_white,
     };
 }
 
@@ -211,20 +209,14 @@ static double triangleArea(QVector2D p1, QVector2D p2, QVector2D p3)
 
 bool Colorimetry::isValid(xy red, xy green, xy blue, xy white)
 {
-    // this is more of a heuristic than a hard rule
-    // but if the gamut is too small, it's not really usable
     const double gamutArea = triangleArea(red.asVector(), green.asVector(), blue.asVector());
     if (gamutArea < 0.02) {
         return false;
     }
-    // if the white point is inside the gamut triangle,
-    // the three triangles made up between the primaries and the whitepoint
-    // must have the same area as the gamut triangle
     const double area1 = triangleArea(white.asVector(), green.asVector(), blue.asVector());
     const double area2 = triangleArea(red.asVector(), white.asVector(), blue.asVector());
     const double area3 = triangleArea(red.asVector(), green.asVector(), white.asVector());
     if (std::abs(area1 + area2 + area3 - gamutArea) > 0.001) {
-        // this would cause terrible glitches
         return false;
     }
     return true;
@@ -235,8 +227,6 @@ bool Colorimetry::isReal(xy red, xy green, xy blue, xy white)
     if (!isValid(red, green, blue, white)) {
         return false;
     }
-    // outside of XYZ definitely can't be shown on a display
-    // TODO maybe calculate if all values are within the human-visible gamut too?
     if (red.x < 0 || red.x > 1 || red.y < 0 || red.y > 1 || green.x < 0 || green.x > 1 || green.y < 0 || green.y > 1 || blue.x < 0 || blue.x > 1 || blue.y < 0
         || blue.y > 1 || white.x < 0 || white.x > 1 || white.y < 0 || white.y > 1) {
         return false;
@@ -284,7 +274,6 @@ const QMatrix4x4 &Colorimetry::fromXYZ() const
     return m_fromXYZ;
 }
 
-// converts from XYZ to LMS suitable for ICtCp
 static const QMatrix4x4 s_xyzToDolbyLMS = []() {
     QMatrix4x4 ret;
     ret(0, 0) = 0.3593;
@@ -452,4 +441,4 @@ QDebug operator<<(QDebug debug, const Colorimetry &value) {
     return debug;
 }
 
-} // namespace KisColorimetryUtils
+}

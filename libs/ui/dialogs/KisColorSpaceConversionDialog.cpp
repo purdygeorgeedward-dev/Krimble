@@ -35,7 +35,6 @@ KisColorSpaceConversionDialog::KisColorSpaceConversionDialog(QWidget *  parent,
     Q_CHECK_PTR(m_page);
     m_page->setObjectName("colorspace_conversion");
 
-    // the warning label is hidden by default!
     m_page->lblHeadlineWarning->setVisible(false);
 
     setMainWidget(m_page);
@@ -49,13 +48,10 @@ KisColorSpaceConversionDialog::KisColorSpaceConversionDialog(QWidget *  parent,
     connect(this, SIGNAL(okClicked()),
             this, SLOT(okClicked()));
 
-
     connect(m_page->colorSpaceSelector, SIGNAL(selectionChanged(bool)), this, SLOT(selectionChanged(bool)));
     connect(m_page->colorSpaceSelector, SIGNAL(colorSpaceChanged(const KoColorSpace*)), this, SLOT(slotColorSpaceChanged(const KoColorSpace*)));
 
 }
-
-
 
 KisColorSpaceConversionDialog::~KisColorSpaceConversionDialog()
 {
@@ -69,8 +65,6 @@ void KisColorSpaceConversionDialog::setInitialColorSpace(const KoColorSpace *cs,
     }
 
     if (cs->profile()->getEstimatedTRC()[0]==1.0) {
-    //this tries to automatically determine whether optimizations ought to be checked or not.
-    //if the space you're converting from is linear TRC, uncheck.
         m_page->chkAllowLCMSOptimization->setCheckState(Qt::Unchecked);
     } else {
         m_page->chkAllowLCMSOptimization->setCheckState(Qt::Checked);
@@ -102,12 +96,9 @@ KoColorConversionTransformation::ConversionFlags KisColorSpaceConversionDialog::
 
 void KisColorSpaceConversionDialog::selectionChanged(bool valid)
 {
-    //TODO: Figure out how to uncheck when moving TO a linear TRC.
     Q_UNUSED(valid);
     enableButtonOk(m_page->colorSpaceSelector->currentColorSpace());
 }
-
-// SLOTS
 
 void KisColorSpaceConversionDialog::okClicked()
 {

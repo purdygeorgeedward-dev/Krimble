@@ -14,7 +14,6 @@
 
 class QRect;
 
-
 class KRITAIMAGE_EXPORT KisCachedGradientShapeStrategy : public KisGradientShapeStrategy
 {
 public:
@@ -28,4 +27,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif /* __KIS_CACHED_GRADIENT_SHAPE_STRATEGY_H */
+#endif

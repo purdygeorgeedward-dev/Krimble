@@ -14,7 +14,6 @@
 
 #include "kis_types.h"
 
-
 class KRITAIMAGE_EXPORT KisIdleWatcher : public QObject
 {
     Q_OBJECT
@@ -28,7 +27,6 @@ public:
     void setTrackedImages(const QVector<KisImageSP> &images);
     void setTrackedImage(KisImageSP image);
 
-    //Force to image modified state and start countdown to event
     void forceImageModified() { slotImageModified(); }
     void restartCountdown();
     void triggerCountdownNoDelay();
@@ -49,4 +47,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif /* __KIS_IDLE_WATCHER_H */
+#endif

@@ -8,9 +8,6 @@
 
 #include <filter/kis_filter.h>
 #include "kis_config_widget.h"
-/**
-   @author Cyrille Berger
-*/
 
 class KisSimpleNoiseReducer : public KisFilter
 {

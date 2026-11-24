@@ -25,7 +25,6 @@
 #include "kis_wdg_noise.h"
 #include "ui_wdgnoiseoptions.h"
 
-
 K_PLUGIN_FACTORY_WITH_JSON(KritaNoiseFilterFactory, "kritanoisefilter.json", registerPlugin<KritaNoiseFilter>();)
 
 KritaNoiseFilter::KritaNoiseFilter(QObject *parent, const QVariantList &)

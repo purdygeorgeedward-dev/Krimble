@@ -21,15 +21,9 @@
 #include <KisDocument.h>
 #include <QDir>
 
-
 KisFileLayer::KisFileLayer(KisImageWSP image, const QString &name, quint8 opacity)
     : KisExternalLayer(image, name, opacity)
 {
-    /**
-     * Set default paint device for a layer. It will be used in case
-     * the file does not exist anymore. Or course, this can happen only
-     * in the failing execution path.
-     */
     m_paintDevice = new KisPaintDevice(image->colorSpace());
     m_paintDevice->setDefaultBounds(new KisDefaultBounds(image));
 
@@ -46,11 +40,6 @@ KisFileLayer::KisFileLayer(KisImageWSP image, const QString &basePath, const QSt
     , m_scalingMethod(scaleToImageResolution)
     , m_scalingFilter(scalingFilter)
 {
-    /**
-     * Set default paint device for a layer. It will be used in case
-     * the file does not exist anymore. Or course, this can happen only
-     * in the failing execution path.
-     */
     m_paintDevice = new KisPaintDevice(fallbackColorSpace ? fallbackColorSpace : image->colorSpace());
     m_paintDevice->setDefaultBounds(new KisDefaultBounds(image));
 
@@ -204,14 +193,6 @@ void KisFileLayer::openFile() const
         if (m_filename.toLower() == "crash_me_with_asan") {
 #if defined(__has_feature)
 #if __has_feature(address_sanitizer)
-            /**
-             * A simple out-of-bounds check test. It should be caught in the
-             * ASAN build and "should not" cause any crash in a normal build,
-             * since we are reading only one byte past the end of allocated area.
-             *
-             * We enable that check only for ASAN-capable builds, since having
-             * such code in production builds may be unsafe.
-             */
             int *array = new int[10];
             qDebug() << "Reading past the end of the allocated array" << array[10];
             delete[] array;
@@ -264,20 +245,9 @@ void KisFileLayer::slotLoadingFinished(KisPaintDeviceSP projection,
     qint32 oldY = y();
     const QRect oldLayerExtent = m_paintDevice->extent();
 
-
     m_paintDevice->makeCloneFrom(projection, projection->extent());
     m_paintDevice->setDefaultBounds(new KisDefaultBounds(image()));
 
-    /**
-     * This method can be transitively called from KisFileLayer::setImage(),
-     * which, in turn, can be called from the KisImage's copy-ctor. The shared
-     * pointer is, obviously, not initialized during construction, therefore
-     * upgrading our constructor to a strong pointer will cause a crash.
-     *
-     * Therefore, we use a weak pointer here. It is extremely dangerous, but
-     * since this method is usually called from the GUI thread synchronously
-     * it should be "somewhat safe".
-     */
     KisImageWSP image = this->image();
     if (image) {
         if (m_scalingMethod == ToImagePPI &&
@@ -350,7 +320,7 @@ KUndo2Command* KisFileLayer::crop(const QRect & rect)
     return new KisNodeMoveCommand2(this, oldPos, newPos);
 }
 
-KUndo2Command* KisFileLayer::transform(const QTransform &/*transform*/)
+KUndo2Command* KisFileLayer::transform(const QTransform & )
 {
     warnKrita << "WARNING: File Layer does not support transformations!" << name();
     return 0;

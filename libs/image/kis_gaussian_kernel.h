@@ -59,7 +59,6 @@ public:
                               const QBitArray &channelFlags,
                               KoUpdater *progressUpdater);
 
-
     static Eigen::Matrix<qreal, Eigen::Dynamic, Eigen::Dynamic> createDilateMatrix(qreal radius);
 
     static void applyDilate(KisPaintDeviceSP device,
@@ -77,4 +76,4 @@ public:
                              bool createTransaction = false);
 };
 
-#endif /* __KIS_GAUSSIAN_KERNEL_H */
+#endif

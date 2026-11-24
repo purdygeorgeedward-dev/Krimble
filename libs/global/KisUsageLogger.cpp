@@ -67,7 +67,7 @@ KisUsageLogger::KisUsageLogger()
     d->sysInfoFile.setFileName(QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) + "/krita-sysinfo.log");
 
     QFileInfo fi(d->logFile.fileName());
-    if (fi.size() > 100 * 1000 * 1000) { // 100 mb seems a reasonable max
+    if (fi.size() > 100 * 1000 * 1000) {
         if (d->logFile.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
             d->logFile.close();
         } else {
@@ -105,9 +105,6 @@ QString KisUsageLogger::basicSystemInfo()
 {
     QString systemInfo;
 
-    // NOTE: This is intentionally not translated!
-
-    // Krita version info
     systemInfo.append("Krita\n");
     systemInfo.append("\n Version: ").append(KritaVersionWrapper::versionString(true));
 #ifdef Q_OS_WIN
@@ -127,7 +124,6 @@ QString KisUsageLogger::basicSystemInfo()
     }
 #endif
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    // Attribute does nothing on Qt6
     systemInfo.append("\n Hidpi: ").append(QCoreApplication::testAttribute(Qt::AA_EnableHighDpiScaling) ? "true" : "false");
 #endif
 #ifdef Q_OS_MACOS
@@ -141,7 +137,6 @@ QString KisUsageLogger::basicSystemInfo()
     systemInfo.append("\n  Version (loaded): ").append(qVersion());
     systemInfo.append("\n\n");
 
-    // OS information
     systemInfo.append("OS Information\n");
     systemInfo.append("\n  Build ABI: ").append(QSysInfo::buildAbi());
     systemInfo.append("\n  Build CPU: ").append(QSysInfo::buildCpuArchitecture());
@@ -191,7 +186,6 @@ void KisUsageLogger::writeLocaleSysInfo()
         if (GetCPInfoExW(CP_ACP, 0, &cpInfo)) {
             systemInfo.append(QString::fromWCharArray(cpInfo.CodePageName));
         } else {
-            // Shouldn't happen, but just in case
             systemInfo.append(QString::number(GetACP()));
         }
         wchar_t lcData[2];
@@ -204,7 +198,6 @@ void KisUsageLogger::writeLocaleSysInfo()
             } else if (GetCPInfoExW(systemACP, 0, &cpInfo)) {
                 systemInfo.append(QString::fromWCharArray(cpInfo.CodePageName));
             } else {
-                // Shouldn't happen, but just in case
                 systemInfo.append(QString::number(systemACP));
             }
         }
@@ -324,7 +317,6 @@ void KisUsageLogger::rotateLog()
 {
     if (!d->logFile.exists()) { return; }
 
-    // Check for CLOSING SESSION
     if (d->logFile.open(QFile::ReadOnly)) {
         QString log = QString::fromUtf8(d->logFile.readAll());
         if (!log.split(s_sectionHeader).last().contains("CLOSING SESSION")) {
@@ -351,7 +343,6 @@ void KisUsageLogger::rotateLog()
         d->logFile.close();
     }
 
-    // Rotate
     if (d->logFile.open(QFile::ReadOnly)) {
         QString log = QString::fromUtf8(d->logFile.readAll());
         d->logFile.close();

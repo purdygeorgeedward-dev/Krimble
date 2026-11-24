@@ -56,7 +56,6 @@ public:
 
 };
 
-
 KisImportExportFilter::KisImportExportFilter(QObject *parent)
     : QObject(parent)
     , d(new Private)
@@ -110,7 +109,6 @@ void KisImportExportFilter::setRealFilename(const QString &filename)
 {
     d->realFilename = filename;
 }
-
 
 void KisImportExportFilter::setMimeType(const QString &mime)
 {
@@ -213,15 +211,12 @@ void KisImportExportFilter::setProgress(int value)
 
 void KisImportExportFilter::initializeCapabilities()
 {
-    // XXX: Initialize everything to fully supported?
 }
 
 void KisImportExportFilter::addCapability(KisExportCheckBase *capability)
 {
     d->capabilities[capability->id()] = capability;
 }
-
-
 
 void KisImportExportFilter::addSupportedColorModels(QList<QPair<KoID, KoID> > supportedColorModels, const QString &name, KisExportCheckBase::Level level)
 {
@@ -249,7 +244,6 @@ void KisImportExportFilter::addSupportedColorModels(QList<QPair<KoID, KoID> > su
             }
             else {
 
-
                 if (level == KisExportCheckBase::PARTIALLY) {
                     imageMessage = i18nc("image conversion warning",
                                          "%1 cannot save images with color model <b>%2</b> and depth <b>%3</b>. The image will be converted."
@@ -270,8 +264,6 @@ void KisImportExportFilter::addSupportedColorModels(QList<QPair<KoID, KoID> > su
                                   "%1 cannot save layers with color model <b>%2</b> and depth <b>%3</b>. The layers will be skipped."
                                   , name, colorModelID.name(), colorDepthID.name());
                  }
-
-
 
                 addCapability(colorModelCheckFactory->create(level, imageMessage));
                 addCapability(colorModelPerLayerCheckFactory->create(level, layerMessage));

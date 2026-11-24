@@ -12,7 +12,6 @@
 
 class KoShapeManager;
 
-
 class KRITAFLAKE_EXPORT KoSelectedShapesProxySimple : public KoSelectedShapesProxy
 {
     Q_OBJECT
@@ -24,4 +23,4 @@ private:
     QPointer<KoShapeManager> m_shapeManager;
 };
 
-#endif // KOSELECTEDSHAPESPROXYSIMPLE_H
+#endif

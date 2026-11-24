@@ -19,9 +19,6 @@
 #include "kritaresources_export.h"
 
 class KisResourceSearchBoxFilter;
-/**
- * @brief The KisTagFilterResourceProxyModel class filters the resources by tag or resource name
- */
 class KRITARESOURCES_EXPORT KisTagFilterResourceProxyModel
     : public QSortFilterProxyModel
     , public KisAbstractResourceModel
@@ -36,10 +33,7 @@ public:
     void setResourceFilter(ResourceFilter filter) override;
     void setStorageFilter(StorageFilter filter) override;
 
-    // To be used if we need an extra proxy model, like for
     void setResourceModel(KisResourceModel *resourceModel);
-
-    // KisAbstractResourceModel interface
 
     KoResourceSP resourceForIndex(QModelIndex index = QModelIndex()) const override;
     QModelIndex indexForResource(KoResourceSP resource) const override;
@@ -56,43 +50,16 @@ public:
     bool renameResource(KoResourceSP resource, const QString &name) override;
     bool setResourceMetaData(KoResourceSP resource, QMap<QString, QVariant> metadata) override;
 
-    /**
-     * @brief additionalResourceNameChecks
-     * Some resources, like fonts, have multiple names that need to be tested.
-     * Implementers should override this function if they want additional checks on the name.
-     * @param resource the resource index to test, this is provided by the model while testing each row.
-     * @param filter, this is the class that handles tokenisation, also provided by the model.
-     * @return should return whether the current resource should be accepted by the given filter.
-     */
     virtual bool additionalResourceNameChecks(const QModelIndex &index, const KisResourceSearchBoxFilter *filter) const;
 
-
-    /**
-     * @brief setMetaDataFilter provides a set of metadata to filter on, for instance
-     * by paintop id category.
-     * @param metaDataMap
-     */
     void setMetaDataFilter(QMap<QString, QVariant> metaDataMap);
 
-    /**
-     * @brief setTagFilter sets the tag to filter with
-     * @param tag a valid tag with a valid id, or 0 to clear the filter
-     */
     void setTagFilter(const KisTagSP tag);
 
-    /**
-     * @brief currentTagFilter
-     * @return return the current tag that's being used to filter.
-     */
     KisTagSP currentTagFilter() const;
-
 
     void setStorageFilter(bool useFilter, int storageId);
 
-    /**
-     * @brief setResourceFilter sets the resource to filter with
-     * @param resource a valid resource with a valid id, or 0 to clear the filter
-     */
     void setResourceFilter(const KoResourceSP resource);
 
     void setSearchText(const QString& searchText);
@@ -126,4 +93,4 @@ private:
     Q_DISABLE_COPY(KisTagFilterResourceProxyModel)
 };
 
-#endif // KISTAGFILTERRESOURCEPROXYMODEL_H
+#endif

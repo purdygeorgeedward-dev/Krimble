@@ -18,15 +18,6 @@ public:
     KoColorConversionTransformationAbstractFactory() {}
     virtual ~KoColorConversionTransformationAbstractFactory() {}
 
-    /**
-     * Creates a color transformation between the source color space and the destination
-     * color space.
-     *
-     * @param srcColorSpace source color space
-     * @param dstColorSpace destination color space
-     * @param renderingIntent rendering intent
-     * @param conversionFlags conversion flags
-     */
     virtual KoColorConversionTransformation* createColorTransformation(const KoColorSpace* srcColorSpace,
                                                                        const KoColorSpace* dstColorSpace,
                                                                        KoColorConversionTransformation::Intent renderingIntent,

@@ -48,7 +48,6 @@
 #include <SvgWriter.h>
 #include <KoFlakeCoordinateSystem.h>
 
-
 void SvgStyleWriter::saveSvgStyle(KoShape *shape, SvgSavingContext &context)
 {
     saveSvgBasicStyle(shape->isVisible(false), shape->transparency(false), shape->paintOrder(), shape->inheritPaintOrder(), context);
@@ -129,7 +128,6 @@ void SvgStyleWriter::saveSvgFill(QSharedPointer<KoShapeBackground> background, c
         context.shapeWriter().addAttribute("fill", "url(#" + patternId + ")");
     }
 
-    // non-zero is default, so only write fillrule if evenodd is set
     if (fillRuleEvenOdd)
         context.shapeWriter().addAttribute("fill-rule", "evenodd");
 }
@@ -173,7 +171,6 @@ void SvgStyleWriter::saveSvgStroke(KoShapeStrokeModelSP stroke, SvgSavingContext
     else if (lineBorder->joinStyle() == Qt::BevelJoin)
         context.shapeWriter().addAttribute("stroke-linejoin", "bevel");
 
-    // dash
     if (lineBorder->lineStyle() > Qt::SolidLine) {
         qreal dashFactor = lineBorder->lineWidth();
 
@@ -248,7 +245,7 @@ void SvgStyleWriter::saveSvgClipping(KoShape *shape, SvgSavingContext &context)
 
     embedShapes(clipPath->clipShapes(), context.styleWriter());
 
-    context.styleWriter().endElement(); // clipPath
+    context.styleWriter().endElement();
 
     context.shapeWriter().addAttribute("clip-path", "url(#" + uid + ")");
     if (clipPath->clipRule() != Qt::WindingFill)
@@ -277,7 +274,7 @@ void SvgStyleWriter::saveSvgMasking(KoShape *shape, SvgSavingContext &context)
 
     embedShapes(clipMask->shapes(), context.styleWriter());
 
-    context.styleWriter().endElement(); // clipMask
+    context.styleWriter().endElement();
 
     context.shapeWriter().addAttribute("mask", "url(#" + uid + ")");
 }
@@ -297,17 +294,15 @@ void writeMarkerStyle(KoXmlWriter &styleWriter, const KoMarker *marker, const QS
     styleWriter.addAttribute("markerWidth", refSize.width());
     styleWriter.addAttribute("markerHeight", refSize.height());
 
-
     if (marker->hasAutoOrientation()) {
         styleWriter.addAttribute("orient", "auto");
     } else {
-        // no suffix means 'degrees'
         styleWriter.addAttribute("orient", kisRadiansToDegrees(marker->explicitOrientation()));
     }
 
     embedShapes(marker->shapes(), styleWriter);
 
-    styleWriter.endElement(); // marker
+    styleWriter.endElement();
 }
 
 void tryEmbedMarker(const KoPathShape *pathShape,
@@ -330,7 +325,6 @@ void SvgStyleWriter::saveSvgMarkers(KoShape *shape, SvgSavingContext &context)
 {
     KoPathShape *pathShape = dynamic_cast<KoPathShape*>(shape);
     if (!pathShape || !pathShape->hasMarkers()) return;
-
 
     tryEmbedMarker(pathShape, "marker-start", KoFlake::StartMarker, context);
     tryEmbedMarker(pathShape, "marker-mid", KoFlake::MidMarker, context);
@@ -386,7 +380,6 @@ QString SvgStyleWriter::saveSvgGradient(const QGradient *gradient, const QTransf
         context.styleWriter().addAttribute("x2", g->finalStop().x());
         context.styleWriter().addAttribute("y2", g->finalStop().y());
         context.styleWriter().addAttribute("spreadMethod", spreadMethod[g->spread()]);
-        // color stops
         saveSvgColorStops(gradient->stops(), context);
         context.styleWriter().endElement();
     } else if (gradient->type() == QGradient::RadialGradient) {
@@ -401,33 +394,9 @@ QString SvgStyleWriter::saveSvgGradient(const QGradient *gradient, const QTransf
         context.styleWriter().addAttribute("fy", g->focalPoint().y());
         context.styleWriter().addAttribute("r", g->radius());
         context.styleWriter().addAttribute("spreadMethod", spreadMethod[g->spread()]);
-        // color stops
         saveSvgColorStops(gradient->stops(), context);
         context.styleWriter().endElement();
     } else if (gradient->type() == QGradient::ConicalGradient) {
-        //const QConicalGradient * g = static_cast<const QConicalGradient*>( gradient );
-        // fake conical grad as radial.
-        // fugly but better than data loss.
-        /*
-        printIndentation( m_defs, m_indent2 );
-        *m_defs << "<radialGradient id=\"" << uid << "\" ";
-        *m_defs << "gradientUnits=\"userSpaceOnUse\" ";
-        *m_defs << "cx=\"" << g->center().x() << "\" ";
-        *m_defs << "cy=\"" << g->center().y() << "\" ";
-        *m_defs << "fx=\"" << grad.focalPoint().x() << "\" ";
-        *m_defs << "fy=\"" << grad.focalPoint().y() << "\" ";
-        double r = sqrt( pow( grad.vector().x() - grad.origin().x(), 2 ) + pow( grad.vector().y() - grad.origin().y(), 2 ) );
-        *m_defs << "r=\"" << QString().setNum( r ) << "\" ";
-        *m_defs << spreadMethod[g->spread()];
-        *m_defs << ">" << Qt::endl;
-
-        // color stops
-        getColorStops( gradient->stops() );
-
-        printIndentation( m_defs, m_indent2 );
-        *m_defs << "</radialGradient>" << Qt::endl;
-        *m_body << "url(#" << uid << ")";
-        */
     }
 
     return uid;
@@ -481,7 +450,6 @@ QString SvgStyleWriter::saveSvgMeshGradient(SvgMeshGradient *gradient,
             for (int s = 0; s < 4; ++s) {
                 SvgMeshPatch::Type type = static_cast<SvgMeshPatch::Type> (s);
 
-                // only first row and first col have Top and Left stop, respectively
                 if ((row != 0 && s == SvgMeshPatch::Top) ||
                     (col != 0 && s == SvgMeshPatch::Left)) {
                     continue;
@@ -496,16 +464,13 @@ QString SvgStyleWriter::saveSvgMeshGradient(SvgMeshGradient *gradient,
                 KisPortingUtils::setUtf8OnStream(stream);
 
                 stream.setRealNumberPrecision(10);
-                // TODO: other path type?
                 stream << "C "
                        << segment[1].x() << "," << segment[1].y() << " "
                        << segment[2].x() << "," << segment[2].y() << " "
-                       << segment[3].x() << "," << segment[3].y(); // I don't see any harm, inkscape does this too
+                       << segment[3].x() << "," << segment[3].y();
 
                 context.styleWriter().addAttribute("path", pathstr);
 
-                // don't add color/opacity if stop is in first row and stop == Top (or)
-                // don't add color/opacity if stop is not in first row and stop == Right
                 if ((row != 0 || col == 0 || s != SvgMeshPatch::Top) &&
                     (row == 0 || s != SvgMeshPatch::Right)) {
 
@@ -514,14 +479,14 @@ QString SvgStyleWriter::saveSvgMeshGradient(SvgMeshGradient *gradient,
                     context.styleWriter().addAttribute("stop-opacity", stop.color.alphaF());
                 }
 
-                context.styleWriter().endElement(); // stop
+                context.styleWriter().endElement();
             }
 
-            context.styleWriter().endElement();  // meshpatch
+            context.styleWriter().endElement();
         }
-        context.styleWriter().endElement(); // meshrow
+        context.styleWriter().endElement();
     }
-    context.styleWriter().endElement(); // meshgradient
+    context.styleWriter().endElement();
 
     return uid;
 }
@@ -533,12 +498,10 @@ QString SvgStyleWriter::saveSvgPattern(QSharedPointer<KoPatternBackground> patte
     const QSizeF patternSize = pattern->patternDisplaySize();
     const QSize imageSize = pattern->pattern().size();
 
-    // calculate offset in point
     QPointF offset = pattern->referencePointOffset();
     offset.rx() = 0.01 * offset.x() * patternSize.width();
     offset.ry() = 0.01 * offset.y() * patternSize.height();
 
-    // now take the reference point into account
     switch (pattern->referencePoint()) {
     case KoPatternBackground::TopLeft:
         break;
@@ -586,7 +549,6 @@ QString SvgStyleWriter::saveSvgPattern(QSharedPointer<KoPatternBackground> patte
     }
 
     context.styleWriter().addAttribute("viewBox", QString("0 0 %1 %2").arg(KisDomUtils::toString(imageSize.width())).arg(KisDomUtils::toString(imageSize.height())));
-    //*m_defs << " patternContentUnits=\"userSpaceOnUse\"";
 
     context.styleWriter().startElement("image");
     context.styleWriter().addAttribute("x", "0");
@@ -601,8 +563,8 @@ QString SvgStyleWriter::saveSvgPattern(QSharedPointer<KoPatternBackground> patte
         context.styleWriter().addAttribute("xlink:href", "data:"+ mimeType + ";base64," + buffer.data().toBase64());
     }
 
-    context.styleWriter().endElement(); // image
-    context.styleWriter().endElement(); // pattern
+    context.styleWriter().endElement();
+    context.styleWriter().endElement();
 
     return uid;
 }
@@ -627,7 +589,6 @@ QString SvgStyleWriter::saveSvgVectorPattern(QSharedPointer<KoVectorPatternBackg
     SvgUtil::writeTransformAttributeLazy("patternTransform", pattern->patternTransform(), context.styleWriter());
 
     if (pattern->contentCoordinates() == KoFlake::ObjectBoundingBox) {
-        // TODO: move this normalization into the KoVectorPatternBackground itself
 
         QList<KoShape*> shapes = pattern->shapes();
         QList<KoShape*> clonedShapes;
@@ -649,7 +610,7 @@ QString SvgStyleWriter::saveSvgVectorPattern(QSharedPointer<KoVectorPatternBackg
         embedShapes(shapes, context.styleWriter());
     }
 
-    context.styleWriter().endElement(); // pattern
+    context.styleWriter().endElement();
 
     return uid;
 }

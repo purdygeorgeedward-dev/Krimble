@@ -28,7 +28,6 @@ class KisColorSource;
 class KisSharpnessOption;
 class KisTextureOption;
 
-
 namespace KisDabCacheUtils
 {
 
@@ -115,4 +114,4 @@ template<class T> class QSharedPointer;
 class KisDabRenderingJob;
 typedef QSharedPointer<KisDabRenderingJob> KisDabRenderingJobSP;
 
-#endif // KISDABCACHEUTILS_H
+#endif

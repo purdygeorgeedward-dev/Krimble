@@ -103,10 +103,6 @@ public:
     QImage pattern;
 };
 
-
-// ----------------------------------------------------------------
-
-
 KoPatternBackground::KoPatternBackground()
     : KoShapeBackground()
     , d(new Private)
@@ -221,21 +217,17 @@ void KoPatternBackground::paint(QPainter &painter, const QPainterPath &fillPath)
 
     painter.save();
     if (d->repeat == Tiled) {
-        // calculate scaling of pixmap
         QSizeF targetSize = d->targetSize();
         QSizeF imageSize = d->pattern.size();
         qreal scaleX = targetSize.width() / imageSize.width();
         qreal scaleY = targetSize.height() / imageSize.height();
 
         QRectF targetRect = fillPath.boundingRect();
-        // undo scaling on target rectangle
         targetRect.setWidth(targetRect.width() / scaleX);
         targetRect.setHeight(targetRect.height() / scaleY);
 
-        // determine pattern offset
         QPointF offset = d->offsetFromRect(targetRect, imageSize);
 
-        // create matrix for pixmap scaling
         QTransform matrix;
         matrix.scale(scaleX, scaleY);
 
@@ -250,7 +242,6 @@ void KoPatternBackground::paint(QPainter &painter, const QPainterPath &fillPath)
         painter.drawPixmap(targetRect, QPixmap::fromImage(d->pattern).scaled(sourceRect.size().toSize()), sourceRect);
     } else if (d->repeat == Stretched) {
         painter.setClipPath(fillPath);
-        // undo conversion of the scaling so that we can use a nicely scaled image of the correct size
         qWarning() << "WARNING: stretched KoPatternBackground painting code is abandoned. The result might be not correct";
         const QRectF targetRect = fillPath.boundingRect();
         painter.drawPixmap(targetRect.topLeft(), QPixmap::fromImage(d->pattern).scaled(targetRect.size().toSize()));
@@ -258,7 +249,6 @@ void KoPatternBackground::paint(QPainter &painter, const QPainterPath &fillPath)
 
     painter.restore();
 }
-
 
 QRectF KoPatternBackground::patternRectFromFillSize(const QSizeF &size)
 {

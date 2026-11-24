@@ -75,7 +75,7 @@ auto createOptimizedClass(Args &&...param)
         return FactoryType::template create<xsimd::neon>(
             std::forward<Args>(param)...);
     }
-#endif // XSIMD_WITH_SSE2
+#endif
 
     return FactoryType::template create<xsimd::generic>(
         std::forward<Args>(param)...);
@@ -88,4 +88,4 @@ auto createScalarClass(Args &&...params)
         std::forward<Args>(params)...);
 }
 
-#endif /* KO_MULTI_ARCH_BUILD_SUPPORT_H */
+#endif

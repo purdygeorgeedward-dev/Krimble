@@ -19,7 +19,6 @@ KisSprayOpOption::KisSprayOpOption(const KisSprayOpOptionData &_data)
 	data = _data;
 }
 
-
 void KisSprayOpOption::updateDistributions()
 {
     if (data.angularDistributionType == KisSprayOpOptionData::ParticleDistribution_CurveBased) {

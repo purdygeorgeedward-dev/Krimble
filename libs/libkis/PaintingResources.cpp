@@ -13,18 +13,17 @@
 #include "kis_image.h"
 #include "KisToolShapeUtils.h"
 
-
 const QStringList StrokeStyle = {
-    "None",             // 0 = KisToolShapeUtils::StrokeStyle::StrokeStyleNone
-    "ForegroundColor",  //     KisToolShapeUtils::StrokeStyle::StrokeStyleForeground
-    "BackgroundColor"   //     KisToolShapeUtils::StrokeStyle::StrokeStyleBackground
+    "None",
+    "ForegroundColor",
+    "BackgroundColor"
 };
 
 const QStringList FillStyle = {
-    "None",             // 0 = KisToolShapeUtils::FillStyle::FillStyleNone
-    "ForegroundColor",  //     KisToolShapeUtils::FillStyle::FillStyleForegroundColor
-    "BackgroundColor",  //     KisToolShapeUtils::FillStyle::FillStyleBackgroundColor
-    "Pattern"           //     KisToolShapeUtils::FillStyle::FillStylePattern
+    "None",
+    "ForegroundColor",
+    "BackgroundColor",
+    "Pattern"
 };
 
 KisFigurePaintingToolHelper PaintingResources::createHelper(KisImageWSP image,
@@ -32,7 +31,6 @@ KisFigurePaintingToolHelper PaintingResources::createHelper(KisImageWSP image,
                                                             const QString strokeStyleString,
                                                             const QString fillStyleString)
 {
-    // need to grab the resource provider
     KisView *activeView = KisPart::instance()->currentMainwindow()->activeView();
     KoCanvasResourceProvider *resourceManager = activeView->viewManager()->canvasResourceProvider()->resourceManager();
 

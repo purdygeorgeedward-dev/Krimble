@@ -19,7 +19,6 @@ class ToolTransformArgs;
 class TransformTransactionProperties;
 class QCursor;
 
-
 class KisLiquifyTransformStrategy : public KisTransformStrategyBase
 {
     Q_OBJECT
@@ -66,4 +65,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif /* __KIS_LIQUIFY_TRANSFORM_STRATEGY_H */
+#endif

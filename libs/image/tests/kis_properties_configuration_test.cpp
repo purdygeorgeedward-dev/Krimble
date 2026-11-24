@@ -6,7 +6,6 @@
 
 #include "kis_properties_configuration_test.h"
 
-
 #include <simpletest.h>
 #include "kis_properties_configuration.h"
 
@@ -91,7 +90,7 @@ void KisPropertiesConfigurationTest::testCopy()
     QVERIFY(config.getDouble("v3", 0.0) == v3);
     QVERIFY(config.getBool("v4", !v4) == v4);
     QVERIFY(config.getCubicCurve("v5") == v5);
-    QVERIFY(config.hasProperty("v6") == true); // copying works!
+    QVERIFY(config.hasProperty("v6") == true);
 
     p1->setProperty("testBool1", true);
     p1->setProperty("testBool2", false);
@@ -104,7 +103,7 @@ void KisPropertiesConfigurationTest::testCopy()
     QVERIFY(p2.getString("v2", QString()) == v2);
     QVERIFY(p2.getDouble("v3", 0.0) == v3);
     QVERIFY(p2.getBool("v4", !v4) == v4);
-    QVERIFY(p2.hasProperty("v6") == false); // round-tripping -- no
+    QVERIFY(p2.hasProperty("v6") == false);
     QCOMPARE(p2.getBool("testBool1", false), true);
     QCOMPARE(p2.getBool("testBool2", true), false);
 }

@@ -40,5 +40,4 @@ private:
 typedef KisSequentialIteratorBase<ReadOnlyIteratorPolicy<>, DevicePolicy, ProxyBasedProgressPolicy> KisSequentialConstIteratorProgress;
 typedef KisSequentialIteratorBase<WritableIteratorPolicy<>, DevicePolicy, ProxyBasedProgressPolicy> KisSequentialIteratorProgress;
 
-
-#endif // KISSEQUENTIALITERATORPROGRESS_H
+#endif

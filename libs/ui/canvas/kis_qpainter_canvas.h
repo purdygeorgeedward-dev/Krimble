@@ -15,15 +15,6 @@
 class QPaintEvent;
 class KisCanvas2;
 
-/**
- *
- * KisQPainterCanvas is the widget that shows the actual image using arthur.
- *
- * NOTE: if you change something in the event handling here, also change it
- * in the opengl canvas.
- *
- * @author Boudewijn Rempt <boud@valdyas.org>
-*/
 class KisQPainterCanvas : public QWidget, public KisCanvasWidgetBase
 {
 
@@ -37,7 +28,7 @@ public:
 
     void setPrescaledProjection(KisPrescaledProjectionSP prescaledProjection);
 
-public: // QWidget overrides
+public:
 
     void paintEvent(QPaintEvent * ev) override;
 
@@ -52,7 +43,7 @@ public: // QWidget overrides
     void hideEvent(QHideEvent *event) override;
     void showEvent(QShowEvent *event) override;
 
-public: // Implement kis_abstract_canvas_widget interface
+public:
     void setDisplayFilter(QSharedPointer<KisDisplayFilter> displayFilter) override;
     void notifyImageColorSpaceChanged(const KoColorSpace *cs) override;
     void setWrapAroundViewingMode(bool value) override;
@@ -86,7 +77,7 @@ public: // Implement kis_abstract_canvas_widget interface
         update(decoUpdateRect);
     }
 
-protected: // KisCanvasWidgetBase
+protected:
 
     bool callFocusNextPrevChild(bool next) override;
 

@@ -10,9 +10,6 @@
 
 #include <QStyledItemDelegate>
 
-/**
- * \brief A delegate providing editors for the keys/buttons/etc. of KisShortcutConfiguration.
- */
 class KisInputEditorDelegate : public QStyledItemDelegate
 {
     Q_OBJECT
@@ -31,4 +28,4 @@ private:
     Private *const d;
 };
 
-#endif // KISINPUTEDITORDELEGATE_H
+#endif

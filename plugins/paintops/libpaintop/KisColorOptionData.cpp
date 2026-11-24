@@ -8,7 +8,6 @@
 
 #include "kis_properties_configuration.h"
 
-
 bool KisColorOptionData::read(const KisPropertiesConfiguration *setting)
 {
 	hue = setting->getInt(COLOROP_HUE, 0);

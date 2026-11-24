@@ -34,7 +34,6 @@ KisFixedPaintDevice& KisFixedPaintDevice::operator=(const KisFixedPaintDevice& r
     m_bounds = rhs.m_bounds;
     m_colorSpace = rhs.m_colorSpace;
 
-
     const int referenceSize = m_bounds.height() * m_bounds.width() * pixelSize();
 
     if (m_data.size() >= referenceSize) {
@@ -61,12 +60,10 @@ QRect KisFixedPaintDevice::bounds() const
     return m_bounds;
 }
 
-
 int KisFixedPaintDevice::allocatedPixels() const
 {
     return m_data.size() / m_colorSpace->pixelSize();
 }
-
 
 quint32 KisFixedPaintDevice::pixelSize() const
 {
@@ -123,7 +120,6 @@ void KisFixedPaintDevice::convertTo(const KoColorSpace* dstColorSpace,
     quint32 size = m_bounds.width() * m_bounds.height();
     KisOptimizedByteArray dstData(m_data.customMemoryAllocator());
 
-    // make sure that we are not initializing the destination pixels!
     dstData.resize(size * dstColorSpace->pixelSize());
 
     m_colorSpace->convertPixelsTo(constData(), (quint8*)dstData.data(),
@@ -161,7 +157,6 @@ void KisFixedPaintDevice::convertFromQImage(const QImage& _image, const QString 
     setRect(image.rect());
     lazyGrowBufferWithoutInitialization();
 
-    // Don't convert if not no profile is given and both paint dev and qimage are rgba.
     if (srcProfileName.isEmpty() && colorSpace()->id() == "RGBA") {
         memcpy(data(), image.constBits(), image.sizeInBytes());
     } else {
@@ -203,13 +198,11 @@ QImage KisFixedPaintDevice::convertToQImage(const KoColorProfile *  dstProfile, 
                                              intent, conversionFlags);
     } else {
         try {
-            // XXX: fill the image row by row!
             const int pSize = pixelSize();
             const int deviceWidth = m_bounds.width();
             quint8* newData = new quint8[w * h * pSize];
             const quint8* srcPtr = constData() + x1 * pSize + y1 * deviceWidth * pSize;
             quint8* dstPtr = newData;
-            // copy the right area out of the paint device into data
             for (int row = 0; row < h; row++) {
                 memcpy(dstPtr, srcPtr, w * pSize);
                 srcPtr += deviceWidth * pSize;
@@ -274,7 +267,6 @@ void KisFixedPaintDevice::fill(qint32 x, qint32 y, qint32 w, qint32 h, const qui
     }
 }
 
-
 void KisFixedPaintDevice::readBytes(quint8* dstData, qint32 x, qint32 y, qint32 w, qint32 h) const
 {
     if (m_data.isEmpty() || m_bounds.isEmpty()) {
@@ -320,7 +312,6 @@ void KisFixedPaintDevice::mirror(bool horizontal, bool vertical)
         quint8 * mirror = 0;
 
         for (int y = 0; y < h ; y++){
-            // TODO: implement better flipping of the data
 
             memcpy(row, dabPointer, rowSize);
             mirror = row;

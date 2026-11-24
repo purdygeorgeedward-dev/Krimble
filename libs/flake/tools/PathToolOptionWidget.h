@@ -16,7 +16,6 @@ class KoPathShape;
 class KoShapeConfigWidgetBase;
 class KoCanvasBase;
 
-
 class PathToolOptionWidget : public QWidget
 {
     Q_OBJECT

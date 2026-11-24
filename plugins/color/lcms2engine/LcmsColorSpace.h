@@ -17,14 +17,13 @@
 #include "colorprofiles/LcmsColorProfileContainer.h"
 #include "kis_assert.h"
 
-
 class LcmsColorProfileContainer;
 
 class KoLcmsInfo
 {
     struct Private {
-        cmsUInt32Number cmType;  // The colorspace type as defined by littlecms
-        cmsColorSpaceSignature colorSpaceSignature; // The colorspace signature as defined in icm/icc files
+        cmsUInt32Number cmType;
+        cmsColorSpaceSignature colorSpaceSignature;
     };
 
 public:
@@ -63,10 +62,6 @@ struct KoLcmsDefaultTransformations {
     static QMap< QString, QMap< LcmsColorProfileContainer *, KoLcmsDefaultTransformations * > > s_transformations;
 };
 
-/**
- * This is the base class for all colorspaces that are based on the lcms library, for instance
- * RGB 8bits and 16bits, CMYK 8bits and 16bits, LAB...
- */
 template<class _CSTraits>
 class LcmsColorSpace : public KoColorSpaceAbstract<_CSTraits>, public KoLcmsInfo
 {
@@ -146,8 +141,8 @@ class LcmsColorSpace : public KoColorSpaceAbstract<_CSTraits>, public KoLcmsInfo
     };
 
     struct KisLcmsLastTransformation {
-        cmsHPROFILE profile = nullptr;     // Last used profile to transform to/from RGB
-        cmsHTRANSFORM transform = nullptr; // Last used transform to/from RGB
+        cmsHPROFILE profile = nullptr;
+        cmsHTRANSFORM transform = nullptr;
 
         ~KisLcmsLastTransformation()
         {
@@ -163,9 +158,9 @@ class LcmsColorSpace : public KoColorSpaceAbstract<_CSTraits>, public KoLcmsInfo
     struct Private {
         KoLcmsDefaultTransformations *defaultTransformations;
 
-        KisLcmsTransformationStack fromRGBCachedTransformations; // Last used transforms
-        KisLcmsTransformationStack toRGBCachedTransformations;   // Last used transforms
-        KisLcmsTransformationStack toRGB16CachedTransformations; // Last used transforms
+        KisLcmsTransformationStack fromRGBCachedTransformations;
+        KisLcmsTransformationStack toRGBCachedTransformations;
+        KisLcmsTransformationStack toRGB16CachedTransformations;
 
         LcmsColorProfileContainer *profile;
         KoColorProfile *colorProfile;
@@ -182,7 +177,7 @@ protected:
         , KoLcmsInfo(cmType, colorSpaceSignature)
         , d(new Private())
     {
-        Q_ASSERT(p); // No profile means the lcms color space can't work
+        Q_ASSERT(p);
         Q_ASSERT(profileIsCompatible(p));
         d->profile = asLcmsProfile(p);
         Q_ASSERT(d->profile);
@@ -216,7 +211,6 @@ protected:
                                                  conversionFlags);
             KIS_SAFE_ASSERT_RECOVER_NOOP(d->defaultTransformations->fromRGB || !d->colorProfile->isSuitableForOutput());
 
-            // LCMS has a too optimistic optimization when transforming from linear color spaces
             if (d->profile->isLinear()) {
                 conversionFlags |= KoColorConversionTransformation::NoOptimization;
             }
@@ -267,7 +261,6 @@ public:
         qcolordata[1] = static_cast<quint8>(color.green());
         qcolordata[0] = static_cast<quint8>(color.blue());
 
-        // Default sRGB
         KIS_ASSERT(d->defaultTransformations && d->defaultTransformations->fromRGB);
         cmsDoTransform(d->defaultTransformations->fromRGB, qcolordata.data(), dst, 1);
 
@@ -278,7 +271,6 @@ public:
     {
         std::array<quint8, 3> qcolordata;
 
-        // Default sRGB transform
         KIS_ASSERT(d->defaultTransformations && d->defaultTransformations->toRGB);
         cmsDoTransform(d->defaultTransformations->toRGB, src, qcolordata.data(), 1);
 
@@ -290,7 +282,6 @@ public:
     {
         std::array<quint16, 3> qcolordata;
 
-        // Default sRGB transform
         Q_ASSERT(d->defaultTransformations && d->defaultTransformations->toRGB16);
         cmsDoTransform(d->defaultTransformations->toRGB16, src, qcolordata.data(), 1);
 
@@ -396,7 +387,6 @@ public:
         if (this->opacityU8(src1) == OPACITY_TRANSPARENT_U8
                 || this->opacityU8(src2) == OPACITY_TRANSPARENT_U8) {
 
-
             const qreal alphaScale = 100.0 / 255.0;
             return qRound(alphaScale * qAbs(this->opacityU8(src1) - this->opacityU8(src2)));
         }
@@ -457,9 +447,6 @@ private:
     Private *const d;
 };
 
-/**
- * Base class for all LCMS based ColorSpace factories.
- */
 class LcmsColorSpaceFactory : public KoColorSpaceFactory, private KoLcmsInfo
 {
 public:

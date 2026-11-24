@@ -11,7 +11,6 @@
 #include <kis_shared_ptr.h>
 #include "kis_tile.h"
 
-
 class KisMementoItem;
 typedef KisSharedPtr<KisMementoItem> KisMementoItemSP;
 
@@ -45,35 +44,20 @@ public:
         }
     }
 
-    /**
-     * Automatically called by Kis..HashTable. It means that
-     * this mementoItem is a root item of parental hierarchy.
-     * So m_parent should be NULL. Taking into account the tile
-     * was not present before, the status of the item
-     * should be 'DELETED'.
-     * This memento item is considered as committed, so we acquire
-     * the tile data right at the beginning.
-     */
     KisMementoItem(qint32 col, qint32 row, KisTileData* defaultTileData, KisMementoManager *mm) {
         Q_UNUSED(mm);
         m_tileData = defaultTileData;
-        /* acquire the tileData deliberately and completely */
         m_tileData->acquire();
         m_col = col;
         m_row = row;
         m_type = DELETED;
         m_parent = 0;
-        m_committedFlag = true; /* yes, we've committed it */
+        m_committedFlag = true;
     }
 
-    /**
-     * FIXME: Not sure this function has any particular usecase.
-     * Just leave it for compatibility with a hash table
-     */
     KisMementoItem(const KisMementoItem &rhs, KisMementoManager *mm) {
         Q_UNUSED(mm);
         m_tileData = rhs.m_tileData;
-        /* Setting counter: m_refCount++ */
         m_tileData->ref();
         m_col = rhs.m_col;
         m_row = rhs.m_row;
@@ -87,18 +71,14 @@ public:
     }
 
     void notifyDetachedFromDataManager() {
-        // just to resemble KisTile...
     }
 
     void notifyDeadWithoutDetaching() {
-        // just to resemble KisTile...
     }
 
     void notifyAttachedToDataManager(KisMementoManager *mm) {
         Q_UNUSED(mm);
-        // just to resemble KisTile...
     }
-
 
     void reset() {
         releaseTileData();
@@ -108,7 +88,6 @@ public:
 
     void deleteTile(KisTile* tile, KisTileData* defaultTileData) {
         m_tileData = defaultTileData;
-        /* Setting counter: m_refCount++ */
         m_tileData->ref();
 
         m_col = tile->col();
@@ -118,7 +97,6 @@ public:
 
     void changeTile(KisTile* tile) {
         m_tileData = tile->tileData();
-        /* Setting counter: m_refCount++ */
         m_tileData->ref();
         m_col = tile->col();
         m_row = tile->row();
@@ -128,11 +106,6 @@ public:
     void commit() {
         if (m_committedFlag) return;
         if (m_tileData) {
-            /**
-             * Setting counters to proper values:
-             * m_refCount++, m_usersCount++;
-             * m_refCount--
-             */
             m_tileData->acquire();
             m_tileData->deref();
 
@@ -157,7 +130,6 @@ public:
         return m_parent;
     }
 
-    // Stuff for Kis..HashTable
     inline void setNext(KisMementoItemSP next) {
         m_next = next;
     }
@@ -219,6 +191,5 @@ protected:
 private:
 };
 
-
-#endif /* KIS_MEMENTO_ITEM_H_ */
+#endif
 

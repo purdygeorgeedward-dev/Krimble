@@ -14,9 +14,6 @@
 
 #define BEST_WAVELET_THRESHOLD_VALUE 7.0
 
-/**
-@author Cyrille Berger
-*/
 class KisWaveletNoiseReduction : public KisFilter
 {
 public:

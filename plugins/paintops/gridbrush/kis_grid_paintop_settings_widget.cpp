@@ -9,7 +9,6 @@
 #include "KisGridShapeOptionWidget.h"
 #include "KisGridOpOptionWidget.h"
 
-
 #include <KisColorOptionWidget.h>
 
 #include <kis_paintop_settings_widget.h>
@@ -36,7 +35,7 @@ KisGridPaintOpSettingsWidget::~ KisGridPaintOpSettingsWidget()
 KisPropertiesConfigurationSP  KisGridPaintOpSettingsWidget::configuration() const
 {
     KisGridPaintOpSettings* config = new KisGridPaintOpSettings(resourcesInterface());
-    config->setProperty("paintop", "gridbrush"); // XXX: make this a const id string
+    config->setProperty("paintop", "gridbrush");
     writeConfiguration(config);
     return config;
 }

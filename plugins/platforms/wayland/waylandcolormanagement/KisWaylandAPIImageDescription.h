@@ -46,10 +46,6 @@ public:
     bool m_isReady {false};
 };
 
-/**
- * A wrapper for image description object, which doesn't support
- * fetching the info object, i.e. the one returned by creators
- */
 class KisWaylandAPIImageDescriptionNoInfo : public QObject, public QtWayland::wp_image_description_v1
 {
     Q_OBJECT
@@ -78,11 +74,6 @@ private:
     std::optional<QtWayland::wp_image_description_v1::cause> m_error;
 };
 
-/**
- * A wrapper for image description object, which supports fetching
- * the info object, i.e. the one returned by "preferred" space or
- * the description of the output.
- */
 class KisWaylandAPIImageDescription : public KisWaylandAPIImageDescriptionNoInfo
 {
     Q_OBJECT
@@ -94,5 +85,4 @@ public:
     KisWaylandAPIImageDescriptionInfo info;
 };
 
-
-#endif /* KISWAYLANDAPIIMAGEDESCRIPTION_H */
+#endif

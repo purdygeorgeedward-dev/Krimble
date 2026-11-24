@@ -12,10 +12,6 @@
 
 #include <QString>
 
-
-/**
- * A RAII-based locker for creation of a temporary resource storage
- */
 class KRITARESOURCES_EXPORT KisTemporaryResourceStorageLockAdapter
 {
 public:
@@ -41,4 +37,4 @@ public:
     using BaseClass::storageLocation;
 };
 
-#endif // KISTEMPORARYRESOURCESTORAGELOCK_H
+#endif

@@ -106,10 +106,6 @@ struct KoRgbaInterleavers<16> {
         t2.store(dstPtr + batch<T, A>::size, U{});
     }
 
-    // The AVX versions are handmade ports of the ones generated
-    // by Clang 14.0.0: https://godbolt.org/z/Ts8MWosW3
-    // Except for interleave(avx) which comes from GCC 11.2
-
 #if XSIMD_WITH_AVX
     template<bool aligned, typename T, typename A, enable_sized_t<T, 4> = 0>
     static inline void interleave(void *dst, batch<T, A> const &a, batch<T, A> const &b, kernel::requires_arch<avx>)
@@ -313,4 +309,4 @@ struct KoRgbaInterleavers<32> {
     }
 };
 
-#endif // KO_RGBA_INTERLEAVERS
+#endif

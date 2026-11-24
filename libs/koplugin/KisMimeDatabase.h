@@ -13,26 +13,15 @@
 
 #include "kritaplugin_export.h"
 
-/**
- * @brief The KisMimeDatabase class maps file extensions to mimetypes and vice versa
- */
 class KRITAPLUGIN_EXPORT KisMimeDatabase
 {
 public:
 
-    /// Find the mimetype for the given filename. The filename must include a suffix.
     static QString mimeTypeForFile(const QString &file, bool checkExistingFiles = true);
-    /// Find the mimetype for a given extension. The extension may have the form "*.xxx" or "xxx"
     static QString mimeTypeForSuffix(const QString &suffix);
-    /// Find the mimetype through analyzing the contents. This does not work for Krita's
-    /// extended mimetypes.
     static QString mimeTypeForData(const QByteArray ba);
-    /// Find the user-readable description for the given mimetype
     static QString descriptionForMimeType(const QString &mimeType);
-    /// Find the list of possible extensions for the given mimetype.
-    /// The preferred suffix is the first one.
     static QStringList suffixesForMimeType(const QString &mimeType);
-    /// The default icon name for the given mimetype
     static QString iconNameForMimeType(const QString &mimeType);
 
 private:
@@ -48,4 +37,4 @@ private:
 
 };
 
-#endif // KISMIMEDATABASE_H
+#endif

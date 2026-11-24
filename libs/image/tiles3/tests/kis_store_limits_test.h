@@ -18,5 +18,5 @@ private Q_SLOTS:
     void testLimits();
 };
 
-#endif /* KIS_STORE_LIMITS_TEST_H */
+#endif
 

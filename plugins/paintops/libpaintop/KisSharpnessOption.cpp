@@ -15,7 +15,6 @@
 #include <KisPaintOpOptionUtils.h>
 namespace kpou = KisPaintOpOptionUtils;
 
-
 KisSharpnessOption::KisSharpnessOption(const KisPropertiesConfiguration *setting)
     : KisSharpnessOption(kpou::loadOptionData<KisSharpnessOptionData>(setting))
 {
@@ -35,14 +34,12 @@ void KisSharpnessOption::apply(const KisPaintInformation &info, const QPointF &p
         qreal processedSharpness = computeSizeLikeValue(info);
 
         if (qFuzzyCompare(processedSharpness, 1.0)) {
-            // pen
             xFraction = 0.0;
             yFraction = 0.0;
             x = qRound(pt.x());
             y = qRound(pt.y());
         }
         else {
-            // something in between
             qint32 xi = qRound(pt.x());
             qint32 yi = qRound(pt.y());
 
@@ -53,7 +50,6 @@ void KisSharpnessOption::apply(const KisPaintInformation &info, const QPointF &p
             KisPaintOp::splitCoordinate(yf, &y, &yFraction);
         }
     } else {
-        // brush
         KisPaintOp::splitCoordinate(pt.x(), &x, &xFraction);
         KisPaintOp::splitCoordinate(pt.y(), &y, &yFraction);
     }
@@ -64,8 +60,6 @@ void KisSharpnessOption::applyThreshold(KisFixedPaintDeviceSP dab, const KisPain
     if (!isChecked()) return;
     const KoColorSpace * cs = dab->colorSpace();
 
-    // Set all alpha > opaque/2 to opaque, the rest to transparent.
-    // XXX: Using 4/10 as the 1x1 circle brush paints nothing with 0.5.
     quint8* dabPointer = dab->data();
     QRect rc = dab->bounds();
 
@@ -79,11 +73,9 @@ void KisSharpnessOption::applyThreshold(KisFixedPaintDeviceSP dab, const KisPain
     for (int i = 0; i < pixelCount; i++) {
         quint8 opacity = cs->opacityU8(dabPointer);
 
-        // Check what pixel goes sharp
         if (opacity > (tolerance) ) {
             cs->setOpacity(dabPointer, OPACITY_OPAQUE_U8, 1);
         } else {
-            // keep original value if in soft range
             if (opacity <= (100 - m_softness) * tolerance / 100) {
                 cs->setOpacity(dabPointer, OPACITY_TRANSPARENT_U8, 1);
             }

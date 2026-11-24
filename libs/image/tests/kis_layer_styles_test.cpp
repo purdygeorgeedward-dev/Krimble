@@ -12,7 +12,6 @@
 
 #include <KoColor.h>
 
-
 #include "layerstyles/kis_layer_style_filter.h"
 #include "layerstyles/kis_layer_style_filter_environment.h"
 #include "layerstyles/kis_ls_drop_shadow_filter.h"
@@ -22,7 +21,6 @@
 
 #include <testutil.h>
 #include "testimage.h"
-
 
 struct TestConfig {
     TestConfig()
@@ -71,7 +69,6 @@ struct TestConfig {
     }
 };
 
-
 void testDropShadowImpl(const TestConfig &config,
                         const QVector<QRect> &applyRects,
                         const QString &testName,
@@ -93,8 +90,6 @@ void testDropShadowImpl(const TestConfig &config,
     KisPSDLayerStyleSP style(new KisPSDLayerStyle());
     config.writeProperties(style);
 
-
-
     TestUtil::MaskParent parent;
     KisLayerStyleFilterEnvironment env(parent.layer.data());
     KisLayerStyleKnockoutBlower blower;
@@ -103,9 +98,7 @@ void testDropShadowImpl(const TestConfig &config,
         lsFilter.processDirectly(dev, &projection, &blower, rc, style, &env);
     }
 
-    // drop shadow doesn't use global knockout
     QVERIFY(blower.isEmpty());
-
 
     KisPaintDeviceSP dst = new KisPaintDevice(cs);
 
@@ -201,7 +194,6 @@ void KisLayerStylesTest::testLayerStylesPartialVary()
     c.spread = 90;
     testDropShadowImpl(c, rects, "partial", true);
 
-
 }
 
 void testDropShadowNeedChangeRects(int distance,
@@ -221,11 +213,9 @@ void testDropShadowNeedChangeRects(int distance,
     c.knocks_out = false;
     c.opacity = 50;
 
-
     KisLsDropShadowFilter lsFilter;
     KisPSDLayerStyleSP style(new KisPSDLayerStyle());
     c.writeProperties(style);
-
 
     TestUtil::MaskParent parent;
     KisLayerStyleFilterEnvironment env(parent.layer.data());
@@ -259,7 +249,6 @@ void KisLayerStylesTest::testLayerStylesRects()
     needRect = QRect(-2,-2,34,34);
     changeRect = QRect(-2,-2,34,34);
     testDropShadowNeedChangeRects(0, 0, 10, 0, applyRect, needRect, changeRect);
-
 
     applyRect = QRect(10,10,10,10);
     needRect = QRect(-2,-2,34,34);

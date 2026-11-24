@@ -53,7 +53,5 @@ private:
     WdgImageProperties *m_page;
 };
 
-
-
-#endif // KIS_DLG_IMAGE_PROPERTIES_H_
+#endif
 

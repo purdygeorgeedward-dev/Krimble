@@ -41,7 +41,6 @@ private:
     void setNoiseSeed(const quint64 &noiseSeed);
     void setSpread(const qreal &spread);
 
-
 private:
     ThresholdMode m_thresholdMode;
     PatternValueMode m_patternValueMode;

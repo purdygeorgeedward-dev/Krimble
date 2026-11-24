@@ -41,7 +41,6 @@ QDebug operator<<(QDebug dbg, const LightZoomItem &item)
     return dbg.space();
 }
 
-
 bool fuzzyCompareZoom(qreal lhs, qreal rhs) {
     return qRound(lhs * 10000) == qRound(rhs * 10000);
 };
@@ -263,7 +262,7 @@ void TestKoZoomAction::testZoomActionState_data()
 
     QTest::addRow("page-to-same-constant")
         << KoZoomState(KoZoomMode::ZOOM_PAGE, 0.5, 0.1, 2.0)
-        << std::make_optional(KoZoomState(KoZoomMode::ZOOM_CONSTANT, 0.5, 0.1, 2.0)) // switch mode only!
+        << std::make_optional(KoZoomState(KoZoomMode::ZOOM_CONSTANT, 0.5, 0.1, 2.0))
         << QVector<qreal>{0.125, 0.166667, 0.25, 0.333333, 0.5, 0.666667, 1.0, 1.33333, 2.0}
         << 4
         << QVector<LightZoomItem>{
@@ -274,7 +273,7 @@ void TestKoZoomAction::testZoomActionState_data()
             zi(KoZoomMode::ZOOM_PAGE), zi(KoZoomMode::ZOOM_WIDTH), zi(KoZoomMode::ZOOM_HEIGHT),
             zi(0.25), zi(0.333333), zi(0.5), zi(0.666667), zi(1.0), zi(1.33333), zi(2.0)
         }
-        << 5 // the mode has changed!
+        << 5
         << "50.0%";
 
     QTest::addRow("constant-to-same-page")
@@ -296,7 +295,6 @@ void TestKoZoomAction::testZoomActionState_data()
 
 void TestKoZoomAction::testZoomActionState()
 {
-    // to be able to compare zoom strings
     QLocale::setDefault(QLocale::C);
 
     QFETCH(KoZoomState, zoomState);

@@ -42,6 +42,4 @@ private:
     QScopedPointer<Private> m_d;
 };
 
-
-
-#endif // KOINTERACTIONSTRATEGYFACTORY_H
+#endif

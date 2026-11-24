@@ -38,7 +38,6 @@ const int KisTransformUtils::handleRadius = 8;
 
 const int KisTransformUtils::handleGrabPadding = 30;
 
-
 QTransform KisTransformUtils::imageToFlakeTransform(const KisCoordinatesConverter *converter)
 {
     return converter->imageToDocumentTransform() * converter->documentToFlakeTransform();
@@ -172,7 +171,6 @@ KisTransformUtils::MatricesPack::MatricesPack(const ToolTransformArgs &args)
         P.rotate(180. * normalizeAngle(args.aZ()) / M_PI, QVector3D(0, 0, 1));
         projectedP = P.toTransform(args.cameraPos().z());
     } else if (args.mode() == ToolTransformArgs::PERSPECTIVE_4POINT) {
-        // see a comment in KisPerspectiveTransformStrategy::Private::transformIntoArgs()
 #if 0
         projectedP.rotate(kisRadiansToDegrees(args.aZ()));
         projectedP *= args.flattenedPerspectiveTransform();
@@ -248,8 +246,8 @@ KisTransformWorker KisTransformUtils::createTransformWorker(const ToolTransformA
                              scaleX, scaleY,
                              shearX, shearY,
                              aZ,
-                             0, // set X and Y translation
-                             0, // to null for calculation
+                             0,
+                             0,
                              0,
                              config.filter());
 
@@ -267,9 +265,6 @@ KisTransformWorker KisTransformUtils::createTransformWorker(const ToolTransformA
                                        updater,
                                        config.filter());
 
-    // MatricesPack m(config);
-    // ENTER_FUNCTION() << ppVar(m.finalTransform() - transformWorker.transform());
-
     return transformWorker;
 }
 
@@ -280,7 +275,6 @@ void KisTransformUtils::transformDevice(const ToolTransformArgs &config,
     KisPaintDeviceSP tmp = new KisPaintDevice(*device);
     transformDevice(config, tmp, device, helper);
 }
-
 
 namespace {
 
@@ -315,13 +309,11 @@ void transformDeviceImpl(const ToolTransformArgs &config,
         worker.run(srcDevice, dstDevice);
     } else if (config.mode() == ToolTransformArgs::LIQUIFY && config.liquifyWorker()) {
         KoUpdaterPtr updater = helper->updater();
-        //FIXME:
         Q_UNUSED(updater);
 
         config.liquifyWorker()->run(srcDevice, dstDevice);
     } else if (config.mode() == ToolTransformArgs::MESH) {
         KoUpdaterPtr updater = helper->updater();
-        //FIXME:
         Q_UNUSED(updater);
 
         dstDevice->clear();
@@ -492,7 +484,6 @@ void KisTransformUtils::setDefaultWarpPoints(int pointsPerLine,
     qreal gridSpaceX, gridSpaceY;
 
     if (nbPoints == 1) {
-        //there is actually no grid
         origPoints[0] = transaction->originalCenterGeometric();
         transfPoints[0] = transaction->originalCenterGeometric();
     }
@@ -641,8 +632,6 @@ bool KisTransformUtils::fetchArgsFromCommand(const KUndo2Command *command, ToolT
 
 KisNodeSP KisTransformUtils::tryOverrideRootToTransformMask(KisNodeSP root)
 {
-    // we search for masks only at the first level of hierarchy,
-    // all other masks are just ignored.
 
     KisNodeSP node = root->firstChild();
 
@@ -661,10 +650,6 @@ KisNodeSP KisTransformUtils::tryOverrideRootToTransformMask(KisNodeSP root)
 int KisTransformUtils::fetchCurrentImageTime(KisNodeList rootNodes)
 {
     Q_FOREACH(KisNodeSP node, rootNodes) {
-        /**
-         * We cannot just use projection's default bounds, because masks don't have
-         * any projection
-         */
         if (node && node->image()) {
             return node->image()->animationInterface()->currentTime();
         }
@@ -682,10 +667,6 @@ QList<KisNodeSP> KisTransformUtils::fetchNodesList(ToolTransformArgs::TransformM
                 return node != root && node->visible() && node->inherits("KisTransformMask");
             });
 
-        /// Cannot transform nodes with visible transform masks inside,
-        /// this situation should have been caught either in
-        /// tryOverrideRootToTransformMask or in the transform tool
-        /// stroke initialization routine.
         KIS_SAFE_ASSERT_RECOVER_NOOP(!hasTransformMaskDescendant);
 
         KisNodeSP selectionNode = selection ? selection->parentNode() : 0;
@@ -770,9 +751,6 @@ bool KisTransformUtils::tryFetchArgsFromCommandAndUndo(ToolTransformArgs *outArg
             const KisSavedMacroCommand *command = dynamic_cast<const KisSavedMacroCommand*>(lastCommand);
             KIS_SAFE_ASSERT_RECOVER_RETURN_VALUE(command, false);
 
-            // the jobs are fetched as !shouldGoToHistory,
-            // so there is no need to put them into
-            // m_s->skippedWhileMergeCommands
             command->getCommandExecutionJobs(undoJobs, true, false);
             *overriddenCommand = command;
 

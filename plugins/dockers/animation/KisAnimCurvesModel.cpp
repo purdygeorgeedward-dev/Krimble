@@ -96,7 +96,7 @@ struct KisAnimCurvesModel::Private
         if (curves.isEmpty()) nextColorHue = 0;
 
         QColor color = QColor::fromHsv(nextColorHue, 255, 255);
-        nextColorHue += 94; // Value chosen experimentally for providing distinct colors
+        nextColorHue += 94;
         nextColorHue = nextColorHue & 0xff;
         return color;
     }
@@ -141,11 +141,9 @@ QVariant KisAnimCurvesModel::data(const QModelIndex &index, int role) const
             const int previousKeyTime = channel->previousKeyframeTime(time);
             KisScalarKeyframeSP previousKeyframe = channel->keyframeAt(previousKeyTime).dynamicCast<KisScalarKeyframe>();
 
-            //Tangent null whenever there's no previous keyframe.
             if (!previousKeyframe)
                 return QVariant();
 
-            //Tangent should be null if previous keyframe not set to bezier.
             if (previousKeyframe->interpolationMode() != KisScalarKeyframe::Bezier)
                 return QVariant();
 
@@ -307,7 +305,6 @@ void KisAnimCurvesModel::endCommand()
     m_d->undoCommand = 0;
 }
 
-
 bool KisAnimCurvesModel::adjustKeyframes(const QModelIndexList &indexes, int timeOffset, qreal valueOffset)
 {
     std::unique_ptr<KUndo2Command> command(
@@ -358,7 +355,6 @@ bool KisAnimCurvesModel::adjustKeyframes(const QModelIndexList &indexes, int tim
                     if (!scalarKeyframe) continue;
 
                     const qreal currentValue = scalarKeyframe->value();
-                    //TODO Undo considerations.
                     scalarKeyframe->setValue(currentValue + valueOffset, cmd.get());
                     result = true;
                 }
@@ -456,5 +452,4 @@ void KisAnimCurvesModel::slotKeyframeAdded(const KisKeyframeChannel *channel, in
 {
     Q_EMIT dataAdded(index(m_d->rowForChannel(channel), time));
 }
-
 

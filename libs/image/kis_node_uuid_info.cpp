@@ -33,7 +33,7 @@ KisNodeSP KisNodeUuidInfo::findNode(KisNodeSP rootNode)
 {
     if (check(rootNode))
         return rootNode;
-    
+
     KisNodeSP child = rootNode->firstChild();
     KisNodeSP node = 0;
     while (child && !node)
@@ -46,9 +46,9 @@ KisNodeSP KisNodeUuidInfo::findNode(KisNodeSP rootNode)
 
 bool KisNodeUuidInfo::check(KisNodeSP node)
 {
-    if (m_uuid == node->uuid())                     // every node has valid uuid
+    if (m_uuid == node->uuid())
         return true;
-    if (m_uuid.isNull() && m_name == node->name())  // but some may have empty names
+    if (m_uuid.isNull() && m_name == node->name())
         return true;
     return false;
 }

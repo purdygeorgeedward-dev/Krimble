@@ -26,13 +26,6 @@ class KisZoomButton;
 class KisCollapsibleButtonGroup;
 class KisPlaybackEngine;
 
-/** @brief A customized titlebar for the Animation Curves Docker that's
- * packed with useful widgets and menus.
- *
- * To avoid cluttering the UI, elements that are important to the
- * animator's workflow should be available at a glace, while
- * set-and-forget types of things should be hidden inside of menus.
- */
 class KisAnimCurvesDockerTitlebar : public KisUtilityTitleBar
 {
     Q_OBJECT
@@ -67,14 +60,10 @@ public:
     KisZoomButton *btnZoomHori;
     KisZoomButton *btnZoomVert;
 
-
 private:
     const int MAX_FRAMES = 9999;
 };
 
-/** @brief Krita's Animation Curves Docker.
- * This is the GUI heart of Krita's scalar animation workflow.
- */
 class KisAnimCurvesDocker : public QDockWidget, public KisMainwindowObserver
 {
     Q_OBJECT
@@ -112,10 +101,8 @@ private Q_SLOTS:
     void requestChannelMenuAt(const QPoint& point);
     void resetChannelTreeSelection();
 private:
-    // Used for adding multiple keyframes as a batch under one undo command.
     void addKeyframeCommandToParent(const QString &channelIdentity, KUndo2Command* parentCMD);
 
-    // Used to quickly add one type of specific key automatically, e.g. Opacity.
     void addKeyframeQuick(const QString &channelIdentity);
 
     void removeKeyframe(const QString &channel);
@@ -123,6 +110,5 @@ private:
     struct Private;
     const QScopedPointer<Private> m_d;
 };
-
 
 #endif

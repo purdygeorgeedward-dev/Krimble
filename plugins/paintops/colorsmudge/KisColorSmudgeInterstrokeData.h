@@ -15,13 +15,6 @@
 
 class KisTransaction;
 
-/**
- * Interstroke data needed for the lightness mode of colorsmudge brush.
- * It stores separate high-precision projections for the heightmap and
- * color layers. The layer itself stores only the low-precision final
- * projection, so as soon as the interstroke data is reset, the paint
- * is considered as "dried-out".
- */
 struct KisColorSmudgeInterstrokeData : public KisInterstrokeData
 {
     KisPaintDeviceSP colorBlendDevice;
@@ -41,4 +34,4 @@ private:
     QScopedPointer<KisTransaction> m_heightmapDeviceTransaction;
 };
 
-#endif //KRITA_KISCOLORSMUDGEINTERSTROKEDATA_H
+#endif

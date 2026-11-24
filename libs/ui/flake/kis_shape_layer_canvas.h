@@ -72,13 +72,6 @@ protected:
     KisImageViewConverter m_viewConverter;
 };
 
-/**
- * KisShapeLayerCanvas is a special canvas implementation that Krita
- * uses for non-krita shapes to request updates on.
- *
- * Do NOT give this canvas to tools or to the KoCanvasController, it's
- * not made for that.
- */
 class KisShapeLayerCanvas : public KisShapeLayerCanvasBase
 {
     Q_OBJECT
@@ -88,7 +81,6 @@ public:
     KisShapeLayerCanvas(const KisShapeLayerCanvas &rhs, KisShapeLayer *parent);
     ~KisShapeLayerCanvas() override;
 
-    /// This canvas won't render onto a widget, but a projection
     void setProjection(KisPaintDeviceSP projection);
     KisPaintDeviceSP projection() const override;
 
@@ -102,7 +94,6 @@ public:
 
     void resetCache(const KoColorSpace *colorSpace = 0) override;
     void rerenderAfterBeingInvisible() override;
-
 
 private Q_SLOTS:
     friend class KisRepaintShapeLayerLayerJob;

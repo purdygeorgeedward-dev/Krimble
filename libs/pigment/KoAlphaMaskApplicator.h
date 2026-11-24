@@ -12,7 +12,6 @@
 #include "KoColorSpaceTraits.h"
 #include "KoMultiArchBuildSupport.h"
 
-
 template<typename _channels_type_,
          int _channels_nb_,
          int _alpha_pos_,
@@ -153,6 +152,6 @@ struct KoAlphaMaskApplicator<
     }
 };
 
-#endif /* !defined(XSIMD_NO_SUPPORTED_ARCHITECTURE) */
+#endif
 
-#endif // KOALPHAMASKAPPLICATOR_H
+#endif

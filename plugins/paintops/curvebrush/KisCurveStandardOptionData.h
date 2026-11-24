@@ -30,4 +30,4 @@ struct KisCurvesOpacityOptionData : KisCurveOptionData
     {}
 };
 
-#endif // KISCURVESTANDARDOPTIONDATA_H
+#endif

@@ -2,7 +2,7 @@
  *
  * This file was written by Henning Makholm <henning@makholm.net>
  * It is hereby in the public domain.
- * 
+ *
  * In jurisdictions that do not recognise grants of copyright to the
  * public domain: I, the author and (presumably, in those jurisdictions)
  * copyright holder, hereby permit anyone to distribute and use this code,
@@ -39,4 +39,4 @@ mk_scaletable(void)
 }
 
 #endif
-    
+

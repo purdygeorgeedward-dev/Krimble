@@ -25,4 +25,4 @@ private Q_SLOTS:
     void testBackwardInterpolatorSpecialCaseSecond();
 };
 
-#endif /* __KIS_FOUR_POINT_INTERPOLATOR_TEST_H */
+#endif

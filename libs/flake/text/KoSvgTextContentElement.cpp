@@ -48,8 +48,6 @@ void fillTransforms(QVector<qreal> *xPos, QVector<qreal> *yPos, QVector<qreal> *
     }
 }
 
-
-
 QVector<qreal> parseListAttributeX(const QString &value, SvgLoadingContext &context)
 {
     QVector<qreal> result;
@@ -108,11 +106,6 @@ void writeTextListAttribute(const QString &attribute, const QVector<qreal> &valu
 #include <ksharedconfig.h>
 #include <kconfiggroup.h>
 
-/**
- * HACK ALERT: this is a function from a private Qt's header qfont_p.h,
- * we don't include the whole header, because it is painful in the
- * environments we don't fully control, e.g. in distribution packages.
- */
 Q_GUI_EXPORT int qt_defaultDpi();
 
 namespace {
@@ -126,7 +119,6 @@ int forcedDpiForQtFontBugWorkaround() {
 
     return value;
 }
-
 
 KoSvgTextProperties adjustPropertiesForFontSizeWorkaround(const KoSvgTextProperties &properties)
 {
@@ -166,7 +158,6 @@ bool KoSvgTextContentElement::loadSvg(const QDomElement &e, SvgLoadingContext &c
     KIS_SAFE_ASSERT_RECOVER_RETURN_VALUE(gc, false);
 
     KoSvgTextProperties props = rootNode? context.resolvedProperties(true): gc->textProperties;
-
 
     QVector<KoSvgTextProperties::PropertyId> generic = {KoSvgTextProperties::FillId,
                                                         KoSvgTextProperties::StrokeId,
@@ -215,12 +206,10 @@ bool KoSvgTextContentElement::loadSvg(const QDomElement &e, SvgLoadingContext &c
     }
 
     if (e.tagName() == "textPath") {
-        // we'll read the value 'path' later.
 
         textPathInfo.side = KoSvgText::parseTextPathSide(e.attribute("side", "left"));
         textPathInfo.method = KoSvgText::parseTextPathMethod(e.attribute("method", "align"));
         textPathInfo.spacing = KoSvgText::parseTextPathSpacing(e.attribute("spacing", "auto"));
-        // This depends on pathLength;
         if (e.hasAttribute("startOffset")) {
             QString offset = e.attribute("startOffset", "0");
             if (offset.endsWith("%")) {
@@ -251,11 +240,6 @@ bool KoSvgTextContentElement::loadSvgTextNode(const QDomText &text, SvgLoadingCo
     SvgGraphicsContext *gc = context.currentGC();
     KIS_SAFE_ASSERT_RECOVER_RETURN_VALUE(gc, false);
 
-    // In theory, the XML spec requires XML parsers to normalize line endings to
-    // LF. However, QXmlInputSource + QXmlSimpleReader do not do this, so we can
-    // end up with CR in the text. The SVG spec explicitly calls out that all
-    // newlines in SVG are to be represented by a single LF (U+000A) character,
-    // so we can replace all CRLF and CR into LF here for simplicity.
     static const QRegularExpression s_regexCrlf(R"==((?:\r\n|\r(?!\n)))==");
     QString content = text.data();
     content.replace(s_regexCrlf, QStringLiteral("\n"));
@@ -273,10 +257,7 @@ bool KoSvgTextContentElement::saveSvg(SvgSavingContext &context,
 {
     if (textPath) {
         if (textPath) {
-            // we'll always save as an embedded shape as "path" is an svg 2.0
-            // feature.
             QString id = textPath->isVisible(false) && !context.strippedTextMode()? context.getID(textPath): SvgStyleWriter::embedShape(textPath, context);
-            // inkscape can only read 'xlink:href'
             if (!id.isEmpty()) {
                 context.shapeWriter().addAttribute("xlink:href", "#" + id);
             }
@@ -332,7 +313,6 @@ bool KoSvgTextContentElement::saveSvg(SvgSavingContext &context,
 
     ownProperties = adjustPropertiesForFontSizeWorkaround(ownProperties);
 
-    // we write down stroke/fill if they are different from the parent's value
     if (!rootText) {
         if (ownProperties.hasProperty(KoSvgTextProperties::FillId)) {
             SvgStyleWriter::saveSvgFill(properties.background(),
@@ -431,7 +411,6 @@ void KoSvgTextContentElement::insertText(int start, QString insertText)
         text.insert(start, insertText);
     }
 }
-
 
 QString KoSvgTextContentElement::getTransformedString(QVector<QPair<int, int> > &positions, KoSvgTextProperties resolvedProps) const
 {

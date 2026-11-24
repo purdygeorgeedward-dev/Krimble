@@ -13,13 +13,6 @@ class KisFilterConfiguration;
 class KisViewManager;
 class KoColor;
 
-/**
- * A widget that allows users to select a generator and
- * create a config object for it.
- *
- * XXX: make use of bookmarked configuration things, like
- *      in the filter widget.
- */
 class KisWdgGenerator : public QWidget
 {
 

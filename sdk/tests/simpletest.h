@@ -4,7 +4,6 @@
 #include <QTest>
 #include <QStandardPaths>
 #include <QLocale>
-// #include <KLocalizedString>
 #include <KoTestConfig.h>
 #include <KisSynchronizedConnection.h>
 
@@ -17,8 +16,7 @@
     qputenv("KRITA_PLUGIN_PATH", QByteArray(KRITA_PLUGINS_DIR_FOR_TESTS)); \
     QApplication app(argc, argv); \
     app.setAttribute(Qt::AA_Use96Dpi, true); \
-    /*QLocale en_US(QLocale::English, QLocale::UnitedStates); \
-    KLocalizedString::setLanguages(QStringList() << QStringLiteral("en_US"));*/ \
+    \
     QTEST_DISABLE_KEYPAD_NAVIGATION \
     TestObject tc; \
     QTEST_SET_MAIN_SOURCE_PATH \
@@ -31,4 +29,4 @@ int main(int argc, char *argv[]) \
     SIMPLE_MAIN_IMPL(TestObject) \
 }
 
-#endif // SIMPLETEST_H
+#endif

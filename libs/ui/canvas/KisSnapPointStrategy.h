@@ -12,13 +12,6 @@
 #include "KoSnapStrategy.h"
 #include "kritaui_export.h"
 
-/**
- * The KisSnapPointStrategy class is a custom strategy that allows snapping to
- * arbitrary points on canvas, not linked to any real objects. It can be used,
- * for example, for snapping to the *previous position* of the handle, while it
- * is dragging by the user.
- */
-
 class KRITAUI_EXPORT KisSnapPointStrategy : public KoSnapStrategy
 {
 public:
@@ -35,4 +28,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif // KISSNAPPOINTSTRATEGY_H
+#endif

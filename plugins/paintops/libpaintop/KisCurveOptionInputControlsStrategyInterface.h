@@ -19,17 +19,14 @@ class PAINTOP_EXPORT KisCurveOptionInputControlsStrategyInterface
 public:
     virtual ~KisCurveOptionInputControlsStrategyInterface();
 
-    /**
-     * erm... yep! no public interface! :)
-     */
 };
 
 using KisCurveOptionInputControlsStrategyFactory =
     std::function<
         KisCurveOptionInputControlsStrategyInterface* (
-            KisCurveRangeModelInterface* /*rangeInterface*/,
-            KisCurveWidget* /*curveWidget*/,
-            QWidget* /*inPlaceholder*/,
-            QWidget* /*outPlaceholder*/)>;
+            KisCurveRangeModelInterface* ,
+            KisCurveWidget* ,
+            QWidget* ,
+            QWidget* )>;
 
-#endif // KISCURVEOPTIONINPUTCONTROLSSTRATEGYINTERFACE_H
+#endif

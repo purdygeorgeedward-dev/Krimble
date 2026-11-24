@@ -18,7 +18,6 @@ class QIODevice;
 class QString;
 class HtmlSavingContext;
 
-// Implements writing shapes to HTML
 class HtmlWriter
 {
 public:
@@ -39,4 +38,4 @@ private:
     QStringList m_warnings;
 };
 
-#endif // HTMLWRITER_H
+#endif

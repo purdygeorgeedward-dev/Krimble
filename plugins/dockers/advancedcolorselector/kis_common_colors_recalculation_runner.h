@@ -12,7 +12,6 @@
 class KoColor;
 class KisCommonColors;
 
-
 class KisCommonColorsRecalculationRunner : public QRunnable
 {
 public:
@@ -32,4 +31,4 @@ private:
     KisCommonColors* m_commonColors;
 };
 
-#endif // KIS_COMMON_COLORS_RECALCULATION_RUNNER_H
+#endif

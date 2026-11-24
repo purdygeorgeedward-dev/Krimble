@@ -48,9 +48,6 @@ private:
     QPointer<QAction> m_action;
 };
 
-// A submenu (Edit > Fill, Edit > Transform...) gets the same row height and the same room before and after the text
-// as the menu it opens from. Without this, Fill's submenu had no room at the left of its words and looked cramped.
-// The values are measured from the parent menu each time the submenu opens (the screen's density decides them).
 static void krimbleMatchSubmenu(QMenu *parent, QMenu *sub)
 {
     if (!parent || !sub) return;
@@ -63,7 +60,7 @@ static void krimbleMatchSubmenu(QMenu *parent, QMenu *sub)
     if (rowH <= 0) return;
     const int textH = sub->fontMetrics().height();
     const int vertical = qMax(0, (rowH - textH) / 2);
-    const int left = qRound(rowH * 0.68);   // on the phone the parent's words start 47 real px in, on 69 real px rows
+    const int left = qRound(rowH * 0.68);
     const QString sheet = QStringLiteral("QMenu::item { padding: %1px %2px %3px %4px; } QMenu::item:selected { color: #ffffff; background: #0b87dd; }")
                               .arg(vertical).arg(left).arg(rowH - textH - vertical).arg(left);
     if (sub->styleSheet() != sheet) sub->setStyleSheet(sheet);
@@ -101,7 +98,6 @@ static void krimbleInstallMenuShortcutStripping(QMainWindow *win)
         menuTitle.remove(QLatin1Char('&'));
         QObject::connect(menu, &QMenu::aboutToShow, menu, [menu, menuTitle]() {
             if (menu->findChild<QWidgetAction*>(QStringLiteral("krimbleMenuHeading"))) {
-                // still there from the last time: make sure it is the first one
                 QAction *headingAction = menu->findChild<QWidgetAction*>(QStringLiteral("krimbleMenuHeading"));
                 if (menu->actions().value(0) == headingAction) return;
             }
@@ -137,8 +133,6 @@ static void krimbleInstallMenuShortcutStripping(QMainWindow *win)
 static void krimbleRemoveMinimumWidths(QMainWindow *win)
 {
     Q_FOREACH (QDockWidget *dock, win->findChildren<QDockWidget*>()) {
-        // George: "Minimum width for the toolbox should be one column." The toolbox is left out: its smallest width stays what its layout
-        // gives (one column of icons).
         if (dock->objectName() == QLatin1String("ToolBox")) continue;
         if (QWidget *content = dock->widget()) {
             if (content->minimumWidth() != 1) content->setMinimumWidth(1);

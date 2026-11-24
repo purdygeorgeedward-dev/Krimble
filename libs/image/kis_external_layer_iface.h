@@ -18,10 +18,6 @@ class QString;
 class QIcon;
 class KUndo2Command;
 
-/**
-   A base interface for layers that are implemented outside the Krita
-   core.
- */
 class KRITAIMAGE_EXPORT KisExternalLayer : public KisLayer
 {
 
@@ -49,13 +45,11 @@ public:
         return false;
     }
 
-    // assign color profile without conversion of pixel data (if applicable)
     virtual KUndo2Command* setProfile(const KoColorProfile *profile) {
         Q_UNUSED(profile);
         return 0;
     }
 
-    // convert pixel data of the layer into \p dstColorSpace (if applicable)
     virtual KUndo2Command* convertTo(const KoColorSpace * dstColorSpace,
                                          KoColorConversionTransformation::Intent renderingIntent = KoColorConversionTransformation::internalRenderingIntent(),
                                          KoColorConversionTransformation::ConversionFlags conversionFlags = KoColorConversionTransformation::internalConversionFlags())
@@ -66,13 +60,7 @@ public:
         return 0;
     }
 
-    /**
-     * Some external layers use original() only as a projection and render
-     * some internal state into it, e.g. using KisSpontaneousProjection
-     * asynchronously. theoreticalBoundingRect() is used to get real bounding
-     * rect of a layer without relying on original().
-     */
     virtual QRect theoreticalBoundingRect() const;
 };
 
-#endif // KIS_EXTERNAL_IFACE_LAYER_IFACE_
+#endif

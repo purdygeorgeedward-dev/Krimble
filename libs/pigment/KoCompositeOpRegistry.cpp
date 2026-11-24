@@ -46,7 +46,7 @@ KoCompositeOpRegistry::KoCompositeOpRegistry()
     m_map.insert(m_categories[0], KoID(COMPOSITE_MULT            ,  i18nc("Blending mode - Multiply", "Multiply")));
     m_map.insert(m_categories[0], KoID(COMPOSITE_DIVIDE          ,  i18nc("Blending mode - Divide", "Divide")));
     m_map.insert(m_categories[0], KoID(COMPOSITE_INVERSE_SUBTRACT,  i18nc("Blending mode - Inverse Subtract", "Inverse Subtract")));
-    
+
     m_map.insert(m_categories[1], KoID(COMPOSITE_XOR             ,  i18nc("Blending mode - XOR", "XOR")));
     m_map.insert(m_categories[1], KoID(COMPOSITE_OR              ,  i18nc("Blending mode - OR", "OR")));
     m_map.insert(m_categories[1], KoID(COMPOSITE_AND             ,  i18nc("Blending mode - AND", "AND")));
@@ -181,7 +181,7 @@ KoCompositeOpRegistry::KoCompositeOpRegistry()
     m_map.insert(m_categories[11], KoID(COMPOSITE_INC_SATURATION_HSV,  i18nc("Blending mode - Increase Saturation HSV", "Increase Saturation HSV")));
     m_map.insert(m_categories[11], KoID(COMPOSITE_DEC_VALUE         ,  i18nc("Blending mode - Decrease Value HSV", "Decrease Value")));
     m_map.insert(m_categories[11], KoID(COMPOSITE_INC_VALUE         ,  i18nc("Blending mode - Increase Value HSV", "Increase Value")));
-    
+
     m_map.insert(m_categories[12], KoID(COMPOSITE_REFLECT          ,  i18nc("Blending mode - Reflect", "Reflect")));
     m_map.insert(m_categories[12], KoID(COMPOSITE_GLOW             ,  i18nc("Blending mode - Glow", "Glow")));
     m_map.insert(m_categories[12], KoID(COMPOSITE_FREEZE           ,  i18nc("Blending mode - Freeze", "Freeze")));
@@ -211,8 +211,6 @@ KoID KoCompositeOpRegistry::getKoID(const QString& compositeOpID) const
 
 QString KoCompositeOpRegistry::getCompositeOpDisplayName(const QString& compositeOpID) const
 {
-    // In and Out are created in lcms2engine but not registered in KoCompositeOpRegistry.
-    // FIXME: Change these to use i18nc with context?
     if (compositeOpID == COMPOSITE_IN) {
         return i18n("In");
     } else if (compositeOpID == COMPOSITE_OUT) {
@@ -235,9 +233,6 @@ KoCompositeOpRegistry::KoIDMap KoCompositeOpRegistry::getCompositeOps() const
 KoCompositeOpRegistry::KoIDMap KoCompositeOpRegistry::getLayerStylesCompositeOps() const
 {
     QVector<QString> ids;
-
-    // not available via the blending modes list in Krita
-    // ids << COMPOSITE_PASS_THROUGH;
 
     ids << COMPOSITE_OVER;
     ids << COMPOSITE_DISSOLVE;

@@ -30,4 +30,4 @@ public:
     KisPropertiesConfigurationSP configuration() const override;
 };
 
-#endif // KIS_FILTEROP_SETTINGS_WIDGET_H_
+#endif

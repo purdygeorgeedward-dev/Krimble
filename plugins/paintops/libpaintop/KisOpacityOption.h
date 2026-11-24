@@ -25,4 +25,4 @@ private:
     bool m_indirectPaintingActive = false;
 };
 
-#endif // KISOPACITYOPTION_H
+#endif

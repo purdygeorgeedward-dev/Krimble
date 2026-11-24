@@ -19,7 +19,6 @@ struct SurrogateCacheInterface : public KisDabRenderingQueue::CacheInterface
     void getDabType(bool hasDabInCache,
                     KisDabCacheUtils::DabRenderingResources *resources,
                     const KisDabCacheUtils::DabRequestInfo &request,
-                    /* out */
                     KisDabCacheUtils::DabGenerationInfo *di,
                     bool *shouldUseCache) override
     {
@@ -110,82 +109,64 @@ void KisDabRenderingQueueTest::testCachedDabs()
     KisDabRenderingJobSP job3 = queue.addDab(request2, OPACITY_OPAQUE_F, OPACITY_OPAQUE_F);
     QVERIFY(!job3);
 
-    // we only added the dabs, but we haven't completed them yet
     QVERIFY(!queue.hasPreparedDabs());
     QCOMPARE(queue.testingGetQueueSize(), 4);
 
     QList<KisDabRenderingJobSP > jobs;
     QList<KisRenderedDab> renderedDabs;
 
-
     {
-        // we've completed job0
         job0->originalDevice = new KisFixedPaintDevice(cs);
         job0->postprocessedDevice = job0->originalDevice;
 
         jobs = queue.notifyJobFinished(job0->seqNo);
         QVERIFY(jobs.isEmpty());
 
-        // now we should have at least one job in prepared state
         QVERIFY(queue.hasPreparedDabs());
 
-        // take the prepared dabs
         renderedDabs = queue.takeReadyDabs();
         QCOMPARE(renderedDabs.size(), 1);
 
-        // the list should be empty again
         QVERIFY(!queue.hasPreparedDabs());
         QCOMPARE(queue.testingGetQueueSize(), 3);
     }
 
     {
-        // we've completed job1
         job1->originalDevice = new KisFixedPaintDevice(cs);
         job1->postprocessedDevice = job1->originalDevice;
 
         jobs = queue.notifyJobFinished(job1->seqNo);
         QVERIFY(jobs.isEmpty());
 
-        // now we should have at least one job in prepared state
         QVERIFY(queue.hasPreparedDabs());
 
-        // take the prepared dabs
         renderedDabs = queue.takeReadyDabs();
         QCOMPARE(renderedDabs.size(), 3);
 
-        // since they are copies, they should be the same
         QCOMPARE(renderedDabs[1].device, renderedDabs[0].device);
         QCOMPARE(renderedDabs[2].device, renderedDabs[0].device);
 
-        // the list should be empty again
         QVERIFY(!queue.hasPreparedDabs());
 
-        // we delete all the painted jobs except the latest 'dab' job
         QCOMPARE(queue.testingGetQueueSize(), 1);
     }
 
     {
-        // add one more cached job and take it
         cacheInterface->typeOverride = KisDabRenderingJob::Copy;
         KisDabRenderingJobSP job = queue.addDab(request2, OPACITY_OPAQUE_F, OPACITY_OPAQUE_F);
         QVERIFY(!job);
 
-        // now we should have at least one job in prepared state
         QVERIFY(queue.hasPreparedDabs());
 
-        // take the prepared dabs
         renderedDabs = queue.takeReadyDabs();
         QCOMPARE(renderedDabs.size(), 1);
 
-        // the list should be empty again
         QVERIFY(!queue.hasPreparedDabs());
 
-        // we delete all the painted jobs except the latest 'dab' job
         QCOMPARE(queue.testingGetQueueSize(), 1);
     }
 
     {
-        // add a 'dab' job and complete it
 
         cacheInterface->typeOverride = KisDabRenderingJob::Dab;
         KisDabRenderingJobSP job = queue.addDab(request1, OPACITY_OPAQUE_F, OPACITY_OPAQUE_F);
@@ -197,7 +178,6 @@ void KisDabRenderingQueueTest::testCachedDabs()
         QVERIFY(!job->originalDevice);
         QVERIFY(!job->postprocessedDevice);
 
-        // now the queue can be cleared from the completed dabs!
         QCOMPARE(queue.testingGetQueueSize(), 1);
 
         job->originalDevice = new KisFixedPaintDevice(cs);
@@ -206,18 +186,13 @@ void KisDabRenderingQueueTest::testCachedDabs()
         jobs = queue.notifyJobFinished(job->seqNo);
         QVERIFY(jobs.isEmpty());
 
-        // now we should have at least one job in prepared state
         QVERIFY(queue.hasPreparedDabs());
 
-        // take the prepared dabs
         renderedDabs = queue.takeReadyDabs();
         QCOMPARE(renderedDabs.size(), 1);
 
-        // the list should be empty again
         QVERIFY(!queue.hasPreparedDabs());
 
-        // we do not delete the queue of jobs until the next 'dab'
-        // job arrives
         QCOMPARE(queue.testingGetQueueSize(), 1);
     }
 
@@ -270,36 +245,29 @@ void KisDabRenderingQueueTest::testPostprocessedDabs()
     KisDabRenderingJobSP job3 = queue.addDab(request2, OPACITY_OPAQUE_F, OPACITY_OPAQUE_F);
     QVERIFY(!job3);
 
-    // we only added the dabs, but we haven't completed them yet
     QVERIFY(!queue.hasPreparedDabs());
     QCOMPARE(queue.testingGetQueueSize(), 4);
 
     QList<KisDabRenderingJobSP > jobs;
     QList<KisRenderedDab> renderedDabs;
 
-
     {
-        // we've completed job0
         job0->originalDevice = new KisFixedPaintDevice(cs);
         job0->postprocessedDevice = job0->originalDevice;
 
         jobs = queue.notifyJobFinished(job0->seqNo);
         QVERIFY(jobs.isEmpty());
 
-        // now we should have at least one job in prepared state
         QVERIFY(queue.hasPreparedDabs());
 
-        // take the prepared dabs
         renderedDabs = queue.takeReadyDabs();
         QCOMPARE(renderedDabs.size(), 1);
 
-        // the list should be empty again
         QVERIFY(!queue.hasPreparedDabs());
         QCOMPARE(queue.testingGetQueueSize(), 3);
     }
 
     {
-        // we've completed job1
         job1->originalDevice = new KisFixedPaintDevice(cs);
         job1->postprocessedDevice = job1->originalDevice;
 
@@ -315,22 +283,16 @@ void KisDabRenderingQueueTest::testPostprocessedDabs()
         QVERIFY(jobs[1]->originalDevice);
         QVERIFY(!jobs[1]->postprocessedDevice);
 
-        // pretend we have created a postprocessed device
         jobs[0]->postprocessedDevice = new KisFixedPaintDevice(cs);
         jobs[1]->postprocessedDevice = new KisFixedPaintDevice(cs);
 
-        // now we should have at least one job in prepared state
         QVERIFY(queue.hasPreparedDabs());
 
-        // take the prepared dabs
         renderedDabs = queue.takeReadyDabs();
         QCOMPARE(renderedDabs.size(), 1);
 
-        // the list should be empty again
         QVERIFY(!queue.hasPreparedDabs());
 
-
-        // return back two postprocessed dabs
         QList<KisDabRenderingJobSP > emptyJobs;
         emptyJobs = queue.notifyJobFinished(jobs[0]->seqNo);
         QVERIFY(emptyJobs.isEmpty());
@@ -338,23 +300,17 @@ void KisDabRenderingQueueTest::testPostprocessedDabs()
         emptyJobs = queue.notifyJobFinished(jobs[1]->seqNo);
         QVERIFY(emptyJobs.isEmpty());
 
-
-        // now we should have at least one job in prepared state
         QVERIFY(queue.hasPreparedDabs());
 
-        // take the prepared dabs
         renderedDabs = queue.takeReadyDabs();
         QCOMPARE(renderedDabs.size(), 2);
 
-        // the list should be empty again
         QVERIFY(!queue.hasPreparedDabs());
 
-        // we delete all the painted jobs except the latest 'dab' job
         QCOMPARE(queue.testingGetQueueSize(), 1);
     }
 
     {
-        // add one more postprocessed job and take it
         cacheInterface->typeOverride = KisDabRenderingJob::Postprocess;
         KisDabRenderingJobSP job = queue.addDab(request2, OPACITY_OPAQUE_F, OPACITY_OPAQUE_F);
 
@@ -367,33 +323,25 @@ void KisDabRenderingQueueTest::testPostprocessedDabs()
         QVERIFY(job->originalDevice);
         QVERIFY(!job->postprocessedDevice);
 
-        // the list should still be empty
         QVERIFY(!queue.hasPreparedDabs());
 
-        // pretend we have created a postprocessed device
         job->postprocessedDevice = new KisFixedPaintDevice(cs);
 
-        // return back the postprocessed dab
         QList<KisDabRenderingJobSP > emptyJobs;
         emptyJobs = queue.notifyJobFinished(job->seqNo);
         QVERIFY(emptyJobs.isEmpty());
 
-        // now we should have at least one job in prepared state
         QVERIFY(queue.hasPreparedDabs());
 
-        // take the prepared dabs
         renderedDabs = queue.takeReadyDabs();
         QCOMPARE(renderedDabs.size(), 1);
 
-        // the list should be empty again
         QVERIFY(!queue.hasPreparedDabs());
 
-        // we delete all the painted jobs except the latest 'dab' job
         QCOMPARE(queue.testingGetQueueSize(), 1);
     }
 
     {
-        // add a 'dab' job and complete it. That will clear the queue!
 
         cacheInterface->typeOverride = KisDabRenderingJob::Dab;
         KisDabRenderingJobSP job = queue.addDab(request1, OPACITY_OPAQUE_F, OPACITY_OPAQUE_F);
@@ -405,7 +353,6 @@ void KisDabRenderingQueueTest::testPostprocessedDabs()
         QVERIFY(!job->originalDevice);
         QVERIFY(!job->postprocessedDevice);
 
-        // now the queue can be cleared from the completed dabs!
         QCOMPARE(queue.testingGetQueueSize(), 1);
 
         job->originalDevice = new KisFixedPaintDevice(cs);
@@ -414,18 +361,13 @@ void KisDabRenderingQueueTest::testPostprocessedDabs()
         jobs = queue.notifyJobFinished(job->seqNo);
         QVERIFY(jobs.isEmpty());
 
-        // now we should have at least one job in prepared state
         QVERIFY(queue.hasPreparedDabs());
 
-        // take the prepared dabs
         renderedDabs = queue.takeReadyDabs();
         QCOMPARE(renderedDabs.size(), 1);
 
-        // the list should be empty again
         QVERIFY(!queue.hasPreparedDabs());
 
-        // we do not delete the queue of jobs until the next 'dab'
-        // job arrives
         QCOMPARE(queue.testingGetQueueSize(), 1);
     }
 
@@ -438,11 +380,9 @@ void KisDabRenderingQueueTest::testRunningJobs()
     const KoColorSpace *cs = KoColorSpaceRegistry::instance()->rgb8();
 
     KisDabRenderingQueueCache *cacheInterface = new KisDabRenderingQueueCache();
-    // we do *not* initialize any options yet!
 
     KisDabRenderingQueue queue(cs, testResourcesFactory);
     queue.setCacheInterface(cacheInterface);
-
 
     KoColor color(Qt::red, cs);
     QPointF pos1(10,10);
@@ -479,7 +419,6 @@ void KisDabRenderingQueueTest::testRunningJobs()
     QList<KisRenderedDab> renderedDabs = queue.takeReadyDabs();
     QCOMPARE(renderedDabs.size(), 2);
 
-    // we did the caching
     QVERIFY(renderedDabs[0].device == renderedDabs[1].device);
 
     QCOMPARE(renderedDabs[0].offset, QPoint(5,5));
@@ -513,7 +452,6 @@ void KisDabRenderingQueueTest::testExecutor()
     QList<KisRenderedDab> renderedDabs = executor.takeReadyDabs();
     QCOMPARE(renderedDabs.size(), 2);
 
-    // we did the caching
     QVERIFY(renderedDabs[0].device == renderedDabs[1].device);
 
     QCOMPARE(renderedDabs[0].offset, QPoint(5,5));

@@ -58,12 +58,6 @@ public:
     }
 };
 
-/**
- * This view draws the children of every index in the first column of 
- * the model inside the parent
- *
- * */
-
 StoryboardView::StoryboardView(QWidget *parent)
     : QListView(parent)
     , m_itemOrientation(Qt::Vertical)
@@ -84,7 +78,6 @@ StoryboardView::StoryboardView(QWidget *parent)
     setDragDropMode(QAbstractItemView::InternalMove);
 
     QStyle *newStyle = QStyleFactory::create(this->style()->objectName());
-    // proxy style steals the ownership of the style and deletes it later
     StoryboardStyle *proxyStyle = new StoryboardStyle(newStyle);
     proxyStyle->setParent(this);
     setStyle(proxyStyle);
@@ -104,7 +97,6 @@ void StoryboardView::paintEvent(QPaintEvent *event)
     event->accept();
     QListView::paintEvent(event);
 
-    //ask delegate to draw the child nodes too
     QPainter painter(viewport());
     int itemNum = model()->rowCount();
     for (int row = 0; row < itemNum; row++) {
@@ -131,20 +123,6 @@ void StoryboardView::paintEvent(QPaintEvent *event)
 
 QRect StoryboardView::visualRect(const QModelIndex &index) const
 {
-    /*
-     *    fw = fontWidth
-     * 
-     *  (3*fw+2),        (5*fw+10)  _____ (4*fw+10)
-     *    |                |       /
-     *    |                |      /
-     *   ,_________________________,
-     *   |__|_____________|____|___|  ---------->(fontHeight)
-     *   |                         |
-     *   |                         |
-     *   |                         |
-     *   |                         |
-     *   |_________________________|
-     */
 
     if (!index.isValid() || !index.parent().isValid()) {
         return QListView::visualRect(index);
@@ -166,8 +144,7 @@ QRect StoryboardView::visualRect(const QModelIndex &index) const
         switch (childRow)
         {
             case StoryboardItem::FrameNumber:
-            {   
-                //the frame thumbnail rect
+            {
                 if (!thumbnailIsVisible()) {
                     parentRect.setSize(QSize(3*numericFontWidth + 2, fontHeight));
                     return parentRect;
@@ -200,7 +177,6 @@ QRect StoryboardView::visualRect(const QModelIndex &index) const
             }
             default:
             {
-                //comment rect
                 if (!commentIsVisible()) {
                     return QRect();
                 }
@@ -235,7 +211,6 @@ QModelIndex StoryboardView::indexAt(const QPoint &point) const
 {
     QModelIndex index = QListView::indexAt(point);
     if (index.isValid()) {
-        //look for the index in children of the current index
         int numChild = model()->rowCount(index);
         for (int row = 0; row < numChild; row++) {
             QRect childRect = visualRect(model()->index(row, 0, index));
@@ -337,8 +312,6 @@ void StoryboardView::setCurrentItem(int frame)
 void StoryboardView::mouseReleaseEvent(QMouseEvent *event) {
     QModelIndex index = indexAt(event->pos());
 
-    // To prevent selection changes from occurring when hitting the "plus" button,
-    // we want to filter out these inputs before passing it up to QListView / QAbstractItemView
     if (index.isValid() && index.parent().isValid() && index.row() == StoryboardItem::FrameNumber) {
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
         StoryboardDelegate* sbDelegate = dynamic_cast<StoryboardDelegate*>(itemDelegate(index));

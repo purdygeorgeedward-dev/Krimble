@@ -22,7 +22,6 @@
 
 #include <QMap>
 
-
 const KoID KisKeyframeChannel::Raster = KoID("content", ki18n("Content"));
 const KoID KisKeyframeChannel::Opacity = KoID("opacity", ki18n("Opacity"));
 const KoID KisKeyframeChannel::PositionX = KoID("transform_pos_x", ki18n("Position (X)"));
@@ -69,7 +68,6 @@ KoID KisKeyframeChannel::channelIdToKoId(const QString &id)
     return channelId;
 }
 
-
 struct KisKeyframeChannel::Private
 {
     Private(const KoID &temp_id, KisDefaultBoundsBaseSP tmp_bounds) {
@@ -83,18 +81,16 @@ struct KisKeyframeChannel::Private
     }
 
     KoID id;
-    QMap<int, KisKeyframeSP> keys; /**< Maps unique times to individual keyframes. */
-    KisDefaultBoundsBaseSP bounds; /**< Stores pixel dimensions as well as current time. */
+    QMap<int, KisKeyframeSP> keys;
+    KisDefaultBoundsBaseSP bounds;
 
     KisNodeWSP parentNode;
     bool haveBrokenFrameTimeBug = false;
 };
 
-
 KisKeyframeChannel::KisKeyframeChannel(const KoID &id, KisDefaultBoundsBaseSP bounds)
     : m_d(new Private(id, bounds))
 {
-    // Added keyframes should fire channel updated signal..
     connect(this, &KisKeyframeChannel::sigAddedKeyframe, [this](const KisKeyframeChannel *, int) {
         Q_EMIT sigAnyKeyframeChange();
     });
@@ -130,7 +126,6 @@ void KisKeyframeChannel::insertKeyframe(int time, KisKeyframeSP keyframe, KUndo2
     KIS_ASSERT(keyframe);
 
     if (m_d->keys.contains(time)) {
-        // Properly remove overwritten frames.
         removeKeyframe(time, parentUndoCmd);
     }
 
@@ -175,7 +170,6 @@ void KisKeyframeChannel::moveKeyframe(KisKeyframeChannel *sourceChannel, int sou
 
     KisKeyframeSP targetKeyframe = sourceKeyframe;
     if (sourceChannel != targetChannel) {
-        // When "moving" Keyframes between channels, a new copy is made for that channel.
         targetKeyframe = sourceKeyframe->duplicate(targetChannel);
         KIS_SAFE_ASSERT_RECOVER_RETURN(targetKeyframe);
     }
@@ -200,14 +194,11 @@ void KisKeyframeChannel::swapKeyframes(KisKeyframeChannel *channelA, int timeA, 
 {
     KIS_ASSERT(channelA && channelB);
 
-    // Store B.
     KisKeyframeSP keyframeB = channelB->keyframeAt(timeB);
     if (!keyframeB) return;
 
-    // Move A -> B
     moveKeyframe(channelA, timeA, channelB, timeB, parentUndoCmd);
 
-    // Insert B -> A
     if (channelA != channelB) {
         keyframeB = keyframeB->duplicate(channelA);
         KIS_SAFE_ASSERT_RECOVER_RETURN(keyframeB);
@@ -234,7 +225,6 @@ int KisKeyframeChannel::activeKeyframeTime(int time) const
 {
     QMap<int, KisKeyframeSP>::const_iterator iter = const_cast<const QMap<int, KisKeyframeSP>*>(&m_d->keys)->upperBound(time);
 
-    // If the next keyframe is the first keyframe, that means there's no active frame.
     if (iter == m_d->keys.constBegin()) {
         return -1;
     }
@@ -327,7 +317,7 @@ QString KisKeyframeChannel::name() const
 
 void KisKeyframeChannel::setNode(KisNodeWSP node)
 {
-    if (m_d->parentNode.isValid()) { // Disconnect old..
+    if (m_d->parentNode.isValid()) {
         disconnect(this, &KisKeyframeChannel::sigAddedKeyframe, m_d->parentNode, &KisNode::handleKeyframeChannelFrameAdded);
         disconnect(this, &KisKeyframeChannel::sigKeyframeAboutToBeRemoved, m_d->parentNode, &KisNode::handleKeyframeChannelFrameAboutToBeRemoved);
         disconnect(this, &KisKeyframeChannel::sigKeyframeHasBeenRemoved, m_d->parentNode, &KisNode::handleKeyframeChannelFrameHasBeenRemoved);
@@ -337,7 +327,7 @@ void KisKeyframeChannel::setNode(KisNodeWSP node)
     m_d->parentNode = node;
     m_d->bounds = KisDefaultBoundsNodeWrapperSP( new KisDefaultBoundsNodeWrapper( node ));
 
-    if (m_d->parentNode) { // Connect new..
+    if (m_d->parentNode) {
         connect(this, &KisKeyframeChannel::sigAddedKeyframe, m_d->parentNode, &KisNode::handleKeyframeChannelFrameAdded, Qt::DirectConnection);
         connect(this, &KisKeyframeChannel::sigKeyframeAboutToBeRemoved, m_d->parentNode, &KisNode::handleKeyframeChannelFrameAboutToBeRemoved, Qt::DirectConnection);
         connect(this, &KisKeyframeChannel::sigKeyframeHasBeenRemoved, m_d->parentNode, &KisNode::handleKeyframeChannelFrameHasBeenRemoved, Qt::DirectConnection);
@@ -376,12 +366,10 @@ KisTimeSpan KisKeyframeChannel::affectedFrames(int time) const
     const int activeKeyTime = activeKeyframeTime(time);
     const int nextKeyTime = nextKeyframeTime(time);
 
-    // Check for keyframe behind..
     if (!keyframeAt(activeKeyTime)) {
         return KisTimeSpan::fromTimeToTime(0, nextKeyTime - 1);
     }
 
-    // Check for keyframe ahead..
     if (!keyframeAt(nextKeyTime)) {
         return KisTimeSpan::infinite(activeKeyTime);
     }

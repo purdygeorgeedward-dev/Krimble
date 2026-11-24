@@ -14,7 +14,6 @@
 #include <kis_shared.h>
 #include <kis_shared_ptr.h>
 
-
 void KisMplTest::testFoldOptional()
 {
     std::optional<int> a(0x1);
@@ -101,11 +100,7 @@ void KisMplTest::testMemberOperatorsEqualTo()
     int &vref = v;
     const int &vconstref = v;
 
-
     std::vector<Struct> vec({{0},{1},{2},{3}});
-
-    ////////////////////////////////////////
-    // compare member variable against value
 
     {
         auto it = std::find_if(vec.begin(), vec.end(), kismpl::mem_equal_to(&Struct::id, v));
@@ -113,24 +108,17 @@ void KisMplTest::testMemberOperatorsEqualTo()
         QCOMPARE(std::distance(vec.begin(), it), 1);
     }
 
-    // compare member variable against reference
-
     {
         auto it = std::find_if(vec.begin(), vec.end(), kismpl::mem_equal_to(&Struct::id, vref));
         QVERIFY(it != vec.end());
         QCOMPARE(std::distance(vec.begin(), it), 1);
     }
 
-    // compare member variable against const reference
-
     {
         auto it = std::find_if(vec.begin(), vec.end(), kismpl::mem_equal_to(&Struct::id, vconstref));
         QVERIFY(it != vec.end());
         QCOMPARE(std::distance(vec.begin(), it), 1);
     }
-
-    ////////////////////////////////////////
-    // compare member function against value
 
     {
         auto it = std::find_if(vec.begin(), vec.end(), kismpl::mem_equal_to(&Struct::idConstFunc, v));
@@ -138,15 +126,11 @@ void KisMplTest::testMemberOperatorsEqualTo()
         QCOMPARE(std::distance(vec.begin(), it), 1);
     }
 
-    // compare member function against reference
-
     {
         auto it = std::find_if(vec.begin(), vec.end(), kismpl::mem_equal_to(&Struct::id, vref));
         QVERIFY(it != vec.end());
         QCOMPARE(std::distance(vec.begin(), it), 1);
     }
-
-    // compare member function against const reference
 
     {
         auto it = std::find_if(vec.begin(), vec.end(), kismpl::mem_equal_to(&Struct::id, vconstref));
@@ -154,16 +138,11 @@ void KisMplTest::testMemberOperatorsEqualTo()
         QCOMPARE(std::distance(vec.begin(), it), 1);
     }
 
-    ////////////////////////////////////////
-    // compare overloaded member function against value
-
     {
         auto it = std::find_if(vec.begin(), vec.end(), kismpl::mem_equal_to(qConstOverload<>(&Struct::overloaded), v));
         QVERIFY(it != vec.end());
         QCOMPARE(std::distance(vec.begin(), it), 1);
     }
-
-    // compare member function against reference
 
     {
         auto it = std::find_if(vec.begin(), vec.end(), kismpl::mem_equal_to(qConstOverload<>(&Struct::overloaded), vref));
@@ -171,15 +150,11 @@ void KisMplTest::testMemberOperatorsEqualTo()
         QCOMPARE(std::distance(vec.begin(), it), 1);
     }
 
-    // compare member function against const reference
-
     {
         auto it = std::find_if(vec.begin(), vec.end(), kismpl::mem_equal_to(qConstOverload<>(&Struct::overloaded), vconstref));
         QVERIFY(it != vec.end());
         QCOMPARE(std::distance(vec.begin(), it), 1);
     }
-
-    // compare non-const member function against const reference
 
     {
         auto it = std::find_if(vec.begin(), vec.end(), kismpl::mem_equal_to(&Struct::idFunc, vconstref));
@@ -187,15 +162,11 @@ void KisMplTest::testMemberOperatorsEqualTo()
         QCOMPARE(std::distance(vec.begin(), it), 1);
     }
 
-    // compare non-const noexcept member function against const reference
-
     {
         auto it = std::find_if(vec.begin(), vec.end(), kismpl::mem_equal_to(&Struct::idNoexceptFunc, vconstref));
         QVERIFY(it != vec.end());
         QCOMPARE(std::distance(vec.begin(), it), 1);
     }
-
-    // compare const noexcept member function against const reference
 
     {
         auto it = std::find_if(vec.begin(), vec.end(), kismpl::mem_equal_to(&Struct::idConstNoexceptFunc, vconstref));
@@ -223,7 +194,6 @@ void KisMplTest::testMemberOperatorsEqualToStdSharedPtr()
                                               std::make_shared<Struct>(2),
                                               std::make_shared<Struct>(3),
                                               std::make_shared<Struct>(4)});
-
 
     {
         auto it = std::find_if(vec.begin(), vec.end(), kismpl::mem_equal_to(&Struct::id, 1));
@@ -342,7 +312,6 @@ void KisMplTest::testMemberOperatorsLess()
                                                           std::make_shared<StructExplicit>(3),
                                                           std::make_shared<StructExplicit>(4)});
 
-
         auto it = std::lower_bound(vec.begin(), vec.end(), 2, kismpl::mem_less(&StructExplicit::id));
         QVERIFY(it != vec.end());
         QCOMPARE(std::distance(vec.begin(), it), 2);
@@ -354,7 +323,6 @@ void KisMplTest::testMemberOperatorsLess()
                                                           std::make_shared<StructExplicit>(2),
                                                           std::make_shared<StructExplicit>(3),
                                                           std::make_shared<StructExplicit>(4)});
-
 
         auto it = std::lower_bound(vec.begin(), vec.end(), 2, kismpl::mem_less(&StructExplicit::idConstFunc));
         QVERIFY(it != vec.end());
@@ -558,6 +526,5 @@ void KisMplTest::testMemberOperatorsAccumulateToKisSharedPtr()
         QCOMPARE(result, 4);
     }
 }
-
 
 SIMPLE_TEST_MAIN(KisMplTest)

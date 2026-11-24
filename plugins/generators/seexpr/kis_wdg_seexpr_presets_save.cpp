@@ -29,8 +29,6 @@ KisWdgSeExprPresetsSave::KisWdgSeExprPresetsSave(QWidget *parent)
     : KisWdgSeExprSavePreset(parent)
     , m_currentPreset(nullptr)
 {
-    // we will default to reusing the previous preset thumbnail
-    // have that checked by default, hide the other elements, and load the last preset image
     connect(loadExistingThumbnailButton, SIGNAL(clicked(bool)), this, SLOT(loadExistingThumbnail()));
     connect(loadImageIntoThumbnailButton, SIGNAL(clicked(bool)), this, SLOT(loadImageFromFile()));
     connect(loadRenderFromScriptButton, SIGNAL(clicked(bool)), this, SLOT(renderScriptToThumbnail()));
@@ -61,15 +59,12 @@ void KisWdgSeExprPresetsSave::showDialog()
 {
     setModal(true);
 
-    // set the name of the current preset area.
     KisSeExprScriptSP preset = m_currentPreset;
 
-    // UI will look a bit different if we are saving a new preset
     if (m_useNewPresetDialog) {
         setWindowTitle(i18n("Save New SeExpr Preset"));
 
         if (preset) {
-            // If the id is -1, this is a new preset that has never been saved, so it cannot be a copy
             QString name = preset->name().replace("_", " ");
             if (preset->resourceId() > -1) {
                 name = QString("%1 %2").arg(name, i18n("Copy"));
@@ -98,17 +93,15 @@ void KisWdgSeExprPresetsSave::showDialog()
 
 void KisWdgSeExprPresetsSave::loadImageFromFile()
 {
-    // create a dialog to retrieve an image file.
     KoFileDialog dialog(0, KoFileDialog::OpenFile, "OpenDocument");
     dialog.setMimeTypeFilters(KisImportExportManager::supportedMimeTypes(KisImportExportManager::Import));
     dialog.setDefaultDir(QStandardPaths::writableLocation(QStandardPaths::HomeLocation));
-    QString filename = dialog.filename(); // the filename() returns the entire path & file name, not just the file name
+    QString filename = dialog.filename();
 
-    if (!filename.isEmpty()) { // empty if "cancel" is pressed
-        // take that file and load it into the thumbnail are
+    if (!filename.isEmpty()) {
         const QImage imageToLoad(filename);
 
-        presetThumbnailWidget->clear(); // clear the background in case our new image has transparency
+        presetThumbnailWidget->clear();
         presetThumbnailWidget->setPixmap(QPixmap::fromImage(imageToLoad));
     }
 }
@@ -121,7 +114,6 @@ void KisWdgSeExprPresetsSave::loadExistingThumbnail()
 void KisWdgSeExprPresetsSave::renderScriptToThumbnail()
 {
     if (m_currentConfiguration) {
-        // TODO add some sort of progress marker?
         KisDefaultBoundsBaseSP bounds(new KisWrapAroundBoundsWrapper(new KisDefaultBounds(), QRect(0, 0, 256, 256)));
         KisPaintDeviceSP src = new KisPaintDevice(KoColorSpaceRegistry::instance()->rgb8());
         src->setDefaultBounds(bounds);
@@ -143,7 +135,6 @@ void KisWdgSeExprPresetsSave::savePreset()
     bool r = true;
 
     if (idx.isValid() && !m_useNewPresetDialog) {
-        // saving a preset that is replacing an existing one
         const QString presetFileName = m_currentPreset->name().split(" ").join("_");
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
         if (!presetThumbnailWidget->pixmap()->isNull()) {
@@ -162,8 +153,6 @@ void KisWdgSeExprPresetsSave::savePreset()
             Q_EMIT resourceSelected(m_currentPreset);
         }
     } else {
-        // Saving a completely new preset
-        // Clone the preset, otherwise the modifications will impact the existing resource
         KisSeExprScriptSP newPreset = m_currentPreset->clone().dynamicCast<KisSeExprScript>();
 
         if (newPreset) {
@@ -184,7 +173,6 @@ void KisWdgSeExprPresetsSave::savePreset()
 
             r = KisResourceUserOperations::addResourceWithUserInput(this, newPreset);
 
-            // trying to get brush preset to load after it is created
             if (r) {
                 m_currentPreset = newPreset;
                 Q_EMIT resourceSelected(m_currentPreset);
@@ -192,7 +180,7 @@ void KisWdgSeExprPresetsSave::savePreset()
         }
     }
 
-    close(); // we are done... so close the save brush dialog
+    close();
 }
 
 void KisWdgSeExprPresetsSave::useNewPresetDialog(bool show)

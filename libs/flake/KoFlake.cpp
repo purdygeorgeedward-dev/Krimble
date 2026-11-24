@@ -164,7 +164,6 @@ void findMinMaxPoints(const QPolygonF &poly, int *minPoint, int *maxPoint, std::
 
 }
 
-
 Qt::Orientation KoFlake::significantScaleOrientation(qreal scaleX, qreal scaleY)
 {
     const qreal scaleXDeviation = qAbs(1.0 - scaleX);
@@ -221,28 +220,6 @@ void KoFlake::resizeShape(KoShape *shape, qreal scaleX, qreal scaleY,
 
         const QRectF rect = shape->outlineRect();
 
-        /**
-         * The basic idea of such global scaling:
-         *
-         * 1) We choose two the most distant points of the original outline rect
-         * 2) Calculate their expected position if transformed using `uniformGlobalTransform`
-         * 3) NOTE1: we do not transform the entire shape using `uniformGlobalTransform`,
-         *           because it will cause massive shearing. We transform only two points
-         *           and adjust other points using dumb scaling.
-         * 4) NOTE2: given that `scale` transform is much more simpler than
-         *           `uniformGlobalTransform`, we cannot guarantee equivalent changes on
-         *           both globalScaleX and globalScaleY at the same time. We can guarantee
-         *           only one of them. Therefore we select the most "important" axis and
-         *           guarantee scale along it. The scale along the other direction is not
-         *           controlled.
-         * 5) After we have the two most distant points, we can just calculate the scale
-         *    by dividing difference between their expected and original positions. This
-         *    formula can be derived from equation:
-         *
-         *    localPoint_i * ScaleMatrix = localPoint_i * UniformGlobalTransform = expectedPoint_i
-         */
-
-        // choose the most significant scale direction
         Qt::Orientation significantOrientation = significantScaleOrientation(scaleX, scaleY);
 
         std::function<qreal(const QPointF&)> dimension;
@@ -258,8 +235,6 @@ void KoFlake::resizeShape(KoShape *shape, qreal scaleX, qreal scaleY,
             };
         }
 
-        // find min and max points (in absolute coordinates),
-        // by default use top-left and bottom-right
         QPolygonF localPoints(rect);
         QPolygonF globalPoints = shape->absoluteTransformation().map(localPoints);
 
@@ -268,7 +243,6 @@ void KoFlake::resizeShape(KoShape *shape, qreal scaleX, qreal scaleY,
 
         findMinMaxPoints(globalPoints, &minPointIndex, &maxPointIndex, dimension);
 
-        // calculate the scale using the extremum points
         const QPointF minPoint = localPoints[minPointIndex];
         const QPointF maxPoint = localPoints[maxPointIndex];
 
@@ -285,11 +259,6 @@ void KoFlake::resizeShape(KoShape *shape, qreal scaleX, qreal scaleY,
     const QSizeF newSize(oldSize.width() * qAbs(scaleX), oldSize.height() * qAbs(scaleY));
 
     const QTransform mirrorTransform = QTransform::fromScale(signPZ(scaleX), signPZ(scaleY));
-
-    /**
-     * NOTE: when resizing a shape we expect top-left corner in parent's
-     *       coordinates to keep it's position.
-     */
 
     shape->setSize(newSize);
 

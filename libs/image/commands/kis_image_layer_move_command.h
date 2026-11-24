@@ -14,21 +14,10 @@
 #include "kis_types.h"
 #include "kis_image_command.h"
 
-/// The command for layer moves inside the layer stack
 class KRITAIMAGE_EXPORT KisImageLayerMoveCommand : public KisImageCommand
 {
 
-
 public:
-    /**
-     * Command for layer moves inside the layer stack
-     *
-     * @param image the image
-     * @param node the moved node
-     * @param newParent the next parent of the layer
-     * @param newAbove the layer that will be below the layer after the move
-     * @param doUpdates whether to do updates
-     */
     KisImageLayerMoveCommand(KisImageWSP image, KisNodeSP node, KisNodeSP newParent, KisNodeSP newAbove, bool doUpdates = true);
     KisImageLayerMoveCommand(KisImageWSP image, KisNodeSP node, KisNodeSP newParent, quint32 index);
 

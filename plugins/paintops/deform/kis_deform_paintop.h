@@ -57,4 +57,4 @@ private:
     qreal m_spacing;
 };
 
-#endif // KIS_DEFORMPAINTOP_H_
+#endif

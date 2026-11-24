@@ -135,4 +135,4 @@ private:
     KisLocklessStack<KisSelectionSP> m_stack;
 };
 
-#endif /* __KIS_CACHED_PAINT_DEVICE_H */
+#endif

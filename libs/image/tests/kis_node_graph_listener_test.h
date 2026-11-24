@@ -21,7 +21,6 @@ public:
     }
 };
 
-
 class KisNodeGraphListenerTest : public QObject
 {
     Q_OBJECT

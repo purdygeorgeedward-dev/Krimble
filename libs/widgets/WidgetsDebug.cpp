@@ -12,4 +12,3 @@ const QLoggingCategory &WIDGETS_LOG() \
     return category;
 }
 
-

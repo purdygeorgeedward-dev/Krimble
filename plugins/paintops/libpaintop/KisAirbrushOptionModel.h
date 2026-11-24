@@ -12,7 +12,6 @@
 
 #include "KisAirbrushOptionData.h"
 
-
 class KisAirbrushOptionModel : public QObject
 {
     Q_OBJECT
@@ -25,4 +24,4 @@ public:
     LAGER_QT_CURSOR(bool, ignoreSpacing);
 };
 
-#endif // KISAIRBRUSHOPTIONMODEL_H
+#endif

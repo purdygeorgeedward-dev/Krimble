@@ -194,8 +194,6 @@ QVector<QPointF> KisMagneticWorker::computeEdge(int bounds, QPoint begin, QPoint
 
     m_graph = new KisMagneticGraph(m_lazyTileFilter.device(), rect);
 
-    // How many maps does it require?
-    // Take a look here, if it doesn't make sense, https://www.boost.org/doc/libs/1_70_0/libs/graph/doc/astar_search.html
     PredecessorMap pmap;
     DistanceMap dmap(std::numeric_limits<double>::max());
     dmap[start] = 0;
@@ -229,7 +227,7 @@ QVector<QPointF> KisMagneticWorker::computeEdge(int bounds, QPoint begin, QPoint
     result.push_front(QPoint(start.x, start.y));
 
     return result;
-} // KisMagneticWorker::computeEdge
+}
 
 qreal KisMagneticWorker::intensity(QPoint pt)
 {
@@ -271,4 +269,4 @@ void KisMagneticWorker::saveTheImage(vQPointF points)
     }
 
     img.save("result.png");
-} // KisMagneticWorker::saveTheImage
+}

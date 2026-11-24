@@ -46,20 +46,17 @@ private Q_SLOTS:
     void setUseAngle(bool useAngle);
     void setStrokeWidth(double width);
     void setThinning(double thinning);
-    void setAngle(int angle);   // set the angle in degrees
+    void setAngle(int angle);
     void setFixation(double fixation);
     void setCaps(double caps);
-    void setMass(double mass);  // set the mass in user friendly format
+    void setMass(double mass);
     void setDrag(double drag);
 
     void updateSelectedPath();
 
 private:
     void addPoint(KoPointerEvent *event);
-    // auxiliary function that sets m_angle
     void setAngle(KoPointerEvent *event);
-    // auxiliary functions to calculate the dynamic parameters
-    // returns the new point and sets speed to the speed
     QPointF calculateNewPoint(const QPointF &mousePos, QPointF *speed);
     qreal calculateWidth(qreal pressure);
     qreal calculateAngle(const QPointF &oldSpeed, const QPointF &newSpeed);
@@ -67,21 +64,20 @@ private:
     QPointF m_lastPoint;
     KarbonCalligraphicShape *m_shape;
 
-    // used to determine if the device supports tilt
     bool m_deviceSupportsTilt;
 
-    bool m_usePath;         // follow selected path
-    bool m_usePressure;     // use tablet pressure
-    bool m_useAngle;        // use tablet angle
+    bool m_usePath;
+    bool m_usePressure;
+    bool m_useAngle;
     qreal m_strokeWidth;
     qreal m_lastWidth;
-    qreal m_customAngle;   // angle set by the user
-    qreal m_angle;  // angle to use, may use the device angle, in radians!!!
+    qreal m_customAngle;
+    qreal m_angle;
     qreal m_fixation;
     qreal m_thinning;
     qreal m_caps;
-    qreal m_mass;  // in raw format (not user friendly)
-    qreal m_drag;  // from 0.0 to 1.0
+    qreal m_mass;
+    qreal m_drag;
 
     KoPathShape *m_selectedPath;
     QPainterPath m_selectedPathOutline;
@@ -92,10 +88,9 @@ private:
     bool m_isDrawing;
     int m_pointCount;
 
-    // dynamic parameters
-    QPointF m_speed; // used as a vector
+    QPointF m_speed;
 
     KarbonCalligraphyOptionWidget *m_widget {0};
 };
 
-#endif // KARBONCALLIGRAPHYTOOL_H
+#endif

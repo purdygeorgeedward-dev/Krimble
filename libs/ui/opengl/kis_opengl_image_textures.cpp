@@ -34,8 +34,6 @@
 #include "KisOpenGLBufferCreationGuard.h"
 #include <KisPlatformPluginInterfaceFactory.h>
 
-/// we use Angle's EGL on Windows, so we need access to
-/// EGL_ANGLE_platform_angle definition
 #if defined Q_OS_WIN && (defined QT_OPENGL_DYNAMIC || defined QT_OPENGL_ES_2_ANGLE)
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
@@ -53,7 +51,6 @@
 #define GL_BGRA 0x80E1
 #endif
 
-// GL_EXT_texture_format_BGRA8888
 #ifndef GL_BGRA_EXT
 #define GL_BGRA_EXT 0x80E1
 #endif
@@ -64,9 +61,6 @@
 #ifndef GL_RGBA16_EXT
 #define GL_RGBA16_EXT 0x805B
 #endif
-
-//#define DEBUG_BUFFER_REALLOCATION
-
 
 KisOpenGLImageTextures::KisOpenGLImageTextures()
     : m_image(0)
@@ -113,8 +107,6 @@ void KisOpenGLImageTextures::initGL(QOpenGLFunctions *f)
 
     getTextureSize(&m_texturesInfo);
 
-    // we use local static object for creating pools shared among
-    // different images
     static KisTextureTileInfoPoolRegistry s_poolRegistry;
     m_updateInfoBuilder.setTextureInfoPool(s_poolRegistry.getPool(m_texturesInfo.width, m_texturesInfo.height));
 
@@ -177,14 +169,12 @@ void KisOpenGLImageTextures::recreateImageTextureTiles()
         return;
     }
 
-
     m_storedImageBounds = m_image->bounds();
     const int lastCol = xToCol(m_image->width());
     const int lastRow = yToRow(m_image->height());
 
     m_numCols = lastCol + 1;
 
-    // Default color is transparent black
     const int pixelSize = tilesDestinationColorSpace->pixelSize();
     QByteArray emptyTileData((m_texturesInfo.width) * (m_texturesInfo.height) * pixelSize, 0);
 
@@ -224,8 +214,6 @@ void KisOpenGLImageTextures::recreateImageTextureTiles()
                 tileTextureRect.append(tile->tileRectInTexturePixels());
             }
         }
-
-
 
         {
             KisOpenGLBufferCreationGuard bufferGuard(&m_tileVertexBuffer,
@@ -281,7 +269,6 @@ KisOpenGLUpdateInfoSP KisOpenGLImageTextures::updateCacheNoConversion(const QRec
     return updateCacheImpl(rect, m_image, false);
 }
 
-// TODO: add sanity checks about the conformance of the passed srcImage!
 KisOpenGLUpdateInfoSP KisOpenGLImageTextures::updateCacheImpl(const QRect& rect, KisImageSP srcImage, bool convertColorSpace)
 {
     if (!m_initialized) return new KisOpenGLUpdateInfo();
@@ -319,7 +306,6 @@ void KisOpenGLImageTextures::recalculateCache(KisUpdateInfoSP info, bool blockMi
             qDebug() << "    increased number of buffers to" << m_bufferStorage.size();
 #endif
         }
-
 
         tile->update(*tileInfo, blockMipmapRegeneration);
 
@@ -359,7 +345,6 @@ void KisOpenGLImageTextures::generateCheckerTexture(const QImage &checkImage)
             img = checkImage.scaled(BACKGROUND_TEXTURE_SIZE, BACKGROUND_TEXTURE_SIZE);
         }
 
-        // convert from sRGB to display format, potentially HDR
         const KoColorSpace *temporaryColorSpace = KoColorSpaceRegistry::instance()->rgb8();
         const KoColorSpace *finalColorSpace =
                KoColorSpaceRegistry::instance()->colorSpace(RGBAColorModelID.id(),
@@ -380,8 +365,6 @@ void KisOpenGLImageTextures::generateCheckerTexture(const QImage &checkImage)
         f->glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, BACKGROUND_TEXTURE_SIZE, BACKGROUND_TEXTURE_SIZE,
                         0, format, type, checkers.data());
 
-        // QPainter::drawText relies on this.
-        // Ref: https://bugreports.qt.io/browse/QTBUG-65496
         f->glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
     }
     else {
@@ -434,7 +417,7 @@ void KisOpenGLImageTextures::testingForceInitialized()
     m_updateInfoBuilder.setEffectiveTextureSize(QSize(248, 248));
 }
 
-void KisOpenGLImageTextures::slotImageSizeChanged(qint32 /*w*/, qint32 /*h*/)
+void KisOpenGLImageTextures::slotImageSizeChanged(qint32 , qint32 )
 {
     recreateImageTextureTiles();
 }
@@ -451,7 +434,6 @@ const KoColorProfile *KisOpenGLImageTextures::monitorProfile()
 
 void KisOpenGLImageTextures::setMonitorProfile(const KoColorProfile *monitorProfile, KoColorConversionTransformation::Intent renderingIntent, KoColorConversionTransformation::ConversionFlags conversionFlags)
 {
-    //dbgUI << "Setting monitor profile to" << monitorProfile->name() << renderingIntent << conversionFlags;
     m_monitorProfile = monitorProfile;
     m_renderingIntent = renderingIntent;
     m_conversionFlags = conversionFlags;
@@ -462,7 +444,6 @@ void KisOpenGLImageTextures::setMonitorProfile(const KoColorProfile *monitorProf
 bool KisOpenGLImageTextures::setImageColorSpace(const KoColorSpace *cs)
 {
     Q_UNUSED(cs);
-    // TODO: implement lazy update: do not re-upload textures when not needed
 
     recreateImageTextureTiles();
     return true;
@@ -490,7 +471,6 @@ void KisOpenGLImageTextures::setChannelFlags(const QBitArray &channelFlags)
     const bool allChannelsSelected = (selectedChannels == targetChannelFlags.size());
     const bool onlyOneChannelSelected = (selectedChannels == 1);
 
-    // OCIO has its own channel swizzling
     if (allChannelsSelected || m_useOcio) {
         m_updateInfoBuilder.setChannelFlags(QBitArray(), false, -1);
     } else {
@@ -544,14 +524,9 @@ bool KisOpenGLImageTextures::setInternalColorManagementActive(bool value, bool i
         m_internalColorManagementActive = value;
 
         if (!initializing) {
-            // During initialization process the textures might be not ready yet,
-            // so we shouldn't try to recreate them. They will be created during
-            // the initGL() call later.
             recreateImageTextureTiles();
         }
 
-        // at this point the value of m_internalColorManagementActive might
-        // have been forcefully reverted to 'false' in case of some problems
     }
 
     return needsFinalRegeneration;
@@ -662,8 +637,6 @@ void KisOpenGLImageTextures::updateTextureFormat()
         m_texturesInfo.type = GL_UNSIGNED_BYTE;
         m_texturesInfo.format = GL_BGRA_EXT;
         if(!ctx->hasExtension(QByteArrayLiteral("GL_EXT_texture_format_BGRA8888"))) {
-            // The red and blue channels are swapped, but it will be re-swapped
-            // by texture swizzle mask set in KisTextureTile::setTextureParameters
             m_texturesInfo.internalFormat = GL_RGBA8;
             m_texturesInfo.type = GL_UNSIGNED_BYTE;
             m_texturesInfo.format = GL_RGBA;
@@ -711,8 +684,6 @@ void KisOpenGLImageTextures::updateTextureFormat()
                     m_texturesInfo.type = GL_FLOAT;
                     m_texturesInfo.format = GL_RGBA;
                     destinationColorDepthId = Float32BitsColorDepthID;
-                    /* GL_EXT_texture_storage is GLES 2*/
-                    /* GL_EXT_color_buffer_float is GLES 3*/
                 } else if (ctx->hasExtension("GL_OES_texture_float")
                            && (ctx->hasExtension("GL_EXT_texture_storage") || ctx->hasExtension("EXT_color_buffer_float"))
                            && ctx->hasExtension("GL_OES_texture_float_linear")) {
@@ -731,10 +702,6 @@ void KisOpenGLImageTextures::updateTextureFormat()
                 m_texturesInfo.internalFormat = GL_RGBA16;
                 m_texturesInfo.type = GL_UNSIGNED_SHORT;
 
-                // On arm M1, GL_BGRA format is not aligned properly at the driver
-                // changing the pixel format fixes the rendering problem when using
-                // texture buffers
-                // BUG: 445561
 #ifdef Q_OS_MACOS
                 m_texturesInfo.format = GL_RGBA;
 #else
@@ -749,9 +716,6 @@ void KisOpenGLImageTextures::updateTextureFormat()
 #endif
             } else {
 #ifdef EGL_ANGLE_platform_angle
-                // If OpenGL ES, fall back to 16-bit float -- supports HDR
-                // Angle does ship GL_EXT_texture_norm16 but it doesn't seem
-                // to be renderable by DXGI - it returns a pixel size of 0
                 initializeRGBA16FTextures(ctx, m_texturesInfo, destinationColorDepthId);
 #else
                 if (ctx->hasExtension("GL_EXT_texture_norm16")) {
@@ -766,16 +730,11 @@ void KisOpenGLImageTextures::updateTextureFormat()
         }
     }
     else {
-        // We will convert the colorspace to 16 bits rgba, instead of 8 bits
         if (colorDepthId == Integer16BitsColorDepthID) {
             if (!KisOpenGL::hasOpenGLES()) {
 #ifndef QT_OPENGL_ES_2
                 m_texturesInfo.internalFormat = GL_RGBA16;
                 m_texturesInfo.type = GL_UNSIGNED_SHORT;
-                // On arm M1, GL_BGRA format is not aligned properly at the driver
-                // changing the pixel format fixes the rendering problem when using
-                // texture buffers
-                // BUG: 445561
 #ifdef Q_OS_MACOS
                 m_texturesInfo.format = GL_RGBA;
 #else
@@ -789,9 +748,6 @@ void KisOpenGLImageTextures::updateTextureFormat()
 #endif
             } else {
 #ifdef EGL_ANGLE_platform_angle
-                // If OpenGL ES, fall back to 16-bit float -- supports HDR
-                // Angle does ship GL_EXT_texture_norm16 but it doesn't seem
-                // to be renderable by DXGI - it returns a pixel size of 0
                 initializeRGBA16FTextures(ctx, m_texturesInfo, destinationColorDepthId);
 #else
                 if (ctx->hasExtension("GL_EXT_texture_norm16")) {
@@ -833,11 +789,6 @@ void KisOpenGLImageTextures::updateTextureFormat()
             m_internalColorManagementActive ||
             colorModelId != destinationColorModelId ?
                 m_monitorProfile : m_image->colorSpace()->profile();
-
-    /**
-     * TODO: add an optimization so that the tile->convertTo() method
-     *       would not be called when not needed (DK)
-     */
 
     const KoColorSpace *tilesDestinationColorSpace =
             KoColorSpaceRegistry::instance()->colorSpace(destinationColorModelId.id(),

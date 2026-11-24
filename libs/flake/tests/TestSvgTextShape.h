@@ -7,7 +7,6 @@
 #ifndef TESTSVGTEXTSHAPE_H
 #define TESTSVGTEXTSHAPE_H
 
-
 #include <simpletest.h>
 #include <QObject>
 
@@ -35,4 +34,4 @@ private Q_SLOTS:
 
 };
 
-#endif // TESTSVGTEXTSHAPE_H
+#endif

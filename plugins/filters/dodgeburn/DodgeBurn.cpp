@@ -52,14 +52,14 @@ KoColorTransformation* KisFilterDodgeBurn::createTransformation(const KoColorSpa
           }
     }
     return cs->createColorTransformation(m_prefix + suffix, params);
-  
+
 }
 
 KisDodgeBurnConfigWidget::KisDodgeBurnConfigWidget(QWidget * parent, const QString& id) : KisConfigWidget(parent), m_id(id)
 {
     m_page = new Ui_DodgeBurnConfigurationBaseWidget();
     m_page->setupUi(this);
-    
+
     connect(m_page->radioButtonHighlights, SIGNAL(toggled(bool)), SIGNAL(sigConfigurationItemChanged()));
     connect(m_page->radioButtonMidtones, SIGNAL(toggled(bool)), SIGNAL(sigConfigurationItemChanged()));
     connect(m_page->radioButtonShadows, SIGNAL(toggled(bool)), SIGNAL(sigConfigurationItemChanged()));

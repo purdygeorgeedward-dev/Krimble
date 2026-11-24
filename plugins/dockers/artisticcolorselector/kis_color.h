@@ -4,7 +4,6 @@
     SPDX-License-Identifier: GPL-2.0-or-later
 */
 
-
 #ifndef H_KIS_COLOR_H
 #define H_KIS_COLOR_H
 
@@ -18,7 +17,7 @@ class KisColor
 {
 public:
     enum Type { HSY, HSV, HSL, HSI };
-    
+
     KisColor(KisDisplayColorConverter *converter = KisDisplayColorConverter::dumbConverterInstance(),
              Type type=HSY, qreal lR = DEFAULT_LUMA_R, qreal lG = DEFAULT_LUMA_G,
              qreal lB = DEFAULT_LUMA_B, qreal lGamma = DEFAULT_LUMA_GAMMA);
@@ -44,7 +43,7 @@ public:
              qreal lB = DEFAULT_LUMA_B, qreal lGamma = DEFAULT_LUMA_GAMMA);
 
     ~KisColor();
-    
+
     inline Type getType()     const { return m_type;   }
     inline qreal getH() const { return m_hue; }
     inline qreal getS() const { return m_saturation; }
@@ -57,7 +56,7 @@ public:
     inline void setH(qreal v) { m_hue = v; }
     inline void setS(qreal v) { m_saturation = v; }
     inline void setX(qreal v) { m_value = v; }
-    
+
     QColor toQColor() const;
     KoColor toKoColor() const;
     void fromKoColor(const KoColor &color);
@@ -67,10 +66,10 @@ public:
         m_saturation = s;
         m_value = x;
     }
-    
+
 private:
     void initHSX(Type type, qreal h, qreal s, qreal x);
-    
+
 private:
     qreal m_hue;
     qreal m_value;
@@ -83,4 +82,4 @@ private:
     KisDisplayColorConverter* m_colorConverter;
 };
 
-#endif // H_KIS_COLOR_H
+#endif

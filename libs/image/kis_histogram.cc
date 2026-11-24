@@ -50,7 +50,6 @@ KisHistogram::KisHistogram(const KisPaintDeviceSP paintdev,
     m_selection = false;
     m_channel = 0;
 
-    // TODO: Why does Krita crash when updateHistogram() is *not* called here?
     updateHistogram();
 }
 
@@ -76,15 +75,8 @@ void KisHistogram::updateHistogram()
     KisSequentialConstIterator srcIt(m_paintDevice, m_bounds);
     const KoColorSpace* cs = m_paintDevice->colorSpace();
 
-    // Let the producer do it's work
     m_producer->clear();
 
-
-    // XXX: the original code depended on their being a selection mask in the iterator
-    //      if the paint device had a selection. When we changed that to passing an
-    //      explicit selection to the createRectIterator call, that broke because
-    //      paint devices didn't know about their selections anymore.
-    //      updateHistogram should get a selection parameter.
     int numConseqPixels = srcIt.nConseqPixels();
     while (srcIt.nextPixels(numConseqPixels)) {
 
@@ -140,27 +132,21 @@ KisHistogram::Calculations KisHistogram::calculateSingleRange(int channel, doubl
 {
     Calculations c;
 
-    // XXX If from == to, we only want a specific bin, handle that properly!
-
-    double max = from, min = to, total = 0.0, mean = 0.0; //, median = 0.0, stddev = 0.0;
+    double max = from, min = to, total = 0.0, mean = 0.0;
     quint32 high = 0, low = (quint32) - 1, count = 0;
 
     if (m_producer->count() == 0) {
-        // We won't get anything, even if a range is specified
-        // XXX make sure all initial '0' values are correct here!
         return c;
     }
 
     qint32 totbins = m_producer->numberOfBins();
     quint32 current;
 
-    // convert the double range into actual bins:
     double factor = static_cast<double>(totbins) / m_producer->viewWidth();
 
     qint32 fromBin = static_cast<qint32>((from - m_producer->viewFrom()) * factor);
     qint32 toBin = fromBin + static_cast<qint32>((to - from) * factor);
 
-    // Min, max, count, low, high
     for (qint32 i = fromBin; i < toBin; i++) {
         current = m_producer->getBinAt(channel, i);
         double pos = static_cast<double>(i) / factor + from;
@@ -174,8 +160,6 @@ KisHistogram::Calculations KisHistogram::calculateSingleRange(int channel, doubl
             if (pos > max)
                 max = pos;
         }
-        // We do the count here as well.
-        // we can't use m_producer->count() for this, because of the range
         count += current;
         total += current * pos;
     }
@@ -194,7 +178,6 @@ KisHistogram::Calculations KisHistogram::calculateSingleRange(int channel, doubl
     return c;
 }
 
-
 void KisHistogram::dump()
 {
     dbgMath << "Histogram";
@@ -210,13 +193,6 @@ void KisHistogram::dump()
     dbgMath << "Dumping channel" << m_channel;
     Calculations c = calculations();
 
-    /*        for( int i = 0; i <256; ++i ) {
-            dbgMath <<"Value"
-                  << QString().setNum(i)
-                  << ": "
-                  <<  QString().setNum(m_values[i])
-                  << "\n";
-            }*/
     dbgMath << "";
 
     dbgMath << "Max:" << QString().setNum(c.getMax()) << "";
@@ -225,9 +201,6 @@ void KisHistogram::dump()
     dbgMath << "Low:" << QString().setNum(c.getLowest()) << "";
     dbgMath << "Mean:" << m_producer->positionToString(c.getMean()) << "";
     dbgMath << "Total:" << QString().setNum(c.getTotal()) << "";
-    //    dbgMath <<"Median:" << QString().setNum(m_median) <<"";
-    //    dbgMath <<"Stddev:" << QString().setNum(m_stddev) <<"";
-    //    dbgMath <<"percentile:" << QString().setNum(m_percentile) <<"";
 
     dbgMath << "";
 }

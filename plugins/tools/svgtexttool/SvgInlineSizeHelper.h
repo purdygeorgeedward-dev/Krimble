@@ -39,22 +39,14 @@ enum class Side {
 
 struct Q_DECL_HIDDEN InlineSizeInfo {
     double inlineSize;
-    /// Baseline coord along the block-flow direction
     double baseline;
-    /// Left coord (vertical mode) or top coord (horizontal mode)
     double left;
-    /// Right coord (vertical mode) or bottom coord (horizontal mode)
     double right;
-    /// Top coord along the block-flow direction (right for h-rl, left for h-lr)
     double top;
-    /// Bottom coord along the block-flow direction (left for h-rl, right for h-lr)
     double bottom;
-    /// Length of the dashes at the end.
     double dashesLength;
     VisualAnchor anchor;
-    /// Transformation from inline-size editor (writing-mode transformation) to shape
     QTransform editorTransform;
-    /// Transformation from shape local to document
     QTransform shapeTransform;
 
     [[nodiscard]] static inline std::optional<InlineSizeInfo> fromShape(KoSvgTextShape *const shape, qreal dashesLength = 36.0)
@@ -116,9 +108,6 @@ struct Q_DECL_HIDDEN InlineSizeInfo {
             break;
         };
 
-        // We piggyback on the shape transformation that we already need to
-        // deal with to also handle the different orientations of writing-mode.
-        // We default to the "default caret size"  when the textShape (and thus outline) is empty.
         QLineF caret;
         QColor c;
         shape->cursorForPos(0, caret, c);
@@ -186,23 +175,11 @@ private:
     }
 
 public:
-    /**
-     * @brief Gets a shape-local line representing the first line baseline. This
-     * always goes from left to right by the inline-base direction, then mapped
-     * by the editor transformation.
-     * @return QLineF
-     */
     [[nodiscard]] inline QLineF baselineLineLocal() const
     {
         return editorTransform.map(QLineF{left, baseline, right, baseline});
     }
 
-    /**
-     * @brief Gets a line representing the first line baseline. This always
-     * goes from left to right by the inline-base direction, then mapped by the
-     * editor and the shape transformation.
-     * @return QLineF
-     */
     [[nodiscard]] inline QLineF baselineLine() const
     {
         return shapeTransform.map(baselineLineLocal());
@@ -332,6 +309,6 @@ public:
     }
 };
 
-} // namespace SvgInlineSizeHelper
+}
 
-#endif /* SVG_INLINE_SIZE_HELPER_H */
+#endif

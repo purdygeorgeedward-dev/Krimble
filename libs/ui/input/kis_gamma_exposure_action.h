@@ -9,13 +9,9 @@
 
 #include "kis_abstract_input_action.h"
 
-
 class KisGammaExposureAction : public KisAbstractInputAction
 {
 public:
-    /**
-     * The different behaviours for this action.
-     */
     enum Shortcuts {
         ExposureShortcut,
         GammaShortcut,
@@ -47,4 +43,4 @@ private:
     Private * const d {nullptr};
 };
 
-#endif /* __KIS_GAMMA_EXPOSURE_ACTION_H */
+#endif

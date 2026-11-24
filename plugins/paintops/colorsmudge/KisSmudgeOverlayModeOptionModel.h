@@ -28,4 +28,4 @@ public:
     KisSmudgeOverlayModeOptionData bakedOptionData() const;
 };
 
-#endif // KISSMUDGEOVERLAYMODEOPTIONMODEL_H
+#endif

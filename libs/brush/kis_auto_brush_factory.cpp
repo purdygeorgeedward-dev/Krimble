@@ -15,7 +15,6 @@
 #include <KoResourceLoadResult.h>
 #include "kis_mask_generator.h"
 
-
 KoResourceLoadResult KisAutoBrushFactory::createBrush(const QDomElement &brushDefinition, KisResourcesInterfaceSP resourcesInterface)
 {
     std::optional<KisBrushModel::BrushData> data =
@@ -25,7 +24,6 @@ KoResourceLoadResult KisAutoBrushFactory::createBrush(const QDomElement &brushDe
         return createBrush(*data, resourcesInterface);
     }
 
-    // fallback, should never reach!
     return KoResourceSignature(ResourceType::Brushes, "", "", "");
 }
 
@@ -47,16 +45,11 @@ KisAutoBrushFactory::createBrushModel(const QDomElement &element, KisResourcesIn
     brush.common.useAutoSpacing = KisDomUtils::toInt(element.attribute("useAutoSpacing", "0"));
     brush.common.autoSpacingCoeff = KisDomUtils::toDouble(element.attribute("autoSpacingCoeff", "1.0"));
 
-    // auto brush settings
-
     brush.autoBrush.randomness = KisDomUtils::toDouble(element.attribute("randomness", "0.0"));
     brush.autoBrush.density = KisDomUtils::toDouble(element.attribute("density", "1.0"));
 
-    // generator settings
-
     QDomElement generatorEl = element.firstChildElement("MaskGenerator");
 
-    // backward compatibility -- it was mistakenly named radius for 2.2
     brush.autoBrush.generator.diameter =
             generatorEl.hasAttribute("radius") ?
                 KisDomUtils::toDouble(generatorEl.attribute("radius", "1.0")) :
@@ -108,7 +101,6 @@ void KisAutoBrushFactory::toXML(QDomDocument &doc, QDomElement &e, const KisBrus
         shapeElt.setAttribute("type", model.autoBrush.generator.shape == KisBrushModel::Circle ? "circle" : "rct");
         shapeElt.setAttribute("antialiasEdges", model.autoBrush.generator.antialiasEdges);
 
-
         QString idString;
         if (model.autoBrush.generator.type == KisBrushModel::Default) {
             idString = DefaultId.id();
@@ -153,7 +145,6 @@ KoResourceLoadResult KisAutoBrushFactory::createBrush(const KisBrushModel::Commo
                                                   autoBrushData.generator.verticalFade,
                                                   autoBrushData.generator.spikes,
                                                   autoBrushData.generator.antialiasEdges);
-
 
     } else  if (autoBrushData.generator.type == KisBrushModel::Soft) {
 

@@ -126,15 +126,12 @@ void KisConvertColorSpaceProcessingVisitor::visitNodeWithPaintDevice(KisNode *no
 
 void KisConvertColorSpaceProcessingVisitor::visit(KisGroupLayer *layer, KisUndoAdapter *undoAdapter)
 {
-    // Group Layers determine their color space from their paint device, thus before setting
-    // channel flags, it must be reset to the new CS first.
 
     bool alphaDisabled = layer->alphaChannelDisabled();
 
     const KoColorSpace *srcColorSpace = layer->colorSpace();
     const KoColorSpace *dstColorSpace = m_dstColorSpace;
 
-    // the swap of FINALIZING/INITIALIZING is intentional here, see the comment above
     undoAdapter->addCommand(new KisResetGroupLayerCacheCommand(layer, dstColorSpace, KisResetGroupLayerCacheCommand::FINALIZING));
 
     if (srcColorSpace->colorModelId() != dstColorSpace->colorModelId()) {

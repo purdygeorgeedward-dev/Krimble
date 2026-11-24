@@ -6,7 +6,6 @@
  *  SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-
 #ifndef __KIS_ANIMATED_TRANSFORM_MASK_PARAMETERS_H
 #define __KIS_ANIMATED_TRANSFORM_MASK_PARAMETERS_H
 

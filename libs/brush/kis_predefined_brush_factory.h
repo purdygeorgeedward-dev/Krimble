@@ -34,4 +34,4 @@ private:
     const QString m_id;
 };
 
-#endif /* __KIS_PREDEFINED_BRUSH_FACTORY_H */
+#endif

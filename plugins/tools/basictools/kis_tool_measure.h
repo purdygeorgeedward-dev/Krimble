@@ -27,7 +27,6 @@ class QVector2D;
 
 class KoCanvasBase;
 
-
 class KisToolMeasureOptionsWidget : public QWidget
 {
     Q_OBJECT
@@ -85,11 +84,10 @@ private:
     KisToolMeasureOptionsWidget *m_optionsWidget {nullptr};
 
     QPointF m_startPos {QPointF(0, 0)};
-    QPointF m_endPos {QPointF(0, 0)}; 
+    QPointF m_endPos {QPointF(0, 0)};
     QVector2D m_baseLineVec {QPointF(1, 0)};
     bool m_chooseBaseLineVec {false};
 };
-
 
 class KisToolMeasureFactory : public KoToolFactoryBase
 {
@@ -113,7 +111,4 @@ public:
 
 };
 
-
-
-
-#endif //KIS_TOOL_MEASURE_H_
+#endif

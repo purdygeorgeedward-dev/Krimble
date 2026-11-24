@@ -15,13 +15,6 @@
 
 class QDir;
 
-/**
- * The KisStoragePlugin class is the base class
- * for storage plugins. A storage plugin is used by
- * KisResourceStorage to locate resources and tags in
- * a kind of storage, like a folder, a bundle or an adobe
- * resource library.
- */
 class KRITARESOURCES_EXPORT KisStoragePlugin
 {
 public:
@@ -30,8 +23,6 @@ public:
 
     virtual KisResourceStorage::ResourceItem resourceItem(const QString &url) = 0;
 
-    /// Retrieve the given resource. The url is the unique identifier of the resource,
-    /// for instance resourcetype plus filename.
     virtual KoResourceSP resource(const QString &url);
     virtual QString resourceMd5(const QString &url);
     virtual QString resourceFilePath(const QString &url);
@@ -58,13 +49,6 @@ protected:
     friend class TestBundleStorage;
     QString location() const;
 
-    /**
-     * On some systems, e.g. Windows, the file names are case-insensitive,
-     * therefore URLs will fetch the resource even when the casing is not
-     * the same. The storage, when returning such a resource should make
-     * sure that its filename is set to the **real** filename, not the one
-     * with incorrect casing.
-     */
     void sanitizeResourceFileNameCase(KoResourceSP resource, const QDir &parentDir);
 
 private:
@@ -72,4 +56,4 @@ private:
     QScopedPointer<Private> d;
 };
 
-#endif // KISSTORAGEPLUGIN_H
+#endif

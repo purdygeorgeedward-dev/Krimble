@@ -13,7 +13,6 @@
 #include "kis_painting_assistant.h"
 #include <QObject>
 #include <QLineF>
-//class CurvilinearPerspective;
 
 class CurvilinearPerspectiveAssistant : public KisPaintingAssistant
 {

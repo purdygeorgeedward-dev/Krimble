@@ -6,7 +6,6 @@
 
 #include "LayerDocker.h"
 
-
 #include <kpluginfactory.h>
 
 #include <KoDockFactoryBase.h>

@@ -39,7 +39,6 @@ public:
 
 };
 
-
 class KisDesaturateConfigWidget : public KisConfigWidget
 {
 
@@ -54,6 +53,5 @@ public:
     Ui_WdgDesaturate *m_page;
     QButtonGroup *m_group;
 };
-
 
 #endif

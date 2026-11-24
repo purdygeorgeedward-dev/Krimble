@@ -23,8 +23,6 @@
 #include "KisHandlePainterHelper.h"
 #include "kis_signal_compressor.h"
 
-
-
 struct KisWarpTransformStrategy::Private
 {
     Private(KisWarpTransformStrategy *_q,
@@ -41,21 +39,15 @@ struct KisWarpTransformStrategy::Private
 
     KisWarpTransformStrategy * const q;
 
-    /// standard members ///
-
     const KisCoordinatesConverter *converter {0};
 
-    //////
     ToolTransformArgs &currentArgs;
-    //////
     TransformTransactionProperties &transaction;
 
     QTransform paintingTransform;
     QPointF paintingOffset;
 
     QTransform handlesTransform;
-
-    /// custom members ///
 
     QImage transformedImage;
 
@@ -74,7 +66,7 @@ struct KisWarpTransformStrategy::Private
     QVector<int> pointsInAction;
     int lastNumPoints {0};
 
-    bool drawConnectionLines {false}; // useful while developing
+    bool drawConnectionLines {false};
     bool drawOrigPoints {false};
     bool drawTransfPoints {true};
     bool closeOnStartPointClick {false};
@@ -84,7 +76,6 @@ struct KisWarpTransformStrategy::Private
 
     QPointF lastMousePos;
 
-    // cage transform also uses this logic. This helps this class know what transform type we are using
     TransformType transformType = TransformType::WARP_TRANSFORM;
     KisSignalCompressor recalculateSignalCompressor;
 
@@ -226,7 +217,6 @@ void KisWarpTransformStrategy::drawConnectionLines(QPainter &gc,
 
 void KisWarpTransformStrategy::paint(QPainter &gc, const KoColorDisplayRendererInterface *displayRendererInterface)
 {
-    // Draw preview image
 
     gc.save();
 
@@ -235,7 +225,6 @@ void KisWarpTransformStrategy::paint(QPainter &gc, const KoColorDisplayRendererI
     gc.drawImage(m_d->paintingOffset, m_d->transformedImage);
 
     gc.restore();
-
 
     gc.save();
     gc.setTransform(m_d->handlesTransform, true);
@@ -257,11 +246,8 @@ void KisWarpTransformStrategy::paint(QPainter &gc, const KoColorDisplayRendererI
     outlinePen.setCosmetic(true);
     outlinePen.setWidth(decorationThickness());
 
-    // draw handles
     {
         const int numPoints = m_d->currentArgs.origPoints().size();
-
-
 
         qreal handlesExtraScale = KisTransformUtils::scaleFromAffineMatrix(m_d->handlesTransform);
 
@@ -323,41 +309,32 @@ void KisWarpTransformStrategy::paint(QPainter &gc, const KoColorDisplayRendererI
 
     }
 
-    // draw grid lines only if we are using the GRID mode. Also only use this logic for warp, not cage transforms
     if (m_d->currentArgs.warpCalculation() == KisWarpTransformWorker::WarpCalculation::GRID &&
         m_d->transformType == TransformType::WARP_TRANSFORM ) {
 
-    // see how many rows we have. we are only going to do lines up to 6 divisions/
-    // it is almost impossible to use with 6 even.
     const int numPoints = m_d->currentArgs.origPoints().size();
 
-    // grid is always square, so get the square root to find # of rows
     int rowsInWarp = sqrt(m_d->currentArgs.origPoints().size());
-
 
         KisHandlePainterHelper handlePainter(&gc, 0.0, decorationThickness());
         handlePainter.setHandleStyle(KisHandleStyle::primarySelection(palette));
 
-        // draw horizontal lines
         for (int i = 0; i < numPoints; i++) {
             if (i != 0 &&  i % rowsInWarp == rowsInWarp -1) {
-                // skip line if it is the last in the row
             } else {
                 handlePainter.drawConnectionLine(m_d->currentArgs.transfPoints()[i], m_d->currentArgs.transfPoints()[i+1]  );
             }
         }
 
-        // draw vertical lines
         for (int i = 0; i < numPoints; i++) {
 
             if ( (numPoints - i - 1) < rowsInWarp ) {
-                // last row doesn't need to draw vertical lines
             } else {
                 handlePainter.drawConnectionLine(m_d->currentArgs.transfPoints()[i], m_d->currentArgs.transfPoints()[i+rowsInWarp] );
             }
         }
 
-    } // end if statement
+    }
 
     gc.restore();
 }
@@ -456,7 +433,6 @@ void KisWarpTransformStrategy::continuePrimaryAction(const QPointF &pt, bool shi
     Q_UNUSED(shiftModifierActive);
     Q_UNUSED(altModifierActive);
 
-    // toplevel code switches to HOVER mode if nothing is selected
     KIS_ASSERT_RECOVER_RETURN(m_d->mode == Private::MOVE_MODE ||
                               m_d->mode == Private::ROTATE_MODE ||
                               m_d->mode == Private::SCALE_MODE ||
@@ -476,7 +452,6 @@ void KisWarpTransformStrategy::continuePrimaryAction(const QPointF &pt, bool shi
         } else {
             m_d->currentArgs.transfPoint(m_d->pointIndexUnderCursor) = pt;
         }
-
 
         const qreal handleRadiusSq = pow2(KisTransformUtils::effectiveHandleGrabRadius(m_d->converter));
         qreal dist =

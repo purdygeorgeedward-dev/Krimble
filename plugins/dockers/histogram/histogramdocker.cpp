@@ -44,9 +44,7 @@ public:
     }
 private:
 
-
 };
-
 
 HistogramDockerPlugin::HistogramDockerPlugin(QObject *parent, const QVariantList &)
     : QObject(parent)

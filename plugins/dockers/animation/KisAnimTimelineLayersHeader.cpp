@@ -19,7 +19,6 @@
 #include "KisAnimTimelineFramesModel.h"
 #include "KisAnimTimelineColors.h"
 
-
 struct KisAnimTimelineLayersHeader::Private
 {
     Private(KisAnimTimelineLayersHeader *_q) : q(_q) {}
@@ -36,7 +35,6 @@ struct KisAnimTimelineLayersHeader::Private
     KisAnimTimelineFramesModel::Property* getPropertyAt(KisAnimTimelineFramesModel::PropertyList &props, int index);
 };
 
-
 KisAnimTimelineLayersHeader::KisAnimTimelineLayersHeader(QWidget *parent)
    : QHeaderView(Qt::Vertical, parent),
      m_d(new Private(this))
@@ -51,7 +49,7 @@ void KisAnimTimelineLayersHeader::paintSection(QPainter *painter, const QRect &a
 {
     QRect remainingArea = areaRect;
 
-    {   // Paint background..
+    {
         QColor bgFillColor = palette().color(QPalette::Base);
 
         QVariant variant = model()->headerData(layerIndex, orientation(), Qt::BackgroundRole);
@@ -70,7 +68,6 @@ void KisAnimTimelineLayersHeader::paintSection(QPainter *painter, const QRect &a
         painter->drawLine(areaRect.topLeft(), areaRect.topRight());
     }
 
-    // Paint active highlight..
     const bool isLayerActive = model()->headerData(layerIndex, orientation(), KisAnimTimelineFramesModel::ActiveLayerRole).toBool();
 
     if (isLayerActive) {
@@ -86,14 +83,13 @@ void KisAnimTimelineLayersHeader::paintSection(QPainter *painter, const QRect &a
         painter->drawLines(lines);
     }
 
-    // Paint pushpin icon..
     painter->save();
     const bool isPinned = model()->headerData(layerIndex, orientation(), KisAnimTimelineFramesModel::PinnedToTimelineRole).toBool();
     const uint pinWidth = areaRect.height() - 4;
     QRect pinArea = kisTrimLeft(pinWidth, remainingArea);
     const uint difference = pinArea.height() - pinWidth;
-    pinArea.setHeight(pinWidth); // Square to width.
-    pinArea.translate(0, difference / 2); // Center.
+    pinArea.setHeight(pinWidth);
+    pinArea.translate(0, difference / 2);
 
     QIcon icon = KisIconUtils::loadIcon("krita_tool_reference_images");
     QRect iconRect = pinArea - QMargins(5,5,5,5);
@@ -106,14 +102,12 @@ void KisAnimTimelineLayersHeader::paintSection(QPainter *painter, const QRect &a
     icon.paint(painter, iconRect);
     painter->restore();
 
-    // Paint layer name..
     const int textSpace = remainingArea.width() - m_d->iconSectionWidth(layerIndex);
     const QRect textArea = kisTrimLeft(textSpace, remainingArea);
     QString text = model()->headerData(layerIndex, orientation(), Qt::DisplayRole).toString();
     text = fontMetrics().elidedText(text, textElideMode(), textArea.width());
     style()->drawItemText(painter, textArea, Qt::AlignLeft | Qt::AlignVCenter, palette(), isEnabled(), text, QPalette::ButtonText);
 
-    // Paint property (hidden, alpha inherit, etc.) icons..
     QVariant value =  model()->headerData(layerIndex, orientation(), KisAnimTimelineFramesModel::TimelinePropertiesRole);
     KisAnimTimelineFramesModel::PropertyList props = value.value<KisAnimTimelineFramesModel::PropertyList>();
 
@@ -231,9 +225,6 @@ bool KisAnimTimelineLayersHeader::viewportEvent(QEvent *event)
 {
     switch (event->type()) {
     case QEvent::ToolTip: {
-        /**
-         * Override tooltip if the cursor is over the properties icons.
-         */
         QHelpEvent *he = static_cast<QHelpEvent*>(event);
         int logical = logicalIndexAt(he->pos());
         if (logical != -1) {
@@ -267,7 +258,6 @@ void KisAnimTimelineLayersHeader::mousePressEvent(QMouseEvent *e)
 {
     int layerIndex = logicalIndexAt(e->pos());
     if (layerIndex != -1) {
-        // Handle pin click..
         QRect layerHeaderRect = m_d->getSectionRect(layerIndex);
         const uint pinWidth = layerHeaderRect.height() - 4;
         QRect pinArea = kisTrimLeft(pinWidth, layerHeaderRect);
@@ -277,7 +267,6 @@ void KisAnimTimelineLayersHeader::mousePressEvent(QMouseEvent *e)
             return;
         }
 
-        // Handle property click..
         const int propertyIconIndex = m_d->propertyIconAt(layerIndex, e->pos());
         if (propertyIconIndex != -1) {
             QVariant value =  model()->headerData(layerIndex, orientation(), KisAnimTimelineFramesModel::TimelinePropertiesRole);

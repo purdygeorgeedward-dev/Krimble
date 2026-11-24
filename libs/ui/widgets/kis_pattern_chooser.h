@@ -15,7 +15,6 @@
 class KSqueezedTextLabel;
 class KisResourceItemChooser;
 
-
 class KRITAUI_EXPORT KisPatternChooser : public QFrame
 {
 
@@ -25,16 +24,12 @@ public:
     KisPatternChooser(QWidget *parent = 0);
     ~KisPatternChooser() override;
 
-    /// Gets the currently selected resource
-    /// @returns the selected resource, 0 is no resource is selected
     KoResourceSP currentResource(bool includeHidden = false);
     void setGrayscalePreview(bool grayscale);
-    /// determines whether the preview right or below the splitter
     void setPreviewOrientation(Qt::Orientation orientation);
 
 Q_SIGNALS:
 
-    /// Emitted when a resource was selected
     void resourceSelected(KoResourceSP resource);
     void updateItemSize();
 
@@ -53,5 +48,5 @@ private:
     KisResourceItemChooser *m_itemChooser;
 };
 
-#endif // KIS_PATTERN_CHOOSER_H_
+#endif
 

@@ -16,4 +16,4 @@ private Q_SLOTS:
     void testConcurrentSelectionFetches();
 };
 
-#endif /* __KIS_SELECTION_DECORATION_TEST_H */
+#endif

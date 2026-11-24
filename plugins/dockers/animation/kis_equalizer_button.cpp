@@ -12,7 +12,6 @@
 
 #include <QApplication>
 
-
 #include "KisAnimTimelineColors.h"
 #include "kis_global.h"
 #include "kis_debug.h"
@@ -73,9 +72,9 @@ void KisEqualizerButton::paintEvent(QPaintEvent *event)
 
     QPainter p(this);
 
-    { // draw border
+    {
 
-        QStyleOptionViewItem option; // empty!
+        QStyleOptionViewItem option;
         const int gridHint = style()->styleHint(QStyle::SH_Table_GridLineColor, &option, this);
         const QColor gridColor = static_cast<QRgb>(gridHint);
         const QPen gridPen(gridColor);
@@ -98,10 +97,9 @@ void KisEqualizerButton::paintEvent(QPaintEvent *event)
 
     QString textValue = text();
 
-    { // draw text
+    {
         QPalette::ColorRole textRole = QPalette::Text;
 
-        //Draw text shadow, This will increase readability when the background of same color
         QRect shadowRect(bounds);
         shadowRect.translate(1,1);
         QColor textColor = palette().color(textRole);

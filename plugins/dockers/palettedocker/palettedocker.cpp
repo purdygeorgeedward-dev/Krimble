@@ -6,7 +6,6 @@
 
 #include "palettedocker.h"
 
-
 #include <kis_debug.h>
 #include <kpluginfactory.h>
 #include <klocalizedstring.h>
@@ -43,7 +42,7 @@ public:
     QDockWidget* createDockWidget() override
     {
         PaletteDockerDock * dockWidget = new PaletteDockerDock();
-        
+
         dockWidget->setObjectName(id());
 
         return dockWidget;
@@ -55,9 +54,7 @@ public:
     }
 private:
 
-
 };
-
 
 PaletteDockerPlugin::PaletteDockerPlugin(QObject *parent, const QVariantList &)
     : QObject(parent)

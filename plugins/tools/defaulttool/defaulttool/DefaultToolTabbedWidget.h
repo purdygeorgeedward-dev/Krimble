@@ -53,5 +53,4 @@ private:
     KoStrokeConfigWidget *m_strokeWidget;
 };
 
-
-#endif // DEFAULTTOOLTABBEDWIDGET_H
+#endif

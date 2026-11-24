@@ -42,4 +42,4 @@ private:
     KoColorConversionTransformation::ConversionFlags m_conversionFlags;
 };
 
-#endif /* __KIS_CONVERT_COLORSPACE_PROCESSING_VISITOR_H */
+#endif

@@ -24,11 +24,11 @@ public:
                     const KisPaintInformation& info,
                     const KisDabShape &shape,
                     const QPointF &cursorPoint,
-                    QRect *dstDabRect, 
+                    QRect *dstDabRect,
                     qreal lightnessStrength) override;
 
 private:
     DabColoringStrategyMask m_coloringStrategy;
 };
 
-#endif //KRITA_KISCOLORSMUDGESTRATEGYMASK_H
+#endif

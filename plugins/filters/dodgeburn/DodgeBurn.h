@@ -10,7 +10,6 @@
 
 #include "kis_config_widget.h"
 
-
 class KisFilterDodgeBurn : public KisColorTransformationFilter
 {
 public:

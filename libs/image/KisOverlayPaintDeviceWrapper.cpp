@@ -186,8 +186,6 @@ void KisOverlayPaintDeviceWrapper::readRects(const QVector<QRect> &rects)
 
     KisRegion::makeGridLikeRectsUnique(rectsToRead);
 
-    //TODO: implement synchronization of the offset between the grid and devices
-
     if (!m_d->scaler) {
         Q_FOREACH (KisPaintDeviceSP overlay, m_d->overlays) {
             Q_FOREACH (const QRect &rect, rectsToRead) {
@@ -250,7 +248,6 @@ void KisOverlayPaintDeviceWrapper::writeRects(const QVector<QRect> &rects, int i
     } else {
         KisPaintDeviceSP overlay = m_d->overlays[index];
 
-
         KisRandomConstAccessorSP srcIt = overlay->createRandomConstAccessorNG();
         KisRandomAccessorSP dstIt = destinationDevice->createRandomAccessorNG();
 
@@ -276,10 +273,6 @@ const KoColorSpace *KisOverlayPaintDeviceWrapper::overlayColorSpace() const
 
 KisPaintDeviceSP KisOverlayPaintDeviceWrapper::createPreciseCompositionSourceDevice()
 {
-    /**
-     * TODO: this function has rather vague meaning when forcedOverlayColorSpace
-     *       feature is used
-     */
 
     KisPaintDeviceSP result;
 
@@ -339,7 +332,6 @@ KUndo2Command *KisOverlayPaintDeviceWrapper::endTransaction()
     result = m_d->rootTransactionData.release();
 
     for (auto &transactionPtr : m_d->overlayTransactions) {
-        // the transactions are assigned as children to m_d->changeOverlayCommand
         (void) transactionPtr->endAndTake();
     }
     m_d->overlayTransactions.clear();

@@ -65,31 +65,20 @@ void KoCanvasControllerWidget::Private::unsetCanvas()
     }
 }
 
-////////////
 KoCanvasControllerWidget::KoCanvasControllerWidget(KisKActionCollection * actionCollection, KoCanvasSupervisor *observerProvider, QWidget *parent)
     : QAbstractScrollArea(parent)
     , KoCanvasController(actionCollection)
     , d(new Private(this, observerProvider))
 {
-    // We need to set this as QDeclarativeView sets them a bit different from QAbstractScrollArea
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
-    // And then our own Viewport
     d->viewportWidget = new Viewport(this);
     setViewport(d->viewportWidget);
     d->viewportWidget->setFocusPolicy(Qt::NoFocus);
     setFocusPolicy(Qt::NoFocus);
     setFrameStyle(0);
 
-    //setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
     setAutoFillBackground(false);
-    /*
-      Fixes:   apps starting at zero zoom.
-      Details: Since the document is set on the mainwindow before loading commences the inial show/layout can choose
-          to set the document to be very small, even to be zero pixels tall.  Setting a sane minimum size on the
-          widget means we no longer get rounding errors in zooming and we no longer end up with zero-zoom.
-      Note: KoPage apps should probably startup with a sane document size; for Krita that's impossible
-     */
     setMinimumSize(QSize(50, 50));
     setMouseTracking(true);
 }
@@ -125,20 +114,10 @@ void KoCanvasControllerWidget::resizeEvent(QResizeEvent *event)
 {
     const KisCanvasState oldCanvasState = canvasState();
 
-    /**
-     * When the window is moved from one screen to another,
-     * the screen scaling factor may also change and we should
-     * notify the converter about that.
-     *
-     * The actual signal from KisScreenMigrationTracker will come
-     * much later, when the resize process has already been completed
-     * and it is too late.
-     */
     updateCanvasWidgetSizeInternal(event->size(), this->devicePixelRatioF());
 
     const KisCanvasState newCanvasState = canvasState();
 
-    // jcall resize on the subordinate widget
     d->viewportWidget->resetLayout();
 
     emitSignals(oldCanvasState, newCanvasState);
@@ -192,7 +171,6 @@ void KoCanvasControllerWidget::emitSignals(const KisCanvasState &oldState, const
     }
 
     if (oldState.canvasSize != newState.canvasSize) {
-        // TODO: should we remove this signal?
         proxyObject->emitSizeChanged(newState.canvasSize.toSize());
     }
 
@@ -323,15 +301,10 @@ void KoCanvasControllerWidget::setZoom(KoZoomMode::Mode mode, qreal zoom, qreal 
 
 bool KoCanvasControllerWidget::focusNextPrevChild(bool)
 {
-    // we always return false meaning the canvas takes keyboard focus, but never gives it away.
     return false;
 }
 
 bool KoCanvasControllerWidget::viewportEvent(QEvent *event) {
-    // Workaround: Don't let QAbstractScrollArea handle Gesture events. Because
-    // Qt's detection of touch point positions is a bit buggy, it is handled
-    // with custom algorithms in the KisInputManager. But we must also not let
-    // the corresponding event propagate to the parent QAbstractScrollArea.
     if (event->type() == QEvent::Gesture) {
         return false;
     }
@@ -360,5 +333,4 @@ KoCanvasControllerWidget::Private *KoCanvasControllerWidget::priv()
     return d;
 }
 
-//have to include this because of Q_PRIVATE_SLOT
 #include "moc_KoCanvasControllerWidget.cpp"

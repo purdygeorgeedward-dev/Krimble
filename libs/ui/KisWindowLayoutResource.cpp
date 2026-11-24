@@ -109,7 +109,6 @@ struct KisWindowLayoutResource::Private
     Private() = default;
     Private(const Private &rhs) = default;
 
-
     explicit Private(QVector<Window> windows)
         : windows(std::move(windows))
     {}
@@ -126,7 +125,7 @@ struct KisWindowLayoutResource::Private
                 mainWindow->show();
             }
         }
-        
+
         QVector<QPointer<KisMainWindow>> windowsToMigrate;
 
         Q_FOREACH(KisMainWindow *mainWindow, currentWindows) {
@@ -141,14 +140,12 @@ struct KisWindowLayoutResource::Private
             if (!keep) {
                 windowsToMigrate.append(mainWindow);
 
-                // Set the window hidden to prevent "show image in all windows" feature from opening new views on it
-                // while we migrate views onto the remaining windows
                 if (mainWindow->isVisible()) {
                     mainWindow->hide();
                 }
             }
         }
-        
+
         migrateViewsFromClosingWindows(windowsToMigrate);
     }
 
@@ -203,7 +200,6 @@ struct KisWindowLayoutResource::Private
             }
         }
     }
-
 
     QList<QScreen*> getScreensInConsistentOrder() {
         QList<QScreen*> screens = QGuiApplication::screens();
@@ -263,7 +259,6 @@ void KisWindowLayoutResource::applyLayout()
     bool createWindows = d->windows.isEmpty();
 
     if (createWindows) {
-        // No windows defined (e.g. fresh new session). Leave things as they are, but make sure there's at least one visible main window
         if (kisPart->mainwindowCount() == 0) {
             kisPart->createMainWindow();
         } else {
@@ -273,8 +268,6 @@ void KisWindowLayoutResource::applyLayout()
         d->openNecessaryWindows(currentWindows);
     }
 
-    // Wait for the windows to finish opening / closing before applying saved geometry.
-    // If we don't, the geometry may get reset after we apply it.
     QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
 
     Q_FOREACH(const auto &window, d->windows) {

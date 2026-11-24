@@ -7,9 +7,7 @@
 #ifndef KOMARKERITEMDELEGATE_H
 #define KOMARKERITEMDELEGATE_H
 
-// Calligra
 #include <KoFlake.h>
-// Qt
 #include <QAbstractItemDelegate>
 
 class KoMarker;
@@ -28,4 +26,4 @@ private:
     KoFlake::MarkerPosition m_position;
 };
 
-#endif /* KOMARKERITEMDELEGATE_H */
+#endif

@@ -66,7 +66,6 @@ void KisFixedPaintDeviceTest::testColorSpaceConversion()
 
 }
 
-
 void KisFixedPaintDeviceTest::testRoundtripQImageConversion()
 {
     QImage image(QString(FILES_DATA_DIR) + '/' + "hakonepa.png");
@@ -91,7 +90,6 @@ void KisFixedPaintDeviceTest::testBltFixed()
     KisFixedPaintDeviceSP fdev = new KisFixedPaintDevice(cs);
     fdev->convertFromQImage(image, 0);
 
-    // Without opacity
     KisPaintDeviceSP dev = new KisPaintDevice(cs);
     KisPainter gc(dev);
     gc.bltFixed(QPoint(0, 0), fdev, image.rect());
@@ -110,7 +108,6 @@ void KisFixedPaintDeviceTest::testBltFixed()
 
 void KisFixedPaintDeviceTest::testBltFixedOpacity()
 {
-    // blt a semi-transparent image on a white paint device
 
     QImage image(QString(FILES_DATA_DIR) + '/' + "hakonepa_transparent.png");
     const KoColorSpace * cs = KoColorSpaceRegistry::instance()->rgb8();
@@ -163,16 +160,15 @@ void KisFixedPaintDeviceTest::testFill()
     QVERIFY(dev->bounds() == QRect(0, 0, 100, 100));
     QVERIFY(cs->opacityU8(dev->data()) == 128);
     QVERIFY(memcmp(dev->data(), red, cs->pixelSize()) == 0);
- 
-    //Compare fill will normal paint device
+
     dev = new KisFixedPaintDevice(cs);
     dev->setRect(QRect(0, 0, 150, 150));
     dev->initialize();
     dev->fill(50, 50, 50, 50, red);
-    
+
     KisPaintDeviceSP dev2 = new KisPaintDevice(cs);
     dev2->fill(50, 50, 50, 50, red);
-    
+
     QImage image = dev->convertToQImage(0);
     QImage checkImage = dev2->convertToQImage(0, 0, 0, 150, 150);
     QPoint errpoint;
@@ -181,8 +177,8 @@ void KisFixedPaintDeviceTest::testFill()
         image.save("kis_fixed_paint_device_filled_result.png");
         checkImage.save("kis_fixed_paint_device_filled_result_expected.png");
         QFAIL(QString("Failed to create identical image, first different pixel: %1,%2 \n").arg(errpoint.x()).arg(errpoint.y()).toLatin1());
-    } 
-    
+    }
+
     delete[] red;
 }
 
@@ -193,7 +189,6 @@ void KisFixedPaintDeviceTest::testBltFixedSmall()
     KisFixedPaintDeviceSP fdev = new KisFixedPaintDevice(cs);
     fdev->convertFromQImage(image, 0);
 
-    // Without opacity
     KisPaintDeviceSP dev = new KisPaintDevice(cs);
     KisPainter gc(dev);
     gc.bltFixed(QPoint(0, 0), fdev, image.rect());
@@ -218,7 +213,6 @@ void KisFixedPaintDeviceTest::testBltPerformance()
 
     KisPaintDeviceSP dev = new KisPaintDevice(cs);
     dev->fill(0, 0, 640, 441, KoColor(Qt::white, cs).data());
-
 
     QElapsedTimer t;
     t.start();
@@ -248,7 +242,6 @@ inline quint8 pixel(KisFixedPaintDeviceSP dev, int x, int y)
 {
     KoColor c(Qt::black, dev->colorSpace());
 
-
     dev->readBytes(c.data(), x, y, 1, 1);
     return c.opacityU8();
 }
@@ -269,7 +262,6 @@ void KisFixedPaintDeviceTest::testMirroring_data()
     QTest::newRow("5, true, false") << (QRect(99,99,5,5)) << true << false;
     QTest::newRow("5, true, true") << (QRect(99,99,5,5)) << true << true;
 }
-
 
 void KisFixedPaintDeviceTest::testMirroring()
 {
@@ -295,9 +287,7 @@ void KisFixedPaintDeviceTest::testMirroring()
         value = rng.bounded(255);
     }
 
-    //dev->convertToQImage(0).save("0_a.png");
     dev->mirror(mirrorHorizontally, mirrorVertically);
-    //dev->convertToQImage(0).save("0_b.png");
 
     int startX;
     int endX;

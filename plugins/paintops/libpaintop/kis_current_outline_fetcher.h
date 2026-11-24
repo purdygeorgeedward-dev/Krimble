@@ -18,8 +18,6 @@
 class KisPaintInformation;
 class KisOptimizedBrushOutline;
 
-
-
 class PAINTOP_EXPORT KisCurrentOutlineFetcher
 {
 public:
@@ -48,7 +46,6 @@ public:
                                           qreal additionalRotation = 0.0,
                                           bool tilt = false, qreal tiltcenterx = 1.0, qreal tiltcentery = 1.0) const;
 
-
 private:
     Q_DISABLE_COPY(KisCurrentOutlineFetcher);
     struct Private;
@@ -57,4 +54,4 @@ private:
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(KisCurrentOutlineFetcher::Options);
 
-#endif /* __KIS_CURRENT_OUTLINE_FETCHER_H */
+#endif

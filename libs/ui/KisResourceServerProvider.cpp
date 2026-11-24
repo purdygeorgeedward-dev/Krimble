@@ -58,7 +58,6 @@ KisResourceServerProvider* KisResourceServerProvider::instance()
     return s_instance;
 }
 
-
 KisPaintOpPresetResourceServer* KisResourceServerProvider::paintOpPresetServer()
 {
     return m_paintOpPresetServer;

@@ -8,22 +8,6 @@
 
 #include <KoColorSpaceMaths.h>
 
-/**
- * KoCompositeOpGenericFunctorBase is a set of policies for
- * KoCompositeOpGenericSCFunctor that defines clamping of
- * source and destination **channels** before passing them to
- * the composite function.
- *
- * We cannot clamp the data in the composite function itself,
- * because KoCompositeOpGenericSCFunctor also dose quite heavy
- * blending of the channels when alpha values are non-null
- *
- * IMPORTANT: these policies work with channels_type, not with
- * composite_type! Hence they do **nothing** for integer color
- * spaces!
- */
-
-// no clamping at all
 template <typename T>
 struct KoCompositeOpGenericFunctorBase
 {
@@ -36,7 +20,6 @@ struct KoCompositeOpGenericFunctorBase
     }
 };
 
-// clamp source channel to SDR, keep destination channel unbounded
 template <typename T>
 struct KoClampedSourceCompositeOpGenericFunctorBase
 {
@@ -50,7 +33,6 @@ struct KoClampedSourceCompositeOpGenericFunctorBase
     }
 };
 
-// make sure source and destination channels are non-negative
 template <typename T>
 struct KoClampedSourceAndDestinationBottomCompositeOpGenericFunctorBase
 {
@@ -65,7 +47,6 @@ struct KoClampedSourceAndDestinationBottomCompositeOpGenericFunctorBase
     }
 };
 
-// clamp both source and destination channels to SDR range
 template <typename T>
 struct KoClampedSourceAndDestinationCompositeOpGenericFunctorBase
 {
@@ -80,8 +61,6 @@ struct KoClampedSourceAndDestinationCompositeOpGenericFunctorBase
     }
 };
 
-// clamp source on the both sides and clamp destination on
-// the negative side only
 template <typename T>
 struct KoClampedSourceFullAndDestinationBottomCompositeOpGenericFunctorBase
 {
@@ -96,4 +75,4 @@ struct KoClampedSourceFullAndDestinationBottomCompositeOpGenericFunctorBase
     }
 };
 
-#endif // KOCOMPOSITEOPGENERICFUNCTORBASE_H
+#endif

@@ -27,7 +27,6 @@
 #include <kis_effect_mask.h>
 #include "kis_lod_capable_layer_offset.h"
 
-
 struct Q_DECL_HIDDEN KisCloneLayer::Private
 {
     Private(KisDefaultBoundsBaseSP defaultBounds)
@@ -57,7 +56,6 @@ KisCloneLayer::KisCloneLayer(KisLayerSP from, KisImageWSP image, const QString &
     m_d->copyFrom = from;
     m_d->type = COPY_PROJECTION;
 
-    // When loading the layer we copy from might not exist yet
     if (m_d->copyFrom) {
         m_d->copyFrom->registerClone(this);
     }
@@ -155,18 +153,8 @@ void KisCloneLayer::copyOriginalToProjection(const KisPaintDeviceSP original,
 
 void KisCloneLayer::setDirtyOriginal(const QRect &rect, bool dontInvalidateFrames)
 {
-    /**
-     * The original will be updated when the clone becomes visible
-     * again.
-     */
     if (!visible(true)) return;
 
-    /**
-     *  HINT: this method is present for historical reasons only.
-     *        Long time ago the updates were calculated in
-     *        "copyOriginalToProjection" coordinate system. Now
-     *        everything is done in "original()" space.
-     */
     if (!dontInvalidateFrames) {
         KisLayer::setDirty(rect);
     } else {
@@ -180,10 +168,6 @@ void KisCloneLayer::notifyParentVisibilityChanged(bool value)
     if (!imageSP) {
         return;
     }
-    /**
-     * Trigger a full update when the layer is finally
-     * getting transitively-visible
-     */
     if (value && visible(true)) {
         KisLayer::setDirty(imageSP->bounds());
     }
@@ -233,7 +217,6 @@ QRect KisCloneLayer::extent() const
 {
     QRect rect = original()->extent();
 
-    // HINT: no offset now. See a comment in setDirtyOriginal()
     return rect | projection()->extent();
 }
 
@@ -241,7 +224,6 @@ QRect KisCloneLayer::exactBounds() const
 {
     QRect rect = original()->exactBounds();
 
-    // HINT: no offset now. See a comment in setDirtyOriginal()
     return rect | projection()->exactBounds();
 }
 
@@ -254,11 +236,6 @@ QRect KisCloneLayer::accessRect(const QRect &rect, PositionToFilthy pos) const
             resultRect |= rect.translated(-m_d->offset->x(), -m_d->offset->y());
         }
 
-        /**
-         * KisUpdateOriginalVisitor will try to recalculate some area
-         * on the clone's source, so this extra rectangle should also
-         * be taken into account
-         */
         resultRect |= needRectOnSourceForMasks(rect);
     }
 

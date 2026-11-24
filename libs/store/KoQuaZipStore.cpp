@@ -39,7 +39,6 @@ struct KoQuaZipStore::Private {
     QBuffer buffer;
 };
 
-
 KoQuaZipStore::KoQuaZipStore(const QString &_filename, KoStore::Mode _mode, const QByteArray &appIdentification, bool writeMimetype)
     : KoStore(_mode, writeMimetype)
     , dd(new Private())
@@ -70,20 +69,6 @@ KoQuaZipStore::~KoQuaZipStore()
     if (!d->finalized) {
         finalize();
     }
-
-
-    // NOTE:
-    //   If the dd->currentFile is corrupt (and ->getZipError() returns an error code)
-    // QuaZip cannot really close it properly (and I don't see an accessible function to reset the error code).
-    // Therefore the destructor thinks the file is open and tries to close it.
-    // And closing the file means checking if the zip archive associated with the file is open or not.
-    // Therefore the archive must exist when the file is being closed, therefore also when it's being deleted.
-    // In comparison, the archive can be deleted whenever and it doesn't check the current file.
-    // Therefore we gotta delete the file first, then the zip archive.
-
-    //   From QuaZip code comments for `QuaZipFile(QuaZip *zip, QObject *parent =nullptr);`:
-    // "* Summary: do not close \c zip object or change its current file as
-    // * long as QuaZipFile is open."
 
     if (dd->currentFile) {
         delete dd->currentFile;
@@ -125,7 +110,6 @@ qint64 KoQuaZipStore::write(const char *_data, qint64 _len)
 
 QStringList KoQuaZipStore::directoryList() const
 {
-    // If in Read mode, we can assume the directory listing won't change between invocations.
     if(mode() == Read) {
         if(!dd->directoryListCached) {
             dd->directoryListCache = dd->archive->getFileNameList();
@@ -197,7 +181,7 @@ bool KoQuaZipStore::openWrite(const QString &name)
     fixedPath.replace("//", "/");
 
     delete d->stream;
-    d->stream = 0; // Not used when writing
+    d->stream = 0;
 
     delete dd->currentFile;
     dd->currentFile = new QuaZipFile(dd->archive);
@@ -256,8 +240,6 @@ bool KoQuaZipStore::closeWrite()
 
     bool r = true;
     if (dd->currentFile->write(dd->cache) != dd->cache.size()) {
-        // write() returns number of bytes written, or -1 in case of error
-        // let's allow write 0 bytes in the cache, when needed
         qWarning() << "Could not write buffer to the file";
         r = false;
     }
@@ -274,7 +256,7 @@ bool KoQuaZipStore::closeRead()
     return true;
 }
 
-bool KoQuaZipStore::enterRelativeDirectory(const QString & /*path*/)
+bool KoQuaZipStore::enterRelativeDirectory(const QString & )
 {
     return true;
 }

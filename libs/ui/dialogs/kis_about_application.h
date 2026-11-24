@@ -15,6 +15,4 @@ public:
     KisAboutApplication(QWidget *parent = nullptr);
 };
 
-
-
-#endif // KIS_ABOUT_APPLICATION_H
+#endif

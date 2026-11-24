@@ -24,7 +24,6 @@ class KisRegion;
 #include "krita_container_utils.h"
 #include <functional>
 
-
 namespace KritaUtils
 {
     QSize KRITAIMAGE_EXPORT optimalPatchSize();
@@ -42,19 +41,7 @@ namespace KritaUtils
 
     qreal KRITAIMAGE_EXPORT maxDimensionPortion(const QRectF &bounds, qreal portion, qreal minValue);
 
-
-    /**
-     * Split a path \p path into a set of disjoint (non-intersectable)
-     * paths if possible.
-     *
-     * It tries to follow odd-even fill rule, but has a small problem:
-     * If you have three selections included into each other twice,
-     * then the smallest selection will be included into the final subpath,
-     * although it shouldn't according to odd-even-fill rule. It is still
-     * to be fixed.
-     */
     QList<QPainterPath> KRITAIMAGE_EXPORT splitDisjointPaths(const QPainterPath &path);
-
 
     quint8 KRITAIMAGE_EXPORT mergeOpacityU8(quint8 opacity, quint8 parentOpacity);
     qreal KRITAIMAGE_EXPORT mergeOpacityF(qreal opacity, qreal parentOpacity);
@@ -65,21 +52,8 @@ namespace KritaUtils
 
     KisNodeSP KRITAIMAGE_EXPORT nearestNodeAfterRemoval(KisNodeSP node);
 
-    /**
-     * When drawing a rect Qt uses quite a weird algorithm. It
-     * draws 4 lines:
-     *  o at X-es: rect.x() and rect.right() + 1
-     *  o at Y-s: rect.y() and rect.bottom() + 1
-     *
-     *  Which means that bottom and right lines of the rect are painted
-     *  outside the virtual rectangle the rect defines. This methods overcome this issue by
-     *  painting the adjusted rect.
-     */
     void KRITAIMAGE_EXPORT renderExactRect(QPainter *p, const QRect &rc);
 
-    /**
-     * \see renderExactRect(QPainter *p, const QRect &rc)
-     */
     void KRITAIMAGE_EXPORT renderExactRect(QPainter *p, const QRect &rc, const QPen &pen);
 
     QImage KRITAIMAGE_EXPORT convertQImageToGrayA(const QImage &image);
@@ -97,35 +71,8 @@ namespace KritaUtils
     void KRITAIMAGE_EXPORT mirrorPoint(Qt::Orientation dir, const QPoint &center, QPointF *pt);
     void KRITAIMAGE_EXPORT mirrorPoint(Qt::Orientation dir, const QPointF &center, QPointF *pt);
 
-
-    /**
-     * Returns a special transformation that converts vector shape coordinates
-     * ('pt') into a special coordinate space, where all path boolean operations
-     * should happen.
-     *
-     * The problem is that Qt's path boolean operation do not support curves,
-     * therefore all the curves are converted into lines
-     * (see QPathSegments::addPath()). The curves are split into lines using
-     * absolute size of the curve for the threshold. Therefore, when applying
-     * boolean operations we should convert them into 'image pixel' coordinate
-     * space first.
-     *
-     * See https://bugs.kde.org/show_bug.cgi?id=411056
-     */
     QTransform KRITAIMAGE_EXPORT pathShapeBooleanSpaceWorkaround(KisImageSP image);
 
-    /**
-     * Sometimes, when intersecting two paths, QPainterPath
-     * does not close some of the subpaths. It causes glitches
-     * when rendering them on screen. So we should just close
-     * them explicitly.
-     *
-     * Note: after intersecting the paths all bezier curves are
-     *       already converted to polylines, so it should be safe
-     *       to go through the polygons.
-     *
-     * See: https://bugs.kde.org/show_bug.cgi?id=408369
-     */
     QPainterPath KRITAIMAGE_EXPORT tryCloseTornSubpathsAfterIntersection(QPainterPath path);
 
     enum ThresholdMode {
@@ -237,10 +184,7 @@ namespace KritaUtils
             return;
         }
 
-        // copy all points from the first segment
         rasterizeLineDDA(polylinePoints[0], polylinePoints[1], visitor);
-        // for the rest of the segments, copy all points except the first one
-        // (it is the same as the last point in the previous segment)
         for (int i = 1; i < polylinePoints.size() - 1; ++i) {
             int pointIndex = 0;
             rasterizeLineDDA(
@@ -259,12 +203,10 @@ namespace KritaUtils
     template <typename Visitor>
     void rasterizePolygonDDA(const QVector<QPoint> &polygonPoints, Visitor visitor)
     {
-        // this is a line
         if (polygonPoints.size() < 3) {
             rasterizeLineDDA(polygonPoints.first(), polygonPoints.last(), visitor);
             return;
         }
-        // rasterize all segments except the last one
         QPoint lastSegmentStart;
         if (polygonPoints.first() == polygonPoints.last()) {
             rasterizePolylineDDA(polygonPoints.mid(0, polygonPoints.size() - 1), visitor);
@@ -273,7 +215,6 @@ namespace KritaUtils
             rasterizePolylineDDA(polygonPoints, visitor);
             lastSegmentStart = polygonPoints[polygonPoints.size() - 1];
         }
-        // close the polygon
         {
             QVector<QPoint> points;
             auto addPoint = [&points](const QPoint &point) -> void { points.append(point); };
@@ -284,7 +225,6 @@ namespace KritaUtils
         }
     }
 
-    // Convenience functions
     QVector<QPoint> KRITAIMAGE_EXPORT rasterizeHLine(const QPoint &startPoint, const QPoint &endPoint);
     QVector<QPoint> KRITAIMAGE_EXPORT rasterizeVLine(const QPoint &startPoint, const QPoint &endPoint);
     QVector<QPoint> KRITAIMAGE_EXPORT rasterizeLineDDA(const QPoint &startPoint, const QPoint &endPoint);
@@ -292,4 +232,4 @@ namespace KritaUtils
     QVector<QPoint> KRITAIMAGE_EXPORT rasterizePolygonDDA(const QVector<QPoint> &polygonPoints);
 }
 
-#endif /* __KRITA_UTILS_H */
+#endif

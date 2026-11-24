@@ -8,7 +8,6 @@
 
 #include "kis_wdg_options_rgbe.h"
 
-
 KisWdgOptionsRGBE::KisWdgOptionsRGBE(QWidget *parent)
     : KisConfigWidget(parent)
 {

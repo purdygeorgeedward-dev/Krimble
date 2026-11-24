@@ -39,7 +39,6 @@ struct ShapeBackgroundFetchPolicy
         QSharedPointer<KoPatternBackground> patternBackground = qSharedPointerDynamicCast<KoPatternBackground>(background);
         QSharedPointer<KoMeshGradientBackground> meshgradientBackground = qSharedPointerDynamicCast<KoMeshGradientBackground>(background);
 
-
         if(gradientBackground) {
             return Type::Gradient;
         }
@@ -101,12 +100,10 @@ struct ShapeStrokeFillFetchPolicy
         KoShapeStrokeSP stroke = qSharedPointerDynamicCast<KoShapeStroke>(shape->stroke());
         if (!stroke) return Type::None;
 
-        // Pattern type not implemented yet, so that logic will have to be added here later
         if (stroke->lineBrush().gradient()) {
             return Type::Gradient;
         } else {
 
-            // strokes without any width are none
             if (stroke->color().isValid() && stroke->lineWidth() != 0.0) {
                 return Type::Solid;
             }
@@ -135,7 +132,6 @@ struct ShapeStrokeFillFetchPolicy
     }
 };
 
-
 template <class Policy>
 bool compareBackgrounds(const QList<KoShape*> shapes)
 {
@@ -158,10 +154,6 @@ bool compareBackgrounds(const QList<KoShape*> shapes)
     return true;
 }
 
-/******************************************************************************/
-/*             KoShapeFillWrapper::Private                                    */
-/******************************************************************************/
-
 struct KoShapeFillWrapper::Private
 {
     QList<KoShape*> shapes;
@@ -182,13 +174,11 @@ QSharedPointer<KoShapeBackground> KoShapeFillWrapper::Private::applyFillGradient
     KoGradientBackground *newGradient = 0;
     QSharedPointer<KoGradientBackground> oldGradient = qSharedPointerDynamicCast<KoGradientBackground>(shape->background());
     if (oldGradient) {
-        // just copy the gradient and set the new stops
         QGradient *g = KoFlake::mergeGradient(oldGradient->gradient(), stopGradient);
         newGradient = new KoGradientBackground(g);
         newGradient->setTransform(oldGradient->transform());
     }
     else {
-        // No gradient yet, so create a new one.
         QScopedPointer<QLinearGradient> fakeShapeGradient(new QLinearGradient(QPointF(0, 0), QPointF(1, 1)));
         fakeShapeGradient->setCoordinateMode(QGradient::ObjectBoundingMode);
 
@@ -222,10 +212,6 @@ void KoShapeFillWrapper::Private::applyFillGradientStops(KoShapeStrokeSP shapeSt
     }
 }
 
-/******************************************************************************/
-/*             KoShapeFillWrapper                                             */
-/******************************************************************************/
-
 KoShapeFillWrapper::KoShapeFillWrapper(KoShape *shape, KoFlake::FillVariant fillVariant)
     : m_d(new Private())
 {
@@ -233,7 +219,6 @@ KoShapeFillWrapper::KoShapeFillWrapper(KoShape *shape, KoFlake::FillVariant fill
     m_d->shapes << shape;
     m_d->fillVariant= fillVariant;
 }
-
 
 KoShapeFillWrapper::KoShapeFillWrapper(QList<KoShape*> shapes, KoFlake::FillVariant fillVariant)
     : m_d(new Private())
@@ -265,10 +250,8 @@ KoFlake::FillType KoShapeFillWrapper::type() const
 
     KoFlake::FillType fillType;
     if (m_d->fillVariant == KoFlake::Fill) {
-        // fill property of vector object
         fillType = ShapeBackgroundFetchPolicy::type(shape);
     } else {
-        // stroke property of vector object
         fillType = ShapeStrokeFillFetchPolicy::type(shape);
     }
 
@@ -277,8 +260,6 @@ KoFlake::FillType KoShapeFillWrapper::type() const
 
 QColor KoShapeFillWrapper::color() const
 {
-    // this check guarantees that the shapes list is not empty and
-    // the fill is not mixed!
     if (type() != KoFlake::Solid) return QColor();
 
     KoShape *shape = m_d->shapes.first();
@@ -291,8 +272,6 @@ QColor KoShapeFillWrapper::color() const
 
 const QGradient* KoShapeFillWrapper::gradient() const
 {
-    // this check guarantees that the shapes list is not empty and
-    // the fill is not mixed!
     if (type() != KoFlake::Gradient) return 0;
 
     KoShape *shape = m_d->shapes.first();
@@ -305,8 +284,6 @@ const QGradient* KoShapeFillWrapper::gradient() const
 
 QTransform KoShapeFillWrapper::gradientTransform() const
 {
-    // this check guarantees that the shapes list is not empty and
-    // the fill is not mixed!
     if (type() != KoFlake::Gradient) return QTransform();
 
     KoShape *shape = m_d->shapes.first();
@@ -367,14 +344,12 @@ KUndo2Command *KoShapeFillWrapper::setLineWidth(const float &lineWidth)
    return command;
 }
 
-
 bool KoShapeFillWrapper::hasZeroLineWidth() const
 {
         KoShape *shape = m_d->shapes.first();
         if (!shape) return false;
         if (m_d->fillVariant == KoFlake::Fill)  return false;
 
-        // this check is useful to determine if
         KoShapeStrokeSP stroke = qSharedPointerDynamicCast<KoShapeStroke>(shape->stroke());
         if (!stroke) return false;
 
@@ -384,7 +359,6 @@ bool KoShapeFillWrapper::hasZeroLineWidth() const
 
         return false;
 }
-
 
 KUndo2Command *KoShapeFillWrapper::setGradient(const QGradient *gradient, const QTransform &transform)
 {
@@ -461,6 +435,5 @@ KUndo2Command* KoShapeFillWrapper::setMeshGradient(const SvgMeshGradient *gradie
         }
         command = new KoShapeBackgroundCommand(m_d->shapes, newBackgrounds);
     }
-    // TODO: for strokes!!
     return command;
 }

@@ -23,4 +23,4 @@ public:
     static QString supportedInstructionSets();
 };
 
-#endif // KIS_SUPPORTED_ARCHITECTURES_H
+#endif

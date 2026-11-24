@@ -6,20 +6,11 @@
 #ifndef KIS_TILE_DATA_H_
 #define KIS_TILE_DATA_H_
 
-/**
- * Some methods of KisTileData have a cyclic dependency
- * to the KisTileDataStore, so we've moved the class
- * declaration to a separate file, that will be included
- * by the store.
- */
 #include "kis_tile_data_interface.h"
-
 
 #include "kis_tile_data_store.h"
 
-
 inline quint8* KisTileData::data() const {
-        // WARN: be careful - it can be null when swapped out!
         return m_data;
     }
 
@@ -33,13 +24,6 @@ inline quint32 KisTileData::pixelSize() const {
 }
 
 inline bool KisTileData::acquire() {
-    /**
-     * We need to ensure the clones in the stack are
-     * consistent with the data. When we have a single
-     * user, the most probably, the clone has already
-     * started stinking.
-     * So just clean it up.
-     */
     if(m_usersCount == 1) {
         KisTileData *clone = 0;
         while(m_clonesStack.pop(clone)) {
@@ -121,5 +105,5 @@ inline qint32 KisTileData::numUsers() const {
     return m_usersCount;
 }
 
-#endif /* KIS_TILE_DATA_H_ */
+#endif
 

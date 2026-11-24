@@ -13,11 +13,6 @@
 #include "kis_shortcut_configuration.h"
 
 class QTouchEvent;
-/**
- * @brief The KisTouchShortcut class only handles touch gestures
- * it _does not_ handle tool invocation i.e painting (which is being
- * handled in KisShortcutMatcher).
- */
 class KisTouchShortcut : public KisAbstractShortcut
 {
         using GestureAction = KisShortcutConfiguration::GestureAction;
@@ -43,4 +38,4 @@ class KisTouchShortcut : public KisAbstractShortcut
         Private * const d;
 };
 
-#endif // KISTOUCHSHORTCUT_H
+#endif

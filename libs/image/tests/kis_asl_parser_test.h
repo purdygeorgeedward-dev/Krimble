@@ -23,4 +23,4 @@ private Q_SLOTS:
     void testParserWithPatterns();
 };
 
-#endif /* __KIS_ASL_PARSER_TEST_H */
+#endif

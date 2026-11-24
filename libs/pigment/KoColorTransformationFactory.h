@@ -19,10 +19,6 @@ class KoID;
 
 #include "kritapigment_export.h"
 
-/**
- * Allow to extend the number of color transformation of a
- * colorspace.
- */
 class KRITAPIGMENT_EXPORT KoColorTransformationFactory
 {
 public:
@@ -31,9 +27,6 @@ public:
 public:
     QString id() const;
 public:
-    /**
-     * @return an empty list if the factory support all type of colorspaces models.
-     */
     virtual QList< QPair< KoID, KoID > > supportedModels() const = 0;
     virtual KoColorTransformation* createTransformation(const KoColorSpace* colorSpace, QHash<QString, QVariant> parameters) const = 0;
 private:

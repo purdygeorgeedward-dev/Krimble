@@ -16,15 +16,12 @@
 #include <QtGlobal>
 #include "kis_types.h"
 
-
-
 enum BumpmapType
 {
   LINEAR = 0,
   SPHERICAL,
   SINUSOIDAL
 };
-
 
 struct bumpmap_vals_t
 {
@@ -62,4 +59,4 @@ void KRITAIMAGE_EXPORT bumpmap (KisPixelSelectionSP device,
                                 const QRect &selectionRect,
                                 const bumpmap_vals_t &bmvals);
 
-#endif /* __GIMP_BUMP_MAP_H */
+#endif

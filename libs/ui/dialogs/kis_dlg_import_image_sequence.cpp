@@ -31,7 +31,6 @@ public:
             QStringList ours = text().split(rx, Qt::SkipEmptyParts);
             QStringList theirs = other.text().split(rx, Qt::SkipEmptyParts);
 
-            // Let's compare the last numbers -- they are most likely to be the serial numbers
             if (ours.size() > 0 && theirs.size() > 0) {
                 return (ours.last().toInt() < theirs.last().toInt());
             }
@@ -78,7 +77,6 @@ KisDlgImportImageSequence::KisDlgImportImageSequence(KisMainWindow *mainWindow, 
 #else
     connect(m_ui.autoAddHoldframesBox, &QCheckBox::checkStateChanged, this, &KisDlgImportImageSequence::autoAddHoldframes);
 #endif
-    // cold initialization of the controls
     slotSkipChanged(m_ui.spinStep->value());
     slotOrderOptionsChanged(m_ui.cmbOrder->currentIndex());
     slotOrderOptionsChanged(m_ui.cmbSortMode->currentIndex());
@@ -143,8 +141,6 @@ QStringList KisDlgImportImageSequence::showOpenFileDialog()
     return dialog.filenames();
 }
 
-
-
 void KisDlgImportImageSequence::slotRemoveFiles()
 {
     QList<QListWidgetItem*> selected = m_ui.lstFiles->selectedItems();
@@ -167,7 +163,7 @@ void KisDlgImportImageSequence::slotSkipChanged(int)
 void KisDlgImportImageSequence::slotOrderOptionsChanged(int)
 {
 
-    if(m_ui.cmbSortMode->currentIndex() == 0){ // we shouldn't add hold frames automatically if they are sorted alphabetically
+    if(m_ui.cmbSortMode->currentIndex() == 0){
         m_ui.autoAddHoldframesBox->setChecked(false);
         m_ui.autoAddHoldframesBox->setEnabled(false);
     }
@@ -176,7 +172,7 @@ void KisDlgImportImageSequence::slotOrderOptionsChanged(int)
     }
 
     if(m_ui.cmbOrder->currentIndex() == 1){
-        m_ui.beginFromZeroIndexBox->setChecked(false);   //redundant
+        m_ui.beginFromZeroIndexBox->setChecked(false);
         m_ui.beginFromZeroIndexBox->hide();
     }
     this->sortOrder = m_ui.cmbOrder->currentIndex();

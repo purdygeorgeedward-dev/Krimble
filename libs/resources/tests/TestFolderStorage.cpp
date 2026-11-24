@@ -25,7 +25,6 @@
 #error "FILES_DATA_DIR not set. A directory with the data used for testing installing resources"
 #endif
 
-
 void TestFolderStorage::initTestCase()
 {
     ResourceTestHelper::initTestDb();
@@ -124,13 +123,6 @@ void TestFolderStorage::testResourceCaseSensitivity()
     KoResourceSP res1 = folderStorage.resource("paintoppresets/resourcecasetest.kpp");
     QVERIFY(res1);
     QCOMPARE(res1->filename(), "resourcecasetest.kpp");
-
-    /**
-     * In the folder storage we expect all resources to have
-     * filesystem-dependent name resolution. That is, if we request a resource
-     * with wrong casing, it should still fetch the resource. But the filename
-     * field of the resource must contain the correct casing
-     */
 
 #if defined Q_OS_WIN || defined Q_OS_MACOS
     KoResourceSP res2 = folderStorage.resource("paintoppresets/ReSoUrCeCaSeTeSt.kpp");

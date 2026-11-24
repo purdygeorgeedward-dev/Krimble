@@ -18,15 +18,12 @@
 
 class KoSelection;
 
-
-
 class CutThroughShapeStrategy : public KoInteractionStrategy
 {
 public:
     CutThroughShapeStrategy(KoToolBase *tool, KoSelection *selection, const QList<KoShape *> &allShapes, QPointF startPoint, const GutterWidthsConfig &width);
 
     ~CutThroughShapeStrategy() override;
-
 
     KUndo2Command *createCommand() override;
 
@@ -45,8 +42,6 @@ private:
     static void initializeOutlineObjects(const QTransform &booleanWorkaroundTransform, QList<KoShape *> allShapes, QList<QPainterPath> &outSrcOutlines, QRectF &outOutlineRect);
     static void initializeGapShapes(QRectF outlineRect, QLineF leftLine, QLineF rightLine, QPainterPath& outLeft, QPainterPath& outRight, QRectF& outGapLineRect, QPolygonF& outGapLinePolygon);
 
-
-
 private:
     friend class CutThroughShapeStrategyTest;
 
@@ -58,7 +53,4 @@ private:
     GutterWidthsConfig m_width;
 };
 
-
-
-
-#endif // CUT_THROUGH_SHAPE_STRATEGY_H_
+#endif

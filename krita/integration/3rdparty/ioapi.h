@@ -38,7 +38,7 @@
 #    if (_MSC_VER >= 1400) && (!(defined(NO_MSCVER_FILE64_FUNC)))
 #      define ftello64 _ftelli64
 #      define fseeko64 _fseeki64
-#    else /* old MSC */
+#    else
 #      define ftello64 ftell
 #      define fseeko64 fseek
 #    endif
@@ -82,7 +82,6 @@ typedef int      (ZCALLBACK *error_file_func)    (voidpf opaque, voidpf stream);
 typedef long     (ZCALLBACK *tell_file_func)     (voidpf opaque, voidpf stream);
 typedef long     (ZCALLBACK *seek_file_func)     (voidpf opaque, voidpf stream, uint32_t offset, int origin);
 
-/* here is the "old" 32 bits structure structure */
 typedef struct zlib_filefunc_def_s
 {
     open_file_func      zopen_file;
@@ -117,7 +116,6 @@ typedef struct zlib_filefunc64_def_s
 void fill_fopen_filefunc(zlib_filefunc_def *pzlib_filefunc_def);
 void fill_fopen64_filefunc(zlib_filefunc64_def *pzlib_filefunc_def);
 
-/* now internal definition, only for zip.c and unzip.h */
 typedef struct zlib_filefunc64_32_def_s
 {
     zlib_filefunc64_def zfile_func64;
@@ -129,8 +127,6 @@ typedef struct zlib_filefunc64_32_def_s
 
 #define ZREAD64(filefunc,filestream,buf,size)       ((*((filefunc).zfile_func64.zread_file))        ((filefunc).zfile_func64.opaque,filestream,buf,size))
 #define ZWRITE64(filefunc,filestream,buf,size)      ((*((filefunc).zfile_func64.zwrite_file))       ((filefunc).zfile_func64.opaque,filestream,buf,size))
-/*#define ZTELL64(filefunc,filestream)                ((*((filefunc).ztell64_file))                   ((filefunc).opaque,filestream))*/
-/*#define ZSEEK64(filefunc,filestream,pos,mode)       ((*((filefunc).zseek64_file))                   ((filefunc).opaque,filestream,pos,mode))*/
 #define ZCLOSE64(filefunc,filestream)               ((*((filefunc).zfile_func64.zclose_file))       ((filefunc).zfile_func64.opaque,filestream))
 #define ZERROR64(filefunc,filestream)               ((*((filefunc).zfile_func64.zerror_file))       ((filefunc).zfile_func64.opaque,filestream))
 

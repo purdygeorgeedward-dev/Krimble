@@ -32,9 +32,6 @@ public:
 	KisImportExportErrorCode buildImage(const QString &filename);
 	KisImportExportErrorCode buildFile(const QString &filename,
 			KisPaintLayerSP layer, const JP2ConvertOptions &options);
-	/**
-	 * Retrieve the constructed image
-	 */
 	KisImageWSP image();
 	void addErrorString(const std::string&  str);
 	void addWarningString(const std::string&  str);

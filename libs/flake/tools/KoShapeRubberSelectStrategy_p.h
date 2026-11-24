@@ -24,11 +24,6 @@ public:
         delete snapGuide;
     }
 
-    /**
-     * Return the rectangle that the user dragged.
-     * The rectangle is normalized and immutable.
-     * @return a rectangle in pt.
-     */
     QRectF selectedRect() const {
         return selectRect.normalized();
     }

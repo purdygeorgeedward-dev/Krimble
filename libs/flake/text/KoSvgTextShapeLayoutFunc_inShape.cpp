@@ -26,8 +26,6 @@ namespace KoSvgTextShapeLayoutFunc {
 QList<QPainterPath>
 getShapes(QList<KoShape *> shapesInside, QList<KoShape *> shapesSubtract, const KoSvgTextProperties &properties)
 {
-    // the boost polygon method requires (and gives best result) on a inter-based polygon,
-    // so we need to scale up. The scale selected here is the size freetype coordinates give to a single pixel.
     qreal scale = 64.0;
     QTransform precisionTF = QTransform::fromScale(scale, scale);
 
@@ -43,7 +41,6 @@ getShapes(QList<KoShape *> shapesInside, QList<KoShape *> shapesSubtract, const 
         if (path) {
             QPainterPath p = path->transformation().map(path->outline());
             p.setFillRule(path->fillRule());
-            // grow each polygon here with the shape margin size.
             if (shapeMargin > 0) {
                 QList<QPolygon> subpathPolygons;
                 Q_FOREACH(QPolygonF subPath, p.toSubpathPolygons()) {
@@ -113,8 +110,6 @@ static bool getFirstPosition(QPointF &firstPoint,
                              bool ltr)
 {
     if (wordBox.isEmpty()) {
-        // line-height: 0 will give us empty rects, make them slightly tall/wide
-        // to avoid issues with complex QRectF operations.
         if (writingMode == KoSvgText::HorizontalTB) {
             wordBox.setHeight(1e-3);
         } else {
@@ -122,13 +117,9 @@ static bool getFirstPosition(QPointF &firstPoint,
         }
     }
 
-    /// Precision of fitting the word box into the polygon to account for
-    /// floating-point precision error.
-
     QVector<QPointF> candidatePositions;
     QRectF word = wordBox.normalized();
     word.translate(-wordBox.topLeft());
-    // Slightly shrink the box to account for precision error.
     word.adjust(SHAPE_PRECISION, SHAPE_PRECISION, -SHAPE_PRECISION, -SHAPE_PRECISION);
 
     QPointF terminatorAdjusted = terminator;
@@ -182,7 +173,6 @@ static bool getFirstPosition(QPointF &firstPoint,
                 QPointF intersectPoint;
                 QLineF::IntersectType intersect = line.intersects(line2, &intersectPoint);
                 if (intersect != QLineF::NoIntersection) {
-                    // should proly handle 'reflex' vertices better.
                     if (!p.contains(intersectPoint)) {
                         continue;
                     }
@@ -333,7 +323,6 @@ findLineBoxesForFirstPos(QPainterPath shape, QPointF firstPos, const QRectF word
         std::sort(intersects.begin(), intersects.end(), pointLessThanVertical);
     }
 
-
     for (int i = 0; i< intersects.size()-1; i++) {
         QLineF line(intersects.at(i), intersects.at(i+1));
 
@@ -396,11 +385,6 @@ findLineBoxesForFirstPos(QPainterPath shape, QPointF firstPos, const QRectF word
     return lines;
 }
 
-/**
- * @brief getEstimatedHeight
- * Adjust the wordbox with the estimated height.
- */
-
 static void getEstimatedHeight(QVector<CharacterResult> &result,
                                const int index,
                                QRectF &wordBox,
@@ -427,7 +411,6 @@ static void getEstimatedHeight(QVector<CharacterResult> &result,
         wordBox.setTop(maxAscent);
         wordBox.setBottom(maxDescent);
     } else {
-        // vertical lr has top at the right even though block flow is also to the right.
         wordBox.setRight(maxAscent);
         wordBox.setLeft(maxDescent);
     }
@@ -472,20 +455,19 @@ QVector<LineBox> flowTextInShapes(const KoSvgTextProperties &properties,
     KoSvgText::TextAlign alignLast = KoSvgText::TextAlign(properties.propertyOrDefault(KoSvgTextProperties::TextAlignLastId).toInt());
     KoSvgText::TextAnchor anchor = textAnchorForTextAlign(align, alignLast, ltr);
 
-    QPointF textIndent; ///< The textIndent.
+    QPointF textIndent;
     KoSvgText::TextIndentInfo textIndentInfo = properties.propertyOrDefault(KoSvgTextProperties::TextIndentId).value<KoSvgText::TextIndentInfo>();
 
-    QVector<int> wordIndices; ///< 'word' in this case meaning characters
-                              ///< inbetween softbreaks.
-    QRectF wordBox; ///< Approximated box of the current word;
+    QVector<int> wordIndices;
+    QRectF wordBox;
     QPointF wordAdvance;
 
     LineBox currentLine;
     bool indentLine = true;
 
     QPointF currentPos = writingMode == KoSvgText::VerticalRL? shapes.first().boundingRect().topRight()
-                                                             : shapes.first().boundingRect().topLeft(); ///< Current position with advances of each character.
-    QPointF lineOffset = currentPos; ///< Current line offset.
+                                                             : shapes.first().boundingRect().topLeft();
+    QPointF lineOffset = currentPos;
 
     QListIterator<int> it(logicalToVisual.keys());
     QListIterator<QPainterPath> shapesIt(shapes);
@@ -493,7 +475,6 @@ QVector<LineBox> flowTextInShapes(const KoSvgTextProperties &properties,
         return lineBoxes;
     }
     {
-        // Calculate the default pos.
         qreal fontSize = properties.fontSize().value;
         QRectF wordBox = isHorizontal? QRectF(0, fontSize * -0.8, SHAPE_PRECISION, fontSize)
                                      : QRectF(fontSize * -0.5, 0, fontSize, SHAPE_PRECISION);
@@ -508,7 +489,7 @@ QVector<LineBox> flowTextInShapes(const KoSvgTextProperties &properties,
             continue;
         }
 
-        bool softBreak = false; ///< Whether to break a line.
+        bool softBreak = false;
         bool doNotCountAdvance =
             ((charResult.lineEnd != LineEdgeBehaviour::NoChange)
              && !(currentLine.isEmpty() && wordIndices.isEmpty()));
@@ -567,17 +548,11 @@ QVector<LineBox> flowTextInShapes(const KoSvgTextProperties &properties,
                 lineBoxes.append(currentLine);
                 indentLine = false;
             }
-            // Not adding indent to the (first) word box means it'll overflow if there's no room,
-            // but being too strict might end with the whole text disappearing. Given Krita's text layout is
-            // in an interactive context, ugly result might be more communicative than all text disappearing.
             bool ind = textIndentInfo.hanging? !indentLine: indentLine;
             QPointF indent = ind? textIndent: QPointF();
             bool foundFirst = false;
             bool needNewLine = true;
-            // add text indent to wordbox.
             if (!currentShape.isEmpty()) {
-                // we're going to try and get an offset line first before trying get first pos.
-                // This gives more stable results on curved shapes.
                 getEstimatedHeight(result, index, wordBox, currentShape.boundingRect(), writingMode);
                 currentPos -= writingMode == KoSvgText::VerticalRL? wordBox.topRight(): wordBox.topLeft();
 
@@ -585,7 +560,6 @@ QVector<LineBox> flowTextInShapes(const KoSvgTextProperties &properties,
                 qreal length = isHorizontal? wordBox.width(): wordBox.height();
                 for (int i = 0; i < currentLine.chunks.size(); i++) {
                     const LineChunk chunk = currentLine.chunks.at(i);
-                    // We have a new line, so we find the first chunk that fits the word.
                     if ( chunk.length.length() > length ) {
                         currentLine.currentChunk = i;
                         foundFirst = true;
@@ -594,13 +568,6 @@ QVector<LineBox> flowTextInShapes(const KoSvgTextProperties &properties,
                     }
                 }
             }
-            /*
-             * In theory we could have overflow wrap for shapes, but it'd require either generalizing
-             * the line-filling portion above and this new line seeking portion, or somehow reverting
-             * the iterator over the results to be on the last fitted glyph (which'd still require
-             * generalizing the line-filling portion about), and I am unsure how to do that.
-             * Either way, this place here is where you'd check for overflow wrap.
-             */
             while(!foundFirst) {
                 foundFirst = getFirstPosition(currentPos, currentShape, wordBox, lineOffset, writingMode, ltr);
                 if (foundFirst || !shapesIt.hasNext()) {
@@ -630,8 +597,6 @@ QVector<LineBox> flowTextInShapes(const KoSvgTextProperties &properties,
 
             bool lastDitch = false;
             if (!foundFirst && lineBoxes.isEmpty() && !wordIndices.isEmpty() && !currentShape.isEmpty()) {
-                // Last-ditch attempt to get any kind of positioning to happen.
-                // This typically happens when wrapping has been disabled.
                 wordBox = result[wordIndices.first()].lineHeightBox().translated(result[wordIndices.first()].totalBaselineOffset());
                 foundFirst = getFirstPosition(currentPos, currentShape, wordBox, lineOffset, writingMode, ltr);
                 lastDitch = true;
@@ -641,8 +606,6 @@ QVector<LineBox> flowTextInShapes(const KoSvgTextProperties &properties,
 
                 if (needNewLine) {
                     currentLine = LineBox(findLineBoxesForFirstPos(currentShape, currentPos, wordBox, writingMode), ltr, indent, resHandler);
-                    // We could set this to find the first fitting width, but it's better to try and improve the precision of the firstpos algorithm,
-                    // as this gives more stable results.
                     currentLine.setCurrentChunkForPos(currentPos, isHorizontal);
                 }
                 const qreal expectedLineT = isHorizontal? wordBox.top():
@@ -693,4 +656,4 @@ QVector<LineBox> flowTextInShapes(const KoSvgTextProperties &properties,
     return lineBoxes;
 }
 
-} // namespace KoSvgTextShapeLayoutFunc
+}

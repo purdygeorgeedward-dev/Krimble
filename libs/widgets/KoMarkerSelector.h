@@ -14,7 +14,6 @@
 
 class KoMarker;
 
-
 class KRITAWIDGETS_EXPORT KoMarkerSelector : public QComboBox
 {
     Q_OBJECT
@@ -22,17 +21,11 @@ public:
     explicit KoMarkerSelector(KoFlake::MarkerPosition position, QWidget *parent = 0);
     ~KoMarkerSelector() override;
 
-    // set the current marker style
     void setMarker(KoMarker *marker);
-    // return the current marker style
     KoMarker *marker() const;
 
-    /// reimplement
     QVariant itemData(int index, int role = Qt::UserRole) const;
 
-    /**
-     * Set the available markers in the document.
-     */
     void updateMarkers(const QList<KoMarker*> markers);
 
 protected:
@@ -43,4 +36,4 @@ private:
     Private * const d;
 };
 
-#endif /* KOMARKERSELECTOR_H */
+#endif

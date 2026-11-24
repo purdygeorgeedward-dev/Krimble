@@ -60,9 +60,6 @@ void KoPatternTest::testRoundTripMd5()
     QImage im1 = pngPattern.pattern().convertToFormat(QImage::Format_ARGB32);
     QImage im2 = patPattern.pattern().convertToFormat(QImage::Format_ARGB32);
 
-    // QImages loaded from a png file get a colorspace set, but
-    // we don't create a colorspace for images loaded from .pat,
-    // so make sure both im1 and im2 have a colorspace.
     im2.setColorSpace(im1.colorSpace());
 
     QCOMPARE(im1.sizeInBytes(), im2.sizeInBytes());
@@ -79,12 +76,9 @@ void KoPatternTest::testRoundTripMd5()
     QCryptographicHash h2(QCryptographicHash::Md5);
     h2.addData(QByteArray::fromRawData((const char*)im2.constBits(), im2.sizeInBytes()));
 
-    // Compares the images: they should be the same
     QCOMPARE(h1.result(), h2.result());
 
-    // Compares the md5sum taken from the file: they should be different
     QVERIFY(pngPattern.md5Sum() != patPattern.md5Sum());
 }
-
 
 SIMPLE_TEST_MAIN(KoPatternTest)

@@ -15,39 +15,20 @@
 
 class KisAbstractInputAction;
 
-
 class KRITAUI_EXPORT KisAbstractShortcut
 {
 public:
     KisAbstractShortcut(KisAbstractInputAction *action, int index);
     virtual ~KisAbstractShortcut();
 
-    /**
-     * The priority of the shortcut. The shortcut with the
-     * greatest value will be chosen for execution
-     */
     virtual int priority() const = 0;
 
-    /**
-     * The action associated with this shortcut.
-     */
     KisAbstractInputAction* action() const;
 
-    /**
-     * Set the action associated with this shortcut.
-     */
     void setAction(KisAbstractInputAction *action);
 
-    /**
-     * The index of the shortcut.
-     *
-     * \see KisAbstractInputAction::begin()
-     */
     int shortcutIndex() const;
 
-    /**
-     * Returns true if the shortcut is enabled at the moment
-     */
     bool isAvailable(KisInputActionGroupsMask mask) const;
 
 protected:
@@ -59,4 +40,4 @@ private:
     Private * const m_d;
 };
 
-#endif /* __KIS_ABSTRACT_SHORTCUT_H */
+#endif

@@ -70,4 +70,4 @@ bool KisCallbackBasedPaintopProperty<ParentClass>::isVisible() const
     return m_visibleFunc ? m_visibleFunc(this) : true;
 }
 
-#endif /* __KIS_CALLBACK_BASED_PAINTOP_PROPERTY_IMPL_H */
+#endif

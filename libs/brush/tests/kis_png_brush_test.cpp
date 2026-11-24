@@ -32,7 +32,6 @@ void KisPngBrushTest::testLoading()
     QFETCH(int, expectedBrushApplication);
     QFETCH(bool, expectedIsImageType);
 
-
     QScopedPointer<KisPngBrush> brush(new KisPngBrush(QString(FILES_DATA_DIR) + '/' + filename));
     bool res = brush->load(KisGlobalResourcesInterface::instance());
     QVERIFY(res);

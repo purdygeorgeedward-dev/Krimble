@@ -26,9 +26,6 @@ public:
     KisImportExportErrorCode buildImage(const QString &filename);
     KisImportExportErrorCode buildFile(const QString &filename, KisPaintLayerSP layer);
     KisImportExportErrorCode buildFile(const QString &filename, KisGroupLayerSP layer, bool flatten=false);
-    /**
-     * Retrieve the constructed image
-     */
     KisImageSP image();
     QString errorMessage() const;
 private:

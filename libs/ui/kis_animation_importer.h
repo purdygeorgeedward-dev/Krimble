@@ -18,7 +18,7 @@ class KisMainWindow;
 
 class KRITAUI_EXPORT KisAnimationImporter : public QObject
 {
-    Q_OBJECT    
+    Q_OBJECT
 
 public:
     KisAnimationImporter(KisImageSP image, KoUpdaterPtr updater = 0);

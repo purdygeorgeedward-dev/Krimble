@@ -27,22 +27,14 @@
 
 #include "rnuminput.h"
 
-// C++ includes
-
 #include <cmath>
-
-// Qt includes
 
 #include <QToolButton>
 #include <QApplication>
 #include <QStyle>
 #include <QHBoxLayout>
 
-// KDE includes
-
 #include <klocalizedstring.h>
-
-// Local includes
 
 #include "rsliderspinbox.h"
 
@@ -87,8 +79,6 @@ RIntNumInput::RIntNumInput(QWidget* const parent)
     hlay->setContentsMargins(QMargins());
     hlay->setStretchFactor(d->input, 10);
     hlay->setSpacing(QApplication::style()->pixelMetric(QStyle::PM_LayoutHorizontalSpacing));
-
-    // -------------------------------------------------------------
 
     connect(d->resetButton, &QToolButton::clicked,
             this, &RIntNumInput::slotReset);
@@ -148,8 +138,6 @@ void RIntNumInput::slotValueChanged(int v)
     Q_EMIT valueChanged(v);
 }
 
-// ----------------------------------------------------
-
 class Q_DECL_HIDDEN RDoubleNumInput::Private
 {
 
@@ -186,8 +174,6 @@ RDoubleNumInput::RDoubleNumInput(QWidget* const parent)
     hlay->setContentsMargins(QMargins());
     hlay->setStretchFactor(d->input, 10);
     hlay->setSpacing(QApplication::style()->pixelMetric(QStyle::PM_LayoutHorizontalSpacing));
-
-    // -------------------------------------------------------------
 
     connect(d->resetButton, &QToolButton::clicked,
             this, &RDoubleNumInput::slotReset);
@@ -253,4 +239,4 @@ void RDoubleNumInput::slotValueChanged(double v)
     Q_EMIT valueChanged(v);
 }
 
-}  // namespace KDcrawIface
+}

@@ -21,9 +21,9 @@ public:
     KisGridShapeOptionModel(lager::cursor<KisGridShapeOptionData> optionData);
 
     lager::cursor<KisGridShapeOptionData> optionData;
-    
+
     LAGER_QT_CURSOR(int, shape);
-    
+
 };
 
-#endif // KIS_GRID_SHAPE_OPTION_MODEL_H
+#endif

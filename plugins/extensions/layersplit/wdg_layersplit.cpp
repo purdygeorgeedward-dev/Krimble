@@ -16,4 +16,3 @@ WdgLayerSplit::WdgLayerSplit(QWidget* parent)
     setupUi(this);
 }
 
-

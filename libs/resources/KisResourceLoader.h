@@ -17,12 +17,6 @@
 
 #include <kritaresources_export.h>
 
-
-/**
- * @brief The KisResourceLoader class is an abstract interface
- * class that must be implemented by actual resource classes and
- * registered with the KisResourceLoaderRegistry.
- */
 class KRITARESOURCES_EXPORT KisResourceLoaderBase
 {
 public:
@@ -39,24 +33,13 @@ public:
     {
     }
 
-    /**
-     * @return a set of filters ("*.bla,*.foo") that is suitable for filtering
-     * the contents of a directory.
-     */
     QStringList filters() const;
 
-    /**
-     * @return the mimetypes this resource can load
-     */
     QStringList mimetypes() const
     {
         return m_mimetypes;
     }
 
-    /**
-     * @return the folder in the resource storage where resources
-     * of this type are located
-     */
     QString resourceType() const
     {
         return m_resourceType;
@@ -67,13 +50,11 @@ public:
         return id();
     }
 
-    /// For registration in KisResourceLoaderRegistry
     QString id() const
     {
         return m_resourceSubType;
     }
 
-    /// The user-friendly name of the category
     QString name() const
     {
         return m_name;
@@ -87,16 +68,11 @@ public:
         return resource->loadFromDevice(&dev, resourcesInterface);
     }
 
-    /**
-     * Load this resource.
-     * @return a resource if loading the resource succeeded, 0 otherwise
-     */
     KoResourceSP load(const QString &name, QIODevice &dev, KisResourcesInterfaceSP resourcesInterface)
     {
         KoResourceSP resource = create(name);
         return load(resource, dev, resourcesInterface) ? resource : 0;
     }
-
 
 private:
     QString m_resourceSubType;
@@ -121,6 +97,4 @@ public:
     }
 };
 
-
-
-#endif // KISRESOURCELOADER_H
+#endif

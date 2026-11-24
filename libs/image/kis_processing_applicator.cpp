@@ -59,7 +59,6 @@ private:
     KisImageWSP m_image;
 };
 
-
 class UpdateCommand : public KisCommandUtils::FlipFlopCommand, public KisAsynchronouslyMergeableCommandInterface
 {
 public:
@@ -76,13 +75,6 @@ public:
 
 private:
     void partA() override {
-        /**
-         * We disable all non-centralized updates here. Everything
-         * should be done by this command's explicit updates.
-         *
-         * If you still need third-party updates work, please add a
-         * flag to the applicator.
-         */
         m_image->disableDirtyRequests();
     }
 
@@ -114,19 +106,8 @@ private:
     }
 
     void updateClones(KisNodeSP node) {
-        /**
-         * TODO: completely remove these clone updates code
-         *       in Krita 6
-         *
-         * These updates should actually be issued by
-         * KisBaseRectsWalker::registerCloneNotification(), so
-         * we disable then for now. If no reports about broken
-         * clones arrive until Krita 6, just remove this
-         * (deprecated?) code.
-         */
 
         if (qEnvironmentVariableIsSet("KRITA_ENABLE_CLONE_UPDATES_IN_APPLICATOR")) {
-            // simple tail-recursive iteration
             KisNodeSP prevNode = node->lastChild();
             while(prevNode) {
                 updateClones(prevNode);
@@ -220,8 +201,6 @@ public:
         return other &&
             other->m_image == m_image;
 
-            // TODO: implement proper comparison for emitted signals
-            // other->m_emitSignals == m_emitSignals;
     }
 
 private:
@@ -367,8 +346,6 @@ void KisProcessingApplicator::applyVisitorAllFrames(KisProcessingVisitorSP visit
 
     KisLayerUtils::FrameJobs jobs;
 
-    // TODO: implement a nonrecursive case when !m_flags.testFlag(RECURSIVE)
-    //       (such case is not yet used anywhere)
     KIS_SAFE_ASSERT_RECOVER_NOOP(m_flags.testFlag(RECURSIVE));
 
     if (!m_nodes.isEmpty()) {
@@ -408,7 +385,6 @@ void KisProcessingApplicator::visitRecursively(KisNodeSP node,
                                                KisStrokeJobData::Sequentiality sequentiality,
                                                KisStrokeJobData::Exclusivity exclusivity)
 {
-    // simple tail-recursive iteration
 
     KisNodeSP prevNode = node->lastChild();
     while(prevNode) {
@@ -424,10 +400,6 @@ void KisProcessingApplicator::applyCommand(KUndo2Command *command,
                                            KisStrokeJobData::Sequentiality sequentiality,
                                            KisStrokeJobData::Exclusivity exclusivity)
 {
-    /*
-     * One should not add commands after the final signals have been
-     * emitted, only end or cancel the stroke
-     */
     KIS_ASSERT_RECOVER_RETURN(!m_finalSignalsEmitted);
 
     m_image->addJob(m_strokeId,
@@ -455,7 +427,6 @@ void KisProcessingApplicator::explicitlyEmitFinalSignals()
         applyCommand(new EmitImageSignalsCommand(m_image, m_emitSignals, true), KisStrokeJobData::BARRIER);
     }
 
-    // simple consistency check
     m_finalSignalsEmitted = true;
 }
 

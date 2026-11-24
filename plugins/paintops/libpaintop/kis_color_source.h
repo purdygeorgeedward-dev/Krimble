@@ -20,31 +20,14 @@
 class KoColorTransformation;
 class KisPaintInformation;
 
-/**
- * A color source allow to abstract how a brush is colorized,
- * and to apply transformation.
- *
- * The first function to call is @ref selectColor , then any of the transformation.
- */
 class PAINTOP_EXPORT KisColorSource
 {
 public:
     virtual ~KisColorSource();
 public:
-    /**
-     * This is function is called to initialize the color that will be used for the dab.
-     * @param mix is a parameter between 0.0 and 1.0
-     * @param pi paint information
-     */
     virtual void selectColor(double mix, const KisPaintInformation &pi) = 0;
-    /**
-     * Apply a color transformation on the selected color
-     */
     virtual void applyColorTransformation(const KoColorTransformation* transfo) = 0;
     virtual const KoColorSpace* colorSpace() const = 0;
-    /**
-     * Apply the color on a paint device
-     */
     virtual void colorize(KisPaintDeviceSP, const QRect& rect, const QPoint& _offset) const = 0;
 };
 

@@ -12,7 +12,6 @@ struct KisDarkenOptionData;
 class KisPainter;
 class KisColorSource;
 
-
 class PAINTOP_EXPORT KisDarkenOption : public KisCurveOption
 {
 public:
@@ -22,4 +21,4 @@ public:
     void apply(KisColorSource* colorSource, const KisPaintInformation& info) const;
 };
 
-#endif // KISDARKENOPTION_H
+#endif

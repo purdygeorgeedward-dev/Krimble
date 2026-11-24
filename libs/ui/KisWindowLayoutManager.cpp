@@ -48,7 +48,6 @@ struct KisWindowLayoutManager::Private {
             const QString displayDefinition = layoutCfg.readEntry(QString("Display%1").arg(displayNumber++), QString());
             if (displayDefinition.isEmpty()) break;
 
-            // Just the resolution for now. Later we might want to split by a separator and include things like serial number, etc.
             const QString &resolutionStr = displayDefinition;
 
             QStringList dimensions = resolutionStr.split('x');
@@ -198,7 +197,6 @@ void KisWindowLayoutManager::slotFocusChanged(QWidget *old, QWidget *now)
 
 void KisWindowLayoutManager::setLastUsedLayout(KisWindowLayoutResource *layout)
 {
-    // For automatic switching, only allow a window layout proper
     KisSessionResource *session = dynamic_cast<KisSessionResource*>(layout);
     if (session) return;
 

@@ -48,7 +48,6 @@ struct MockBulkShape : MockShape, KoShapeBulkActionInterface
 
     void shapeChanged(ChangeType type, KoShape *shape) override {
         if (!shape && type == KoShape::GenericMatrixChange) {
-            // we skip our own changes for unittest simplicity reasons
             return;
         }
 
@@ -60,20 +59,13 @@ struct MockBulkShape : MockShape, KoShapeBulkActionInterface
 
         if (m_linkedShapes.contains(shape) && type == KoShape::GenericMatrixChange) {
             if (m_bulkActionState) {
-                // postpone until bulk action is finished
                 m_bulkActionState->linkedShapesChangedWhileLocked = true;
              } else {
-                // slow recalculation method!
                 forceUpdateLinkedShapes();
             }
 
-            // KoShapeManager's updates are issued without any delay,
-            // since they depend on the shape's boundingRect() and that
-            // is guaranteed to be correct all the time
             notifyChanged();
 
-            // pass the update further to let unittest check
-            // transitive links
             shapeChangedPriv(KoShape::GenericMatrixChange);
         }
     }
@@ -102,10 +94,6 @@ struct MockBulkShape : MockShape, KoShapeBulkActionInterface
     }
 
     QRectF outlineRect() const override {
-        /**
-         * outlineRect() is recalculated on the fly as required
-         * by KoShapeBulkActionInterface
-         */
 
         QRectF dependentOutlineRect;
         Q_FOREACH(KoShape *shape, m_linkedShapes) {
@@ -114,8 +102,6 @@ struct MockBulkShape : MockShape, KoShapeBulkActionInterface
         return dependentOutlineRect;
     }
 
-    // dependentOutlineRect() is the value that is "slow" to
-    // calculate, so we postpone that untill the end of the action
     QRectF dependentOutlineRect() const {
         return m_dependentOutlineRect;
     }
@@ -224,8 +210,6 @@ void TestDependentShapes::testBulkActionInterface()
     QVERIFY(bulkInterfaceShape->receivedChangesWhileUnlocked().empty());
 
     if (!useBulkAction) {
-        // try update child shapes without locking
-        // move shape1 by 10,10
         shape1->applyTransformation(QTransform::fromTranslate(10, 10));
         QCOMPARE(shape1->absoluteOutlineRect(), QRectF(15, 15, 10, 10));
         QCOMPARE(bulkInterfaceShape->receivedChangesWhileUnlocked(),
@@ -236,7 +220,6 @@ void TestDependentShapes::testBulkActionInterface()
         QCOMPARE(bulkInterfaceShape->dependentOutlineRect(), QRectF(15, 15, 85, 85));
         QVERIFY(verifyShapePickable(bulkInterfaceShape, shapeManager));
 
-        // move shape2 by 10,10
         shape2->applyTransformation(QTransform::fromTranslate(10, 10));
         QCOMPARE(shape2->absoluteOutlineRect(), QRectF(100, 100, 10, 10));
         QCOMPARE(bulkInterfaceShape->receivedChangesWhileUnlocked(),
@@ -250,7 +233,6 @@ void TestDependentShapes::testBulkActionInterface()
     } else {
         bulkInterfaceShape->startBulkAction();
 
-        // move shape1 by 10,10
         shape1->applyTransformation(QTransform::fromTranslate(10, 10));
         QCOMPARE(shape1->absoluteOutlineRect(), QRectF(15, 15, 10, 10));
         QCOMPARE(bulkInterfaceShape->receivedChangesWhileUnlocked(), {});
@@ -259,12 +241,9 @@ void TestDependentShapes::testBulkActionInterface()
                      std::make_pair(KoShape::GenericMatrixChange, shape1)
                  }));
 
-        // unchanged!!!
         QCOMPARE(bulkInterfaceShape->dependentOutlineRect(), QRectF(5, 5, 95, 95));
-        // pickable, because boundingRect() is guaranteed to be correct
         QVERIFY(verifyShapePickable(bulkInterfaceShape, shapeManager));
 
-        // move shape2 by 10,10
         shape2->applyTransformation(QTransform::fromTranslate(10, 10));
         QCOMPARE(shape2->absoluteOutlineRect(), QRectF(100, 100, 10, 10));
 
@@ -275,17 +254,13 @@ void TestDependentShapes::testBulkActionInterface()
                      std::make_pair(KoShape::GenericMatrixChange, shape2)
                  }));
 
-        // unchanged!!!
         QCOMPARE(bulkInterfaceShape->dependentOutlineRect(), QRectF(5, 5, 95, 95));
-        // pickable, because boundingRect() is guaranteed to be correct
         QVERIFY(verifyShapePickable(bulkInterfaceShape, shapeManager));
 
         const QRectF resultingUpdate = bulkInterfaceShape->endBulkAction();
 
-        // now finally updated!
         QCOMPARE(bulkInterfaceShape->dependentOutlineRect(), QRectF(15, 15, 95, 95));
 
-        // the update should include old and new bounding rects!
         QCOMPARE(resultingUpdate, QRectF(5, 5, 95, 95) | QRectF(15, 15, 95, 95));
     }
 
@@ -400,19 +375,16 @@ void TestDependentShapes::testBulkActionLock()
                         std::make_pair(KoShape::GenericMatrixChange, shape2)
                     }));
 
-            // the dependent value is outdated!
             QCOMPARE(bulkInterfaceShape->dependentOutlineRect(), originalRectShape1 | originalRectShape2);
         }
     }
 
     if (secondBulkInterfaceShape) {
-        // we are going to receive this update twice!
         QCOMPARE(secondBulkInterfaceShape->receivedChangesWhileLocked(),
                  MockBulkShape::ChangesList({
                      std::make_pair(KoShape::GenericMatrixChange, bulkInterfaceShape),
                      std::make_pair(KoShape::GenericMatrixChange, bulkInterfaceShape)
                  }));
-        // the dependent value is outdated!
         QCOMPARE(secondBulkInterfaceShape->dependentOutlineRect(), originalRectShape1 | originalRectShape2);
     }
 
@@ -421,12 +393,10 @@ void TestDependentShapes::testBulkActionLock()
     KoShapeBulkActionLock::UpdatesList expectedUpdatesList;
 
     if (bulkInterfaceShape) {
-        // the dependent value is now correct!
         QCOMPARE(bulkInterfaceShape->dependentOutlineRect(), shape1->absoluteOutlineRect() | shape2->absoluteOutlineRect());
     }
 
     if (secondBulkInterfaceShape) {
-        // the dependent value is now correct!
         QCOMPARE(secondBulkInterfaceShape->dependentOutlineRect(), shape1->absoluteOutlineRect() | shape2->absoluteOutlineRect());
     }
 
@@ -448,13 +418,8 @@ void TestDependentShapes::testBulkActionLock()
             bulkInterfaceShape->boundingRect());
     }
 
-    // NOTE: The order of shape updates is undefined by protocol
     QVERIFY(compareUpdatesLists(resultingUpdate, expectedUpdatesList));
 
-    /**
-     * Delete bulk interface shapes **before** the actual shapes
-     * to possibly trigger "dead dependee" issue.
-     */
     delete secondBulkInterfaceShape;
     delete bulkInterfaceShape;
 

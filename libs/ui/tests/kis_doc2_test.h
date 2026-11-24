@@ -18,5 +18,5 @@ private Q_SLOTS:
     void testOpenImageTwiceInSameDoc();
 };
 
-#endif /* KIS_DOC2_TEST_H */
+#endif
 

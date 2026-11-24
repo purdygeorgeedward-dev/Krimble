@@ -41,11 +41,9 @@ void SvgMeshArray::createDefaultMesh(const int nrows,
                                      const QColor color,
                                      const QSizeF size)
 {
-    // individual patch size should be:
     qreal patchWidth  = size.width()  / ncols;
     qreal patchHeight = size.height() / nrows;
 
-    // normalize
     patchWidth  /= size.width();
     patchHeight /= size.height();
 
@@ -58,7 +56,6 @@ void SvgMeshArray::createDefaultMesh(const int nrows,
 
         for (int icol = 0; icol < ncols; ++icol) {
             SvgMeshPatch *patch = new SvgMeshPatch(start.topLeft());
-            // alternate between colors
             int index = (irow + icol) % 2;
 
             patch->addStopLinear({start.topLeft(), start.topRight()},
@@ -82,12 +79,10 @@ void SvgMeshArray::createDefaultMesh(const int nrows,
 
             m_array.last().append(patch);
 
-            // TopRight of the previous patch in this row
             start.setX(patch->getStop(SvgMeshPatch::Right).point.x());
             start.setWidth(patchWidth);
         }
 
-        // BottomLeft of the patch is the starting point for new row
         start.setTopLeft(m_array.last().first()->getStop(SvgMeshPatch::Left).point);
         start.setSize({patchWidth, patchHeight});
     }
@@ -95,7 +90,6 @@ void SvgMeshArray::createDefaultMesh(const int nrows,
 
 bool SvgMeshArray::addPatch(QList<QPair<QString, QColor>> stops, const QPointF initialPoint)
 {
-    // This is function is full of edge-case landmines, please run TestMeshArray after any changes
     if (stops.size() > 4 || stops.size() < 2)
         return false;
 
@@ -110,11 +104,9 @@ bool SvgMeshArray::addPatch(QList<QPair<QString, QColor>> stops, const QPointF i
         patch->addStop(stops[0].first, stops[0].second, SvgMeshPatch::Top);
         stops.removeFirst();
     } else if (irow == 0) {
-        // For first row, parse patches
         patch->addStop(stops[0].first, getColor(SvgMeshPatch::Right, irow, icol - 1), SvgMeshPatch::Top);
         stops.removeFirst();
     } else {
-        // path is already defined for rows >= 1
         QColor color = getStop(SvgMeshPatch::Left, irow - 1, icol).color;
 
         std::array<QPointF, 4> points = getPath(SvgMeshPatch::Bottom, irow - 1, icol);
@@ -143,9 +135,7 @@ bool SvgMeshArray::addPatch(QList<QPair<QString, QColor>> stops, const QPointF i
         stops.removeFirst();
     }
 
-    // last stop
     if (icol == 0) {
-        // if stop is in the 0th column, parse path
         patch->addStop(
                 stops[0].first,
                 stops[0].second,
@@ -155,7 +145,6 @@ bool SvgMeshArray::addPatch(QList<QPair<QString, QColor>> stops, const QPointF i
     } else {
         QColor color = getStop(SvgMeshPatch::Bottom, irow, icol - 1).color;
 
-        // reuse Right side of the previous patch
         std::array<QPointF, 4> points = getPath(SvgMeshPatch::Right, irow, icol - 1);
         std::reverse(points.begin(), points.end());
 
@@ -242,8 +231,6 @@ QRectF SvgMeshArray::boundingRect() const
     QPointF topLeft = m_array[0][0]->boundingRect().topLeft();
     QPointF bottomRight = m_array.last().last()->boundingRect().bottomRight();
 
-    // mesharray may be backwards, in which case we might get the right most value
-    // but we need topLeft for things to work as expected
     for (int i = 0; i < numRows(); ++i) {
         for (int j = 0; j < numColumns(); ++j) {
             QPointF left  = m_array[i][j]->boundingRect().topLeft();
@@ -264,7 +251,6 @@ QRectF SvgMeshArray::boundingRect() const
         }
     }
 
-    // return extremas
     return QRectF(topLeft, bottomRight);
 }
 
@@ -311,11 +297,9 @@ void SvgMeshArray::modifyHandle(const SvgMeshPosition &position,
     std::reverse(reversed.begin(), reversed.end());
 
     if (position.segmentType == SvgMeshPatch::Top && position.row > 0) {
-        // modify the shared side
         m_array[position.row - 1][position.col]->modifyPath(SvgMeshPatch::Bottom, reversed);
 
     } else if (position.segmentType == SvgMeshPatch::Left && position.col > 0) {
-        // modify the shared side as well
         m_array[position.row][position.col - 1]->modifyPath(SvgMeshPatch::Right, reversed);
     }
     m_array[position.row][position.col]->modifyPath(position.segmentType, newPath);

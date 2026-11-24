@@ -28,7 +28,6 @@
 #include <testui.h>
 #include <testutil.h>
 
-
 void testMergeDownImpl(bool useImageTransformations)
 {
     const QString testName = useImageTransformations ? "scale_and_merge_down" : "merge_down";
@@ -47,7 +46,6 @@ void testMergeDownImpl(bool useImageTransformations)
     p.image->setResolution(resolution, resolution);
 
     doc->setCurrentImage(p.image);
-
 
     KisShapeLayerSP shapeLayer1 = new KisShapeLayer(doc->shapeController(), p.image, "shapeLayer1", 150);
 
@@ -168,7 +166,6 @@ void testMergingShapeZIndexesImpl(int firstIndexStart,
     qDebug() << "    " << ppVar(firstIndexStart) << ppVar(firstIndexStep) << ppVar(firstIndexSize);
     qDebug() << "    " << ppVar(secondIndexStart) << ppVar(secondIndexStep) << ppVar(secondIndexSize);
 
-
     for (int i = 0; i < firstIndexSize; i++) {
         shapesBelow.append(createSimpleShape(firstIndexStart + firstIndexStep * i));
     }
@@ -245,7 +242,6 @@ void KisShapeLayerTest::testCloneScaledLayer()
     p.image->setResolution(resolution, resolution);
 
     doc->setCurrentImage(p.image);
-
 
     KisShapeLayerSP shapeLayer1 = new KisShapeLayer(doc->shapeController(), p.image, "shapeLayer1", 150);
 

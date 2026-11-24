@@ -66,10 +66,6 @@ KIS_DECLARE_STATIC_INITIALIZER {
 
 struct KisPaintDevice::Private
 {
-    /**
-     * Used when the paint device is loading to ensure no lod/animation
-     * interferes the process.
-     */
     static const KisDefaultBoundsSP transitionalDefaultBounds;
 
 public:
@@ -106,7 +102,6 @@ public:
     bool assignProfile(const KoColorProfile * profile, KUndo2Command *parentCommand);
 
     KUndo2Command* reincarnateWithDetachedHistory(bool copyContent);
-
 
     inline const KoColorSpace* colorSpace() const
     {
@@ -287,11 +282,6 @@ public:
         bool initialFrame = false;
 
         if (m_frames.isEmpty()) {
-            /**
-             * Here we move the contents of the paint device to the
-             * new frame and clear m_data to make the "background" for
-             * the areas where there is no frame at all.
-             */
             data = toQShared(new Data(q, m_data.data(), true));
             m_data->dataManager()->clear();
             m_data->cache()->invalidate();
@@ -429,7 +419,6 @@ public:
 
     void testingFetchLodDevice(KisPaintDeviceSP targetDevice);
 
-
 private:
     qint64 estimateDataSize(Data *data) const {
         const QRect &rc = data->dataManager()->extent();
@@ -459,7 +448,6 @@ public:
             imageData += estimateDataSize(value.data());
         }
     }
-
 
 private:
 
@@ -535,25 +523,11 @@ private:
 
     void prepareCloneImpl(KisPaintDeviceSP src, Data *srcData)
     {
-        /**
-         * The result of currentData() depends on the current
-         * level of detail and animation frame index. So we
-         * should first connect the device to the new
-         * default bounds object, and only after that ask
-         * currentData() to start cloning.
-         */
         q->setDefaultBounds(src->defaultBounds());
         q->setSupportsWraparoundMode(src->supportsWraproundMode());
 
         currentData()->prepareClone(srcData);
 
-
-        /**
-         * Default pixel must be updated **after** the color space
-         * of the device has been adjusted in prepareClone(). Otherwise,
-         * colorSpace() of the resulting KoColor object will be
-         * incorrect.
-         */
         KIS_SAFE_ASSERT_RECOVER_RETURN(*colorSpace() == *src->colorSpace());
         q->setDefaultPixel(KoColor(srcData->dataManager()->defaultPixel(), colorSpace()));
 
@@ -667,7 +641,6 @@ struct KisPaintDevice::Private::StrategyPolicy {
         return m_dataManager->pixelSize();
     }
 
-
     KisPaintDeviceStrategy *m_strategy;
     KisDataManager *m_dataManager;
     int m_offsetX;
@@ -697,15 +670,10 @@ KisPaintDevice::LodDataStruct* KisPaintDevice::Private::createLodDataStruct(int 
     int expectedX = KisLodTransform::coordToLodCoord(srcData->x(), newLod);
     int expectedY = KisLodTransform::coordToLodCoord(srcData->y(), newLod);
 
-    /**
-     * We compare color spaces as pure pointers, because they must be
-     * exactly the same, since they come from the common source.
-     */
     if (lodData->levelOfDetail() != newLod ||
         lodData->colorSpace() != srcData->colorSpace() ||
         lodData->x() != expectedX ||
         lodData->y() != expectedY) {
-
 
         lodData->prepareClone(srcData);
 
@@ -713,7 +681,6 @@ KisPaintDevice::LodDataStruct* KisPaintDevice::Private::createLodDataStruct(int 
         lodData->setX(expectedX);
         lodData->setY(expectedY);
 
-        // FIXME: different kind of synchronization
     }
 
     lodData->cache()->invalidate();
@@ -781,7 +748,6 @@ void KisPaintDevice::Private::updateLodDataManager(KisDataManager *srcDataManage
 
         if (rowsAccumulated >= srcStepSize) {
 
-            // blend and write the final data
             blendDataPtr = blendData.data();
 
             int colsRemaining = dstRect.width();
@@ -792,7 +758,6 @@ void KisPaintDevice::Private::updateLodDataManager(KisDataManager *srcDataManage
                 colsRemaining--;
             }
 
-            // reset counters
             rowsAccumulated = 0;
             blendDataPtr = blendData.data();
             blendDataOffset = 0;
@@ -897,10 +862,6 @@ void KisPaintDevice::Private::uploadFrameData(DataSP srcData, DataSP dstData)
                                        &tempCommand);
     }
 
-    /* If the destination data doesn't share a default pixel value
-     * with src, we should make sure that the default pixel is set
-     * properly before clearing and writing contents.
-     */
     const int defaultPixelcmp =
             memcmp(srcData->dataManager()->defaultPixel(),
                    dstData->dataManager()->defaultPixel(),
@@ -1010,7 +971,6 @@ bool KisPaintDevice::Private::assignProfile(const KoColorProfile * profile, KUnd
     KUndo2Command *mainCommand =
         parentCommand ? new DeviceChangeColorSpaceCommand(q, parentCommand) : 0;
 
-
     QList<Data*> dataObjects = allDataObjects();
     Q_FOREACH (Data *data, dataObjects) {
         if (!data) continue;
@@ -1018,7 +978,6 @@ bool KisPaintDevice::Private::assignProfile(const KoColorProfile * profile, KUnd
     }
     q->emitProfileChanged();
 
-    // no undo information is provided here
     return true;
 }
 
@@ -1061,12 +1020,9 @@ void KisPaintDevice::init(const KoColorSpace *colorSpace,
     Q_ASSERT(colorSpace);
     setObjectName(name);
 
-    // temporary def. bounds object for the initialization phase only
     m_d->defaultBounds = m_d->transitionalDefaultBounds;
 
     if (!defaultBounds) {
-        // Reuse transitionalDefaultBounds here. Change if you change
-        // semantics of transitionalDefaultBounds
         defaultBounds = m_d->transitionalDefaultBounds;
     }
 
@@ -1091,10 +1047,8 @@ KisPaintDevice::KisPaintDevice(const KisPaintDevice& rhs, KritaUtils::DeviceCopy
 
 void KisPaintDevice::makeFullCopyFrom(const KisPaintDevice &rhs, KritaUtils::DeviceCopyMode copyMode, KisNode *newParentNode)
 {
-    // temporary def. bounds object for the initialization phase only
     m_d->defaultBounds = m_d->transitionalDefaultBounds;
 
-    // copy data objects with or without frames
     m_d->cloneAllDataObjects(rhs.m_d, copyMode == KritaUtils::CopyAllFrames);
 
     if (copyMode == KritaUtils::CopyAllFrames && rhs.m_d->framesInterface) {
@@ -1128,8 +1082,6 @@ void KisPaintDevice::makeCloneFrom(KisPaintDeviceSP src, const QRect &rect)
 {
     prepareClone(src);
 
-    // we guarantee that *this is totally empty, so copy pixels that
-    // are areally present on the source image only
     const QRect optimizedRect = rect & src->extent();
 
     fastBitBlt(src, optimizedRect);
@@ -1139,8 +1091,6 @@ void KisPaintDevice::makeCloneFromRough(KisPaintDeviceSP src, const QRect &minim
 {
     prepareClone(src);
 
-    // we guarantee that *this is totally empty, so copy pixels that
-    // are areally present on the source image only
     const QRect optimizedRect = minimalRect & src->extent();
 
     fastBitBltRough(src, optimizedRect);
@@ -1197,7 +1147,6 @@ void KisPaintDevice::setParentNode(KisNodeWSP parent)
     m_d->parent = parent;
 }
 
-// for testing purposes only
 KisNodeWSP KisPaintDevice::parentNode() const
 {
     return m_d->parent;
@@ -1324,11 +1273,8 @@ QRect calculateExactBoundsImpl(const KisPaintDevice *device, const QRect &startR
 {
     if (startRect == endRect) return startRect;
 
-    // the passed extent might have weird invalid structure that
-    // can overflow integer precision when calling startRect.right()
     if (!startRect.isValid()) return QRect();
 
-    // Solution n°2
     int  x, y, w, h;
     int boundLeft, boundTop, boundRight, boundBottom;
     int endDirN, endDirE, endDirS, endDirW;
@@ -1349,9 +1295,6 @@ QRect calculateExactBoundsImpl(const KisPaintDevice *device, const QRect &startR
         endRect.getCoords(&boundLeft, &boundTop, &boundRight, &boundBottom);
     }
 
-    // XXX: a small optimization is possible by using H/V line iterators in the first
-    //      and third cases, at the cost of making the code a bit more complex
-
     KisRandomConstAccessorSP accessor = device->createRandomConstAccessorNG();
 
     bool found = false;
@@ -1369,11 +1312,6 @@ QRect calculateExactBoundsImpl(const KisPaintDevice *device, const QRect &startR
         }
     }
 
-    /**
-     * If the first pass hasn't found any opaque pixel, there is no
-     * reason to check that 3 more times. They will not appear in the
-     * meantime. Just return an empty bounding rect.
-     */
     if (!found && endRect.isEmpty()) {
         return QRect();
     }
@@ -1409,7 +1347,6 @@ QRect calculateExactBoundsImpl(const KisPaintDevice *device, const QRect &startR
 
     found = false;
 
-    // Look for right edge )
     {
 
         for (qint32 x2 = x + w - 1; x2 >= endDirW; --x2) {
@@ -1440,10 +1377,6 @@ QRect KisPaintDevice::calculateExactBounds(bool nonDefaultOnly) const
     quint8 defaultOpacity = defaultPixel().opacityU8();
     if (defaultOpacity != OPACITY_TRANSPARENT_U8) {
         if (!nonDefaultOnly) {
-            /**
-             * We will calculate exact bounds only outside of the
-             * image bounds, and that'll be nondefault area only.
-             */
 
             endRect = defaultBounds()->bounds();
             nonDefaultOnly = true;
@@ -1494,7 +1427,6 @@ void KisPaintDevice::crop(qint32 x, qint32 y, qint32 w, qint32 h)
     crop(QRect(x, y, w, h));
 }
 
-
 void KisPaintDevice::crop(const QRect &rect)
 {
     m_d->currentStrategy()->crop(rect);
@@ -1541,7 +1473,6 @@ void KisPaintDevice::fill(qint32 x, qint32 y, qint32 w, qint32 h, const quint8 *
 {
     m_d->currentStrategy()->fill(QRect(x, y, w, h), fillPixel);
 }
-
 
 bool KisPaintDevice::write(KisPaintDeviceWriter &store)
 {
@@ -1600,7 +1531,6 @@ void KisPaintDevice::convertFromQImage(const QImage& _image, const KoColorProfil
     if (image.format() != QImage::Format_ARGB32) {
         image.convertTo(QImage::Format_ARGB32);
     }
-    // Don't convert if not no profile is given and both paint dev and qimage are rgba.
     if (!profile && colorSpace()->id() == "RGBA") {
         writeBytes(image.constBits(), offsetX, offsetY, image.width(), image.height());
     } else {
@@ -1662,13 +1592,10 @@ QImage KisPaintDevice::convertToQImage(const KoColorProfile *dstProfile, qint32 
         data = new quint8 [w * h * pixelSize()];
     } catch (const std::bad_alloc&) {
         warnKrita << "KisPaintDevice::convertToQImage std::bad_alloc for " << w << " * " << h << " * " << pixelSize();
-        //delete[] data; // data is not allocated, so don't free it
         return QImage();
     }
     Q_CHECK_PTR(data);
 
-    // XXX: Is this really faster than converting line by line and building the QImage directly?
-    //      This copies potentially a lot of data.
     readBytes(data, x1, y1, w, h);
     QImage image = colorSpace()->convertToQImage(data, w, h, dstProfile, renderingIntent, conversionFlags);
     delete[] data;
@@ -1733,7 +1660,6 @@ KisPaintDeviceSP KisPaintDevice::createThumbnailDevice(qint32 w, qint32 h, QRect
 
     thumbnailSize = fixThumbnailSize(thumbnailSize);
 
-    //can't create thumbnail for an empty device, e.g. layer thumbnail for empty image
     if (imageRect.isEmpty() || thumbnailSize.isEmpty()) {
         return new KisPaintDevice(colorSpace());
     }
@@ -1769,17 +1695,15 @@ KisPaintDeviceSP KisPaintDevice::createThumbnailDeviceOversampled(qint32 w, qint
 
     thumbnailOversampledSize = fixThumbnailSize(thumbnailOversampledSize);
 
-    //can't create thumbnail for an empty device, e.g. layer thumbnail for empty image
     if (imageRect.isEmpty() || thumbnailSize.isEmpty() || thumbnailOversampledSize.isEmpty()) {
         return new KisPaintDevice(colorSpace());
     }
 
-    oversampleAdjusted *= (hstart > 0) ? ((qreal)thumbnailOversampledSize.height() / hstart) : 1.; //readjusting oversample ratio, given that we had to adjust thumbnail size
+    oversampleAdjusted *= (hstart > 0) ? ((qreal)thumbnailOversampledSize.height() / hstart) : 1.;
 
     outputRect = QRect(0, 0, thumbnailOversampledSize.width(), thumbnailOversampledSize.height());
 
     if (outputTileRect.isValid()) {
-        //compensating output rectangle for oversampling
         outputTileRect = QRect(oversampleAdjusted * outputTileRect.topLeft(), oversampleAdjusted * outputTileRect.bottomRight());
         outputRect = outputRect.intersected(outputTileRect);
     }
@@ -1893,7 +1817,6 @@ void KisPaintDevice::clearSelection(KisSelectionSP selection)
             for (qint32 y = 0; y < r.height(); y++) {
 
                 do {
-                    // XXX: Optimize by using stretches
                     colorSpace->applyInverseAlphaU8Mask(devIt->rawData(), selectionIt->rawDataConst(), 1);
                     if (transparentDefault && colorSpace->opacityU8(devIt->rawData()) == OPACITY_TRANSPARENT_U8) {
                         memcpy(devIt->rawData(), defaultPixel.data(), colorSpace->pixelSize());
@@ -1904,7 +1827,6 @@ void KisPaintDevice::clearSelection(KisSelectionSP selection)
             }
         }
 
-        // purge() must be executed **after** all iterators have been destroyed!
         m_d->dataManager()->purge(r.translated(-m_d->x(), -m_d->y()));
 
         setDirty(r);
@@ -1923,7 +1845,6 @@ bool KisPaintDevice::pixel(qint32 x, qint32 y, QColor *c) const
 
     return true;
 }
-
 
 bool KisPaintDevice::pixel(qint32 x, qint32 y, KoColor * kc) const
 {
@@ -2024,7 +1945,6 @@ void KisPaintDevice::writePlanarBytes(QVector<quint8*> planes, qint32 x, qint32 
     m_d->currentStrategy()->writePlanarBytes(planes, x, y, w, h);
 }
 
-
 quint32 KisPaintDevice::pixelSize() const
 {
     quint32 _pixelSize = m_d->colorSpace()->pixelSize();
@@ -2058,11 +1978,9 @@ KisRasterKeyframeChannel *KisPaintDevice::createKeyframeChannel(const KoID &id)
     if (m_d->parent.isValid()) {
         m_d->contentChannel.reset(new KisRasterKeyframeChannel(id, this, new KisDefaultBoundsNodeWrapper(m_d->parent)));
     } else {
-        //fallback when paint device is isolated / does not belong to a node.
         m_d->contentChannel.reset(new KisRasterKeyframeChannel(id, this, m_d->defaultBounds));
     }
 
-    // Raster channels always have at least one frame (representing a static image)
     KUndo2Command tempParentCommand;
     m_d->contentChannel->addKeyframe(0);
 
@@ -2194,18 +2112,14 @@ bool KisPaintDevice::burnKeyframe(int frameID)
 {
     KIS_ASSERT_RECOVER_RETURN_VALUE(m_d->framesInterface.data()->frames().contains(frameID), false);
 
-    // Preserve keyframe data from frameID...
     KisPaintDeviceSP holder = new KisPaintDevice(m_d->colorSpace());
     m_d->framesInterface->writeFrameToDevice(frameID, holder);
 
-    // Remove all keyframes..
     QSet<int> times = m_d->contentChannel->allKeyframeTimes();
     Q_FOREACH( const int& time, times ) {
         m_d->contentChannel->removeKeyframe(time);
     }
 
-    // TODO: Eventually rewrite this to completely remove contentChannel.
-    //          For now, importing it as frame 0 will be close enough.
     m_d->contentChannel->importFrame(0, holder, nullptr);
 
     return true;
@@ -2218,10 +2132,6 @@ bool KisPaintDevice::burnKeyframe()
     }
     return true;
 }
-
-/******************************************************************/
-/*               KisPaintDeviceFramesInterface                    */
-/******************************************************************/
 
 KisPaintDeviceFramesInterface::KisPaintDeviceFramesInterface(KisPaintDevice *parentDevice)
     : q(parentDevice)

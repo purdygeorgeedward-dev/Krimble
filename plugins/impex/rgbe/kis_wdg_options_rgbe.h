@@ -26,4 +26,4 @@ public:
     KisPropertiesConfigurationSP configuration() const override;
 };
 
-#endif // DLG_RGBE_EXPORT_H
+#endif

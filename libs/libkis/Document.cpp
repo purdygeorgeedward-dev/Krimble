@@ -69,7 +69,6 @@
 #include <kis_undo_adapter.h>
 #include <commands/kis_set_global_selection_command.h>
 
-
 struct Document::Private {
     Private() {}
     QPointer<KisDocument> document;
@@ -117,7 +116,6 @@ void Document::setBatchmode(bool value)
 
 Node *Document::activeNode() const
 {
-    // see a related comment in Document::setActiveNode
     KisSynchronizedConnectionBase::forceDeliverAllSynchronizedEvents();
 
     QList<KisNodeSP> activeNodes;
@@ -149,12 +147,6 @@ void Document::setActiveNode(Node* value)
     KisNodeSelectionAdapter *selectionAdapter = nodeManager->nodeSelectionAdapter();
     if (!selectionAdapter) return;
 
-    /**
-     * If we created any nodes via the same script, then dummies state
-     * may be not synchronized with the actual state of the nodes in the
-     * image. Hence, we should explicitly deliver the synchronized events
-     * before we try to manipulate with the GUI representation of nodes.
-     */
     KisSynchronizedConnectionBase::forceDeliverAllSynchronizedEvents();
 
     selectionAdapter->setActiveNode(value->node());
@@ -166,7 +158,6 @@ QList<Node *> Document::topLevelNodes() const
     Node n(d->document->image(), d->document->image()->rootLayer());
     return n.childNodes();
 }
-
 
 Node *Document::nodeByName(const QString &name) const
 {
@@ -187,7 +178,6 @@ Node *Document::nodeByUniqueID(const QUuid &id) const
     if (node.isNull()) return 0;
     return Node::createNode(d->document->image(), node);
 }
-
 
 QString Document::colorDepth() const
 {
@@ -259,7 +249,7 @@ bool Document::setBackgroundColor(const QColor &color)
 QString Document::documentInfo() const
 {
     QDomDocument doc = KisDocument::createDomDocument("document-info"
-                                                      /*DTD name*/, "document-info" /*tag name*/, "1.1");
+                                                      , "document-info" , "1.1");
     doc = d->document->documentInfo()->save(doc);
     return doc.toString();
 }
@@ -270,7 +260,6 @@ void Document::setDocumentInfo(const QString &document)
     doc.setContent(document);
     d->document->documentInfo()->load(doc);
 }
-
 
 QString Document::fileName() const
 {
@@ -304,7 +293,6 @@ void Document::setHeight(int value)
                 value);
 }
 
-
 QString Document::name() const
 {
     if (!d->document) return "";
@@ -316,7 +304,6 @@ void Document::setName(QString value)
     if (!d->document) return;
     d->document->documentInfo()->setAboutInfo("title", value);
 }
-
 
 int Document::resolution() const
 {
@@ -339,7 +326,6 @@ void Document::setResolution(int value)
     image->scaleImage(image->size(), value / 72.0, value / 72.0, strategy);
     image->waitForDone();
 }
-
 
 Node *Document::rootNode() const
 {
@@ -370,7 +356,6 @@ void Document::setSelection(Selection* value)
     }
 }
 
-
 int Document::width() const
 {
     if (!d->document) return 0;
@@ -388,7 +373,6 @@ void Document::setWidth(int value)
                 value,
                 d->document->image()->height());
 }
-
 
 int Document::xOffset() const
 {
@@ -408,7 +392,6 @@ void Document::setXOffset(int x)
                 d->document->image()->height());
 }
 
-
 int Document::yOffset() const
 {
     if (!d->document) return 0;
@@ -426,7 +409,6 @@ void Document::setYOffset(int y)
                 d->document->image()->width(),
                 d->document->image()->height());
 }
-
 
 double Document::xRes() const
 {
@@ -467,7 +449,6 @@ void Document::setYRes(double yRes) const
     image->scaleImage(image->size(), image->xRes(), yRes / 72.0, strategy);
     image->waitForDone();
 }
-
 
 QByteArray Document::pixelData(int x, int y, int w, int h) const
 {
@@ -808,7 +789,6 @@ QImage Document::thumbnail(int w, int h) const
     return d->document->generatePreview(QSize(w, h)).toImage();
 }
 
-
 void Document::lock()
 {
     if (!d->document || !d->document->image()) return;
@@ -890,9 +870,6 @@ Document *Document::clone() const
     if (!d->document) return 0;
     QPointer<KisDocument> clone = d->document->clone();
 
-    /// We set ownsDocument to true, it will be reset
-    /// automatically as soon as we create the first
-    /// view for the document
     Document * newDocument = new Document(clone, true);
     return newDocument;
 }
@@ -975,8 +952,6 @@ void Document::setOwnsDocument(bool ownsDocument)
     d->ownsDocument = ownsDocument;
 }
 
-/* Animation related function */
-
 bool Document::importAnimation(const QList<QString> &files, int firstFrame, int step)
 {
     KisView *activeView = KisPart::instance()->currentMainwindow()->activeView();
@@ -1016,7 +991,6 @@ void Document::setFullClipRangeStartTime(int startTime)
     d->document->image()->animationInterface()->setDocumentRangeStartFrame(startTime);
 }
 
-
 int Document::fullClipRangeStartTime()
 {
     if (!d->document) return false;
@@ -1025,7 +999,6 @@ int Document::fullClipRangeStartTime()
     return d->document->image()->animationInterface()->documentPlaybackRange().start();
 }
 
-
 void Document::setFullClipRangeEndTime(int endTime)
 {
     if (!d->document) return;
@@ -1033,7 +1006,6 @@ void Document::setFullClipRangeEndTime(int endTime)
 
     d->document->image()->animationInterface()->setDocumentRangeEndFrame(endTime);
 }
-
 
 int Document::fullClipRangeEndTime()
 {
@@ -1164,26 +1136,6 @@ bool Document::autosave()
 
 GuidesConfig *Document::guidesConfig()
 {
-    // The way Krita manage guides position is a little bit strange
-    //
-    // Let's say, set a guide at a position of 100pixels from UI
-    // In KisGuidesConfig, the saved position (using KoUnit 'px') is set taking in account the
-    // document resolution
-    // So:
-    //  100px at 300dpi ==> the stored value will be 72 * 100 / 300.00 = 24.00
-    //  100px at 600dpi ==> the stored value will be 72 * 100 / 600.00 = 12.00
-    // We have a position saved in 'pt', with unit 'px'
-    // This is also what is saved in maindoc.xml...
-    //
-    // The weird thing in this process:
-    // - use unit 'px' as what is reallt stored is 'pt'
-    // - use 'pt' to store an information that should be 'px' (because 100pixels is 100pixels whatever the
-    //   resolution of document)
-    //
-    // But OK, it works like this and reviewing this is probably a huge workload, and also there'll be
-    // a problem with old saved documents (taht's store 100px@300dpi as '24.00')
-    //
-    // The solution here is, before restitue the guideConfig to user, the internal value is transformed...
     KisGuidesConfig *tmpConfig = new KisGuidesConfig(d->document->guidesConfig());
 
     if (d->document && d->document->image()) {
@@ -1206,7 +1158,6 @@ GuidesConfig *Document::guidesConfig()
         tmpConfig->setVerticalGuideLines(transformedLines);
     }
     else {
-        // unable to proceed to transform, return no guides
         tmpConfig->removeAllGuides();
     }
 
@@ -1217,8 +1168,6 @@ GuidesConfig *Document::guidesConfig()
 void Document::setGuidesConfig(GuidesConfig *guidesConfig)
 {
     if (!d->document) return;
-    // Like for guidesConfig() method, need to manage transform from internal stored value
-    // to pixels values
     KisGuidesConfig tmpConfig = guidesConfig->guidesConfig();
 
     if (d->document->image()) {
@@ -1241,13 +1190,11 @@ void Document::setGuidesConfig(GuidesConfig *guidesConfig)
         tmpConfig.setVerticalGuideLines(transformedLines);
     }
     else {
-        // unable to proceed to transform, set no guides
         tmpConfig.removeAllGuides();
     }
 
     d->document->setGuidesConfig(tmpConfig);
 }
-
 
 GridConfig *Document::gridConfig()
 {
@@ -1290,11 +1237,9 @@ bool Document::setAudioTracks(const QList<QString> files) const
     Q_FOREACH(QString fileName, files) {
         fileInfo.setFile(fileName);
         if (fileInfo.exists()) {
-            // ensure the file exists before adding it
             fileList.append(fileInfo);
         }
         else {
-            // if at least one file is not valid, return false
             returned = false;
         }
     }

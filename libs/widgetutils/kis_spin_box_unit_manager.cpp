@@ -31,7 +31,7 @@ KisSpinBoxUnitManager* KisSpinBoxUnitManagerFactory::buildDefaultUnitManager(QOb
 void KisSpinBoxUnitManagerFactory::setDefaultUnitManagerBuilder(KisSpinBoxUnitManagerBuilder* pBuilder)
 {
     if (builder != nullptr) {
-        delete builder; //The factory took over the lifecycle of the builder, so it delete it when replaced.
+        delete builder;
     }
 
     builder = pBuilder;
@@ -40,7 +40,7 @@ void KisSpinBoxUnitManagerFactory::setDefaultUnitManagerBuilder(KisSpinBoxUnitMa
 void KisSpinBoxUnitManagerFactory::clearUnitManagerBuilder()
 {
     if (builder != nullptr) {
-        delete builder; //The factory took over the lifecycle of the builder, so it delete it when replaced.
+        delete builder;
     }
 
     builder = nullptr;
@@ -48,8 +48,8 @@ void KisSpinBoxUnitManagerFactory::clearUnitManagerBuilder()
 
 const QStringList KisSpinBoxUnitManager::referenceUnitSymbols = {"pt", "px", "°", "frame"};
 
-const QStringList KisSpinBoxUnitManager::documentRelativeLengthUnitSymbols = {"px", "vw", "vh"}; //px are relative to the resolution, vw and vh to the width and height.
-const QStringList KisSpinBoxUnitManager::documentRelativeTimeUnitSymbols = {"s", "%"}; //secondes are relative to the framerate, % to the sequence length.
+const QStringList KisSpinBoxUnitManager::documentRelativeLengthUnitSymbols = {"px", "vw", "vh"};
+const QStringList KisSpinBoxUnitManager::documentRelativeTimeUnitSymbols = {"s", "%"};
 
 class Q_DECL_HIDDEN KisSpinBoxUnitManager::Private
 {
@@ -68,9 +68,9 @@ public:
 
     QString unitSymbol;
     mutable double conversionFactor;
-    bool conversionFactorIsFixed {true}; //tell if it's possible to trust the conversion factor stored or if it's needed to recompute it.
+    bool conversionFactorIsFixed {true};
     mutable double conversionConstant {0};
-    bool conversionConstantIsFixed {true}; //tell if it's possible to trust the conversion constant stored or if it's needed to recompute it.
+    bool conversionConstantIsFixed {true};
 
     KisSpinBoxUnitManager::Constrains constrains { KisSpinBoxUnitManager::NOCONSTR };
 
@@ -80,7 +80,6 @@ public:
     mutable QStringList unitListWithName;
     mutable bool unitListWithNameCached {false};
 
-    //it's possible to store a reference for the % unit, for length.
     bool hasHundredPercent {false};
     qreal hundredPercent {0};
 
@@ -137,7 +136,7 @@ int KisSpinBoxUnitManager::getApparentUnitRecommendedDecimals() const {
         } else {
             return 2;
         }
-    default: //by default return 2.
+    default:
         break;
     }
 
@@ -166,7 +165,7 @@ QStringList KisSpinBoxUnitManager::getsUnitSymbolList(bool withName) const{
         for (int i = 0; i < KoUnit::TypeCount; i++) {
 
             if (KoUnit::Type(i) == KoUnit::Pixel) {
-                continue; //skip pixel, which is a document relative unit, in the base class.
+                continue;
             }
 
             if (withName) {
@@ -187,7 +186,6 @@ QStringList KisSpinBoxUnitManager::getsUnitSymbolList(bool withName) const{
         }
 
         if (d->canAccessDocument) {
-            // ad document relative units
             if (withName) {
                 list << KoUnit::unitDescription(KoUnit::Pixel) << i18n("percent of view width (vw)") << i18n("percent of view height (vh)");
             } else {
@@ -216,7 +214,6 @@ QStringList KisSpinBoxUnitManager::getsUnitSymbolList(bool withName) const{
         }
 
         if (d->canAccessDocument) {
-            // ad document relative units
             if (withName) {
                 list << i18n("percent of view width (vw)") << i18n("percent of view height (vh)");
             } else {
@@ -271,7 +268,7 @@ qreal KisSpinBoxUnitManager::getConversionConstant(int dim, QString symbol) cons
     Q_UNUSED(dim);
     Q_UNUSED(symbol);
 
-    return 0; // all units managed here are transform via a linear function, so this will always be 0 in this class.
+    return 0;
 }
 
 qreal KisSpinBoxUnitManager::getReferenceValue(double apparentValue) const
@@ -353,7 +350,7 @@ qreal KisSpinBoxUnitManager::getConversionFactor(int dim, QString symbol) const
             if (! ok) {
                 break;
             }
-            factor = unit.toUserValuePrecise(1.0); // use the precise function
+            factor = unit.toUserValuePrecise(1.0);
         } while (0) ;
         break;
 
@@ -377,14 +374,14 @@ qreal KisSpinBoxUnitManager::getConversionFactor(int dim, QString symbol) const
             break;
         }
         if (symbol == "%") {
-            factor = 2.5/9.0; //(25% of circle is 90°)
+            factor = 2.5/9.0;
             break;
         }
         break;
 
     case TIME:
 
-        if (symbol != "f") { //we have only frames for the moment.
+        if (symbol != "f") {
             break;
         }
         factor = 1.0;
@@ -397,7 +394,6 @@ qreal KisSpinBoxUnitManager::getConversionFactor(int dim, QString symbol) const
     return factor;
 }
 
-
 void KisSpinBoxUnitManager::setUnitDimension(UnitDimension dimension)
 {
     if (dimension == d->dim) {
@@ -405,7 +401,7 @@ void KisSpinBoxUnitManager::setUnitDimension(UnitDimension dimension)
     }
 
     d->dim = dimension;
-    d->unitSymbol = referenceUnitSymbols[d->dim]; //Active dim is reference dim when just changed.
+    d->unitSymbol = referenceUnitSymbols[d->dim];
     d->conversionFactor = 1.0;
 
     Q_EMIT unitDimensionChanged(d->dim);
@@ -432,7 +428,7 @@ void KisSpinBoxUnitManager::setApparentUnitFromSymbol(QString pSymbol)
             newSymb = "°";
             break;
         }
-        goto default_identifier; //always do default after handling possible special cases.
+        goto default_identifier;
 
 default_identifier:
     default:
@@ -440,7 +436,7 @@ default_identifier:
         if (list.contains(symbol, Qt::CaseInsensitive)) {
             for (QString str : list) {
                 if (str.toLower() == symbol.toLower()) {
-                    newSymb = str; //official symbol may contain capitals letters, so better take the official version.
+                    newSymb = str;
                     break;
                 }
             }
@@ -450,11 +446,10 @@ default_identifier:
     }
 
     if(newSymb.isEmpty()) {
-        return; //abort if it was impossible to locate the correct symbol.
+        return;
     }
 
     if (d->canAccessDocument) {
-        //manage document relative units.
 
         QStringList speUnits;
 
@@ -518,18 +513,17 @@ void KisSpinBoxUnitManager::selectApparentUnitFromIndex(int index) {
 
 }
 
-
 void KisSpinBoxUnitManager::syncWithOtherUnitManager(KisSpinBoxUnitManager* other) {
 
     if (d->connectedUnitManagers.indexOf(other) >= 0) {
         return;
     }
 
-    if (other->getUnitDimensionType() == getUnitDimensionType()) { //sync only unitmanager of the same type.
-        if (other->getsUnitSymbolList() == getsUnitSymbolList()) { //and if we have identical units available.
+    if (other->getUnitDimensionType() == getUnitDimensionType()) {
+        if (other->getsUnitSymbolList() == getsUnitSymbolList()) {
 
-            connect(this, SIGNAL(unitChanged(int)), other, SLOT(selectApparentUnitFromIndex(int))); //sync units.
-            connect(other, SIGNAL(unitChanged(int)), this, SLOT(selectApparentUnitFromIndex(int))); //sync units.
+            connect(this, SIGNAL(unitChanged(int)), other, SLOT(selectApparentUnitFromIndex(int)));
+            connect(other, SIGNAL(unitChanged(int)), this, SLOT(selectApparentUnitFromIndex(int)));
 
             d->connectedUnitManagers.append(other);
 
@@ -546,8 +540,8 @@ void KisSpinBoxUnitManager::clearSyncWithOtherUnitManager(KisSpinBoxUnitManager*
         return;
     }
 
-    disconnect(this, SIGNAL(unitChanged(int)), other, SLOT(selectApparentUnitFromIndex(int))); //unsync units.
-    disconnect(other, SIGNAL(unitChanged(int)), this, SLOT(selectApparentUnitFromIndex(int))); //unsync units.
+    disconnect(this, SIGNAL(unitChanged(int)), other, SLOT(selectApparentUnitFromIndex(int)));
+    disconnect(other, SIGNAL(unitChanged(int)), this, SLOT(selectApparentUnitFromIndex(int)));
 
     d->connectedUnitManagers.removeAt(id);
 
@@ -572,7 +566,7 @@ bool KisSpinBoxUnitManager::hasPercent(int unitDim) const {
     }
 
     if (unitDim == ANGLE) {
-        return true; //percent is fixed when considering angles.
+        return true;
     }
 
     return false;

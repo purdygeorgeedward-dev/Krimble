@@ -69,7 +69,6 @@ void DlgBundleManager::ItemDelegate::paint(QPainter *painter, const QStyleOption
 
     painter->save();
 
-    // paint background
     QColor bgColor = option.state & QStyle::State_Selected ?
                 qApp->palette().color(QPalette::Highlight) :
                 qApp->palette().color(QPalette::Base);
@@ -84,7 +83,6 @@ void DlgBundleManager::ItemDelegate::paint(QPainter *painter, const QStyleOption
     QRect paintRect = kisGrowRect(option.rect, -minMargin);
     int height = paintRect.height();
 
-    // make border around active ones
     bool active = KisStorageModel::instance()->data(sourceIndex, Qt::UserRole + KisStorageModel::Active).toBool();
 
     if (active) {
@@ -103,7 +101,6 @@ void DlgBundleManager::ItemDelegate::paint(QPainter *painter, const QStyleOption
 
     }
 
-    // paint the image
     QImage thumbnail = KisStorageModel::instance()->data(sourceIndex, Qt::UserRole + KisStorageModel::Thumbnail).value<QImage>();
 
     QRect iconRect = paintRect;
@@ -112,7 +109,7 @@ void DlgBundleManager::ItemDelegate::paint(QPainter *painter, const QStyleOption
 
     QRect nameRect = paintRect;
     nameRect.setX(paintRect.x() + height + textMargin);
-    nameRect.setWidth(paintRect.width() - height - 1.5*textMargin); // should be 2, but with 1.5 it's more clear that it's cropped when it is
+    nameRect.setWidth(paintRect.width() - height - 1.5*textMargin);
 
     QColor textColor = option.state & QStyle::State_Selected ?
                 qApp->palette().color(QPalette::HighlightedText) :
@@ -128,7 +125,6 @@ void DlgBundleManager::ItemDelegate::paint(QPainter *painter, const QStyleOption
     painter->restore();
 
 }
-
 
 DlgBundleManager::DlgBundleManager(QWidget *parent)
     : KoDialog(parent)
@@ -226,7 +222,6 @@ void DlgBundleManager::addBundle()
         if (!filename.isEmpty()) {
             KisCursorOverrideLock cursorLock(Qt::BusyCursor);
 
-            // 0. Validate bundle
             {
                 KisResourceStorageSP storage = QSharedPointer<KisResourceStorage>::create(filename);
                 KIS_ASSERT(!storage.isNull());
@@ -241,7 +236,6 @@ void DlgBundleManager::addBundle()
                 }
             }
 
-            // 1. Copy the bundle to the resource folder
             QFileInfo oldFileInfo(filename);
 
             QString newDir = KoResourcePaths::getAppDataLocation();
@@ -265,7 +259,6 @@ void DlgBundleManager::addBundle()
             }
             QFile::copy(filename, newLocation);
 
-            // 2. Add the bundle as a storage/update database
             KisResourceStorageSP storage = QSharedPointer<KisResourceStorage>::create(newLocation);
             KIS_ASSERT(!storage.isNull());
             if (!KisResourceLocator::instance()->addStorage(newLocation, storage)) {
@@ -288,7 +281,6 @@ void DlgBundleManager::editBundle()
     dlg.setMimeTypeFilters(
                 {"application/x-krita-bundle", "image/x-adobe-brushlibrary", "application/x-photoshop-style-library"});
     dlg.setCaption(i18n("Select the bundle"));
-
 
     Q_FOREACH(const QString &filename, dlg.filenames()) {
         if (!filename.isEmpty()) {
@@ -462,12 +454,10 @@ void DlgBundleManager::updateBundleInformation(QModelIndex idx)
         m_ui->lblLicense->setText(storage->metaData(KisResourceStorage::s_meta_license).toString());
         m_ui->lblWebsite->setText(storage->metaData(KisResourceStorage::s_meta_website).toString());
 
-
     }
 
     QImage thumbnail = KisStorageModel::instance()->data(m_proxyModel->mapToSource(idx), Qt::UserRole + KisStorageModel::Thumbnail).value<QImage>();
     m_ui->lblPreview->setPixmap(QPixmap::fromImage(thumbnail));
     m_ui->lblType->setText(KisResourceStorage::storageTypeToString(storage->type()));
 }
-
 

@@ -13,7 +13,6 @@
 #include <KisMultiFeedRSSModel.h>
 #include <testutil.h>
 
-
 KisMultiFeedRssModelTest::KisMultiFeedRssModelTest(QObject *parent) : QObject(parent)
 {
 
@@ -23,7 +22,6 @@ void KisMultiFeedRssModelTest::testAddFeed()
 {
     QFETCH(QList<FakeReplyData>, replyDataList);
     QFETCH(int, resultArticleCount);
-
 
     MockNetworkAccessManager* nam(new MockNetworkAccessManager());
 
@@ -41,7 +39,6 @@ void KisMultiFeedRssModelTest::testAddFeed()
         rssModel->addFeed(feedUrl);
     }
 
-    // wait for signal
     QVERIFY(spy.wait());
 
     QCOMPARE(rssModel->articleCount(), resultArticleCount);
@@ -52,14 +49,12 @@ void KisMultiFeedRssModelTest::testAddFeed_data()
     QTest::addColumn<QList<FakeReplyData>>("replyDataList");
     QTest::addColumn<int>("resultArticleCount");
 
-    // setup feed1
     QFile rssFile1(TestUtil::fetchDataFileLazy("rss_feeds/feed.xml"));
     bool fileOpened = rssFile1.open(QIODevice::ReadOnly | QIODevice::Text);
     QVERIFY(fileOpened);
 
     QString urlFeed1("https://krita.org/en/feed/");
 
-    // create reply data
     FakeReplyData replyFeed1;
     replyFeed1.url = QUrl(urlFeed1);
     replyFeed1.statusCode = 200;
@@ -67,8 +62,6 @@ void KisMultiFeedRssModelTest::testAddFeed_data()
     replyFeed1.contentType = "application/atom+xml";
     replyFeed1.responseBody = rssFile1.readAll();
 
-
-    // setup feed2
     QFile rssFile2(TestUtil::fetchDataFileLazy("rss_feeds/feed.xml"));
     fileOpened = rssFile2.open(QIODevice::ReadOnly | QIODevice::Text);
     QVERIFY(fileOpened);
@@ -82,14 +75,11 @@ void KisMultiFeedRssModelTest::testAddFeed_data()
     replyFeed2.contentType = "application/atom+xml";
     replyFeed2.responseBody = rssFile2.readAll();
 
-
-    // test with 1 feed
     QList<FakeReplyData> listTest1 = { replyFeed1 };
     QTest::addRow("1 feed")
             << listTest1
             << 10;
 
-    // test with 2 feeds
     QList<FakeReplyData> listTest2 = { replyFeed1, replyFeed2 };
     QTest::addRow("2 feeds")
             << listTest2
@@ -101,7 +91,6 @@ void KisMultiFeedRssModelTest::testRemoveFeed()
     QFETCH(QList<FakeReplyData>, replyDataList);
     QFETCH(QString, removeFeedUrl);
     QFETCH(int, resultArticleCount);
-
 
     MockNetworkAccessManager* nam(new MockNetworkAccessManager());
 
@@ -119,10 +108,8 @@ void KisMultiFeedRssModelTest::testRemoveFeed()
         rssModel->addFeed(feedUrl);
     }
 
-    // wait for signal
     QVERIFY(spyAdd.wait());
 
-    // the remove test itself
     rssModel->removeFeed(removeFeedUrl);
 
     QCOMPARE(rssModel->articleCount(), resultArticleCount);
@@ -134,14 +121,12 @@ void KisMultiFeedRssModelTest::testRemoveFeed_data()
     QTest::addColumn<QString>("removeFeedUrl");
     QTest::addColumn<int>("resultArticleCount");
 
-    // setup feed1
     QFile rssFile1(TestUtil::fetchDataFileLazy("rss_feeds/feed.xml"));
     bool fileOpened = rssFile1.open(QIODevice::ReadOnly | QIODevice::Text);
     QVERIFY(fileOpened);
 
     QString urlFeed1("https://krita.org/en/feed/");
 
-    // create reply data
     FakeReplyData replyFeed1;
     replyFeed1.url = QUrl(urlFeed1);
     replyFeed1.statusCode = 200;
@@ -149,7 +134,6 @@ void KisMultiFeedRssModelTest::testRemoveFeed_data()
     replyFeed1.contentType = "application/atom+xml";
     replyFeed1.responseBody = rssFile1.readAll();
 
-    // setup feed2
     QFile rssFile2(TestUtil::fetchDataFileLazy("rss_feeds/feed.xml"));
     fileOpened = rssFile2.open(QIODevice::ReadOnly | QIODevice::Text);
     QVERIFY(fileOpened);
@@ -163,15 +147,12 @@ void KisMultiFeedRssModelTest::testRemoveFeed_data()
     replyFeed2.contentType = "application/atom+xml";
     replyFeed2.responseBody = rssFile2.readAll();
 
-
-    // test with 1 feed
     QList<FakeReplyData> listTest1 = { replyFeed1 };
     QTest::addRow("1 feed")
             << listTest1
             << urlFeed1
             << 0;
 
-    // test with 2 feeds
     QList<FakeReplyData> listTest2 = { replyFeed1, replyFeed2 };
     QTest::addRow("2 feeds")
             << listTest2

@@ -15,19 +15,6 @@
 
 #define SANITY_CHECK
 
-/**
- * This is a  template for a hash table that stores  tiles (or some other
- * objects  resembling tiles).   Actually, this  object should  only have
- * col()/row() methods and be able to answer notifyDetachedFromDataManager() requests to
- * be   stored   here.    It   is   used   in   KisTiledDataManager   and
- * KisMementoManager.
- *
- * How to use:
- *   1) each hash must be unique, otherwise tiles would rewrite each-other
- *   2) 0 key is reserved, so can't be used
- *   3) col and row must be less than 0x7FFF to guarantee uniqueness of hash for each pair
- */
-
 template <class T>
 class KisTileHashTableIteratorTraits2;
 
@@ -53,34 +40,10 @@ public:
 
     bool tileExists(qint32 col, qint32 row);
 
-    /**
-     * Returns a tile in position (col,row). If no tile exists,
-     * returns null.
-     * \param col column of the tile
-     * \param row row of the tile
-     */
     TileTypeSP getExistingTile(qint32 col, qint32 row);
 
-    /**
-     * Returns a tile in position (col,row). If no tile exists,
-     * creates a new one, attaches it to the list and returns.
-     * \param col column of the tile
-     * \param row row of the tile
-     * \param newTile out-parameter, returns true if a new tile
-     *                was created
-     */
     TileTypeSP getTileLazy(qint32 col, qint32 row, bool& newTile);
 
-    /**
-     * Returns a tile in position (col,row). If no tile exists,
-     * creates nothing, but returns shared default tile object
-     * of the table. Be careful, this object has column and row
-     * parameters set to (qint32_MIN, qint32_MIN).
-     * \param col column of the tile
-     * \param row row of the tile
-     * \param existingTile returns true if the tile actually exists in the table
-     *                     and it is not a lazily created default wrapper tile
-     */
     TileTypeSP getReadOnlyTileLazy(qint32 col, qint32 row, bool &existingTile);
     void addTile(TileTypeSP tile);
     bool deleteTile(TileTypeSP tile);
@@ -91,13 +54,7 @@ public:
     void setDefaultTileData(KisTileData *defaultTileData);
     KisTileData* defaultTileData();
 
-    /**
-     * Returns a pointer to the default tile data object with ref counter
-     * increased by one. Make sure you call deref() after you finished using
-     * this object.
-     */
     KisTileData* refAndFetchDefaultTileData();
-
 
     qint32 numTiles()
     {
@@ -137,15 +94,11 @@ private:
     {
 #ifdef SANITY_CHECK
         KIS_ASSERT_RECOVER_NOOP(qAbs(row) < 0x7FFF && qAbs(col) < 0x7FFF);
-#endif // SANITY_CHECK
+#endif
 
         return calculateHashImpl(col, row);
     }
 
-    /**
-     * A version of the hash function that returns an invalid hash in
-     * case the requested tile is out of range
-     */
     inline quint32 calculateHashSafe(qint32 col, qint32 row)
     {
         KIS_SAFE_ASSERT_RECOVER_RETURN_VALUE(qAbs(row) < 0x7FFF && qAbs(col) < 0x7FFF, 0);
@@ -201,10 +154,6 @@ private:
     typedef typename LockFreeTileMap::Mutator LockFreeTileMapMutator;
     mutable LockFreeTileMap m_map;
 
-    /**
-     * We still need something to guard changes in m_defaultTileData,
-     * otherwise there will be concurrent read/writes, resulting in broken memory.
-     */
     QReadWriteLock m_defaultPixelDataLock;
     mutable QReadWriteLock m_iteratorLock;
 
@@ -308,7 +257,6 @@ typename KisTileHashTableTraits2<T>::TileTypeSP KisTileHashTableTraits2<T>::getE
 {
     const quint32 idx = calculateHashSafe(col, row);
     if (!idx) {
-        /// a tile with invalid index obviously doesn't exist
         return TileTypeSP();
     }
 
@@ -326,27 +274,18 @@ typename KisTileHashTableTraits2<T>::TileTypeSP KisTileHashTableTraits2<T>::getT
     newTile = false;
     const quint32 idx = calculateHashSafe(col, row);
     if (!idx) {
-        /// when invalid tile index is requested, just return a
-        /// detached tile with the default data
 
-        /// we pretend as if this tile has already existed, it will
-        /// allow the calling code to avoid modifying the extent
-        /// manager
         newTile = false;
 
         QReadLocker locker(&m_defaultPixelDataLock);
         return new TileType(col, row, m_defaultTileData, 0);
     }
 
-    // we are going to assign a raw-pointer tile from the table
-    // to a shared pointer...
     m_map.getGC().lockRawPointerAccess();
 
     TileTypeSP tile = m_map.get(idx);
 
     while (!tile) {
-        // we shouldn't try to acquire **any** lock with
-        // raw-pointer lock held
         m_map.getGC().unlockRawPointerAccess();
 
         {
@@ -357,15 +296,10 @@ typename KisTileHashTableTraits2<T>::TileTypeSP KisTileHashTableTraits2<T>::getT
         TileTypeSP::ref(&tile, tile.data());
         TileType *discardedTile = 0;
 
-        // iterator lock should be taken **before**
-        // the pointers are locked
         m_iteratorLock.lockForRead();
 
-        // and now lock raw-pointers again
         m_map.getGC().lockRawPointerAccess();
 
-        // mutator might have become invalidated when
-        // we released raw pointers, so we need to reinitialize it
         LockFreeTileMapMutator mutator = m_map.insertOrFind(idx);
         if (!mutator.getValue()) {
             discardedTile = mutator.exchangeValue(tile.data());
@@ -376,9 +310,6 @@ typename KisTileHashTableTraits2<T>::TileTypeSP KisTileHashTableTraits2<T>::getT
         m_iteratorLock.unlock();
 
         if (discardedTile) {
-            // we've got our tile back, it didn't manage to
-            // get into the table. Now release the allocated
-            // tile and push TO/GA switch.
             tile = 0;
 
             discardedTile->notifyDeadWithoutDetaching();
@@ -405,13 +336,7 @@ typename KisTileHashTableTraits2<T>::TileTypeSP KisTileHashTableTraits2<T>::getR
 {
     const quint32 idx = calculateHashSafe(col, row);
     if (!idx) {
-        /// when invalid tile index is requested, just return a
-        /// detached tile with the default data
 
-        /// we pretend as if this tile hasn't existed, it will
-        /// allow the calling code to avoid modifying the extent
-        /// manager (note, that is opposite to what happens in
-        /// getTileLazy())
         existingTile = false;
 
         QReadLocker locker(&m_defaultPixelDataLock);
@@ -451,7 +376,6 @@ bool KisTileHashTableTraits2<T>::deleteTile(qint32 col, qint32 row)
 {
     const quint32 idx = calculateHashSafe(col, row);
     if (!idx) {
-        /// when invalid tile index is requested, just do nothing
         return false;
     }
 
@@ -483,7 +407,6 @@ void KisTileHashTableTraits2<T>::clear()
         m_numTiles.storeRelaxed(0);
     }
 
-    // garbage collection must **not** be run with locks held
     m_map.getGC().update();
 }
 
@@ -518,14 +441,13 @@ inline KisTileData* KisTileHashTableTraits2<T>::refAndFetchDefaultTileData()
     return m_defaultTileData;
 }
 
-
 template <class T>
 void KisTileHashTableTraits2<T>::debugPrintInfo()
 {
 }
 
 template <class T>
-void KisTileHashTableTraits2<T>::debugMaxListLength(qint32 &/*min*/, qint32 &/*max*/)
+void KisTileHashTableTraits2<T>::debugMaxListLength(qint32 & , qint32 & )
 {
 }
 
@@ -533,4 +455,4 @@ typedef KisTileHashTableTraits2<KisTile> KisTileHashTable;
 typedef KisTileHashTableIteratorTraits2<KisTile> KisTileHashTableIterator;
 typedef KisTileHashTableIteratorTraits2<KisTile> KisTileHashTableConstIterator;
 
-#endif // KIS_TILEHASHTABLE_2_H
+#endif

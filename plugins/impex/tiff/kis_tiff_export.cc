@@ -55,9 +55,8 @@ KisTIFFExport::~KisTIFFExport()
     TIFFSetWarningHandler(oldWarnHandler);
 }
 
-KisImportExportErrorCode KisTIFFExport::convert(KisDocument *document, QIODevice */*io*/,  KisPropertiesConfigurationSP configuration)
+KisImportExportErrorCode KisTIFFExport::convert(KisDocument *document, QIODevice * ,  KisPropertiesConfigurationSP configuration)
 {
-    // If a configuration object was passed to the convert method, we use that, otherwise we load from the settings
     KisPropertiesConfigurationSP cfg(new KisPropertiesConfiguration());
     if (configuration) {
         cfg->fromXML(configuration->toXML());
@@ -110,17 +109,14 @@ KisImportExportErrorCode KisTIFFExport::convert(KisDocument *document, QIODevice
         return {KisImportExportErrorCannotRead(file.error())};
     }
 
-    // Open file for writing
     const QByteArray encodedFilename = QFile::encodeName(filename());
 
-    // https://gitlab.com/libtiff/libtiff/-/issues/173
 #ifdef Q_OS_WIN
     const int handle = (int)(_get_osfhandle(file.handle()));
 #else
     const int handle = file.handle();
 #endif
 
-    // NOLINTNEXTLINE(bugprone-narrowing-conversions, cppcoreguidelines-narrowing-conversions)
     std::unique_ptr<TIFF, decltype(&TIFFCleanup)> image(TIFFFdOpen(handle, encodedFilename.data(), "w"), &TIFFCleanup);
 
     if (!image) {
@@ -128,7 +124,6 @@ KisImportExportErrorCode KisTIFFExport::convert(KisDocument *document, QIODevice
         return ImportExportCodes::NoAccessToWrite;
     }
 
-    // Set the document information
     KoDocumentInfo *info = document->documentInfo();
     QString title = info->aboutInfo("title");
     if (!title.isEmpty()) {
@@ -160,9 +155,7 @@ KisImportExportErrorCode KisTIFFExport::convert(KisDocument *document, QIODevice
     if (!TIFFSetField(
             image.get(),
             TIFFTAG_XRESOLUTION,
-            INCH_TO_POINT(kisimage->xRes()))) { // It is the "invert" macro
-                                                // because we convert from
-                                                // pointer-per-inch to points
+            INCH_TO_POINT(kisimage->xRes()))) {
         return ImportExportCodes::ErrorWhileWriting;
     }
     if (!TIFFSetField(image.get(),
@@ -188,7 +181,7 @@ KisImportExportErrorCode KisTIFFExport::convert(KisDocument *document, QIODevice
             return result;
         }
     } else
-#endif // TIFF_CAN_WRITE_PSD_TAGS
+#endif
     {
         KisTIFFWriterVisitor visitor(image.get(), &options);
         if (!(visitor.visit(root))) {
@@ -200,8 +193,6 @@ KisImportExportErrorCode KisTIFFExport::convert(KisDocument *document, QIODevice
     file.close();
 
     if (!options.flatten && !options.saveAsPhotoshop) {
-        // HACK!! Externally inject the Exif metadata
-        // libtiff has no way to access the fields wholesale
         try {
             KisExiv2IODevice::ptr_type basicIoDevice(new KisExiv2IODevice(filename()));
 
@@ -218,22 +209,17 @@ KisImportExportErrorCode KisTIFFExport::convert(KisDocument *document, QIODevice
             const KisMetaData::IOBackend *io =
                 KisMetadataBackendRegistry::instance()->value("exif");
 
-            // All IFDs are paint layer children of root
             KisNodeSP node = root->firstChild();
 
             QBuffer ioDevice;
 
-            // Get layer
             KisLayer *layer = qobject_cast<KisLayer *>(node.data());
             Q_ASSERT(layer);
 
-            // Inject the data as any other IOBackend
             io->saveTo(layer->metaData(), &ioDevice);
 
             Exiv2::ExifData dataToInject;
 
-            // Reinterpret the blob we just got and inject its contents into
-            // tempData
             Exiv2::ExifParser::decode(
                 dataToInject,
                 reinterpret_cast<const Exiv2::byte *>(ioDevice.data().data()),
@@ -242,7 +228,6 @@ KisImportExportErrorCode KisTIFFExport::convert(KisDocument *document, QIODevice
             for (const auto &v : dataToInject) {
                 data[v.key()] = v.value();
             }
-            // Write metadata
             img->writeMetadata();
 #if EXIV2_TEST_VERSION(0,28,0)
         } catch (Exiv2::Error &e) {
@@ -257,13 +242,13 @@ KisImportExportErrorCode KisTIFFExport::convert(KisDocument *document, QIODevice
     return ImportExportCodes::OK;
 }
 
-KisPropertiesConfigurationSP KisTIFFExport::defaultConfiguration(const QByteArray &/*from*/, const QByteArray &/*to*/) const
+KisPropertiesConfigurationSP KisTIFFExport::defaultConfiguration(const QByteArray & , const QByteArray & ) const
 {
     KisTIFFOptions options;
     return options.toProperties();
 }
 
-KisConfigWidget *KisTIFFExport::createConfigurationWidget(QWidget *parent, const QByteArray &/*from*/, const QByteArray &/*to*/) const
+KisConfigWidget *KisTIFFExport::createConfigurationWidget(QWidget *parent, const QByteArray & , const QByteArray & ) const
 {
     return new KisTIFFOptionsWidget(parent);
 }

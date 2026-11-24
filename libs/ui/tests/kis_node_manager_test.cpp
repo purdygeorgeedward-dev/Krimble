@@ -12,7 +12,6 @@
 #include <testui.h>
 #include <testutil.h>
 
-
 #include "ui_manager_test.h"
 
 class NodeManagerTester : public TestUtil::UiManagerTest
@@ -122,7 +121,6 @@ void KisNodeManagerTest::testConvertCloneToPaintLayer()
 
     QVERIFY(dynamic_cast<KisPaintLayer*>(node.data()));
 
-    // No visible change should happen!
     QVERIFY(t.checkLayersInitial());
 }
 
@@ -159,7 +157,6 @@ void testConvertToSelectionMask(bool fromClone)
     QVERIFY(selection);
     QVERIFY(!selection->outlineCacheValid() ||
             !selection->outlineCache().isEmpty());
-
 
     QString testName = fromClone ?
         "selection_from_clone_layer" : "selection_from_blur_layer";

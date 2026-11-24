@@ -10,9 +10,6 @@
 #include <QObject>
 #include <QVariantList>
 
-/**
- * A plugin wrapper that adds the paintop factories to the paintop registry.
- */
 class ParticlePaintOpPlugin : public QObject
 {
     Q_OBJECT
@@ -21,4 +18,4 @@ public:
     ~ParticlePaintOpPlugin() override;
 };
 
-#endif // PARTICLE_PAINTOP_PLUGIN_H_
+#endif

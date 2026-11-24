@@ -10,8 +10,6 @@
 
 #include "kritaui_export.h"
 
-/* See https://reviews.llvm.org/D61118 */
-
 #if defined(__MINGW64__) || defined(__MINGW32__)
 #define KRITAUI_EXPORT_TEMPLATE KRITAUI_EXPORT
 #define KRITAUI_EXPORT_INSTANCE
@@ -23,4 +21,4 @@
 #define KRITAUI_EXPORT_INSTANCE KRITAUI_EXPORT
 #endif
 
-#endif // KRITAUI_EXPORT_INSTANCE_H
+#endif

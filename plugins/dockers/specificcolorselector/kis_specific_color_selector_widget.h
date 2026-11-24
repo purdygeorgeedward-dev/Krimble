@@ -15,7 +15,6 @@
 
 #include "ui_wdgSpecificColorSelectorWidget.h"
 
-
 class KoColorSpace;
 class QVBoxLayout;
 class KisColorInput;

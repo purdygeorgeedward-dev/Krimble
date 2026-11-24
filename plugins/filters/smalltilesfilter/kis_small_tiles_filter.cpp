@@ -55,7 +55,6 @@ void KisSmallTilesFilter::processImpl(KisPaintDeviceSP device,
 {
     Q_ASSERT(!device.isNull());
 
-    //read the filter configuration values from the KisFilterConfiguration object
     const quint32 numberOfTiles = config->getInt("numberOfTiles", 2);
 
     const QRect srcRect = applyRect;
@@ -98,5 +97,4 @@ KisFilterConfigurationSP KisSmallTilesFilter::defaultConfiguration(KisResourcesI
     config->setProperty("numberOfTiles", 2);
     return config;
 }
-
 

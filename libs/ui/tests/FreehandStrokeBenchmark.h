@@ -45,4 +45,4 @@ private Q_SLOTS:
     void testColorsmudgeLightness_smear_new_nsa_ptoverwrite();
 };
 
-#endif // FREEHANDSTROKEBENCHMARK_H
+#endif

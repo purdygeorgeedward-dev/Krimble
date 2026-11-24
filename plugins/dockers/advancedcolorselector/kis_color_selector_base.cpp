@@ -143,12 +143,10 @@ KisColorSelectorBase::KisColorSelectorBase(QWidget *parent) :
     m_hideTimer->setSingleShot(true);
     connect(m_hideTimer, SIGNAL(timeout()), this, SLOT(hidePopup()));
 
-    using namespace std::placeholders; // For _1 placeholder
+    using namespace std::placeholders;
     auto function = std::bind(&KisColorSelectorBase::slotUpdateColorAndPreview, this, _1);
-    m_updateColorCompressor.reset(new ColorCompressorType(25 /* ms */, function));
+    m_updateColorCompressor.reset(new ColorCompressorType(25 , function));
 
-    // Color selectors don't have context menus. Setting this prevents any
-    // long-presses from delaying inputs, see KisLongPressEventFilter.cpp.
     setContextMenuPolicy(Qt::PreventContextMenu);
 }
 
@@ -210,8 +208,6 @@ void KisColorSelectorBase::unsetCanvas()
     }
     m_canvas = 0;
 }
-
-
 
 void KisColorSelectorBase::mousePressEvent(QMouseEvent* event)
 {
@@ -284,9 +280,6 @@ void KisColorSelectorBase::enterEvent(QEnterEvent *e)
     if (m_isPopup && m_hideTimer->isActive()) {
         m_hideTimer->stop();
     }
-
-    // do not show the popup when boxed in
-    // the configuration dialog (m_canvas == 0)
 
     if (m_canvas &&
         !m_isPopup && m_popupOnMouseOver &&
@@ -396,9 +389,6 @@ void KisColorSelectorBase::lazyCreatePopup()
         Q_ASSERT(m_popup);
         m_popup->setParent(this);
 
-        // Setting Qt::BypassWindowManagerHint will prevent
-        // the WM from showing another taskbar entry,
-        // but will require that we handle window activation manually
         m_popup->setWindowFlags(Qt::FramelessWindowHint |
 #if defined(Q_OS_MACOS) || defined(Q_OS_ANDROID)
                                 Qt::Popup |
@@ -416,8 +406,6 @@ void KisColorSelectorBase::lazyCreatePopup()
 
 void KisColorSelectorBase::showPopup(Move move)
 {
-    // This slot may be called by some action,
-    // so we need to be able to handle it
     lazyCreatePopup();
 
     QPoint cursorPos = QCursor::pos();
@@ -498,18 +486,16 @@ void KisColorSelectorBase::updateSettings()
 
     KConfigGroup cfg =  KSharedConfig::openConfig()->group("advancedColorSelector");
 
-
    int zoomSelectorOptions =  (int) cfg.readEntry("zoomSelectorOptions", 0) ;
    if (zoomSelectorOptions == 0)   {
-       setPopupBehaviour(false, true);   // middle mouse button click will open zoom selector
+       setPopupBehaviour(false, true);
    } else if (zoomSelectorOptions == 1)   {
-       setPopupBehaviour(true, false);   // move over will open the zoom selector
+       setPopupBehaviour(true, false);
    }
    else
    {
-        setPopupBehaviour(false, false); // do not show zoom selector
+        setPopupBehaviour(false, false);
    }
-
 
     if(m_isPopup) {
         m_hideOnMouseClick = cfg.readEntry("hidePopupOnClickCheck", false);
@@ -550,7 +536,7 @@ KisDisplayColorConverter* KisColorSelectorBase::converter() const
 void KisColorSelectorBase::tryHideAllPopups()
 {
     if (m_colorPreviewPopup->isVisible()) {
-        m_colorUpdateSelf=false; //this is for allowing advanced selector to listen to outside color-change events.
+        m_colorUpdateSelf=false;
         m_colorPreviewPopup->hide();
     }
 
@@ -563,16 +549,13 @@ void KisColorSelectorBase::tryHideAllPopups()
     }
 }
 
-
 void KisColorSelectorBase::mouseMoveEvent(QMouseEvent *event)
 {
     event->accept();
 }
 
-
 void KisColorSelectorBase::changeEvent(QEvent *event)
 {
-    // hide the popup when another window becomes active, e.g. due to alt+tab
     if(m_isPopup && event->type() == QEvent::ActivationChange && !isActiveWindow()) {
         hidePopup();
     }
@@ -584,7 +567,6 @@ void KisColorSelectorBase::showEvent(QShowEvent *event)
 {
     QWidget::showEvent(event);
 
-    // manual activation required due to Qt::BypassWindowManagerHint
     if(m_isPopup) {
         activateWindow();
     }

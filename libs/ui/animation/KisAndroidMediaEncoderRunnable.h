@@ -27,11 +27,9 @@ private:
     static constexpr int DRAIN_END_OF_STREAM = -1;
     static constexpr int DRAIN_ERROR = -2;
     static constexpr int DRAIN_CANCELLED = -3;
-    // Keep these formats in sync with VideoEncoder.java!
     static constexpr int FORMAT_MP4_H264 = 0;
     static constexpr int FORMAT_WEBM_VP8 = 1;
     static constexpr int FORMAT_MP4_AV1 = 2;
-    // These statuses too!
     static constexpr int STATUS_OK = 0;
     static constexpr int STATUS_TIMEOUT = 1;
     static constexpr int STATUS_END_OF_STREAM = 2;
@@ -51,7 +49,6 @@ private:
     EncodeResult prepareAudio(Context &ctx);
     EncodeResult prepare(Context &ctx, bool audio);
 
-    // Returns number of frames drained or one of the DRAIN_* values above.
     int drainVideo(Context &ctx, long long initialTimeout);
     int drainAudio(Context &ctx, long long initialTimeout);
     int drain(Context &ctx, long long initialTimeout, bool audio);

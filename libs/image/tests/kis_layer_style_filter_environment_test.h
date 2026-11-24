@@ -17,4 +17,4 @@ private Q_SLOTS:
     void benchmarkRandomSelectionGeneration();
 };
 
-#endif /* __KIS_LAYER_STYLE_FILTER_ENVIRONMENT_TEST_H */
+#endif

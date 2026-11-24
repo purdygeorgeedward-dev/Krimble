@@ -21,24 +21,23 @@ public:
 
     KisCursor();
 
-    // Predefined Qt cursors.
-    static QCursor arrowCursor();         // standard arrow cursor
-    static QCursor upArrowCursor();       // upwards arrow
-    static QCursor crossCursor();         // crosshair
-    static QCursor roundCursor();         // small open circle
-    static QCursor pixelBlackCursor();    // black single pixel
-    static QCursor pixelWhiteCursor();    // white single pixel
-    static QCursor waitCursor();          // hourglass/watch
-    static QCursor ibeamCursor();         // ibeam/text entry
-    static QCursor sizeVerCursor();       // vertical resize
-    static QCursor sizeHorCursor();       // horizontal resize
-    static QCursor sizeBDiagCursor();     // diagonal resize (/)
-    static QCursor sizeFDiagCursor();     // diagonal resize (\)
-    static QCursor sizeAllCursor();       // all directions resize
-    static QCursor blankCursor();         // blank/invisible cursor
-    static QCursor splitVCursor();        // vertical splitting
-    static QCursor splitHCursor();        // horizontal splitting
-    static QCursor pointingHandCursor();  // a pointing hand
+    static QCursor arrowCursor();
+    static QCursor upArrowCursor();
+    static QCursor crossCursor();
+    static QCursor roundCursor();
+    static QCursor pixelBlackCursor();
+    static QCursor pixelWhiteCursor();
+    static QCursor waitCursor();
+    static QCursor ibeamCursor();
+    static QCursor sizeVerCursor();
+    static QCursor sizeHorCursor();
+    static QCursor sizeBDiagCursor();
+    static QCursor sizeFDiagCursor();
+    static QCursor sizeAllCursor();
+    static QCursor blankCursor();
+    static QCursor splitVCursor();
+    static QCursor splitHCursor();
+    static QCursor pointingHandCursor();
 
     static QCursor zoomSmoothCursor();
     static QCursor zoomDiscreteCursor();
@@ -54,30 +53,23 @@ public:
     static QCursor triangleRightHandedCursor();
     static QCursor eraserCursor();
 
-    // Existing custom KimageShop cursors. Use the 'load' function for all new cursors.
-    static QCursor moveCursor();          // move tool cursor
-    static QCursor moveSelectionCursor(); // move selection action cursor
-    static QCursor samplerCursor();        // color sampler cursor
-    static QCursor pickLayerCursor();     // pick layer cursor
-    static QCursor handCursor();          // hand tool cursor
-    static QCursor openHandCursor();      // Pan tool cursor
-    static QCursor closedHandCursor();    // Pan tool cursor
-    static QCursor rotateCursor();    // Transform tool cursor
+    static QCursor moveCursor();
+    static QCursor moveSelectionCursor();
+    static QCursor samplerCursor();
+    static QCursor pickLayerCursor();
+    static QCursor handCursor();
+    static QCursor openHandCursor();
+    static QCursor closedHandCursor();
+    static QCursor rotateCursor();
 
-    static QCursor meshCursorFree();    // Transform tool cursor
-    static QCursor meshCursorLocked();    // Transform tool cursor
+    static QCursor meshCursorFree();
+    static QCursor meshCursorLocked();
 
-
-    // Load a cursor from an image file. The image should have an alpha channel
-    // and will be converted to black and white on loading. Any format loadable
-    // by QImage can be used. The file will be stored in the KisIconCache, so
-    // each file will be loaded only once.
     static QCursor load(const QString & cursorName, int hotspotX = -1, int hotspotY = -1);
 
     static QCursor loadWithSize(const QString & cursorName, int width, int height, int hotspotX = -1, int hotspotY = -1);
 
 private:
 
-
 };
-#endif // __kis_cursor_h__
+#endif

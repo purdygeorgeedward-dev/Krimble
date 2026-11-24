@@ -22,7 +22,7 @@
 
 #include "KoShape.h"
 #include "KoShape_p.h"
-#include "KoShapeFactoryBase.h" // for the SHAPE mimetypes
+#include "KoShapeFactoryBase.h"
 #include "KoShapeRegistry.h"
 #include "KoShapeController.h"
 #include "KoShapeManager.h"
@@ -35,7 +35,6 @@
 #include "KoSvgPaste.h"
 #include <kis_canvas2.h>
 
-// ********** Viewport **********
 Viewport::Viewport(KoCanvasControllerWidget *parent)
     : QWidget(parent)
     , m_draggedShape(0)
@@ -62,8 +61,6 @@ void Viewport::setCanvas(QWidget *canvas)
 
 void Viewport::handleDragEnterEvent(QDragEnterEvent *event)
 {
-    // if not a canvas set then ignore this, makes it possible to assume
-    // we have a canvas in all the support methods.
     if (!(m_parent->canvas() && m_parent->canvas()->canvasWidget())) {
         event->ignore();
         return;
@@ -72,7 +69,6 @@ void Viewport::handleDragEnterEvent(QDragEnterEvent *event)
     delete m_draggedShape;
     m_draggedShape = 0;
 
-    // only allow dropping when active layer is editable
     KoSelection *selection = m_parent->canvas()->shapeManager()->selection();
     KoShapeLayer *activeLayer = selection->activeLayer();
     if (activeLayer && (!activeLayer->isShapeEditable() || activeLayer->isGeometryProtected())) {
@@ -111,7 +107,6 @@ void Viewport::handleDragEnterEvent(QDragEnterEvent *event)
                 itemData = data->data(SHAPEID_MIMETYPE);
             }
 
-
             QDataStream dataStream(&itemData, QIODevice::ReadOnly);
             QString id;
             dataStream >> id;
@@ -119,12 +114,9 @@ void Viewport::handleDragEnterEvent(QDragEnterEvent *event)
             if (isTemplate)
                 dataStream >> properties;
 
-            // and finally, there is a point.
             QPointF offset;
             dataStream >> offset;
 
-            // The rest of this method is mostly a copy paste from the KoCreateShapeStrategy
-            // So, lets remove this again when Zagge adds his new class that does this kind of thing. (KoLoadSave)
             KoShapeFactoryBase *factory = KoShapeRegistry::instance()->value(id);
             if (! factory) {
                 warnFlake << "Application requested a shape that is not registered '" <<
@@ -151,8 +143,6 @@ void Viewport::handleDragEnterEvent(QDragEnterEvent *event)
 
         Q_ASSERT(m_draggedShape);
         if (!m_draggedShape) return;
-
-        // calculate maximum existing shape zIndex
 
         int pasteZIndex = 0;
 
@@ -182,13 +172,12 @@ void Viewport::handleDropEvent(QDropEvent *event)
     }
 
     repaint(m_draggedShape);
-    m_parent->canvas()->shapeManager()->remove(m_draggedShape); // remove it to not interfere with z-index calc.
+    m_parent->canvas()->shapeManager()->remove(m_draggedShape);
 
-    m_draggedShape->setPosition(QPointF(0, 0));  // always save position.
+    m_draggedShape->setPosition(QPointF(0, 0));
     QPointF newPos = correctPosition(event->pos());
-    m_parent->canvas()->clipToDocument(m_draggedShape, newPos); // ensure the shape is dropped inside the document.
+    m_parent->canvas()->clipToDocument(m_draggedShape, newPos);
     m_draggedShape->setAbsolutePosition(newPos);
-
 
     KUndo2Command * cmd = m_parent->canvas()->shapeController()->addShape(m_draggedShape, 0);
 
@@ -196,7 +185,6 @@ void Viewport::handleDropEvent(QDropEvent *event)
         m_parent->canvas()->addCommand(cmd);
         KoSelection *selection = m_parent->canvas()->shapeManager()->selection();
 
-        // repaint selection before selecting newly create shape
         Q_FOREACH (KoShape * shape, selection->selectedShapes()) {
             shape->update();
         }
@@ -238,7 +226,7 @@ void Viewport::repaint(KoShape *shape)
     KIS_SAFE_ASSERT_RECOVER_RETURN(kisCanvas);
 
     QRect updateRect = kisCanvas->coordinatesConverter()->documentToWidget(shape->boundingRect()).toAlignedRect();
-    updateRect.adjust(-2, -2, 2, 2); // adjust for antialias
+    updateRect.adjust(-2, -2, 2, 2);
     update(updateRect);
 }
 

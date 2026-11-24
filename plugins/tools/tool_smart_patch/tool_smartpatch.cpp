@@ -17,7 +17,6 @@
 
 K_PLUGIN_FACTORY_WITH_JSON(DefaultToolsFactory, "kritatoolsmartpatch.json", registerPlugin<ToolSmartPatch>();)
 
-
 ToolSmartPatch::ToolSmartPatch(QObject *parent, const QVariantList &)
     : QObject(parent)
 {

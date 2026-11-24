@@ -40,16 +40,6 @@ qreal DotsRoundLinear::operator()(qreal x, qreal y) const
 
 qreal DotsRoundLinearEqualized::operator()(qreal x, qreal y) const
 {
-    // In theory, the cumulative function for this spot function is:
-    // "coverage = area of the intersection between the disk formed by the value,
-    // and the screen cell".
-    // This uses a piecewise cumulative function obtained analytically. If
-    // the value is less than or equal to "sqrt(2) / 2" (value at which the
-    // disk touches the screen cell borders) then the coverage for that value
-    // is obtained simply by getting the area of the disk. If the value is
-    // greater than "sqrt(2) / 2" then the coverage is obtained by computing
-    // the area of the intersection between the disk and the screen cell (area
-    // of the disk minus area of the chords of the disk outside the screen cell)
     const qreal z = DotsRoundLinear::operator()(x, y);
     const qreal zOverSqrt2 = z / M_SQRT2;
     const qreal zOverSqrt2Squared = zOverSqrt2 * zOverSqrt2;
@@ -69,8 +59,6 @@ qreal DotsRoundSinusoidal::operator()(qreal x, qreal y) const
 
 qreal DotsRoundSinusoidalEqualized::operator()(qreal x, qreal y) const
 {
-    // Here the cumulative function is a piecewise function obtained empirically
-    // by fitting some simple curves to a list of points
     const qreal z = DotsRoundSinusoidal::operator()(x, y);
     if (z <= 0.5) {
         return M_SQRT2 / 2.0 - std::sqrt(-(z - 0.5469) / 1.0938);
@@ -82,8 +70,6 @@ qreal DotsRoundSinusoidalEqualized::operator()(qreal x, qreal y) const
 qreal DotsEllipseLinear::operator()(qreal x, qreal y) const
 {
     constexpr qreal aspectRatio = 1.25;
-    // The following magic number makes the function go to 1.0 in
-    // the corners of the cell (normalizes it)
     constexpr qreal factor = 0.625;
     x = triangle(x);
     y = triangle(y) * aspectRatio;
@@ -92,15 +78,6 @@ qreal DotsEllipseLinear::operator()(qreal x, qreal y) const
 
 qreal DotsEllipseLinearEqualized::operator()(qreal x, qreal y) const
 {
-    // In theory, the cumulative function for this spot function is:
-    // "coverage = area of the intersection between the elliptical disk formed
-    // by the value, and the screen cell".
-    // This uses a piecewise cumulative function obtained analytically. First,
-    // the area of the elliptical disk is obtained. If the value is greater than
-    // "0.625" (value at which the elliptical disk touches the left and right
-    // screen cell borders) then the area of the left and right elliptical
-    // chords is subtracted; and if the value is greater than "0.78125" then the
-    // area of the top and bottom elliptical chords is also subtracted
     const qreal z = DotsEllipseLinear::operator()(x, y);
     constexpr qreal factor = 0.625;
     constexpr qreal factorTimes2 = factor * 2.0;
@@ -123,23 +100,13 @@ qreal DotsEllipseLinearEqualized::operator()(qreal x, qreal y) const
 
 qreal DotsEllipseSinusoidal::operator()(qreal x, qreal y) const
 {
-    // The "0.4" and "0.6" values make a function such that if one thresholds it
-    // at 0.4 the resulting shape touches the borders of the cell horizontally
-    // and if one thresholds it at "0.6" it touches the cell vertically. That is
-    // the standard convention
     x = sin(x) * 0.4;
     y = sin(y) * 0.6;
-    // We would need to divide the following by ("0.4" + "0.6"), but since that is
-    // equal to 1, we skip it. The division is required to normalize the values
-    // of the function. If those magic numbers change, and they don't sum to 1,
-    // then we must divide
     return (x + y);
 }
 
 qreal DotsEllipseSinusoidalEqualized::operator()(qreal x, qreal y) const
 {
-    // Here the cumulative function is a piecewise function obtained empirically
-    // by fitting some simple cubic curves to a list of points
     const qreal z = DotsEllipseSinusoidal::operator()(x, y);
     const qreal z2 = z * z;
     const qreal z3 = z * z2;
@@ -160,9 +127,6 @@ qreal DotsEllipseSinusoidalEqualized::operator()(qreal x, qreal y) const
 
 qreal DotsEllipseLinear_Legacy::operator()(qreal x, qreal y) const
 {
-    // This is the function used for the elliptical spots in Krita 4.*
-    // It is wrong because it produces too dark values. The function should
-    // produce a value of 1 at the corners of the screen cell
     constexpr qreal ellipseRatioX = 0.4 / M_SQRT2;
     constexpr qreal ellipseRatioY = 0.6 / M_SQRT2;
     x = triangle(x) * ellipseRatioX;
@@ -177,11 +141,6 @@ qreal DotsDiamond::operator()(qreal x, qreal y) const
 
 qreal DotsDiamondEqualized::operator()(qreal x, qreal y) const
 {
-    // Here the cumulative function is a piecewise function obtained
-    // analytically. If the value is less than or equal to "0.5" then the
-    // coverage is simply the area of the diamond and if the value is greater
-    // than "0.5" then the coverage is the area of the intersection between the
-    // diamond and the screen cell
     const qreal z = DotsDiamond::operator()(x, y);
     if (z <= 0.5) {
         return 2.0 * z * z;
@@ -197,8 +156,6 @@ qreal DotsSquare::operator()(qreal x, qreal y) const
 
 qreal DotsSquareEqualized::operator()(qreal x, qreal y) const
 {
-    // Here the cumulative function was obtained analytically and it is just the
-    // area of the square
     const qreal z = DotsSquare::operator()(x, y);
     return z * z;
 }

@@ -10,10 +10,8 @@
 
 #include <KoColor.h>
 
-
 #include "kis_transform_mask.h"
 #include "kis_transform_mask_params_interface.h"
-
 
 #include "testutil.h"
 #include "kistest.h"
@@ -78,41 +76,6 @@ void KisTransformMaskTest::testSafeTransform()
     QCOMPARE(bwdPoly.toPolygon(), ref);
     QCOMPARE(bwdRect.toRect(), QRect(0, 994, 1198, 584));
 
-/*
-    QImage image(2500, 2500, QImage::Format_ARGB32);
-    QPainter gc(&image);
-    gc.setPen(Qt::cyan);
-
-    gc.setOpacity(0.7);
-
-    gc.setBrush(Qt::red);
-    gc.drawPolygon(t2.srcClipPolygon());
-
-    gc.setBrush(Qt::green);
-    gc.drawPolygon(t2.dstClipPolygon());
-
-    dbgKrita << ppVar(testRect);
-    dbgKrita << ppVar(fwdPoly);
-    dbgKrita << ppVar(fwdRect);
-    dbgKrita << ppVar(bwdPoly);
-    dbgKrita << ppVar(bwdRect);
-
-    gc.setBrush(Qt::yellow);
-    gc.drawPolygon(testRect);
-
-    gc.setBrush(Qt::red);
-    gc.drawPolygon(fwdRect);
-    gc.setBrush(Qt::blue);
-    gc.drawPolygon(fwdPoly);
-
-    gc.setBrush(Qt::magenta);
-    gc.drawPolygon(bwdRect);
-    gc.setBrush(Qt::cyan);
-    gc.drawPolygon(bwdPoly);
-
-    gc.end();
-    image.save("polygons_safety.png");
-*/
 }
 
 void KisTransformMaskTest::testSafeTransformUnity()
@@ -136,13 +99,11 @@ void KisTransformMaskTest::testSafeTransformUnity()
 
 void KisTransformMaskTest::testSafeTransformSingleVanishingPoint()
 {
-    // rotation around 0X has a single vanishing point for 0Y axis
     QTransform transform(1, 0, 0,
                          -0.870208, -0.414416, -0.000955222,
                          132.386, 1082.91, 1.99439);
 
     QTransform R; R.rotateRadians(M_PI / 4.0);
-    //transform *= R;
 
     QRectF testRect(1536, 1024, 512, 512);
     KisSafeTransform t2(transform, QRect(0, 0, 2048, 2048), testRect.toRect());
@@ -153,22 +114,8 @@ void KisTransformMaskTest::testSafeTransformSingleVanishingPoint()
     QPolygonF bwdPoly = t2.mapBackward(fwdPoly);
     QRectF bwdRect = t2.mapRectBackward(fwdRect);
 
-    /**
-     * A special weird rect that crosses the vanishing point,
-     * which is (911.001, 433.84) in this case
-     */
     QRectF fwdNastyRect(800, 100, 400, 600);
-    //QRectF fwdNastyRect(100, 400, 1000, 800);
     QRectF bwdNastyRect = t2.mapRectBackward(fwdNastyRect);
-
-/*
-    dbgKrita << ppVar(testRect);
-    dbgKrita << ppVar(fwdPoly);
-    dbgKrita << ppVar(fwdRect);
-    dbgKrita << ppVar(bwdPoly);
-    dbgKrita << ppVar(bwdRect);
-    dbgKrita << ppVar(bwdNastyRect);
-*/
 
     QPolygon ref;
 
@@ -226,16 +173,10 @@ bool doPartialTests(const QString &prefix, KisImageSP image, KisLayerSP paintLay
         }
     }
 
-    // initial update of the mask to clear the unused portions of the projection
-    // (it updates only when we call set dirty on the mask itself, which happens
-    // in Krita right after the addition of the mask onto a layer)
-
     mask->setDirty();
     image->waitForDone();
     testName = QString("tm_%1_initial_mask_visible_on").arg(testIndex++);
     result &= chk.checkImage(image, testName);
-
-    // start layer visibility testing
 
     paintLayer->setVisible(false);
     paintLayer->setDirty();
@@ -256,15 +197,12 @@ bool doPartialTests(const QString &prefix, KisImageSP image, KisLayerSP paintLay
         testName = QString("tm_%1_extra_layer_visible_off").arg(testIndex++);
         result &= chk.checkImage(image, testName);
 
-
         visibilityToggleLayer->setVisible(true);
         visibilityToggleLayer->setDirty();
         image->waitForDone();
         testName = QString("tm_%1_extra_layer_visible_on").arg(testIndex++);
         result &= chk.checkImage(image, testName);
     }
-
-    // toggle mask visibility
 
     mask->setVisible(false);
     mask->setDirty();
@@ -278,16 +216,10 @@ bool doPartialTests(const QString &prefix, KisImageSP image, KisLayerSP paintLay
     testName = QString("tm_%1_mask_visible_on").arg(testIndex++);
     result &= chk.checkImage(image, testName);
 
-    // entire bounds update
-
-    // no clearing, just don't hang up
-
     paintLayer->setDirty(refRect);
     image->waitForDone();
     testName = QString("tm_%1_layer_dirty_bounds").arg(testIndex++);
     result &= chk.checkImage(image, testName);
-
-    // no clearing, just don't hang up
 
     mask->setDirty(refRect);
     image->waitForDone();
@@ -295,7 +227,6 @@ bool doPartialTests(const QString &prefix, KisImageSP image, KisLayerSP paintLay
     result &= chk.checkImage(image, testName);
 
     if (paintLayer != visibilityToggleLayer) {
-        // no clearing, just don't hang up
 
         visibilityToggleLayer->setDirty(refRect);
         image->waitForDone();
@@ -304,8 +235,6 @@ bool doPartialTests(const QString &prefix, KisImageSP image, KisLayerSP paintLay
     }
 
     QRect fillRect;
-
-    // partial updates outside
 
     fillRect = QRect(-100, 0.5 * refRect.height(), 50, 100);
     paintLayer->paintDevice()->fill(fillRect, KoColor(Qt::red, image->colorSpace()));
@@ -328,8 +257,6 @@ bool doPartialTests(const QString &prefix, KisImageSP image, KisLayerSP paintLay
     testName = QString("tm_%1_layer_dirty_outside_%2_%3").arg(testIndex++).arg(fillRect.x()).arg(fillRect.y());
     result &= chk.checkImage(image, testName);
 
-    // partial update inside
-
     fillRect = QRect(0.5 * refRect.width() - 50, 0.5 * refRect.height() - 50, 100, 100);
     paintLayer->paintDevice()->fill(fillRect, KoColor(Qt::red, image->colorSpace()));
     paintLayer->setDirty(fillRect);
@@ -337,14 +264,12 @@ bool doPartialTests(const QString &prefix, KisImageSP image, KisLayerSP paintLay
     testName = QString("tm_%1_layer_dirty_inside_%2_%3").arg(testIndex++).arg(fillRect.x()).arg(fillRect.y());
     result &= chk.checkImage(image, testName);
 
-    // clear explicitly
     image->projection()->clear();
 
     mask->setDirty();
     image->waitForDone();
     testName = QString("tm_%1_mask_dirty_bounds").arg(testIndex++);
     result &= chk.checkImage(image, testName);
-
 
     QSharedPointer<KisDumbTransformMaskParams> params = mask->transformParams().dynamicCast<KisDumbTransformMaskParams>();
 
@@ -499,9 +424,6 @@ void KisTransformMaskTest::testMultipleMasks()
     KisPaintLayerSP player = new KisPaintLayer(p.image, "bg", OPACITY_OPAQUE_U8, p.image->colorSpace());
     p.image->addNode(player, p.image->root(), KisNodeSP());
 
-    //KisCloneLayerSP clone = new KisCloneLayer(p.layer, p.image, "clone", OPACITY_OPAQUE_U8);
-    //p.image->addNode(clone, p.image->root());
-
     KisTransformMaskSP mask1 = new KisTransformMask(p.image, "mask1");
     p.image->addNode(mask1, p.layer);
 
@@ -525,7 +447,6 @@ void KisTransformMaskTest::testMultipleMasks()
     QTest::qWait(4000);
     p.image->waitForDone();
     chk.checkImage(p.image, "01X_mask1_moved_layer_update");
-
 
     transform = QTransform::fromTranslate(0, -150);
     mask2->setTransformParams(KisTransformMaskParamsInterfaceSP(
@@ -551,7 +472,6 @@ void KisTransformMaskTest::testMultipleMasks()
         p.image->waitForDone();
         chk.checkImage(p.image, "03X_mask1_tg_off_refRect");
 
-
         mask1->setVisible(true);
         mask1->setDirty(refRect);
         p.image->waitForDone();
@@ -560,7 +480,6 @@ void KisTransformMaskTest::testMultipleMasks()
         QTest::qWait(4000);
         p.image->waitForDone();
         chk.checkImage(p.image, "04X_mask1_tg_on_refRect");
-
 
         mask1->setVisible(false);
         mask1->setDirty();
@@ -571,7 +490,6 @@ void KisTransformMaskTest::testMultipleMasks()
         p.image->waitForDone();
         chk.checkImage(p.image, "05X_mask1_tg_off_default_rect");
 
-
         mask1->setVisible(true);
         mask1->setDirty();
         p.image->waitForDone();
@@ -581,8 +499,7 @@ void KisTransformMaskTest::testMultipleMasks()
         p.image->waitForDone();
         chk.checkImage(p.image, "06X_mask1_tg_on_default_rect");
     }
-#endif /* CHECK_MASK1_TOGGLE */
-
+#endif
 
 #ifdef CHECK_MASK2_TOGGLE
 
@@ -595,7 +512,6 @@ void KisTransformMaskTest::testMultipleMasks()
         QTest::qWait(4000);
         p.image->waitForDone();
         chk.checkImage(p.image, "07X_mask2_tg_off_refRect");
-
 
         mask2->setVisible(true);
         mask2->setDirty(refRect);
@@ -615,7 +531,6 @@ void KisTransformMaskTest::testMultipleMasks()
         p.image->waitForDone();
         chk.checkImage(p.image, "09X_mask2_tg_off_default_rect");
 
-
         mask2->setVisible(true);
         mask2->setDirty(refRect);
         p.image->waitForDone();
@@ -627,8 +542,7 @@ void KisTransformMaskTest::testMultipleMasks()
 
     }
 
-#endif /* CHECK_MASK2_TOGGLE */
-
+#endif
 
 #ifdef CHECK_HIDE_ALL
 
@@ -678,7 +592,6 @@ void KisTransformMaskTest::testMultipleMasks()
         p.image->waitForDone();
         chk.checkImage(p.image, "14X_sh_mask2_on");
 
-
         mask2->setVisible(false);
         mask2->setDirty();
         p.image->waitForDone();
@@ -689,7 +602,7 @@ void KisTransformMaskTest::testMultipleMasks()
         chk.checkImage(p.image, "15X_sh_mask2_off");
     }
 
-#endif /* CHECK_HIDE_ALL */
+#endif
 
 #ifdef CHECK_HIDE_ALL_AFTER_MOVE
 
@@ -753,7 +666,6 @@ void KisTransformMaskTest::testMultipleMasks()
         p.image->waitForDone();
         chk.checkImage(p.image, "24X_sh_mask2_on");
 
-
         mask2->setVisible(false);
         mask2->setDirty();
         p.image->waitForDone();
@@ -764,7 +676,7 @@ void KisTransformMaskTest::testMultipleMasks()
         chk.checkImage(p.image, "25X_sh_mask2_off");
     }
 
-#endif /* CHECK_HIDE_ALL_AFTER_MOVE */
+#endif
 
     QVERIFY(chk.testPassed());
 }
@@ -798,7 +710,6 @@ void KisTransformMaskTest::testMaskWithOffset()
     p.image->waitForDone();
     chk.checkImage(p.image, "00X_initial_layer_update");
 
-
     QTransform transform;
 
     transform = QTransform::fromTranslate(-150, 0);
@@ -828,15 +739,12 @@ void KisTransformMaskTest::testMaskWithOffset()
 
 void KisTransformMaskTest::testTransformHiddenPartsOfTheGroup()
 {
-    //TestUtil::ExternalImageChecker chk("mask_with_offset", "transform_mask_updates");
 
     QRect imageRect(0,0,512,512);
     QRect fillRect(10, 10, 236, 236);
     QRect outsideFillRect = fillRect.translated(0, -1.5 * 256);
 
     TestUtil::MaskParent p(imageRect);
-
-    //p.layer->paintDevice()->fill(fillRect, KoColor(Qt::green, p.layer->colorSpace()));
 
     p.image->initialRefreshGraph();
 
@@ -853,8 +761,6 @@ void KisTransformMaskTest::testTransformHiddenPartsOfTheGroup()
 
     QCOMPARE(p.image->projection()->exactBounds(), fillRect);
 
-    //KIS_DUMP_DEVICE_2(p.image->projection(), imageRect, "image_proj_initial", "dd");
-
     KisTransformMaskSP mask1 = new KisTransformMask(p.image, "mask1");
     QTransform transform1 =
         QTransform::fromTranslate(0, 1.5 * 256);
@@ -866,13 +772,6 @@ void KisTransformMaskTest::testTransformHiddenPartsOfTheGroup()
     mask1->setDirty();
     p.image->waitForDone();
 
-    //KIS_DUMP_DEVICE_2(p.image->projection(), imageRect, "image_proj_mask", "dd");
-
-    /**
-     * We do **not** have clipping here, because transform mask performs clipping
-     * for transformations with `transform.type() > QTransform::TxShear`. Translations
-     * are processed unclipped.
-     */
     QCOMPARE(p.image->projection()->exactBounds(), QRect(10, 10, 236, 502));
 }
 

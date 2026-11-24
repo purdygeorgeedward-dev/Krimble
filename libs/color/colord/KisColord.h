@@ -19,7 +19,6 @@
 
 #include <QMetaType>
 
-
 #define CD_PROFILE_METADATA_DATA_SOURCE_EDID	 "edid"
 #define CD_PROFILE_METADATA_DATA_SOURCE_CALIB	 "calib"
 #define CD_PROFILE_METADATA_DATA_SOURCE_STANDARD "standard"
@@ -27,7 +26,6 @@
 
 class CdInterface;
 struct Device;
-
 
 #include "kritacolord_export.h"
 
@@ -45,7 +43,6 @@ public:
 Q_SIGNALS:
     void changed();
     void changed(const QString& device);
-
 
 private Q_SLOTS:
 
@@ -65,4 +62,4 @@ private:
     CdInterface *m_cdInterface;
 };
 
-#endif // COLORD_KCM_H
+#endif

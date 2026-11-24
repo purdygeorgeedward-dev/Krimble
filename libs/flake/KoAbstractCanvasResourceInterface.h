@@ -13,37 +13,19 @@
 
 class QVariant;
 
-/**
- * \class KoAbstractCanvasResourceInterface
- *
- * Defines an abstract resource that is stored outside the resource manager
- */
 class KRITAFLAKE_EXPORT KoAbstractCanvasResourceInterface : public QObject
 {
     Q_OBJECT
 public:
     KoAbstractCanvasResourceInterface(int key, const QString debugTag = QString());
 
-    /**
-     * Return the current value of the resource
-     */
     virtual QVariant value() const = 0;
 
-    /**
-     * @brief set the value of the current resource
-     */
     virtual void setValue(const QVariant value) = 0;
 
-    /**
-     * The key corresponding to the resource
-     */
     int key() const;
 
 Q_SIGNALS:
-    /**
-     * The signal is emitted when the resource is changed outside
-     * the setValue() call by some external entity
-     */
     void sigResourceChangedExternal(int key, const QVariant &value);
 
 private:
@@ -53,4 +35,4 @@ private:
 
 typedef QSharedPointer<KoAbstractCanvasResourceInterface> KoAbstractCanvasResourceInterfaceSP;
 
-#endif // KOABSTRACTCANVASRESOURCEINTERFACE_H
+#endif

@@ -12,9 +12,6 @@
 #include "../kis_tiled_data_manager.h"
 
 class KisPaintDeviceWriter;
-/**
- * Base class for compressing a tile and wrapping it with a header
- */
 
 class KisAbstractTileCompressor;
 typedef KisSharedPtr<KisAbstractTileCompressor> KisAbstractTileCompressorSP;
@@ -27,55 +24,16 @@ public:
 
 public:
 
-    /**
-     * Compresses the \a tile and writes it into the \a stream.
-     * Used by datamanager in load/save routines
-     *
-     * \see compressTile()
-     */
     virtual bool writeTile(KisTileSP tile, KisPaintDeviceWriter &store) = 0;
 
-    /**
-     * Decompresses the \a tile from the \a stream.
-     * Used by datamanager in load/save routines
-     *
-     * \see decompressTile()
-     */
     virtual bool readTile(QIODevice *stream, KisTiledDataManager *dm) = 0;
 
-    /**
-     * Compresses a \p tileData and writes it into the \p buffer.
-     * The buffer must be at least tileDataBufferSize() bytes long.
-     * Actual number of bytes written is returned using out-parameter
-     * \p bytesWritten
-     *
-     * \param tileData an existing tile data. It should be created
-     * and acquired by the caller.
-     * \param buffer the buffer
-     * \param bufferSize the size of the buffer
-     * \param bytesWritten the number of written bytes
-     *
-     * \see tileDataBufferSize()
-     */
     virtual void compressTileData(KisTileData *tileData,quint8 *buffer,
                                   qint32 bufferSize, qint32 &bytesWritten) = 0;
 
-    /**
-     * Decompresses a \p tileData from a given \p buffer.
-     *
-     * \param buffer the buffer
-     * \param bufferSize the size of the buffer
-     * \param tileData an existing tile data where the result
-     * will be written to. It should be created and acquired
-     * by the caller.
-     *
-     */
     virtual bool decompressTileData(quint8 *buffer, qint32 bufferSize,
                                     KisTileData *tileData) = 0;
 
-    /**
-     * Return the number of bytes needed for compressing one tile
-     */
     virtual qint32 tileDataBufferSize(KisTileData *tileData) = 0;
 
 protected:
@@ -92,5 +50,5 @@ protected:
     }
 };
 
-#endif /* __KIS_ABSTRACT_TILE_COMPRESSOR_H */
+#endif
 

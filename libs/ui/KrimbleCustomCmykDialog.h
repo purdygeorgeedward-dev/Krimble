@@ -1,10 +1,4 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
-// Krimble 2026-11-11: George: "I really want [industry standard] style interfaces for RGB to CMYK." and, of the pictures of the Custom CMYK, Dot Gain Curves, Ink Colors and Color Settings dialogs: "yes"
-// (start with the Custom CMYK dialog). The Custom CMYK dialog of the working CMYK profile, built on the conversion engine (KrimbleCmykEngine.h, changelog 450): name, ink colors (the presets),
-// dot gain (Standard with its percent, or Curves... for the 13 point table of each ink), separation type (GCR or UCR), black generation, black ink limit, total ink limit, UCA amount, black point
-// compensation, and a gray ramp graph that shows the plates the engine makes for a gray from white to black. Load... and Save... use the saved profiles of KrimbleCmykProfiles. The dialog is a
-// scroll area, so it fits a phone. Header only and without Q_OBJECT (everything is wired with lambdas), so no moc or CMake change is needed. NOT in this first version: the Ink Colors dialog (xyY or Lab
-// values of each ink; only the presets for now), the display control points with midpoints, and the camera made profile.
 #pragma once
 
 #include <QButtonGroup>
@@ -41,7 +35,6 @@
 
 #include "KrimbleCmykEngine.h"
 
-// the gray ramp: the C, M, Y and K plates (percent, up) the engine makes for a gray from white (left) to black (right)
 class KrimbleGrayRampGraph : public QWidget
 {
 public:
@@ -72,7 +65,7 @@ protected:
         }
         const int n = m_plates.size() - 1;
         if (n >= 1) {
-            static const char *colors[4] = {"#1ea0ff", "#ff3d7f", "#ffd400", "#f2f4ff"};   // C, M, Y, K (K is light so that it shows on the dark graph)
+            static const char *colors[4] = {"#1ea0ff", "#ff3d7f", "#ffd400", "#f2f4ff"};
             for (int ch = 0; ch < 4; ++ch) {
                 QPainterPath path;
                 for (int i = 0; i <= n; ++i) {
@@ -93,7 +86,6 @@ private:
     QVector<KrimblePlates> m_plates;
 };
 
-// the dot gain curve of one ink: the printed dot for a plate dot (a straight line is no gain)
 class KrimbleDotGainGraph : public QWidget
 {
 public:
@@ -132,7 +124,6 @@ private:
     int m_channel = 0;
 };
 
-// Dot Gain Curves: the printed dot for a plate dot of 2, 4, 6, 8, 10, 20 ... 90 percent for each ink (All Same sets the four inks together). Returns true on OK.
 inline bool krimbleShowDotGainCurves(QWidget *parent, KrimbleDotGain &gain)
 {
     QDialog dialog(parent);
@@ -231,7 +222,6 @@ inline void krimbleShowCustomCmykDialog(QWidget *parent)
     nameRow->addWidget(nameEdit, 1);
     lay->addLayout(nameRow);
 
-    // ink options
     QGroupBox *inkBox = new QGroupBox(QStringLiteral("Ink Options"), content);
     QGridLayout *inkGrid = new QGridLayout(inkBox);
     inkGrid->setContentsMargins(6, 6, 6, 6);
@@ -256,7 +246,6 @@ inline void krimbleShowCustomCmykDialog(QWidget *parent)
     inkGrid->addWidget(gainPercent, 1, 2);
     lay->addWidget(inkBox);
 
-    // separation options
     QGroupBox *sepBox = new QGroupBox(QStringLiteral("Separation Options"), content);
     QGridLayout *sepGrid = new QGridLayout(sepBox);
     sepGrid->setContentsMargins(6, 6, 6, 6);
@@ -295,12 +284,10 @@ inline void krimbleShowCustomCmykDialog(QWidget *parent)
     lay->addWidget(sepBox);
 
     QCheckBox *bpc = new QCheckBox(QStringLiteral("Black Point Compensation"), content);
-    // the labels may wrap onto two lines, so that no label forces the dialog wider than the screen
     Q_FOREACH (QLabel *label, content->findChildren<QLabel *>()) label->setWordWrap(true);
     lay->addWidget(bpc);
     lay->addStretch(1);
 
-    // the buttons: Load..., Save..., OK, Cancel
     QHBoxLayout *buttonRow = new QHBoxLayout;
     QPushButton *loadButton = new QPushButton(QStringLiteral("Load..."), &dialog);
     QPushButton *saveButton = new QPushButton(QStringLiteral("Save..."), &dialog);
@@ -316,7 +303,6 @@ inline void krimbleShowCustomCmykDialog(QWidget *parent)
     QObject::connect(buttons, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
     QObject::connect(buttons, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
 
-    // the gray ramp is made a moment after the last change (the engine solves 25 grays)
     QTimer *rampTimer = new QTimer(&dialog);
     rampTimer->setSingleShot(true);
     rampTimer->setInterval(250);
@@ -327,7 +313,6 @@ inline void krimbleShowCustomCmykDialog(QWidget *parent)
         blackGen->setEnabled(gcrRadio->isChecked());
         ucaAmount->setEnabled(gcrRadio->isChecked());
     };
-    // the profile to the widgets
     auto toUi = [&]() {
         const QSignalBlocker b1(inkCombo), b2(gainCombo), b3(gainPercent), b4(gcrRadio), b5(ucrRadio), b6(blackGen), b7(blackLimit), b8(totalLimit), b9(ucaAmount), b10(bpc);
         int inkIndex = inkCombo->findText(profile.inkPreset);
@@ -347,7 +332,6 @@ inline void krimbleShowCustomCmykDialog(QWidget *parent)
         lastAuto = profile.autoName();
         nameEdit->setText(profile.displayName());
     };
-    // the widgets to the profile (except the name)
     auto fromUi = [&]() {
         profile.gcr = gcrRadio->isChecked();
         profile.blackGeneration = blackGen->currentText();
@@ -356,7 +340,6 @@ inline void krimbleShowCustomCmykDialog(QWidget *parent)
         profile.uca = ucaAmount->value();
         profile.blackPointCompensation = bpc->isChecked();
     };
-    // something changed: the profile follows the widgets, the name follows the settings (unless it was typed), the gray ramp is made again
     auto changed = [&]() {
         fromUi();
         enableByType();

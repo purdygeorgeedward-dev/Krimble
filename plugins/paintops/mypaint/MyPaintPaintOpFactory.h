@@ -38,4 +38,4 @@ private:
     Private* const m_d;
 };
 
-#endif // KIS_MY_PAINTOP_FACTORY_H
+#endif

@@ -16,14 +16,13 @@
 class KoColor;
 class KoColorDisplayRendererInterface;
 
-
 class KRITAWIDGETS_EXPORT KoTriangleColorSelector : public KisColorSelectorInterface {
     Q_OBJECT
     public:
         explicit KoTriangleColorSelector(QWidget *parent);
         explicit KoTriangleColorSelector(const KoColorDisplayRendererInterface *displayRenderer, QWidget *parent);
         ~KoTriangleColorSelector() override;
-    protected: // events
+    protected:
         void paintEvent( QPaintEvent * event ) override;
         void resizeEvent( QResizeEvent * event ) override;
         void mouseReleaseEvent( QMouseEvent * event ) override;

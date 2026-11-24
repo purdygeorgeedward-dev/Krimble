@@ -4,7 +4,6 @@
  *  SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-
 #include "KisRollingSumAccumulatorWrapper.h"
 
 #include <boost/accumulators/accumulators.hpp>
@@ -22,7 +21,6 @@ struct KisRollingSumAccumulatorWrapper::Private {
 
     accumulator_set<qreal, stats<tag::rolling_sum, tag::rolling_count> > accumulator;
 };
-
 
 KisRollingSumAccumulatorWrapper::KisRollingSumAccumulatorWrapper(int windowSize)
     : m_d(new Private(windowSize))

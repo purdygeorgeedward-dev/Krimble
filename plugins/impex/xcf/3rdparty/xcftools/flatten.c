@@ -32,32 +32,7 @@ composite_one(rgba bot,rgba top)
     alpha = 255 ;
     if( !FULLALPHA(bot) ) {
         alpha = 255 ^ scaletable[255-ALPHA(bot)][255-ALPHA(top)] ;
-        /* This peculiar combination of ^ and - makes the GCC code
-         * generator for i386 particularly happy.
-         */
         tfrac = (256*ALPHA(top) - 1) / alpha ;
-        /* Tfrac is the fraction of the coposited pixel's covered area
-         * that comes from the top pixel.
-         * For mathematical accuracy we ought to scale by 255 and
-         * subtract alpha/2, but this is faster, and never misses the
-         * true value by more than one 1/255. This effect is completely
-         * overshadowed by the linear interpolation in the first place.
-         * (I.e. gamma is ignored when combining intensities).
-         *   [In any case, complete fairness is not possible: if the
-         *    bottom pixel had alpha=170 and the top has alpha=102,
-         *    each should contribute equally to the color of the
-         *    resulting alpha=204 pixel, which is not possible in general]
-         * Subtracting one helps the topfrac never be 256, which would
-         * be bad.
-         * On the other hand it means that we would get tfrac=-1 if the
-         * top pixel is completely transparent, and we get a division
-         * by zero if _both_ pixels are fully transparent. These cases
-         * must be handled by all callers.
-         *    More snooping in the Gimp sources reveal that it uses
-         *    floating-point for its equivalent of tfrac when the
-         *    bottom layer has an alpha channel. (alphify() macro
-         *    in paint-funcs.c). What gives?
-         */
     }
     return (alpha << ALPHA_SHIFT)
             + ((uint32_t)scaletable[  tfrac  ][255&(top>>RED_SHIFT  )] << RED_SHIFT   )
@@ -69,17 +44,12 @@ composite_one(rgba bot,rgba top)
             ;
 }
 
-/* merge_normal() takes ownership of bot.
- * merge_normal() will share ownership of top.
- * Return: may be shared.
- */
 static struct Tile * __ATTRIBUTE__((noinline))
 merge_normal(struct Tile *bot, struct Tile *top)
 {
     unsigned i ;
     assertTileCompatibility(bot,top);
 
-    /* See if there is an easy winner */
     if( (bot->summary & TILESUMMARY_ALLNULL) ||
             (top->summary & TILESUMMARY_ALLFULL) ) {
         freeTile(bot);
@@ -90,7 +60,6 @@ merge_normal(struct Tile *bot, struct Tile *top)
         return bot ;
     }
 
-    /* Try hard to make top win */
     for( i=0; ; i++ ) {
         if( i == top->count ) {
             freeTile(bot);
@@ -102,7 +71,6 @@ merge_normal(struct Tile *bot, struct Tile *top)
 
     INIT_SCALETABLE_IF( !(top->summary & TILESUMMARY_CRISP) );
 
-    /* Otherwise bot wins, but is forever changed ... */
     if( (top->summary & TILESUMMARY_ALLNULL) == 0 ) {
         unsigned i ;
         invalidateSummary(bot,0);
@@ -120,8 +88,6 @@ merge_normal(struct Tile *bot, struct Tile *top)
 }
 
 #define exotic_combinator static inline unsigned __ATTRIBUTE__((const))
-
-
 
 exotic_combinator
 ucombine_ADDITION(uint8_t bot,uint8_t top)
@@ -169,7 +135,6 @@ ucombine_DIVIDE(uint8_t bot,uint8_t top)
 exotic_combinator
 ucombine_SCREEN(uint8_t bot,uint8_t top)
 {
-    /* An inverted version of "multiply" */
     return 255 ^ scaletable[255-bot][255-top] ;
 }
 
@@ -178,14 +143,6 @@ ucombine_OVERLAY(uint8_t bot,uint8_t top)
 {
     return scaletable[bot][bot] +
             2*scaletable[top][scaletable[bot][255-bot]] ;
-    /* This strange formula is equivalent to
-     *   (1-top)*(bot^2) + top*(1-(1-top)^2)
-     * that is, the top value is used to interpolate between
-     * the self-multiply and the self-screen of the bottom.
-     */
-    /* Note: This is exactly what the "Soft light" effect also
-     * does, though with different code in the Gimp.
-     */
 }
 
 exotic_combinator
@@ -207,9 +164,6 @@ ucombine_HARDLIGHT(uint8_t bot,uint8_t top)
         return 255 ^ scaletable[255-bot][2*(255-top)] ;
     else
         return scaletable[bot][2*top];
-    /* The code that implements "hardlight" in Gimp 2.2.10 has some
-     * rounding errors, but this is undoubtedly what is meant.
-     */
 }
 
 exotic_combinator
@@ -257,9 +211,6 @@ RGBtoHSV(rgba rgb,struct HSV *hsv)
 #undef HEXTANT
 }
 
-/* merge_exotic() destructively updates bot.
- * merge_exotic() reads but does not free top.
- */
 static int __ATTRIBUTE__((noinline))
 merge_exotic(struct Tile *bot, const struct Tile *top,
              GimpLayerModeEffects mode)
@@ -269,7 +220,6 @@ merge_exotic(struct Tile *bot, const struct Tile *top,
     if( (bot->summary & TILESUMMARY_ALLNULL) != 0 ) return XCF_OK;
     if( (top->summary & TILESUMMARY_ALLNULL) != 0 ) return XCF_OK;
     assert( bot->refcount == 1 );
-    /* The transparency status of bot never changes */
 
     INIT_SCALETABLE_IF(1);
 
@@ -300,7 +250,7 @@ merge_exotic(struct Tile *bot, const struct Tile *top,
             UNIFORM(MULTIPLY);
             UNIFORM(DIVIDE);
             UNIFORM(SCREEN);
-        case GIMP_SOFTLIGHT_MODE: /* A synonym for "overlay"! */
+        case GIMP_SOFTLIGHT_MODE:
             UNIFORM(OVERLAY);
             UNIFORM(DODGE);
             UNIFORM(BURN);
@@ -337,29 +287,19 @@ merge_exotic(struct Tile *bot, const struct Tile *top,
                 }
                 if( mode == GIMP_SATURATION_MODE ) {
                     if( hsvTop.ch3 == 0 )
-                        hsvBot.ch1 = hsvBot.ch3 ; /* Black has no saturation */
+                        hsvBot.ch1 = hsvBot.ch3 ;
                     else
                         hsvBot.ch1 = (hsvTop.ch1*hsvBot.ch3 + hsvTop.ch3/2) / hsvTop.ch3;
                 } else if( mode == GIMP_COLOR_MODE ) {
-                    /* GIMP_COLOR_MODE works in HSL space instead of HSV. We must
-                     * transfer H and S, keeping the L = ch1+ch3 of the bottom pixel,
-                     * but the S we transfer works differently from the S in HSV.
-                     */
                     unsigned L = hsvTop.ch1 + hsvTop.ch3 ;
                     unsigned sNum = hsvTop.ch3 - hsvTop.ch1 ;
                     unsigned sDenom = L < 256 ? L : 510-L ;
-                    if( sDenom == 0 ) sDenom = 1 ; /* sNum will be 0 */
+                    if( sDenom == 0 ) sDenom = 1 ;
                     L = hsvBot.ch1 + hsvBot.ch3 ;
                     if( L < 256 ) {
-                        /* Ideally we want to compute L/2 * (1-sNum/sDenom)
-                         * But shuffle this a bit so we can use integer arithmetic.
-                         * The "-1" in the rounding prevents us from ending up with
-                         * ch1 > ch3.
-                         */
                         hsvBot.ch1 = (L*(sDenom-sNum)+sDenom-1)/(2*sDenom);
                         hsvBot.ch3 = L - hsvBot.ch1 ;
                     } else {
-                        /* Here our goal is 255 - (510-L)/2 * (1-sNum/sDenom) */
                         hsvBot.ch3 = 255 - ((510-L)*(sDenom-sNum)+sDenom-1)/(2*sDenom);
                         hsvBot.ch1 = L - hsvBot.ch3 ;
                     }
@@ -404,13 +344,6 @@ merge_exotic(struct Tile *bot, const struct Tile *top,
                     (BLUE << BLUE_SHIFT) ;
         else {
             rgba bp = bot->pixels[i] ;
-            /* In a sane world, the alpha of the top pixel would simply be
-             * used to interpolate linearly between the bottom pixel's base
-             * color and the effect-computed color.
-             * But no! What the Gimp actually does is empirically
-             * described by the following (which borrows code from
-             * composite_one() that makes no theoretical sense here):
-             */
             unsigned tfrac = ALPHA(top->pixels[i]) ;
             if( !FULLALPHA(bp) ) {
                 unsigned pseudotop = (tfrac < ALPHA(bp) ? tfrac : ALPHA(bp));
@@ -477,9 +410,6 @@ roundAlpha(struct Tile *tile)
     tile->summary = summary ;
 }
 
-/* flattenTopdown() shares ownership of top.
- * The return value may be a shared tile.
- */
 static struct Tile *
 flattenTopdown(struct FlattenSpec *spec, struct Tile *top,
                unsigned nlayers, const struct rect *where)
@@ -489,7 +419,6 @@ flattenTopdown(struct FlattenSpec *spec, struct Tile *top,
     while( nlayers-- ) {
         if( tileSummary(top) & TILESUMMARY_ALLFULL ) {
             if (tile) {
-                /* it should always be not null here though */
                 freeTile(tile);
             }
             return top ;
@@ -504,15 +433,13 @@ flattenTopdown(struct FlattenSpec *spec, struct Tile *top,
         }
 
         if( tile->summary & TILESUMMARY_ALLNULL )
-            continue ; /* Simulate a tail call */
+            continue ;
 
         switch( spec->layers[nlayers].mode ) {
         case GIMP_NORMAL_NOPARTIAL_MODE:
             roundAlpha(tile) ;
-            /* Falls through */
         case GIMP_DISSOLVE_MODE:
             dissolveTile(tile);
-            /* Falls through */
         case GIMP_NORMAL_MODE:
             top = merge_normal(tile,top);
             break ;
@@ -528,15 +455,11 @@ flattenTopdown(struct FlattenSpec *spec, struct Tile *top,
                         tile->pixels[i] = 0 ;
                     else
                         tile_or |= tile->pixels[i] ;
-                /* If the tile only has pixels that will be covered by 'top' anyway,
-                 * forget it anyway.
-                 */
                 if( ALPHA(tile_or) == 0 ) {
                     freeTile(tile);
-                    break ; /* from the switch, which will continue the while */
+                    break ;
                 }
             }
-            /* Create a dummy top for the layers below this */
             if( top->summary & TILESUMMARY_CRISP ) {
                 above = forkTile(top);
                 if(above == XCF_PTR_EMPTY) {
@@ -564,10 +487,6 @@ flattenTopdown(struct FlattenSpec *spec, struct Tile *top,
                     freeTile(tile);
                     return XCF_PTR_EMPTY;
                 }
-                /* This can only happen if 'below' is a copy of 'top'
-                 * THROUGH 'above', which in turn means that none of all
-                 * this is visible after all. So just free it and return 'top'.
-                 */
                 freeTile(below);
                 freeTile(tile);
                 return top ;
@@ -667,14 +586,14 @@ flattenIncrementally(struct FlattenSpec *spec,lineCallback callback)
             ncols = where.r - where.l ;
 
             toptile.count = ncols * nrows ;
-            toptile.refcount = 2 ; /* For bug checking */
+            toptile.refcount = 2 ;
             assert( toptile.summary == TILESUMMARY_UPTODATE +
                     TILESUMMARY_ALLNULL + TILESUMMARY_CRISP );
             tile = flattenTopdown(spec,&toptile,spec->numLayers,&where) ;
             if (tile == XCF_PTR_EMPTY) {
                 return XCF_ERROR;
             }
-            toptile.refcount-- ; /* addBackground may change destructively */
+            toptile.refcount-- ;
             if (addBackground(spec,tile,ncols) != XCF_OK) {
                 return XCF_ERROR;
             }

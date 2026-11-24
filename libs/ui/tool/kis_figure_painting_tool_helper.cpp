@@ -15,7 +15,6 @@
 #include <strokes/KisFreehandStrokeInfo.h>
 #include "KisAsynchronousStrokeUpdateHelper.h"
 
-
 KisFigurePaintingToolHelper::KisFigurePaintingToolHelper(const KUndo2MagicString &name,
                                                          KisImageWSP image,
                                                          KisNodeSP currentNode,

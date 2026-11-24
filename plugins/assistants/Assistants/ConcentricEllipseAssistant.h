@@ -32,7 +32,6 @@ public:
 
     void transform(const QTransform &transform) override;
 
-
 protected:
     QRect boundingRect() const override;
     void drawAssistant(QPainter& gc, const QRectF& updateRect, const KisCoordinatesConverter* converter, const KoColorDisplayRendererInterface *displayRenderInterface, bool cached, KisCanvas2* canvas, bool assistantVisible=true, bool previewVisible=true) override;

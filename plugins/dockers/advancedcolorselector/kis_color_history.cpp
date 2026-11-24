@@ -75,8 +75,6 @@ void KisColorHistory::setCanvas(KisCanvas2 *canvas)
     connect(m_resourceProvider, SIGNAL(sigFGColorUsed(KoColor)),
             this, SLOT(addColorToHistory(KoColor)), Qt::UniqueConnection);
 
-    // Messy, but this whole plugin should be removed shortly in favour of the wide gamut selector.
-    // We only really need this so the plugin will respond to the color history being cleared in the wide gamut selector.
     connect(m_resourceProvider->colorHistoryModel(), SIGNAL(sigReset()), this, SLOT(colorHistoryChanged()));
     connect(m_document->colorHistoryModel(), SIGNAL(sigReset()), this, SLOT(colorHistoryChanged()));
 }
@@ -91,7 +89,6 @@ KisColorSelectorBase *KisColorHistory::createPopup() const
 
 void KisColorHistory::addColorToHistory(const KoColor &color)
 {
-    // don't add color in erase mode. See https://bugs.kde.org/show_bug.cgi?id=298940
     if (m_resourceProvider && m_resourceProvider->currentCompositeOp() == COMPOSITE_ERASE) return;
 
     colorHistoryModel()->addColor(color);
@@ -130,7 +127,7 @@ void KisColorHistory::updateUserSettings()
 
     KisConfig config(true);
     m_history_per_document = config.colorHistoryPerDocument();
-    updateColorHistory(colorHistoryModel()->colorList()); // Show with respect to the current strategy
+    updateColorHistory(colorHistoryModel()->colorList());
 }
 
 void KisColorHistory::colorHistoryChanged()

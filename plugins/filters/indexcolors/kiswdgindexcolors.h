@@ -40,4 +40,4 @@ private:
     Ui::KisWdgIndexColors* ui;
 };
 
-#endif // KISWDGINDEXCOLORS_H
+#endif

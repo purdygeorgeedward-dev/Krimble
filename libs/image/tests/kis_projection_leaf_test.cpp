@@ -16,7 +16,6 @@
 
 #include "kistest.h"
 
-
 struct TestImage : TestUtil::QImageBasedTest {
     TestImage() : TestUtil::QImageBasedTest("")
     {
@@ -64,7 +63,6 @@ void checkNode(KisNodeSP node, const QString &prefix)
     safeCompare(node->projectionLeaf()->lastChild(), node->lastChild());
 
     QCOMPARE(node->projectionLeaf()->node(), node);
-
 
     KisNodeSP prevNode = node->lastChild();
     while(prevNode) {
@@ -148,8 +146,6 @@ void KisProjectionLeafTest::testPassThrough()
     t.image->addNode(paint3, group1);
     t.image->addNode(paint4, group1);
 
-    //checkNode(t.image->root(), "");
-
     qDebug() << "== Nodes";
     printNodes(t.image->root());
 
@@ -224,8 +220,6 @@ void KisProjectionLeafTest::testNestedPassThrough()
 
     t.image->addNode(group3, t.image->root(), t.findBlur1());
     t.image->addNode(paint5, group3);
-
-    //checkNode(t.image->root(), "");
 
     qDebug() << "== Nodes";
     printNodes(t.image->root());
@@ -316,8 +310,6 @@ void KisProjectionLeafTest::testSkippedSelectionMasks()
     t.image->addNode(selection9, paint8);
     t.image->addNode(tmask10, paint8);
 
-    //checkNode(t.image->root(), "");
-
     qDebug() << "== Nodes";
     printNodes(t.image->root());
 
@@ -369,10 +361,6 @@ void KisProjectionLeafTest::testSkippedSelectionMasks()
         printParents(selection6->projectionLeaf(), refNodes);
     }
 
-
-    /**
-     * Selection masks are just excluded from the entire rendering hierarchy
-     */
     QVERIFY(!selection6->projectionLeaf()->nextSibling());
     QVERIFY(!selection6->projectionLeaf()->prevSibling());
 }
@@ -395,7 +383,6 @@ void KisProjectionLeafTest::testSelectionMaskOverlay()
     t.image->setOverlaySelectionMask(selection3);
 
     t.image->waitForDone();
-
 
     qDebug() << "== Nodes";
     printNodes(t.image->root());

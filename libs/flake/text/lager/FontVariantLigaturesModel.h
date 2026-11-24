@@ -30,4 +30,4 @@ public:
 
 };
 
-#endif // FONTVARIANTLIGATURESMODEL_H
+#endif

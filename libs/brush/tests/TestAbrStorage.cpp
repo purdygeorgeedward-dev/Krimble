@@ -7,7 +7,6 @@
 
 #include "TestAbrStorage.h"
 
-
 #include <simpletest.h>
 
 #include <KoConfig.h>
@@ -21,7 +20,6 @@
 
 void TestAbrStorage::initTestCase()
 {
-    // nothing to do
 }
 
 void TestAbrStorage::testResourceIterator()
@@ -72,7 +70,7 @@ void TestAbrStorage::testResourceItem()
 {
     QString name = "brushes_by_mar_ka_d338ela";
     QString filename = name + ".abr";
-    QString resourceName = name + "_2"; // "1" seem to be invalid or something; it isn't not loaded in any case.
+    QString resourceName = name + "_2";
     KisAbrStorage storage(QString(FILES_DATA_DIR) + '/' + filename);
 
     KisResourceStorage::ResourceItem item = storage.resourceItem(resourceName);
@@ -83,13 +81,12 @@ void TestAbrStorage::testResource()
 {
     QString name = "brushes_by_mar_ka_d338ela";
     QString filename = name + ".abr";
-    QString resourceName = name + "_2"; // "1" seem to be invalid or something; it isn't not loaded in any case.
+    QString resourceName = name + "_2";
     KisAbrStorage storage(QString(FILES_DATA_DIR) + '/' + filename);
     KoResourceSP res = storage.resource(resourceName);
     QVERIFY(res);
     QVERIFY(res->filename() == resourceName);
 }
-
 
 SIMPLE_TEST_MAIN(TestAbrStorage)
 

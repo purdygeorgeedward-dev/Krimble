@@ -10,11 +10,6 @@
 
 #include <QLabel>
 
-/* This is a widget that takes an image of a normal semi-sphere, and inverts the channels based on the values
- * of m_redChannel, m_greenChannel and m_blueChannel, this is used to give feedback on a set of normal-swizzles.
- * setRedChannel, setGreenChannel and setBlueChannel automatically updates the image with the new channel configuration.
- */
-
 class KisNormalPreviewWidget : public QLabel
 {
     Q_OBJECT
@@ -24,7 +19,6 @@ public:
     ~KisNormalPreviewWidget() override;
 
 public Q_SLOTS:
-    /* for the following functions 0=X+, 1=X-, 2=Y+, 3=Y-, 4=Z+ and 5=Z-*/
     void setRedChannel(int index);
     void setGreenChannel(int index);
     void setBlueChannel(int index);
@@ -41,4 +35,4 @@ private:
     QString m_fileName;
 };
 
-#endif // KISNORMALPREVIEWWIDGET_H
+#endif

@@ -32,7 +32,6 @@ struct PAINTOP_EXPORT KisSensorData : public boost::equality_comparable<KisSenso
     KoID id;
     QString curve;
 
-    // not a part of XML data, managed by the curve option
     bool isActive = false;
 };
 
@@ -75,8 +74,8 @@ struct PAINTOP_EXPORT KisDrawingAngleSensorData : public KisSensorData, public b
 
     bool fanCornersEnabled = false;
     int fanCornersStep = 30;
-    qreal angleOffset = 0.0; // in degrees
+    qreal angleOffset = 0.0;
     bool lockedAngleMode = false;
 };
 
-#endif // KISSENSORDATA_H
+#endif

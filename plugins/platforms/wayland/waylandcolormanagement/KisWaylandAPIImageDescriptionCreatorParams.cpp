@@ -23,7 +23,6 @@ KisWaylandAPIImageDescriptionCreatorParams::KisWaylandAPIImageDescriptionCreator
 }
 KisWaylandAPIImageDescriptionCreatorParams::~KisWaylandAPIImageDescriptionCreatorParams()
 {
-    // object() is null if the information creation has succeeded
     if (object()) {
         wp_image_description_creator_params_v1_destroy(object());
     }
@@ -85,7 +84,6 @@ std::unique_ptr<KisWaylandAPIImageDescriptionNoInfo> KisWaylandAPIImageDescripti
     }
 
     if (data.iccFileIsPresent) {
-        // We do not support ICC files yet
         qWarning() << "ICC file is not supported yet.";
     }
 

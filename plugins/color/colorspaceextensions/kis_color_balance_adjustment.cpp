@@ -21,7 +21,6 @@
 #include <KoID.h>
 #include <kis_hsv_adjustment.h>
 
-
 #define SCALE_TO_FLOAT( v ) KoColorSpaceMaths< _channel_type_, float>::scaleToA( v )
 #define SCALE_FROM_FLOAT( v  ) KoColorSpaceMaths< float, _channel_type_>::scaleToA( v )
 
@@ -69,7 +68,6 @@ void transform(const quint8 *srcU8, quint8 *dstU8, qint32 nPixels) const overrid
         ++dst;
     }
 }
-
 
 QList<QString> parameters() const override
 {
@@ -202,7 +200,6 @@ KoColorTransformation* KisColorBalanceAdjustmentFactory::createTransformation(co
 }
 
 KisColorBalanceMath::KisColorBalanceMath(){}
-
 
 float KisColorBalanceMath::colorBalanceTransform(float value, float lightness, float shadows, float midtones, float highlights)
 {

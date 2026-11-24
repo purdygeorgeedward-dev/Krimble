@@ -16,4 +16,4 @@ private Q_SLOTS:
     void testUnsharpWithTransparency();
 };
 
-#endif /* __KIS_UNSHARP_MASK_TEST_H */
+#endif

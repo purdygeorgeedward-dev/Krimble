@@ -9,7 +9,6 @@
 #include <testui.h>
 #include <testutil.h>
 
-
 #include <kis_painting_assistant.h>
 #include <PerspectiveBasedAssistantHelper.h>
 #include <kis_algebra_2d.h>
@@ -21,7 +20,6 @@ void TestAssistants::testConcentricEllipseAdjustLine()
 {
     ConcentricEllipseAssistantFactory factory;
     KisPaintingAssistantSP assistant = KisPaintingAssistantSP(factory.createPaintingAssistant());
-    //ConcentricEllipseAssistant* ellipse = new ConcentricEllipseAssistant();
     ConcentricEllipseAssistant* ellipse = dynamic_cast<ConcentricEllipseAssistant*>(assistant.data());
     QVERIFY(ellipse);
 
@@ -30,10 +28,6 @@ void TestAssistants::testConcentricEllipseAdjustLine()
     ellipse->addHandle(new KisPaintingAssistantHandle(200, 200), HandleType::NORMAL);
 
     QPointF begin = QPointF(0, 100);
-    //QPointF end = QPointF(100, 5);
-    //QPointF end = QPointF(100, 0);
-    //ellipse->adjustLine(end, begin);
-    //ENTER_FUNCTION() << begin << end;
 
     ENTER_FUNCTION() << "Begin is " << begin;
 
@@ -45,7 +39,6 @@ void TestAssistants::testConcentricEllipseAdjustLine()
         ellipse->adjustLine(endHere, begin);
         ENTER_FUNCTION() << ends[i] << "=>" << endHere;
     }
-
 
     begin = QPointF(0, 200);
 
@@ -60,9 +53,6 @@ void TestAssistants::testConcentricEllipseAdjustLine()
         ENTER_FUNCTION() << ends[i] << "=>" << endHere;
     }
 
-
-
 }
-
 
 KISTEST_MAIN(TestAssistants)

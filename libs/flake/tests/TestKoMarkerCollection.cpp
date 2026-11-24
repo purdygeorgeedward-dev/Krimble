@@ -21,7 +21,6 @@
 
 #include <cmath>
 
-
 void initMarkerCollection(KoMarkerCollection *collection)
 {
     QCOMPARE(collection->markers().size(), 1);

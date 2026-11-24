@@ -11,10 +11,6 @@
 
 #include <kis_types.h>
 
-/**
- * @brief A port of MyPaint's "Crossed Bowl" color selector
- */
-
 class WGMyPaintShadeSelector : public WGSelectorWidgetBase
 {
     Q_OBJECT
@@ -51,4 +47,4 @@ private:
     bool m_allowUpdates {true};
 };
 
-#endif // WGMYPAINTSHADESELECTOR_H
+#endif

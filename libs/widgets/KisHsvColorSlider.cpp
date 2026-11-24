@@ -26,8 +26,6 @@ const qreal EPSILON = 1e-6;
 const int ARROW_SIZE = 8;
 const int FRAME_SIZE = 5;
 
-// Internal color representation used by the slider.
-// h, s, v are values between 0 and 1
 struct HSVColor {
     explicit HSVColor()
         : h(0), s(0), v(0)
@@ -53,9 +51,6 @@ void fromQColor(const QColor minC, const QColor maxC, HSVColor &min, HSVColor &m
     minC.getHsvF(&min.h, &min.s, &min.v);
     maxC.getHsvF(&max.h, &max.s, &max.v);
 
-    // getHsvF can return -1 values for hue
-    // this happens when the color whites out and the hue information is destroyed
-    // e.g. for all x, hsv(x, 0, 1) is always rgb(255, 255, 255) white
     if (min.h < EPSILON && max.h < EPSILON) {
         min.h = 0;
         max.h = 0;
@@ -68,8 +63,6 @@ void fromQColor(const QColor minC, const QColor maxC, HSVColor &min, HSVColor &m
 
 class Mixer {
 public:
-    // mix two colors
-    // t is a qreal between 0 and 1
     virtual QColor mix(qreal t) const = 0;
     virtual ~Mixer() = default;
 };
@@ -164,7 +157,7 @@ public:
                 break;
             }
 
-            default: // fallthrough
+            default:
             case KisHsvColorSlider::MIX_MODE::HSV:
                 color.setHsvF(h, s, v);
                 break;
@@ -209,7 +202,6 @@ struct Q_DECL_HIDDEN KisHsvColorSlider::Private
     QPointer<KoColorDisplayRendererInterface> displayRenderer;
     KisSignalCompressor updateCompressor;
 
-    // If the min and max color has the same hue, should the widget display the entire gamut of hues.
     bool circularHue;
     MIX_MODE mixMode;
 };
@@ -301,11 +293,11 @@ void KisHsvColorSlider::drawContents(QPainter *painter)
                 m = std::make_unique<ColorSpaceMixer>(d->minKoColor, d->maxKoColor, d->displayRenderer);
                 break;
 
-            default: // fallthrough
-            case MIX_MODE::HSV: // fallthrough
-            case MIX_MODE::HSL: // fallthrough
-            case MIX_MODE::HSI: // fallthrough
-            case MIX_MODE::HSY: // fallthrough
+            default:
+            case MIX_MODE::HSV:
+            case MIX_MODE::HSL:
+            case MIX_MODE::HSI:
+            case MIX_MODE::HSY:
                 m = std::make_unique<HsxMixer>(d->minColor, d->maxColor, d->circularHue, d->mixMode);
                 break;
         }
@@ -377,7 +369,6 @@ void KisHsvColorSlider::drawArrow(QPainter *painter, const QPoint &)
     o.initFrom(this);
     o.state &= ~QStyle::State_MouseOver;
 
-    // Recalculate pos since the value returned by the parent is bugged and doesn't account for negative setMinimum/setMaximum values
     QPoint pos = calcArrowPos(value());
 
     if (orientation() == Qt::Vertical) {

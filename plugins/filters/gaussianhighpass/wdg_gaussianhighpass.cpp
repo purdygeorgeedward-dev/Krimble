@@ -43,4 +43,3 @@ KisPropertiesConfigurationSP KisWdgGaussianHighPass::configuration() const
     return config;
 }
 
-

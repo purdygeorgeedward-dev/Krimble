@@ -6,7 +6,6 @@
 
 #include "kis_selection_component.h"
 
-// NOTE: this is a Key function
 void KisSelectionComponent::moveX(qint32 x)
 {
     Q_UNUSED(x);

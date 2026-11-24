@@ -10,7 +10,6 @@
 #include <KoSelection.h>
 #include <KoSelectedShapesProxy.h>
 
-
 KoKeepShapesSelectedCommand::KoKeepShapesSelectedCommand(const QList<KoShape*> &selectedBefore,
                                                          const QList<KoShape*> &selectedAfter,
                                                          KoSelectedShapesProxy *selectionProxy,

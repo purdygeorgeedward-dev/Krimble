@@ -36,12 +36,6 @@ void checkCStyleResultWrapper(T *ptr)
 
 }
 
-/**
- * Shared pointer that holds a standard allocated resource.
- * We use a wrapper because by C++ standards it calls the deleter
- * unconditionally. This leads to crashes on FontConfig:
- * https://invent.kde.org/graphics/krita/-/merge_requests/1607#note_567848
- */
 template<typename T, void (*P)(T *)>
 struct KisLibraryResourcePointer : private QSharedPointer<T> {
 public:
@@ -76,15 +70,8 @@ private:
     }
 };
 
-/**
- * A special version of a class for resource types whose destructor
- * returns integer value reporting if destruction was successful or
- * now. We wrap this destructor to spit a warning in case of a trouble
- * to release the type.
- */
 template<typename T, int (*P)(T *)>
 using KisLibraryResourcePointerWithSanityCheck = KisLibraryResourcePointer<T, detail::checkCStyleResultWrapper<T, P>>;
-
 
 using FcConfigSP = KisLibraryResourcePointer<FcConfig, FcConfigDestroy>;
 using FcCharSetSP = KisLibraryResourcePointer<FcCharSet, FcCharSetDestroy>;
@@ -102,4 +89,4 @@ using hb_face_t_sp = KisLibraryResourcePointer<hb_face_t, hb_face_destroy>;
 using hb_set_t_sp =KisLibraryResourcePointer<hb_set_t, hb_set_destroy>;
 using hb_blob_t_sp = KisLibraryResourcePointer<hb_blob_t, hb_blob_destroy>;
 
-#endif // KOFONTLIBRARYRESOURCEUTILS_H
+#endif

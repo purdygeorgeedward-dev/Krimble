@@ -20,10 +20,6 @@ class KoProgressUpdater;
 class QToolButton;
 class KoProgressBar;
 
-/**
- * KisProgressWidget combines a KoProgressBar with a button
- * that can be pressed to cancel the current action.
- */
 class KRITAUI_EXPORT KisProgressWidget : public QWidget, public KisProgressInterface
 {
 
@@ -36,14 +32,6 @@ public:
 public:
     KoProgressProxy* progressProxy();
 
-
-    /**
-     * create a new KoProgressUpdater instance that is
-     * linked to this progress bar.
-     *
-     * Note: it is _your_ duty to call deleteLater on the
-     * koprogressupdater when you are done!
-     */
     void detachUpdater(KoProgressUpdater* updater) override;
     void attachUpdater(KoProgressUpdater* updater) override;
 
@@ -63,4 +51,4 @@ private:
 
 };
 
-#endif // KISPROGRESSWIDGET_H
+#endif

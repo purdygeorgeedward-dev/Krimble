@@ -232,7 +232,6 @@ Shape* Shape::parentShape() const
     }
 }
 
-
 KoShape *Shape::shape()
 {
     return d->shape;

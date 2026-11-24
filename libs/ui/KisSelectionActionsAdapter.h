@@ -13,7 +13,6 @@
 
 class KisSelectionManager;
 
-
 class KRITAUI_EXPORT KisSelectionActionsAdapter
 {
 public:
@@ -24,4 +23,4 @@ private:
     KisSelectionManager *m_selectionManager;
 };
 
-#endif // KISSELECTIONACTIONSADAPTER_H
+#endif

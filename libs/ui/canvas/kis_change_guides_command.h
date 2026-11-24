@@ -14,7 +14,6 @@ class KisDocument;
 class KUndo2Command;
 class KisGuidesConfig;
 
-
 class KisChangeGuidesCommand : public KUndo2Command
 {
 public:
@@ -31,4 +30,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif /* __KIS_CHANGE_GUIDES_COMMAND_H */
+#endif

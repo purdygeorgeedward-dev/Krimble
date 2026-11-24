@@ -10,7 +10,6 @@
 #include "kis_image_animation_interface.h"
 #include "kis_command_ids.h"
 
-
 KisChangeProjectionColorCommand::KisChangeProjectionColorCommand(KisImageSP image, const KoColor &newColor, KUndo2Command *parent)
     : KUndo2Command(kundo2_noi18n("CHANGE_PROJECTION_COLOR_COMMAND"), parent),
       m_image(image),

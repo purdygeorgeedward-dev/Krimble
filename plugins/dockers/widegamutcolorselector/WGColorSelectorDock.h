@@ -51,13 +51,6 @@ public:
     KisUniqueColorSet* colorHistoryModel() const;
 
     bool selectingBackground() const;
-    /**
-     * @brief Set new channel values; takes effect immediately!
-     *
-     * This is intended for synchronization when color gets
-     * adjusted outside of the docker, like in WGActionManager
-     * @param values
-     */
     void setChannelValues(const QVector4D &values);
 protected:
     void setCanvas(KoCanvasBase *canvas) override;
@@ -82,11 +75,9 @@ private Q_SLOTS:
 private:
     QPointer<KisCanvas2> m_canvas;
     WGSelectorDisplayConfigSP m_displayConfig;
-    // Layouts
     QBoxLayout *m_mainWidgetLayout {0};
     QBoxLayout *m_selectorAreaLayout {0};
     QBoxLayout *m_verticalElementsLayout {0};
-    // Selector Elements
     KisVisualColorSelector *m_selector {0};
     KisColorSourceToggle *m_toggle {0};
     KisSignalCompressor *m_colorChangeCompressor;
@@ -118,4 +109,4 @@ namespace WGConfig {
     extern const NumericSetting<WGColorSelectorDock::ColorSpaceSource> colorSpaceSource;
 }
 
-#endif // WG_COLOR_SELECTOR_DOCKER_H
+#endif

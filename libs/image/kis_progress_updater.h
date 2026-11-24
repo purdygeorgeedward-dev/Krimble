@@ -20,12 +20,6 @@ public:
     virtual void attachUpdater(KoProgressUpdater* updater) = 0;
 };
 
-
-
-/**
- * KisProgressUpdater is an updater that disengages itself automatically
- * from the updater widget when done.
- */
 class KRITAIMAGE_EXPORT KisProgressUpdater : public KoProgressUpdater
 {
 public:
@@ -36,6 +30,4 @@ private:
     KisProgressInterface* m_interface;
 };
 
-
-
-#endif // KIS_PROGRESS_UPDATER_H
+#endif

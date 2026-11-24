@@ -7,7 +7,6 @@
 #include "kis_selection_test.h"
 #include <simpletest.h>
 
-
 #include <kis_debug.h>
 #include <QRect>
 
@@ -262,8 +261,6 @@ void KisSelectionTest::testSelectionExactBounds()
     quint8 defaultPixel = MAX_SELECTED;
     selection->pixelSelection()->setDefaultPixel(KoColor(&defaultPixel, selection->pixelSelection()->colorSpace()));
 
-    // the selection uses device's extent only for performance reasons
-    // \see bug 320213
     QCOMPARE(selection->selectedExactRect(), device->extent() | referenceImageRect);
 }
 
@@ -314,18 +311,9 @@ void KisSelectionTest::testOutlineGeneration()
     QPainterPath closedSubPath = calculatedOutline;
     closedSubPath.closeSubpath();
 
-    /**
-     * Our outline generation code has a small problem: it can
-     * generate a polygon, which isn't closed (it'll repeat the first
-     * point instead). There is a special workaround for it in
-     * KisPixelSelection::recalculateOutlineCache(), which explicitly
-     * closes the path, so here we just check it.
-     */
-
     bool isClosed = closedSubPath == calculatedOutline;
     QVERIFY(isClosed);
 }
 
 KISTEST_MAIN(KisSelectionTest)
-
 

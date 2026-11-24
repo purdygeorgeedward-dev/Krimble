@@ -18,4 +18,4 @@ private Q_SLOTS:
     void testCancel();
 };
 
-#endif /* __KIS_SIMPLE_STROKE_STRATEGY_TEST_H */
+#endif

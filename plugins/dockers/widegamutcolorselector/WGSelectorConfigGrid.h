@@ -52,4 +52,4 @@ private:
     QAction *m_currentAction {0};
 };
 
-#endif // WGSELECTORCONFIGGRID_H
+#endif

@@ -21,9 +21,7 @@
 #include "kis_transaction.h"
 #include "kis_pointer_utils.h"
 
-
 struct Q_DECL_HIDDEN KisIndirectPaintingSupport::Private {
-    // To simulate the indirect painting
     KisPaintDeviceSP temporaryTarget;
     QString compositeOp;
     qreal compositeOpacity;
@@ -33,7 +31,6 @@ struct Q_DECL_HIDDEN KisIndirectPaintingSupport::Private {
     QReadWriteLock lock;
     bool finalMergeInProgress = true;
 };
-
 
 KisIndirectPaintingSupport::KisIndirectPaintingSupport()
     : d(new Private)
@@ -135,30 +132,15 @@ void KisIndirectPaintingSupport::mergeToLayer(KisNodeSP layer, KUndo2Command *pa
     QVector<KisRunnableStrokeJobData*> jobs;
     mergeToLayerThreaded(layer, parentCommand, transactionText, timedID, &jobs);
 
-    /**
-     * When merging, we use barrier jobs only for ensuring that the merge jobs
-     * are not split by the update jobs. Merge jobs hold the shared lock, so
-     * forcing them out of CPU will basically cause a deadlock. When running in
-     * the fake executor, the jobs cannot be split anyway, so there is no danger
-     * in that.
-     */
     KisFakeRunnableStrokeJobsExecutor executor(KisFakeRunnableStrokeJobsExecutor::AllowBarrierJobs);
     executor.addRunnableJobs(implicitCastList<KisRunnableStrokeJobDataBase*>(jobs));
 }
 
 void KisIndirectPaintingSupport::mergeToLayerThreaded(KisNodeSP layer, KUndo2Command *parentCommand, const KUndo2MagicString &transactionText,int timedID, QVector<KisRunnableStrokeJobData*> *jobs)
 {
-    /**
-     * We create the lock in an unlocked state to avoid a deadlock, when
-     * layer-stack updating jobs push out the stroke jobs from the CPU and
-     * start sleeping on lockTemporaryTarget().
-     */
 
     WriteLockerSP sharedWriteLock(new WriteLocker(this, std::defer_lock));
 
-    /**
-     * Now wait for all update jobs to finish and lock the indirect target
-     */
     KritaUtils::addJobBarrier(*jobs,
         [sharedWriteLock] () {
             sharedWriteLock->relock();
@@ -180,11 +162,8 @@ void KisIndirectPaintingSupport::mergeToLayerImpl(KisPaintDeviceSP dst, KUndo2Co
 
     KritaUtils::addJobSequential(*jobs,
         [sharedState, sharedWriteLock, dst, parentCommand, transactionText, timedID] () {
-            Q_UNUSED(sharedWriteLock); // just a RAII holder object for the lock
+            Q_UNUSED(sharedWriteLock);
 
-            /**
-             * Move tool may not have an undo adapter
-             */
              if (parentCommand) {
                  sharedState->transaction.reset(
                      new KisTransaction(transactionText, dst, parentCommand, timedID));
@@ -196,12 +175,7 @@ void KisIndirectPaintingSupport::mergeToLayerImpl(KisPaintDeviceSP dst, KUndo2Co
     Q_FOREACH (const QRect &rc, src->region().rects()) {
         KritaUtils::addJobConcurrent(*jobs,
             [this, rc, src, dst, sharedState, sharedWriteLock] () {
-                Q_UNUSED(sharedWriteLock); // just a RAII holder object for the lock
-
-                /**
-                 * Brushes don't apply the selection, we apply that during the indirect
-                 * painting merge operation. It is cheaper calculation-wise.
-                 */
+                Q_UNUSED(sharedWriteLock);
 
                 KisPainter gc(dst);
                 setupTemporaryPainter(&gc);
@@ -212,15 +186,13 @@ void KisIndirectPaintingSupport::mergeToLayerImpl(KisPaintDeviceSP dst, KUndo2Co
 
     KritaUtils::addJobSequential(*jobs,
         [this, sharedState, sharedWriteLock, cleanResources] () {
-            Q_UNUSED(sharedWriteLock); // just a RAII holder object for the lock
+            Q_UNUSED(sharedWriteLock);
 
             if (cleanResources) {
                 releaseResources();
             }
 
             if (sharedState->transaction) {
-                // the internal command is stored using
-                // the link to the parent command
                 (void) sharedState->transaction->endAndTake();
             }
         }

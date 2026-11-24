@@ -39,7 +39,6 @@ OraExport::~OraExport()
 {
 }
 
-
 bool hasShapeLayerChild(KisNodeSP node)
 {
     if (!node) return false;
@@ -59,7 +58,7 @@ bool hasShapeLayerChild(KisNodeSP node)
     return false;
 }
 
-KisImportExportErrorCode OraExport::convert(KisDocument *document, QIODevice *io,  KisPropertiesConfigurationSP /*configuration*/)
+KisImportExportErrorCode OraExport::convert(KisDocument *document, QIODevice *io,  KisPropertiesConfigurationSP )
 {
     KisImageSP image = document->savingImage();
     Q_CHECK_PTR(image);
@@ -99,8 +98,6 @@ QString OraExport::verify(const QString &fileName) const
 
     return error;
 }
-
-
 
 #include <ora_export.moc>
 

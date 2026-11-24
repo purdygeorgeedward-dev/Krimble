@@ -18,11 +18,9 @@
 #include "kis_curve_circle_mask_generator_p.h"
 #include "kis_cubic_curve.h"
 
-
 KisCurveCircleMaskGenerator::KisCurveCircleMaskGenerator(qreal diameter, qreal ratio, qreal fh, qreal fv, int spikes, const KisCubicCurve &curve, bool antialiasEdges)
     : KisMaskGenerator(diameter, ratio, fh, fv, spikes, antialiasEdges, CIRCLE, SoftId), d(new Private(antialiasEdges))
 {
-    // here we set resolution for the maximum size of the brush!
     d->curveResolution = qRound(qMax(width(), height()) * OVERSAMPLING);
     d->curveData = curve.floatTransfer(d->curveResolution + 2);
     d->curvePoints = curve.curvePoints();
@@ -112,7 +110,6 @@ void KisCurveCircleMaskGenerator::toXML(QDomDocument& doc, QDomElement& e) const
 
 void KisCurveCircleMaskGenerator::setSoftness(qreal softness)
 {
-    // performance
     if (!d->dirty && softness == 1.0) return;
 
     d->dirty = true;
@@ -128,20 +125,16 @@ void KisCurveCircleMaskGenerator::transformCurveForSoftness(qreal softness,const
 
     int size = newList.size();
     if (size == 2){
-        // make place for new point in the centre
         newList.append(newList.at(1));
         newList[1].setPosition((newList.at(0).position() + newList.at(2).position()) * 0.5);
         newList[1].setAsCorner(false);
-        // transform it
         newList[1].setY(qBound<qreal>(0.0,newList.at(1).y() * softness,1.0));
     }else{
-        // transform all points except first and last
         for (int i = 1; i < size-1; i++){
             newList[i].setY(qBound<qreal>(0.0,newList.at(i).y() * softness,1.0));
         }
     }
 
-    // compute the data
     KisCubicCurve curve(newList);
     result = curve.floatTransfer( curveResolution );
 }

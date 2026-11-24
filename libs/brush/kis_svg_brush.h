@@ -12,7 +12,6 @@
 class BRUSH_EXPORT KisSvgBrush : public KisScalingSizeBrush
 {
 public:
-    /// Construct brush to load filename later as brush
     KisSvgBrush(const QString &filename);
     KisSvgBrush(const KisSvgBrush &rhs);
     KisSvgBrush &operator=(const KisSvgBrush &rhs) = delete;

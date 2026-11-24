@@ -55,40 +55,14 @@ protected:
 
     void setUndoEnabled(bool value);
 
-    /**
-     * Return true if the descendant should execute a few more jobs before issuing setDirty()
-     * call on the layer.
-     *
-     * If the returned value is true, then the stroke actually paints **not** on the
-     * layer's paint device, but on some intermediate device owned by
-     * KisPainterBasedStrokeStrategy and one should merge it first before asking the
-     * update.
-     *
-     * The value can be true only when the stroke is declared to support masked brush!
-     * \see supportsMaskingBrush()
-     */
     bool needsMaskingUpdates() const;
 
-    /**
-     * Create a list of update jobs that should be run before issuing the setDirty()
-     * call on the node
-     *
-     * \see needsMaskingUpdates()
-     */
     QVector<KisRunnableStrokeJobData*> doMaskingBrushUpdates(const QVector<QRect> &rects);
 
 protected:
 
-    /**
-     * The descendants may declare if this stroke should support auto-creation
-     * of the masked brush. Default value: false
-     */
     void setSupportsMaskingBrush(bool value);
 
-    /**
-     * Return if the stroke should auto-create a masked brush from the provided
-     * paintop preset or not
-     */
     bool supportsMaskingBrush() const;
 
     void setSupportsIndirectPainting(bool value);
@@ -147,4 +121,4 @@ private:
 
 };
 
-#endif /* __KIS_PAINTER_BASED_STROKE_STRATEGY_H */
+#endif

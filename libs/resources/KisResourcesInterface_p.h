@@ -17,9 +17,6 @@
 
 #include "kis_assert.h"
 
-/// added to Qt in 5.14.0
-/// https://codereview.qt-project.org/c/qt/qtbase/+/261819
-
 #if (QT_VERSION < QT_VERSION_CHECK(5, 14, 0))
 namespace std
 {
@@ -54,4 +51,4 @@ public:
     virtual ~KisResourcesInterfacePrivate() {}
 };
 
-#endif // KisResourcesInterface_P_H
+#endif

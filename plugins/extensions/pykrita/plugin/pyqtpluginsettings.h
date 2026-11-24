@@ -47,7 +47,6 @@ private:
 
 };
 
-
 class PyQtPluginSettingsUpdateRepeater : public QObject
 {
     Q_OBJECT
@@ -60,7 +59,6 @@ public Q_SLOTS:
         Q_EMIT settingsUpdated();
     }
 };
-
 
 class PyQtPluginSettingsFactory : public KisAbstractPreferenceSetFactory
 {
@@ -84,7 +82,4 @@ public:
     PythonPluginManager *m_pluginManager;
 };
 
-
-
-
-#endif // PYQTPLUGINSETTINGS_H
+#endif

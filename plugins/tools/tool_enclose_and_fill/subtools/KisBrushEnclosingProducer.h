@@ -21,9 +21,9 @@ class KisBrushEnclosingProducer : public KisDynamicDelegateTool<KisToolBasicBrus
 public:
     KisBrushEnclosingProducer(KoCanvasBase *canvas);
     ~KisBrushEnclosingProducer() override;
-    
+
     bool hasUserInteractionRunning() const;
-    
+
 protected:
     void finishStroke(const QPainterPath &stroke) override;
     void beginShape() override;

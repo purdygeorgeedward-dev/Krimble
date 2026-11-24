@@ -17,8 +17,6 @@ KisOptimizedBrushOutline::KisOptimizedBrushOutline()
 KisOptimizedBrushOutline::KisOptimizedBrushOutline(const QPainterPath &path, const std::optional<QRectF> &bounds)
     : KisOptimizedBrushOutline(path.toSubpathPolygons().toVector(), bounds)
 {
-    // storing in a form of a QVector is much more efficient
-    // than in a QList
 }
 
 KisOptimizedBrushOutline::KisOptimizedBrushOutline(const QVector<QPolygonF> &subpaths, const std::optional<QRectF> &bounds)
@@ -54,13 +52,6 @@ QRectF KisOptimizedBrushOutline::boundingRect() const
 {
     if (!m_cachedBoundingRect.isNull()) return m_cachedBoundingRect;
 
-    /**
-     * We don't use normal begin()/end() iteration here,
-     * because it makes too many allocations for the polygons.
-     * Instead we calculate the bounding rect by mere iteration
-     * over points.
-     */
-
     QRectF result;
     bool resultInitialized = false;
 
@@ -70,14 +61,6 @@ QRectF KisOptimizedBrushOutline::boundingRect() const
     }
 
     for (auto polyIt = m_subpaths.cbegin(); polyIt != m_subpaths.cend(); ++polyIt) {
-        /**
-         * This is a highly optimized way to accumulate a rect from a
-         * set of points:
-         *
-         * 1) `QRectF::isEmpty()` is expensive, so use `resultInitialized` instead
-         * 2) Use `KisAlgebra2D::accumulateBoundsNonEmpty` to avoid calling `isEmpty()`
-         */
-
 
         auto it = polyIt->cbegin();
 

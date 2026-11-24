@@ -13,9 +13,7 @@
 
 #include "KisToolKnife.h"
 
-
 K_PLUGIN_FACTORY_WITH_JSON(DefaultToolsFactory, "kritatoolknife.json", registerPlugin<ToolKnife>();)
-
 
 ToolKnife::ToolKnife(QObject *parent, const QVariantList &)
     : QObject(parent)

@@ -47,12 +47,12 @@ public:
             else new_value_green = (value_green - factor)/(1 - factor);
             if( value_blue < factor ) new_value_blue = 0;
             else new_value_blue = (value_blue - factor)/(1 - factor);
-            
+
             dst->red = KoColorSpaceMaths< float, _channel_type_ >::scaleToA(new_value_red);
             dst->green = KoColorSpaceMaths< float, _channel_type_ >::scaleToA(new_value_green);
             dst->blue = KoColorSpaceMaths< float, _channel_type_ >::scaleToA(new_value_blue);
             dst->alpha = src->alpha;
-            
+
             --nPixels;
             ++src;
             ++dst;

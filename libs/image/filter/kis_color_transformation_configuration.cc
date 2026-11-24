@@ -28,7 +28,6 @@ struct Q_DECL_HIDDEN KisColorTransformationConfiguration::Private {
         colorTransformation.clear();
     }
 
-    // XXX: Threadlocal storage!!!
     QMap<QThread*, KoColorTransformation*> colorTransformation;
     QMutex mutex;
 };
@@ -55,11 +54,6 @@ KisFilterConfigurationSP KisColorTransformationConfiguration::clone() const
     return new KisColorTransformationConfiguration(*this);
 }
 
-/**
- * Invalidate the cache by default when setProperty is called. This forces
- * regenerating the color transforms also when a property of this object
- * changes, not only when the object is copied
- */
 void KisColorTransformationConfiguration::setProperty(const QString &name, const QVariant &value)
 {
     KisFilterConfiguration::setProperty(name, value);

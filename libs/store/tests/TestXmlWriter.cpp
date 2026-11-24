@@ -52,7 +52,7 @@ QString TestXmlWriter::content()
 {
     writer->endElement();
     writer->endDocument();
-    buffer->putChar( '\0' ); /*null-terminate*/
+    buffer->putChar( '\0' );
     buffer->close();
     QString stringContent = QString::fromUtf8(buffer->data());
     int index = stringContent.indexOf("<dummy");
@@ -110,7 +110,7 @@ void TestXmlWriter::testTextNode()
 {
     setup();
     writer->startElement("a");
-    writer->startElement("b", false /*no indent*/);
+    writer->startElement("b", false );
     writer->startElement("c");
     writer->endElement();
     writer->addTextNode("te");
@@ -123,7 +123,7 @@ void TestXmlWriter::testTextNode()
 void TestXmlWriter::testTextSpan()
 {
     setup();
-    writer->startElement("p", false /*no indent*/);
+    writer->startElement("p", false );
     writer->addTextSpan(QString::fromLatin1("   \t\n foo  "));
     writer->endElement();
     QCOMPARE(content(), QString("<p><text:s text:c=\"3\"/><text:tab/><text:line-break/> foo<text:s text:c=\"2\"/></p>"));
@@ -132,7 +132,7 @@ void TestXmlWriter::testTextSpan()
 void TestXmlWriter::testTextSpanWithTabCache()
 {
     setup();
-    writer->startElement("p", false /*no indent*/);
+    writer->startElement("p", false );
     QMap<int, int> tabCache;
     tabCache.insert(3, 0);
     writer->addTextSpan(QString::fromUtf8("   \t\n foö  "), tabCache);
@@ -144,7 +144,7 @@ void TestXmlWriter::testTextSpanWithTabCache()
 void TestXmlWriter::testProcessingInstruction()
 {
     setup();
-    writer->startElement("p", false /*no indent*/);
+    writer->startElement("p", false );
     writer->addProcessingInstruction("opendocument foobar");
     writer->addTextSpan(QString::fromLatin1("foo"));
     writer->endElement();
@@ -159,10 +159,9 @@ void TestXmlWriter::testAddManifestEntry()
                 "manifest:full-path=\"foo/bar/blah\"/>"));
 }
 
-
 void TestXmlWriter::testEscapingLongString()
 {
-    int sz = 15000;  // must be more than KoXmlWriter::s_escapeBufferLen
+    int sz = 15000;
     QString x(sz);
     x.fill('x', sz);
     x += '&';
@@ -233,7 +232,6 @@ void TestXmlWriter::speedTest()
     out.close();
     out.remove();
     qDebug("writing %i XML elements using KoXmlWriter: %i ms", NumParagraphs, (int)time.elapsed());
-    // TODO we might want to convert this into a QBenchmark test
 }
 
 QTEST_GUILESS_MAIN(TestXmlWriter)

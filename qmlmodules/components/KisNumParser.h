@@ -20,7 +20,6 @@ class KisNumParser : public QObject
     QML_ELEMENT
 
 public:
-    //! \brief parse an expression to a double.
     Q_INVOKABLE static double parseSimpleMathExpr(QString const &expr);
 };
 

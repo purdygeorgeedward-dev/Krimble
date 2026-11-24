@@ -91,7 +91,6 @@ void KoCanvasBase::disconnectCanvasObserver(QObject *object)
     if (selectedShapesProxy()) selectedShapesProxy()->disconnect(object);
 }
 
-
 KoCanvasResourceProvider *KoCanvasBase::resourceManager() const
 {
     return d->resourceManager;

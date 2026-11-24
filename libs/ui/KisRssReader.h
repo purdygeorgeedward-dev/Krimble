@@ -49,7 +49,6 @@ typedef QList<RssItem> RssItemList;
 
 Q_DECLARE_METATYPE(RssItem);
 
-
 class KRITAUI_EXPORT KisRssReader
 {
 public:
@@ -77,4 +76,4 @@ private:
     QString blogName;
 };
 
-#endif // KISRSSREADER_H
+#endif

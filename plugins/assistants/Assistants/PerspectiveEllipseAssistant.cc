@@ -5,7 +5,6 @@
 #include "PerspectiveEllipseAssistant.h"
 #include "PerspectiveBasedAssistantHelper.h"
 
-
 #include <klocalizedstring.h>
 #include "kis_debug.h"
 #include <QPainter>
@@ -24,92 +23,45 @@
 
 #include <functional>
 
-
-// ################################## Ellipse in Polygon (in Perspective) #######################################
-
 class EllipseInPolygon
 {
 public:
 
     EllipseInPolygon();
 
-    // nomenclature:
-    // "final ellipse" - ellipse that the user wants
-    // "rerotated ellipse" - "final ellipse" that has been rotated (transformed) to have axes parallel to X and Y axes
-    //    (called "rerotated" because now the rotation angle is 0)
-    // "canonical ellipse" - "final ellipse" that has been rotated to have axes parallel to X and Y axes,
-    //    *and* moved so that the center is in point (0, 0)
-    // --- every "ellipse" above also means "coordination system for that ellipse"
-
-    // "ellipse formula" - ax^2 + bxy + cy^2 + dx + ey + f = 0
-    // "vertices" - points on axes
-
-    // functions
-
-    ///
-    /// \brief updateToPolygon
-    /// This function makes all the necessary calculations and updates all data, not just the polygon
-    ///  according to the polygon that was provided as the parameter
-    /// \param polygon polygon that contains the ellipse
-    /// \returns whether the ellipse is valid or not
-    ///
     bool updateToPolygon(QVector<QPointF> _polygon);
 
-    ///
-    /// \brief setSimpleEllipseVertices sets vertices of this ellipse to the "simple ellipse" class
-    /// to be drawn and used
-    /// \param ellipse
-    /// \return
-    ///
     bool setSimpleEllipseVertices(Ellipse& ellipse) const;
 
     bool isValid() const { return m_valid; }
 
-    ///
-    /// \brief formulaRepresentsAnEllipse
-    /// parameters are first three coefficients from a formula: ax^2 + bxy + cy^2 + dx + ey + f = 0
-    /// \param a - first coefficient
-    /// \param b - second coefficient
-    /// \param c - third coefficient
-    /// \return true if the formula represents an ellipse, otherwise false
-    ///
     static bool formulaRepresentsAnEllipse(double a, double b, double c);
 
-    // unused for now; will be used to move the ellipse towards any vanishing point
-    // might need more info about vanishing points (for example, might need all points)
-    // moveTowards(QPointF vanishingPoint, QPointF cursorStartPoint, QPointF cursorEndPoint);
-
-    // ----- data -----
-    // keep the known-size-vectors the same size!
-
     QVector<QPointF> polygon;
-    QTransform originalTransform; // original square-to-polygon transform, including perspective
+    QTransform originalTransform;
 
+    QVector<double> finalFormula;
+    QVector<double> rerotatedFormula;
 
-    QVector<double> finalFormula; // final ellipse formula using ax^2 + bxy + cy^2 + dx + ey + f = 0
-    QVector<double> rerotatedFormula; // rerotated ellipse formula using ax^2 + bxy + cy^2 + dx + ey + f = 0
+    double finalAxisAngle {0.0};
+    double finalAxisReverseAngleCos {0.0};
+    double finalAxisReverseAngleSin {0.0};
 
-    double finalAxisAngle {0.0}; // theta - angle of the final ellipse's X axis
-    double finalAxisReverseAngleCos {0.0}; // cos(-theta) -> used for calculating rerotatedFormula
-    double finalAxisReverseAngleSin {0.0}; // sin(-theta) -> used for calculating rerotatedFormula
+    QVector<double> finalEllipseCenter;
 
-    QVector<double> finalEllipseCenter; // always just two values; QPointF could have too low of a precision for calculations
-
-    double axisXLength {0.0}; // all "final", "rerotated" and "canonical" ellipses have the same axes lengths
+    double axisXLength {0.0};
     double axisYLength {0.0};
 
-    QVector<QPointF> finalVertices; // used to draw ellipses and project the cursor points
+    QVector<QPointF> finalVertices;
 
 protected:
 
     void setFormula(QVector<double>& formula, double a, double b, double c, double d, double e, double f);
     void setPoint(QVector<double>& point, double x, double y);
 
-
     bool m_valid {false};
 
 };
-
 
 EllipseInPolygon::EllipseInPolygon()
 {
@@ -129,34 +81,21 @@ bool EllipseInPolygon::updateToPolygon(QVector<QPointF> _polygon)
 {
     QTransform transform;
 
-    m_valid = false; // let's make it false in case we return in the middle of the work
-    polygon = _polygon; // the assistant needs to know the polygon even when it doesn't allow for a correct ellipse
+    m_valid = false;
+    polygon = _polygon;
 
-    // this calculates the perspective transform that represents the current quad (polygon)
-    // this is the transform that changes the original (0, 0, 1, 1) square to the quad
-    // that means that our "original" ellipse is the circle in that square (with center in (0.5, 0.5), and radius 0.5)
     if (!QTransform::squareToQuad(polygon, transform)) {
         return false;
     }
 
     originalTransform = transform;
 
-    // using the perspective transform, we can calculate some points on the ellipse
-    // any points from the original ellipse would work here
-    // but pt1-4 are just the simplest ones to write
-    // and pR is another one easy to calculate (common point between the original ellipse and a line `y = x`)
     QPointF pt1 = originalTransform.map(QPointF(0.5, 1.0));
     QPointF pt2 = originalTransform.map(QPointF(1.0, 0.5));
     QPointF pt3 = originalTransform.map(QPointF(0.5, 0.0));
     QPointF pt4 = originalTransform.map(QPointF(0.0, 0.5));
-    // a point on the ellipse and on the `y = x` line
     QPointF ptR = originalTransform.map(QPointF(0.5 - 1/(2*sqrt(2)), 0.5 - 1/(2*sqrt(2))));
 
-
-    // using the points from above (pt1-4 and ptR) we can construct a linear equation for the final ellipse formula
-    // the general ellipse formula is: `ax^2 + bxy + cy^2 + dx + ey + f = 0`
-    // but since a cannot ever be 0, we can temporarily reduce the formula to be `x^2 + Bxy + Cy^2 + Dx + Ey + F = 0`
-    // where B = b/a etc.
     Eigen::MatrixXd A(5, 5);
     A <<          ptR.x() * ptR.y(), ptR.y() * ptR.y(), ptR.x(), ptR.y(), 1.0,
                   pt1.x() * pt1.y(), pt1.y() * pt1.y(), pt1.x(), pt1.y(), 1.0,
@@ -169,9 +108,6 @@ bool EllipseInPolygon::updateToPolygon(QVector<QPointF> _polygon)
 
     Eigen::VectorXd xSolution = A.fullPivLu().solve(bVector);
 
-    // generic ellipse formula coefficients for the final formula
-    // assigned to new variables to better see the calculations
-    // (even with "x" as a solution vector variable, it would be difficult to spot error when everything looks like x(2)*x(4)/x(3)*x(1) etc.)
     qreal a = 1;
     qreal b = xSolution(0);
 
@@ -181,25 +117,19 @@ bool EllipseInPolygon::updateToPolygon(QVector<QPointF> _polygon)
     qreal e = xSolution(3);
     qreal f = xSolution(4);
 
-    // check if this is an ellipse
     if (!formulaRepresentsAnEllipse(a, b, c)) {
         return false;
     }
 
     setFormula(finalFormula, a, b, c, d, e, f);
 
-    // x = (be - 2cd)/(4c - b^2)
-    // y = (bd - 2e)/(4c - b^2)
     finalEllipseCenter.clear();
     finalEllipseCenter << ((double)b*e - 2*c*d)/(4*c - b*b) << ((double)b*d - 2*e)/(4*c - b*b);
     finalAxisAngle = qAtan2(b, a - c)/2;
 
-    // use finalAxisAngle to find the cos and sin
-    // and replace the final coordinate system with the rerotated one
     qreal K = qCos(-finalAxisAngle);
     qreal L = qSin(-finalAxisAngle);
 
-    // this allows to calculate the formula for the rerotated ellipse
     qreal aprim = K*K*a - K*L*b + L*L*c;
     qreal bprim = 2*K*L*a + K*K*b - L*L*b - 2*K*L*c;
     qreal cprim = L*L*a + K*L*b + K*K*c;
@@ -216,11 +146,6 @@ bool EllipseInPolygon::updateToPolygon(QVector<QPointF> _polygon)
 
     setFormula(rerotatedFormula, aprim, bprim, cprim, dprim, eprim, fprim);
 
-    // third attempt at new center:
-    // K' = K
-    // L' = -L
-    // note that this will be in a different place, because the ellipse wasn't moved to have center in (0, 0), but still rotate around point (0,0)
-    // and any point that is not (0, 0), when rotated around (0, 0) with an angle that isn't 0, 360 etc. degrees, will end up in a different place
     QPointF rerotatedCenter = QPointF(K*finalEllipseCenter[0] - L*finalEllipseCenter[1], K*finalEllipseCenter[1] + L*finalEllipseCenter[0]);
 
     qreal rx = sqrt(qPow(rerotatedCenter.x(), 2) + qPow(rerotatedCenter.y(), 2)*cprim/aprim - fprim/aprim);
@@ -229,8 +154,7 @@ bool EllipseInPolygon::updateToPolygon(QVector<QPointF> _polygon)
     axisXLength = rx;
     axisYLength = ry;
 
-#if 0 // debug
-    // they should be very close to cprim, dprim etc., when multiplied by aprim (since this only gives us a formula where aprim_recreated would be equal to 1)
+#if 0
     qreal cprim_recreated = (rx*rx)/(ry*ry);
     qreal dprim_recreated = -2*rerotatedCenter.x();
     qreal eprim_recreated = -2*rerotatedCenter.y()*(rx*rx)/(ry*ry);
@@ -251,8 +175,6 @@ bool EllipseInPolygon::updateToPolygon(QVector<QPointF> _polygon)
 
     auto convertToPreviousCoordsSystem = [K, L] (QPointF p) { return QPointF(K*p.x() + L*p.y(), K*p.y() - L*p.x()); };
 
-    // they most probably don't need a higher precision than float
-    // (though they are used to calculate the brush position...)
     QPointF leftVertexRerotated = rerotatedCenter + QPointF(-rx, 0);
     QPointF rightVertedRerotated = rerotatedCenter + QPointF(rx, 0);
     QPointF topVertedRerotated = rerotatedCenter + QPointF(0, ry);
@@ -309,10 +231,6 @@ void EllipseInPolygon::setPoint(QVector<double> &point, double x, double y)
     }
 }
 
-
-// ################################## Perspective Ellipse Assistant #######################################
-
-
 class PerspectiveEllipseAssistant::Private
 {
 public:
@@ -323,7 +241,7 @@ public:
 
     PerspectiveBasedAssistantHelper::CacheData cache;
 
-    QVector<QPointF> cachedPoints; // points on the polygon
+    QVector<QPointF> cachedPoints;
 
 };
 
@@ -360,7 +278,7 @@ QPointF PerspectiveEllipseAssistant::project(const QPointF& pt, const QPointF& s
     return d->simpleEllipse.project(pt);
 }
 
-QPointF PerspectiveEllipseAssistant::adjustPosition(const QPointF& pt, const QPointF& strokeBegin, const bool /*snapToAny*/, qreal /*moveThresholdPt*/)
+QPointF PerspectiveEllipseAssistant::adjustPosition(const QPointF& pt, const QPointF& strokeBegin, const bool , qreal )
 {
     return project(pt, strokeBegin);
 }
@@ -377,22 +295,19 @@ void PerspectiveEllipseAssistant::drawAssistant(QPainter& gc, const QRectF& upda
     gc.resetTransform();
 
     bool isEditing = false;
-    
+
     if (canvas) {
         isEditing = canvas->paintingAssistantsDecoration()->isEditingAssistants();
     }
-    
+
     QTransform initialTransform = converter->documentToWidgetTransform();
 
-    // need to update ellipse cache
     updateCache();
 
     QPolygonF poly = d->ellipseInPolygon.polygon;
-    QTransform transform = d->ellipseInPolygon.originalTransform; // unused, but computed for caching purposes
-
+    QTransform transform = d->ellipseInPolygon.originalTransform;
 
     if (isEllipseValid() && assistantVisible==true) {
-        // draw vanishing points
         if (d->cache.vanishingPoint1) {
             drawX(gc, initialTransform.map(d->cache.vanishingPoint1.get()), displayRenderInterface);
         }
@@ -401,8 +316,7 @@ void PerspectiveEllipseAssistant::drawAssistant(QPainter& gc, const QRectF& upda
         }
     }
 
-    // draw ellipse and axes
-    if (isEllipseValid() && (assistantVisible || previewVisible || isEditing)) { // ensure that you only draw the ellipse if it's valid - otherwise it would just show some outdated one
+    if (isEllipseValid() && (assistantVisible || previewVisible || isEditing)) {
         QPointF mousePos = effectiveBrushPosition(converter, canvas);
         gc.setTransform(initialTransform);
         gc.setTransform(d->simpleEllipse.getTransform().inverted(), true);
@@ -445,7 +359,6 @@ void PerspectiveEllipseAssistant::drawAssistant(QPainter& gc, const QRectF& upda
         gc.setTransform(converter->documentToWidgetTransform());
         gc.setTransform(d->ellipseInPolygon.originalTransform, true);
 
-        // drawing original axes ("lines to touching points")
         QPointF pt1 = QPointF(0.5, 1.0);
         QPointF pt2 = QPointF(1.0, 0.5);
         QPointF pt3 = QPointF(0.5, 0.0);
@@ -464,16 +377,13 @@ void PerspectiveEllipseAssistant::drawAssistant(QPainter& gc, const QRectF& upda
         }
     }
 
-
     gc.setTransform(converter->documentToWidgetTransform());
 
     if (assistantVisible || isEditing) {
         if (!isEllipseValid()) {
-            // color red for an invalid transform, but not for an incomplete one
             if(isAssistantComplete()) {
                 QPainterPath path;
                 QPolygonF polyAllConnected;
-                // that will create a triangle with a point inside connected to all vertices of the triangle
                 polyAllConnected << *handles()[0] << *handles()[1] << *handles()[2] << *handles()[3] << *handles()[0] << *handles()[2] << *handles()[1] << *handles()[3];
                 path.addPolygon(polyAllConnected);
                 drawError(gc, path, displayRenderInterface);
@@ -504,12 +414,11 @@ void PerspectiveEllipseAssistant::drawAssistant(QPainter& gc, const QRectF& upda
             drawPath(gc, path, displayRenderInterface, isSnappingActive());
         }
     }
-    
+
     gc.restore();
     KisPaintingAssistant::drawAssistant(gc, updateRect, converter, displayRenderInterface, cached, canvas, assistantVisible, previewVisible);
 
 }
-
 
 void PerspectiveEllipseAssistant::drawCache(QPainter& gc, const KisCoordinatesConverter *converter, const KoColorDisplayRendererInterface *displayRenderInterface, bool assistantVisible)
 {
@@ -549,14 +458,11 @@ bool PerspectiveEllipseAssistant::isEllipseValid()
 
 void PerspectiveEllipseAssistant::updateCache()
 {
-    // handles -> points -> polygon
     d->cacheValid = false;
-    // check the cached points, whether they are the same as handles
     if (d->cachedPoints.size() == handles().size()) {
         for (int i = 0; i < handles().size(); ++i) {
             if (d->cachedPoints[i] != *handles()[i]) break;
             if (i == handles().size() - 1) {
-                // that means the cache is up to date, because the loop was still going
                 d->cacheValid = true;
                 return;
             }
@@ -568,10 +474,9 @@ void PerspectiveEllipseAssistant::updateCache()
         d->cachedPoints << *handles()[i];
     }
 
-
     QPolygonF poly = QPolygonF(d->cachedPoints);
 
-    if (!PerspectiveBasedAssistantHelper::getTetragon(handles(), isAssistantComplete(), poly)) { // this function changes poly to some "standardized" version, or a triangle when it cannot be achieved
+    if (!PerspectiveBasedAssistantHelper::getTetragon(handles(), isAssistantComplete(), poly)) {
 
         poly = QPolygonF(d->cachedPoints);
         poly << d->cachedPoints[0];
@@ -591,7 +496,7 @@ void PerspectiveEllipseAssistant::updateCache()
 }
 
 bool PerspectiveEllipseAssistant::isAssistantComplete() const
-{   
+{
     return handles().size() >= 4;
 }
 

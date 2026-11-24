@@ -29,9 +29,6 @@ public:
         return m_canvas;
     }
 
-    /**
-     * Resizes the subordinate canvas widget as needed
-     */
      void resetLayout();
 
 public:
@@ -46,8 +43,6 @@ private:
 
     QPointF correctPosition(const QPoint &point) const;
     void repaint(KoShape *shape);
-
-
 
 private:
 

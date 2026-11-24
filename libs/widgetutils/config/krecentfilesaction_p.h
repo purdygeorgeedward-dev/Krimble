@@ -55,4 +55,4 @@ public:
     KRecentFilesAction *q_ptr;
 };
 
-#endif // KRECENTFILESACTION_P_H
+#endif

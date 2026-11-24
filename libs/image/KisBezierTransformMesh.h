@@ -37,7 +37,6 @@ public:
                                KisPaintDeviceSP srcDevice,
                                KisPaintDeviceSP dstDevice);
 
-
     void transformMesh(const QPoint &srcQImageOffset,
                        const QImage &srcImage,
                        const QPoint &dstQImageOffset,
@@ -77,4 +76,4 @@ using KisBezierTransformMeshDetail::saveValue;
 
 using KisBezierTransformMesh = KisBezierTransformMeshDetail::KisBezierTransformMesh;
 
-#endif // KISBEZIERTRANSFORMMESH_H
+#endif

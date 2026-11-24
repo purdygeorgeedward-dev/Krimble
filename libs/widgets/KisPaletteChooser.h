@@ -18,7 +18,6 @@
 
 class KoResource;
 
-
 struct KisPaletteChooserPrivate;
 
 class KRITAWIDGETS_EXPORT KisPaletteChooser : public QWidget
@@ -38,7 +37,7 @@ Q_SIGNALS:
 
 public Q_SLOTS:
 
-private /* methods */:
+private :
     QString newPaletteFileName();
 
 public Q_SLOTS:
@@ -55,4 +54,4 @@ private:
     QScopedPointer<KisPaletteChooserPrivate> m_d;
 };
 
-#endif // KISPALETTELISTWIDGET_H
+#endif

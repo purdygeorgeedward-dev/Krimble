@@ -11,10 +11,9 @@
 #include "kis_signal_auto_connection.h"
 #include "kis_signal_compressor.h"
 
-
 struct KisIdleWatcher::Private
 {
-    static const int IDLE_CHECK_COUNT = 4; /* ticks */
+    static const int IDLE_CHECK_COUNT = 4;
 
     Private(int delay, KisIdleWatcher *q)
         : imageModifiedCompressor(delay,
@@ -32,12 +31,6 @@ struct KisIdleWatcher::Private
 
     QTimer idleCheckTimer;
 
-    /**
-     * We wait until the counter reaches IDLE_CHECK_COUNT, then consider the
-     * image to be really "idle". If the counter is negative, it means that
-     * "no delay" update is triggered, which disables counting and the event
-     * is triggered on the next non-busy tick.
-     */
     int idleCheckCounter;
 };
 

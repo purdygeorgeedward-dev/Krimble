@@ -36,11 +36,6 @@
 #include <KoResourceLoadResult.h>
 #include <kis_paint_information.h>
 
-/**********************************************************************/
-/*       KisTextureOption                                             */
-/**********************************************************************/
-
-
 KisTextureOption::KisTextureOption(const KisPropertiesConfiguration *setting,
                                    KisResourcesInterfaceSP resourcesInterface,
                                    KoCanvasResourcesInterfaceSP canvasResourcesInterface,
@@ -130,10 +125,6 @@ int KisTextureOption::effectiveOffsetY(const KisPaintInformation &info) const
 
 QList<KoResourceLoadResult> KisTextureOption::prepareEmbeddedResources(const KisPropertiesConfigurationSP setting, KisResourcesInterfaceSP resourcesInterface)
 {
-    /**
-     * We cannot use m_enabled here because it is not initialized at this stage.
-     * fillProperties() is not necessary for this call, because it is extremely slow.
-     */
 
     QList<KoResourceLoadResult> patterns;
 
@@ -149,10 +140,6 @@ QList<KoResourceLoadResult> KisTextureOption::prepareEmbeddedResources(const Kis
 
 QList<KoResourceLoadResult> KisTextureOption::prepareLinkedResources(const KisPropertiesConfigurationSP setting, KisResourcesInterfaceSP resourcesInterface)
 {
-    /**
-     * We cannot use m_enabled here because it is not initialized at this stage.
-     * fillProperties() is not necessary for this call, because it is extremely slow.
-     */
 
     QList<KoResourceLoadResult> patterns;
 
@@ -186,7 +173,6 @@ bool KisTextureOption::requiresEffectiveCompositeOp(const KisPropertiesConfigura
 
     return data.isEnabled && data.autoInvertOnErase;
 }
-
 
 void KisTextureOption::applyLightness(KisFixedPaintDeviceSP dab, const QPoint& offset, const KisPaintInformation& info) {
     if (!m_enabled) return;
@@ -247,20 +233,19 @@ void KisTextureOption::applyGradient(KisFixedPaintDeviceSP dab, const QPoint& of
     qreal pressure = m_strengthOption.apply(info);
     quint8* dabData = dab->data();
 
-    //for gradient textures...
     KoMixColorsOp* colorMix = dab->colorSpace()->mixColorsOp();
     qint16 colorWeights[2];
     colorWeights[0] = qRound(pressure * 255);
     colorWeights[1] = 255 - colorWeights[0];
     quint8* colors[2];
-    m_cachedGradient.setColorSpace(dab->colorSpace()); //Change colorspace here so we don't have to convert each pixel drawn
+    m_cachedGradient.setColorSpace(dab->colorSpace());
 
     KisHLineIteratorSP iter = fillDevice->createHLineIteratorNG(x, y, rect.width());
     for (int row = 0; row < rect.height(); ++row) {
         for (int col = 0; col < rect.width(); ++col) {
 
             const QRgb* maskQRgb = reinterpret_cast<const QRgb*>(iter->oldRawData());
-            qreal gradientvalue = qreal(qGray(*maskQRgb))/255.0;//qreal(*iter->oldRawData()) / 255.0;
+            qreal gradientvalue = qreal(qGray(*maskQRgb))/255.0;
             KoColor paintcolor;
             paintcolor.setColor(m_cachedGradient.cachedAt(gradientvalue), dab->colorSpace());
             qreal paintOpacity = paintcolor.opacityF() * (qreal(qAlpha(*maskQRgb)) / 255.0);
@@ -308,18 +293,15 @@ void KisTextureOption::apply(KisFixedPaintDeviceSP dab, const QPoint &offset, co
     fillPainter.fillRect(kisGrowRect(maskPatchRect, 1), mask, maskBounds);
     fillPainter.end();
 
-    // Compute final strength
     qreal strength = m_strengthOption.apply(info);
 
-    // Select mask compositing op
     KoChannelInfo::enumChannelValueType alphaChannelType = KoChannelInfo::UINT8;
     int alphaChannelOffset = -1;
 
     const QList<KoChannelInfo *> channels = dab->colorSpace()->channels();
     for (quint32 i = 0; i < dab->pixelSize(); i++) {
         if (channels[i]->channelType() == KoChannelInfo::ALPHA) {
-            // TODO: check correctness for 16bits!
-            alphaChannelOffset = channels[i]->pos()/* * channels[i]->size()*/;
+            alphaChannelOffset = channels[i]->pos() ;
             alphaChannelType = channels[i]->channelValueType();
             break;
         }
@@ -353,7 +335,6 @@ void KisTextureOption::apply(KisFixedPaintDeviceSP dab, const QPoint &offset, co
                         compositeOpId, alphaChannelType, dab->pixelSize(),
                         alphaChannelOffset, strength, m_useSoftTexturing));
 
-    // Apply the mask to the dab
     {
         quint8 *dabIt = nullptr;
         KisRandomConstAccessorSP maskPatchIt = maskPatch->createRandomConstAccessorNG();

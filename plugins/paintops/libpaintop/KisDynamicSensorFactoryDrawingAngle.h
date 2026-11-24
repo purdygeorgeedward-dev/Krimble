@@ -15,4 +15,4 @@ public:
     QWidget* createConfigWidget(lager::cursor<KisCurveOptionDataCommon> data, QWidget*parent) override;
 };
 
-#endif // KISDYNAMICSENSORFACTORYDRAWINGANGLE_H
+#endif

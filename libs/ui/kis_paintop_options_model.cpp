@@ -9,7 +9,6 @@
 
 #include <klocalizedstring.h>
 
-
 KisPaintOpOptionListModel::KisPaintOpOptionListModel(QObject *parent)
     : BaseOptionCategorizedListModel(parent)
 {

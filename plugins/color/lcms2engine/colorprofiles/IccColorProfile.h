@@ -16,19 +16,12 @@
 class LcmsColorProfileContainer;
 struct KoColorProfileQuery;
 
-/**
- * This class contains an ICC color profile.
- */
 class KRITALCMSENGINE_EXPORT IccColorProfile : public KoColorProfile
 {
 public:
 
     using KoColorProfile::save;
 
-    /**
-     * Contains the data associated with a profile. This is
-     * shared through internal representation.
-     */
     class Data
     {
     public:
@@ -41,10 +34,6 @@ public:
         struct Private;
         QScopedPointer<Private> const d;
     };
-    /**
-     * This class should be used to wrap the ICC profile
-     * representation coming from various CMS engine.
-     */
     class Container
     {
     public:
@@ -87,9 +76,6 @@ public:
     bool load() override;
     virtual bool save();
 
-    /**
-    * @return an array with the raw data of the profile
-    */
     QByteArray rawData() const override;
     bool valid() const override;
     float version() const override;
@@ -124,13 +110,6 @@ public:
         return "icc";
     }
 
-    /**
-     * Returns the set of min/maxes for each channel in this profile.
-     * These (sometimes approximate) min and maxes are suitable
-     * for UI building.
-     * Furthermore, then only apply to the floating point uses of this profile,
-     * and not the integer variants.
-     */
     const QVector<KoChannelInfo::DoubleRange> &getFloatUIMinMax(void) const;
 
 protected:

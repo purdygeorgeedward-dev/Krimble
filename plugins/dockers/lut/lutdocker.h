@@ -10,10 +10,6 @@
 #include <QObject>
 #include <QVariant>
 
-
-/**
- * Template of view plugin
- */
 class LutDockerPlugin : public QObject
 {
     Q_OBJECT

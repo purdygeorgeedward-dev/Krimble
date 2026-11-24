@@ -60,7 +60,7 @@ void KisRGBETest::testHDR()
 
         QVERIFY(TestUtil::comparePaintDevicesClever<float>(doc1->image()->root()->firstChild()->paintDevice(),
                                                            doc2->image()->root()->firstChild()->paintDevice(),
-                                                           0.01f /* meaningless alpha */));
+                                                           0.01f ));
 
         delete doc2;
     }
@@ -90,22 +90,17 @@ void KisRGBETest::testRLEOverflow_data()
         QByteArray generate() const {
             QByteArray srcData;
 
-            // Construct HDR RLE data that attempts buffer overflow
-            // Format: [2] [2] [width_msb] [width_lsb] [RLE_component_0] [RLE_component_1] [RLE_component_2]
-            // [RLE_component_3]
-
-            srcData.append(static_cast<char>(2)); // Header marker for new scanline format
-            srcData.append(static_cast<char>(2)); // Confirms new format
-            srcData.append(static_cast<char>(0x00)); // Width MSB (16 = 0x0010)
-            srcData.append(static_cast<char>(0x10)); // Width LSB
+            srcData.append(static_cast<char>(2));
+            srcData.append(static_cast<char>(2));
+            srcData.append(static_cast<char>(0x00));
+            srcData.append(static_cast<char>(0x10));
 
             srcData.append(component0);
 
-            // Components 1, 2, 3: Add valid RLE data to reach end of stream
             for (int i = 1; i < 4; i++) {
-                srcData.append(static_cast<char>(16)); // Read 16 bytes in non-run mode
+                srcData.append(static_cast<char>(16));
                 for (int j = 0; j < 16; ++j) {
-                    srcData.append(static_cast<char>(0x80 + i)); // Dummy data byte
+                    srcData.append(static_cast<char>(0x80 + i));
                 }
             }
 
@@ -119,22 +114,17 @@ void KisRGBETest::testRLEOverflow_data()
         QByteArray generate() const {
             QByteArray srcData;
 
-            // Construct HDR RLE data that attempts buffer overflow
-            // Format: [2] [2] [width_msb] [width_lsb] [RLE_component_0] [RLE_component_1] [RLE_component_2]
-            // [RLE_component_3]
-
-            srcData.append(static_cast<char>(2)); // Header marker for new scanline format
-            srcData.append(static_cast<char>(2)); // Confirms new format
-            srcData.append(static_cast<char>(0x00)); // Width MSB (16 = 0x0010)
-            srcData.append(static_cast<char>(0x10)); // Width LSB
+            srcData.append(static_cast<char>(2));
+            srcData.append(static_cast<char>(2));
+            srcData.append(static_cast<char>(0x00));
+            srcData.append(static_cast<char>(0x10));
 
             srcData.append(component0);
 
-            // Components 1, 2, 3: Add valid RLE data to reach end of stream
             for (int i = 1; i < 4; i++) {
-                srcData.append(static_cast<char>(16)); // Read 16 bytes in non-run mode
+                srcData.append(static_cast<char>(16));
                 for (int j = 0; j < 16; ++j) {
-                    srcData.append(static_cast<char>(0x80 + i)); // Dummy data byte
+                    srcData.append(static_cast<char>(0x80 + i));
                 }
             }
 
@@ -142,13 +132,11 @@ void KisRGBETest::testRLEOverflow_data()
         }
     };
 
-
     {
         DataGenerator g;
 
-        // Component 0: RLE run that attempts overflow
-        g.component0.append(static_cast<char>(72 | 128)); // RLE run marker is 128, repeat 72 times
-        g.component0.append(static_cast<char>(0x80)); // Value to repeat
+        g.component0.append(static_cast<char>(72 | 128));
+        g.component0.append(static_cast<char>(0x80));
 
         QTest::addRow("rle-deep-past-the-end") << g.generate() << false;
     }
@@ -156,9 +144,8 @@ void KisRGBETest::testRLEOverflow_data()
     {
         DataGenerator g;
 
-        // Component 0: RLE run that attempts overflow
-        g.component0.append(static_cast<char>(17 | 128)); // RLE run marker is 128, repeat 17 times
-        g.component0.append(static_cast<char>(0x80)); // Value to repeat
+        g.component0.append(static_cast<char>(17 | 128));
+        g.component0.append(static_cast<char>(0x80));
 
         QTest::addRow("rle-1byte-past-the-end") << g.generate() << false;
     }
@@ -166,12 +153,11 @@ void KisRGBETest::testRLEOverflow_data()
     {
         DataGenerator g;
 
-        // Component 0: RLE run that attempts overflow
-        g.component0.append(static_cast<char>(1)); // Directly copy one byte
+        g.component0.append(static_cast<char>(1));
         g.component0.append(static_cast<char>(0x70));
 
-        g.component0.append(static_cast<char>(16 | 128)); // RLE run marker is 128, repeat 16 times
-        g.component0.append(static_cast<char>(0x80)); // Value to repeat
+        g.component0.append(static_cast<char>(16 | 128));
+        g.component0.append(static_cast<char>(0x80));
 
         QTest::addRow("rle-1byte-past-the-end-with-offset") << g.generate() << false;
     }
@@ -179,9 +165,8 @@ void KisRGBETest::testRLEOverflow_data()
     {
         DataGenerator g;
 
-        // Component 0: RLE run that expands to exactly 16 pixels
-        g.component0.append(static_cast<char>(16 | 128)); // RLE run marker is 128, repeat 16 times
-        g.component0.append(static_cast<char>(0x80)); // Value to repeat
+        g.component0.append(static_cast<char>(16 | 128));
+        g.component0.append(static_cast<char>(0x80));
 
         QTest::addRow("rle-correct") << g.generate() << true;
     }
@@ -189,12 +174,11 @@ void KisRGBETest::testRLEOverflow_data()
     {
         DataGenerator g;
 
-        // Component 0: RLE run that expands to exactly 16 pixels
-        g.component0.append(static_cast<char>(1)); // Directly copy one byte
+        g.component0.append(static_cast<char>(1));
         g.component0.append(static_cast<char>(0x70));
 
-        g.component0.append(static_cast<char>(15 | 128)); // RLE run marker is 128, repeat 15 times
-        g.component0.append(static_cast<char>(0x80)); // Value to repeat
+        g.component0.append(static_cast<char>(15 | 128));
+        g.component0.append(static_cast<char>(0x80));
 
         QTest::addRow("rle-correct-with-offset") << g.generate() << true;
     }
@@ -202,8 +186,7 @@ void KisRGBETest::testRLEOverflow_data()
     {
         DataGenerator g;
 
-        // Component 0: non-run mode that attempts overflow
-        g.component0.append(static_cast<char>(17)); // Directly copy 17 bytes
+        g.component0.append(static_cast<char>(17));
         for (int j = 0; j < 17; j++) {
             g.component0.append(static_cast<char>(0x70));
         }
@@ -214,8 +197,7 @@ void KisRGBETest::testRLEOverflow_data()
     {
         DataGenerator g;
 
-        // Component 0: non-run mode that expands to exactly 16 pixels
-        g.component0.append(static_cast<char>(16)); // Directly copy 16 bytes
+        g.component0.append(static_cast<char>(16));
         for (int j = 0; j < 16; j++) {
             g.component0.append(static_cast<char>(0x70));
         }
@@ -225,9 +207,6 @@ void KisRGBETest::testRLEOverflow_data()
 
     {
         QByteArray srcData;
-        // Each record is one HDR pixel in RGBe form: [R][G][B][E],
-        // pixel [1][1][1][count] is a special marker to repeat the
-        // previous pixel `count` times
 
         for (int j = 0; j < 16; j++) {
             srcData.append(static_cast<char>(0x80));
@@ -241,9 +220,6 @@ void KisRGBETest::testRLEOverflow_data()
 
     {
         QByteArray srcData;
-        // Each record is one HDR pixel in RGBe form: [R][G][B][E],
-        // pixel [1][1][1][count] is a special marker to repeat the
-        // previous pixel `count` times
 
         srcData.append(static_cast<char>(0x80));
         srcData.append(static_cast<char>(0x81));
@@ -259,9 +235,6 @@ void KisRGBETest::testRLEOverflow_data()
 
     {
         QByteArray srcData;
-        // Each record is one HDR pixel in RGBe form: [R][G][B][E],
-        // pixel [1][1][1][count] is a special marker to repeat the
-        // previous pixel `count` times
 
         srcData.append(static_cast<char>(0x80));
         srcData.append(static_cast<char>(0x81));
@@ -279,7 +252,6 @@ void KisRGBETest::testRLEOverflow_data()
 
 void KisRGBETest::testRLEOverflow()
 {
-    //QByteArray dstData;
     QFETCH(QByteArray, srcData);
     QFETCH(bool, expectedSuccess);
 

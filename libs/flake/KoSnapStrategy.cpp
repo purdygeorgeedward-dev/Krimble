@@ -117,7 +117,7 @@ bool OrthogonalSnapStrategy::snap(const QPointF &mousePosition, KoSnapProxy * pr
     return (minHorzDist < HUGE_VAL || minVertDist < HUGE_VAL);
 }
 
-QPainterPath OrthogonalSnapStrategy::decoration(const KoViewConverter &/*converter*/) const
+QPainterPath OrthogonalSnapStrategy::decoration(const KoViewConverter & ) const
 {
     QPainterPath decoration;
     if (! m_hLine.isNull()) {
@@ -200,7 +200,6 @@ bool ExtensionSnapStrategy::snap(const QPointF &mousePosition, KoSnapProxy * pro
 
             int pointCount = path->subpathPointCount(subpathIndex);
 
-            // check the extension from the start point
             KoPathPoint * first = path->pointByIndex(KoPathPointIndex(subpathIndex, 0));
             QPointF firstSnapPosition = mousePosition;
             if (snapToExtension(firstSnapPosition, first, matrix)) {
@@ -223,7 +222,6 @@ bool ExtensionSnapStrategy::snap(const QPointF &mousePosition, KoSnapProxy * pro
                 }
             }
 
-            // now check the extension from the last point
             KoPathPoint * last = path->pointByIndex(KoPathPointIndex(subpathIndex, pointCount - 1));
             QPointF lastSnapPosition = mousePosition;
             if (snapToExtension(lastSnapPosition, last, matrix)) {
@@ -249,21 +247,16 @@ bool ExtensionSnapStrategy::snap(const QPointF &mousePosition, KoSnapProxy * pro
     }
 
     m_lines.clear();
-    // if we have to extension near our mouse position, they might have an intersection
-    // near our mouse position which we want to use as the snapped position
     if (minDistances[0] < HUGE_VAL && minDistances[1] < HUGE_VAL) {
-        // check if intersection of extension lines is near mouse position
         KoPathSegment s1(startPoints[0], snappedPoints[0] + snappedPoints[0]-startPoints[0]);
         KoPathSegment s2(startPoints[1], snappedPoints[1] + snappedPoints[1]-startPoints[1]);
         QList<QPointF> isects = s1.intersections(s2);
         if (isects.count() == 1 && squareDistance(isects[0], mousePosition) < maxDistance) {
-            // add both extension lines
             m_lines.append(QLineF(startPoints[0], isects[0]));
             m_lines.append(QLineF(startPoints[1], isects[0]));
             setSnappedPosition(isects[0], ToLine);
         }
         else {
-            // only add nearest extension line of both
             uint index = minDistances[0] < minDistances[1] ? 0 : 1;
             m_lines.append(QLineF(startPoints[index], snappedPoints[index]));
             setSnappedPosition(snappedPoints[index], ToLine);
@@ -278,13 +271,12 @@ bool ExtensionSnapStrategy::snap(const QPointF &mousePosition, KoSnapProxy * pro
         setSnappedPosition(snappedPoints[1], ToLine);
     }
     else {
-        // none of the extension lines is near our mouse position
         return false;
     }
     return true;
 }
 
-QPainterPath ExtensionSnapStrategy::decoration(const KoViewConverter &/*converter*/) const
+QPainterPath ExtensionSnapStrategy::decoration(const KoViewConverter & ) const
 {
     QPainterPath decoration;
     foreach (const QLineF &line, m_lines) {
@@ -313,8 +305,6 @@ bool ExtensionSnapStrategy::snapToExtension(QPointF &position, KoPathPoint * poi
 
 qreal ExtensionSnapStrategy::project(const QPointF &lineStart, const QPointF &lineEnd, const QPointF &point)
 {
-    // This is how the returned value should be used to get the
-    // projectionPoint: ProjectionPoint = lineStart(1-resultingReal) + resultingReal*lineEnd;
 
     QPointF diff = lineEnd - lineStart;
     QPointF relPoint = point - lineStart;
@@ -323,7 +313,6 @@ qreal ExtensionSnapStrategy::project(const QPointF &lineStart, const QPointF &li
         return 0.0;
 
     diff /= diffLength;
-    // project mouse position relative to stop position on extension line
     qreal scalar = relPoint.x() * diff.x() + relPoint.y() * diff.y();
     return scalar /= diffLength;
 }
@@ -335,7 +324,6 @@ QPointF ExtensionSnapStrategy::extensionDirection(KoPathPoint * point, const QTr
     KoPathShape * path = point->parent();
     KoPathPointIndex index = path->pathPointIndex(point);
 
-    // check if it is a start point
     if (point->properties() & KoPathPoint::StartSubpath) {
         if (point->activeControlPoint2()) {
             return matrix.map(point->point()) - matrix.map(point->controlPoint2());
@@ -429,21 +417,15 @@ bool GridSnapStrategy::snap(const QPointF &mousePosition, KoSnapProxy *proxy, qr
     if (! proxy->canvas()->snapToGrid())
         return false;
 
-    // The 1e-10 here is a workaround for some weird division problem.
-    // 360.00062366 / 2.83465058 gives 127 'exactly' when shown as a qreal,
-    // but when casting into an int, we get 126. In fact it's 127 - 5.64e-15 !
     QPointF offset;
     QSizeF spacing;
     proxy->canvas()->gridSize(&offset, &spacing);
 
-    // we want to snap to the nearest grid point, so calculate
-    // the grid rows/columns before and after the points position
     int col = static_cast<int>((mousePosition.x() - offset.x()) / spacing.width() + 1e-10);
     int nextCol = col + 1;
     int row = static_cast<int>((mousePosition.y() - offset.y()) / spacing.height() + 1e-10);
     int nextRow = row + 1;
 
-    // now check which grid line has less distance to the point
     qreal distToCol = qAbs(offset.x() + col * spacing.width() - mousePosition.x());
     qreal distToNextCol = qAbs(offset.x() + nextCol * spacing.width() - mousePosition.x());
 
@@ -466,7 +448,6 @@ bool GridSnapStrategy::snap(const QPointF &mousePosition, KoSnapProxy *proxy, qr
 
     const qreal sqDistance = distToCol * distToCol + distToRow * distToRow;
     const qreal maxSqDistance = maxSnapDistance * maxSnapDistance;
-    // now check if we are inside the snap distance
     if (sqDistance < maxSqDistance) {
         snappedPoint = QPointF(offset.x() + col * spacing.width(), offset.y() + row * spacing.height());
         pointIsSnapped = true;
@@ -524,7 +505,6 @@ bool BoundingBoxSnapStrategy::snap(const QPointF &mousePosition, KoSnapProxy *pr
     QList<KoShape*> shapes = proxy->shapesInRect(rect, true);
     Q_FOREACH (KoShape * shape, shapes) {
         qreal shapeMinDistance = HUGE_VAL;
-        // first check the corner and center points
         for (int i = 0; i < 5; ++i) {
             m_boxPoints[i] = shape->absolutePosition(pointId[i]);
             qreal d = squareDistance(mousePosition, m_boxPoints[i]);
@@ -535,11 +515,9 @@ bool BoundingBoxSnapStrategy::snap(const QPointF &mousePosition, KoSnapProxy *pr
                 snapType = ToPoint;
             }
         }
-        // prioritize points over edges
         if (shapeMinDistance < maxDistance)
             continue;
 
-        // now check distances to edges of bounding box
         for (int i = 0; i < 4; ++i) {
             QPointF pointOnLine;
             qreal d = squareDistanceToLine(m_boxPoints[i], m_boxPoints[(i+1)%4], mousePosition, pointOnLine);
@@ -562,12 +540,10 @@ qreal BoundingBoxSnapStrategy::squareDistanceToLine(const QPointF &lineA, const 
         return HUGE_VAL;
     const qreal diffLength = sqrt(diff.x() * diff.x() + diff.y() * diff.y());
 
-    // project mouse position relative to start position on line
     const qreal scalar = KoSnapStrategy::scalarProduct(point - lineA, diff / diffLength);
 
     if (scalar < 0.0 || scalar > diffLength)
         return HUGE_VAL;
-    // calculate vector between relative mouse position and projected mouse position
     pointOnLine = lineA + scalar / diffLength * diff;
     QPointF distVec = pointOnLine - point;
     return distVec.x()*distVec.x() + distVec.y()*distVec.y();
@@ -586,61 +562,3 @@ QPainterPath BoundingBoxSnapStrategy::decoration(const KoViewConverter &converte
     return decoration;
 }
 
-// KoGuidesData has been moved into Krita. Please port this class!
-
-// LineGuideSnapStrategy::LineGuideSnapStrategy()
-//     : KoSnapStrategy(KoSnapGuide::GuideLineSnapping)
-// {
-// }
-
-// bool LineGuideSnapStrategy::snap(const QPointF &mousePosition, KoSnapProxy * proxy, qreal maxSnapDistance)
-// {
-//     Q_ASSERT(std::isfinite(maxSnapDistance));
-
-//     KoGuidesData * guidesData = proxy->canvas()->guidesData();
-
-//     if (!guidesData || !guidesData->showGuideLines())
-//         return false;
-
-//     QPointF snappedPoint = mousePosition;
-//     m_orientation = 0;
-
-//     qreal minHorzDistance = maxSnapDistance;
-//     Q_FOREACH (qreal guidePos, guidesData->horizontalGuideLines()) {
-//         qreal distance = qAbs(guidePos - mousePosition.y());
-//         if (distance < minHorzDistance) {
-//             snappedPoint.setY(guidePos);
-//             minHorzDistance = distance;
-//             m_orientation |= Qt::Horizontal;
-//         }
-//     }
-//     qreal minVertSnapDistance = maxSnapDistance;
-//     Q_FOREACH (qreal guidePos, guidesData->verticalGuideLines()) {
-//         qreal distance = qAbs(guidePos - mousePosition.x());
-//         if (distance < minVertSnapDistance) {
-//             snappedPoint.setX(guidePos);
-//             minVertSnapDistance = distance;
-//             m_orientation |= Qt::Vertical;
-//         }
-//     }
-//     setSnappedPosition(snappedPoint);
-//     return (minHorzDistance < maxSnapDistance || minVertSnapDistance < maxSnapDistance);
-// }
-
-// QPainterPath LineGuideSnapStrategy::decoration(const KoViewConverter &converter) const
-// {
-//     QSizeF unzoomedSize = converter.viewToDocument(QSizeF(5, 5));
-//     Q_ASSERT(unzoomedSize.isValid());
-
-//     QPainterPath decoration;
-//     if (m_orientation & Qt::Horizontal) {
-//         decoration.moveTo(snappedPosition() - QPointF(unzoomedSize.width(), 0));
-//         decoration.lineTo(snappedPosition() + QPointF(unzoomedSize.width(), 0));
-//     }
-//     if (m_orientation & Qt::Vertical) {
-//         decoration.moveTo(snappedPosition() - QPointF(0, unzoomedSize.height()));
-//         decoration.lineTo(snappedPosition() + QPointF(0, unzoomedSize.height()));
-//     }
-
-//     return decoration;
-// }

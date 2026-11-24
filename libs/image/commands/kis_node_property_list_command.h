@@ -11,17 +11,10 @@
 #include "kis_base_node.h"
 #include "commands_new/KisAsynchronouslyMergeableCommandInterface.h"
 
-
-/// The command for changing the property list of a layer
 class KRITAIMAGE_EXPORT KisNodePropertyListCommand : public KisNodeCommand, public KisAsynchronouslyMergeableCommandInterface
 {
 
 public:
-    /**
-     * Constructor
-     * @param node the layer to add
-     * @param newPropertyList the property list to which the node to be added
-     */
     KisNodePropertyListCommand(KisNodeSP node, KisBaseNode::PropertyList newPropertyList);
 
     void redo() override;

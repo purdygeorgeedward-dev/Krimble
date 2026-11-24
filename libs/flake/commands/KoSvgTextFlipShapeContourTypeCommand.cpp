@@ -8,7 +8,6 @@
 #include <KoSvgTextShape.h>
 #include <KoShapeBulkActionLock.h>
 
-
 struct KoSvgTextFlipShapeContourTypeCommand::Private {
     Private(KoSvgTextShape *_text, KoShape *_shape)
         : textShape(_text)

@@ -84,13 +84,11 @@ void KisCoordinatesConverterTest::testImageCropping()
     converter.setDocumentOffset(QPoint(0,0));
     converter.setCanvasWidgetSize(QSize(500,500));
 
-    // we do NOT crop here
     QCOMPARE(converter.viewportToImage(QRectF(900,900,200,200)),
              QRectF(900,900,200,200));
 }
 
 #define CHECK_TRANSFORM(trans,test,ref) QCOMPARE(trans.map(test).boundingRect(), ref)
-//#define CHECK_TRANSFORM(trans,test,ref) dbgKrita << trans.map(test).boundingRect()
 
 void KisCoordinatesConverterTest::testTransformations()
 {
@@ -201,7 +199,6 @@ void KisCoordinatesConverterTest::testMirroring()
     initImage(&image, &converter);
 
     QSize widgetSize(500,400);
-//    QSize flakeSize(1000,1000);
     QRectF testRect(300, 100, 200, 200);
 
     converter.setImage(image);
@@ -209,14 +206,7 @@ void KisCoordinatesConverterTest::testMirroring()
     converter.setDocumentOffset(QPoint(200,100));
     converter.setCanvasWidgetSize(widgetSize);
 
-//    QTransform imageToWidget;
-//    QTransform documentToWidget;
-//    QTransform flakeToWidget;
-//    QTransform viewportToWidget;
-
     converter.mirror(converter.makeWidgetStillPoint(converter.imageCenterInWidgetPixel()), true, false);
-
-    // image pixels == flake pixels
 
     QRectF viewportRect = converter.imageToViewport(testRect);
     QRectF widgetRect = converter.viewportToWidget(viewportRect);
@@ -235,7 +225,6 @@ void KisCoordinatesConverterTest::testMirroringCanvasBiggerThanImage()
     initImage(&image, &converter);
 
     QSize widgetSize(2000,2000);
-//    QSize flakeSize(1000,1000);
     QRectF testRect(300, 100, 200, 200);
 
     converter.setImage(image);
@@ -243,14 +232,7 @@ void KisCoordinatesConverterTest::testMirroringCanvasBiggerThanImage()
     converter.setDocumentOffset(QPoint(-50,-50));
     converter.setCanvasWidgetSize(widgetSize);
 
-//    QTransform imageToWidget;
-//    QTransform documentToWidget;
-//    QTransform flakeToWidget;
-//    QTransform viewportToWidget;
-
     converter.mirror(converter.makeWidgetStillPoint(converter.imageCenterInWidgetPixel()), true, false);
-
-    // image pixels == flake pixels
 
     QRectF viewportRect = converter.imageToViewport(testRect);
     QRectF widgetRect = converter.viewportToWidget(viewportRect);
@@ -277,7 +259,6 @@ void KisCoordinatesConverterTest::testCanvasOffset()
     qDebug() << ppVar(converter.imageToWidget(QPointF(0,0)));
 
     {
-        // move the image to the top and left direction (the offset is inverted)
         converter.setDocumentOffset(QPoint(0, 0));
         qDebug() << "before mirror" << ppVar(converter.documentOffset());
 
@@ -294,7 +275,6 @@ void KisCoordinatesConverterTest::testCanvasOffset()
     }
 
     {
-        // move the image to the top and left direction (the offset is inverted)
         converter.setDocumentOffset(QPoint(100, 200));
         qDebug() << "before mirror" << ppVar(converter.documentOffset());
 
@@ -311,7 +291,6 @@ void KisCoordinatesConverterTest::testCanvasOffset()
     }
 
     {
-        // move the image to the top and left direction (the offset is inverted)
         converter.setDocumentOffset(QPoint(100, 200));
         qDebug() << "before rotate" << ppVar(converter.documentOffset());
 
@@ -341,7 +320,6 @@ void KisCoordinatesConverterTest::testImageSmallerThanCanvas()
     converter.setDocumentOffset(QPoint(0,0));
     converter.setCanvasWidgetSize(QSize(500,500));
 
-
     qDebug() << ppVar(converter.imageToWidget(QPointF(0,0)));
 
     converter.setZoom(0.5);
@@ -363,9 +341,6 @@ void KisCoordinatesConverterTest::testImageResolutionChange()
     converter.imageScale(&oldXScale, &oldYScale);
     const QRectF oldImageRectInDocumentPixels = converter.imageRectInDocumentPixels();
 
-    /**
-     * The center of the image should be kept unchanged when resolution changes
-     */
     const QPointF oldImageCenterInWidgetPixels = converter.imageCenterInWidgetPixel();
     qDebug() << "0" << ppVar(converter.imageCenterInWidgetPixel());
 
@@ -373,12 +348,6 @@ void KisCoordinatesConverterTest::testImageResolutionChange()
     image->scaleImage(image->size(), 200, 200, strategy);
     image->waitForDone();
     QTest::qWait(100);
-
-    /**
-     * We do **not** directly link the converter to the image.
-     * All updates to the converter should be propagated manually
-     * by KisView
-     */
 
     qreal newXScale = 0.0, newYScale = 0.0;
 
@@ -396,7 +365,6 @@ void KisCoordinatesConverterTest::testImageResolutionChange()
     QCOMPARE(newXScale, 0.5 * oldXScale);
     QCOMPARE(newYScale, 0.5 * oldYScale);
     QCOMPARE(converter.imageRectInDocumentPixels(), QRectF(0,0,5,5));
-    // the position of image center should be the same
     QCOMPARE(converter.imageCenterInWidgetPixel(), oldImageCenterInWidgetPixels);
 }
 
@@ -421,26 +389,20 @@ void KisCoordinatesConverterTest::testOffsetLimits()
     converter.setImage(image);
     converter.setZoom(0.5);
     converter.setDocumentOffset(QPoint(0,0));
-    converter.setCanvasWidgetSize(widgetRect.size()); // should be initialized first
+    converter.setCanvasWidgetSize(widgetRect.size());
     if (!extraRreferencesRect.isEmpty()) {
         converter.setExtraReferencesBounds(extraRreferencesRect);
     }
 
     const QPointF widgetSizeVector(widgetRect.width(), widgetRect.height());
 
-    // initial offset is null, hence the topleft is at the origin of the widget
     QCOMPARE(converter.imageToWidget(QPointF(0,0)), QPointF(0,0));
 
     const QRectF sampleImageRect = image->bounds() | extraRreferencesRect;
 
-    // when the scrollbars offset in minimal, the topleft of the image is moved
-    // to the bottom-right corner of the widget
     converter.setDocumentOffset(converter.minimumOffset());
     QCOMPARE(converter.imageToWidget(sampleImageRect.topLeft()), 0.9 * widgetSizeVector);
 
-    // when the scrollbars offset in maximal, the topleft of the image is moved
-    // under the left side of the widget and we see only the bottom-right corner
-    // of the image.
     converter.setDocumentOffset(converter.maximumOffset());
     QCOMPARE(converter.imageToWidget(sampleImageRect.bottomRight()), 0.1 * widgetSizeVector);
 }
@@ -455,29 +417,23 @@ void KisCoordinatesConverterTest::testOffsetLimitsCropping()
     converter.setImage(image);
     converter.setZoom(0.5);
     converter.setDocumentOffset(QPoint(0,0));
-    converter.setCanvasWidgetSize(widgetRect.size()); // should be initialized first
+    converter.setCanvasWidgetSize(widgetRect.size());
 
     QCOMPARE(converter.documentOffset(), QPoint(0,0));
     QCOMPARE(converter.imageToWidget(QPointF(0,0)), QPointF(0,0));
     QCOMPARE(converter.imageToWidget(QPointF(1000,1000)), QPointF(500,500));
 
-    // This mirror operation cause clipping of the offset, since
-    // the left edge of the document should appear at position
-    // 480, which is higher than the limit of 450.
     converter.mirror(converter.makeWidgetStillPoint(QPointF(490, 0)), true, false);
 
     QCOMPARE(converter.documentOffset(), QPoint(-450,0));
     QCOMPARE(converter.imageToWidget(QPointF(0,0)), QPointF(950,0));
     QCOMPARE(converter.imageToWidget(QPointF(1000,1000)), QPointF(450,500));
 
-    // return the canvas back to the topleft (though mirrored)
     converter.setDocumentOffset(QPoint(0,0));
     QCOMPARE(converter.documentOffset(), QPoint(0,0));
     QCOMPARE(converter.imageToWidget(QPointF(0,0)), QPointF(500,0));
     QCOMPARE(converter.imageToWidget(QPointF(1000,1000)), QPointF(0,500));
 
-    // Now mirror on the left side. The offset should be corrected
-    // to the right
     converter.mirror(converter.makeWidgetStillPoint(QPointF(10, 0)), false, false);
 
     QCOMPARE(converter.documentOffset(), QPoint(450,0));
@@ -513,18 +469,18 @@ void KisCoordinatesConverterTest::testZoomMode_data()
         << PointPairs{
                       {{0,0},     {100,100}},
                       {{100,100}, {200,200}},
-                      {{200,200}, {300,300}} // still point
+                      {{200,200}, {300,300}}
                      }
         << KoZoomMode::ZOOM_CONSTANT
         << 0.7
-        << QPointF(300, 300) // widget still point
+        << QPointF(300, 300)
         << defaultDisplayResolution
         << 0.7
         << PointPairs{
                       {{0,0},     {160, 160}},
                       {{100,100}, {230,230}},
                       {{1000,0},  {860,160}},
-                      {{200,200}, {300,300}}, // still point
+                      {{200,200}, {300,300}},
                      };
 
     QTest::newRow("constant-double-resolution")
@@ -535,18 +491,18 @@ void KisCoordinatesConverterTest::testZoomMode_data()
         << PointPairs{
                     {{0,0},     {100,100}},
                     {{100,100}, {200,200}},
-                    {{200,200}, {300,300}} // still point
+                    {{200,200}, {300,300}}
                     }
         << KoZoomMode::ZOOM_CONSTANT
         << 0.7
-        << QPointF(300, 300) // widget still point
+        << QPointF(300, 300)
         << 2.0 * defaultDisplayResolution
         << 0.7
         << PointPairs{
                     {{0,0},     {20, 20}},
                     {{100,100}, {160,160}},
                     {{1000,0},  {1420,20}},
-                    {{200,200}, {300,300}}, // still point
+                    {{200,200}, {300,300}},
                     };
 
     QTest::newRow("width-shrink")
@@ -557,7 +513,7 @@ void KisCoordinatesConverterTest::testZoomMode_data()
         << PointPairs{
                         {{0,0},     {100,100}},
                         {{100,100}, {200,200}},
-                        {{500,500}, {600,600}} // the ceter of the image is at random point
+                        {{500,500}, {600,600}}
                         }
         << KoZoomMode::ZOOM_WIDTH
         << unusedNewConstantZoom
@@ -565,10 +521,10 @@ void KisCoordinatesConverterTest::testZoomMode_data()
         << defaultDisplayResolution
         << 0.7
         << PointPairs{
-                        {{0,0},     {0,-100}}, // the left image border is aligned to the left
+                        {{0,0},     {0,-100}},
                         {{100,100}, {70,-30}},
-                        {{1000,0},  {700,-100}}, // the right image border is aligned to the right
-                        {{500,500}, {350,250}}, // the center of the image is at center of the widget
+                        {{1000,0},  {700,-100}},
+                        {{500,500}, {350,250}},
                         };
 
     QTest::newRow("width-shrink-double-resolution")
@@ -579,18 +535,18 @@ void KisCoordinatesConverterTest::testZoomMode_data()
         << PointPairs{
                         {{0,0},     {100,100}},
                         {{100,100}, {200,200}},
-                        {{500,500}, {600,600}} // the ceter of the image is at random point
+                        {{500,500}, {600,600}}
                         }
         << KoZoomMode::ZOOM_WIDTH
         << unusedNewConstantZoom
         << unusedWidgetStillPoint
         << 2.0 * defaultDisplayResolution
-        << 0.35 // the only difference is that the perceived zoom is halved
+        << 0.35
         << PointPairs{
-                        {{0,0},     {0,-100}}, // the left image border is aligned to the left
+                        {{0,0},     {0,-100}},
                         {{100,100}, {70,-30}},
-                        {{1000,0},  {700,-100}}, // the right image border is aligned to the right
-                        {{500,500}, {350,250}}, // the center of the image is at center of the widget
+                        {{1000,0},  {700,-100}},
+                        {{500,500}, {350,250}},
                         };
 
     QTest::newRow("width-grow")
@@ -602,7 +558,7 @@ void KisCoordinatesConverterTest::testZoomMode_data()
                       {{0,0},     {100,100}},
                       {{100,100}, {110,110}},
                       {{1000,1000}, {200,200}},
-                      {{500,500}, {150,150}} // the ceter of the image is at random point
+                      {{500,500}, {150,150}}
                      }
         << KoZoomMode::ZOOM_WIDTH
         << unusedNewConstantZoom
@@ -610,10 +566,10 @@ void KisCoordinatesConverterTest::testZoomMode_data()
         << defaultDisplayResolution
         << 0.7
         << PointPairs{
-                      {{0,0},     {0,-100}}, // the left image border is aligned to the left
+                      {{0,0},     {0,-100}},
                       {{100,100}, {70,-30}},
-                      {{1000,0},  {700,-100}}, // the right image border is aligned to the right
-                      {{500,500}, {350,250}}, // the center of the image is at center of the widget
+                      {{1000,0},  {700,-100}},
+                      {{500,500}, {350,250}},
                      };
 
     QTest::newRow("width-shrink-with-margin")
@@ -624,7 +580,7 @@ void KisCoordinatesConverterTest::testZoomMode_data()
             << PointPairs{
                           {{0,0},     {100,100}},
                           {{100,100}, {200,200}},
-                          {{500,500}, {600,600}} // the ceter of the image is at random point
+                          {{500,500}, {600,600}}
                          }
             << KoZoomMode::ZOOM_WIDTH
             << unusedNewConstantZoom
@@ -632,10 +588,10 @@ void KisCoordinatesConverterTest::testZoomMode_data()
             << defaultDisplayResolution
             << 0.6
             << PointPairs{
-                          {{0,0},     {50,-50}}, // the left image border is aligned to the left
+                          {{0,0},     {50,-50}},
                           {{100,100}, {110,10}},
-                          {{1000,0},  {650,-50}}, // the right image border is aligned to the right
-                          {{500,500}, {350,250}}, // the center of the image is at center of the widget
+                          {{1000,0},  {650,-50}},
+                          {{500,500}, {350,250}},
                          };
 
     QTest::newRow("height-shrink")
@@ -646,7 +602,7 @@ void KisCoordinatesConverterTest::testZoomMode_data()
         << PointPairs{
                       {{0,0},     {100,100}},
                       {{100,100}, {200,200}},
-                      {{500,500}, {600,600}} // the ceter of the image is at random point
+                      {{500,500}, {600,600}}
                      }
         << KoZoomMode::ZOOM_HEIGHT
         << unusedNewConstantZoom
@@ -654,10 +610,10 @@ void KisCoordinatesConverterTest::testZoomMode_data()
         << defaultDisplayResolution
         << 0.5
         << PointPairs{
-                      {{0,0},     {100,0}}, // the top image border is aligned to the top
+                      {{0,0},     {100,0}},
                       {{100,100}, {150,50}},
-                      {{0,1000},  {100,500}}, // the bottom image border is aligned to the bottom
-                      {{500,500}, {350,250}}, // the center of the image is at center of the widget
+                      {{0,1000},  {100,500}},
+                      {{500,500}, {350,250}},
                      };
 
     QTest::newRow("height-shrink-double-resolution")
@@ -668,18 +624,18 @@ void KisCoordinatesConverterTest::testZoomMode_data()
         << PointPairs{
                     {{0,0},     {100,100}},
                     {{100,100}, {200,200}},
-                    {{500,500}, {600,600}} // the ceter of the image is at random point
+                    {{500,500}, {600,600}}
                     }
         << KoZoomMode::ZOOM_HEIGHT
         << unusedNewConstantZoom
         << unusedWidgetStillPoint
         << 2.0 * defaultDisplayResolution
-        << 0.25 // the only difference is that the perceived zoom is halved
+        << 0.25
         << PointPairs{
-                    {{0,0},     {100,0}}, // the top image border is aligned to the top
+                    {{0,0},     {100,0}},
                     {{100,100}, {150,50}},
-                    {{0,1000},  {100,500}}, // the bottom image border is aligned to the bottom
-                    {{500,500}, {350,250}}, // the center of the image is at center of the widget
+                    {{0,1000},  {100,500}},
+                    {{500,500}, {350,250}},
                     };
 
     QTest::newRow("height-grow")
@@ -691,7 +647,7 @@ void KisCoordinatesConverterTest::testZoomMode_data()
                     {{0,0},     {100,100}},
                     {{100,100}, {110,110}},
                     {{1000,1000}, {200,200}},
-                    {{500,500}, {150,150}} // the ceter of the image is at random point
+                    {{500,500}, {150,150}}
                     }
         << KoZoomMode::ZOOM_HEIGHT
         << unusedNewConstantZoom
@@ -699,10 +655,10 @@ void KisCoordinatesConverterTest::testZoomMode_data()
         << defaultDisplayResolution
         << 0.5
         << PointPairs{
-                      {{0,0},     {100,0}}, // the top image border is aligned to the top
+                      {{0,0},     {100,0}},
                       {{100,100}, {150,50}},
-                      {{0,1000},  {100,500}}, // the bottom image border is aligned to the bottom
-                      {{500,500}, {350,250}}, // the center of the image is at center of the widget
+                      {{0,1000},  {100,500}},
+                      {{500,500}, {350,250}},
                      };
 
     QTest::newRow("height-shrink-with-margin")
@@ -713,7 +669,7 @@ void KisCoordinatesConverterTest::testZoomMode_data()
         << PointPairs{
                     {{0,0},     {100,100}},
                     {{100,100}, {200,200}},
-                    {{500,500}, {600,600}} // the ceter of the image is at random point
+                    {{500,500}, {600,600}}
                     }
         << KoZoomMode::ZOOM_HEIGHT
         << unusedNewConstantZoom
@@ -721,10 +677,10 @@ void KisCoordinatesConverterTest::testZoomMode_data()
         << defaultDisplayResolution
         << 0.4
         << PointPairs{
-            {{0,0},     {150,50}}, // the top image border is aligned to the top
+            {{0,0},     {150,50}},
             {{100,100}, {190,90}},
-            {{0,1000},  {150,450}}, // the bottom image border is aligned to the bottom
-            {{500,500}, {350,250}}, // the center of the image is at center of the widget
+            {{0,1000},  {150,450}},
+            {{500,500}, {350,250}},
            };
 
     QTest::newRow("page-vertically")
@@ -735,7 +691,7 @@ void KisCoordinatesConverterTest::testZoomMode_data()
         << PointPairs{
                       {{0,0},     {100,100}},
                       {{100,100}, {200,200}},
-                      {{500,500}, {600,600}}, // center of the image should become in the center of the canvas
+                      {{500,500}, {600,600}},
                      }
         << KoZoomMode::ZOOM_PAGE
         << unusedNewConstantZoom
@@ -743,10 +699,10 @@ void KisCoordinatesConverterTest::testZoomMode_data()
         << defaultDisplayResolution
         << 0.5
         << PointPairs{
-            {{0,0},     {100,0}}, // the top image border is aligned to the top
+            {{0,0},     {100,0}},
             {{100,100}, {150,50}},
-            {{1000,1000},  {600,500}}, // the bottom image border is aligned to the bottom
-            {{500,500}, {350,250}}, // center of the image should become in the center of the canvas
+            {{1000,1000},  {600,500}},
+            {{500,500}, {350,250}},
            };
 
     QTest::newRow("page-vertically-double-resolution")
@@ -757,18 +713,18 @@ void KisCoordinatesConverterTest::testZoomMode_data()
         << PointPairs{
                       {{0,0},     {100,100}},
                       {{100,100}, {200,200}},
-                      {{500,500}, {600,600}}, // center of the image should become in the center of the canvas
+                      {{500,500}, {600,600}},
                      }
         << KoZoomMode::ZOOM_PAGE
         << unusedNewConstantZoom
         << unusedWidgetStillPoint
         << 2.0 * defaultDisplayResolution
-        << 0.25 // the only difference is that the perceived zoom is halved
+        << 0.25
         << PointPairs{
-            {{0,0},     {100,0}}, // the top image border is aligned to the top
+            {{0,0},     {100,0}},
             {{100,100}, {150,50}},
-            {{1000,1000},  {600,500}}, // the bottom image border is aligned to the bottom
-            {{500,500}, {350,250}}, // center of the image should become in the center of the canvas
+            {{1000,1000},  {600,500}},
+            {{500,500}, {350,250}},
            };
 
     QTest::newRow("page-vertically-margin")
@@ -779,7 +735,7 @@ void KisCoordinatesConverterTest::testZoomMode_data()
         << PointPairs{
                         {{0,0},     {100,100}},
                         {{100,100}, {200,200}},
-                        {{500,500}, {600,600}}, // center of the image should become in the center of the canvas
+                        {{500,500}, {600,600}},
                     }
         << KoZoomMode::ZOOM_PAGE
         << unusedNewConstantZoom
@@ -787,10 +743,10 @@ void KisCoordinatesConverterTest::testZoomMode_data()
         << defaultDisplayResolution
         << 0.4
         << PointPairs{
-            {{0,0},     {150,50}}, // the top image border is aligned to the top
+            {{0,0},     {150,50}},
             {{100,100}, {190,90}},
-            {{1000,1000},  {550,450}}, // the bottom image border is aligned to the bottom
-            {{500,500}, {350,250}}, // center of the image should become in the center of the canvas
+            {{1000,1000},  {550,450}},
+            {{500,500}, {350,250}},
             };
 
     QTest::newRow("page-horizontally")
@@ -801,7 +757,7 @@ void KisCoordinatesConverterTest::testZoomMode_data()
         << PointPairs{
                         {{0,0},     {100,100}},
                         {{100,100}, {200,200}},
-                        {{500,500}, {600,600}}, // center of the image should become in the center of the canvas
+                        {{500,500}, {600,600}},
                         }
         << KoZoomMode::ZOOM_PAGE
         << unusedNewConstantZoom
@@ -809,10 +765,10 @@ void KisCoordinatesConverterTest::testZoomMode_data()
         << defaultDisplayResolution
         << 0.7
         << PointPairs{
-            {{0,0},     {0,50}}, // the left image border is aligned to the left
+            {{0,0},     {0,50}},
             {{100,100}, {70,120}},
-            {{1000,1000},  {700,750}}, // the right image border is aligned to the right
-            {{500,500}, {350,400}}, // center of the image should become in the center of the canvas
+            {{1000,1000},  {700,750}},
+            {{500,500}, {350,400}},
             };
 
     QTest::newRow("page-horizontally-double-resolution")
@@ -823,18 +779,18 @@ void KisCoordinatesConverterTest::testZoomMode_data()
         << PointPairs{
                         {{0,0},     {100,100}},
                         {{100,100}, {200,200}},
-                        {{500,500}, {600,600}}, // center of the image should become in the center of the canvas
+                        {{500,500}, {600,600}},
                         }
         << KoZoomMode::ZOOM_PAGE
         << unusedNewConstantZoom
         << unusedWidgetStillPoint
         << 2.0 * defaultDisplayResolution
-        << 0.35 // the only difference is that the perceived zoom is halved
+        << 0.35
         << PointPairs{
-            {{0,0},     {0,50}}, // the left image border is aligned to the left
+            {{0,0},     {0,50}},
             {{100,100}, {70,120}},
-            {{1000,1000},  {700,750}}, // the right image border is aligned to the right
-            {{500,500}, {350,400}}, // center of the image should become in the center of the canvas
+            {{1000,1000},  {700,750}},
+            {{500,500}, {350,400}},
             };
 
     QTest::newRow("page-horizontally-margin")
@@ -845,7 +801,7 @@ void KisCoordinatesConverterTest::testZoomMode_data()
             << PointPairs{
                             {{0,0},     {100,100}},
                             {{100,100}, {200,200}},
-                            {{500,500}, {600,600}}, // center of the image should become in the center of the canvas
+                            {{500,500}, {600,600}},
                             }
             << KoZoomMode::ZOOM_PAGE
             << unusedNewConstantZoom
@@ -853,10 +809,10 @@ void KisCoordinatesConverterTest::testZoomMode_data()
             << defaultDisplayResolution
             << 0.6
             << PointPairs{
-                {{0,0},     {50,100}}, // the left image border is aligned to the left
+                {{0,0},     {50,100}},
                 {{100,100}, {110,160}},
-                {{1000,1000},  {650,700}}, // the right image border is aligned to the right
-                {{500,500}, {350,400}}, // center of the image should become in the center of the canvas
+                {{1000,1000},  {650,700}},
+                {{500,500}, {350,400}},
                 };
 }
 
@@ -938,7 +894,7 @@ void KisCoordinatesConverterTest::testChangeCanvasSize_data()
             {{100,100}, {150,150}},
             {{200,200}, {200,200}}
            }
-        << QSize(200, 200) // nothing changes with the widget resize!
+        << QSize(200, 200)
         << 0.5
         << PointPairs{
             {{0,0},     {100,100}},
@@ -954,14 +910,14 @@ void KisCoordinatesConverterTest::testChangeCanvasSize_data()
            << PointPairs{
                {{0,0},     {100,0}},
                {{100,100}, {150,50}},
-               {{500,500}, {350,250}} // centers are aligned
+               {{500,500}, {350,250}}
               }
            << QSize(200, 100)
            << 0.1
            << PointPairs{
                {{0,0},     {50,0}},
                {{100,100}, {60,10}},
-               {{500,500}, {100,50}} // centers are aligned
+               {{500,500}, {100,50}}
               };
 
     QTest::newRow("page-horizontally")
@@ -972,14 +928,14 @@ void KisCoordinatesConverterTest::testChangeCanvasSize_data()
         << PointPairs{
             {{0,0},     {100,0}},
             {{100,100}, {150,50}},
-            {{500,500}, {350,250}} // centers are aligned
+            {{500,500}, {350,250}}
             }
         << QSize(100, 200)
         << 0.1
         << PointPairs{
             {{0,0},     {0, 50}},
             {{100,100}, {10, 60}},
-            {{500,500}, {50, 100}} // centers are aligned
+            {{500,500}, {50, 100}}
             };
 
     QTest::newRow("width")
@@ -990,14 +946,14 @@ void KisCoordinatesConverterTest::testChangeCanvasSize_data()
         << PointPairs{
             {{0,0},     {0,-100}},
             {{100,100}, {70,-30}},
-            {{500,500}, {350,250}} // centers are aligned
+            {{500,500}, {350,250}}
             }
         << QSize(200, 100)
         << 0.2
         << PointPairs{
             {{0,0},     {0,-50}},
             {{100,100}, {20,-30}},
-            {{500,500}, {100,50}} // centers are aligned
+            {{500,500}, {100,50}}
             };
 
     QTest::newRow("height")
@@ -1008,14 +964,14 @@ void KisCoordinatesConverterTest::testChangeCanvasSize_data()
            << PointPairs{
                {{0,0},     {100,0}},
                {{100,100}, {150,50}},
-               {{500,500}, {350,250}} // centers are aligned
+               {{500,500}, {350,250}}
               }
            << QSize(200, 100)
            << 0.1
            << PointPairs{
                {{0,0},     {50,0}},
                {{100,100}, {60,10}},
-               {{500,500}, {100,50}} // centers are aligned
+               {{500,500}, {100,50}}
               };
 }
 
@@ -1092,7 +1048,7 @@ void KisCoordinatesConverterTest::testChangeImageResolution_data()
         << 0.5
         << QPointF(-100, -100)
         << PointPairs{
-            {{500,500}, {350,350}}, // still point
+            {{500,500}, {350,350}},
             {{0,0},     {100,100}},
             {{100,100}, {150,150}},
            }
@@ -1100,18 +1056,17 @@ void KisCoordinatesConverterTest::testChangeImageResolution_data()
         << 0.5
         << 0.25
         << PointPairs{
-            {{500,500}, {350,350}}, // still point
+            {{500,500}, {350,350}},
             {{0,0},     {225,225}},
             {{100,100}, {250,250}},
            };
 
-    // all "page-style" zoom modes reset into "constant" mode
     QTest::newRow("page-vertically")
            << KoZoomMode::ZOOM_PAGE
            << 0.5
            << unusedOriginalDocumentOffset
            << PointPairs{
-               {{500,500}, {350,250}}, // centers are aligned
+               {{500,500}, {350,250}},
                {{0,0},     {100,0}},
                {{100,100}, {150,50}},
               }
@@ -1119,8 +1074,8 @@ void KisCoordinatesConverterTest::testChangeImageResolution_data()
            << 0.5
            << 0.25
            << PointPairs{
-               {{500,500}, {350,250}}, // centers are still aligned
-               {{0,0},     {225,125}}, // but the top side is not aligned anymore!
+               {{500,500}, {350,250}},
+               {{0,0},     {225,125}},
                {{100,100}, {250,150}},
               };
 }
@@ -1166,10 +1121,6 @@ void KisCoordinatesConverterTest::testChangeImageResolution()
 
     converter.setImageResolution(newImageResolution.x(), newImageResolution.y());
 
-    /**
-     * Zoom mode should reset into "constant mode to let the user see that the
-     * image has actually changed
-     */
     QCOMPARE(converter.zoomMode(), KoZoomMode::ZOOM_CONSTANT);
     QCOMPARE(converter.zoom(), expectedZoom);
     QCOMPARE(converter.effectiveZoom(), expectedEffectiveZoom);
@@ -1206,36 +1157,35 @@ void KisCoordinatesConverterTest::testChangeImageSize_data()
         << 0.25
         << QPointF(-100, -100)
         << PointPairs{
-            {{900,900}, {325,325}}, // still point
+            {{900,900}, {325,325}},
             {{0,0},     {100,100}},
             {{100,100}, {125,125}},
            }
-        << QSize(200, 200) // crop the bottom-right corner of the image
+        << QSize(200, 200)
         << QPointF(900,900)
         << QPointF(100,100)
         << 0.25
         << PointPairs{
-            {{100,100}, {325,325}}, // still point
+            {{100,100}, {325,325}},
             {{0,0},     {300,300}},
            };
 
-    // all "page-style" zoom modes reset into "constant" mode
     QTest::newRow("page-vertically")
            << KoZoomMode::ZOOM_PAGE
            << 0.5
            << unusedOriginalDocumentOffset
            << PointPairs{
-               {{500,500}, {350,250}}, // centers are aligned
+               {{500,500}, {350,250}},
                {{0,0},     {100,0}},
                {{100,100}, {150,50}},
-               {{900,900}, {550,450}}, // still point
+               {{900,900}, {550,450}},
               }
-           << QSize(200, 200) // crop the bottom-right corner of the image
+           << QSize(200, 200)
            << QPointF(900,900)
            << QPointF(100,100)
            << 0.5
            << PointPairs{
-               {{100,100}, {550,450}}, // still point
+               {{100,100}, {550,450}},
                {{0,0},     {500,400}},
               };
 }
@@ -1282,10 +1232,6 @@ void KisCoordinatesConverterTest::testChangeImageSize()
 
     converter.setImageBounds(QRect(QPoint(), newImageSize), oldImageStillPoint, newImageStillPoint);
 
-    /**
-     * Zoom mode should reset into "constant mode to let the user see that the
-     * image has actually changed
-     */
     QCOMPARE(converter.zoomMode(), KoZoomMode::ZOOM_CONSTANT);
     QCOMPARE(converter.zoom(), expectedZoom);
 
@@ -1318,23 +1264,23 @@ void KisCoordinatesConverterTest::testResolutionModes_data()
     QTest::addColumn<QRectF>("expectedImageRectInWidgetPixels");
 
     QTest::newRow("use-display-pixels")
-        << 2.0 // 144 pixels per inch
-        << 2.0 // 144 pixels per inch
-        << 1.0 // zoom
-        << 1.0 // effective zoom is the same
+        << 2.0
+        << 2.0
+        << 1.0
+        << 1.0
         << QPointF(-100, -100)
         << PointPairs{
             {{0,0},     {100,100}},
             {{100,100}, {200,200}},
            }
-        << 4.0 // 288 pixels per inch, hence image size should double in screen pixels
-        << 1.0 // zoom is still 100%
-        << 2.0 // though effective scale factor is 200%
+        << 4.0
+        << 1.0
+        << 2.0
         << PointPairs{
             {{0,0},     {100,100}},
             {{100,100}, {300,300}},
            }
-        << QRectF(100, 100, 2000, 2000); // the size of the image is doubled in screen pixels
+        << QRectF(100, 100, 2000, 2000);
 }
 
 void KisCoordinatesConverterTest::testResolutionModes()
@@ -1382,7 +1328,6 @@ void KisCoordinatesConverterTest::testResolutionModes()
 
     const KoViewTransformStillPoint stillPoint = converter.makeWidgetStillPoint(-originalOffset);
 
-    // that should be exactly the topleft of the document
     QCOMPARE(stillPoint.docPoint(), QPointF());
 
     converter.setZoom(KoZoomMode::ZOOM_CONSTANT, originalZoom, newScreenResolution, newScreenResolution, stillPoint);
@@ -1420,7 +1365,7 @@ void KisCoordinatesConverterTest::testHiDPICanvasSize_data()
         << 1.0
         << QSize(701, 503)
         << QPointF(-101, -103)
-        << 1.0 // zoom
+        << 1.0
         << QSizeF(701, 503)
         << QPointF(-101, -103)
         << QPoint(-101, -103)
@@ -1435,11 +1380,11 @@ void KisCoordinatesConverterTest::testHiDPICanvasSize_data()
         << 2.0
         << QSize(701, 503)
         << QPointF(-101, -103)
-        << 1.0 // zoom
+        << 1.0
         << QSizeF(701, 503)
         << QPointF(-101, -103)
         << QPoint(-101, -103)
-        << QSize(1402, 1006) // only viewport texture size is changed in integer scaling mode!
+        << QSize(1402, 1006)
         << PointPairs{
             {{0,0},     {101,103}},
             {{100,100}, {201,203}},
@@ -1450,11 +1395,11 @@ void KisCoordinatesConverterTest::testHiDPICanvasSize_data()
         << 3.0
         << QSize(701, 503)
         << QPointF(-101, -103)
-        << 1.0 // zoom
+        << 1.0
         << QSizeF(701, 503)
         << QPointF(-101, -103)
         << QPoint(-101, -103)
-        << QSize(2103, 1509) // only viewport texture size is changed in integer scaling mode!
+        << QSize(2103, 1509)
         << PointPairs{
             {{0,0},     {101,103}},
             {{100,100}, {201,203}},
@@ -1470,20 +1415,18 @@ void KisCoordinatesConverterTest::testHiDPICanvasSize_data()
         << 1.5
         << QSize(701, 503)
         << QPointF(-101, -103)
-        << 1.0 // zoom
+        << 1.0
         << QSizeF(frac(700, 2, 3), frac(502, 2, 3))
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-        // Qt5 rounds negative numbers to the positive direction, causing qRound(-151.5) = -151
-        << QPointF(-frac(100, 2, 3), -frac(102, 2, 3)) // offset is rounded to device pixels!
+        << QPointF(-frac(100, 2, 3), -frac(102, 2, 3))
         << QPoint(-100, -102)
 #else
-        << QPointF(-frac(101, 1, 3), -frac(103, 1, 3)) // offset is rounded to device pixels!
+        << QPointF(-frac(101, 1, 3), -frac(103, 1, 3))
         << QPoint(-101, -103)
 #endif
-        << QSize(1051, 754) // the size is floored to device pixels!
+        << QSize(1051, 754)
         << PointPairs{
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-            // Qt5 rounds negative numbers to the positive direction, hence different results
             {{0,0},      {frac(100, 2, 3), frac(102, 2, 3)}},
             {{100,100},  {frac(200, 2, 3), frac(202, 2, 3)}},
             {{1000,1000},{frac(1100, 2, 3), frac(1102, 2, 3)}},
@@ -1498,11 +1441,11 @@ void KisCoordinatesConverterTest::testHiDPICanvasSize_data()
         << 1.75
         << QSize(701, 503)
         << QPointF(-101, -103)
-        << 1.0 // zoom
+        << 1.0
         << QSizeF(frac(700, 4, 7), frac(502, 6, 7))
-        << QPointF(-frac(101, 1, 7), -frac(102, 6, 7)) // offset is rounded to device pixels!
-        << QPoint(-101, -102) // scroll bars value is floored! (TODO: verify it is correct?)
-        << QSize(1226, 880) // the size is floored to device pixels!
+        << QPointF(-frac(101, 1, 7), -frac(102, 6, 7))
+        << QPoint(-101, -102)
+        << QSize(1226, 880)
         << PointPairs{
             {{0,0},      {frac(101, 1, 7), frac(102, 6, 7)}},
             {{100,100},  {frac(201, 1, 7), frac(202, 6, 7)}},
@@ -1513,11 +1456,11 @@ void KisCoordinatesConverterTest::testHiDPICanvasSize_data()
         << 1.25
         << QSize(701, 503)
         << QPointF(-101, -103)
-        << 1.0 // zoom
+        << 1.0
         << QSizeF(700.8, 502.4)
-        << QPointF(-100.8, -103.2) // offset is rounded to device pixels!
-        << QPoint(-100, -103) // scroll bars value is floored! (TODO: verify it is correct?)
-        << QSize(876, 628) // the size is floored to device pixels!
+        << QPointF(-100.8, -103.2)
+        << QPoint(-100, -103)
+        << QSize(876, 628)
         << PointPairs{
             {{0,0},      {100.8, 103.2}},
             {{100,100},  {200.8, 203.2}},
@@ -1553,15 +1496,12 @@ void KisCoordinatesConverterTest::testHiDPICanvasSize()
     QCOMPARE(converter.viewportDevicePixelSize(), expectedViewportDevicePixelSize);
 
     {
-        // verify if image origin is aligned to the device pixels
         const QPointF imageTopLeftInWidgetPixels = converter.imageToWidget(QPointF(0, 0));
         const QPointF imageTopLeftInDevicePixels = imageTopLeftInWidgetPixels * devicePixelRatio;
 
         QCOMPARE(imageTopLeftInDevicePixels.x() - qRound(imageTopLeftInDevicePixels.x()), 0.0);
         QCOMPARE(imageTopLeftInDevicePixels.y() - qRound(imageTopLeftInDevicePixels.y()), 0.0);
 
-        // TODO: also make sure that the bottom-right corner of the image is also aligned to
-        //       pixel grid
     }
 
     for (const auto &pair : std::as_const(expectedTestPoints)) {
@@ -1631,7 +1571,7 @@ void KisCoordinatesConverterTest::testZoomLimits_data()
         << QVector<qreal>{0.125, 0.166667, 0.25, 0.333333, 0.5, 0.666667, 1, 1.33333, 2, 2.66667, 4, 5.33333, 8, 10.6667, 16, 21.3333, 32, 42.6667, 64}
 
         << QSize(1000, 1000)
-        << QPointF(50, 50) // lower image DPI to increase physical screen size
+        << QPointF(50, 50)
         << QPointF(100, 100)
         << PointPairs{
             {{0,0},     {0,0}},
@@ -1655,7 +1595,7 @@ void KisCoordinatesConverterTest::testZoomLimits_data()
 
         << QSize(1000, 1000)
         << QPointF(100, 100)
-        << QPointF(200, 200)  // increase screen dpi to increase the size of the image
+        << QPointF(200, 200)
         << PointPairs{
             {{0,0},     {0,0}},
             {{100,100}, {200,200}},
@@ -1829,13 +1769,11 @@ void KisCoordinatesConverterTest::testZoomLimitsEnforcement_data()
         << KoZoomMode::ZOOM_PAGE
         << 777.0
         << KoZoomMode::ZOOM_PAGE
-        << 0.05; // fit-modes are allowed to ignore zoom limits
+        << 0.05;
 }
 
 void KisCoordinatesConverterTest::testZoomLimitsEnforcement()
 {
-    /// Zoom limits enforcement is applied only to KoZoomMode::ZOOM_CONSTANT
-    /// mode. All the fit-modes are allowed to zoom as much as needed.
 
     QFETCH(QSize, originalImageSize);
     QFETCH(QSize, originalCanvasSize);
@@ -1893,7 +1831,7 @@ void KisCoordinatesConverterTest::testFindNextZoom_data()
     QTest::newRow("next-above-maximum")
         << true
         << 65.0
-        << 65.0; // keep the current level
+        << 65.0;
 
     QTest::newRow("prev-below-minimum")
         << false
@@ -1914,7 +1852,6 @@ void KisCoordinatesConverterTest::testFindNextZoom_data()
         << false
         << 65.0
         << 64.0;
-
 
 }
 
@@ -1953,7 +1890,7 @@ void KisCoordinatesConverterTest::testZoomTo_data()
         << QRectF(200,200,100,100)
         << 5.0
         << PointPairs{
-                      {{100,100},     {100, 0}}, // the selected portion takes the whole canvas
+                      {{100,100},     {100, 0}},
                       {{200,200},     {600, 500}},
                      };
 }
@@ -2033,10 +1970,6 @@ void KisCoordinatesConverterTest::testHiDPIOffsetSnapping_data()
     QTest::addRow("image-bounds") << ImageBounds << true;
     QTest::addRow("zoom-to") << ZoomTo << true;
     QTest::addRow("rotate-orthogonal") << RotateOrthogonal << true;
-    /**
-     * In non-orthogonal rotation mode we disable pixel alignment
-     * to make rotations smoother.
-     */
     QTest::addRow("rotate") << Rotate << false;
 }
 
@@ -2067,8 +2000,6 @@ void KisCoordinatesConverterTest::testHiDPIOffsetSnapping()
         QCOMPARE(roundTo5thDigit(imageTopLeftInDevicePixelsHW.x()), qRound(imageTopLeftInDevicePixelsHW.x()));
         QCOMPARE(roundTo5thDigit(imageTopLeftInDevicePixelsHW.y()), qRound(imageTopLeftInDevicePixelsHW.y()));
     }
-
-
 
     switch (testingMode) {
         case ZoomPageTo7:
@@ -2192,8 +2123,6 @@ void KisCoordinatesConverterTest::testPreferredCenterTransformations()
     } else if (testingMode == "pan") {
         converter.setDocumentOffset(converter.documentOffsetF() + QPointF(100.0, 0.0));
 
-        /// the actual still point is checked in a  different test,
-        /// here we only need to test the preferred center
         ignoreStillPointComparison = true;
     } else if (testingMode == "change-widget-size-page") {
         const qreal oldZoom = converter.zoom();
@@ -2207,7 +2136,6 @@ void KisCoordinatesConverterTest::testPreferredCenterTransformations()
         QVERIFY(converter.documentOffsetF() != oldOffset);
 #endif
 
-        // update the expected still point to the ceter of the "new" widget
         expectedStillPoint.second = converter.widgetCenterPoint();
 
     } else if (testingMode == "change-widget-size-const") {
@@ -2225,15 +2153,11 @@ void KisCoordinatesConverterTest::testPreferredCenterTransformations()
     } else if (testingMode == "change-image-size") {
         converter.setImageBounds(QRect(0,0,113, 117), QPointF(77,17), QPointF(111, 110));
 
-        /// the actual still point is checked in a  different test,
-        /// here we only need to test the preferred center
         ignoreStillPointComparison = true;
     } else if (testingMode == "change-image-resolution") {
         converter.setDocumentOffset(converter.documentOffsetF() + QPointF(100.0, 0.0));
         converter.setImageResolution(7.77, 3.13);
 
-        /// the actual still point is checked in a  different test,
-        /// here we only need to test the preferred center
         ignoreStillPointComparison = true;
     } else {
         qFatal("Unknown tesing mode");

@@ -9,7 +9,6 @@
 
 #include "kis_scaling_size_brush.h"
 
-
 class BRUSH_EXPORT KisColorfulBrush : public KisScalingSizeBrush
 {
 public:
@@ -48,4 +47,4 @@ private:
     bool m_hasColorAndTransparency = false;
 };
 
-#endif // KISCOLORFULBRUSH_H
+#endif

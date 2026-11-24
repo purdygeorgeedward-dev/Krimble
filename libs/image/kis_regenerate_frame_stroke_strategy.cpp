@@ -18,7 +18,6 @@
 #include "kis_projection_updates_filter.h"
 #include <KisLockFrameGenerationLock.h>
 
-
 struct KisRegenerateFrameStrokeStrategy::Private
 {
     Type type;
@@ -115,8 +114,6 @@ KisRegenerateFrameStrokeStrategy::KisRegenerateFrameStrokeStrategy(KisImageAnima
     enableJob(JOB_SUSPEND);
     enableJob(JOB_RESUME);
 
-    // switching frames is a distinct user action, so it should
-    // cancel the playback or any action easily
     setRequestsOtherStrokesToEnd(true);
     setClearsRedoOnStart(false);
 }
@@ -170,7 +167,6 @@ void KisRegenerateFrameStrokeStrategy::finishStrokeCallback()
         return;
     }
 
-
     if (m_d->type == EXTERNAL_FRAME) {
         m_d->interface->notifyFrameReady();
         m_d->interface->restoreCurrentTime(&m_d->previousFrameId);
@@ -202,10 +198,6 @@ KisStrokeStrategy* KisRegenerateFrameStrokeStrategy::createLodClone(int levelOfD
 {
     Q_UNUSED(levelOfDetail);
 
-    /**
-     * We need to regenerate animation frames on LodN level only if
-     * we are processing current frame. Return dummy stroke otherwise
-     */
     return m_d->type == CURRENT_FRAME ?
         new KisRegenerateFrameStrokeStrategy(m_d->interface) :
         new KisSimpleStrokeStrategy(QLatin1String("dumb-lodn-KisRegenerateFrameStrokeStrategy"));

@@ -188,7 +188,6 @@ void KisConvolutionPainterTest::testAsymmConvolutionImp(QBitArray channelFlags)
                    filterRect.size());
     gc.deleteTransaction();
 
-
     QByteArray resultData(initialData.size(), 0);
     dev->readBytes((quint8*)resultData.data(), imageRect);
 
@@ -266,8 +265,6 @@ void KisConvolutionPainterTest::testAsymmSkipAlpha()
     testAsymmConvolutionImp(channelFlags);
 }
 
-
-// #include <valgrind/callgrind.h>
 void KisConvolutionPainterTest::benchmarkConvolution()
 {
     QImage referenceImage(QString(FILES_DATA_DIR) + '/' + "hakonepa.png");
@@ -278,7 +275,6 @@ void KisConvolutionPainterTest::benchmarkConvolution()
 
     KisDefaultBoundsBaseSP bounds = new TestUtil::TestingTimedDefaultBounds(referenceImage.rect());
     dev->setDefaultBounds(bounds);
-
 
     int diameter = 1;
 
@@ -291,14 +287,10 @@ void KisConvolutionPainterTest::benchmarkConvolution()
 
         QElapsedTimer timer; timer.start();
 
-        // CALLGRIND_START_INSTRUMENTATION;
-
         gc.beginTransaction();
         gc.applyMatrix(kernel, dev, imageRect.topLeft(), imageRect.topLeft(),
                        imageRect.size());
         gc.deleteTransaction();
-
-        // CALLGRIND_STOP_INSTRUMENTATION;
 
         dbgKrita << "Diameter:" << diameter << "time:" << timer.elapsed();
 
@@ -316,7 +308,6 @@ void KisConvolutionPainterTest::testGaussianBase(KisPaintDeviceSP dev, bool useF
        KoColorSpaceRegistry::instance()->rgb8()->channelFlags(true, true);
 
    KisPainter gc(dev);
-
 
    qreal horizontalRadius = 5, verticalRadius = 5;
 
@@ -372,14 +363,12 @@ void KisConvolutionPainterTest::testGaussianBase(KisPaintDeviceSP dev, bool useF
     }
 }
 
-
 void KisConvolutionPainterTest::testGaussian(bool useFftw)
 {
     QImage referenceImage(TestUtil::fetchDataFileLazy("kritaTransparent.png"));
     KisPaintDeviceSP dev = new KisPaintDevice(KoColorSpaceRegistry::instance()->rgb8());
     dev->convertFromQImage(referenceImage, 0, 0, 0);
 
-    // TODO: fix the bounding rect to the rect of the reference image
     KisDefaultBoundsBaseSP bounds = new TestUtil::TestingTimedDefaultBounds(dev->exactBounds());
     dev->setDefaultBounds(bounds);
 
@@ -499,7 +488,6 @@ void KisConvolutionPainterTest::testNormalMap(KisPaintDeviceSP dev, bool useFftw
 
    KisPainter gc(dev);
 
-
    qreal horizontalRadius = 0.5, verticalRadius = 0.5;
 
    for(int i = 0; i < 3 ; i++, horizontalRadius+=0.5, verticalRadius+=0.5)
@@ -512,8 +500,6 @@ void KisConvolutionPainterTest::testNormalMap(KisPaintDeviceSP dev, bool useFftw
        if (( horizontalRadius > 0 ) && ( verticalRadius > 0 )) {
 
            const QRect applyRect = dev->exactBounds();
-
-           //KisGaussianKernel::applyLoG(dev, applyRect, horizontalRadius, 1.0, channelFlags, 0);
 
            QVector<int> channelOrder(3);
            QVector<bool> channelFlip(3);

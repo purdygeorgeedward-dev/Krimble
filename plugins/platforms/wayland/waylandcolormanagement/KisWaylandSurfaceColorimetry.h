@@ -44,7 +44,6 @@ struct WaylandPrimaries : boost::equality_comparable<WaylandPrimaries> {
     }
 };
 
-
 inline KoColorimetryUtils::xy xyFromWaylandXy(int32_t x, int32_t y) {
     return {x / 1'000'000.0, y / 1'000'000.0};
 }
@@ -52,7 +51,6 @@ inline KoColorimetryUtils::xy xyFromWaylandXy(int32_t x, int32_t y) {
 inline std::pair<int32_t, int32_t> waylandXyFromXy(KoColorimetryUtils::xy value) {
     return {std::rint(value.x * 1'000'000.0), std::rint(value.y * 1'000'000.0)};
 }
-
 
 struct WaylandSurfaceDescription : boost::equality_comparable<WaylandSurfaceDescription>
 {
@@ -107,4 +105,4 @@ QDebug operator<<(QDebug debug, QtWayland::wp_color_manager_v1::feature f);
 QDebug operator<<(QDebug debug, QtWayland::wp_color_manager_v1::render_intent ri);
 QDebug operator<<(QDebug debug, QtWayland::wp_color_manager_v1::transfer_function tf);
 
-#endif /* KISWAYLANDSURFACECOLORIMETRY_H */
+#endif

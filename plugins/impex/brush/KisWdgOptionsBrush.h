@@ -70,7 +70,6 @@ public:
 
     int dimension;
 
-
 Q_SIGNALS:
     void sigRankChanged(int rankEmitter);
 
@@ -106,4 +105,4 @@ private:
     KisViewManager *m_view;
 };
 
-#endif // KISWDGOPTIONSBRUSH_H
+#endif

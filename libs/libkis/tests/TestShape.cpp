@@ -18,7 +18,6 @@
 #include "VectorLayer.h"
 #include "GroupShape.h"
 
-
 void TestShape::initTestCase()
 {
 

@@ -31,7 +31,7 @@ private Q_SLOTS:
     void slotKrimbleSizeChanged(int value);
     void slotKrimbleOpacityChanged(int value);
     void slotKrimbleFlowChanged(int value);
-    void slotKrimbleSync();                      // shows the current brush's size, opacity and flow
+    void slotKrimbleSync();
 private:
     QPointer<KisCanvas2> m_canvas;
     KisPaintOpPresetsChooserPopup* m_presetChooser;
@@ -44,6 +44,5 @@ private:
     QSpinBox *m_flowSpin {nullptr};
     QTimer *m_syncTimer {nullptr};
 };
-
 
 #endif

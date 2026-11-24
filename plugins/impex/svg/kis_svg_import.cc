@@ -79,7 +79,6 @@ KisImportExportErrorCode KisSVGImport::convert(KisDocument *document, QIODevice 
         return ImportExportCodes::FileFormatIncorrect;
     }
 
-
     QRectF rawImageRect(QPointF(), fragmentSize);
     QRect imageRect(rawImageRect.toAlignedRect());
 

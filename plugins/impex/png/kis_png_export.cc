@@ -141,16 +141,16 @@ KisWdgOptionsPNG::KisWdgOptionsPNG(QWidget *parent)
             gridLayout->removeWidget(w);
         }
         textLabel1->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
-        gridLayout->addWidget(textLabel1, 0, 0, 1, 2);            // Compression (Lossless):
-        gridLayout->addWidget(textLabel3, 1, 0);                  // Large file size
-        gridLayout->addWidget(textLabel4_2, 1, 1);                // Small file size
-        gridLayout->addWidget(compressionLevel, 2, 0, 1, 2);      // the slider, full width
+        gridLayout->addWidget(textLabel1, 0, 0, 1, 2);
+        gridLayout->addWidget(textLabel3, 1, 0);
+        gridLayout->addWidget(textLabel4_2, 1, 1);
+        gridLayout->addWidget(compressionLevel, 2, 0, 1, 2);
         QWidget *checks[] = {tryToSaveAsIndexed, interlacing, chkSaveAsHDR, chkSRGB, chkForceSRGB, alpha, chkMetaData, chkAuthor, chkDownsample};
         int row = 3;
         for (QWidget *w : checks) {
             gridLayout->addWidget(w, row++, 0, 1, 2);
         }
-        gridLayout->addWidget(label_4, row, 0);                   // Transparent color:
+        gridLayout->addWidget(label_4, row, 0);
         gridLayout->addWidget(bnTransparencyFillColor, row, 1);
         for (int i = 0; i < gridLayout->count(); ++i) {
             if (QSpacerItem *spacer = gridLayout->itemAt(i)->spacerItem()) {
@@ -165,7 +165,6 @@ KisWdgOptionsPNG::KisWdgOptionsPNG(QWidget *parent)
 
 void KisWdgOptionsPNG::setConfiguration(const KisPropertiesConfigurationSP cfg)
 {
-    // the export manager should have prepared some info for us!
     KIS_SAFE_ASSERT_RECOVER_NOOP(cfg->hasProperty(KisImportExportFilter::ImageContainsTransparencyTag));
     KIS_SAFE_ASSERT_RECOVER_NOOP(cfg->hasProperty(KisImportExportFilter::ColorModelIDTag));
     KIS_SAFE_ASSERT_RECOVER_NOOP(cfg->hasProperty(KisImportExportFilter::sRGBTag));
@@ -194,12 +193,8 @@ void KisWdgOptionsPNG::setConfiguration(const KisPropertiesConfigurationSP cfg)
 
     tryToSaveAsIndexed->setVisible(!isThereAlpha);
 
-    //const bool sRGB = cfg->getBool(KisImportExportFilter::sRGBTag, false);
-
-    //chkSRGB->setEnabled(sRGB);
     chkSRGB->setChecked(cfg->getBool("saveSRGBProfile", true));
 
-    //chkForceSRGB->setEnabled(!sRGB);
     chkForceSRGB->setChecked(cfg->getBool("forceSRGB", false));
 
     chkSaveAsHDR->setChecked(cfg->getBool("saveAsHDR", false));
@@ -231,7 +226,6 @@ KisPropertiesConfigurationSP KisWdgOptionsPNG::configuration() const
     bool storeAuthor = chkAuthor->isChecked();
     bool storeMetaData = chkMetaData->isChecked();
     bool downsample = chkDownsample->isChecked();
-
 
     QVariant transparencyFillcolor;
     transparencyFillcolor.setValue(bnTransparencyFillColor->color());

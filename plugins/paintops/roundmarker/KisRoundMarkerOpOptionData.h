@@ -6,7 +6,6 @@
 #ifndef KIS_ROUNDMARKEROP_OPTION_DATA_H
 #define KIS_ROUNDMARKEROP_OPTION_DATA_H
 
-
 #include "kis_types.h"
 #include <boost/operators.hpp>
 
@@ -20,7 +19,7 @@ struct KisRoundMarkerOpOptionData : boost::equality_comparable<KisRoundMarkerOpO
             && lhs.useAutoSpacing == rhs.useAutoSpacing
             && qFuzzyCompare(lhs.autoSpacingCoeff, rhs.autoSpacingCoeff);
     }
-    
+
     qreal diameter {30.0};
     qreal spacing {0.02};
     bool useAutoSpacing {false};
@@ -30,4 +29,4 @@ struct KisRoundMarkerOpOptionData : boost::equality_comparable<KisRoundMarkerOpO
     void write(KisPropertiesConfiguration *setting) const;
 };
 
-#endif // KIS_ROUNDMARKEROP_OPTION_DATA_H
+#endif

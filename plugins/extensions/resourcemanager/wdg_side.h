@@ -32,4 +32,4 @@ private:
     KoResourceBundleSP m_bundle;
 };
 
-#endif // WDG_SIDE_H
+#endif

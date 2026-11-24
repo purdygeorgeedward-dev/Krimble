@@ -20,11 +20,6 @@ public:
     KisAnimationCachePopulator(KisPart *part);
     ~KisAnimationCachePopulator() override;
 
-    /**
-     * Request generation of given frame. The request will
-     * be ignored if the populator is already requesting a frame.
-     * @return true if generation requested, false if busy
-     */
     bool regenerate(KisAnimationFrameCacheSP cache, int frame);
     void requestRegenerationWithPriorityFrame(KisImageSP image, int frameIndex);
 

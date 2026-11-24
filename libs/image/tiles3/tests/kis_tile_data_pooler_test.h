@@ -17,4 +17,4 @@ private Q_SLOTS:
     void testCycles();
 };
 
-#endif /* __KIS_TILE_DATA_POOLER_TEST_H */
+#endif

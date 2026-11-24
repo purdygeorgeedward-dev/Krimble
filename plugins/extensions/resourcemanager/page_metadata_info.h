@@ -10,7 +10,6 @@
 #include <QWizardPage>
 #include <KoResourceBundle.h>
 
-
 namespace Ui {
 class PageMetadataInfo;
 }
@@ -34,7 +33,6 @@ public:
     void showWarning();
     void removeWarning();
 
-
 private Q_SLOTS:
     void getPreviewImage();
 
@@ -45,4 +43,4 @@ private:
     KoResourceBundleSP m_bundle;
 };
 
-#endif // PAGE_METADATA_INFO_H
+#endif

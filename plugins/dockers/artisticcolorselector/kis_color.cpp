@@ -8,7 +8,6 @@
 #include "kis_color.h"
 #include <kis_arcs_constants.h>
 
-
 KisColor::KisColor(KisDisplayColorConverter* converter, Type type,
                    qreal lR, qreal lG, qreal lB, qreal lGamma)
 {

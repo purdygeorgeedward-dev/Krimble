@@ -11,12 +11,10 @@
 #include "kis_painter.h"
 #include "kis_mask.h"
 
-
 struct KisMaskProjectionPlane::Private
 {
     KisMask *mask;
 };
-
 
 KisMaskProjectionPlane::KisMaskProjectionPlane(KisMask *mask)
     : m_d(new Private)
@@ -48,7 +46,6 @@ void KisMaskProjectionPlane::apply(KisPainter *painter, const QRect &rect)
 
 KisPaintDeviceList KisMaskProjectionPlane::getLodCapableDevices() const
 {
-    // masks have no projection
     return KisPaintDeviceList();
 }
 
@@ -74,15 +71,11 @@ QRect KisMaskProjectionPlane::needRectForOriginal(const QRect &rect) const
 
 QRect KisMaskProjectionPlane::tightUserVisibleBounds() const
 {
-    // masks don't have any internal rendering subtrees,
-    // so just return the exact bounds of the mask
     return m_d->mask->exactBounds();
 }
 
 QRect KisMaskProjectionPlane::looseUserVisibleBounds() const
 {
-    // masks don't have anything complex inside, so just
-    // so just return the extent of the mask
     return m_d->mask->extent();
 }
 

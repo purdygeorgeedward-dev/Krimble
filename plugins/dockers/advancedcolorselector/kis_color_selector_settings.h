@@ -7,7 +7,6 @@
 #ifndef KIS_COLOR_SELECTOR_SETTINGS_H
 #define KIS_COLOR_SELECTOR_SETTINGS_H
 
-
 #include <QDialog>
 #include "kis_preference_set_registry.h"
 
@@ -77,5 +76,4 @@ private:
     KisColorSelectorSettings* m_widget;
 };
 
-
-#endif // KIS_COLOR_SELECTOR_SETTINGS_H
+#endif

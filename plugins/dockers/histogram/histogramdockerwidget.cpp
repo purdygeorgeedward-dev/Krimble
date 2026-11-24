@@ -19,8 +19,6 @@
 #include "KisViewManager.h"
 #include "kis_canvas2.h"
 
-
-
 HistogramDockerWidget::HistogramDockerWidget(QWidget *parent, const char *name, Qt::WindowFlags f)
     : KisWidgetWithIdleTask<QLabel>(parent, f)
 {
@@ -140,13 +138,10 @@ void HistogramDockerWidget::paintEvent(QPaintEvent *event)
         unsigned int nChannels = cs->channelCount();
         const QList<KoChannelInfo *> channels = cs->channels();
         unsigned int highest = 0;
-        //find the most populous bin in the histogram to scale it properly
         for (int chan = 0; chan < channels.size(); chan++) {
             if (channels.at(chan)->channelType() != KoChannelInfo::ALPHA) {
                 std::vector<quint32> histogramTemp = m_logarithmic? m_histogramDataLog.at(chan): m_histogramData.at(chan);
-                //use 98th percentile, rather than max for better visual appearance
                 int nthPercentile = 2 * histogramTemp.size() / 100;
-                //unsigned int max = *std::max_element(m_histogramData.at(chan).begin(),m_histogramData.at(chan).end());
                 std::nth_element(histogramTemp.begin(),
                                  histogramTemp.begin() + nthPercentile, histogramTemp.end(), std::greater<int>());
                 unsigned int max = *(histogramTemp.begin() + nthPercentile);
@@ -171,7 +166,6 @@ void HistogramDockerWidget::paintEvent(QPaintEvent *event)
             if (channels.at(chan)->channelType() != KoChannelInfo::ALPHA) {
                 QColor color = channels.at(chan)->color();
 
-                //special handling of grayscale color spaces. can't use color returned above.
                 if(cs->colorChannelCount()==1){
                     color = QColor(Qt::gray);
                 }

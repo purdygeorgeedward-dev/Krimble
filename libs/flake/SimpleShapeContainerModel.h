@@ -11,7 +11,6 @@
 #include <kis_debug.h>
 #include <KoShapeManager.h>
 
-/// \internal
 class SimpleShapeContainerModel: public KoShapeContainerModel
 {
 public:
@@ -117,11 +116,6 @@ public:
         return m_associatedRootShapeManager;
     }
 
-    /**
-     * If the container is the root of shapes hierarchy, it should also track the content
-     * of the shape manager. Add all added/removed shapes should be also
-     * added to \p shapeManager.
-     */
     void setAssociatedRootShapeManager(KoShapeManager *manager) {
         if (m_associatedRootShapeManager) {
             Q_FOREACH(KoShape *shape, this->shapes()) {
@@ -140,11 +134,10 @@ public:
 
 private:
     int indexOf(const KoShape *shape) const {
-        // workaround indexOf constness!
         return m_members.indexOf(const_cast<KoShape*>(shape));
     }
 
-private: // members
+private:
     QList <KoShape *> m_members;
     QList <bool> m_inheritsTransform;
     QList <bool> m_clipped;

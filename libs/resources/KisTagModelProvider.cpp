@@ -23,7 +23,6 @@ KisTagModelProvider::KisTagModelProvider()
 {
 }
 
-
 KisTagModelProvider::~KisTagModelProvider()
 {
     delete d;

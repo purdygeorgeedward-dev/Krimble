@@ -4,7 +4,6 @@
  *  SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-
 #ifndef KIS_ACTION_MANAGER_H
 #define KIS_ACTION_MANAGER_H
 
@@ -23,20 +22,6 @@ class KisAction;
 class KisOperationUIFactory;
 class KisOperation;
 
-/**
- * @brief A KisActionManager class keeps track of KisActions.
- * These actions are always associated with the GUI. That means each MainWindow
- * will create its own duplicate of these actions.
- *
- * KisActionManager enables and disables actions, to grey out buttons according
- * to the state of the application.
- *
- * Some of the primitive actions (load/save and so on) are not defined as
- * KisActions, but instead KActions, automatically registered through KisKXMLGUI.
- * It tracks these actions through the KisKActionCollection owned by the window.
- * Ultimately it would be nice to unify these things more fully.
- *
- */
 class KRITAUI_EXPORT KisActionManager : public QObject
 {
     Q_OBJECT
@@ -46,24 +31,12 @@ public:
 
     void setView(QPointer<KisView> imageView);
 
-    /**
-     * Add an existing action to the action manager.
-     */
     void addAction(const QString& name, KisAction* action);
 
-    /**
-     * Stop managing an action.
-     */
     void takeAction(KisAction* action);
 
-    /**
-     * Create a new KisAction.  Looks up data from the .action data files.
-     */
     KisAction *createAction(const QString &name);
 
-    /**
-     * Look up an action by name.
-     */
     KisAction *actionByName(const QString &name) const;
 
     void registerOperationUIFactory(KisOperationUIFactory* factory);
@@ -71,31 +44,14 @@ public:
     void runOperation(const QString &id);
     void runOperationFromConfiguration(KisOperationConfigurationSP config);
 
-    /**
-     * Update actions handled by kis_action_manager to set enabled.
-     * This is used to grey out buttons that can't be pressed.
-     */
     void updateGUI();
 
-    /**
-     * Create a KisAction based on a KStandardAction. The KStandardAction is deleted.
-     */
     KisAction *createStandardAction(KStandardAction::StandardAction,
                                     const QObject *receiver, const char *member);
 
     static void safePopulateMenu(QMenu *menu, const QString &actionId, KisActionManager *actionManager);
 
 Q_SIGNALS:
-    /**
-     * Krimble: fired whenever a KisOperation is actually run, with its
-     * full KisOperationConfiguration -- the operation equivalent of
-     * KisFilterManager::sigFilterApplied. Operations that take parameters
-     * (Grow/Shrink/Border/Feather/Smooth Selection) prompt for them via a
-     * KisOperationUIFactory *before* reaching here, so by this point the
-     * config carries the user's real chosen values, making the step
-     * genuinely replayable rather than just "this menu item was clicked".
-     * Used by the Actions docker to record parameterized operation steps.
-     */
     void sigOperationRun(KisOperationConfigurationSP config);
 
 private Q_SLOTS:
@@ -108,4 +64,4 @@ private:
     Private* const d;
 };
 
-#endif // KIS_ACTION_MANAGER_H
+#endif

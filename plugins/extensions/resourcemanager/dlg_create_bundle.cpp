@@ -49,7 +49,6 @@
 #include <KisStorageModel.h>
 #include <wdgtagselection.h>
 
-
 DlgCreateBundle::DlgCreateBundle(KoResourceBundleSP bundle, QWidget *parent)
     : QWizard(parent)
     , m_ui(new Ui::WdgDlgCreateBundle)
@@ -133,7 +132,7 @@ void DlgCreateBundle::updateTitle(int id)
         setWindowTitle(title);
     } else {
         QString title = i18n("Edit Resource Bundle");
-        
+
         switch(id) {
         case 1: title = i18n("Edit Resources"); break;
         case 2: title = i18n("Edit Tags"); break;
@@ -176,7 +175,6 @@ bool DlgCreateBundle::putResourcesInTheBundle(KoResourceBundleSP bundle)
         QModelIndex idx = resourceTypesModel.index(i, 0);
         QString resourceType = resourceTypesModel.data(idx, Qt::UserRole + KisResourceTypeModel::ResourceType).toString();
         QSharedPointer<KisResourceModel> model = QSharedPointer<KisResourceModel>(new KisResourceModel(resourceType));
-        // BUG: 445408 Ensure potentially linked but disabled resources are visible
         model->setResourceFilter(KisResourceModel::ShowAllResources);
         modelsPerResourceType.insert(resourceType, model);
     }
@@ -189,7 +187,6 @@ bool DlgCreateBundle::putResourcesInTheBundle(KoResourceBundleSP bundle)
         allResourcesIds << id;
     }
 
-    // note: if there are repetitions, it's fine; the bundle will filter them out
     QHash<QPair<QString, QString>, std::size_t> usedFilenames;
 
     while(!allResourcesIds.isEmpty()) {
@@ -229,7 +226,6 @@ bool DlgCreateBundle::putResourcesInTheBundle(KoResourceBundleSP bundle)
         if (m_bundleCreaterMode == "Creator") {
             QList<KoResourceLoadResult> linkedResources = res->linkedResources(KisGlobalResourcesInterface::instance());
             Q_FOREACH(KoResourceLoadResult linkedResource, linkedResources) {
-                // we have requested linked resources, how can it be an embedded one?
                 KIS_SAFE_ASSERT_RECOVER(linkedResource.type() != KoResourceLoadResult::EmbeddedResource) { continue; }
 
                 KoResourceSP resource = linkedResource.resource();
@@ -263,7 +259,6 @@ void DlgCreateBundle::putMetaDataInTheBundle(KoResourceBundleSP bundle) const
 
     bundle->setThumbnail(m_pageMetadataInfo->thumbnail());
 
-    // For compatibility
     bundle->setMetaData("email", m_pageMetadataInfo->email());
     bundle->setMetaData("license", m_pageMetadataInfo->license());
     bundle->setMetaData("website", m_pageMetadataInfo->website());
@@ -274,17 +269,10 @@ QString DlgCreateBundle::createPrettyFilenameFromName(KoResourceSP resource) con
     QString resourceType = resource->resourceType().first;
     if (resourceType == ResourceType::Patterns
             || resourceType == ResourceType::Brushes) {
-        // don't change the filename, if the resource is likely to be linked
-        // by filename to another resource
         return resource->filename();
     }
-    // to make sure patterns are saved correctly
-    // note that for now (TM) there are no double-suffixes in resources (like '.tar.gz')
-    // otherwise this code should use completeSuffix() and remove the versioning number
-    // (since that's something we want to get rid of)
     const auto fileInfo = QFileInfo(resource->filename());
     const auto prefix = fileInfo.dir();
-    // remove the suffix if the name has a suffix (happens for png patterns)
     const auto nameWithoutSuffix = QFileInfo(resource->name()).completeBaseName();
     const auto suffix = fileInfo.suffix();
     return QDir::cleanPath(prefix.filePath(nameWithoutSuffix + "." + suffix));
@@ -389,5 +377,4 @@ void DlgCreateBundle::reject()
 
     QWizard::reject();
 }
-
 

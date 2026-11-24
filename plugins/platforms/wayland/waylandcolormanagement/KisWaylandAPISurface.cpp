@@ -8,7 +8,6 @@
 
 #include "KisWaylandAPIImageDescription.h"
 
-
 KisWaylandAPISurfaceFeedback::KisWaylandAPISurfaceFeedback(::wp_color_management_surface_feedback_v1 *obj)
     : QtWayland::wp_color_management_surface_feedback_v1(obj)
 {

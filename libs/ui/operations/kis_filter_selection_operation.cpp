@@ -5,7 +5,6 @@
  *  SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-
 #include "kis_filter_selection_operation.h"
 #include <commands_new/kis_transaction_based_command.h>
 #include <KisViewManager.h>

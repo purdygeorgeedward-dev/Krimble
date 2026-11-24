@@ -9,9 +9,6 @@
 
 #include <simpletest.h>
 
-/**
- * Merely check that our repository of type definitions compiles
- */
 class KisTypesTest : public QObject
 {
     Q_OBJECT

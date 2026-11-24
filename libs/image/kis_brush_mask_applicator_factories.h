@@ -18,4 +18,4 @@ struct MaskApplicatorFactory {
     static KisBrushMaskApplicatorBase *create(MaskGenerator *maskGenerator);
 };
 
-#endif /* __KIS_BRUSH_MASK_APPLICATOR_FACTORIES_H */
+#endif

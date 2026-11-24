@@ -10,8 +10,6 @@
 #include <kis_convolution_painter.h>
 #include <QRect>
 
-
-
 int KisWaveletKernel::kernelSizeFromRadius(qreal radius)
 {
     return 2 * ceil(radius) + 1;
@@ -23,10 +21,6 @@ KisWaveletKernel::createHorizontalMatrix(qreal radius)
     int kernelSize = kernelSizeFromRadius(radius);
     Eigen::Matrix<qreal, Eigen::Dynamic, Eigen::Dynamic> matrix(1, kernelSize);
 
-    /**
-     * The kernel size should always be odd, then the position of the
-     * central pixel can be easily calculated
-     */
     KIS_ASSERT_RECOVER_NOOP(kernelSize & 0x1);
     const int center = kernelSize / 2;
 
@@ -48,11 +42,6 @@ KisWaveletKernel::createVerticalMatrix(qreal radius)
     int kernelSize = kernelSizeFromRadius(radius);
     Eigen::Matrix<qreal, Eigen::Dynamic, Eigen::Dynamic> matrix(kernelSize, 1);
 
-
-    /**
-     * The kernel size should always be odd, then the position of the
-     * central pixel can be easily calculated
-     */
     KIS_ASSERT_RECOVER_NOOP(kernelSize & 0x1);
     const int center = kernelSize / 2;
 

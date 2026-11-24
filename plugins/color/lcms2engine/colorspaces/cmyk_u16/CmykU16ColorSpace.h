@@ -40,7 +40,7 @@ public:
     QVector <double> fromHSY(qreal *hue, qreal *sat, qreal *luma) const override;
     void toYUV(const QVector<double> &channelValues, qreal *y, qreal *u, qreal *v) const override;
     QVector <double> fromYUV(qreal *y, qreal *u, qreal *v) const override;
-    
+
     static QString colorSpaceId()
     {
         return QStringLiteral("CMYKAU16");

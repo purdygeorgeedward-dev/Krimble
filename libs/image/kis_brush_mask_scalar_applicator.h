@@ -34,11 +34,9 @@ protected:
         qreal random = 1.0;
         quint8 *dabPointer = m_d->device->data() + rect.y() * rect.width() * m_d->pixelSize;
         quint8 alphaValue = OPACITY_TRANSPARENT_U8;
-        // this offset is needed when brush size is smaller then fixed device size
         int offset = (m_d->device->bounds().width() - rect.width()) * m_d->pixelSize;
         int supersample = 1;
         if (m_maskGenerator->shouldSupersample()) {
-            // strengthen supersampling from 3x3 for very small dabs, to smooth out dashed strokes
             supersample = (m_maskGenerator->shouldSupersample6x6() ? 6 : 3);
         }
         double invss = 1.0 / supersample;
@@ -64,9 +62,7 @@ protected:
 
                 alphaValue = quint8((OPACITY_OPAQUE_U8 - value) * random);
 
-                // avoid computation of random numbers if density is full
                 if (m_d->density != 1.0) {
-                    // compute density only for visible pixels of the mask
                     if (alphaValue != OPACITY_TRANSPARENT_U8) {
                         if (!(m_d->density >= m_randomSource.generateNormalized())) {
                             alphaValue = OPACITY_TRANSPARENT_U8;
@@ -80,14 +76,14 @@ protected:
 
                 m_d->colorSpace->applyAlphaU8Mask(dabPointer, &alphaValue, 1);
                 dabPointer += m_d->pixelSize;
-            } // endfor x
+            }
             dabPointer += offset;
-        } // endfor y
+        }
     }
 
 protected:
     MaskGenerator *m_maskGenerator;
-    KisRandomSource m_randomSource; // TODO: make it more deterministic for LoD
+    KisRandomSource m_randomSource;
 };
 
-#endif /* KIS_BRUSH_SCALAR_APPLICATOR_H */
+#endif

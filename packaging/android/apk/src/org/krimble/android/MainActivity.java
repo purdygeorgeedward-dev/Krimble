@@ -57,11 +57,9 @@ public class MainActivity extends QtActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.QT_ANDROID_DEFAULT_THEME = "DefaultTheme";
 
-        // we have to do this before loading main()
         Intent i = getIntent();
         String uri = getUri(i);
         if (uri != null) {
-            // this will be passed as a command line argument to main()
             i.putExtra("applicationArguments", uri);
         }
 
@@ -112,15 +110,9 @@ public class MainActivity extends QtActivity {
     public void onStart() {
         super.onStart();
 
-        // unlike onCreate where we did this before, this method is called several times throughout the
-        // lifecycle of our app, but we intend to run this method only once (and in "Foreground").
         if (!serviceStarted) {
             serviceStarted  = true;
-            // Full-screening the application here instead of after the main window is shown avoids
-            // some ugly flicker as the Qt UI resizes itself.
             trySetFullScreen(true);
-            // Keep the service started so in an unfortunate case where we're not allowed to start a
-            // foreground service, we can try to continue without it.
             Intent docSaverServiceIntent = new Intent(this, DocumentSaverService.class);
             startService(docSaverServiceIntent);
         }
@@ -155,8 +147,6 @@ public class MainActivity extends QtActivity {
         super.onPause();
         krimbleForeground = false;
         krimbleMemSample("pause");
-        // onPause() _is_ called when the app starts. If the native lib
-        // isn't loaded, it crashes.
         if (haveLibsLoaded) {
             synchronized(this) {
                 startServiceGeneric(DocumentSaverService.START_SAVING);
@@ -184,22 +174,15 @@ public class MainActivity extends QtActivity {
             } catch (ForegroundServiceStartNotAllowedException e) {
                 Log.w(TAG, "ForegroundServiceStartNotAllowedException: " + e);
 
-                // The service is already running, so maybe try saving without trying to put it in
-                // foreground. According to docs we should have a couple of minutes of runtime.
                 startService(intent);
             }
         } catch (ServiceStartNotAllowedException e) {
-            // We may not be allowed to start a background service either,
-            // probably because onPause is called on an already-paused
-            // application that is beyond the "couple of minutes" cutoff.
             Log.w(TAG, "ServiceStartNotAllowedException: " + e);
         }
     }
 
     @Override
     public void onDestroy() {
-        // Docs say: this method will not be called if the activity's hosting process
-        // is killed. This means, for us that the service has been stopped.
 
         Log.i(TAG, "[onDestroy]");
         krimbleDiagAtDestroy();
@@ -218,11 +201,7 @@ public class MainActivity extends QtActivity {
             } catch (UnsatisfiedLinkError e) {
                 Log.e(TAG, "hasMainWindowLoaded: native function not found: " + e);
             }
-            // if (!JNIWrappers.hasMainWindowLoaded()) {
             if (!mainWindowLoaded) {
-                // back button was pressed during splash screen, letting this
-                // propagate leaves native side in an undefined state. So, it's
-                // best we finish the activity here.
                 finish();
             }
         }
@@ -232,10 +211,6 @@ public class MainActivity extends QtActivity {
 
     @Override
     public boolean onGenericMotionEvent(MotionEvent event) {
-        // We manually pass these events to the QPA Android because,
-        // android doesn't send events of type other than SOURCE_CLASS_POINTER
-        // to the view which was just tapped. So, this view will never get to
-        // QtSurface, because it doesn't claim focus.
         if (event.isFromSource(InputDevice.SOURCE_TOUCHPAD)) {
             return QtNative.getInputEventDispatcher().sendGenericMotionEvent(event, event.getDeviceId());
         }
@@ -387,9 +362,6 @@ public class MainActivity extends QtActivity {
         krimbleAskBatteryOnce();
     }
 
-    // Krimble 2026-11-22: George: "I keep installing Krimble and I don't remember to set it to unrestricted battery use."
-    // Once per install (the flag is cleared with the app's data), a few seconds after the start, Android's own question
-    // "Let app always run in background?" is shown. Allow sets Krimble to unrestricted battery use.
     private boolean krimbleBatteryAsked = false;
     private boolean krimbleBatteryUnrestricted() {
         try {
@@ -460,7 +432,6 @@ public class MainActivity extends QtActivity {
         return sb.toString();
     }
 
-    // whether the keep-alive service is running now, and what happened when it was asked to start
     private String krimbleKeepAliveDiag() {
         String running = "unknown";
         try {
@@ -479,7 +450,6 @@ public class MainActivity extends QtActivity {
             notificationsAllowed = getSystemService(android.app.NotificationManager.class).areNotificationsEnabled();
         } catch (Exception e) {
         }
-        // return "Keep-alive service: running now: "
         return "Don'tCrash: running now: " + running + "; battery unrestricted: " + (krimbleBatteryUnrestricted() ? "yes" : "NO") + "; last start: " + KeepAliveService.status
                 + "; notifications allowed for Krimble: " + (notificationsAllowed ? "yes" : "no (the \"Don'tCrash\" notice is hidden)");
     }

@@ -9,7 +9,6 @@
 
 #include <QAbstractItemDelegate>
 
-
 class NodeViewVisibilityDelegate : public QAbstractItemDelegate
 {
 public:

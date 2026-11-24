@@ -16,21 +16,14 @@ class QPainter;
 class QPainterPath;
 class KoShapeSavingContext;
 
-/**
- * This is the base class for shape backgrounds.
- * Derived classes are used to paint the background of
- * a shape within a given painter path.
- */
 class KRITAFLAKE_EXPORT KoShapeBackground
 {
 public:
     KoShapeBackground();
     virtual ~KoShapeBackground();
 
-    /// Paints the background using the given fill path
     virtual void paint(QPainter &painter, const QPainterPath &fillPath) const = 0;
 
-    /// Returns if the background has some transparency.
     virtual bool hasTransparency() const;
 
     virtual bool compareTo(const KoShapeBackground *other) const = 0;
@@ -39,4 +32,4 @@ public:
 
 };
 
-#endif // KOSHAPEBACKGROUND_H
+#endif

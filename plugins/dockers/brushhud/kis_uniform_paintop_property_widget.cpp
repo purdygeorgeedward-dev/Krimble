@@ -17,10 +17,6 @@
 #include "kis_combo_based_paintop_property.h"
 #include "kis_debug.h"
 
-/****************************************************************/
-/*      KisUniformPaintOpPropertyWidget                         */
-/****************************************************************/
-
 struct KisUniformPaintOpPropertyWidget::Private
 {
     Private(KisUniformPaintOpPropertySP _property)
@@ -60,10 +56,6 @@ void KisUniformPaintOpPropertyWidget::slotThemeChanged(QPalette pal)
         }
     }
 }
-
-/****************************************************************/
-/*      KisUniformPaintOpPropertyIntSlider                      */
-/****************************************************************/
 
 KisUniformPaintOpPropertyIntSlider::KisUniformPaintOpPropertyIntSlider(KisUniformPaintOpPropertySP property, QWidget *parent)
     : KisUniformPaintOpPropertyWidget(property, parent)
@@ -136,10 +128,6 @@ void KisUniformPaintOpPropertyIntSlider::slotRangeChanged()
     }
 }
 
-/****************************************************************/
-/*      KisUniformPaintOpPropertyDoubleSlider                   */
-/****************************************************************/
-
 KisUniformPaintOpPropertyDoubleSlider::KisUniformPaintOpPropertyDoubleSlider(KisUniformPaintOpPropertySP property, QWidget *parent)
     : KisUniformPaintOpPropertyWidget(property, parent)
 {
@@ -210,10 +198,6 @@ void KisUniformPaintOpPropertyDoubleSlider::slotRangeChanged()
     }
 }
 
-/****************************************************************/
-/*      KisUniformPaintOpPropertyCheckBox                       */
-/****************************************************************/
-
 KisUniformPaintOpPropertyCheckBox::KisUniformPaintOpPropertyCheckBox(KisUniformPaintOpPropertySP property, QWidget *parent)
     : KisUniformPaintOpPropertyWidget(property, parent)
 {
@@ -235,10 +219,6 @@ void KisUniformPaintOpPropertyCheckBox::slotCheckBoxChanged(bool value)
 {
     Q_EMIT valueChanged(value);
 }
-
-/****************************************************************/
-/*      KisUniformPaintOpPropertyComboBox                       */
-/****************************************************************/
 
 KisUniformPaintOpPropertyComboBox::KisUniformPaintOpPropertyComboBox(KisUniformPaintOpPropertySP property, QWidget *parent)
     : KisUniformPaintOpPropertyWidget(property, parent)

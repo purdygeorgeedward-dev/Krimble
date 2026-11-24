@@ -23,7 +23,6 @@
 #include <kis_algebra_2d.h>
 #include <testutil.h>
 
-
 void KisGradientPainterTest::testSimplifyPath()
 {
     QPolygonF selectionPolygon;
@@ -203,7 +202,6 @@ void KisGradientPainterTest::testSplitDisjointPaths()
 {
     QPainterPath path;
 
-    // small bug: the smaller rect is also merged
     path.addRect(QRectF(323, 123, 4, 4));
     path.addRect(QRectF(300, 100, 50, 50));
     path.addRect(QRectF(320, 120, 10, 10));
@@ -221,7 +219,6 @@ void KisGradientPainterTest::testSplitDisjointPaths()
         srcImage.fill(0);
         QPainter gc(&srcImage);
         gc.fillPath(path, Qt::red);
-        //srcImage.save("src_disjoint_paths.png");
     }
 
     QList<QPainterPath> result = KritaUtils::splitDisjointPaths(path);
@@ -246,7 +243,6 @@ void KisGradientPainterTest::testSplitDisjointPaths()
             gc.fillPath(p, brushes[index]);
             index = (index + 1) % brushes.size();
         }
-
 
         TestUtil::checkQImageExternal(dstImage,
                                       "shaped_gradient",
@@ -287,7 +283,6 @@ void KisGradientPainterTest::testCachedStrategy()
     accumulator_set<qreal, stats<tag::variance, tag::max, tag::min> > accum;
     const qreal maxRelError = 5.0 / 256;
 
-
     for (int y = rc.y(); y <= rc.bottom(); y++) {
         for (int x = rc.x(); x <= rc.right(); x++) {
             if (!selectionPolygon.containsPoint(QPointF(x, y), Qt::OddEvenFill)) continue;
@@ -297,11 +292,10 @@ void KisGradientPainterTest::testCachedStrategy()
 
             if (ref == 0.0) continue;
 
-            qreal relError = (ref - value)/* / ref*/;
+            qreal relError = (ref - value) ;
             accum(relError);
 
             if (relError > maxRelError) {
-                //dbgKrita << ppVar(x) << ppVar(y) << ppVar(value) << ppVar(ref) << ppVar(relError);
             }
         }
     }

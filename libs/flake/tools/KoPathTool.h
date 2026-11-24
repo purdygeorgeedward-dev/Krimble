@@ -30,9 +30,6 @@ class KUndo2Command;
 
 class QMenu;
 
-
-/// The tool for editing a KoPathShape or a KoParameterShape.
-/// See KoCreatePathTool for code handling the initial path creation.
 class KRITAFLAKE_EXPORT KoPathTool : public KoToolBase
 {
     Q_OBJECT
@@ -63,7 +60,6 @@ public:
 
     QMenu* popupActionsMenu() override;
 
-    // for KoPathToolSelection
     void notifyPathPointsChanged(KoPathShape *shape);
 
 public Q_SLOTS:
@@ -74,7 +70,6 @@ Q_SIGNALS:
     void singleShapeChanged(KoPathShape* path);
 
 protected:
-    /// reimplemented
     QList<QPointer<QWidget> >  createOptionWidgets() override;
 
 private:
@@ -111,18 +106,17 @@ private:
     void mergePointsImpl(bool doJoin);
 
 protected:
-    KoPathToolSelection m_pointSelection; ///< the point selection
+    KoPathToolSelection m_pointSelection;
     QCursor m_selectCursor;
 
 private:
-    QScopedPointer<KoPathToolHandle> m_activeHandle;       ///< the currently active handle
-    QPointF m_lastPoint; ///< needed for interaction strategy
+    QScopedPointer<KoPathToolHandle> m_activeHandle;
+    QPointF m_lastPoint;
     QScopedPointer<PathSegment> m_activeSegment;
 
-    // make a friend so that it can test private member/methods
     friend class TestPathTool;
 
-    QScopedPointer<KoInteractionStrategy> m_currentStrategy; ///< the rubber selection strategy
+    QScopedPointer<KoInteractionStrategy> m_currentStrategy;
 
     QAction *m_actionPathPointCorner;
     QAction *m_actionPathPointSmooth;

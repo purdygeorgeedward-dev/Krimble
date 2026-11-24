@@ -5,7 +5,6 @@
  *  SPDX-License-Identifier: LGPL-2.0-or-later
  */
 
-
 #include "overviewwidget.h"
 
 #include <QMouseEvent>
@@ -26,14 +25,11 @@
 #include "KisIdleTasksManager.h"
 #include <KisDisplayConfig.h>
 
-
 OverviewWidget::OverviewWidget(QWidget * parent)
     : KisWidgetWithIdleTask<QWidget>(parent)
     , m_dragging(false)
 {
     setMouseTracking(true);
-    // No context menu here. Setting this avoids long-presses from delaying
-    // inputs or dismissing the palette, see KisLongPressEventFilter.cpp.
     setContextMenuPolicy(Qt::PreventContextMenu);
     KisConfig cfg(true);
     slotThemeChanged();
@@ -84,8 +80,6 @@ KisIdleTasksManager::TaskGuard OverviewWidget::registerIdleTask(KisCanvas2 *canv
         addIdleTaskWithGuard([this](KisImageSP image) {
             const KisDisplayConfig config = m_canvas->displayColorConverter()->displayConfig();
 
-            // If the widget is presented on a device with a pixel ratio > 1.0, we must compensate for it
-            // by increasing the thumbnail's resolution. Otherwise it will appear blurry.
             QSize thumbnailSize = m_previewSize * devicePixelRatioF();
 
             if ((thumbnailSize.width() > image->width()) || (thumbnailSize.height() > image->height())) {
@@ -224,7 +218,6 @@ void OverviewWidget::slotThemeChanged()
     m_outlineColor = qApp->palette().color(QPalette::Highlight);
 }
 
-
 void OverviewWidget::paintEvent(QPaintEvent* event)
 {
     QWidget::paintEvent(event);
@@ -253,5 +246,4 @@ void OverviewWidget::paintEvent(QPaintEvent* event)
 
     }
 }
-
 

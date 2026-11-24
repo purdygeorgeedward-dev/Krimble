@@ -69,8 +69,6 @@ QAction *create(StandardAction id, const QObject *recvr, const char *slot, QObje
     QAction *pAction = 0;
     const KStandardActionInfo *pInfo = infoPtr(id);
 
-    // qDebug() << "KStandardAction::create( " << id << "=" << (pInfo ? pInfo->psName : (const char*)0) << ", " << parent << " )"; // ellis
-
     if (pInfo) {
         QString sLabel, iconName = pInfo->psIconName;
         switch (id) {
@@ -97,16 +95,12 @@ QAction *create(StandardAction id, const QObject *recvr, const char *slot, QObje
         case Preferences:
         case AboutApp:
         case HelpContents: {
-            // in Krita we have the application name baked into the translation
-            // string, so just fetch it directly
             sLabel = i18nc("action", pInfo->psLabel);
         }
         break;
         default:
             sLabel = i18nc("action", pInfo->psLabel);
         }
-
-
 
         if (QApplication::isRightToLeft()) {
             switch (id) {
@@ -140,7 +134,6 @@ QAction *create(StandardAction id, const QObject *recvr, const char *slot, QObje
         case PasteText:
             pAction = new QAction(parent);
             break;
-        // Same as default, but with the app icon
         case AboutApp:
         {
             pAction = new QAction(parent);
@@ -179,7 +172,6 @@ QAction *create(StandardAction id, const QObject *recvr, const char *slot, QObje
 
         QList<QKeySequence> cut = KStandardShortcut::shortcut(pInfo->idAccel);
         if (!cut.isEmpty()) {
-            // emulate KisKActionCollection::setDefaultShortcuts to allow the use of "configure shortcuts"
             pAction->setShortcuts(cut);
             pAction->setProperty("defaultShortcuts", QVariant::fromValue(cut));
         }
@@ -189,10 +181,8 @@ QAction *create(StandardAction id, const QObject *recvr, const char *slot, QObje
 
     if (recvr && slot) {
         if (id == OpenRecent) {
-            // FIXME QAction port: probably a good idea to find a cleaner way to do this
-            // Open Recent is a special case - provide the selected URL
             QObject::connect(pAction, SIGNAL(urlSelected(QUrl)), recvr, slot);
-        } else if (id == ConfigureToolbars) { // #200815
+        } else if (id == ConfigureToolbars) {
             QObject::connect(pAction, SIGNAL(triggered(bool)), recvr, slot, Qt::QueuedConnection);
         } else {
             QObject::connect(pAction, SIGNAL(triggered(bool)), recvr, slot);
@@ -508,11 +498,6 @@ KToggleAction *showMenubar(const QObject *recvr, const char *slot, QObject *pare
     KToggleAction *ret = new KToggleAction(i18n("Show &Menubar"), parent);
     ret->setObjectName(name(ShowMenubar));
     ret->setIcon(KisIconUtils::loadIcon("show-menu"));
-
-    // emulate KisKActionCollection::setDefaultShortcuts to allow the use of "configure shortcuts"
-// This shortcut is dangerous and should not be enabled by default.
-//    ret->setShortcuts(KStandardShortcut::shortcut(KStandardShortcut::ShowMenubar));
-//    ret->setProperty("defaultShortcuts", QVariant::fromValue(KStandardShortcut::shortcut(KStandardShortcut::ShowMenubar)));
 
     ret->setWhatsThis(i18n("Show Menubar<p>"
                            "Shows the menubar again after it has been hidden</p>"));

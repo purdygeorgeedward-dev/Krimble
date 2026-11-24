@@ -34,7 +34,6 @@ WGShadeLineEditor::WGShadeLineEditor(QWidget *parent)
     m_ui->verticalLayout->setSizeConstraint(QLayout::SetFixedSize);
     m_previewLine->setModel(m_model);
     m_previewLine->slotSetChannelValues(m_model->channelValues());
-    // since this widget is not shown by Qt, a resize event needs to be sent manually
     QResizeEvent event(QSize(128, 10), m_iconSlider->size());
     m_iconSlider->resize(128, 10);
     QCoreApplication::sendEvent(m_iconSlider, &event);
@@ -48,7 +47,6 @@ WGShadeLineEditor::WGShadeLineEditor(QWidget *parent)
     connect(m_ui->sbOffsetValue, SIGNAL(valueChanged(double)), SLOT(slotValueChanged()));
     connect(m_ui->sbPatchCount, SIGNAL(valueChanged(int)), SLOT(slotPatchCountChanged(int)));
     connect(m_ui->rbSlider, SIGNAL(toggled(bool)), SLOT(slotSliderModeChanged(bool)));
-    // disable spinBox when slider mode set
     connect(m_ui->rbColorPatches, SIGNAL(toggled(bool)), m_ui->sbPatchCount, SLOT(setEnabled(bool)));
 }
 

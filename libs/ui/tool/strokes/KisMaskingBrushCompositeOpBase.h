@@ -20,4 +20,4 @@ public:
                            int columns, int rows) = 0;
 };
 
-#endif // KISMASKINGBRUSHCOMPOSITEOPBASE_H
+#endif

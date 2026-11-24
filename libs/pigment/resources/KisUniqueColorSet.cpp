@@ -12,8 +12,6 @@
 
 uint qHash(const KoColor &color, uint seed = 0)
 {
-    // hash the color data bytes, while using the hash of the colorspace pointer as seed
-    // TODO: take pixelSize directly from the color.m_size (private member)
     return qHashBits(color.data(), color.colorSpace()->pixelSize(), qHash(color.colorSpace(), seed));
 }
 
@@ -21,7 +19,6 @@ struct KisUniqueColorSet::ColorEntry
 {
     static bool less(const KisUniqueColorSet::ColorEntry *lhs, const KisUniqueColorSet::ColorEntry *rhs)
     {
-        // larger key == more recent == earlier in list
         return (lhs->key > rhs->key);
     }
 

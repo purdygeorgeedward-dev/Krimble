@@ -59,8 +59,6 @@ void LabF32ColorSpace::colorToXML(const quint8 *pixel, QDomDocument &doc, QDomEl
     const KoLabF32Traits::Pixel *p = reinterpret_cast<const KoLabF32Traits::Pixel *>(pixel);
     QDomElement labElt = doc.createElement("Lab");
 
-    // we need 0-100, -128-+127
-
     labElt.setAttribute("L", KisDomUtils::toString(KoColorSpaceMaths< KoLabF32Traits::channels_type, qreal>::scaleToA(p->L)));
 
     labElt.setAttribute("a", KisDomUtils::toString(KoColorSpaceMaths< KoLabF32Traits::channels_type, qreal>::scaleToA(p->a)));
@@ -150,7 +148,6 @@ void LabF32ColorSpace::convertChannelToVisualRepresentation(const quint8 *src, q
                             c = ColorSpaceTraits::math_trait::unitValueL * (0.5 + ((qreal)c - ColorSpaceTraits::math_trait::halfValueAB) / (2.0 * (ColorSpaceTraits::math_trait::unitValueAB - ColorSpaceTraits::math_trait::halfValueAB)));
                         }
                         break;
-                    // As per KoChannelInfo alpha channels are [0..1]
                     default:
                         c = ColorSpaceTraits::math_trait::unitValueL * (qreal)c / ColorSpaceTraits::math_trait::unitValue;
                         break;

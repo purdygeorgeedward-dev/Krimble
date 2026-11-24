@@ -7,10 +7,8 @@
 #ifndef __KIS_FILL_INTERVAL_H
 #define __KIS_FILL_INTERVAL_H
 
-
 #include <boost/operators.hpp>
 #include "kis_global.h"
-
 
 class KisFillInterval : private boost::equality_comparable1<KisFillInterval>
 {
@@ -59,4 +57,4 @@ inline QDebug operator<<(QDebug dbg, const KisFillInterval& i)
     return dbg;
 }
 
-#endif /* __KIS_FILL_INTERVAL_H */
+#endif

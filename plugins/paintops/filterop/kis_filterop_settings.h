@@ -39,5 +39,4 @@ public:
     bool hasPatternSettings() const override;
 };
 
-
-#endif // KIS_FILTEROP_SETTINGS_H_
+#endif

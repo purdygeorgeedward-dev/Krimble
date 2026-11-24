@@ -48,7 +48,7 @@ public:
     QMap<QString, KoShapeLayer*> layers;
     QMap<QString, KoShape*> drawIds;
     QMap<QString, QPair<KoShape *, QVariant> > subIds;
-    QMap<QString, KoSharedLoadingData *> sharedData; //FIXME: use QScopedPointer here to auto delete in destructor
+    QMap<QString, KoSharedLoadingData *> sharedData;
     int zIndex;
     QMultiMap<QString, KoLoadingShapeUpdater*> updaterById;
     QMultiMap<KoShape *, KoLoadingShapeUpdater*> updaterByShape;
@@ -117,8 +117,6 @@ QPair<KoShape *, QVariant> KoShapeLoadingContext::shapeSubItemById(const QString
     return d->subIds.value(id);
 }
 
-
-// TODO make sure to remove the shape from the loading context when loading for it failed and it was deleted. This can also happen when the parent is deleted
 void KoShapeLoadingContext::updateShape(const QString & id, KoLoadingShapeUpdater * shapeUpdater)
 {
     d->updaterById.insert(id, shapeUpdater);
@@ -134,7 +132,6 @@ void KoShapeLoadingContext::shapeLoaded(KoShape * shape)
     }
 }
 
-
 int KoShapeLoadingContext::zIndex()
 {
     return d->zIndex++;
@@ -148,7 +145,6 @@ void KoShapeLoadingContext::setZIndex(int index)
 void KoShapeLoadingContext::addSharedData(const QString & id, KoSharedLoadingData * data)
 {
     auto it(d->sharedData.find(id));
-    // data will not be overwritten
     if (it == d->sharedData.end()) {
         d->sharedData.insert(id, data);
     } else {

@@ -63,8 +63,6 @@ void CmykF32ColorSpace::colorToXML(const quint8 *pixel, QDomDocument &doc, QDomE
 
     const QList<KoChannelInfo *> channels = this->channels();
 
-    // XML expects 0-1, we need 0-100
-    // Get the bounds from the channels and adjust the calculations
     labElt.setAttribute("c", KisDomUtils::toString(KoColorSpaceMaths< KoCmykF32Traits::channels_type, qreal>::scaleToA((1.f / channels[0]->getUIUnitValue()) * (p->cyan - channels[0]->getUIMin()))));
     labElt.setAttribute("m", KisDomUtils::toString(KoColorSpaceMaths< KoCmykF32Traits::channels_type, qreal>::scaleToA((1.f / channels[1]->getUIUnitValue()) * (p->magenta - channels[1]->getUIMin()))));
     labElt.setAttribute("y", KisDomUtils::toString(KoColorSpaceMaths< KoCmykF32Traits::channels_type, qreal>::scaleToA((1.f / channels[2]->getUIUnitValue()) * (p->yellow - channels[2]->getUIMin()))));
@@ -91,7 +89,6 @@ void CmykF32ColorSpace::toHSY(const QVector<double> &channelValues, qreal *hue, 
     qreal c1 = channelValues[1];
     qreal c2 = channelValues[2];
     qreal c3 = channelValues[3];
-    //we use HSI here because we can't linearise CMYK, and HSY doesn't work right with...
     CMYKToCMY(&c0, &c1, &c2, &c3);
     c0 = 1.0 - c0;
     c1 = 1.0 - c1;

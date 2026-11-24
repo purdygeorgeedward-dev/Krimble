@@ -107,7 +107,6 @@ using MapType = QMap<int, int>;
 using DroppedFramesType = std::vector<int>;
 using MovedFramesType = std::vector<std::pair<int, int>>;
 
-
 struct TestingFramesGluer : FramesGluerBase
 {
     TestingFramesGluer(QMap<int, int> &_frames) : FramesGluerBase(_frames) {}
@@ -124,7 +123,6 @@ struct TestingFramesGluer : FramesGluerBase
         droppedSwapFrames.emplace_back(start);
     }
 };
-
 
 void KisAnimationFrameCacheTest::testFrameGlueing_data()
 {

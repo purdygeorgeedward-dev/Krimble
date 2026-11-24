@@ -41,8 +41,8 @@ private:
     void emitChangeSignals();
 
     Ui_WdgKisLayerStyleAngleSelector* ui;
-    
+
     bool m_enableGlobalLight;
 };
 
-#endif // KISLAYERSTYLEANGLESELECTOR_H
+#endif

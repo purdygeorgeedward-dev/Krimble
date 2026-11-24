@@ -29,7 +29,6 @@
 
 #include "KoResourcePaths.h"
 
-
 KisKShortcutSchemesEditor::KisKShortcutSchemesEditor(KisShortcutsDialog *parent)
     : m_dialog(parent)
 {
@@ -68,8 +67,6 @@ KisKShortcutSchemesEditor::KisKShortcutSchemesEditor(KisShortcutsDialog *parent)
     addWidget(moreActions);
 
     QMenu *moreActionsMenu = new QMenu(m_dialog);
-    // moreActionsMenu->addAction(i18n("Save as Scheme Defaults"),
-                               // this, SLOT(saveAsDefaultsForScheme()));
 
     moreActionsMenu->addAction(i18n("Save Custom Shortcuts"),
                                this, SLOT(saveCustomShortcuts()));
@@ -134,7 +131,6 @@ void KisKShortcutSchemesEditor::deleteScheme()
         return;
     }
 
-    //delete the scheme for the app itself
     QFile::remove(KisKShortcutSchemesHelper::shortcutSchemeFileName(currentScheme()));
 
     m_schemesList->removeItem(m_schemesList->findText(currentScheme()));
@@ -179,8 +175,6 @@ void KisKShortcutSchemesEditor::saveCustomShortcuts()
     }
 }
 
-
-
 void KisKShortcutSchemesEditor::loadCustomShortcuts()
 {
     KConfigGroup group =  KSharedConfig::openConfig()->group("File Dialogs");
@@ -196,8 +190,6 @@ void KisKShortcutSchemesEditor::loadCustomShortcuts()
         return;
     }
 
-    // auto ar = KisActionRegistry::instance();
-    // ar->loadCustomShortcuts(path);
     m_dialog->loadCustomShortcuts(path);
 
 }
@@ -221,7 +213,6 @@ void KisKShortcutSchemesEditor::importShortcutsScheme()
 }
 
 #if 0
-// XXX: Not implemented
 void KisKShortcutSchemesEditor::saveAsDefaultsForScheme()
 {
     foreach (KisKActionCollection *collection, m_dialog->actionCollections()) {

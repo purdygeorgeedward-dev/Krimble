@@ -9,7 +9,6 @@
 #include <klocalizedstring.h>
 #include <kis_image.h>
 
-
 KisImageSetResolutionCommand::KisImageSetResolutionCommand(KisImageWSP image, qreal newXRes, qreal newYRes, KUndo2Command *parent)
     : KUndo2Command(kundo2_i18n("Set Image Resolution"), parent)
     , m_image(image)
@@ -44,8 +43,6 @@ void KisImageSetResolutionCommand::redo()
     image->setResolution(m_newXRes, m_newYRes);
 }
 
-
-
 #include "kis_processing_visitor.h"
 
 #include "kis_adjustment_layer.h"
@@ -75,7 +72,6 @@ public:
     void visit(KisSelectionMask *mask, KisUndoAdapter*) override { mask->selection()->updateProjection(); }
     void visit(KisColorizeMask *, KisUndoAdapter*) override {}
 };
-
 
 KisResetShapesCommand::KisResetShapesCommand(KisNodeSP rootNode)
     : KUndo2Command(kundo2_noi18n("RESET_SHAPES_COMMAND")),

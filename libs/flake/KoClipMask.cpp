@@ -42,14 +42,13 @@ struct Q_DECL_HIDDEN KoClipMask::Private : public QSharedData
         shapes.clear();
     }
 
-
     KoFlake::CoordinateSystem coordinates = KoFlake::ObjectBoundingBox;
     KoFlake::CoordinateSystem contentCoordinates = KoFlake::UserSpaceOnUse;
 
     QRectF maskRect = QRectF(-0.1, -0.1, 1.2, 1.2);
 
     QList<KoShape*> shapes;
-    QTransform extraShapeTransform; // TODO: not used anymore, use direct shape transform instead
+    QTransform extraShapeTransform;
 
 };
 
@@ -125,10 +124,6 @@ bool KoClipMask::isEmpty() const
 
 void KoClipMask::setExtraShapeOffset(const QPointF &value)
 {
-    /**
-     * TODO: when we implement source shapes sharing, please wrap the shapes
-     *       into a group and apply this transform to the group instead
-     */
 
     if (m_d->contentCoordinates == KoFlake::UserSpaceOnUse) {
         const QTransform t = QTransform::fromTranslate(value.x(), value.y());

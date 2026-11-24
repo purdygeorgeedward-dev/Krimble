@@ -66,8 +66,6 @@ void StoreDropTest::keyPressEvent(QKeyEvent * e)
     if (((e->modifiers() & Qt::ShiftModifier) && e->key() == Qt::Key_Insert) ||
             ((e->modifiers() & Qt::ControlModifier) && e->key() == Qt::Key_V))
         paste();
-    //else
-    //    QTextBrowser::keyPressEvent( e );
 }
 
 void StoreDropTest::paste()
@@ -127,7 +125,6 @@ void StoreDropTest::showZipContents(QByteArray data, const QString &mimeType, bo
 	delete store;
         return;
     }
-    
 
     QString txt = QString("Valid ZIP file found for format ") + mimeType + "\n";
 

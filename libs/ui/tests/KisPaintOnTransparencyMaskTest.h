@@ -16,4 +16,4 @@ private Q_SLOTS:
     void test();
 };
 
-#endif // KISPAINTONTRANSPARENCYMASKTEST_H
+#endif

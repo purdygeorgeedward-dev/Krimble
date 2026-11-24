@@ -21,7 +21,6 @@
 #include "kis_processing_applicator.h"
 #include "kis_transaction.h"
 
-
 namespace KisAnimUtils {
     const QString lazyFrameCreationActionName = i18n("Auto Frame Mode");
     const QString dropFramesActionName = i18n("Drop Frames");
@@ -47,7 +46,6 @@ namespace KisAnimUtils {
                 KisKeyframeChannel *channel = node->getKeyframeChannel(channelId);
                 quint8 originalOpacity = node->opacity();
 
-                // Try get channel...
                 bool channelCreated = false;
                 if (!channel) {
                     node->enableAnimation();
@@ -67,34 +65,28 @@ namespace KisAnimUtils {
                     }
                 } else {
                     bool clearExistingFrame = channel->keyframeAt(time) && !channelCreated;
-                    if (clearExistingFrame && channelId == KisKeyframeChannel::Raster.id()) { // Overwrite existing keyframe with a new blank one...
+                    if (clearExistingFrame && channelId == KisKeyframeChannel::Raster.id()) {
                         KIS_SAFE_ASSERT_RECOVER_RETURN_VALUE(image->animationInterface()->currentTime() == time, nullptr);
                         KIS_SAFE_ASSERT_RECOVER_RETURN_VALUE(channelId == KisKeyframeChannel::Raster.id(), nullptr);
 
-                        // Clear the frame...
                         KisPaintDeviceSP device = node->paintDevice();
                         if (device) {
                             const QRect dirtyRect = device->extent();
 
                             KisTransaction transaction(kundo2_i18n("Clear"), device, cmd.get());
                             device->clear();
-                            (void) transaction.endAndTake(); // saved as 'parent'
+                            (void) transaction.endAndTake();
 
                             node->setDirty(dirtyRect);
 
                             success = true;
                         }
-                    } else { // Make a regular new blank keyframe...
+                    } else {
                         KisKeyframeSP referenceKey = channel->activeKeyframeAt(time);
 
                         bool isScalar = (channelId != KisKeyframeChannel::Raster.id());
 
                         if (isScalar && !referenceKey) {
-                            /**
-                             * Scalar keyframes return the **next** value for positions
-                             * **before** the first keyframe. That is a bit counterintuitive,
-                             * but that is what we have.
-                             */
                             const QSet<int> allTimes = channel->allKeyframeTimes();
 
                             auto it = std::min_element(allTimes.begin(), allTimes.end());
@@ -105,13 +97,12 @@ namespace KisAnimUtils {
 
                         if (isScalar && referenceKey) {
                             KisScalarKeyframeChannel* scalarChannel = static_cast<KisScalarKeyframeChannel*>(channel);
-                            const qreal value = scalarChannel->valueAt(time); //Get interpolated value.
+                            const qreal value = scalarChannel->valueAt(time);
                             scalarChannel->addScalarKeyframe(time, value, cmd.get());
                         } else {
                             channel->addKeyframe(time, cmd.get());
                         }
 
-                        // Use color label of previous key, if exists...
                         if (referenceKey && channel->keyframeAt(time)) {
                             channel->keyframeAt(time)->setColorLabel(referenceKey->colorLabel());
                         }
@@ -120,9 +111,6 @@ namespace KisAnimUtils {
                     }
                 }
 
-                // when a new opacity keyframe is created, the opacity is set to 0
-                // this makes sure to use the opacity that was previously used
-                // maybe there is a better way to do this
                 node->setOpacity(originalOpacity);
 
                 return success ? cmd.release() : nullptr;
@@ -245,11 +233,11 @@ namespace KisAnimUtils {
         KisKeyframeChannel *dstChannel = dstNode->getKeyframeChannel(dst.channel, true);
 
         if (srcNode == dstNode) {
-            if (!srcChannel) return; // TODO: add warning!
+            if (!srcChannel) return;
 
             srcChannel->swapKeyframes(srcTime, dstTime, parentCommand);
         } else {
-            if (!srcChannel || !dstChannel) return; // TODO: add warning!
+            if (!srcChannel || !dstChannel) return;
 
             KisKeyframeChannel::swapKeyframes(srcChannel, srcTime, dstChannel, dstTime, parentCommand);
         }
@@ -266,7 +254,7 @@ namespace KisAnimUtils {
         KisKeyframeChannel *dstChannel = dstNode->getKeyframeChannel(dst.channel, true);
 
         if (srcNode == dstNode) {
-            if (!srcChannel) return; // TODO: add warning!
+            if (!srcChannel) return;
 
             if (srcChannel->keyframeAt(srcTime)) {
                 if (copy) {
@@ -276,16 +264,15 @@ namespace KisAnimUtils {
                 }
             } else {
                 if (srcChannel->keyframeAt(dstTime) && moveEmptyFrames && !copy) {
-                    //Destination is effectively replaced by an empty frame.
                     dstChannel->removeKeyframe(dstTime, parentCommand);
                 }
             }
         } else {
-            if (!srcChannel || !dstChannel) return; // TODO: add warning!
+            if (!srcChannel || !dstChannel) return;
 
             KisKeyframeSP srcKeyframe = srcChannel->keyframeAt(srcTime);
 
-            if (!srcKeyframe) return; // TODO: add warning!
+            if (!srcKeyframe) return;
 
             KisKeyframeChannel::copyKeyframe(srcChannel, srcTime, dstChannel, dstTime, parentCommand);
 
@@ -351,7 +338,6 @@ namespace KisAnimUtils {
 
                     chain.append(tailIt.value());
                     tailIt = moveMap.erase(tailIt);
-                    // no incrementing! we are going to check the new tail now!
                 }
 
                 for (it = moveMap.begin(); it != moveMap.end(); ++it) {

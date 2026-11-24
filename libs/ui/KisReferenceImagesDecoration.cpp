@@ -19,7 +19,6 @@
 struct KisReferenceImagesDecoration::Private {
     struct Buffer
     {
-        /// Top left corner of the buffer relative to the viewport
         QPointF position;
         QImage image;
 
@@ -67,8 +66,6 @@ private:
             if (widgetRect.isNull()) return;
 
             buffer.position = widgetRect.topLeft();
-            // to ensure that buffer is big enough for all the pixels on high dpi displays
-            // BUG 411118
             QColorSpace space = buffer.image.colorSpace();
             buffer.image = QImage((widgetRect.size()*devicePixelRatioF).toSize(), QImage::Format_ARGB32);
             buffer.image.setColorSpace(space);
@@ -88,8 +85,6 @@ private:
         gc.fillRect(imageRect, Qt::transparent);
         gc.restore();
 
-        // to ensure that clipping rect is also big enough for all the pixels
-        // BUG 411118
         gc.setClipRect(QRectF(imageRect.topLeft(), imageRect.size()*devicePixelRatioF));
         layer->paintReferences(gc);
     }
@@ -106,7 +101,7 @@ KisReferenceImagesDecoration::KisReferenceImagesDecoration(QPointer<KisView> par
 
     auto referenceImageLayer = document->referenceImagesLayer();
     if (referenceImageLayer) {
-        setReferenceImageLayer(referenceImageLayer, /* updateCanvas = */ viewReady);
+        setReferenceImageLayer(referenceImageLayer, viewReady);
     }
 }
 
@@ -124,9 +119,8 @@ bool KisReferenceImagesDecoration::documentHasReferenceImages() const
     return view()->document()->referenceImagesLayer() != nullptr;
 }
 
-void KisReferenceImagesDecoration::drawDecoration(QPainter &gc, const QRectF &/*updateRect*/, const KisCoordinatesConverter *converter, KisCanvas2 *canvas)
+void KisReferenceImagesDecoration::drawDecoration(QPainter &gc, const QRectF & , const KisCoordinatesConverter *converter, KisCanvas2 *canvas)
 {
-    // TODO: can we use partial updates here?
 
     KisSharedPtr<KisReferenceImagesLayer> layer = d->layer.toStrongRef();
     const QColorSpace canvasSpace = KoColorSpaceRegistry::instance()->QColorSpaceForProfile(canvas->displayColorConverter()->multiSurfaceDisplayConfig().canvasProfile);
@@ -150,7 +144,6 @@ void KisReferenceImagesDecoration::drawDecoration(QPainter &gc, const QRectF &/*
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
             gc.drawImage(d->buffer.position, d->buffer.image);
 #else
-            // In qt5, don't bother trying to fix the buffer cs, as this slows things down too much.
             gc.drawImage(d->buffer.position, d->buffer.image);
 #endif
         }
@@ -170,7 +163,7 @@ void KisReferenceImagesDecoration::slotNodeAdded(KisNodeSP node, KisNodeAddition
         dynamic_cast<KisReferenceImagesLayer*>(node.data());
 
     if (referenceImagesLayer) {
-        setReferenceImageLayer(referenceImagesLayer, /* updateCanvas = */ true);
+        setReferenceImageLayer(referenceImagesLayer, true);
     }
 }
 
@@ -218,10 +211,7 @@ void KisReferenceImagesDecoration::setReferenceImageLayer(KisSharedPtr<KisRefere
 
             const QRectF dirtyRect = layer->boundingImageRect();
 
-            // If the view is not ready yet (because this is being constructed
-            // from view.d's ctor and thus view.d is not available now),
-            // do not update canvas because it will lead to a crash.
-            if (updateCanvas && !dirtyRect.isEmpty()) { // in case the reference layer is just being loaded from the .kra file
+            if (updateCanvas && !dirtyRect.isEmpty()) {
                 slotReferenceImagesChanged(dirtyRect);
             }
         }

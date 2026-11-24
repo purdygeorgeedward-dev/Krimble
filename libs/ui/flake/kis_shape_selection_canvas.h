@@ -20,9 +20,6 @@ class QWidget;
 class KoUnit;
 class KisShapeController;
 
-/**
- * Dummy canvas just to have a shapemanager for the shape selection
- */
 class KisShapeSelectionCanvas : public KoCanvasBase
 {
     Q_OBJECT

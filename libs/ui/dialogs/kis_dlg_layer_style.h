@@ -26,12 +26,10 @@
 #include "ui_wdgstylesselector.h"
 #include "ui_wdgTexture.h"
 
-
 #include <QSortFilterProxyModel>
 
 #include <kis_psd_layer_style.h>
 #include <KisTemporaryResourceStorageLock.h>
-
 
 class QListWidgetItem;
 class KisSignalCompressor;
@@ -45,14 +43,12 @@ public:
     Ui::WdgContour ui;
 };
 
-
 class Texture : public QWidget {
     Q_OBJECT
 public:
     Texture(QWidget *parent);
     Ui::WdgTexture ui;
 };
-
 
 class BevelAndEmboss : public QWidget {
     Q_OBJECT
@@ -82,7 +78,6 @@ private:
     Ui::WdgBlendingOptions ui;
 };
 
-
 class ColorOverlay : public QWidget {
     Q_OBJECT
 public:
@@ -96,7 +91,6 @@ Q_SIGNALS:
 private:
     Ui::WdgColorOverlay ui;
 };
-
 
 class DropShadow : public QWidget {
     Q_OBJECT
@@ -198,7 +192,6 @@ private:
     Ui::WdgStroke ui;
 };
 
-
 class KisResourceModel;
 class StylesSelector : public QWidget {
     Q_OBJECT
@@ -216,13 +209,10 @@ protected:
         QString m_locationToFilter;
         bool m_enableFiltering {false};
 
-
-        // QSortFilterProxyModel interface
     protected:
         bool filterAcceptsRow(int source_row,
                               const QModelIndex &source_parent) const override;
     };
-
 
 public:
     StylesSelector(QWidget *parent);
@@ -242,9 +232,6 @@ private Q_SLOTS:
     void selectStyle(QModelIndex current);
 Q_SIGNALS:
     void styleSelected(KisPSDLayerStyleSP style);
-
-
-
 
 private:
     Ui::WdgStylesSelector ui;
@@ -278,7 +265,6 @@ public Q_SLOTS:
     void slotNotifyOnAccept();
     void slotNotifyOnReject();
 
-    // Sets all the widgets to the contents of the given style
     void setStyle(KisPSDLayerStyleSP style);
 
     void slotLoadStyle();
@@ -310,13 +296,9 @@ private:
     KisSignalCompressor *m_configChangedCompressor;
     bool m_isSwitchingPredefinedStyle;
 
-    /**
-     * Used for debugging purposes only to track if m_layerStyle is in
-     * sync with what is stored in the GUI
-     */
     mutable bool m_sanityLayerStyleDirty;
 
     KisTemporaryResourceStorageLock m_temporaryStorageLock;
 };
 
-#endif // KIS_DLG_LAYER_STYLE_H
+#endif

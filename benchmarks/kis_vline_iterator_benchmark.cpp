@@ -15,13 +15,11 @@
 #include <kis_iterator_ng.h>
 #include <simpletest.h>
 
-
 void KisVLineIteratorBenchmark::initTestCase()
 {
     m_colorSpace = KoColorSpaceRegistry::instance()->rgb8();
     m_device = new KisPaintDevice(m_colorSpace);
     m_color = new KoColor(m_colorSpace);
-    // some random color
     m_color->fromQColor(QColor(0,120,250));
     m_device->fill(0,0,TEST_IMAGE_WIDTH,TEST_IMAGE_HEIGHT,m_color->data());
 }
@@ -31,7 +29,6 @@ void KisVLineIteratorBenchmark::cleanupTestCase()
     delete m_color;
     delete m_device;
 }
-
 
 void KisVLineIteratorBenchmark::benchmarkCreation()
 {
@@ -53,7 +50,6 @@ void KisVLineIteratorBenchmark::benchmarkWriteBytes()
         }
     }
 }
-    
 
 void KisVLineIteratorBenchmark::benchmarkReadBytes()
 {
@@ -68,7 +64,6 @@ void KisVLineIteratorBenchmark::benchmarkReadBytes()
         }
     }
 }
-
 
 void KisVLineIteratorBenchmark::benchmarkConstReadBytes()
 {
@@ -89,7 +84,7 @@ void KisVLineIteratorBenchmark::benchmarkReadWriteBytes(){
     c.fromQColor(QColor(250,120,0));
     KisPaintDevice dab(m_colorSpace);
     dab.fill(0,0,TEST_IMAGE_WIDTH,TEST_IMAGE_HEIGHT, c.data());
-    
+
     KisVLineIteratorSP writeIterator = m_device->createVLineIteratorNG(0, 0, TEST_IMAGE_HEIGHT);
     KisVLineConstIteratorSP constReadIterator = dab.createVLineConstIteratorNG(0, 0, TEST_IMAGE_HEIGHT);
 
@@ -102,7 +97,7 @@ void KisVLineIteratorBenchmark::benchmarkReadWriteBytes(){
             writeIterator->nextColumn();
         }
     }
-    
+
 }
 
 void KisVLineIteratorBenchmark::benchmarkNoMemCpy()
@@ -117,9 +112,6 @@ void KisVLineIteratorBenchmark::benchmarkNoMemCpy()
         }
     }
 }
-    
-
-
 
 void KisVLineIteratorBenchmark::benchmarkConstNoMemCpy()
 {
@@ -133,14 +125,13 @@ void KisVLineIteratorBenchmark::benchmarkConstNoMemCpy()
     }
 }
 
-
 void KisVLineIteratorBenchmark::benchmarkTwoIteratorsNoMemCpy()
 {
     KoColor c(m_colorSpace);
     c.fromQColor(QColor(250,120,0));
     KisPaintDevice dab(m_colorSpace);
     dab.fill(0,0,TEST_IMAGE_WIDTH,TEST_IMAGE_HEIGHT, c.data());
-    
+
     KisVLineIteratorSP writeIterator = m_device->createVLineIteratorNG(0, 0, TEST_IMAGE_HEIGHT);
     KisVLineConstIteratorSP constReadIterator = dab.createVLineConstIteratorNG(0, 0, TEST_IMAGE_HEIGHT);
 
@@ -152,6 +143,5 @@ void KisVLineIteratorBenchmark::benchmarkTwoIteratorsNoMemCpy()
         }
     }
 }
-
 
 SIMPLE_TEST_MAIN(KisVLineIteratorBenchmark)

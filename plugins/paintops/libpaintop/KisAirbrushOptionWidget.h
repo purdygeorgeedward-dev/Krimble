@@ -26,4 +26,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif // KISAIRBRUSHOPTIONWIDGET_H
+#endif

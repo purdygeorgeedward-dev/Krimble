@@ -45,8 +45,6 @@ class KRITAWIDGETUTILS_EXPORT KisPreviewFileDialog : public QFileDialog
 public:
     KisPreviewFileDialog(QWidget *parent = nullptr, const QString &caption = QString(), const QString &directory = QString(), const QString &filter = QString());
 
-    // QFileDialog drops the icon provider when the model is created,
-    // so we cannot set this before the options are set
     void resetIconProvider();
 
     static KisAbstractFileIconCreator *s_iconCreator;
@@ -63,4 +61,4 @@ private:
     QToolButton *m_previewToggle {0};
 };
 
-#endif // KISPREVIEWFILEDIALOG_H
+#endif

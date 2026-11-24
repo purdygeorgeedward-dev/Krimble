@@ -39,7 +39,6 @@ public:
 
     void notifyStrokeFinished(qreal cursorSpeed, qreal renderingSpeed, qreal fps, KisPaintOpPresetSP preset);
 
-
     QString lastPresetName() const;
     qreal lastPresetSize() const;
 
@@ -51,7 +50,6 @@ public:
     qreal avgCursorSpeed() const;
     qreal avgRenderingSpeed() const;
     qreal avgFps() const;
-
 
 Q_SIGNALS:
     void sigStatsUpdated();
@@ -68,4 +66,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif // KISSTROKESPEEDMONITOR_H
+#endif

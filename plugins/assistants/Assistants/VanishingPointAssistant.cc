@@ -40,21 +40,18 @@ KisPaintingAssistantSP VanishingPointAssistant::clone(QMap<KisPaintingAssistantH
     return KisPaintingAssistantSP(new VanishingPointAssistant(*this, handleMap));
 }
 
-QPointF VanishingPointAssistant::project(const QPointF& pt, const QPointF& strokeBegin, qreal /*moveThresholdPt*/)
+QPointF VanishingPointAssistant::project(const QPointF& pt, const QPointF& strokeBegin, qreal )
 {
-    //Q_ASSERT(handles().size() == 1 || handles().size() == 5);
 
     if (isLocal() && isAssistantComplete()) {
         if (getLocalRect().contains(pt)) {
             m_hasBeenInsideLocalRect = true;
-        } else if (!m_hasBeenInsideLocalRect) { // isn't inside and wasn't inside before
+        } else if (!m_hasBeenInsideLocalRect) {
             return QPointF(qQNaN(), qQNaN());
         }
     }
 
-    //dbgKrita<<strokeBegin<< ", " <<*handles()[0];
     QLineF snapLine = QLineF(*handles()[0], strokeBegin);
-
 
     qreal dx = snapLine.dx();
     qreal dy = snapLine.dy();
@@ -70,7 +67,7 @@ QPointF VanishingPointAssistant::project(const QPointF& pt, const QPointF& strok
     return r;
 }
 
-QPointF VanishingPointAssistant::adjustPosition(const QPointF& pt, const QPointF& strokeBegin, const bool /*snapToAny*/, qreal moveThresholdPt)
+QPointF VanishingPointAssistant::adjustPosition(const QPointF& pt, const QPointF& strokeBegin, const bool , qreal moveThresholdPt)
 {
     return project(pt, strokeBegin, moveThresholdPt);
 }
@@ -82,10 +79,8 @@ void VanishingPointAssistant::adjustLine(QPointF &point, QPointF &strokeBegin)
 
 void VanishingPointAssistant::drawAssistant(QPainter& gc, const QRectF& updateRect, const KisCoordinatesConverter* converter, const KoColorDisplayRendererInterface *displayRenderInterface, bool cached, KisCanvas2* canvas, bool assistantVisible, bool previewVisible)
 {
-    // HACK ALERT: side handles aren't saved in old krita versions
-    // we need to just add a default position for now if we are loading a vanishing point
     if (sideHandles().isEmpty()) {
-        QPointF vpPoint = *handles()[0]; // main vanishing point
+        QPointF vpPoint = *handles()[0];
         addHandle(new KisPaintingAssistantHandle(vpPoint + QPointF(-70,0)), HandleType::SIDE);
         addHandle(new KisPaintingAssistantHandle(vpPoint + QPointF(-140,0)), HandleType::SIDE);
         addHandle(new KisPaintingAssistantHandle(vpPoint + QPointF(70,0)), HandleType::SIDE);
@@ -100,11 +95,9 @@ void VanishingPointAssistant::drawAssistant(QPainter& gc, const QRectF& updateRe
     QPolygonF viewportAndLocalPoly = (isLocal() && isAssistantComplete()) ?
                 QPolygonF(QRectF(viewport)).intersected(converter->documentToWidgetTransform().map(QPolygonF(QRectF(getLocalRect())))) : QPolygonF(QRectF(viewport));
 
-    // draw controls when we are not editing
     if (canvas && canvas->paintingAssistantsDecoration()->isEditingAssistants() == false && isAssistantComplete()) {
 
         if (isSnappingActive() && previewVisible == true) {
-            //don't draw if invalid.
 
             QTransform initialTransform = converter->documentToWidgetTransform();
             QPointF startPoint = initialTransform.map(*handles()[0]);
@@ -119,25 +112,19 @@ void VanishingPointAssistant::drawAssistant(QPainter& gc, const QRectF& updateRe
             path.moveTo(snapLine.p2());
             path.lineTo(snapLine.p1());
 
-            drawPreview(gc, path, displayRenderInterface);//and we draw the preview.
+            drawPreview(gc, path, displayRenderInterface);
 
         }
     }
 
-
-
-
-    // editor specific controls display
     if (canvas && canvas->paintingAssistantsDecoration()->isEditingAssistants()) {
 
-        // draws a circle around the vanishing point node while editing
         QTransform initialTransform = converter->documentToWidgetTransform();
-        QPointF p0 = initialTransform.map(*handles()[0]); // main vanishing point
+        QPointF p0 = initialTransform.map(*handles()[0]);
         QPointF p1 = initialTransform.map(*sideHandles()[0]);
         QPointF p2 = initialTransform.map(*sideHandles()[1]);
         QPointF p3 = initialTransform.map(*sideHandles()[2]);
         QPointF p4 = initialTransform.map(*sideHandles()[3]);
-
 
         QRectF ellipse = QRectF(QPointF(p0.x() -15, p0.y() -15), QSizeF(30, 30));
 
@@ -147,8 +134,6 @@ void VanishingPointAssistant::drawAssistant(QPainter& gc, const QRectF& updateRe
 
         QColor paintingColor = effectiveAssistantColor();
 
-
-        // draw the lines connecting the different nodes
         QPen penStyle(paintingColor, 2.0, Qt::SolidLine);
 
         if (!isSnappingActive()) {
@@ -169,9 +154,7 @@ void VanishingPointAssistant::drawAssistant(QPainter& gc, const QRectF& updateRe
 
     QTransform initialTransform = converter->documentToWidgetTransform();
 
-    // draw the local rectangle
     if (assistantVisible && isLocal() && isAssistantComplete()) {
-        // limited area rectangle
         QPainterPath path;
         QPointF p1 = *handles()[(int)LocalFirstHandle];
         QPointF p3 = *handles()[(int)LocalSecondHandle];
@@ -184,37 +167,30 @@ void VanishingPointAssistant::drawAssistant(QPainter& gc, const QRectF& updateRe
         path.lineTo(initialTransform.map(p3));
         path.lineTo(initialTransform.map(p4));
         path.lineTo(initialTransform.map(p1));
-        drawPath(gc, path, displayRenderInterface, isSnappingActive());//and we draw the rectangle
+        drawPath(gc, path, displayRenderInterface, isSnappingActive());
     }
 
-
-    // draw references guide for vanishing points at specified density
     if (assistantVisible && this->isSnappingActive() ) {
 
-        // cycle through degrees from 0 to 180. We are doing an infinite line, so we don't need to go 360
-        QPointF p0 = initialTransform.map(*handles()[0]); // main vanishing point
+        QPointF p0 = initialTransform.map(*handles()[0]);
 
         for (int currentAngle=0; currentAngle <= 180; currentAngle = currentAngle + m_referenceLineDensity ) {
 
-            // determine the correct angle based on the iteration
             float xPos = cos(currentAngle * M_PI / 180);
             float yPos = sin(currentAngle * M_PI / 180);
             QPointF unitAngle;
             unitAngle.setX(p0.x() + xPos);
             unitAngle.setY(p0.y() + yPos);
 
-            // find point
             QLineF snapLine= QLineF(p0, unitAngle);
             KisAlgebra2D::intersectLineConvexPolygon(snapLine, viewportAndLocalPoly, true, true);
 
-            // make a line from VP center to edge of canvas with that angle
             QPainterPath path;
             path.moveTo(snapLine.p1());
             path.lineTo(snapLine.p2());
-            drawPreview(gc, path, displayRenderInterface);//and we draw the preview.
+            drawPreview(gc, path, displayRenderInterface);
         }
     }
-
 
     gc.restore();
 
@@ -234,14 +210,12 @@ void VanishingPointAssistant::drawCache(QPainter& gc, const KisCoordinatesConver
     QTransform initialTransform = converter->documentToWidgetTransform();
     QPointF p0 = initialTransform.map(*handles()[0]);
 
-    // draws an "X"
     QPainterPath path;
     path.moveTo(QPointF(p0.x() - 10.0, p0.y() - 10.0));
     path.lineTo(QPointF(p0.x() + 10.0, p0.y() + 10.0));
 
     path.moveTo(QPointF(p0.x() - 10.0, p0.y() + 10.0));
     path.lineTo(QPointF(p0.x() + 10.0, p0.y() - 10.0));
-
 
     drawPath(gc, path, displayRenderInterface, isSnappingActive());
 }
@@ -277,7 +251,6 @@ QPointF VanishingPointAssistant::getDefaultEditorPosition() const
 
 void VanishingPointAssistant::setReferenceLineDensity(float value)
 {
-    // cannot have less than 1 degree value
     if (value < 1.0) {
         value = 1.0;
     }
@@ -321,7 +294,6 @@ bool VanishingPointAssistant::loadCustomXml(QXmlStreamReader* xml)
 
     return true;
 }
-
 
 VanishingPointAssistantFactory::VanishingPointAssistantFactory()
 {

@@ -18,9 +18,9 @@ public:
     ~Private() {
     }
 
-    QList<KoShape*> shapes;    ///< the shapes to set background for
-    QList<qreal> oldTransparencies; ///< the old transparencies
-    QList<qreal> newTransparencies; ///< the new transparencies
+    QList<KoShape*> shapes;
+    QList<qreal> oldTransparencies;
+    QList<qreal> newTransparencies;
 };
 
 KoShapeTransparencyCommand::KoShapeTransparencyCommand(const QList<KoShape*> &shapes, qreal transparency, KUndo2Command *parent)

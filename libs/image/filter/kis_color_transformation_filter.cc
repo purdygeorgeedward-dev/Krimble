@@ -38,7 +38,6 @@ void KisColorTransformationFilter::processImpl(KisPaintDeviceSP device,
 
     const KoColorSpace * cs = device->colorSpace();
     KoColorTransformation * colorTransformation = 0;
-    // Ew, casting
     KisColorTransformationConfigurationSP colorTransformationConfiguration(dynamic_cast<KisColorTransformationConfiguration*>(const_cast<KisFilterConfiguration*>(config.data())));
     if (colorTransformationConfiguration) {
         colorTransformation = colorTransformationConfiguration->colorTransformation(cs, this);

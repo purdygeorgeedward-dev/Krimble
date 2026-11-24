@@ -14,7 +14,6 @@
 
 #include <QScopedPointer>
 
-
 class KisAnimTimelineLayersHeader : public QHeaderView
 {
     Q_OBJECT
@@ -37,7 +36,6 @@ private:
     struct Private;
     const QScopedPointer<Private> m_d;
 
-
 };
 
-#endif /* __TIMELINE_LAYERS_HEADER_H */
+#endif

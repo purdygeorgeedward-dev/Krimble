@@ -7,7 +7,6 @@
 
 #include <kis_paintop_settings.h>
 
-
 bool KisPaintThicknessOptionMixInImpl::read(const KisPropertiesConfiguration *setting)
 {
     mode = (ThicknessMode)setting->getInt("PaintThicknessThicknessMode", OVERLAY);

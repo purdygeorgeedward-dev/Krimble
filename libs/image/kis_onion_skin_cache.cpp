@@ -10,7 +10,6 @@
 #include <QReadLocker>
 #include <QWriteLocker>
 
-
 #include "kis_paint_device.h"
 #include "kis_onion_skin_compositor.h"
 #include "kis_default_bounds.h"
@@ -19,7 +18,6 @@
 #include "KoColorSpace.h"
 
 #include "kis_raster_keyframe_channel.h"
-
 
 struct KisOnionSkinCache::Private
 {
@@ -71,8 +69,7 @@ KisPaintDeviceSP KisOnionSkinCache::projection(KisPaintDeviceSP source)
 
     QReadLocker readLocker(&m_d->lock);
     cachedProjection = m_d->cachedProjection;
-    
-    
+
     if (!cachedProjection || !m_d->checkCacheValid(source, compositor)) {
 
         readLocker.unlock();
@@ -98,11 +95,6 @@ KisPaintDeviceSP KisOnionSkinCache::projection(KisPaintDeviceSP source)
 
             cachedProjection->setDefaultBounds(source->defaultBounds());
 
-            /**
-             * It might happen that the lod planes has already been
-             * generated for all the devices, so we should cold-init them
-             * for the onion skins.
-             */
             const int lod = source->defaultBounds()->currentLevelOfDetail();
             if (lod > 0) {
                 QScopedPointer<KisPaintDevice::LodDataStruct> data(cachedProjection->createLodDataStruct(lod));

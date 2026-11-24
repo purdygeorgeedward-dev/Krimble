@@ -10,9 +10,6 @@
 #include <QObject>
 #include <QVariant>
 
-/**
- * Shows the last used presets
- */
 class PresetHistoryPlugin : public QObject
 {
     Q_OBJECT

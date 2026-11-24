@@ -11,29 +11,12 @@
 #include "kis_node_shapes_graph.h"
 #include "node_shapes_utils.h"
 
-
-/**
- * node0
- * +--node1
- *    +--node7
- *    +--node8
- * +--node2
- * +--node3
- * +--node4
- *    +--node9
- *    +--node10
- *    +--node11
- * +--node5
- * +--node6
- */
-
 void KisNodeShapesGraphTest::init()
 {
     m_shapesGraph = new KisNodeShapesGraph();
     KisNodeSP rootNode = nodeFromId(0);
     m_shapesGraph->addNode(rootNode, 0, 0);
     m_rootDummy = m_shapesGraph->nodeToDummy(rootNode);
-
 
     KisNodeSP parent;
 

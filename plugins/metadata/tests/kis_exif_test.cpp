@@ -11,7 +11,6 @@
 #include <simpletest.h>
 #include <testui.h>
 
-
 #include <QBuffer>
 #include <QCoreApplication>
 
@@ -72,14 +71,11 @@ void KisExifTest::testExifLoader()
     QCOMPARE(store->getEntry(exifSchema, "ExposureTime").value(), Value(Rational(35355, 100000)));
     QCOMPARE(store->getEntry(exifSchema, "FNumber").value(), Value(Rational(280, 100)));
     QCOMPARE(store->getEntry(exifSchema, "ExposureProgram").value(), Value(2));
-    //     QCOMPARE(store->getEntry(exifSchema, "ISOSpeedRatings").value(), Value(100)); // TODO it's a list
-    // TODO test OECF
     QCOMPARE(store->getEntry(exifSchema, "ExifVersion").value(), Value("0220"));
     QCOMPARE(store->getEntry(exifSchema, "DateTimeOriginal").value(),
              Value(QDateTime(QDate(2007, 5, 8), QTime(0, 19, 18))));
     QCOMPARE(store->getEntry(exifSchema, "DateTimeDigitized").value(),
              Value(QDateTime(QDate(2007, 5, 8), QTime(0, 19, 18))));
-    // TODO ComponentsConfiguration
     QCOMPARE(store->getEntry(exifSchema, "ShutterSpeedValue").value(), Value(Rational(384, 256)));
     QCOMPARE(store->getEntry(exifSchema, "ApertureValue").value(), Value(Rational(780, 256)));
     QCOMPARE(store->getEntry(exifSchema, "BrightnessValue").value(), Value(Rational(-37, 256)));

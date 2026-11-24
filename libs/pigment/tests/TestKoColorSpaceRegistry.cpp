@@ -65,11 +65,6 @@ void TestBaseColorSpaceRegistry::testQColorSpaceConversionRoundtrip_data()
                                          << int(PRIMARIES_ITU_R_BT_709_5) << int(TRC_IEC_61966_2_1);
     QTest::addRow("sRGB, linear") << int(QColorSpace::Primaries::SRgb) << int(QColorSpace::TransferFunction::Linear)
                                          << int(PRIMARIES_ITU_R_BT_709_5) << int(TRC_LINEAR);
-    // Because every dev's system is a little different, we can only really test the profiles that we can assure, because otherwise unexpected profiles might show up.
-    //QTest::addRow("Display p3") << int(QColorSpace::Primaries::DciP3D65) << int(QColorSpace::TransferFunction::SRgb)
-    //                              << int(PRIMARIES_SMPTE_EG_432_1) << int(TRC_IEC_61966_2_1);
-    //QTest::addRow("Prophoto") << int(QColorSpace::Primaries::ProPhotoRgb) << int(QColorSpace::TransferFunction::ProPhotoRgb)
-    //                              << int(PRIMARIES_PROPHOTO) << int(TRC_PROPHOTO);
 #if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
     QTest::addRow("rec2020") << int(QColorSpace::Primaries::Bt2020) << int(QColorSpace::TransferFunction::Bt2020)
                                   << int(PRIMARIES_ITU_R_BT_2020_2_AND_2100_0) << int(TRC_ITU_R_BT_2020_2_12bit);
@@ -92,8 +87,6 @@ void TestBaseColorSpaceRegistry::testQColorSpaceConversionRoundtrip()
     QColorSpace space = KoColorSpaceRegistry::instance()->QColorSpaceForProfile(reference);
 
     QVERIFY2(int(space.primaries()) == QPrimaries, QString("QColorspace primaries don't match").toLatin1());
-    // While we can create the functions, Qt(5) cannot recognise the transfer function.
-    //QVERIFY2(int(space.transferFunction()) == QTransfer, QString("QColorspace transfer doesn't match.").toLatin1());
 
     const KoColorProfile *roundtrip = KoColorSpaceRegistry::instance()->profileForQColorSpace(space);
 

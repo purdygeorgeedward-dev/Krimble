@@ -16,7 +16,6 @@ private Q_SLOTS:
 
     void testCalcGridDimension();
     void testCalcGridSize();
-    // void testProcessGrid();
     void testCalculateCellIndexes_data();
     void testCalculateCellIndexes();
     void testPointToIndex_data();
@@ -28,22 +27,9 @@ private Q_SLOTS:
     void testCalculateCorrectSubGrid();
     void testCutOutSubgridFromBounds_data();
     void testCutOutSubgridFromBounds();
-    /*
-    void testAdjustAlignedPolygon();
-    void testRestoreOriginalPolygonFromAligned();
-    void testIterateThroughGrid();
-
-    void testCellOpStruct();
-    void testPaintDevicePolygonOpStruct();
-    void testQImagePolygonOpStruct();
-    void testIncompletePolygonPolicy();
-    void testAlwaysCompletePolygonPolicy();
-    void testRegularGridIndexesOp();
-    */
 
     void testCanProcessPolygonsInRandomOrder();
     void testQImagePolygonOpStructFastAreaCopy();
-
 
 };
 

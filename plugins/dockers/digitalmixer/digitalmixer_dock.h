@@ -30,11 +30,10 @@ class DigitalMixerDock : public QDockWidget, public KisMainwindowObserver {
 public:
     DigitalMixerDock( );
     QString observerName() override { return "DigitalMixerDock"; }
-    /// reimplemented from KoCanvasObserverBase
     void setCanvas(KoCanvasBase *canvas) override;
     void unsetCanvas() override { m_canvas = 0; setEnabled(false);}
 
-public: // KisMainWindowObserver
+public:
   void setViewManager(KisViewManager* kisview) override;
 
 public Q_SLOTS:
@@ -79,6 +78,5 @@ private:
 
     QPushButton *m_reset_button;
 };
-
 
 #endif

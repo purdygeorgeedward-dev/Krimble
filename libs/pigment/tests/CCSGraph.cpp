@@ -37,18 +37,15 @@ int main(int argc, char** argv)
 
     parser.addVersionOption();
     parser.addHelpOption();
-    // Initialize the list of options
     parser.addOption(QCommandLineOption(QStringList() << QLatin1String("graphs"), i18n("return the list of available graphs")));
     parser.addOption(QCommandLineOption(QStringList() << QLatin1String("graph"), i18n("specify the type of graph (see --graphs to get the full list, the default is full)"), QLatin1String("type"), QLatin1String("full")));
     parser.addOption(QCommandLineOption(QStringList() << QLatin1String("key"), i18n("specify the key of the source color space"), QLatin1String("key"), QString()));
     parser.addOption(QCommandLineOption(QStringList() << QLatin1String("key"), i18n("specify the key of the destination color space"), QLatin1String("key"), QString()));
     parser.addOption(QCommandLineOption(QStringList() << QLatin1String("output"), i18n("specify the output (can be ps or dot, the default is ps)"), QLatin1String("type"), QLatin1String("ps")));
     parser.addPositionalArgument(QLatin1String("outputfile"), i18n("name of the output file"));
-    parser.process(app); // PORTING SCRIPT: move this to after any parser.addOption
+    parser.process(app);
 
     if (parser.isSet("graphs")) {
-        // Don't change those lines to use dbgPigment derivatives, they need to be outputted
-        // to stdout not stderr.
         std::cout << "full : show all the connection on the graph" << std::endl;
         std::cout << "bestpath : show the best path for a given transformation" << std::endl;
         exit(EXIT_SUCCESS);
@@ -61,7 +58,6 @@ int main(int argc, char** argv)
         exit(EXIT_FAILURE);
     }
     QString outputFileName = parser.positionalArguments()[0];
-    // Generate the graph
 
     QString dot;
     if (graphType == "full") {

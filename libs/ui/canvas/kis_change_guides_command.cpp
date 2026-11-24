@@ -47,8 +47,7 @@ bool KisChangeGuidesCommand::Private::sameOrOnlyMovedOneGuideBetween(const KisGu
         q->setText(kundo2_i18n("Add Guide"));
     } else if (ret == REMOVAL) {
         q->setText(kundo2_i18n("Remove Guide"));
-    } else if (ret == NO_DIFF || ret == ONE_DIFF) { // meaning we will still merge it
-        // XXX: how to deal with NO_DIFF (the command "should" be removed -- how?)
+    } else if (ret == NO_DIFF || ret == ONE_DIFF) {
         q->setText(kundo2_i18n("Edit Guides"));
     } else {
         return false;
@@ -69,23 +68,22 @@ KisChangeGuidesCommand::Private::Status KisChangeGuidesCommand::Private::diff(co
             }
         }
         return diffCount == 0 ? NO_DIFF : ONE_DIFF;
-    } else if (first.size() - second.size() == -1) { // added a guide
+    } else if (first.size() - second.size() == -1) {
         QList<qreal> beforeRemoval = second;
         beforeRemoval.takeLast();
         return first == beforeRemoval ? ADDITION : OTHER_DIFF;
-    } else if (first.size() - second.size() == 1) { // removed a guide
+    } else if (first.size() - second.size() == 1) {
         bool skippedItem = false;
         for (QListIterator<qreal> i(first), j(second); i.hasNext() && j.hasNext(); ) {
             qreal curFirst = i.next();
             qreal curSecond = j.next();
             if (!skippedItem && curFirst != curSecond) {
-                curFirst = i.next(); // try to go to the next item and see if it matches
+                curFirst = i.next();
             }
             if (curFirst != curSecond) {
                 return OTHER_DIFF;
             }
         }
-        // here we conclude only one guide is removed
         return REMOVAL;
     } else {
         return OTHER_DIFF;
@@ -106,7 +104,6 @@ KisChangeGuidesCommand::KisChangeGuidesCommand(KisDocument *doc, const KisGuides
 {
     m_d->oldGuides = oldGuides;
     m_d->newGuides = newGuides;
-    // update the undo command text
     m_d->sameOrOnlyMovedOneGuideBetween(m_d->oldGuides, m_d->newGuides);
 }
 

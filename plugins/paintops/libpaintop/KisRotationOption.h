@@ -26,4 +26,4 @@ private:
     qreal m_fanCornersStep {30.0};
 };
 
-#endif // KISROTATIONOPTION_H
+#endif

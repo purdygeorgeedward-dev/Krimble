@@ -24,7 +24,6 @@ PaletteView::PaletteView(QWidget *parent)
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->addWidget(d->widget);
 
-    //forward signals.
     connect(d->widget, SIGNAL(sigIndexSelected(QModelIndex)),
                  this, SLOT(fgSelected(QModelIndex)));
 }

@@ -97,11 +97,10 @@ public Q_SLOTS:
 
     void slotScrollerStateChanged(QScroller::State state){KisKineticScroller::updateCursor(this, state);}
 
-
 private:
     KisUndoViewPrivate* const d;
     Q_DISABLE_COPY(KisUndoView)
 };
 
-#endif // QT_NO_UNDOVIEW
-#endif // KisUndoView_H
+#endif
+#endif

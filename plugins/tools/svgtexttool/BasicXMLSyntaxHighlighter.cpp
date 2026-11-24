@@ -34,14 +34,12 @@ BasicXMLSyntaxHighlighter::BasicXMLSyntaxHighlighter(QTextEdit * parent) :
 
 void BasicXMLSyntaxHighlighter::highlightBlock(const QString & text)
 {
-    // Special treatment for xml element regex as we use captured text to emulate lookbehind
     QRegularExpressionMatchIterator i = m_xmlElementRegex.globalMatch(text);
     while (i.hasNext()) {
         QRegularExpressionMatch match = i.next();
         setFormat(match.capturedStart(0), match.capturedLength(0), m_xmlElementFormat);
-    } 
+    }
 
-    // Highlight xml keywords *after* xml elements to fix any occasional / captured into the enclosing element
     typedef QList<QRegularExpression>::const_iterator Iter;
     Iter xmlKeywordRegexesEnd = m_xmlKeywordRegexes.constEnd();
     for(Iter it = m_xmlKeywordRegexes.constBegin(); it != xmlKeywordRegexesEnd; ++it) {
@@ -61,7 +59,7 @@ void BasicXMLSyntaxHighlighter::highlightByRegex(const QTextCharFormat & format,
     while (i.hasNext()) {
         QRegularExpressionMatch match = i.next();
         setFormat(match.capturedStart(0), match.capturedLength(0), format);
-    } 
+    }
 }
 
 void BasicXMLSyntaxHighlighter::setRegexes()

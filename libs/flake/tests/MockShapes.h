@@ -19,14 +19,12 @@
 #include "kritaflake_export.h"
 #include "kis_assert.h"
 
-
 class KRITAFLAKE_EXPORT MockShape : public KoShape
 {
 public:
     MockShape() : paintedCount(0) {}
     void paint(QPainter &painter) const override {
         Q_UNUSED(painter);
-        //qDebug() << "Shape" << kBacktrace( 10 );
         paintedCount++;
     }
     mutable int paintedCount;
@@ -40,7 +38,6 @@ public:
     MockContainer(KoShapeContainerModel *model = new SimpleShapeContainerModel()) : KoShapeContainer(model), paintedCount(0) {}
     void paintComponent(QPainter &painter) const override {
         Q_UNUSED(painter);
-        //qDebug() << "Container:" << kBacktrace( 10 );
         paintedCount++;
     }
 
@@ -98,7 +95,7 @@ class KRITAFLAKE_EXPORT MockCanvas : public KoCanvasBase
 {
     Q_OBJECT
 public:
-    MockCanvas(KoShapeControllerBase *aKoShapeControllerBase =0)//made for TestSnapStrategy.cpp
+    MockCanvas(KoShapeControllerBase *aKoShapeControllerBase =0)
             : KoCanvasBase(aKoShapeControllerBase),
               m_shapeManager(new KoShapeManager(this)),
               m_selectedShapesProxy(new KoSelectedShapesProxySimple(m_shapeManager.data()))
@@ -162,38 +159,29 @@ public:
         resetCounts();
     }
 
-    /// reimplemented
     void add(KoShape *child) override {
-        m_children.append(child); // note that we explicitly do not check for duplicates here!
+        m_children.append(child);
     }
-    /// reimplemented
     void remove(KoShape *child) override {
         m_children.removeAll(child);
     }
 
-    /// reimplemented
-    void setClipped(const KoShape *, bool) override { }  // ignored
-    /// reimplemented
+    void setClipped(const KoShape *, bool) override { }
     bool isClipped(const KoShape *) const override {
         return false;
-    }// ignored
-    /// reimplemented
+    }
     int count() const override {
         return m_children.count();
     }
-    /// reimplemented
     QList<KoShape*> shapes() const override {
         return m_children;
     }
-    /// reimplemented
     void containerChanged(KoShapeContainer *, KoShape::ChangeType) override {
         m_containerChangedCalled++;
     }
-    /// reimplemented
     void proposeMove(KoShape *, QPointF &) override {
         m_proposeMoveCalled++;
     }
-    /// reimplemented
     void childChanged(KoShape *, KoShape::ChangeType) override {
         m_childChangedCalled++;
     }

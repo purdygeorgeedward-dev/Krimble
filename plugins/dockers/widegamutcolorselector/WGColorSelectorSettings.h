@@ -60,7 +60,6 @@ private:
     QVector<QToolButton*> m_shadeLineButtons;
 };
 
-
 class WGColorSelectorSettingsFactory : public KisAbstractPreferenceSetFactory
 {
 public:
@@ -80,4 +79,4 @@ private:
     WGColorSelectorSettings* m_widget;
 };
 
-#endif // WGCOLORSELECTORSETTINGS_H
+#endif

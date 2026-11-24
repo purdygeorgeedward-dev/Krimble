@@ -19,10 +19,6 @@
 #include "KisSprayShapeDynamicsOptionData.h"
 #include "KisSprayShapeOptionData.h"
 
-
-
-
-
 #include <QImage>
 #include <kis_brush.h>
 
@@ -96,9 +92,7 @@ private:
                    const KoColor &bgColor,
                    const AngularDistribution &angularDistribution,
                    const RadialDistribution &radialDistribution);
-    /// rotation in radians according the settings (gauss distribution, uniform distribution or fixed angle)
     qreal rotationAngle(KisRandomSourceSP randomSource);
-    /// Paints Wu Particle
     void paintParticle(KisRandomAccessorSP &writeAccessor, const KoColor &color, qreal rx, qreal ry);
     void paintCircle(KisPainter * painter, qreal x, qreal y, qreal radius);
     void paintEllipse(KisPainter * painter, qreal x, qreal y, qreal a, qreal b, qreal angle);
@@ -106,18 +100,14 @@ private:
 
     void paintOutline(KisPaintDeviceSP dev, const KoColor& painterColor, qreal posX, qreal posY, qreal radius);
 
-    /// mix a with b.b mix with weight and a with 1.0 - weight
     inline qreal linearInterpolation(qreal a, qreal b, qreal weight) const {
         return (1.0 - weight) * a + weight * b;
     }
 
-    // TODO: move this somewhere where I can reuse it
-    /// convert radians to degrees
     inline qreal rad2deg(qreal rad) const {
         return rad * (180.0 / M_PI);
     }
 
-    /// convert degrees to radians
     inline qreal deg2rad(quint16 deg) const {
         return deg * (M_PI / 180.0);
     }

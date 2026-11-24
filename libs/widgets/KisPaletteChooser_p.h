@@ -52,4 +52,4 @@ public:
     QSize sizeHint(const QStyleOptionViewItem & option, const QModelIndex &) const override;
 };
 
-#endif // KISPALETTELISTWIDGET_P_H
+#endif

@@ -13,7 +13,6 @@
 
 #include "kis_debug.h"
 
-
 void KoAnchorSelectionWidgetTest::test()
 {
     QDialog dlg;
@@ -27,7 +26,6 @@ void KoAnchorSelectionWidgetTest::test()
     layout->addWidget(widget);
     dlg.setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
 
-    //dlg.exec();
     qWarning() << "WARNING: showing of the dialogs in the unittest is disabled!";
 }
 

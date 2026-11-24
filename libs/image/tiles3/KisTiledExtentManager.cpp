@@ -83,13 +83,6 @@ bool KisTiledExtentManager::Data::remove(qint32 index)
 
     const int oldValue = m_buffer[currentIndex].fetchAndAddAcquire(-1);
 
-    /**
-     * That is not the droid you're looking for. If you see this assert
-     * in the backtrace, most probably, the bug is not here. The crash
-     * happens because two threads are trying to do device->clear(rc)
-     * concurrently for the overlapping rects. That is, they are trying
-     * to remove the same tile. Look higher!
-     */
     KIS_SAFE_ASSERT_RECOVER(oldValue > 0) {
         m_buffer[currentIndex].storeRelaxed(0);
         return false;

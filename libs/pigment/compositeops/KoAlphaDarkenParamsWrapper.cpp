@@ -10,7 +10,6 @@
 #include <kconfiggroup.h>
 #include "kis_debug.h"
 
-
 bool useCreamyAlphaDarken()
 {
     static bool isConfigInitialized = false;

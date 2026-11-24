@@ -15,7 +15,6 @@
 #include "kis_selection.h"
 #include "kis_types.h"
 
-
 KisGenerator::KisGenerator(const KoID& _id, const KoID & category, const QString & entry)
     : KisBaseProcessor(_id, category, entry)
 {

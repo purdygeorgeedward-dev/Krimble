@@ -11,21 +11,6 @@
 namespace {
 
 auto makeSizePack = lager::lenses::getset(
-    /**
-     * In SizePack we use a two-stage approach in calculation of the
-     * particles size. First we unpack the size into a special structure
-     * that stores both, pixel and proportional sizes of the particles.
-     * This way we are able to toggle the `proportional` switch without
-     * invalidating existing value.
-     *
-     * Please note that  we connect to `KisSprayShapeOptionData` as a whole
-     * instead of its members to avoid partial updates when we change the
-     * `proportional` value.
-     *
-     * Theoretically, we could use only one stage, but that would make the
-     * code a bit more complicated.
-     *
-     */
     [](const std::tuple<KisSprayShapeOptionData, int, qreal> &value) -> SprayShapeSizePack {
         auto [optionData, diameter, scale] = value;
 

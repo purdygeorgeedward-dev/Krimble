@@ -10,13 +10,10 @@
 #include <simpletest.h>
 #include <kis_datamanager.h>
 
-// RGBA
 #define PIXEL_SIZE 4
-//#define CYCLES 100
 
 void KisDatamanagerBenchmark::initTestCase()
 {
-    // To make sure all the first-time startup costs are done
     quint8 * p = new quint8[PIXEL_SIZE];
     memset(p, 0, PIXEL_SIZE);
     KisDataManager dm(PIXEL_SIZE, p);
@@ -24,7 +21,6 @@ void KisDatamanagerBenchmark::initTestCase()
 
 void KisDatamanagerBenchmark::benchmarkCreation()
 {
-    // tests the cost of creating a new datamanager
 
     QBENCHMARK {
         quint8 * p = new quint8[PIXEL_SIZE];
@@ -71,7 +67,6 @@ void KisDatamanagerBenchmark::benchmarkReadBytes()
     delete[] bytes;
 }
 
-
 void KisDatamanagerBenchmark::benchmarkReadWriteBytes()
 {
     quint8 *p = new quint8[PIXEL_SIZE];
@@ -89,7 +84,7 @@ void KisDatamanagerBenchmark::benchmarkReadWriteBytes()
             dm.readBytes(bytes, 0, 0, TEST_IMAGE_WIDTH, TEST_IMAGE_HEIGHT);
         }
 #else
-            dm.readBytes(bytes, 0, 0, TEST_IMAGE_WIDTH, TEST_IMAGE_HEIGHT);    
+            dm.readBytes(bytes, 0, 0, TEST_IMAGE_WIDTH, TEST_IMAGE_HEIGHT);
 #endif
     }
     delete[] bytes;
@@ -100,7 +95,7 @@ void KisDatamanagerBenchmark::benchmarkReadWriteBytes2()
     quint8 *p = new quint8[PIXEL_SIZE];
     memset(p, 0, PIXEL_SIZE);
     KisDataManager dm(PIXEL_SIZE, p);
-    
+
     KisDataManager dab(PIXEL_SIZE, p);
 
     {
@@ -150,11 +145,10 @@ void KisDatamanagerBenchmark::benchmarkClear()
     memset(p, 128, PIXEL_SIZE);
     KisDataManager dm(PIXEL_SIZE, p);
     quint8 *bytes = new quint8[PIXEL_SIZE * NO_TILE_EXACT_BOUNDARY_WIDTH * NO_TILE_EXACT_BOUNDARY_HEIGHT];
-    
+
     memset(bytes, 0, PIXEL_SIZE * NO_TILE_EXACT_BOUNDARY_WIDTH * NO_TILE_EXACT_BOUNDARY_HEIGHT);
     dm.writeBytes(bytes, 0, 0, NO_TILE_EXACT_BOUNDARY_WIDTH, NO_TILE_EXACT_BOUNDARY_HEIGHT);
 
-    // 80% of the image will be cleared
     quint32 clearWidth = 0.8 * NO_TILE_EXACT_BOUNDARY_WIDTH;
     quint32 clearHeight = 0.8 * NO_TILE_EXACT_BOUNDARY_HEIGHT;
 
@@ -163,7 +157,6 @@ void KisDatamanagerBenchmark::benchmarkClear()
     }
 
 }
-
 
 void KisDatamanagerBenchmark::benchmarkMemCpy()
 {
@@ -185,6 +178,5 @@ void KisDatamanagerBenchmark::benchmarkMemCpy()
     delete[] src;
     delete[] dst;
 }
-
 
 SIMPLE_TEST_MAIN(KisDatamanagerBenchmark)

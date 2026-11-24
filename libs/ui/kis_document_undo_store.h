@@ -28,4 +28,4 @@ private:
     KisDocument* m_doc;
 };
 
-#endif /* __KIS_DOCUMENT_UNDO_STORES_H */
+#endif

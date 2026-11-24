@@ -26,7 +26,6 @@ QString KritaVersionWrapper::versionString(bool checkGit)
 #  elif defined(KRITA_ALPHA)
         suffix = QStringLiteral("-alpha");
 #  endif
-        // "1.0" from "1.0.0-beta2"
         version = QStringLiteral("%1.%2%3").arg(kritaVersion.section(QLatin1Char('.'), 0, 1),
                                                 QStringLiteral(KRIMBLE_BUILD_NUMBER),
                                                 suffix);
@@ -38,7 +37,6 @@ QString KritaVersionWrapper::versionString(bool checkGit)
 #  endif
         version = QStringLiteral("%1 (%2)").arg(version, detail);
 #else
-        // (original behaviour)
 #  ifdef KRITA_GIT_SHA1_STRING
         QString gitVersion = QStringLiteral(KRITA_GIT_SHA1_STRING);
         version = QStringLiteral("%1 (git %2)").arg(kritaVersion, gitVersion);

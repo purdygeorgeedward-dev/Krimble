@@ -16,9 +16,6 @@ namespace Ui
 class KisInputConfigurationPage;
 }
 
-/**
- * \brief A Configuration Dialog Page to configure the canvas input.
- */
 class KisInputConfigurationPage : public QWidget
 {
     Q_OBJECT
@@ -32,7 +29,6 @@ public Q_SLOTS:
     void setDefaults();
     void slotScrollerStateChanged(QScroller::State state){KisKineticScroller::updateCursor(this, state);}
 
-
 private Q_SLOTS:
     void editProfilesButtonClicked();
     void updateSelectedProfile();
@@ -45,4 +41,4 @@ private:
     QScopedPointer<Private> m_d;
 };
 
-#endif // KISINPUTCONFIGURATIONPAGE_H
+#endif

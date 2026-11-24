@@ -20,7 +20,6 @@
 #include "testutil.h"
 #include "testing_timed_default_bounds.h"
 
-
 #include <lazybrush/KisWatershedWorker.h>
 
 inline KisPaintDeviceSP loadTestImage(const QString &name, bool convertToAlpha)
@@ -78,10 +77,6 @@ void KisWatershedWorkerTest::testWorkerSmall()
 
     KisPaintDeviceSP filteredMainDev = KisPainter::convertToAlphaAsGray(mainDev);
     const QRect filterRect = filteredMainDev->exactBounds();
-//    KisGaussianKernel::applyLoG(filteredMainDev,
-//                                filterRect,
-//                                2,
-//                                QBitArray(), 0);
 
     KisLazyFillTools::normalizeAndInvertAlpha8Device(filteredMainDev, filterRect);
 
@@ -120,10 +115,6 @@ void KisWatershedWorkerTest::testWorkerSmallWithAllies()
 
     KisPaintDeviceSP filteredMainDev = KisPainter::convertToAlphaAsGray(mainDev);
     const QRect filterRect = filteredMainDev->exactBounds();
-//    KisGaussianKernel::applyLoG(filteredMainDev,
-//                                filterRect,
-//                                2,
-//                                QBitArray(), 0);
 
     KisLazyFillTools::normalizeAndInvertAlpha8Device(filteredMainDev, filterRect);
 
@@ -174,7 +165,6 @@ void KisWatershedWorkerTest::testWorkerSmallWithAllies()
 
     worker.testingTryRemoveGroup(2, 0);
 
-    // check the group was really removed!
     QCOMPARE(worker.testingGroupPositiveEdge(2, 0), 0);
     QCOMPARE(worker.testingGroupNegativeEdge(2, 0), 0);
     QCOMPARE(worker.testingGroupForeignEdge(2, 0), 0);

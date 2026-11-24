@@ -9,7 +9,6 @@
 #include <KisCurveOptionWidget.h>
 #include <KisSmudgeLengthOptionData.h>
 
-
 class KisSmudgeLengthOptionWidget : public KisCurveOptionWidget
 {
     Q_OBJECT
@@ -34,4 +33,4 @@ private:
     const QScopedPointer<Private> m_d;
 };
 
-#endif // KISSMUDGELENGTHOPTIONWIDGET_H
+#endif

@@ -33,4 +33,4 @@ private Q_SLOTS:
 
 };
 
-#endif // KISMASKGENERATORBENCHMARK_H
+#endif

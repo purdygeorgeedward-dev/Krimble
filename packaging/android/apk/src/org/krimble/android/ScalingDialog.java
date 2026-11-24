@@ -41,7 +41,6 @@ public final class ScalingDialog {
 
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
-                // Nothing.
             }
 
             @Override

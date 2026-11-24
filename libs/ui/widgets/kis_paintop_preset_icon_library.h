@@ -32,4 +32,4 @@ private:
     QImage m_background;
 };
 
-#endif // KIS_PAINTOP_PRESET_ICON_LIBRARY_H
+#endif

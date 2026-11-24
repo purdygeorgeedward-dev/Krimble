@@ -69,7 +69,7 @@ struct CompositeFunction<channels_type, KIS_MASKING_BRUSH_COMPOSITE_MULT, true, 
     : public StrengthCompositeFunctionBase<channels_type>
 {
     CompositeFunction(qreal strength) : StrengthCompositeFunctionBase<channels_type>(strength) {}
-    
+
     channels_type apply(channels_type src, channels_type dst)
     {
         return Arithmetic::mul(src, dst, StrengthCompositeFunctionBase<channels_type>::strength);
@@ -86,7 +86,7 @@ struct CompositeFunction<channels_type, KIS_MASKING_BRUSH_COMPOSITE_MULT, true, 
         : StrengthCompositeFunctionBase<channels_type>(strength)
         , invertedStrength(Arithmetic::inv(StrengthCompositeFunctionBase<channels_type>::strength))
     {}
-    
+
     channels_type apply(channels_type src, channels_type dst)
     {
         return Arithmetic::mul(Arithmetic::unionShapeOpacity(src, invertedStrength), dst);
@@ -107,7 +107,7 @@ struct CompositeFunction<channels_type, KIS_MASKING_BRUSH_COMPOSITE_DARKEN, true
     : public StrengthCompositeFunctionBase<channels_type>
 {
     CompositeFunction(qreal strength) : StrengthCompositeFunctionBase<channels_type>(strength) {}
-    
+
     channels_type apply(channels_type src, channels_type dst)
     {
         return cfDarkenOnly(src, Arithmetic::mul(dst, StrengthCompositeFunctionBase<channels_type>::strength));
@@ -124,7 +124,7 @@ struct CompositeFunction<channels_type, KIS_MASKING_BRUSH_COMPOSITE_DARKEN, true
         : StrengthCompositeFunctionBase<channels_type>(strength)
         , invertedStrength(Arithmetic::inv(StrengthCompositeFunctionBase<channels_type>::strength))
     {}
-    
+
     channels_type apply(channels_type src, channels_type dst)
     {
         return cfDarkenOnly(Arithmetic::unionShapeOpacity(src, invertedStrength), dst);
@@ -145,7 +145,7 @@ struct CompositeFunction<channels_type, KIS_MASKING_BRUSH_COMPOSITE_OVERLAY, tru
     : public StrengthCompositeFunctionBase<channels_type>
 {
     CompositeFunction(qreal strength) : StrengthCompositeFunctionBase<channels_type>(strength) {}
-    
+
     channels_type apply(channels_type src, channels_type dst)
     {
         return CFOverlay<channels_type>::composeChannel(src, Arithmetic::mul(dst, StrengthCompositeFunctionBase<channels_type>::strength));
@@ -162,37 +162,18 @@ struct CompositeFunction<channels_type, KIS_MASKING_BRUSH_COMPOSITE_OVERLAY, tru
         : StrengthCompositeFunctionBase<channels_type>(strength)
         , invertedStrength(Arithmetic::inv(StrengthCompositeFunctionBase<channels_type>::strength))
     {}
-    
+
     channels_type apply(channels_type src, channels_type dst)
     {
         return CFOverlay<channels_type>::composeChannel(Arithmetic::unionShapeOpacity(src, invertedStrength), dst);
     }
 };
 
-/**
- * A special Color Dodge variant for alpha channel.
- *
- * The meaning of alpha channel is a bit different from the one in color.
- * Color dodge can quickly make the values higher than 1 or less than 0 so,
- * contrary to the color values case, we should clamp to the unit range
- */
-
 template<class T>
 inline T colorDodgeAlphaHelper(T src, T dst)
 {
     using composite_type = typename KoColorSpaceMathsTraits<T>::compositetype;
     using namespace Arithmetic;
-    // Handle the case where the denominator is 0.
-    // When src is 1 then the denominator (1 - src) becomes 0, and to avoid
-    // dividing by 0 we treat the denominator as an infinitely small number,
-    // so the result of the formula would approach infinity.
-    // For alpha values, the result should be clamped to the unit range,
-    // contrary to the color version, where the values should be clamped to
-    // the min/max range.
-    // Another special case is when both numerator and denominator are 0. In
-    // this case we also treat the denominator as an infinitely small number,
-    // and the numerator can remain as 0, so dividing 0 over a number (no matter
-    // how small it is) gives 0.
     if (isUnitValueFuzzy<T>(src)) {
         return isZeroValueFuzzy<T>(dst) ? zeroValue<T>() : unitValue<T>();
     }
@@ -201,7 +182,6 @@ inline T colorDodgeAlphaHelper(T src, T dst)
                         composite_type(KoColorSpaceMathsTraits<T>::unitValue));
 }
 
-// Integer version of color dodge alpha
 template<class T>
 inline typename std::enable_if<std::numeric_limits<T>::is_integer, T>::type
 colorDodgeAlpha(T src, T dst)
@@ -209,14 +189,11 @@ colorDodgeAlpha(T src, T dst)
     return colorDodgeAlphaHelper(src, dst);
 }
 
-// Floating point version of color dodge alpha
 template<class T>
 inline typename std::enable_if<!std::numeric_limits<T>::is_integer, T>::type
 colorDodgeAlpha(T src, T dst)
 {
     const T result = colorDodgeAlphaHelper(src, dst);
-    // Constantly dividing by small numbers can quickly make the result
-    // become infinity or NaN, so we check that and correct (kind of clamping)
     return std::isfinite(result) ? result : KoColorSpaceMathsTraits<T>::unitValue;
 }
 
@@ -234,7 +211,7 @@ struct CompositeFunction<channels_type, KIS_MASKING_BRUSH_COMPOSITE_DODGE, true,
     : public StrengthCompositeFunctionBase<channels_type>
 {
     CompositeFunction(qreal strength) : StrengthCompositeFunctionBase<channels_type>(strength) {}
-    
+
     channels_type apply(channels_type src, channels_type dst)
     {
         if constexpr (use_soft_texturing) {
@@ -245,21 +222,11 @@ struct CompositeFunction<channels_type, KIS_MASKING_BRUSH_COMPOSITE_DODGE, true,
     }
 };
 
-/**
- * A special Color Burn variant for alpha channel.
- *
- * The meaning of alpha channel is a bit different from the one in color.
- * Color burn can quickly make the values less than 0 so,
- * contrary to the color values case, we should clamp to the unit range
- */
-
 template<class T>
 inline T colorBurnAlphaHelper(T src, T dst)
 {
     using composite_type = typename KoColorSpaceMathsTraits<T>::compositetype;
     using namespace Arithmetic;
-    // Handle the case where the denominator is 0. See color dodge for a
-    // detailed explanation
     if(isZeroValueFuzzy<T>(src)) {
         return isUnitValueFuzzy<T>(dst) ? zeroValue<T>() : unitValue<T>();
     }
@@ -290,7 +257,7 @@ struct CompositeFunction<channels_type, KIS_MASKING_BRUSH_COMPOSITE_BURN, true, 
     : public StrengthCompositeFunctionBase<channels_type>
 {
     CompositeFunction(qreal strength) : StrengthCompositeFunctionBase<channels_type>(strength) {}
-    
+
     channels_type apply(channels_type src, channels_type dst)
     {
         return colorBurnAlpha(src, Arithmetic::mul(dst, StrengthCompositeFunctionBase<channels_type>::strength));
@@ -307,20 +274,13 @@ struct CompositeFunction<channels_type, KIS_MASKING_BRUSH_COMPOSITE_BURN, true, 
         : StrengthCompositeFunctionBase<channels_type>(strength)
         , invertedStrength(Arithmetic::inv(StrengthCompositeFunctionBase<channels_type>::strength))
     {}
-    
+
     channels_type apply(channels_type src, channels_type dst)
     {
         return colorBurnAlpha(Arithmetic::unionShapeOpacity(src, invertedStrength), dst);
     }
 };
 
-/**
- * A special Linear Dodge variant for alpha channel.
- *
- * The meaning of alpha channel is a bit different from the one in color. If
- * alpha channel of the destination is totally null, we should not try
- * to resurrect its contents from ashes :)
- */
 template <typename channels_type>
 struct CompositeFunction<channels_type, KIS_MASKING_BRUSH_COMPOSITE_LINEAR_DODGE, false, false>
 {
@@ -340,7 +300,7 @@ struct CompositeFunction<channels_type, KIS_MASKING_BRUSH_COMPOSITE_LINEAR_DODGE
     : public StrengthCompositeFunctionBase<channels_type>
 {
     CompositeFunction(qreal strength) : StrengthCompositeFunctionBase<channels_type>(strength) {}
-    
+
     channels_type apply(channels_type src, channels_type dst)
     {
         using composite_type = typename KoColorSpaceMathsTraits<channels_type>::compositetype;
@@ -358,13 +318,6 @@ struct CompositeFunction<channels_type, KIS_MASKING_BRUSH_COMPOSITE_LINEAR_DODGE
     }
 };
 
-/**
- * A special Linear Burn variant for alpha channel
- *
- * The meaning of alpha channel is a bit different from the one in color. We should
- * clamp the values around [zero, max] only to avoid the brush to **erase** the content
- * of the layer below
- */
 template <typename channels_type>
 struct CompositeFunction<channels_type, KIS_MASKING_BRUSH_COMPOSITE_LINEAR_BURN, false, false>
 {
@@ -382,7 +335,7 @@ struct CompositeFunction<channels_type, KIS_MASKING_BRUSH_COMPOSITE_LINEAR_BURN,
     : public StrengthCompositeFunctionBase<channels_type>
 {
     CompositeFunction(qreal strength) : StrengthCompositeFunctionBase<channels_type>(strength) {}
-    
+
     channels_type apply(channels_type src, channels_type dst)
     {
         using namespace Arithmetic;
@@ -403,7 +356,7 @@ struct CompositeFunction<channels_type, KIS_MASKING_BRUSH_COMPOSITE_LINEAR_BURN,
         : StrengthCompositeFunctionBase<channels_type>(strength)
         , invertedStrength(Arithmetic::inv(StrengthCompositeFunctionBase<channels_type>::strength))
     {}
-    
+
     channels_type apply(channels_type src, channels_type dst)
     {
         using namespace Arithmetic;
@@ -427,7 +380,7 @@ struct CompositeFunction<channels_type, KIS_MASKING_BRUSH_COMPOSITE_HARD_MIX_PHO
     : public StrengthCompositeFunctionBase<channels_type>
 {
     CompositeFunction(qreal strength) : StrengthCompositeFunctionBase<channels_type>(strength) {}
-    
+
     channels_type apply(channels_type src, channels_type dst)
     {
         return CFHardMixPhotoshop<channels_type>::composeChannel(src, Arithmetic::mul(dst, StrengthCompositeFunctionBase<channels_type>::strength));
@@ -444,7 +397,7 @@ struct CompositeFunction<channels_type, KIS_MASKING_BRUSH_COMPOSITE_HARD_MIX_PHO
         : StrengthCompositeFunctionBase<channels_type>(strength)
         , invertedStrength(Arithmetic::inv(StrengthCompositeFunctionBase<channels_type>::strength))
     {}
-    
+
     channels_type apply(channels_type src, channels_type dst)
     {
         using namespace Arithmetic;
@@ -452,13 +405,6 @@ struct CompositeFunction<channels_type, KIS_MASKING_BRUSH_COMPOSITE_HARD_MIX_PHO
                    unionShapeOpacity(dst, StrengthCompositeFunctionBase<channels_type>::strength));
     }
 };
-
-/**
- * A special Hard Mix Softer variant for alpha channel
- *
- * The meaning of alpha channel is a bit different from the one in color.
- * We have to clamp the values to the unit range
- */
 
 template<class T>
 inline T hardMixSofterPhotoshopAlpha(T src, T dst) {
@@ -485,7 +431,7 @@ struct CompositeFunction<channels_type, KIS_MASKING_BRUSH_COMPOSITE_HARD_MIX_SOF
     : public StrengthCompositeFunctionBase<channels_type>
 {
     CompositeFunction(qreal strength) : StrengthCompositeFunctionBase<channels_type>(strength) {}
-    
+
     channels_type apply(channels_type src, channels_type dst)
     {
         if constexpr (use_soft_texturing) {
@@ -496,14 +442,6 @@ struct CompositeFunction<channels_type, KIS_MASKING_BRUSH_COMPOSITE_HARD_MIX_SOF
     }
 };
 
-/**
- * A special Subtract variant for alpha channel.
- *
- * The meaning of alpha channel is a bit different from the one in color.
- * If the result of the subtraction becomes negative, we should clamp it
- * to the unit range. Otherwise, the layer may have negative alpha channel,
- * which generates funny artifacts :) See bug 424210.
- */
 template <typename channels_type>
 struct CompositeFunction<channels_type, KIS_MASKING_BRUSH_COMPOSITE_SUBTRACT, false, false>
 {
@@ -526,7 +464,7 @@ struct CompositeFunction<channels_type, KIS_MASKING_BRUSH_COMPOSITE_SUBTRACT, tr
         : StrengthCompositeFunctionBase<channels_type>(strength)
         , invertedStrength(Arithmetic::inv(StrengthCompositeFunctionBase<channels_type>::strength))
     {}
-    
+
     channels_type apply(channels_type src, channels_type dst)
     {
         using composite_type = typename KoColorSpaceMathsTraits<channels_type>::compositetype;
@@ -541,7 +479,7 @@ struct CompositeFunction<channels_type, KIS_MASKING_BRUSH_COMPOSITE_SUBTRACT, tr
     : public StrengthCompositeFunctionBase<channels_type>
 {
     CompositeFunction(qreal strength) : StrengthCompositeFunctionBase<channels_type>(strength) {}
-    
+
     channels_type apply(channels_type src, channels_type dst)
     {
         using composite_type = typename KoColorSpaceMathsTraits<channels_type>::compositetype;
@@ -561,7 +499,7 @@ struct CompositeFunction<channels_type, KIS_MASKING_BRUSH_COMPOSITE_HEIGHT, true
         : StrengthCompositeFunctionBase<channels_type>(0.99 * strength)
         , invertedStrength(Arithmetic::inv(StrengthCompositeFunctionBase<channels_type>::strength))
     {}
-    
+
     channels_type apply(channels_type src, channels_type dst)
     {
         using composite_type = typename KoColorSpaceMathsTraits<channels_type>::compositetype;
@@ -589,7 +527,7 @@ struct CompositeFunction<channels_type, KIS_MASKING_BRUSH_COMPOSITE_LINEAR_HEIGH
         : StrengthCompositeFunctionBase<channels_type>(0.99 * strength)
         , invertedStrength(Arithmetic::inv(StrengthCompositeFunctionBase<channels_type>::strength))
     {}
-    
+
     channels_type apply(channels_type src, channels_type dst)
     {
         using composite_type = typename KoColorSpaceMathsTraits<channels_type>::compositetype;
@@ -625,7 +563,7 @@ struct CompositeFunction<channels_type, KIS_MASKING_BRUSH_COMPOSITE_HEIGHT_PHOTO
         : StrengthCompositeFunctionBase<channels_type>(strength)
         , weight(composite_type(10) * StrengthCompositeFunctionBase<channels_type>::strength)
     {}
-    
+
     channels_type apply(channels_type src, channels_type dst)
     {
         using namespace Arithmetic;
@@ -646,7 +584,7 @@ struct CompositeFunction<channels_type, KIS_MASKING_BRUSH_COMPOSITE_HEIGHT_PHOTO
         : StrengthCompositeFunctionBase<channels_type>(strength)
         , weight(composite_type(9) * StrengthCompositeFunctionBase<channels_type>::strength)
     {}
-    
+
     channels_type apply(channels_type src, channels_type dst)
     {
         using namespace Arithmetic;
@@ -669,7 +607,7 @@ struct CompositeFunction<channels_type, KIS_MASKING_BRUSH_COMPOSITE_LINEAR_HEIGH
         : StrengthCompositeFunctionBase<channels_type>(strength)
         , weight(composite_type(10) * StrengthCompositeFunctionBase<channels_type>::strength)
     {}
-    
+
     channels_type apply(channels_type src, channels_type dst)
     {
         using namespace Arithmetic;
@@ -694,7 +632,7 @@ struct CompositeFunction<channels_type, KIS_MASKING_BRUSH_COMPOSITE_LINEAR_HEIGH
         : StrengthCompositeFunctionBase<channels_type>(strength)
         , weight(composite_type(9) * StrengthCompositeFunctionBase<channels_type>::strength)
     {}
-    
+
     channels_type apply(channels_type src, channels_type dst)
     {
         using namespace Arithmetic;
@@ -759,7 +697,6 @@ public:
         }
     }
 
-
 private:
     inline quint8 preprocessMask(const quint8 *pixel)
     {
@@ -778,4 +715,4 @@ private:
         <channels_type, composite_function, use_strength, use_soft_texturing> m_compositeFunction;
 };
 
-#endif // KISMASKINGBRUSHCOMPOSITEOP_H
+#endif

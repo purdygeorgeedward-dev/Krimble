@@ -10,11 +10,8 @@
 #include <QLineF>
 #include <QPolygonF>
 
-
 #include "kis_debug.h"
 #include "kis_algebra_2d.h"
-
-
 
 struct Q_DECL_HIDDEN KisSafeTransform::Private
 {
@@ -62,19 +59,15 @@ struct Q_DECL_HIDDEN KisSafeTransform::Private
         QPolygonF polygon(boundsRect);
         QPolygonF result;
 
-        // calculate new (offset) horizon to avoid infinity
         const qreal offsetLength = 10.0;
         const QPointF horizonOffset = offsetLength * crossCoeff *
             KisAlgebra2D::rightUnitNormal(baseHorizon.p2() - baseHorizon.p1());
 
         const QLineF horizon = baseHorizon.translated(horizonOffset);
 
-        // base vectors to calculate the side of the horizon
         const QPointF &basePoint = horizon.p1();
         const QPointF horizonVec = horizon.p2() - basePoint;
 
-
-        // iteration
         QPointF prevPoint = polygon[polygon.size() - 1];
         qreal prevCross = crossCoeff * KisAlgebra2D::crossProduct(horizonVec, prevPoint - basePoint);
 

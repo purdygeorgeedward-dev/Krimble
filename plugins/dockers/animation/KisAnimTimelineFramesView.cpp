@@ -182,8 +182,6 @@ KisAnimTimelineFramesView::KisAnimTimelineFramesView(QWidget *parent)
     m_d->layersHeader->setHighlightSections(true);
     this->setVerticalHeader(m_d->layersHeader);
 
-    /********** Layer Menu ***********************************************************/
-
     m_d->layerEditingMenu = new QMenu(this);
     m_d->layerEditingMenu->addSection(i18n("Edit Layers:"));
     m_d->layerEditingMenu->addSeparator();
@@ -205,8 +203,6 @@ KisAnimTimelineFramesView::KisAnimTimelineFramesView(QWidget *parent)
     m_d->addLayersButton->setPopupMode(QToolButton::InstantPopup);
     m_d->addLayersButton->setMenu(m_d->layerEditingMenu);
 
-    /********** Frame Editing Context Menu ***********************************************/
-
     m_d->colorSelector = new KisColorLabelSelectorWidgetMenuWrapper(this);
     MouseClickIgnore* clickIgnore = new MouseClickIgnore(m_d->colorSelector);
     m_d->colorSelector->installEventFilter(clickIgnore);
@@ -220,11 +216,7 @@ KisAnimTimelineFramesView::KisAnimTimelineFramesView(QWidget *parent)
     m_d->multiframeColorSelectorAction->setDefaultWidget(m_d->multiframeColorSelector);
     connect(m_d->multiframeColorSelector->colorLabelSelector(), &KisColorLabelSelectorWidget::currentIndexChanged, this, &KisAnimTimelineFramesView::slotColorLabelChanged);
 
-    /********** Insert Keyframes Dialog **************************************************/
-
     m_d->insertKeyframeDialog = new TimelineInsertKeyframeDialog(this);
-
-    /********** Zoom Button **************************************************************/
 
     m_d->zoomDragButton = new KisZoomButton(this);
     m_d->zoomDragButton->setAutoRaise(true);
@@ -234,8 +226,6 @@ KisAnimTimelineFramesView::KisAnimTimelineFramesView(QWidget *parent)
     m_d->zoomDragButton->setToolTip(i18nc("@info:tooltip", "Zoom Timeline. Hold down and drag left or right."));
     m_d->zoomDragButton->setPopupMode(QToolButton::InstantPopup);
     connect(m_d->zoomDragButton, SIGNAL(zoom(qreal)), SLOT(slotZoom(qreal)));
-
-    /********** Zoom Scrollbar **************************************************************/
 
     KisZoomableScrollBar* hZoomableBar = new KisZoomableScrollBar(this);
     setHorizontalScrollBar(hZoomableBar);
@@ -249,12 +239,6 @@ KisAnimTimelineFramesView::KisAnimTimelineFramesView(QWidget *parent)
     connect(hZoomableBar, SIGNAL(overscroll(qreal)), SLOT(slotUpdateInfiniteFramesCount()));
     connect(hZoomableBar, SIGNAL(sliderReleased()), SLOT(slotUpdateInfiniteFramesCount()));
 
-    /********** Kinetic Scrolling **************************************************************/
-
-    // Kinetic scrolling via left-click renders the timeline effectively
-    // unusable, you end up scrolling the timeline every time you try to move a
-    // key frame or attempt to use the zoom slider. So we don't enable kinetic
-    // scrolling in that case and require the use of the scrollbar instead.
     if (KisKineticScroller::getConfiguredGestureType() != QScroller::LeftMouseButtonGesture) {
         QScroller *scroller = KisKineticScroller::createPreconfiguredScroller(this);
         if (scroller) {
@@ -308,7 +292,7 @@ void KisAnimTimelineFramesView::setModel(QAbstractItemModel *model)
 
     connect(m_d->model, SIGNAL(sigInfiniteTimelineUpdateNeeded()),
             this, SLOT(slotUpdateInfiniteFramesCount()));
-    
+
     connect(m_d->model, SIGNAL(requestTransferSelectionBetweenRows(int,int)),
             this, SLOT(slotTryTransferSelectionBetweenRows(int,int)));
 
@@ -498,7 +482,7 @@ void KisAnimTimelineFramesView::slotUpdateFrameActions()
 void KisAnimTimelineFramesView::slotSelectionChanged()
 {
     int minColumn = std::numeric_limits<int>::max();
-    int maxColumn = std::numeric_limits<int>::min();    
+    int maxColumn = std::numeric_limits<int>::min();
 
     calculateActiveLayerSelectedTimes(selectedIndexes());
 
@@ -528,15 +512,14 @@ void KisAnimTimelineFramesView::slotReselectCurrentIndex()
 
 void KisAnimTimelineFramesView::slotTryTransferSelectionBetweenRows(int fromRow, int toRow)
 {
-    //If there's only one selected index, or less, just select the current index if valid...
     QModelIndex current = model()->index(toRow, m_d->model->currentTime());
     if (selectedIndexes().count() <= 1) {
-        if (selectedIndexes().count() != 1 || 
+        if (selectedIndexes().count() != 1 ||
             (selectedIndexes().first().column() == current.column() &&
             selectedIndexes().first().row() == fromRow)) {
             setCurrentIndex(current);
         }
-        
+
     }
 }
 
@@ -599,7 +582,6 @@ void KisAnimTimelineFramesView::slotDataChanged(const QModelIndex &topLeft, cons
 
     if (selectedColumn != index.column() && !m_d->dragInProgress && !m_d->model->isScrubbing()) {
         int row = index.isValid() ? index.row() : 0;
-        // Todo: This is causing double audio pushes. We should fix this eventually.
         selectionModel()->setCurrentIndex(m_d->model->index(row, selectedColumn), QItemSelectionModel::ClearAndSelect);
     }
 }
@@ -816,7 +798,6 @@ void KisAnimTimelineFramesView::slotRealignScrollBars() {
 
     QSize desiredScrollArea = QSize(width() - verticalHeader()->width(), height() - horizontalHeader()->height());
 
-    // Compensate for corner gap...
     if (hBar->isVisible() && vBar->isVisible()) {
         desiredScrollArea -= QSize(vBar->width(), hBar->height());
     }
@@ -837,10 +818,6 @@ void KisAnimTimelineFramesView::slotEnsureRowVisible(int row)
 
     index = m_d->model->index(row, index.column());
 
-    // WORKAROUND BUG:437029
-    // Delay's UI scrolling by 1/60 of a second to compensate for
-    // inconsistent dummy indexing caused by a brief period where
-    // two unpinned dummies exist on the timeline simultaneously.
     QTimer::singleShot(16, Qt::PreciseTimer, this, [this, index](){
         scrollTo(index);
     });
@@ -851,10 +828,9 @@ void KisAnimTimelineFramesView::slotFitViewToFrameRange(int start, int end)
     QModelIndex startIndex = currentIndex().siblingAtColumn(start);
     if (!startIndex.isValid() || start < 0) return;
 
-    KIS_ASSERT(start == 0); //TODO: forcing start to 0 for now, next let's scroll bar to also fit starting value correctly.
+    KIS_ASSERT(start == 0);
 
     m_d->horizontalRuler->zoomToFitFrameRange(start, end);
-    //scrollTo(startIndex, ScrollHint::PositionAtBottom);
 }
 
 void KisAnimTimelineFramesView::calculateActiveLayerSelectedTimes(const QModelIndexList &selection)
@@ -871,28 +847,6 @@ void KisAnimTimelineFramesView::calculateActiveLayerSelectedTimes(const QModelIn
 
 bool KisAnimTimelineFramesView::viewportEvent(QEvent *event)
 {
-    // Seems to have been copied over from KisResourceItemListView.
-    // These tooltips currently give bogus info (empty thumbnail and resource location), so removed for now.
-    // TODO: Implement meaningful tooltips if there's demand, probably including frame thumbnails.
-
-    /*
-    if (event->type() == QEvent::ToolTip && model()) {
-        QHelpEvent *he = static_cast<QHelpEvent *>(event);
-        QModelIndex index = model()->buddy(indexAt(he->pos()));
-        if (index.isValid()) {
-#if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
-        QStyleOptionViewItem option = viewOptions();
-#else
-        QStyleOptionViewItem option;
-        initViewItemOption(&option);
-#endif
-            option.rect = visualRect(index);
-            // The offset of the headers is needed to get the correct position inside the view.
-            m_d->tip.showTip(this, he->pos() + QPoint(verticalHeader()->width(), horizontalHeader()->height()), option, index);
-            return true;
-        }
-    }
-    */
 
     return QTableView::viewportEvent(event);
 }
@@ -903,10 +857,6 @@ void KisAnimTimelineFramesView::mousePressEvent(QMouseEvent *event)
 
     if (m_d->modifiersCatcher->modifierPressed("pan-zoom")) {
         if (event->button() == Qt::RightButton) {
-            // TODO: try calculate index under mouse cursor even when
-            //       it is outside any visible row
-            //            qreal staticPoint = index.isValid() ? index.column() : currentIndex().column();
-            //            m_d->zoomDragButton->beginZoom(event->pos(), staticPoint);
         } else if (event->button() == Qt::LeftButton) {
             m_d->initialDragPanPos = event->pos();
             m_d->initialDragPanValue =
@@ -972,7 +922,6 @@ void KisAnimTimelineFramesView::mousePressEvent(QMouseEvent *event)
                     if (firstKeyframe) {
                         labelIndex = colorLabel.toInt();
                     } else if (labelIndex != colorLabel.toInt()) {
-                        // Mixed colors in selection
                         labelIndex = -1;
                     }
 
@@ -983,7 +932,7 @@ void KisAnimTimelineFramesView::mousePressEvent(QMouseEvent *event)
                     && hasKeyframes
                     && containsClones
                     && labelIndex == -1) {
-                    break; // Break out early if we find all of the above.
+                    break;
                 }
             }
 
@@ -1000,7 +949,7 @@ void KisAnimTimelineFramesView::mousePressEvent(QMouseEvent *event)
             menu.addAction(m_d->multiframeColorSelectorAction);
             menu.exec(event->globalPos());
         }
-        
+
     } else if (event->button() == Qt::MiddleButton) {
         QModelIndex index = model()->buddy(indexAt(event->pos()));
         if (index.isValid()) {
@@ -1011,11 +960,10 @@ void KisAnimTimelineFramesView::mousePressEvent(QMouseEvent *event)
             initViewItemOption(&option);
 #endif
             option.rect = visualRect(index);
-            // The offset of the headers is needed to get the correct position inside the view.
             m_d->tip.showTip(this, event->pos() + QPoint(verticalHeader()->width(), horizontalHeader()->height()), option, index);
         }
         event->accept();
-        
+
     } else {
         if (index.isValid()) {
             m_d->model->setLastClickedIndex(index);
@@ -1032,7 +980,7 @@ void KisAnimTimelineFramesView::mousePressEvent(QMouseEvent *event)
 
 void KisAnimTimelineFramesView::mouseDoubleClickEvent(QMouseEvent *event) {
     QPersistentModelIndex index = indexAt(event->pos());
-    
+
     if (index.isValid()) {
         if (event->modifiers() & Qt::AltModifier) {
             selectRow(index.row());
@@ -1040,13 +988,12 @@ void KisAnimTimelineFramesView::mouseDoubleClickEvent(QMouseEvent *event) {
             selectColumn(index.column());
         }
     }
-    
+
     QAbstractItemView::mouseDoubleClickEvent(event);
 }
 
 void KisAnimTimelineFramesView::mouseMoveEvent(QMouseEvent *e)
 {
-    // Custom keyframe dragging distance based on zoom level.
     if (state() == DraggingState &&
         (horizontalHeader()->defaultSectionSize() / 2) < QApplication::startDragDistance() ) {
 
@@ -1060,7 +1007,6 @@ void KisAnimTimelineFramesView::mouseMoveEvent(QMouseEvent *e)
 
     if (m_d->modifiersCatcher->modifierPressed("pan-zoom")) {
         if (e->buttons() & Qt::RightButton) {
-            // m_d->zoomDragButton->continueZoom(e->pos());
         } else if (e->buttons() & Qt::LeftButton) {
 
             QPoint diff = e->pos() - m_d->initialDragPanPos;
@@ -1089,7 +1035,6 @@ void KisAnimTimelineFramesView::mouseMoveEvent(QMouseEvent *e)
             initViewItemOption(&option);
 #endif
             option.rect = visualRect(index);
-            // The offset of the headers is needed to get the correct position inside the view.
             m_d->tip.showTip(this, e->pos() + QPoint(verticalHeader()->width(), horizontalHeader()->height()), option, index);
         }
 
@@ -1160,46 +1105,13 @@ void KisAnimTimelineFramesView::startDrag(Qt::DropActions supportedActions)
             }
         }
     } else {
-        /**
-         * Workaround for Qt5's bug: if we start a dragging action right during
-         * Shift-selection, Qt will get crazy. We cannot workaround it easily,
-         * because we would need to fork mouseMoveEvent() for that (where the
-         * decision about drag state is done). So we just abort dragging in that
-         * case.
-         *
-         * BUG:373067
-         */
         if (m_d->lastPressedModifier & Qt::ShiftModifier) {
             return;
         }
 
-        /**
-         * Workaround for Qt5's bugs:
-         *
-         * 1) Qt doesn't treat selection the selection on D&D
-         *    correctly, so we save it in advance and restore
-         *    afterwards.
-         *
-         * 2) There is a private variable in QAbstractItemView:
-         *    QAbstractItemView::Private::currentSelectionStartIndex.
-         *    It is initialized *only* when the setCurrentIndex() is called
-         *    explicitly on the view object, not on the selection model.
-         *    Therefore we should explicitly call setCurrentIndex() after
-         *    D&D, even if it already has *correct* value!
-         *
-         * 2) We should also call selectionModel()->select()
-         *    explicitly.  There are two reasons for it: 1) Qt doesn't
-         *    maintain selection over D&D; 2) when reselecting single
-         *    element after D&D, Qt goes crazy, because it tries to
-         *    read *global* keyboard modifiers. Therefore if we are
-         *    dragging with Shift or Ctrl pressed it'll get crazy. So
-         *    just reset it explicitly.
-         */
-
         QModelIndexList selectionBefore = selectionModel()->selectedIndexes();
         QModelIndex currentBefore = selectionModel()->currentIndex();
 
-        // initialize a global status variable
         m_d->dragWasSuccessful = false;
         QAbstractItemView::startDrag(supportedActions);
 
@@ -1241,9 +1153,6 @@ void KisAnimTimelineFramesView::dragMoveEvent(QDragMoveEvent *event)
 
     QAbstractItemView::dragMoveEvent(event);
 
-    // Let's check for moving within a selection --
-    // We want to override the built in qt behavior that
-    // denies drag events when dragging within a selection...
     if (!event->isAccepted() && selectionModel()->isSelected(indexAt(event->pos()))) {
         event->setAccepted(true);
     }
@@ -1280,7 +1189,6 @@ void KisAnimTimelineFramesView::dropEvent(QDropEvent *event)
 
     QAbstractItemView::dropEvent(event);
 
-    // Override drop event to accept drops within selected range.0
     QModelIndex index = indexAt(event->pos());
     if (!event->isAccepted() &&  selectionModel()->isSelected(index)) {
         event->setAccepted(true);
@@ -1302,7 +1210,7 @@ void KisAnimTimelineFramesView::wheelEvent(QWheelEvent *e)
 
     if (mouseOverLayerPanel) {
         QTableView::wheelEvent(e);
-    } else { // Mouse is over frames table view...
+    } else {
         QModelIndex index = currentIndex();
         int column= -1;
 
@@ -1346,17 +1254,6 @@ void KisAnimTimelineFramesView::currentChanged(const QModelIndex &current, const
 QItemSelectionModel::SelectionFlags KisAnimTimelineFramesView::selectionCommand(const QModelIndex &index,
                                                                          const QEvent *event) const
 {
-    // WARNING: Copy-pasted from KisNodeView! Please keep in sync!
-
-    /**
-     * Qt has a bug: when we Ctrl+click on an item, the item's
-     * selections gets toggled on mouse *press*, whereas usually it is
-     * done on mouse *release*.  Therefore the user cannot do a
-     * Ctrl+D&D with the default configuration. This code fixes the
-     * problem by manually returning QItemSelectionModel::NoUpdate
-     * flag when the user clicks on an item and returning
-     * QItemSelectionModel::Toggle on release.
-     */
 
     if (event &&
             (event->type() == QEvent::MouseButtonPress ||
@@ -1368,7 +1265,6 @@ QItemSelectionModel::SelectionFlags KisAnimTimelineFramesView::selectionCommand(
         if (mevent->button() == Qt::RightButton &&
                 selectionModel()->selectedIndexes().contains(index)) {
 
-            // Allow calling context menu for multiple layers
             return QItemSelectionModel::NoUpdate;
         }
 
@@ -1448,7 +1344,7 @@ void KisAnimTimelineFramesView::insertKeyframes(int count, int timing, TimelineD
     calculateSelectionMetrics(minColumn, maxColumn, rows, entireColumn);
     if (minColumn > maxColumn) return;
 
-    if (count <= 0) { //Negative count? Use number of selected frames.
+    if (count <= 0) {
         count = qMax(1, maxColumn - minColumn + 1);
     }
 
@@ -1483,7 +1379,6 @@ void KisAnimTimelineFramesView::insertOrRemoveHoldFrames(int count, bool entireC
 {
     QModelIndexList indexes;
 
-    // Populate indices..
     if (!entireColumn) {
         Q_FOREACH (const QModelIndex &index, selectionModel()->selectedIndexes()) {
             if (m_d->model->data(index, KisAnimTimelineFramesModel::FrameEditableRole).toBool()) {
@@ -1500,16 +1395,12 @@ void KisAnimTimelineFramesView::insertOrRemoveHoldFrames(int count, bool entireC
             }
         }
     }
-    
+
     if (!indexes.isEmpty()) {
         m_d->model->insertHoldFrames(indexes, count);
 
-        // Fan selection based on insertion or deletion.
-        // This should allow better UI/UX for insertion of keyframes or hold frames.
         fanSelectedFrames(indexes, count);
 
-        // bulk adding frames can add too many
-        // trim timeline to clean up extra frames that might have been added
         slotUpdateInfiniteFramesCount();
     }
 }
@@ -1619,7 +1510,6 @@ void KisAnimTimelineFramesView::createFrameEditingMenuActions(QMenu *menu, bool 
 {
     slotUpdateFrameActions();
 
-    // calculate if selection range is set. This will determine if the update playback range is available
     QSet<int> rows;
     int minColumn = 0;
     int maxColumn = 0;
@@ -1652,7 +1542,7 @@ void KisAnimTimelineFramesView::createFrameEditingMenuActions(QMenu *menu, bool 
 
     menu->addSeparator();
 
-    {   //Frames submenu.
+    {
         QMenu *frames = menu->addMenu(i18nc("@item:inmenu", "Keyframes"));
         KisActionManager::safePopulateMenu(frames, "insert_keyframe_left", m_d->actionMan);
         KisActionManager::safePopulateMenu(frames, "insert_keyframe_right", m_d->actionMan);
@@ -1660,7 +1550,7 @@ void KisAnimTimelineFramesView::createFrameEditingMenuActions(QMenu *menu, bool 
         KisActionManager::safePopulateMenu(frames, "insert_multiple_keyframes", m_d->actionMan);
     }
 
-    {   //Holds submenu.
+    {
         QMenu *hold = menu->addMenu(i18nc("@item:inmenu", "Hold Frames"));
         KisActionManager::safePopulateMenu(hold, "insert_hold_frame", m_d->actionMan);
         KisActionManager::safePopulateMenu(hold, "remove_hold_frame", m_d->actionMan);
@@ -1741,7 +1631,6 @@ QPixmap KisAnimTimelineFramesView::Private::renderToPixmap(const QModelIndexList
     for (int j = 0; j < paintPairs.count(); ++j) {
         option.rect = paintPairs.at(j).first.translated(-r->topLeft());
         const QModelIndex &current = paintPairs.at(j).second;
-        //adjustViewOptionsForIndex(&option, current);
 
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
         q->itemDelegate(current)->paint(&painter, option, current);

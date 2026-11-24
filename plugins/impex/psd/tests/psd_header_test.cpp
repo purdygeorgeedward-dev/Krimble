@@ -71,7 +71,5 @@ void PSDHeaderTest::testRoundTripping()
     QVERIFY(header.colormode == header2.colormode);
 }
 
-
-
 SIMPLE_TEST_MAIN(PSDHeaderTest)
 

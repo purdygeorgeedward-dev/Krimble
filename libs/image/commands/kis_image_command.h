@@ -17,29 +17,15 @@
 #include "kis_types.h"
 #include "kis_paint_device.h"
 
-
-/// the base command for commands altering a KisImage
 class KRITAIMAGE_EXPORT KisImageCommand : public KUndo2Command
 {
 
 public:
-    /**
-     * Constructor
-     * @param name The name that will be shown in the ui
-     * @param image The image the command will be working on.
-     * @param parent The parent command.
-     */
     KisImageCommand(const KUndo2MagicString& name, KisImageWSP image, KUndo2Command *parent = 0);
     ~KisImageCommand() override;
 
 public:
 
-    /**
-     * Used for performing the smallest update
-     * after a node has been removed from stack.
-     * First tries to setDirty() node's siblings.
-     * If it doesn't help, performs full refresh.
-     */
     class UpdateTarget
     {
     public:
@@ -57,4 +43,4 @@ protected:
     KisImageWSP m_image;
 };
 
-#endif // KIS_IMAGE_COMMAND_H_
+#endif

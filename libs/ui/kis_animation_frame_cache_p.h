@@ -23,4 +23,4 @@ struct KRITAUI_EXPORT FramesGluerBase
     virtual void forgetFrame(int start) = 0;
 };
 
-#endif // KIS_ANIMATION_FRAME_CACHE_P_H
+#endif

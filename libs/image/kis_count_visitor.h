@@ -24,13 +24,6 @@
 #include "kis_selection_mask.h"
 #include "lazybrush/kis_colorize_mask.h"
 #include "generator/kis_generator_layer.h"
-/**
- * The count visitor traverses the node stack for nodes that conform
- * to certain properties. You can set the types of nodes to count and
- * add a list of properties to check. The children of nodes that are
- * not counted will be checked and counted if they conform to the
- * requirements.
- */
 class KRITAIMAGE_EXPORT KisCountVisitor : public KisNodeVisitor
 {
 public:
@@ -59,21 +52,17 @@ public:
         return check(layer);
     }
 
-
     bool visit(KisAdjustmentLayer *layer) override {
         return check(layer);
     }
-
 
     bool visit(KisExternalLayer *layer) override {
         return check(layer);
     }
 
-
     bool visit(KisCloneLayer *layer) override {
         return check(layer);
     }
-
 
     bool visit(KisFilterMask *mask) override {
         return check(mask);
@@ -86,7 +75,6 @@ public:
     bool visit(KisTransparencyMask *mask) override {
         return check(mask);
     }
-
 
     bool visit(KisGeneratorLayer * layer) override {
         return check(layer);

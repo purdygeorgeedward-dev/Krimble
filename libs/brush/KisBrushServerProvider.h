@@ -6,15 +6,11 @@
 #ifndef KIS_BRUSH_SERVER_PROVIDER_H
 #define KIS_BRUSH_SERVER_PROVIDER_H
 
-
 #include <KoResourceServer.h>
 
 #include "kritabrush_export.h"
 #include "kis_brush.h"
 
-/**
- *
- */
 class BRUSH_EXPORT KisBrushServerProvider : public QObject
 {
 

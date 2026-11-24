@@ -31,7 +31,7 @@ struct WheelPreferencesPopupUI;
 class ArtisticColorSelectorDock: public QDockWidget, public KisMainwindowObserver
 {
     Q_OBJECT
-    
+
 public:
     ArtisticColorSelectorDock();
     ~ArtisticColorSelectorDock() override;
@@ -69,5 +69,4 @@ private:
     QPixmap m_infinityPixmap;
 };
 
-
-#endif // H_ARTISTIC_COLOR_SELECTOR_DOCK_H
+#endif

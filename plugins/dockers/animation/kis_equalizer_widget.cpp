@@ -31,7 +31,7 @@ struct KisEqualizerWidget::Private
     QMap<int, KisEqualizerColumn*> columns;
     int maxDistance;
     KisSignalCompressor updateCompressor;
-    QMenu *contextMenu; 
+    QMenu *contextMenu;
 };
 
 KisEqualizerWidget::KisEqualizerWidget(int maxDistance, QWidget *parent)
@@ -138,7 +138,7 @@ void KisEqualizerWidget::contextMenuEvent(QContextMenuEvent *event)
 {
         KIS_ASSERT_RECOVER_RETURN(event);
 
-        if (!m_d->contextMenu) { // Lazy create and populate context menu.
+        if (!m_d->contextMenu) {
             m_d->contextMenu = new QMenu(this);
 
             QAction *actReset = m_d->contextMenu->addAction(i18nc("Reset to default", "Reset"));

@@ -20,4 +20,4 @@ public Q_SLOTS:
 
 };
 
-#endif // KIS_CMB_CONTOUR_H
+#endif

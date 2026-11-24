@@ -14,7 +14,6 @@ class KisDocument;
 class KisNameServer;
 class KisShapeController;
 
-
 class NodeViewTest : public QObject, public TestUtil::EmptyNodesTest
 {
     Q_OBJECT
@@ -31,4 +30,4 @@ private:
     KisShapeController *m_shapeController;
 };
 
-#endif /* __KIS_NODE_VIEW_TEST_H */
+#endif

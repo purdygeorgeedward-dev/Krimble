@@ -15,7 +15,6 @@
 #include "KisRunnableStrokeJobUtils.h"
 #include "KisRunnableStrokeJobsInterface.h"
 
-
 KisHoldUIUpdatesCommand::KisHoldUIUpdatesCommand(KisUpdatesFacade *updatesFacade, State state)
     : KisCommandUtils::FlipFlopCommand(state),
       m_updatesFacade(updatesFacade),

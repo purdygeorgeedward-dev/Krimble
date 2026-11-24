@@ -1,4 +1,4 @@
-/*  
+/*
     SPDX-FileCopyrightText: 2004 Ariya Hidayat <ariya@kde.org>
     SPDX-FileCopyrightText: 2006 Peter Simonsson <peter.simonsson@gmail.com>
     SPDX-FileCopyrightText: 2006-2007 C. Boemann <cbo@boemann.dk>
@@ -26,16 +26,8 @@ public:
     void setZoomInputFlat(bool flat);
 
 Q_SIGNALS:
-   /**
-    * Signal sliderValueChanged is triggered when the user moves the slider
-    * @param value value of the slider
-    */
     void sliderValueChanged(int value);
 
-   /**
-    * Signal zoomLevelChanged is triggered when the user changes the KoZoomInput combobox widget
-    * @param level value of the slider
-    */
     void zoomLevelChanged(const QString& level);
     void zoomLevelChangedIndex(int index);
 
@@ -54,4 +46,4 @@ private:
     QScopedPointer<Private> const d;
 };
 
-#endif // KOZOOMWIDGET_H
+#endif

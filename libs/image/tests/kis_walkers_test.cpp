@@ -27,12 +27,9 @@
 #include "kis_transparency_mask.h"
 #include <testimage.h>
 
-//#define DEBUG_VISITORS
-
 QString nodeTypeString(KisMergeWalker::NodePosition position);
 QString nodeTypePostfix(KisMergeWalker::NodePosition position);
 
-/************** Test Implementation Of A Walker *********************/
 class KisTestWalker : public KisMergeWalker
 {
 public:
@@ -92,8 +89,6 @@ protected:
 protected:
     QStringList m_order;
 };
-
-/************** Debug And Verify Code *******************************/
 
 struct UpdateTestJob {
     QString updateAreaName;
@@ -218,22 +213,6 @@ void KisWalkersTest::verifyResult(KisBaseRectsWalker &walker, QStringList refere
     QCOMPARE(walker.needRectVaries(), needRectVaries);
 }
 
-
-/************** Actual Testing **************************************/
-
-    /*
-      +----------+
-      |root      |
-      | layer 5  |
-      | group    |
-      |  paint 4 |
-      |  paint 3 |
-      |  adj     |
-      |  paint 2 |
-      | paint 1  |
-      +----------+
-     */
-
 void KisWalkersTest::testUsualVisiting()
 {
     const KoColorSpace * colorSpace = KoColorSpaceRegistry::instance()->rgb8();
@@ -247,7 +226,6 @@ void KisWalkersTest::testUsualVisiting()
 
     KisLayerSP groupLayer = new KisGroupLayer(image, "group", OPACITY_OPAQUE_U8);
     KisLayerSP adjustmentLayer = new KisAdjustmentLayer(image, "adj", 0, 0);
-
 
     image->addNode(paintLayer1, image->rootLayer());
     image->addNode(groupLayer, image->rootLayer());
@@ -293,20 +271,6 @@ void KisWalkersTest::testUsualVisiting()
     }
 }
 
-    /*
-      +----------+
-      |root      |
-      | layer 5  |
-      | group    |
-      |  mask  1 |
-      |  paint 4 |
-      |  paint 3 |
-      |  adj     |
-      |  paint 2 |
-      | paint 1  |
-      +----------+
-     */
-
 void KisWalkersTest::testVisitingWithTopmostMask()
 {
     const KoColorSpace * colorSpace = KoColorSpaceRegistry::instance()->rgb8();
@@ -320,7 +284,6 @@ void KisWalkersTest::testVisitingWithTopmostMask()
 
     KisLayerSP groupLayer = new KisGroupLayer(image, "group", OPACITY_OPAQUE_U8);
     KisLayerSP adjustmentLayer = new KisAdjustmentLayer(image, "adj", 0, 0);
-
 
     KisFilterMaskSP filterMask1 = new KisFilterMask(image, "mask1");
     filterMask1->initSelection(groupLayer);
@@ -338,12 +301,7 @@ void KisWalkersTest::testVisitingWithTopmostMask()
     image->addNode(paintLayer3, groupLayer);
     image->addNode(paintLayer4, groupLayer);
 
-    // nasty mask!
     image->addNode(filterMask1, groupLayer);
-
-    /**
-     * The results must be the same as for testUsualVisiting
-     */
 
     KisTestWalker walker;
 
@@ -379,20 +337,6 @@ void KisWalkersTest::testVisitingWithTopmostMask()
         QVERIFY(walker.popResult() == orderList);
     }
 }
-
-    /*
-      +----------+
-      |root      |
-      | layer 5  |
-      | cplx  2  |
-      | group    |
-      |  paint 4 |
-      |  paint 3 |
-      |  cplx  1 |
-      |  paint 2 |
-      | paint 1  |
-      +----------+
-     */
 
 void KisWalkersTest::testMergeVisiting()
 {
@@ -420,7 +364,6 @@ void KisWalkersTest::testMergeVisiting()
     image->addNode(paintLayer4, groupLayer);
 
     QRect testRect(10,10,10,10);
-    // Empty rect to show we don't need any cropping
     QRect cropRect;
 
     KisMergeWalker walker(cropRect);
@@ -458,9 +401,6 @@ void KisWalkersTest::testMergeVisiting()
     }
 
     {
-        /**
-         * Test cropping
-         */
         QString order("root,paint5,cplx2,group,paint1,"
                       "paint4,paint3,cplx1,paint2");
         QStringList orderList = order.split(',');
@@ -474,9 +414,6 @@ void KisWalkersTest::testMergeVisiting()
     }
 
     {
-        /**
-         * Test uncropped values
-         */
         QString order("root,paint5,cplx2,group,paint1,"
                       "paint4,paint3,cplx1,paint2");
         QStringList orderList = order.split(',');
@@ -496,21 +433,10 @@ void KisWalkersTest::testMergeVisiting()
 
 #include "kis_psd_layer_style.h"
 
-/*
-  +----------+
-  |root      |
-  | group ls |
-  |  paint 3 |
-  |  paint 2 |
-  | paint 1  |
-  +----------+
- */
-
 void KisWalkersTest::testComplexGroupVisiting()
 {
     const KoColorSpace * colorSpace = KoColorSpaceRegistry::instance()->rgb8();
     KisImageSP image = new KisImage(0, 512, 512, colorSpace, "walker test");
-
 
     KisPSDLayerStyleSP style(new KisPSDLayerStyle());
 
@@ -541,7 +467,6 @@ void KisWalkersTest::testComplexGroupVisiting()
     groupLayer->setLayerStyle(style);
 
     QRect testRect(10,10,10,10);
-    // Empty rect to show we don't need any cropping
     QRect cropRect;
 
     KisMergeWalker walker(cropRect);
@@ -557,22 +482,6 @@ void KisWalkersTest::testComplexGroupVisiting()
         verifyResult(walker, orderList, accessRect, true, true);
     }
 }
-
-
-    /*
-      +------------+
-      |root        |
-      | layer 5    |
-      | cplx  2    |
-      | group      |
-      |  paint 4   |
-      |  cplxacc 1 |
-      |  paint 3   |
-      |  cplx  1   |
-      |  paint 2   |
-      | paint 1    |
-      +------------+
-     */
 
 void KisWalkersTest::testComplexAccessVisiting()
 {
@@ -602,7 +511,6 @@ void KisWalkersTest::testComplexAccessVisiting()
     image->addNode(paintLayer4, groupLayer);
 
     QRect testRect(10,10,10,10);
-    // Empty rect to show we don't need any cropping
     QRect cropRect;
 
     KisMergeWalker walker(cropRect);
@@ -619,7 +527,6 @@ void KisWalkersTest::testComplexAccessVisiting()
     }
 }
 
-
 void KisWalkersTest::checkNotification(const KisMergeWalker::CloneNotification &notification,
                                        const QString &name,
                                        const QRect &rect)
@@ -627,20 +534,6 @@ void KisWalkersTest::checkNotification(const KisMergeWalker::CloneNotification &
     QCOMPARE(notification.m_layer->name(), name);
     QCOMPARE(notification.m_dirtyRect, rect);
 }
-
-/*
-  +--------------+
-  |root          |
-  | paint 3 <--+ |
-  | cplx  2    | |
-  | group <--+ | |
-  |  cplx  1 | | |
-  |  paint 2 | | |
-  | clone 2 -+ | |
-  | clone 1 ---+ |
-  | paint 1      |
-  +--------------+
- */
 
 void KisWalkersTest::testCloneNotificationsVisiting()
 {
@@ -688,20 +581,6 @@ void KisWalkersTest::testCloneNotificationsVisiting()
         checkNotification(vector[0], "group", QRect(7,7,16,16));
     }
 }
-
-/*
-  +--------------+
-  |root          |
-  | paint 3 <--+ |
-  | cplx  2    | |
-  | group <--+ | |
-  |  cplx  1 | | |
-  |  paint 2 | | |
-  | clone 2 -+ | |
-  | clone 1 ---+ |
-  | paint 1      |
-  +--------------+
- */
 
 void KisWalkersTest::testCloneSourceVisiting_data()
 {
@@ -769,28 +648,12 @@ void KisWalkersTest::testCloneSourceVisiting()
     }
 }
 
-
 class TestingRefreshSubtreeWalker : public KisRefreshSubtreeWalker
 {
 public:
     TestingRefreshSubtreeWalker(QRect cropRect) : KisRefreshSubtreeWalker(cropRect) {}
     UpdateType type() const override { return FULL_REFRESH; }
 };
-
-
-    /*
-      +----------+
-      |root      |
-      | layer 5  |
-      | cplx  2  |
-      | group    |
-      |  paint 4 |
-      |  paint 3 |
-      |  cplx  1 |
-      |  paint 2 |
-      | paint 1  |
-      +----------+
-     */
 
 void KisWalkersTest::testRefreshSubtreeVisiting()
 {
@@ -818,7 +681,6 @@ void KisWalkersTest::testRefreshSubtreeVisiting()
     image->addNode(paintLayer4, groupLayer);
 
     QRect testRect(10,10,10,10);
-    // Empty rect to show we don't need any cropping
     QRect cropRect;
 
     TestingRefreshSubtreeWalker walker(cropRect);
@@ -834,20 +696,6 @@ void KisWalkersTest::testRefreshSubtreeVisiting()
         verifyResult(walker, orderList, accessRect, false, true);
     }
 }
-
-    /*
-      +----------+
-      |root      |
-      | layer 5  |
-      | cplx  2  |
-      | group    |
-      |  paint 4 |
-      |  paint 3 |
-      |  cplx  1 |
-      |  paint 2 |
-      | paint 1  |
-      +----------+
-     */
 
 void KisWalkersTest::testFullRefreshVisiting()
 {
@@ -875,7 +723,6 @@ void KisWalkersTest::testFullRefreshVisiting()
     image->addNode(paintLayer4, groupLayer);
 
     QRect testRect(10,10,10,10);
-    // Empty rect to show we don't need any cropping
     QRect cropRect;
 
     KisFullRefreshWalker walker(cropRect);
@@ -891,19 +738,6 @@ void KisWalkersTest::testFullRefreshVisiting()
         verifyResult(walker, orderList, accessRect, true, true);
     }
 }
-
-    /*
-      +----------+
-      |root      |
-      | layer 5  |
-      | cache1   |
-      | group    |
-      |  paint 4 |
-      |  paint 3 |
-      |  paint 2 |
-      | paint 1  |
-      +----------+
-     */
 
 void KisWalkersTest::testCachedVisiting()
 {
@@ -929,7 +763,6 @@ void KisWalkersTest::testCachedVisiting()
     image->addNode(paintLayer4, groupLayer);
 
     QRect testRect(10,10,10,10);
-    // Empty rect to show we don't need any cropping
     QRect cropRect;
 
     KisMergeWalker walker(cropRect);
@@ -956,17 +789,6 @@ void KisWalkersTest::testCachedVisiting()
     }
 
 }
-
-    /*
-      +----------+
-      |root      |
-      | paint 2  |
-      | paint 1  |
-      |  fmask2  |
-      |  tmask   |
-      |  fmask1  |
-      +----------+
-     */
 
 void KisWalkersTest::testMasksVisiting()
 {
@@ -1004,7 +826,6 @@ void KisWalkersTest::testMasksVisiting()
     image->addNode(filterMask2, paintLayer1);
 
     QRect testRect(5,5,30,30);
-    // Empty rect to show we don't need any cropping
     QRect cropRect;
 
     KisMergeWalker walker(cropRect);
@@ -1029,17 +850,6 @@ void KisWalkersTest::testMasksVisiting()
         QCOMPARE(twalker.popResult(), orderList);
     }
 }
-
-    /*
-      +----------+
-      |root      |
-      | paint 2  |
-      | paint 1  |
-      |  fmask2  |
-      |  tmask   |
-      |  fmask1  |
-      +----------+
-     */
 
 void KisWalkersTest::testMasksVisitingNoFilthy()
 {
@@ -1077,7 +887,6 @@ void KisWalkersTest::testMasksVisitingNoFilthy()
     image->addNode(filterMask2, paintLayer1);
 
     QRect testRect(5,5,30,30);
-    // Empty rect to show we don't need any cropping
     QRect cropRect;
 
     {
@@ -1104,17 +913,6 @@ void KisWalkersTest::testMasksVisitingNoFilthy()
         verifyResult(walker, orderList, accessRect, false, false);
     }
 }
-
-    /*
-      +----------+
-      |root      |
-      | paint 2  |
-      | paint 1  |
-      |  fmask2  |
-      |  tmask   |
-      |  fmask1  |
-      +----------+
-     */
 
 void KisWalkersTest::testMasksOverlapping()
 {
@@ -1153,7 +951,6 @@ void KisWalkersTest::testMasksOverlapping()
     image->addNode(transparencyMask, paintLayer1);
     image->addNode(filterMask2, paintLayer1);
 
-    // Empty rect to show we don't need any cropping
     QRect cropRect;
 
     QRect IMRect(10,10,50,50);
@@ -1163,7 +960,6 @@ void KisWalkersTest::testMasksOverlapping()
     QList<UpdateTestJob> updateList;
 
     {
-        // FIXME: now we do not crop change rect if COMPOSITE_OVER is used!
 
         UpdateTestJob job = {"IM", paintLayer1, IMRect,
                                "",
@@ -1192,8 +988,6 @@ void KisWalkersTest::testMasksOverlapping()
         updateList.append(job);
     }
 
-    /******* Dirty rect: transparency mask *********/
-
     {
         UpdateTestJob job = {"TM", paintLayer1, TMRect,
                              "root,paint2,paint1",
@@ -1221,8 +1015,6 @@ void KisWalkersTest::testMasksOverlapping()
                              TMRect, false, false};
         updateList.append(job);
     }
-
-    /******* Dirty rect: invert + transparency mask *********/
 
     {
         UpdateTestJob job = {"IMTM", paintLayer1, IMTMRect,
@@ -1260,14 +1052,6 @@ void KisWalkersTest::testMasksOverlapping()
         verifyResult(walker, job);
     }
 }
-
-    /*
-      +----------+
-      |root      |
-      | adj      |
-      | paint 1  |
-      +----------+
-     */
 
 void KisWalkersTest::testRectsChecksum()
 {
@@ -1380,9 +1164,6 @@ void KisWalkersTest::testCroppedEmptyWalkers_data()
     QTest::addRow("merge_empty") << "merge" << QRect(-100, -100, 10, 10) << cropRect << noClone <<true;
     QTest::addRow("merge_nonempty") << "merge" << QRect(10, 10, 10, 10) << cropRect << noClone << false;
 
-    /// the presence of any clone makes the walker non-empty;
-    /// theoretically, we could also check if the clones
-    /// are cropped or not, but that is not implemented
     QTest::addRow("merge_empty_clone") << "merge" << QRect(-100, -100, 10, 10) << cropRect << cloneNullOffset << false;
     QTest::addRow("merge_empty_clone_reveal") << "merge" << QRect(-100, -100, 10, 10) << cropRect << cloneRevealingOffset << false;
 

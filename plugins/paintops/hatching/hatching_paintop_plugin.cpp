@@ -5,7 +5,6 @@
  */
 #include "hatching_paintop_plugin.h"
 
-
 #include <klocalizedstring.h>
 
 #include <kis_debug.h>
@@ -13,14 +12,12 @@
 
 #include <brushengine/kis_paintop_registry.h>
 
-
 #include "kis_hatching_paintop.h"
 #include "kis_simple_paintop_factory.h"
 
 #include "kis_global.h"
 
 K_PLUGIN_FACTORY_WITH_JSON(HatchingPaintOpPluginFactory, "kritahatchingpaintop.json", registerPlugin<HatchingPaintOpPlugin>();)
-
 
 HatchingPaintOpPlugin::HatchingPaintOpPlugin(QObject *parent, const QVariantList &)
     : QObject(parent)

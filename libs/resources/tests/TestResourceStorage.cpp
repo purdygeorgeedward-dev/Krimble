@@ -29,7 +29,6 @@
 #error "FILES_DATA_DIR not set. A directory with the data used for testing installing resources"
 #endif
 
-
 void TestResourceStorage::initTestCase()
 {
     m_dstLocation = ResourceTestHelper::filesDestDir();
@@ -163,7 +162,6 @@ void TestResourceStorage::testAddResource()
 
 void TestResourceStorage::testStorageVersioningHelperCounting()
 {
-    // create the resource
     QDir().mkpath(m_dstLocation + "/" + ResourceType::Patterns);
 
     QImage img(256, 256, QImage::Format_ARGB32);
@@ -172,20 +170,16 @@ void TestResourceStorage::testStorageVersioningHelperCounting()
     KoResourceSP res(new KoPattern(img, "testpattern", "testpattern.png"));
     Q_ASSERT(res->resourceType().first == ResourceType::Patterns);
 
-    // function that returns false for everything
     auto noResourcesExisting = [] (QString a) {Q_UNUSED(a); return false;};
     QString resNewFilename = KisStorageVersioningHelper::chooseUniqueName(res, 0, noResourcesExisting);
-    //QCOMPARE(resNewFilename, "testpattern.png");
     QCOMPARE(resNewFilename, "testpattern.0000.png");
 
-    // function that returns true for the same resource but false for everything else
     auto onlyFirstVersionExists = [] (QString a) {
         return a == "testpattern.png" || a == "testpattern.0000.png";
     };
     resNewFilename = KisStorageVersioningHelper::chooseUniqueName(res, 0, onlyFirstVersionExists);
     QCOMPARE(resNewFilename, "testpattern.0001.png");
 
-    // function that returns true for first 10 versions of the resource but false for everything else
     auto firstTenVersionExists = [] (QString a) {
         if (a == "testpattern.png") return true;
         if (a == "testpattern.0000.png") return true;

@@ -11,20 +11,11 @@
 #include <kis_algebra_2d.h>
 using namespace KisAlgebra2D;
 
-
-/**
- * Implementation of the Green Coordinates transformation method
- * by Yaron Lipman, David Levin, Daniel Cohen-Or
- *
- * http://www.math.tau.ac.il/~lipmanya/GC/gc.htm
- */
-
 struct PrecalculatedCoords
 {
-    QVector<qreal> psi; // for each edge
-    QVector<qreal> phi; // for each vertex
+    QVector<qreal> psi;
+    QVector<qreal> phi;
 };
-
 
 struct Q_DECL_HIDDEN KisGreenCoordinatesMath::Private
 {
@@ -74,11 +65,6 @@ Private::precalculateOneEdge(const QPointF &pt,
     qreal A10 = A1 - A0;
     qreal L10 = L1 - L0;
 
-    /**
-     * The normals in the official paper are calculated somehow
-     * differently so we must flip the sign of the \psi
-     * variable. Don't ask me why... (DK)
-     */
     static const qreal magicMultiplier = -1.0;
 
     *edge_psi = -magicMultiplier * norm(a) / (4 * M_PI) *
@@ -94,9 +80,6 @@ void KisGreenCoordinatesMath::Private::precalculateOnePoint(const QVector<QPoint
                                                             int polygonDirection)
 {
     const int numCagePoints = originalCage.size();
-
-    // edge index is defined by the index of the start point
-    // that is: v0-v1 -> e0, v1-v2 -> e1.
 
     for (int i = 1; i <= numCagePoints; i++) {
         int endIndex = i != numCagePoints ? i : 0;
@@ -177,7 +160,6 @@ QPointF KisGreenCoordinatesMath::transformedPoint(int pointIndex, const QVector<
     QPointF result;
 
     const int numCagePoints = transformedCage.size();
-
 
     PrecalculatedCoords *coords = &m_d->precalculatedCoords[pointIndex];
 

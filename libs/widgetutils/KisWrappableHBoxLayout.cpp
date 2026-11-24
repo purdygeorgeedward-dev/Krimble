@@ -8,11 +8,9 @@
 #include <QtWidgets>
 #include <KisWrappableHBoxLayout.h>
 
-
 KisWrappableHBoxLayout::KisWrappableHBoxLayout(QWidget *parent)
     : QLayout(parent)
 {
-    // Remove extra floating space.
     setContentsMargins(0, 0, 0, 0);
 }
 
@@ -50,14 +48,13 @@ QSize KisWrappableHBoxLayout::minimumSize() const
 
     if (!geometry().isEmpty()) {
         QSize optimal = QSize(geometry().width(), heightForWidth(geometry().width()));
-        int minimumWidth = size.width(); // cannot be smaller than the biggest item
+        int minimumWidth = size.width();
         int minimumHeight = qMax(size.height(), optimal.height());
         QSize minimum = QSize(minimumWidth, minimumHeight);
         return minimum;
     }
 
     size += marginsSize;
-    //size = QSize(size.width(), size.height()*5);
     return size;
 }
 
@@ -65,8 +62,6 @@ int KisWrappableHBoxLayout::count() const
 {
     return m_items.size();
 }
-
-
 
 QLayoutItem *KisWrappableHBoxLayout::itemAt(int idx) const
 {

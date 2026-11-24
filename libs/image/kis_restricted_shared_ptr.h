@@ -10,12 +10,6 @@
 #include "kis_shared_ptr.h"
 #include "kis_pinned_shared_ptr.h"
 
-/**
- * A special type of KisSharedPtr that forbids creation of a shared
- * pointer from raw pointer. This is needed to avoid cases when we
- * pass 'this' into a shared pointer and end up in potentially
- * dangerous state. See KisUniformPaintOpProperty for an example.
- */
 template <typename T>
 class KisRestrictedSharedPtr : public KisSharedPtr<T>
 {
@@ -30,7 +24,6 @@ public:
         : BaseClass(other)
     {
     }
-
 
     template <typename X>
     inline KisRestrictedSharedPtr(const KisSharedPtr<X> &other)
@@ -50,11 +43,10 @@ public:
     {
     }
 
-
 private:
     template <typename X>
     KisRestrictedSharedPtr(X other);
 };
 
-#endif // KIS_RESTRICTED_SHARED_PTR
+#endif
 

@@ -16,4 +16,4 @@ private Q_SLOTS:
     void testSimpleTransform();
 };
 
-#endif /* __KIS_PERSPECTIVE_TRANSFORM_WORKER_TEST_H */
+#endif

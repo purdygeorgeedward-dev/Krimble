@@ -11,11 +11,6 @@
 
 class StoryboardCommentModel;
 
-/**
- * @class CommentDelegate
- * @brief Paints the comment menu of the storyboard docker
- * and creates widgets for editing data in @c CommentModel.
- */
 class CommentDelegate : public QStyledItemDelegate
 {
 public:
