@@ -162,3 +162,4 @@ Files named YYYY-MM-DD_HHMM_<id>.jpg, by the time each was sent (MST).
 | 2026-11-23_1928_build78-menu-bottoms-3.jpg | Nov 23, 2026 19:28 MST | George, build 78: "And again ALL MENU BOTTOMS ARE STILL SHORT." (menu 3 of 5: File, Edit, Select, Image, Layer) |
 | 2026-11-23_1928_build78-menu-bottoms-4.jpg | Nov 23, 2026 19:28 MST | George, build 78: "And again ALL MENU BOTTOMS ARE STILL SHORT." (menu 4 of 5: File, Edit, Select, Image, Layer) |
 | 2026-11-23_1928_build78-menu-bottoms-5.jpg | Nov 23, 2026 19:28 MST | George, build 78: "And again ALL MENU BOTTOMS ARE STILL SHORT." (menu 5 of 5: File, Edit, Select, Image, Layer) |
+| 2026-11-23_2120_light-eyedropper-see.jpg | Nov 23, 2026 21:20 MST | George, build 78, Krimble Light: "SEE?" with arrows: the toolbox eyedropper drawn light gray while the other tools are black |
