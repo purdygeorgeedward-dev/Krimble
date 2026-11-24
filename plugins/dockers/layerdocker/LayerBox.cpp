@@ -10,6 +10,7 @@
  *  SPDX-License-Identifier: GPL-2.0-or-later
  */
 
+#include <QLabel>
 #include <QHBoxLayout>
 #include <QEvent>
 #include <QGridLayout>
@@ -364,6 +365,18 @@ LayerBox::LayerBox()
             topRow->addStretch(1);
             blend->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
             blend->setFixedWidth(110);
+            // Krimble 2026-11-23: a bold "Type:" label left of the blend drop-down, about 15% bigger than its text
+            // (George: "Please put the word "Type:" next to the layer type selector", "too small and should be bold", "Better. Push it.")
+            {
+                QLabel *krimbleTypeLabel = new QLabel(i18n("Type:"));
+                QFont krimbleTypeFont = blend->font();
+                krimbleTypeFont.setBold(true);
+                if (krimbleTypeFont.pointSizeF() > 0) krimbleTypeFont.setPointSizeF(krimbleTypeFont.pointSizeF() * 1.15);
+                else if (krimbleTypeFont.pixelSize() > 0) krimbleTypeFont.setPixelSize(qRound(krimbleTypeFont.pixelSize() * 1.15));
+                krimbleTypeLabel->setFont(krimbleTypeFont);
+                krimbleTypeLabel->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+                topRow->addWidget(krimbleTypeLabel);
+            }
             topRow->addWidget(blend);
             topRow->addWidget(m_wdgLayerBox->bnLayerFilters);
             header->addLayout(topRow, 0, 0, 1, 2);
