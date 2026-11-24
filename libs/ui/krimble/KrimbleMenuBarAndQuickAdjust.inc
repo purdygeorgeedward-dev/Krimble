@@ -429,12 +429,13 @@ protected:
             across.setColorAt(0.5, QColor("#394585"));
             across.setColorAt(1.0, QColor("#1c2346"));
             painter.fillRect(r, across);
-            painter.setPen(QColor(150, 165, 225, 120));
-            painter.drawLine(0, 0, bar->width(), 0);
-            painter.setPen(QColor(62, 74, 128, 200));
-            painter.drawLine(0, bar->height() - 2, bar->width(), bar->height() - 2);
-            painter.setPen(QColor(8, 11, 28, 255));
-            painter.drawLine(0, bar->height() - 1, bar->width(), bar->height() - 1);
+            // Krimble 2026-11-23: no edge lines on the menu bar (George: "The menu bar doesn't need edges."):
+            // painter.setPen(QColor(150, 165, 225, 120));
+            // painter.drawLine(0, 0, bar->width(), 0);
+            // painter.setPen(QColor(62, 74, 128, 200));
+            // painter.drawLine(0, bar->height() - 2, bar->width(), bar->height() - 2);
+            // painter.setPen(QColor(8, 11, 28, 255));
+            // painter.drawLine(0, bar->height() - 1, bar->width(), bar->height() - 1);
             painter.end();
             drawK();
             return false;   // the bar then draws its menu names on top as usual

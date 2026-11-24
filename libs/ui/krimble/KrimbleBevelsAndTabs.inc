@@ -96,6 +96,14 @@ protected:
 #endif
         const bool krimbleMenuBar = qobject_cast<QMenuBar*>(m_target.data()) != nullptr;
         Q_UNUSED(krimbleMenuBar);
+        // Krimble 2026-11-23: the menu bar has no bevel edges, in every theme; only its K is drawn (George: "The menu bar doesn't need edges.")
+        if (QMenuBar *kBar = qobject_cast<QMenuBar*>(m_target.data())) {
+            const QFontMetrics kMetrics(kBar->font());
+            const int kSize = qMin(kBar->height() - 4, qMax(14, kMetrics.height()));
+            p.setRenderHint(QPainter::SmoothPixmapTransform, true);
+            qApp->windowIcon().paint(&p, QRect(2, (kBar->height() - kBar->property("krimbleBarExtra").toInt() - kSize) / 2, kSize, kSize));
+            return;
+        }
         const QColor krimbleBase = m_target ? m_target->palette().color(QPalette::Window) : palette().color(QPalette::Window);
         QColor topTone    = krimbleBase.lighter(recessed ? 30 : 170);
         if (!qobject_cast<QMenuBar*>(m_target.data()) && !recessed && m_target) {
