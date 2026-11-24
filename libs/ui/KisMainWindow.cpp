@@ -265,6 +265,8 @@
 #include <KoGroupButton.h>
 #include <QStyleOptionToolButton>
 #include <QStyleOptionButton>
+#include <QStyleOptionSlider>
+#include <QScrollBar>
 #include <QToolButton>
 #include "KrimbleAquaPaint.h"
 #include "krimble/KrimbleMenuBarAndQuickAdjust.inc"
