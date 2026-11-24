@@ -32,7 +32,16 @@ static void krimblePaintAquaButton(QAbstractButton *button)
 {
     QPainter p(button);
     const QRectF r = QRectF(button->rect()).adjusted(1, 1, -1, -1);
-    krimblePaintAqua(p, r, qMin(r.width(), r.height()) * 0.22, button->isDown() ? QColor(11, 135, 221).darker(135) : QColor(11, 135, 221));
+    const qreal radius = qMin(r.width(), r.height()) * 0.22;
+    krimblePaintAqua(p, r, radius, button->isDown() ? QColor(0x00, 0x57, 0xe0) : QColor(11, 135, 221));
+    if (button->isDown()) {
+        p.save();
+        p.setRenderHint(QPainter::Antialiasing, true);
+        p.setPen(QPen(QColor(0x9b, 0xe8, 0xff), 3));
+        p.setBrush(Qt::NoBrush);
+        p.drawRoundedRect(r.adjusted(1.5, 1.5, -1.5, -1.5), radius - 1.5, radius - 1.5);
+        p.restore();
+    }
     if (QToolButton *tool = qobject_cast<QToolButton*>(button)) {
         QStyleOptionToolButton opt;
         opt.initFrom(tool);
