@@ -263,7 +263,9 @@ KoToolBoxDocker::KoToolBoxDocker(KoToolBox *toolBox)
         font.setPixelSize(qRound(font.pixelSize() * ratio));
     }
     int titleSize = QFontMetrics(font).height();
-    w->setMinimumSize(titleSize, titleSize + 12 + qCeil(18.0 / qMax<qreal>(1.0, qApp->devicePixelRatio())));
+    const int krimbleGripHeight = qCeil(80.0 / qMax<qreal>(1.0, qApp->devicePixelRatio()));
+    w->setMinimumSize(titleSize, krimbleGripHeight);
+    w->setMaximumHeight(krimbleGripHeight);
     setTitleBarWidget(w);
 
     KConfigGroup cfg =  KSharedConfig::openConfig()->group("KoToolBox");
